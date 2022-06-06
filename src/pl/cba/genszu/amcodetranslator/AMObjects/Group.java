@@ -1,13 +1,17 @@
 package pl.cba.genszu.amcodetranslator.AMObjects;
 
-import java.util.ArrayList;
-import java.util.List;
+import pl.cba.genszu.amcodetranslator.interpreter.*;
 
 public class Group {
-    List<String> nwm = new ArrayList<>();
-    /*TODO: check meaning*/
+    private InstructionsBlock ONINIT;
+	
+	public void setONINIT(InstructionsBlock ONINIT)
+	{
+		this.ONINIT = ONINIT;
+	}
 
-    public void ADD(String nazwa) {
-        nwm.add(nazwa);
-    }
+	public InstructionsBlock getONINIT()
+	{
+		return ONINIT;
+	}
 }

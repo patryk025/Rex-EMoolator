@@ -30,6 +30,7 @@ public class Stack {
         newSize = nearest2power(newSize);
         Token newStack[] = Arrays.copyOf(stack, newSize);
         size = newSize;
+        stack = newStack;
     }
 
     public void push(Token x) throws StackOverflowException {

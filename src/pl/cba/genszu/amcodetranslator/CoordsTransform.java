@@ -8,7 +8,7 @@ public class CoordsTransform {
     private int xDest = 1280;
     private int yDest = 720;
 
-    private float scaleRate = (float) yDest/yOriginal;
+    private float scaleRate = yDest/yOriginal;
 
     public int[] transformCoords(int x, int y) {
         return new int[]{(int) (x*scaleRate), (int) (y*scaleRate)};

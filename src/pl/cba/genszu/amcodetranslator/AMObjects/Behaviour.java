@@ -4,7 +4,18 @@ import pl.cba.genszu.amcodetranslator.interpreter.*;
 public class Behaviour {
 	private InstructionsBlock CODE;
 	private String CONDITION;
+	private String DESCRIPTION;
 
+	public void setDESCRIPTION(String DESCRIPTION)
+	{
+		this.DESCRIPTION = DESCRIPTION;
+	}
+
+	public String getDESCRIPTION()
+	{
+		return DESCRIPTION;
+	}
+	
     /*public void RUN() {
 
     }*/

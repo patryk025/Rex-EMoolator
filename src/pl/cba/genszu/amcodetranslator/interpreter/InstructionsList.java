@@ -10,8 +10,17 @@ public class InstructionsList
 		this.instr = new ArrayList<>();
 	}
 	
+	public InstructionsList(Node node) {
+		this.instr = new ArrayList<>();
+		addInstruction(node);
+	}
+	
 	public void addInstruction(BinaryTree tree) {
 		this.instr.add(tree);
+	}
+	
+	public void addInstruction(Node node) {
+		this.instr.add(new BinaryTree(node));
 	}
 	
 	/*public Node getRoot() {

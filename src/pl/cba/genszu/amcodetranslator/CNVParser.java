@@ -1,20 +1,13 @@
 package pl.cba.genszu.amcodetranslator;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-
 import java.io.*;
-import java.util.ArrayList;
-import java.util.List;
-import pl.cba.genszu.amcodetranslator.AMObjects.*;
-import pl.cba.genszu.amcodetranslator.lexer.Lexer;
+import java.util.*;
+import pl.cba.genszu.amcodetranslator.encoding.*;
 import pl.cba.genszu.amcodetranslator.interpreter.util.*;
+import pl.cba.genszu.amcodetranslator.interpreter.*;
 
-public class CNVParser {
-
-    /*List<String> variables = new ArrayList<>();
-    List<Object> variablesData = new ArrayList<>();
-    List<Object> variablesTypes = new ArrayList<>();*/
+public class CNVParser
+{
 	List<Variable> variables = new ArrayList<>();
 	int index = -1;
 
@@ -25,110 +18,174 @@ public class CNVParser {
         cap += typ.substring(1).toLowerCase();
         return cap;
     }
+	
+	private Variable getVariable(String name) throws InterpreterException {
+		for(Variable var : variables) {
+			if(var.getName().equals(name)) return var;
+		}
+		throw new InterpreterException("Variable "+name+" not found");
+	}
 
-    public void parseFile(File plik) throws Exception {
+    public void parseFile(File plik) throws Exception
+	{
         try
         {
             FileReader reader = new FileReader(plik);
             BufferedReader bufferedReader = new BufferedReader(reader);
 
             String line;
-            int lineNo = 0;
-            String tmp = "";
-            String typ = "";
-            String lastFun = null;
-            boolean genSwitch = false;
+			StringBuilder content = new StringBuilder();
+            boolean decypher = false;
+			int offset = 0;
 
             try
             {
                 while ((line = bufferedReader.readLine()) != null)
-                {
-                    lineNo++;
-                    //fun.put();
-                    if(!line.equals("") && !line.startsWith("#")) {
-                        //obsługa zmiennych z dolarami
-                        //line = line.replace("$1", "\""+plik.getAbsolutePath()+"\""); //prawdopodobnie
-                        line = line.replace("$COMMON", "/storage/sdcard0/ric/common"); //jeszcze
-                        line = line.replace("\\", "/"); //bardziej uniwersalne
-
-                        //zmiana kwadratowych nawiasów na okrągłe
-                        //line = line.replace("[", "(");
-                        //line = line.replace("]", ")");
-
-                        //jak się funkcja zmieni zamknij breaka i funkcje
-                        /*if(!line.startsWith(tmp+":"+lastFun) && genSwitch) {
-
-                        }*/
-
-                        if(line.startsWith("OBJECT=")) {
-                            tmp = line.split("OBJECT=")[1];
-                            //lista.add(new ParseObjectTmp(tmp));
-                            variables.add(new Variable(tmp));
-                            index++;
-                        }
-                        else {
-                            if(line.startsWith(tmp+":TYPE")) {
-                                typ = line.split(tmp+":TYPE=")[1];
-                                typ = capitalize(typ);
-								
-								variables.get(variables.size()-1).setType(typ);
-                            }
-                            else {
-                                try {
-                                    String method = (line.split(tmp+":")[1]).split("=")[0];
-                                    String methodParam = "";
-                                    if(method.contains("^")) {
-                                        methodParam = method.split("\\^")[1];
-                                        method = method.split("\\^")[0];
-                                    }
-                                    String[] splitTmp = (line.split(tmp+":")[1]).split("=");
-                                    String tmpVal = "\0";
-                                    if(splitTmp.length == 2) {
-                                        tmpVal = splitTmp[1];
-                                    }
-									
-									if(!methodParam.equals("")) {
-										//InstructionsBlock.addListenerParam
-										//if(!typ.equals("Animo"))
-										//System.out.println("Nie wiem co z tym: "+line);
-                                        //System.out.println(variables.get(variables.size()-1).getType()+"."+method);
-										variables.get(variables.size()-1).setProperty(method, methodParam+"$$"+tmpVal);
-									}
-									else {
-										variables.get(variables.size()-1).setProperty(method, tmpVal);
-									}
-                                }
-                                catch(ArrayIndexOutOfBoundsException e) {
-                                    e.printStackTrace();
-                                    System.out.println("Linia: "+line);
-                                }
-                            }
-                        }
-                    }
+				{
+                    if (line.startsWith("{<"))
+					{
+						String[] tmpParam = line.replace("{<", "").replace(">}", "").split(":");
+						offset = Integer.parseInt(tmpParam[1]);
+						if (tmpParam[0].toUpperCase().equals("D")) offset *= -1;
+						decypher = true;
+					}
+					else
+					{
+						content = content.append(line).append("\n");
+					}
                 }
-
-				//int tmpIndex = 0;
-                /*Gson gson = new GsonBuilder().setPrettyPrinting().create();
-                for(Object obj : variables) {
-					String json = gson.toJson(obj);
-					//System.out.println(variables.get(tmpIndex)+" ("+variablesTypes.get(tmpIndex++)+")");
-					System.out.println(json);
-					System.out.println();
-				}*/
-                /*Gson gson = new GsonBuilder().setPrettyPrinting().create();
-                String json = gson.toJson(variables);
-				
-				FileWriter fw = new FileWriter("D:\\Re-SP-master\\variableDebug.json");
-				fw.write(json);
-				fw.close();
-				System.out.println("Done");*/
+				if (decypher)
+				{
+					System.out.println("Decyphering " + plik.getName() + "...");
+					parseString(ScriptDecypher.decode(content.toString(), offset));
+				}
+				else
+					parseString(content.toString());
             }
-            catch(IOException e) {
+            catch (IOException e)
+			{
                 e.printStackTrace();
             }
         }
-        catch(FileNotFoundException e) {
+        catch (FileNotFoundException e)
+		{
             e.printStackTrace();
         }
     }
+
+	public void parseString(String string)
+	{
+		String[] lines = string.split("\n");
+
+		String tmp = "";
+		String typ = "";
+		
+		boolean recoveryMode = false;
+
+		for (String line : lines)
+		{
+			if(recoveryMode) line = line.replace("?", "_");
+			if (!line.equals("") && !line.startsWith("#"))
+			{
+				
+				if (line.startsWith("OBJECT="))
+				{
+					try
+					{
+						tmp = line.split("OBJECT=")[1];
+						if(tmp.contains("?") && !recoveryMode) {
+							System.out.println("WARNING: probable script errors, entering into recovery mode...");
+							tmp = tmp.replace("?", "_");
+							System.out.printf("Recovered variable name: %s\n", tmp);
+							recoveryMode = true;
+						}
+						variables.add(new Variable(tmp));
+						index++;
+					}
+					catch (ArrayIndexOutOfBoundsException e)
+					{
+						tmp = null;
+						System.out.println("WARNING: empty variable name, ignoring");
+					}
+				}
+				else if (tmp != null)
+				{
+					if (line.contains(":TYPE"))
+					{
+						String varName = line.split(":TYPE=")[0];
+						if(varName.contains("?") && !recoveryMode) {
+							System.out.println("WARNING: probable script errors, entering into recovery mode...");
+							recoveryMode = true;
+						}
+						if (!tmp.equals(varName))
+						{
+							System.out.println("WARNING: variable names doesn't match (" + tmp + " != " + varName + ")!");
+							if(recoveryMode) {
+								varName = varName.replace("?", "_");
+								System.out.printf("Recovered variable name: %s\n", varName);
+								if (!tmp.equals(varName))
+								{
+									System.out.println("WARNING: variable names still doesn't match (" + tmp + " != " + varName + ")!");
+								}
+							}
+						}
+						typ = line.split(":TYPE=")[1];
+						typ = capitalize(typ);
+
+						variables.get(variables.size() - 1).setType(typ);
+					}
+					else 
+					{
+						try
+						{
+							if (!line.endsWith(":="))
+							{
+								String method = (line.split(":")[1]).split("=")[0];
+								String methodParam = "";
+								if (method.contains("^"))
+								{
+									methodParam = method.split("\\^")[1];
+									method = method.split("\\^")[0];
+								}
+
+								String[] splitTmp = (line.split(tmp + ":")[1]).split("=");
+								String tmpVal = "";
+								if (splitTmp.length == 2)
+								{
+									tmpVal = splitTmp[1];
+									
+									if (!methodParam.equals(""))
+									{
+										//InstructionsBlock.addListenerParam
+										//if(!typ.equals("Animo"))
+										//System.out.println("Nie wiem co z tym: "+line);
+										//System.out.println(variables.get(variables.size()-1).getType()+"."+method);
+										variables.get(variables.size() - 1).setProperty(method, methodParam + "$$" + tmpVal);
+									}
+									else
+									{
+										variables.get(variables.size() - 1).setProperty(method, tmpVal);
+									}
+								}
+								else {
+									System.out.println("WARNING: no value after equal sign, ignoring...");
+									System.out.println("DEBUG: line => "+line);
+								}
+							}
+							else
+							{
+								System.out.println("WARNING: empty field/signal/method name");
+								System.out.println("DEBUG: line => "+line);
+							}
+						}
+						catch (ArrayIndexOutOfBoundsException e)
+						{
+							e.printStackTrace();
+							System.out.println("Linia: " + line);
+						}
+					}
+				}
+			}
+		}
+	}
 }

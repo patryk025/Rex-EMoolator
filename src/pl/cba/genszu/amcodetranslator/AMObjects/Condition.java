@@ -1,11 +1,46 @@
 package pl.cba.genszu.amcodetranslator.AMObjects;
 
+import pl.cba.genszu.amcodetranslator.interpreter.*;
+
 public class Condition
 {
 	private String OPERAND1;
 	private String OPERATOR;
 	private String OPERAND2;
+	private String DESCRIPTION;
+	private InstructionsBlock ONRUNTIMEFAILED;
+	private InstructionsBlock ONRUNTIMESUCCESS;
 
+	public void setDESCRIPTION(String DESCRIPTION)
+	{
+		this.DESCRIPTION = DESCRIPTION;
+	}
+
+	public String getDESCRIPTION()
+	{
+		return DESCRIPTION;
+	}
+
+	public void setONRUNTIMEFAILED(InstructionsBlock ONRUNTIMEFAILED)
+	{
+		this.ONRUNTIMEFAILED = ONRUNTIMEFAILED;
+	}
+
+	public InstructionsBlock getONRUNTIMEFAILED()
+	{
+		return ONRUNTIMEFAILED;
+	}
+
+	public void setONRUNTIMESUCCESS(InstructionsBlock ONRUNTIMESUCCESS)
+	{
+		this.ONRUNTIMESUCCESS = ONRUNTIMESUCCESS;
+	}
+
+	public InstructionsBlock getONRUNTIMESUCCESS()
+	{
+		return ONRUNTIMESUCCESS;
+	}
+	
 
 	public void setOPERAND1(String OPERAND1)
 	{
@@ -35,4 +70,5 @@ public class Condition
 	public String getOPERAND2()
 	{
 		return OPERAND2;
-	}}
+	}
+}

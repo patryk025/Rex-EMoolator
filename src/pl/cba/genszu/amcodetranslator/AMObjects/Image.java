@@ -1,7 +1,11 @@
 package pl.cba.genszu.amcodetranslator.AMObjects;
 
-public class Image {
+import pl.cba.genszu.amcodetranslator.interpreter.*;
+
+public class Image
+ {
     private String FILENAME;
+	private String DESCRIPTION;
     private boolean TOCANVAS;
     private boolean VISIBLE;
     private int PRIORITY;
@@ -9,24 +13,23 @@ public class Image {
     private boolean RELEASE;
     private boolean MONITORCOLLISION;
     private boolean MONITORCOLLISIONALPHA;
+	private InstructionsBlock ONCLICK;
+	private InstructionsBlock ONFOCUSON;
+	private InstructionsBlock ONFOCUSOFF;
+	private InstructionsBlock ONINIT;
 
-    /*methods of Image*/
     public void SHOW() {
         this.VISIBLE = true;
-        /*TODO: podłączenie do silnika*/
     }
 
     public void HIDE() {
         this.VISIBLE = false;
-        /*TODO: podłączenie do silnika*/
     }
 
     public void SETPRIORITY(int priority) {
         this.PRIORITY = priority;
-        /*TODO: podłączenie do silnika*/
     }
-
-    /*internal method*/
+	
     public String getFILENAME() {
         return FILENAME;
     }
@@ -86,4 +89,55 @@ public class Image {
     public int getPRIORITY() {
         return PRIORITY;
     }
+	
+	public void setDESCRIPTION(String DESCRIPTION)
+	{
+		this.DESCRIPTION = DESCRIPTION;
+	}
+
+	public String getDESCRIPTION()
+	{
+		return DESCRIPTION;
+	}
+	
+	public void setONCLICK(InstructionsBlock ONCLICK)
+	{
+		this.ONCLICK = ONCLICK;
+	}
+
+	public InstructionsBlock getONCLICK()
+	{
+		return ONCLICK;
+	}
+	
+	public void setONINIT(InstructionsBlock ONINIT)
+	{
+		this.ONINIT = ONINIT;
+	}
+
+	public InstructionsBlock getONINIT()
+	{
+		return ONINIT;
+	}
+	
+	public void setONFOCUSON(InstructionsBlock oNFOCUSON)
+	{
+		ONFOCUSON = oNFOCUSON;
+	}
+
+	public InstructionsBlock getONFOCUSON()
+	{
+		return ONFOCUSON;
+	}
+
+	public void setONFOCUSOFF(InstructionsBlock oNFOCUSOFF)
+	{
+		ONFOCUSOFF = oNFOCUSOFF;
+	}
+
+	public InstructionsBlock getONFOCUSOFF()
+	{
+		return ONFOCUSOFF;
+	}
+	
 }

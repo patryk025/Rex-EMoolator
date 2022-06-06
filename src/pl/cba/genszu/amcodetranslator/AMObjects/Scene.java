@@ -8,7 +8,9 @@ public class Scene {
     private String VERSION;
     private String PATH;
     private String BACKGROUND;
-
+	private String DLLS;
+	private String MUSIC;
+	
     public String getDESCRIPTION() {
         return DESCRIPTION;
     }
@@ -64,4 +66,24 @@ public class Scene {
     public void setBACKGROUND(String BACKGROUND) {
         this.BACKGROUND = BACKGROUND;
     }
+	
+	public void setDLLS(String DLLS)
+	{
+		this.DLLS = DLLS;
+	}
+
+	public String getDLLS()
+	{
+		return DLLS;
+	}
+
+	public void setMUSIC(String MUSIC)
+	{
+		this.MUSIC = MUSIC;
+	}
+
+	public String getMUSIC()
+	{
+		return MUSIC;
+	}
 }

@@ -1,0 +1,372 @@
+package pl.cba.genszu.amcodetranslator.interpreter;
+
+import pl.cba.genszu.amcodetranslator.AMObjects.*;
+
+import java.util.ArrayList;
+import java.util.List;
+
+public class ScriptInterpreter {
+    private List<Object[]> instructions;
+    private List<String> variables;
+    private List<Object> variablesData;
+    private List<Object> variablesTypes;
+
+    public ScriptInterpreter(List<Object[]> instructions, List<String> variables, List<Object> variablesData, List<Object> variablesTypes) {
+        this.instructions = instructions;
+        this.variables = variables;
+        this.variablesData = variablesData;
+        this.variablesTypes = variablesTypes;
+    }
+
+    public ScriptInterpreter() {
+        this.instructions = new ArrayList<>();
+        this.variables = new ArrayList<>();
+        this.variablesData = new ArrayList<>();
+        this.variablesTypes = new ArrayList<>();
+    }
+
+    public Object[] getVariable(String name) {
+        int index = 0;
+        for(String var : variables) {
+            if(var.equals(name)) {
+                return new Object[]{variablesTypes.get(index), variablesData.get(index)};
+            }
+            index++;
+        }
+        return null; //ewentualnie wyjątek
+    }
+
+    public void addVariable(String name, String typ, String val) {
+        variables.add(name);
+        variablesTypes.add(typ);
+        switch (typ) {
+            case "Bool":
+                Bool var1 = new Bool();
+                var1.SET(true); //TODO: do zmiany
+                variablesData.add(var1);
+                break;
+            case "Integer":
+                IntegerAM var2 = new IntegerAM();
+                var2.SET(Integer.parseInt(val));
+                variablesData.add(var2);
+                break;
+            case "String":
+                StringAM var3 = new StringAM();
+                var3.SET(val);
+                variablesData.add(var3);
+                break;
+        }
+    }
+
+    /*public void evaluateCode() throws InterpreterException {
+        evaluateCode(this.variables, this.instructions);
+    }
+
+    public void evaluateCode(CodeBuilder code) throws InterpreterException {
+        evaluateCode(code.getVariables(), code.getInstructions());
+    }*/
+
+    public void evaluateCode(List<Object[]> instrukcje) throws InterpreterException {
+        //System.out.println("Starting code...");
+        for(Object[] instr : instrukcje) {
+            switch((String) instr[0]) {
+                case "IF":
+                    //TODO: obsługa innych typów niż Integer
+                    //TODO: przeniesienie tego do klasy ConditionChecker
+                    Object[] var1;
+                    Object[] var2;
+                    if((var1 = getVariable((String) instr[1])) == null) {
+                        var1[0] = "Integer";
+                        IntegerAM var11 = new IntegerAM();
+                        var11.SET(Integer.parseInt((String) instr[1]));
+                        var1[1] = var11;
+                    }
+                    if((var2 = getVariable((String) instr[3])) == null) {
+                        var2[0] = "Integer";
+                        IntegerAM var22 = new IntegerAM();
+                        var22.SET(Integer.parseInt((String) instr[3]));
+                        var2[1] = var22;
+                    }
+
+                    //System.out.println("IF "+instr[1]+" "+instr[2]+" "+instr[3]);
+
+                    switch((String) instr[2]) {
+                        case "<":
+                            if(var1[0] == "Integer" && var2[0] == "Integer") {
+                                if(((IntegerAM) var1[1]).GET() < ((IntegerAM) var2[1]).GET()) evaluateCode((List<Object[]>) instr[4]);
+                                else evaluateCode((List<Object[]>) instr[5]);
+                            }
+                            else if(var1[0] != "Integer") {
+                                throw new InterpreterException("Interpreter (IF): Nieznany typ: "+var1[0]);
+                            }
+                            else {
+                                throw new InterpreterException("Interpreter (IF): Nieznany typ: "+var2[0]);
+                            }
+                            break;
+                        case "<=":
+                            if(var1[0] == "Integer" && var2[0] == "Integer") {
+                                if(((IntegerAM) var1[1]).GET() <= ((IntegerAM) var2[1]).GET()) evaluateCode((List<Object[]>) instr[4]);
+                                else evaluateCode((List<Object[]>) instr[5]);
+                            }
+                            else if(var1[0] != "Integer") {
+                                throw new InterpreterException("Interpreter (IF): Nieznany typ: "+var1[0]);
+                            }
+                            else {
+                                throw new InterpreterException("Interpreter (IF): Nieznany typ: "+var2[0]);
+                            }
+                            break;
+                        case "==":
+                            if(var1[0] == "Integer" && var2[0] == "Integer") {
+                                if(((IntegerAM) var1[1]).GET() == ((IntegerAM) var2[1]).GET()) evaluateCode((List<Object[]>) instr[4]);
+                                else evaluateCode((List<Object[]>) instr[5]);
+                            }
+                            else if(var1[0] != "Integer") {
+                                throw new InterpreterException("Interpreter (IF): Nieznany typ: "+var1[0]);
+                            }
+                            else {
+                                throw new InterpreterException("Interpreter (IF): Nieznany typ: "+var2[0]);
+                            }
+                            break;
+                        case ">=":
+                            if(var1[0] == "Integer" && var2[0] == "Integer") {
+                                if(((IntegerAM) var1[1]).GET() >= ((IntegerAM) var2[1]).GET()) evaluateCode((List<Object[]>) instr[4]);
+                                else evaluateCode((List<Object[]>) instr[5]);
+                            }
+                            else if(var1[0] != "Integer") {
+                                throw new InterpreterException("Interpreter (IF): Nieznany typ: "+var1[0]);
+                            }
+                            else {
+                                throw new InterpreterException("Interpreter (IF): Nieznany typ: "+var2[0]);
+                            }
+                            break;
+                        case ">":
+                            if(var1[0] == "Integer" && var2[0] == "Integer") {
+                                if(((IntegerAM) var1[1]).GET() > ((IntegerAM) var2[1]).GET()) evaluateCode((List<Object[]>) instr[4]);
+                                else evaluateCode((List<Object[]>) instr[5]);
+                            }
+                            else if(var1[0] != "Integer") {
+                                throw new InterpreterException("Interpreter (IF): Nieznany typ: "+var1[0]);
+                            }
+                            else {
+                                throw new InterpreterException("Interpreter (IF): Nieznany typ: "+var2[0]);
+                            }
+                            break;
+                        default:
+                            throw new InterpreterException("Nieznany operator w instrukcji IF: "+(String) instr[2]);
+                    }
+                    break;
+                case "WHILE":
+                    //Object[] var1;
+                    //Object[] var2;
+                    if((var1 = getVariable((String) instr[1])) == null) {
+						var1 = new Object[2];
+                        var1[0] = "Integer";
+                        IntegerAM var11 = new IntegerAM();
+                        var11.SET(Integer.parseInt((String) instr[1]));
+                        var1[1] = var11;
+                    }
+                    if((var2 = getVariable((String) instr[3])) == null) {
+						var2 = new Object[2];
+                        var2[0] = "Integer";
+                        IntegerAM var22 = new IntegerAM();
+                        var22.SET(Integer.parseInt((String) instr[3]));
+                        var2[1] = var22;
+                    }
+
+                    //System.out.println("WHILE "+instr[1]+" "+instr[2]+" "+instr[3]);
+
+                    switch((String) instr[2]) {
+                        case "<":
+                            if(var1[0] == "Integer" && var2[0] == "Integer") {
+                                while(((IntegerAM) var1[1]).GET() < ((IntegerAM) var2[1]).GET()) evaluateCode((List<Object[]>) instr[4]);
+                            }
+                            else if(var1[0] != "Integer") {
+                                throw new InterpreterException("Interpreter (WHILE): Nieznany typ: "+var1[0]);
+                            }
+                            else {
+                                throw new InterpreterException("Interpreter (WHILE): Nieznany typ: "+var2[0]);
+                            }
+                            break;
+                        case "<=":
+                            if(var1[0] == "Integer" && var2[0] == "Integer") {
+                                while(((IntegerAM) var1[1]).GET() <= ((IntegerAM) var2[1]).GET()) evaluateCode((List<Object[]>) instr[4]);
+                            }
+                            else if(var1[0] != "Integer") {
+                                throw new InterpreterException("Interpreter (WHILE): Nieznany typ: "+var1[0]);
+                            }
+                            else {
+                                throw new InterpreterException("Interpreter (WHILE): Nieznany typ: "+var2[0]);
+                            }
+                            break;
+                        case "==":
+                            if(var1[0] == "Integer" && var2[0] == "Integer") {
+                                while(((IntegerAM) var1[1]).GET() == ((IntegerAM) var2[1]).GET()) evaluateCode((List<Object[]>) instr[4]);
+                            }
+                            else if(var1[0] != "Integer") {
+                                throw new InterpreterException("Interpreter (WHILE): Nieznany typ: "+var1[0]);
+                            }
+                            else {
+                                throw new InterpreterException("Interpreter (WHILE): Nieznany typ: "+var2[0]);
+                            }
+                            break;
+                        case ">=":
+                            if(var1[0] == "Integer" && var2[0] == "Integer") {
+                                while(((IntegerAM) var1[1]).GET() >= ((IntegerAM) var2[1]).GET()) evaluateCode((List<Object[]>) instr[4]);
+                            }
+                            else if(var1[0] != "Integer") {
+                                throw new InterpreterException("Interpreter (WHILE): Nieznany typ: "+var1[0]);
+                            }
+                            else {
+                                throw new InterpreterException("Interpreter (WHILE): Nieznany typ: "+var2[0]);
+                            }
+                            break;
+                        case ">":
+                            if(var1[0] == "Integer" && var2[0] == "Integer") {
+                                while(((IntegerAM) var1[1]).GET() > ((IntegerAM) var2[1]).GET()) evaluateCode((List<Object[]>) instr[4]);
+                            }
+                            else if(var1[0] != "Integer") {
+                                throw new InterpreterException("Interpreter (WHILE): Nieznany typ: "+var1[0]);
+                            }
+                            else {
+                                throw new InterpreterException("Interpreter (WHILE): Nieznany typ: "+var2[0]);
+                            }
+                            break;
+                        default:
+                            throw new InterpreterException("Nieznany operator w instrukcji WHILE: "+(String) instr[2]);
+                    }
+                    break;
+                case "VAR":
+                    //pewnie nie będzie używane
+                    break;
+                case "METHOD":
+                    //to chyba będzie najdłuższa sekcja kodu
+                    //TODO: albo wywoływanie metod przez refleksje przez podanie stringa albo ręczne bindowanie
+
+                    /*ONLY ONE METHOD FOR TEST ISSUES*/
+                    //String varName, String functionName, String[] params
+                    Object[] zmienna = getVariable((String) instr[1]);
+                    Object[] parametr = null;
+                    Object[] zmiennaParametr = null;
+                    String zmiennaParametrMetoda = null;
+                    if(instr.length == 4) {
+                        if(((String[]) instr[3])[0].equals("METHOD")) {
+                            zmiennaParametr = getVariable(((String[]) instr[3])[1]);
+                            zmiennaParametrMetoda = ((String[]) instr[3])[2];
+                        }
+                    }
+
+                    ((IntegerAM) zmienna[1]).SET(((IntegerAM) zmienna[1]).GET()+1);
+					
+                    /*
+
+
+                    //Do celów testowych tylko Integer
+                    //TODO: do skrócenia
+                    Object[] wynik = null;
+                    if(zmiennaParametr != null) {
+
+
+                        switch ((String) zmiennaParametr[1]) {
+                            case "Animo":
+
+                                break;
+                            case "Application":
+
+                                break;
+                            case "Behaviour":
+
+                                break;
+                            case "Bool":
+
+                                break;
+                            case "Button":
+
+                                break;
+                            case "Database":
+
+                                break;
+                            case "Episode":
+
+                                break;
+                            case "Group":
+
+                                break;
+                            case "Image":
+
+                                break;
+                            case "Integer":
+
+                                break;
+                            case "Scene":
+
+                                break;
+                            case "Sound":
+
+                                break;
+                            case "String":
+
+                                break;
+                            case "Struct":
+
+                                break;
+                            case "Timer":
+
+                                break;
+                        }
+                    }
+
+                    switch ((String) zmienna[1]) {
+                        case "Animo":
+
+                            break;
+                        case "Application":
+
+                            break;
+                        case "Behaviour":
+
+                            break;
+                        case "Bool":
+
+                            break;
+                        case "Button":
+
+                            break;
+                        case "Database":
+
+                            break;
+                        case "Episode":
+
+                            break;
+                        case "Group":
+
+                            break;
+                        case "Image":
+
+                            break;
+                        case "Integer":
+
+                            break;
+                        case "Scene":
+
+                            break;
+                        case "Sound":
+
+                            break;
+                        case "String":
+
+                            break;
+                        case "Struct":
+
+                            break;
+                        case "Timer":
+
+                            break;
+                    }*/
+                    break;
+                default:
+                    System.out.println("Nieznana instrukcja: "+(String) instr[0]);
+                    break;
+            }
+        }
+    }
+}

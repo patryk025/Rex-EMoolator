@@ -1,6 +1,7 @@
 package pl.cba.genszu.amcodetranslator.AMObjects;
 
 public class Application {
+	private String BLOOMOO_VERSION;
     private String DESCRIPTION;
     private String CREATIONTIME;
     private String LASTMODIFYTIME;
@@ -9,6 +10,16 @@ public class Application {
     private String EPISODES;
     private String STARTWITH;
     private String PATH;
+
+	public void setBLOOMOO_VERSION(String BLOOMOO_VERSION)
+	{
+		this.BLOOMOO_VERSION = BLOOMOO_VERSION;
+	}
+
+	public String getBLOOMOO_VERSION()
+	{
+		return BLOOMOO_VERSION;
+	}
 
     public String getDESCRIPTION() {
         return DESCRIPTION;

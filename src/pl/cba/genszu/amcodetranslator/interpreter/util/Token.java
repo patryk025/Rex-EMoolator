@@ -34,8 +34,14 @@ public class Token
 		this.valueAsFunc = valueAsFunc;
 	}
 	
+	public Token(String type, Node node) {
+		this.type = type;
+		this.value = null;
+		this.valueAsFunc = new InstructionsList(node);
+	}
+	
 	@Override
 	public String toString() {
-		return "Token(" + type + ", " + (value!=null?value:(valueAsFunc!=null?"BinaryTree":null)) + ")";
+		return "Token(" + type + ", " + (value!=null?value:(valueAsFunc!=null?"InstructionsList":null)) + ")";
 	}
 }

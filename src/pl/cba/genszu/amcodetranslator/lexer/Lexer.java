@@ -1,123 +1,291 @@
 package pl.cba.genszu.amcodetranslator.lexer;
-import pl.cba.genszu.amcodetranslator.lexer.tree.BinaryTree;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-import pl.cba.genszu.amcodetranslator.interpreter.util.Token;
-import pl.cba.genszu.amcodetranslator.lexer.tree.Node;
-import pl.cba.genszu.amcodetranslator.lexer.tree.BSTPrinter;
+import java.util.*;
+import java.util.regex.*;
 import pl.cba.genszu.amcodetranslator.interpreter.*;
-
-/*TODO:
-	refaktoryzacja
-	sprawdzenie czy to wyrażenie czy instrukcje ([] czy {})
-	
-*/
+import pl.cba.genszu.amcodetranslator.interpreter.util.*;
+import pl.cba.genszu.amcodetranslator.lexer.tree.*;
+import pl.cba.genszu.amcodetranslator.lexer.tree.exception.*;
+import pl.cba.genszu.amcodetranslator.algebra.*;
+import pl.cba.genszu.amcodetranslator.lexer.fixer.*;
 
 public class Lexer
 {
 	/*public Lexer(String code) {
 		
 	}*/
+	
+	//private static String[] extractCondition(String 
+	
+	/*private static String[] parseConditional(String condition) {
+		List<String> parts = new ArrayList<>();
 
-	public static String[] selectiveSplit(String text, char splitChar) {
-		return selectiveSplit(text, splitChar, '(', ')');
-	}
+		condition = condition.replace("_I_", "~ITERATOR~");
+		
+		String[] letters = condition.split("");
 
-	public static String[] selectiveSplit(String text, char splitChar, char intendCharMarker, char intendCharMarker2) {
-		List<String> linesArr = new ArrayList<>();
-		linesArr.add("");
-		int stringNo = 0;
-		int intentNo = 0;
-		for(int i = 0; i < text.length(); i++) {
-			if(text.charAt(i) == intendCharMarker)
-				intentNo++;
-			if (text.charAt(i) == intendCharMarker2) {
-				intentNo--;
+		String buffer = "";
+
+		int counter = 0;
+		int len = letters.length;
+		
+		int intendLevel = 0;
+
+		for(String letter : letters) {
+			counter++;
+			
+			if(letter.equals("(")) intendLevel++;
+			if(letter.equals(")")) intendLevel--;
+			
+			if(letter.matches("[\\||&]")) {
+				if(!buffer.equals("")) {
+					if(!buffer.matches("[\\||&]")) {
+						parts.add(buffer);
+						buffer = letter;
+					}
+					else {
+						buffer += letter;
+					}
+				}
+				else {
+					System.out.println("WARNING: unexpected logic operator, no condition before");
+				}
 			}
-			if(text.charAt(i) == splitChar && intentNo == 0) {
-				stringNo++;
-				linesArr.add("");
+			else if(letter.matches("[<>!_']") && intendLevel == 0) {
+				if(!buffer.equals("")) {
+					if(!buffer.matches("[\\||&<>!_']")) {
+						parts.add(buffer);
+						buffer = letter;
+					}
+					else {
+						buffer += letter;
+					}
+				}
+				else {
+					System.out.println("WARNING: unexpected logic operator, no condition before");
+				}
 			}
 			else {
-				linesArr.set(stringNo, linesArr.get(stringNo)+text.charAt(i));
+				if(buffer.equals("||")) {
+					parts.add("OR");
+					buffer = "";
+				}
+				else if(buffer.equals("&&")) {
+					parts.add("AND");
+					buffer = "";
+				}
+				if(buffer.matches("[<>!_']{1,2}") && !letter.matches("[<>!_']")) {
+					parts.add(buffer);
+					buffer = "";
+				}
+				buffer += letter;
+				if(counter == len) {
+					parts.add(buffer);
+					buffer = letter;
+				}
 			}
 		}
-		return linesArr.toArray(new String[0]);
-	}
-	
-	public static String[] singleSplit(String text, String splitChar) {
-		String[] parts = new String[2];
-		for(int i = 0; i < text.length(); i++) {
-			if(text.charAt(i) == splitChar.charAt(0)) {
-				if(i != 0)
-					parts[0] = text.substring(0, i);
-					
-				parts[1] = text.substring(i+1);
-				return parts;
-			}
+		
+		for(int i = 0; i < parts.size(); i++) {
+			parts.set(i, parts.get(i).replace("~ITERATOR~", "_I_"));
+			
 		}
-		return null;
-	}
+
+		return parts.toArray(new String[0]);
+	}*/
 
 	private static String[] parseConditional(String condition) {
-		final String regex = "(.*?)([<>!_']{1,2})(.*)";
+		final String regex = "(.+?)([<>][']{0,1}|[!]{0,1}['])(.+)";
 
 		Pattern pattern = Pattern.compile(regex, Pattern.MULTILINE);
-		Matcher matcher = pattern.matcher(condition);
+		Matcher matcher;
 
-		if(matcher.find()) {
-			return new String[] {matcher.group(1), matcher.group(2), matcher.group(3)};
+		List<String> parts = new ArrayList<>();
+
+		//condition = condition.replace("_I_", "~ITERATOR~"); //no to _I_ psuje mi szyki no ale że tak jest potem w skryptach to szybka podmianka na chwilkę bo regex się sypie
+		
+		String[] letters = condition.split("");
+
+		String buffer = "";
+		
+		int counter = 0;
+		int len = letters.length;
+
+		for(String letter : letters) {
+			counter++;
+			if(letter.matches("[\\||&]")) {
+				if(!buffer.equals("")) {
+					if(!buffer.matches("[\\||&]")) {
+						matcher = pattern.matcher(buffer);
+						if(matcher.find()) {
+							parts.add(matcher.group(1));
+							parts.add(matcher.group(2));
+							parts.add(matcher.group(3));
+							buffer = letter;
+						}
+					}
+					else {
+						buffer += letter;
+					}
+				}
+				else {
+					System.out.println("WARNING: unexpected logic operator, no condition before");
+				}
+			}
+			else {
+				if(buffer.equals("||")) {
+					parts.add("OR");
+					buffer = "";
+				}
+				else if(buffer.equals("&&")) {
+					parts.add("AND");
+					buffer = "";
+				}
+				buffer += letter;
+				if(counter == len) {
+					matcher = pattern.matcher(buffer);
+					if(matcher.find()) {
+						parts.add(matcher.group(1));
+						parts.add(matcher.group(2));
+						parts.add(matcher.group(3));
+						buffer = letter;
+					}
+				}
+			}
+		}
+		
+		/*for(int i = 0; i < parts.size(); i++) {
+			parts.set(i, parts.get(i).replace("~ITERATOR~", "_I_"));
+		}*/
+
+		return parts.toArray(new String[0]);
+	}
+	
+	private static Node condArrayToTree(String[] cond) throws BinaryTreeInsertException, Exception {
+		if(cond.length == 3) { //warunek prosty
+			//Token obj = new Token(Constants.IF);
+			Token condition;
+			switch (cond[1]) {
+				case "<": condition = new Token(Constants.LSS); break;
+				case "<'":
+				case "<_": condition = new Token(Constants.LEQ); break;
+				case ">'":
+				case ">_": condition = new Token(Constants.GEQ); break;
+				case ">": condition = new Token(Constants.GTR); break;
+				case "'":
+				case "_": condition = new Token(Constants.EQU); break;
+				case "!'":
+				case "!_": condition = new Token(Constants.NEQ); break;
+				default: condition = new Token(Constants.DEBUG, cond[1]);
+			}
+
+			if(cond[2].startsWith("$")) {
+				System.out.println("WARNING: Dollar parameter reference detected. Stays untouched for now.");
+			}
+
+			Token var;
+			if(LexerUtils.isMethodCall(cond[0]) || LexerUtils.isArithmetic(cond[0]))
+				var = new Token(Constants.VARVALFUNC, Lexer.parseCode(cond[0]));
+			else
+				var = new Token(Constants.VARNAME, cond[0]);
+			//Token val = new Token(Constants.VARVAL, cond[2]);
+			Token val;
+			
+			//if(ExpressionParser.parseExpression(cond[2]).size() > 1)
+			if(LexerUtils.isMethodCall(cond[2]) || LexerUtils.isArithmetic(cond[2]))
+				val = new Token(Constants.VARVALFUNC, ExpressionParser.expressionToTree(cond[2]));
+			else
+				val = new Token(Constants.VARVAL, cond[2]);
+			
+			Node tmp = new Node(condition);
+			tmp.add(var);
+			tmp.add(val);
+			
+			return tmp;
 		}
 		else {
-			return null;
-		}
-	}
-	
-	private static boolean isMethodCall(String code) {
-		return code.contains("^");
-	}
-	
-	private static boolean isExpression(String code) {
-		return (code.startsWith("[") && code.endsWith("]"));
-	}
-	
-	private static boolean isCode(String code) {
-		return (code.startsWith("{") && code.endsWith("}"));
-	}
-	
-	private static String extractExpression(String code) {
-		if(isExpression(code) || isCode(code))
-			return cutHeadAndTail(code);
-		return code;
-	}
-	
-	private static boolean isArithmetic(String code) {
-		if(
-			code.contains("+") ||
-			code.contains("-") ||
-			code.contains("*") ||
-			(code.contains("@") && !code.startsWith("@")) ||
-			code.contains("%")
-		) return true;
-		else return false;
-	}
-	
-	private static boolean isVarDef(String code) {
-		return 
-			   code.startsWith("@BOOL") 
-			|| code.startsWith("@INT")
-			|| code.startsWith("@DOUBLE")
-			|| code.startsWith("@STRING");
-	}
+			//konwersja z postaci infixowej do postfixowej
+			HashMap<String, Integer> prec = new HashMap<>();
+			prec.put("AND", 3);
+			prec.put("OR", 2);
+			prec.put("(", 1);
+			Stack<String> operations = new Stack<>();
+			List<String> postfix = new ArrayList<>();
+			for(int i = 0; i< cond.length; i++) {
+				if (!(cond[i].equals("OR") || cond[i].equals("AND"))) {
+					postfix.add(cond[i]);
+					postfix.add(cond[i+1]);
+					postfix.add(cond[i+2]);
+					i+=2;
+				} else if (cond[i].equals("(")) {
+					operations.push(cond[i]);
+				} else if (cond[i].equals(")")) {
+					String tmpOp = operations.pop();
+					while (!tmpOp.equals('(')) {
+						postfix.add(tmpOp);
+						tmpOp = operations.pop();
+					}
+				} else {
+					try {
+						String tmpElem = operations.peek();
+						while (!operations.isEmpty() && (prec.get(tmpElem) >= prec.get(cond[i]))) {
+							postfix.add(operations.pop());
+							tmpElem = operations.peek();
+						}
+					}
+					catch(EmptyStackException e) {}
+					operations.push(cond[i]);
+				}
+			}
+			while (!operations.isEmpty()) {
+				postfix.add(operations.pop());
+			}
+			
+			//konwersja postaci postfixowej do drzewa binarnego
+			Stack<Node> operands = new Stack<>();
+			for(int i = 0; i < postfix.size(); i++) {
+				//if not operator
+				if (!(postfix.get(i).equals("OR") || postfix.get(i).equals("AND"))) {
+					operands.push(condArrayToTree(postfix.subList(i, i+3).toArray(new String[0])));
+					i += 2;
+				}
+				else {
+					Node tmp;
+					if(postfix.get(i).equals("OR")) {
+						tmp = new Node(new Token(Constants.OR));
+					}	
+					else if(postfix.get(i).equals("AND")) {
+						tmp = new Node(new Token(Constants.AND));
+					}
+					else {
+						tmp = new Node(new Token(Constants.DEBUG));
+					}
+					try
+					{
+						tmp.right = (LexerUtils.isMethodCall(operands.peek().value.value) ?parseCode(operands.pop().value.value).instr.get(0).root: operands.pop());
+						tmp.left = (LexerUtils.isMethodCall(operands.peek().value.value) ?parseCode(operands.pop().value.value).instr.get(0).root: operands.pop());
+						operands.push(tmp);
+					}
+					catch (Exception e)
+					{
+						//todo
+					}
+				}
+			}
+			
+			Node tree = null;
+			if(!operands.isEmpty())
+				tree = operands.pop();
 
-	private static String cutHeadAndTail(String string) {
-		return string.substring(1, string.length()-1);
+			//BSTPrinter.print(new BinaryTree(tree));
+			return tree;
+		}
+		
+		//return null;
 	}
+	
+	/*private String checkVariableType(String varname) {
+		
+	}*/
 	
 	public static InstructionsList parseCode(String code) throws Exception {
 		return parseCode(code, true);
@@ -125,71 +293,139 @@ public class Lexer
 
 	public static InstructionsList parseCode(String code, boolean mainRoutine) throws Exception {
 
-		code = extractExpression(code);
-		if(!isMethodCall(code) && !isArithmetic(code)) System.out.println("Prawdopodobnie nazwa Behaviour -> "+code);
+		code = LexerUtils.extractExpression(code);
+		//if(!isMethodCall(code) && !isArithmetic(code) && !code.startsWith("@")) System.out.println("Prawdopodobnie nazwa Behaviour -> "+code);
 		//code = code.substring(1, code.length()-1);
 		//System.out.println((mainRoutine?"INSTRUCTIONS: ":"SUBROUTINE: ")+code);
 		
-		BinaryTree tree = new BinaryTree();
+		BinaryTree tree = null;
 		InstructionsList instructionsList = new InstructionsList();
 		
 		//String[] instructions = code.split(";"); //debug
 
-		String[] instructions = selectiveSplit(code, ';');
+		String[] instructions = StringUtils.selectiveSplit(code, ';');
+		
+		CodePatches patcher = new CodePatches();
 		
 		for(String instr : instructions) {
+			tree = new BinaryTree();
 			//System.out.println(instr);
 			instr = instr.trim(); //remove spaces
 			if(!instr.equals("")) {
+				//first check if instr doesn't have fix
+				if(patcher.hasPatch(instr)) {
+					System.out.println("INFO: Found fix for " + instr);
+					instr = patcher.patch(instr);
+				}
+				
 				if (instr.startsWith("@IF")) {
 					//String[] parts = instr.substring(4, instr.length() - 1).split(",");
-					String[] parts = selectiveSplit(instr.substring(4, instr.length() - 1), ',');
+					String[] parts = StringUtils.selectiveSplit(instr.substring(4, instr.length() - 1), ',');
+					//System.out.println("DEBUG: "+instr);
+					
+					//System.out.println("DEBUG: " + parts[0]);
+					/*for(int i = 0; i < parts.length; i++) {
+						System.out.println(i + ". " + parts[i]);
+					}*/
 
-					String[] cond = parseConditional(cutHeadAndTail(parts[0]));
+					//transformacja 5-cioargumentowego ifa do trójargumentowego
+					//zmiana _ na ' (kłopoty z parsowaniem)
+					if(parts.length == 5) { //warunek prosty (zmienna, komparator, wartość, prawda, fałsz)
+						parts[0] = "\""+LexerUtils.extractExpression(parts[0])+LexerUtils.extractExpression(parts[1]).replace("_","'")+LexerUtils.extractExpression(parts[2])+"\"";
+						parts[1] = parts[3];
+						parts[2] = parts[4];
+						parts[3] = null;
+						parts[4] = null;
+					}
 
+					String[] cond = parseConditional(StringUtils.cutHeadAndTail(parts[0]));
+
+					/*System.out.println("cond:");
+					for(int i = 0; i < cond.length; i++) {
+						System.out.println(i + ". " + cond[i]);
+					}*/
+					
 					if (cond != null) {
-						Token obj = new Token(Constants.IF);
-						Token condition;
-						switch (cond[1]) {
-							case "<": condition = new Token(Constants.LSS); break;
-							case "<'":
-							case "<_": condition = new Token(Constants.LEQ); break;
-							case ">'":
-							case ">_": condition = new Token(Constants.GEQ); break;
-							case ">": condition = new Token(Constants.GTR); break;
-							case "'":
-							case "_": condition = new Token(Constants.EQU); break;
-							case "!'":
-							case "!_": condition = new Token(Constants.NEQ); break;
-							default: condition = new Token(Constants.DEBUG, cond[1]);
-						}
-
-						Token var = new Token(Constants.VARNAME, cond[0]);
-						Token val = new Token(Constants.VARVAL, cond[2]);
-
-						tree.root = new Node(obj);
-						Node tmp = tree.root.add(condition);
-						Node tmp2 = tmp.add(var); //dla true
-						tmp = tmp.add(val); //dla false
-
-						String ifTrue = cutHeadAndTail(parts[1]);
-						String ifFalse = cutHeadAndTail(parts[2]);
+						Token obj = new Token(Constants.BRANCH);
+						
+						Branch conditionTree = new Branch(obj);
+						conditionTree.addCondition(condArrayToTree(cond));
+						
+						
+						String ifTrue = StringUtils.cutHeadAndTail(parts[1]);
+						String ifFalse = StringUtils.cutHeadAndTail(parts[2]);
 
 						if (!ifTrue.equals("")) {
 							//if(ifTrue.startsWith("{")) ifTrue = cutHeadAndTail(ifTrue);
-							tmp2.add(parseCode(ifTrue, false));
+							conditionTree.left = new Node(Constants.IF);
+							conditionTree.left.add(parseCode(ifTrue, false).instr.get(0).root);
 						}
 						if (!ifFalse.equals("")) {
 							//if(ifFalse.startsWith("{")) ifFalse = cutHeadAndTail(ifFalse);
-							tmp.add(parseCode(ifFalse, false));
+							conditionTree.right = new Node(Constants.ELSE);
+							conditionTree.right.add(parseCode(ifFalse, false).instr.get(0).root);
 						}
+						
+						tree.root = conditionTree;
 
 						//BSTPrinter.print(tree);
 					} else {
 						System.out.println("Błąd parsowania. Linia: " + instr);
 					}
 				} 
-				else if(isVarDef(instr)) {
+				else if (instr.startsWith("@LOOP")) {
+					
+					/*
+					 @LOOP(treść, wartość_początkowa, różnica_początkowa_maksymalna, wartość_inkrementacji);														
+					 gdzie														
+					 treść może zawierać nazwę obiektu typu BEHAVIOUR, kod do wykonania lub być pusta							(?)						
+					 przy czym w kodzie można używać zadeklarowanego licznika pętli w postaci zmiennej _I_												
+					 wartość_początkowa określa początkową wartość licznika													
+					 różnica_początkowa_maksymalna określa różnicę między startową a końcową wartość licznika (końcowa wartość nie jest osiągana: oznacza wyjście z pętli)													
+					 wartość_inkrementacji określa wartość, o jaką licznik jest podnoszony za każdą iteracją													
+					 tak więc wszystko skończyło się dobrze wartość licznika pętli należy do przedziału prawostronnie otwartego <wartość_początkowa; wartość_początkowa+różnica_początkowa_maksymalna)														
+					*/
+					
+					//System.out.println("DEBUG: "+instr);
+					String[] parts = StringUtils.selectiveSplit(instr.substring(6, instr.length() - 1), ',');
+
+					//System.out.println("DEBUG: " + parts[0]);
+					/*for(int i = 0; i < parts.length; i++) {
+						System.out.println(i + ". " + parts[i]);
+					}*/
+					
+					InstructionsList loopCode = parseCode(parts[0]);
+					String startValue = parts[1];
+					String stopValue = (startValue.endsWith("]")?startValue.substring(0,startValue.length() - 1):startValue) + "+" + LexerUtils.extractExpression(parts[2]);
+					String incrStep = parts[3];
+					
+					if(startValue.equals("0")) stopValue = stopValue.replace("0+", ""); //zero plus coś nam tu nie potrzebne
+					
+					//System.out.println("_I_>'"+startValue+"&&_I_<"+stopValue);
+					String[] cond = parseConditional("_I_>'"+startValue+"&&_I_<"+stopValue);
+
+					//System.out.println(Arrays.toString(cond));
+					if (cond != null) {
+						Token obj = new Token(Constants.LOOP);
+
+						Branch conditionTree = new Branch(obj);
+						conditionTree.addCondition(condArrayToTree(cond));
+						
+						conditionTree.add(loopCode);
+						
+						Node counterChange = new Node(new Token(Constants.VARSET));
+						counterChange.add(new Token(Constants.VARNAME, "_I_"));
+						Node tmp = counterChange.add(new Token(Constants.VARVAL));
+						tmp.add(ExpressionParser.expressionToTree("_I_+"+incrStep));
+						
+						conditionTree.addIncrement(counterChange);
+						
+						//BSTPrinter.print(new BinaryTree(conditionTree));
+					} else {
+						System.out.println("Błąd parsowania. Linia: " + instr);
+					}
+				}
+				else if(LexerUtils.isVarDef(instr)) {
 					final String regex = "@(BOOL|INT|DOUBLE|STRING)\\(\"(.*)\",(.*)\\)";
 
 					final Pattern pattern = Pattern.compile(regex, Pattern.MULTILINE);
@@ -200,7 +436,7 @@ public class Lexer
 						Token type = new Token(Constants.VARTYPE, matcher.group(1));
 						Token name = new Token(Constants.VARNAME, matcher.group(2));
 						Token value;
-						if(isMethodCall(matcher.group(3))) {
+						if(LexerUtils.isMethodCall(matcher.group(3))) {
 							value = new Token(Constants.VARVALFUNC, parseCode(matcher.group(3)));
 							//System.out.println("VARVALFUNC");
 							//BSTPrinter.print(value.valueAsFunc);
@@ -232,33 +468,86 @@ public class Lexer
 						//BSTPrinter.print(tree);
 					}
 				}
-				else if(instr.startsWith("@")) {
-					System.out.println("WARNING: " + instr.split("\\(")[0] + " is not implemented yet!!!");
+				else if(instr.startsWith("@BREAK")) {
+					Token brk = new Token(Constants.BREAK);
+					
+					tree.root = new Node(brk);
+
+					//BSTPrinter.print(tree);
 				}
-				else if (isMethodCall(instr)) { //wywołania metod
-					String[] elems = selectiveSplit(instr, '^');
-					String objectName = elems[0].trim();
-					if(objectName.startsWith("*")) {
-						objectName = objectName.substring(1);
-						System.out.println("INFO: Pointer to variable holding object name detected. Not implemented yet. Omitting...");
+				else if(instr.startsWith("@")) {
+					System.out.println("WARNING: "+instr.split("\\(")[0]+" is not implemented yet!!!");
+				}
+				else if(LexerUtils.isPointerByString(instr)) {
+					//System.out.println("INFO: Pointer to variable holding object name detected.");
+					
+					final String regex = "\\*(\\[.*?\\]).*";
+
+					final Pattern pattern = Pattern.compile(regex, Pattern.MULTILINE);
+					final Matcher matcher = pattern.matcher(instr);
+
+					if (matcher.find()) {
+						Token finder = new Token(Constants.VARFIND);
+						Token name = new Token(Constants.VARNAME, parseCode(matcher.group(1)));
+						Node action;
+						
+						String placeholder = instr.substring(1).replace(matcher.group(1), "a");
+						
+						InstructionsList test = parseCode(placeholder);
+						
+						action = test.instr.get(0).root.left;
+						
+						tree.root = new Node(finder);
+						tree.root.add(name);
+						tree.root.add(action);
 					}
-					if(isExpression(objectName) && objectName.contains("$")) {
+				}
+				else if(LexerUtils.isArithmetic(instr)) {
+
+					String expr = LexerUtils.extractExpression(instr);
+					//List<String> parts = parseExpression(expr);
+
+					//System.out.println(parts.toString());
+
+					tree.root = ExpressionParser.expressionToTree(expr);
+				}
+				else if (LexerUtils.isMethodCall(instr)/* && !isArithmetic(instr)*/) { //wywołania metod
+					String[] elems = StringUtils.selectiveSplit(instr, '^');
+					String objectName = elems[0].trim();
+					boolean isStruct = false;
+					if(objectName.startsWith("*")) { //przekierowane wyżej
+						//objectName = objectName.substring(1);
+						//connect with prev else
+						//System.out.println("INFO: Pointer to variable holding object name detected. Not implemented yet. Omitting...");
+					}
+					if(LexerUtils.isExpression(objectName) && objectName.contains("$")) {
 						objectName = objectName.substring(1, objectName.length()-1);
-						System.out.println("WARNING: Dollar object reference detected. Stays untouched for now.");
+						System.out.println("WARNING: Dollar parameter reference detected. Stays untouched for now.");
+					}
+					if(LexerUtils.isStructFieldExpr(objectName)){
+						isStruct = true;
+						System.out.println("INFO: Function call on struct field");
 					}
 					elems[1] = elems[1].substring(0, elems[1].length()-1);
-					String[] funcParts = singleSplit(elems[1], "(");
+					String[] funcParts = StringUtils.singleSplit(elems[1], "(");
 					String functionName = funcParts[0].trim();
 					String[] params = funcParts[1].trim().split(",");
 					//System.out.println("obj: " + objectName + ", method: " + functionName + ", paramsNumb: " + params.length + ", params: " + Arrays.toString(params));
 
-					Token obj = new Token(Constants.VARNAME, objectName);
+					Token obj;
+					if(isStruct) {
+						obj = new Token(Constants.VARVALFUNC, Lexer.parseCode(objectName));
+					}
+					else obj = new Token(Constants.VARNAME, objectName);
 					Token fire = new Token(Constants.FIRE);
 					Token func = new Token(Constants.FUNC, functionName);
 					Token param = null;
 					if(!params[0].equals("")) {
-						if(isMethodCall(funcParts[1])) {
+						if(LexerUtils.isMethodCall(funcParts[1])) {
 							param = new Token(Constants.FUNC_PARAMS, Lexer.parseCode("{"+funcParts[1]+"}"));
+						}
+						else if(LexerUtils.isExpression(funcParts[1]) || LexerUtils.isStructFieldExpr(funcParts[1])) {
+							param = new Token(Constants.FUNC_PARAMS, Lexer.parseCode(funcParts[1]));
 						}
 						else
 							param = new Token(Constants.FUNC_PARAMS, funcParts[1]);
@@ -271,44 +560,16 @@ public class Lexer
 
 					//BSTPrinter.print(tree);
 				}
-				else if(isArithmetic(instr)) {
-					final String regex = "(.*?)([+\\-*@%])(.*)";
-
-					final Pattern pattern = Pattern.compile(regex, Pattern.MULTILINE);
-					final Matcher matcher = pattern.matcher(instr);
-
-					if (matcher.find()) {
-						Token op;
-						switch(matcher.group(2)) {
-							case "+":
-								op = new Token(Constants.PLUS);
-								break;
-							case "-":
-								op = new Token(Constants.MINUS);
-								break;
-							case "*":
-								op = new Token(Constants.MUL);
-								break;
-							case "@":
-								op = new Token(Constants.DIV);
-								break;
-							case "%":
-								op = new Token(Constants.MOD);
-								break;
-							default:
-								op = new Token(Constants.DEBUG); //just for supress uninitialised error
-						}
-						//determine if elements are numbers, variables, method calls or strings
-						//if string replace Constants.PLUS by Constants.CONCAT
-						Token left = new Token(Constants.VARNAME, matcher.group(1));
-						Token right = new Token(Constants.VARNAME, matcher.group(3));
-						
-						tree.root = new Node(op);
-						tree.root.add(left);
-						tree.root.add(right);
-
-						//BSTPrinter.print(tree);
-					}
+				else if(LexerUtils.isStructFieldExpr(instr)) {
+					String[] parts = instr.split("\\|");
+					Token obj = new Token(Constants.VARNAME, parts[0]);
+					Token fire = new Token(Constants.FIRE);
+					Token func = new Token(Constants.FUNC, "GET");
+					Token param = new Token(Constants.FUNC_PARAMS, parts[1]);
+					tree.root = new Node(obj);
+					Node tmp = tree.root.add(fire);
+					tmp.add(func);
+					tmp.add(param);
 				}
 				//To akurat komentarz jednoliniowy wewnątrz kodu, do wywalenia
 				/*else if(instr.startsWith("!")) {
@@ -328,7 +589,7 @@ public class Lexer
 				else {
 					//System.out.println(instr);
 					//TODO: przejrzenie zmiennych i sprawdzenie czy zmienna to Behaviour, jeśli nie wyrzuć LexerException
-					System.out.println("Zakładam, że Behaviour");
+					//System.out.println("Zakładam, że Behaviour");
 
 					Token obj = new Token(Constants.VARNAME, instr);
 					Token fire = new Token(Constants.FIRE);
@@ -340,6 +601,7 @@ public class Lexer
 
 					//BSTPrinter.print(tree);
 				}
+				BSTPrinter.print(tree);
 				instructionsList.addInstruction(tree);
 			}
 		}

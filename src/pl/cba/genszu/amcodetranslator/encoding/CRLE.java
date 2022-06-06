@@ -30,7 +30,7 @@ public class CRLE
 
 	public static byte[] decodeCRLE(byte[] data, int bulk) {
 		byte[] n = new byte[0];
-		int i=0, x=0;
+		int i=0;
 		while(i<data.length){
 			if(byteToInt(data[i])<128){
                 /*x = n.length;

@@ -1,19 +1,30 @@
 package pl.cba.genszu.amcodetranslator.AMObjects;
+import pl.cba.genszu.amcodetranslator.interpreter.*;
 
 public class Database {
-    /*TODO: implement database, load DTA files, implement methods*/
+    //private Struct MODEL;
+	private String MODEL;
+	private InstructionsBlock ONINIT;
 
-    private Struct MODEL;
+	public void setONINIT(InstructionsBlock ONINIT)
+	{
+		this.ONINIT = ONINIT;
+	}
 
-    public void LOAD(String file) {
-        //split |
-    }
+	public InstructionsBlock getONINIT()
+	{
+		return ONINIT;
+	}
+	
+	public void setMODEL(String MODEL)
+	{
+		//this.MODEL = new Struct();
+		//this.MODEL.addFIELDS(MODEL);
+		this.MODEL = MODEL;
+	}
 
-    public int FIND(String name, String value, int offset) { //TODO: zweryfikowanie czy na pewno takie są argumenty
-        return -1; //tymczasowo
-    }
-
-    public void ONINIT() {
-
-    }
+	public String getMODEL()
+	{
+		return MODEL;
+	}
 }

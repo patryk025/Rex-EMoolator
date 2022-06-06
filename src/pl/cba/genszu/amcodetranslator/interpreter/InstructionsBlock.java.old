@@ -1,0 +1,55 @@
+package pl.cba.genszu.amcodetranslator.interpreter;
+import pl.cba.genszu.amcodetranslator.lexer.tree.*;
+import pl.cba.genszu.amcodetranslator.interpreter.util.*;
+import pl.cba.genszu.amcodetranslator.lexer.*;
+import pl.cba.genszu.amcodetranslator.lexer.tree.exception.*;
+
+public class InstructionsBlock
+{
+	//TODO: List of BST or add to current
+	private BinaryTree instr;
+	
+	public InstructionsBlock(BinaryTree instr) {
+		this.instr = instr;
+	}
+
+	public InstructionsBlock() {
+		this.instr = new BinaryTree();
+	}
+	
+	/*mainly for Animo*/
+	public void addListenerParam(String param, String code) {
+		Token ifToken = new Token(Constants.IF);
+		Token ifName = new Token(Constants.VARNAME, "$PARAM");
+		Token ifVal = new Token(Constants.VARVAL, param);
+
+		Node oldRoot = null;
+		if(instr.root != null) {
+			oldRoot = instr.root;
+		}
+		Node newRoot = new Node(ifToken);
+		try
+		{
+			Node tmp = newRoot.add(ifName);
+			Node tmp2 = newRoot.add(ifVal);
+
+			try
+			{
+				tmp.add(Lexer.parseCode(code).root);
+			}
+			catch (Exception e)
+			{
+				e.printStackTrace();
+			}
+
+			if(oldRoot != null)
+				tmp2.add(oldRoot);
+
+			instr.root = newRoot;
+		}
+		catch (BinaryTreeInsertException e)
+		{
+			e.printStackTrace();
+		}
+	}
+}

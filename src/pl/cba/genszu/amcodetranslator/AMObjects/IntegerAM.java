@@ -6,7 +6,10 @@ public class IntegerAM {
     private boolean TOINI;
 	private InstructionsBlock ONINIT;
 	private InstructionsBlock ONBRUTALCHANGED;
-
+	private InstructionsBlock ONCHANGED;
+	private String DESCRIPTION;
+	private InstructionsBlock ONSIGNAL;
+	
     /*public IntegerAM(int VALUE, boolean TOINI) {
         this.VALUE = VALUE;
         this.TOINI = TOINI;
@@ -43,9 +46,35 @@ public class IntegerAM {
 		this.ONBRUTALCHANGED = ONBRUTALCHANGED;
 	}
 	
-	public InstructionsBlock setONBRUTALCHANGED()
+	public InstructionsBlock getONBRUTALCHANGED()
 	{
+		if(ONBRUTALCHANGED == null) 
+			ONBRUTALCHANGED = new InstructionsBlock();
 		return this.ONBRUTALCHANGED;
+	}
+	
+	public void setONCHANGED(InstructionsBlock ONCHANGED)
+	{
+		this.ONCHANGED = ONCHANGED;
+	}
+
+	public InstructionsBlock getONCHANGED()
+	{
+		if(ONCHANGED == null) 
+			ONCHANGED = new InstructionsBlock();
+		return this.ONCHANGED;
+	}
+	
+	public void setONSIGNAL(InstructionsBlock ONSIGNAL)
+	{
+		this.ONSIGNAL = ONSIGNAL;
+	}
+
+	public InstructionsBlock getONSIGNAL()
+	{
+		if(ONSIGNAL == null) 
+			ONSIGNAL = new InstructionsBlock();
+		return this.ONSIGNAL;
 	}
 
     public boolean isTOINI() {
@@ -55,4 +84,14 @@ public class IntegerAM {
     public void setTOINI(boolean TOINI) {
         this.TOINI = TOINI;
     }
+	
+	public void setDESCRIPTION(String DESCRIPRION)
+	{
+		this.DESCRIPTION = DESCRIPRION;
+	}
+
+	public String getDESCRIPTION()
+	{
+		return DESCRIPTION;
+	}
 }

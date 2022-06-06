@@ -8,14 +8,24 @@ public class Constants {
     public static String MUL = "MUL";
     public static String DIV = "DIV";
 	public static String MOD = "MOD";
+	public static String POW = "POW";
 
 	public static String TRUE= "TRUE";
 	public static String FALSE= "FALSE";
 	
+	public static String OR = "OR";
+	public static String AND = "AND";
+
+	public static String BRANCH= "BRANCH";
+	public static String IF= "IF";
+	public static String ELSE= "ELSE";
+	
+	public static String LOOP = "LOOP";
+
 	public static String FIRE = "FIRE";
 	public static String FUNC = "FUNC";
 	public static String FUNC_PARAMS= "FUNC_PARAMS";
-	public static String IF= "IF";
+	
 	public static String GEQ= "GE";
 	public static String GTR= "GTR";
 	public static String EQU= "EQU";
@@ -31,5 +41,9 @@ public class Constants {
 	public static String VARTYPE = "VARTYPE";
 	public static String VARVAL = "VARVAL";
 	public static String VARVALFUNC = "VARVALFUNC";
+	public static String VARSET = "VARSET";
+	public static String VARFIND = "VARFIND";
+	
+	public static String BREAK = "BREAK";
 	public static String RETURN = "RETURN";
 }

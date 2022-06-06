@@ -1,20 +1,9 @@
 package pl.cba.genszu.amcodetranslator;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.PrintStream;
-import java.util.ArrayList;
-import java.util.List;
-import pl.cba.genszu.amcodetranslator.AMObjects.IntegerAM;
-import pl.cba.genszu.amcodetranslator.interpreter.InterpreterException;
-import pl.cba.genszu.amcodetranslator.interpreter.ScriptInterpreter;
-import java.io.FileNotFoundException;
-import pl.cba.genszu.amcodetranslator.interpreter.util.Token;
-import pl.cba.genszu.amcodetranslator.lexer.tree.BinaryTree;
-import pl.cba.genszu.amcodetranslator.lexer.tree.Node;
-import pl.cba.genszu.amcodetranslator.lexer.tree.exception.BinaryTreeInsertException;
-import pl.cba.genszu.amcodetranslator.lexer.Constants;
-import pl.cba.genszu.amcodetranslator.lexer.Lexer;
+import java.io.*;
+import java.util.*;
+import pl.cba.genszu.amcodetranslator.logger.*;
+import pl.cba.genszu.amcodetranslator.lexer.*;
 
 public class Main {
 
@@ -42,24 +31,79 @@ public class Main {
         }
     }
 
-    /*TODO: @GETCURRENTSCENE()*/
-
     public static void main(String[] args) {
+		
+		/* copy System.out to file (for now, Logger in building) */
+		/*try {
+			FileOutputStream file = new FileOutputStream("/sdcard/skrypty/logi.txt");
+			TeePrintStream tee = new TeePrintStream(file, System.out);
+			System.setOut(tee);
+			System.setErr(tee);
+		}
+		catch(FileNotFoundException e) {
+			e.printStackTrace();
+		}*/
+		
+		//"BEHCLICK_"+SOBJECT|IDNAME
+		//value = "{ANNOBJECT0^STOP(FALSE);ANNOBJECT0^SETFRAME"STATE0",1);}"
+		
+		/* decypher - debug helper */
+		/*try
+        {
+            FileReader reader = new FileReader("/sdcard/skrypty/rikn/dane/game/przygoda/Dzungla/Dzungla.cnv");
+            BufferedReader bufferedReader = new BufferedReader(reader);
+
+            String line;
+			StringBuilder content = new StringBuilder();
+            boolean decypher = false;
+			int offset = 0;
+
+            try
+            {
+                while ((line = bufferedReader.readLine()) != null)
+				{
+                    if (line.startsWith("{<"))
+					{
+						String[] tmpParam = line.replace("{<", "").replace(">}", "").split(":");
+						offset = Integer.parseInt(tmpParam[1]);
+						if (tmpParam[0].toUpperCase().equals("D")) offset *= -1;
+						decypher = true;
+					}
+					else
+					{
+						content = content.append(line).append("\n");
+					}
+                }
+				PrintWriter pw = new PrintWriter("/sdcard/skrypty/Dzungla.cnv.dek");
+				
+				if (decypher)
+				{
+					pw.write(ScriptDecypher.decode(content.toString(), offset));
+				}
+				else pw.write(content.toString());
+				pw.close();
+            }
+            catch (IOException e)
+			{
+                e.printStackTrace();
+            }
+        }
+        catch (FileNotFoundException e)
+		{
+            e.printStackTrace();
+        }*/
+		
         List<String> pliki = new ArrayList<>();
 
-        search(".*\\.cnv", new File("D:\\Re-SP-master\\Dane"), pliki, true);
+        search(".*\\.cnv", new File("/sdcard/skrypty"), pliki, true);
         //HashSet<String> fun = new HashSet<>();
         //List<ParseObjectTmp> lista = new ArrayList<>();
         //CodeTranslatorFile ct = new CodeTranslatorFile();
 		CNVParser cp = new CNVParser();
 		String tmp = null;
-
-        /*try {
-            cp.parseFile(new File("D:\\Re-SP-master\\Dane\\Intro\\MainMenu\\13Palisada\\PALISADA13.cnv"));
-        }
-        catch (Exception ex) {
-            ex.printStackTrace();
-        }*/
+		
+		pliki.clear();
+		//pliki.add("/sdcard/skrypty/rikn/dane/game/przygoda/Hanoi/Hanoi.cnv");
 
         for (String e : pliki) {
             System.out.println(e);
@@ -68,14 +112,49 @@ public class Main {
 				cp.parseFile(new File(e));
 			}
 			catch (Exception ex) {
-			    ex.printStackTrace();
+				ex.printStackTrace();
 				break;
 			}
 			tmp = e;
             //break;
         }
-		//System.out.println(tmp); // /sdcard/Re-SP-master/Dane/Intro/MainMenu/13Palisada/PALISADA13.cnv
-		//try {
+		
+		
+        try {
+            //Lexer.parseCode("@IF(IREXPOSX,\"!_\",$1,\"{L_BRET^SET(FALSE);}\",\"\")");
+            //Lexer.parseCode("@IF(\"VARMELODIA'3\",\"\",\"{BRETURN^SET(FALSE);}\")");
+            /*InstructionsList test = Lexer.parseCode("{@IF(\"ANNREKSIO^ISPLAYING(\"DEZINTEGRACJAL\")'TRUE||ANNREKSIO^ISPLAYING(\"DEZINTEGRACJAP\")'TRUE||ANNREKSIO^ISPLAYING(\"ZPLANSZY22\")'TRUE\",\"{@BREAK();}\",\"\");IREXPOSX^SET(-1);IREXPOSY^SET(-1);@IF(\"ANNREKSIO^GETEVENTNAME()'\"L\"\",\"{ANNREKSIO^PLAY(\"DEZINTEGRACJAL\");}\",\"{ANNREKSIO^PLAY(\"DEZINTEGRACJAP\");}\");BEHPLAYHENSFX^RUN();};");
+			test = Lexer.parseCode("{@IF(\"ANNREKSIO^ISPLAYING(\"DEZINTEGRACJAL\")'TRUE&&ANNREKSIO^ISPLAYING(\"DEZINTEGRACJAP\")'TRUE||ANNREKSIO^ISPLAYING(\"ZPLANSZY22\")'TRUE\",\"{@BREAK();}\",\"\");IREXPOSX^SET(-1);IREXPOSY^SET(-1);@IF(\"ANNREKSIO^GETEVENTNAME()'\"L\"\",\"{ANNREKSIO^PLAY(\"DEZINTEGRACJAL\");}\",\"{ANNREKSIO^PLAY(\"DEZINTEGRACJAP\");}\");BEHPLAYHENSFX^RUN();};");
+			test = Lexer.parseCode("{@IF(\"ANNREKSIO^ISPLAYING(\"DEZINTEGRACJAL\")'TRUE||ANNREKSIO^ISPLAYING(\"DEZINTEGRACJAP\")'TRUE&&ANNREKSIO^ISPLAYING(\"ZPLANSZY22\")'TRUE\",\"{@BREAK();}\",\"\");IREXPOSX^SET(-1);IREXPOSY^SET(-1);@IF(\"ANNREKSIO^GETEVENTNAME()'\"L\"\",\"{ANNREKSIO^PLAY(\"DEZINTEGRACJAL\");}\",\"{ANNREKSIO^PLAY(\"DEZINTEGRACJAP\");}\");BEHPLAYHENSFX^RUN();};");
+			*/
+			
+			//InstructionsList test = Lexer.parseCode("@LOOP(\"{@INT(\"L_IDIGIT\",SPASSWORD^GET([_I_-5+SPASSWORD^LENGTH()]));*[\"ZNACZKI\"+_I_]^SHOW();*[\"ZNACZKI\"+_I_]^SETFRAME([L_IDIGIT-1]);}\",[5-SPASSWORD^LENGTH()],SPASSWORD^LENGTH(),1)");
+			//Lexer.parseCode("@LOOP(\"{*[\"GES\"+_I_+\"_BUTTON\"]^ENABLE();*[\"GES\"+_I_]^PLAY(\"RANDOM\");}\",1,6,1)");
+			//System.out.println("@INT(\"L_IDIGIT\",\n\tSPASSWORD^GET([_I_-5+SPASSWORD^LENGTH()])\n);\n*[\"ZNACZKI\"+_I_]^SHOW();\n*[\"ZNACZKI\"+_I_]^SETFRAME([L_IDIGIT-1]);");
+			//Lexer.parseCode("@LOOP(\"{@INT(\"L_IDIGIT\",SPASSWORD^GET([_I_-5+SPASSWORD^LENGTH()]));*[\"ZNACZKI\"+_I_]^SHOW();*[\"ZNACZKI\"+_I_]^SETFRAME([L_IDIGIT-1]);}\",[5-SPASSWORD^LENGTH()],SPASSWORD^LENGTH(),1)");
+			//Lexer.expressionToTree("2+2*2-2--2");
+			//ExpressionParser.expressionToTree("a*(b+c)");
+			//ExpressionParser.expressionToTree("*L_SARRNAME^GET(L_INEXTINDEX)");
+			//ExpressionSolver.optimaliseExpression("2+2*2-2--2"); //oczekiwane 6
+			//ExpressionSolver.optimaliseExpression("3x-2+x"); //oczekiwane 4x-2
+			//ExpressionSolver.optimaliseExpression("2(3x-4)+4(2-x)"); //oczekiwane 2x
+			//Lexer.expressionToTree("TESTVAL^LENGTH()+15+TMP");
+			//Lexer.parseCode("@LOOP(\"{@IF(\"ARRFIELDSSTATE^GET(_I_)'5\",\"{L_BFAILURE^SET(TRUE);}\",\"\");@IF(\"ARRFIELDSSTATE^GET(_I_)!'3&&ARRFIELDSSTATE^GET(_I_)!'4\",\"{L_BSUCCESS^SET(FALSE);}\",\"\");}\",0,16,1)");
+			//Lexer.parseCode("{@INT(\"L_ICLONEINDEX\",THIS^GETCLONEINDEX());@INT(\"L_IFRAMEINDEX\",THIS^GETCFRAMEINEVENT());@IF(\"ARRFALLING^GET(L_ICLONEINDEX,1)'L_IFRAMEINDEX\",\"{*[\"ANNFALLINGROCK_\"+L_ICLONEINDEX]^STOP(TRUE);}\",\"\");}");
+			//CodeBeautifier.beautify("{VARSTEMP0^SET([\"BEHCLICK_\"+SOBJECT|IDNAME]);VARSLASTFOCUS^SET(SOBJECT|IDNAME);@IF(\"VARSCURRENTITEM\",\"!_\",\"\"NULL\"\",\"BFITMP2\",\"BFITMP3\");}");
+			//Lexer.parseCode("{VARSTEMP0^SET([\"BEHCLICK_\"+SOBJECT|IDNAME]);VARSLASTFOCUS^SET(SOBJECT|IDNAME);@IF(\"VARSCURRENTITEM\",\"!_\",\"\"NULL\"\",\"BFITMP2\",\"BFITMP3\");}");
+			//Lexer.parseCode("SOBJECT|IPARAM0^SET(1)");
+			//CodeBeautifier.beautify("{@LOOP(\"{S1^SET([\"ENEMY\"+_I_]);SPLAYERGOON^REMOVEBEHAVIOUR([\"ONBRUTALCHANGED^\"+S1]);SPLAYERGOON^ADDBEHAVIOUR([\"ONBRUTALCHANGED^\"+S1],\"BEHGOONENEMYNOCOLL\");}\",0,IENEMYNO,1);}");
+			//Lexer.parseCode("{@LOOP(\"{S1^SET([\"ENEMY\"+_I_]);SPLAYERGOON^REMOVEBEHAVIOUR([\"ONBRUTALCHANGED^\"+S1]);SPLAYERGOON^ADDBEHAVIOUR([\"ONBRUTALCHANGED^\"+S1],\"BEHGOONENEMYNOCOLL\");}\",0,IENEMYNO,1);}");
+			//Lexer.parseCode("\"ONBRUTALCHANGED^\"+S1");
+			//Lexer.parseCode("{S1^SET([\"ENEMY\"+IENEMYNO]);CLSCHASZCZEENEMYOBJ^NEW(S1,0,IX,IY);GENEMIES^ADD(S1);GENEMYNAMES^ADD(S1);SPLAYERGOON^ADDBEHAVIOUR([\"ONBRUTALCHANGED^\"+S1],\"BEHGOONENEMY\");IENEMYNO^INC();ARRMAPA^SET(IX,IY,S1);SPOLE^SET(\"\");}");
+			//Lexer.parseCode("ART0^GET([ART0^GETSIZE()-1])");
+			Lexer.parseCode("{@IF(\"ICIK\",\"_\",ART0^GET([ART0^GETSIZE()-1]),\"BFITMP35\",\"\");}");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        
+        //try {
 			/*Lexer.parseCode("{ARRTRAFIONY^ADD(FALSE,FALSE,FALSE);ANIMOSZCZUR^HIDE();ANIMOSZCZUR1^HIDE();ANIMOSZCZUR2^HIDE();ANIMOREKSIO^PLAY(\"BEZRUCH\");VARKOKOS0^SET(0);VARKOKOS1^SET(0);VARKOKOS2^SET(0);VARKOKOS3^SET(0);VARKOKOS4^SET(0);VARKOKOS5^SET(0);VARKOKOS6^SET(0);VARKOKOS7^SET(0);VARKOKOS8^SET(0);VARKOKOS9^SET(0);VARKOKOS10^SET(0);VARKOKOS11^SET(0);VARKOKOS12^SET(0);VARKOKOS13^SET(0);VARKOKOS14^SET(0);VARKOKOS15^SET(0);VARPIRAT1DX^SET(0);VARPIRAT1DY^SET(0);VARPIRAT2DX^SET(0);VARPIRAT2DY^SET(0);VARPIRAT3DX^SET(0);VARPIRAT3DY^SET(0);VARSTANPIRATA1^SET(2);VARSTANPIRATA2^SET(0);VARSTANPIRATA3^SET(0);VARPIRAT1LEVEL^SET(0);VARPIRAT2LEVEL^SET(0);VARPIRAT3LEVEL^SET(0);VARSCORE^SET(0);VARLICZBAPITATOW^SET(15);SNDENTRE^PLAY();BEHENABLEBUTTONS^RUN();}");
             System.out.println();
             System.out.println();

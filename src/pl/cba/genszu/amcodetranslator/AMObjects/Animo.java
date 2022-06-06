@@ -14,8 +14,14 @@ public class Animo {
 	private boolean MONITORCOLLISION;
 	private boolean MONITORCOLLISIONALPHA;
 	private InstructionsBlock ONINIT;
-	private String ONCOLLISION; //Behaviour
+	private InstructionsBlock ONCOLLISION; //Behaviour
 	private InstructionsBlock ONFRAMECHANGED;
+	private String DESCRIPTION;
+	private InstructionsBlock ONCLICK;
+	private InstructionsBlock ONFOCUSOFF;
+	private InstructionsBlock ONFOCUSON;
+	private InstructionsBlock ONRELEASE;
+	private InstructionsBlock ONSIGNAL;
 
     //private List<>
 
@@ -27,28 +33,19 @@ public class Animo {
 
     public void PLAY(String name) {}
     public void MOVE(int xOffset, int yOffset) {
-        //na razie coś takiego, podejrzewam, że jest to do odpalenia animacji poruszania do jakiegoś punktu
         SETPOSITION(GETPOSITIONX()+xOffset, GETPOSITIONY()+yOffset);
     }
     public void HIDE() {
         this.VISIBLE = false;
-        /*TODO: podłączenie do silnika*/
     }
 
     public void SETPRIORITY(int priority) {
         this.PRIORITY = priority;
-        /*TODO: podłączenie do silnika*/
     }
 
     public void SETFRAME(int number) {}
 
     public int GETCFRAMEINEVENT() {return 0;}
-
-    /*events methods*/
-    public void ONSTARTED() {}
-    public void ONSTARTED(String anim) {}
-    public void ONFINISHED(String anim) {}
-    public void ONFRAMECHANGED() {}
 
     /*internal methods*/
     public String getFILENAME() {
@@ -153,16 +150,20 @@ public class Animo {
 
 	public InstructionsBlock getONINIT()
 	{
+		if(ONINIT == null) 
+			ONINIT = new InstructionsBlock();
 		return ONINIT;
 	}
 	
-	public void setONCOLLISION(String ONCOLLISION)
+	public void setONCOLLISION(InstructionsBlock ONCOLLISION)
 	{
 		this.ONCOLLISION = ONCOLLISION;
 	}
 
-	public String getONCOLLISION()
+	public InstructionsBlock getONCOLLISION()
 	{
+		if(ONCOLLISION == null) 
+			ONCOLLISION = new InstructionsBlock();
 		return ONCOLLISION;
 	}
 
@@ -174,5 +175,66 @@ public class Animo {
 
 	public void setONFRAMECHANGED(InstructionsBlock ONFRAMECHANGED) {
 		this.ONFRAMECHANGED = ONFRAMECHANGED;
+	}
+	
+	public String getDESCRIPTION() {
+        return DESCRIPTION;
+    }
+
+	public void setDESCRIPTION(String DESCRIPTION)
+	{
+		this.DESCRIPTION = DESCRIPTION;
+	}
+	
+	public void setONCLICK(InstructionsBlock ONCLICK)
+	{
+		this.ONCLICK = ONCLICK;
+	}
+
+	public InstructionsBlock getONCLICK()
+	{
+		return ONCLICK;
+	}
+
+	public void setONFOCUSOFF(InstructionsBlock ONFOCUSOFF)
+	{
+		this.ONFOCUSOFF = ONFOCUSOFF;
+	}
+
+	public InstructionsBlock getONFOCUSOFF()
+	{
+		return ONFOCUSOFF;
+	}
+
+	public void setONFOCUSON(InstructionsBlock ONFOCUSON)
+	{
+		this.ONFOCUSON = ONFOCUSON;
+	}
+
+	public InstructionsBlock getONFOCUSON()
+	{
+		return ONFOCUSON;
+	}
+
+	public void setONRELEASE(InstructionsBlock ONRELEASE)
+	{
+		this.ONRELEASE = ONRELEASE;
+	}
+
+	public InstructionsBlock getONRELEASE()
+	{
+		return ONRELEASE;
+	}
+
+	public void setONSIGNAL(InstructionsBlock ONSIGNAL)
+	{
+		this.ONSIGNAL = ONSIGNAL;
+	}
+
+	public InstructionsBlock getONSIGNAL()
+	{
+		if(ONSIGNAL == null) 
+			ONSIGNAL = new InstructionsBlock();
+		return ONSIGNAL;
 	}
 }

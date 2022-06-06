@@ -1,5 +1,4 @@
 package pl.cba.genszu.amcodetranslator.lexer.queue;
-import java.util.Arrays;
 import pl.cba.genszu.amcodetranslator.lexer.queue.exceptions.EmptyQueueException;
 import pl.cba.genszu.amcodetranslator.lexer.queue.exceptions.FullQueueException;
 

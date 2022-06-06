@@ -59,12 +59,6 @@ public class BinaryTree
 			try {
 				stack.push(node.value);
 			} catch (StackOverflowException e) {
-				try {
-					stack.push(node.value);
-				} catch (StackOverflowException e1) {
-					//i will not try to extend anymore because this code is unreachable
-					e1.printStackTrace();
-				}
 				e.printStackTrace();
 			}
 		}

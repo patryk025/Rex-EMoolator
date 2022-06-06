@@ -10,8 +10,22 @@ public class Node
     public Node right;
 	public InstructionsList instr; //dla ifów
 
+	public Node() {
+		this.value = null;
+		right = null;
+		left = null;
+		instr = null;
+	}
+
     public Node(Token value) {
         this.value = value;
+        right = null;
+        left = null;
+		instr = null;
+    }
+	
+	public Node(String tokenName) {
+        this.value = new Token(tokenName);
         right = null;
         left = null;
 		instr = null;

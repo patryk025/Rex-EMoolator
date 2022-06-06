@@ -1,9 +1,6 @@
 package pl.cba.genszu.amcodetranslator.interpreter;
 import java.util.*;
-import pl.cba.genszu.amcodetranslator.interpreter.util.*;
 import pl.cba.genszu.amcodetranslator.lexer.*;
-import pl.cba.genszu.amcodetranslator.lexer.tree.*;
-import pl.cba.genszu.amcodetranslator.lexer.tree.exception.*;
 
 public class InstructionsBlock
 {
@@ -22,6 +19,8 @@ public class InstructionsBlock
 	public void addListenerParam(String param, String code) {
 		try
 		{
+			if(this.instr == null)
+				this.instr = new HashMap<>();
 			this.instr.put(param, Lexer.parseCode(code));
 			//System.out.println(this.instr);
 		}

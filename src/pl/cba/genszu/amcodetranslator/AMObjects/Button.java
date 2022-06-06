@@ -6,13 +6,91 @@ public class Button {
     private boolean ENABLE;
     private boolean VISIBLE;
     private boolean DRAGGABLE;
+	private Integer PRIORITY;
+	private String SNDONMOVE;
     private String GFXSTANDARD;
     private String GFXONCLICK;
     private String GFXONMOVE;
-	private String ONACTION; //Behaviour
+	private String DESCRIPTION;
+	private InstructionsBlock ONACTION; //Behaviour
 	private InstructionsBlock ONFOCUSON;
 	private InstructionsBlock ONFOCUSOFF;
+	private InstructionsBlock ONCLICKED;
+	private InstructionsBlock ONENDDRAGGING;
+	private InstructionsBlock ONINIT;
+	private InstructionsBlock ONRELEASED;
+	private InstructionsBlock ONSTARTDRAGGING;
 
+	public void setONCLICKED(InstructionsBlock ONCLICKED)
+	{
+		this.ONCLICKED = ONCLICKED;
+	}
+
+	public InstructionsBlock getONCLICKED()
+	{
+		return ONCLICKED;
+	}
+
+	public void setONENDDRAGGING(InstructionsBlock ONENDDRAGGING)
+	{
+		this.ONENDDRAGGING = ONENDDRAGGING;
+	}
+
+	public InstructionsBlock getONENDDRAGGING()
+	{
+		return ONENDDRAGGING;
+	}
+
+	public void setONINIT(InstructionsBlock ONINIT)
+	{
+		this.ONINIT = ONINIT;
+	}
+
+	public InstructionsBlock getONINIT()
+	{
+		return ONINIT;
+	}
+
+	public void setONRELEASED(InstructionsBlock ONRELEASED)
+	{
+		this.ONRELEASED = ONRELEASED;
+	}
+
+	public InstructionsBlock getONRELEASED()
+	{
+		return ONRELEASED;
+	}
+
+	public void setONSTARTDRAGGING(InstructionsBlock ONSTARTDRAGGING)
+	{
+		this.ONSTARTDRAGGING = ONSTARTDRAGGING;
+	}
+
+	public InstructionsBlock getONSTARTDRAGGING()
+	{
+		return ONSTARTDRAGGING;
+	}
+
+	public void setDESCRIPTION(String DESCRIPTION)
+	{
+		this.DESCRIPTION = DESCRIPTION;
+	}
+
+	public String getDESCRIPTION()
+	{
+		return DESCRIPTION;
+	}
+
+	public void setPRIORITY(Integer PRIORITY)
+	{
+		this.PRIORITY = PRIORITY;
+	}
+
+	public Integer getPRIORITY()
+	{
+		return PRIORITY;
+	}
+	
 	
     public void SETRECT(String rect) {
         this.RECT = rect;
@@ -24,26 +102,17 @@ public class Button {
     public void ENABLE() {
         this.ENABLE = true;
         this.VISIBLE = true;
-        //TODO: podpięcie do silnika
     }
 
     public void DISABLEBUTVISIBLE() {
         this.ENABLE = false;
         this.VISIBLE = true;
-        //TODO: podpięcie do silnika
     }
 
     public void DISABLE() {
         this.ENABLE = false;
-        //TODO: podpięcie do silnika
     }
 
-    /*event methods*/
-    public void ONACTION() {
-
-    }
-
-    /*internal methods*/
     public String getRECT() {
         return RECT;
     }
@@ -100,12 +169,12 @@ public class Button {
         this.GFXONMOVE = GFXONMOVE;
     }
 	
-	public void setONACTION(String oNACTION)
+	public void setONACTION(InstructionsBlock ONACTION)
 	{
-		ONACTION = oNACTION;
+		this.ONACTION = ONACTION;
 	}
 
-	public String getONACTION()
+	public InstructionsBlock getONACTION()
 	{
 		return ONACTION;
 	}
@@ -130,4 +199,13 @@ public class Button {
 		return ONFOCUSOFF;
 	}
 	
+	public void setSNDONMOVE(String SNDONMOVE)
+	{
+		this.SNDONMOVE = SNDONMOVE;
+	}
+
+	public String getSNDONMOVE()
+	{
+		return SNDONMOVE;
+	}
 }

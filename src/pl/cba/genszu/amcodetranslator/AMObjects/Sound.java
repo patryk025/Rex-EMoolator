@@ -1,19 +1,24 @@
 package pl.cba.genszu.amcodetranslator.AMObjects;
 
-public class Sound {
+import pl.cba.genszu.amcodetranslator.interpreter.*;
+
+public class Sound
+ {
     private String FILENAME;
     private boolean PRELOAD;
     private boolean RELEASE;
     private boolean FLUSHAFTERPLAYED;
-    private String ONSTARTED; //nazwa obiektu Behaviour
-    private String ONFINISHED; //nazwa obiektu Behaviour
+    private InstructionsBlock ONSTARTED; //nazwa obiektu Behaviour
+    private InstructionsBlock ONFINISHED; //nazwa obiektu Behaviour
+	private InstructionsBlock ONINIT;
+	private String DESCRIPTION;
 
     /*methods of Sound*/
     public void PLAY() {
 
     }
     public void SETVOLUME(int volume) {
-        /*TODO: podpięcie do silnika*/
+        
     }
 
     /*internal methods*/
@@ -41,19 +46,19 @@ public class Sound {
         this.RELEASE = RELEASE;
     }
 
-    public String getONSTARTED() {
+    public InstructionsBlock getONSTARTED() {
         return ONSTARTED;
     }
 
-    public void setONSTARTED(String ONSTARTED) {
+    public void setONSTARTED(InstructionsBlock ONSTARTED) {
         this.ONSTARTED = ONSTARTED;
     }
 
-    public String getONFINISHED() {
+    public InstructionsBlock getONFINISHED() {
         return ONFINISHED;
     }
 
-    public void setONFINISHED(String ONFINISHED) {
+    public void setONFINISHED(InstructionsBlock ONFINISHED) {
         this.ONFINISHED = ONFINISHED;
     }
 
@@ -64,4 +69,24 @@ public class Sound {
     public void setFLUSHAFTERPLAYED(boolean FLUSHAFTERPLAYED) {
         this.FLUSHAFTERPLAYED = FLUSHAFTERPLAYED;
     }
+	
+	public void setDESCRIPTION(String DESCRIPTION)
+	{
+		this.DESCRIPTION = DESCRIPTION;
+	}
+
+	public String getDESCRIPTION()
+	{
+		return DESCRIPTION;
+	}
+	
+	public void setONINIT(InstructionsBlock ONINIT)
+	{
+		this.ONINIT = ONINIT;
+	}
+
+	public InstructionsBlock getONINIT()
+	{
+		return ONINIT;
+	}
 }

@@ -11,6 +11,7 @@ public class Episode {
     private String VERSION;
     private List<String> SCENES;
     private String STARTWITH;
+	private String PATH;
 
     /*methods of Episode*/
     public void GOTO(String scene) {
@@ -73,4 +74,14 @@ public class Episode {
     public void setSTARTWITH(String STARTWITH) {
         this.STARTWITH = STARTWITH;
     }
+	
+	public void setPATH(String PATH)
+	{
+		this.PATH = PATH;
+	}
+
+	public String getPATH()
+	{
+		return PATH;
+	}
 }
