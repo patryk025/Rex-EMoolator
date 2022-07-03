@@ -79,98 +79,91 @@
 - [ ] @WHILE
 
 ##Disclaimer: pola, sygnały bądź typy z gwiazdką na końcu to te, których automatyczny skaner nie znalazł ani razu w skryptach gier z Reksiem
+W oparciu o arkusz pod linkiem https://docs.google.com/spreadsheets/d/132gkNJ0_GsZXAX17Jlp9qo1DMSRpbPdLWJpIBTCpvhI/edit?usp=drivesdk
 
 ###Animo
-- [ ] FILENAME
-- [ ] FPS
-- [ ] MONITORCOLLISION
-- [ ] MONITORCOLLISIONALPHA
-- [ ] ONCLICK
-- [ ] ONCOLLISION
+- [x] DESCRIPTION
+- [x] FILENAME
+- [x] FPS
+- [x] MONITORCOLLISION
+- [x] MONITORCOLLISIONALPHA
+- [x] ONCLICK
+- [x] ONCOLLISION
 - [ ] ONCOLLISIONFINISHED*
-- [ ] ONCOLLISION^param
 - [ ] ONDONE*
-- [ ] ONFINISHED
-- [ ] ONFINISHED^param
+- [x] ONFINISHED
 - [ ] ONFIRSTFRAME*
-- [ ] ONFOCUSOFF
-- [ ] ONFOCUSON
-- [ ] ONFRAMECHANGED
-- [ ] ONFRAMECHANGED^param
-- [ ] ONINIT
-- [ ] ONINIT^param
+- [x] ONFOCUSOFF
+- [x] ONFOCUSON
+- [x] ONFRAMECHANGED
+- [x] ONINIT
 - [ ] ONPAUSED*
-- [ ] ONRELEASE
+- [x] ONRELEASE
 - [ ] ONRESUMED*
-- [ ] ONSIGNAL*
-- [ ] ONSIGNAL^param
-- [ ] ONSTARTED
-- [ ] ONSTARTED^param
-- [ ] PRELOAD
-- [ ] PRIORITY
-- [ ] RELEASE
-- [ ] TOCANVAS
-- [ ] VISIBLE
+- [x] ONSIGNAL
+- [x] ONSTARTED
+- [x] PRELOAD
+- [x] PRIORITY
+- [x] RELEASE
+- [x] TOCANVAS
+- [x] VISIBLE
 
 ###Application
-- [ ] AUTHOR
-- [ ] BLOOMOO_VERSION
-- [ ] CREATIONTIME
-- [ ] DESCRIPTION
-- [ ] EPISODES
-- [ ] LASTMODIFYTIME
-- [ ] PATH
-- [ ] STARTWITH
-- [ ] VERSION
+- [x] AUTHOR
+- [x] BLOOMOO_VERSION
+- [x] CREATIONTIME
+- [x] DESCRIPTION
+- [x] EPISODES
+- [x] LASTMODIFYTIME
+- [x] PATH
+- [x] STARTWITH
+- [x] VERSION
 
 ###Array
+- [x] DESCRIPTION
+- [x] ONINIT
 
 ###Behaviour
-- [ ] CODE
-- [ ] CONDITION
-- [ ] DESCRIPTION
+- [x] CODE
+- [x] CONDITION
+- [x] DESCRIPTION
 
 ###Bool
-- [ ] ONBRUTALCHANGED*
-- [ ] ONBRUTALCHANGED^param
-- [ ] ONCHANGED
-- [ ] ONCHANGED^param
+- [x] DESCRIPTION
+- [x] ONBRUTALCHANGED
+- [x] ONCHANGED
 - [ ] ONDONE*
-- [ ] ONINIT
+- [x] ONINIT
 - [ ] ONNETCHANGED*
 - [ ] ONSIGNAL*
-- [ ] TOINI
-- [ ] VALUE
+- [x] TOINI
+- [x] VALUE
 
 ###Button
-- [ ] DESCRIPTION
-- [ ] DRAGGABLE
-- [ ] ENABLE
-- [ ] GFXONCLICK
-- [ ] GFXONMOVE
-- [ ] GFXSTANDARD
-- [ ] ONACTION
-- [ ] ONCLICKED
+- [x] DESCRIPTION
+- [x] DRAGGABLE
+- [x] ENABLE
+- [x] GFXONCLICK
+- [x] GFXONMOVE
+- [x] GFXSTANDARD
+- [x] ONACTION
+- [x] ONCLICKED
 - [ ] ONDONE*
 - [ ] ONDRAGGING*
-- [ ] ONENDDRAGGING
-- [ ] ONFOCUSOFF
-- [ ] ONFOCUSON
-- [ ] ONINIT
+- [x] ONENDDRAGGING
+- [x] ONFOCUSOFF
+- [x] ONFOCUSON
+- [x] ONINIT
 - [ ] ONPAUSED*
-- [ ] ONRELEASED
+- [x] ONRELEASED
 - [ ] ONSIGNAL*
-- [ ] ONSTARTDRAGGING
-- [ ] PRIORITY
-- [ ] RECT
+- [x] ONSTARTDRAGGING
+- [x] PRIORITY
+- [x] RECT
 - [ ] SNDONCLICK*
-- [ ] SNDONMOVE
+- [x] SNDONMOVE
 - [ ] SNDSTANDARD*
-- [ ] VISIBLE
-
-###CNVLoader*
-
-###Canvas*
+- [x] VISIBLE
 
 ###Canvas_Observer
 - [ ] ONDONE*
@@ -184,11 +177,20 @@
 - [ ] ONWINDOWFOCUSON
 
 ###Canvasobserver
-Literówka => przekierować do Canvas_Observer
+- [x] ONWINDOWFOCUSOFF
+- [x] ONWINDOWFOCUSON
 
 ###Class
-- [ ] BASE
-- [ ] DEF
+- [x] BASE
+- [x] DEF
+
+###ComplexCondition
+- [x] CONDITION1
+- [x] CONDITION2
+- [x] DESCRIPTION
+- [x] ONRUNTIMEFAILED
+- [x] ONRUNTIMESUCCESS
+- [x] OPERATOR
 
 ###ComplexCondition*
 - [ ] CONDITION1
@@ -199,17 +201,17 @@ Literówka => przekierować do Canvas_Observer
 - [ ] OPERATOR
 
 ###Condition
-- [ ] DESCRIPTION
-- [ ] ONRUNTIMEFAILED
-- [ ] ONRUNTIMESUCCESS
-- [ ] OPERAND1
-- [ ] OPERAND2
-- [ ] OPERATOR
+- [x] DESCRIPTION
+- [x] ONRUNTIMEFAILED
+- [x] ONRUNTIMESUCCESS
+- [x] OPERAND1
+- [x] OPERAND2
+- [x] OPERATOR
 
 ###Database
-- [ ] MODEL
+- [x] MODEL
 - [ ] ONDONE*
-- [ ] ONINIT
+- [x] ONINIT
 - [ ] ONSIGNAL*
 
 ###Dialog*
@@ -224,8 +226,8 @@ Literówka => przekierować do Canvas_Observer
 - [ ] ONINIT*
 - [ ] ONNETCHANGED*
 - [ ] ONSIGNAL*
-- [ ] TOINI
-- [ ] VALUE
+- [x] TOINI
+- [x] VALUE
 
 ###Editbox*
 - [ ] ONCHANGED*
@@ -241,25 +243,25 @@ Literówka => przekierować do Canvas_Observer
 - [ ] TEXT*
 
 ###Episode
-- [ ] AUTHOR
-- [ ] CREATIONTIME
-- [ ] DESCRIPTION
-- [ ] LASTMODIFYTIME
-- [ ] PATH
-- [ ] SCENES
-- [ ] STARTWITH
-- [ ] VERSION
+- [x] AUTHOR
+- [x] CREATIONTIME
+- [x] DESCRIPTION
+- [x] LASTMODIFYTIME
+- [x] PATH
+- [x] SCENES
+- [x] STARTWITH
+- [x] VERSION
 
 ###Expression
-- [ ] OPERAND1
-- [ ] OPERAND2
-- [ ] OPERATOR
+- [x] OPERAND1
+- [x] OPERAND2
+- [x] OPERATOR
 
 ###Filter
-- [ ] ACTION
+- [x] ACTION
 
 ###Font
-- [ ] DEF_[family]_[style]_[size] (=> DEF(family, style, size))
+- [ ] DEF_[family]_[style]_[size]
 - [ ] ONDONE*
 - [ ] ONINIT*
 - [ ] ONSIGNAL*
@@ -272,46 +274,40 @@ Literówka => przekierować do Canvas_Observer
 
 ###Group
 - [ ] ONDONE*
-- [ ] ONINIT
+- [x] ONINIT
 - [ ] ONSIGNAL*
 
 ###Image
-- [ ] DESCRIPTION
-- [ ] FILENAME
-- [ ] MONITORCOLLISION
-- [ ] MONITORCOLLISIONALPHA
-- [ ] ONCLICK
+- [x] DESCRIPTION
+- [x] FILENAME
+- [x] MONITORCOLLISION
+- [x] MONITORCOLLISIONALPHA
+- [x] ONCLICK
 - [ ] ONCOLLISION*
 - [ ] ONCOLLISIONFINISHED*
 - [ ] ONDONE*
-- [ ] ONFOCUSOFF
-- [ ] ONFOCUSON
-- [ ] ONINIT
+- [x] ONFOCUSOFF
+- [x] ONFOCUSON
+- [x] ONINIT
 - [ ] ONRELEASE*
 - [ ] ONSIGNAL*
-- [ ] PRELOAD
-- [ ] PRIORITY
-- [ ] RELEASE
-- [ ] TOCANVAS
-- [ ] VISIBLE
-
-###Inertia
-
+- [x] PRELOAD
+- [x] PRIORITY
+- [x] RELEASE
+- [x] TOCANVAS
+- [x] VISIBLE
 
 ###Integer
-- [ ] DESCRIPTION
-- [ ] ONBRUTALCHANGED
-- [ ] ONBRUTALCHANGED^param
-- [ ] ONCHANGED
-- [ ] ONCHANGED^param
+- [x] DESCRIPTION
+- [x] ONBRUTALCHANGED
+- [x] ONCHANGED
 - [ ] ONDONE*
-- [ ] ONINIT
+- [x] ONINIT
 - [ ] ONNETCHANGED*
-- [ ] ONSIGNAL*
-- [ ] ONSIGNAL^param
-- [ ] TOINI
-- [ ] VALUE
-- [ ] VARTYPE
+- [x] ONSIGNAL
+- [x] TOINI
+- [x] VALUE
+- [x] VARTYPE
 
 ###Internet*
 - [ ] ONCONNECTED*
@@ -333,42 +329,42 @@ Literówka => przekierować do Canvas_Observer
 - [ ] PORT*
 
 ###Keyboard
-- [ ] ONCHAR*
-- [ ] ONCHAR^param
+- [x] ONCHAR
 - [ ] ONDONE*
 - [ ] ONINIT*
-- [ ] ONKEYDOWN
-- [ ] ONKEYDOWN^param
-- [ ] ONKEYUP
-- [ ] ONKEYUP^param
+- [x] ONKEYDOWN
+- [x] ONKEYUP
 - [ ] ONSIGNAL*
 
 ###Matrix
-- [ ] BASEPOS
-- [ ] CELLHEIGHT
-- [ ] CELLWIDTH
-- [ ] ONLATEST
-- [ ] ONNEXT
-- [ ] SIZE
+- [x] BASEPOS
+- [x] CELLHEIGHT
+- [x] CELLWIDTH
+- [x] ONLATEST
+- [x] ONNEXT
+- [x] SIZE
 
 ###Mouse
-- [ ] ONCLICK
-- [ ] ONCLICK^param
-- [ ] ONDBLCLICK
-- [ ] ONDBLCLICK^param
+- [x] ONCLICK
+- [x] ONDBLCLICK
 - [ ] ONDONE*
-- [ ] ONINIT
-- [ ] ONMOVE
-- [ ] ONRELEASE
-- [ ] ONRELEASE^param
+- [x] ONINIT
+- [x] ONMOVE
+- [x] ONRELEASE
 - [ ] ONSIGNAL*
-- [ ] RAW
+- [x] RAW
 
 ###MultiArray
-- [ ] DIMENSIONS
+- [x] DIMENSIONS
 
 ###Music
-- [ ] FILENAME
+- [x] FILENAME
+
+###NetClient*
+- [ ] NETCLIENT*
+- [ ] ONCOMMAND*
+- [ ] ONCONNECTED*
+- [ ] ONCONNECTIONCLOSED*
 
 ###NetServer*
 - [ ] NETSERVER*
@@ -377,19 +373,11 @@ Literówka => przekierować do Canvas_Observer
 - [ ] ONNEWPLAYER*
 - [ ] ONTEXT*
 
-###NetClient*
-- [ ] NETCLIENT*
-- [ ] ONCOMMAND*
-- [ ] ONCONNECTED*
-- [ ] ONCONNECTIONCLOSED*
-
-###NetPeer*
-
 ###Pattern
-- [ ] GRIDX
-- [ ] GRIDY
-- [ ] HEIGHT
-- [ ] LAYERS
+- [x] GRIDX
+- [x] GRIDY
+- [x] HEIGHT
+- [x] LAYERS
 - [ ] ONCLICK*
 - [ ] ONDONE*
 - [ ] ONFOCUSOFF*
@@ -397,23 +385,21 @@ Literówka => przekierować do Canvas_Observer
 - [ ] ONINIT*
 - [ ] ONRELEASE*
 - [ ] ONSIGNAL*
-- [ ] PRIORITY
-- [ ] TOCANVAS
-- [ ] VISIBLE
-- [ ] WIDTH
-
-###Rand
+- [x] PRIORITY
+- [x] TOCANVAS
+- [x] VISIBLE
+- [x] WIDTH
 
 ###Scene
-- [ ] AUTHOR
-- [ ] BACKGROUND
+- [x] AUTHOR
+- [x] BACKGROUND
 - [ ] COAUTHORS*
-- [ ] CREATIONTIME
+- [x] CREATIONTIME
 - [ ] DEAMON*
-- [ ] DESCRIPTION
-- [ ] DLLS
-- [ ] LASTMODIFYTIME
-- [ ] MUSIC
+- [x] DESCRIPTION
+- [x] DLLS
+- [x] LASTMODIFYTIME
+- [x] MUSIC
 - [ ] ONACTIVATE*
 - [ ] ONDEACTIVATE*
 - [ ] ONDOMODAL*
@@ -422,8 +408,8 @@ Literówka => przekierować do Canvas_Observer
 - [ ] ONMUSICLOOPED*
 - [ ] ONRESTART*
 - [ ] ONSIGNAL*
-- [ ] PATH
-- [ ] VERSION
+- [x] PATH
+- [x] VERSION
 
 ###Scroll*
 - [ ] ONBOTTOM*
@@ -436,84 +422,77 @@ Literówka => przekierować do Canvas_Observer
 - [ ] VIEWPORT*
 
 ###Sequence
-- [ ] FILENAME
+- [x] FILENAME
 - [ ] ONDONE*
-- [ ] ONFINISHED
-- [ ] ONFINISHED^param
-- [ ] ONINIT
+- [x] ONFINISHED
+- [x] ONINIT
 - [ ] ONSIGNAL*
-- [ ] ONSTARTED
-- [ ] ONSTARTED^param
-- [ ] VISIBLE
+- [x] ONSTARTED
+- [x] VISIBLE
 
 ###Sound
-- [ ] DESCRIPTION
-- [ ] FILENAME
-- [ ] FLUSHAFTERPLAYED
+- [x] DESCRIPTION
+- [x] FILENAME
+- [x] FLUSHAFTERPLAYED
 - [ ] ONDONE*
-- [ ] ONFINISHED
-- [ ] ONINIT
+- [x] ONFINISHED
+- [x] ONINIT
 - [ ] ONRESUMED*
 - [ ] ONSIGNAL*
-- [ ] ONSTARTED
-- [ ] PRELOAD
-- [ ] RELEASE
+- [x] ONSTARTED
+- [x] PRELOAD
+- [x] RELEASE
 
 ###StaticFilter
-- [ ] ACTION
+- [x] ACTION
 
 ###String
-- [ ] DESCRIPTION
-- [ ] ONBRUTALCHANGED
-- [ ] ONBRUTALCHANGED^param
-- [ ] ONCHANGED
-- [ ] ONCHANGED^param
+- [x] DESCRIPTION
+- [x] ONBRUTALCHANGED
+- [x] ONCHANGED
 - [ ] ONDONE*
-- [ ] ONINIT
+- [x] ONINIT
 - [ ] ONNETCHANGED*
 - [ ] ONSIGNAL*
-- [ ] TOINI
-- [ ] VALUE
+- [x] TOINI
+- [x] VALUE
 
 ###Struct
-- [ ] FIELDS
+- [x] FIELDS
 - [ ] ONDONE*
 - [ ] ONINIT*
 - [ ] ONSIGNAL*
 
-###System*
-
 ###Text
-- [ ] FONT
-- [ ] HJUSTIFY
+- [x] FONT
+- [x] HJUSTIFY
 - [ ] HYPERTEXT*
-- [ ] MONITORCOLLISION
-- [ ] MONITORCOLLISIONALPHA
+- [x] MONITORCOLLISION
+- [x] MONITORCOLLISIONALPHA
 - [ ] ONCOLLISION*
 - [ ] ONCOLLISIONFINISHED*
 - [ ] ONDONE*
-- [ ] ONINIT
+- [x] ONINIT
 - [ ] ONSIGNAL*
-- [ ] PRIORITY
-- [ ] RECT
-- [ ] TEXT
-- [ ] TOCANVAS
-- [ ] VISIBLE
-- [ ] VJUSTIFY
+- [x] PRIORITY
+- [x] RECT
+- [x] TEXT
+- [x] TOCANVAS
+- [x] VISIBLE
+- [x] VJUSTIFY
 
 ###Timer
-- [ ] ELAPSE
-- [ ] ENABLED
+- [x] ELAPSE
+- [x] ENABLED
 - [ ] ONDONE*
-- [ ] ONINIT
+- [x] ONINIT
 - [ ] ONSIGNAL*
-- [ ] ONTICK
-- [ ] ONTICK^param
-- [ ] TICKS
+- [x] ONTICK
+- [x] TICKS
 
 ###Vector
-- [ ] SIZE
-- [ ] VALUE
+- [x] SIZE
+- [x] VALUE
 
 ###VirtualGraphicsObject*
 - [ ] ASBUTTON*
@@ -529,4 +508,4 @@ Literówka => przekierować do Canvas_Observer
 - [ ] VISIBLE*
 
 ###World
-- [ ] FILENAME
+- [x] FILENAME
