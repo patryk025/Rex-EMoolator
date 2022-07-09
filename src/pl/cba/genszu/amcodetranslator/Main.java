@@ -3,7 +3,6 @@ package pl.cba.genszu.amcodetranslator;
 import java.io.*;
 import java.util.*;
 import pl.cba.genszu.amcodetranslator.logger.*;
-import pl.cba.genszu.amcodetranslator.lexer.*;
 
 public class Main {
 
@@ -50,7 +49,7 @@ public class Main {
 		/* decypher - debug helper */
 		/*try
         {
-            FileReader reader = new FileReader("/sdcard/skrypty/rikn/dane/game/przygoda/Dzungla/Dzungla.cnv");
+            FileReader reader = new FileReader("/sdcard/skrypty/risp/Dane/Intro/MainMenu/04plaza/4PLAZA.cnv");
             BufferedReader bufferedReader = new BufferedReader(reader);
 
             String line;
@@ -74,7 +73,7 @@ public class Main {
 						content = content.append(line).append("\n");
 					}
                 }
-				PrintWriter pw = new PrintWriter("/sdcard/skrypty/Dzungla.cnv.dek");
+				PrintWriter pw = new PrintWriter("/sdcard/skrypty/4PLAZA.cnv.dek");
 				
 				if (decypher)
 				{
@@ -102,8 +101,8 @@ public class Main {
 		CNVParser cp = new CNVParser();
 		String tmp = null;
 		
-		pliki.clear();
-		//pliki.add("/sdcard/skrypty/rikn/dane/game/przygoda/Hanoi/Hanoi.cnv");
+		//pliki.clear();
+		//pliki.add("/sdcard/skrypty/risp/Dane/Intro/MainMenu/04plaza/4PLAZA.cnv");
 
         for (String e : pliki) {
             System.out.println(e);
@@ -149,7 +148,7 @@ public class Main {
 			//Lexer.parseCode("\"ONBRUTALCHANGED^\"+S1");
 			//Lexer.parseCode("{S1^SET([\"ENEMY\"+IENEMYNO]);CLSCHASZCZEENEMYOBJ^NEW(S1,0,IX,IY);GENEMIES^ADD(S1);GENEMYNAMES^ADD(S1);SPLAYERGOON^ADDBEHAVIOUR([\"ONBRUTALCHANGED^\"+S1],\"BEHGOONENEMY\");IENEMYNO^INC();ARRMAPA^SET(IX,IY,S1);SPOLE^SET(\"\");}");
 			//Lexer.parseCode("ART0^GET([ART0^GETSIZE()-1])");
-			Lexer.parseCode("{@IF(\"ICIK\",\"_\",ART0^GET([ART0^GETSIZE()-1]),\"BFITMP35\",\"\");}");
+			//Lexer.parseCode("{@IF(\"ICIK\",\"_\",ART0^GET([ART0^GETSIZE()-1]),\"BFITMP35\",\"\");}");
         } catch (Exception e) {
             e.printStackTrace();
         }

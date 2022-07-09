@@ -9,6 +9,10 @@ public class Branch extends Node {
     public Branch() {
         super();
     }
+	
+	public Branch(String tokenName) {
+		super(tokenName);
+	}
 
     public Branch(Token value) {
         super(value);

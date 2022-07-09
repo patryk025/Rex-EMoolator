@@ -373,8 +373,39 @@ public class Lexer
 						System.out.println("Błąd parsowania. Linia: " + instr);
 					}
 				} 
+				else if (instr.startsWith("@WHILE")) {
+					//String[] parts = instr.substring(4, instr.length() - 1).split(",");
+					String[] parts = StringUtils.selectiveSplit(instr.substring(7, instr.length() - 1), ',');
+					//System.out.println("DEBUG: "+instr);
+
+					//System.out.println("DEBUG: " + parts[0]);
+					/*for(int i = 0; i < parts.length; i++) {
+					 System.out.println(i + ". " + parts[i]);
+					 }*/
+
+					String[] cond = parseConditional(LexerUtils.extractExpression(parts[0])+LexerUtils.extractExpression(parts[1]).replace("_","'")+LexerUtils.extractExpression(parts[2]));
+
+					/*System.out.println("cond:");
+					 for(int i = 0; i < cond.length; i++) {
+					 System.out.println(i + ". " + cond[i]);
+					 }*/
+
+					if (cond != null) {
+						Branch conditionTree = new Branch(Constants.WHILE);
+						conditionTree.addCondition(condArrayToTree(cond));
+
+						conditionTree.add(parseCode(parts[3]));
+						
+
+						tree.root = conditionTree;
+
+						//BSTPrinter.print(tree);
+					} else {
+						System.out.println("Błąd parsowania. Linia: " + instr);
+					}
+				}
 				else if (instr.startsWith("@LOOP")) {
-					
+
 					/*
 					 @LOOP(treść, wartość_początkowa, różnica_początkowa_maksymalna, wartość_inkrementacji);														
 					 gdzie														
@@ -384,23 +415,23 @@ public class Lexer
 					 różnica_początkowa_maksymalna określa różnicę między startową a końcową wartość licznika (końcowa wartość nie jest osiągana: oznacza wyjście z pętli)													
 					 wartość_inkrementacji określa wartość, o jaką licznik jest podnoszony za każdą iteracją													
 					 tak więc wszystko skończyło się dobrze wartość licznika pętli należy do przedziału prawostronnie otwartego <wartość_początkowa; wartość_początkowa+różnica_początkowa_maksymalna)														
-					*/
-					
+					 */
+
 					//System.out.println("DEBUG: "+instr);
 					String[] parts = StringUtils.selectiveSplit(instr.substring(6, instr.length() - 1), ',');
 
 					//System.out.println("DEBUG: " + parts[0]);
 					/*for(int i = 0; i < parts.length; i++) {
-						System.out.println(i + ". " + parts[i]);
-					}*/
-					
+					 System.out.println(i + ". " + parts[i]);
+					 }*/
+
 					InstructionsList loopCode = parseCode(parts[0]);
 					String startValue = parts[1];
 					String stopValue = (startValue.endsWith("]")?startValue.substring(0,startValue.length() - 1):startValue) + "+" + LexerUtils.extractExpression(parts[2]);
 					String incrStep = parts[3];
-					
+
 					if(startValue.equals("0")) stopValue = stopValue.replace("0+", ""); //zero plus coś nam tu nie potrzebne
-					
+
 					//System.out.println("_I_>'"+startValue+"&&_I_<"+stopValue);
 					String[] cond = parseConditional("_I_>'"+startValue+"&&_I_<"+stopValue);
 
@@ -410,16 +441,16 @@ public class Lexer
 
 						Branch conditionTree = new Branch(obj);
 						conditionTree.addCondition(condArrayToTree(cond));
-						
+
 						conditionTree.add(loopCode);
-						
+
 						Node counterChange = new Node(new Token(Constants.VARSET));
 						counterChange.add(new Token(Constants.VARNAME, "_I_"));
 						Node tmp = counterChange.add(new Token(Constants.VARVAL));
 						tmp.add(ExpressionParser.expressionToTree("_I_+"+incrStep));
-						
+
 						conditionTree.addIncrement(counterChange);
-						
+
 						//BSTPrinter.print(new BinaryTree(conditionTree));
 					} else {
 						System.out.println("Błąd parsowania. Linia: " + instr);
@@ -512,6 +543,7 @@ public class Lexer
 					tree.root = ExpressionParser.expressionToTree(expr);
 				}
 				else if (LexerUtils.isMethodCall(instr)/* && !isArithmetic(instr)*/) { //wywołania metod
+					//System.out.println(instr);
 					String[] elems = StringUtils.selectiveSplit(instr, '^');
 					String objectName = elems[0].trim();
 					boolean isStruct = false;
@@ -526,7 +558,7 @@ public class Lexer
 					}
 					if(LexerUtils.isStructFieldExpr(objectName)){
 						isStruct = true;
-						System.out.println("INFO: Function call on struct field");
+						//System.out.println("INFO: Function call on struct field");
 					}
 					elems[1] = elems[1].substring(0, elems[1].length()-1);
 					String[] funcParts = StringUtils.singleSplit(elems[1], "(");
@@ -601,7 +633,7 @@ public class Lexer
 
 					//BSTPrinter.print(tree);
 				}
-				BSTPrinter.print(tree);
+				//BSTPrinter.print(tree);
 				instructionsList.addInstruction(tree);
 			}
 		}

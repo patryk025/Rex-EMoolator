@@ -140,15 +140,33 @@ public class CNVParser
 						{
 							if (!line.endsWith(":="))
 							{
-								String method = (line.split(":")[1]).split("=")[0];
+								String[] segments = line.split(":");
+								String method = (segments[1]).split("=")[0];
 								String methodParam = "";
 								if (method.contains("^"))
 								{
 									methodParam = method.split("\\^")[1];
 									method = method.split("\\^")[0];
 								}
+								
+								String testName = segments[0];
+								
+								if(!testName.equals(tmp)) {
+									System.out.println("WARNING: variable names missmatch ("+testName+" != "+tmp+")!");
+									System.out.print("WARNING: line corrected, "+line+" -> ");
+									line = line.replace(testName+":", tmp+":");
+									System.out.println(line);
+								}
 
-								String[] splitTmp = (line.split(tmp + ":")[1]).split("=");
+								String[] splitTmp = (segments[1]).split("=");
+								/*try {
+								splitTmp = (line.split(tmp + ":")[1]).split("=");
+								}
+								catch(Exception e) {
+									System.out.println(Arrays.asList(line.split(tmp + ":")));
+									System.out.println(tmp);
+									System.out.println(line);
+								}*/
 								String tmpVal = "";
 								if (splitTmp.length == 2)
 								{

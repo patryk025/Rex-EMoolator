@@ -21,7 +21,8 @@ public class Constants {
 	public static String ELSE= "ELSE";
 	
 	public static String LOOP = "LOOP";
-
+	public static String WHILE = "WHILE";
+	
 	public static String FIRE = "FIRE";
 	public static String FUNC = "FUNC";
 	public static String FUNC_PARAMS= "FUNC_PARAMS";
