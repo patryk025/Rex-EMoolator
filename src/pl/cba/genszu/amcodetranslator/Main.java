@@ -49,7 +49,7 @@ public class Main {
 		/* decypher - debug helper */
 		/*try
         {
-            FileReader reader = new FileReader("/sdcard/skrypty/risp/Dane/Intro/MainMenu/04plaza/4PLAZA.cnv");
+            FileReader reader = new FileReader("/sdcard/skrypty/riu(7.1)/DANE/ReksioUfo/PRZYGODA/Droga/s71_droga.cnv");
             BufferedReader bufferedReader = new BufferedReader(reader);
 
             String line;
@@ -73,7 +73,7 @@ public class Main {
 						content = content.append(line).append("\n");
 					}
                 }
-				PrintWriter pw = new PrintWriter("/sdcard/skrypty/4PLAZA.cnv.dek");
+				PrintWriter pw = new PrintWriter("/sdcard/skrypty/s71_droga.cnv.dek");
 				
 				if (decypher)
 				{
@@ -102,7 +102,7 @@ public class Main {
 		String tmp = null;
 		
 		//pliki.clear();
-		//pliki.add("/sdcard/skrypty/risp/Dane/Intro/MainMenu/04plaza/4PLAZA.cnv");
+		//pliki.add("/sdcard/skrypty/riu(7.1)/DANE/ReksioUfo/PRZYGODA/Droga/s71_droga.cnv");
 
         for (String e : pliki) {
             System.out.println(e);
@@ -149,6 +149,8 @@ public class Main {
 			//Lexer.parseCode("{S1^SET([\"ENEMY\"+IENEMYNO]);CLSCHASZCZEENEMYOBJ^NEW(S1,0,IX,IY);GENEMIES^ADD(S1);GENEMYNAMES^ADD(S1);SPLAYERGOON^ADDBEHAVIOUR([\"ONBRUTALCHANGED^\"+S1],\"BEHGOONENEMY\");IENEMYNO^INC();ARRMAPA^SET(IX,IY,S1);SPOLE^SET(\"\");}");
 			//Lexer.parseCode("ART0^GET([ART0^GETSIZE()-1])");
 			//Lexer.parseCode("{@IF(\"ICIK\",\"_\",ART0^GET([ART0^GETSIZE()-1]),\"BFITMP35\",\"\");}");
+			//CodeBeautifier.beautify("{VARBTEMP1^SET(ANNREKSIO^ISPLAYING(\"UP\"));@IF(\"VARBTEMP1\", \"_\", \"FALSE\", \"BEHONMOVEUP\", \"\");}");
+			//Lexer.parseCode("{VARBTEMP1^SET(ANNREKSIO^ISPLAYING(\"UP\"));@IF(\"VARBTEMP1\", \"_\", \"FALSE\", \"BEHONMOVEUP\", \"\");}");
         } catch (Exception e) {
             e.printStackTrace();
         }

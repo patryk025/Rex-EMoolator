@@ -294,6 +294,10 @@ public class Lexer
 	public static InstructionsList parseCode(String code, boolean mainRoutine) throws Exception {
 
 		code = LexerUtils.extractExpression(code);
+		
+		code = code.replace(", ", ","); //taka tam kulawa proteza na chwilę (do wywalenia, spowalnia bardzo)
+		//TODO: pozbyć się tych protez i zoptymalizować to
+		
 		//if(!isMethodCall(code) && !isArithmetic(code) && !code.startsWith("@")) System.out.println("Prawdopodobnie nazwa Behaviour -> "+code);
 		//code = code.substring(1, code.length()-1);
 		//System.out.println((mainRoutine?"INSTRUCTIONS: ":"SUBROUTINE: ")+code);

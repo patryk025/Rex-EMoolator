@@ -141,53 +141,58 @@ public class CNVParser
 							if (!line.endsWith(":="))
 							{
 								String[] segments = line.split(":");
-								String method = (segments[1]).split("=")[0];
-								String methodParam = "";
-								if (method.contains("^"))
-								{
-									methodParam = method.split("\\^")[1];
-									method = method.split("\\^")[0];
-								}
-								
-								String testName = segments[0];
-								
-								if(!testName.equals(tmp)) {
-									System.out.println("WARNING: variable names missmatch ("+testName+" != "+tmp+")!");
-									System.out.print("WARNING: line corrected, "+line+" -> ");
-									line = line.replace(testName+":", tmp+":");
-									System.out.println(line);
-								}
-
-								String[] splitTmp = (segments[1]).split("=");
-								/*try {
-								splitTmp = (line.split(tmp + ":")[1]).split("=");
-								}
-								catch(Exception e) {
-									System.out.println(Arrays.asList(line.split(tmp + ":")));
-									System.out.println(tmp);
-									System.out.println(line);
-								}*/
-								String tmpVal = "";
-								if (splitTmp.length == 2)
-								{
-									tmpVal = splitTmp[1];
-									
-									if (!methodParam.equals(""))
+								if(segments.length==2) {
+									String method = (segments[1]).split("=")[0];
+									String methodParam = "";
+									if (method.contains("^"))
 									{
-										//InstructionsBlock.addListenerParam
-										//if(!typ.equals("Animo"))
-										//System.out.println("Nie wiem co z tym: "+line);
-										//System.out.println(variables.get(variables.size()-1).getType()+"."+method);
-										variables.get(variables.size() - 1).setProperty(method, methodParam + "$$" + tmpVal);
+										methodParam = method.split("\\^")[1];
+										method = method.split("\\^")[0];
 									}
-									else
+									
+									String testName = segments[0];
+									
+									if(!testName.equals(tmp)) {
+										System.out.println("WARNING: variable names missmatch ("+testName+" != "+tmp+")!");
+										System.out.print("WARNING: line corrected, "+line+" -> ");
+										line = line.replace(testName+":", tmp+":");
+										System.out.println(line);
+									}
+
+									String[] splitTmp = (segments[1]).split("=");
+									/*try {
+										splitTmp = (line.split(tmp + ":")[1]).split("=");
+									}
+									catch(Exception e) {
+										System.out.println(Arrays.asList(line.split(tmp + ":")));
+										System.out.println(tmp);
+										System.out.println(line);
+									}*/
+									String tmpVal = "";
+									if (splitTmp.length == 2)
 									{
-										variables.get(variables.size() - 1).setProperty(method, tmpVal);
+										tmpVal = splitTmp[1];
+										
+										if (!methodParam.equals(""))
+										{
+											//InstructionsBlock.addListenerParam
+											//if(!typ.equals("Animo"))
+											//System.out.println("Nie wiem co z tym: "+line);
+											//System.out.println(variables.get(variables.size()-1).getType()+"."+method);
+											variables.get(variables.size() - 1).setProperty(method, methodParam + "$$" + tmpVal);
+										}
+										else
+										{
+											variables.get(variables.size() - 1).setProperty(method, tmpVal);
+										}
+									}
+									else {
+										System.out.println("WARNING: no value after equal sign, ignoring...");
+										System.out.println("DEBUG: line => "+line);
 									}
 								}
 								else {
-									System.out.println("WARNING: no value after equal sign, ignoring...");
-									System.out.println("DEBUG: line => "+line);
+									System.out.println("WARNING: something is wrong with line " + line);
 								}
 							}
 							else

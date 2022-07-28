@@ -45,6 +45,12 @@ public class StringUtils
 	}
 	
 	public static String cutHeadAndTail(String string) {
-		return string.substring(1, string.length()-1);
+		if(string.equals("\"\"")) { //no jak puste to puste
+			return "";
+		}
+		else {
+			return string.substring(1, string.length()-1);
+		}
+		
 	}
 }
