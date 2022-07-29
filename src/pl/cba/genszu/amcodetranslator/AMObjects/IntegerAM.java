@@ -9,6 +9,17 @@ public class IntegerAM {
 	private InstructionsBlock ONCHANGED;
 	private String DESCRIPTION;
 	private InstructionsBlock ONSIGNAL;
+	private String VARTYPE;
+
+	public void setVARTYPE(String vARTYPE)
+	{
+		VARTYPE = vARTYPE;
+	}
+
+	public String getVARTYPE()
+	{
+		return VARTYPE;
+	}
 	
     /*public IntegerAM(int VALUE, boolean TOINI) {
         this.VALUE = VALUE;

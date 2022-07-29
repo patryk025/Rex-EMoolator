@@ -105,6 +105,9 @@ public class Variable
 			case "Keyboard":
 				this.classObj = new Keyboard();
 				break;
+			case "Matrix":
+				this.classObj = new Matrix();
+				break;
 			case "Mouse":
 				this.classObj = new Mouse();
 				break;
@@ -116,6 +119,9 @@ public class Variable
 				break;
 			case "Pattern":
 				this.classObj = new Pattern();
+				break;
+			case "Rand":
+				this.classObj = new RandAM();
 				break;
 			case "Scene":
 				this.classObj = new Scene();
@@ -969,8 +975,7 @@ public class Variable
 						}
 						break;
 					case "VARTYPE":
-						debugPrint(type, name, value);
-						//objTmp26.setVARTYPE(value);
+						objTmp26.setVARTYPE(value);
 						break;
 				}
 				break;
@@ -1178,52 +1183,42 @@ public class Variable
 				break;
 			case "Pattern":
 				Pattern objTmp37 = (Pattern) classObj;
-				debugPrint(type, name, value);
+				//debugPrint(type, name, value);
 				
-				/*
-				 DEBUG: Pattern.LAYERS => 0
-				 DEBUG: Pattern.TOCANVAS => TRUE
-				 DEBUG: Pattern.VISIBLE => TRUE
-				 DEBUG: Pattern.PRIORITY => 2
-				 DEBUG: Pattern.WIDTH => 19200
-				 DEBUG: Pattern.HEIGHT => 600
-				 DEBUG: Pattern.GRIDX => 100
-				 DEBUG: Pattern.GRIDY => 100
-				 */
-				
-				/*switch (name) {
+				switch (name) {
 					case "GRIDX":
-						objTmp37.setGRIDX(value);
+						objTmp37.setGRIDX(Integer.parseInt(value));
 						break;
 					case "GRIDY":
-						objTmp37.setGRIDY(value);
+						objTmp37.setGRIDY(Integer.parseInt(value));
 						break;
 					case "HEIGHT":
-						objTmp37.setHEIGHT(value);
+						objTmp37.setHEIGHT(Integer.parseInt(value));
 						break;
 					case "LAYERS":
-						objTmp37.setLAYERS(value);
+						objTmp37.setLAYERS(Integer.parseInt(value));
 						break;
 					case "PRIORITY":
-						objTmp37.setPRIORITY(value);
+						objTmp37.setPRIORITY(Integer.parseInt(value)(;
 						break;
 					case "TOCANVAS":
-						objTmp37.setTOCANVAS(value);
+						objTmp37.setTOCANVAS(stringToBool(value));
 						break;
 					case "VISIBLE":
-						objTmp37.setVISIBLE(value);
+						objTmp37.setVISIBLE(stringToBool(value));
 						break;
 					case "WIDTH":
-						objTmp37.setWIDTH(value);
+						objTmp37.setWIDTH(Integer.parseInt(value));
 						break;
-				}*/
+				}
 				break;
 			case "Rand":
 				//TODO: obiekt typu Rand zrobić wrapper do metod z Javy
-				/*Rand objTmp38 = (Rand) classObj;
+				RandAM objTmp38 = (RandAM) classObj;
+				debugPrint(type, name, value);
 
 				switch (name) {
-				}*/
+				}
 				break;
 			case "Scene":
 				Scene objTmp39 = (Scene) classObj;
@@ -1524,17 +1519,17 @@ public class Variable
 				}
 				break;
 			case "Vector":
-				debugPrint(type, name, value);
-				/*Vector objTmp49 = (Vector) classObj;
+				//debugPrint(type, name, value);
+				Vector objTmp49 = (Vector) classObj;
 				
 				switch (name) {
 					case "SIZE":
-						objTmp49.setSIZE(value);
+						objTmp49.setSIZE(Integer.parseInt(value));
 						break;
 					case "VALUE":
 						objTmp49.setVALUE(value);
 						break;
-				}*/
+				}
 				break;
 			case "VirtualGraphicsObject": //nieużywane
 				/*VirtualGraphicsObject objTmp50 = (VirtualGraphicsObject) classObj;
