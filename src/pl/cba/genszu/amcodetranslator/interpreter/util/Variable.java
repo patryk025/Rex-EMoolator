@@ -1199,7 +1199,7 @@ public class Variable
 						objTmp37.setLAYERS(Integer.parseInt(value));
 						break;
 					case "PRIORITY":
-						objTmp37.setPRIORITY(Integer.parseInt(value)(;
+						objTmp37.setPRIORITY(Integer.parseInt(value));
 						break;
 					case "TOCANVAS":
 						objTmp37.setTOCANVAS(stringToBool(value));
