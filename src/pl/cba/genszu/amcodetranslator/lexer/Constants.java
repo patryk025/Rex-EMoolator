@@ -47,4 +47,6 @@ public class Constants {
 	
 	public static String BREAK = "BREAK";
 	public static String RETURN = "RETURN";
+	
+	public static String MSGBOX = "MSGBOX";
 }

@@ -21,13 +21,18 @@ public class StringUtils
 			}
 			if(text.charAt(i) == splitChar && intentNo == 0) {
 				stringNo++;
-				linesArr.add("");
+				if(i < text.length() - 1)
+					linesArr.add("");
 			}
 			else {
 				linesArr.set(stringNo, linesArr.get(stringNo)+text.charAt(i));
 			}
 		}
 		return linesArr.toArray(new String[0]);
+	}
+	
+	public static String[] splitInstrToLines(String code) {
+		return selectiveSplit(code, ';', '{', '}');
 	}
 
 	public static String[] singleSplit(String text, String splitChar) {

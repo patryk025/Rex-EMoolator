@@ -1,15 +1,19 @@
 package pl.cba.genszu.amcodetranslator.lexer;
+import java.io.*;
 import java.util.*;
 import java.util.regex.*;
+import pl.cba.genszu.amcodetranslator.algebra.*;
+import pl.cba.genszu.amcodetranslator.encoding.*;
 import pl.cba.genszu.amcodetranslator.interpreter.*;
 import pl.cba.genszu.amcodetranslator.interpreter.util.*;
+import pl.cba.genszu.amcodetranslator.lexer.fixer.*;
 import pl.cba.genszu.amcodetranslator.lexer.tree.*;
 import pl.cba.genszu.amcodetranslator.lexer.tree.exception.*;
-import pl.cba.genszu.amcodetranslator.algebra.*;
-import pl.cba.genszu.amcodetranslator.lexer.fixer.*;
 
 public class Lexer
 {
+	//public static PrintWriter pw = null;
+	
 	/*public Lexer(String code) {
 		
 	}*/
@@ -295,7 +299,7 @@ public class Lexer
 
 		code = LexerUtils.extractExpression(code);
 		
-		code = code.replace(", ", ","); //taka tam kulawa proteza na chwilę (do wywalenia, spowalnia bardzo)
+		//code = code.replace(", ", ","); //taka tam kulawa proteza na chwilę (do wywalenia, spowalnia bardzo)
 		//TODO: pozbyć się tych protez i zoptymalizować to
 		
 		//if(!isMethodCall(code) && !isArithmetic(code) && !code.startsWith("@")) System.out.println("Prawdopodobnie nazwa Behaviour -> "+code);
@@ -307,7 +311,35 @@ public class Lexer
 		
 		//String[] instructions = code.split(";"); //debug
 
-		String[] instructions = StringUtils.selectiveSplit(code, ';');
+		//String[] instructions = StringUtils.selectiveSplit(code, ';');
+		
+		String[] instructions = StringUtils.splitInstrToLines(code);
+		
+		/*System.out.println("Test, zwykły split");
+		int testI = 0;
+		String[] debug1 = code.split(";");
+		String[] debug2 = StringUtils.selectiveSplit(code, ';');
+		for(String testInstr : debug1) {
+			System.out.println(testI++ + ". " + testInstr);
+		}
+		System.out.println("Test, selective split");
+		testI = 0;
+		for(String testInstr : debug2) {
+			System.out.println(testI++ + ". " + testInstr);
+		}
+		System.out.println("Compare lengths");
+		System.out.println("debug1.length (" + debug1.length + ") == debug2.length (" + debug2.length + ") => " + (debug1.length == debug2.length));
+		System.out.println();
+		if(true)
+			return null;*/
+		
+		//System.out.println(Arrays.asList(instructions));
+		
+		/*pw.println("--------------DEBUG!!!--------------");
+		for(String instr : instructions) {
+			pw.println(instr);
+		}
+		pw.flush();*/
 		
 		CodePatches patcher = new CodePatches();
 		
@@ -323,6 +355,8 @@ public class Lexer
 				}
 				
 				if (instr.startsWith("@IF")) {
+					instr = instr.replace(", ", ",");
+					
 					//String[] parts = instr.substring(4, instr.length() - 1).split(",");
 					String[] parts = StringUtils.selectiveSplit(instr.substring(4, instr.length() - 1), ',');
 					//System.out.println("DEBUG: "+instr);
@@ -331,7 +365,7 @@ public class Lexer
 					/*for(int i = 0; i < parts.length; i++) {
 						System.out.println(i + ". " + parts[i]);
 					}*/
-
+					
 					//transformacja 5-cioargumentowego ifa do trójargumentowego
 					//zmiana _ na ' (kłopoty z parsowaniem)
 					if(parts.length == 5) { //warunek prosty (zmienna, komparator, wartość, prawda, fałsz)
@@ -495,7 +529,7 @@ public class Lexer
 
 					if (matcher.find()) {
 						Token ret = new Token(Constants.RETURN);
-						Token name = new Token(Constants.VARNAME, matcher.group(1));
+						Token name = new Token(Constants.VARVAL, matcher.group(1));
 
 						tree.root = new Node(ret);
 						tree.root.add(name);
@@ -509,6 +543,22 @@ public class Lexer
 					tree.root = new Node(brk);
 
 					//BSTPrinter.print(tree);
+				}
+				else if(instr.startsWith("@MSGBOX")) {
+					final String regex = "@MSGBOX\\((.*)\\)";
+
+					final Pattern pattern = Pattern.compile(regex, Pattern.MULTILINE);
+					final Matcher matcher = pattern.matcher(instr);
+
+					if (matcher.find()) {
+						Token ret = new Token(Constants.MSGBOX);
+						Token name = new Token(Constants.VARVAL, matcher.group(1));
+
+						tree.root = new Node(ret);
+						tree.root.add(name);
+
+						//BSTPrinter.print(tree);
+					}
 				}
 				else if(instr.startsWith("@")) {
 					System.out.println("WARNING: "+instr.split("\\(")[0]+" is not implemented yet!!!");
@@ -567,6 +617,7 @@ public class Lexer
 					elems[1] = elems[1].substring(0, elems[1].length()-1);
 					String[] funcParts = StringUtils.singleSplit(elems[1], "(");
 					String functionName = funcParts[0].trim();
+					funcParts[1] = funcParts[1].replace(", ", ",");
 					String[] params = funcParts[1].trim().split(",");
 					//System.out.println("obj: " + objectName + ", method: " + functionName + ", paramsNumb: " + params.length + ", params: " + Arrays.toString(params));
 

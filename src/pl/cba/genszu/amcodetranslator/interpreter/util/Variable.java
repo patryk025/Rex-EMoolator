@@ -99,6 +99,9 @@ public class Variable
 			case "Image":
 				this.classObj = new Image();
 				break;
+			case "Inertia":
+				this.classObj = new Inertia();
+				break;
 			case "Integer":
 				this.classObj = new IntegerAM();
 				break;
@@ -587,7 +590,7 @@ public class Variable
 				switch (name) {
 				}*/
 				break;
-			case "Canvas_Observer":
+			case "Canvas_observer":
 			case "Canvasobserver":
 				/*Canvas_Observer objTmp9 = (Canvas_Observer) classObj;
 
@@ -612,7 +615,7 @@ public class Variable
 						break;
 				}
 				break;
-			case "ComplexCondition":
+			case "Complexcondition":
 				ComplexCondition objTmp12 = (ComplexCondition) classObj;
 
 				switch (name) {
@@ -805,7 +808,7 @@ public class Variable
 					}
 				}*/
 				break;
-			case "GRBuffer": //nieużywane
+			case "Grbuffer": //nieużywane
 				/*GRBuffer objTmp22 = (GRBuffer) classObj;
 
 				switch (name) {
@@ -901,6 +904,7 @@ public class Variable
 				}
 				break;
 			case "Inertia":
+				debugPrint(type, name, value);
 				/*Inertia objTmp25 = (Inertia) classObj;
 
 				switch (name) {
@@ -980,12 +984,14 @@ public class Variable
 				}
 				break;
 			case "Internet": //nieużywane
+				debugPrint(type, name, value);
 				/*Internet objTmp27 = (Internet) classObj;
 
 				switch (name) {
 				}*/
 				break;
 			case "Joystick": //nieużywane
+				debugPrint(type, name, value);
 				/*Joystick objTmp28 = (Joystick) classObj;
 
 				switch (name) {
@@ -1078,6 +1084,7 @@ public class Variable
 				break;
 			case "Mouse":
 				//tymczasowo nie implementuje interfejsu myszy
+				debugPrint(type, name, value);
 				/*Mouse objTmp31 = (Mouse) classObj;
 
 				switch (name) {
@@ -1145,7 +1152,7 @@ public class Variable
 						break;
 				}*/
 				break;
-			case "MultiArray":
+			case "Multiarray":
 				MultiArray objTmp32 = (MultiArray) classObj;
 
 				switch (name) {
@@ -1163,19 +1170,22 @@ public class Variable
 						break;
 				}
 				break;
-			case "NetServer": //nieużywane
+			case "Netserver": //nieużywane
+				debugPrint(type, name, value);
 				/*NetServer objTmp34 = (NetServer) classObj;
 
 				switch (name) {
 				}*/
 				break;
-			case "NetClient": //nieużywane
+			case "Netclient": //nieużywane
+				debugPrint(type, name, value);
 				/*NetClient objTmp35 = (NetClient) classObj;
 
 				switch (name) {
 				}*/
 				break;
-			case "NetPeer": //nieużywane
+			case "Netpeer": //nieużywane
+				debugPrint(type, name, value);
 				/*NetPeer objTmp36 = (NetPeer) classObj;
 
 				switch (name) {
@@ -1254,6 +1264,7 @@ public class Variable
 				}
 				break;
 			case "Scroll": //nieużywane
+				debugPrint(type, name, value);
 				/*Scroll objTmp40 = (Scroll) classObj;
 
 				switch (name) {
@@ -1358,7 +1369,7 @@ public class Variable
 						break;
 				}
 				break;
-			case "StaticFilter":
+			case "Staticfilter":
 				StaticFilter objTmp43 = (StaticFilter) classObj;
 
 				switch (name) {
@@ -1429,6 +1440,7 @@ public class Variable
 				}
 				break;
 			case "System": //nieużywane
+				debugPrint(type, name, value);
 				/*System objTmp46 = (System) classObj;
 
 				switch (name) {
@@ -1531,7 +1543,8 @@ public class Variable
 						break;
 				}
 				break;
-			case "VirtualGraphicsObject": //nieużywane
+			case "Virtualgraphicsobject": //nieużywane
+				debugPrint(type, name, value);
 				/*VirtualGraphicsObject objTmp50 = (VirtualGraphicsObject) classObj;
 
 				switch (name) {
@@ -1547,7 +1560,7 @@ public class Variable
 				}
 				break;
 			default:
-
+				debugPrint(type, name, value);
 				break;
 		}
 	}
