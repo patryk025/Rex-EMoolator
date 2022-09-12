@@ -173,9 +173,9 @@ public class ExpressionParser
 					System.out.println("DEBUG: LexerUtils.isStructFieldExpr(testVal) = " + LexerUtils.isStructFieldExpr(testVal));
 					System.out.println("DEBUG: LexerUtils.isMethodCall(testVal) || LexerUtils.isStructFieldExpr(testVal) = " + (LexerUtils.isMethodCall(testVal) || LexerUtils.isStructFieldExpr(testVal)));
 					*/
-					tmp.right = (LexerUtils.isMethodCall(testVal) || LexerUtils.isStructFieldExpr(testVal) ?Lexer.parseCode(operands.pop().value.value).instr.get(0).root: operands.pop());
+					tmp.right = (LexerUtils.isMethodCall(testVal) || LexerUtils.isStructFieldExpr(testVal) ?Parser.parseCode(operands.pop().value.value).instr.get(0).root: operands.pop());
 					testVal = operands.peek().value.value;
-					tmp.left = (LexerUtils.isMethodCall(testVal) || LexerUtils.isStructFieldExpr(testVal) ?Lexer.parseCode(operands.pop().value.value).instr.get(0).root: operands.pop());
+					tmp.left = (LexerUtils.isMethodCall(testVal) || LexerUtils.isStructFieldExpr(testVal) ?Parser.parseCode(operands.pop().value.value).instr.get(0).root: operands.pop());
 					operands.push(tmp);
 				}
 				catch (Exception e)

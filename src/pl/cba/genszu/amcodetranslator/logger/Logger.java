@@ -8,7 +8,7 @@ public class Logger
 	private static Logger instance;
 	
 	public Logger() {
-		this.uri = "/sdcard/skrypty/logi.txt";
+		this.uri = "/sdcard/skrypty/missing.txt";
 		try
 		{
 			pw = new PrintWriter(this.uri);
@@ -21,13 +21,13 @@ public class Logger
 	
 	public void log(String message) {
 		if(pw != null) {
-			pw.write(message);
+			pw.write(message+"\n");
 			pw.flush();
 		}
 		System.out.println(message);
 	}
 	
-	public Logger getInstance() {
+	public static Logger getInstance() {
 		if(instance == null) instance = new Logger();
 		return instance;
 	}

@@ -21,7 +21,7 @@ public class InstructionsBlock
 		{
 			if(this.instr == null)
 				this.instr = new HashMap<>();
-			this.instr.put(param, Lexer.parseCode(code));
+			this.instr.put(param, Parser.parseCode(code));
 			//System.out.println(this.instr);
 		}
 		catch (Exception e)

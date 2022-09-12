@@ -3,6 +3,7 @@ package pl.cba.genszu.amcodetranslator.interpreter.util;
 import pl.cba.genszu.amcodetranslator.AMObjects.*;
 import pl.cba.genszu.amcodetranslator.lexer.*;
 import pl.cba.genszu.amcodetranslator.interpreter.*;
+import pl.cba.genszu.amcodetranslator.logger.*;
 
 public class Variable
 {
@@ -178,6 +179,8 @@ public class Variable
 	
 	public void debugPrint(String type, String name, String value) {
 		System.out.println("DEBUG: " + type + "." + name + " => " + value);
+		Logger logger = Logger.getInstance();
+		logger.log(type + "." + name + " => " + value);
 	}
 	
 	public void setProperty(String name, String value) {
@@ -204,7 +207,7 @@ public class Variable
 					case "ONCLICK":
 						try
 						{
-							objTmp1.setONCLICK(new InstructionsBlock(Lexer.parseCode(value)));
+							objTmp1.setONCLICK(new InstructionsBlock(Parser.parseCode(value)));
 						}
 						catch (Exception e)
 						{
@@ -218,7 +221,7 @@ public class Variable
 								objTmp1.getONCOLLISION().addListenerParam(parts[0], parts[1]);
 							}
 							else
-								objTmp1.setONCOLLISION(new InstructionsBlock(Lexer.parseCode(value)));
+								objTmp1.setONCOLLISION(new InstructionsBlock(Parser.parseCode(value)));
 						}
 						catch (Exception e) {
 							e.printStackTrace();
@@ -231,7 +234,7 @@ public class Variable
 								objTmp1.getONFINISHED().addListenerParam(parts[0], parts[1]);
 							}
 							else
-								objTmp1.setONFINISHED(new InstructionsBlock(Lexer.parseCode(value)));
+								objTmp1.setONFINISHED(new InstructionsBlock(Parser.parseCode(value)));
 						}
 						catch (Exception e) {
 							e.printStackTrace();
@@ -240,7 +243,7 @@ public class Variable
 					case "ONFOCUSOFF":
 						try
 						{
-							objTmp1.setONFOCUSOFF(new InstructionsBlock(Lexer.parseCode(value)));
+							objTmp1.setONFOCUSOFF(new InstructionsBlock(Parser.parseCode(value)));
 						}
 						catch (Exception e)
 						{
@@ -250,7 +253,7 @@ public class Variable
 					case "ONFOCUSON":
 						try
 						{
-							objTmp1.setONFOCUSON(new InstructionsBlock(Lexer.parseCode(value)));
+							objTmp1.setONFOCUSON(new InstructionsBlock(Parser.parseCode(value)));
 						}
 						catch (Exception e)
 						{
@@ -264,7 +267,7 @@ public class Variable
 								objTmp1.getONFRAMECHANGED().addListenerParam(parts[0], parts[1]);
 							}
 							else
-								objTmp1.setONFRAMECHANGED(new InstructionsBlock(Lexer.parseCode(value)));
+								objTmp1.setONFRAMECHANGED(new InstructionsBlock(Parser.parseCode(value)));
 						}
 						catch (Exception e) {
 							e.printStackTrace();
@@ -277,7 +280,7 @@ public class Variable
 								objTmp1.getONINIT().addListenerParam(parts[0], parts[1]);
 							}
 							else
-								objTmp1.setONINIT(new InstructionsBlock(Lexer.parseCode(value)));
+								objTmp1.setONINIT(new InstructionsBlock(Parser.parseCode(value)));
 						}
 						catch (Exception e) {
 							e.printStackTrace();
@@ -286,7 +289,7 @@ public class Variable
 					case "ONRELEASE":
 						try
 						{
-							objTmp1.setONRELEASE(new InstructionsBlock(Lexer.parseCode(value)));
+							objTmp1.setONRELEASE(new InstructionsBlock(Parser.parseCode(value)));
 						}
 						catch (Exception e)
 						{
@@ -300,7 +303,7 @@ public class Variable
 								objTmp1.getONSIGNAL().addListenerParam(parts[0], parts[1]);
 							}
 							else
-								objTmp1.setONSIGNAL(new InstructionsBlock(Lexer.parseCode(value)));
+								objTmp1.setONSIGNAL(new InstructionsBlock(Parser.parseCode(value)));
 						}
 						catch (Exception e) {
 							e.printStackTrace();
@@ -313,7 +316,7 @@ public class Variable
 								objTmp1.getONSTARTED().addListenerParam(parts[0], parts[1]);
 							}
 							else
-								objTmp1.setONSTARTED(new InstructionsBlock(Lexer.parseCode(value)));
+								objTmp1.setONSTARTED(new InstructionsBlock(Parser.parseCode(value)));
 						}
 						catch (Exception e) {
 							e.printStackTrace();
@@ -379,7 +382,7 @@ public class Variable
 					case "ONINIT":
 						try
 						{
-							objTmp3.setONINIT(new InstructionsBlock(Lexer.parseCode(value)));
+							objTmp3.setONINIT(new InstructionsBlock(Parser.parseCode(value)));
 						}
 						catch (Exception e)
 						{
@@ -395,7 +398,7 @@ public class Variable
 					case "CODE":
 						try
 						{
-							objTmp4.setCODE(new InstructionsBlock(Lexer.parseCode(value)));
+							objTmp4.setCODE(new InstructionsBlock(Parser.parseCode(value)));
 						}
 						catch (Exception e)
 						{
@@ -424,7 +427,7 @@ public class Variable
 								objTmp5.getONBRUTALCHANGED().addListenerParam(parts[0], parts[1]);
 							}
 							else
-								objTmp5.setONBRUTALCHANGED(new InstructionsBlock(Lexer.parseCode(value)));
+								objTmp5.setONBRUTALCHANGED(new InstructionsBlock(Parser.parseCode(value)));
 						}
 						catch (Exception e) {
 							e.printStackTrace();
@@ -437,7 +440,7 @@ public class Variable
 								objTmp5.getONCHANGED().addListenerParam(parts[0], parts[1]);
 							}
 							else
-								objTmp5.setONCHANGED(new InstructionsBlock(Lexer.parseCode(value)));
+								objTmp5.setONCHANGED(new InstructionsBlock(Parser.parseCode(value)));
 						}
 						catch (Exception e) {
 							e.printStackTrace();
@@ -446,7 +449,7 @@ public class Variable
 					case "ONINIT":
 						try
 						{
-							objTmp5.setONINIT(new InstructionsBlock(Lexer.parseCode(value)));
+							objTmp5.setONINIT(new InstructionsBlock(Parser.parseCode(value)));
 						}
 						catch (Exception e)
 						{
@@ -486,7 +489,7 @@ public class Variable
 					case "ONACTION":
 						try
 						{
-							objTmp6.setONACTION(new InstructionsBlock(Lexer.parseCode(value)));
+							objTmp6.setONACTION(new InstructionsBlock(Parser.parseCode(value)));
 						}
 						catch (Exception e)
 						{
@@ -496,7 +499,7 @@ public class Variable
 					case "ONCLICKED":
 						try
 						{
-							objTmp6.setONCLICKED(new InstructionsBlock(Lexer.parseCode(value)));
+							objTmp6.setONCLICKED(new InstructionsBlock(Parser.parseCode(value)));
 						}
 						catch (Exception e)
 						{
@@ -506,7 +509,7 @@ public class Variable
 					case "ONENDDRAGGING":
 						try
 						{
-							objTmp6.setONENDDRAGGING(new InstructionsBlock(Lexer.parseCode(value)));
+							objTmp6.setONENDDRAGGING(new InstructionsBlock(Parser.parseCode(value)));
 						}
 						catch (Exception e)
 						{
@@ -516,7 +519,7 @@ public class Variable
 					case "ONFOCUSOFF":
 						try
 						{
-							objTmp6.setONFOCUSOFF(new InstructionsBlock(Lexer.parseCode(value)));
+							objTmp6.setONFOCUSOFF(new InstructionsBlock(Parser.parseCode(value)));
 						}
 						catch (Exception e)
 						{
@@ -526,7 +529,7 @@ public class Variable
 					case "ONFOCUSON":
 						try
 						{
-							objTmp6.setONFOCUSON(new InstructionsBlock(Lexer.parseCode(value)));
+							objTmp6.setONFOCUSON(new InstructionsBlock(Parser.parseCode(value)));
 						}
 						catch (Exception e)
 						{
@@ -536,7 +539,7 @@ public class Variable
 					case "ONINIT":
 						try
 						{
-							objTmp6.setONINIT(new InstructionsBlock(Lexer.parseCode(value)));
+							objTmp6.setONINIT(new InstructionsBlock(Parser.parseCode(value)));
 						}
 						catch (Exception e)
 						{
@@ -546,7 +549,7 @@ public class Variable
 					case "ONRELEASED":
 						try
 						{
-							objTmp6.setONRELEASED(new InstructionsBlock(Lexer.parseCode(value)));
+							objTmp6.setONRELEASED(new InstructionsBlock(Parser.parseCode(value)));
 						}
 						catch (Exception e)
 						{
@@ -556,7 +559,7 @@ public class Variable
 					case "ONSTARTDRAGGING":
 						try
 						{
-							objTmp6.setONSTARTDRAGGING(new InstructionsBlock(Lexer.parseCode(value)));
+							objTmp6.setONSTARTDRAGGING(new InstructionsBlock(Parser.parseCode(value)));
 						}
 						catch (Exception e)
 						{
@@ -631,7 +634,7 @@ public class Variable
 					case "ONRUNTIMEFAILED":
 						try
 						{
-							objTmp12.setONRUNTIMEFAILED(new InstructionsBlock(Lexer.parseCode(value)));
+							objTmp12.setONRUNTIMEFAILED(new InstructionsBlock(Parser.parseCode(value)));
 						}
 						catch (Exception e)
 						{
@@ -641,7 +644,7 @@ public class Variable
 					case "ONRUNTIMESUCCESS":
 						try
 						{
-							objTmp12.setONRUNTIMESUCCESS(new InstructionsBlock(Lexer.parseCode(value)));
+							objTmp12.setONRUNTIMESUCCESS(new InstructionsBlock(Parser.parseCode(value)));
 						}
 						catch (Exception e)
 						{
@@ -663,7 +666,7 @@ public class Variable
 					case "ONRUNTIMEFAILED":
 						try
 						{
-							objTmp13.setONRUNTIMEFAILED(new InstructionsBlock(Lexer.parseCode(value)));
+							objTmp13.setONRUNTIMEFAILED(new InstructionsBlock(Parser.parseCode(value)));
 						}
 						catch (Exception e)
 						{
@@ -673,7 +676,7 @@ public class Variable
 					case "ONRUNTIMESUCCESS":
 						try
 						{
-							objTmp13.setONRUNTIMESUCCESS(new InstructionsBlock(Lexer.parseCode(value)));
+							objTmp13.setONRUNTIMESUCCESS(new InstructionsBlock(Parser.parseCode(value)));
 						}
 						catch (Exception e)
 						{
@@ -701,7 +704,7 @@ public class Variable
 					case "ONINIT":
 						try
 						{
-							objTmp14.setONINIT(new InstructionsBlock(Lexer.parseCode(value)));
+							objTmp14.setONINIT(new InstructionsBlock(Parser.parseCode(value)));
 						}
 						catch (Exception e)
 						{
@@ -791,7 +794,6 @@ public class Variable
 
 				switch (name) {
 					case "ACTION":
-						debugPrint(type, name, value);
 						objTmp20.setACTION(value);
 						break;
 				}
@@ -799,14 +801,7 @@ public class Variable
 			case "Font":
 				Font objTmp21 = (Font) classObj;
 
-				//if(name.startsWith("DEF_")) {
-					objTmp21.DEF(name.replace("DEF_", "").split("_"));
-				//}
-				/*else {
-					switch (name) {
-						
-					}
-				}*/
+				objTmp21.DEF(name.replace("DEF_", "").split("_"));
 				break;
 			case "Grbuffer": //nieużywane
 				/*GRBuffer objTmp22 = (GRBuffer) classObj;
@@ -821,7 +816,7 @@ public class Variable
 					case "ONINIT":
 						try
 						{
-							objTmp23.setONINIT(new InstructionsBlock(Lexer.parseCode(value)));
+							objTmp23.setONINIT(new InstructionsBlock(Parser.parseCode(value)));
 						}
 						catch (Exception e)
 						{
@@ -849,7 +844,7 @@ public class Variable
 					case "ONCLICK":
 						try
 						{
-							objTmp24.setONCLICK(new InstructionsBlock(Lexer.parseCode(value)));
+							objTmp24.setONCLICK(new InstructionsBlock(Parser.parseCode(value)));
 						}
 						catch (Exception e)
 						{
@@ -859,7 +854,7 @@ public class Variable
 					case "ONFOCUSOFF":
 						try
 						{
-							objTmp24.setONFOCUSOFF(new InstructionsBlock(Lexer.parseCode(value)));
+							objTmp24.setONFOCUSOFF(new InstructionsBlock(Parser.parseCode(value)));
 						}
 						catch (Exception e)
 						{
@@ -869,7 +864,7 @@ public class Variable
 					case "ONFOCUSON":
 						try
 						{
-							objTmp24.setONFOCUSON(new InstructionsBlock(Lexer.parseCode(value)));
+							objTmp24.setONFOCUSON(new InstructionsBlock(Parser.parseCode(value)));
 						}
 						catch (Exception e)
 						{
@@ -879,7 +874,7 @@ public class Variable
 					case "ONINIT":
 						try
 						{
-							objTmp24.setONINIT(new InstructionsBlock(Lexer.parseCode(value)));
+							objTmp24.setONINIT(new InstructionsBlock(Parser.parseCode(value)));
 						}
 						catch (Exception e)
 						{
@@ -924,7 +919,7 @@ public class Variable
 								objTmp26.getONBRUTALCHANGED().addListenerParam(parts[0], parts[1]);
 							}
 							else
-								objTmp26.setONBRUTALCHANGED(new InstructionsBlock(Lexer.parseCode(value)));
+								objTmp26.setONBRUTALCHANGED(new InstructionsBlock(Parser.parseCode(value)));
 						}
 						catch (Exception e) {
 							e.printStackTrace();
@@ -937,7 +932,7 @@ public class Variable
 								objTmp26.getONCHANGED().addListenerParam(parts[0], parts[1]);
 							}
 							else
-								objTmp26.setONCHANGED(new InstructionsBlock(Lexer.parseCode(value)));
+								objTmp26.setONCHANGED(new InstructionsBlock(Parser.parseCode(value)));
 						}
 						catch (Exception e) {
 							e.printStackTrace();
@@ -946,7 +941,7 @@ public class Variable
 					case "ONINIT":
 						try
 						{
-							objTmp26.setONINIT(new InstructionsBlock(Lexer.parseCode(value)));
+							objTmp26.setONINIT(new InstructionsBlock(Parser.parseCode(value)));
 						}
 						catch (Exception e)
 						{
@@ -960,7 +955,7 @@ public class Variable
 								objTmp26.getONSIGNAL().addListenerParam(parts[0], parts[1]);
 							}
 							else
-								objTmp26.setONSIGNAL(new InstructionsBlock(Lexer.parseCode(value)));
+								objTmp26.setONSIGNAL(new InstructionsBlock(Parser.parseCode(value)));
 						}
 						catch (Exception e) {
 							e.printStackTrace();
@@ -1008,7 +1003,7 @@ public class Variable
 								objTmp29.getONCHAR().addListenerParam(parts[0], parts[1]);
 							}
 							else
-								objTmp29.setONCHAR(new InstructionsBlock(Lexer.parseCode(value)));
+								objTmp29.setONCHAR(new InstructionsBlock(Parser.parseCode(value)));
 						}
 						catch (Exception e) {
 							e.printStackTrace();
@@ -1021,7 +1016,7 @@ public class Variable
 								objTmp29.getONKEYDOWN().addListenerParam(parts[0], parts[1]);
 							}
 							else
-								objTmp29.setONKEYDOWN(new InstructionsBlock(Lexer.parseCode(value)));
+								objTmp29.setONKEYDOWN(new InstructionsBlock(Parser.parseCode(value)));
 						}
 						catch (Exception e) {
 							e.printStackTrace();
@@ -1034,7 +1029,7 @@ public class Variable
 								objTmp29.getONKEYUP().addListenerParam(parts[0], parts[1]);
 							}
 							else
-								objTmp29.setONKEYUP(new InstructionsBlock(Lexer.parseCode(value)));
+								objTmp29.setONKEYUP(new InstructionsBlock(Parser.parseCode(value)));
 						}
 						catch (Exception e) {
 							e.printStackTrace();
@@ -1044,23 +1039,23 @@ public class Variable
 				break;
 			case "Matrix":
 				Matrix objTmp30 = (Matrix) classObj;
-				debugPrint(type, name, value);
+				//debugPrint(type, name, value);
 
 				//do odtworzenia operacje na macierzach
-				/*switch (name) {
+				switch (name) {
 					case "BASEPOS":
 						objTmp30.setBASEPOS(value);
 						break;
 					case "CELLHEIGHT":
-						objTmp30.setCELLHEIGHT(value);
+						objTmp30.setCELLHEIGHT(Integer.parseInt(value));
 						break;
 					case "CELLWIDTH":
-						objTmp30.setCELLWIDTH(value);
+						objTmp30.setCELLWIDTH(Integer.parseInt(value));
 						break;
 					case "ONLATEST":
 						try
 						{
-							objTmp30.setONLATEST(new InstructionsBlock(Lexer.parseCode(value)));
+							objTmp30.setONLATEST(new InstructionsBlock(Parser.parseCode(value)));
 						}
 						catch (Exception e)
 						{
@@ -1070,7 +1065,7 @@ public class Variable
 					case "ONNEXT":
 						try
 						{
-							objTmp30.setONNEXT(new InstructionsBlock(Lexer.parseCode(value)));
+							objTmp30.setONNEXT(new InstructionsBlock(Parser.parseCode(value)));
 						}
 						catch (Exception e)
 						{
@@ -1080,12 +1075,11 @@ public class Variable
 					case "SIZE":
 						objTmp30.setSIZE(value);
 						break;
-				}*/
+				}
 				break;
 			case "Mouse":
-				//tymczasowo nie implementuje interfejsu myszy
-				debugPrint(type, name, value);
-				/*Mouse objTmp31 = (Mouse) classObj;
+				//debugPrint(type, name, value);
+				Mouse objTmp31 = (Mouse) classObj;
 
 				switch (name) {
 					case "ONCLICK":
@@ -1095,7 +1089,7 @@ public class Variable
 								objTmp31.getONCLICK().addListenerParam(parts[0], parts[1]);
 							}
 							else
-								objTmp31.setONCLICK(new InstructionsBlock(Lexer.parseCode(value)));
+								objTmp31.setONCLICK(new InstructionsBlock(Parser.parseCode(value)));
 						}
 						catch (Exception e) {
 							e.printStackTrace();
@@ -1108,7 +1102,7 @@ public class Variable
 								objTmp31.getONDBLCLICK().addListenerParam(parts[0], parts[1]);
 							}
 							else
-								objTmp31.setONDBLCLICK(new InstructionsBlock(Lexer.parseCode(value)));
+								objTmp31.setONDBLCLICK(new InstructionsBlock(Parser.parseCode(value)));
 						}
 						catch (Exception e) {
 							e.printStackTrace();
@@ -1117,7 +1111,7 @@ public class Variable
 					case "ONINIT":
 						try
 						{
-							objTmp31.setONINIT(new InstructionsBlock(Lexer.parseCode(value)));
+							objTmp31.setONINIT(new InstructionsBlock(Parser.parseCode(value)));
 						}
 						catch (Exception e)
 						{
@@ -1127,7 +1121,7 @@ public class Variable
 					case "ONMOVE":
 						try
 						{
-							objTmp31.setONMOVE(new InstructionsBlock(Lexer.parseCode(value)));
+							objTmp31.setONMOVE(new InstructionsBlock(Parser.parseCode(value)));
 						}
 						catch (Exception e)
 						{
@@ -1141,16 +1135,16 @@ public class Variable
 								objTmp31.getONRELEASE().addListenerParam(parts[0], parts[1]);
 							}
 							else
-								objTmp31.setONRELEASE(new InstructionsBlock(Lexer.parseCode(value)));
+								objTmp31.setONRELEASE(new InstructionsBlock(Parser.parseCode(value)));
 						}
 						catch (Exception e) {
 							e.printStackTrace();
 						}
 						break;
 					case "RAW":
-						objTmp31.setRAW(value);
+						objTmp31.setRAW(Integer.parseInt(value));
 						break;
-				}*/
+				}
 				break;
 			case "Multiarray":
 				MultiArray objTmp32 = (MultiArray) classObj;
@@ -1284,7 +1278,7 @@ public class Variable
 								objTmp41.getONFINISHED().addListenerParam(parts[0], parts[1]);
 							}
 							else
-								objTmp41.setONFINISHED(new InstructionsBlock(Lexer.parseCode(value)));
+								objTmp41.setONFINISHED(new InstructionsBlock(Parser.parseCode(value)));
 						}
 						catch (Exception e) {
 							e.printStackTrace();
@@ -1293,7 +1287,7 @@ public class Variable
 					case "ONINIT":
 						try
 						{
-							objTmp41.setONINIT(new InstructionsBlock(Lexer.parseCode(value)));
+							objTmp41.setONINIT(new InstructionsBlock(Parser.parseCode(value)));
 						}
 						catch (Exception e)
 						{
@@ -1307,7 +1301,7 @@ public class Variable
 								objTmp41.getONSTARTED().addListenerParam(parts[0], parts[1]);
 							}
 							else
-								objTmp41.setONSTARTED(new InstructionsBlock(Lexer.parseCode(value)));
+								objTmp41.setONSTARTED(new InstructionsBlock(Parser.parseCode(value)));
 						}
 						catch (Exception e) {
 							e.printStackTrace();
@@ -1334,7 +1328,7 @@ public class Variable
 					case "ONFINISHED":
 						try
 						{
-							objTmp42.setONFINISHED(new InstructionsBlock(Lexer.parseCode(value)));
+							objTmp42.setONFINISHED(new InstructionsBlock(Parser.parseCode(value)));
 						}
 						catch (Exception e)
 						{
@@ -1344,7 +1338,7 @@ public class Variable
 					case "ONINIT":
 						try
 						{
-							objTmp42.setONINIT(new InstructionsBlock(Lexer.parseCode(value)));
+							objTmp42.setONINIT(new InstructionsBlock(Parser.parseCode(value)));
 						}
 						catch (Exception e)
 						{
@@ -1354,7 +1348,7 @@ public class Variable
 					case "ONSTARTED":
 						try
 						{
-							objTmp42.setONSTARTED(new InstructionsBlock(Lexer.parseCode(value)));
+							objTmp42.setONSTARTED(new InstructionsBlock(Parser.parseCode(value)));
 						}
 						catch (Exception e)
 						{
@@ -1374,8 +1368,8 @@ public class Variable
 
 				switch (name) {
 					case "ACTION":
-						debugPrint(type, name, value);
-						//objTmp43.setACTION(value);
+						//debugPrint(type, name, value);
+						objTmp43.setACTION(value);
 						break;
 				}
 				break;
@@ -1393,7 +1387,7 @@ public class Variable
 								objTmp44.getONBRUTALCHANGED().addListenerParam(parts[0], parts[1]);
 							}
 							else
-								objTmp44.setONBRUTALCHANGED(new InstructionsBlock(Lexer.parseCode(value)));
+								objTmp44.setONBRUTALCHANGED(new InstructionsBlock(Parser.parseCode(value)));
 						}
 						catch (Exception e) {
 							e.printStackTrace();
@@ -1406,7 +1400,7 @@ public class Variable
 								objTmp44.getONCHANGED().addListenerParam(parts[0], parts[1]);
 							}
 							else
-								objTmp44.setONCHANGED(new InstructionsBlock(Lexer.parseCode(value)));
+								objTmp44.setONCHANGED(new InstructionsBlock(Parser.parseCode(value)));
 						}
 						catch (Exception e) {
 							e.printStackTrace();
@@ -1415,7 +1409,7 @@ public class Variable
 					case "ONINIT":
 						try
 						{
-							objTmp44.setONINIT(new InstructionsBlock(Lexer.parseCode(value)));
+							objTmp44.setONINIT(new InstructionsBlock(Parser.parseCode(value)));
 						}
 						catch (Exception e)
 						{
@@ -1465,7 +1459,7 @@ public class Variable
 					case "ONINIT":
 						try
 						{
-							objTmp47.setONINIT(new InstructionsBlock(Lexer.parseCode(value)));
+							objTmp47.setONINIT(new InstructionsBlock(Parser.parseCode(value)));
 						}
 						catch (Exception e)
 						{
@@ -1505,7 +1499,7 @@ public class Variable
 					case "ONINIT":
 						try
 						{
-							objTmp48.setONINIT(new InstructionsBlock(Lexer.parseCode(value)));
+							objTmp48.setONINIT(new InstructionsBlock(Parser.parseCode(value)));
 						}
 						catch (Exception e)
 						{
@@ -1519,7 +1513,7 @@ public class Variable
 								objTmp48.getONTICK().addListenerParam(parts[0], parts[1]);
 							}
 							else
-								objTmp48.setONTICK(new InstructionsBlock(Lexer.parseCode(value)));
+								objTmp48.setONTICK(new InstructionsBlock(Parser.parseCode(value)));
 						}
 						catch (Exception e) {
 							e.printStackTrace();

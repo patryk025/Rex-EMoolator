@@ -7,7 +7,7 @@ public class CodePatches
 	private Map<String, String> patches = new HashMap<String, String>();
 	
 	public CodePatches() {
-		patches.put("ANNOBJECT0^SETFRAME\"STATE0\",1);", "ANNOBJECT0^SETFRAME(\"STATE0\",1);");
+		patches.put("ANNOBJECT0^SETFRAME\"STATE0\",1)", "ANNOBJECT0^SETFRAME(\"STATE0\",1)");
 		patches.put(")VARNIEREAGUJ^SET(1", "VARNIEREAGUJ^SET(1)");
 	}
 	

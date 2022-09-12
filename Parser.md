@@ -185,12 +185,12 @@ W oparciu o arkusz pod linkiem https://docs.google.com/spreadsheets/d/132gkNJ0_G
 - [x] DEF
 
 ###ComplexCondition
-- [x] CONDITION1
-- [x] CONDITION2
-- [x] DESCRIPTION
-- [x] ONRUNTIMEFAILED
-- [x] ONRUNTIMESUCCESS
-- [x] OPERATOR
+- [ ] CONDITION1
+- [ ] CONDITION2
+- [ ] DESCRIPTION
+- [ ] ONRUNTIMEFAILED
+- [ ] ONRUNTIMESUCCESS
+- [ ] OPERATOR
 
 ###ComplexCondition*
 - [ ] CONDITION1
@@ -199,6 +199,14 @@ W oparciu o arkusz pod linkiem https://docs.google.com/spreadsheets/d/132gkNJ0_G
 - [ ] ONRUNTIMEFAILED
 - [ ] ONRUNTIMESUCCESS
 - [ ] OPERATOR
+
+###Complexcondition
+- [x] CONDITION1
+- [x] CONDITION2
+- [x] DESCRIPTION
+- [x] ONRUNTIMEFAILED
+- [x] ONRUNTIMESUCCESS
+- [x] OPERATOR
 
 ###Condition
 - [x] DESCRIPTION
@@ -355,6 +363,9 @@ W oparciu o arkusz pod linkiem https://docs.google.com/spreadsheets/d/132gkNJ0_G
 - [x] RAW
 
 ###MultiArray
+- [ ] DIMENSIONS
+
+###Multiarray
 - [x] DIMENSIONS
 
 ###Music
@@ -444,6 +455,9 @@ W oparciu o arkusz pod linkiem https://docs.google.com/spreadsheets/d/132gkNJ0_G
 - [x] RELEASE
 
 ###StaticFilter
+- [ ] ACTION
+
+###Staticfilter
 - [x] ACTION
 
 ###String
