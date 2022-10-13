@@ -81,18 +81,21 @@ public class CNVParser
 		String typ = "";
 		
 		boolean recoveryMode = false;
+		
+		String separator = "=";
 
 		for (String line : lines)
 		{
 			if(recoveryMode) line = line.replace("?", "_");
 			if (!line.equals("") && !line.startsWith("#"))
 			{
-				
-				if (line.startsWith("OBJECT="))
+				if(line.contains(" = ")) separator = " = ";
+				else separator = "=";
+				if (line.startsWith("OBJECT"+separator))
 				{
 					try
 					{
-						tmp = line.split("OBJECT=")[1];
+						tmp = line.split("OBJECT"+separator)[1];
 						if(tmp.contains("?") && !recoveryMode) {
 							System.out.println("WARNING: probable script errors, entering into recovery mode...");
 							tmp = tmp.replace("?", "_");
@@ -108,11 +111,18 @@ public class CNVParser
 						System.out.println("WARNING: empty variable name, ignoring");
 					}
 				}
+				else if(line.startsWith("NAME"+separator)) {
+					System.out.println("DEBUG: Sequence definition detected");
+					tmp = line.split("NAME"+separator)[1];
+					variables.add(new Variable(tmp));
+					index++;
+				}
 				else if (tmp != null)
 				{
+					
 					if (line.contains(":TYPE"))
 					{
-						String varName = line.split(":TYPE=")[0];
+						String varName = line.split(":TYPE"+separator)[0];
 						if(varName.contains("?") && !recoveryMode) {
 							System.out.println("WARNING: probable script errors, entering into recovery mode...");
 							recoveryMode = true;
@@ -129,7 +139,7 @@ public class CNVParser
 								}
 							}
 						}
-						typ = line.split(":TYPE=")[1];
+						typ = line.split(":TYPE"+separator)[1];
 						typ = capitalize(typ);
 
 						variables.get(variables.size() - 1).setType(typ);
@@ -142,7 +152,7 @@ public class CNVParser
 							{
 								String[] segments = line.split(":");
 								if(segments.length==2) {
-									String method = (segments[1]).split("=")[0];
+									String method = (segments[1]).split(separator)[0];
 									String methodParam = "";
 									if (method.contains("^"))
 									{
@@ -159,7 +169,7 @@ public class CNVParser
 										System.out.println(line);
 									}
 
-									String[] splitTmp = (segments[1]).split("=");
+									String[] splitTmp = (segments[1]).split(separator);
 									/*try {
 										splitTmp = (line.split(tmp + ":")[1]).split("=");
 									}

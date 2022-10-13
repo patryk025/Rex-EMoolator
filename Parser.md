@@ -47,6 +47,7 @@
 - [x] SEQUENCE
 - [ ] SIGNAL
 - [x] SOUND
+- [x] SPEAKING (jedynie używane w plikach sekwencji)
 - [x] STATICFILTER
 - [x] STRING
 - [x] STRUCT

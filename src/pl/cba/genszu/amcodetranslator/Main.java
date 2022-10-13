@@ -35,7 +35,7 @@ public class Main {
     public static void main(String[] args) {
 		
 		/* copy System.out to file (for now, Logger in building) */
-		try {
+		/*try {
 			FileOutputStream file = new FileOutputStream("/sdcard/skrypty/logi.txt");
 			TeePrintStream tee = new TeePrintStream(file, System.out);
 			System.setOut(tee);
@@ -43,7 +43,7 @@ public class Main {
 		}
 		catch(FileNotFoundException e) {
 			e.printStackTrace();
-		}
+		}*/
 		
 		//"BEHCLICK_"+SOBJECT|IDNAME
 		//value = "{ANNOBJECT0^STOP(FALSE);ANNOBJECT0^SETFRAME"STATE0",1);}"
@@ -103,18 +103,19 @@ public class Main {
 
         List<String> pliki = new ArrayList<>();
 
-        search(".*\\.cnv", new File("/sdcard/skrypty"), pliki, true);
+        search(".*\\.cnv|.*\\.def|.*\\.seq", new File("/sdcard/skrypty"), pliki, true);
         //HashSet<String> fun = new HashSet<>();
         //List<ParseObjectTmp> lista = new ArrayList<>();
         //CodeTranslatorFile ct = new CodeTranslatorFile();
 		CNVParser cp = new CNVParser();
 		String tmp = null;
 		
-		//pliki.clear();
+		pliki.clear();
 		//pliki.add("/sdcard/skrypty/riu(7.1)/DANE/ReksioUfo/PRZYGODA/Wyscigi/s67_Wyscigi.cnv");
 		//pliki.add("/sdcard/skrypty/ric/Dane/Dialogs.cnv");
 		//pliki.add("/sdcard/skrypty/ric/Dane/Game/Przygoda/Arcade/Krolowa.cnv");
 		//pliki.add("/sdcard/skrypty/ric/Dane/Game/Przygoda/Arcade/Arcade.cnv");
+		pliki.add("/sdcard/skrypty/ric/Dane/Game/intro/introkoguty/gadaja.seq");
 
         for (String e : pliki) {
             System.out.println(e);
