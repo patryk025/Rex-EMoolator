@@ -136,6 +136,9 @@ public class Variable
 			case "Sound":
 				this.classObj = new Sound();
 				break;
+			case "Speaking":
+				this.classObj = new Speaking();
+				break;
 			case "Staticfilter":
 				this.classObj = new StaticFilter();
 				break;
@@ -1362,6 +1365,29 @@ public class Variable
 						objTmp42.setRELEASE(stringToBool(value));
 						break;
 				}
+				break;
+			case "Speaking":
+				Speaking objTmp52 = (Speaking) classObj;
+				
+				switch (name) {
+					case "ANIMOFN":
+						//debugPrint(type, name, value);
+						objTmp52.setANIMOFN(value);
+						break;
+					case "PREFIX":
+						objTmp52.setPREFIX(value);
+						break;
+					case "WAVFN":
+						objTmp52.setWAVFN(value);
+						break;
+					case "STARTING":
+						objTmp52.setSTARTING(stringToBool(value));
+						break;
+					case "ENDING":
+						objTmp52.setENDING(stringToBool(value));
+						break;
+				}
+				
 				break;
 			case "Staticfilter":
 				StaticFilter objTmp43 = (StaticFilter) classObj;

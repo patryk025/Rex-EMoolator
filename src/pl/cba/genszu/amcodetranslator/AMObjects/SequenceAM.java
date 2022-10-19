@@ -1,4 +1,5 @@
 package pl.cba.genszu.amcodetranslator.AMObjects;
+import java.util.*;
 import pl.cba.genszu.amcodetranslator.interpreter.*;
 
 public class SequenceAM {
@@ -8,6 +9,8 @@ public class SequenceAM {
 	InstructionsBlock ONSTARTED;
 	String DESCRIPTION;
 	boolean VISIBLE;
+	HashMap<String, Speaking> speakingMap;
+	HashMap<String, SequenceAM> subsequencesMap;
 	
 	/*public SequenceAM() {
 		this.FILENAME= "";
@@ -77,5 +80,15 @@ public class SequenceAM {
 	public boolean isVISIBLE()
 	{
 		return VISIBLE;
+	}
+	
+	public void addSpeaking(String name, Speaking sp) {
+		if(speakingMap == null) speakingMap = new HashMap<>();
+		speakingMap.put(name, sp);
+	}
+	
+	public void addSequence(String name, SequenceAM seq) {
+		if(subsequencesMap == null) subsequencesMap = new HashMap<>();
+		subsequencesMap.put(name, seq);
 	}
 }

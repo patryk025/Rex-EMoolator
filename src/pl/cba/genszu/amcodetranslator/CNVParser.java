@@ -5,6 +5,7 @@ import java.util.*;
 import pl.cba.genszu.amcodetranslator.encoding.*;
 import pl.cba.genszu.amcodetranslator.interpreter.util.*;
 import pl.cba.genszu.amcodetranslator.interpreter.*;
+import pl.cba.genszu.amcodetranslator.AMObjects.*;
 
 public class CNVParser
 {
@@ -196,10 +197,37 @@ public class CNVParser
 											variables.get(variables.size() - 1).setProperty(method, tmpVal);
 										}
 									}
+									else if(splitTmp.length == 1 && segments[1].contains("ADD ")) { //speaking:ADD sequence
+										String seqName = segments[1].split("ADD ")[1];
+										try
+										{
+											SequenceAM seq = (SequenceAM) getVariable(seqName).getClassObj();
+											Variable varTmp = getVariable(tmp);
+											if(varTmp.getType().equals("Speaking")) {
+												seq.addSpeaking(tmp, (Speaking) varTmp.getClassObj());
+												System.out.println("INFO: successfully registered Speaking "+tmp+" in Sequence "+seqName);
+											}
+											else if(varTmp.getType().equals("Sequence")) {
+												seq.addSequence(tmp, (SequenceAM) varTmp.getClassObj());
+												System.out.println("INFO: successfully registered Sequence "+tmp+" in Sequence "+seqName);
+											}
+											else {
+												System.out.println("WARNING: incompatible type "+varTmp.getType() + " with Sequence. Ignoring...");
+											}
+											System.out.println("DEBUG: line => "+line);
+										}
+										catch (InterpreterException e)
+										{
+											System.out.println("ERROR: sequence/speaking "+seqName+" does not exists or is declared later");
+										}
+									}
 									else {
 										System.out.println("WARNING: no value after equal sign, ignoring...");
 										System.out.println("DEBUG: line => "+line);
 									}
+								}
+								else if(segments.length == 3) {
+									System.out.println("DEBUG: Sorry but I don't know how to interpret \""+line+"\" for now");
 								}
 								else {
 									System.out.println("WARNING: something is wrong with line " + line);
