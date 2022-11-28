@@ -84,6 +84,8 @@ public class CNVParser
 		boolean recoveryMode = false;
 		
 		String separator = "=";
+		
+		Map<String, String> unorderedProperties = new HashMap<>();
 
 		for (String line : lines)
 		{
@@ -111,12 +113,14 @@ public class CNVParser
 						tmp = null;
 						System.out.println("WARNING: empty variable name, ignoring");
 					}
+					unorderedProperties.clear();
 				}
 				else if(line.startsWith("NAME"+separator)) {
 					System.out.println("DEBUG: Sequence definition detected");
 					tmp = line.split("NAME"+separator)[1];
 					variables.add(new Variable(tmp));
 					index++;
+					unorderedProperties.clear();
 				}
 				else if (tmp != null)
 				{
@@ -143,7 +147,16 @@ public class CNVParser
 						typ = line.split(":TYPE"+separator)[1];
 						typ = capitalize(typ);
 
-						variables.get(variables.size() - 1).setType(typ);
+						
+						Variable tmpVar = variables.get(variables.size() - 1);
+						tmpVar.setType(typ);
+						
+						if(unorderedProperties.size() > 0) { //jeśli były jakieś parametry przed TYPE to je wstaw
+							for(String key : unorderedProperties.keySet()) {
+								tmpVar.setProperty(key, unorderedProperties.get(key));
+							}
+							unorderedProperties.clear();
+						}
 					}
 					else 
 					{
@@ -194,7 +207,21 @@ public class CNVParser
 										}
 										else
 										{
-											variables.get(variables.size() - 1).setProperty(method, tmpVal);
+											Variable tmpVar = variables.get(variables.size() - 1);
+											try
+											{
+												tmpVar.setProperty(method, tmpVal);
+											}
+											catch(Exception e) {
+												if(tmpVar.getClassObj() == null) { //no czasami parametr TYPE jest gdzieś pośrodku zamiast na początku
+													System.out.println("Variable defined but not initialised, saving property value for later usage...");
+													unorderedProperties.put(method, tmpVal); //cachujemy wartości
+												}
+												else {
+													System.out.println(line);
+													e.printStackTrace();
+												}
+											}
 										}
 									}
 									else if(splitTmp.length == 1 && segments[1].contains("ADD ")) { //speaking:ADD sequence
@@ -210,6 +237,10 @@ public class CNVParser
 											else if(varTmp.getType().equals("Sequence")) {
 												seq.addSequence(tmp, (SequenceAM) varTmp.getClassObj());
 												System.out.println("INFO: successfully registered Sequence "+tmp+" in Sequence "+seqName);
+											}
+											else if(varTmp.getType().equals("Simple")) {
+												seq.addSimple(tmp, (Simple) varTmp.getClassObj());
+												System.out.println("INFO: successfully registered Simple "+tmp+" in Sequence "+seqName);
 											}
 											else {
 												System.out.println("WARNING: incompatible type "+varTmp.getType() + " with Sequence. Ignoring...");

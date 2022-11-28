@@ -133,6 +133,9 @@ public class Variable
 			case "Sequence":
 				this.classObj = new SequenceAM();
 				break;
+			case "Simple":
+				this.classObj = new Simple();
+				break;
 			case "Sound":
 				this.classObj = new Sound();
 				break;
@@ -1313,6 +1316,20 @@ public class Variable
 					case "VISIBLE":
 						objTmp41.setVISIBLE(stringToBool(value));
 						break;
+				}
+				break;
+			case "Simple":
+				Simple objTmp54 = (Simple) classObj;
+				
+				switch (name) {
+					case "FILENAME":
+						objTmp54.setFILENAME(value);
+						break;
+					case "EVENT":
+						objTmp54.setEVENT(value);
+						break;
+					default:
+						debugPrint(type, name, value);
 				}
 				break;
 			case "Sound":

@@ -2,9 +2,7 @@ package pl.cba.genszu.amcodetranslator;
 
 import java.io.*;
 import java.util.*;
-import pl.cba.genszu.amcodetranslator.logger.*;
-import pl.cba.genszu.amcodetranslator.utils.*;
-import pl.cba.genszu.amcodetranslator.lexer.*;
+import pl.cba.genszu.amcodetranslator.encoding.*;
 
 public class Main {
 
@@ -51,7 +49,7 @@ public class Main {
 		/* decypher - debug helper */
 		/*try
         {
-            FileReader reader = new FileReader("/sdcard/skrypty/riu(7.1)/DANE/ReksioUfo/PRZYGODA/Droga/s71_droga.cnv");
+            FileReader reader = new FileReader("/sdcard/skrypty/ric/Dane/Game/Przygoda/Dialogs/blank.seq");
             BufferedReader bufferedReader = new BufferedReader(reader);
 
             String line;
@@ -75,7 +73,7 @@ public class Main {
 						content = content.append(line).append("\n");
 					}
                 }
-				PrintWriter pw = new PrintWriter("/sdcard/skrypty/s71_droga.cnv.dek");
+				PrintWriter pw = new PrintWriter("/sdcard/skrypty/blank.seq.dek");
 				
 				if (decypher)
 				{
@@ -115,7 +113,8 @@ public class Main {
 		//pliki.add("/sdcard/skrypty/ric/Dane/Dialogs.cnv");
 		//pliki.add("/sdcard/skrypty/ric/Dane/Game/Przygoda/Arcade/Krolowa.cnv");
 		//pliki.add("/sdcard/skrypty/ric/Dane/Game/Przygoda/Arcade/Arcade.cnv");
-		pliki.add("/sdcard/skrypty/ric/Dane/Game/intro/introkoguty/gadaja.seq");
+		//pliki.add("/sdcard/skrypty/ric/Dane/Game/intro/introkoguty/gadaja.seq");
+		pliki.add("/sdcard/skrypty/ric/Dane/Game/Przygoda/Dialogs/blank.seq");
 
         for (String e : pliki) {
             System.out.println(e);

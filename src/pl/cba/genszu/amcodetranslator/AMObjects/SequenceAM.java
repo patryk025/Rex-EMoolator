@@ -11,6 +11,7 @@ public class SequenceAM {
 	boolean VISIBLE;
 	HashMap<String, Speaking> speakingMap;
 	HashMap<String, SequenceAM> subsequencesMap;
+	HashMap<String, Simple> simplesMap;
 	
 	/*public SequenceAM() {
 		this.FILENAME= "";
@@ -90,5 +91,10 @@ public class SequenceAM {
 	public void addSequence(String name, SequenceAM seq) {
 		if(subsequencesMap == null) subsequencesMap = new HashMap<>();
 		subsequencesMap.put(name, seq);
+	}
+	
+	public void addSimple(String name, Simple smpl) {
+		if(simplesMap == null) simplesMap = new HashMap<>();
+		simplesMap.put(name, smpl);
 	}
 }
