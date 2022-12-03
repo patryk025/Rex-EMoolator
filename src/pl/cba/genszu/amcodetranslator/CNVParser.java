@@ -74,7 +74,7 @@ public class CNVParser
         }
     }
 
-	public void parseString(String string)
+	public void parseString(String string) throws Exception
 	{
 		String[] lines = string.split("\n");
 
@@ -84,6 +84,8 @@ public class CNVParser
 		boolean recoveryMode = false;
 		
 		String separator = "=";
+		
+		variables.clear(); // czyść zmienne
 		
 		Map<String, String> unorderedProperties = new HashMap<>();
 
@@ -250,6 +252,18 @@ public class CNVParser
 										catch (InterpreterException e)
 										{
 											System.out.println("ERROR: sequence/speaking "+seqName+" does not exists or is declared later");
+										}
+										catch(ClassCastException e) {
+											System.out.println("Variable type casting exception: " + seqName);
+											try
+											{
+												System.out.println("Expected: Sequence, got: " + getVariable(seqName).getType());
+												//System.out.println(variables);
+												System.out.println(line);
+											}
+											catch (InterpreterException ignored)
+											{}
+											throw new Exception("Break");
 										}
 									}
 									else {

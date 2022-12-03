@@ -12,6 +12,7 @@ public class SequenceAM {
 	HashMap<String, Speaking> speakingMap;
 	HashMap<String, SequenceAM> subsequencesMap;
 	HashMap<String, Simple> simplesMap;
+	HashMap<String, Scene> scenesMap;
 	
 	/*public SequenceAM() {
 		this.FILENAME= "";
@@ -96,5 +97,10 @@ public class SequenceAM {
 	public void addSimple(String name, Simple smpl) {
 		if(simplesMap == null) simplesMap = new HashMap<>();
 		simplesMap.put(name, smpl);
+	}
+	
+	public void addScene(String name, Scene scen) {
+		if(scenesMap == null) scenesMap = new HashMap<>();
+		scenesMap.put(name, scen);
 	}
 }
