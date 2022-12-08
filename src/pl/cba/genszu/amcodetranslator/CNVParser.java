@@ -275,7 +275,21 @@ public class CNVParser
 									System.out.println("DEBUG: Sorry but I don't know how to interpret \""+line+"\" for now");
 								}
 								else {
-									System.out.println("WARNING: something is wrong with line " + line);
+									//last chance
+									boolean giveUp = false;
+									String[] parts1 = line.split(":", 2);
+									
+									if(parts1.length == 2) {
+										String[] parts2 = parts1[1].split(separator, 2);
+										if(parts2.length == 2) {
+											variables.get(variables.size() - 1).setProperty(parts2[0], parts2[1]);
+										}
+										else giveUp = true;
+									}
+									else giveUp = true;
+									
+									if(giveUp)
+										System.out.println("WARNING: something is wrong with line " + line);
 								}
 							}
 							else
