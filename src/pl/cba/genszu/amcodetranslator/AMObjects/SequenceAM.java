@@ -13,7 +13,7 @@ public class SequenceAM {
 	HashMap<String, SequenceAM> subsequencesMap;
 	HashMap<String, Simple> simplesMap;
 	HashMap<String, Scene> scenesMap;
-	HashMap<String, Integer> SEQEVENT; //I guess is integer
+	HashMap<String, String> SEQEVENT; //No, it's String. NumberFormatException is here :/
 	
 	/*public SequenceAM() {
 		this.FILENAME= "";
@@ -105,7 +105,7 @@ public class SequenceAM {
 		scenesMap.put(name, scen);
 	}
 	
-	public void addSEQEVENT(String name, int val) {
+	public void addSEQEVENT(String name, String val) {
 		if(SEQEVENT == null) SEQEVENT = new HashMap<>();
 		SEQEVENT.put(name, val);
 	}

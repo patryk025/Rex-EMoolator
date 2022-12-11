@@ -116,6 +116,7 @@ public class Main {
 		//pliki.add("/sdcard/skrypty/ric/Dane/Game/intro/introkoguty/gadaja.seq");
 		//pliki.add("/sdcard/skrypty/ric/Dane/Game/Przygoda/Dialogs/blank.seq");
 		//pliki.add("/sdcard/skrypty/ric/Dane/Game/Przygoda/miotly/Kret.seq");
+		//pliki.add("/sdcard/skrypty/ric/Dane/Game/Przygoda/Arcade/podwieczorek.seq");
 
         for (String e : pliki) {
             System.out.println(e);

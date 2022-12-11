@@ -1317,7 +1317,7 @@ public class Variable
 						try {
 							if(value.contains("$$")) {
 								String[] parts = value.split("\\$\\$");
-								objTmp41.addSEQEVENT(parts[0], Integer.parseInt(parts[1]));
+								objTmp41.addSEQEVENT(parts[0], parts[1]);
 							}
 							else
 								System.out.println("Error: expected key:value pair, but got only value");
