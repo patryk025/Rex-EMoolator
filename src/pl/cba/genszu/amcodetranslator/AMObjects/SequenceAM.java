@@ -13,6 +13,7 @@ public class SequenceAM {
 	HashMap<String, SequenceAM> subsequencesMap;
 	HashMap<String, Simple> simplesMap;
 	HashMap<String, Scene> scenesMap;
+	HashMap<String, Integer> SEQEVENT; //I guess is integer
 	
 	/*public SequenceAM() {
 		this.FILENAME= "";
@@ -102,5 +103,10 @@ public class SequenceAM {
 	public void addScene(String name, Scene scen) {
 		if(scenesMap == null) scenesMap = new HashMap<>();
 		scenesMap.put(name, scen);
+	}
+	
+	public void addSEQEVENT(String name, int val) {
+		if(SEQEVENT == null) SEQEVENT = new HashMap<>();
+		SEQEVENT.put(name, val);
 	}
 }

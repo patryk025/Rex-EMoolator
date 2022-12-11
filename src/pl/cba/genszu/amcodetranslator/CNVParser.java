@@ -272,7 +272,8 @@ public class CNVParser
 									}
 								}
 								else if(segments.length == 3) {
-									System.out.println("DEBUG: Sorry but I don't know how to interpret \""+line+"\" for now");
+									String[] val = segments[2].split(separator);
+									variables.get(variables.size() - 1).setProperty(segments[1], val[0] + "$$" + val[1]);
 								}
 								else {
 									//last chance
