@@ -2,7 +2,7 @@ package pl.cba.genszu.amcodetranslator;
 
 import java.io.*;
 import java.util.*;
-import pl.cba.genszu.amcodetranslator.logger.*;
+import pl.cba.genszu.amcodetranslator.utils.*;
 import com.google.gson.*;
 
 public class Main {
@@ -109,6 +109,7 @@ public class Main {
 		CNVParser cp = new CNVParser();
 		String tmp = null;
 		
+		Logger.setVerbosity(12);
 		
 		//pliki.clear();
 		//pliki.add("/sdcard/skrypty/riu(7.1)/DANE/ReksioUfo/PRZYGODA/Wyscigi/s67_Wyscigi.cnv");

@@ -16,6 +16,10 @@ public class Logger
 		return (verboseLvl & level) == level;
 	}
 	
+	public static void setVerbosity(int verboseLvl) {
+		Logger.verboseLvl = verboseLvl;
+	}
+	
 	public static void w(String message) {
 		w(message, true);
 	}
