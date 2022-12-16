@@ -3,6 +3,7 @@ package pl.cba.genszu.amcodetranslator;
 import java.io.*;
 import java.util.*;
 import pl.cba.genszu.amcodetranslator.logger.*;
+import com.google.gson.*;
 
 public class Main {
 
@@ -108,6 +109,7 @@ public class Main {
 		CNVParser cp = new CNVParser();
 		String tmp = null;
 		
+		
 		//pliki.clear();
 		//pliki.add("/sdcard/skrypty/riu(7.1)/DANE/ReksioUfo/PRZYGODA/Wyscigi/s67_Wyscigi.cnv");
 		//pliki.add("/sdcard/skrypty/ric/Dane/Dialogs.cnv");
@@ -118,11 +120,21 @@ public class Main {
 		//pliki.add("/sdcard/skrypty/ric/Dane/Game/Przygoda/miotly/Kret.seq");
 		//pliki.add("/sdcard/skrypty/ric/Dane/Game/Przygoda/Arcade/podwieczorek.seq");
 
+		//Gson gson = new GsonBuilder().create();
+		
         for (String e : pliki) {
             System.out.println(e);
             //ct.parseFile(new File(e));
 			try {
 				cp.parseFile(new File(e));
+				//debug save parsed file as JSON
+				//System.out.println(e.replace("/skrypty/", "/skrypty_przeparsowane/"));
+				/*String newfile = e.replace("/skrypty/", "/skrypty_przeparsowane/");
+				newfile = newfile.substring(0, newfile.length() - 3) + "json";
+				FileWriter fw = new FileWriter(newfile);
+				fw.write(gson.toJson(cp.variables));
+				fw.flush();
+				fw.close();*/
 			}
 			catch (Exception ex) {
 				ex.printStackTrace();

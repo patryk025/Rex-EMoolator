@@ -6,6 +6,7 @@ import pl.cba.genszu.amcodetranslator.encoding.*;
 import pl.cba.genszu.amcodetranslator.interpreter.util.*;
 import pl.cba.genszu.amcodetranslator.interpreter.*;
 import pl.cba.genszu.amcodetranslator.AMObjects.*;
+import pl.cba.genszu.amcodetranslator.utils.*;
 
 public class CNVParser
 {
@@ -102,9 +103,9 @@ public class CNVParser
 					{
 						tmp = line.split("OBJECT"+separator)[1];
 						if(tmp.contains("?") && !recoveryMode) {
-							System.out.println("WARNING: probable script errors, entering into recovery mode...");
+							Logger.w("probable script errors, entering into recovery mode...");
 							tmp = tmp.replace("?", "_");
-							System.out.printf("Recovered variable name: %s\n", tmp);
+							Logger.i("Recovered variable name: " + tmp);
 							recoveryMode = true;
 						}
 						variables.add(new Variable(tmp));
@@ -113,12 +114,12 @@ public class CNVParser
 					catch (ArrayIndexOutOfBoundsException e)
 					{
 						tmp = null;
-						System.out.println("WARNING: empty variable name, ignoring");
+						Logger.w("empty variable name, ignoring");
 					}
 					unorderedProperties.clear();
 				}
 				else if(line.startsWith("NAME"+separator)) {
-					System.out.println("DEBUG: Sequence definition detected");
+					Logger.d("Sequence definition detected");
 					tmp = line.split("NAME"+separator)[1];
 					variables.add(new Variable(tmp));
 					index++;
@@ -131,18 +132,18 @@ public class CNVParser
 					{
 						String varName = line.split(":TYPE"+separator)[0];
 						if(varName.contains("?") && !recoveryMode) {
-							System.out.println("WARNING: probable script errors, entering into recovery mode...");
+							Logger.w("probable script errors, entering into recovery mode...");
 							recoveryMode = true;
 						}
 						if (!tmp.equals(varName))
 						{
-							System.out.println("WARNING: variable names doesn't match (" + tmp + " != " + varName + ")!");
+							Logger.w("variable names doesn't match (" + tmp + " != " + varName + ")!");
 							if(recoveryMode) {
 								varName = varName.replace("?", "_");
-								System.out.printf("Recovered variable name: %s\n", varName);
+								Logger.i("Recovered variable name: " + varName);
 								if (!tmp.equals(varName))
 								{
-									System.out.println("WARNING: variable names still doesn't match (" + tmp + " != " + varName + ")!");
+									Logger.w("variable names still doesn't match (" + tmp + " != " + varName + ")!");
 								}
 							}
 						}
@@ -179,10 +180,10 @@ public class CNVParser
 									String testName = segments[0];
 									
 									if(!testName.equals(tmp)) {
-										System.out.println("WARNING: variable names missmatch ("+testName+" != "+tmp+")!");
-										System.out.print("WARNING: line corrected, "+line+" -> ");
+										Logger.w("variable names missmatch ("+testName+" != "+tmp+")!");
+										Logger.w("line corrected, "+line+" -> ", false);
 										line = line.replace(testName+":", tmp+":");
-										System.out.println(line);
+										Logger.log(line);
 									}
 
 									String[] splitTmp = (segments[1]).split(separator);
@@ -216,7 +217,7 @@ public class CNVParser
 											}
 											catch(Exception e) {
 												if(tmpVar.getClassObj() == null) { //no czasami parametr TYPE jest gdzieś pośrodku zamiast na początku
-													System.out.println("Variable defined but not initialised, saving property value for later usage...");
+													Logger.w("Variable defined but not initialised, saving property value for later usage...");
 													unorderedProperties.put(method, tmpVal); //cachujemy wartości
 												}
 												else {
@@ -234,32 +235,32 @@ public class CNVParser
 											Variable varTmp = getVariable(tmp);
 											if(varTmp.getType().equals("Speaking")) {
 												seq.addSpeaking(tmp, (Speaking) varTmp.getClassObj());
-												System.out.println("INFO: successfully registered Speaking "+tmp+" in Sequence "+seqName);
+												Logger.i("successfully registered Speaking "+tmp+" in Sequence "+seqName);
 											}
 											else if(varTmp.getType().equals("Sequence")) {
 												seq.addSequence(tmp, (SequenceAM) varTmp.getClassObj());
-												System.out.println("INFO: successfully registered Sequence "+tmp+" in Sequence "+seqName);
+												Logger.i("successfully registered Sequence "+tmp+" in Sequence "+seqName);
 											}
 											else if(varTmp.getType().equals("Simple")) {
 												seq.addSimple(tmp, (Simple) varTmp.getClassObj());
-												System.out.println("INFO: successfully registered Simple "+tmp+" in Sequence "+seqName);
+												Logger.i("successfully registered Simple "+tmp+" in Sequence "+seqName);
 											}
 											else {
-												System.out.println("WARNING: incompatible type "+varTmp.getType() + " with Sequence. Ignoring...");
+												Logger.w("incompatible type "+varTmp.getType() + " with Sequence. Ignoring...");
 											}
-											System.out.println("DEBUG: line => "+line);
+											Logger.d("line => "+line);
 										}
 										catch (InterpreterException e)
 										{
-											System.out.println("ERROR: sequence/speaking "+seqName+" does not exists or is declared later");
+											Logger.e("sequence/speaking "+seqName+" does not exists or is declared later");
 										}
 										catch(ClassCastException e) {
-											System.out.println("Variable type casting exception: " + seqName);
+											Logger.e("Variable type casting exception: " + seqName);
 											try
 											{
-												System.out.println("Expected: Sequence, got: " + getVariable(seqName).getType());
+												Logger.e("Expected: Sequence, got: " + getVariable(seqName).getType());
 												//System.out.println(variables);
-												System.out.println(line);
+												Logger.d(line);
 											}
 											catch (InterpreterException ignored)
 											{}
@@ -267,8 +268,8 @@ public class CNVParser
 										}
 									}
 									else {
-										System.out.println("WARNING: no value after equal sign, ignoring...");
-										System.out.println("DEBUG: line => "+line);
+										Logger.w("no value after equal sign, ignoring...");
+										Logger.d("line => "+line);
 									}
 								}
 								else if(segments.length == 3) {
@@ -290,19 +291,19 @@ public class CNVParser
 									else giveUp = true;
 									
 									if(giveUp)
-										System.out.println("WARNING: something is wrong with line " + line);
+										Logger.w("something is wrong with line " + line);
 								}
 							}
 							else
 							{
-								System.out.println("WARNING: empty field/signal/method name");
-								System.out.println("DEBUG: line => "+line);
+								Logger.w("empty field/signal/method name");
+								Logger.d("line => "+line);
 							}
 						}
 						catch (ArrayIndexOutOfBoundsException e)
 						{
 							e.printStackTrace();
-							System.out.println("Linia: " + line);
+							Logger.d("Linia: " + line);
 						}
 					}
 				}
