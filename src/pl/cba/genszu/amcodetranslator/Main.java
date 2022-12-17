@@ -104,7 +104,7 @@ public class Main {
 
         List<String> pliki = new ArrayList<>();
 
-        search(".*\\.cnv|.*\\.def|.*\\.seq", new File("/sdcard/skrypty"), pliki, true);
+        search(".*\\.cnv|.*\\.def|.*\\.seq|.*\\.CNV|.*\\.DEF|.*\\.SEQ", new File("/sdcard/skrypty"), pliki, true);
         //HashSet<String> fun = new HashSet<>();
         //List<ParseObjectTmp> lista = new ArrayList<>();
         //CodeTranslatorFile ct = new CodeTranslatorFile();
