@@ -2,8 +2,10 @@ package pl.cba.genszu.amcodetranslator;
 
 import java.io.*;
 import java.util.*;
+import pl.cba.genszu.amcodetranslator.logger.*;
 import pl.cba.genszu.amcodetranslator.utils.*;
-import com.google.gson.*;
+
+import pl.cba.genszu.amcodetranslator.utils.Logger;
 
 public class Main {
 
@@ -50,7 +52,7 @@ public class Main {
 		/* decypher - debug helper */
 		/*try
         {
-            FileReader reader = new FileReader("/sdcard/skrypty/ric/Dane/Game/Przygoda/miotly/Kret.seq");
+            FileReader reader = new FileReader("/sdcard/skrypty/risp/Dane/application.def");
             BufferedReader bufferedReader = new BufferedReader(reader);
 
             String line;
@@ -74,7 +76,7 @@ public class Main {
 						content = content.append(line).append("\n");
 					}
                 }
-				PrintWriter pw = new PrintWriter("/sdcard/skrypty/Kret.seq.dek");
+				PrintWriter pw = new PrintWriter("/sdcard/skrypty/risp_application.def.dek");
 				
 				if (decypher)
 				{
@@ -120,11 +122,15 @@ public class Main {
 		//pliki.add("/sdcard/skrypty/ric/Dane/Game/Przygoda/Dialogs/blank.seq");
 		//pliki.add("/sdcard/skrypty/ric/Dane/Game/Przygoda/miotly/Kret.seq");
 		//pliki.add("/sdcard/skrypty/ric/Dane/Game/Przygoda/Arcade/podwieczorek.seq");
+		//pliki.add("/sdcard/skrypty/risp/Dane/Intro/MainMenu/07rzekaA/RZEKA1.cnv");
+		//pliki.add("/sdcard/skrypty/risp/Dane/application.def"); //tu będzie hardcore
+		//pliki.add("/sdcard/skrypty/riu(7.1)/DANE/ReksioUfo/PRZYGODA/69_0_Lebiodka/s69_0_Lebiodka.cnv");
+		//pliki.add("/sdcard/skrypty/riu(7.1)/DANE/ReksioUfo/PRZYGODA/s1_0_intro1/s1_0_intro1.cnv");
 
 		//Gson gson = new GsonBuilder().create();
 		
         for (String e : pliki) {
-            System.out.println(e);
+            Logger.log(e);
             //ct.parseFile(new File(e));
 			try {
 				cp.parseFile(new File(e));

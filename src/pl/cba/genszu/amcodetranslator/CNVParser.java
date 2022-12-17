@@ -7,6 +7,7 @@ import pl.cba.genszu.amcodetranslator.interpreter.util.*;
 import pl.cba.genszu.amcodetranslator.interpreter.*;
 import pl.cba.genszu.amcodetranslator.AMObjects.*;
 import pl.cba.genszu.amcodetranslator.utils.*;
+import pl.cba.genszu.amcodetranslator.lexer.*;
 
 public class CNVParser
 {
@@ -92,6 +93,10 @@ public class CNVParser
 
 		for (String line : lines)
 		{
+			if(line.contains(":}")) {
+				Logger.i("Corrected typo in line " + line);
+				line = line.replace(":}", ";}");
+			}
 			if(recoveryMode) line = line.replace("?", "_");
 			if (!line.equals("") && !line.startsWith("#"))
 			{
@@ -167,7 +172,8 @@ public class CNVParser
 						{
 							if (!line.endsWith(":="))
 							{
-								String[] segments = line.split(":");
+								//String[] segments = line.split(":");
+								String[] segments = StringUtils.selectiveSplit(line, ':', '=', '∆');
 								if(segments.length==2) {
 									String method = (segments[1]).split(separator)[0];
 									String methodParam = "";

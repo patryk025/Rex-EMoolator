@@ -9,6 +9,7 @@ public class CodePatches
 	public CodePatches() {
 		patches.put("ANNOBJECT0^SETFRAME\"STATE0\",1)", "ANNOBJECT0^SETFRAME(\"STATE0\",1)");
 		patches.put(")VARNIEREAGUJ^SET(1", "VARNIEREAGUJ^SET(1)");
+		patches.put("SNDMAPA^PLAY():", "SNDMAPA^PLAY();");
 	}
 	
 	public boolean hasPatch(String code) {
