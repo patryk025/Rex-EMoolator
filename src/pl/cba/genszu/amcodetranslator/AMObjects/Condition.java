@@ -4,9 +4,9 @@ import pl.cba.genszu.amcodetranslator.interpreter.*;
 
 public class Condition
 {
-	private String OPERAND1;
+	private InstructionsBlock OPERAND1;
 	private String OPERATOR;
-	private String OPERAND2;
+	private InstructionsBlock OPERAND2;
 	private String DESCRIPTION;
 	private InstructionsBlock ONRUNTIMEFAILED;
 	private InstructionsBlock ONRUNTIMESUCCESS;
@@ -42,12 +42,12 @@ public class Condition
 	}
 	
 
-	public void setOPERAND1(String OPERAND1)
+	public void setOPERAND1(InstructionsBlock OPERAND1)
 	{
 		this.OPERAND1 = OPERAND1;
 	}
 
-	public String getOPERAND1()
+	public InstructionsBlock getOPERAND1()
 	{
 		return OPERAND1;
 	}
@@ -62,12 +62,12 @@ public class Condition
 		return OPERATOR;
 	}
 
-	public void setOPERAND2(String OPERAND2)
+	public void setOPERAND2(InstructionsBlock OPERAND2)
 	{
 		this.OPERAND2 = OPERAND2;
 	}
 
-	public String getOPERAND2()
+	public InstructionsBlock getOPERAND2()
 	{
 		return OPERAND2;
 	}

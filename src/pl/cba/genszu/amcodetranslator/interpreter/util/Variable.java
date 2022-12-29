@@ -690,10 +690,24 @@ public class Variable
 						}
 						break;
 					case "OPERAND1":
-						objTmp13.setOPERAND1(value);
+						try
+						{
+							objTmp13.setOPERAND1(new InstructionsBlock(Parser.parseCode(value)));
+						}
+						catch (Exception e)
+						{
+							e.printStackTrace();
+						}
 						break;
 					case "OPERAND2":
-						objTmp13.setOPERAND2(value);
+						try
+						{
+							objTmp13.setOPERAND2(new InstructionsBlock(Parser.parseCode(value)));
+						}
+						catch (Exception e)
+						{
+							e.printStackTrace();
+						}
 						break;
 					case "OPERATOR":
 						objTmp13.setOPERATOR(value);
