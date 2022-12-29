@@ -39,6 +39,10 @@ public class InstructionsBlock
 			this.instr.put(param, list);
 		}
 	}
+	
+	public Map<String, InstructionsList> getInstr() {
+		return this.instr;
+	}
 
 	@Override
 	public String toString()
