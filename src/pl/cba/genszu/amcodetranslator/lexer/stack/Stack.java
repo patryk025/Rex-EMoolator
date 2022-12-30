@@ -61,17 +61,22 @@ public class Stack {
     }
 
     public int size() {
-        return index + 1;
+        return stack.length;
     }
 
     public Boolean isEmpty()
     {
-        return size() == 0;
+        return size == 0;
     }
 
     public Boolean isFull() {
         return size() == size;
     }
+	
+	public void clear() {
+		index = -1;
+		size = 0;
+	}
 
 	@Override
 	public String toString() {
