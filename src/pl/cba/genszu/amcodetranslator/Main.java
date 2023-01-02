@@ -114,6 +114,14 @@ public class Main {
 		
 		Logger.setVerbosity(12);
 		
+		/*try {
+			int test = 1/0;
+		}
+		catch(ArithmeticException e) {
+			Logger.e(e);
+			//System.exit(0);
+		}*/
+		
 		//pliki.clear();
 		//pliki.add("/sdcard/skrypty/riu(7.1)/DANE/ReksioUfo/PRZYGODA/Wyscigi/s67_Wyscigi.cnv");
 		//pliki.add("/sdcard/skrypty/ric/Dane/Dialogs.cnv");

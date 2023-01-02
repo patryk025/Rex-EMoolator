@@ -1,5 +1,7 @@
 package pl.cba.genszu.amcodetranslator.utils;
 
+import java.io.*;
+
 public class Logger
 {
 	static class Level {
@@ -36,6 +38,18 @@ public class Logger
 	public static void e(String message, boolean newline) {
 		if(checkVerbose(Level.ERROR))
 			log("ERROR", message);
+	}
+	
+	public static void e(Exception exception) {
+		if(checkVerbose(Level.ERROR)) {
+			StringWriter sw = new StringWriter();
+			PrintWriter pw = new PrintWriter(sw);
+			exception.printStackTrace(pw);
+			
+			String[] lines = sw.toString().split("\r?\n");
+			for(String line : lines)
+				log("EXCEPTION", line);
+		}
 	}
 	
 	public static void i(String message) {

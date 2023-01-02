@@ -223,7 +223,7 @@ public class CNVParser
 											}
 											catch(Exception e) {
 												if(tmpVar.getClassObj() == null) { //no czasami parametr TYPE jest gdzieś pośrodku zamiast na początku
-													Logger.w("Variable defined but not initialised, saving property value for later usage...");
+													Logger.w("Variable defined but not initialised, saving \""+methodParam+"\" value for later use...");
 													unorderedProperties.put(method, tmpVal); //cachujemy wartości
 												}
 												else {
