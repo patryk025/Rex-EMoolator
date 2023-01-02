@@ -3,7 +3,7 @@ package pl.cba.genszu.amcodetranslator.interpreter.util;
 import pl.cba.genszu.amcodetranslator.AMObjects.*;
 import pl.cba.genszu.amcodetranslator.lexer.*;
 import pl.cba.genszu.amcodetranslator.interpreter.*;
-import pl.cba.genszu.amcodetranslator.logger.*;
+import pl.cba.genszu.amcodetranslator.utils.*;
 
 public class Variable
 {
@@ -164,7 +164,7 @@ public class Variable
 				this.classObj = new World();
 				break;
 			default:
-				System.out.println("Nieznany typ: "+type);
+				Logger.w("Nieznany typ: "+type);
 		}
 	}
 
@@ -184,9 +184,7 @@ public class Variable
 	}
 	
 	public void debugPrint(String type, String name, String value) {
-		System.out.println("DEBUG: " + type + "." + name + " => " + value);
-		Logger logger = Logger.getInstance();
-		logger.log(type + "." + name + " => " + value);
+		Logger.d(type + "." + name + " => " + value);
 	}
 	
 	public void setProperty(String name, String value) {
