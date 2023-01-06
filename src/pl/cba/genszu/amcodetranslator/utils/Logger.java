@@ -46,9 +46,7 @@ public class Logger
 			PrintWriter pw = new PrintWriter(sw);
 			exception.printStackTrace(pw);
 			
-			String[] lines = sw.toString().split("\r?\n");
-			for(String line : lines)
-				log("EXCEPTION", line);
+			log("EXCEPTION", sw.toString());
 		}
 	}
 	
@@ -71,7 +69,10 @@ public class Logger
 	}
 	
 	public static void log(String message) {
-		log(message, true);
+		String[] lines = message.split("\r?\n");
+		
+		for(String line : lines)
+			log(line, true);
 	}
 	
 	public static void log(String message, boolean newline) {
@@ -79,7 +80,10 @@ public class Logger
 	}
 	
 	public static void log(String level, String message) {
-		log(level, message, true);
+		String[] lines = message.split("\r?\n");
+
+		for(String line : lines)
+			log(level, line, true);
 	}
 	
 	public static void log(String level, String message, boolean newline) {
