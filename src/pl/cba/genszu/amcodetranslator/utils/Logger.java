@@ -13,6 +13,7 @@ public class Logger
 	}
 	
 	private static int verboseLvl = Level.ALL;
+	private static PrintWriter logFile = null;
 	
 	private static boolean checkVerbose(int level) {
 		return (verboseLvl & level) == level;
@@ -20,6 +21,17 @@ public class Logger
 	
 	public static void setVerbosity(int verboseLvl) {
 		Logger.verboseLvl = verboseLvl;
+	}
+	
+	public static void setLogFile(String path) {
+		try
+		{
+			Logger.logFile = new PrintWriter(path);
+		}
+		catch (FileNotFoundException e)
+		{
+			e("File not found, didn't changed path for logger");
+		}
 	}
 	
 	public static void w(String message) {
@@ -77,6 +89,10 @@ public class Logger
 	
 	public static void log(String message, boolean newline) {
 		System.out.printf("%s"+(newline?"\n":""), new String[] {message});
+		if(logFile != null) {
+			logFile.printf("%s"+(newline?"\n":""), new String[] {message});
+			logFile.flush();
+		}
 	}
 	
 	public static void log(String level, String message) {
@@ -88,5 +104,9 @@ public class Logger
 	
 	public static void log(String level, String message, boolean newline) {
 		System.out.printf("%s: %s"+(newline?"\n":""), new String[] {level, message});
+		if(logFile != null) {
+			logFile.printf("%s: %s"+(newline?"\n":""), new String[] {level, message});
+			logFile.flush();
+		}
 	}
 }
