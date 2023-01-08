@@ -2,11 +2,9 @@ package pl.cba.genszu.amcodetranslator;
 
 import java.io.*;
 import java.util.*;
-import pl.cba.genszu.amcodetranslator.logger.*;
-import pl.cba.genszu.amcodetranslator.utils.*;
-
-import pl.cba.genszu.amcodetranslator.utils.Logger;
+import pl.cba.genszu.amcodetranslator.encoding.*;
 import pl.cba.genszu.amcodetranslator.interpreter.util.*;
+import pl.cba.genszu.amcodetranslator.utils.*;
 
 public class Main {
 
@@ -53,7 +51,7 @@ public class Main {
 		/* decypher - debug helper */
 		/*try
         {
-            FileReader reader = new FileReader("/sdcard/skrypty/risp/Dane/application.def");
+            FileReader reader = new FileReader("/sdcard/skrypty/riu(7.1)/DANE/ReksioUfo/PRZYGODA/Wyscigi/s67_Wyscigi.cnv");
             BufferedReader bufferedReader = new BufferedReader(reader);
 
             String line;
@@ -77,7 +75,7 @@ public class Main {
 						content = content.append(line).append("\n");
 					}
                 }
-				PrintWriter pw = new PrintWriter("/sdcard/skrypty/risp_application.def.dek");
+				PrintWriter pw = new PrintWriter("/sdcard/skrypty/s67_Wyscigi.cnv.dek");
 				
 				if (decypher)
 				{

@@ -151,7 +151,10 @@ public class CNVReconstructor
 							System.out.print(field.getName() + (key != "" ? "." + key : "") + " = "); 
 							System.out.print("(" + type + ") ");
 							System.out.println(instrObjToString(map_instr_list.get(key)));
-							sb.append(variableName).append(":").append(field.getName()).append("^").append(key).append("=").append(map_instr_list.get(key)).append("\n");
+							sb.append(variableName).append(":").append(field.getName());
+							if(key != "")
+								sb.append("^").append(key);
+							sb.append("=").append(instrObjToString(map_instr_list.get(key))).append("\n");
 						}
 					}
 					else {
