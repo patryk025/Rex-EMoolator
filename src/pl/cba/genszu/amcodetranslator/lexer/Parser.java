@@ -9,94 +9,10 @@ import pl.cba.genszu.amcodetranslator.interpreter.util.*;
 import pl.cba.genszu.amcodetranslator.lexer.fixer.*;
 import pl.cba.genszu.amcodetranslator.lexer.tree.*;
 import pl.cba.genszu.amcodetranslator.lexer.tree.exception.*;
+import pl.cba.genszu.amcodetranslator.utils.*;
 
 public class Parser
 {
-	//public static PrintWriter pw = null;
-	
-	/*public Lexer(String code) {
-		
-	}*/
-	
-	//private static String[] extractCondition(String 
-	
-	/*private static String[] parseConditional(String condition) {
-		List<String> parts = new ArrayList<>();
-
-		condition = condition.replace("_I_", "~ITERATOR~");
-		
-		String[] letters = condition.split("");
-
-		String buffer = "";
-
-		int counter = 0;
-		int len = letters.length;
-		
-		int intendLevel = 0;
-
-		for(String letter : letters) {
-			counter++;
-			
-			if(letter.equals("(")) intendLevel++;
-			if(letter.equals(")")) intendLevel--;
-			
-			if(letter.matches("[\\||&]")) {
-				if(!buffer.equals("")) {
-					if(!buffer.matches("[\\||&]")) {
-						parts.add(buffer);
-						buffer = letter;
-					}
-					else {
-						buffer += letter;
-					}
-				}
-				else {
-					System.out.println("WARNING: unexpected logic operator, no condition before");
-				}
-			}
-			else if(letter.matches("[<>!_']") && intendLevel == 0) {
-				if(!buffer.equals("")) {
-					if(!buffer.matches("[\\||&<>!_']")) {
-						parts.add(buffer);
-						buffer = letter;
-					}
-					else {
-						buffer += letter;
-					}
-				}
-				else {
-					System.out.println("WARNING: unexpected logic operator, no condition before");
-				}
-			}
-			else {
-				if(buffer.equals("||")) {
-					parts.add("OR");
-					buffer = "";
-				}
-				else if(buffer.equals("&&")) {
-					parts.add("AND");
-					buffer = "";
-				}
-				if(buffer.matches("[<>!_']{1,2}") && !letter.matches("[<>!_']")) {
-					parts.add(buffer);
-					buffer = "";
-				}
-				buffer += letter;
-				if(counter == len) {
-					parts.add(buffer);
-					buffer = letter;
-				}
-			}
-		}
-		
-		for(int i = 0; i < parts.size(); i++) {
-			parts.set(i, parts.get(i).replace("~ITERATOR~", "_I_"));
-			
-		}
-
-		return parts.toArray(new String[0]);
-	}*/
-
 	private static String[] parseConditional(String condition) {
 		final String regex = "(.+?)([<>][']{0,1}|[!]{0,1}['])(.+)";
 
@@ -104,8 +20,6 @@ public class Parser
 		Matcher matcher;
 
 		List<String> parts = new ArrayList<>();
-
-		//condition = condition.replace("_I_", "~ITERATOR~"); //no to _I_ psuje mi szyki no ale że tak jest potem w skryptach to szybka podmianka na chwilkę bo regex się sypie
 		
 		String[] letters = condition.split("");
 
@@ -183,7 +97,7 @@ public class Parser
 			}
 
 			if(cond[2].startsWith("$")) {
-				System.out.println("WARNING: Dollar parameter reference detected. Stays untouched for now.");
+				Logger.w("Dollar parameter reference detected. Stays untouched for now.");
 			}
 
 			Token var;
@@ -350,7 +264,7 @@ public class Parser
 			if(!instr.equals("")) {
 				//first check if instr doesn't have fix
 				if(patcher.hasPatch(instr)) {
-					System.out.println("INFO: Found fix for " + instr);
+					Logger.i("Found fix for " + instr);
 					instr = patcher.patch(instr);
 				}
 				
@@ -408,7 +322,7 @@ public class Parser
 
 						//BSTPrinter.print(tree);
 					} else {
-						System.out.println("Błąd parsowania. Linia: " + instr);
+						Logger.e("Błąd parsowania. Linia: " + instr);
 					}
 				} 
 				else if (instr.startsWith("@WHILE")) {
@@ -439,7 +353,7 @@ public class Parser
 
 						//BSTPrinter.print(tree);
 					} else {
-						System.out.println("Błąd parsowania. Linia: " + instr);
+						Logger.e("Błąd parsowania. Linia: " + instr);
 					}
 				}
 				else if (instr.startsWith("@LOOP")) {
@@ -491,7 +405,7 @@ public class Parser
 
 						//BSTPrinter.print(new BinaryTree(conditionTree));
 					} else {
-						System.out.println("Błąd parsowania. Linia: " + instr);
+						Logger.e("Błąd parsowania. Linia: " + instr);
 					}
 				}
 				else if(LexerUtils.isVarDef(instr)) {
@@ -561,7 +475,7 @@ public class Parser
 					}
 				}
 				else if(instr.startsWith("@")) {
-					System.out.println("WARNING: "+instr.split("\\(")[0]+" is not implemented yet!!!");
+					Logger.w(instr.split("\\(")[0]+" is not implemented yet!!!");
 				}
 				else if(LexerUtils.isPointerByString(instr)) {
 					//System.out.println("INFO: Pointer to variable holding object name detected.");
@@ -608,7 +522,7 @@ public class Parser
 					}
 					if(LexerUtils.isExpression(objectName) && objectName.contains("$")) {
 						objectName = objectName.substring(1, objectName.length()-1);
-						System.out.println("WARNING: Dollar parameter reference detected. Stays untouched for now.");
+						Logger.w("Dollar parameter reference detected. Stays untouched for now.");
 					}
 					if(LexerUtils.isStructFieldExpr(objectName)){
 						isStruct = true;
@@ -658,21 +572,6 @@ public class Parser
 					tmp.add(func);
 					tmp.add(param);
 				}
-				//To akurat komentarz jednoliniowy wewnątrz kodu, do wywalenia
-				/*else if(instr.startsWith("!")) {
-					String functionName = instr.replace(" !", "");
-					System.out.println("engine: fire " + functionName);
-
-					Token engine = new Token(Constants.ENGINE);
-					Token fire = new Token(Constants.FIRE);
-					Token func = new Token(Constants.FUNC, functionName);
-
-					tree.root = new Node(engine);
-					Node tmp = tree.root.add(fire);
-					tmp.add(func);
-
-					//BSTPrinter.print(tree);
-				}*/
 				else {
 					//System.out.println(instr);
 					//TODO: przejrzenie zmiennych i sprawdzenie czy zmienna to Behaviour, jeśli nie wyrzuć LexerException

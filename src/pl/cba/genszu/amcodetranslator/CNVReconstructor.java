@@ -68,6 +68,14 @@ public class CNVReconstructor
 
 			sb.append("@LOOP(\"").append(code).append("\",\"").append(startVal).append("\",\"").append(stopVal).append("\",\"").append(incr).append("\");");
 		}
+		else if(token.type == Constants.RETURN) { //@RETURN
+			sb.append("@RETURN(")
+			  .append(node.left.value.value)
+			  .append(");");
+		}
+		else if(token.type == Constants.BREAK) { //@BREAK
+			sb.append("@BREAK();");
+		}
 		else if(token.type == Constants.VARNAME) { //
 			sb.append(token.value);
 			sb.append(instrObjToString(node.left));
@@ -101,13 +109,21 @@ public class CNVReconstructor
 			}
 		}
 		else if(arithmeticOperators.contains(token.type)) {
+			sb.append("[");
 			List<Token> nodes = new ArrayList<>();
 
 			traverseInOrder(nodes, node);
 
 			for(Token n : nodes) {
-				System.out.println(n);
+				//System.out.println(n);
+				if(arithmeticOperators.contains(n.type)) {
+					sb.append(n.value);
+				}
+				else {
+					instrObjToString(new Node(n));
+				}
 			}
+			sb.append("]");
 		}
 		else {
 			sb.append(node.value.value);
