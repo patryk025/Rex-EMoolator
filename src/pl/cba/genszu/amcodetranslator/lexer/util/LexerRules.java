@@ -3,9 +3,9 @@ import java.util.*;
 
 public class LexerRules
 {
-	//takie tam próby, do wywalenia
-	
+	//TODO: co ja robię ze swoim życiem?
 	private HashMap<String, String> rules;
+	private HashMap<String, String> tokens;
 	
 	private LexerRules instance;
 	
@@ -88,10 +88,23 @@ FIREFUNC:	'^'
 	;*/
 	
 	private LexerRules() {
+		tokens = new HashMap<String, String>();
+		tokens.put("DIGIT", "[0-9]");
+		tokens.put("CHAR", "[a-zA-Z]");
+		tokens.put("LPAREN", "\\(");
+		tokens.put("RPAREN", "\\)");
+		tokens.put("STARTCODE", "\\{");
+		tokens.put("STOPCODE", "\\}");
+		tokens.put("STARTEXPR", "\\[");
+		tokens.put("STOPEXPR", "\\]");
+		tokens.put("WS", "[ \\t\\r\\n]");
+		
 		rules = new HashMap<String, String>();
-		rules.put("INT", "[0-9]*");
-		rules.put("DIGIT", "[0-9]{1}");
-		rules.put("FLOAT", "[0-9]*\\.[0-9]*");
+		rules.put("FLOAT", "~DIGIT~*\\.~DIGIT~*");
+		rules.put("INT", "~DIGIT~*");
+		rules.put("STRING", "\"~CHAR~*\"");
+		rules.put("INSTRNAME", "@~CHAR~");
+		rules.put("CODE", "~STARTCODE~~CHAR~*~STOPCODE~");
 	}
 	
 	public LexerRules getInstance() {
