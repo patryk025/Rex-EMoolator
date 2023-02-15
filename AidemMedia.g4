@@ -8,36 +8,44 @@ ifInstr
 	;
 
 loopInstr
-	:	'@LOOP' LPAREN codeBlock SEPARATOR (string | LITERAL | expression | DIGIT | NUMBER | functionFire) SEPARATOR (string | LITERAL | expression | DIGIT | NUMBER | functionFire) SEPARATOR (string | LITERAL | expression | DIGIT | NUMBER | functionFire) RPAREN ENDINSTR?
+	:	'@LOOP' LPAREN codeBlock SEPARATOR (string | LITERAL | expression | DIGIT | NUMBER | functionFire | struct) SEPARATOR (string | LITERAL | expression | DIGIT | NUMBER | functionFire | struct) SEPARATOR (string | LITERAL | expression | DIGIT | NUMBER | functionFire | struct) RPAREN ENDINSTR?
 	;
 
 whileInstr
 	:	'@WHILE' LPAREN param SEPARATOR QUOTEMARK (LSS | LEQ | GEQ | GTR| EQU | NEQ) QUOTEMARK SEPARATOR param SEPARATOR (codeBlock | string) RPAREN ENDINSTR?
 	;
-	
+
 functionFire
-	:	(LITERAL | stringRef | struct | SELF) FIREFUNC LITERAL LPAREN (SEPARATOR? param)* RPAREN ENDINSTR?
+	:	(LITERAL | stringRef | struct) FIREFUNC LITERAL LPAREN (SEPARATOR? param)* RPAREN ENDINSTR?
 	;
-	
+
 codeBlock
-	:	STARTCODE (functionFire | ifInstr | loopInstr | whileInstr | instr)* STOPCODE
+	:	STARTCODE (functionFire | ifInstr | loopInstr | whileInstr | instr | behFire)* STOPCODE
 	;
-	
+
 expression
-	:	STARTEXPR (ARITHMETIC? (LITERAL | string | DIGIT | NUMBER | ITERATOR | functionFire | expression | struct | stringRef))* STOPEXPR
+	:	STARTEXPR (ARITHMETIC? (LITERAL | string | DIGIT | NUMBER | ITERATOR | functionFire | expression | struct | stringRef | modulo) ARITHMETIC?)* STOPEXPR
 	;
 
 script
 	:	(codeBlock | expression | string | ifInstr | loopInstr | whileInstr)*
 	;
-	
+
 param
-	:	functionFire | BOOLEAN | variable | string | LITERAL | DIGIT | NUMBER | expression | ITERATOR | struct | stringRef
+	:	functionFire | BOOLEAN | variable | string | LITERAL | DIGIT | NUMBER | FLOAT | expression | ITERATOR | struct | stringRef
 	;
 
 condition
-	:	(LITERAL | functionFire | struct) (LSS | LEQ | GEQ | GTR| EQU | NEQ) param
+	:	(LITERAL | functionFire | struct | expression) (LSS | LEQ | GEQ | GTR| EQU | NEQ) param
 		(LOGIC condition)?
+	;
+
+behFire
+	:	LITERAL ENDINSTR
+	;
+
+modulo
+	:	LITERAL '@' (LITERAL | DIGIT | NUMBER)
 	;
 
 /* TODO: string to powinien być dowolny ciąg znaków */
@@ -60,7 +68,7 @@ struct
 variable
 	:   VARREF (LITERAL | DIGIT)
 	;
-	
+
 LPAREN	:	'('
 	;
 
@@ -116,21 +124,21 @@ FIREFUNC:	'^'
 
 DIGIT	:	'0'..'9'
 	;
-	
-NUMBER	
+
+NUMBER
 	:	ARITHMETIC? DIGIT+
 	;
-    
+
 ITERATOR
 	:	'_I_'
 	;
-	
+
 LITERAL
 	:	('.'? ('A'..'Z' | '0'..'9' | '_')+)+
 	;
 
 FLOAT
-    :   NUMBER+ '.' NUMBER* 
+    :   NUMBER+ '.' NUMBER*
     |   '.' NUMBER+
    	;
 
@@ -144,10 +152,6 @@ LOGIC
 
 BOOLEAN
 	:	'TRUE' | 'FALSE'
-	;
-
-SELF
-	:	'THIS'
 	;
 
 SEPARATOR
