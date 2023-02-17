@@ -4,31 +4,31 @@ ifInstr
 	: '@IF' LPAREN (
 			QUOTEMARK condition QUOTEMARK SEPARATOR
 		|	param SEPARATOR QUOTEMARK (LSS | LEQ | GEQ | GTR| EQU | NEQ) QUOTEMARK SEPARATOR param SEPARATOR
-	)	(codeBlock | string) SEPARATOR (codeBlock | string) RPAREN ENDINSTR?
+	)	(codeBlock | string) SEPARATOR (codeBlock | string) RPAREN ENDINSTR*
 	;
 
 loopInstr
-	:	'@LOOP' LPAREN codeBlock SEPARATOR (string | LITERAL | expression | ARITHMETIC? NUMBER | functionFire | struct) SEPARATOR (string | LITERAL | expression | ARITHMETIC? NUMBER | functionFire | struct) SEPARATOR (string | LITERAL | expression | ARITHMETIC? NUMBER | functionFire | struct) RPAREN ENDINSTR?
+	:	'@LOOP' LPAREN codeBlock SEPARATOR (string | LITERAL | expression | ARITHMETIC? NUMBER | functionFire | struct) SEPARATOR (string | LITERAL | expression | ARITHMETIC? NUMBER | functionFire | struct) SEPARATOR (string | LITERAL | expression | ARITHMETIC? NUMBER | functionFire | struct) RPAREN ENDINSTR*
 	;
 
 whileInstr
-	:	'@WHILE' LPAREN param SEPARATOR QUOTEMARK (LSS | LEQ | GEQ | GTR| EQU | NEQ) QUOTEMARK SEPARATOR param SEPARATOR (codeBlock | string) RPAREN ENDINSTR?
+	:	'@WHILE' LPAREN param SEPARATOR QUOTEMARK (LSS | LEQ | GEQ | GTR| EQU | NEQ) QUOTEMARK SEPARATOR param SEPARATOR (codeBlock | string) RPAREN ENDINSTR*
 	;
 
 functionFire
-	:	(LITERAL | stringRef | struct) FIREFUNC LITERAL LPAREN (SEPARATOR? param)* RPAREN ENDINSTR?
+	:	(LITERAL | ITERATOR | stringRef | struct) FIREFUNC LITERAL LPAREN (SEPARATOR? param)* RPAREN ENDINSTR*
 	;
 
 codeBlock
-	:	STARTCODE (functionFire | ifInstr | loopInstr | whileInstr | instr | behFire | expression)* STOPCODE
+	:	STARTCODE (functionFire | ifInstr | loopInstr | whileInstr | instr | behFire | expression | (LITERAL | FLOAT | NUMBER) ENDINSTR*)* STOPCODE
 	;
 
 expression
-	:	STARTEXPR ((ARITHMETIC | DIV | STRREF)? (LITERAL | string | ARITHMETIC? NUMBER | ARITHMETIC? FLOAT | modulo | ITERATOR | functionFire | expression | struct | stringRef) (ARITHMETIC | STRREF)?)* STOPEXPR ENDINSTR?
+	:	STARTEXPR ((ARITHMETIC | DIV | STRREF)? (LITERAL | string | ARITHMETIC? NUMBER | ARITHMETIC? FLOAT | modulo | ITERATOR | functionFire | expression | struct | stringRef | variable) (ARITHMETIC | STRREF)?)* STOPEXPR ENDINSTR*
 	;
 
 script
-	:	(codeBlock | expression | string | ifInstr | loopInstr | whileInstr | string | LITERAL | FLOAT)*
+	:	(codeBlock | expression | string | ifInstr | loopInstr | whileInstr | string)*
 	;
 
 param
@@ -40,7 +40,7 @@ condition
 	;
 
 conditionPart
-	:	(LITERAL | functionFire | struct | expression) (LSS | LEQ | GEQ | GTR| EQU | NEQ) param
+	:	(LITERAL | functionFire | struct | expression | ITERATOR) (LSS | LEQ | GEQ | GTR| EQU | NEQ) param
 	;
 
 behFire
@@ -59,7 +59,7 @@ modulo
 
 /* TODO: string to powinien być dowolny ciąg znaków */
 string
-	:	QUOTEMARK ((LITERAL | ARITHMETIC? NUMBER | ARITHMETIC? FLOAT | LSS | LEQ | GEQ | GTR| EQU | NEQ | SLASH | struct | LPAREN | RPAREN | SEPARATOR | ARITHMETIC | VARREF)+ | (variable (SLASH LITERAL?)?) | string)? QUOTEMARK
+	:	QUOTEMARK ((LITERAL | FIREFUNC | ARITHMETIC? NUMBER | ARITHMETIC? FLOAT | LSS | LEQ | GEQ | GTR| EQU | NEQ | SLASH | struct | LPAREN | RPAREN | SEPARATOR | ARITHMETIC | VARREF | ITERATOR)+ | (variable (SLASH LITERAL?)?) | string)? QUOTEMARK
 	;
 
 instr
