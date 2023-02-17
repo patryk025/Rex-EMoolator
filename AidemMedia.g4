@@ -8,7 +8,7 @@ ifInstr
 	;
 
 loopInstr
-	:	'@LOOP' LPAREN codeBlock SEPARATOR (string | LITERAL | expression | DIGIT | NUMBER | functionFire | struct) SEPARATOR (string | LITERAL | expression | DIGIT | NUMBER | functionFire | struct) SEPARATOR (string | LITERAL | expression | DIGIT | NUMBER | functionFire | struct) RPAREN ENDINSTR?
+	:	'@LOOP' LPAREN codeBlock SEPARATOR (string | LITERAL | expression | ARITHMETIC? NUMBER | functionFire | struct) SEPARATOR (string | LITERAL | expression | ARITHMETIC? NUMBER | functionFire | struct) SEPARATOR (string | LITERAL | expression | ARITHMETIC? NUMBER | functionFire | struct) RPAREN ENDINSTR?
 	;
 
 whileInstr
@@ -20,24 +20,27 @@ functionFire
 	;
 
 codeBlock
-	:	STARTCODE (functionFire | ifInstr | loopInstr | whileInstr | instr | behFire)* STOPCODE
+	:	STARTCODE (functionFire | ifInstr | loopInstr | whileInstr | instr | behFire | expression)* STOPCODE
 	;
 
 expression
-	:	STARTEXPR (ARITHMETIC? (LITERAL | string | DIGIT | NUMBER | ITERATOR | functionFire | expression | struct | stringRef | modulo) ARITHMETIC?)* STOPEXPR
+	:	STARTEXPR ((ARITHMETIC | DIV | STRREF)? (LITERAL | string | ARITHMETIC? NUMBER | ARITHMETIC? FLOAT | modulo | ITERATOR | functionFire | expression | struct | stringRef) (ARITHMETIC | STRREF)?)* STOPEXPR ENDINSTR?
 	;
 
 script
-	:	(codeBlock | expression | string | ifInstr | loopInstr | whileInstr)*
+	:	(codeBlock | expression | string | ifInstr | loopInstr | whileInstr | string | LITERAL | FLOAT)*
 	;
 
 param
-	:	functionFire | BOOLEAN | variable | string | LITERAL | DIGIT | NUMBER | FLOAT | expression | ITERATOR | struct | stringRef
+	:	functionFire | BOOLEAN | variable | string | LITERAL | ARITHMETIC? NUMBER | ARITHMETIC? FLOAT | expression | ITERATOR | struct | stringRef
 	;
 
 condition
+	:	(LOGIC? conditionPart)*
+	;
+
+conditionPart
 	:	(LITERAL | functionFire | struct | expression) (LSS | LEQ | GEQ | GTR| EQU | NEQ) param
-		(LOGIC condition)?
 	;
 
 behFire
@@ -45,12 +48,18 @@ behFire
 	;
 
 modulo
-	:	LITERAL '@' (LITERAL | DIGIT | NUMBER)
+	:	(LITERAL | ITERATOR | ARITHMETIC? NUMBER | ARITHMETIC? FLOAT | functionFire | struct | expression) MOD (LITERAL | ARITHMETIC? NUMBER | ARITHMETIC? FLOAT | functionFire | struct | expression)
 	;
+
+/* jednak to nie zbyt dobrze działa */
+/*string
+	:	QUOTEMARK (string | condition)* .*? QUOTEMARK
+	;
+*/
 
 /* TODO: string to powinien być dowolny ciąg znaków */
 string
-	:	QUOTEMARK ((LITERAL | DIGIT | NUMBER | LSS | LEQ | GEQ | GTR| EQU | NEQ | SLASH | struct | LPAREN | RPAREN | SEPARATOR | ARITHMETIC)+ | (variable (SLASH LITERAL?)?) | string)? QUOTEMARK
+	:	QUOTEMARK ((LITERAL | ARITHMETIC? NUMBER | ARITHMETIC? FLOAT | LSS | LEQ | GEQ | GTR| EQU | NEQ | SLASH | struct | LPAREN | RPAREN | SEPARATOR | ARITHMETIC | VARREF)+ | (variable (SLASH LITERAL?)?) | string)? QUOTEMARK
 	;
 
 instr
@@ -66,7 +75,7 @@ struct
 	;
 
 variable
-	:   VARREF (LITERAL | DIGIT)
+	:   VARREF (LITERAL | NUMBER)
 	;
 
 LPAREN	:	'('
@@ -122,28 +131,42 @@ ENDINSTR:	';'
 FIREFUNC:	'^'
 	;
 
-DIGIT	:	'0'..'9'
+DIV
+	:	'@'
+	;
+
+MOD
+	:	'%'
+	;
+
+fragment DIGIT
+	:	'0'..'9'
+	;
+
+fragment LETTER
+	:	'A'..'Z' | 'a'..'z'
 	;
 
 NUMBER
-	:	ARITHMETIC? DIGIT+
+	:	DIGIT+
 	;
+
+FLOAT
+    :   NUMBER '.' NUMBER
+   	;
+
+DOT: '.';
 
 ITERATOR
 	:	'_I_'
 	;
 
-LITERAL
-	:	('.'? ('A'..'Z' | '0'..'9' | '_')+)+
-	;
-
-FLOAT
-    :   NUMBER+ '.' NUMBER*
-    |   '.' NUMBER+
-   	;
+LITERAL: (('_' | DOT | SLASH)* (LETTER | NUMBER) ('_' | LETTER | DIGIT | DOT | SLASH)*)
+       | ('_'* DOT DIGIT+ ('.' DIGIT+)? (LETTER ('_' | DIGIT | SLASH)* | '_'*))
+       ;
 
 ARITHMETIC
-	:	'+' | '-' | '*' ~('[' | 'A'..'Z') | '/' | '@'
+	:	'+' | '-' | '*' ~('[' | 'A'..'Z' | '0'..'9') | DIV
 	;
 
 LOGIC
