@@ -4,5 +4,7 @@ Prototyp modułu lexera oraz interpretera skryptów z gier Aidem Media wykorzyst
 Prace nad gramatyką języka skryptowego silnika Bloomoo w ANTLR.
 
 - Kodów: 46874
-- Poprawnie przeparsowanych: 46247
-- Niepoprawnie przeparsowanych: 627
+- Poprawnie przeparsowanych: 46728
+- Niepoprawnie przeparsowanych: 146
+
+Reszta linii ma błędy składniowe stąd nie są one poprawnie interpretowane i będą wymagać osobnego potraktowania.

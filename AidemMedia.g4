@@ -16,11 +16,11 @@ whileInstr
 	;
 
 functionFire
-	:	(LITERAL | ITERATOR | stringRef | struct) FIREFUNC LITERAL LPAREN (SEPARATOR? param)* RPAREN ENDINSTR*
+	:	(LITERAL | ITERATOR | stringRef | struct | variable) FIREFUNC LITERAL LPAREN (SEPARATOR? param)* RPAREN ENDINSTR*
 	;
 
 codeBlock
-	:	STARTCODE (functionFire | ifInstr | loopInstr | whileInstr | instr | behFire | expression | (LITERAL | FLOAT | NUMBER) ENDINSTR*)* STOPCODE
+	:	STARTCODE (functionFire | ifInstr | loopInstr | whileInstr | instr | behFire | expression | codeBlock | (LITERAL | FLOAT | NUMBER) ENDINSTR*)* ENDINSTR* STOPCODE
 	;
 
 expression
@@ -59,7 +59,7 @@ modulo
 
 /* TODO: string to powinien być dowolny ciąg znaków */
 string
-	:	QUOTEMARK ((LITERAL | FIREFUNC | ARITHMETIC? NUMBER | ARITHMETIC? FLOAT | LSS | LEQ | GEQ | GTR| EQU | NEQ | SLASH | struct | LPAREN | RPAREN | SEPARATOR | ARITHMETIC | VARREF | ITERATOR)+ | (variable (SLASH LITERAL?)?) | string)? QUOTEMARK
+	:	QUOTEMARK ((LITERAL | FIREFUNC | ARITHMETIC? NUMBER | ARITHMETIC? FLOAT | LSS | LEQ | GEQ | GTR| EQU | NEQ | SLASH | struct | LPAREN | RPAREN | SEPARATOR | ARITHMETIC | VARREF | ITERATOR | expression | functionFire)+ | (variable (SLASH LITERAL?)?) | string)? QUOTEMARK
 	;
 
 instr
@@ -161,12 +161,13 @@ ITERATOR
 	:	'_I_'
 	;
 
-LITERAL: (('_' | DOT | SLASH)* (LETTER | NUMBER) ('_' | LETTER | DIGIT | DOT | SLASH)*)
-       | ('_'* DOT DIGIT+ ('.' DIGIT+)? (LETTER ('_' | DIGIT | SLASH)* | '_'*))
+LITERAL: ((('_' | DOT | SLASH)* (LETTER | NUMBER) ('_' | LETTER | DIGIT | DOT | SLASH | '!' | '?')*)
+       | ('_'* DOT DIGIT+ ('.' DIGIT+)? (LETTER ('_' | DIGIT | SLASH | '!' | '?')* | '_'*)))
+	   (ARITHMETIC NUMBER | VARREF (LITERAL | NUMBER))?
        ;
 
 ARITHMETIC
-	:	'+' | '-' | '*' ~('[' | 'A'..'Z' | '0'..'9') | DIV
+	:	'+' | '-' | '*' ~('[' | 'A'..'Z' | '0'..'9' | '$') | DIV
 	;
 
 LOGIC
