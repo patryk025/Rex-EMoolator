@@ -17,7 +17,9 @@ public class Main {
 		ParseTree tree = parser.script();
 		
 		List<String> ruleNamesList = Arrays.asList(parser.getRuleNames());
-		String prettyTree = TreeUtils.toPrettyTree(tree, ruleNamesList);
-		System.out.println(prettyTree);
+		String[] tokensList = lexer.getTokenNames();
+		//String prettyTree = TreeUtils.toPrettyTree(tree, ruleNamesList);
+		//System.out.println(prettyTree);
+		ParseTreeAnalyzer.analyzeTree(tree, ruleNamesList, tokens, tokensList);
 	}
 }

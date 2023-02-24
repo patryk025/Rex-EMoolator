@@ -1,6 +1,5 @@
+// Generated from /storage/emulated/0/AppProjects/AidemMediaInterpreterAntlr/src/pl/cba/genszu/amcodetranslator/AidemMedia.g4 by ANTLR 4.9.2
 package pl.cba.genszu.amcodetranslator.antlr;
-
-// Generated from e:\gramatykaAM\AidemMedia.g4 by ANTLR 4.9.2
 import org.antlr.v4.runtime.Lexer;
 import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.Token;
