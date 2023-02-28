@@ -18,8 +18,8 @@ public class Main {
 		
 		List<String> ruleNamesList = Arrays.asList(parser.getRuleNames());
 		String[] tokensList = lexer.getTokenNames();
-		//String prettyTree = TreeUtils.toPrettyTree(tree, ruleNamesList);
-		//System.out.println(prettyTree);
-		ParseTreeAnalyzer.analyzeTree(tree, ruleNamesList, tokens, tokensList);
+		String prettyTree = TreeUtils.toPrettyTree(tree, ruleNamesList);
+		System.out.println(prettyTree);
+		//ParseTreeAnalyzer.analyzeTree(tree, ruleNamesList, tokens, tokensList);
 	}
 }

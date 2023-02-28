@@ -27,12 +27,14 @@ public class AidemMediaParser extends Parser {
 		RULE_codeBlock = 4, RULE_expression = 5, RULE_script = 6, RULE_param = 7, 
 		RULE_condition = 8, RULE_conditionPart = 9, RULE_behFire = 10, RULE_modulo = 11, 
 		RULE_string = 12, RULE_instr = 13, RULE_stringRef = 14, RULE_struct = 15, 
-		RULE_variable = 16;
+		RULE_variable = 16, RULE_number = 17, RULE_floatNumber = 18, RULE_literal = 19, 
+		RULE_arithmetic = 20, RULE_logic = 21;
 	private static String[] makeRuleNames() {
 		return new String[] {
 			"ifInstr", "loopInstr", "whileInstr", "functionFire", "codeBlock", "expression", 
 			"script", "param", "condition", "conditionPart", "behFire", "modulo", 
-			"string", "instr", "stringRef", "struct", "variable"
+			"string", "instr", "stringRef", "struct", "variable", "number", "floatNumber", 
+			"literal", "arithmetic", "logic"
 		};
 	}
 	public static final String[] ruleNames = makeRuleNames();
@@ -160,11 +162,6 @@ public class AidemMediaParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof AidemMediaListener ) ((AidemMediaListener)listener).exitIfInstr(this);
 		}
-		@Override
-		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof AidemMediaVisitor ) return ((AidemMediaVisitor<? extends T>)visitor).visitIfInstr(this);
-			else return visitor.visitChildren(this);
-		}
 	}
 
 	public final IfInstrContext ifInstr() throws RecognitionException {
@@ -175,34 +172,34 @@ public class AidemMediaParser extends Parser {
 			int _alt;
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(34);
+			setState(44);
 			match(T__0);
-			setState(35);
+			setState(45);
 			match(LPAREN);
-			setState(50);
+			setState(60);
 			_errHandler.sync(this);
 			switch ( getInterpreter().adaptivePredict(_input,0,_ctx) ) {
 			case 1:
 				{
-				setState(36);
+				setState(46);
 				match(QUOTEMARK);
-				setState(37);
+				setState(47);
 				condition();
-				setState(38);
+				setState(48);
 				match(QUOTEMARK);
-				setState(39);
+				setState(49);
 				match(SEPARATOR);
 				}
 				break;
 			case 2:
 				{
-				setState(41);
+				setState(51);
 				param();
-				setState(42);
+				setState(52);
 				match(SEPARATOR);
-				setState(43);
+				setState(53);
 				match(QUOTEMARK);
-				setState(44);
+				setState(54);
 				_la = _input.LA(1);
 				if ( !((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << LSS) | (1L << LEQ) | (1L << GEQ) | (1L << GTR) | (1L << EQU) | (1L << NEQ))) != 0)) ) {
 				_errHandler.recoverInline(this);
@@ -212,70 +209,70 @@ public class AidemMediaParser extends Parser {
 					_errHandler.reportMatch(this);
 					consume();
 				}
-				setState(45);
+				setState(55);
 				match(QUOTEMARK);
-				setState(46);
+				setState(56);
 				match(SEPARATOR);
-				setState(47);
-				param();
-				setState(48);
-				match(SEPARATOR);
-				}
-				break;
-			}
-			setState(54);
-			_errHandler.sync(this);
-			switch (_input.LA(1)) {
-			case STARTCODE:
-				{
-				setState(52);
-				codeBlock();
-				}
-				break;
-			case QUOTEMARK:
-				{
-				setState(53);
-				string();
-				}
-				break;
-			default:
-				throw new NoViableAltException(this);
-			}
-			setState(56);
-			match(SEPARATOR);
-			setState(59);
-			_errHandler.sync(this);
-			switch (_input.LA(1)) {
-			case STARTCODE:
-				{
 				setState(57);
+				param();
+				setState(58);
+				match(SEPARATOR);
+				}
+				break;
+			}
+			setState(64);
+			_errHandler.sync(this);
+			switch (_input.LA(1)) {
+			case STARTCODE:
+				{
+				setState(62);
 				codeBlock();
 				}
 				break;
 			case QUOTEMARK:
 				{
-				setState(58);
+				setState(63);
 				string();
 				}
 				break;
 			default:
 				throw new NoViableAltException(this);
 			}
-			setState(61);
+			setState(66);
+			match(SEPARATOR);
+			setState(69);
+			_errHandler.sync(this);
+			switch (_input.LA(1)) {
+			case STARTCODE:
+				{
+				setState(67);
+				codeBlock();
+				}
+				break;
+			case QUOTEMARK:
+				{
+				setState(68);
+				string();
+				}
+				break;
+			default:
+				throw new NoViableAltException(this);
+			}
+			setState(71);
 			match(RPAREN);
-			setState(65);
+			setState(75);
 			_errHandler.sync(this);
 			_alt = getInterpreter().adaptivePredict(_input,3,_ctx);
 			while ( _alt!=2 && _alt!=org.antlr.v4.runtime.atn.ATN.INVALID_ALT_NUMBER ) {
 				if ( _alt==1 ) {
 					{
 					{
-					setState(62);
+					setState(72);
 					match(ENDINSTR);
 					}
 					} 
 				}
-				setState(67);
+				setState(77);
 				_errHandler.sync(this);
 				_alt = getInterpreter().adaptivePredict(_input,3,_ctx);
 			}
@@ -308,9 +305,11 @@ public class AidemMediaParser extends Parser {
 		public StringContext string(int i) {
 			return getRuleContext(StringContext.class,i);
 		}
-		public List<TerminalNode> LITERAL() { return getTokens(AidemMediaParser.LITERAL); }
-		public TerminalNode LITERAL(int i) {
-			return getToken(AidemMediaParser.LITERAL, i);
+		public List<LiteralContext> literal() {
+			return getRuleContexts(LiteralContext.class);
+		}
+		public LiteralContext literal(int i) {
+			return getRuleContext(LiteralContext.class,i);
 		}
 		public List<ExpressionContext> expression() {
 			return getRuleContexts(ExpressionContext.class);
@@ -318,9 +317,11 @@ public class AidemMediaParser extends Parser {
 		public ExpressionContext expression(int i) {
 			return getRuleContext(ExpressionContext.class,i);
 		}
-		public List<TerminalNode> NUMBER() { return getTokens(AidemMediaParser.NUMBER); }
-		public TerminalNode NUMBER(int i) {
-			return getToken(AidemMediaParser.NUMBER, i);
+		public List<NumberContext> number() {
+			return getRuleContexts(NumberContext.class);
+		}
+		public NumberContext number(int i) {
+			return getRuleContext(NumberContext.class,i);
 		}
 		public List<FunctionFireContext> functionFire() {
 			return getRuleContexts(FunctionFireContext.class);
@@ -338,9 +339,11 @@ public class AidemMediaParser extends Parser {
 		public TerminalNode ENDINSTR(int i) {
 			return getToken(AidemMediaParser.ENDINSTR, i);
 		}
-		public List<TerminalNode> ARITHMETIC() { return getTokens(AidemMediaParser.ARITHMETIC); }
-		public TerminalNode ARITHMETIC(int i) {
-			return getToken(AidemMediaParser.ARITHMETIC, i);
+		public List<ArithmeticContext> arithmetic() {
+			return getRuleContexts(ArithmeticContext.class);
+		}
+		public ArithmeticContext arithmetic(int i) {
+			return getRuleContext(ArithmeticContext.class,i);
 		}
 		public LoopInstrContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
@@ -354,11 +357,6 @@ public class AidemMediaParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof AidemMediaListener ) ((AidemMediaListener)listener).exitLoopInstr(this);
 		}
-		@Override
-		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof AidemMediaVisitor ) return ((AidemMediaVisitor<? extends T>)visitor).visitLoopInstr(this);
-			else return visitor.visitChildren(this);
-		}
 	}
 
 	public final LoopInstrContext loopInstr() throws RecognitionException {
@@ -369,183 +367,183 @@ public class AidemMediaParser extends Parser {
 			int _alt;
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(68);
+			setState(78);
 			match(T__1);
-			setState(69);
+			setState(79);
 			match(LPAREN);
-			setState(70);
+			setState(80);
 			codeBlock();
-			setState(71);
-			match(SEPARATOR);
 			setState(81);
+			match(SEPARATOR);
+			setState(91);
 			_errHandler.sync(this);
 			switch ( getInterpreter().adaptivePredict(_input,5,_ctx) ) {
 			case 1:
 				{
-				setState(72);
+				setState(82);
 				string();
 				}
 				break;
 			case 2:
 				{
-				setState(73);
-				match(LITERAL);
+				setState(83);
+				literal();
 				}
 				break;
 			case 3:
 				{
-				setState(74);
+				setState(84);
 				expression();
 				}
 				break;
 			case 4:
 				{
-				setState(76);
+				setState(86);
 				_errHandler.sync(this);
 				_la = _input.LA(1);
 				if (_la==ARITHMETIC) {
 					{
-					setState(75);
-					match(ARITHMETIC);
+					setState(85);
+					arithmetic();
 					}
 				}
 
-				setState(78);
-				match(NUMBER);
+				setState(88);
+				number();
 				}
 				break;
 			case 5:
 				{
-				setState(79);
+				setState(89);
 				functionFire();
 				}
 				break;
 			case 6:
 				{
-				setState(80);
+				setState(90);
 				struct();
 				}
 				break;
 			}
-			setState(83);
-			match(SEPARATOR);
 			setState(93);
+			match(SEPARATOR);
+			setState(103);
 			_errHandler.sync(this);
 			switch ( getInterpreter().adaptivePredict(_input,7,_ctx) ) {
 			case 1:
 				{
-				setState(84);
+				setState(94);
 				string();
 				}
 				break;
 			case 2:
 				{
-				setState(85);
-				match(LITERAL);
+				setState(95);
+				literal();
 				}
 				break;
 			case 3:
 				{
-				setState(86);
+				setState(96);
 				expression();
 				}
 				break;
 			case 4:
 				{
-				setState(88);
+				setState(98);
 				_errHandler.sync(this);
 				_la = _input.LA(1);
 				if (_la==ARITHMETIC) {
 					{
-					setState(87);
-					match(ARITHMETIC);
+					setState(97);
+					arithmetic();
 					}
 				}
 
-				setState(90);
-				match(NUMBER);
+				setState(100);
+				number();
 				}
 				break;
 			case 5:
 				{
-				setState(91);
+				setState(101);
 				functionFire();
 				}
 				break;
 			case 6:
 				{
-				setState(92);
+				setState(102);
 				struct();
 				}
 				break;
 			}
-			setState(95);
-			match(SEPARATOR);
 			setState(105);
+			match(SEPARATOR);
+			setState(115);
 			_errHandler.sync(this);
 			switch ( getInterpreter().adaptivePredict(_input,9,_ctx) ) {
 			case 1:
 				{
-				setState(96);
+				setState(106);
 				string();
 				}
 				break;
 			case 2:
 				{
-				setState(97);
-				match(LITERAL);
+				setState(107);
+				literal();
 				}
 				break;
 			case 3:
 				{
-				setState(98);
+				setState(108);
 				expression();
 				}
 				break;
 			case 4:
 				{
-				setState(100);
+				setState(110);
 				_errHandler.sync(this);
 				_la = _input.LA(1);
 				if (_la==ARITHMETIC) {
 					{
-					setState(99);
-					match(ARITHMETIC);
+					setState(109);
+					arithmetic();
 					}
 				}
 
-				setState(102);
-				match(NUMBER);
+				setState(112);
+				number();
 				}
 				break;
 			case 5:
 				{
-				setState(103);
+				setState(113);
 				functionFire();
 				}
 				break;
 			case 6:
 				{
-				setState(104);
+				setState(114);
 				struct();
 				}
 				break;
 			}
-			setState(107);
+			setState(117);
 			match(RPAREN);
-			setState(111);
+			setState(121);
 			_errHandler.sync(this);
 			_alt = getInterpreter().adaptivePredict(_input,10,_ctx);
 			while ( _alt!=2 && _alt!=org.antlr.v4.runtime.atn.ATN.INVALID_ALT_NUMBER ) {
 				if ( _alt==1 ) {
 					{
 					{
-					setState(108);
+					setState(118);
 					match(ENDINSTR);
 					}
 					} 
 				}
-				setState(113);
+				setState(123);
 				_errHandler.sync(this);
 				_alt = getInterpreter().adaptivePredict(_input,10,_ctx);
 			}
@@ -607,11 +605,6 @@ public class AidemMediaParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof AidemMediaListener ) ((AidemMediaListener)listener).exitWhileInstr(this);
 		}
-		@Override
-		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof AidemMediaVisitor ) return ((AidemMediaVisitor<? extends T>)visitor).visitWhileInstr(this);
-			else return visitor.visitChildren(this);
-		}
 	}
 
 	public final WhileInstrContext whileInstr() throws RecognitionException {
@@ -622,17 +615,17 @@ public class AidemMediaParser extends Parser {
 			int _alt;
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(114);
+			setState(124);
 			match(T__2);
-			setState(115);
+			setState(125);
 			match(LPAREN);
-			setState(116);
+			setState(126);
 			param();
-			setState(117);
+			setState(127);
 			match(SEPARATOR);
-			setState(118);
+			setState(128);
 			match(QUOTEMARK);
-			setState(119);
+			setState(129);
 			_la = _input.LA(1);
 			if ( !((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << LSS) | (1L << LEQ) | (1L << GEQ) | (1L << GTR) | (1L << EQU) | (1L << NEQ))) != 0)) ) {
 			_errHandler.recoverInline(this);
@@ -642,47 +635,47 @@ public class AidemMediaParser extends Parser {
 				_errHandler.reportMatch(this);
 				consume();
 			}
-			setState(120);
+			setState(130);
 			match(QUOTEMARK);
-			setState(121);
+			setState(131);
 			match(SEPARATOR);
-			setState(122);
+			setState(132);
 			param();
-			setState(123);
+			setState(133);
 			match(SEPARATOR);
-			setState(126);
+			setState(136);
 			_errHandler.sync(this);
 			switch (_input.LA(1)) {
 			case STARTCODE:
 				{
-				setState(124);
+				setState(134);
 				codeBlock();
 				}
 				break;
 			case QUOTEMARK:
 				{
-				setState(125);
+				setState(135);
 				string();
 				}
 				break;
 			default:
 				throw new NoViableAltException(this);
 			}
-			setState(128);
+			setState(138);
 			match(RPAREN);
-			setState(132);
+			setState(142);
 			_errHandler.sync(this);
 			_alt = getInterpreter().adaptivePredict(_input,12,_ctx);
 			while ( _alt!=2 && _alt!=org.antlr.v4.runtime.atn.ATN.INVALID_ALT_NUMBER ) {
 				if ( _alt==1 ) {
 					{
 					{
-					setState(129);
+					setState(139);
 					match(ENDINSTR);
 					}
 					} 
 				}
-				setState(134);
+				setState(144);
 				_errHandler.sync(this);
 				_alt = getInterpreter().adaptivePredict(_input,12,_ctx);
 			}
@@ -701,9 +694,11 @@ public class AidemMediaParser extends Parser {
 
 	public static class FunctionFireContext extends ParserRuleContext {
 		public TerminalNode FIREFUNC() { return getToken(AidemMediaParser.FIREFUNC, 0); }
-		public List<TerminalNode> LITERAL() { return getTokens(AidemMediaParser.LITERAL); }
-		public TerminalNode LITERAL(int i) {
-			return getToken(AidemMediaParser.LITERAL, i);
+		public List<LiteralContext> literal() {
+			return getRuleContexts(LiteralContext.class);
+		}
+		public LiteralContext literal(int i) {
+			return getRuleContext(LiteralContext.class,i);
 		}
 		public TerminalNode LPAREN() { return getToken(AidemMediaParser.LPAREN, 0); }
 		public TerminalNode RPAREN() { return getToken(AidemMediaParser.RPAREN, 0); }
@@ -743,11 +738,6 @@ public class AidemMediaParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof AidemMediaListener ) ((AidemMediaListener)listener).exitFunctionFire(this);
 		}
-		@Override
-		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof AidemMediaVisitor ) return ((AidemMediaVisitor<? extends T>)visitor).visitFunctionFire(this);
-			else return visitor.visitChildren(this);
-		}
 	}
 
 	public final FunctionFireContext functionFire() throws RecognitionException {
@@ -758,85 +748,85 @@ public class AidemMediaParser extends Parser {
 			int _alt;
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(140);
+			setState(150);
 			_errHandler.sync(this);
 			switch ( getInterpreter().adaptivePredict(_input,13,_ctx) ) {
 			case 1:
 				{
-				setState(135);
-				match(LITERAL);
+				setState(145);
+				literal();
 				}
 				break;
 			case 2:
 				{
-				setState(136);
+				setState(146);
 				match(ITERATOR);
 				}
 				break;
 			case 3:
 				{
-				setState(137);
+				setState(147);
 				stringRef();
 				}
 				break;
 			case 4:
 				{
-				setState(138);
+				setState(148);
 				struct();
 				}
 				break;
 			case 5:
 				{
-				setState(139);
+				setState(149);
 				variable();
 				}
 				break;
 			}
-			setState(142);
+			setState(152);
 			match(FIREFUNC);
-			setState(143);
-			match(LITERAL);
-			setState(144);
+			setState(153);
+			literal();
+			setState(154);
 			match(LPAREN);
-			setState(151);
+			setState(161);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
 			while ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << VARREF) | (1L << STARTEXPR) | (1L << NUMBER) | (1L << FLOAT) | (1L << ITERATOR) | (1L << LITERAL) | (1L << ARITHMETIC) | (1L << BOOLEAN) | (1L << SEPARATOR) | (1L << QUOTEMARK) | (1L << STRREF))) != 0)) {
 				{
 				{
-				setState(146);
+				setState(156);
 				_errHandler.sync(this);
 				_la = _input.LA(1);
 				if (_la==SEPARATOR) {
 					{
-					setState(145);
+					setState(155);
 					match(SEPARATOR);
 					}
 				}
 
-				setState(148);
+				setState(158);
 				param();
 				}
 				}
-				setState(153);
+				setState(163);
 				_errHandler.sync(this);
 				_la = _input.LA(1);
 			}
-			setState(154);
+			setState(164);
 			match(RPAREN);
-			setState(158);
+			setState(168);
 			_errHandler.sync(this);
 			_alt = getInterpreter().adaptivePredict(_input,16,_ctx);
 			while ( _alt!=2 && _alt!=org.antlr.v4.runtime.atn.ATN.INVALID_ALT_NUMBER ) {
 				if ( _alt==1 ) {
 					{
 					{
-					setState(155);
+					setState(165);
 					match(ENDINSTR);
 					}
 					} 
 				}
-				setState(160);
+				setState(170);
 				_errHandler.sync(this);
 				_alt = getInterpreter().adaptivePredict(_input,16,_ctx);
 			}
@@ -908,17 +898,23 @@ public class AidemMediaParser extends Parser {
 		public TerminalNode ENDINSTR(int i) {
 			return getToken(AidemMediaParser.ENDINSTR, i);
 		}
-		public List<TerminalNode> LITERAL() { return getTokens(AidemMediaParser.LITERAL); }
-		public TerminalNode LITERAL(int i) {
-			return getToken(AidemMediaParser.LITERAL, i);
+		public List<LiteralContext> literal() {
+			return getRuleContexts(LiteralContext.class);
 		}
-		public List<TerminalNode> FLOAT() { return getTokens(AidemMediaParser.FLOAT); }
-		public TerminalNode FLOAT(int i) {
-			return getToken(AidemMediaParser.FLOAT, i);
+		public LiteralContext literal(int i) {
+			return getRuleContext(LiteralContext.class,i);
 		}
-		public List<TerminalNode> NUMBER() { return getTokens(AidemMediaParser.NUMBER); }
-		public TerminalNode NUMBER(int i) {
-			return getToken(AidemMediaParser.NUMBER, i);
+		public List<FloatNumberContext> floatNumber() {
+			return getRuleContexts(FloatNumberContext.class);
+		}
+		public FloatNumberContext floatNumber(int i) {
+			return getRuleContext(FloatNumberContext.class,i);
+		}
+		public List<NumberContext> number() {
+			return getRuleContexts(NumberContext.class);
+		}
+		public NumberContext number(int i) {
+			return getRuleContext(NumberContext.class,i);
 		}
 		public CodeBlockContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
@@ -932,11 +928,6 @@ public class AidemMediaParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof AidemMediaListener ) ((AidemMediaListener)listener).exitCodeBlock(this);
 		}
-		@Override
-		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof AidemMediaVisitor ) return ((AidemMediaVisitor<? extends T>)visitor).visitCodeBlock(this);
-			else return visitor.visitChildren(this);
-		}
 	}
 
 	public final CodeBlockContext codeBlock() throws RecognitionException {
@@ -947,115 +938,129 @@ public class AidemMediaParser extends Parser {
 			int _alt;
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(161);
+			setState(171);
 			match(STARTCODE);
-			setState(179);
+			setState(193);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
 			while ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << T__0) | (1L << T__1) | (1L << T__2) | (1L << VARREF) | (1L << STARTCODE) | (1L << STARTEXPR) | (1L << DIV) | (1L << NUMBER) | (1L << FLOAT) | (1L << ITERATOR) | (1L << LITERAL) | (1L << STRREF))) != 0)) {
 				{
-				setState(177);
+				setState(191);
 				_errHandler.sync(this);
-				switch ( getInterpreter().adaptivePredict(_input,18,_ctx) ) {
+				switch ( getInterpreter().adaptivePredict(_input,19,_ctx) ) {
 				case 1:
 					{
-					setState(162);
+					setState(172);
 					functionFire();
 					}
 					break;
 				case 2:
 					{
-					setState(163);
+					setState(173);
 					ifInstr();
 					}
 					break;
 				case 3:
 					{
-					setState(164);
+					setState(174);
 					loopInstr();
 					}
 					break;
 				case 4:
 					{
-					setState(165);
+					setState(175);
 					whileInstr();
 					}
 					break;
 				case 5:
 					{
-					setState(166);
+					setState(176);
 					instr();
 					}
 					break;
 				case 6:
 					{
-					setState(167);
+					setState(177);
 					behFire();
 					}
 					break;
 				case 7:
 					{
-					setState(168);
+					setState(178);
 					expression();
 					}
 					break;
 				case 8:
 					{
-					setState(169);
+					setState(179);
 					codeBlock();
 					}
 					break;
 				case 9:
 					{
-					setState(170);
-					_la = _input.LA(1);
-					if ( !((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << NUMBER) | (1L << FLOAT) | (1L << LITERAL))) != 0)) ) {
-					_errHandler.recoverInline(this);
-					}
-					else {
-						if ( _input.LA(1)==Token.EOF ) matchedEOF = true;
-						_errHandler.reportMatch(this);
-						consume();
-					}
-					setState(174);
+					setState(183);
 					_errHandler.sync(this);
-					_alt = getInterpreter().adaptivePredict(_input,17,_ctx);
+					switch (_input.LA(1)) {
+					case LITERAL:
+						{
+						setState(180);
+						literal();
+						}
+						break;
+					case FLOAT:
+						{
+						setState(181);
+						floatNumber();
+						}
+						break;
+					case NUMBER:
+						{
+						setState(182);
+						number();
+						}
+						break;
+					default:
+						throw new NoViableAltException(this);
+					}
+					setState(188);
+					_errHandler.sync(this);
+					_alt = getInterpreter().adaptivePredict(_input,18,_ctx);
 					while ( _alt!=2 && _alt!=org.antlr.v4.runtime.atn.ATN.INVALID_ALT_NUMBER ) {
 						if ( _alt==1 ) {
 							{
 							{
-							setState(171);
+							setState(185);
 							match(ENDINSTR);
 							}
 							} 
 						}
-						setState(176);
+						setState(190);
 						_errHandler.sync(this);
-						_alt = getInterpreter().adaptivePredict(_input,17,_ctx);
+						_alt = getInterpreter().adaptivePredict(_input,18,_ctx);
 					}
 					}
 					break;
 				}
 				}
-				setState(181);
+				setState(195);
 				_errHandler.sync(this);
 				_la = _input.LA(1);
 			}
-			setState(185);
+			setState(199);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
 			while (_la==ENDINSTR) {
 				{
 				{
-				setState(182);
+				setState(196);
 				match(ENDINSTR);
 				}
 				}
-				setState(187);
+				setState(201);
 				_errHandler.sync(this);
 				_la = _input.LA(1);
 			}
-			setState(188);
+			setState(202);
 			match(STOPCODE);
 			}
 		}
@@ -1077,9 +1082,11 @@ public class AidemMediaParser extends Parser {
 		public TerminalNode ENDINSTR(int i) {
 			return getToken(AidemMediaParser.ENDINSTR, i);
 		}
-		public List<TerminalNode> LITERAL() { return getTokens(AidemMediaParser.LITERAL); }
-		public TerminalNode LITERAL(int i) {
-			return getToken(AidemMediaParser.LITERAL, i);
+		public List<LiteralContext> literal() {
+			return getRuleContexts(LiteralContext.class);
+		}
+		public LiteralContext literal(int i) {
+			return getRuleContext(LiteralContext.class,i);
 		}
 		public List<StringContext> string() {
 			return getRuleContexts(StringContext.class);
@@ -1087,13 +1094,17 @@ public class AidemMediaParser extends Parser {
 		public StringContext string(int i) {
 			return getRuleContext(StringContext.class,i);
 		}
-		public List<TerminalNode> NUMBER() { return getTokens(AidemMediaParser.NUMBER); }
-		public TerminalNode NUMBER(int i) {
-			return getToken(AidemMediaParser.NUMBER, i);
+		public List<NumberContext> number() {
+			return getRuleContexts(NumberContext.class);
 		}
-		public List<TerminalNode> FLOAT() { return getTokens(AidemMediaParser.FLOAT); }
-		public TerminalNode FLOAT(int i) {
-			return getToken(AidemMediaParser.FLOAT, i);
+		public NumberContext number(int i) {
+			return getRuleContext(NumberContext.class,i);
+		}
+		public List<FloatNumberContext> floatNumber() {
+			return getRuleContexts(FloatNumberContext.class);
+		}
+		public FloatNumberContext floatNumber(int i) {
+			return getRuleContext(FloatNumberContext.class,i);
 		}
 		public List<ModuloContext> modulo() {
 			return getRuleContexts(ModuloContext.class);
@@ -1135,9 +1146,11 @@ public class AidemMediaParser extends Parser {
 		public VariableContext variable(int i) {
 			return getRuleContext(VariableContext.class,i);
 		}
-		public List<TerminalNode> ARITHMETIC() { return getTokens(AidemMediaParser.ARITHMETIC); }
-		public TerminalNode ARITHMETIC(int i) {
-			return getToken(AidemMediaParser.ARITHMETIC, i);
+		public List<ArithmeticContext> arithmetic() {
+			return getRuleContexts(ArithmeticContext.class);
+		}
+		public ArithmeticContext arithmetic(int i) {
+			return getRuleContext(ArithmeticContext.class,i);
 		}
 		public List<TerminalNode> DIV() { return getTokens(AidemMediaParser.DIV); }
 		public TerminalNode DIV(int i) {
@@ -1159,11 +1172,6 @@ public class AidemMediaParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof AidemMediaListener ) ((AidemMediaListener)listener).exitExpression(this);
 		}
-		@Override
-		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof AidemMediaVisitor ) return ((AidemMediaVisitor<? extends T>)visitor).visitExpression(this);
-			else return visitor.visitChildren(this);
-		}
 	}
 
 	public final ExpressionContext expression() throws RecognitionException {
@@ -1174,163 +1182,165 @@ public class AidemMediaParser extends Parser {
 			int _alt;
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(190);
+			setState(204);
 			match(STARTEXPR);
-			setState(218);
+			setState(235);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
 			while ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << VARREF) | (1L << STARTEXPR) | (1L << DIV) | (1L << NUMBER) | (1L << FLOAT) | (1L << ITERATOR) | (1L << LITERAL) | (1L << ARITHMETIC) | (1L << QUOTEMARK) | (1L << STRREF))) != 0)) {
 				{
 				{
-				setState(192);
+				setState(208);
 				_errHandler.sync(this);
-				switch ( getInterpreter().adaptivePredict(_input,21,_ctx) ) {
+				switch ( getInterpreter().adaptivePredict(_input,22,_ctx) ) {
 				case 1:
 					{
-					setState(191);
-					_la = _input.LA(1);
-					if ( !((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << DIV) | (1L << ARITHMETIC) | (1L << STRREF))) != 0)) ) {
-					_errHandler.recoverInline(this);
-					}
-					else {
-						if ( _input.LA(1)==Token.EOF ) matchedEOF = true;
-						_errHandler.reportMatch(this);
-						consume();
-					}
-					}
-					break;
-				}
-				setState(211);
-				_errHandler.sync(this);
-				switch ( getInterpreter().adaptivePredict(_input,24,_ctx) ) {
-				case 1:
-					{
-					setState(194);
-					match(LITERAL);
+					setState(205);
+					arithmetic();
 					}
 					break;
 				case 2:
 					{
-					setState(195);
+					setState(206);
+					match(DIV);
+					}
+					break;
+				case 3:
+					{
+					setState(207);
+					match(STRREF);
+					}
+					break;
+				}
+				setState(227);
+				_errHandler.sync(this);
+				switch ( getInterpreter().adaptivePredict(_input,25,_ctx) ) {
+				case 1:
+					{
+					setState(210);
+					literal();
+					}
+					break;
+				case 2:
+					{
+					setState(211);
 					string();
 					}
 					break;
 				case 3:
 					{
-					setState(197);
+					setState(213);
 					_errHandler.sync(this);
 					_la = _input.LA(1);
 					if (_la==ARITHMETIC) {
 						{
-						setState(196);
-						match(ARITHMETIC);
+						setState(212);
+						arithmetic();
 						}
 					}
 
-					setState(199);
-					match(NUMBER);
+					setState(215);
+					number();
 					}
 					break;
 				case 4:
 					{
-					setState(201);
+					setState(217);
 					_errHandler.sync(this);
 					_la = _input.LA(1);
 					if (_la==ARITHMETIC) {
 						{
-						setState(200);
-						match(ARITHMETIC);
+						setState(216);
+						arithmetic();
 						}
 					}
 
-					setState(203);
-					match(FLOAT);
+					setState(219);
+					floatNumber();
 					}
 					break;
 				case 5:
 					{
-					setState(204);
+					setState(220);
 					modulo();
 					}
 					break;
 				case 6:
 					{
-					setState(205);
+					setState(221);
 					match(ITERATOR);
 					}
 					break;
 				case 7:
 					{
-					setState(206);
+					setState(222);
 					functionFire();
 					}
 					break;
 				case 8:
 					{
-					setState(207);
+					setState(223);
 					expression();
 					}
 					break;
 				case 9:
 					{
-					setState(208);
+					setState(224);
 					struct();
 					}
 					break;
 				case 10:
 					{
-					setState(209);
+					setState(225);
 					stringRef();
 					}
 					break;
 				case 11:
 					{
-					setState(210);
+					setState(226);
 					variable();
 					}
 					break;
 				}
-				setState(214);
+				setState(231);
 				_errHandler.sync(this);
-				switch ( getInterpreter().adaptivePredict(_input,25,_ctx) ) {
+				switch ( getInterpreter().adaptivePredict(_input,26,_ctx) ) {
 				case 1:
 					{
-					setState(213);
-					_la = _input.LA(1);
-					if ( !(_la==ARITHMETIC || _la==STRREF) ) {
-					_errHandler.recoverInline(this);
+					setState(229);
+					arithmetic();
 					}
-					else {
-						if ( _input.LA(1)==Token.EOF ) matchedEOF = true;
-						_errHandler.reportMatch(this);
-						consume();
-					}
+					break;
+				case 2:
+					{
+					setState(230);
+					match(STRREF);
 					}
 					break;
 				}
 				}
 				}
-				setState(220);
+				setState(237);
 				_errHandler.sync(this);
 				_la = _input.LA(1);
 			}
-			setState(221);
+			setState(238);
 			match(STOPEXPR);
-			setState(225);
+			setState(242);
 			_errHandler.sync(this);
-			_alt = getInterpreter().adaptivePredict(_input,27,_ctx);
+			_alt = getInterpreter().adaptivePredict(_input,28,_ctx);
 			while ( _alt!=2 && _alt!=org.antlr.v4.runtime.atn.ATN.INVALID_ALT_NUMBER ) {
 				if ( _alt==1 ) {
 					{
 					{
-					setState(222);
+					setState(239);
 					match(ENDINSTR);
 					}
 					} 
 				}
-				setState(227);
+				setState(244);
 				_errHandler.sync(this);
-				_alt = getInterpreter().adaptivePredict(_input,27,_ctx);
+				_alt = getInterpreter().adaptivePredict(_input,28,_ctx);
 			}
 			}
 		}
@@ -1394,11 +1404,6 @@ public class AidemMediaParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof AidemMediaListener ) ((AidemMediaListener)listener).exitScript(this);
 		}
-		@Override
-		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof AidemMediaVisitor ) return ((AidemMediaVisitor<? extends T>)visitor).visitScript(this);
-			else return visitor.visitChildren(this);
-		}
 	}
 
 	public final ScriptContext script() throws RecognitionException {
@@ -1408,59 +1413,59 @@ public class AidemMediaParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(237);
+			setState(254);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
 			while ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << T__0) | (1L << T__1) | (1L << T__2) | (1L << STARTCODE) | (1L << STARTEXPR) | (1L << QUOTEMARK))) != 0)) {
 				{
-				setState(235);
+				setState(252);
 				_errHandler.sync(this);
-				switch ( getInterpreter().adaptivePredict(_input,28,_ctx) ) {
+				switch ( getInterpreter().adaptivePredict(_input,29,_ctx) ) {
 				case 1:
 					{
-					setState(228);
+					setState(245);
 					codeBlock();
 					}
 					break;
 				case 2:
 					{
-					setState(229);
+					setState(246);
 					expression();
 					}
 					break;
 				case 3:
 					{
-					setState(230);
+					setState(247);
 					string();
 					}
 					break;
 				case 4:
 					{
-					setState(231);
+					setState(248);
 					ifInstr();
 					}
 					break;
 				case 5:
 					{
-					setState(232);
+					setState(249);
 					loopInstr();
 					}
 					break;
 				case 6:
 					{
-					setState(233);
+					setState(250);
 					whileInstr();
 					}
 					break;
 				case 7:
 					{
-					setState(234);
+					setState(251);
 					string();
 					}
 					break;
 				}
 				}
-				setState(239);
+				setState(256);
 				_errHandler.sync(this);
 				_la = _input.LA(1);
 			}
@@ -1488,10 +1493,18 @@ public class AidemMediaParser extends Parser {
 		public StringContext string() {
 			return getRuleContext(StringContext.class,0);
 		}
-		public TerminalNode LITERAL() { return getToken(AidemMediaParser.LITERAL, 0); }
-		public TerminalNode NUMBER() { return getToken(AidemMediaParser.NUMBER, 0); }
-		public TerminalNode ARITHMETIC() { return getToken(AidemMediaParser.ARITHMETIC, 0); }
-		public TerminalNode FLOAT() { return getToken(AidemMediaParser.FLOAT, 0); }
+		public LiteralContext literal() {
+			return getRuleContext(LiteralContext.class,0);
+		}
+		public NumberContext number() {
+			return getRuleContext(NumberContext.class,0);
+		}
+		public ArithmeticContext arithmetic() {
+			return getRuleContext(ArithmeticContext.class,0);
+		}
+		public FloatNumberContext floatNumber() {
+			return getRuleContext(FloatNumberContext.class,0);
+		}
 		public ExpressionContext expression() {
 			return getRuleContext(ExpressionContext.class,0);
 		}
@@ -1514,11 +1527,6 @@ public class AidemMediaParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof AidemMediaListener ) ((AidemMediaListener)listener).exitParam(this);
 		}
-		@Override
-		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof AidemMediaVisitor ) return ((AidemMediaVisitor<? extends T>)visitor).visitParam(this);
-			else return visitor.visitChildren(this);
-		}
 	}
 
 	public final ParamContext param() throws RecognitionException {
@@ -1526,103 +1534,103 @@ public class AidemMediaParser extends Parser {
 		enterRule(_localctx, 14, RULE_param);
 		int _la;
 		try {
-			setState(257);
+			setState(274);
 			_errHandler.sync(this);
-			switch ( getInterpreter().adaptivePredict(_input,32,_ctx) ) {
+			switch ( getInterpreter().adaptivePredict(_input,33,_ctx) ) {
 			case 1:
 				enterOuterAlt(_localctx, 1);
 				{
-				setState(240);
+				setState(257);
 				functionFire();
 				}
 				break;
 			case 2:
 				enterOuterAlt(_localctx, 2);
 				{
-				setState(241);
+				setState(258);
 				match(BOOLEAN);
 				}
 				break;
 			case 3:
 				enterOuterAlt(_localctx, 3);
 				{
-				setState(242);
+				setState(259);
 				variable();
 				}
 				break;
 			case 4:
 				enterOuterAlt(_localctx, 4);
 				{
-				setState(243);
+				setState(260);
 				string();
 				}
 				break;
 			case 5:
 				enterOuterAlt(_localctx, 5);
 				{
-				setState(244);
-				match(LITERAL);
+				setState(261);
+				literal();
 				}
 				break;
 			case 6:
 				enterOuterAlt(_localctx, 6);
 				{
-				setState(246);
+				setState(263);
 				_errHandler.sync(this);
 				_la = _input.LA(1);
 				if (_la==ARITHMETIC) {
 					{
-					setState(245);
-					match(ARITHMETIC);
+					setState(262);
+					arithmetic();
 					}
 				}
 
-				setState(248);
-				match(NUMBER);
+				setState(265);
+				number();
 				}
 				break;
 			case 7:
 				enterOuterAlt(_localctx, 7);
 				{
-				setState(250);
+				setState(267);
 				_errHandler.sync(this);
 				_la = _input.LA(1);
 				if (_la==ARITHMETIC) {
 					{
-					setState(249);
-					match(ARITHMETIC);
+					setState(266);
+					arithmetic();
 					}
 				}
 
-				setState(252);
-				match(FLOAT);
+				setState(269);
+				floatNumber();
 				}
 				break;
 			case 8:
 				enterOuterAlt(_localctx, 8);
 				{
-				setState(253);
+				setState(270);
 				expression();
 				}
 				break;
 			case 9:
 				enterOuterAlt(_localctx, 9);
 				{
-				setState(254);
+				setState(271);
 				match(ITERATOR);
 				}
 				break;
 			case 10:
 				enterOuterAlt(_localctx, 10);
 				{
-				setState(255);
+				setState(272);
 				struct();
 				}
 				break;
 			case 11:
 				enterOuterAlt(_localctx, 11);
 				{
-				setState(256);
+				setState(273);
 				stringRef();
 				}
 				break;
@@ -1646,9 +1654,11 @@ public class AidemMediaParser extends Parser {
 		public ConditionPartContext conditionPart(int i) {
 			return getRuleContext(ConditionPartContext.class,i);
 		}
-		public List<TerminalNode> LOGIC() { return getTokens(AidemMediaParser.LOGIC); }
-		public TerminalNode LOGIC(int i) {
-			return getToken(AidemMediaParser.LOGIC, i);
+		public List<LogicContext> logic() {
+			return getRuleContexts(LogicContext.class);
+		}
+		public LogicContext logic(int i) {
+			return getRuleContext(LogicContext.class,i);
 		}
 		public ConditionContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
@@ -1662,11 +1672,6 @@ public class AidemMediaParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof AidemMediaListener ) ((AidemMediaListener)listener).exitCondition(this);
 		}
-		@Override
-		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof AidemMediaVisitor ) return ((AidemMediaVisitor<? extends T>)visitor).visitCondition(this);
-			else return visitor.visitChildren(this);
-		}
 	}
 
 	public final ConditionContext condition() throws RecognitionException {
@@ -1676,27 +1681,27 @@ public class AidemMediaParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(265);
+			setState(282);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
 			while ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << VARREF) | (1L << STARTEXPR) | (1L << ITERATOR) | (1L << LITERAL) | (1L << LOGIC) | (1L << STRREF))) != 0)) {
 				{
 				{
-				setState(260);
+				setState(277);
 				_errHandler.sync(this);
 				_la = _input.LA(1);
 				if (_la==LOGIC) {
 					{
-					setState(259);
-					match(LOGIC);
+					setState(276);
+					logic();
 					}
 				}
 
-				setState(262);
+				setState(279);
 				conditionPart();
 				}
 				}
-				setState(267);
+				setState(284);
 				_errHandler.sync(this);
 				_la = _input.LA(1);
 			}
@@ -1723,7 +1728,9 @@ public class AidemMediaParser extends Parser {
 		public TerminalNode GTR() { return getToken(AidemMediaParser.GTR, 0); }
 		public TerminalNode EQU() { return getToken(AidemMediaParser.EQU, 0); }
 		public TerminalNode NEQ() { return getToken(AidemMediaParser.NEQ, 0); }
-		public TerminalNode LITERAL() { return getToken(AidemMediaParser.LITERAL, 0); }
+		public LiteralContext literal() {
+			return getRuleContext(LiteralContext.class,0);
+		}
 		public FunctionFireContext functionFire() {
 			return getRuleContext(FunctionFireContext.class,0);
 		}
@@ -1746,11 +1753,6 @@ public class AidemMediaParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof AidemMediaListener ) ((AidemMediaListener)listener).exitConditionPart(this);
 		}
-		@Override
-		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof AidemMediaVisitor ) return ((AidemMediaVisitor<? extends T>)visitor).visitConditionPart(this);
-			else return visitor.visitChildren(this);
-		}
 	}
 
 	public final ConditionPartContext conditionPart() throws RecognitionException {
@@ -1760,41 +1762,41 @@ public class AidemMediaParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(273);
+			setState(290);
 			_errHandler.sync(this);
-			switch ( getInterpreter().adaptivePredict(_input,35,_ctx) ) {
+			switch ( getInterpreter().adaptivePredict(_input,36,_ctx) ) {
 			case 1:
 				{
-				setState(268);
-				match(LITERAL);
+				setState(285);
+				literal();
 				}
 				break;
 			case 2:
 				{
-				setState(269);
+				setState(286);
 				functionFire();
 				}
 				break;
 			case 3:
 				{
-				setState(270);
+				setState(287);
 				struct();
 				}
 				break;
 			case 4:
 				{
-				setState(271);
+				setState(288);
 				expression();
 				}
 				break;
 			case 5:
 				{
-				setState(272);
+				setState(289);
 				match(ITERATOR);
 				}
 				break;
 			}
-			setState(275);
+			setState(292);
 			_la = _input.LA(1);
 			if ( !((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << LSS) | (1L << LEQ) | (1L << GEQ) | (1L << GTR) | (1L << EQU) | (1L << NEQ))) != 0)) ) {
 			_errHandler.recoverInline(this);
@@ -1804,7 +1806,7 @@ public class AidemMediaParser extends Parser {
 				_errHandler.reportMatch(this);
 				consume();
 			}
-			setState(276);
+			setState(293);
 			param();
 			}
 		}
@@ -1820,7 +1822,9 @@ public class AidemMediaParser extends Parser {
 	}
 
 	public static class BehFireContext extends ParserRuleContext {
-		public TerminalNode LITERAL() { return getToken(AidemMediaParser.LITERAL, 0); }
+		public LiteralContext literal() {
+			return getRuleContext(LiteralContext.class,0);
+		}
 		public TerminalNode ENDINSTR() { return getToken(AidemMediaParser.ENDINSTR, 0); }
 		public BehFireContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
@@ -1834,11 +1838,6 @@ public class AidemMediaParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof AidemMediaListener ) ((AidemMediaListener)listener).exitBehFire(this);
 		}
-		@Override
-		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof AidemMediaVisitor ) return ((AidemMediaVisitor<? extends T>)visitor).visitBehFire(this);
-			else return visitor.visitChildren(this);
-		}
 	}
 
 	public final BehFireContext behFire() throws RecognitionException {
@@ -1847,9 +1846,9 @@ public class AidemMediaParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(278);
-			match(LITERAL);
-			setState(279);
+			setState(295);
+			literal();
+			setState(296);
 			match(ENDINSTR);
 			}
 		}
@@ -1866,18 +1865,24 @@ public class AidemMediaParser extends Parser {
 
 	public static class ModuloContext extends ParserRuleContext {
 		public TerminalNode MOD() { return getToken(AidemMediaParser.MOD, 0); }
-		public List<TerminalNode> LITERAL() { return getTokens(AidemMediaParser.LITERAL); }
-		public TerminalNode LITERAL(int i) {
-			return getToken(AidemMediaParser.LITERAL, i);
+		public List<LiteralContext> literal() {
+			return getRuleContexts(LiteralContext.class);
+		}
+		public LiteralContext literal(int i) {
+			return getRuleContext(LiteralContext.class,i);
 		}
 		public TerminalNode ITERATOR() { return getToken(AidemMediaParser.ITERATOR, 0); }
-		public List<TerminalNode> NUMBER() { return getTokens(AidemMediaParser.NUMBER); }
-		public TerminalNode NUMBER(int i) {
-			return getToken(AidemMediaParser.NUMBER, i);
+		public List<NumberContext> number() {
+			return getRuleContexts(NumberContext.class);
 		}
-		public List<TerminalNode> FLOAT() { return getTokens(AidemMediaParser.FLOAT); }
-		public TerminalNode FLOAT(int i) {
-			return getToken(AidemMediaParser.FLOAT, i);
+		public NumberContext number(int i) {
+			return getRuleContext(NumberContext.class,i);
+		}
+		public List<FloatNumberContext> floatNumber() {
+			return getRuleContexts(FloatNumberContext.class);
+		}
+		public FloatNumberContext floatNumber(int i) {
+			return getRuleContext(FloatNumberContext.class,i);
 		}
 		public List<FunctionFireContext> functionFire() {
 			return getRuleContexts(FunctionFireContext.class);
@@ -1897,9 +1902,11 @@ public class AidemMediaParser extends Parser {
 		public ExpressionContext expression(int i) {
 			return getRuleContext(ExpressionContext.class,i);
 		}
-		public List<TerminalNode> ARITHMETIC() { return getTokens(AidemMediaParser.ARITHMETIC); }
-		public TerminalNode ARITHMETIC(int i) {
-			return getToken(AidemMediaParser.ARITHMETIC, i);
+		public List<ArithmeticContext> arithmetic() {
+			return getRuleContexts(ArithmeticContext.class);
+		}
+		public ArithmeticContext arithmetic(int i) {
+			return getRuleContext(ArithmeticContext.class,i);
 		}
 		public ModuloContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
@@ -1913,11 +1920,6 @@ public class AidemMediaParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof AidemMediaListener ) ((AidemMediaListener)listener).exitModulo(this);
 		}
-		@Override
-		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof AidemMediaVisitor ) return ((AidemMediaVisitor<? extends T>)visitor).visitModulo(this);
-			else return visitor.visitChildren(this);
-		}
 	}
 
 	public final ModuloContext modulo() throws RecognitionException {
@@ -1927,130 +1929,130 @@ public class AidemMediaParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(294);
+			setState(311);
 			_errHandler.sync(this);
-			switch ( getInterpreter().adaptivePredict(_input,38,_ctx) ) {
+			switch ( getInterpreter().adaptivePredict(_input,39,_ctx) ) {
 			case 1:
 				{
-				setState(281);
-				match(LITERAL);
-				}
-				break;
-			case 2:
-				{
-				setState(282);
-				match(ITERATOR);
-				}
-				break;
-			case 3:
-				{
-				setState(284);
-				_errHandler.sync(this);
-				_la = _input.LA(1);
-				if (_la==ARITHMETIC) {
-					{
-					setState(283);
-					match(ARITHMETIC);
-					}
-				}
-
-				setState(286);
-				match(NUMBER);
-				}
-				break;
-			case 4:
-				{
-				setState(288);
-				_errHandler.sync(this);
-				_la = _input.LA(1);
-				if (_la==ARITHMETIC) {
-					{
-					setState(287);
-					match(ARITHMETIC);
-					}
-				}
-
-				setState(290);
-				match(FLOAT);
-				}
-				break;
-			case 5:
-				{
-				setState(291);
-				functionFire();
-				}
-				break;
-			case 6:
-				{
-				setState(292);
-				struct();
-				}
-				break;
-			case 7:
-				{
-				setState(293);
-				expression();
-				}
-				break;
-			}
-			setState(296);
-			match(MOD);
-			setState(309);
-			_errHandler.sync(this);
-			switch ( getInterpreter().adaptivePredict(_input,41,_ctx) ) {
-			case 1:
-				{
-				setState(297);
-				match(LITERAL);
+				setState(298);
+				literal();
 				}
 				break;
 			case 2:
 				{
 				setState(299);
-				_errHandler.sync(this);
-				_la = _input.LA(1);
-				if (_la==ARITHMETIC) {
-					{
-					setState(298);
-					match(ARITHMETIC);
-					}
-				}
-
-				setState(301);
-				match(NUMBER);
+				match(ITERATOR);
 				}
 				break;
 			case 3:
 				{
-				setState(303);
+				setState(301);
 				_errHandler.sync(this);
 				_la = _input.LA(1);
 				if (_la==ARITHMETIC) {
 					{
-					setState(302);
-					match(ARITHMETIC);
+					setState(300);
+					arithmetic();
 					}
 				}
 
-				setState(305);
-				match(FLOAT);
+				setState(303);
+				number();
 				}
 				break;
 			case 4:
 				{
-				setState(306);
+				setState(305);
+				_errHandler.sync(this);
+				_la = _input.LA(1);
+				if (_la==ARITHMETIC) {
+					{
+					setState(304);
+					arithmetic();
+					}
+				}
+
+				setState(307);
+				floatNumber();
+				}
+				break;
+			case 5:
+				{
+				setState(308);
+				functionFire();
+				}
+				break;
+			case 6:
+				{
+				setState(309);
+				struct();
+				}
+				break;
+			case 7:
+				{
+				setState(310);
+				expression();
+				}
+				break;
+			}
+			setState(313);
+			match(MOD);
+			setState(326);
+			_errHandler.sync(this);
+			switch ( getInterpreter().adaptivePredict(_input,42,_ctx) ) {
+			case 1:
+				{
+				setState(314);
+				literal();
+				}
+				break;
+			case 2:
+				{
+				setState(316);
+				_errHandler.sync(this);
+				_la = _input.LA(1);
+				if (_la==ARITHMETIC) {
+					{
+					setState(315);
+					arithmetic();
+					}
+				}
+
+				setState(318);
+				number();
+				}
+				break;
+			case 3:
+				{
+				setState(320);
+				_errHandler.sync(this);
+				_la = _input.LA(1);
+				if (_la==ARITHMETIC) {
+					{
+					setState(319);
+					arithmetic();
+					}
+				}
+
+				setState(322);
+				floatNumber();
+				}
+				break;
+			case 4:
+				{
+				setState(323);
 				functionFire();
 				}
 				break;
 			case 5:
 				{
-				setState(307);
+				setState(324);
 				struct();
 				}
 				break;
 			case 6:
 				{
-				setState(308);
+				setState(325);
 				expression();
 				}
 				break;
@@ -2079,21 +2081,27 @@ public class AidemMediaParser extends Parser {
 		public VariableContext variable() {
 			return getRuleContext(VariableContext.class,0);
 		}
-		public List<TerminalNode> LITERAL() { return getTokens(AidemMediaParser.LITERAL); }
-		public TerminalNode LITERAL(int i) {
-			return getToken(AidemMediaParser.LITERAL, i);
+		public List<LiteralContext> literal() {
+			return getRuleContexts(LiteralContext.class);
+		}
+		public LiteralContext literal(int i) {
+			return getRuleContext(LiteralContext.class,i);
 		}
 		public List<TerminalNode> FIREFUNC() { return getTokens(AidemMediaParser.FIREFUNC); }
 		public TerminalNode FIREFUNC(int i) {
 			return getToken(AidemMediaParser.FIREFUNC, i);
 		}
-		public List<TerminalNode> NUMBER() { return getTokens(AidemMediaParser.NUMBER); }
-		public TerminalNode NUMBER(int i) {
-			return getToken(AidemMediaParser.NUMBER, i);
+		public List<NumberContext> number() {
+			return getRuleContexts(NumberContext.class);
 		}
-		public List<TerminalNode> FLOAT() { return getTokens(AidemMediaParser.FLOAT); }
-		public TerminalNode FLOAT(int i) {
-			return getToken(AidemMediaParser.FLOAT, i);
+		public NumberContext number(int i) {
+			return getRuleContext(NumberContext.class,i);
+		}
+		public List<FloatNumberContext> floatNumber() {
+			return getRuleContexts(FloatNumberContext.class);
+		}
+		public FloatNumberContext floatNumber(int i) {
+			return getRuleContext(FloatNumberContext.class,i);
 		}
 		public List<TerminalNode> LSS() { return getTokens(AidemMediaParser.LSS); }
 		public TerminalNode LSS(int i) {
@@ -2165,6 +2173,12 @@ public class AidemMediaParser extends Parser {
 		public FunctionFireContext functionFire(int i) {
 			return getRuleContext(FunctionFireContext.class,i);
 		}
+		public List<ArithmeticContext> arithmetic() {
+			return getRuleContexts(ArithmeticContext.class);
+		}
+		public ArithmeticContext arithmetic(int i) {
+			return getRuleContext(ArithmeticContext.class,i);
+		}
 		public StringContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
 		}
@@ -2177,11 +2191,6 @@ public class AidemMediaParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof AidemMediaListener ) ((AidemMediaListener)listener).exitString(this);
 		}
-		@Override
-		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof AidemMediaVisitor ) return ((AidemMediaVisitor<? extends T>)visitor).visitString(this);
-			else return visitor.visitChildren(this);
-		}
 	}
 
 	public final StringContext string() throws RecognitionException {
@@ -2191,164 +2200,164 @@ public class AidemMediaParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(311);
+			setState(328);
 			match(QUOTEMARK);
-			setState(350);
+			setState(367);
 			_errHandler.sync(this);
-			switch ( getInterpreter().adaptivePredict(_input,48,_ctx) ) {
+			switch ( getInterpreter().adaptivePredict(_input,49,_ctx) ) {
 			case 1:
 				{
-				setState(338); 
+				setState(355); 
 				_errHandler.sync(this);
 				_la = _input.LA(1);
 				do {
 					{
-					setState(338);
+					setState(355);
 					_errHandler.sync(this);
-					switch ( getInterpreter().adaptivePredict(_input,44,_ctx) ) {
+					switch ( getInterpreter().adaptivePredict(_input,45,_ctx) ) {
 					case 1:
 						{
-						setState(312);
-						match(LITERAL);
+						setState(329);
+						literal();
 						}
 						break;
 					case 2:
 						{
-						setState(313);
+						setState(330);
 						match(FIREFUNC);
 						}
 						break;
 					case 3:
 						{
-						setState(315);
+						setState(332);
 						_errHandler.sync(this);
 						_la = _input.LA(1);
 						if (_la==ARITHMETIC) {
 							{
-							setState(314);
-							match(ARITHMETIC);
+							setState(331);
+							arithmetic();
 							}
 						}
 
-						setState(317);
-						match(NUMBER);
+						setState(334);
+						number();
 						}
 						break;
 					case 4:
 						{
-						setState(319);
+						setState(336);
 						_errHandler.sync(this);
 						_la = _input.LA(1);
 						if (_la==ARITHMETIC) {
 							{
-							setState(318);
-							match(ARITHMETIC);
+							setState(335);
+							arithmetic();
 							}
 						}
 
-						setState(321);
-						match(FLOAT);
+						setState(338);
+						floatNumber();
 						}
 						break;
 					case 5:
 						{
-						setState(322);
+						setState(339);
 						match(LSS);
 						}
 						break;
 					case 6:
 						{
-						setState(323);
+						setState(340);
 						match(LEQ);
 						}
 						break;
 					case 7:
 						{
-						setState(324);
+						setState(341);
 						match(GEQ);
 						}
 						break;
 					case 8:
 						{
-						setState(325);
+						setState(342);
 						match(GTR);
 						}
 						break;
 					case 9:
 						{
-						setState(326);
+						setState(343);
 						match(EQU);
 						}
 						break;
 					case 10:
 						{
-						setState(327);
+						setState(344);
 						match(NEQ);
 						}
 						break;
 					case 11:
 						{
-						setState(328);
+						setState(345);
 						match(SLASH);
 						}
 						break;
 					case 12:
 						{
-						setState(329);
+						setState(346);
 						struct();
 						}
 						break;
 					case 13:
 						{
-						setState(330);
+						setState(347);
 						match(LPAREN);
 						}
 						break;
 					case 14:
 						{
-						setState(331);
+						setState(348);
 						match(RPAREN);
 						}
 						break;
 					case 15:
 						{
-						setState(332);
+						setState(349);
 						match(SEPARATOR);
 						}
 						break;
 					case 16:
 						{
-						setState(333);
+						setState(350);
 						match(ARITHMETIC);
 						}
 						break;
 					case 17:
 						{
-						setState(334);
+						setState(351);
 						match(VARREF);
 						}
 						break;
 					case 18:
 						{
-						setState(335);
+						setState(352);
 						match(ITERATOR);
 						}
 						break;
 					case 19:
 						{
-						setState(336);
+						setState(353);
 						expression();
 						}
 						break;
 					case 20:
 						{
-						setState(337);
+						setState(354);
 						functionFire();
 						}
 						break;
 					}
 					}
-					setState(340); 
+					setState(357); 
 					_errHandler.sync(this);
 					_la = _input.LA(1);
 				} while ( (((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << LPAREN) | (1L << RPAREN) | (1L << VARREF) | (1L << STARTEXPR) | (1L << SLASH) | (1L << LSS) | (1L << LEQ) | (1L << GEQ) | (1L << GTR) | (1L << EQU) | (1L << NEQ) | (1L << FIREFUNC) | (1L << NUMBER) | (1L << FLOAT) | (1L << ITERATOR) | (1L << LITERAL) | (1L << ARITHMETIC) | (1L << SEPARATOR) | (1L << STRREF))) != 0) );
@@ -2357,22 +2366,22 @@ public class AidemMediaParser extends Parser {
 			case 2:
 				{
 				{
-				setState(342);
+				setState(359);
 				variable();
-				setState(347);
+				setState(364);
 				_errHandler.sync(this);
 				_la = _input.LA(1);
 				if (_la==SLASH) {
 					{
-					setState(343);
+					setState(360);
 					match(SLASH);
-					setState(345);
+					setState(362);
 					_errHandler.sync(this);
 					_la = _input.LA(1);
 					if (_la==LITERAL) {
 						{
-						setState(344);
-						match(LITERAL);
+						setState(361);
+						literal();
 						}
 					}
 
@@ -2384,12 +2393,12 @@ public class AidemMediaParser extends Parser {
 				break;
 			case 3:
 				{
-				setState(349);
+				setState(366);
 				string();
 				}
 				break;
 			}
-			setState(352);
+			setState(369);
 			match(QUOTEMARK);
 			}
 		}
@@ -2406,7 +2415,9 @@ public class AidemMediaParser extends Parser {
 
 	public static class InstrContext extends ParserRuleContext {
 		public TerminalNode DIV() { return getToken(AidemMediaParser.DIV, 0); }
-		public TerminalNode LITERAL() { return getToken(AidemMediaParser.LITERAL, 0); }
+		public LiteralContext literal() {
+			return getRuleContext(LiteralContext.class,0);
+		}
 		public TerminalNode LPAREN() { return getToken(AidemMediaParser.LPAREN, 0); }
 		public TerminalNode RPAREN() { return getToken(AidemMediaParser.RPAREN, 0); }
 		public TerminalNode ENDINSTR() { return getToken(AidemMediaParser.ENDINSTR, 0); }
@@ -2429,11 +2440,6 @@ public class AidemMediaParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof AidemMediaListener ) ((AidemMediaListener)listener).exitInstr(this);
 		}
-		@Override
-		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof AidemMediaVisitor ) return ((AidemMediaVisitor<? extends T>)visitor).visitInstr(this);
-			else return visitor.visitChildren(this);
-		}
 	}
 
 	public final InstrContext instr() throws RecognitionException {
@@ -2443,27 +2449,27 @@ public class AidemMediaParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(354);
+			setState(371);
 			match(DIV);
-			setState(355);
-			match(LITERAL);
-			setState(356);
+			setState(372);
+			literal();
+			setState(373);
 			match(LPAREN);
-			setState(362);
+			setState(379);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
 			if ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << VARREF) | (1L << STARTEXPR) | (1L << NUMBER) | (1L << FLOAT) | (1L << ITERATOR) | (1L << LITERAL) | (1L << ARITHMETIC) | (1L << BOOLEAN) | (1L << QUOTEMARK) | (1L << STRREF))) != 0)) {
 				{
-				setState(357);
+				setState(374);
 				param();
-				setState(360);
+				setState(377);
 				_errHandler.sync(this);
 				_la = _input.LA(1);
 				if (_la==SEPARATOR) {
 					{
-					setState(358);
+					setState(375);
 					match(SEPARATOR);
-					setState(359);
+					setState(376);
 					param();
 					}
 				}
@@ -2471,9 +2477,9 @@ public class AidemMediaParser extends Parser {
 				}
 			}
 
-			setState(364);
+			setState(381);
 			match(RPAREN);
-			setState(365);
+			setState(382);
 			match(ENDINSTR);
 			}
 		}
@@ -2493,7 +2499,9 @@ public class AidemMediaParser extends Parser {
 		public ExpressionContext expression() {
 			return getRuleContext(ExpressionContext.class,0);
 		}
-		public TerminalNode LITERAL() { return getToken(AidemMediaParser.LITERAL, 0); }
+		public LiteralContext literal() {
+			return getRuleContext(LiteralContext.class,0);
+		}
 		public StringRefContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
 		}
@@ -2506,11 +2514,6 @@ public class AidemMediaParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof AidemMediaListener ) ((AidemMediaListener)listener).exitStringRef(this);
 		}
-		@Override
-		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof AidemMediaVisitor ) return ((AidemMediaVisitor<? extends T>)visitor).visitStringRef(this);
-			else return visitor.visitChildren(this);
-		}
 	}
 
 	public final StringRefContext stringRef() throws RecognitionException {
@@ -2519,21 +2522,21 @@ public class AidemMediaParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(367);
+			setState(384);
 			match(STRREF);
-			setState(370);
+			setState(387);
 			_errHandler.sync(this);
 			switch (_input.LA(1)) {
 			case STARTEXPR:
 				{
-				setState(368);
+				setState(385);
 				expression();
 				}
 				break;
 			case LITERAL:
 				{
-				setState(369);
-				match(LITERAL);
+				setState(386);
+				literal();
 				}
 				break;
 			default:
@@ -2553,9 +2556,11 @@ public class AidemMediaParser extends Parser {
 	}
 
 	public static class StructContext extends ParserRuleContext {
-		public List<TerminalNode> LITERAL() { return getTokens(AidemMediaParser.LITERAL); }
-		public TerminalNode LITERAL(int i) {
-			return getToken(AidemMediaParser.LITERAL, i);
+		public List<LiteralContext> literal() {
+			return getRuleContexts(LiteralContext.class);
+		}
+		public LiteralContext literal(int i) {
+			return getRuleContext(LiteralContext.class,i);
 		}
 		public TerminalNode STRUCTFIELD() { return getToken(AidemMediaParser.STRUCTFIELD, 0); }
 		public StructContext(ParserRuleContext parent, int invokingState) {
@@ -2570,11 +2575,6 @@ public class AidemMediaParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof AidemMediaListener ) ((AidemMediaListener)listener).exitStruct(this);
 		}
-		@Override
-		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof AidemMediaVisitor ) return ((AidemMediaVisitor<? extends T>)visitor).visitStruct(this);
-			else return visitor.visitChildren(this);
-		}
 	}
 
 	public final StructContext struct() throws RecognitionException {
@@ -2583,12 +2583,12 @@ public class AidemMediaParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(372);
-			match(LITERAL);
-			setState(373);
+			setState(389);
+			literal();
+			setState(390);
 			match(STRUCTFIELD);
-			setState(374);
-			match(LITERAL);
+			setState(391);
+			literal();
 			}
 		}
 		catch (RecognitionException re) {
@@ -2604,8 +2604,12 @@ public class AidemMediaParser extends Parser {
 
 	public static class VariableContext extends ParserRuleContext {
 		public TerminalNode VARREF() { return getToken(AidemMediaParser.VARREF, 0); }
-		public TerminalNode LITERAL() { return getToken(AidemMediaParser.LITERAL, 0); }
-		public TerminalNode NUMBER() { return getToken(AidemMediaParser.NUMBER, 0); }
+		public LiteralContext literal() {
+			return getRuleContext(LiteralContext.class,0);
+		}
+		public NumberContext number() {
+			return getRuleContext(NumberContext.class,0);
+		}
 		public VariableContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
 		}
@@ -2618,31 +2622,33 @@ public class AidemMediaParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof AidemMediaListener ) ((AidemMediaListener)listener).exitVariable(this);
 		}
-		@Override
-		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof AidemMediaVisitor ) return ((AidemMediaVisitor<? extends T>)visitor).visitVariable(this);
-			else return visitor.visitChildren(this);
-		}
 	}
 
 	public final VariableContext variable() throws RecognitionException {
 		VariableContext _localctx = new VariableContext(_ctx, getState());
 		enterRule(_localctx, 32, RULE_variable);
-		int _la;
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(376);
+			setState(393);
 			match(VARREF);
-			setState(377);
-			_la = _input.LA(1);
-			if ( !(_la==NUMBER || _la==LITERAL) ) {
-			_errHandler.recoverInline(this);
-			}
-			else {
-				if ( _input.LA(1)==Token.EOF ) matchedEOF = true;
-				_errHandler.reportMatch(this);
-				consume();
+			setState(396);
+			_errHandler.sync(this);
+			switch (_input.LA(1)) {
+			case LITERAL:
+				{
+				setState(394);
+				literal();
+				}
+				break;
+			case NUMBER:
+				{
+				setState(395);
+				number();
+				}
+				break;
+			default:
+				throw new NoViableAltException(this);
 			}
 			}
 		}
@@ -2657,165 +2663,360 @@ public class AidemMediaParser extends Parser {
 		return _localctx;
 	}
 
+	public static class NumberContext extends ParserRuleContext {
+		public TerminalNode NUMBER() { return getToken(AidemMediaParser.NUMBER, 0); }
+		public NumberContext(ParserRuleContext parent, int invokingState) {
+			super(parent, invokingState);
+		}
+		@Override public int getRuleIndex() { return RULE_number; }
+		@Override
+		public void enterRule(ParseTreeListener listener) {
+			if ( listener instanceof AidemMediaListener ) ((AidemMediaListener)listener).enterNumber(this);
+		}
+		@Override
+		public void exitRule(ParseTreeListener listener) {
+			if ( listener instanceof AidemMediaListener ) ((AidemMediaListener)listener).exitNumber(this);
+		}
+	}
+
+	public final NumberContext number() throws RecognitionException {
+		NumberContext _localctx = new NumberContext(_ctx, getState());
+		enterRule(_localctx, 34, RULE_number);
+		try {
+			enterOuterAlt(_localctx, 1);
+			{
+			setState(398);
+			match(NUMBER);
+			}
+		}
+		catch (RecognitionException re) {
+			_localctx.exception = re;
+			_errHandler.reportError(this, re);
+			_errHandler.recover(this, re);
+		}
+		finally {
+			exitRule();
+		}
+		return _localctx;
+	}
+
+	public static class FloatNumberContext extends ParserRuleContext {
+		public TerminalNode FLOAT() { return getToken(AidemMediaParser.FLOAT, 0); }
+		public FloatNumberContext(ParserRuleContext parent, int invokingState) {
+			super(parent, invokingState);
+		}
+		@Override public int getRuleIndex() { return RULE_floatNumber; }
+		@Override
+		public void enterRule(ParseTreeListener listener) {
+			if ( listener instanceof AidemMediaListener ) ((AidemMediaListener)listener).enterFloatNumber(this);
+		}
+		@Override
+		public void exitRule(ParseTreeListener listener) {
+			if ( listener instanceof AidemMediaListener ) ((AidemMediaListener)listener).exitFloatNumber(this);
+		}
+	}
+
+	public final FloatNumberContext floatNumber() throws RecognitionException {
+		FloatNumberContext _localctx = new FloatNumberContext(_ctx, getState());
+		enterRule(_localctx, 36, RULE_floatNumber);
+		try {
+			enterOuterAlt(_localctx, 1);
+			{
+			setState(400);
+			match(FLOAT);
+			}
+		}
+		catch (RecognitionException re) {
+			_localctx.exception = re;
+			_errHandler.reportError(this, re);
+			_errHandler.recover(this, re);
+		}
+		finally {
+			exitRule();
+		}
+		return _localctx;
+	}
+
+	public static class LiteralContext extends ParserRuleContext {
+		public TerminalNode LITERAL() { return getToken(AidemMediaParser.LITERAL, 0); }
+		public LiteralContext(ParserRuleContext parent, int invokingState) {
+			super(parent, invokingState);
+		}
+		@Override public int getRuleIndex() { return RULE_literal; }
+		@Override
+		public void enterRule(ParseTreeListener listener) {
+			if ( listener instanceof AidemMediaListener ) ((AidemMediaListener)listener).enterLiteral(this);
+		}
+		@Override
+		public void exitRule(ParseTreeListener listener) {
+			if ( listener instanceof AidemMediaListener ) ((AidemMediaListener)listener).exitLiteral(this);
+		}
+	}
+
+	public final LiteralContext literal() throws RecognitionException {
+		LiteralContext _localctx = new LiteralContext(_ctx, getState());
+		enterRule(_localctx, 38, RULE_literal);
+		try {
+			enterOuterAlt(_localctx, 1);
+			{
+			setState(402);
+			match(LITERAL);
+			}
+		}
+		catch (RecognitionException re) {
+			_localctx.exception = re;
+			_errHandler.reportError(this, re);
+			_errHandler.recover(this, re);
+		}
+		finally {
+			exitRule();
+		}
+		return _localctx;
+	}
+
+	public static class ArithmeticContext extends ParserRuleContext {
+		public TerminalNode ARITHMETIC() { return getToken(AidemMediaParser.ARITHMETIC, 0); }
+		public ArithmeticContext(ParserRuleContext parent, int invokingState) {
+			super(parent, invokingState);
+		}
+		@Override public int getRuleIndex() { return RULE_arithmetic; }
+		@Override
+		public void enterRule(ParseTreeListener listener) {
+			if ( listener instanceof AidemMediaListener ) ((AidemMediaListener)listener).enterArithmetic(this);
+		}
+		@Override
+		public void exitRule(ParseTreeListener listener) {
+			if ( listener instanceof AidemMediaListener ) ((AidemMediaListener)listener).exitArithmetic(this);
+		}
+	}
+
+	public final ArithmeticContext arithmetic() throws RecognitionException {
+		ArithmeticContext _localctx = new ArithmeticContext(_ctx, getState());
+		enterRule(_localctx, 40, RULE_arithmetic);
+		try {
+			enterOuterAlt(_localctx, 1);
+			{
+			setState(404);
+			match(ARITHMETIC);
+			}
+		}
+		catch (RecognitionException re) {
+			_localctx.exception = re;
+			_errHandler.reportError(this, re);
+			_errHandler.recover(this, re);
+		}
+		finally {
+			exitRule();
+		}
+		return _localctx;
+	}
+
+	public static class LogicContext extends ParserRuleContext {
+		public TerminalNode LOGIC() { return getToken(AidemMediaParser.LOGIC, 0); }
+		public LogicContext(ParserRuleContext parent, int invokingState) {
+			super(parent, invokingState);
+		}
+		@Override public int getRuleIndex() { return RULE_logic; }
+		@Override
+		public void enterRule(ParseTreeListener listener) {
+			if ( listener instanceof AidemMediaListener ) ((AidemMediaListener)listener).enterLogic(this);
+		}
+		@Override
+		public void exitRule(ParseTreeListener listener) {
+			if ( listener instanceof AidemMediaListener ) ((AidemMediaListener)listener).exitLogic(this);
+		}
+	}
+
+	public final LogicContext logic() throws RecognitionException {
+		LogicContext _localctx = new LogicContext(_ctx, getState());
+		enterRule(_localctx, 42, RULE_logic);
+		try {
+			enterOuterAlt(_localctx, 1);
+			{
+			setState(406);
+			match(LOGIC);
+			}
+		}
+		catch (RecognitionException re) {
+			_localctx.exception = re;
+			_errHandler.reportError(this, re);
+			_errHandler.recover(this, re);
+		}
+		finally {
+			exitRule();
+		}
+		return _localctx;
+	}
+
 	public static final String _serializedATN =
-		"\3\u608b\ua72a\u8133\ub9ed\u417c\u3be7\u7786\u5964\3%\u017e\4\2\t\2\4"+
+		"\3\u608b\ua72a\u8133\ub9ed\u417c\u3be7\u7786\u5964\3%\u019b\4\2\t\2\4"+
 		"\3\t\3\4\4\t\4\4\5\t\5\4\6\t\6\4\7\t\7\4\b\t\b\4\t\t\t\4\n\t\n\4\13\t"+
 		"\13\4\f\t\f\4\r\t\r\4\16\t\16\4\17\t\17\4\20\t\20\4\21\t\21\4\22\t\22"+
-		"\3\2\3\2\3\2\3\2\3\2\3\2\3\2\3\2\3\2\3\2\3\2\3\2\3\2\3\2\3\2\3\2\5\2\65"+
-		"\n\2\3\2\3\2\5\29\n\2\3\2\3\2\3\2\5\2>\n\2\3\2\3\2\7\2B\n\2\f\2\16\2E"+
-		"\13\2\3\3\3\3\3\3\3\3\3\3\3\3\3\3\3\3\5\3O\n\3\3\3\3\3\3\3\5\3T\n\3\3"+
-		"\3\3\3\3\3\3\3\3\3\5\3[\n\3\3\3\3\3\3\3\5\3`\n\3\3\3\3\3\3\3\3\3\3\3\5"+
-		"\3g\n\3\3\3\3\3\3\3\5\3l\n\3\3\3\3\3\7\3p\n\3\f\3\16\3s\13\3\3\4\3\4\3"+
-		"\4\3\4\3\4\3\4\3\4\3\4\3\4\3\4\3\4\3\4\5\4\u0081\n\4\3\4\3\4\7\4\u0085"+
-		"\n\4\f\4\16\4\u0088\13\4\3\5\3\5\3\5\3\5\3\5\5\5\u008f\n\5\3\5\3\5\3\5"+
-		"\3\5\5\5\u0095\n\5\3\5\7\5\u0098\n\5\f\5\16\5\u009b\13\5\3\5\3\5\7\5\u009f"+
-		"\n\5\f\5\16\5\u00a2\13\5\3\6\3\6\3\6\3\6\3\6\3\6\3\6\3\6\3\6\3\6\3\6\7"+
-		"\6\u00af\n\6\f\6\16\6\u00b2\13\6\7\6\u00b4\n\6\f\6\16\6\u00b7\13\6\3\6"+
-		"\7\6\u00ba\n\6\f\6\16\6\u00bd\13\6\3\6\3\6\3\7\3\7\5\7\u00c3\n\7\3\7\3"+
-		"\7\3\7\5\7\u00c8\n\7\3\7\3\7\5\7\u00cc\n\7\3\7\3\7\3\7\3\7\3\7\3\7\3\7"+
-		"\3\7\5\7\u00d6\n\7\3\7\5\7\u00d9\n\7\7\7\u00db\n\7\f\7\16\7\u00de\13\7"+
-		"\3\7\3\7\7\7\u00e2\n\7\f\7\16\7\u00e5\13\7\3\b\3\b\3\b\3\b\3\b\3\b\3\b"+
-		"\7\b\u00ee\n\b\f\b\16\b\u00f1\13\b\3\t\3\t\3\t\3\t\3\t\3\t\5\t\u00f9\n"+
-		"\t\3\t\3\t\5\t\u00fd\n\t\3\t\3\t\3\t\3\t\3\t\5\t\u0104\n\t\3\n\5\n\u0107"+
-		"\n\n\3\n\7\n\u010a\n\n\f\n\16\n\u010d\13\n\3\13\3\13\3\13\3\13\3\13\5"+
-		"\13\u0114\n\13\3\13\3\13\3\13\3\f\3\f\3\f\3\r\3\r\3\r\5\r\u011f\n\r\3"+
-		"\r\3\r\5\r\u0123\n\r\3\r\3\r\3\r\3\r\5\r\u0129\n\r\3\r\3\r\3\r\5\r\u012e"+
-		"\n\r\3\r\3\r\5\r\u0132\n\r\3\r\3\r\3\r\3\r\5\r\u0138\n\r\3\16\3\16\3\16"+
-		"\3\16\5\16\u013e\n\16\3\16\3\16\5\16\u0142\n\16\3\16\3\16\3\16\3\16\3"+
-		"\16\3\16\3\16\3\16\3\16\3\16\3\16\3\16\3\16\3\16\3\16\3\16\3\16\6\16\u0155"+
-		"\n\16\r\16\16\16\u0156\3\16\3\16\3\16\5\16\u015c\n\16\5\16\u015e\n\16"+
-		"\3\16\5\16\u0161\n\16\3\16\3\16\3\17\3\17\3\17\3\17\3\17\3\17\5\17\u016b"+
-		"\n\17\5\17\u016d\n\17\3\17\3\17\3\17\3\20\3\20\3\20\5\20\u0175\n\20\3"+
-		"\21\3\21\3\21\3\21\3\22\3\22\3\22\3\22\2\2\23\2\4\6\b\n\f\16\20\22\24"+
-		"\26\30\32\34\36 \"\2\7\3\2\16\23\4\2\30\31\34\34\5\2\26\26\35\35##\4\2"+
-		"\35\35##\4\2\30\30\34\34\2\u01ed\2$\3\2\2\2\4F\3\2\2\2\6t\3\2\2\2\b\u008e"+
-		"\3\2\2\2\n\u00a3\3\2\2\2\f\u00c0\3\2\2\2\16\u00ef\3\2\2\2\20\u0103\3\2"+
-		"\2\2\22\u010b\3\2\2\2\24\u0113\3\2\2\2\26\u0118\3\2\2\2\30\u0128\3\2\2"+
-		"\2\32\u0139\3\2\2\2\34\u0164\3\2\2\2\36\u0171\3\2\2\2 \u0176\3\2\2\2\""+
-		"\u017a\3\2\2\2$%\7\3\2\2%\64\7\6\2\2&\'\7\"\2\2\'(\5\22\n\2()\7\"\2\2"+
-		")*\7 \2\2*\65\3\2\2\2+,\5\20\t\2,-\7 \2\2-.\7\"\2\2./\t\2\2\2/\60\7\""+
-		"\2\2\60\61\7 \2\2\61\62\5\20\t\2\62\63\7 \2\2\63\65\3\2\2\2\64&\3\2\2"+
-		"\2\64+\3\2\2\2\658\3\2\2\2\669\5\n\6\2\679\5\32\16\28\66\3\2\2\28\67\3"+
-		"\2\2\29:\3\2\2\2:=\7 \2\2;>\5\n\6\2<>\5\32\16\2=;\3\2\2\2=<\3\2\2\2>?"+
-		"\3\2\2\2?C\7\7\2\2@B\7\24\2\2A@\3\2\2\2BE\3\2\2\2CA\3\2\2\2CD\3\2\2\2"+
-		"D\3\3\2\2\2EC\3\2\2\2FG\7\4\2\2GH\7\6\2\2HI\5\n\6\2IS\7 \2\2JT\5\32\16"+
-		"\2KT\7\34\2\2LT\5\f\7\2MO\7\35\2\2NM\3\2\2\2NO\3\2\2\2OP\3\2\2\2PT\7\30"+
-		"\2\2QT\5\b\5\2RT\5 \21\2SJ\3\2\2\2SK\3\2\2\2SL\3\2\2\2SN\3\2\2\2SQ\3\2"+
-		"\2\2SR\3\2\2\2TU\3\2\2\2U_\7 \2\2V`\5\32\16\2W`\7\34\2\2X`\5\f\7\2Y[\7"+
-		"\35\2\2ZY\3\2\2\2Z[\3\2\2\2[\\\3\2\2\2\\`\7\30\2\2]`\5\b\5\2^`\5 \21\2"+
-		"_V\3\2\2\2_W\3\2\2\2_X\3\2\2\2_Z\3\2\2\2_]\3\2\2\2_^\3\2\2\2`a\3\2\2\2"+
-		"ak\7 \2\2bl\5\32\16\2cl\7\34\2\2dl\5\f\7\2eg\7\35\2\2fe\3\2\2\2fg\3\2"+
-		"\2\2gh\3\2\2\2hl\7\30\2\2il\5\b\5\2jl\5 \21\2kb\3\2\2\2kc\3\2\2\2kd\3"+
-		"\2\2\2kf\3\2\2\2ki\3\2\2\2kj\3\2\2\2lm\3\2\2\2mq\7\7\2\2np\7\24\2\2on"+
-		"\3\2\2\2ps\3\2\2\2qo\3\2\2\2qr\3\2\2\2r\5\3\2\2\2sq\3\2\2\2tu\7\5\2\2"+
-		"uv\7\6\2\2vw\5\20\t\2wx\7 \2\2xy\7\"\2\2yz\t\2\2\2z{\7\"\2\2{|\7 \2\2"+
-		"|}\5\20\t\2}\u0080\7 \2\2~\u0081\5\n\6\2\177\u0081\5\32\16\2\u0080~\3"+
-		"\2\2\2\u0080\177\3\2\2\2\u0081\u0082\3\2\2\2\u0082\u0086\7\7\2\2\u0083"+
-		"\u0085\7\24\2\2\u0084\u0083\3\2\2\2\u0085\u0088\3\2\2\2\u0086\u0084\3"+
-		"\2\2\2\u0086\u0087\3\2\2\2\u0087\7\3\2\2\2\u0088\u0086\3\2\2\2\u0089\u008f"+
-		"\7\34\2\2\u008a\u008f\7\33\2\2\u008b\u008f\5\36\20\2\u008c\u008f\5 \21"+
-		"\2\u008d\u008f\5\"\22\2\u008e\u0089\3\2\2\2\u008e\u008a\3\2\2\2\u008e"+
-		"\u008b\3\2\2\2\u008e\u008c\3\2\2\2\u008e\u008d\3\2\2\2\u008f\u0090\3\2"+
-		"\2\2\u0090\u0091\7\25\2\2\u0091\u0092\7\34\2\2\u0092\u0099\7\6\2\2\u0093"+
-		"\u0095\7 \2\2\u0094\u0093\3\2\2\2\u0094\u0095\3\2\2\2\u0095\u0096\3\2"+
-		"\2\2\u0096\u0098\5\20\t\2\u0097\u0094\3\2\2\2\u0098\u009b\3\2\2\2\u0099"+
-		"\u0097\3\2\2\2\u0099\u009a\3\2\2\2\u009a\u009c\3\2\2\2\u009b\u0099\3\2"+
-		"\2\2\u009c\u00a0\7\7\2\2\u009d\u009f\7\24\2\2\u009e\u009d\3\2\2\2\u009f"+
-		"\u00a2\3\2\2\2\u00a0\u009e\3\2\2\2\u00a0\u00a1\3\2\2\2\u00a1\t\3\2\2\2"+
-		"\u00a2\u00a0\3\2\2\2\u00a3\u00b5\7\t\2\2\u00a4\u00b4\5\b\5\2\u00a5\u00b4"+
-		"\5\2\2\2\u00a6\u00b4\5\4\3\2\u00a7\u00b4\5\6\4\2\u00a8\u00b4\5\34\17\2"+
-		"\u00a9\u00b4\5\26\f\2\u00aa\u00b4\5\f\7\2\u00ab\u00b4\5\n\6\2\u00ac\u00b0"+
-		"\t\3\2\2\u00ad\u00af\7\24\2\2\u00ae\u00ad\3\2\2\2\u00af\u00b2\3\2\2\2"+
-		"\u00b0\u00ae\3\2\2\2\u00b0\u00b1\3\2\2\2\u00b1\u00b4\3\2\2\2\u00b2\u00b0"+
-		"\3\2\2\2\u00b3\u00a4\3\2\2\2\u00b3\u00a5\3\2\2\2\u00b3\u00a6\3\2\2\2\u00b3"+
-		"\u00a7\3\2\2\2\u00b3\u00a8\3\2\2\2\u00b3\u00a9\3\2\2\2\u00b3\u00aa\3\2"+
-		"\2\2\u00b3\u00ab\3\2\2\2\u00b3\u00ac\3\2\2\2\u00b4\u00b7\3\2\2\2\u00b5"+
-		"\u00b3\3\2\2\2\u00b5\u00b6\3\2\2\2\u00b6\u00bb\3\2\2\2\u00b7\u00b5\3\2"+
-		"\2\2\u00b8\u00ba\7\24\2\2\u00b9\u00b8\3\2\2\2\u00ba\u00bd\3\2\2\2\u00bb"+
-		"\u00b9\3\2\2\2\u00bb\u00bc\3\2\2\2\u00bc\u00be\3\2\2\2\u00bd\u00bb\3\2"+
-		"\2\2\u00be\u00bf\7\n\2\2\u00bf\13\3\2\2\2\u00c0\u00dc\7\13\2\2\u00c1\u00c3"+
-		"\t\4\2\2\u00c2\u00c1\3\2\2\2\u00c2\u00c3\3\2\2\2\u00c3\u00d5\3\2\2\2\u00c4"+
-		"\u00d6\7\34\2\2\u00c5\u00d6\5\32\16\2\u00c6\u00c8\7\35\2\2\u00c7\u00c6"+
-		"\3\2\2\2\u00c7\u00c8\3\2\2\2\u00c8\u00c9\3\2\2\2\u00c9\u00d6\7\30\2\2"+
-		"\u00ca\u00cc\7\35\2\2\u00cb\u00ca\3\2\2\2\u00cb\u00cc\3\2\2\2\u00cc\u00cd"+
-		"\3\2\2\2\u00cd\u00d6\7\31\2\2\u00ce\u00d6\5\30\r\2\u00cf\u00d6\7\33\2"+
-		"\2\u00d0\u00d6\5\b\5\2\u00d1\u00d6\5\f\7\2\u00d2\u00d6\5 \21\2\u00d3\u00d6"+
-		"\5\36\20\2\u00d4\u00d6\5\"\22\2\u00d5\u00c4\3\2\2\2\u00d5\u00c5\3\2\2"+
-		"\2\u00d5\u00c7\3\2\2\2\u00d5\u00cb\3\2\2\2\u00d5\u00ce\3\2\2\2\u00d5\u00cf"+
-		"\3\2\2\2\u00d5\u00d0\3\2\2\2\u00d5\u00d1\3\2\2\2\u00d5\u00d2\3\2\2\2\u00d5"+
-		"\u00d3\3\2\2\2\u00d5\u00d4\3\2\2\2\u00d6\u00d8\3\2\2\2\u00d7\u00d9\t\5"+
-		"\2\2\u00d8\u00d7\3\2\2\2\u00d8\u00d9\3\2\2\2\u00d9\u00db\3\2\2\2\u00da"+
-		"\u00c2\3\2\2\2\u00db\u00de\3\2\2\2\u00dc\u00da\3\2\2\2\u00dc\u00dd\3\2"+
-		"\2\2\u00dd\u00df\3\2\2\2\u00de\u00dc\3\2\2\2\u00df\u00e3\7\f\2\2\u00e0"+
-		"\u00e2\7\24\2\2\u00e1\u00e0\3\2\2\2\u00e2\u00e5\3\2\2\2\u00e3\u00e1\3"+
-		"\2\2\2\u00e3\u00e4\3\2\2\2\u00e4\r\3\2\2\2\u00e5\u00e3\3\2\2\2\u00e6\u00ee"+
-		"\5\n\6\2\u00e7\u00ee\5\f\7\2\u00e8\u00ee\5\32\16\2\u00e9\u00ee\5\2\2\2"+
-		"\u00ea\u00ee\5\4\3\2\u00eb\u00ee\5\6\4\2\u00ec\u00ee\5\32\16\2\u00ed\u00e6"+
-		"\3\2\2\2\u00ed\u00e7\3\2\2\2\u00ed\u00e8\3\2\2\2\u00ed\u00e9\3\2\2\2\u00ed"+
-		"\u00ea\3\2\2\2\u00ed\u00eb\3\2\2\2\u00ed\u00ec\3\2\2\2\u00ee\u00f1\3\2"+
-		"\2\2\u00ef\u00ed\3\2\2\2\u00ef\u00f0\3\2\2\2\u00f0\17\3\2\2\2\u00f1\u00ef"+
-		"\3\2\2\2\u00f2\u0104\5\b\5\2\u00f3\u0104\7\37\2\2\u00f4\u0104\5\"\22\2"+
-		"\u00f5\u0104\5\32\16\2\u00f6\u0104\7\34\2\2\u00f7\u00f9\7\35\2\2\u00f8"+
-		"\u00f7\3\2\2\2\u00f8\u00f9\3\2\2\2\u00f9\u00fa\3\2\2\2\u00fa\u0104\7\30"+
-		"\2\2\u00fb\u00fd\7\35\2\2\u00fc\u00fb\3\2\2\2\u00fc\u00fd\3\2\2\2\u00fd"+
-		"\u00fe\3\2\2\2\u00fe\u0104\7\31\2\2\u00ff\u0104\5\f\7\2\u0100\u0104\7"+
-		"\33\2\2\u0101\u0104\5 \21\2\u0102\u0104\5\36\20\2\u0103\u00f2\3\2\2\2"+
-		"\u0103\u00f3\3\2\2\2\u0103\u00f4\3\2\2\2\u0103\u00f5\3\2\2\2\u0103\u00f6"+
-		"\3\2\2\2\u0103\u00f8\3\2\2\2\u0103\u00fc\3\2\2\2\u0103\u00ff\3\2\2\2\u0103"+
-		"\u0100\3\2\2\2\u0103\u0101\3\2\2\2\u0103\u0102\3\2\2\2\u0104\21\3\2\2"+
-		"\2\u0105\u0107\7\36\2\2\u0106\u0105\3\2\2\2\u0106\u0107\3\2\2\2\u0107"+
-		"\u0108\3\2\2\2\u0108\u010a\5\24\13\2\u0109\u0106\3\2\2\2\u010a\u010d\3"+
-		"\2\2\2\u010b\u0109\3\2\2\2\u010b\u010c\3\2\2\2\u010c\23\3\2\2\2\u010d"+
-		"\u010b\3\2\2\2\u010e\u0114\7\34\2\2\u010f\u0114\5\b\5\2\u0110\u0114\5"+
-		" \21\2\u0111\u0114\5\f\7\2\u0112\u0114\7\33\2\2\u0113\u010e\3\2\2\2\u0113"+
-		"\u010f\3\2\2\2\u0113\u0110\3\2\2\2\u0113\u0111\3\2\2\2\u0113\u0112\3\2"+
-		"\2\2\u0114\u0115\3\2\2\2\u0115\u0116\t\2\2\2\u0116\u0117\5\20\t\2\u0117"+
-		"\25\3\2\2\2\u0118\u0119\7\34\2\2\u0119\u011a\7\24\2\2\u011a\27\3\2\2\2"+
-		"\u011b\u0129\7\34\2\2\u011c\u0129\7\33\2\2\u011d\u011f\7\35\2\2\u011e"+
-		"\u011d\3\2\2\2\u011e\u011f\3\2\2\2\u011f\u0120\3\2\2\2\u0120\u0129\7\30"+
-		"\2\2\u0121\u0123\7\35\2\2\u0122\u0121\3\2\2\2\u0122\u0123\3\2\2\2\u0123"+
-		"\u0124\3\2\2\2\u0124\u0129\7\31\2\2\u0125\u0129\5\b\5\2\u0126\u0129\5"+
-		" \21\2\u0127\u0129\5\f\7\2\u0128\u011b\3\2\2\2\u0128\u011c\3\2\2\2\u0128"+
-		"\u011e\3\2\2\2\u0128\u0122\3\2\2\2\u0128\u0125\3\2\2\2\u0128\u0126\3\2"+
-		"\2\2\u0128\u0127\3\2\2\2\u0129\u012a\3\2\2\2\u012a\u0137\7\27\2\2\u012b"+
-		"\u0138\7\34\2\2\u012c\u012e\7\35\2\2\u012d\u012c\3\2\2\2\u012d\u012e\3"+
-		"\2\2\2\u012e\u012f\3\2\2\2\u012f\u0138\7\30\2\2\u0130\u0132\7\35\2\2\u0131"+
-		"\u0130\3\2\2\2\u0131\u0132\3\2\2\2\u0132\u0133\3\2\2\2\u0133\u0138\7\31"+
-		"\2\2\u0134\u0138\5\b\5\2\u0135\u0138\5 \21\2\u0136\u0138\5\f\7\2\u0137"+
-		"\u012b\3\2\2\2\u0137\u012d\3\2\2\2\u0137\u0131\3\2\2\2\u0137\u0134\3\2"+
-		"\2\2\u0137\u0135\3\2\2\2\u0137\u0136\3\2\2\2\u0138\31\3\2\2\2\u0139\u0160"+
-		"\7\"\2\2\u013a\u0155\7\34\2\2\u013b\u0155\7\25\2\2\u013c\u013e\7\35\2"+
-		"\2\u013d\u013c\3\2\2\2\u013d\u013e\3\2\2\2\u013e\u013f\3\2\2\2\u013f\u0155"+
-		"\7\30\2\2\u0140\u0142\7\35\2\2\u0141\u0140\3\2\2\2\u0141\u0142\3\2\2\2"+
-		"\u0142\u0143\3\2\2\2\u0143\u0155\7\31\2\2\u0144\u0155\7\16\2\2\u0145\u0155"+
-		"\7\17\2\2\u0146\u0155\7\20\2\2\u0147\u0155\7\21\2\2\u0148\u0155\7\22\2"+
-		"\2\u0149\u0155\7\23\2\2\u014a\u0155\7\r\2\2\u014b\u0155\5 \21\2\u014c"+
-		"\u0155\7\6\2\2\u014d\u0155\7\7\2\2\u014e\u0155\7 \2\2\u014f\u0155\7\35"+
-		"\2\2\u0150\u0155\7\b\2\2\u0151\u0155\7\33\2\2\u0152\u0155\5\f\7\2\u0153"+
-		"\u0155\5\b\5\2\u0154\u013a\3\2\2\2\u0154\u013b\3\2\2\2\u0154\u013d\3\2"+
-		"\2\2\u0154\u0141\3\2\2\2\u0154\u0144\3\2\2\2\u0154\u0145\3\2\2\2\u0154"+
-		"\u0146\3\2\2\2\u0154\u0147\3\2\2\2\u0154\u0148\3\2\2\2\u0154\u0149\3\2"+
-		"\2\2\u0154\u014a\3\2\2\2\u0154\u014b\3\2\2\2\u0154\u014c\3\2\2\2\u0154"+
-		"\u014d\3\2\2\2\u0154\u014e\3\2\2\2\u0154\u014f\3\2\2\2\u0154\u0150\3\2"+
-		"\2\2\u0154\u0151\3\2\2\2\u0154\u0152\3\2\2\2\u0154\u0153\3\2\2\2\u0155"+
-		"\u0156\3\2\2\2\u0156\u0154\3\2\2\2\u0156\u0157\3\2\2\2\u0157\u0161\3\2"+
-		"\2\2\u0158\u015d\5\"\22\2\u0159\u015b\7\r\2\2\u015a\u015c\7\34\2\2\u015b"+
-		"\u015a\3\2\2\2\u015b\u015c\3\2\2\2\u015c\u015e\3\2\2\2\u015d\u0159\3\2"+
-		"\2\2\u015d\u015e\3\2\2\2\u015e\u0161\3\2\2\2\u015f\u0161\5\32\16\2\u0160"+
-		"\u0154\3\2\2\2\u0160\u0158\3\2\2\2\u0160\u015f\3\2\2\2\u0160\u0161\3\2"+
-		"\2\2\u0161\u0162\3\2\2\2\u0162\u0163\7\"\2\2\u0163\33\3\2\2\2\u0164\u0165"+
-		"\7\26\2\2\u0165\u0166\7\34\2\2\u0166\u016c\7\6\2\2\u0167\u016a\5\20\t"+
-		"\2\u0168\u0169\7 \2\2\u0169\u016b\5\20\t\2\u016a\u0168\3\2\2\2\u016a\u016b"+
-		"\3\2\2\2\u016b\u016d\3\2\2\2\u016c\u0167\3\2\2\2\u016c\u016d\3\2\2\2\u016d"+
-		"\u016e\3\2\2\2\u016e\u016f\7\7\2\2\u016f\u0170\7\24\2\2\u0170\35\3\2\2"+
-		"\2\u0171\u0174\7#\2\2\u0172\u0175\5\f\7\2\u0173\u0175\7\34\2\2\u0174\u0172"+
-		"\3\2\2\2\u0174\u0173\3\2\2\2\u0175\37\3\2\2\2\u0176\u0177\7\34\2\2\u0177"+
-		"\u0178\7!\2\2\u0178\u0179\7\34\2\2\u0179!\3\2\2\2\u017a\u017b\7\b\2\2"+
-		"\u017b\u017c\t\6\2\2\u017c#\3\2\2\2\66\648=CNSZ_fkq\u0080\u0086\u008e"+
-		"\u0094\u0099\u00a0\u00b0\u00b3\u00b5\u00bb\u00c2\u00c7\u00cb\u00d5\u00d8"+
-		"\u00dc\u00e3\u00ed\u00ef\u00f8\u00fc\u0103\u0106\u010b\u0113\u011e\u0122"+
-		"\u0128\u012d\u0131\u0137\u013d\u0141\u0154\u0156\u015b\u015d\u0160\u016a"+
-		"\u016c\u0174";
+		"\4\23\t\23\4\24\t\24\4\25\t\25\4\26\t\26\4\27\t\27\3\2\3\2\3\2\3\2\3\2"+
+		"\3\2\3\2\3\2\3\2\3\2\3\2\3\2\3\2\3\2\3\2\3\2\5\2?\n\2\3\2\3\2\5\2C\n\2"+
+		"\3\2\3\2\3\2\5\2H\n\2\3\2\3\2\7\2L\n\2\f\2\16\2O\13\2\3\3\3\3\3\3\3\3"+
+		"\3\3\3\3\3\3\3\3\5\3Y\n\3\3\3\3\3\3\3\5\3^\n\3\3\3\3\3\3\3\3\3\3\3\5\3"+
+		"e\n\3\3\3\3\3\3\3\5\3j\n\3\3\3\3\3\3\3\3\3\3\3\5\3q\n\3\3\3\3\3\3\3\5"+
+		"\3v\n\3\3\3\3\3\7\3z\n\3\f\3\16\3}\13\3\3\4\3\4\3\4\3\4\3\4\3\4\3\4\3"+
+		"\4\3\4\3\4\3\4\3\4\5\4\u008b\n\4\3\4\3\4\7\4\u008f\n\4\f\4\16\4\u0092"+
+		"\13\4\3\5\3\5\3\5\3\5\3\5\5\5\u0099\n\5\3\5\3\5\3\5\3\5\5\5\u009f\n\5"+
+		"\3\5\7\5\u00a2\n\5\f\5\16\5\u00a5\13\5\3\5\3\5\7\5\u00a9\n\5\f\5\16\5"+
+		"\u00ac\13\5\3\6\3\6\3\6\3\6\3\6\3\6\3\6\3\6\3\6\3\6\3\6\3\6\5\6\u00ba"+
+		"\n\6\3\6\7\6\u00bd\n\6\f\6\16\6\u00c0\13\6\7\6\u00c2\n\6\f\6\16\6\u00c5"+
+		"\13\6\3\6\7\6\u00c8\n\6\f\6\16\6\u00cb\13\6\3\6\3\6\3\7\3\7\3\7\3\7\5"+
+		"\7\u00d3\n\7\3\7\3\7\3\7\5\7\u00d8\n\7\3\7\3\7\5\7\u00dc\n\7\3\7\3\7\3"+
+		"\7\3\7\3\7\3\7\3\7\3\7\5\7\u00e6\n\7\3\7\3\7\5\7\u00ea\n\7\7\7\u00ec\n"+
+		"\7\f\7\16\7\u00ef\13\7\3\7\3\7\7\7\u00f3\n\7\f\7\16\7\u00f6\13\7\3\b\3"+
+		"\b\3\b\3\b\3\b\3\b\3\b\7\b\u00ff\n\b\f\b\16\b\u0102\13\b\3\t\3\t\3\t\3"+
+		"\t\3\t\3\t\5\t\u010a\n\t\3\t\3\t\5\t\u010e\n\t\3\t\3\t\3\t\3\t\3\t\5\t"+
+		"\u0115\n\t\3\n\5\n\u0118\n\n\3\n\7\n\u011b\n\n\f\n\16\n\u011e\13\n\3\13"+
+		"\3\13\3\13\3\13\3\13\5\13\u0125\n\13\3\13\3\13\3\13\3\f\3\f\3\f\3\r\3"+
+		"\r\3\r\5\r\u0130\n\r\3\r\3\r\5\r\u0134\n\r\3\r\3\r\3\r\3\r\5\r\u013a\n"+
+		"\r\3\r\3\r\3\r\5\r\u013f\n\r\3\r\3\r\5\r\u0143\n\r\3\r\3\r\3\r\3\r\5\r"+
+		"\u0149\n\r\3\16\3\16\3\16\3\16\5\16\u014f\n\16\3\16\3\16\5\16\u0153\n"+
+		"\16\3\16\3\16\3\16\3\16\3\16\3\16\3\16\3\16\3\16\3\16\3\16\3\16\3\16\3"+
+		"\16\3\16\3\16\3\16\6\16\u0166\n\16\r\16\16\16\u0167\3\16\3\16\3\16\5\16"+
+		"\u016d\n\16\5\16\u016f\n\16\3\16\5\16\u0172\n\16\3\16\3\16\3\17\3\17\3"+
+		"\17\3\17\3\17\3\17\5\17\u017c\n\17\5\17\u017e\n\17\3\17\3\17\3\17\3\20"+
+		"\3\20\3\20\5\20\u0186\n\20\3\21\3\21\3\21\3\21\3\22\3\22\3\22\5\22\u018f"+
+		"\n\22\3\23\3\23\3\24\3\24\3\25\3\25\3\26\3\26\3\27\3\27\3\27\2\2\30\2"+
+		"\4\6\b\n\f\16\20\22\24\26\30\32\34\36 \"$&(*,\2\3\3\2\16\23\2\u020b\2"+
+		".\3\2\2\2\4P\3\2\2\2\6~\3\2\2\2\b\u0098\3\2\2\2\n\u00ad\3\2\2\2\f\u00ce"+
+		"\3\2\2\2\16\u0100\3\2\2\2\20\u0114\3\2\2\2\22\u011c\3\2\2\2\24\u0124\3"+
+		"\2\2\2\26\u0129\3\2\2\2\30\u0139\3\2\2\2\32\u014a\3\2\2\2\34\u0175\3\2"+
+		"\2\2\36\u0182\3\2\2\2 \u0187\3\2\2\2\"\u018b\3\2\2\2$\u0190\3\2\2\2&\u0192"+
+		"\3\2\2\2(\u0194\3\2\2\2*\u0196\3\2\2\2,\u0198\3\2\2\2./\7\3\2\2/>\7\6"+
+		"\2\2\60\61\7\"\2\2\61\62\5\22\n\2\62\63\7\"\2\2\63\64\7 \2\2\64?\3\2\2"+
+		"\2\65\66\5\20\t\2\66\67\7 \2\2\678\7\"\2\289\t\2\2\29:\7\"\2\2:;\7 \2"+
+		"\2;<\5\20\t\2<=\7 \2\2=?\3\2\2\2>\60\3\2\2\2>\65\3\2\2\2?B\3\2\2\2@C\5"+
+		"\n\6\2AC\5\32\16\2B@\3\2\2\2BA\3\2\2\2CD\3\2\2\2DG\7 \2\2EH\5\n\6\2FH"+
+		"\5\32\16\2GE\3\2\2\2GF\3\2\2\2HI\3\2\2\2IM\7\7\2\2JL\7\24\2\2KJ\3\2\2"+
+		"\2LO\3\2\2\2MK\3\2\2\2MN\3\2\2\2N\3\3\2\2\2OM\3\2\2\2PQ\7\4\2\2QR\7\6"+
+		"\2\2RS\5\n\6\2S]\7 \2\2T^\5\32\16\2U^\5(\25\2V^\5\f\7\2WY\5*\26\2XW\3"+
+		"\2\2\2XY\3\2\2\2YZ\3\2\2\2Z^\5$\23\2[^\5\b\5\2\\^\5 \21\2]T\3\2\2\2]U"+
+		"\3\2\2\2]V\3\2\2\2]X\3\2\2\2][\3\2\2\2]\\\3\2\2\2^_\3\2\2\2_i\7 \2\2`"+
+		"j\5\32\16\2aj\5(\25\2bj\5\f\7\2ce\5*\26\2dc\3\2\2\2de\3\2\2\2ef\3\2\2"+
+		"\2fj\5$\23\2gj\5\b\5\2hj\5 \21\2i`\3\2\2\2ia\3\2\2\2ib\3\2\2\2id\3\2\2"+
+		"\2ig\3\2\2\2ih\3\2\2\2jk\3\2\2\2ku\7 \2\2lv\5\32\16\2mv\5(\25\2nv\5\f"+
+		"\7\2oq\5*\26\2po\3\2\2\2pq\3\2\2\2qr\3\2\2\2rv\5$\23\2sv\5\b\5\2tv\5 "+
+		"\21\2ul\3\2\2\2um\3\2\2\2un\3\2\2\2up\3\2\2\2us\3\2\2\2ut\3\2\2\2vw\3"+
+		"\2\2\2w{\7\7\2\2xz\7\24\2\2yx\3\2\2\2z}\3\2\2\2{y\3\2\2\2{|\3\2\2\2|\5"+
+		"\3\2\2\2}{\3\2\2\2~\177\7\5\2\2\177\u0080\7\6\2\2\u0080\u0081\5\20\t\2"+
+		"\u0081\u0082\7 \2\2\u0082\u0083\7\"\2\2\u0083\u0084\t\2\2\2\u0084\u0085"+
+		"\7\"\2\2\u0085\u0086\7 \2\2\u0086\u0087\5\20\t\2\u0087\u008a\7 \2\2\u0088"+
+		"\u008b\5\n\6\2\u0089\u008b\5\32\16\2\u008a\u0088\3\2\2\2\u008a\u0089\3"+
+		"\2\2\2\u008b\u008c\3\2\2\2\u008c\u0090\7\7\2\2\u008d\u008f\7\24\2\2\u008e"+
+		"\u008d\3\2\2\2\u008f\u0092\3\2\2\2\u0090\u008e\3\2\2\2\u0090\u0091\3\2"+
+		"\2\2\u0091\7\3\2\2\2\u0092\u0090\3\2\2\2\u0093\u0099\5(\25\2\u0094\u0099"+
+		"\7\33\2\2\u0095\u0099\5\36\20\2\u0096\u0099\5 \21\2\u0097\u0099\5\"\22"+
+		"\2\u0098\u0093\3\2\2\2\u0098\u0094\3\2\2\2\u0098\u0095\3\2\2\2\u0098\u0096"+
+		"\3\2\2\2\u0098\u0097\3\2\2\2\u0099\u009a\3\2\2\2\u009a\u009b\7\25\2\2"+
+		"\u009b\u009c\5(\25\2\u009c\u00a3\7\6\2\2\u009d\u009f\7 \2\2\u009e\u009d"+
+		"\3\2\2\2\u009e\u009f\3\2\2\2\u009f\u00a0\3\2\2\2\u00a0\u00a2\5\20\t\2"+
+		"\u00a1\u009e\3\2\2\2\u00a2\u00a5\3\2\2\2\u00a3\u00a1\3\2\2\2\u00a3\u00a4"+
+		"\3\2\2\2\u00a4\u00a6\3\2\2\2\u00a5\u00a3\3\2\2\2\u00a6\u00aa\7\7\2\2\u00a7"+
+		"\u00a9\7\24\2\2\u00a8\u00a7\3\2\2\2\u00a9\u00ac\3\2\2\2\u00aa\u00a8\3"+
+		"\2\2\2\u00aa\u00ab\3\2\2\2\u00ab\t\3\2\2\2\u00ac\u00aa\3\2\2\2\u00ad\u00c3"+
+		"\7\t\2\2\u00ae\u00c2\5\b\5\2\u00af\u00c2\5\2\2\2\u00b0\u00c2\5\4\3\2\u00b1"+
+		"\u00c2\5\6\4\2\u00b2\u00c2\5\34\17\2\u00b3\u00c2\5\26\f\2\u00b4\u00c2"+
+		"\5\f\7\2\u00b5\u00c2\5\n\6\2\u00b6\u00ba\5(\25\2\u00b7\u00ba\5&\24\2\u00b8"+
+		"\u00ba\5$\23\2\u00b9\u00b6\3\2\2\2\u00b9\u00b7\3\2\2\2\u00b9\u00b8\3\2"+
+		"\2\2\u00ba\u00be\3\2\2\2\u00bb\u00bd\7\24\2\2\u00bc\u00bb\3\2\2\2\u00bd"+
+		"\u00c0\3\2\2\2\u00be\u00bc\3\2\2\2\u00be\u00bf\3\2\2\2\u00bf\u00c2\3\2"+
+		"\2\2\u00c0\u00be\3\2\2\2\u00c1\u00ae\3\2\2\2\u00c1\u00af\3\2\2\2\u00c1"+
+		"\u00b0\3\2\2\2\u00c1\u00b1\3\2\2\2\u00c1\u00b2\3\2\2\2\u00c1\u00b3\3\2"+
+		"\2\2\u00c1\u00b4\3\2\2\2\u00c1\u00b5\3\2\2\2\u00c1\u00b9\3\2\2\2\u00c2"+
+		"\u00c5\3\2\2\2\u00c3\u00c1\3\2\2\2\u00c3\u00c4\3\2\2\2\u00c4\u00c9\3\2"+
+		"\2\2\u00c5\u00c3\3\2\2\2\u00c6\u00c8\7\24\2\2\u00c7\u00c6\3\2\2\2\u00c8"+
+		"\u00cb\3\2\2\2\u00c9\u00c7\3\2\2\2\u00c9\u00ca\3\2\2\2\u00ca\u00cc\3\2"+
+		"\2\2\u00cb\u00c9\3\2\2\2\u00cc\u00cd\7\n\2\2\u00cd\13\3\2\2\2\u00ce\u00ed"+
+		"\7\13\2\2\u00cf\u00d3\5*\26\2\u00d0\u00d3\7\26\2\2\u00d1\u00d3\7#\2\2"+
+		"\u00d2\u00cf\3\2\2\2\u00d2\u00d0\3\2\2\2\u00d2\u00d1\3\2\2\2\u00d2\u00d3"+
+		"\3\2\2\2\u00d3\u00e5\3\2\2\2\u00d4\u00e6\5(\25\2\u00d5\u00e6\5\32\16\2"+
+		"\u00d6\u00d8\5*\26\2\u00d7\u00d6\3\2\2\2\u00d7\u00d8\3\2\2\2\u00d8\u00d9"+
+		"\3\2\2\2\u00d9\u00e6\5$\23\2\u00da\u00dc\5*\26\2\u00db\u00da\3\2\2\2\u00db"+
+		"\u00dc\3\2\2\2\u00dc\u00dd\3\2\2\2\u00dd\u00e6\5&\24\2\u00de\u00e6\5\30"+
+		"\r\2\u00df\u00e6\7\33\2\2\u00e0\u00e6\5\b\5\2\u00e1\u00e6\5\f\7\2\u00e2"+
+		"\u00e6\5 \21\2\u00e3\u00e6\5\36\20\2\u00e4\u00e6\5\"\22\2\u00e5\u00d4"+
+		"\3\2\2\2\u00e5\u00d5\3\2\2\2\u00e5\u00d7\3\2\2\2\u00e5\u00db\3\2\2\2\u00e5"+
+		"\u00de\3\2\2\2\u00e5\u00df\3\2\2\2\u00e5\u00e0\3\2\2\2\u00e5\u00e1\3\2"+
+		"\2\2\u00e5\u00e2\3\2\2\2\u00e5\u00e3\3\2\2\2\u00e5\u00e4\3\2\2\2\u00e6"+
+		"\u00e9\3\2\2\2\u00e7\u00ea\5*\26\2\u00e8\u00ea\7#\2\2\u00e9\u00e7\3\2"+
+		"\2\2\u00e9\u00e8\3\2\2\2\u00e9\u00ea\3\2\2\2\u00ea\u00ec\3\2\2\2\u00eb"+
+		"\u00d2\3\2\2\2\u00ec\u00ef\3\2\2\2\u00ed\u00eb\3\2\2\2\u00ed\u00ee\3\2"+
+		"\2\2\u00ee\u00f0\3\2\2\2\u00ef\u00ed\3\2\2\2\u00f0\u00f4\7\f\2\2\u00f1"+
+		"\u00f3\7\24\2\2\u00f2\u00f1\3\2\2\2\u00f3\u00f6\3\2\2\2\u00f4\u00f2\3"+
+		"\2\2\2\u00f4\u00f5\3\2\2\2\u00f5\r\3\2\2\2\u00f6\u00f4\3\2\2\2\u00f7\u00ff"+
+		"\5\n\6\2\u00f8\u00ff\5\f\7\2\u00f9\u00ff\5\32\16\2\u00fa\u00ff\5\2\2\2"+
+		"\u00fb\u00ff\5\4\3\2\u00fc\u00ff\5\6\4\2\u00fd\u00ff\5\32\16\2\u00fe\u00f7"+
+		"\3\2\2\2\u00fe\u00f8\3\2\2\2\u00fe\u00f9\3\2\2\2\u00fe\u00fa\3\2\2\2\u00fe"+
+		"\u00fb\3\2\2\2\u00fe\u00fc\3\2\2\2\u00fe\u00fd\3\2\2\2\u00ff\u0102\3\2"+
+		"\2\2\u0100\u00fe\3\2\2\2\u0100\u0101\3\2\2\2\u0101\17\3\2\2\2\u0102\u0100"+
+		"\3\2\2\2\u0103\u0115\5\b\5\2\u0104\u0115\7\37\2\2\u0105\u0115\5\"\22\2"+
+		"\u0106\u0115\5\32\16\2\u0107\u0115\5(\25\2\u0108\u010a\5*\26\2\u0109\u0108"+
+		"\3\2\2\2\u0109\u010a\3\2\2\2\u010a\u010b\3\2\2\2\u010b\u0115\5$\23\2\u010c"+
+		"\u010e\5*\26\2\u010d\u010c\3\2\2\2\u010d\u010e\3\2\2\2\u010e\u010f\3\2"+
+		"\2\2\u010f\u0115\5&\24\2\u0110\u0115\5\f\7\2\u0111\u0115\7\33\2\2\u0112"+
+		"\u0115\5 \21\2\u0113\u0115\5\36\20\2\u0114\u0103\3\2\2\2\u0114\u0104\3"+
+		"\2\2\2\u0114\u0105\3\2\2\2\u0114\u0106\3\2\2\2\u0114\u0107\3\2\2\2\u0114"+
+		"\u0109\3\2\2\2\u0114\u010d\3\2\2\2\u0114\u0110\3\2\2\2\u0114\u0111\3\2"+
+		"\2\2\u0114\u0112\3\2\2\2\u0114\u0113\3\2\2\2\u0115\21\3\2\2\2\u0116\u0118"+
+		"\5,\27\2\u0117\u0116\3\2\2\2\u0117\u0118\3\2\2\2\u0118\u0119\3\2\2\2\u0119"+
+		"\u011b\5\24\13\2\u011a\u0117\3\2\2\2\u011b\u011e\3\2\2\2\u011c\u011a\3"+
+		"\2\2\2\u011c\u011d\3\2\2\2\u011d\23\3\2\2\2\u011e\u011c\3\2\2\2\u011f"+
+		"\u0125\5(\25\2\u0120\u0125\5\b\5\2\u0121\u0125\5 \21\2\u0122\u0125\5\f"+
+		"\7\2\u0123\u0125\7\33\2\2\u0124\u011f\3\2\2\2\u0124\u0120\3\2\2\2\u0124"+
+		"\u0121\3\2\2\2\u0124\u0122\3\2\2\2\u0124\u0123\3\2\2\2\u0125\u0126\3\2"+
+		"\2\2\u0126\u0127\t\2\2\2\u0127\u0128\5\20\t\2\u0128\25\3\2\2\2\u0129\u012a"+
+		"\5(\25\2\u012a\u012b\7\24\2\2\u012b\27\3\2\2\2\u012c\u013a\5(\25\2\u012d"+
+		"\u013a\7\33\2\2\u012e\u0130\5*\26\2\u012f\u012e\3\2\2\2\u012f\u0130\3"+
+		"\2\2\2\u0130\u0131\3\2\2\2\u0131\u013a\5$\23\2\u0132\u0134\5*\26\2\u0133"+
+		"\u0132\3\2\2\2\u0133\u0134\3\2\2\2\u0134\u0135\3\2\2\2\u0135\u013a\5&"+
+		"\24\2\u0136\u013a\5\b\5\2\u0137\u013a\5 \21\2\u0138\u013a\5\f\7\2\u0139"+
+		"\u012c\3\2\2\2\u0139\u012d\3\2\2\2\u0139\u012f\3\2\2\2\u0139\u0133\3\2"+
+		"\2\2\u0139\u0136\3\2\2\2\u0139\u0137\3\2\2\2\u0139\u0138\3\2\2\2\u013a"+
+		"\u013b\3\2\2\2\u013b\u0148\7\27\2\2\u013c\u0149\5(\25\2\u013d\u013f\5"+
+		"*\26\2\u013e\u013d\3\2\2\2\u013e\u013f\3\2\2\2\u013f\u0140\3\2\2\2\u0140"+
+		"\u0149\5$\23\2\u0141\u0143\5*\26\2\u0142\u0141\3\2\2\2\u0142\u0143\3\2"+
+		"\2\2\u0143\u0144\3\2\2\2\u0144\u0149\5&\24\2\u0145\u0149\5\b\5\2\u0146"+
+		"\u0149\5 \21\2\u0147\u0149\5\f\7\2\u0148\u013c\3\2\2\2\u0148\u013e\3\2"+
+		"\2\2\u0148\u0142\3\2\2\2\u0148\u0145\3\2\2\2\u0148\u0146\3\2\2\2\u0148"+
+		"\u0147\3\2\2\2\u0149\31\3\2\2\2\u014a\u0171\7\"\2\2\u014b\u0166\5(\25"+
+		"\2\u014c\u0166\7\25\2\2\u014d\u014f\5*\26\2\u014e\u014d\3\2\2\2\u014e"+
+		"\u014f\3\2\2\2\u014f\u0150\3\2\2\2\u0150\u0166\5$\23\2\u0151\u0153\5*"+
+		"\26\2\u0152\u0151\3\2\2\2\u0152\u0153\3\2\2\2\u0153\u0154\3\2\2\2\u0154"+
+		"\u0166\5&\24\2\u0155\u0166\7\16\2\2\u0156\u0166\7\17\2\2\u0157\u0166\7"+
+		"\20\2\2\u0158\u0166\7\21\2\2\u0159\u0166\7\22\2\2\u015a\u0166\7\23\2\2"+
+		"\u015b\u0166\7\r\2\2\u015c\u0166\5 \21\2\u015d\u0166\7\6\2\2\u015e\u0166"+
+		"\7\7\2\2\u015f\u0166\7 \2\2\u0160\u0166\7\35\2\2\u0161\u0166\7\b\2\2\u0162"+
+		"\u0166\7\33\2\2\u0163\u0166\5\f\7\2\u0164\u0166\5\b\5\2\u0165\u014b\3"+
+		"\2\2\2\u0165\u014c\3\2\2\2\u0165\u014e\3\2\2\2\u0165\u0152\3\2\2\2\u0165"+
+		"\u0155\3\2\2\2\u0165\u0156\3\2\2\2\u0165\u0157\3\2\2\2\u0165\u0158\3\2"+
+		"\2\2\u0165\u0159\3\2\2\2\u0165\u015a\3\2\2\2\u0165\u015b\3\2\2\2\u0165"+
+		"\u015c\3\2\2\2\u0165\u015d\3\2\2\2\u0165\u015e\3\2\2\2\u0165\u015f\3\2"+
+		"\2\2\u0165\u0160\3\2\2\2\u0165\u0161\3\2\2\2\u0165\u0162\3\2\2\2\u0165"+
+		"\u0163\3\2\2\2\u0165\u0164\3\2\2\2\u0166\u0167\3\2\2\2\u0167\u0165\3\2"+
+		"\2\2\u0167\u0168\3\2\2\2\u0168\u0172\3\2\2\2\u0169\u016e\5\"\22\2\u016a"+
+		"\u016c\7\r\2\2\u016b\u016d\5(\25\2\u016c\u016b\3\2\2\2\u016c\u016d\3\2"+
+		"\2\2\u016d\u016f\3\2\2\2\u016e\u016a\3\2\2\2\u016e\u016f\3\2\2\2\u016f"+
+		"\u0172\3\2\2\2\u0170\u0172\5\32\16\2\u0171\u0165\3\2\2\2\u0171\u0169\3"+
+		"\2\2\2\u0171\u0170\3\2\2\2\u0171\u0172\3\2\2\2\u0172\u0173\3\2\2\2\u0173"+
+		"\u0174\7\"\2\2\u0174\33\3\2\2\2\u0175\u0176\7\26\2\2\u0176\u0177\5(\25"+
+		"\2\u0177\u017d\7\6\2\2\u0178\u017b\5\20\t\2\u0179\u017a\7 \2\2\u017a\u017c"+
+		"\5\20\t\2\u017b\u0179\3\2\2\2\u017b\u017c\3\2\2\2\u017c\u017e\3\2\2\2"+
+		"\u017d\u0178\3\2\2\2\u017d\u017e\3\2\2\2\u017e\u017f\3\2\2\2\u017f\u0180"+
+		"\7\7\2\2\u0180\u0181\7\24\2\2\u0181\35\3\2\2\2\u0182\u0185\7#\2\2\u0183"+
+		"\u0186\5\f\7\2\u0184\u0186\5(\25\2\u0185\u0183\3\2\2\2\u0185\u0184\3\2"+
+		"\2\2\u0186\37\3\2\2\2\u0187\u0188\5(\25\2\u0188\u0189\7!\2\2\u0189\u018a"+
+		"\5(\25\2\u018a!\3\2\2\2\u018b\u018e\7\b\2\2\u018c\u018f\5(\25\2\u018d"+
+		"\u018f\5$\23\2\u018e\u018c\3\2\2\2\u018e\u018d\3\2\2\2\u018f#\3\2\2\2"+
+		"\u0190\u0191\7\30\2\2\u0191%\3\2\2\2\u0192\u0193\7\31\2\2\u0193\'\3\2"+
+		"\2\2\u0194\u0195\7\34\2\2\u0195)\3\2\2\2\u0196\u0197\7\35\2\2\u0197+\3"+
+		"\2\2\2\u0198\u0199\7\36\2\2\u0199-\3\2\2\28>BGMX]dipu{\u008a\u0090\u0098"+
+		"\u009e\u00a3\u00aa\u00b9\u00be\u00c1\u00c3\u00c9\u00d2\u00d7\u00db\u00e5"+
+		"\u00e9\u00ed\u00f4\u00fe\u0100\u0109\u010d\u0114\u0117\u011c\u0124\u012f"+
+		"\u0133\u0139\u013e\u0142\u0148\u014e\u0152\u0165\u0167\u016c\u016e\u0171"+
+		"\u017b\u017d\u0185\u018e";
 	public static final ATN _ATN =
 		new ATNDeserializer().deserialize(_serializedATN.toCharArray());
 	static {

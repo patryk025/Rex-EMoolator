@@ -177,4 +177,54 @@ public interface AidemMediaListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitVariable(AidemMediaParser.VariableContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link AidemMediaParser#number}.
+	 * @param ctx the parse tree
+	 */
+	void enterNumber(AidemMediaParser.NumberContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link AidemMediaParser#number}.
+	 * @param ctx the parse tree
+	 */
+	void exitNumber(AidemMediaParser.NumberContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link AidemMediaParser#floatNumber}.
+	 * @param ctx the parse tree
+	 */
+	void enterFloatNumber(AidemMediaParser.FloatNumberContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link AidemMediaParser#floatNumber}.
+	 * @param ctx the parse tree
+	 */
+	void exitFloatNumber(AidemMediaParser.FloatNumberContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link AidemMediaParser#literal}.
+	 * @param ctx the parse tree
+	 */
+	void enterLiteral(AidemMediaParser.LiteralContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link AidemMediaParser#literal}.
+	 * @param ctx the parse tree
+	 */
+	void exitLiteral(AidemMediaParser.LiteralContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link AidemMediaParser#arithmetic}.
+	 * @param ctx the parse tree
+	 */
+	void enterArithmetic(AidemMediaParser.ArithmeticContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link AidemMediaParser#arithmetic}.
+	 * @param ctx the parse tree
+	 */
+	void exitArithmetic(AidemMediaParser.ArithmeticContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link AidemMediaParser#logic}.
+	 * @param ctx the parse tree
+	 */
+	void enterLogic(AidemMediaParser.LogicContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link AidemMediaParser#logic}.
+	 * @param ctx the parse tree
+	 */
+	void exitLogic(AidemMediaParser.LogicContext ctx);
 }
