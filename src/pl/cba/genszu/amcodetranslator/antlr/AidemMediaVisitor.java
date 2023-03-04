@@ -1,5 +1,6 @@
-// Generated from /storage/emulated/0/AppProjects/AidemMediaInterpreterAntlr/src/pl/cba/genszu/amcodetranslator/AidemMedia.g4 by ANTLR 4.9.2
+// Generated from c:\Users\oem\Desktop\gramatykaAM\AidemMedia.g4 by ANTLR 4.9.2
 package pl.cba.genszu.amcodetranslator.antlr;
+
 import org.antlr.v4.runtime.tree.ParseTreeVisitor;
 
 /**
@@ -112,4 +113,34 @@ public interface AidemMediaVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitVariable(AidemMediaParser.VariableContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link AidemMediaParser#number}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitNumber(AidemMediaParser.NumberContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link AidemMediaParser#floatNumber}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitFloatNumber(AidemMediaParser.FloatNumberContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link AidemMediaParser#literal}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitLiteral(AidemMediaParser.LiteralContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link AidemMediaParser#arithmetic}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitArithmetic(AidemMediaParser.ArithmeticContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link AidemMediaParser#logic}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitLogic(AidemMediaParser.LogicContext ctx);
 }

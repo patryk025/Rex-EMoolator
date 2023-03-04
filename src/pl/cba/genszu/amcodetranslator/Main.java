@@ -1,9 +1,10 @@
 package pl.cba.genszu.amcodetranslator;
 
-import java.util.*;
 import org.antlr.v4.runtime.*;
 import org.antlr.v4.runtime.tree.*;
 import pl.cba.genszu.amcodetranslator.antlr.*;
+import pl.cba.genszu.amcodetranslator.listener.*;
+import pl.cba.genszu.amcodetranslator.visitors.*;
 
 public class Main {
 
@@ -14,12 +15,18 @@ public class Main {
 		
 		CommonTokenStream tokens = new CommonTokenStream(lexer);
 		AidemMediaParser parser = new AidemMediaParser(tokens);
-		ParseTree tree = parser.script();
+		//ParseTree tree = parser.script();
+		AidemMediaParser.ScriptContext scriptContext = parser.script();
+		IfInstrVisitor visitor = new IfInstrVisitor();
+		visitor.visit(scriptContext);
 		
-		List<String> ruleNamesList = Arrays.asList(parser.getRuleNames());
+		/*List<String> ruleNamesList = Arrays.asList(parser.getRuleNames());
 		String[] tokensList = lexer.getTokenNames();
 		String prettyTree = TreeUtils.toPrettyTree(tree, ruleNamesList);
-		System.out.println(prettyTree);
+		System.out.println(prettyTree);*/
 		//ParseTreeAnalyzer.analyzeTree(tree, ruleNamesList, tokens, tokensList);
+		
+		/*FireFuncListener listener = new FireFuncListener();
+        ParseTreeWalker.DEFAULT.walk(listener, tree);*/
 	}
 }
