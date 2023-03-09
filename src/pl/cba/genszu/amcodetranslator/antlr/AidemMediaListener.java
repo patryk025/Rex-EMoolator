@@ -129,6 +129,16 @@ public interface AidemMediaListener extends ParseTreeListener {
 	 */
 	void exitModulo(AidemMediaParser.ModuloContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link AidemMediaParser#iterator}.
+	 * @param ctx the parse tree
+	 */
+	void enterIterator(AidemMediaParser.IteratorContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link AidemMediaParser#iterator}.
+	 * @param ctx the parse tree
+	 */
+	void exitIterator(AidemMediaParser.IteratorContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link AidemMediaParser#string}.
 	 * @param ctx the parse tree
 	 */
@@ -228,4 +238,14 @@ public interface AidemMediaListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitLogic(AidemMediaParser.LogicContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link AidemMediaParser#compare}.
+	 * @param ctx the parse tree
+	 */
+	void enterCompare(AidemMediaParser.CompareContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link AidemMediaParser#compare}.
+	 * @param ctx the parse tree
+	 */
+	void exitCompare(AidemMediaParser.CompareContext ctx);
 }

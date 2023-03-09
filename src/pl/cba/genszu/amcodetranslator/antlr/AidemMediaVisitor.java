@@ -84,6 +84,12 @@ public interface AidemMediaVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitModulo(AidemMediaParser.ModuloContext ctx);
 	/**
+	 * Visit a parse tree produced by {@link AidemMediaParser#iterator}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitIterator(AidemMediaParser.IteratorContext ctx);
+	/**
 	 * Visit a parse tree produced by {@link AidemMediaParser#string}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
@@ -143,4 +149,10 @@ public interface AidemMediaVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitLogic(AidemMediaParser.LogicContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link AidemMediaParser#compare}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitCompare(AidemMediaParser.CompareContext ctx);
 }

@@ -22,6 +22,14 @@ public class AidemMediaCodeVisitor extends AidemMediaBaseVisitor<Void>
 		System.out.println("Fire of visitChildren with node "+node.getRuleContext().getText()+", type: "+node.getRuleContext().getClass().getSimpleName());
 		return super.visitChildren(node);
 	}*/
+	
+	private String compareHelper(String comparator) {
+		if(comparator.equals("'") || comparator.equals("_"))
+			return "==";
+		if(comparator.equals("!'") || comparator.equals("!_"))
+			return "!=";
+		return comparator.replace("'", "=").replace("_", "=");
+	}
 
 	@Override
 	public Void visitScript(AidemMediaParser.ScriptContext ctx)
@@ -105,6 +113,13 @@ public class AidemMediaCodeVisitor extends AidemMediaBaseVisitor<Void>
 		//print("Found logic!");
 		print("logic: "+ctx.getText());
 		return super.visitLogic(ctx);
+	}
+
+	@Override
+	public Void visitCompare(AidemMediaParser.CompareContext ctx)
+	{
+		print("compare: "+ctx.getText()+" ("+compareHelper(ctx.getText())+")");
+		return super.visitCompare(ctx);
 	} 
 
 	@Override 
