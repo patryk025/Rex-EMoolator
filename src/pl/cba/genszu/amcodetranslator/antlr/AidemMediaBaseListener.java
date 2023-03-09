@@ -160,6 +160,18 @@ public class AidemMediaBaseListener implements AidemMediaListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterIterator(AidemMediaParser.IteratorContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitIterator(AidemMediaParser.IteratorContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterString(AidemMediaParser.StringContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -275,6 +287,18 @@ public class AidemMediaBaseListener implements AidemMediaListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitLogic(AidemMediaParser.LogicContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterCompare(AidemMediaParser.CompareContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitCompare(AidemMediaParser.CompareContext ctx) { }
 
 	/**
 	 * {@inheritDoc}

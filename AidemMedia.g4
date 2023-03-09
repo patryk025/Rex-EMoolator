@@ -3,7 +3,7 @@ grammar AidemMedia;
 ifInstr	
 	: '@IF' LPAREN (
 			QUOTEMARK condition QUOTEMARK SEPARATOR
-		|	param SEPARATOR QUOTEMARK (LSS | LEQ | GEQ | GTR| EQU | NEQ) QUOTEMARK SEPARATOR param SEPARATOR
+		|	param SEPARATOR QUOTEMARK compare QUOTEMARK SEPARATOR param SEPARATOR
 	)	(codeBlock | string) SEPARATOR (codeBlock | string) RPAREN ENDINSTR*
 	;
 
@@ -12,11 +12,11 @@ loopInstr
 	;
 
 whileInstr
-	:	'@WHILE' LPAREN param SEPARATOR QUOTEMARK (LSS | LEQ | GEQ | GTR| EQU | NEQ) QUOTEMARK SEPARATOR param SEPARATOR (codeBlock | string) RPAREN ENDINSTR*
+	:	'@WHILE' LPAREN param SEPARATOR QUOTEMARK compare QUOTEMARK SEPARATOR param SEPARATOR (codeBlock | string) RPAREN ENDINSTR*
 	;
 
 functionFire
-	:	(literal | ITERATOR | stringRef | struct | variable) FIREFUNC literal LPAREN (SEPARATOR? param)* RPAREN ENDINSTR*
+	:	(literal | iterator | stringRef | struct | variable) FIREFUNC literal LPAREN (SEPARATOR? param)* RPAREN ENDINSTR*
 	;
 
 codeBlock
@@ -24,7 +24,7 @@ codeBlock
 	;
 
 expression
-	:	STARTEXPR ((arithmetic | DIV | STRREF)? (literal | string | arithmetic? number | arithmetic? floatNumber | modulo | ITERATOR | functionFire | expression | struct | stringRef | variable) (arithmetic | STRREF)?)* STOPEXPR ENDINSTR*
+	:	STARTEXPR ((arithmetic | DIV | STRREF)? (literal | string | arithmetic? number | arithmetic? floatNumber | modulo | iterator | functionFire | expression | struct | stringRef | variable) (arithmetic | STRREF)?)* STOPEXPR ENDINSTR*
 	;
 
 script
@@ -32,7 +32,7 @@ script
 	;
 
 param
-	:	functionFire | BOOLEAN | variable | string | literal | arithmetic? number | arithmetic? floatNumber | expression | ITERATOR | struct | stringRef
+	:	functionFire | BOOLEAN | variable | string | literal | arithmetic? number | arithmetic? floatNumber | expression | iterator | struct | stringRef
 	;
 
 condition
@@ -40,7 +40,7 @@ condition
 	;
 
 conditionPart
-	:	(literal | functionFire | struct | expression | ITERATOR) (LSS | LEQ | GEQ | GTR| EQU | NEQ) param
+	:	(literal | functionFire | struct | expression | iterator) compare param
 	;
 
 behFire
@@ -48,7 +48,11 @@ behFire
 	;
 
 modulo
-	:	(literal | ITERATOR | arithmetic? number | arithmetic? floatNumber | functionFire | struct | expression) MOD (literal | arithmetic? number | arithmetic? floatNumber | functionFire | struct | expression)
+	:	(literal | iterator | arithmetic? number | arithmetic? floatNumber | functionFire | struct | expression) MOD (literal | arithmetic? number | arithmetic? floatNumber | functionFire | struct | expression)
+	;
+
+iterator
+	:	ITERATOR
 	;
 
 /* jednak to nie zbyt dobrze działa */
@@ -59,7 +63,7 @@ modulo
 
 /* TODO: string to powinien być dowolny ciąg znaków */
 string
-	:	QUOTEMARK ((literal | FIREFUNC | arithmetic? number | arithmetic? floatNumber | LSS | LEQ | GEQ | GTR| EQU | NEQ | SLASH | struct | LPAREN | RPAREN | SEPARATOR | ARITHMETIC | VARREF | ITERATOR | expression | functionFire)+ | (variable (SLASH literal?)?) | string)? QUOTEMARK
+	:	QUOTEMARK ((literal | FIREFUNC | arithmetic? number | arithmetic? floatNumber | compare | SLASH | struct | LPAREN | RPAREN | SEPARATOR | arithmetic | VARREF | iterator | expression | functionFire)+ | (variable (SLASH literal?)?) | string)? QUOTEMARK
 	;
 
 instr
@@ -157,6 +161,10 @@ arithmetic
 
 logic
 	:	LOGIC
+	;
+
+compare
+	:	(LSS | LEQ | GEQ | GTR| EQU | NEQ)
 	;
 
 fragment DIGIT
