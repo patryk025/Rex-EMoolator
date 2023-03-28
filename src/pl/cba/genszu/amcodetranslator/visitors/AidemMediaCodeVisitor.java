@@ -8,6 +8,7 @@ import pl.cba.genszu.amcodetranslator.antlr.AidemMediaParser.*;
 public class AidemMediaCodeVisitor extends AidemMediaBaseVisitor<Void>
 {
 	public int indent;
+	public int fixAttemps = 0;
 	
 	private void print(String text) {
 		for(int i = 0; i < indent; i++) {
