@@ -1,4 +1,4 @@
-// Generated from c:\Users\oem\Desktop\gramatykaAM\AidemMedia.g4 by ANTLR 4.9.2
+// Generated from /storage/emulated/0/AppProjects/AidemMediaInterpreterAntlr/src/pl/cba/genszu/amcodetranslator/AidemMedia.g4 by ANTLR 4.9.2
 package pl.cba.genszu.amcodetranslator.antlr;
 
 import org.antlr.v4.runtime.ParserRuleContext;
@@ -71,6 +71,18 @@ public class AidemMediaBaseListener implements AidemMediaListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitCodeBlock(AidemMediaParser.CodeBlockContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterComment(AidemMediaParser.CommentContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitComment(AidemMediaParser.CommentContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
