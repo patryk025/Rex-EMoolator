@@ -76,6 +76,18 @@ public class AidemMediaBaseListener implements AidemMediaListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterComment(AidemMediaParser.CommentContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitComment(AidemMediaParser.CommentContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterExpression(AidemMediaParser.ExpressionContext ctx) { }
 	/**
 	 * {@inheritDoc}

@@ -1,6 +1,5 @@
 // Generated from c:\Users\oem\Desktop\gramatykaAM\AidemMedia.g4 by ANTLR 4.9.2
 package pl.cba.genszu.amcodetranslator.antlr;
-
 import org.antlr.v4.runtime.tree.ParseTreeListener;
 
 /**
@@ -58,6 +57,16 @@ public interface AidemMediaListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitCodeBlock(AidemMediaParser.CodeBlockContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link AidemMediaParser#comment}.
+	 * @param ctx the parse tree
+	 */
+	void enterComment(AidemMediaParser.CommentContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link AidemMediaParser#comment}.
+	 * @param ctx the parse tree
+	 */
+	void exitComment(AidemMediaParser.CommentContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link AidemMediaParser#expression}.
 	 * @param ctx the parse tree

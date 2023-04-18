@@ -20,7 +20,15 @@ functionFire
 	;
 
 codeBlock
-	:	STARTCODE (functionFire | ifInstr | loopInstr | whileInstr | instr | behFire | expression | codeBlock | (literal | floatNumber | number) ENDINSTR*)* ENDINSTR* STOPCODE
+	:	STARTCODE (functionFire | ifInstr | loopInstr | whileInstr | instr | behFire | expression | codeBlock | (literal | floatNumber | number) | comment ENDINSTR*)* ENDINSTR* STOPCODE
+	;
+
+COMMENT
+	:	'!' ~('_' | '\'') .*? ENDINSTR
+	;
+
+comment
+	:	COMMENT
 	;
 
 expression
@@ -62,8 +70,12 @@ iterator
 */
 
 /* TODO: string to powinien być dowolny ciąg znaków */
-string
+/*string
 	:	QUOTEMARK ((literal | FIREFUNC | arithmetic? number | arithmetic? floatNumber | compare | SLASH | struct | LPAREN | RPAREN | SEPARATOR | arithmetic | VARREF | iterator | expression | functionFire)+ | (variable (SLASH literal?)?) | string)? QUOTEMARK
+	;*/
+
+string
+	:	QUOTEMARK ((literal | FIREFUNC | arithmetic? (number | floatNumber) | compare | SLASH | struct | LPAREN | RPAREN | SEPARATOR | arithmetic | VARREF | iterator | expression | functionFire)+ | (variable (SLASH literal?)?) | string | BOOLEAN)? QUOTEMARK
 	;
 
 instr
@@ -189,7 +201,12 @@ ITERATOR
 	:	'_I_'
 	;
 
-LITERAL: ((('_' | DOT | SLASH)* (LETTER | NUMBER) ('_' | LETTER | DIGIT | DOT | SLASH | '!' | '?')*)
+BOOLEAN
+	:	'TRUE' | 'FALSE'
+	;
+
+LITERAL: {!(getText().toUpperCase().startsWith("TRUE") || getText().toUpperCase().startsWith("FALSE"))}?
+	   ((('_' | DOT | SLASH)* (LETTER | NUMBER) ('_' | LETTER | DIGIT | DOT | SLASH | '!' | '?')*)
        | ('_'* DOT DIGIT+ ('.' DIGIT+)? (LETTER ('_' | DIGIT | SLASH | '!' | '?')* | '_'*)))
 	   (ARITHMETIC NUMBER | VARREF (LITERAL | NUMBER))?
        ;
@@ -202,10 +219,6 @@ LOGIC
 	:	'&&' | '||'
 	;
 
-BOOLEAN
-	:	'TRUE' | 'FALSE'
-	;
-
 SEPARATOR
 	:	','
 	;
@@ -216,20 +229,16 @@ STRUCTFIELD
 
 QUOTEMARK
 	:	'"'
-	;	
+	;
 
 STRREF
 	:	'*'
 	;
 
-WS  	
+WS
 	:   ( ' '
 	| '\t'
 	| '\r'
 	| '\n'
 	) -> channel(HIDDEN)
-	;
-
-CHAR	
-	:  '\'' ~('\''|'\\') '\''
 	;

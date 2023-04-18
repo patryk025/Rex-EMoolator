@@ -1,6 +1,5 @@
 // Generated from c:\Users\oem\Desktop\gramatykaAM\AidemMedia.g4 by ANTLR 4.9.2
 package pl.cba.genszu.amcodetranslator.antlr;
-
 import org.antlr.v4.runtime.tree.ParseTreeVisitor;
 
 /**
@@ -41,6 +40,12 @@ public interface AidemMediaVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitCodeBlock(AidemMediaParser.CodeBlockContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link AidemMediaParser#comment}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitComment(AidemMediaParser.CommentContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link AidemMediaParser#expression}.
 	 * @param ctx the parse tree
