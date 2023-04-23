@@ -26,7 +26,7 @@ public class VariableMethods {
     public static void main(String[] args) {
         List<String> pliki = new ArrayList<>();
 
-        search(".*\\.cnv|.*\\.def|.*\\.seq|.*\\.CNV|.*\\.DEF|.*\\.SEQ", new File("D:\\udostepniane\\skrypty"), pliki, true);
+        search(".*\\.cnv|.*\\.def|.*\\.seq|.*\\.CNV|.*\\.DEF|.*\\.SEQ", new File("C:\\Users\\Patryk\\Documents\\skrypty"), pliki, true);
         
 		CNVParserDebug cp = new CNVParserDebug();
 		String tmp = null;
@@ -38,6 +38,17 @@ public class VariableMethods {
             
 			try {
 				cp.parseFile(new File(e));
+
+                HashMap<String, HashMap<String, String>> vars = cp.variables;
+                for(String key : vars.keySet()) {
+                    HashMap<String, String> fields = vars.get(key);
+                    for(String field : fields.keySet()) {
+                        String value = fields.get(field);
+                        if(value.startsWith("{") && value.endsWith("}")) {
+                            SimpleCodeAnalyzer.analyzeCode(value, vars);
+                        }
+                    }
+                }
 			}
 			catch (Exception ex) {
 				ex.printStackTrace();

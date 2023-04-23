@@ -109,7 +109,7 @@ public class CNVParserDebug
 							Logger.i("Recovered variable name: " + tmp);
 							recoveryMode = true;
 						}
-						variables.put(tmp, new HashMap<String, String>());
+						variables.put(tmp, new HashMap<>());
 						index++;
 					}
 					catch (ArrayIndexOutOfBoundsException e)
@@ -121,7 +121,7 @@ public class CNVParserDebug
 				else if(line.startsWith("NAME"+separator)) {
 					Logger.d("Sequence definition detected");
 					tmp = line.split("NAME"+separator)[1];
-					variables.put(tmp, new HashMap<String, String>());
+					variables.put(tmp, new HashMap<>());
 					index++;
 				}
 				else if (tmp != null)
