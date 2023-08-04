@@ -11,5 +11,33 @@ public class Variable<T> {
         this.value = value;
     }
 
-    // Gettery i settery
+	public void setName(String name)
+	{
+		this.name = name;
+	}
+
+	public String getName()
+	{
+		return name;
+	}
+
+	public void setType(String type)
+	{
+		this.type = type;
+	}
+
+	public String getType()
+	{
+		return type;
+	}
+
+	public void setValue(T value)
+	{
+		this.value = value;
+	}
+
+	public T getValue()
+	{
+		return value;
+	}
 }

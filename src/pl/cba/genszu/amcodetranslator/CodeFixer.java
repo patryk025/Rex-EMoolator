@@ -11,10 +11,17 @@ import pl.cba.genszu.amcodetranslator.visitors.*;
 public class CodeFixer
 {
 	//TODO: REFACTORIZE IT PAT
+	private static Map<String, String> manualFixes;
 	
 	static List<SyntaxError> syntaxErrors;
 	static int fixAttempts = 0;
 	static int oldErrorAmount = -1;
+	
+	public CodeFixer() {
+		manualFixes = new HashMap<>();
+		manualFixes.put("{||SOBJ2^FIND(\"IMGM\")>-1){SOBJT^SET(SOBJ2);}", "@IF(\"SOBJ2^FIND(\"IMGM\")>-1\", \"{SOBJT^SET(SOBJ2);}\", \"\");");
+		manualFixes.put("{]", "{}"); // nie chciało mi się pisać do tego logiki :D
+	}
 
 	private static void showErrorMark(String code, int pos)
 	{
@@ -37,11 +44,18 @@ public class CodeFixer
 		catch(NullPointerException ignored) {} //It's NEP, nothing to see here. Really, you can go further, it's nothing here.
 	}
 	
-	public static boolean fixCode(String code)
+	public static String fixCode(String code)
 	{
 		if(code.equals("{}")) {
 			System.out.println("It's empty code block. It's nothing to check here ;)");
-			return true;
+			return code;
+		}
+		
+		if (manualFixes.containsKey(code))
+		{
+			System.out.println("Line " + code + " has manual fix, because cannot be fixed automatically");
+			code = manualFixes.get(code);
+			return code;
 		}
 
 		fixAttempts++;
@@ -92,7 +106,7 @@ public class CodeFixer
 				catch (Exception e)
 				{
 					System.out.println("Wut?");
-					return false;
+					return "";
 				}
 				//System.out.println(error.getMessage());
 				switch (parts[0])
@@ -541,16 +555,13 @@ public class CodeFixer
 			if(fixAttempts == 10)
 			{
 				System.out.println("Halt on 10 tries");
-				return false;
+				return code; //mimo braku możliwości dalszej naprawy i tak zwróć
 			}
 			return fixCode(codeFixed.toString());
 		}
 		else
 		{
-			AidemMediaParser.ScriptContext scriptContext = parser.script();
-			AidemMediaCodeVisitor visitor = new AidemMediaCodeVisitor();
-			visitor.visit(scriptContext);
-			return true;
+			return code;
 		}
 	}
 }

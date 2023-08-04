@@ -3,7 +3,8 @@ package pl.cba.genszu.amcodetranslator.visitors;
 import org.antlr.v4.runtime.tree.*;
 import pl.cba.genszu.amcodetranslator.antlr.*;
 import java.util.*;
-import pl.cba.genszu.amcodetranslator.antlr.AidemMediaParser.*; 
+import pl.cba.genszu.amcodetranslator.antlr.AidemMediaParser.*;
+import pl.cba.genszu.amcodetranslator.interpreter.*; 
 
 public class AidemMediaCodeVisitor extends AidemMediaBaseVisitor<Void>
 {
@@ -31,6 +32,11 @@ public class AidemMediaCodeVisitor extends AidemMediaBaseVisitor<Void>
 			return "!=";
 		return comparator.replace("'", "=").replace("_", "=");
 	}
+	
+	private Stack<String> operationsStack = new Stack<>();
+	private Interpreter interpreter;
+	
+	
 
 	@Override
 	public Void visitScript(AidemMediaParser.ScriptContext ctx)
