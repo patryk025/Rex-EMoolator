@@ -5,6 +5,10 @@ import pl.cba.genszu.amcodetranslator.interpreter.Variable;
 
 
 public class BoolVariable extends Variable {
+	public BoolVariable() {
+		super(null, false);
+	}
+	
 	public BoolVariable(String name, Object value) {
 		super(name, value);
 	}

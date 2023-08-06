@@ -62,14 +62,14 @@ public class StructVariable extends Variable {
 
 
     public void setField(int index, boolean val) {
-		((Bool) FIELDS.get(index)).SET(val);
+		((BoolVariable) FIELDS.get(index)).SET(val);
     }
 
     public void setField(int index, int val) {
-		((IntegerAM) FIELDS.get(index)).SET(val);
+		((IntegerVariable) FIELDS.get(index)).SET(val);
     }
 
     public void setField(int index, String val) {
-		((StringAM) FIELDS.get(index)).SET(val);
+		((StringVariable) FIELDS.get(index)).SET(val);
     }
 }

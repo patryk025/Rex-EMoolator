@@ -9,8 +9,13 @@ public class MultiArrayVariable extends Variable {
 	List<ArrayList<Variable>> dimensions;
 
 	public MultiArrayVariable() {
+		super(null, null);
 		//zabezpieczenie przed NullPointerem
-		dimensions = new ArrayList<>();
+		this.dimensions = new ArrayList<>();
+	}
+	
+	public MultiArrayVariable(String name, Object value) {
+		super(name, value);
 	}
 	
 	/***

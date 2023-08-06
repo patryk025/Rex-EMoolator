@@ -5,6 +5,10 @@ import pl.cba.genszu.amcodetranslator.interpreter.Variable;
 
 
 public class IntegerVariable extends Variable {
+	public IntegerVariable() {
+		super(null, 0);
+	}
+	
 	public IntegerVariable(String name, Object value) {
 		super(name, value);
 	}
