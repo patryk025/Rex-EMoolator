@@ -16,11 +16,16 @@ whileInstr
 	;
 
 functionFire
-	:	(literal | iterator | stringRef | struct | variable) FIREFUNC literal LPAREN (SEPARATOR? param)* RPAREN ENDINSTR*
+	:	(literal | iterator | stringRef | struct | variable | varWithNumber) FIREFUNC literal LPAREN (SEPARATOR? param)* RPAREN ENDINSTR*
 	;
 
 codeBlock
 	:	STARTCODE (functionFire | ifInstr | loopInstr | whileInstr | instr | behFire | expression | codeBlock | (literal | floatNumber | number) | comment ENDINSTR*)* ENDINSTR* STOPCODE
+	;
+
+/* zmienne takie jak, np. ANIMOZOLW7-7 */
+varWithNumber
+	:	literal arithmetic number
 	;
 
 COMMENT
@@ -206,10 +211,10 @@ BOOLEAN
 	;
 
 LITERAL: {!(getText().toUpperCase().startsWith("TRUE") || getText().toUpperCase().startsWith("FALSE"))}?
-	   ((('_' | DOT | SLASH)* (LETTER | NUMBER) ('_' | LETTER | DIGIT | DOT | SLASH | '!' | '?')*)
-       | ('_'* DOT DIGIT+ ('.' DIGIT+)? (LETTER ('_' | DIGIT | SLASH | '!' | '?')* | '_'*)))
-	   (ARITHMETIC NUMBER | VARREF (LITERAL | NUMBER))?
-       ;
+		((('_' | DOT | SLASH)* (LETTER | DIGIT | '_')) ('_' | LETTER | DIGIT | DOT | SLASH | '!' | '?')*)
+		| ('_'* DOT DIGIT+ ('.' DIGIT+)? (LETTER ('_' | DIGIT | SLASH | '!' | '?')* | '_'*))
+		(ARITHMETIC | NUMBER | VARREF)?
+		;
 
 ARITHMETIC
 	:	'+' | '-' | '*' ~('[' | 'A'..'Z' | '0'..'9' | '$') | DIV

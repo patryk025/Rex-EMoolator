@@ -58,6 +58,16 @@ public interface AidemMediaListener extends ParseTreeListener {
 	 */
 	void exitCodeBlock(AidemMediaParser.CodeBlockContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link AidemMediaParser#varWithNumber}.
+	 * @param ctx the parse tree
+	 */
+	void enterVarWithNumber(AidemMediaParser.VarWithNumberContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link AidemMediaParser#varWithNumber}.
+	 * @param ctx the parse tree
+	 */
+	void exitVarWithNumber(AidemMediaParser.VarWithNumberContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link AidemMediaParser#comment}.
 	 * @param ctx the parse tree
 	 */

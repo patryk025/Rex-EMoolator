@@ -41,6 +41,12 @@ public interface AidemMediaVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitCodeBlock(AidemMediaParser.CodeBlockContext ctx);
 	/**
+	 * Visit a parse tree produced by {@link AidemMediaParser#varWithNumber}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitVarWithNumber(AidemMediaParser.VarWithNumberContext ctx);
+	/**
 	 * Visit a parse tree produced by {@link AidemMediaParser#comment}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
