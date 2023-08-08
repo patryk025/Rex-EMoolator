@@ -16,4 +16,8 @@ public class Variable {
 	public Object getValue() {
 		return value;
 	}
+	
+	public String getType() {
+		return this.getClass().getSimpleName().split("Variable")[0].toUpperCase();
+	}
 }

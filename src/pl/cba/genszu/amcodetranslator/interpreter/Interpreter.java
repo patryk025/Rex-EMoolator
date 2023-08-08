@@ -10,6 +10,10 @@ public class Interpreter
 {
 	private List<Variable> variables;
 	
+	public Interpreter() {
+		this.variables = new ArrayList<>();
+	}
+	
 	public Interpreter(List<Variable> variables) {
 		this.variables = variables;
 	}
