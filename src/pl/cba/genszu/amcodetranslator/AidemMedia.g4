@@ -16,15 +16,19 @@ whileInstr
 	;
 
 functionFire
-	:	(literal | iterator | stringRef | struct | variable) FIREFUNC literal LPAREN (SEPARATOR? param)* RPAREN ENDINSTR*
+	:	(literal | iterator | stringRef | struct | variable | varWithNumber) FIREFUNC literal LPAREN (SEPARATOR? param)* RPAREN ENDINSTR*
 	;
 
 codeBlock
 	:	STARTCODE (functionFire | ifInstr | loopInstr | whileInstr | instr | behFire | expression | codeBlock | (literal | floatNumber | number) | comment ENDINSTR*)* ENDINSTR* STOPCODE
 	;
 
+varWithNumber
+	:	literal arithmetic number
+	;
+
 COMMENT
-	:	'!' .*? ENDINSTR*
+	:	'!' ~('_' | '\'') .*? ENDINSTR
 	;
 
 comment
@@ -70,8 +74,12 @@ iterator
 */
 
 /* TODO: string to powinien być dowolny ciąg znaków */
-string
+/*string
 	:	QUOTEMARK ((literal | FIREFUNC | arithmetic? number | arithmetic? floatNumber | compare | SLASH | struct | LPAREN | RPAREN | SEPARATOR | arithmetic | VARREF | iterator | expression | functionFire)+ | (variable (SLASH literal?)?) | string)? QUOTEMARK
+	;*/
+
+string
+	:	QUOTEMARK ((literal | FIREFUNC | arithmetic? (number | floatNumber) | compare | SLASH | struct | LPAREN | RPAREN | SEPARATOR | arithmetic | VARREF | iterator | expression | functionFire)+ | (variable (SLASH literal?)?) | string | BOOLEAN)? QUOTEMARK
 	;
 
 instr
@@ -197,10 +205,15 @@ ITERATOR
 	:	'_I_'
 	;
 
-LITERAL: ((('_' | DOT | SLASH)* (LETTER | NUMBER) ('_' | LETTER | DIGIT | DOT | SLASH | '!' | '?')*)
-       | ('_'* DOT DIGIT+ ('.' DIGIT+)? (LETTER ('_' | DIGIT | SLASH | '!' | '?')* | '_'*)))
-	   (ARITHMETIC (LITERAL | NUMBER) | VARREF (LITERAL | NUMBER))?
-       ;
+BOOLEAN
+	:	'TRUE' | 'FALSE'
+	;
+
+LITERAL: {!(getText().toUpperCase().startsWith("TRUE") || getText().toUpperCase().startsWith("FALSE"))}?
+		((('_' | DOT | SLASH)* (LETTER | DIGIT | '_')) ('_' | LETTER | DIGIT | DOT | SLASH | '!' | '?')*)
+		| ('_'* DOT DIGIT+ ('.' DIGIT+)? (LETTER ('_' | DIGIT | SLASH | '!' | '?')* | '_'*))
+		(ARITHMETIC | NUMBER | VARREF)?
+		;
 
 ARITHMETIC
 	:	'+' | '-' | '*' ~('[' | 'A'..'Z' | '0'..'9' | '$') | DIV
@@ -208,10 +221,6 @@ ARITHMETIC
 
 LOGIC
 	:	'&&' | '||'
-	;
-
-BOOLEAN
-	:	'TRUE' | 'FALSE'
 	;
 
 SEPARATOR
@@ -224,20 +233,16 @@ STRUCTFIELD
 
 QUOTEMARK
 	:	'"'
-	;	
+	;
 
 STRREF
 	:	'*'
 	;
 
-WS  	
+WS
 	:   ( ' '
 	| '\t'
 	| '\r'
 	| '\n'
 	) -> channel(HIDDEN)
-	;
-
-CHAR	
-	:  '\'' ~('\''|'\\') '\''
 	;
