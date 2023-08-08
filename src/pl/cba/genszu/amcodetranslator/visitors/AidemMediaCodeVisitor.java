@@ -172,5 +172,21 @@ public class AidemMediaCodeVisitor extends AidemMediaBaseVisitor<Void>
 		print("}");
 		//return super.visitConditionPart(ctx);
 		return null;
-	} 
+	}
+
+	@Override
+	public Void visitExpression(AidemMediaParser.ExpressionContext ctx)
+	{
+		print("We are in expression");
+		print("{");
+		indent++;
+		visitChildren(ctx);
+		for(int i = 1; i < ctx.getChildCount()-1; i++) {
+			ParseTree child = ctx.getChild(i);
+			print(child.toString() + " -> " + child.getText());
+		}
+		indent--;
+		print("}");
+		return null;
+	}
 }
