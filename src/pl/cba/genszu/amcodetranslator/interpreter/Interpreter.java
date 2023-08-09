@@ -3,7 +3,10 @@ package pl.cba.genszu.amcodetranslator.interpreter;
 import java.util.*;
 import org.antlr.v4.runtime.*;
 import pl.cba.genszu.amcodetranslator.antlr.*;
+import pl.cba.genszu.amcodetranslator.interpreter.exceptions.VariableUnsupportedOperationException;
 import pl.cba.genszu.amcodetranslator.interpreter.factories.VariableFactory;
+import pl.cba.genszu.amcodetranslator.utils.ReverseListIterator;
+import pl.cba.genszu.amcodetranslator.utils.TypeGuesser;
 import pl.cba.genszu.amcodetranslator.visitors.*;
 import pl.cba.genszu.amcodetranslator.interpreter.variabletypes.*;
 
@@ -47,13 +50,13 @@ public class Interpreter
 				Variable operand2 = stack.pop();
 
 				// Perform the operation.
-				//String result = performOperation(operand1, operand2, token);
+				Variable tmp_result = performOperation(operand1, operand2, token);
 
 				// Push the result back onto the stack.
-				stack.push(result);
+				stack.push(tmp_result);
 			} else {
 				// Push the operand onto the stack.
-				stack.push(VariableFactory.createVariable("tmp_operand", "STRING", token));
+				stack.push(VariableFactory.createVariable("STRING", null, token));
 			}
 		}
 		return result;
@@ -65,19 +68,35 @@ public class Interpreter
 		}
 		return null; //TODO: obsłużyć resztę
 	}
-	
+
 	private Variable add(Variable var1, Variable var2) {
-		if (var1 instanceof StringVariable && var2 instanceof StringVariable) {
-			return add((StringVariable) var1, (StringVariable) var2);
-		} else if (var1 instanceof IntegerVariable && var2 instanceof StringVariable) {
-			return add((IntegerVariable) var1, (StringVariable) var2);
-		} else if (var1 instanceof StringVariable && var2 instanceof IntegerVariable) {
-			return add((StringVariable) var1, (IntegerVariable) var2);
-		} else if (var1 instanceof IntegerVariable && var2 instanceof IntegerVariable) {
-			return add((IntegerVariable) var1, (IntegerVariable) var2);
-		}
-		else {
-			throw new IllegalArgumentException("Podane zmienne mają niekompatybilne typy");
+		switch (var1.getType()) {
+			case "STRING":
+				if (var2.getType().equals("STRING")) {
+					return add((StringVariable) var1, (StringVariable) var2);
+				} else {
+					throw new VariableUnsupportedOperationException(var1, var2, "add");
+				}
+			case "INTEGER":
+				if (var2.getType().equals("STRING")) {
+					return add((IntegerVariable) var1, (StringVariable) var2);
+				} else if (var2.getType().equals("INTEGER")) {
+					return add((IntegerVariable) var1, (IntegerVariable) var2);
+				} else {
+					throw new VariableUnsupportedOperationException(var1, var2, "add");
+				}
+			case "DOUBLE":
+				if (var2.getType().equals("STRING")) {
+					return add((DoubleVariable) var1, (StringVariable) var2);
+				} else if (var2.getType().equals("INTEGER")) {
+					return add((DoubleVariable) var1, (IntegerVariable) var2);
+				} else if (var2.getType().equals("DOUBLE")) {
+					return add((DoubleVariable) var1, (DoubleVariable) var2);
+				} else {
+					throw new VariableUnsupportedOperationException(var1, var2, "add");
+				}
+			default:
+				throw new VariableUnsupportedOperationException(var1, var2, "add");
 		}
 	}
 	
@@ -88,13 +107,33 @@ public class Interpreter
 	private Variable add(IntegerVariable var1, StringVariable var2) {
 		return VariableFactory.createVariable("STRING", null, var1.GET() + var2.GET());
 	}
-	
+
 	private Variable add(StringVariable var1, IntegerVariable var2) {
+		return VariableFactory.createVariable("STRING", null, var1.GET() + var2.GET());
+	}
+
+	private Variable add(DoubleVariable var1, StringVariable var2) {
+		return VariableFactory.createVariable("STRING", null, var1.GET() + var2.GET());
+	}
+	
+	private Variable add(StringVariable var1, DoubleVariable var2) {
 		return VariableFactory.createVariable("STRING", null, var1.GET() + var2.GET());
 	}
 	
 	private Variable add(IntegerVariable var1, IntegerVariable var2) {
 		return VariableFactory.createVariable("INTEGER", null, var1.GET() + var2.GET());
+	}
+
+	private Variable add(DoubleVariable var1, IntegerVariable var2) {
+		return VariableFactory.createVariable("DOUBLE", null, var1.GET() + var2.GET());
+	}
+
+	private Variable add(IntegerVariable var1, DoubleVariable var2) {
+		return VariableFactory.createVariable("DOUBLE", null, var1.GET() + var2.GET());
+	}
+
+	private Variable add(DoubleVariable var1, DoubleVariable var2) {
+		return VariableFactory.createVariable("DOUBLE", null, var1.GET() + var2.GET());
 	}
 	
 	public Variable interpret(String code) {
