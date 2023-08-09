@@ -10,6 +10,11 @@ public class AidemMediaCodeVisitor extends AidemMediaBaseVisitor<Void>
 {
 	public int indent;
 	public int fixAttemps = 0;
+	private Interpreter interpreter;
+	
+	public AidemMediaCodeVisitor(Interpreter interpreter) {
+		this.interpreter = interpreter;
+	}
 	
 	private void print(String text) {
 		for(int i = 0; i < indent; i++) {
@@ -32,11 +37,6 @@ public class AidemMediaCodeVisitor extends AidemMediaBaseVisitor<Void>
 			return "!=";
 		return comparator.replace("'", "=").replace("_", "=");
 	}
-	
-	private Stack<String> operationsStack = new Stack<>();
-	private Interpreter interpreter;
-	
-	
 
 	@Override
 	public Void visitScript(AidemMediaParser.ScriptContext ctx)

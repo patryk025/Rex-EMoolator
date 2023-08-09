@@ -5,6 +5,7 @@ import org.antlr.v4.runtime.*;
 import pl.cba.genszu.amcodetranslator.antlr.*;
 import pl.cba.genszu.amcodetranslator.interpreter.factories.VariableFactory;
 import pl.cba.genszu.amcodetranslator.visitors.*;
+import pl.cba.genszu.amcodetranslator.interpreter.variabletypes.*;
 
 public class Interpreter
 {
@@ -58,6 +59,44 @@ public class Interpreter
 		return result;
 	}
 	
+	private Variable performOperation(Variable operand1, Variable operand2, String token) {
+		if(token.equals("+")) {
+			return add(operand1, operand2);
+		}
+		return null; //TODO: obsłużyć resztę
+	}
+	
+	private Variable add(Variable var1, Variable var2) {
+		if (var1 instanceof StringVariable && var2 instanceof StringVariable) {
+			return add((StringVariable) var1, (StringVariable) var2);
+		} else if (var1 instanceof IntegerVariable && var2 instanceof StringVariable) {
+			return add((IntegerVariable) var1, (StringVariable) var2);
+		} else if (var1 instanceof StringVariable && var2 instanceof IntegerVariable) {
+			return add((StringVariable) var1, (IntegerVariable) var2);
+		} else if (var1 instanceof IntegerVariable && var2 instanceof IntegerVariable) {
+			return add((IntegerVariable) var1, (IntegerVariable) var2);
+		}
+		else {
+			throw new IllegalArgumentException("Podane zmienne mają niekompatybilne typy");
+		}
+	}
+	
+	private Variable add(StringVariable var1, StringVariable var2) {
+		return VariableFactory.createVariable("STRING", null, var1.GET() + var2.GET());
+	}
+	
+	private Variable add(IntegerVariable var1, StringVariable var2) {
+		return VariableFactory.createVariable("STRING", null, var1.GET() + var2.GET());
+	}
+	
+	private Variable add(StringVariable var1, IntegerVariable var2) {
+		return VariableFactory.createVariable("STRING", null, var1.GET() + var2.GET());
+	}
+	
+	private Variable add(IntegerVariable var1, IntegerVariable var2) {
+		return VariableFactory.createVariable("INTEGER", null, var1.GET() + var2.GET());
+	}
+	
 	public Variable interpret(String code) {
 		AidemMediaLexer lexer = new AidemMediaLexer(CharStreams.fromString(code));
 
@@ -65,7 +104,7 @@ public class Interpreter
 		AidemMediaParser parser = new AidemMediaParser(tokens);
 		
 		AidemMediaParser.ScriptContext scriptContext = parser.script();
-		AidemMediaCodeVisitor visitor = new AidemMediaCodeVisitor();
+		AidemMediaCodeVisitor visitor = new AidemMediaCodeVisitor(this);
 		visitor.visit(scriptContext);
 		
 		return null;
