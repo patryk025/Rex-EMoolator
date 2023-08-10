@@ -7,7 +7,7 @@ import pl.cba.genszu.amcodetranslator.interpreter.Variable;
 
 public class GroupVariable extends Variable {
 	public GroupVariable(String name, Object value) {
-		super(name, value);
+		super(name);
 	}
 
     private ParseTree ONINIT;

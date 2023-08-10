@@ -5,7 +5,7 @@ import pl.cba.genszu.amcodetranslator.interpreter.Variable;
 
 public class ExpressionVariable extends Variable {
 	public ExpressionVariable(String name, Object value) {
-		super(name, value);
+		super(name);
 	}
 
 	private String OPERAND1;

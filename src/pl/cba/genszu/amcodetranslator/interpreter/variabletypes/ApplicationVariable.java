@@ -5,7 +5,7 @@ import pl.cba.genszu.amcodetranslator.interpreter.Variable;
 
 public class ApplicationVariable extends Variable {
 	public ApplicationVariable(String name, Object value) {
-		super(name, value);
+		super(name);
 	}
 
 	private String BLOOMOO_VERSION;

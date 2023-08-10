@@ -6,7 +6,7 @@ import pl.cba.genszu.amcodetranslator.utils.*;
 
 public class VectorVariable extends Variable {
 	public VectorVariable(String name, Object value) {
-		super(name, value);
+		super(name);
 	}
 
 	private int SIZE;

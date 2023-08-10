@@ -5,7 +5,7 @@ import pl.cba.genszu.amcodetranslator.interpreter.Variable;
 
 public class PatternVariable extends Variable {
 	public PatternVariable(String name, Object value) {
-		super(name, value);
+		super(name);
 	}
 
 	private int LAYERS;

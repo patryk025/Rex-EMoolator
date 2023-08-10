@@ -8,7 +8,7 @@ import pl.cba.genszu.amcodetranslator.interpreter.util.*;
 
 public class TextVariable extends Variable {
 	public TextVariable(String name, Object value) {
-		super(name, value);
+		super(name);
 	}
 
 	private boolean VISIBLE;

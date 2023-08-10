@@ -6,7 +6,7 @@ import pl.cba.genszu.amcodetranslator.interpreter.Variable;
 
 public class ArrayVariable extends Variable {
 	public ArrayVariable(String name, Object value) {
-		super(name, value);
+		super(name);
 	}
 
 	private String DESCRIPTION;

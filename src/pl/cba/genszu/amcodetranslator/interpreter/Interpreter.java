@@ -5,6 +5,8 @@ import org.antlr.v4.runtime.*;
 import pl.cba.genszu.amcodetranslator.antlr.*;
 import pl.cba.genszu.amcodetranslator.interpreter.exceptions.VariableUnsupportedOperationException;
 import pl.cba.genszu.amcodetranslator.interpreter.factories.VariableFactory;
+import pl.cba.genszu.amcodetranslator.interpreter.util.ArithmeticSolver;
+import pl.cba.genszu.amcodetranslator.utils.InfixToPostfix;
 import pl.cba.genszu.amcodetranslator.utils.ReverseListIterator;
 import pl.cba.genszu.amcodetranslator.utils.TypeGuesser;
 import pl.cba.genszu.amcodetranslator.visitors.*;
@@ -40,10 +42,11 @@ public class Interpreter
 		return result;
 	}
 	
-	private Variable calcArithmetic(List<String> operations) {
-		Variable result = createVariable("test", "INTEGER", 0);
+	public Variable calcArithmetic(List<String> operations) {
+		Variable result = VariableFactory.createVariable("INTEGER", null, 0);
+		List<String> postfix = InfixToPostfix.infixToPostfix(operations);
 		Stack<Variable> stack = new Stack<>();
-		for(String token : operations) {
+		for(String token : postfix) {
 			if (token.matches("[+\\-*@%]")) {
 				// Pop the top two operands from the stack.
 				Variable operand1 = stack.pop();
@@ -56,84 +59,30 @@ public class Interpreter
 				stack.push(tmp_result);
 			} else {
 				// Push the operand onto the stack.
-				stack.push(VariableFactory.createVariable("STRING", null, token));
+				stack.push(VariableFactory.createVariable(TypeGuesser.guessNumber(token), null, token));
 			}
 		}
-		return result;
+
+		return stack.pop();
 	}
 	
 	private Variable performOperation(Variable operand1, Variable operand2, String token) {
 		if(token.equals("+")) {
-			return add(operand1, operand2);
+			return ArithmeticSolver.add(operand1, operand2);
 		}
-		return null; //TODO: obsłużyć resztę
-	}
-
-	private Variable add(Variable var1, Variable var2) {
-		switch (var1.getType()) {
-			case "STRING":
-				if (var2.getType().equals("STRING")) {
-					return add((StringVariable) var1, (StringVariable) var2);
-				} else {
-					throw new VariableUnsupportedOperationException(var1, var2, "add");
-				}
-			case "INTEGER":
-				if (var2.getType().equals("STRING")) {
-					return add((IntegerVariable) var1, (StringVariable) var2);
-				} else if (var2.getType().equals("INTEGER")) {
-					return add((IntegerVariable) var1, (IntegerVariable) var2);
-				} else {
-					throw new VariableUnsupportedOperationException(var1, var2, "add");
-				}
-			case "DOUBLE":
-				if (var2.getType().equals("STRING")) {
-					return add((DoubleVariable) var1, (StringVariable) var2);
-				} else if (var2.getType().equals("INTEGER")) {
-					return add((DoubleVariable) var1, (IntegerVariable) var2);
-				} else if (var2.getType().equals("DOUBLE")) {
-					return add((DoubleVariable) var1, (DoubleVariable) var2);
-				} else {
-					throw new VariableUnsupportedOperationException(var1, var2, "add");
-				}
-			default:
-				throw new VariableUnsupportedOperationException(var1, var2, "add");
+		else if(token.equals("-")) {
+			return ArithmeticSolver.subtract(operand1, operand2);
 		}
-	}
-	
-	private Variable add(StringVariable var1, StringVariable var2) {
-		return VariableFactory.createVariable("STRING", null, var1.GET() + var2.GET());
-	}
-	
-	private Variable add(IntegerVariable var1, StringVariable var2) {
-		return VariableFactory.createVariable("STRING", null, var1.GET() + var2.GET());
-	}
-
-	private Variable add(StringVariable var1, IntegerVariable var2) {
-		return VariableFactory.createVariable("STRING", null, var1.GET() + var2.GET());
-	}
-
-	private Variable add(DoubleVariable var1, StringVariable var2) {
-		return VariableFactory.createVariable("STRING", null, var1.GET() + var2.GET());
-	}
-	
-	private Variable add(StringVariable var1, DoubleVariable var2) {
-		return VariableFactory.createVariable("STRING", null, var1.GET() + var2.GET());
-	}
-	
-	private Variable add(IntegerVariable var1, IntegerVariable var2) {
-		return VariableFactory.createVariable("INTEGER", null, var1.GET() + var2.GET());
-	}
-
-	private Variable add(DoubleVariable var1, IntegerVariable var2) {
-		return VariableFactory.createVariable("DOUBLE", null, var1.GET() + var2.GET());
-	}
-
-	private Variable add(IntegerVariable var1, DoubleVariable var2) {
-		return VariableFactory.createVariable("DOUBLE", null, var1.GET() + var2.GET());
-	}
-
-	private Variable add(DoubleVariable var1, DoubleVariable var2) {
-		return VariableFactory.createVariable("DOUBLE", null, var1.GET() + var2.GET());
+		else if(token.equals("*")) {
+			return ArithmeticSolver.multiply(operand1, operand2);
+		}
+		else if(token.equals("/")) {
+			return ArithmeticSolver.divide(operand1, operand2);
+		}
+		else if(token.equals("%")) {
+			return ArithmeticSolver.modulo(operand1, operand2);
+		}
+		return null;
 	}
 	
 	public Variable interpret(String code) {

@@ -8,7 +8,7 @@ import java.util.List;
 
 public class EpisodeVariable extends Variable {
 	public EpisodeVariable(String name, Object value) {
-		super(name, value);
+		super(name);
 	}
 
     private String DESCRIPTION;

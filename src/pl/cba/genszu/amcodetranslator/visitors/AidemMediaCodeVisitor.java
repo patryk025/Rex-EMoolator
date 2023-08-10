@@ -10,8 +10,8 @@ public class AidemMediaCodeVisitor extends AidemMediaBaseVisitor<Void>
 {
 	public int indent;
 	public int fixAttemps = 0;
-	private Interpreter interpreter;
-	
+	private final Interpreter interpreter;
+
 	public AidemMediaCodeVisitor(Interpreter interpreter) {
 		this.interpreter = interpreter;
 	}
@@ -181,10 +181,14 @@ public class AidemMediaCodeVisitor extends AidemMediaBaseVisitor<Void>
 		print("{");
 		indent++;
 		visitChildren(ctx);
+		List<String> expression_parts = new ArrayList<>();
 		for(int i = 1; i < ctx.getChildCount()-1; i++) {
 			ParseTree child = ctx.getChild(i);
-			print(child.toString() + " -> " + child.getText());
+			print("part " + (i - 1) + " -> " + child.getText());
+			expression_parts.add(child.getText());
 		}
+		Variable result = interpreter.calcArithmetic(expression_parts);
+		print("DEBUG result: "+result.getValue());
 		indent--;
 		print("}");
 		return null;

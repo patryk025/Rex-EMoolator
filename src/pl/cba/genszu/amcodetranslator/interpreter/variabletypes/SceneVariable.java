@@ -5,7 +5,7 @@ import pl.cba.genszu.amcodetranslator.interpreter.Variable;
 
 public class SceneVariable extends Variable {
 	public SceneVariable(String name, Object value) {
-		super(name, value);
+		super(name);
 	}
 
     private String DESCRIPTION;

@@ -1,4 +1,4 @@
-package pl.cba.genszu.amcodetranslator;
+package pl.cba.genszu.amcodetranslator.utils;
 
 import java.util.*;
 import org.antlr.v4.runtime.*;

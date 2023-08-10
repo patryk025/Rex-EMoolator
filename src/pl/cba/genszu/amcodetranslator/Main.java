@@ -6,11 +6,11 @@ public class Main
 {
     public static void main(String[] args)
 	{
-		String testExpression = "{[1+2]}";
+		String testExpression = "{[2+2*2]}";
 		
 		Variable test1 = new IntegerVariable("test", 1);
 		
-		System.out.println(test1.getType());
+		//System.out.println(test1.getType());
 		
 		Interpreter interpreter = new Interpreter();
 		interpreter.interpret(testExpression);

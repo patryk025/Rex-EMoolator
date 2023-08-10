@@ -8,7 +8,7 @@ import java.util.List;
 
 public class StructVariable extends Variable {
 	public StructVariable(String name, Object value) {
-		super(name, value);
+		super(name);
 	}
 
     private List<Object> FIELDS = new ArrayList<>();

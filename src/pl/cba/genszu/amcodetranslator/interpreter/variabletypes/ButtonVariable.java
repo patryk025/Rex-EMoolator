@@ -6,7 +6,7 @@ import pl.cba.genszu.amcodetranslator.interpreter.Variable;
 
 public class ButtonVariable extends Variable {
 	public ButtonVariable(String name, Object value) {
-		super(name, value);
+		super(name);
 	}
 
     private String RECT;

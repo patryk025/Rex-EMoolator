@@ -5,7 +5,7 @@ import pl.cba.genszu.amcodetranslator.interpreter.Variable;
 
 public class FontVariable extends Variable {
 	public FontVariable(String name, Object value) {
-		super(name, value);
+		super(name);
 	}
 
 	private String family;

@@ -4,7 +4,15 @@ import pl.cba.genszu.amcodetranslator.interpreter.Variable;
 
 public class DoubleVariable extends Variable {
 	public DoubleVariable(String name, Object value) {
-		super(name, value);
+		super(name);
+        if(value instanceof String) {
+            try {
+                this.SET(Double.parseDouble((String) value));
+            }
+            catch (NumberFormatException e) {
+                this.SET(0.0d);
+            }
+        }
 	}
 
 	private double VALUE;

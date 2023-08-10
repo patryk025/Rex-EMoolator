@@ -6,7 +6,7 @@ import pl.cba.genszu.amcodetranslator.interpreter.Variable;
 
 public class ComplexConditionVariable extends Variable {
 	public ComplexConditionVariable(String name, Object value) {
-		super(name, value);
+		super(name);
 	}
 
 	private String CONDITION1;

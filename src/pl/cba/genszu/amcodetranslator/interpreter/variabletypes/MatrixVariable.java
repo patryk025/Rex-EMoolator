@@ -6,7 +6,7 @@ import pl.cba.genszu.amcodetranslator.interpreter.Variable;
 
 public class MatrixVariable extends Variable {
 	public MatrixVariable(String name, Object value) {
-		super(name, value);
+		super(name);
 	}
 
 	private int[] SIZE;

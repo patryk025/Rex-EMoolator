@@ -4,7 +4,7 @@ import pl.cba.genszu.amcodetranslator.interpreter.Variable;
 
 public class ClassVariable extends Variable {
 	public ClassVariable(String name, Object value) {
-		super(name, value);
+		super(name);
 	}
 
 	private String BASE;

@@ -7,7 +7,7 @@ import pl.cba.genszu.amcodetranslator.interpreter.Variable;
 
 public class ConditionVariable extends Variable {
 	public ConditionVariable(String name, Object value) {
-		super(name, value);
+		super(name);
 	}
 
 	private ParseTree OPERAND1;

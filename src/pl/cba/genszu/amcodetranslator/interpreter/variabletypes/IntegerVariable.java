@@ -6,11 +6,22 @@ import pl.cba.genszu.amcodetranslator.interpreter.Variable;
 
 public class IntegerVariable extends Variable {
 	public IntegerVariable() {
-		super(null, 0);
+		super(null);
 	}
 	
 	public IntegerVariable(String name, Object value) {
-		super(name, value);
+		super(name);
+		if(value instanceof String) {
+			try {
+				this.SET(Integer.parseInt((String) value));
+			}
+			catch (NumberFormatException e) {
+				this.SET(0);
+			}
+		}
+		else if(value instanceof Integer || value instanceof Double) {
+			this.SET((Integer) value);
+		}
 	}
 
     private int VALUE;
@@ -31,16 +42,6 @@ public class IntegerVariable extends Variable {
 	{
 		return VARTYPE;
 	}
-	
-    /*public IntegerAM(int VALUE, boolean TOINI) {
-        this.VALUE = VALUE;
-        this.TOINI = TOINI;
-    }
-
-    public IntegerAM(int VALUE) {
-        this.VALUE = VALUE;
-        this.TOINI = false;
-    }*/
 
     public void SET(int value) {
         this.VALUE = value;

@@ -6,7 +6,7 @@ import pl.cba.genszu.amcodetranslator.interpreter.Variable;
 public class SoundVariable extends Variable
 {
     public SoundVariable(String name, Object value) {
-        super(name, value);
+        super(name);
     }
 
     private String FILENAME;

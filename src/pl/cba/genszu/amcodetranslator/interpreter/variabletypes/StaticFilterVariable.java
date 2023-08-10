@@ -5,7 +5,7 @@ import pl.cba.genszu.amcodetranslator.interpreter.Variable;
 
 public class StaticFilterVariable extends Variable {
 	public StaticFilterVariable(String name, Object value) {
-		super(name, value);
+		super(name);
 	}
 
 	private String ACTION;

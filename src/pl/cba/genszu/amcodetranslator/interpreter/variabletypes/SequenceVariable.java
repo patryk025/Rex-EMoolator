@@ -7,7 +7,7 @@ import java.util.*;
 
 public class SequenceVariable extends Variable {
 	public SequenceVariable(String name, Object value) {
-		super(name, value);
+		super(name);
 	}
 
 	String FILENAME;

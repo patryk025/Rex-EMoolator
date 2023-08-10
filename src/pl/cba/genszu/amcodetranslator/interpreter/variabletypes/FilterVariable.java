@@ -5,7 +5,7 @@ import pl.cba.genszu.amcodetranslator.interpreter.Variable;
 
 public class FilterVariable extends Variable {
 	public FilterVariable(String name, Object value) {
-		super(name, value);
+		super(name);
 	}
 
 	private String ACTION;

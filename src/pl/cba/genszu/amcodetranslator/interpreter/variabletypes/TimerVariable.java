@@ -6,7 +6,7 @@ import pl.cba.genszu.amcodetranslator.interpreter.Variable;
 
 public class TimerVariable extends Variable {
 	public TimerVariable(String name, Object value) {
-		super(name, value);
+		super(name);
 	}
 
     private int ELAPSE; //prawdopodobnie w ms

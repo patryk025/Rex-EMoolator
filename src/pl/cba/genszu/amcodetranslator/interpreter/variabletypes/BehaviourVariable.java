@@ -6,7 +6,7 @@ import pl.cba.genszu.amcodetranslator.interpreter.Variable;
 
 public class BehaviourVariable extends Variable {
 	public BehaviourVariable(String name, Object value) {
-		super(name, value);
+		super(name);
 	}
 
 	private ParseTree CODE;

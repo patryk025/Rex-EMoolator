@@ -6,7 +6,7 @@ import pl.cba.genszu.amcodetranslator.interpreter.Variable;
 
 public class MouseVariable extends Variable {
 	public MouseVariable(String name, Object value) {
-		super(name, value);
+		super(name);
 	}
 
 	//interfejs myszy

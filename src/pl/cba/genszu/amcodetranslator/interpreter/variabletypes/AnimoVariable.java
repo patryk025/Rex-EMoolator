@@ -6,7 +6,7 @@ import pl.cba.genszu.amcodetranslator.interpreter.Variable;
 
 public class AnimoVariable extends Variable {
 	public AnimoVariable(String name, Object value) {
-		super(name, value);
+		super(name);
 	}
 
     private String FILENAME;

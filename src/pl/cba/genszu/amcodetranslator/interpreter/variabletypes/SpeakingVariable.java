@@ -5,7 +5,7 @@ import pl.cba.genszu.amcodetranslator.interpreter.Variable;
 
 public class SpeakingVariable extends Variable {
 	public SpeakingVariable(String name, Object value) {
-		super(name, value);
+		super(name);
 	}
 
 	private String ANIMOFN;
