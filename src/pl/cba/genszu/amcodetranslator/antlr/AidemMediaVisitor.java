@@ -1,4 +1,4 @@
-// Generated from c:\Users\oem\Desktop\gramatykaAM\AidemMedia.g4 by ANTLR 4.9.2
+// Generated from c:\Users\Patryk\Desktop\GramatykaAM\AidemMedia.g4 by ANTLR 4.9.2
 package pl.cba.genszu.amcodetranslator.antlr;
 import org.antlr.v4.runtime.tree.ParseTreeVisitor;
 
@@ -46,6 +46,12 @@ public interface AidemMediaVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitVarWithNumber(AidemMediaParser.VarWithNumberContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link AidemMediaParser#conditionSimple}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitConditionSimple(AidemMediaParser.ConditionSimpleContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link AidemMediaParser#comment}.
 	 * @param ctx the parse tree

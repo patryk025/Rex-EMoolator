@@ -3,7 +3,7 @@ grammar AidemMedia;
 ifInstr	
 	: '@IF' LPAREN (
 			QUOTEMARK condition QUOTEMARK SEPARATOR
-		|	param SEPARATOR QUOTEMARK compare QUOTEMARK SEPARATOR param SEPARATOR
+		|	conditionSimple SEPARATOR
 	)	(codeBlock | string) SEPARATOR (codeBlock | string) RPAREN ENDINSTR*
 	;
 
@@ -25,6 +25,10 @@ codeBlock
 
 varWithNumber
 	:	literal arithmetic number
+	;
+
+conditionSimple
+	:	param SEPARATOR QUOTEMARK compare QUOTEMARK SEPARATOR param
 	;
 
 COMMENT
