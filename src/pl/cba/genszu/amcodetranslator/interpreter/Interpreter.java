@@ -49,8 +49,8 @@ public class Interpreter
 		for(String token : postfix) {
 			if (token.matches("[+\\-*@%]")) {
 				// Pop the top two operands from the stack.
-				Variable operand1 = stack.pop();
 				Variable operand2 = stack.pop();
+				Variable operand1 = stack.pop();
 
 				// Perform the operation.
 				Variable tmp_result = performOperation(operand1, operand2, token);
@@ -59,7 +59,13 @@ public class Interpreter
 				stack.push(tmp_result);
 			} else {
 				// Push the operand onto the stack.
-				stack.push(VariableFactory.createVariable(TypeGuesser.guessNumber(token), null, token));
+				Variable tmp = getVariable(token);
+				if(tmp != null) {
+					stack.push(tmp);
+				}
+				else {
+					stack.push(VariableFactory.createVariable(TypeGuesser.guessNumber(token), null, token));
+				}
 			}
 		}
 

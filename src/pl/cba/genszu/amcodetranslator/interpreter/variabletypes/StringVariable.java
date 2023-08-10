@@ -11,6 +11,7 @@ public class StringVariable extends Variable
 	
 	public StringVariable(String name, Object value) {
 		super(name);
+		this.SET((String) value);
 	}
 
     private String VALUE;
