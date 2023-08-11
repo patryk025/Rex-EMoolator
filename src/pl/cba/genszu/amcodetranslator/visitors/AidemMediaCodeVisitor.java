@@ -8,6 +8,7 @@ import pl.cba.genszu.amcodetranslator.interpreter.*;
 import pl.cba.genszu.amcodetranslator.interpreter.util.ConditionChecker;
 import pl.cba.genszu.amcodetranslator.interpreter.util.ParamHelper;
 import pl.cba.genszu.amcodetranslator.interpreter.variabletypes.StructVariable;
+import pl.cba.genszu.amcodetranslator.interpreter.factories.*;
 
 public class AidemMediaCodeVisitor extends AidemMediaBaseVisitor<Variable>
 {
@@ -138,7 +139,7 @@ public class AidemMediaCodeVisitor extends AidemMediaBaseVisitor<Variable>
 	public Variable visitIfInstr(AidemMediaParser.IfInstrContext ctx)
 	{ 
 		print("Found ifInstr!"); 
-		print(ctx.condition().toString());
+		//print(ctx.condition().toString());
 		AidemMediaParser.ConditionSimpleContext conditionsSimple = ctx.conditionSimple();
 		AidemMediaParser.ConditionContext conditions = ctx.condition();
 		List<String> comparator = new ArrayList<>();
@@ -177,17 +178,22 @@ public class AidemMediaCodeVisitor extends AidemMediaBaseVisitor<Variable>
 				comparator.add(ParamHelper.getValueFromParam(this, param));
 			}
 		}
-		System.out.println(comparator);
-		System.out.println(ConditionChecker.checkCondition(comparator));
+		//System.out.println(comparator);
+		//System.out.println(ConditionChecker.checkCondition(comparator));
+		boolean conditionResult = ConditionChecker.checkCondition(comparator);
 		//List<AidemMediaParser.ConditionPartContext> conditions = ctx.condition().conditionPart();
 		//print((conditions.size() > 1 ? "multi" : "simple") + " condition");
 		print("{");
 		indent++;
+		//visitChildren(ctx);
 		
-		visitChildren(ctx);
 		//ctx.getChildCount();
-		/*ParseTree trueBranch = ctx.getChild(1);
-		ParseTree falseBranch = ctx.getChild(2);*/
+		IfTrueContext trueBranch = ctx.ifTrue();
+		IfFalseContext falseBranch = ctx.ifFalse();
+		if(conditionResult) 
+			super.visitIfTrue(trueBranch);
+		else
+			super.visitIfFalse(falseBranch);
 		indent--;
 		print("}");
 		//return super.visitIfInstr(ctx); 
@@ -218,6 +224,31 @@ public class AidemMediaCodeVisitor extends AidemMediaBaseVisitor<Variable>
 		print("}");
 		//return super.visitConditionPart(ctx);
 		return null;
+	}
+
+	@Override
+	public Variable visitIfTrue(AidemMediaParser.IfTrueContext ctx)
+	{
+		if(ctx.codeBlock() != null)
+			return visitCodeBlock(ctx.codeBlock());
+		else if(ctx.string() != null) {
+			//TODO: behavioury do zrobienia, ale to zaraz po funkcjach, bo inaczej nie ruszę ;)
+			Variable var = VariableFactory.createVariable("BEHAVIOUR", ctx.string().getText(), null); //taki tam placeholder
+			return var;
+		}
+		return super.visitIfTrue(ctx);
+	}
+
+	@Override
+	public Variable visitIfFalse(AidemMediaParser.IfFalseContext ctx)
+	{
+		if(ctx.codeBlock() != null)
+			return visitCodeBlock(ctx.codeBlock());
+		else if(ctx.string() != null) {
+			Variable var = VariableFactory.createVariable("BEHAVIOUR", ctx.string().getText(), null);
+			return var;
+		}
+		return super.visitIfFalse(ctx);
 	}
 
 	@Override

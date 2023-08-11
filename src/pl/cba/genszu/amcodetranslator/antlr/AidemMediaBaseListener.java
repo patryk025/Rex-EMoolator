@@ -1,4 +1,4 @@
-// Generated from c:\Users\Patryk\Desktop\GramatykaAM\AidemMedia.g4 by ANTLR 4.9.2
+// Generated from /storage/emulated/0/AppProjects/AidemMediaInterpreterAntlr/src/pl/cba/genszu/amcodetranslator/AidemMedia.g4 by ANTLR 4.9.2
 package pl.cba.genszu.amcodetranslator.antlr;
 
 import org.antlr.v4.runtime.ParserRuleContext;
@@ -95,6 +95,30 @@ public class AidemMediaBaseListener implements AidemMediaListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitConditionSimple(AidemMediaParser.ConditionSimpleContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterIfTrue(AidemMediaParser.IfTrueContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitIfTrue(AidemMediaParser.IfTrueContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterIfFalse(AidemMediaParser.IfFalseContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitIfFalse(AidemMediaParser.IfFalseContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *

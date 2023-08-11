@@ -4,7 +4,7 @@ ifInstr
 	: '@IF' LPAREN (
 			QUOTEMARK condition QUOTEMARK SEPARATOR
 		|	conditionSimple SEPARATOR
-	)	(codeBlock | string) SEPARATOR (codeBlock | string) RPAREN ENDINSTR*
+	)	ifTrue SEPARATOR ifFalse RPAREN ENDINSTR*
 	;
 
 loopInstr
@@ -29,6 +29,14 @@ varWithNumber
 
 conditionSimple
 	:	param SEPARATOR QUOTEMARK compare QUOTEMARK SEPARATOR param
+	;
+
+ifTrue
+	:	(codeBlock | string)
+	;
+
+ifFalse
+	:	(codeBlock | string)
 	;
 
 COMMENT

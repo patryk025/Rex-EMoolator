@@ -1,4 +1,4 @@
-// Generated from c:\Users\Patryk\Desktop\GramatykaAM\AidemMedia.g4 by ANTLR 4.9.2
+// Generated from /storage/emulated/0/AppProjects/AidemMediaInterpreterAntlr/src/pl/cba/genszu/amcodetranslator/AidemMedia.g4 by ANTLR 4.9.2
 package pl.cba.genszu.amcodetranslator.antlr;
 import org.antlr.v4.runtime.tree.ParseTreeListener;
 
@@ -77,6 +77,26 @@ public interface AidemMediaListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitConditionSimple(AidemMediaParser.ConditionSimpleContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link AidemMediaParser#ifTrue}.
+	 * @param ctx the parse tree
+	 */
+	void enterIfTrue(AidemMediaParser.IfTrueContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link AidemMediaParser#ifTrue}.
+	 * @param ctx the parse tree
+	 */
+	void exitIfTrue(AidemMediaParser.IfTrueContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link AidemMediaParser#ifFalse}.
+	 * @param ctx the parse tree
+	 */
+	void enterIfFalse(AidemMediaParser.IfFalseContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link AidemMediaParser#ifFalse}.
+	 * @param ctx the parse tree
+	 */
+	void exitIfFalse(AidemMediaParser.IfFalseContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link AidemMediaParser#comment}.
 	 * @param ctx the parse tree
