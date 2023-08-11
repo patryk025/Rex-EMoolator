@@ -50,4 +50,30 @@ public class InfixToPostfix {
 
         return postfix;
     }
+
+    public static List<String> ifInfixToPostfix(List<String> infix) {
+        HashMap<String, Integer> prec = new HashMap<>();
+        prec.put("&&", 2);
+        prec.put("||", 1);
+
+        Stack<String> operators = new Stack<>();
+        List<String> postfix = new ArrayList<>();
+
+        for(String operand : infix) {
+            if(!(operand.equals("&&") || operand.equals("||")))
+                postfix.add(operand);
+            else {
+                while (!operators.isEmpty() && (prec.get(operators.peek()) >= prec.get(operand))) {
+                    postfix.add(operators.pop());
+                }
+                operators.push(operand);
+            }
+        }
+
+        while (!operators.isEmpty()) {
+            postfix.add(operators.pop());
+        }
+
+        return postfix;
+    }
 }

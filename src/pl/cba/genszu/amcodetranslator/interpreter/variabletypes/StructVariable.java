@@ -11,7 +11,7 @@ public class StructVariable extends Variable {
 		super(name);
 	}
 
-    private List<Object> FIELDS = new ArrayList<>();
+    private List<Variable> FIELDS = new ArrayList<>();
     private List<String> FIELDSNAMES = new ArrayList<>();
     private List<String> FIELDSTYPES= new ArrayList<>();
 
@@ -71,5 +71,9 @@ public class StructVariable extends Variable {
 
     public void setField(int index, String val) {
 		((StringVariable) FIELDS.get(index)).SET(val);
+    }
+
+    public Variable GETFIELD(String fieldName) {
+        return FIELDS.get(this.getIndex(fieldName));
     }
 }

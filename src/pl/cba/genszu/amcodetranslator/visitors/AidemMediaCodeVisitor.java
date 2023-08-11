@@ -5,9 +5,11 @@ import pl.cba.genszu.amcodetranslator.antlr.*;
 import java.util.*;
 import pl.cba.genszu.amcodetranslator.antlr.AidemMediaParser.*;
 import pl.cba.genszu.amcodetranslator.interpreter.*;
+import pl.cba.genszu.amcodetranslator.interpreter.util.ConditionChecker;
 import pl.cba.genszu.amcodetranslator.interpreter.util.ParamHelper;
+import pl.cba.genszu.amcodetranslator.interpreter.variabletypes.StructVariable;
 
-public class AidemMediaCodeVisitor extends AidemMediaBaseVisitor<Void>
+public class AidemMediaCodeVisitor extends AidemMediaBaseVisitor<Variable>
 {
 	public int indent;
 	public int fixAttemps = 0;
@@ -40,7 +42,7 @@ public class AidemMediaCodeVisitor extends AidemMediaBaseVisitor<Void>
 	}
 
 	@Override
-	public Void visitScript(AidemMediaParser.ScriptContext ctx)
+	public Variable visitScript(AidemMediaParser.ScriptContext ctx)
 	{
 		indent = 0;
 		print("We are in script");
@@ -49,15 +51,17 @@ public class AidemMediaCodeVisitor extends AidemMediaBaseVisitor<Void>
 	}
 
 	@Override
-	public Void visitCodeBlock(AidemMediaParser.CodeBlockContext ctx)
+	public Variable visitCodeBlock(AidemMediaParser.CodeBlockContext ctx)
 	{
 		print("We are in codeBlock");
 		indent++;
-		return super.visitCodeBlock(ctx);
+		super.visitCodeBlock(ctx);
+		indent--;
+		return null;
 	}
 	
 	@Override 
-	public Void visitFunctionFire(AidemMediaParser.FunctionFireContext ctx)
+	public Variable visitFunctionFire(AidemMediaParser.FunctionFireContext ctx)
 	{ 
 		print("Found functionFire!"); 
 		print("{");
@@ -74,7 +78,7 @@ public class AidemMediaCodeVisitor extends AidemMediaBaseVisitor<Void>
 	}
 
 	/*@Override
-	public Void visitParam(AidemMediaParser.ParamContext ctx)
+	public Variable visitParam(AidemMediaParser.ParamContext ctx)
 	{
 		String type = ""; 
 		if (ctx.string() != null)
@@ -116,7 +120,7 @@ public class AidemMediaCodeVisitor extends AidemMediaBaseVisitor<Void>
 	}*/
 
 	@Override
-	public Void visitLogic(AidemMediaParser.LogicContext ctx)
+	public Variable visitLogic(AidemMediaParser.LogicContext ctx)
 	{
 		//print("Found logic!");
 		print("logic: "+ctx.getText());
@@ -124,14 +128,14 @@ public class AidemMediaCodeVisitor extends AidemMediaBaseVisitor<Void>
 	}
 
 	@Override
-	public Void visitCompare(AidemMediaParser.CompareContext ctx)
+	public Variable visitCompare(AidemMediaParser.CompareContext ctx)
 	{
 		print("compare: "+ctx.getText()+" ("+compareHelper(ctx.getText())+")");
 		return super.visitCompare(ctx);
 	} 
 
 	@Override 
-	public Void visitIfInstr(AidemMediaParser.IfInstrContext ctx)
+	public Variable visitIfInstr(AidemMediaParser.IfInstrContext ctx)
 	{ 
 		print("Found ifInstr!"); 
 		print(ctx.condition().toString());
@@ -153,11 +157,28 @@ public class AidemMediaCodeVisitor extends AidemMediaBaseVisitor<Void>
 				ConditionPartContext conditionPart = conditions.conditionPart(i);
 				//comparator.add(conditionPart..getText());
 				ParamContext param = conditionPart.param();
-
+				if(conditionPart.expression() != null) {
+					comparator.add((String) visitExpression(conditionPart.expression()).getValue());
+				}
+				else if(conditionPart.literal() != null) {
+					comparator.add("" + interpreter.getVariable(conditionPart.literal().getText()).getValue()); //trochę druciarskie, no ale muszę się jednak upewnić, że trafia tam String
+				}
+				else if(conditionPart.functionFire() != null) {
+					comparator.add((String) visitFunctionFire(conditionPart.functionFire()).getValue());
+				}
+				else if(conditionPart.iterator() != null) {
+					comparator.add((String) interpreter.getVariable("_I_").getValue());
+				}
+				else if(conditionPart.struct() != null) {
+					String[] structFields = conditionPart.struct().getText().split("\\|");
+					comparator.add((String) ((StructVariable) interpreter.getVariable(structFields[0])).GETFIELD(structFields[1]).getValue());
+				}
 				comparator.add(conditionPart.compare().getText());
 				comparator.add(ParamHelper.getValueFromParam(this, param));
 			}
 		}
+		System.out.println(comparator);
+		System.out.println(ConditionChecker.checkCondition(comparator));
 		//List<AidemMediaParser.ConditionPartContext> conditions = ctx.condition().conditionPart();
 		//print((conditions.size() > 1 ? "multi" : "simple") + " condition");
 		print("{");
@@ -174,7 +195,7 @@ public class AidemMediaCodeVisitor extends AidemMediaBaseVisitor<Void>
 	}
 
 	@Override
-	public Void visitCondition(AidemMediaParser.ConditionContext ctx)
+	public Variable visitCondition(AidemMediaParser.ConditionContext ctx)
 	{
 		print("Found condition!");
 		print("{");
@@ -187,7 +208,7 @@ public class AidemMediaCodeVisitor extends AidemMediaBaseVisitor<Void>
 	}
 
 	@Override
-	public Void visitConditionPart(AidemMediaParser.ConditionPartContext ctx)
+	public Variable visitConditionPart(AidemMediaParser.ConditionPartContext ctx)
 	{
 		print("Found condition part!");
 		print("{");
@@ -200,7 +221,7 @@ public class AidemMediaCodeVisitor extends AidemMediaBaseVisitor<Void>
 	}
 
 	@Override
-	public Void visitExpression(AidemMediaParser.ExpressionContext ctx)
+	public Variable visitExpression(AidemMediaParser.ExpressionContext ctx)
 	{
 		print("We are in expression");
 		print("{");
@@ -216,6 +237,6 @@ public class AidemMediaCodeVisitor extends AidemMediaBaseVisitor<Void>
 		print("DEBUG result: "+result.getValue());
 		indent--;
 		print("}");
-		return null;
+		return result;
 	}
 }

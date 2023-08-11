@@ -24,7 +24,7 @@ public class Interpreter
 		this.variables = variables;
 	}
 
-	private Variable getVariable(String name) {
+	public Variable getVariable(String name) {
 		for(Variable var : variables) {
 			if(var.getName().equals(name))
 				return var;
