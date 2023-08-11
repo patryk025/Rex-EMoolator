@@ -4,7 +4,8 @@ import org.antlr.v4.runtime.tree.*;
 import pl.cba.genszu.amcodetranslator.antlr.*;
 import java.util.*;
 import pl.cba.genszu.amcodetranslator.antlr.AidemMediaParser.*;
-import pl.cba.genszu.amcodetranslator.interpreter.*; 
+import pl.cba.genszu.amcodetranslator.interpreter.*;
+import pl.cba.genszu.amcodetranslator.interpreter.util.ParamHelper;
 
 public class AidemMediaCodeVisitor extends AidemMediaBaseVisitor<Void>
 {
@@ -72,7 +73,7 @@ public class AidemMediaCodeVisitor extends AidemMediaBaseVisitor<Void>
 		return null;
 	}
 
-	@Override
+	/*@Override
 	public Void visitParam(AidemMediaParser.ParamContext ctx)
 	{
 		String type = ""; 
@@ -112,7 +113,7 @@ public class AidemMediaCodeVisitor extends AidemMediaBaseVisitor<Void>
 		String value = ctx.getText(); 
 		print("Param: " + value + ", type: " + type);
 		return super.visitParam(ctx);
-	}
+	}*/
 
 	@Override
 	public Void visitLogic(AidemMediaParser.LogicContext ctx)
@@ -146,13 +147,15 @@ public class AidemMediaCodeVisitor extends AidemMediaBaseVisitor<Void>
 		else {
 			print("3 param if");
 			//comparator.add(
-			for(int i = 0; i <= conditions.conditionPart().size(); i++) {
+			for(int i = 0; i < conditions.conditionPart().size(); i++) {
 				if(i >= 1)
 					comparator.add(conditions.logic(i-1).getText());
-				AidemMediaParser.ConditionPartContext conditionPart = conditions.conditionPart(i);
+				ConditionPartContext conditionPart = conditions.conditionPart(i);
 				//comparator.add(conditionPart..getText());
+				ParamContext param = conditionPart.param();
+
 				comparator.add(conditionPart.compare().getText());
-				//comparator.add(conditionPart.param(1).getText());
+				comparator.add(ParamHelper.getValueFromParam(this, param));
 			}
 		}
 		//List<AidemMediaParser.ConditionPartContext> conditions = ctx.condition().conditionPart();
@@ -202,7 +205,7 @@ public class AidemMediaCodeVisitor extends AidemMediaBaseVisitor<Void>
 		print("We are in expression");
 		print("{");
 		indent++;
-		visitChildren(ctx);
+		//visitChildren(ctx);
 		List<String> expression_parts = new ArrayList<>();
 		for(int i = 1; i < ctx.getChildCount()-1; i++) {
 			ParseTree child = ctx.getChild(i);
