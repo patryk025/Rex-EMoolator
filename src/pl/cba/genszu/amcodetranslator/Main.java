@@ -10,7 +10,8 @@ public class Main
     public static void main(String[] args)
 	{
 		//String testExpression = "{[2+2*2]}";
-		String testExpression = "{[TEST+ITERATOR*2]}";
+		//String testExpression = "{[TEST+ITERATOR*2]}";
+		String testExpression = "{@IF(\"ITERATOR'3\",{[TEST+ITERATOR*2]}, {[2+3]});}";
 
 		List<Variable> vars = new ArrayList<>();
 		Variable test1 = new StringVariable("TEST", "ANIMO_");

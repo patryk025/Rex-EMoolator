@@ -5,8 +5,19 @@ package pl.cba.genszu.amcodetranslator.utils;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
+import java.util.*;
 
-public class ReverseListIterator<T> implements Iterable<T> {
+public class ReverseListIterator<T> implements Iterable<T>
+{
+
+	// to żeby AIDE zamknęło... terminal
+	@Override
+	public Spliterator<T> spliterator()
+	{
+		// TODO: Implement this method
+		return null;
+	}
+
     private final List<T> original;
 
     public ReverseListIterator(List<T> original) {

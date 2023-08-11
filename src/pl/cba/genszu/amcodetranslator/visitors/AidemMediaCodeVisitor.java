@@ -133,8 +133,30 @@ public class AidemMediaCodeVisitor extends AidemMediaBaseVisitor<Void>
 	public Void visitIfInstr(AidemMediaParser.IfInstrContext ctx)
 	{ 
 		print("Found ifInstr!"); 
-		List<AidemMediaParser.ConditionPartContext> conditions = ctx.condition().conditionPart();
-		print((conditions.size() > 1 ? "multi" : "simple") + " condition");
+		print(ctx.condition().toString());
+		AidemMediaParser.ConditionSimpleContext conditionsSimple = ctx.conditionSimple();
+		AidemMediaParser.ConditionContext conditions = ctx.condition();
+		List<String> comparator = new ArrayList<>();
+		if(conditionsSimple != null && conditions == null) {
+			print("5 param if");
+			comparator.add(conditionsSimple.param(0).getText());
+			comparator.add(conditionsSimple.compare().getText());
+			comparator.add(conditionsSimple.param(1).getText());
+		}
+		else {
+			print("3 param if");
+			//comparator.add(
+			for(int i = 0; i <= conditions.conditionPart().size(); i++) {
+				if(i >= 1)
+					comparator.add(conditions.logic(i-1).getText());
+				AidemMediaParser.ConditionPartContext conditionPart = conditions.conditionPart(i);
+				//comparator.add(conditionPart..getText());
+				comparator.add(conditionPart.compare().getText());
+				//comparator.add(conditionPart.param(1).getText());
+			}
+		}
+		//List<AidemMediaParser.ConditionPartContext> conditions = ctx.condition().conditionPart();
+		//print((conditions.size() > 1 ? "multi" : "simple") + " condition");
 		print("{");
 		indent++;
 		
