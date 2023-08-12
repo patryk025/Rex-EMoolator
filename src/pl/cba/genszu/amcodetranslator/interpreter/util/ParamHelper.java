@@ -16,8 +16,7 @@ public class ParamHelper {
                 {
                     for (AidemMediaParser.FunctionFireContext ctx_functionFire : functionFire)
                     {
-                        visitor.visitFunctionFire(ctx_functionFire);
-                        //TODO: jakoś pobrać wynik
+                        return (String) visitor.visitFunctionFire(ctx_functionFire).getValue();
                     }
                 }
                 else
@@ -34,8 +33,7 @@ public class ParamHelper {
         }
         else if (param.functionFire() != null)
         {
-            visitor.visitFunctionFire(param.functionFire());
-            //TODO: jakoś pobrać wynik
+            return (String) visitor.visitFunctionFire(param.functionFire()).getValue();
         }
         else if (param.literal() != null)
         {

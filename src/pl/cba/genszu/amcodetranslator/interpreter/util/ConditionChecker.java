@@ -61,35 +61,42 @@ public class ConditionChecker
 
 	public static boolean checkCondition(List<String> ifElements) {
         List<String> postfix = InfixToPostfix.ifInfixToPostfix(ifElements);
-        Stack<Boolean> stack = new Stack<>();
-        List<String> tmpArray = new ArrayList<>();
-        for(String token : postfix) {
-            if (token.equals("&&") || token.equals("||")) {
-                if(tmpArray.size() == 3) {
-                    stack.push(check(tmpArray));
-                    tmpArray.clear();
-                }
-                // Pop the top two operands from the stack.
-                Boolean operand2 = stack.pop();
-                Boolean operand1 = stack.pop();
+        if(ifElements.size() == 3) {
+            return check(ifElements);
+        }
+        else if(ifElements.size() > 3) {
+            Stack<Boolean> stack = new Stack<>();
+            List<String> tmpArray = new ArrayList<>();
+            for (String token : postfix) {
+                if (token.equals("&&") || token.equals("||")) {
+                    if (tmpArray.size() == 3) {
+                        stack.push(check(tmpArray));
+                        tmpArray.clear();
+                    }
+                    // Pop the top two operands from the stack.
+                    Boolean operand2 = stack.pop();
+                    Boolean operand1 = stack.pop();
 
-                // Perform the operation.
-                //Variable tmp_result = performOperation(operand1, operand2, token);
-                if(token.equals("&&"))
-                    stack.push(operand2 && operand1);
-                else
-                    stack.push(operand2 || operand1);
-            } else {
-                if(tmpArray.size() < 3) {
-                    tmpArray.add(token);
-                }
-                else if(tmpArray.size() == 3) {
-                    stack.push(check(tmpArray));
-                    tmpArray.clear();
-                    tmpArray.add(token);
+                    // Perform the operation.
+                    //Variable tmp_result = performOperation(operand1, operand2, token);
+                    if (token.equals("&&"))
+                        stack.push(operand2 && operand1);
+                    else
+                        stack.push(operand2 || operand1);
+                } else {
+                    if (tmpArray.size() < 3) {
+                        tmpArray.add(token);
+                    } else if (tmpArray.size() == 3) {
+                        stack.push(check(tmpArray));
+                        tmpArray.clear();
+                        tmpArray.add(token);
+                    }
                 }
             }
+            return stack.pop();
         }
-        return stack.pop();
+        else {
+            return false;
+        }
     }
 }

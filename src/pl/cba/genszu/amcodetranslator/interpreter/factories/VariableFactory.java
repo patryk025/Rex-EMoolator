@@ -87,6 +87,8 @@ public class VariableFactory
                 return new VectorVariable(name, value);
             case "WORLD":
                 return new WorldVariable(name, value);
+            case "VOID":
+                return new Variable(null); //void
             default:
                 throw new IllegalArgumentException("Unknown variable type: " + type);
         }

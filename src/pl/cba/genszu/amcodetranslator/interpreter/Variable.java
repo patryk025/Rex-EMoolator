@@ -1,5 +1,6 @@
 package pl.cba.genszu.amcodetranslator.interpreter;
 
+import pl.cba.genszu.amcodetranslator.interpreter.exceptions.ClassMethodNotFoundException;
 import pl.cba.genszu.amcodetranslator.interpreter.variabletypes.BoolVariable;
 import pl.cba.genszu.amcodetranslator.interpreter.variabletypes.DoubleVariable;
 import pl.cba.genszu.amcodetranslator.interpreter.variabletypes.IntegerVariable;
@@ -33,5 +34,9 @@ public class Variable {
 
 	public String getType() {
 		return this.getClass().getSimpleName().split("Variable")[0].toUpperCase();
+	}
+
+	public Variable fireFunction(String method, Variable... params) {
+		throw new ClassMethodNotFoundException(method, this.getType());
 	}
 }

@@ -74,51 +74,8 @@ public class AidemMediaCodeVisitor extends AidemMediaBaseVisitor<Variable>
 		visitChildren(ctx);
 		indent--;
 		print("}");
-		//return super.visitFunctionFire(ctx); 
 		return null;
 	}
-
-	/*@Override
-	public Variable visitParam(AidemMediaParser.ParamContext ctx)
-	{
-		String type = ""; 
-		if (ctx.string() != null)
-		{ 
-			if (ctx.string().functionFire() != null)
-			{ 
-				if (!ctx.string().functionFire().isEmpty())
-				{ 
-					type = "string, functionFire"; 
-					for (AidemMediaParser.FunctionFireContext ctx_functionFire : ctx.string().functionFire())
-					{ 
-						visitFunctionFire(ctx_functionFire); 
-					} 
-				} 
-				else 
-					type = "string"; 
-			} 
-			else
-			{ 
-				type = "string"; 
-			} 
-		}
-		else if (ctx.number() != null)
-		{ 
-			type = "number"; 
-		}
-		else if (ctx.functionFire() != null)
-		{ 
-			type = "functionFire"; 
-			visitFunctionFire(ctx.string().functionFire().get(0)); 
-		}
-		else if (ctx.literal() != null)
-		{ 
-			type = "literal"; 
-		} 
-		String value = ctx.getText(); 
-		print("Param: " + value + ", type: " + type);
-		return super.visitParam(ctx);
-	}*/
 
 	@Override
 	public Variable visitLogic(AidemMediaParser.LogicContext ctx)
@@ -138,8 +95,7 @@ public class AidemMediaCodeVisitor extends AidemMediaBaseVisitor<Variable>
 	@Override 
 	public Variable visitIfInstr(AidemMediaParser.IfInstrContext ctx)
 	{ 
-		print("Found ifInstr!"); 
-		//print(ctx.condition().toString());
+		print("Found ifInstr!");
 		AidemMediaParser.ConditionSimpleContext conditionsSimple = ctx.conditionSimple();
 		AidemMediaParser.ConditionContext conditions = ctx.condition();
 		List<String> comparator = new ArrayList<>();
@@ -178,16 +134,10 @@ public class AidemMediaCodeVisitor extends AidemMediaBaseVisitor<Variable>
 				comparator.add(ParamHelper.getValueFromParam(this, param));
 			}
 		}
-		//System.out.println(comparator);
-		//System.out.println(ConditionChecker.checkCondition(comparator));
 		boolean conditionResult = ConditionChecker.checkCondition(comparator);
-		//List<AidemMediaParser.ConditionPartContext> conditions = ctx.condition().conditionPart();
-		//print((conditions.size() > 1 ? "multi" : "simple") + " condition");
 		print("{");
 		indent++;
-		//visitChildren(ctx);
-		
-		//ctx.getChildCount();
+		print("Condition result: "+conditionResult);
 		IfTrueContext trueBranch = ctx.ifTrue();
 		IfFalseContext falseBranch = ctx.ifFalse();
 		if(conditionResult) 
@@ -196,7 +146,6 @@ public class AidemMediaCodeVisitor extends AidemMediaBaseVisitor<Variable>
 			super.visitIfFalse(falseBranch);
 		indent--;
 		print("}");
-		//return super.visitIfInstr(ctx); 
 		return null;
 	}
 
