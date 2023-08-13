@@ -82,7 +82,7 @@ public class Interpreter
 		else if(token.equals("*")) {
 			return ArithmeticSolver.multiply(operand1, operand2);
 		}
-		else if(token.equals("/")) {
+		else if(token.equals("@")) {
 			return ArithmeticSolver.divide(operand1, operand2);
 		}
 		else if(token.equals("%")) {

@@ -45,7 +45,7 @@ public class DivideOperation extends ArithmeticOperation {
 
     @Override
     Variable performOperation(IntegerVariable var1, DoubleVariable var2) {
-        return VariableFactory.createVariable("DOUBLE", null, var1.GET() / var2.GET());
+        return VariableFactory.createVariable("DOUBLE", null, (double) var1.GET() / var2.GET());
     }
 
     @Override

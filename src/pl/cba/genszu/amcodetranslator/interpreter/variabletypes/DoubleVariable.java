@@ -13,6 +13,9 @@ public class DoubleVariable extends Variable {
                 this.SET(0.0d);
             }
         }
+        else if(value instanceof Double || value instanceof Integer) {
+            this.SET((double) value);
+        }
 	}
 
 	private double VALUE;
