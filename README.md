@@ -21,3 +21,5 @@ Lista TODO (w trakcie tworzenia):
 - [ ] Obsługa macierzy (klasa Matrix)
 - [ ] Obsługa wektorów (klasa Vector)
 - [ ] Podłączenie funkcji deszyfrujących z bracha main (szyfr skryptów, CRLE, CLZW2 - analiza w toku)
+
+Postępy w tworzeniu obsługi funkcji i pól w klasach [tutaj](Interpreter.md)
