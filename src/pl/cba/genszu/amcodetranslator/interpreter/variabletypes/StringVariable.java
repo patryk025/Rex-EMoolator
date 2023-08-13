@@ -22,6 +22,8 @@ public class StringVariable extends Variable
 	private String DESCRIPTION;
 
 	public void SET(String value) {
+		if(value.startsWith("\"") && value.endsWith("\""))
+			value = value.substring(1, value.length()-1);
         this.VALUE = value;
     }
 
