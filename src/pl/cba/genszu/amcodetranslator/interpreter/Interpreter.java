@@ -32,12 +32,16 @@ public class Interpreter
 		return null;
 	}
 
-	private Variable createVariable(String name, String type, Object value) {
+	public Variable createVariable(String name, String type, Object value) {
 		Variable tmp = getVariable(name);
 		if(tmp != null) {
 			variables.remove(tmp); //usuń starą zmienną
 		}
-		Variable result = VariableFactory.createVariable(type, name, value);
+		Variable result;
+		if(type == null)
+			result = VariableFactory.createVariable(name, value);
+		else
+			result = VariableFactory.createVariable(type, name, value);
 		variables.add(result);
 		return result;
 	}

@@ -1,4 +1,4 @@
-// Generated from /storage/emulated/0/AppProjects/AidemMediaInterpreterAntlr/src/pl/cba/genszu/amcodetranslator/AidemMedia.g4 by ANTLR 4.9.2
+// Generated from c:\Users\Patryk\Desktop\GramatykaAM\AidemMedia.g4 by ANTLR 4.9.2
 package pl.cba.genszu.amcodetranslator.antlr;
 
 import org.antlr.v4.runtime.ParserRuleContext;
@@ -83,6 +83,18 @@ public class AidemMediaBaseListener implements AidemMediaListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitVarWithNumber(AidemMediaParser.VarWithNumberContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterLoopCodeParam(AidemMediaParser.LoopCodeParamContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitLoopCodeParam(AidemMediaParser.LoopCodeParamContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *

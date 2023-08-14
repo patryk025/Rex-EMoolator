@@ -1,4 +1,4 @@
-// Generated from /storage/emulated/0/AppProjects/AidemMediaInterpreterAntlr/src/pl/cba/genszu/amcodetranslator/AidemMedia.g4 by ANTLR 4.9.2
+// Generated from c:\Users\Patryk\Desktop\GramatykaAM\AidemMedia.g4 by ANTLR 4.9.2
 package pl.cba.genszu.amcodetranslator.antlr;
 import org.antlr.v4.runtime.tree.ParseTreeVisitor;
 
@@ -46,6 +46,12 @@ public interface AidemMediaVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitVarWithNumber(AidemMediaParser.VarWithNumberContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link AidemMediaParser#loopCodeParam}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitLoopCodeParam(AidemMediaParser.LoopCodeParamContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link AidemMediaParser#conditionSimple}.
 	 * @param ctx the parse tree

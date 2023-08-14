@@ -8,7 +8,7 @@ ifInstr
 	;
 
 loopInstr
-	:	'@LOOP' LPAREN codeBlock SEPARATOR (string | literal | expression | arithmetic? number | functionFire | struct) SEPARATOR (string | literal | expression | arithmetic? number | functionFire | struct) SEPARATOR (string | literal | expression | arithmetic? number | functionFire | struct) RPAREN ENDINSTR*
+	:	'@LOOP' LPAREN loopCodeParam SEPARATOR param SEPARATOR param SEPARATOR param RPAREN ENDINSTR*
 	;
 
 whileInstr
@@ -25,6 +25,10 @@ codeBlock
 
 varWithNumber
 	:	literal arithmetic number
+	;
+
+loopCodeParam
+	:	(codeBlock | string | literal)
 	;
 
 conditionSimple

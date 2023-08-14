@@ -5,6 +5,7 @@ import pl.cba.genszu.amcodetranslator.antlr.*;
 import java.util.*;
 import pl.cba.genszu.amcodetranslator.antlr.AidemMediaParser.*;
 import pl.cba.genszu.amcodetranslator.interpreter.*;
+import pl.cba.genszu.amcodetranslator.interpreter.util.ArithmeticSolver;
 import pl.cba.genszu.amcodetranslator.interpreter.util.ConditionChecker;
 import pl.cba.genszu.amcodetranslator.interpreter.util.ParamHelper;
 import pl.cba.genszu.amcodetranslator.interpreter.variabletypes.StructVariable;
@@ -218,5 +219,29 @@ public class AidemMediaCodeVisitor extends AidemMediaBaseVisitor<Variable>
 		indent--;
 		print("}");
 		return result;
+	}
+
+	@Override
+	public Variable visitLoopInstr(AidemMediaParser.LoopInstrContext ctx) {
+		LoopCodeParamContext loopFunction = ctx.loopCodeParam();
+		Variable startValue = VariableFactory.createVariable(null, ParamHelper.getValueFromParam(this, ctx.param(0)));
+		Variable diffValue = VariableFactory.createVariable(null, ParamHelper.getValueFromParam(this, ctx.param(1)));
+		Variable endValue = ArithmeticSolver.add(startValue, diffValue);
+		Variable incrementValue = VariableFactory.createVariable(null, ParamHelper.getValueFromParam(this, ctx.param(2)));
+
+		Variable currentValue = interpreter.createVariable("_I_", null, startValue.getValue());
+
+		boolean isCode = loopFunction.codeBlock() != null;
+
+		boolean doLoop = ConditionChecker.check(new ArrayList<>(Arrays.asList("" + currentValue.getValue(), "<", "" + endValue)));
+
+		while(doLoop) {
+			if(isCode) {
+				visitCodeBlock(loopFunction.codeBlock());
+			}
+			currentValue = ArithmeticSolver.add(currentValue, incrementValue);
+			doLoop = ConditionChecker.check(new ArrayList<>(Arrays.asList("" + currentValue.getValue(), "<", "" + endValue)));
+		}
+		return null;
 	}
 }

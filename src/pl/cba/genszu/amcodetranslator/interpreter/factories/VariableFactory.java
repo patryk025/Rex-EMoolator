@@ -2,9 +2,14 @@ package pl.cba.genszu.amcodetranslator.interpreter.factories;
 
 import pl.cba.genszu.amcodetranslator.interpreter.*;
 import pl.cba.genszu.amcodetranslator.interpreter.variabletypes.*;
+import pl.cba.genszu.amcodetranslator.utils.TypeGuesser;
 
 public class VariableFactory
 {
+    public static Variable createVariable(String name, Object value) {
+        return createVariable(TypeGuesser.guessNumber(""+value), name, value);
+    }
+
     public static Variable createVariable(String type, String name, Object value) {
         switch (type.toUpperCase()) {
             case "ANIMO":
