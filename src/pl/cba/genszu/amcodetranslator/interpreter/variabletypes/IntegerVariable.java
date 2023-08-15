@@ -55,6 +55,10 @@ public class IntegerVariable extends Variable {
         if(this.VALUE == i1) this.VALUE = i2;
         else this.VALUE = i1;
     }
+	
+	public void ADD(int add) {
+		this.VALUE += add;
+	}
 
     public void setONINIT(ParseTree ONINIT) {
 		this.ONINIT = ONINIT;

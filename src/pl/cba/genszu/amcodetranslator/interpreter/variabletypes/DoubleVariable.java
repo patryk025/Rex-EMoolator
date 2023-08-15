@@ -20,6 +20,11 @@ public class DoubleVariable extends Variable {
 
 	private double VALUE;
     private boolean TOINI;
+
+	public void ADD(double add)
+	{
+		this.VALUE += add;
+	}
 	
 	public void SET(double value) {
         this.VALUE = value;

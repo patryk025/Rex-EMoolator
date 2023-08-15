@@ -10,6 +10,7 @@ import pl.cba.genszu.amcodetranslator.interpreter.util.ConditionChecker;
 import pl.cba.genszu.amcodetranslator.interpreter.util.ParamHelper;
 import pl.cba.genszu.amcodetranslator.interpreter.variabletypes.StructVariable;
 import pl.cba.genszu.amcodetranslator.interpreter.factories.*;
+import pl.cba.genszu.amcodetranslator.interpreter.variabletypes.*;
 
 public class AidemMediaCodeVisitor extends AidemMediaBaseVisitor<Variable>
 {
@@ -233,14 +234,30 @@ public class AidemMediaCodeVisitor extends AidemMediaBaseVisitor<Variable>
 
 		boolean isCode = loopFunction.codeBlock() != null;
 
-		boolean doLoop = ConditionChecker.check(new ArrayList<>(Arrays.asList("" + currentValue.getValue(), "<", "" + endValue)));
+		boolean doLoop = ConditionChecker.check(new ArrayList<>(Arrays.asList("" + currentValue.getValue(), "<", "" + endValue.getValue())));
 
+		double incPrimitive = 1;
+		if(incrementValue instanceof DoubleVariable || incrementValue instanceof IntegerVariable) {
+			try {
+				incPrimitive = incrementValue.getValue();
+			}
+			catch(ClassCastException e) {
+				incPrimitive = ((int) incrementValue.getValue())*1.0;
+			}
+		}
+		
 		while(doLoop) {
 			if(isCode) {
 				visitCodeBlock(loopFunction.codeBlock());
 			}
-			currentValue = ArithmeticSolver.add(currentValue, incrementValue);
-			doLoop = ConditionChecker.check(new ArrayList<>(Arrays.asList("" + currentValue.getValue(), "<", "" + endValue)));
+			if(currentValue instanceof IntegerVariable) {
+				((IntegerVariable) currentValue).ADD((int) incPrimitive);
+			}
+			else if(incrementValue instanceof DoubleVariable) {
+				((DoubleVariable) currentValue).ADD(incPrimitive);
+			}
+			//currentValue = ArithmeticSolver.add(currentValue, incrementValue);
+			doLoop = ConditionChecker.check(new ArrayList<>(Arrays.asList("" + currentValue.getValue(), "<", "" + endValue.getValue())));
 		}
 		return null;
 	}
