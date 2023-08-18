@@ -68,6 +68,46 @@ public interface AidemMediaListener extends ParseTreeListener {
 	 */
 	void exitVarWithNumber(AidemMediaParser.VarWithNumberContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link AidemMediaParser#loopCodeParam}.
+	 * @param ctx the parse tree
+	 */
+	void enterLoopCodeParam(AidemMediaParser.LoopCodeParamContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link AidemMediaParser#loopCodeParam}.
+	 * @param ctx the parse tree
+	 */
+	void exitLoopCodeParam(AidemMediaParser.LoopCodeParamContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link AidemMediaParser#conditionSimple}.
+	 * @param ctx the parse tree
+	 */
+	void enterConditionSimple(AidemMediaParser.ConditionSimpleContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link AidemMediaParser#conditionSimple}.
+	 * @param ctx the parse tree
+	 */
+	void exitConditionSimple(AidemMediaParser.ConditionSimpleContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link AidemMediaParser#ifTrue}.
+	 * @param ctx the parse tree
+	 */
+	void enterIfTrue(AidemMediaParser.IfTrueContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link AidemMediaParser#ifTrue}.
+	 * @param ctx the parse tree
+	 */
+	void exitIfTrue(AidemMediaParser.IfTrueContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link AidemMediaParser#ifFalse}.
+	 * @param ctx the parse tree
+	 */
+	void enterIfFalse(AidemMediaParser.IfFalseContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link AidemMediaParser#ifFalse}.
+	 * @param ctx the parse tree
+	 */
+	void exitIfFalse(AidemMediaParser.IfFalseContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link AidemMediaParser#comment}.
 	 * @param ctx the parse tree
 	 */

@@ -47,6 +47,30 @@ public interface AidemMediaVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitVarWithNumber(AidemMediaParser.VarWithNumberContext ctx);
 	/**
+	 * Visit a parse tree produced by {@link AidemMediaParser#loopCodeParam}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitLoopCodeParam(AidemMediaParser.LoopCodeParamContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link AidemMediaParser#conditionSimple}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitConditionSimple(AidemMediaParser.ConditionSimpleContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link AidemMediaParser#ifTrue}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitIfTrue(AidemMediaParser.IfTrueContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link AidemMediaParser#ifFalse}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitIfFalse(AidemMediaParser.IfFalseContext ctx);
+	/**
 	 * Visit a parse tree produced by {@link AidemMediaParser#comment}.
 	 * @param ctx the parse tree
 	 * @return the visitor result

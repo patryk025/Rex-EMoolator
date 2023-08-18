@@ -3,12 +3,12 @@ grammar AidemMedia;
 ifInstr	
 	: '@IF' LPAREN (
 			QUOTEMARK condition QUOTEMARK SEPARATOR
-		|	param SEPARATOR QUOTEMARK compare QUOTEMARK SEPARATOR param SEPARATOR
-	)	(codeBlock | string) SEPARATOR (codeBlock | string) RPAREN ENDINSTR*
+		|	conditionSimple SEPARATOR
+	)	ifTrue SEPARATOR ifFalse RPAREN ENDINSTR*
 	;
 
 loopInstr
-	:	'@LOOP' LPAREN codeBlock SEPARATOR (string | literal | expression | arithmetic? number | functionFire | struct) SEPARATOR (string | literal | expression | arithmetic? number | functionFire | struct) SEPARATOR (string | literal | expression | arithmetic? number | functionFire | struct) RPAREN ENDINSTR*
+	:	'@LOOP' LPAREN loopCodeParam SEPARATOR param SEPARATOR param SEPARATOR param RPAREN ENDINSTR*
 	;
 
 whileInstr
@@ -23,9 +23,24 @@ codeBlock
 	:	STARTCODE (functionFire | ifInstr | loopInstr | whileInstr | instr | behFire | expression | codeBlock | (literal | floatNumber | number) | comment ENDINSTR*)* ENDINSTR* STOPCODE
 	;
 
-/* zmienne takie jak, np. ANIMOZOLW7-7 */
 varWithNumber
 	:	literal arithmetic number
+	;
+
+loopCodeParam
+	:	(codeBlock | string | literal)
+	;
+
+conditionSimple
+	:	param SEPARATOR QUOTEMARK compare QUOTEMARK SEPARATOR param
+	;
+
+ifTrue
+	:	(codeBlock | string)
+	;
+
+ifFalse
+	:	(codeBlock | string)
 	;
 
 COMMENT
@@ -37,7 +52,7 @@ comment
 	;
 
 expression
-	:	STARTEXPR ((arithmetic | DIV | STRREF)? (literal | string | arithmetic? number | arithmetic? floatNumber | modulo | iterator | functionFire | expression | struct | stringRef | variable) (arithmetic | STRREF)?)* STOPEXPR ENDINSTR*
+	:	STARTEXPR (arithmetic? (literal | string | arithmetic? number | arithmetic? floatNumber | modulo | iterator | functionFire | expression | struct | stringRef | variable) (arithmetic | STRREF)?)* STOPEXPR ENDINSTR*
 	;
 
 script
@@ -152,9 +167,21 @@ ENDINSTR:	';'
 FIREFUNC:	'^'
 	;
 
+ADD
+    :   '+'
+    ;
+
+SUBTRACT
+    :   '-'
+    ;
+
+MULT
+    :   '*' ~('[' | 'A'..'Z' | '0'..'9' | '$' | '(')
+    ;
+
 DIV
-	:	'@'
-	;
+    :   '@'
+    ;
 
 MOD
 	:	'%'
@@ -173,7 +200,7 @@ literal
     ;
 
 arithmetic
-	:	ARITHMETIC
+	:	(ADD | SUBTRACT | MULT | DIV | MOD | LPAREN | RPAREN)
 	;
 
 logic
@@ -213,12 +240,14 @@ BOOLEAN
 LITERAL: {!(getText().toUpperCase().startsWith("TRUE") || getText().toUpperCase().startsWith("FALSE"))}?
 		((('_' | DOT | SLASH)* (LETTER | DIGIT | '_')) ('_' | LETTER | DIGIT | DOT | SLASH | '!' | '?')*)
 		| ('_'* DOT DIGIT+ ('.' DIGIT+)? (LETTER ('_' | DIGIT | SLASH | '!' | '?')* | '_'*))
-		(ARITHMETIC | NUMBER | VARREF)?
+		((ADD | SUBTRACT | MULT | DIV | MOD) | NUMBER | VARREF)?
 		;
 
+/*
 ARITHMETIC
-	:	'+' | '-' | '*' ~('[' | 'A'..'Z' | '0'..'9' | '$') | DIV
+	:	ADD | SUBTRACT | MULT | DIV
 	;
+*/
 
 LOGIC
 	:	'&&' | '||'
