@@ -5,6 +5,8 @@ import pl.cba.genszu.amcodetranslator.antlr.*;
 import java.util.*;
 import pl.cba.genszu.amcodetranslator.antlr.AidemMediaParser.*;
 import pl.cba.genszu.amcodetranslator.interpreter.*;
+import pl.cba.genszu.amcodetranslator.interpreter.exceptions.InterpreterException;
+import pl.cba.genszu.amcodetranslator.interpreter.exceptions.VariableNotFoundException;
 import pl.cba.genszu.amcodetranslator.interpreter.util.ArithmeticSolver;
 import pl.cba.genszu.amcodetranslator.interpreter.util.ConditionChecker;
 import pl.cba.genszu.amcodetranslator.interpreter.util.ParamHelper;
@@ -233,13 +235,14 @@ public class AidemMediaCodeVisitor extends AidemMediaBaseVisitor<Variable>
 		Variable currentValue = interpreter.createVariable("_I_", null, startValue.getValue());
 
 		boolean isCode = loopFunction.codeBlock() != null;
+		boolean isLiteral = loopFunction.literal() != null;
 
 		boolean doLoop = ConditionChecker.check(new ArrayList<>(Arrays.asList("" + currentValue.getValue(), "<", "" + endValue.getValue())));
 
 		double incPrimitive = 1;
 		if(incrementValue instanceof DoubleVariable || incrementValue instanceof IntegerVariable) {
 			try {
-				incPrimitive = incrementValue.getValue();
+				incPrimitive = ((double) incrementValue.getValue());
 			}
 			catch(ClassCastException e) {
 				incPrimitive = ((int) incrementValue.getValue())*1.0;
@@ -249,6 +252,24 @@ public class AidemMediaCodeVisitor extends AidemMediaBaseVisitor<Variable>
 		while(doLoop) {
 			if(isCode) {
 				visitCodeBlock(loopFunction.codeBlock());
+			}
+			else if(isLiteral) {
+				Variable tmp = interpreter.getVariable(loopFunction.literal().getText());
+				if(tmp != null) {
+					//TODO: obsługa BEHAVIOUR
+					if(tmp.getType().equals("BEHAVIOUR")) {
+						throw new InterpreterException("BEHAVIOUR are not supported yet");
+					}
+					else {
+						throw new InterpreterException(String.format("%s type is not supported in @LOOP", tmp.getType()));
+					}
+				}
+				else {
+					throw new VariableNotFoundException(loopFunction.literal().getText());
+				}
+			}
+			else {
+				throw new InterpreterException("Strings are not supported");
 			}
 			if(currentValue instanceof IntegerVariable) {
 				((IntegerVariable) currentValue).ADD((int) incPrimitive);
