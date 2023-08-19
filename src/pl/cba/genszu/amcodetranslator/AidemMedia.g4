@@ -52,7 +52,7 @@ comment
 	;
 
 expression
-	:	STARTEXPR ((arithmetic | DIV | STRREF)? (literal | string | arithmetic? number | arithmetic? floatNumber | modulo | iterator | functionFire | expression | struct | stringRef | variable) (arithmetic | STRREF)?)* STOPEXPR ENDINSTR*
+	:	STARTEXPR (arithmetic? (literal | string | arithmetic? number | arithmetic? floatNumber | modulo | iterator | functionFire | expression | struct | stringRef | variable) (arithmetic | STRREF)?)* STOPEXPR ENDINSTR*
 	;
 
 script
@@ -167,9 +167,21 @@ ENDINSTR:	';'
 FIREFUNC:	'^'
 	;
 
+ADD
+    :   '+'
+    ;
+
+SUBTRACT
+    :   '-'
+    ;
+
+MULT
+    :   '*' ~('[' | 'A'..'Z' | '0'..'9' | '$' | '(')
+    ;
+
 DIV
-	:	'@'
-	;
+    :   '@'
+    ;
 
 MOD
 	:	'%'
@@ -188,7 +200,7 @@ literal
     ;
 
 arithmetic
-	:	ARITHMETIC
+	:	(ADD | SUBTRACT | MULT | DIV | MOD | LPAREN | RPAREN)
 	;
 
 logic
@@ -228,12 +240,14 @@ BOOLEAN
 LITERAL: {!(getText().toUpperCase().startsWith("TRUE") || getText().toUpperCase().startsWith("FALSE"))}?
 		((('_' | DOT | SLASH)* (LETTER | DIGIT | '_')) ('_' | LETTER | DIGIT | DOT | SLASH | '!' | '?')*)
 		| ('_'* DOT DIGIT+ ('.' DIGIT+)? (LETTER ('_' | DIGIT | SLASH | '!' | '?')* | '_'*))
-		(ARITHMETIC | NUMBER | VARREF)?
+		((ADD | SUBTRACT | MULT | DIV | MOD) | NUMBER | VARREF)?
 		;
 
+/*
 ARITHMETIC
-	:	'+' | '-' | '*' ~('[' | 'A'..'Z' | '0'..'9' | '$') | DIV
+	:	ADD | SUBTRACT | MULT | DIV
 	;
+*/
 
 LOGIC
 	:	'&&' | '||'

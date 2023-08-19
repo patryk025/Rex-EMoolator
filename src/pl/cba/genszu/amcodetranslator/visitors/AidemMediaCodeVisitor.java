@@ -234,6 +234,16 @@ public class AidemMediaCodeVisitor extends AidemMediaBaseVisitor<Variable>
 		
 		//if(startValue.getType().equals("STRING"))
 
+		if(startValue.getType().equals("STRING")) {
+			throw new InterpreterException("Start value cannot be a string");
+		}
+		if(diffValue.getType().equals("STRING")) {
+			throw new InterpreterException("Diff value cannot be a string");
+		}
+		if(incrementValue.getType().equals("STRING")) {
+			throw new InterpreterException("Increment value cannot be a string");
+		}
+
 		Variable currentValue = interpreter.createVariable("_I_", null, startValue.getValue());
 
 		boolean isCode = loopFunction.codeBlock() != null;
@@ -283,5 +293,26 @@ public class AidemMediaCodeVisitor extends AidemMediaBaseVisitor<Variable>
 			doLoop = ConditionChecker.check(new ArrayList<>(Arrays.asList("" + currentValue.getValue(), "<", "" + endValue.getValue())));
 		}
 		return null;
+	}
+
+	@Override
+	public Variable visitWhileInstr(WhileInstrContext ctx) {
+		//TODO: zrobić @WHILE
+		return super.visitWhileInstr(ctx);
+	}
+
+	@Override
+	public Variable visitInstr(InstrContext ctx) {
+		String instructionName = ctx.literal().getText();
+		List<ParamContext> params = ctx.param();
+
+		switch(instructionName) {
+			case "CONTINUE":
+			case "BREAK":
+			case "ONEBREAK":
+				return VariableFactory.createVariable("OPCODE", instructionName, null);
+			default:
+				throw new InterpreterException(String.format("Instrukcja @%s nie jest jeszcze obsługiwana", instructionName));
+		}
 	}
 }

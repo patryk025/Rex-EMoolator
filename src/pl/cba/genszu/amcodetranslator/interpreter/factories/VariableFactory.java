@@ -94,6 +94,8 @@ public class VariableFactory
                 return new WorldVariable(name, value);
             case "VOID":
                 return new Variable(null); //void
+            case "OPCODE":
+                return new Variable(name); //zmienna na operacje (break, continue, onebreak)
             default:
                 throw new IllegalArgumentException("Unknown variable type: " + type);
         }
