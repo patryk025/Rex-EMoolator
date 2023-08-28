@@ -231,6 +231,8 @@ public class AidemMediaCodeVisitor extends AidemMediaBaseVisitor<Variable>
 		Variable diffValue = VariableFactory.createVariable(null, ParamHelper.getValueFromParam(this, ctx.param(1)));
 		Variable endValue = ArithmeticSolver.add(startValue, diffValue);
 		Variable incrementValue = VariableFactory.createVariable(null, ParamHelper.getValueFromParam(this, ctx.param(2)));
+		
+		//if(startValue.getType().equals("STRING"))
 
 		Variable currentValue = interpreter.createVariable("_I_", null, startValue.getValue());
 
