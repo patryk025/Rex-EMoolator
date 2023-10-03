@@ -14,7 +14,8 @@ public class Main
 		//String testExpression = "{@IF(\"ITERATOR'3\",{[TEST+ITERATOR*2]}, {[2+3]});}";
 		//String testExpression = "{@IF(\"ITERATOR>'1&&ITERATOR<'10\",{[TEST+ITERATOR*2+\"_\"+ITERATOR@5]}, {[2+3]});}";
 		//String testExpression = "{@LOOP({[_I_+1]}, 0, 5, 1);}";
-		String testExpression = "{[15-1*(12@4+1)]}";
+		//String testExpression = "{[15-1*(12@4+1)]}";
+		String testExpression = "{[6@2*(1+2)]}";
 
 		List<Variable> vars = new ArrayList<>();
 		Variable test1 = new StringVariable("TEST", "ANIMO_");

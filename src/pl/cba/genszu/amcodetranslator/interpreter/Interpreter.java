@@ -47,7 +47,7 @@ public class Interpreter
 	}
 	
 	public Variable calcArithmetic(List<String> operations) {
-		Variable result = VariableFactory.createVariable("INTEGER", null, 0);
+		//Variable result = VariableFactory.createVariable("INTEGER", null, 0);
 		List<String> postfix = InfixToPostfix.infixToPostfix(operations);
 		Stack<Variable> stack = new Stack<>();
 		for(String token : postfix) {
@@ -68,7 +68,7 @@ public class Interpreter
 					stack.push(tmp);
 				}
 				else {
-					stack.push(VariableFactory.createVariable(TypeGuesser.guessNumber(token), null, token));
+					stack.push(VariableFactory.createVariable(TypeGuesser.guessType(token), null, token));
 				}
 			}
 		}
@@ -103,8 +103,9 @@ public class Interpreter
 		
 		AidemMediaParser.ScriptContext scriptContext = parser.script();
 		AidemMediaCodeVisitor visitor = new AidemMediaCodeVisitor(this);
-		visitor.visit(scriptContext);
+		Variable result = visitor.visit(scriptContext);
 		
-		return null;
+		return result;
 	}
+	
 }

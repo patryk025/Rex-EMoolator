@@ -7,7 +7,7 @@ import pl.cba.genszu.amcodetranslator.utils.TypeGuesser;
 public class VariableFactory
 {
     public static Variable createVariable(String name, Object value) {
-        return createVariable(TypeGuesser.guessNumber(""+value), name, value);
+        return createVariable(TypeGuesser.guessType(""+value), name, value);
     }
 
     public static Variable createVariable(String type, String name, Object value) {

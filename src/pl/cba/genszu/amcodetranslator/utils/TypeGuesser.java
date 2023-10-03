@@ -1,7 +1,7 @@
 package pl.cba.genszu.amcodetranslator.utils;
 
 public class TypeGuesser {
-    public static String guessNumber(String string) {
+    public static String guessType(String string) {
         try {
             double d = Double.parseDouble(string);
             if (d != Math.floor(d) || string.contains(".")) {

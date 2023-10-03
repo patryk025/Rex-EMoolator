@@ -73,7 +73,7 @@
 - [ ] @GETCURRENTSCENE
 - [x] @IF
 - [ ] @INT
-- [ ] @LOOP
+- [x] @LOOP
 - [ ] @MSGBOX
 - [ ] @ONEBREAK
 - [ ] @RETURN

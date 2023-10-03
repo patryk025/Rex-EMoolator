@@ -1,20 +1,36 @@
 package pl.cba.genszu.amcodetranslator.interpreter.util;
 
-import pl.cba.genszu.amcodetranslator.interpreter.Variable;
-import pl.cba.genszu.amcodetranslator.interpreter.exceptions.InterpreterException;
-import pl.cba.genszu.amcodetranslator.interpreter.factories.VariableFactory;
-import pl.cba.genszu.amcodetranslator.utils.InfixToPostfix;
-import pl.cba.genszu.amcodetranslator.utils.TypeGuesser;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Stack;
+import java.util.*;
+import pl.cba.genszu.amcodetranslator.interpreter.*;
+import pl.cba.genszu.amcodetranslator.interpreter.exceptions.*;
+import pl.cba.genszu.amcodetranslator.interpreter.factories.*;
+import pl.cba.genszu.amcodetranslator.utils.*;
 
 public class ConditionChecker
 {
-    public static boolean check(List<String> ifElements) {
-        Variable var1 = VariableFactory.createVariable(TypeGuesser.guessNumber(ifElements.get(0)), null, ifElements.get(0));
-        Variable var2 = VariableFactory.createVariable(TypeGuesser.guessNumber(ifElements.get(2)), null, ifElements.get(2));
+	public static boolean check(List<String> ifElements) {
+		return check(ifElements, null);
+	}
+	
+	
+    public static boolean check(List<String> ifElements, HashMap<String, Variable> varsToBind) {
+		Variable var1;
+		Variable var2;
+		if(varsToBind == null) {
+			var1 = VariableFactory.createVariable(TypeGuesser.guessType(ifElements.get(0)), null, ifElements.get(0));
+			var2 = VariableFactory.createVariable(TypeGuesser.guessType(ifElements.get(2)), null, ifElements.get(2));
+		}
+        else {
+			if(varsToBind.containsKey(ifElements.get(0)))
+				var1 = varsToBind.get(ifElements.get(0));
+			else
+				var1 = VariableFactory.createVariable(TypeGuesser.guessType(ifElements.get(0)), null, ifElements.get(0));
+			
+			if(varsToBind.containsKey(ifElements.get(2)))
+				var2 = varsToBind.get(ifElements.get(2));
+			else
+				var2 = VariableFactory.createVariable(TypeGuesser.guessType(ifElements.get(2)), null, ifElements.get(2));
+		}
         switch(ifElements.get(1)) {
             case "<'":
             case "<_":

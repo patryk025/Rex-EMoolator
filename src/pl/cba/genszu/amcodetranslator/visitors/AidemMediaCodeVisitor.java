@@ -311,6 +311,14 @@ public class AidemMediaCodeVisitor extends AidemMediaBaseVisitor<Variable>
 			case "BREAK":
 			case "ONEBREAK":
 				return VariableFactory.createVariable("OPCODE", instructionName, null);
+			case "GETAPPLICATIONNAME":
+				// TODO: podejrzeć jak to PikLib zwraca
+				return VariableFactory.createVariable("STRING", "<no value>", null);
+			case "GETCURRENTSCENE":
+				// TODO: to samo co wyżej
+				return VariableFactory.createVariable("STRING", "<no value>", null);
+			case "RETURN":
+				return VariableFactory.createVariable("OPCODE", "RETURN|"+params.get(0), null);
 			default:
 				throw new InterpreterException(String.format("Instrukcja @%s nie jest jeszcze obsługiwana", instructionName));
 		}
