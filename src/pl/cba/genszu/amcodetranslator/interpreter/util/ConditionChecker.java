@@ -5,13 +5,17 @@ import pl.cba.genszu.amcodetranslator.interpreter.*;
 import pl.cba.genszu.amcodetranslator.interpreter.exceptions.*;
 import pl.cba.genszu.amcodetranslator.interpreter.factories.*;
 import pl.cba.genszu.amcodetranslator.utils.*;
+import pl.cba.genszu.amcodetranslator.interpreter.variabletypes.*;
 
 public class ConditionChecker
 {
+	/*public static boolean check(ConditionVariable cond) {
+		return check(Arrays.asList(cond., new String[0]));
+	}*/
+	
 	public static boolean check(List<String> ifElements) {
 		return check(ifElements, null);
 	}
-	
 	
     public static boolean check(List<String> ifElements, HashMap<String, Variable> varsToBind) {
 		Variable var1;

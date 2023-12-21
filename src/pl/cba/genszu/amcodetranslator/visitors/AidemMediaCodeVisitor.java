@@ -298,7 +298,22 @@ public class AidemMediaCodeVisitor extends AidemMediaBaseVisitor<Variable>
 	@Override
 	public Variable visitWhileInstr(WhileInstrContext ctx) {
 		//TODO: zrobić @WHILE
-		return super.visitWhileInstr(ctx);
+		// (STRING, STRING, STRING) condition, STRING behaviour
+		String condition = ctx.param(0).getText() + ctx.compare().getText() + ctx.param(1);
+		boolean doLoop = ConditionChecker.check(new ArrayList<>(Arrays.asList(condition)));
+		
+		Variable behaviour = ctx.string() != null ? this.interpreter.getVariable(ctx.string().getText()) : null;
+
+		while(doLoop) {
+			if(ctx.codeBlock() != null) {
+				visitCodeBlock(ctx.codeBlock());
+			}
+			else {
+				// obsługa Behaviour
+				
+			}
+		}
+		return null;
 	}
 
 	@Override

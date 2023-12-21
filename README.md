@@ -4,8 +4,8 @@ Prototyp modułu lexera, interpretera skryptów z gier Aidem Media wykorzystują
 Lista TODO (w trakcie tworzenia):
 - [x] Arytmetyka
 - [x] Obsługa zmiennych
-- [ ] Obsługa instrukcji warunkowych
-- [ ] Obsługa pętli
+- [x] Obsługa instrukcji warunkowych
+- [x] Obsługa pętli (tak - na razie bez procedur)
 - [ ] Obsługa funkcji
 - [ ] Obsługa procedur (klasa BEHAVIOUR)
 - [ ] Obsługa animacji

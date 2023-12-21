@@ -80,7 +80,7 @@
 - [ ] @RUNONTIMER
 - [ ] @STRING
 - [ ] @VALUE
-- [ ] @WHILE
+- [x] @WHILE
 
 ###Disclaimer: pola, sygnały bądź typy z gwiazdką na końcu to te, których automatyczny skaner nie znalazł ani razu w skryptach gier z Reksiem (lista w trakcie tworzenia)
 W oparciu o arkusz pod linkiem https://docs.google.com/spreadsheets/d/132gkNJ0_GsZXAX17Jlp9qo1DMSRpbPdLWJpIBTCpvhI/edit?usp=drivesdk
