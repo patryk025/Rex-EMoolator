@@ -15,13 +15,24 @@ import pl.cba.genszu.amcodetranslator.interpreter.variabletypes.*;
 public class Interpreter
 {
 	private List<Variable> variables;
+	private String sceneName;
 	
 	public Interpreter() {
 		this.variables = new ArrayList<>();
+		this.sceneName = "BRAKSCENY";
 	}
 	
 	public Interpreter(List<Variable> variables) {
 		this.variables = variables;
+		this.sceneName = "BRAKSCENY";
+	}
+	
+	public void setSceneName(String sceneName) {
+		this.sceneName = sceneName;
+	}
+	
+	public String getSceneName() {
+		return this.sceneName;
 	}
 
 	public Variable getVariable(String name) {

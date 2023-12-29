@@ -63,20 +63,20 @@
 
 ###Instrucje
 - [ ] @BOOL
-- [ ] @BREAK
-- [ ] @CONTINUE
+- [x] @BREAK (na razie tylko jako kod operacji)
+- [x] @CONTINUE (na razie tylko jako kod operacji)
 - [ ] @CONV
 - [ ] @CREATE
 - [ ] @DOUBLE
-- [ ] @FOR
-- [ ] @GETAPPLICATIONNAME
-- [ ] @GETCURRENTSCENE
+- [x] @FOR
+- [x] @GETAPPLICATIONNAME (na razie placeholdery)
+- [x] @GETCURRENTSCENE
 - [x] @IF
 - [ ] @INT
 - [x] @LOOP
 - [ ] @MSGBOX
-- [ ] @ONEBREAK
-- [ ] @RETURN
+- [x] @ONEBREAK (na razie tylko jako kod operacji)
+- [x] @RETURN (na razie tylko jako kod operacji)
 - [ ] @RUNONTIMER
 - [ ] @STRING
 - [ ] @VALUE

@@ -331,7 +331,7 @@ public class AidemMediaCodeVisitor extends AidemMediaBaseVisitor<Variable>
 				return VariableFactory.createVariable("STRING", "<no value>", null);
 			case "GETCURRENTSCENE":
 				// TODO: to samo co wyżej
-				return VariableFactory.createVariable("STRING", "<no value>", null);
+				return VariableFactory.createVariable("STRING", this.interpreter.getSceneName(), null);
 			case "RETURN":
 				return VariableFactory.createVariable("OPCODE", "RETURN|"+params.get(0), null);
 			default:
