@@ -39,6 +39,10 @@ public class ParamHelper {
         {
             return param.literal().getText();
         }
+        else if (param.stringRef() != null)
+        {
+            return (String) visitor.visitStringRef(param.stringRef()).getValue();
+        }
         return "";
     }
 }

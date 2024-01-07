@@ -188,8 +188,15 @@ public class AidemMediaCodeVisitor extends AidemMediaBaseVisitor<Variable>
 		List<String> expression_parts = new ArrayList<>();
 		for(int i = 1; i < ctx.getChildCount()-1; i++) {
 			ParseTree child = ctx.getChild(i);
-			print("part " + (i - 1) + " -> " + child.getText());
-			expression_parts.add(child.getText());
+			if(child instanceof AidemMediaParser.StringRefContext) {
+				Variable resolvedStringRef = visitStringRef((StringRefContext) child);
+				expression_parts.add((String) resolvedStringRef.getValue());
+				print("part " + (i - 1) + " -> " + child.getText() + " => " + resolvedStringRef.getValue());
+			}
+			else {
+				print("part " + (i - 1) + " -> " + child.getText());
+				expression_parts.add(child.getText());
+			}
 		}
 		Variable result = interpreter.calcArithmetic(expression_parts);
 		print("DEBUG result: "+result.getValue());
@@ -315,6 +322,18 @@ public class AidemMediaCodeVisitor extends AidemMediaBaseVisitor<Variable>
 				return interpreter.createVariable(varName, instructionName.equals("INT") ? "INTEGER" : instructionName, value);
 			default:
 				throw new InterpreterException(String.format("Instrukcja @%s nie jest jeszcze obsługiwana", instructionName));
+		}
+	}
+
+	@Override
+	public Variable visitStringRef(StringRefContext ctx) {
+		if(ctx.literal() != null) {
+			return interpreter.getVariable(ctx.literal().getText());
+		}
+		else {
+			Variable result = visitExpression(ctx.expression());
+			String value = (String) result.getValue();
+			return interpreter.getVariable(value);
 		}
 	}
 }
