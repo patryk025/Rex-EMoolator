@@ -83,20 +83,21 @@
 - [x] @WHILE
 
 ###Disclaimer: pola, sygnały bądź typy z gwiazdką na końcu to te, których automatyczny skaner nie znalazł ani razu w skryptach gier z Reksiem (lista w trakcie tworzenia)
-W oparciu o arkusz pod linkiem https://docs.google.com/spreadsheets/d/132gkNJ0_GsZXAX17Jlp9qo1DMSRpbPdLWJpIBTCpvhI/edit?usp=drivesdk
+W oparciu o arkusz pod linkiem https://docs.google.com/spreadsheets/d/132gkNJ0_GsZXAX17Jlp9qo1DMSRpbPdLWJpIBTCpvhI/edit?usp=drivesdk oraz własne badania
 
 ###Animo
 - [ ] ASBUTTON
-- [ ] FILENAME
+- [x] DESCRIPTION
+- [x] FILENAME
 - [ ] FLUSHAFTERPLAYED
-- [ ] FPS
-- [ ] MONITORCOLLISION
-- [ ] MONITORCOLLISIONALPHA
-- [ ] PRELOAD
-- [ ] PRIORITY
-- [ ] RELEASE
-- [ ] TOCANVAS
-- [ ] VISIBLE
+- [x] FPS
+- [x] MONITORCOLLISION
+- [x] MONITORCOLLISIONALPHA
+- [x] PRELOAD
+- [x] PRIORITY
+- [x] RELEASE
+- [x] TOCANVAS
+- [x] VISIBLE
 - [ ] CLEARCLIPPING
 - [ ] DRAWONTO
 - [ ] FLIPH
@@ -185,11 +186,16 @@ W oparciu o arkusz pod linkiem https://docs.google.com/spreadsheets/d/132gkNJ0_G
 - [ ] TOP
 
 ###Application
-- [ ] BLOOMOO_VERSION
-- [ ] EPISODES
+- [x] AUTHOR
+- [x] BLOOMOO_VERSION
+- [x] CREATIONTIME
+- [x] DESCRIPTION
+- [x] EPISODES
+- [x] LASTMODIFYTIME
+- [x] PATH
 - [ ] SCENES
-- [ ] STARTWITH
-- [ ] VERSION
+- [x] STARTWITH
+- [x] VERSION
 - [ ] DISABLEMUSIC
 - [ ] ENABLEMUSIC
 - [ ] EXISTSENV
@@ -208,6 +214,7 @@ W oparciu o arkusz pod linkiem https://docs.google.com/spreadsheets/d/132gkNJ0_G
 - [ ] STOREBINARY
 
 ###Array
+- [x] DESCRIPTION
 - [ ] SENDONCHANGE
 - [ ] ADD
 - [ ] ADDAT
@@ -269,8 +276,9 @@ W oparciu o arkusz pod linkiem https://docs.google.com/spreadsheets/d/132gkNJ0_G
 - [ ] ONSIGNAL
 
 ###Behaviour
-- [ ] CODE
-- [ ] CONDITION
+- [x] CODE
+- [x] CONDITION
+- [x] DESCRIPTION
 - [ ] BREAK
 - [ ] DISABLE
 - [ ] RUN
@@ -281,10 +289,11 @@ W oparciu o arkusz pod linkiem https://docs.google.com/spreadsheets/d/132gkNJ0_G
 - [ ] ONSIGNAL
 
 ###Bool
+- [x] DESCRIPTION
 - [ ] DEFAULT
 - [ ] NETNOTIFY
-- [ ] TOINI
-- [ ] VALUE
+- [x] TOINI
+- [x] VALUE
 - [ ] AND
 - [ ] CLEAR
 - [ ] COPYFILE
@@ -308,16 +317,17 @@ W oparciu o arkusz pod linkiem https://docs.google.com/spreadsheets/d/132gkNJ0_G
 
 ###Button
 - [ ] ACCENT
+- [x] DESCRIPTION
 - [ ] DRAG
-- [ ] DRAGGABLE
-- [ ] ENABLE
-- [ ] GFXONCLICK
-- [ ] GFXONMOVE
-- [ ] GFXSTANDARD
-- [ ] PRIORITY
-- [ ] RECT
+- [x] DRAGGABLE
+- [x] ENABLE
+- [x] GFXONCLICK
+- [x] GFXONMOVE
+- [x] GFXSTANDARD
+- [x] PRIORITY
+- [x] RECT
 - [ ] SNDONCLICK
-- [ ] SNDONMOVE
+- [x] SNDONMOVE
 - [ ] SNDSTANDARD
 - [ ] ACCENT
 - [ ] DISABLE
@@ -407,8 +417,8 @@ W oparciu o arkusz pod linkiem https://docs.google.com/spreadsheets/d/132gkNJ0_G
 - [ ] ONWINDOWFOCUSON
 
 ###Class
-- [ ] BASE
-- [ ] DEF
+- [x] BASE
+- [x] DEF
 - [ ] DELETE
 - [ ] NEW
 
@@ -418,9 +428,10 @@ W oparciu o arkusz pod linkiem https://docs.google.com/spreadsheets/d/132gkNJ0_G
 - [ ] RELEASE
 
 ###Condition
-- [ ] OPERAND1
-- [ ] OPERAND2
-- [ ] OPERATOR
+- [x] DESCRIPTION
+- [x] OPERAND1
+- [x] OPERAND2
+- [x] OPERATOR
 - [ ] BREAK
 - [ ] CHECK
 - [ ] ONE_BREAK
@@ -428,9 +439,10 @@ W oparciu o arkusz pod linkiem https://docs.google.com/spreadsheets/d/132gkNJ0_G
 - [ ] ONRUNTIMESUCCESS
 
 ###ComplexCondition
-- [ ] CONDITION1
-- [ ] CONDITION2
-- [ ] OPERATOR
+- [x] CONDITION1
+- [x] CONDITION2
+- [x] DESCRIPTION
+- [x] OPERATOR
 - [ ] BREAK
 - [ ] CHECK
 - [ ] ONE_BREAK
@@ -438,7 +450,7 @@ W oparciu o arkusz pod linkiem https://docs.google.com/spreadsheets/d/132gkNJ0_G
 - [ ] ONRUNTIMESUCCESS
 
 ###Database
-- [ ] MODEL
+- [x] MODEL
 - [ ] ADD
 - [ ] FIND
 - [ ] GETCURSORPOS
@@ -468,8 +480,8 @@ W oparciu o arkusz pod linkiem https://docs.google.com/spreadsheets/d/132gkNJ0_G
 ###Double
 - [ ] DEFAULT
 - [ ] NETNOTIFY
-- [ ] TOINI
-- [ ] VALUE
+- [x] TOINI
+- [x] VALUE
 - [ ] ADD
 - [ ] ARCTAN
 - [ ] ARCTANEX
@@ -538,8 +550,13 @@ W oparciu o arkusz pod linkiem https://docs.google.com/spreadsheets/d/132gkNJ0_G
 ###EditGroup
 
 ###Episode
-- [ ] SCENES
-- [ ] STARTWITH
+- [x] AUTHOR
+- [x] CREATIONTIME
+- [x] DESCRIPTION
+- [x] LASTMODIFYTIME
+- [x] PATH
+- [x] SCENES
+- [x] STARTWITH
 - [ ] BACK
 - [ ] GETCURRENTSCENE
 - [ ] GETLATESTSCENE
@@ -549,16 +566,18 @@ W oparciu o arkusz pod linkiem https://docs.google.com/spreadsheets/d/132gkNJ0_G
 - [ ] RESTART
 
 ###Expression
-- [ ] OPERAND1
-- [ ] OPERAND2
-- [ ] OPERATOR
+- [x] DESCRIPTION
+- [x] OPERAND1
+- [x] OPERAND2
+- [x] OPERATOR
 
 ###FIFO
 
 ###Filter
+- [x] ACTION
 
 ###Font
-- [ ] DEF_[family]_[style]_[size]
+- [x] DEF_[family]_[style]_[size]
 - [ ] GETHEIGHT
 - [ ] SETCOLOR
 - [ ] SETFAMILY
@@ -603,15 +622,16 @@ W oparciu o arkusz pod linkiem https://docs.google.com/spreadsheets/d/132gkNJ0_G
 
 ###Image
 - [ ] ASBUTTON
-- [ ] FILENAME
+- [x] DESCRIPTION
+- [x] FILENAME
 - [ ] FLUSHAFTERPLAYER
-- [ ] MONITORCOLLISION
-- [ ] MONITORCOLLISIONALPHA
-- [ ] PRELOAD
-- [ ] PRIORITY
-- [ ] RELEASE
-- [ ] TOCANVAS
-- [ ] VISIBLE
+- [x] MONITORCOLLISION
+- [x] MONITORCOLLISIONALPHA
+- [x] PRELOAD
+- [x] PRIORITY
+- [x] RELEASE
+- [x] TOCANVAS
+- [x] VISIBLE
 - [ ] CLEARCLIPPING
 - [ ] DRAWONTO
 - [ ] FLIPH
@@ -667,11 +687,14 @@ W oparciu o arkusz pod linkiem https://docs.google.com/spreadsheets/d/132gkNJ0_G
 - [ ] ONRELEASE
 - [ ] ONSIGNAL
 
+###Inertia
+
 ###Integer
+- [x] DESCRIPTION
 - [ ] DEFAULT
 - [ ] NETNOTIFY
-- [ ] TOINI
-- [ ] VALUE
+- [x] TOINI
+- [x] VALUE
 - [ ] ABS
 - [ ] ADD
 - [ ] AND
@@ -745,6 +768,12 @@ W oparciu o arkusz pod linkiem https://docs.google.com/spreadsheets/d/132gkNJ0_G
 
 ###LIFO
 
+###Matrix
+- [x] SIZE
+- [x] BASEPOS
+- [x] CELLHEIGHT
+- [x] CELLWIDTH
+
 ###Mouse
 - [ ] MOUSE
 - [ ] CLICK
@@ -762,6 +791,7 @@ W oparciu o arkusz pod linkiem https://docs.google.com/spreadsheets/d/132gkNJ0_G
 - [ ] LOCKACTIVECURSOR
 - [ ] MOUSERELEASE
 - [ ] MOVE
+- [x] RAW
 - [ ] SET
 - [ ] SETACTIVERECT
 - [ ] SETCLIPRECT
@@ -778,7 +808,7 @@ W oparciu o arkusz pod linkiem https://docs.google.com/spreadsheets/d/132gkNJ0_G
 ###Movie
 
 ###MultiArray
-- [ ] DIMENSIONS
+- [x] DIMENSIONS
 - [ ] COUNT
 - [ ] LOAD
 - [ ] GET
@@ -788,6 +818,7 @@ W oparciu o arkusz pod linkiem https://docs.google.com/spreadsheets/d/132gkNJ0_G
 - [ ] SET
 
 ###Music
+- [x] FILENAME
 
 ###Netclient
 - [ ] NETCLIENT
@@ -823,14 +854,14 @@ W oparciu o arkusz pod linkiem https://docs.google.com/spreadsheets/d/132gkNJ0_G
 ###Path (z dll?)
 
 ###Pattern
-- [ ] GRIDX
-- [ ] GRIDY
-- [ ] HEIGHT
-- [ ] LAYERS
-- [ ] PRIORITY
-- [ ] TOCANVAS
-- [ ] VISIBLE
-- [ ] WIDTH
+- [x] GRIDX
+- [x] GRIDY
+- [x] HEIGHT
+- [x] LAYERS
+- [x] PRIORITY
+- [x] TOCANVAS
+- [x] VISIBLE
+- [x] WIDTH
 - [ ] ADD
 - [ ] GETALIASAT
 - [ ] GETALIASATCELL
@@ -855,16 +886,16 @@ W oparciu o arkusz pod linkiem https://docs.google.com/spreadsheets/d/132gkNJ0_G
 - [ ] GETPLENTY
 
 ###Scene
-- [ ] AUTHOR
-- [ ] BACKGROUND
+- [x] AUTHOR
+- [x] BACKGROUND
 - [ ] COAUTHORS
-- [ ] CREATIONTIME
+- [x] CREATIONTIME
 - [ ] DEAMON
-- [ ] DESCRIPTION
-- [ ] DLLS
-- [ ] LASTMODIFYTIME
-- [ ] MUSIC
-- [ ] PATH
+- [x] DESCRIPTION
+- [x] DLLS
+- [x] LASTMODIFYTIME
+- [x] MUSIC
+- [x] PATH
 - [ ] CREATEOBJECT
 - [ ] GETDRAGGEDNAME
 - [ ] GETELEMENTSNO
@@ -922,7 +953,8 @@ W oparciu o arkusz pod linkiem https://docs.google.com/spreadsheets/d/132gkNJ0_G
 - [ ] ONTOP
 
 ###Sequence
-- [ ] FILENAME
+- [x] DESCRIPTION
+- [x] FILENAME
 - [ ] GETEVENTNAME
 - [ ] GETPLAYING
 - [ ] HIDE
@@ -933,8 +965,10 @@ W oparciu o arkusz pod linkiem https://docs.google.com/spreadsheets/d/132gkNJ0_G
 - [ ] SETFREQ
 - [ ] SETPAN
 - [ ] SETVOLUME
+- [x] SEQEVENT
 - [ ] SHOW
 - [ ] STOP
+- [x] VISIBLE
 - [ ] ONDONE
 - [ ] ONFINISHED
 - [ ] ONINIT
@@ -943,14 +977,20 @@ W oparciu o arkusz pod linkiem https://docs.google.com/spreadsheets/d/132gkNJ0_G
 
 ###Signal
 
+###Simple
+- [x] FILENAME
+- [x] EVENT
+
 ###Sound
-- [ ] FILENAME
-- [ ] FLUSHAFTERPLAYED
-- [ ] PRELOAD
+- [x] DESCRIPTION
+- [x] FILENAME
+- [x] FLUSHAFTERPLAYED
+- [x] PRELOAD
 - [ ] ISPLAYING
 - [ ] LOAD
 - [ ] PAUSE
 - [ ] PLAY
+- [x] RELEASE
 - [ ] RESUME
 - [ ] SETFREQ
 - [ ] SETPAN
@@ -963,17 +1003,18 @@ W oparciu o arkusz pod linkiem https://docs.google.com/spreadsheets/d/132gkNJ0_G
 - [ ] ONSIGNAL
 - [ ] ONSTARTED
 
-###Staticfilter (do piklib8)
-- [ ] ACTION
+###StaticFilter
+- [x] ACTION
 - [ ] LINK
 - [ ] UNLINK
 - [ ] SETPROPERTY
 
 ###String
 - [ ] DEFAULT
+- [x] DESCRIPTION
 - [ ] NETNOTIFY
-- [ ] TOINI
-- [ ] VALUE
+- [x] TOINI
+- [x] VALUE
 - [ ] ADD
 - [ ] CLEAR
 - [ ] COPYFILE
@@ -1002,7 +1043,7 @@ W oparciu o arkusz pod linkiem https://docs.google.com/spreadsheets/d/132gkNJ0_G
 - [ ] ONSIGNAL
 
 ###Struct
-- [ ] FIELDS
+- [x] FIELDS
 - [ ] GETFIELD
 - [ ] SET
 - [ ] SETFIELD
@@ -1040,17 +1081,17 @@ W oparciu o arkusz pod linkiem https://docs.google.com/spreadsheets/d/132gkNJ0_G
 - [ ] UNINSTALL
 
 ###Text
-- [ ] FONT
-- [ ] HJUSTIFY
+- [x] FONT
+- [x] HJUSTIFY
 - [ ] HYPERTEXT
-- [ ] MONITORCOLLISION
-- [ ] MONITORCOLLISIONALPHA
-- [ ] PRIORITY
-- [ ] RECT
-- [ ] TEXT
-- [ ] TOCANVAS
-- [ ] VISIBLE
-- [ ] VJUSTIFY
+- [x] MONITORCOLLISION
+- [x] MONITORCOLLISIONALPHA
+- [x] PRIORITY
+- [x] RECT
+- [x] TEXT
+- [x] TOCANVAS
+- [x] VISIBLE
+- [x] VJUSTIFY
 - [ ] CLEARCLIPPING
 - [ ] DRAWONTO
 - [ ] GETHEIGHT
@@ -1088,9 +1129,9 @@ W oparciu o arkusz pod linkiem https://docs.google.com/spreadsheets/d/132gkNJ0_G
 - [ ] ONSIGNAL
 
 ###Timer
-- [ ] ELAPSE
-- [ ] ENABLED
-- [ ] TICKS
+- [x] ELAPSE
+- [x] ENABLED
+- [x] TICKS
 - [ ] DISABLE
 - [ ] ENABLE
 - [ ] GETTICKS
@@ -1103,6 +1144,10 @@ W oparciu o arkusz pod linkiem https://docs.google.com/spreadsheets/d/132gkNJ0_G
 - [ ] ONINIT
 - [ ] ONSIGNAL
 - [ ] ONTICK
+
+###Vector
+- [x] SIZE
+- [x] VALUE
 
 ###VirtualGraphicsObject
 - [ ] ASBUTTON
@@ -1137,3 +1182,5 @@ W oparciu o arkusz pod linkiem https://docs.google.com/spreadsheets/d/132gkNJ0_G
 - [ ] ONINIT
 - [ ] ONSIGNAL
 
+###World
+- [x] FILENAME
