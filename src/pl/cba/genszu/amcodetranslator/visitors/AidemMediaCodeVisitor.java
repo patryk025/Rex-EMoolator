@@ -154,32 +154,6 @@ public class AidemMediaCodeVisitor extends AidemMediaBaseVisitor<Variable>
 	}
 
 	@Override
-	public Variable visitCondition(AidemMediaParser.ConditionContext ctx)
-	{
-		print("Found condition!");
-		print("{");
-		indent++;
-		visitChildren(ctx);
-		indent--;
-		print("}");
-		//return super.visitCondition(ctx);
-		return null;
-	}
-
-	@Override
-	public Variable visitConditionPart(AidemMediaParser.ConditionPartContext ctx)
-	{
-		print("Found condition part!");
-		print("{");
-		indent++;
-		visitChildren(ctx); //TODO: zgubiłem logic w condition part
-		indent--;
-		print("}");
-		//return super.visitConditionPart(ctx);
-		return null;
-	}
-
-	@Override
 	public Variable visitIfTrue(AidemMediaParser.IfTrueContext ctx)
 	{
 		if(ctx.codeBlock() != null)
@@ -297,10 +271,9 @@ public class AidemMediaCodeVisitor extends AidemMediaBaseVisitor<Variable>
 
 	@Override
 	public Variable visitWhileInstr(WhileInstrContext ctx) {
-		//TODO: zrobić @WHILE
 		// (STRING, STRING, STRING) condition, STRING behaviour
 		String condition = ctx.param(0).getText() + ctx.compare().getText() + ctx.param(1);
-		boolean doLoop = ConditionChecker.check(new ArrayList<>(Arrays.asList(condition)));
+		boolean doLoop = ConditionChecker.check(new ArrayList<>(List.of(condition)));
 		
 		Variable behaviour = ctx.string() != null ? this.interpreter.getVariable(ctx.string().getText()) : null;
 
@@ -330,7 +303,6 @@ public class AidemMediaCodeVisitor extends AidemMediaBaseVisitor<Variable>
 				// TODO: podejrzeć jak to PikLib zwraca
 				return VariableFactory.createVariable("STRING", "<no value>", null);
 			case "GETCURRENTSCENE":
-				// TODO: to samo co wyżej
 				return VariableFactory.createVariable("STRING", this.interpreter.getSceneName(), null);
 			case "RETURN":
 				return VariableFactory.createVariable("OPCODE", "RETURN|"+params.get(0), null);

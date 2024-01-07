@@ -11,6 +11,7 @@ Lista TODO (w trakcie tworzenia):
 - [ ] Obsługa animacji
 - [x] Dynamiczne tworzenie zmiennych
 - [ ] Ładowanie zmiennych ze skryptów
+- [ ] Obsługa dynamicznych wskaźników na zmienne (*ZMIENNA)
 - [ ] Obsługa instrukcji RETURN
 - [ ] Obsługa BREAK
 - [ ] Obsługa listenerów (ONCHANGED, ONBRUTALCHANGED, ONINIT itp.)
