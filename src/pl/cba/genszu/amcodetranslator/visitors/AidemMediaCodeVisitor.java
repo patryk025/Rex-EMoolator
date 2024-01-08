@@ -334,6 +334,13 @@ public class AidemMediaCodeVisitor extends AidemMediaBaseVisitor<Variable>
 				return VariableFactory.createVariable("STRING", this.interpreter.getSceneName(), null);
 			case "RETURN":
 				return VariableFactory.createVariable("OPCODE", "RETURN|"+params.get(0), null);
+			case "BOOL":
+			case "STRING":
+			case "DOUBLE":
+			case "INT":
+				String varName = ctx.param(0).getText();
+				String value = ctx.param(1).getText();
+				return interpreter.createVariable(varName, instructionName.equals("INT") ? "INTEGER" : instructionName, value);
 			default:
 				throw new InterpreterException(String.format("Instrukcja @%s nie jest jeszcze obsługiwana", instructionName));
 		}

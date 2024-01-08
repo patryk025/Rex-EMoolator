@@ -9,7 +9,7 @@ Lista TODO (w trakcie tworzenia):
 - [ ] Obsługa funkcji
 - [ ] Obsługa procedur (klasa BEHAVIOUR)
 - [ ] Obsługa animacji
-- [ ] Dynamiczne tworzenie zmiennych
+- [x] Dynamiczne tworzenie zmiennych
 - [ ] Ładowanie zmiennych ze skryptów
 - [ ] Obsługa instrukcji RETURN
 - [ ] Obsługa BREAK

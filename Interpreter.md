@@ -62,23 +62,23 @@
 - [x] WORLD
 
 ###Instrucje
-- [ ] @BOOL
+- [x] @BOOL
 - [x] @BREAK (na razie tylko jako kod operacji)
 - [x] @CONTINUE (na razie tylko jako kod operacji)
 - [ ] @CONV
 - [ ] @CREATE
-- [ ] @DOUBLE
+- [x] @DOUBLE
 - [x] @FOR
 - [x] @GETAPPLICATIONNAME (na razie placeholdery)
 - [x] @GETCURRENTSCENE
 - [x] @IF
-- [ ] @INT
+- [x] @INT
 - [x] @LOOP
 - [ ] @MSGBOX
 - [x] @ONEBREAK (na razie tylko jako kod operacji)
 - [x] @RETURN (na razie tylko jako kod operacji)
 - [ ] @RUNONTIMER
-- [ ] @STRING
+- [x] @STRING
 - [ ] @VALUE
 - [x] @WHILE
 

@@ -11,7 +11,18 @@ public class BoolVariable extends Variable {
 	
 	public BoolVariable(String name, Object value) {
 		super(name);
-		this.SET((Boolean) value);
+		try {
+			this.SET((Boolean) value);
+		}
+		catch(ClassCastException e) {
+			String val = (String) value;
+			if(val.equals("TRUE")) {
+				this.SET(true);
+			}
+			else {
+				this.SET(false);
+			}
+		}
 	}
 
     /*public Bool(boolean VALUE) {
