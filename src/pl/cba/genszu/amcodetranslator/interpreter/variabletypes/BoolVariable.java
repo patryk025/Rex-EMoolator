@@ -47,12 +47,47 @@ public class BoolVariable extends Variable {
 	}
 
     public void SET(boolean value) {
+		boolean oldValue = this.VALUE;
         this.VALUE = value;
+		/*
+		if(oldValue != this.VALUE)
+			//this.ONCHANGED;
+		else
+			//this.ONBRUTALCHANGED
+
+		 */
     }
 
     public boolean GET() {
         return this.VALUE;
     }
+
+	public int toInt() {
+		return this.VALUE ? 1 : 0;
+	}
+
+	public double toDouble() {
+		return this.VALUE ? 1.0 : 0.0;
+	}
+
+	public String toStringVariable() {
+		return this.VALUE ? "TRUE" : "FALSE";
+	}
+
+	public Variable convert(String type) {
+		if(type.equals("INTEGER")) {
+			return new IntegerVariable(this.getName(), this.toInt());
+		}
+		else if(type.equals("DOUBLE")) {
+			return new DoubleVariable(this.getName(), this.toDouble());
+		}
+		else if(type.equals("STRING")) {
+			return new StringVariable(this.getName(), this.toStringVariable());
+		}
+		else {
+			return this;
+		}
+	}
 	
 	public void setONINIT(ParseTree ONINIT)
 	{

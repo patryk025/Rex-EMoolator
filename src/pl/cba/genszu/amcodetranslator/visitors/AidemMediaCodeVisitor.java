@@ -7,6 +7,7 @@ import pl.cba.genszu.amcodetranslator.antlr.AidemMediaParser.*;
 import pl.cba.genszu.amcodetranslator.interpreter.*;
 import pl.cba.genszu.amcodetranslator.interpreter.exceptions.InterpreterException;
 import pl.cba.genszu.amcodetranslator.interpreter.exceptions.VariableNotFoundException;
+import pl.cba.genszu.amcodetranslator.interpreter.exceptions.VariableUnsupportedOperationException;
 import pl.cba.genszu.amcodetranslator.interpreter.util.ArithmeticSolver;
 import pl.cba.genszu.amcodetranslator.interpreter.util.ConditionChecker;
 import pl.cba.genszu.amcodetranslator.interpreter.util.ParamHelper;
@@ -320,6 +321,23 @@ public class AidemMediaCodeVisitor extends AidemMediaBaseVisitor<Variable>
 				String varName = ctx.param(0).getText();
 				String value = ctx.param(1).getText();
 				return interpreter.createVariable(varName, instructionName.equals("INT") ? "INTEGER" : instructionName, value);
+			case "CONV":
+				String variableName = ctx.param(0).getText();
+				String variableType = ctx.param(1).string().literal(0).getText();
+				Variable variable = interpreter.getVariable(variableName);
+				if(variable == null) {
+					throw new VariableNotFoundException(variableName);
+				}
+				try {
+					variable = variable.convertTo(variableType);
+					interpreter.setVariable(variableName, variable);
+					System.out.println("Converted "+variable.getName()+" to "+variable.getType());
+					System.out.println("Debug: "+variable.getValue());
+					return variable;
+				}
+				catch(VariableUnsupportedOperationException e) {
+					System.out.println("Błąd castowania zmiennych: "+e.getMessage());
+				}
 			default:
 				throw new InterpreterException(String.format("Instrukcja @%s nie jest jeszcze obsługiwana", instructionName));
 		}

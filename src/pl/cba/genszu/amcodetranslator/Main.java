@@ -16,14 +16,16 @@ public class Main
 		//String testExpression = "{@LOOP({[_I_+1]}, 0, 5, 1);}";
 		//String testExpression = "{[15-1*(12@4+1)]}";
 		//String testExpression = "{[6@2*(1+2)]}";
-		String testExpression = "{@INT(TEST,1);@DOUBLE(TEST2,2.1);@STRING(TEST3,\"TEST\");@BOOL(TEST4,TRUE);@IF(\"TEST4'TRUE\", {[TEST+TEST2+TEST3]}, {});}";
-		
+		//String testExpression = "{[*[\"TE\"+\"ST\"]+ITERATOR*2]}";
+		//String testExpression = "{@INT(TEST,1);@DOUBLE(TEST2,2.1);@STRING(TEST3,\"TEST\");@BOOL(TEST4,TRUE);@IF(\"TEST4'TRUE\", {[TEST+TEST2+TEST3]}, {});}";
+		String testExpression = "{@CONV(ITERATOR, \"BOOL\");}";
+
 		List<Variable> vars = new ArrayList<>();
-		/*Variable test1 = new StringVariable("TEST", "ANIMO_");
+		Variable test1 = new StringVariable("TEST", "ANIMO_");
 		Variable test2 = new IntegerVariable("ITERATOR", 3);
 
 		vars.add(test1);
-		vars.add(test2);*/
+		vars.add(test2);
 
 		//System.out.println(test1.getType());
 		

@@ -65,7 +65,7 @@
 - [x] @BOOL
 - [x] @BREAK (na razie tylko jako kod operacji)
 - [x] @CONTINUE (na razie tylko jako kod operacji)
-- [ ] @CONV
+- [x] @CONV
 - [ ] @CREATE
 - [x] @DOUBLE
 - [x] @FOR

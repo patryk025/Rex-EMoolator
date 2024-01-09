@@ -43,6 +43,14 @@ public class Interpreter
 		return null;
 	}
 
+	public void setVariable(String name, Variable value) {
+		Variable tmp = getVariable(name);
+		if(tmp != null) {
+			variables.remove(tmp); //usuń starą zmienną
+		}
+		variables.add(value);
+	}
+
 	public Variable createVariable(String name, String type, Object value) {
 		Variable tmp = getVariable(name);
 		if(tmp != null) {

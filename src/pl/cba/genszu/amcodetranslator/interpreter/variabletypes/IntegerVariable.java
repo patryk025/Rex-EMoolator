@@ -60,6 +60,33 @@ public class IntegerVariable extends Variable {
 		this.VALUE += add;
 	}
 
+	public String toStringVariable() {
+		return String.valueOf(this.VALUE);
+	}
+
+	public boolean toBool() {
+		return this.VALUE != 0;
+	}
+
+	public double toDouble() {
+		return (double) this.VALUE;
+	}
+
+	public Variable convert(String type) {
+		if(type.equals("DOUBLE")) {
+			return new DoubleVariable(this.getName(), this.toDouble());
+		}
+		else if(type.equals("BOOL")) {
+			return new BoolVariable(this.getName(), this.toBool());
+		}
+		else if(type.equals("STRING")) {
+			return new StringVariable(this.getName(), this.toStringVariable());
+		}
+		else {
+			return this;
+		}
+	}
+
     public void setONINIT(ParseTree ONINIT) {
 		this.ONINIT = ONINIT;
     }

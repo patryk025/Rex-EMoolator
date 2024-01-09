@@ -35,9 +35,47 @@ public class StringVariable extends Variable
         return VALUE.indexOf(needle);
     }
 
-    public void ONINIT() {
-
+    public int toInt() {
+	    try {
+			return Integer.parseInt(VALUE);
+		}
+		catch(NumberFormatException e) {
+			return 0;
+		}
     }
+
+	public double toDouble() {
+		try {
+			return Double.parseDouble(VALUE);
+		}
+		catch(NumberFormatException e) {
+			return 0;
+		}
+	}
+
+	public boolean toBool() {
+		try {
+			return Boolean.parseBoolean(VALUE);
+		}
+		catch(NumberFormatException e) {
+			return false;
+		}
+	}
+
+	public Variable convert(String type) {
+		if(type.equals("DOUBLE")) {
+			return new DoubleVariable(this.getName(), this.toDouble());
+		}
+		else if(type.equals("BOOL")) {
+			return new BoolVariable(this.getName(), this.toBool());
+		}
+		else if(type.equals("INTEGER")) {
+			return new IntegerVariable(this.getName(), this.toInt());
+		}
+		else {
+			return this;
+		}
+	}
 
     public boolean isTOINI() {
         return TOINI;

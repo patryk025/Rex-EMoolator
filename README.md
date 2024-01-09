@@ -12,6 +12,7 @@ Lista TODO (w trakcie tworzenia):
 - [x] Dynamiczne tworzenie zmiennych
 - [ ] Ładowanie zmiennych ze skryptów
 - [x] Obsługa dynamicznych wskaźników na zmienne (*ZMIENNA)
+- [x] Obsługa rzutowania zmiennych
 - [ ] Obsługa instrukcji RETURN
 - [ ] Obsługa BREAK
 - [ ] Obsługa listenerów (ONCHANGED, ONBRUTALCHANGED, ONINIT itp.)

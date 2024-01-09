@@ -11,4 +11,8 @@ public class VariableUnsupportedOperationException extends InterpreterException
 	public VariableUnsupportedOperationException(Variable var1, Variable var2, String operation) {
 		super(String.format("Niekompatybilne typy zmiennych do wykonania operacji %s (otrzymano %s, %s)", operation, var1.getType(), var2.getType()));
 	}
+
+	public VariableUnsupportedOperationException(Variable var1, String var2type, String operation) {
+		super(String.format("Niekompatybilne typy zmiennych do wykonania operacji %s (otrzymano %s, %s)", operation, var1.getType(), var2type));
+	}
 }
