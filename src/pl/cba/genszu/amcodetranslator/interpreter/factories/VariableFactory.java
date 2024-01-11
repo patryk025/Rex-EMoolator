@@ -4,10 +4,16 @@ import pl.cba.genszu.amcodetranslator.interpreter.*;
 import pl.cba.genszu.amcodetranslator.interpreter.variabletypes.*;
 import pl.cba.genszu.amcodetranslator.utils.TypeGuesser;
 
+import java.util.Objects;
+
 public class VariableFactory
 {
     public static Variable createVariable(String name, Object value) {
         return createVariable(TypeGuesser.guessType(""+value), name, value);
+    }
+
+    public static Variable createVariable(String type, String name) {
+        return createVariable(Objects.requireNonNullElse(type, "VOID"), name, null);
     }
 
     public static Variable createVariable(String type, String name, Object value) {

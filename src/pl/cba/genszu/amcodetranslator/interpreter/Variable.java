@@ -1,17 +1,30 @@
 package pl.cba.genszu.amcodetranslator.interpreter;
 
+import pl.cba.genszu.amcodetranslator.interpreter.exceptions.ClassBehaviorNotFoundException;
 import pl.cba.genszu.amcodetranslator.interpreter.exceptions.ClassMethodNotFoundException;
 import pl.cba.genszu.amcodetranslator.interpreter.exceptions.VariableUnsupportedOperationException;
+import pl.cba.genszu.amcodetranslator.interpreter.factories.VariableFactory;
 import pl.cba.genszu.amcodetranslator.interpreter.variabletypes.BoolVariable;
 import pl.cba.genszu.amcodetranslator.interpreter.variabletypes.DoubleVariable;
 import pl.cba.genszu.amcodetranslator.interpreter.variabletypes.IntegerVariable;
 import pl.cba.genszu.amcodetranslator.interpreter.variabletypes.StringVariable;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 public class Variable {
 	private String name;
 
+	private Map<String, String> signals;
+	private List<Variable> clones;
+	private Interpreter interpreter = null;
+
 	public Variable(String name) {
 		this.name = name;
+		this.signals = new HashMap<>();
+		this.clones = new ArrayList<>();
 	}
 
 	public String getName() {
@@ -31,6 +44,10 @@ public class Variable {
 			default:
 				return null; //nie ma potrzeby zwracać wartości z reszty obiektów
 		}
+	}
+
+	public void addInterpreter(Interpreter interpreter) {
+		this.interpreter = interpreter;
 	}
 
 	public Variable convertTo(String type) {
@@ -64,6 +81,69 @@ public class Variable {
 	}
 
 	public Variable fireFunction(String method, Variable... params) {
-		throw new ClassMethodNotFoundException(method, this.getType());
+		switch (method) {
+			case "ADDBEHAVIOUR":
+				String signal = params[0].getValue().toString();
+				String code = params[1].getValue().toString();
+				this.signals.put(signal, code);
+				return VariableFactory.createVariable("VOID", null);
+			case "ADDTOARRAY":
+				return VariableFactory.createVariable("VOID", null);
+			case "ADDTOGROUP":
+				return VariableFactory.createVariable("VOID", null);
+			case "CLONE":
+				int length = 0;
+				if(params.length == 0) {
+					length = 1;
+				}
+				else {
+					length = (int) params[0].getValue();
+				}
+				for(int i = 0; i < length; i++) {
+					try {
+						this.clones.add((Variable) this.clone());
+					}
+					catch (CloneNotSupportedException e) {
+						System.out.println("Błąd klonowania: " + e.getMessage());
+						e.printStackTrace();
+					}
+				}
+				return VariableFactory.createVariable("VOID", null);
+			case "GETCLONEINDEX":
+				return new IntegerVariable(null, this.clones.indexOf(this));
+			case "GETCLONESNO":
+				return new IntegerVariable(null, this.clones.size());
+			case "GETNAME":
+				return new StringVariable(null, this.getName());
+			case "MSGBOX": // nie będzie raczej implementowane
+				String message = params[0].getValue().toString();
+				return VariableFactory.createVariable("VOID", null);
+			case "OVERIDESIGNALS": // prawdopodobna implementacja
+				signal = params[0].getValue().toString();
+				code = params[1].getValue().toString();
+				this.signals.replace(signal, code);
+				return VariableFactory.createVariable("VOID", null);
+			case "REMOVEALLBEHAVIOURS":
+				this.signals.clear();
+				return VariableFactory.createVariable("VOID", null);
+			case "REMOVEBEHAVIOUR": // prawdopodobna implementacja
+			case "REMOVEBEHAVIOURFORCE": // tego nie wiem, brak informacji o implementacji
+				signal = params[0].getValue().toString();
+				this.signals.remove(signal);
+				return VariableFactory.createVariable("VOID", null);
+			case "RESETCLONES":
+				this.clones.clear(); // oryginalnie ustawiało zero klonów?
+				return VariableFactory.createVariable("VOID", null);
+			case "SEND":
+				message = params[0].getValue().toString();
+				code = this.signals.get(message);
+				if(code == null) {
+					throw new ClassBehaviorNotFoundException(message, this.getType());
+				}
+				interpreter.interpret(code);
+				return VariableFactory.createVariable("VOID", null);
+			default:
+				throw new ClassMethodNotFoundException(method, this.getType());
+		}
 	}
 }
