@@ -1,18 +1,9 @@
 package pl.cba.genszu.amcodetranslator.interpreter;
 
-import pl.cba.genszu.amcodetranslator.interpreter.exceptions.ClassBehaviorNotFoundException;
-import pl.cba.genszu.amcodetranslator.interpreter.exceptions.ClassMethodNotFoundException;
-import pl.cba.genszu.amcodetranslator.interpreter.exceptions.VariableUnsupportedOperationException;
-import pl.cba.genszu.amcodetranslator.interpreter.factories.VariableFactory;
-import pl.cba.genszu.amcodetranslator.interpreter.variabletypes.BoolVariable;
-import pl.cba.genszu.amcodetranslator.interpreter.variabletypes.DoubleVariable;
-import pl.cba.genszu.amcodetranslator.interpreter.variabletypes.IntegerVariable;
-import pl.cba.genszu.amcodetranslator.interpreter.variabletypes.StringVariable;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import pl.cba.genszu.amcodetranslator.interpreter.exceptions.*;
+import pl.cba.genszu.amcodetranslator.interpreter.factories.*;
+import pl.cba.genszu.amcodetranslator.interpreter.variabletypes.*;
 
 public class Variable {
 	private String name;
@@ -145,5 +136,9 @@ public class Variable {
 			default:
 				throw new ClassMethodNotFoundException(method, this.getType());
 		}
+	}
+	
+	public void setProperty(String name, String value) throws ClassPropertyNotFoundException {
+		throw new ClassPropertyNotFoundException(name, this.getType());
 	}
 }

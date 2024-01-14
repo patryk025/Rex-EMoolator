@@ -2,6 +2,7 @@ package pl.cba.genszu.amcodetranslator.utils;
 
 import java.io.*;
 import java.util.*;
+import pl.cba.genszu.amcodetranslator.encoding.*;
 
 public class DebugStringFinder
 {
