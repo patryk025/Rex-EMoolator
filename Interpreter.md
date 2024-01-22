@@ -61,7 +61,7 @@
 - [x] VECTOR
 - [x] WORLD
 
-###Instrucje
+###Instrukcje
 - [x] @BOOL
 - [x] @BREAK (na razie tylko jako kod operacji)
 - [x] @CONTINUE (na razie tylko jako kod operacji)
