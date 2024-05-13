@@ -68,7 +68,12 @@ public class Variable {
 	}
 
 	public String getType() {
-		return this.getClass().getSimpleName().split("Variable")[0].toUpperCase();
+		try {
+			return this.getClass().getSimpleName().split("Variable")[0].toUpperCase();
+		}
+		catch(ArrayIndexOutOfBoundsException e) {
+			return "VOID";
+		}
 	}
 
 	public Variable fireFunction(String method, Variable... params) {

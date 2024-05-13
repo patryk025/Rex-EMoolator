@@ -136,7 +136,7 @@ public class AidemMediaCodeVisitor extends AidemMediaBaseVisitor<Variable>
 					comparator.add((String) ((StructVariable) interpreter.getVariable(structFields[0])).GETFIELD(structFields[1]).getValue());
 				}
 				comparator.add(conditionPart.compare().getText());
-				comparator.add(ParamHelper.getValueFromParam(this, param));
+				comparator.add(""+ParamHelper.getValueFromParam(this, param));
 			}
 		}
 		boolean conditionResult = ConditionChecker.checkCondition(comparator);
@@ -209,6 +209,7 @@ public class AidemMediaCodeVisitor extends AidemMediaBaseVisitor<Variable>
 	@Override
 	public Variable visitLoopInstr(AidemMediaParser.LoopInstrContext ctx) {
 		LoopCodeParamContext loopFunction = ctx.loopCodeParam();
+		//System.out.println(ctx.param());
 		Variable startValue = VariableFactory.createVariable(null, ParamHelper.getValueFromParam(this, ctx.param(0)));
 		Variable diffValue = VariableFactory.createVariable(null, ParamHelper.getValueFromParam(this, ctx.param(1)));
 		Variable endValue = ArithmeticSolver.add(startValue, diffValue);

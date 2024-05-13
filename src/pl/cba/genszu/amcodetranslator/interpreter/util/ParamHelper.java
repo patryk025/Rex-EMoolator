@@ -6,7 +6,7 @@ import pl.cba.genszu.amcodetranslator.visitors.AidemMediaCodeVisitor;
 import java.util.List;
 
 public class ParamHelper {
-    public static String getValueFromParam(AidemMediaCodeVisitor visitor, AidemMediaParser.ParamContext param) {
+    public static Object getValueFromParam(AidemMediaCodeVisitor visitor, AidemMediaParser.ParamContext param) {
         if (param.string() != null)
         {
             List<AidemMediaParser.FunctionFireContext> functionFire = param.string().functionFire();
