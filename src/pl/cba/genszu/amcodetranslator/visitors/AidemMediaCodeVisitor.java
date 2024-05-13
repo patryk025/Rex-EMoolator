@@ -14,6 +14,7 @@ import pl.cba.genszu.amcodetranslator.interpreter.util.ParamHelper;
 import pl.cba.genszu.amcodetranslator.interpreter.variabletypes.StructVariable;
 import pl.cba.genszu.amcodetranslator.interpreter.factories.*;
 import pl.cba.genszu.amcodetranslator.interpreter.variabletypes.*;
+import pl.cba.genszu.amcodetranslator.interpreter.exceptions.*;
 
 public class AidemMediaCodeVisitor extends AidemMediaBaseVisitor<Variable>
 {
@@ -76,7 +77,33 @@ public class AidemMediaCodeVisitor extends AidemMediaBaseVisitor<Variable>
 		List<AidemMediaParser.ParamContext> params = ctx.param();
 		print("Fire of function " + literals.get(1).getText() + " for object " + literals.get(0).getText());
 		print("No of params: "+params.size());
-		visitChildren(ctx);
+		Variable var = interpreter.getVariable(literals.get(0).getText());
+		Variable paramsObj[] = new Variable[params.size()];
+		int idx = 0;
+		for(ParamContext paramCtx : params) {
+			if(paramCtx.expression() != null) {
+				paramsObj[idx++] = visitExpression(paramCtx.expression());
+			}
+			else if(paramCtx.literal() != null) {
+				paramsObj[idx++] = interpreter.getVariable(paramCtx.literal().getText());
+			}
+			else if(paramCtx.functionFire() != null) {
+				paramsObj[idx++] = visitFunctionFire(paramCtx.functionFire());
+			}
+			else if(paramCtx.iterator() != null) {
+				paramsObj[idx++] = interpreter.getVariable("_I_");
+			}
+			else if(paramCtx.struct() != null) {
+				String[] structFields = paramCtx.struct().getText().split("\\|");
+				paramsObj[idx++] = ((StructVariable) interpreter.getVariable(structFields[0])).GETFIELD(structFields[1]);
+			}
+		}
+		try {
+			var.fireFunction(literals.get(1).getText(), paramsObj);
+		}
+		catch(ClassMethodNotFoundException e) {
+			print("Error: "+e.getMessage());
+		}
 		indent--;
 		print("}");
 		return null;
@@ -314,13 +341,31 @@ public class AidemMediaCodeVisitor extends AidemMediaBaseVisitor<Variable>
 			case "GETCURRENTSCENE":
 				return VariableFactory.createVariable("STRING", this.interpreter.getSceneName(), null);
 			case "RETURN":
+				print("Returning variable "+params.get(0).getText()+", debug value: "+interpreter.getVariable(params.get(0).getText()).getValue());
 				return VariableFactory.createVariable("OPCODE", "RETURN|"+params.get(0), null);
 			case "BOOL":
 			case "STRING":
 			case "DOUBLE":
 			case "INT":
 				String varName = ctx.param(0).getText();
-				String value = ctx.param(1).getText();
+				ParamContext param2 = ctx.param(1);
+				String value = "";
+				if(param2.expression() != null) {
+					value = (String) visitExpression(param2.expression()).getValue();
+				}
+				else if(param2.literal() != null) {
+					value = "" + interpreter.getVariable(param2.literal().getText()).getValue();
+				}
+				else if(param2.functionFire() != null) {
+					value = (String) visitFunctionFire(param2.functionFire()).getValue();
+				}
+				else if(param2.iterator() != null) {
+					value = (String) interpreter.getVariable("_I_").getValue();
+				}
+				else if(param2.struct() != null) {
+					String[] structFields = param2.struct().getText().split("\\|");
+					value = (String) ((StructVariable) interpreter.getVariable(structFields[0])).GETFIELD(structFields[1]).getValue();
+				}
 				return interpreter.createVariable(varName, instructionName.equals("INT") ? "INTEGER" : instructionName, value);
 			case "CONV":
 				String variableName = ctx.param(0).getText();
