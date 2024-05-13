@@ -1,6 +1,8 @@
 # AidemMediaScriptsInterpreter
 Prototyp modułu lexera, interpretera skryptów z gier Aidem Media wykorzystujących silnik PikLib oraz Bloomoo oraz próba zaemulowania silnika na urządzeniach z systemem Android.
 
+## INFORMACJA: na ten moment repo jest w przebudowie i chwilowo nie będzie na nim zmian. Kod czeka refaktoryzacja oraz poprawna implementacja metod poszczególnych klas.
+
 Lista TODO (w trakcie tworzenia):
 - [x] Arytmetyka
 - [x] Obsługa zmiennych
