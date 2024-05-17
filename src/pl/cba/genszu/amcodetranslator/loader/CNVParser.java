@@ -7,7 +7,7 @@ import pl.cba.genszu.amcodetranslator.interpreter.*;
 import pl.cba.genszu.amcodetranslator.interpreter.exceptions.*;
 import pl.cba.genszu.amcodetranslator.utils.*;
 import pl.cba.genszu.amcodetranslator.interpreter.factories.*;
-import pl.cba.genszu.amcodetranslator.interpreter.variabletypes.*;
+import pl.cba.genszu.amcodetranslator.interpreter.types.*;
 
 public class CNVParser
 {

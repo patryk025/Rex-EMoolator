@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/TestAidemMediaGrammar.iml" filepath="$PROJECT_DIR$/TestAidemMediaGrammar.iml" />
+      <module fileurl="file://$PROJECT_DIR$/AidemMediaBlooMooEmulator.iml" filepath="$PROJECT_DIR$/AidemMediaBlooMooEmulator.iml" />
     </modules>
   </component>
 </project>

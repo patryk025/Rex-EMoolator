@@ -2,10 +2,9 @@ package pl.cba.genszu.amcodetranslator.interpreter.util;
 
 import java.util.*;
 import pl.cba.genszu.amcodetranslator.interpreter.*;
+import pl.cba.genszu.amcodetranslator.interpreter.arithmetic.utils.InfixToPostfix;
 import pl.cba.genszu.amcodetranslator.interpreter.exceptions.*;
 import pl.cba.genszu.amcodetranslator.interpreter.factories.*;
-import pl.cba.genszu.amcodetranslator.utils.*;
-import pl.cba.genszu.amcodetranslator.interpreter.variabletypes.*;
 
 public class ConditionChecker
 {

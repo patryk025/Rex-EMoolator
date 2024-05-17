@@ -3,14 +3,10 @@ package pl.cba.genszu.amcodetranslator.interpreter;
 import java.util.*;
 import org.antlr.v4.runtime.*;
 import pl.cba.genszu.amcodetranslator.antlr.*;
-import pl.cba.genszu.amcodetranslator.interpreter.exceptions.VariableUnsupportedOperationException;
 import pl.cba.genszu.amcodetranslator.interpreter.factories.VariableFactory;
-import pl.cba.genszu.amcodetranslator.interpreter.util.ArithmeticSolver;
-import pl.cba.genszu.amcodetranslator.utils.InfixToPostfix;
-import pl.cba.genszu.amcodetranslator.utils.ReverseListIterator;
-import pl.cba.genszu.amcodetranslator.utils.TypeGuesser;
-import pl.cba.genszu.amcodetranslator.visitors.*;
-import pl.cba.genszu.amcodetranslator.interpreter.variabletypes.*;
+import pl.cba.genszu.amcodetranslator.interpreter.arithmetic.ArithmeticSolver;
+import pl.cba.genszu.amcodetranslator.interpreter.arithmetic.utils.InfixToPostfix;
+import pl.cba.genszu.amcodetranslator.interpreter.util.TypeGuesser;
 
 public class Interpreter
 {

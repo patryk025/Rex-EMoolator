@@ -3,7 +3,7 @@ package pl.cba.genszu.amcodetranslator.interpreter;
 import java.util.*;
 import pl.cba.genszu.amcodetranslator.interpreter.exceptions.*;
 import pl.cba.genszu.amcodetranslator.interpreter.factories.*;
-import pl.cba.genszu.amcodetranslator.interpreter.variabletypes.*;
+import pl.cba.genszu.amcodetranslator.interpreter.types.*;
 
 public class Variable {
 	private String name;

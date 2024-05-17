@@ -2,9 +2,9 @@ package pl.cba.genszu.amcodetranslator.interpreter.arithmetic;
 
 import pl.cba.genszu.amcodetranslator.interpreter.Variable;
 import pl.cba.genszu.amcodetranslator.interpreter.exceptions.VariableUnsupportedOperationException;
-import pl.cba.genszu.amcodetranslator.interpreter.variabletypes.DoubleVariable;
-import pl.cba.genszu.amcodetranslator.interpreter.variabletypes.IntegerVariable;
-import pl.cba.genszu.amcodetranslator.interpreter.variabletypes.StringVariable;
+import pl.cba.genszu.amcodetranslator.interpreter.types.DoubleVariable;
+import pl.cba.genszu.amcodetranslator.interpreter.types.IntegerVariable;
+import pl.cba.genszu.amcodetranslator.interpreter.types.StringVariable;
 
 public abstract class ArithmeticOperation {
     public Variable performOperation(Variable var1, Variable var2) {

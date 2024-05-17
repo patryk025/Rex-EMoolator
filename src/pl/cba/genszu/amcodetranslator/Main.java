@@ -1,6 +1,6 @@
 package pl.cba.genszu.amcodetranslator;
 import pl.cba.genszu.amcodetranslator.interpreter.*;
-import pl.cba.genszu.amcodetranslator.interpreter.variabletypes.*;
+import pl.cba.genszu.amcodetranslator.interpreter.types.*;
 
 import java.util.ArrayList;
 import java.util.List;
