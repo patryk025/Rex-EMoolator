@@ -44,23 +44,23 @@ public abstract class ArithmeticOperation {
         }
     }
 
-    abstract Variable performOperation(StringVariable var1, StringVariable var2);
+    public abstract Variable performOperation(StringVariable var1, StringVariable var2);
 
-    abstract Variable performOperation(IntegerVariable var1, StringVariable var2);
+    public abstract Variable performOperation(IntegerVariable var1, StringVariable var2);
 
-    abstract Variable performOperation(StringVariable var1, IntegerVariable var2);
+    public abstract Variable performOperation(StringVariable var1, IntegerVariable var2);
 
-    abstract Variable performOperation(DoubleVariable var1, StringVariable var2);
+    public abstract Variable performOperation(DoubleVariable var1, StringVariable var2);
 
-    abstract Variable performOperation(StringVariable var1, DoubleVariable var2);
+    public abstract Variable performOperation(StringVariable var1, DoubleVariable var2);
 
-    abstract Variable performOperation(IntegerVariable var1, IntegerVariable var2);
+    public abstract Variable performOperation(IntegerVariable var1, IntegerVariable var2);
 
-    abstract Variable performOperation(DoubleVariable var1, IntegerVariable var2);
+    public abstract Variable performOperation(DoubleVariable var1, IntegerVariable var2);
 
-    abstract Variable performOperation(IntegerVariable var1, DoubleVariable var2);
+    public abstract Variable performOperation(IntegerVariable var1, DoubleVariable var2);
 
-    abstract Variable performOperation(DoubleVariable var1, DoubleVariable var2);
+    public abstract Variable performOperation(DoubleVariable var1, DoubleVariable var2);
 
     public String getOperation() {
         return this.getClass().getSimpleName().split("Operation")[0].toLowerCase();
