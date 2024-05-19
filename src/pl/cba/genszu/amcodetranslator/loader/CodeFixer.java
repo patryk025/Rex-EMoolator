@@ -2,9 +2,10 @@ package pl.cba.genszu.amcodetranslator.loader;
 
 import java.util.*;
 import org.antlr.v4.runtime.*;
-import pl.cba.genszu.amcodetranslator.antlr.*;
-import pl.cba.genszu.amcodetranslator.antlr.objects.SyntaxError;
-import pl.cba.genszu.amcodetranslator.antlr.listener.*;
+import pl.cba.genszu.amcodetranslator.interpreter.antlr.objects.SyntaxError;
+import pl.cba.genszu.amcodetranslator.interpreter.antlr.listener.*;
+import pl.cba.genszu.amcodetranslator.interpreter.antlr.AidemMediaLexer;
+import pl.cba.genszu.amcodetranslator.interpreter.antlr.AidemMediaParser;
 import pl.cba.genszu.amcodetranslator.utils.CodeBeautifier;
 
 public class CodeFixer

@@ -1,9 +1,9 @@
-package pl.cba.genszu.amcodetranslator.antlr.listener;
+package pl.cba.genszu.amcodetranslator.interpreter.antlr.listener;
 
 import java.util.*;
 import org.antlr.v4.runtime.*;
 import org.antlr.v4.runtime.misc.*;
-import pl.cba.genszu.amcodetranslator.antlr.objects.SyntaxError;
+import pl.cba.genszu.amcodetranslator.interpreter.antlr.objects.SyntaxError;
 
 public class SyntaxErrorListener extends BaseErrorListener
 {

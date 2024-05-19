@@ -1,4 +1,4 @@
-package pl.cba.genszu.amcodetranslator.antlr.objects;
+package pl.cba.genszu.amcodetranslator.interpreter.antlr.objects;
 
 import org.antlr.v4.runtime.RecognitionException;
 import org.antlr.v4.runtime.Recognizer;

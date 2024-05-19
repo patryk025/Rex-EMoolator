@@ -1,9 +1,12 @@
 package pl.cba.genszu.amcodetranslator.interpreter;
 
 import org.antlr.v4.runtime.tree.*;
-import pl.cba.genszu.amcodetranslator.antlr.*;
+
 import java.util.*;
-import pl.cba.genszu.amcodetranslator.antlr.AidemMediaParser.*;
+
+import pl.cba.genszu.amcodetranslator.interpreter.antlr.AidemMediaBaseVisitor;
+import pl.cba.genszu.amcodetranslator.interpreter.antlr.AidemMediaParser;
+import pl.cba.genszu.amcodetranslator.interpreter.antlr.AidemMediaParser.*;
 import pl.cba.genszu.amcodetranslator.interpreter.exceptions.InterpreterException;
 import pl.cba.genszu.amcodetranslator.interpreter.exceptions.VariableNotFoundException;
 import pl.cba.genszu.amcodetranslator.interpreter.exceptions.VariableUnsupportedOperationException;

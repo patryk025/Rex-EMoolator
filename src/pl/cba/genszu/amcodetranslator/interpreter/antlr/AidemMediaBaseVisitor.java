@@ -1,5 +1,5 @@
 // Generated from c:\Users\oem\Desktop\gramatykaAM\AidemMedia.g4 by ANTLR 4.9.2
-package pl.cba.genszu.amcodetranslator.antlr;
+package pl.cba.genszu.amcodetranslator.interpreter.antlr;
 import org.antlr.v4.runtime.tree.AbstractParseTreeVisitor;
 
 /**

@@ -2,7 +2,8 @@ package pl.cba.genszu.amcodetranslator.interpreter;
 
 import java.util.*;
 import org.antlr.v4.runtime.*;
-import pl.cba.genszu.amcodetranslator.antlr.*;
+import pl.cba.genszu.amcodetranslator.interpreter.antlr.AidemMediaLexer;
+import pl.cba.genszu.amcodetranslator.interpreter.antlr.AidemMediaParser;
 import pl.cba.genszu.amcodetranslator.interpreter.factories.VariableFactory;
 import pl.cba.genszu.amcodetranslator.interpreter.arithmetic.ArithmeticSolver;
 import pl.cba.genszu.amcodetranslator.interpreter.arithmetic.utils.InfixToPostfix;

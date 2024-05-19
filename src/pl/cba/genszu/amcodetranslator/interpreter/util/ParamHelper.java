@@ -1,6 +1,6 @@
 package pl.cba.genszu.amcodetranslator.interpreter.util;
 
-import pl.cba.genszu.amcodetranslator.antlr.AidemMediaParser;
+import pl.cba.genszu.amcodetranslator.interpreter.antlr.AidemMediaParser;
 import pl.cba.genszu.amcodetranslator.interpreter.AidemMediaCodeVisitor;
 
 import java.util.List;
