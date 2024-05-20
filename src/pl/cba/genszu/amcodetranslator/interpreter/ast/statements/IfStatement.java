@@ -1,5 +1,6 @@
 package pl.cba.genszu.amcodetranslator.interpreter.ast.statements;
 
+import pl.cba.genszu.amcodetranslator.interpreter.Context;
 import pl.cba.genszu.amcodetranslator.interpreter.ast.Expression;
 import pl.cba.genszu.amcodetranslator.interpreter.ast.Statement;
 
@@ -15,11 +16,11 @@ public class IfStatement extends Statement {
     }
 
     @Override
-    public void execute() {
-        if ((int) condition.evaluate() != 0) {
-            trueBranch.execute();
+    public void execute(Context context) {
+        if ((int) condition.evaluate(context) != 0) {
+            trueBranch.execute(context);
         } else if (falseBranch != null) {
-            falseBranch.execute();
+            falseBranch.execute(context);
         }
     }
 }

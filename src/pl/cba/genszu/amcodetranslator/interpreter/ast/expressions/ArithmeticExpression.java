@@ -1,5 +1,6 @@
 package pl.cba.genszu.amcodetranslator.interpreter.ast.expressions;
 
+import pl.cba.genszu.amcodetranslator.interpreter.Context;
 import pl.cba.genszu.amcodetranslator.interpreter.Variable;
 import pl.cba.genszu.amcodetranslator.interpreter.arithmetic.ArithmeticSolver;
 import pl.cba.genszu.amcodetranslator.interpreter.ast.Expression;
@@ -16,9 +17,9 @@ public class ArithmeticExpression extends Expression {
     }
 
     @Override
-    public Object evaluate() {
-        Variable leftValue = (Variable) left.evaluate();
-        Variable rightValue = (Variable) right.evaluate();
+    public Object evaluate(Context context) {
+        Variable leftValue = (Variable) left.evaluate(context);
+        Variable rightValue = (Variable) right.evaluate(context);
         return performOperation(leftValue, rightValue, operator).getValue();
     }
 

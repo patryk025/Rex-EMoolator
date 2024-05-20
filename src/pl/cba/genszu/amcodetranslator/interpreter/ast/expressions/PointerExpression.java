@@ -12,11 +12,6 @@ public class PointerExpression extends Expression {
     }
 
     @Override
-    public Object evaluate() {
-        return null;
-    }
-
-    @Override
     public Object evaluate(Context context) {
         Object result = expression.evaluate(context);
         if (!(result instanceof String)) {

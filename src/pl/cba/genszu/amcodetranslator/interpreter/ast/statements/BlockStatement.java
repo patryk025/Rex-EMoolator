@@ -1,5 +1,6 @@
 package pl.cba.genszu.amcodetranslator.interpreter.ast.statements;
 
+import pl.cba.genszu.amcodetranslator.interpreter.Context;
 import pl.cba.genszu.amcodetranslator.interpreter.ast.Statement;
 
 import java.util.List;
@@ -12,9 +13,9 @@ public class BlockStatement extends Statement {
     }
 
     @Override
-    public void execute() {
+    public void execute(Context context) {
         for (Statement statement : statements) {
-            statement.execute();
+            statement.execute(context);
         }
     }
 }

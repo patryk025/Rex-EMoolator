@@ -1,5 +1,6 @@
 package pl.cba.genszu.amcodetranslator.interpreter.ast.statements;
 
+import pl.cba.genszu.amcodetranslator.interpreter.Context;
 import pl.cba.genszu.amcodetranslator.interpreter.ast.Statement;
 import pl.cba.genszu.amcodetranslator.interpreter.ast.Expression;
 
@@ -17,9 +18,9 @@ public class LoopStatement extends Statement {
     }
 
     @Override
-    public void execute() {
-        for (int i = (int) start.evaluate(); i < (int) end.evaluate(); i += (int) step.evaluate()) {
-            body.execute();
+    public void execute(Context context) {
+        for (int i = (int) start.evaluate(context); i < (int) end.evaluate(context); i += (int) step.evaluate(context)) {
+            body.execute(context);
         }
     }
 }

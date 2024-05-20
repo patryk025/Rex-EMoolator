@@ -16,11 +16,6 @@ public class MethodCallExpression extends Expression {
     }
 
     @Override
-    public Object evaluate() {
-        return null;
-    }
-
-    @Override
     public Object evaluate(Context context) {
         Object result = pointerExpression.evaluate(context);
         if (!(result instanceof Variable)) {
