@@ -20,7 +20,7 @@ public class ArithmeticExpression extends Expression {
     public Object evaluate(Context context) {
         Variable leftValue = (Variable) left.evaluate(context);
         Variable rightValue = (Variable) right.evaluate(context);
-        return performOperation(leftValue, rightValue, operator).getValue();
+        return new ConstantExpression(performOperation(leftValue, rightValue, operator).getValue());
     }
 
     private Variable performOperation(Variable operand1, Variable operand2, String token) {

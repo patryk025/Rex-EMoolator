@@ -22,7 +22,7 @@ public class PointerExpression extends Expression {
         if (targetVariable == null) {
             throw new RuntimeException("Variable not defined: " + targetVariableName);
         }
-        return targetVariable.getValue();
+        return targetVariableName;
     }
 }
 

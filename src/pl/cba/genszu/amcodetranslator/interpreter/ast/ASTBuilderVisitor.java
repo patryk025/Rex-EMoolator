@@ -4,7 +4,12 @@ import pl.cba.genszu.amcodetranslator.interpreter.Context;
 import pl.cba.genszu.amcodetranslator.interpreter.antlr.AidemMediaBaseVisitor;
 import pl.cba.genszu.amcodetranslator.interpreter.antlr.AidemMediaParser;
 import pl.cba.genszu.amcodetranslator.interpreter.ast.expressions.ArithmeticExpression;
+import pl.cba.genszu.amcodetranslator.interpreter.ast.expressions.MethodCallExpression;
+import pl.cba.genszu.amcodetranslator.interpreter.ast.expressions.PointerExpression;
+import pl.cba.genszu.amcodetranslator.interpreter.ast.expressions.VariableExpression;
+import pl.cba.genszu.amcodetranslator.interpreter.ast.statements.BlockStatement;
 
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Stack;
@@ -14,6 +19,49 @@ public class ASTBuilderVisitor extends AidemMediaBaseVisitor<Node> {
 
     public ASTBuilderVisitor(Context context) {
         this.context = context;
+    }
+
+    @Override
+    public Node visitScript(AidemMediaParser.ScriptContext ctx) {
+        return visit(ctx.codeBlock(0));
+    }
+
+    @Override
+    public Node visitCodeBlock(AidemMediaParser.CodeBlockContext ctx) {
+        List<Statement> statements = new ArrayList<>();
+        for (AidemMediaParser.InstrContext stmtCtx : ctx.instr()) {
+            statements.add((Statement) visit(stmtCtx));
+        }
+        return new BlockStatement(statements);
+    }
+
+    @Override
+    public Node visitFunctionFire(AidemMediaParser.FunctionFireContext ctx) {
+        String methodName = ctx.literal(1).getText();
+
+        Expression targetExpression;
+        if (ctx.literal() != null) {
+            targetExpression = new VariableExpression(ctx.literal(0).getText());
+        } else if (ctx.iterator() != null) {
+            targetExpression = new VariableExpression("_I_");
+        } else if (ctx.stringRef() != null) {
+            targetExpression = new PointerExpression((Expression) visit(ctx.stringRef()));
+        } else if (ctx.struct() != null) {
+            targetExpression = (Expression) visit(ctx.struct());
+        } else if (ctx.variable() != null) {
+            targetExpression = new VariableExpression(ctx.variable().getText());
+        } else if (ctx.varWithNumber() != null) {
+            targetExpression = new VariableExpression(ctx.varWithNumber().getText());
+        } else {
+            throw new RuntimeException("Unsupported function fire target: " + ctx.getText());
+        }
+
+        List<Expression> argumentExpressions = new ArrayList<>();
+        for (int i = 0; i < ctx.param().size(); i++) {
+            argumentExpressions.add((Expression) visit(ctx.param(i)));
+        }
+
+        return new MethodCallExpression(targetExpression, methodName, argumentExpressions.toArray(new Expression[0]));
     }
 
     @Override
