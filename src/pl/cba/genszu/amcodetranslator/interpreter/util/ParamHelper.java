@@ -1,12 +1,12 @@
 package pl.cba.genszu.amcodetranslator.interpreter.util;
 
 import pl.cba.genszu.amcodetranslator.interpreter.antlr.AidemMediaParser;
-import pl.cba.genszu.amcodetranslator.interpreter.AidemMediaCodeVisitor;
+import pl.cba.genszu.amcodetranslator.interpreter.AidemMediaCodeVisitorOld;
 
 import java.util.List;
 
 public class ParamHelper {
-    public static Object getValueFromParam(AidemMediaCodeVisitor visitor, AidemMediaParser.ParamContext param) {
+    public static Object getValueFromParam(AidemMediaCodeVisitorOld visitor, AidemMediaParser.ParamContext param) {
         if (param.string() != null)
         {
             List<AidemMediaParser.FunctionFireContext> functionFire = param.string().functionFire();

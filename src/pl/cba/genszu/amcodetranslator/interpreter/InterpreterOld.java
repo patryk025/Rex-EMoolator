@@ -9,17 +9,17 @@ import pl.cba.genszu.amcodetranslator.interpreter.arithmetic.ArithmeticSolver;
 import pl.cba.genszu.amcodetranslator.interpreter.arithmetic.utils.InfixToPostfix;
 import pl.cba.genszu.amcodetranslator.interpreter.util.TypeGuesser;
 
-public class Interpreter
+public class InterpreterOld
 {
 	private List<Variable> variables;
 	private String sceneName;
 	
-	public Interpreter() {
+	public InterpreterOld() {
 		this.variables = new ArrayList<>();
 		this.sceneName = "BRAKSCENY";
 	}
 	
-	public Interpreter(List<Variable> variables) {
+	public InterpreterOld(List<Variable> variables) {
 		this.variables = variables;
 		this.sceneName = "BRAKSCENY";
 	}
@@ -118,7 +118,7 @@ public class Interpreter
 		AidemMediaParser parser = new AidemMediaParser(tokens);
 		
 		AidemMediaParser.ScriptContext scriptContext = parser.script();
-		AidemMediaCodeVisitor visitor = new AidemMediaCodeVisitor(this);
+		AidemMediaCodeVisitorOld visitor = new AidemMediaCodeVisitorOld(this);
 		Variable result = visitor.visit(scriptContext);
 		
 		return result;

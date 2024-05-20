@@ -18,13 +18,13 @@ import pl.cba.genszu.amcodetranslator.interpreter.factories.*;
 import pl.cba.genszu.amcodetranslator.interpreter.types.*;
 import pl.cba.genszu.amcodetranslator.interpreter.exceptions.*;
 
-public class AidemMediaCodeVisitor extends AidemMediaBaseVisitor<Variable>
+public class AidemMediaCodeVisitorOld extends AidemMediaBaseVisitor<Variable>
 {
 	public int indent;
 	public int fixAttemps = 0;
-	private final Interpreter interpreter;
+	private final InterpreterOld interpreter;
 
-	public AidemMediaCodeVisitor(Interpreter interpreter) {
+	public AidemMediaCodeVisitorOld(InterpreterOld interpreter) {
 		this.interpreter = interpreter;
 	}
 	

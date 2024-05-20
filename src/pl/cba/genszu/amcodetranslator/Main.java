@@ -30,7 +30,7 @@ public class Main
 
 		//System.out.println(test1.getType());
 		
-		Interpreter interpreter = new Interpreter(vars);
+		InterpreterOld interpreter = new InterpreterOld(vars);
 		interpreter.interpret(testExpression);
 	}
 }

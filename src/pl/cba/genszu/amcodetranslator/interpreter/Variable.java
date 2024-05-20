@@ -10,7 +10,7 @@ public class Variable {
 
 	private Map<String, String> signals;
 	private List<Variable> clones;
-	private Interpreter interpreter = null;
+	private InterpreterOld interpreter = null;
 
 	public Variable(String name) {
 		this.name = name;
@@ -37,7 +37,7 @@ public class Variable {
 		}
 	}
 
-	public void addInterpreter(Interpreter interpreter) {
+	public void addInterpreter(InterpreterOld interpreter) {
 		this.interpreter = interpreter;
 	}
 
