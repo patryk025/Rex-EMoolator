@@ -54,6 +54,7 @@ public class Main
 
 		ASTBuilderVisitor astBuilder = new ASTBuilderVisitor(context);
 		Node astRoot = astBuilder.visit(tree);
+		System.out.println(astRoot);
 
 		Interpreter interpreter2 = new Interpreter(astRoot, context);
 		interpreter2.interpret();

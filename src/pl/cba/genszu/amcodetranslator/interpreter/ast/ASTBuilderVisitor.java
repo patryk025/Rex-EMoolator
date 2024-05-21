@@ -1,12 +1,11 @@
 package pl.cba.genszu.amcodetranslator.interpreter.ast;
 
+import org.antlr.v4.runtime.tree.TerminalNodeImpl;
 import pl.cba.genszu.amcodetranslator.interpreter.Context;
 import pl.cba.genszu.amcodetranslator.interpreter.antlr.AidemMediaBaseVisitor;
+import pl.cba.genszu.amcodetranslator.interpreter.antlr.AidemMediaLexer;
 import pl.cba.genszu.amcodetranslator.interpreter.antlr.AidemMediaParser;
-import pl.cba.genszu.amcodetranslator.interpreter.ast.expressions.ArithmeticExpression;
-import pl.cba.genszu.amcodetranslator.interpreter.ast.expressions.MethodCallExpression;
-import pl.cba.genszu.amcodetranslator.interpreter.ast.expressions.PointerExpression;
-import pl.cba.genszu.amcodetranslator.interpreter.ast.expressions.VariableExpression;
+import pl.cba.genszu.amcodetranslator.interpreter.ast.expressions.*;
 import pl.cba.genszu.amcodetranslator.interpreter.ast.statements.BlockStatement;
 
 import java.lang.reflect.Method;
@@ -28,11 +27,13 @@ public class ASTBuilderVisitor extends AidemMediaBaseVisitor<Node> {
 
     @Override
     public Node visitCodeBlock(AidemMediaParser.CodeBlockContext ctx) {
-        List<Statement> statements = new ArrayList<>();
-        for (AidemMediaParser.InstrContext stmtCtx : ctx.instr()) {
-            statements.add((Statement) visit(stmtCtx));
+        List<Node> nodes = new ArrayList<>();
+        for(int i = 0; i < ctx.getChildCount(); i++) {
+            Node node = visit(ctx.getChild(i));
+            if(node != null)
+                nodes.add(node);
         }
-        return new BlockStatement(statements);
+        return new BlockStatement(nodes);
     }
 
     @Override
@@ -69,17 +70,30 @@ public class ASTBuilderVisitor extends AidemMediaBaseVisitor<Node> {
         return buildExpression(ctx);
     }
 
+    @Override
+    public Node visitNumber(AidemMediaParser.NumberContext ctx) {
+        return new ConstantExpression(Integer.parseInt(ctx.getText()));
+    }
+
+    @Override
+    public Node visitArithmetic(AidemMediaParser.ArithmeticContext ctx) {
+        return new ConstantExpression(ctx.getText());
+    }
+
     private Expression buildExpression(AidemMediaParser.ExpressionContext ctx) {
-        if (ctx.getChildCount() == 1) {
-            return (Expression) visit(ctx.getChild(0));
+        if (ctx.getChildCount() == 3) {
+            return (Expression) visit(ctx.getChild(1));
         }
 
         List<Expression> operands = new ArrayList<>();
         List<String> operators = new ArrayList<>();
 
-        operands.add((Expression) visit(ctx.getChild(0)));
-        for (int i = 1; i < ctx.getChildCount(); i += 2) {
-            operators.add(ctx.getChild(i).getText());
+        operands.add((Expression) visit(ctx.getChild(1)));
+        for (int i = 2; i < ctx.getChildCount()-1; i += 2) {
+            if(ctx.getChild(i) instanceof TerminalNodeImpl)
+                operators.add(ctx.getChild(i).getText()); // dziki patent na znak mnożenia
+            else
+                operators.add(((ConstantExpression) visit(ctx.getChild(i))).evaluate(context).toString());
             operands.add((Expression) visit(ctx.getChild(i + 1)));
         }
 

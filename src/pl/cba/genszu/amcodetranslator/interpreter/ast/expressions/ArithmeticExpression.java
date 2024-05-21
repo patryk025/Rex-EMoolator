@@ -4,6 +4,7 @@ import pl.cba.genszu.amcodetranslator.interpreter.Context;
 import pl.cba.genszu.amcodetranslator.interpreter.Variable;
 import pl.cba.genszu.amcodetranslator.interpreter.arithmetic.ArithmeticSolver;
 import pl.cba.genszu.amcodetranslator.interpreter.ast.Expression;
+import pl.cba.genszu.amcodetranslator.interpreter.factories.VariableFactory;
 
 public class ArithmeticExpression extends Expression {
     private final Expression left;
@@ -18,8 +19,8 @@ public class ArithmeticExpression extends Expression {
 
     @Override
     public Object evaluate(Context context) {
-        Variable leftValue = (Variable) left.evaluate(context);
-        Variable rightValue = (Variable) right.evaluate(context);
+        Variable leftValue = VariableFactory.createVariable("", left.evaluate(context));
+        Variable rightValue = VariableFactory.createVariable("", right.evaluate(context));
         return new ConstantExpression(performOperation(leftValue, rightValue, operator).getValue());
     }
 
