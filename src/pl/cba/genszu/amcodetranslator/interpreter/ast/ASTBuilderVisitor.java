@@ -1,17 +1,10 @@
 package pl.cba.genszu.amcodetranslator.interpreter.ast;
 
-import org.antlr.v4.runtime.tree.TerminalNodeImpl;
-import pl.cba.genszu.amcodetranslator.interpreter.Context;
-import pl.cba.genszu.amcodetranslator.interpreter.antlr.AidemMediaBaseVisitor;
-import pl.cba.genszu.amcodetranslator.interpreter.antlr.AidemMediaLexer;
-import pl.cba.genszu.amcodetranslator.interpreter.antlr.AidemMediaParser;
+import java.util.*;
+import pl.cba.genszu.amcodetranslator.interpreter.*;
+import pl.cba.genszu.amcodetranslator.interpreter.antlr.*;
 import pl.cba.genszu.amcodetranslator.interpreter.ast.expressions.*;
-import pl.cba.genszu.amcodetranslator.interpreter.ast.statements.BlockStatement;
-
-import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Stack;
+import pl.cba.genszu.amcodetranslator.interpreter.ast.statements.*;
 
 public class ASTBuilderVisitor extends AidemMediaBaseVisitor<Node> {
     private final Context context;
@@ -75,41 +68,56 @@ public class ASTBuilderVisitor extends AidemMediaBaseVisitor<Node> {
         return new ConstantExpression(Integer.parseInt(ctx.getText()));
     }
 
-    @Override
-    public Node visitArithmetic(AidemMediaParser.ArithmeticContext ctx) {
-        return new ConstantExpression(ctx.getText());
-    }
-
     private Expression buildExpression(AidemMediaParser.ExpressionContext ctx) {
         if (ctx.getChildCount() == 3) {
             return (Expression) visit(ctx.getChild(1));
         }
 
         List<Expression> operands = new ArrayList<>();
-        List<String> operators = new ArrayList<>();
+		for (int i = 1; i < ctx.getChildCount()-1; i++) {
+			if(ctx.getChild(i).getText().matches("[+\\-*@%()]")) {
+				operands.add(new OperatorExpression(ctx.getChild(i).getText()));
+			}
+			else {
+				operands.add((Expression) visit(ctx.getChild(i)));
+			}
+		}
 
-        operands.add((Expression) visit(ctx.getChild(1)));
-        for (int i = 2; i < ctx.getChildCount()-1; i += 2) {
-            if(ctx.getChild(i) instanceof TerminalNodeImpl)
-                operators.add(ctx.getChild(i).getText()); // dziki patent na znak mnożenia
-            else
-                operators.add(((ConstantExpression) visit(ctx.getChild(i))).evaluate(context).toString());
-            operands.add((Expression) visit(ctx.getChild(i + 1)));
-        }
-
-        return createExpressionTree(operands, operators);
+        return createExpressionTree(operands);
     }
 
-    private Expression createExpressionTree(List<Expression> operands, List<String> operators) {
+    private Expression createExpressionTree(List<Expression> operands) {
+		//implementation of Djikstra's Shunting-Yard algorithm
+		
         Stack<Expression> operandStack = new Stack<>();
         Stack<String> operatorStack = new Stack<>();
 
-        operandStack.push(operands.get(0));
+        List<Expression> postfix = new ArrayList<>();
 
-        for (int i = 0; i < operators.size(); i++) {
-            String operator = operators.get(i);
-            Expression operand = operands.get(i + 1);
-
+        for (Expression operand : operands) {
+			if(!(operand instanceof OperatorExpression)) {
+				operandStack.push(operand);
+			}
+			else {
+				String operandVal = operand.evaluate(this.context).toString();
+				if(operandVal.equals("("))
+					operatorStack.push("(");
+				else if(operandVal.equals(")")) {
+					while(!operatorStack.isEmpty() && !operatorStack.peek().equals("(")) {
+						postfix.add(operators.pop());
+					}
+					try {
+						operatorStack.pop(); //remove left parenthesis
+					}
+					catch(EmptyStackException e) {
+						System.out.println("DEBUG: pusty stack, wyrażenie => "+infix);
+						throw e;
+					}
+				}
+			}
+			
+			
+            
             while (!operatorStack.isEmpty() && precedence(operator) <= precedence(operatorStack.peek())) {
                 Expression right = operandStack.pop();
                 Expression left = operandStack.pop();
