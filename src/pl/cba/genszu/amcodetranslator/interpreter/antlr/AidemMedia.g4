@@ -60,7 +60,7 @@ script
 	;
 
 param
-	:	functionFire | BOOLEAN | variable | string | literal | arithmetic? number | arithmetic? floatNumber | expression | iterator | struct | stringRef
+	:	functionFire | bool | variable | string | literal | arithmetic? number | arithmetic? floatNumber | expression | iterator | struct | stringRef
 	;
 
 condition
@@ -95,7 +95,7 @@ iterator
 	;*/
 
 string
-	:	QUOTEMARK ((literal | FIREFUNC | arithmetic? (number | floatNumber) | compare | SLASH | struct | LPAREN | RPAREN | SEPARATOR | arithmetic | VARREF | iterator | expression | functionFire)+ | (variable (SLASH literal?)?) | string | BOOLEAN)? QUOTEMARK
+	:	QUOTEMARK ((literal | FIREFUNC | arithmetic? (number | floatNumber) | compare | SLASH | struct | LPAREN | RPAREN | SEPARATOR | arithmetic | VARREF | iterator | expression | functionFire)+ | (variable (SLASH literal?)?) | string | bool)? QUOTEMARK
 	;
 
 instr
@@ -209,6 +209,10 @@ logic
 
 compare
 	:	(LSS | LEQ | GEQ | GTR| EQU | NEQ)
+	;
+
+bool
+	:  BOOLEAN
 	;
 
 fragment DIGIT

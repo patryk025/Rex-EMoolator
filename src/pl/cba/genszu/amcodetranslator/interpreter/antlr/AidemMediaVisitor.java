@@ -1,4 +1,4 @@
-// Generated from c:\Users\oem\Desktop\gramatykaAM\AidemMedia.g4 by ANTLR 4.9.2
+// Generated from AidemMedia.g4 by ANTLR 4.9.2
 package pl.cba.genszu.amcodetranslator.interpreter.antlr;
 import org.antlr.v4.runtime.tree.ParseTreeVisitor;
 
@@ -190,4 +190,10 @@ public interface AidemMediaVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitCompare(AidemMediaParser.CompareContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link AidemMediaParser#bool}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitBool(AidemMediaParser.BoolContext ctx);
 }

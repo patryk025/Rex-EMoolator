@@ -5,6 +5,8 @@ import pl.cba.genszu.amcodetranslator.interpreter.*;
 import pl.cba.genszu.amcodetranslator.interpreter.antlr.*;
 import pl.cba.genszu.amcodetranslator.interpreter.arithmetic.utils.InfixToPostfix;
 import pl.cba.genszu.amcodetranslator.interpreter.ast.expressions.*;
+import pl.cba.genszu.amcodetranslator.interpreter.ast.statements.*;
+import pl.cba.genszu.amcodetranslator.interpreter.types.StructVariable;
 
 public class ASTBuilderVisitor extends AidemMediaBaseVisitor<Node> {
     private final Context context;
@@ -73,6 +75,26 @@ public class ASTBuilderVisitor extends AidemMediaBaseVisitor<Node> {
         return new ConstantExpression(Double.parseDouble(ctx.getText()));
     }
 
+    @Override
+    public Node visitLiteral(AidemMediaParser.LiteralContext ctx) {
+        return new ConstantExpression(ctx.getText());
+    }
+
+    @Override
+    public Node visitString(AidemMediaParser.StringContext ctx) {
+        if(ctx.string() != null) {
+            return new ConstantExpression(ctx.string().getText());
+        }
+        else {
+            return new ConstantExpression(ctx.getText());
+        }
+    }
+
+    @Override
+    public Node visitBool(AidemMediaParser.BoolContext ctx) {
+        return new ConstantExpression(ctx.getText());
+    }
+
     private Expression buildExpression(AidemMediaParser.ExpressionContext ctx) {
         if (ctx.getChildCount() == 3) {
             return (Expression) visit(ctx.getChild(1));
@@ -106,5 +128,23 @@ public class ASTBuilderVisitor extends AidemMediaBaseVisitor<Node> {
         }
 
         return stack.pop();
+    }
+
+    @Override
+    public Node visitInstr(AidemMediaParser.InstrContext ctx) {
+        String instructionName = ctx.literal().getText();
+        List<AidemMediaParser.ParamContext> params = ctx.param();
+
+        switch(instructionName) {
+            case "BOOL":
+            case "STRING":
+            case "DOUBLE":
+            case "INT":
+                String varName = ctx.param(0).getText();
+                AidemMediaParser.ParamContext param2 = ctx.param(1);
+                return new VariableDefinitionStatement(instructionName, varName, (Expression) visit(param2));
+            default:
+                return null;
+        }
     }
 }

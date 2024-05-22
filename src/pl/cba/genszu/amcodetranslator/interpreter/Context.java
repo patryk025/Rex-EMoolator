@@ -17,5 +17,9 @@ public class Context {
     public boolean hasVariable(String name) {
         return variables.containsKey(name);
     }
+
+    public void removeVariable(String name) {
+        variables.remove(name);
+    }
 }
 

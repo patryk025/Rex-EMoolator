@@ -59,6 +59,7 @@ public class VariableFactory
             case "INERTIA":
                 return new InertiaVariable(name, value);
             case "INTEGER":
+            case "INT":
                 return new IntegerVariable(name, value);
             case "KEYBOARD":
                 return new KeyboardVariable(name, value);
