@@ -1,21 +1,21 @@
 # AidemMediaScriptsInterpreter
 Prototyp modułu lexera, interpretera skryptów z gier Aidem Media wykorzystujących silnik PikLib oraz Bloomoo oraz próba zaemulowania silnika na urządzeniach z systemem Android.
 
-## INFORMACJA: na ten moment repo jest w przebudowie i chwilowo nie będzie na nim zmian. Kod czeka refaktoryzacja oraz poprawna implementacja metod poszczególnych klas.
+## INFORMACJA: na ten moment repo jest w przebudowie. Spora część poprzedniej bazy kodowej została przeniesiona, poszczegölne elementy są już tworzone na bieżąco. Stary kod zostanie usunięty, kiedy tylko wszystkie poprzednie testy będą dawać te same wyniki.
 
 Lista TODO (w trakcie tworzenia):
 - [x] Arytmetyka
 - [x] Obsługa zmiennych
-- [x] Obsługa instrukcji warunkowych
-- [x] Obsługa pętli (tak - na razie bez procedur)
+- [ ] Obsługa instrukcji warunkowych
+- [ ] Obsługa pętli
 - [ ] Obsługa funkcji
 - [ ] Obsługa procedur (klasa BEHAVIOUR)
 - [ ] Obsługa animacji
 - [x] Dynamiczne tworzenie zmiennych
 - [ ] Ładowanie zmiennych ze skryptów
 - [x] Obsługa dynamicznych wskaźników na zmienne (*ZMIENNA)
-- [x] Obsługa rzutowania zmiennych
-- [ ] Obsługa instrukcji RETURN
+- [ ] Obsługa rzutowania zmiennych
+- [x] Obsługa instrukcji RETURN
 - [ ] Obsługa BREAK
 - [ ] Obsługa listenerów (ONCHANGED, ONBRUTALCHANGED, ONINIT itp.)
 - [ ] Obsługa baz danych (typu DATABASE)
@@ -26,4 +26,3 @@ Lista TODO (w trakcie tworzenia):
 - [ ] Obsługa wektorów (klasa Vector)
 - [ ] Podłączenie funkcji deszyfrujących z bracha main (szyfr skryptów, CRLE, CLZW2 - analiza w toku)
 
-Postępy w tworzeniu obsługi funkcji i pól w klasach [tutaj](Interpreter.md)
