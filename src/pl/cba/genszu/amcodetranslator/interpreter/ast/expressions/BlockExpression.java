@@ -1,4 +1,4 @@
-package pl.cba.genszu.amcodetranslator.interpreter.ast.statements;
+package pl.cba.genszu.amcodetranslator.interpreter.ast.expressions;
 
 import pl.cba.genszu.amcodetranslator.interpreter.Context;
 import pl.cba.genszu.amcodetranslator.interpreter.ast.Expression;
@@ -7,10 +7,10 @@ import pl.cba.genszu.amcodetranslator.interpreter.ast.Statement;
 
 import java.util.List;
 
-public class BlockStatement extends Statement {
+public class BlockExpression extends Statement {
     private final List<Node> nodes;
 
-    public BlockStatement(List<Node> nodes) {
+    public BlockExpression(List<Node> nodes) {
         this.nodes = nodes;
     }
 

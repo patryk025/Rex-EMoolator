@@ -5,7 +5,6 @@ import pl.cba.genszu.amcodetranslator.interpreter.*;
 import pl.cba.genszu.amcodetranslator.interpreter.antlr.*;
 import pl.cba.genszu.amcodetranslator.interpreter.arithmetic.utils.InfixToPostfix;
 import pl.cba.genszu.amcodetranslator.interpreter.ast.expressions.*;
-import pl.cba.genszu.amcodetranslator.interpreter.ast.statements.*;
 
 public class ASTBuilderVisitor extends AidemMediaBaseVisitor<Node> {
     private final Context context;
@@ -27,7 +26,7 @@ public class ASTBuilderVisitor extends AidemMediaBaseVisitor<Node> {
             if(node != null)
                 nodes.add(node);
         }
-        return new BlockStatement(nodes);
+        return new BlockExpression(nodes);
     }
 
     @Override
@@ -67,6 +66,11 @@ public class ASTBuilderVisitor extends AidemMediaBaseVisitor<Node> {
     @Override
     public Node visitNumber(AidemMediaParser.NumberContext ctx) {
         return new ConstantExpression(Integer.parseInt(ctx.getText()));
+    }
+
+    @Override
+    public Node visitFloatNumber(AidemMediaParser.FloatNumberContext ctx) {
+        return new ConstantExpression(Double.parseDouble(ctx.getText()));
     }
 
     private Expression buildExpression(AidemMediaParser.ExpressionContext ctx) {

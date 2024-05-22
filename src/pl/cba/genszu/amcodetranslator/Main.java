@@ -58,5 +58,6 @@ public class Main
 
 		Interpreter interpreter2 = new Interpreter(astRoot, context);
 		interpreter2.interpret();
+		System.out.println("Returned value: " + interpreter2.getReturnValue());
 	}
 }

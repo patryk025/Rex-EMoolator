@@ -21,7 +21,12 @@ public class ArithmeticExpression extends Expression {
     public Object evaluate(Context context) {
         Variable leftValue = getVariableFromObject(left, context);
         Variable rightValue = getVariableFromObject(right, context);
-        return new ConstantExpression(performOperation(leftValue, rightValue, operator).getValue());
+        Object result = performOperation(leftValue, rightValue, operator).getValue();
+
+        assert leftValue != null;
+        assert rightValue != null;
+        System.out.println("DEBUG: " + leftValue.getValue() + " " + operator + " " + rightValue.getValue() + " = " + result);
+        return new ConstantExpression(result);
     }
 
     private Variable getVariableFromObject(Object value, Context context) {
