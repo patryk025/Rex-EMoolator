@@ -14,6 +14,9 @@ public class PointerExpression extends Expression {
     @Override
     public Object evaluate(Context context) {
         Object result = expression.evaluate(context);
+        if (result instanceof ConstantExpression) {
+            result = ((ConstantExpression) result).evaluate(context).toString();
+        }
         if (!(result instanceof String)) {
             throw new RuntimeException("Dereferenced value must be a string: " + result);
         }

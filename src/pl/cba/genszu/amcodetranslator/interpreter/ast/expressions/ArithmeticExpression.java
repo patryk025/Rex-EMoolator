@@ -45,6 +45,9 @@ public class ArithmeticExpression extends Expression {
 
             return context.getVariable(valueString.toString());
         }
+        else if(value instanceof PointerExpression) {
+            return context.getVariable(((PointerExpression) value).evaluate(context).toString());
+        }
 
         return null;
     }
