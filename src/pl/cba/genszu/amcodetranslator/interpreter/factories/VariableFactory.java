@@ -8,7 +8,7 @@ import java.util.Objects;
 
 public class VariableFactory
 {
-    public static Variable createVariable(String name, Object value) {
+    public static Variable createVariableWithAutoType(String name, Object value) {
         return createVariable(TypeGuesser.guessType(""+value), name, value);
     }
 

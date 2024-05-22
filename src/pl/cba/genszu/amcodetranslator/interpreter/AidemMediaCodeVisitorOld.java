@@ -239,10 +239,10 @@ public class AidemMediaCodeVisitorOld extends AidemMediaBaseVisitor<Variable>
 	public Variable visitLoopInstr(AidemMediaParser.LoopInstrContext ctx) {
 		LoopCodeParamContext loopFunction = ctx.loopCodeParam();
 		//System.out.println(ctx.param());
-		Variable startValue = VariableFactory.createVariable(null, ParamHelper.getValueFromParam(this, ctx.param(0)));
-		Variable diffValue = VariableFactory.createVariable(null, ParamHelper.getValueFromParam(this, ctx.param(1)));
+		Variable startValue = VariableFactory.createVariableWithAutoType(null, ParamHelper.getValueFromParam(this, ctx.param(0)));
+		Variable diffValue = VariableFactory.createVariableWithAutoType(null, ParamHelper.getValueFromParam(this, ctx.param(1)));
 		Variable endValue = ArithmeticSolver.add(startValue, diffValue);
-		Variable incrementValue = VariableFactory.createVariable(null, ParamHelper.getValueFromParam(this, ctx.param(2)));
+		Variable incrementValue = VariableFactory.createVariableWithAutoType(null, ParamHelper.getValueFromParam(this, ctx.param(2)));
 		
 		//if(startValue.getType().equals("STRING"))
 

@@ -55,7 +55,7 @@ public class InterpreterOld
 		}
 		Variable result;
 		if(type == null)
-			result = VariableFactory.createVariable(name, value);
+			result = VariableFactory.createVariableWithAutoType(name, value);
 		else
 			result = VariableFactory.createVariable(type, name, value);
 		variables.add(result);

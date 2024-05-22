@@ -3,6 +3,7 @@ package pl.cba.genszu.amcodetranslator.interpreter.ast;
 import java.util.*;
 import pl.cba.genszu.amcodetranslator.interpreter.*;
 import pl.cba.genszu.amcodetranslator.interpreter.antlr.*;
+import pl.cba.genszu.amcodetranslator.interpreter.arithmetic.utils.InfixToPostfix;
 import pl.cba.genszu.amcodetranslator.interpreter.ast.expressions.*;
 import pl.cba.genszu.amcodetranslator.interpreter.ast.statements.*;
 
@@ -83,73 +84,23 @@ public class ASTBuilderVisitor extends AidemMediaBaseVisitor<Node> {
 			}
 		}
 
-        return createExpressionTree(operands);
+        return createExpressionTree(InfixToPostfix.convertToPostfix(operands));
     }
 
-    private Expression createExpressionTree(List<Expression> operands) {
-		//implementation of Djikstra's Shunting-Yard algorithm
-		
-        Stack<Expression> operandStack = new Stack<>();
-        Stack<String> operatorStack = new Stack<>();
+    private Expression createExpressionTree(Deque<Expression> operands) {
+        Stack<Expression> stack = new Stack<>();
 
-        List<Expression> postfix = new ArrayList<>();
-
-        for (Expression operand : operands) {
-			if(!(operand instanceof OperatorExpression)) {
-				operandStack.push(operand);
-			}
-			else {
-				String operandVal = operand.evaluate(this.context).toString();
-				if(operandVal.equals("("))
-					operatorStack.push("(");
-				else if(operandVal.equals(")")) {
-					while(!operatorStack.isEmpty() && !operatorStack.peek().equals("(")) {
-						postfix.add(operators.pop());
-					}
-					try {
-						operatorStack.pop(); //remove left parenthesis
-					}
-					catch(EmptyStackException e) {
-						System.out.println("DEBUG: pusty stack, wyrażenie => "+infix);
-						throw e;
-					}
-				}
-			}
-			
-			
-            
-            while (!operatorStack.isEmpty() && precedence(operator) <= precedence(operatorStack.peek())) {
-                Expression right = operandStack.pop();
-                Expression left = operandStack.pop();
-                String op = operatorStack.pop();
-                operandStack.push(new ArithmeticExpression(left, right, op));
+        while (!operands.isEmpty()) {
+            Expression operand = operands.removeFirst();
+            if (operand instanceof OperatorExpression) {
+                Expression right = stack.pop();
+                Expression left = stack.pop();
+                stack.push(new ArithmeticExpression(left, right, operand.evaluate(null).toString()));
+            } else {
+                stack.push(operand);
             }
-
-            operatorStack.push(operator);
-            operandStack.push(operand);
         }
 
-        while (!operatorStack.isEmpty()) {
-            Expression right = operandStack.pop();
-            Expression left = operandStack.pop();
-            String op = operatorStack.pop();
-            operandStack.push(new ArithmeticExpression(left, right, op));
-        }
-
-        return operandStack.pop();
-    }
-
-    private int precedence(String operator) {
-        switch (operator) {
-            case "*":
-            case "@":
-            case "%":
-                return 2;
-            case "+":
-            case "-":
-                return 1;
-            default:
-                return -1;
-        }
+        return stack.pop();
     }
 }

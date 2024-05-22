@@ -19,9 +19,29 @@ public class ArithmeticExpression extends Expression {
 
     @Override
     public Object evaluate(Context context) {
-        Variable leftValue = VariableFactory.createVariable("", left.evaluate(context));
-        Variable rightValue = VariableFactory.createVariable("", right.evaluate(context));
+        Variable leftValue = getVariableFromObject(left, context);
+        Variable rightValue = getVariableFromObject(right, context);
         return new ConstantExpression(performOperation(leftValue, rightValue, operator).getValue());
+    }
+
+    private Variable getVariableFromObject(Object value, Context context) {
+        if (value instanceof MethodCallExpression) {
+            return (Variable) ((MethodCallExpression) value).evaluate(context);
+        }
+        else if(value instanceof ArithmeticExpression) {
+            return VariableFactory.createVariableWithAutoType("",  ((ConstantExpression) ((ArithmeticExpression) value).evaluate(context)).evaluate(null).toString());
+        }
+        else if(value instanceof ConstantExpression) {
+            Object valueString = ((ConstantExpression) value).evaluate(null);
+
+            if(context.getVariable(valueString.toString()) == null) {
+                return VariableFactory.createVariableWithAutoType("", valueString);
+            }
+
+            return context.getVariable(valueString.toString());
+        }
+
+        return null;
     }
 
     private Variable performOperation(Variable operand1, Variable operand2, String token) {
