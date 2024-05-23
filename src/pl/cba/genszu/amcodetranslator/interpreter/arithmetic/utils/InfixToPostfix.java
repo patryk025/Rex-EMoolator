@@ -132,9 +132,11 @@ public class InfixToPostfix {
             case "*":
             case "@":
             case "%":
+            case "&&": // and
                 return 2;
             case "+":
             case "-":
+            case "||": // or
                 return 1;
             default:
                 return -1;

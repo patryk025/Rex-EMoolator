@@ -2,6 +2,7 @@ package pl.cba.genszu.amcodetranslator.interpreter.arithmetic;
 
 import pl.cba.genszu.amcodetranslator.interpreter.Variable;
 import pl.cba.genszu.amcodetranslator.interpreter.exceptions.VariableUnsupportedOperationException;
+import pl.cba.genszu.amcodetranslator.interpreter.types.BoolVariable;
 import pl.cba.genszu.amcodetranslator.interpreter.types.DoubleVariable;
 import pl.cba.genszu.amcodetranslator.interpreter.types.IntegerVariable;
 import pl.cba.genszu.amcodetranslator.interpreter.types.StringVariable;
@@ -61,6 +62,20 @@ public abstract class ArithmeticOperation {
     public abstract Variable performOperation(IntegerVariable var1, DoubleVariable var2);
 
     public abstract Variable performOperation(DoubleVariable var1, DoubleVariable var2);
+
+    public abstract Variable performOperation(BoolVariable var1, StringVariable var2);
+
+    public abstract Variable performOperation(StringVariable var1, BoolVariable var2);
+
+    public abstract Variable performOperation(BoolVariable var1, BoolVariable var2);
+
+    public abstract Variable performOperation(BoolVariable var1, IntegerVariable var2);
+
+    public abstract Variable performOperation(IntegerVariable var1, BoolVariable var2);
+
+    public abstract Variable performOperation(BoolVariable var1, DoubleVariable var2);
+
+    public abstract Variable performOperation(DoubleVariable var1, BoolVariable var2);
 
     public String getOperation() {
         return this.getClass().getSimpleName().split("Operation")[0].toLowerCase();

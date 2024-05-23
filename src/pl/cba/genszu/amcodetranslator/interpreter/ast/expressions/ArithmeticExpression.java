@@ -6,6 +6,8 @@ import pl.cba.genszu.amcodetranslator.interpreter.arithmetic.ArithmeticSolver;
 import pl.cba.genszu.amcodetranslator.interpreter.ast.Expression;
 import pl.cba.genszu.amcodetranslator.interpreter.factories.VariableFactory;
 
+import static pl.cba.genszu.amcodetranslator.interpreter.util.VariableHelper.getVariableFromObject;
+
 public class ArithmeticExpression extends Expression {
     private final Expression left;
     private final Expression right;
@@ -27,29 +29,6 @@ public class ArithmeticExpression extends Expression {
         assert rightValue != null;
         System.out.println("DEBUG: " + leftValue.getValue() + " " + operator + " " + rightValue.getValue() + " = " + result);
         return new ConstantExpression(result);
-    }
-
-    private Variable getVariableFromObject(Object value, Context context) {
-        if (value instanceof MethodCallExpression) {
-            return (Variable) ((MethodCallExpression) value).evaluate(context);
-        }
-        else if(value instanceof ArithmeticExpression) {
-            return VariableFactory.createVariableWithAutoType("",  ((ConstantExpression) ((ArithmeticExpression) value).evaluate(context)).evaluate(null).toString());
-        }
-        else if(value instanceof ConstantExpression) {
-            Object valueString = ((ConstantExpression) value).evaluate(null);
-
-            if(context.getVariable(valueString.toString()) == null) {
-                return VariableFactory.createVariableWithAutoType("", valueString);
-            }
-
-            return context.getVariable(valueString.toString());
-        }
-        else if(value instanceof PointerExpression) {
-            return context.getVariable(((PointerExpression) value).evaluate(context).toString());
-        }
-
-        return null;
     }
 
     private Variable performOperation(Variable operand1, Variable operand2, String token) {
