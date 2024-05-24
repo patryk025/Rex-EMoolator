@@ -1,7 +1,10 @@
 package pl.cba.genszu.amcodetranslator.interpreter.ast.expressions;
 
-import pl.cba.genszu.amcodetranslator.interpreter.Context;
-import pl.cba.genszu.amcodetranslator.interpreter.ast.Expression;
+import pl.cba.genszu.amcodetranslator.interpreter.*;
+import pl.cba.genszu.amcodetranslator.interpreter.ast.*;
+import pl.cba.genszu.amcodetranslator.interpreter.logic.*;
+
+import static pl.cba.genszu.amcodetranslator.interpreter.util.VariableHelper.getVariableFromObject;
 
 public class ConditionExpression extends Expression {
 
@@ -17,6 +20,24 @@ public class ConditionExpression extends Expression {
 
     @Override
     public Object evaluate(Context context) {
-        return null;
+        Variable leftValue = getVariableFromObject(left, context);
+        Variable rightValue = getVariableFromObject(right, context);
+        Object result = performOperation(leftValue, rightValue, operator).getValue();
+
+        assert leftValue != null;
+        assert rightValue != null;
+        System.out.println("DEBUG: " + leftValue.getValue() + " " + operator + " " + rightValue.getValue() + " = " + result);
+        return new ConstantExpression(result);
+    }
+
+    private Variable performOperation(Variable operand1, Variable operand2, String token) {
+        switch (token) {
+            case "&&":
+                return LogicSolver.and(operand1, operand2);
+            case "||":
+                return LogicSolver.or(operand1, operand2);
+            default:
+                throw new IllegalArgumentException("Invalid operator: " + token);
+        }
     }
 }

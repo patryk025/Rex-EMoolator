@@ -24,5 +24,6 @@ Lista TODO (w trakcie tworzenia):
 - [ ] Obsługa generatora liczb pseudolosowych (klasa Rand)
 - [ ] Obsługa macierzy (klasa Matrix)
 - [ ] Obsługa wektorów (klasa Vector)
+- [ ] Emulacja silników fizycznych Sekai i Inertia
 - [ ] Podłączenie funkcji deszyfrujących z bracha main (szyfr skryptów, CRLE, CLZW2 - analiza w toku)
 
