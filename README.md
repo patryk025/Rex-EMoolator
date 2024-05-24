@@ -25,5 +25,6 @@ Lista TODO (w trakcie tworzenia):
 - [ ] Obsługa macierzy (klasa Matrix)
 - [ ] Obsługa wektorów (klasa Vector)
 - [ ] Emulacja silników fizycznych Sekai i Inertia
+- [ ] Bindy do silnika libGDX
 - [ ] Podłączenie funkcji deszyfrujących z bracha main (szyfr skryptów, CRLE, CLZW2 - analiza w toku)
 
