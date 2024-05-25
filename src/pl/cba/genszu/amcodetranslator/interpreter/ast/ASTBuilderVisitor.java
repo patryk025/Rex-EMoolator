@@ -141,6 +141,44 @@ public class ASTBuilderVisitor extends AidemMediaBaseVisitor<Node> {
     }
 
     @Override
+    public Node visitConditionPart(AidemMediaParser.ConditionPartContext ctx) {
+        Expression left = (Expression) visit(ctx.getChild(0));
+        String operator = ctx.getChild(1).getText();
+        Expression right = (Expression) visit(ctx.getChild(2));
+        return new ConditionExpression(left, right, operator);
+    }
+
+    private Expression buildConditionExpression(AidemMediaParser.ConditionContext ctx) {
+        List<Expression> operands = new ArrayList<>();
+        for (int i = 0; i < ctx.getChildCount(); i++) {
+            operands.add((Expression) visit(ctx.getChild(i)));
+        }
+
+        return createConditionExpressionTree(InfixToPostfix.convertToPostfix(operands));
+    }
+
+    private Expression createConditionExpressionTree(Deque<Expression> operands) {
+        if(operands.size() == 1) {
+            return operands.pop();
+        }
+
+        Stack<Expression> stack = new Stack<>();
+
+        while (!operands.isEmpty()) {
+            Expression operand = operands.removeFirst();
+            if (operand instanceof OperatorExpression) {
+                Expression right = stack.pop();
+                Expression left = stack.pop();
+                stack.push(new ConditionExpression(left, right, operand.evaluate(null).toString()));
+            } else {
+                stack.push(operand);
+            }
+        }
+
+        return stack.pop();
+    }
+
+    @Override
     public Node visitInstr(AidemMediaParser.InstrContext ctx) {
         String instructionName = ctx.literal().getText();
         List<AidemMediaParser.ParamContext> params = ctx.param();
@@ -156,5 +194,22 @@ public class ASTBuilderVisitor extends AidemMediaBaseVisitor<Node> {
             default:
                 return null;
         }
+    }
+
+    @Override
+    public Node visitIfInstr(AidemMediaParser.IfInstrContext ctx) {
+        ConditionExpression condition;
+
+        AidemMediaParser.ConditionSimpleContext conditionsSimple = ctx.conditionSimple();
+        AidemMediaParser.ConditionContext conditions = ctx.condition();
+
+        if(conditionsSimple != null && conditions == null) {
+            condition = new ConditionExpression((Expression) visit(conditionsSimple.param(0)), (Expression) visit(conditionsSimple.param(1)), conditionsSimple.compare().getText());
+        }
+        else {
+            condition = (ConditionExpression) buildConditionExpression(ctx.condition());
+        }
+
+        return new IfStatement(condition, (Expression) visit(ctx.ifTrue()), (Expression) visit(ctx.ifFalse()));
     }
 }

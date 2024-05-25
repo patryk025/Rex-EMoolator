@@ -36,6 +36,22 @@ public class ConditionExpression extends Expression {
                 return LogicSolver.and(operand1, operand2);
             case "||":
                 return LogicSolver.or(operand1, operand2);
+            case "'":
+            case "_":
+                return LogicSolver.equals(operand1, operand2);
+            case "!'":
+            case "!_":
+                return LogicSolver.notEquals(operand1, operand2);
+            case ">":
+                return LogicSolver.greater(operand1, operand2);
+            case ">'":
+            case ">_":
+                return LogicSolver.greaterOrEquals(operand1, operand2);
+            case "<":
+                return LogicSolver.less(operand1, operand2);
+            case "<'":
+            case "<_":
+                return LogicSolver.lessOrEquals(operand1, operand2);
             default:
                 throw new IllegalArgumentException("Invalid operator: " + token);
         }
