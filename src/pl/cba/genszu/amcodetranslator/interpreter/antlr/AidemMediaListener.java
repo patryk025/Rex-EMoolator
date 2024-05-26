@@ -1,4 +1,4 @@
-// Generated from AidemMedia.g4 by ANTLR 4.9.2
+// Generated from .\AidemMedia.g4 by ANTLR 4.9.2
 package pl.cba.genszu.amcodetranslator.interpreter.antlr;
 import org.antlr.v4.runtime.tree.ParseTreeListener;
 

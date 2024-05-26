@@ -83,26 +83,15 @@ iterator
 	:	ITERATOR
 	;
 
-/* jednak to nie zbyt dobrze działa */
-/*string
-	:	QUOTEMARK (string | condition)* .*? QUOTEMARK
-	;
-*/
-
-/* TODO: string to powinien być dowolny ciąg znaków */
-/*string
-	:	QUOTEMARK ((literal | FIREFUNC | arithmetic? number | arithmetic? floatNumber | compare | SLASH | struct | LPAREN | RPAREN | SEPARATOR | arithmetic | VARREF | iterator | expression | functionFire)+ | (variable (SLASH literal?)?) | string)? QUOTEMARK
-	;*/
-
 string
-	:	QUOTEMARK ((literal | FIREFUNC | arithmetic? (number | floatNumber) | compare | SLASH | struct | LPAREN | RPAREN | SEPARATOR | arithmetic | VARREF | iterator | expression | functionFire)+ | (variable (SLASH literal?)?) | string | bool)? QUOTEMARK
+	:	QUOTEMARK ((literal | FIREFUNC | arithmetic? (number | floatNumber) | compare | SLASH | struct | LPAREN | RPAREN | SEPARATOR | arithmetic | VARREF | iterator | expression | functionFire | STRUCTFIELD)+ | (variable (SLASH literal?)?) | string | bool)? QUOTEMARK
 	;
 
 instr
 	:	'@' literal LPAREN (param (SEPARATOR param)?)? RPAREN ENDINSTR
 	;
 
-stringRef /* łapie też *ZMIENNA, gdzie zmienna to liczba */
+stringRef
 	:	STRREF (expression | literal)
 	;
 
