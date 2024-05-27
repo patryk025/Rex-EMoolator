@@ -8,11 +8,11 @@ Lista TODO (w trakcie tworzenia):
 - [x] Obsługa zmiennych
 - [ ] Obsługa instrukcji warunkowych
 - [ ] Obsługa pętli
-- [ ] Obsługa funkcji
-- [ ] Obsługa procedur (klasa BEHAVIOUR)
+- [x] Obsługa funkcji (wywołuje je, na ten moment jeszcze bez parametrów)
+- [x] Obsługa procedur (klasa BEHAVIOUR)
 - [ ] Obsługa animacji
 - [x] Dynamiczne tworzenie zmiennych
-- [ ] Ładowanie zmiennych ze skryptów
+- [ ] Ładowanie zmiennych ze skryptów (mam na to kod, ale na razie go nie zapinam)
 - [x] Obsługa dynamicznych wskaźników na zmienne (*ZMIENNA)
 - [ ] Obsługa rzutowania zmiennych
 - [x] Obsługa instrukcji RETURN
@@ -24,7 +24,8 @@ Lista TODO (w trakcie tworzenia):
 - [ ] Obsługa generatora liczb pseudolosowych (klasa Rand)
 - [ ] Obsługa macierzy (klasa Matrix)
 - [ ] Obsługa wektorów (klasa Vector)
+- [ ] Obsługa fontów (klasa Font) (mniejszy priorytet, głównie do testów)
 - [ ] Emulacja silników fizycznych Sekai i Inertia
 - [ ] Bindy do silnika libGDX
-- [ ] Podłączenie funkcji deszyfrujących z bracha main (szyfr skryptów, CRLE, CLZW2 - analiza w toku)
-
+- [ ] Podłączenie funkcji deszyfrujących z bracha main (szyfr skryptów, CRLE, CLZW2)
+- [ ] Przygotowanie instrukcji cache'ujących skrypty oraz tłumaczących animacje na format dla libGDX

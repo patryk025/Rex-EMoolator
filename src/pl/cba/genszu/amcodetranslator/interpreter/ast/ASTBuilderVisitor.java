@@ -7,6 +7,7 @@ import pl.cba.genszu.amcodetranslator.interpreter.arithmetic.utils.InfixToPostfi
 import pl.cba.genszu.amcodetranslator.interpreter.ast.expressions.*;
 import pl.cba.genszu.amcodetranslator.interpreter.ast.statements.*;
 import pl.cba.genszu.amcodetranslator.interpreter.types.StructVariable;
+import pl.cba.genszu.amcodetranslator.interpreter.antlr.AidemMediaParser.*;
 
 public class ASTBuilderVisitor extends AidemMediaBaseVisitor<Node> {
     private final Context context;
@@ -79,6 +80,12 @@ public class ASTBuilderVisitor extends AidemMediaBaseVisitor<Node> {
     public Node visitLiteral(AidemMediaParser.LiteralContext ctx) {
         return new ConstantExpression(ctx.getText());
     }
+
+	@Override
+	public Node visitIterator(AidemMediaParser.IteratorContext ctx)
+	{
+		return new ConstantExpression(ctx.getText());
+	}
 
     @Override
     public Node visitString(AidemMediaParser.StringContext ctx) {
@@ -212,4 +219,28 @@ public class ASTBuilderVisitor extends AidemMediaBaseVisitor<Node> {
 
         return new IfStatement(condition, (Expression) visit(ctx.ifTrue()), (Expression) visit(ctx.ifFalse()));
     }
+
+	@Override
+	public Node visitLoopInstr(AidemMediaParser.LoopInstrContext ctx)
+	{
+		Expression code = (Expression) visit(ctx.loopCodeParam());
+		Expression start = (Expression) visit(ctx.param(0));
+		Expression end = (Expression) visit(ctx.param(1));
+		Expression step = (Expression) visit(ctx.param(2));
+		return new LoopStatement(start, end, step, code);
+	}
+
+	@Override
+	public Node visitLoopCodeParam(AidemMediaParser.LoopCodeParamContext ctx)
+	{
+		if(ctx.codeBlock() != null) {
+			return visit(ctx.codeBlock());
+		}
+		else if(ctx.string() != null) {
+			return visit(ctx.string());
+		}
+		else {
+			return visit(ctx.literal());
+		}
+	}
 }
