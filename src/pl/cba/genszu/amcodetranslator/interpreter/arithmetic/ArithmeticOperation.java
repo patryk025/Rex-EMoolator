@@ -17,6 +17,8 @@ public abstract class ArithmeticOperation {
                     return performOperation((StringVariable) var1, (IntegerVariable) var2);
                 } else if (var2.getType().equals("DOUBLE")) {
                     return performOperation((StringVariable) var1, (DoubleVariable) var2);
+                } else if (var2.getType().equals("BOOL")) {
+                    return performOperation((StringVariable) var1, (BoolVariable) var2);
                 } else {
                     throw new VariableUnsupportedOperationException(var1, var2, this.getOperation());
                 }
@@ -27,6 +29,8 @@ public abstract class ArithmeticOperation {
                     return performOperation((IntegerVariable) var1, (IntegerVariable) var2);
                 } else if (var2.getType().equals("DOUBLE")) {
                     return performOperation((IntegerVariable) var1, (DoubleVariable) var2);
+                } else if (var2.getType().equals("BOOL")) {
+                    return performOperation((IntegerVariable) var1, (BoolVariable) var2);
                 } else {
                     throw new VariableUnsupportedOperationException(var1, var2, this.getOperation());
                 }
@@ -37,6 +41,20 @@ public abstract class ArithmeticOperation {
                     return performOperation((DoubleVariable) var1, (IntegerVariable) var2);
                 } else if (var2.getType().equals("DOUBLE")) {
                     return performOperation((DoubleVariable) var1, (DoubleVariable) var2);
+                } else if (var2.getType().equals("BOOL")) {
+                    return performOperation((DoubleVariable) var1, (BoolVariable) var2);
+                } else {
+                    throw new VariableUnsupportedOperationException(var1, var2, this.getOperation());
+                }
+			case "BOOL":
+                if (var2.getType().equals("STRING")) {
+                    return performOperation((BoolVariable) var1, (StringVariable) var2);
+                } else if (var2.getType().equals("INTEGER")) {
+                    return performOperation((BoolVariable) var1, (IntegerVariable) var2);
+                } else if (var2.getType().equals("DOUBLE")) {
+                    return performOperation((BoolVariable) var1, (DoubleVariable) var2);
+                } else if (var2.getType().equals("BOOL")) {
+                    return performOperation((BoolVariable) var1, (BoolVariable) var2);
                 } else {
                     throw new VariableUnsupportedOperationException(var1, var2, this.getOperation());
                 }

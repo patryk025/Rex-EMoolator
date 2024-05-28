@@ -66,7 +66,7 @@ public class EqualsOperation extends ArithmeticOperation {
 
     @Override
     public Variable performOperation(BoolVariable var1, BoolVariable var2) {
-        return VariableFactory.createVariable("BOOL", "", false); // raczej zwraca false'a
+        return VariableFactory.createVariable("BOOL", "", var1.GET() == var2.GET());
     }
 
     @Override
