@@ -21,9 +21,9 @@ public class LoopStatement extends Statement {
 
     @Override
     public void execute(Context context) {
-		int startValue = start.evaluate(context);
-		int endValue = end.evaluate(context);
-		int stepValue = step.evaluate(context);
+		int startValue = (int) start.evaluate(context);
+		int endValue = (int) end.evaluate(context);
+		int stepValue = (int) step.evaluate(context);
 		context.setVariable("_I_", new IntegerVariable("_I_", startValue));
         for (int i = startValue; i < endValue; i += stepValue) {
             Object result = body.evaluate(context);

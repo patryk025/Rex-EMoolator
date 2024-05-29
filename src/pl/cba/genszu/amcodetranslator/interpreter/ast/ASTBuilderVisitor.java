@@ -243,4 +243,17 @@ public class ASTBuilderVisitor extends AidemMediaBaseVisitor<Node> {
 			return visit(ctx.literal());
 		}
 	}
+
+    @Override
+    public Node visitWhileInstr(WhileInstrContext ctx) {
+        ConditionExpression condition = new ConditionExpression((Expression) visit(ctx.param(0)), (Expression) visit(ctx.param(1)), ctx.compare().getText());
+        Expression code = null;
+        if(ctx.string() != null) {
+            code = (Expression) visit(ctx.string());
+        }
+        else if(ctx.codeBlock() != null) {
+            code = (Expression) visit(ctx.codeBlock());
+        }
+        return new WhileStatement(condition, code);
+    }
 }
