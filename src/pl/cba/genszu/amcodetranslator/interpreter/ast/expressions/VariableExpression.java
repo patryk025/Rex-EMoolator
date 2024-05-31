@@ -17,6 +17,6 @@ public class VariableExpression extends Expression {
         if (variable == null) {
             throw new RuntimeException("Variable not defined: " + variableName);
         }
-        return variable.getValue();
+        return variable;
     }
 }

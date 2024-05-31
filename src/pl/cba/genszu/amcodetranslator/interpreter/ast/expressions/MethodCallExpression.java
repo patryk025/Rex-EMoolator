@@ -3,31 +3,41 @@ package pl.cba.genszu.amcodetranslator.interpreter.ast.expressions;
 import pl.cba.genszu.amcodetranslator.interpreter.Context;
 import pl.cba.genszu.amcodetranslator.interpreter.Variable;
 import pl.cba.genszu.amcodetranslator.interpreter.ast.Expression;
+import pl.cba.genszu.amcodetranslator.interpreter.exceptions.ClassMethodNotFoundException;
+
+import static pl.cba.genszu.amcodetranslator.interpreter.util.VariableHelper.getVariableFromObject;
 
 public class MethodCallExpression extends Expression {
-    private final Expression pointerExpression;
+    private final Expression targetVariable;
     private final String methodName;
     private final Expression[] arguments;
 
-    public MethodCallExpression(Expression pointerExpression, String methodName, Expression... arguments) {
-        this.pointerExpression = pointerExpression;
+    public MethodCallExpression(Expression targetVariable, String methodName, Expression... arguments) {
+        this.targetVariable = targetVariable;
         this.methodName = methodName;
         this.arguments = arguments;
     }
 
     @Override
     public Object evaluate(Context context) {
-        Object result = pointerExpression.evaluate(context);
-        if (!(result instanceof Variable)) {
-            throw new RuntimeException("Method call target must be a variable: " + result);
+        Variable targetVariable = getVariableFromObject(this.targetVariable, context);
+        if (targetVariable == null) {
+            throw new RuntimeException("Method call target must be a variable");
         }
-        Variable targetVariable = (Variable) result;
-        return callMethod(targetVariable, methodName);
+        return callMethod(targetVariable, methodName, context);
     }
 
-    private Object callMethod(Variable variable, String methodName) {
-        // TODO: implement method call with arguments
-        variable.fireFunction(methodName);
-        throw new RuntimeException("Unknown method: " + methodName);
+    private Object callMethod(Variable variable, String methodName, Context context) {
+        int argumentsLength = this.arguments.length;
+        Variable[] arguments = new Variable[argumentsLength];
+        for (int i = 0; i < argumentsLength; i++) {
+            arguments[i] = getVariableFromObject(this.arguments[i], context);
+        }
+        try {
+            return variable.fireFunction(methodName, arguments);
+        } catch (ClassMethodNotFoundException e) {
+            System.out.println("Błąd wywołania metody: " + e.getMessage());
+            return null;
+        }
     }
 }

@@ -2,10 +2,7 @@ package pl.cba.genszu.amcodetranslator.interpreter.util;
 
 import pl.cba.genszu.amcodetranslator.interpreter.Context;
 import pl.cba.genszu.amcodetranslator.interpreter.Variable;
-import pl.cba.genszu.amcodetranslator.interpreter.ast.expressions.ArithmeticExpression;
-import pl.cba.genszu.amcodetranslator.interpreter.ast.expressions.ConstantExpression;
-import pl.cba.genszu.amcodetranslator.interpreter.ast.expressions.MethodCallExpression;
-import pl.cba.genszu.amcodetranslator.interpreter.ast.expressions.PointerExpression;
+import pl.cba.genszu.amcodetranslator.interpreter.ast.expressions.*;
 import pl.cba.genszu.amcodetranslator.interpreter.factories.VariableFactory;
 
 public class VariableHelper {
@@ -24,6 +21,9 @@ public class VariableHelper {
             }
 
             return context.getVariable(valueString.toString());
+        }
+        else if(value instanceof VariableExpression) {
+            return (Variable) ((VariableExpression) value).evaluate(context);
         }
         else if(value instanceof PointerExpression) {
             return context.getVariable(((PointerExpression) value).evaluate(context).toString());
