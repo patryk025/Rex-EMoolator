@@ -198,7 +198,11 @@ public class ASTBuilderVisitor extends AidemMediaBaseVisitor<Node> {
                 String varName = ctx.param(0).getText();
                 AidemMediaParser.ParamContext param2 = ctx.param(1);
                 return new VariableDefinitionStatement(instructionName, varName, (Expression) visit(param2));
-            default:
+            case "CONV":
+				Expression castedVariable = (Expression) visit(ctx.param(0));
+				String targetVariableType = (String) ((Expression) visit(ctx.param(1))).evaluate(context);
+				return new ConvStatement(castedVariable, targetVariableType);
+			default:
                 return null;
         }
     }
