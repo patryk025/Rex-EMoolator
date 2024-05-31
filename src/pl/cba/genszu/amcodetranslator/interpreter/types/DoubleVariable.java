@@ -6,14 +6,18 @@ public class DoubleVariable extends Variable {
 	public DoubleVariable(String name, Object value) {
 		super(name);
         if(value instanceof String) {
+            String valueString = value.toString();
+            if(valueString.startsWith("\"") && valueString.endsWith("\"")) {
+                valueString = valueString.substring(1, valueString.length() - 1);
+            }
             try {
-                this.SET(Double.parseDouble((String) value));
+                this.SET(Double.parseDouble(valueString));
             }
             catch (NumberFormatException e) {
                 this.SET(0.0d);
             }
         }
-        else if(value instanceof Double || value instanceof Integer) {
+        else if(value instanceof Double || value instanceof Integer || value instanceof Long) {
             this.SET((double) value);
         }
 	}

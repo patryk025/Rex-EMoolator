@@ -24,7 +24,7 @@ public class Main
 		//String testExpression = "{[15-1*(12@4+1)]}";
 		//String testExpression = "{[6@2*(1+2)]}";
 		//String testExpression = "{[*[\"TE\"+\"ST\"]+ITERATOR*2]}";
-		String testExpression = "{@INT(TEST,1);@DOUBLE(TEST2,2.1);@STRING(TEST3,\"TEST\");@BOOL(TEST4,TRUE);@IF(\"TEST4'TRUE\", {[TEST+TEST2+TEST3]}, {});}";
+		String testExpression = "{@INT(TEST,1);@DOUBLE(TEST2,2.1);@STRING(TEST3,\"TEST\");@BOOL(TEST4,TRUE);@IF(\"TEST4'TRUE\", {[TEST+TEST2+\"2\"+TEST3]}, {});}";
 		//String testExpression = "{@CONV(ITERATOR, \"BOOL\");}";
 		//String testExpression = "{ITERATOR^SET(5);@STRING(STRING_TEST,[TEST+ITERATOR]);@RETURN(STRING_TEST);}";
 

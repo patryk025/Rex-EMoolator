@@ -15,7 +15,11 @@ public class BoolVariable extends Variable {
 			this.SET((Boolean) value);
 		}
 		else {
-			this.SET(value.equals("TRUE"));
+			String valueString = value.toString();
+			if(valueString.startsWith("\"") && valueString.endsWith("\"")) {
+				valueString = valueString.substring(1, valueString.length() - 1);
+			}
+			this.SET(valueString.equals("TRUE"));
 		}
 	}
 

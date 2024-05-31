@@ -12,15 +12,31 @@ public class IntegerVariable extends Variable {
 	public IntegerVariable(String name, Object value) {
 		super(name);
 		if(value instanceof String) {
+			String valueString = value.toString();
+			if(valueString.startsWith("\"") && valueString.endsWith("\"")) {
+				valueString = valueString.substring(1, valueString.length() - 1);
+			}
 			try {
-				this.SET(Integer.parseInt((String) value));
+				this.SET(Integer.parseInt(valueString));
 			}
 			catch (NumberFormatException e) {
 				this.SET(0);
 			}
 		}
-		else if(value instanceof Integer || value instanceof Double) {
+		else if(value instanceof Integer) {
 			this.SET((Integer) value);
+		}
+		else if(value instanceof Double) {
+			this.SET(((Double) value).intValue());
+		}
+		else if(value instanceof Boolean) {
+			this.SET((Boolean) value ? 1 : 0);
+		}
+		else if(value instanceof Long) {
+			this.SET(((Long) value).intValue());
+		}
+		else {
+			this.SET(0);
 		}
 	}
 

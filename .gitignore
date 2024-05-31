@@ -78,3 +78,5 @@ fabric.properties
 
 # AIDE Android app bin directory
 bin/
+
+.gradle
