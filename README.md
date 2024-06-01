@@ -1,14 +1,14 @@
-# AidemMediaScriptsInterpreter
-Prototyp modułu lexera, interpretera skryptów z gier Aidem Media wykorzystujących silnik PikLib oraz Bloomoo oraz próba zaemulowania silnika na urządzeniach z systemem Android.
+# AidemMediaBlooMooEmulator
+Na tym branchu prowadzone są prace nad interpreterem skryptów.
 
-## INFORMACJA: na ten moment repo jest w przebudowie. Spora część poprzedniej bazy kodowej została przeniesiona, poszczegölne elementy są już tworzone na bieżąco. Stary kod zostanie usunięty, kiedy tylko wszystkie poprzednie testy będą dawać te same wyniki.
+## INFORMACJA: stary kod został usunięty
 
 Lista TODO (w trakcie tworzenia):
 - [x] Arytmetyka
 - [x] Obsługa zmiennych
 - [ ] Obsługa instrukcji warunkowych (w tym momencie sprawdzane jest, jak silnik porównuje poszczególne typy)
-- [x] Obsługa pętli (oprócz FOR, brak jej wykorzystania gdziekolwiek)
-- [x] Obsługa funkcji (wywołuje je, na ten moment jeszcze bez parametrów)
+- [x] Obsługa pętli (oprócz FOR-a, brak jej wykorzystania gdziekolwiek)
+- [x] Obsługa funkcji
 - [x] Obsługa procedur (klasa BEHAVIOUR)
 - [ ] Obsługa animacji
 - [x] Dynamiczne tworzenie zmiennych
@@ -24,7 +24,7 @@ Lista TODO (w trakcie tworzenia):
 - [ ] Obsługa generatora liczb pseudolosowych (klasa Rand)
 - [ ] Obsługa macierzy (klasa Matrix)
 - [ ] Obsługa wektorów (klasa Vector)
-- [ ] Obsługa fontów (klasa Font) (mniejszy priorytet, głównie do testów)
+- [ ] Obsługa fontów (klasa Font; mniejszy priorytet, głównie do testów)
 - [ ] Emulacja silników fizycznych Sekai i Inertia
 - [ ] Bindy do silnika libGDX
 - [ ] Podłączenie funkcji deszyfrujących z bracha main (szyfr skryptów, CRLE, CLZW2)

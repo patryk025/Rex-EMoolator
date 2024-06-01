@@ -28,22 +28,6 @@ public class Main
 		//String testExpression = "{@CONV(ITERATOR, \"BOOL\");}";
 		String testExpression = "{ITERATOR^SET(5);@STRING(STRING_TEST,[TEST+ITERATOR]);@RETURN(STRING_TEST);}";
 
-		// old tests
-		System.out.println("Old interpreter: ");
-		List<Variable> vars = new ArrayList<>();
-		Variable test1 = new StringVariable("TEST", "ANIMO_");
-		Variable test2 = new IntegerVariable("ITERATOR", 3);
-
-		vars.add(test1);
-		vars.add(test2);
-
-		//System.out.println(test1.getType());
-		
-		InterpreterOld interpreter = new InterpreterOld(vars);
-		interpreter.interpret(testExpression);
-
-		// new tests
-		System.out.println("New interpreter: ");
 		Context context = new Context();
 		context.setVariable("TEST", new StringVariable("TEST", "ANIMO_"));
 		context.setVariable("ITERATOR", new IntegerVariable("ITERATOR", 3));

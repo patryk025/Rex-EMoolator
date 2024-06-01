@@ -10,7 +10,6 @@ public class Variable {
 
 	private Map<String, String> signals;
 	private List<Variable> clones;
-	private InterpreterOld interpreter = null;
 
 	public Variable(String name) {
 		this.name = name;
@@ -35,10 +34,6 @@ public class Variable {
 			default:
 				return null; //nie ma potrzeby zwracać wartości z reszty obiektów
 		}
-	}
-
-	public void addInterpreter(InterpreterOld interpreter) {
-		this.interpreter = interpreter;
 	}
 
 	public Variable convertTo(String type) {
@@ -136,7 +131,8 @@ public class Variable {
 				if(code == null) {
 					throw new ClassBehaviorNotFoundException(message, this.getType());
 				}
-				interpreter.interpret(code);
+				//TODO: port that line for new interpreter
+				//interpreter.interpret(code);
 				return VariableFactory.createVariable("VOID", null);
 			default:
 				throw new ClassMethodNotFoundException(method, this.getType());
