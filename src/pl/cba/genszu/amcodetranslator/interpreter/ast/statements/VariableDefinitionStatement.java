@@ -5,6 +5,7 @@ import pl.cba.genszu.amcodetranslator.interpreter.Variable;
 import pl.cba.genszu.amcodetranslator.interpreter.ast.Expression;
 import pl.cba.genszu.amcodetranslator.interpreter.ast.Statement;
 import pl.cba.genszu.amcodetranslator.interpreter.factories.VariableFactory;
+import pl.cba.genszu.amcodetranslator.interpreter.ast.expressions.*;
 
 public class VariableDefinitionStatement extends Statement {
     private final String type;
@@ -20,6 +21,9 @@ public class VariableDefinitionStatement extends Statement {
     @Override
     public void execute(Context context) {
         Object value = expression.evaluate(context);
+		if(value instanceof ConstantExpression) {
+			value = ((Expression) value).evaluate(context);
+		}
         Variable variable = VariableFactory.createVariable(type, variableName, value);
         context.setVariable(variableName, variable);
     }
