@@ -1,5 +1,6 @@
 package pl.cba.genszu.amcodetranslator.interpreter.variable;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public abstract class Method {
@@ -10,7 +11,11 @@ public abstract class Method {
     public Method(List<Parameter> parameters, String returnType) {
         this.parameters = parameters;
         this.returnType = returnType;
-        this.parameterTypes = parameters.stream().map(Parameter::getType).toList();
+        List<String> parameterTypes = new ArrayList<>();
+        for (Parameter parameter : parameters) {
+            parameterTypes.add(parameter.getType());
+        }
+        this.parameterTypes = parameterTypes;
     }
 
     public List<Parameter> getParameters() {
