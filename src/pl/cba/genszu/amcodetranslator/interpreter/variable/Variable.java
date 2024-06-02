@@ -1,27 +1,68 @@
 package pl.cba.genszu.amcodetranslator.interpreter.variable;
 
 import pl.cba.genszu.amcodetranslator.interpreter.Context;
+import pl.cba.genszu.amcodetranslator.interpreter.exceptions.VariableUnsupportedOperationException;
+import pl.cba.genszu.amcodetranslator.interpreter.variable.types.BoolVariable;
+import pl.cba.genszu.amcodetranslator.interpreter.variable.types.DoubleVariable;
+import pl.cba.genszu.amcodetranslator.interpreter.variable.types.IntegerVariable;
+import pl.cba.genszu.amcodetranslator.interpreter.variable.types.StringVariable;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.HashMap;
 
 public abstract class Variable {
-	protected String type;
+	protected String name;
 	protected Map<String, Attribute> attributes;
-	protected Map<String, Method> methods;
+	protected Map<String, List<Method>> methods;
 	protected Map<String, Signal> signals;
 	protected Context context;
 
-	public Variable(String type, Context context) {
-		this.type = type;
+	public Variable(String name, Context context) {
+		this.name = name;
 		this.attributes = new HashMap<>();
 		this.methods = new HashMap<>();
 		this.signals = new HashMap<>();
 		this.context = context;
 	}
 
+	public String getName() {
+		return name;
+	}
+
+	public Variable convertTo(String type) {
+		if(this.getType().equals(type)) // typ jest ten sam i nie ma po co konwertować
+			return this;
+
+		if(!(this.getType().equals("STRING") || this.getType().equals("BOOL") || this.getType().equals("INTEGER") || this.getType().equals("DOUBLE"))) {
+			throw new VariableUnsupportedOperationException(this, "CONV");
+		}
+
+		if(!(type.equals("STRING") || type.equals("BOOL") || type.equals("INTEGER") || type.equals("DOUBLE"))) {
+			throw new VariableUnsupportedOperationException(this, type, "CONV");
+		}
+
+		switch(this.getType()) {
+			case "INTEGER":
+				return ((IntegerVariable) this).convert(type);
+			case "DOUBLE":
+				return ((DoubleVariable) this).convert(type);
+			case "BOOL":
+				return ((BoolVariable) this).convert(type);
+			case "STRING":
+				return ((StringVariable) this).convert(type);
+			default:
+				return this;
+		}
+	}
+
 	public String getType() {
-		return type;
+		return "VOID";
+	}
+
+	public Object getValue() {
+		return null;
 	}
 
 	public void setAttribute(String name, Attribute attribute) {
@@ -33,11 +74,22 @@ public abstract class Variable {
 	}
 
 	public void setMethod(String name, Method method) {
-		methods.put(name, method);
+		if (!methods.containsKey(name)) {
+			methods.put(name, new ArrayList<>());
+		}
+		methods.get(name).add(method);
 	}
 
-	public Method getMethod(String name) {
-		return methods.get(name);
+	public Method getMethod(String name, List<String> paramTypes) {
+		List<Method> methodList = methods.get(name);
+		if (methodList != null) {
+			for (Method method : methodList) {
+				if (method.getParameterTypes().equals(paramTypes)) {
+					return method;
+				}
+			}
+		}
+		throw new NoSuchMethodError("No method found with name: " + name + " and parameter types: " + paramTypes);
 	}
 
 	public void setSignal(String name, Signal signal) {
@@ -48,8 +100,16 @@ public abstract class Variable {
 		return signals.get(name);
 	}
 
+	public void emitSignal(String name) {
+		this.emitSignal(name, null);
+	}
+
 	public void emitSignal(String name, Object argument) {
-		Signal signal = signals.get(name);
+		String signalName = name;
+		if(argument != null) {
+			signalName += "^" + argument;
+		}
+		Signal signal = this.getSignal(signalName);
 		if (signal != null) {
 			signal.execute(argument);
 		}
