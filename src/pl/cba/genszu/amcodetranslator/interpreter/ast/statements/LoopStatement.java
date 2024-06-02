@@ -4,7 +4,7 @@ import pl.cba.genszu.amcodetranslator.interpreter.Context;
 import pl.cba.genszu.amcodetranslator.interpreter.ast.Statement;
 import pl.cba.genszu.amcodetranslator.interpreter.ast.Expression;
 import pl.cba.genszu.amcodetranslator.interpreter.ast.expressions.*;
-import pl.cba.genszu.amcodetranslator.interpreter.types.*;
+import pl.cba.genszu.amcodetranslator.interpreter.variable.types.*;
 
 public class LoopStatement extends Statement {
     private final Expression body;

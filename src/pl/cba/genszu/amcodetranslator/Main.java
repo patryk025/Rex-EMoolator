@@ -7,7 +7,7 @@ import pl.cba.genszu.amcodetranslator.interpreter.antlr.AidemMediaLexer;
 import pl.cba.genszu.amcodetranslator.interpreter.antlr.AidemMediaParser;
 import pl.cba.genszu.amcodetranslator.interpreter.ast.ASTBuilderVisitor;
 import pl.cba.genszu.amcodetranslator.interpreter.ast.Node;
-import pl.cba.genszu.amcodetranslator.interpreter.types.*;
+import pl.cba.genszu.amcodetranslator.interpreter.variable.types.*;
 
 import java.util.ArrayList;
 import java.util.List;

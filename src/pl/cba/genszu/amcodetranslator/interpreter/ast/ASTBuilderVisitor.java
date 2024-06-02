@@ -6,7 +6,7 @@ import pl.cba.genszu.amcodetranslator.interpreter.antlr.*;
 import pl.cba.genszu.amcodetranslator.interpreter.arithmetic.utils.InfixToPostfix;
 import pl.cba.genszu.amcodetranslator.interpreter.ast.expressions.*;
 import pl.cba.genszu.amcodetranslator.interpreter.ast.statements.*;
-import pl.cba.genszu.amcodetranslator.interpreter.types.StructVariable;
+import pl.cba.genszu.amcodetranslator.interpreter.variable.types.StructVariable;
 import pl.cba.genszu.amcodetranslator.interpreter.antlr.AidemMediaParser.*;
 
 public class ASTBuilderVisitor extends AidemMediaBaseVisitor<Node> {

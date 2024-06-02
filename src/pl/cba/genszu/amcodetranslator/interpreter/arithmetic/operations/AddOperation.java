@@ -3,10 +3,10 @@ package pl.cba.genszu.amcodetranslator.interpreter.arithmetic.operations;
 import pl.cba.genszu.amcodetranslator.interpreter.variable.Variable;
 import pl.cba.genszu.amcodetranslator.interpreter.arithmetic.ArithmeticOperation;
 import pl.cba.genszu.amcodetranslator.interpreter.factories.VariableFactory;
-import pl.cba.genszu.amcodetranslator.interpreter.types.BoolVariable;
-import pl.cba.genszu.amcodetranslator.interpreter.types.DoubleVariable;
-import pl.cba.genszu.amcodetranslator.interpreter.types.IntegerVariable;
-import pl.cba.genszu.amcodetranslator.interpreter.types.StringVariable;
+import pl.cba.genszu.amcodetranslator.interpreter.variable.types.BoolVariable;
+import pl.cba.genszu.amcodetranslator.interpreter.variable.types.DoubleVariable;
+import pl.cba.genszu.amcodetranslator.interpreter.variable.types.IntegerVariable;
+import pl.cba.genszu.amcodetranslator.interpreter.variable.types.StringVariable;
 
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
