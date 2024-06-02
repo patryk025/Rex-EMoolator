@@ -1,6 +1,6 @@
 package pl.cba.genszu.amcodetranslator.interpreter.types;
 
-import pl.cba.genszu.amcodetranslator.interpreter.Variable;
+import pl.cba.genszu.amcodetranslator.interpreter.variable.Variable;
 
 public class PatternVariable extends Variable {
 	public PatternVariable(String name, Object value) {

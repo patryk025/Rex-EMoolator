@@ -1,6 +1,6 @@
 package pl.cba.genszu.amcodetranslator.interpreter.types;
 
-import pl.cba.genszu.amcodetranslator.interpreter.Variable;
+import pl.cba.genszu.amcodetranslator.interpreter.variable.Variable;
 
 public class WorldVariable extends Variable {
 	public WorldVariable(String name, Object value) {

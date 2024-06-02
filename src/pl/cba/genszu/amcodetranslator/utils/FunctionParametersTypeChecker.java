@@ -1,6 +1,6 @@
 package pl.cba.genszu.amcodetranslator.utils;
 
-import pl.cba.genszu.amcodetranslator.interpreter.Variable;
+import pl.cba.genszu.amcodetranslator.interpreter.variable.Variable;
 import pl.cba.genszu.amcodetranslator.interpreter.exceptions.InterpreterException;
 import pl.cba.genszu.amcodetranslator.interpreter.exceptions.InvalidMethodParamTypeException;
 

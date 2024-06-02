@@ -1,7 +1,7 @@
 package pl.cba.genszu.amcodetranslator.interpreter.types;
 
 import org.antlr.v4.runtime.tree.ParseTree;
-import pl.cba.genszu.amcodetranslator.interpreter.Variable;
+import pl.cba.genszu.amcodetranslator.interpreter.variable.Variable;
 
 
 public class MouseVariable extends Variable {

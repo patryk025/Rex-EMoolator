@@ -1,6 +1,6 @@
 package pl.cba.genszu.amcodetranslator.interpreter.logic;
 
-import pl.cba.genszu.amcodetranslator.interpreter.Variable;
+import pl.cba.genszu.amcodetranslator.interpreter.variable.Variable;
 import pl.cba.genszu.amcodetranslator.interpreter.logic.operations.*;
 
 public class LogicSolver {

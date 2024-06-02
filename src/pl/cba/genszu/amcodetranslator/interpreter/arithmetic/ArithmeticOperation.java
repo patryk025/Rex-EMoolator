@@ -1,6 +1,6 @@
 package pl.cba.genszu.amcodetranslator.interpreter.arithmetic;
 
-import pl.cba.genszu.amcodetranslator.interpreter.Variable;
+import pl.cba.genszu.amcodetranslator.interpreter.variable.Variable;
 import pl.cba.genszu.amcodetranslator.interpreter.exceptions.VariableUnsupportedOperationException;
 import pl.cba.genszu.amcodetranslator.interpreter.types.BoolVariable;
 import pl.cba.genszu.amcodetranslator.interpreter.types.DoubleVariable;

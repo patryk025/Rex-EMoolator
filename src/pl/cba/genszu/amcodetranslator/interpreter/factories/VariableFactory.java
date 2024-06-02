@@ -1,8 +1,8 @@
 package pl.cba.genszu.amcodetranslator.interpreter.factories;
 
-import pl.cba.genszu.amcodetranslator.interpreter.*;
 import pl.cba.genszu.amcodetranslator.interpreter.types.*;
 import pl.cba.genszu.amcodetranslator.interpreter.util.TypeGuesser;
+import pl.cba.genszu.amcodetranslator.interpreter.variable.Variable;
 
 import java.util.Objects;
 

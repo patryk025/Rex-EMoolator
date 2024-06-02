@@ -1,10 +1,9 @@
 package pl.cba.genszu.amcodetranslator.interpreter.ast.expressions;
 
 import pl.cba.genszu.amcodetranslator.interpreter.Context;
-import pl.cba.genszu.amcodetranslator.interpreter.Variable;
+import pl.cba.genszu.amcodetranslator.interpreter.variable.Variable;
 import pl.cba.genszu.amcodetranslator.interpreter.arithmetic.ArithmeticSolver;
 import pl.cba.genszu.amcodetranslator.interpreter.ast.Expression;
-import pl.cba.genszu.amcodetranslator.interpreter.factories.VariableFactory;
 
 import static pl.cba.genszu.amcodetranslator.interpreter.util.VariableHelper.getVariableFromObject;
 

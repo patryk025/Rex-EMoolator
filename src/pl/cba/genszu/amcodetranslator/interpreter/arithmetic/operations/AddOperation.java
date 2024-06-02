@@ -1,6 +1,6 @@
 package pl.cba.genszu.amcodetranslator.interpreter.arithmetic.operations;
 
-import pl.cba.genszu.amcodetranslator.interpreter.Variable;
+import pl.cba.genszu.amcodetranslator.interpreter.variable.Variable;
 import pl.cba.genszu.amcodetranslator.interpreter.arithmetic.ArithmeticOperation;
 import pl.cba.genszu.amcodetranslator.interpreter.factories.VariableFactory;
 import pl.cba.genszu.amcodetranslator.interpreter.types.BoolVariable;
