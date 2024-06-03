@@ -202,6 +202,8 @@ public class ASTBuilderVisitor extends AidemMediaBaseVisitor<Node> {
 				Expression castedVariable = (Expression) visit(ctx.param(0));
 				String targetVariableType = (String) ((Expression) visit(ctx.param(1))).evaluate(context);
 				return new ConvStatement(castedVariable, targetVariableType);
+			case "RETURN":
+				return new ReturnExpression((Expression) visit(ctx.param(0)));
 			default:
                 return null;
         }
