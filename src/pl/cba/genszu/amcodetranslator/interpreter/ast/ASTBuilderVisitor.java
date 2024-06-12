@@ -204,6 +204,12 @@ public class ASTBuilderVisitor extends AidemMediaBaseVisitor<Node> {
 				return new ConvStatement(castedVariable, targetVariableType);
 			case "RETURN":
 				return new ReturnExpression((Expression) visit(ctx.param(0)));
+			case "GETAPPLICATIONNAME":
+				// TODO: podejrzeć jak to PikLib zwraca
+				return new ConstantExpression("<no value>");
+			case "GETCURRENTSCENE":
+				return new ConstantExpression(this.context.getSceneName());
+				
 			default:
                 return null;
         }

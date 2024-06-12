@@ -5,6 +5,7 @@ import java.util.Map;
 
 public class Context {
     private Map<String, Variable> variables = new HashMap<>();
+	private String sceneName = "BRAKSCENY";
 
     public Variable getVariable(String name) {
         return variables.get(name);
@@ -21,5 +22,15 @@ public class Context {
     public void removeVariable(String name) {
         variables.remove(name);
     }
+	
+	public void setSceneName(String sceneName)
+	{
+		this.sceneName = sceneName;
+	}
+
+	public String getSceneName()
+	{
+		return sceneName;
+	}
 }
 

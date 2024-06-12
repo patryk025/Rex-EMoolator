@@ -1,7 +1,7 @@
 # AidemMediaBlooMooEmulator
 Na tym branchu prowadzone są prace nad interpreterem skryptów.
 
-## INFORMACJA: stary kod został usunięty
+## INFORMACJA: podstawowe instrukcje interpretera są niemal zaimplementowane w całości. Niedługo prace na tym branchu zostaną przerwane i a kod przeniesiony już tam, gdzie trwają prace nad emulatorem silnika
 
 Lista TODO (w trakcie tworzenia):
 - [x] Arytmetyka
