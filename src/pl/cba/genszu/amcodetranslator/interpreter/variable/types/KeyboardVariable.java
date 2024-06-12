@@ -1,46 +1,94 @@
 package pl.cba.genszu.amcodetranslator.interpreter.variable.types;
 
-import org.antlr.v4.runtime.tree.ParseTree;
+import pl.cba.genszu.amcodetranslator.interpreter.Context;
+import pl.cba.genszu.amcodetranslator.interpreter.variable.Attribute;
+import pl.cba.genszu.amcodetranslator.interpreter.variable.Method;
+import pl.cba.genszu.amcodetranslator.interpreter.variable.Parameter;
 import pl.cba.genszu.amcodetranslator.interpreter.variable.Variable;
 
-
+import java.util.List;
 
 public class KeyboardVariable extends Variable {
-	public KeyboardVariable(String name, Object value) {
-		super(name);
+	public KeyboardVariable(String name, Context context) {
+		super(name, context);
+
+		this.setMethod("DISABLE", new Method(
+			List.of(),
+			"void"
+		) {
+			@Override
+			public Object execute(List<Object> arguments) {
+				// TODO: implement this method
+				return null;
+			}
+		});
+		this.setMethod("ENABLE", new Method(
+			List.of(),
+			"void"
+		) {
+			@Override
+			public Object execute(List<Object> arguments) {
+				// TODO: implement this method
+				return null;
+			}
+		});
+		this.setMethod("GETLATESTKEY", new Method(
+			List.of(),
+			"STRING"
+		) {
+			@Override
+			public Object execute(List<Object> arguments) {
+				// TODO: implement this method
+				return null;
+			}
+		});
+		this.setMethod("ISENABLED", new Method(
+			List.of(),
+			"BOOL"
+		) {
+			@Override
+			public Object execute(List<Object> arguments) {
+				// TODO: implement this method
+				return null;
+			}
+		});
+		this.setMethod("ISKEYDOWN", new Method(
+			List.of(
+				new Parameter("STRING", "keyName", true)
+			),
+			"BOOL"
+		) {
+			@Override
+			public Object execute(List<Object> arguments) {
+				// TODO: implement this method
+				return null;
+			}
+		});
+		this.setMethod("SETAUTOREPEAT", new Method(
+			List.of(
+				new Parameter("BOOL", "autorepeat", true)
+			),
+			"void"
+		) {
+			@Override
+			public Object execute(List<Object> arguments) {
+				// TODO: implement this method
+				return null;
+			}
+		});
 	}
 
-	private ParseTree ONCHAR;
-	private ParseTree ONKEYUP;
-	private ParseTree ONKEYDOWN;
-	
-	public void setONCHAR(ParseTree ONCHAR)
-	{
-		this.ONCHAR = ONCHAR;
+	@Override
+	public String getType() {
+		return "KEYBOARD";
 	}
 
-	public ParseTree getONCHAR()
-	{
-		return ONCHAR;
+	@Override
+	public void setAttribute(String name, Attribute attribute) {
+		List<String> knownAttributes = List.o);
+		if(knownAttributes.contains(name)) {
+			super.setAttribute(name, attribute);
+		}
 	}
 
-	public void setONKEYUP(ParseTree ONKEYUP)
-	{
-		this.ONKEYUP = ONKEYUP;
-	}
-
-	public ParseTree getONKEYUP()
-	{
-		return ONKEYUP;
-	}
-
-	public void setONKEYDOWN(ParseTree ONKEYDOWN)
-	{
-		this.ONKEYDOWN = ONKEYDOWN;
-	}
-
-	public ParseTree getONKEYDOWN()
-	{
-		return ONKEYDOWN;
-	}
 }

@@ -1,80 +1,40 @@
 package pl.cba.genszu.amcodetranslator.interpreter.variable.types;
 
-import org.antlr.v4.runtime.tree.ParseTree;
+import pl.cba.genszu.amcodetranslator.interpreter.Context;
+import pl.cba.genszu.amcodetranslator.interpreter.variable.Attribute;
+import pl.cba.genszu.amcodetranslator.interpreter.variable.Method;
+import pl.cba.genszu.amcodetranslator.interpreter.variable.Parameter;
 import pl.cba.genszu.amcodetranslator.interpreter.variable.Variable;
 
+import java.util.List;
 
 public class MouseVariable extends Variable {
-	public MouseVariable(String name, Object value) {
-		super(name);
+	public MouseVariable(String name, Context context) {
+		super(name, context);
+
+		this.setMethod("DISABLE", new Method(
+			List.of(),
+			"void"
+		) {
+			@Override
+			public Object execute(List<Object> arguments) {
+				// TODO: implement this method
+				return null;
+			}
+		});
 	}
 
-	//interfejs myszy
-	
-	private ParseTree ONMOVE;
-	private ParseTree ONCLICK;
-	private ParseTree ONDBLCLICK;
-	private ParseTree ONRELEASE;
-	private ParseTree ONINIT;
-	private int RAW;
-
-	public void setONMOVE(ParseTree oNMOVE)
-	{
-		ONMOVE = oNMOVE;
+	@Override
+	public String getType() {
+		return "MOUSE";
 	}
 
-	public ParseTree getONMOVE()
-	{
-		return ONMOVE;
+	@Override
+	public void setAttribute(String name, Attribute attribute) {
+		List<String> knownAttributes = List.of("RAW");
+		if(knownAttributes.contains(name)) {
+			super.setAttribute(name, attribute);
+		}
 	}
 
-	public void setONCLICK(ParseTree oNCLICK)
-	{
-		ONCLICK = oNCLICK;
-	}
-
-	public ParseTree getONCLICK()
-	{
-		return ONCLICK;
-	}
-
-	public void setONDBLCLICK(ParseTree oNDBLCLICK)
-	{
-		ONDBLCLICK = oNDBLCLICK;
-	}
-
-	public ParseTree getONDBLCLICK()
-	{
-		return ONDBLCLICK;
-	}
-
-	public void setONRELEASE(ParseTree oNRELEASE)
-	{
-		ONRELEASE = oNRELEASE;
-	}
-
-	public ParseTree getONRELEASE()
-	{
-		return ONRELEASE;
-	}
-	
-	public void setONINIT(ParseTree oNINIT)
-	{
-		ONINIT = oNINIT;
-	}
-
-	public ParseTree getONINIT()
-	{
-		return ONINIT;
-	}
-
-	public void setRAW(int rAW)
-	{
-		RAW = rAW;
-	}
-
-	public int getRAW()
-	{
-		return RAW;
-	}
 }

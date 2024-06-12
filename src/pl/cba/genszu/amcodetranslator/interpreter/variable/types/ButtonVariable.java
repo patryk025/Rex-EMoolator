@@ -1,218 +1,124 @@
 package pl.cba.genszu.amcodetranslator.interpreter.variable.types;
 
-import org.antlr.v4.runtime.tree.ParseTree;
+import pl.cba.genszu.amcodetranslator.interpreter.Context;
+import pl.cba.genszu.amcodetranslator.interpreter.variable.Attribute;
+import pl.cba.genszu.amcodetranslator.interpreter.variable.Method;
+import pl.cba.genszu.amcodetranslator.interpreter.variable.Parameter;
 import pl.cba.genszu.amcodetranslator.interpreter.variable.Variable;
 
+import java.util.List;
 
 public class ButtonVariable extends Variable {
-	public ButtonVariable(String name, Object value) {
-		super(name);
+	public ButtonVariable(String name, Context context) {
+		super(name, context);
+
+		this.setMethod("DISABLE", new Method(
+			List.of(),
+			"void"
+		) {
+			@Override
+			public Object execute(List<Object> arguments) {
+				// TODO: implement this method
+				return null;
+			}
+		});
+		this.setMethod("DISABLEBUTVISIBLE", new Method(
+			List.of(),
+			"void"
+		) {
+			@Override
+			public Object execute(List<Object> arguments) {
+				// TODO: implement this method
+				return null;
+			}
+		});
+		this.setMethod("ENABLE", new Method(
+			List.of(),
+			"void"
+		) {
+			@Override
+			public Object execute(List<Object> arguments) {
+				// TODO: implement this method
+				return null;
+			}
+		});
+		this.setMethod("SETPRIORITY", new Method(
+			List.of(
+				new Parameter("INTEGER", "posZ", true)
+			),
+			"void"
+		) {
+			@Override
+			public Object execute(List<Object> arguments) {
+				// TODO: implement this method
+				return null;
+			}
+		});
+		this.setMethod("SETRECT", new Method(
+			List.of(
+				new Parameter("STRING", "varName", true)
+			),
+			"void"
+		) {
+			@Override
+			public Object execute(List<Object> arguments) {
+				// TODO: implement this method
+				return null;
+			}
+		});
+		this.setMethod("SETRECT", new Method(
+			List.of(
+				new Parameter("INTEGER", "xLeft", true),
+				new Parameter("INTEGER", "yBottom", true),
+				new Parameter("INTEGER", "xRight", true),
+				new Parameter("INTEGER", "yTop", true)
+			),
+			"void"
+		) {
+			@Override
+			public Object execute(List<Object> arguments) {
+				// TODO: implement this method
+				return null;
+			}
+		});
+		this.setMethod("SETSTD", new Method(
+			List.of(
+				new Parameter("STRING", "varName", true)
+			),
+			"void"
+		) {
+			@Override
+			public Object execute(List<Object> arguments) {
+				// TODO: implement this method
+				return null;
+			}
+		});
+		this.setMethod("SETSTD", new Method(
+			List.of(
+				new Parameter("STRING", "varName", true),
+				new Parameter("BOOLEAN", "unknown", true)
+			),
+			"void"
+		) {
+			@Override
+			public Object execute(List<Object> arguments) {
+				// TODO: implement this method
+				return null;
+			}
+		});
 	}
 
-    private String RECT;
-    private boolean ENABLE;
-    private boolean VISIBLE;
-    private boolean DRAGGABLE;
-	private Integer PRIORITY;
-	private String SNDONMOVE;
-    private String GFXSTANDARD;
-    private String GFXONCLICK;
-    private String GFXONMOVE;
-	private String DESCRIPTION;
-	private ParseTree ONACTION; //Behaviour
-	private ParseTree ONFOCUSON;
-	private ParseTree ONFOCUSOFF;
-	private ParseTree ONCLICKED;
-	private ParseTree ONENDDRAGGING;
-	private ParseTree ONINIT;
-	private ParseTree ONRELEASED;
-	private ParseTree ONSTARTDRAGGING;
-
-	public void setONCLICKED(ParseTree ONCLICKED)
-	{
-		this.ONCLICKED = ONCLICKED;
+	@Override
+	public String getType() {
+		return "BUTTON";
 	}
 
-	public ParseTree getONCLICKED()
-	{
-		return ONCLICKED;
+	@Override
+	public void setAttribute(String name, Attribute attribute) {
+		List<String> knownAttributes = List.of("DRAGGABLE", "ENABLE", "GFXONCLICK", "GFXONMOVE", "GFXSTANDARD", "RECT", "SNDONMOVE", "VISIBLE");
+		if(knownAttributes.contains(name)) {
+			super.setAttribute(name, attribute);
+		}
 	}
 
-	public void setONENDDRAGGING(ParseTree ONENDDRAGGING)
-	{
-		this.ONENDDRAGGING = ONENDDRAGGING;
-	}
-
-	public ParseTree getONENDDRAGGING()
-	{
-		return ONENDDRAGGING;
-	}
-
-	public void setONINIT(ParseTree ONINIT)
-	{
-		this.ONINIT = ONINIT;
-	}
-
-	public ParseTree getONINIT()
-	{
-		return ONINIT;
-	}
-
-	public void setONRELEASED(ParseTree ONRELEASED)
-	{
-		this.ONRELEASED = ONRELEASED;
-	}
-
-	public ParseTree getONRELEASED()
-	{
-		return ONRELEASED;
-	}
-
-	public void setONSTARTDRAGGING(ParseTree ONSTARTDRAGGING)
-	{
-		this.ONSTARTDRAGGING = ONSTARTDRAGGING;
-	}
-
-	public ParseTree getONSTARTDRAGGING()
-	{
-		return ONSTARTDRAGGING;
-	}
-
-	public void setDESCRIPTION(String DESCRIPTION)
-	{
-		this.DESCRIPTION = DESCRIPTION;
-	}
-
-	public String getDESCRIPTION()
-	{
-		return DESCRIPTION;
-	}
-
-	public void setPRIORITY(Integer PRIORITY)
-	{
-		this.PRIORITY = PRIORITY;
-	}
-
-	public Integer getPRIORITY()
-	{
-		return PRIORITY;
-	}
-	
-	
-    public void SETRECT(String rect) {
-        this.RECT = rect;
-        /*TODO: rozpatrzenie dwóch przypadków
-        * 700,0,800,200 - prostokąt (do przeskalowania)
-        * string - nazwa Image*/
-    }
-
-    public void ENABLE() {
-        this.ENABLE = true;
-        this.VISIBLE = true;
-    }
-
-    public void DISABLEBUTVISIBLE() {
-        this.ENABLE = false;
-        this.VISIBLE = true;
-    }
-
-    public void DISABLE() {
-        this.ENABLE = false;
-    }
-
-    public String getRECT() {
-        return RECT;
-    }
-
-    public void setRECT(String RECT) {
-        this.RECT = RECT;
-    }
-
-    public boolean isENABLE() {
-        return ENABLE;
-    }
-
-    public void setENABLE(boolean ENABLE) {
-        this.ENABLE = ENABLE;
-    }
-
-    public boolean isVISIBLE() {
-        return VISIBLE;
-    }
-
-    public void setVISIBLE(boolean VISIBLE) {
-        this.VISIBLE = VISIBLE;
-    }
-
-    public boolean isDRAGGABLE() {
-        return DRAGGABLE;
-    }
-
-    public void setDRAGGABLE(boolean DRAGGABLE) {
-        this.DRAGGABLE = DRAGGABLE;
-    }
-
-    public String getGFXSTANDARD() {
-        return GFXSTANDARD;
-    }
-
-    public void setGFXSTANDARD(String GFXSTANDARD) {
-        this.GFXSTANDARD = GFXSTANDARD;
-    }
-
-    public String getGFXONCLICK() {
-        return GFXONCLICK;
-    }
-
-    public void setGFXONCLICK(String GFXONCLICK) {
-        this.GFXONCLICK = GFXONCLICK;
-    }
-
-    public String getGFXONMOVE() {
-        return GFXONMOVE;
-    }
-
-    public void setGFXONMOVE(String GFXONMOVE) {
-        this.GFXONMOVE = GFXONMOVE;
-    }
-	
-	public void setONACTION(ParseTree ONACTION)
-	{
-		this.ONACTION = ONACTION;
-	}
-
-	public ParseTree getONACTION()
-	{
-		return ONACTION;
-	}
-
-	public void setONFOCUSON(ParseTree oNFOCUSON)
-	{
-		ONFOCUSON = oNFOCUSON;
-	}
-
-	public ParseTree getONFOCUSON()
-	{
-		return ONFOCUSON;
-	}
-
-	public void setONFOCUSOFF(ParseTree oNFOCUSOFF)
-	{
-		ONFOCUSOFF = oNFOCUSOFF;
-	}
-
-	public ParseTree getONFOCUSOFF()
-	{
-		return ONFOCUSOFF;
-	}
-	
-	public void setSNDONMOVE(String SNDONMOVE)
-	{
-		this.SNDONMOVE = SNDONMOVE;
-	}
-
-	public String getSNDONMOVE()
-	{
-		return SNDONMOVE;
-	}
 }

@@ -1,161 +1,230 @@
 package pl.cba.genszu.amcodetranslator.interpreter.variable.types;
 
-import org.antlr.v4.runtime.tree.ParseTree;
+import pl.cba.genszu.amcodetranslator.interpreter.Context;
+import pl.cba.genszu.amcodetranslator.interpreter.variable.Attribute;
+import pl.cba.genszu.amcodetranslator.interpreter.variable.Method;
+import pl.cba.genszu.amcodetranslator.interpreter.variable.Parameter;
 import pl.cba.genszu.amcodetranslator.interpreter.variable.Variable;
 
+import java.util.List;
 
 public class IntegerVariable extends Variable {
-	public IntegerVariable() {
-		super(null);
-	}
-	
-	public IntegerVariable(String name, Object value) {
-		super(name);
-		if(value instanceof String) {
-			String valueString = value.toString();
-			if(valueString.startsWith("\"") && valueString.endsWith("\"")) {
-				valueString = valueString.substring(1, valueString.length() - 1);
+	public IntegerVariable(String name, int value, Context context) {
+		super(name, context);
+		this.setAttribute("VALUE", new Attribute("INTEGER", value));
+
+		this.setMethod("ABS", new Method(
+			List.of(
+				new Parameter("INTEGER", "value", true)
+			),
+			"INTEGER"
+		) {
+			@Override
+			public Object execute(List<Object> arguments) {
+				// TODO: implement this method
+				return null;
 			}
-			try {
-				this.SET(Integer.parseInt(valueString));
+		});
+		this.setMethod("ADD", new Method(
+			List.of(
+				new Parameter("INTEGER|DOUBLE", "addend", true)
+			),
+			"INTEGER"
+		) {
+			@Override
+			public Object execute(List<Object> arguments) {
+				// TODO: implement this method
+				return null;
 			}
-			catch (NumberFormatException e) {
-				this.SET(0);
+		});
+		this.setMethod("AND", new Method(
+			List.of(
+				new Parameter("INTEGER", "value", true)
+			),
+			"INTEGER"
+		) {
+			@Override
+			public Object execute(List<Object> arguments) {
+				// TODO: implement this method
+				return null;
 			}
-		}
-		else if(value instanceof Integer) {
-			this.SET((Integer) value);
-		}
-		else if(value instanceof Double) {
-			this.SET(((Double) value).intValue());
-		}
-		else if(value instanceof Boolean) {
-			this.SET((Boolean) value ? 1 : 0);
-		}
-		else if(value instanceof Long) {
-			this.SET(((Long) value).intValue());
-		}
-		else {
-			this.SET(0);
-		}
+		});
+		this.setMethod("CLAMP", new Method(
+			List.of(
+				new Parameter("INTEGER", "rangeMin", true),
+				new Parameter("INTEGER", "rangeMax", true)
+			),
+			"INTEGER"
+		) {
+			@Override
+			public Object execute(List<Object> arguments) {
+				// TODO: implement this method
+				return null;
+			}
+		});
+		this.setMethod("DEC", new Method(
+			List.of(),
+			"void"
+		) {
+			@Override
+			public Object execute(List<Object> arguments) {
+				// TODO: implement this method
+				return null;
+			}
+		});
+		this.setMethod("DIV", new Method(
+			List.of(
+				new Parameter("INTEGER", "divisor", true)
+			),
+			"INTEGER"
+		) {
+			@Override
+			public Object execute(List<Object> arguments) {
+				// TODO: implement this method
+				return null;
+			}
+		});
+		this.setMethod("INC", new Method(
+			List.of(),
+			"void"
+		) {
+			@Override
+			public Object execute(List<Object> arguments) {
+				// TODO: implement this method
+				return null;
+			}
+		});
+		this.setMethod("LENGTH", new Method(
+			List.of(
+				new Parameter("INTEGER", "value1", true),
+				new Parameter("INTEGER", "value2", true)
+			),
+			"INTEGER"
+		) {
+			@Override
+			public Object execute(List<Object> arguments) {
+				// TODO: implement this method
+				return null;
+			}
+		});
+		this.setMethod("MOD", new Method(
+			List.of(
+				new Parameter("INTEGER", "divisor", true)
+			),
+			"INTEGER"
+		) {
+			@Override
+			public Object execute(List<Object> arguments) {
+				// TODO: implement this method
+				return null;
+			}
+		});
+		this.setMethod("MUL", new Method(
+			List.of(
+				new Parameter("INTEGER", "divisor", true)
+			),
+			"INTEGER"
+		) {
+			@Override
+			public Object execute(List<Object> arguments) {
+				// TODO: implement this method
+				return null;
+			}
+		});
+		this.setMethod("RANDOM", new Method(
+			List.of(
+				new Parameter("INTEGER", "rangeMax", true)
+			),
+			"INTEGER"
+		) {
+			@Override
+			public Object execute(List<Object> arguments) {
+				// TODO: implement this method
+				return null;
+			}
+		});
+		this.setMethod("RANDOM", new Method(
+			List.of(
+				new Parameter("INTEGER", "offset", true),
+				new Parameter("INTEGER", "rangeMax", true)
+			),
+			"INTEGER"
+		) {
+			@Override
+			public Object execute(List<Object> arguments) {
+				// TODO: implement this method
+				return null;
+			}
+		});
+		this.setMethod("SET", new Method(
+			List.of(
+				new Parameter("INTEGER", "value", true)
+			),
+			"void"
+		) {
+			@Override
+			public Object execute(List<Object> arguments) {
+				// TODO: implement this method
+				return null;
+			}
+		});
+		this.setMethod("SUB", new Method(
+			List.of(
+				new Parameter("INTEGER", "subtrahend", true)
+			),
+			"INTEGER"
+		) {
+			@Override
+			public Object execute(List<Object> arguments) {
+				// TODO: implement this method
+				return null;
+			}
+		});
 	}
 
-    private int VALUE;
-    private boolean TOINI;
-	private ParseTree ONINIT;
-	private ParseTree ONBRUTALCHANGED;
-	private ParseTree ONCHANGED;
-	private String DESCRIPTION;
-	private ParseTree ONSIGNAL;
-	private String VARTYPE;
-
-	public void setVARTYPE(String vARTYPE)
-	{
-		VARTYPE = vARTYPE;
+	@Override
+	public String getType() {
+		return "INTEGER";
 	}
 
-	public String getVARTYPE()
-	{
-		return VARTYPE;
+	@Override
+	public Object getValue() {
+		return this.getAttribute("VALUE").getValue();
 	}
 
-    public void SET(int value) {
-        this.VALUE = value;
-    }
-
-    public int GET() {
-        return this.VALUE;
-    }
-
-    public void SWITCH(int i1, int i2) {
-        if(this.VALUE == i1) this.VALUE = i2;
-        else this.VALUE = i1;
-    }
-	
-	public void ADD(int add) {
-		this.VALUE += add;
+	@Override
+	public void setAttribute(String name, Attribute attribute) {
+		List<String> knownAttributes = List.of("TOINI", "VALUE");
+		if(knownAttributes.contains(name)) {
+			super.setAttribute(name, attribute);
+		}
 	}
 
 	public String toStringVariable() {
-		return String.valueOf(this.VALUE);
+		return String.valueOf(this.getValue());
 	}
 
 	public boolean toBool() {
-		return this.VALUE != 0;
+		return (int) this.getValue() != 0;
 	}
 
 	public double toDouble() {
-		return (double) this.VALUE;
+		return (double) this.getValue();
 	}
 
 	public Variable convert(String type) {
 		if(type.equals("DOUBLE")) {
-			return new DoubleVariable(this.getName(), this.toDouble());
+			return new DoubleVariable(this.getName(), this.toDouble(), this.context);
 		}
 		else if(type.equals("BOOL")) {
-			return new BoolVariable(this.getName(), this.toBool());
+			return new BoolVariable(this.getName(), this.toBool(), this.context);
 		}
 		else if(type.equals("STRING")) {
-			return new StringVariable(this.getName(), this.toStringVariable());
+			return new StringVariable(this.getName(), this.toStringVariable(), this.context);
 		}
 		else {
 			return this;
 		}
 	}
 
-    public void setONINIT(ParseTree ONINIT) {
-		this.ONINIT = ONINIT;
-    }
-	
-	public ParseTree getONINIT() {
-		return this.ONINIT;
-	}
-	
-	public void setONBRUTALCHANGED(ParseTree ONBRUTALCHANGED)
-	{
-		this.ONBRUTALCHANGED = ONBRUTALCHANGED;
-	}
-	
-	public ParseTree getONBRUTALCHANGED()
-	{
-		return this.ONBRUTALCHANGED;
-	}
-	
-	public void setONCHANGED(ParseTree ONCHANGED)
-	{
-		this.ONCHANGED = ONCHANGED;
-	}
-
-	public ParseTree getONCHANGED()
-	{
-		return this.ONCHANGED;
-	}
-	
-	public void setONSIGNAL(ParseTree ONSIGNAL)
-	{
-		this.ONSIGNAL = ONSIGNAL;
-	}
-
-	public ParseTree getONSIGNAL()
-	{
-		return this.ONSIGNAL;
-	}
-
-    public boolean isTOINI() {
-        return TOINI;
-    }
-
-    public void setTOINI(boolean TOINI) {
-        this.TOINI = TOINI;
-    }
-	
-	public void setDESCRIPTION(String DESCRIPRION)
-	{
-		this.DESCRIPTION = DESCRIPRION;
-	}
-
-	public String getDESCRIPTION()
-	{
-		return DESCRIPTION;
-	}
 }

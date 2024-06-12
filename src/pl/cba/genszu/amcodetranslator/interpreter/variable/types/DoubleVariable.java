@@ -1,75 +1,248 @@
 package pl.cba.genszu.amcodetranslator.interpreter.variable.types;
 
+import pl.cba.genszu.amcodetranslator.interpreter.Context;
+import pl.cba.genszu.amcodetranslator.interpreter.variable.Attribute;
+import pl.cba.genszu.amcodetranslator.interpreter.variable.Method;
+import pl.cba.genszu.amcodetranslator.interpreter.variable.Parameter;
 import pl.cba.genszu.amcodetranslator.interpreter.variable.Variable;
 
+import java.util.List;
+
 public class DoubleVariable extends Variable {
-	public DoubleVariable(String name, Object value) {
-		super(name);
-        if(value instanceof String) {
-            String valueString = value.toString();
-            if(valueString.startsWith("\"") && valueString.endsWith("\"")) {
-                valueString = valueString.substring(1, valueString.length() - 1);
-            }
-            try {
-                this.SET(Double.parseDouble(valueString));
-            }
-            catch (NumberFormatException e) {
-                this.SET(0.0d);
-            }
-        }
-        else if(value instanceof Double || value instanceof Integer || value instanceof Long) {
-            this.SET((double) value);
-        }
+	public DoubleVariable(String name, double value, Context context) {
+		super(name, context);
+		this.setAttribute("VALUE", new Attribute("DOUBLE", value));
+
+		this.setMethod("ABS", new Method(
+			List.of(
+				new Parameter("DOUBLE", "doubleValue", true)
+			),
+			"DOUBLE"
+		) {
+			@Override
+			public Object execute(List<Object> arguments) {
+				// TODO: implement this method
+				return null;
+			}
+		});
+		this.setMethod("ADD", new Method(
+			List.of(
+				new Parameter("INTEGER|DOUBLE", "doubleValue", true)
+			),
+			"DOUBLE"
+		) {
+			@Override
+			public Object execute(List<Object> arguments) {
+				// TODO: implement this method
+				return null;
+			}
+		});
+		this.setMethod("ARCTAN", new Method(
+			List.of(
+				new Parameter("INTEGER|DOUBLE", "doubleValue", true)
+			),
+			"DOUBLE"
+		) {
+			@Override
+			public Object execute(List<Object> arguments) {
+				// TODO: implement this method
+				return null;
+			}
+		});
+		this.setMethod("ARCTANEX", new Method(
+			List.of(
+				new Parameter("INTEGER|DOUBLE", "y", true),
+				new Parameter("INTEGER|DOUBLE", "x", true)
+			),
+			"DOUBLE"
+		) {
+			@Override
+			public Object execute(List<Object> arguments) {
+				// TODO: implement this method
+				return null;
+			}
+		});
+		this.setMethod("CLAMP", new Method(
+			List.of(
+				new Parameter("INTEGER|DOUBLE", "rangeMin", true),
+				new Parameter("INTEGER|DOUBLE", "rangeMax", true)
+			),
+			"DOUBLE"
+		) {
+			@Override
+			public Object execute(List<Object> arguments) {
+				// TODO: implement this method
+				return null;
+			}
+		});
+		this.setMethod("COSINUS", new Method(
+			List.of(
+				new Parameter("INTEGER|DOUBLE", "doubleValue", true)
+			),
+			"DOUBLE"
+		) {
+			@Override
+			public Object execute(List<Object> arguments) {
+				// TODO: implement this method
+				return null;
+			}
+		});
+		this.setMethod("DIV", new Method(
+			List.of(
+				new Parameter("INTEGER|DOUBLE", "divisor", true)
+			),
+			"DOUBLE"
+		) {
+			@Override
+			public Object execute(List<Object> arguments) {
+				// TODO: implement this method
+				return null;
+			}
+		});
+		this.setMethod("LENGTH", new Method(
+			List.of(
+				new Parameter("INTEGER|DOUBLE", "x", true),
+				new Parameter("INTEGER|DOUBLE", "y", true)
+			),
+			"DOUBLE"
+		) {
+			@Override
+			public Object execute(List<Object> arguments) {
+				// TODO: implement this method
+				return null;
+			}
+		});
+		this.setMethod("MAXA", new Method(
+			List.of(
+				new Parameter("INTEGER|DOUBLE", "value1", true),
+				new Parameter("INTEGER|DOUBLE", "value2...valueN", false)
+			),
+			"DOUBLE"
+		) {
+			@Override
+			public Object execute(List<Object> arguments) {
+				// TODO: implement this method
+				return null;
+			}
+		});
+		this.setMethod("MINA", new Method(
+			List.of(
+				new Parameter("INTEGER|DOUBLE", "value1", true),
+				new Parameter("INTEGER|DOUBLE", "value2...valueN", false)
+			),
+			"DOUBLE"
+		) {
+			@Override
+			public Object execute(List<Object> arguments) {
+				// TODO: implement this method
+				return null;
+			}
+		});
+		this.setMethod("MUL", new Method(
+			List.of(
+				new Parameter("INTEGER|DOUBLE", "multiplier", true)
+			),
+			"DOUBLE"
+		) {
+			@Override
+			public Object execute(List<Object> arguments) {
+				// TODO: implement this method
+				return null;
+			}
+		});
+		this.setMethod("SET", new Method(
+			List.of(
+				new Parameter("DOUBLE", "value", true)
+			),
+			"DOUBLE"
+		) {
+			@Override
+			public Object execute(List<Object> arguments) {
+				// TODO: implement this method
+				return null;
+			}
+		});
+		this.setMethod("SINUS", new Method(
+			List.of(
+				new Parameter("INTEGER|DOUBLE", "doubleValue", true)
+			),
+			"DOUBLE"
+		) {
+			@Override
+			public Object execute(List<Object> arguments) {
+				// TODO: implement this method
+				return null;
+			}
+		});
+		this.setMethod("SQRT", new Method(
+			List.of(
+				new Parameter("DOUBLE", "doubleValue", true)
+			),
+			"DOUBLE"
+		) {
+			@Override
+			public Object execute(List<Object> arguments) {
+				// TODO: implement this method
+				return null;
+			}
+		});
+		this.setMethod("SUB", new Method(
+			List.of(
+				new Parameter("INTEGER|DOUBLE", "doubleValue", true)
+			),
+			"DOUBLE"
+		) {
+			@Override
+			public Object execute(List<Object> arguments) {
+				// TODO: implement this method
+				return null;
+			}
+		});
 	}
 
-	private double VALUE;
-    private boolean TOINI;
-
-	public void ADD(double add)
-	{
-		this.VALUE += add;
+	@Override
+	public String getType() {
+		return "DOUBLE";
 	}
-	
-	public void SET(double value) {
-        this.VALUE = value;
-    }
 
-    public double GET() {
-        return this.VALUE;
-    }
+	@Override
+	public Object getValue() {
+		return this.getAttribute("VALUE").getValue();
+	}
 
-    public int toInt() {
-        return (int) this.VALUE;
-    }
+	@Override
+	public void setAttribute(String name, Attribute attribute) {
+		List<String> knownAttributes = List.of("TOINI", "VALUE");
+		if(knownAttributes.contains(name)) {
+			super.setAttribute(name, attribute);
+		}
+	}
 
-    public boolean toBool() {
-        return this.VALUE != 0;
-    }
+	public int toInt() {
+		return (int) this.getValue();
+	}
 
-    public String toStringVariable() {
-        return String.valueOf(this.VALUE);
-    }
+	public boolean toBool() {
+		return (double) this.getValue() != 0;
+	}
 
-    public Variable convert(String type) {
-        if(type.equals("INTEGER")) {
-            return new IntegerVariable(this.getName(), this.toInt());
-        }
-        else if(type.equals("BOOL")) {
-            return new BoolVariable(this.getName(), this.toBool());
-        }
-        else if(type.equals("STRING")) {
-            return new StringVariable(this.getName(), this.toStringVariable());
-        }
-        else {
-            return this;
-        }
-    }
-	
-	public boolean isTOINI() {
-        return TOINI;
-    }
+	public String toStringVariable() {
+		return String.valueOf(this.getValue());
+	}
 
-    public void setTOINI(boolean TOINI) {
-        this.TOINI = TOINI;
-    }
+	public Variable convert(String type) {
+		if(type.equals("INTEGER")) {
+			return new IntegerVariable(this.getName(), this.toInt(), this.context);
+		}
+		else if(type.equals("BOOL")) {
+			return new BoolVariable(this.getName(), this.toBool(), this.context);
+		}
+		else if(type.equals("STRING")) {
+			return new StringVariable(this.getName(), this.toStringVariable(), this.context);
+		}
+		else {
+			return this;
+		}
+	}
+
 }

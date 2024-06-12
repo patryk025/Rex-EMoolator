@@ -1,49 +1,92 @@
 package pl.cba.genszu.amcodetranslator.interpreter.variable.types;
 
-import org.antlr.v4.runtime.tree.ParseTree;
+import pl.cba.genszu.amcodetranslator.interpreter.Context;
+import pl.cba.genszu.amcodetranslator.interpreter.variable.Attribute;
+import pl.cba.genszu.amcodetranslator.interpreter.variable.Method;
+import pl.cba.genszu.amcodetranslator.interpreter.variable.Parameter;
 import pl.cba.genszu.amcodetranslator.interpreter.variable.Variable;
 
+import java.util.List;
 
 public class BehaviourVariable extends Variable {
-	public BehaviourVariable(String name, Object value) {
-		super(name);
+	public BehaviourVariable(String name, Context context) {
+		super(name, context);
+
+		this.setMethod("PLAY", new Method(
+			List.of(),
+			"mixed"
+		) {
+			@Override
+			public Object execute(List<Object> arguments) {
+				// TODO: implement this method
+				return null;
+			}
+		});
+		this.setMethod("RUN", new Method(
+			List.of(
+				new Parameter("mixed", "param1...paramN", true)
+			),
+			"mixed"
+		) {
+			@Override
+			public Object execute(List<Object> arguments) {
+				// TODO: implement this method
+				return null;
+			}
+		});
+		this.setMethod("RUNC", new Method(
+			List.of(
+				new Parameter("mixed", "param1...paramN", true)
+			),
+			"mixed"
+		) {
+			@Override
+			public Object execute(List<Object> arguments) {
+				// TODO: implement this method
+				return null;
+			}
+		});
+		this.setMethod("RUNLOOPED", new Method(
+			List.of(
+				new Parameter("INTEGER|DOUBLE", "startVal", true),
+				new Parameter("INTEGER|DOUBLE", "endDiff", true)
+			),
+			"mixed"
+		) {
+			@Override
+			public Object execute(List<Object> arguments) {
+				// TODO: implement this method
+				return null;
+			}
+		});
+		this.setMethod("RUNLOOPED", new Method(
+			List.of(
+				new Parameter("INTEGER|DOUBLE", "startVal", true),
+				new Parameter("INTEGER|DOUBLE", "endDiff", true),
+				new Parameter("INTEGER|DOUBLE", "incrementBy", true),
+				new Parameter("mixed", "param1...paramN", true)
+			),
+			"mixed"
+		) {
+			@Override
+			public Object execute(List<Object> arguments) {
+				// TODO: implement this method
+				return null;
+			}
+		});
 	}
 
-	private ParseTree CODE;
-	private String CONDITION;
-	private String DESCRIPTION;
-
-	public void setDESCRIPTION(String DESCRIPTION)
-	{
-		this.DESCRIPTION = DESCRIPTION;
+	@Override
+	public String getType() {
+		return "BEHAVIOUR";
 	}
 
-	public String getDESCRIPTION()
-	{
-		return DESCRIPTION;
-	}
-	
-    /*public void RUN() {
-
-    }*/
-
-	public void setCODE(ParseTree CODE)
-	{
-		this.CODE = CODE;
+	@Override
+	public void setAttribute(String name, Attribute attribute) {
+		List<String> knownAttributes = List.of("CODE", "CONDITION");
+		if(knownAttributes.contains(name)) {
+			super.setAttribute(name, attribute);
+		}
 	}
 
-	public ParseTree getCODE()
-	{
-		return CODE;
-	}
-	
-	public void setCONDITION(String CONDITION)
-	{
-		this.CONDITION = CONDITION;
-	}
-
-	public String getCONDITION()
-	{
-		return CONDITION;
-	}
 }

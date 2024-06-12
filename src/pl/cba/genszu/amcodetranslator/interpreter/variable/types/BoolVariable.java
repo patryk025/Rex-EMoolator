@@ -1,130 +1,87 @@
 package pl.cba.genszu.amcodetranslator.interpreter.variable.types;
 
-import org.antlr.v4.runtime.tree.ParseTree;
+import pl.cba.genszu.amcodetranslator.interpreter.Context;
+import pl.cba.genszu.amcodetranslator.interpreter.variable.Attribute;
+import pl.cba.genszu.amcodetranslator.interpreter.variable.Method;
+import pl.cba.genszu.amcodetranslator.interpreter.variable.Parameter;
 import pl.cba.genszu.amcodetranslator.interpreter.variable.Variable;
 
+import java.util.List;
 
 public class BoolVariable extends Variable {
-	public BoolVariable() {
-		super(null);
-	}
-	
-	public BoolVariable(String name, Object value) {
-		super(name);
-		if(value instanceof Boolean) {
-			this.SET((Boolean) value);
-		}
-		else {
-			String valueString = value.toString();
-			if(valueString.startsWith("\"") && valueString.endsWith("\"")) {
-				valueString = valueString.substring(1, valueString.length() - 1);
+	public BoolVariable(String name, boolean value, Context context) {
+		super(name, context);
+		this.setAttribute("VALUE", new Attribute("BOOL", value));
+
+		this.setMethod("SET", new Method(
+			List.of(
+				new Parameter("BOOL", "value", true)
+			),
+			"void"
+		) {
+			@Override
+			public Object execute(List<Object> arguments) {
+				// TODO: implement this method
+				return null;
 			}
-			this.SET(valueString.equals("TRUE"));
+		});
+		this.setMethod("SWITCH", new Method(
+			List.of(
+				new Parameter("BOOL", "value1", true),
+				new Parameter("BOOL", "value2", true)
+			),
+			"void"
+		) {
+			@Override
+			public Object execute(List<Object> arguments) {
+				// TODO: implement this method
+				return null;
+			}
+		});
+	}
+
+	@Override
+	public String getType() {
+		return "BOOL";
+	}
+
+	@Override
+	public Object getValue() {
+		return this.getAttribute("VALUE").getValue();
+	}
+
+	@Override
+	public void setAttribute(String name, Attribute attribute) {
+		List<String> knownAttributes = List.of("TOINI", "VALUE");
+		if(knownAttributes.contains(name)) {
+			super.setAttribute(name, attribute);
 		}
 	}
-
-    /*public Bool(boolean VALUE) {
-        this.VALUE = VALUE;
-    }*/
-
-    private boolean VALUE;
-	private String DESCRIPTION;
-	private ParseTree ONINIT;
-	private ParseTree ONBRUTALCHANGED;
-	private ParseTree ONCHANGED;;
-	private boolean TOINI;
-
-	public void setDESCRIPTION(String DESCRIPTION)
-	{
-		this.DESCRIPTION = DESCRIPTION;
-	}
-
-	public String getDESCRIPTION()
-	{
-		return DESCRIPTION;
-	}
-
-    public void SET(boolean value) {
-		boolean oldValue = this.VALUE;
-        this.VALUE = value;
-		/*
-		if(oldValue != this.VALUE)
-			//this.ONCHANGED;
-		else
-			//this.ONBRUTALCHANGED
-
-		 */
-    }
-
-    public boolean GET() {
-        return this.VALUE;
-    }
 
 	public int toInt() {
-		return this.VALUE ? 1 : 0;
+		return (boolean) this.getValue() ? 1 : 0;
 	}
 
 	public double toDouble() {
-		return this.VALUE ? 1.0 : 0.0;
+		return (boolean) this.getValue() ? 1.0 : 0.0;
 	}
 
 	public String toStringVariable() {
-		return this.VALUE ? "TRUE" : "FALSE";
+		return (boolean) this.getValue() ? "TRUE" : "FALSE";
 	}
 
 	public Variable convert(String type) {
 		if(type.equals("INTEGER")) {
-			return new IntegerVariable(this.getName(), this.toInt());
+			return new IntegerVariable(this.getName(), this.toInt(), this.context);
 		}
 		else if(type.equals("DOUBLE")) {
-			return new DoubleVariable(this.getName(), this.toDouble());
+			return new DoubleVariable(this.getName(), this.toDouble(), this.context);
 		}
 		else if(type.equals("STRING")) {
-			return new StringVariable(this.getName(), this.toStringVariable());
+			return new StringVariable(this.getName(), this.toStringVariable(), this.context);
 		}
 		else {
 			return this;
 		}
 	}
-	
-	public void setONINIT(ParseTree ONINIT)
-	{
-		this.ONINIT = ONINIT;
-	}
-
-	public ParseTree getONINIT()
-	{
-		return ONINIT;
-	}
-
-	public void setONBRUTALCHANGED(ParseTree ONBRUTALCHANGED)
-	{
-		this.ONBRUTALCHANGED = ONBRUTALCHANGED;
-	}
-
-	public ParseTree getONBRUTALCHANGED()
-	{
-		return ONBRUTALCHANGED;
-	}
-
-	public void setONCHANGED(ParseTree ONCHANGED)
-	{
-		this.ONCHANGED = ONCHANGED;
-	}
-
-	public ParseTree getONCHANGED()
-	{
-		return ONCHANGED;
-	}
-
-	public void setTOINI(boolean TOINI)
-	{
-		this.TOINI = TOINI;
-	}
-
-	public boolean isTOINI()
-	{
-		return TOINI;
-	}
-	
 }

@@ -1,235 +1,727 @@
 package pl.cba.genszu.amcodetranslator.interpreter.variable.types;
 
-import org.antlr.v4.runtime.tree.ParseTree;
+import pl.cba.genszu.amcodetranslator.interpreter.Context;
+import pl.cba.genszu.amcodetranslator.interpreter.variable.Attribute;
+import pl.cba.genszu.amcodetranslator.interpreter.variable.Method;
+import pl.cba.genszu.amcodetranslator.interpreter.variable.Parameter;
 import pl.cba.genszu.amcodetranslator.interpreter.variable.Variable;
 
+import java.util.List;
 
 public class AnimoVariable extends Variable {
-	public AnimoVariable(String name, Object value) {
-		super(name);
+	public AnimoVariable(String name, Context context) {
+		super(name, context);
+
+		this.setMethod("GETCENTERX", new Method(
+			List.of(),
+			"INTEGER"
+		) {
+			@Override
+			public Object execute(List<Object> arguments) {
+				// TODO: implement this method
+				return null;
+			}
+		});
+		this.setMethod("GETCENTERX", new Method(
+			List.of(
+				new Parameter("BOOL", "unknown", true)
+			),
+			"INTEGER"
+		) {
+			@Override
+			public Object execute(List<Object> arguments) {
+				// TODO: implement this method
+				return null;
+			}
+		});
+		this.setMethod("GETCENTERY", new Method(
+			List.of(),
+			"INTEGER"
+		) {
+			@Override
+			public Object execute(List<Object> arguments) {
+				// TODO: implement this method
+				return null;
+			}
+		});
+		this.setMethod("GETCENTERY", new Method(
+			List.of(
+				new Parameter("BOOL", "unknown", true)
+			),
+			"INTEGER"
+		) {
+			@Override
+			public Object execute(List<Object> arguments) {
+				// TODO: implement this method
+				return null;
+			}
+		});
+		this.setMethod("GETCFRAMEINEVENT", new Method(
+			List.of(),
+			"INTEGER"
+		) {
+			@Override
+			public Object execute(List<Object> arguments) {
+				// TODO: implement this method
+				return null;
+			}
+		});
+		this.setMethod("GETCFRAMEINEVENT", new Method(
+			List.of(
+				new Parameter("STRING", "event", true)
+			),
+			"INTEGER"
+		) {
+			@Override
+			public Object execute(List<Object> arguments) {
+				// TODO: implement this method
+				return null;
+			}
+		});
+		this.setMethod("GETCURRFRAMEPOSX", new Method(
+			List.of(),
+			"INTEGER"
+		) {
+			@Override
+			public Object execute(List<Object> arguments) {
+				// TODO: implement this method
+				return null;
+			}
+		});
+		this.setMethod("GETCURRFRAMEPOSY", new Method(
+			List.of(),
+			"INTEGER"
+		) {
+			@Override
+			public Object execute(List<Object> arguments) {
+				// TODO: implement this method
+				return null;
+			}
+		});
+		this.setMethod("GETENDX", new Method(
+			List.of(),
+			"INTEGER"
+		) {
+			@Override
+			public Object execute(List<Object> arguments) {
+				// TODO: implement this method
+				return null;
+			}
+		});
+		this.setMethod("GETENDY", new Method(
+			List.of(),
+			"INTEGER"
+		) {
+			@Override
+			public Object execute(List<Object> arguments) {
+				// TODO: implement this method
+				return null;
+			}
+		});
+		this.setMethod("GETEVENTNAME", new Method(
+			List.of(),
+			"STRING"
+		) {
+			@Override
+			public Object execute(List<Object> arguments) {
+				// TODO: implement this method
+				return null;
+			}
+		});
+		this.setMethod("GETFRAME", new Method(
+			List.of(),
+			"INTEGER"
+		) {
+			@Override
+			public Object execute(List<Object> arguments) {
+				// TODO: implement this method
+				return null;
+			}
+		});
+		this.setMethod("GETFRAMENAME", new Method(
+			List.of(),
+			"STRING"
+		) {
+			@Override
+			public Object execute(List<Object> arguments) {
+				// TODO: implement this method
+				return null;
+			}
+		});
+		this.setMethod("GETHEIGHT", new Method(
+			List.of(),
+			"INTEGER"
+		) {
+			@Override
+			public Object execute(List<Object> arguments) {
+				// TODO: implement this method
+				return null;
+			}
+		});
+		this.setMethod("GETMAXWIDTH", new Method(
+			List.of(),
+			"INTEGER"
+		) {
+			@Override
+			public Object execute(List<Object> arguments) {
+				// TODO: implement this method
+				return null;
+			}
+		});
+		this.setMethod("GETNOE", new Method(
+			List.of(),
+			"INTEGER"
+		) {
+			@Override
+			public Object execute(List<Object> arguments) {
+				// TODO: implement this method
+				return null;
+			}
+		});
+		this.setMethod("GETNOFINEVENT", new Method(
+			List.of(
+				new Parameter("INTEGER", "eventNumber?", true)
+			),
+			"INTEGER"
+		) {
+			@Override
+			public Object execute(List<Object> arguments) {
+				// TODO: implement this method
+				return null;
+			}
+		});
+		this.setMethod("GETNOFINEVENT", new Method(
+			List.of(
+				new Parameter("String", "event", true)
+			),
+			"INTEGER"
+		) {
+			@Override
+			public Object execute(List<Object> arguments) {
+				// TODO: implement this method
+				return null;
+			}
+		});
+		this.setMethod("GETPOSITIONX", new Method(
+			List.of(),
+			"INTEGER"
+		) {
+			@Override
+			public Object execute(List<Object> arguments) {
+				// TODO: implement this method
+				return null;
+			}
+		});
+		this.setMethod("GETPOSITIONX", new Method(
+			List.of(
+				new Parameter("BOOL", "unknown", true)
+			),
+			"INTEGER"
+		) {
+			@Override
+			public Object execute(List<Object> arguments) {
+				// TODO: implement this method
+				return null;
+			}
+		});
+		this.setMethod("GETPOSITIONY", new Method(
+			List.of(),
+			"INTEGER"
+		) {
+			@Override
+			public Object execute(List<Object> arguments) {
+				// TODO: implement this method
+				return null;
+			}
+		});
+		this.setMethod("GETPOSITIONY", new Method(
+			List.of(
+				new Parameter("BOOL", "unknown", true)
+			),
+			"INTEGER"
+		) {
+			@Override
+			public Object execute(List<Object> arguments) {
+				// TODO: implement this method
+				return null;
+			}
+		});
+		this.setMethod("GETWIDTH", new Method(
+			List.of(),
+			"INTEGER"
+		) {
+			@Override
+			public Object execute(List<Object> arguments) {
+				// TODO: implement this method
+				return null;
+			}
+		});
+		this.setMethod("HIDE", new Method(
+			List.of(),
+			"void"
+		) {
+			@Override
+			public Object execute(List<Object> arguments) {
+				// TODO: implement this method
+				return null;
+			}
+		});
+		this.setMethod("ISNEAR", new Method(
+			List.of(
+				new Parameter("STRING", "varAnimo", true),
+				new Parameter("INTEGER", "distance", true)
+			),
+			"BOOL"
+		) {
+			@Override
+			public Object execute(List<Object> arguments) {
+				// TODO: implement this method
+				return null;
+			}
+		});
+		this.setMethod("ISPLAYING", new Method(
+			List.of(),
+			"BOOL"
+		) {
+			@Override
+			public Object execute(List<Object> arguments) {
+				// TODO: implement this method
+				return null;
+			}
+		});
+		this.setMethod("ISPLAYING", new Method(
+			List.of(
+				new Parameter("STRING", "event", true)
+			),
+			"BOOL"
+		) {
+			@Override
+			public Object execute(List<Object> arguments) {
+				// TODO: implement this method
+				return null;
+			}
+		});
+		this.setMethod("ISVISIBLE", new Method(
+			List.of(),
+			"BOOL"
+		) {
+			@Override
+			public Object execute(List<Object> arguments) {
+				// TODO: implement this method
+				return null;
+			}
+		});
+		this.setMethod("LOAD", new Method(
+			List.of(
+				new Parameter("STRING", "path", true)
+			),
+			"void/BOOLEAN?"
+		) {
+			@Override
+			public Object execute(List<Object> arguments) {
+				// TODO: implement this method
+				return null;
+			}
+		});
+		this.setMethod("MOVE", new Method(
+			List.of(
+				new Parameter("INTEGER", "offsetX", true),
+				new Parameter("INTEGER", "offsetY", true)
+			),
+			"void"
+		) {
+			@Override
+			public Object execute(List<Object> arguments) {
+				// TODO: implement this method
+				return null;
+			}
+		});
+		this.setMethod("NEXTFRAME", new Method(
+			List.of(),
+			"void"
+		) {
+			@Override
+			public Object execute(List<Object> arguments) {
+				// TODO: implement this method
+				return null;
+			}
+		});
+		this.setMethod("NPLAY", new Method(
+			List.of(
+				new Parameter("INTEGER", "eventNumber", true)
+			),
+			"void"
+		) {
+			@Override
+			public Object execute(List<Object> arguments) {
+				// TODO: implement this method
+				return null;
+			}
+		});
+		this.setMethod("NPLAY", new Method(
+			List.of(
+				new Parameter("STRING", "event", true)
+			),
+			"void"
+		) {
+			@Override
+			public Object execute(List<Object> arguments) {
+				// TODO: implement this method
+				return null;
+			}
+		});
+		this.setMethod("PAUSE", new Method(
+			List.of(),
+			"void"
+		) {
+			@Override
+			public Object execute(List<Object> arguments) {
+				// TODO: implement this method
+				return null;
+			}
+		});
+		this.setMethod("PLAY", new Method(
+			List.of(
+				new Parameter("INTEGER", "animNumber?", true)
+			),
+			"void"
+		) {
+			@Override
+			public Object execute(List<Object> arguments) {
+				// TODO: implement this method
+				return null;
+			}
+		});
+		this.setMethod("PLAY", new Method(
+			List.of(
+				new Parameter("STRING", "anim", true)
+			),
+			"void"
+		) {
+			@Override
+			public Object execute(List<Object> arguments) {
+				// TODO: implement this method
+				return null;
+			}
+		});
+		this.setMethod("PLAY", new Method(
+			List.of(
+				new Parameter("STRING", "anim", true),
+				new Parameter("INTEGER", "frameNo?", true)
+			),
+			"void"
+		) {
+			@Override
+			public Object execute(List<Object> arguments) {
+				// TODO: implement this method
+				return null;
+			}
+		});
+		this.setMethod("PREVFRAME", new Method(
+			List.of(),
+			"void"
+		) {
+			@Override
+			public Object execute(List<Object> arguments) {
+				// TODO: implement this method
+				return null;
+			}
+		});
+		this.setMethod("RESUME", new Method(
+			List.of(),
+			"void"
+		) {
+			@Override
+			public Object execute(List<Object> arguments) {
+				// TODO: implement this method
+				return null;
+			}
+		});
+		this.setMethod("RUN", new Method(
+			List.of(),
+			"void"
+		) {
+			@Override
+			public Object execute(List<Object> arguments) {
+				// TODO: implement this method
+				return null;
+			}
+		});
+		this.setMethod("SETANCHOR", new Method(
+			List.of(
+				new Parameter("Enum<STRING>", "anchor", true)
+			),
+			"void"
+		) {
+			@Override
+			public Object execute(List<Object> arguments) {
+				// TODO: implement this method
+				return null;
+			}
+		});
+		this.setMethod("SETANCHOR", new Method(
+			List.of(
+				new Parameter("INTEGER", "offsetX", true),
+				new Parameter("INTEGER", "offsetY", true)
+			),
+			"void"
+		) {
+			@Override
+			public Object execute(List<Object> arguments) {
+				// TODO: implement this method
+				return null;
+			}
+		});
+		this.setMethod("SETASBUTTON", new Method(
+			List.of(
+				new Parameter("BOOL", "enabled", true),
+				new Parameter("BOOL", "unknown", true)
+			),
+			"void"
+		) {
+			@Override
+			public Object execute(List<Object> arguments) {
+				// TODO: implement this method
+				return null;
+			}
+		});
+		this.setMethod("SETBACKWARD", new Method(
+			List.of(),
+			"void"
+		) {
+			@Override
+			public Object execute(List<Object> arguments) {
+				// TODO: implement this method
+				return null;
+			}
+		});
+		this.setMethod("SETFORWARD", new Method(
+			List.of(),
+			"void"
+		) {
+			@Override
+			public Object execute(List<Object> arguments) {
+				// TODO: implement this method
+				return null;
+			}
+		});
+		this.setMethod("SETFPS", new Method(
+			List.of(
+				new Parameter("INTEGER", "fps", true)
+			),
+			"void"
+		) {
+			@Override
+			public Object execute(List<Object> arguments) {
+				// TODO: implement this method
+				return null;
+			}
+		});
+		this.setMethod("SETFPS", new Method(
+			List.of(
+				new Parameter("STRING", "fps", true)
+			),
+			"void"
+		) {
+			@Override
+			public Object execute(List<Object> arguments) {
+				// TODO: implement this method
+				return null;
+			}
+		});
+		this.setMethod("SETFRAME", new Method(
+			List.of(
+				new Parameter("STRING", "event", true),
+				new Parameter("INTEGER", "frameNumber", true)
+			),
+			"void"
+		) {
+			@Override
+			public Object execute(List<Object> arguments) {
+				// TODO: implement this method
+				return null;
+			}
+		});
+		this.setMethod("SETFRAME", new Method(
+			List.of(
+				new Parameter("INTEGER", "eventNumber?", true)
+			),
+			"void"
+		) {
+			@Override
+			public Object execute(List<Object> arguments) {
+				// TODO: implement this method
+				return null;
+			}
+		});
+		this.setMethod("SETFRAME", new Method(
+			List.of(
+				new Parameter("INTEGER", "eventNumber?", true),
+				new Parameter("INTEGER", "frameNumber", true)
+			),
+			"void"
+		) {
+			@Override
+			public Object execute(List<Object> arguments) {
+				// TODO: implement this method
+				return null;
+			}
+		});
+		this.setMethod("SETFRAME", new Method(
+			List.of(
+				new Parameter("STRING", "eventNumber?", true),
+				new Parameter("STRING", "frameName?", true)
+			),
+			"void"
+		) {
+			@Override
+			public Object execute(List<Object> arguments) {
+				// TODO: implement this method
+				return null;
+			}
+		});
+		this.setMethod("SETFRAMENAME", new Method(
+			List.of(
+				new Parameter("INTEGER", "eventNumber?", true),
+				new Parameter("INTEGER", "frameNumber?", true),
+				new Parameter("STRING", "name", true)
+			),
+			"void"
+		) {
+			@Override
+			public Object execute(List<Object> arguments) {
+				// TODO: implement this method
+				return null;
+			}
+		});
+		this.setMethod("SETOPACITY", new Method(
+			List.of(
+				new Parameter("STRING", "opacity", true)
+			),
+			"void"
+		) {
+			@Override
+			public Object execute(List<Object> arguments) {
+				// TODO: implement this method
+				return null;
+			}
+		});
+		this.setMethod("SETOPACITY", new Method(
+			List.of(
+				new Parameter("INTEGER", "opacity", true)
+			),
+			"void"
+		) {
+			@Override
+			public Object execute(List<Object> arguments) {
+				// TODO: implement this method
+				return null;
+			}
+		});
+		this.setMethod("SETPOSITION", new Method(
+			List.of(
+				new Parameter("INTEGER", "posX", true),
+				new Parameter("INTEGER", "posY", true)
+			),
+			"void"
+		) {
+			@Override
+			public Object execute(List<Object> arguments) {
+				// TODO: implement this method
+				return null;
+			}
+		});
+		this.setMethod("SETPRIORITY", new Method(
+			List.of(
+				new Parameter("INTEGER", "posZ", true)
+			),
+			"void"
+		) {
+			@Override
+			public Object execute(List<Object> arguments) {
+				// TODO: implement this method
+				return null;
+			}
+		});
+		this.setMethod("SHOW", new Method(
+			List.of(),
+			"void"
+		) {
+			@Override
+			public Object execute(List<Object> arguments) {
+				// TODO: implement this method
+				return null;
+			}
+		});
+		this.setMethod("SHOW", new Method(
+			List.of(
+				new Parameter("BOOL", "unknown", true)
+			),
+			"void"
+		) {
+			@Override
+			public Object execute(List<Object> arguments) {
+				// TODO: implement this method
+				return null;
+			}
+		});
+		this.setMethod("STOP", new Method(
+			List.of(),
+			"void"
+		) {
+			@Override
+			public Object execute(List<Object> arguments) {
+				// TODO: implement this method
+				return null;
+			}
+		});
+		this.setMethod("STOP", new Method(
+			List.of(
+				new Parameter("BOOL", "emitSignal", true)
+			),
+			"void"
+		) {
+			@Override
+			public Object execute(List<Object> arguments) {
+				// TODO: implement this method
+				return null;
+			}
+		});
+		this.setMethod("TOP", new Method(
+			List.of(),
+			"void"
+		) {
+			@Override
+			public Object execute(List<Object> arguments) {
+				// TODO: implement this method
+				return null;
+			}
+		});
+		this.setMethod("TOP", new Method(
+			List.of(
+				new Parameter("BOOL", "unknown", true)
+			),
+			"void"
+		) {
+			@Override
+			public Object execute(List<Object> arguments) {
+				// TODO: implement this method
+				return null;
+			}
+		});
 	}
 
-    private String FILENAME;
-    private boolean TOCANVAS;
-    private boolean VISIBLE;
-    private int FPS;
-    private int PRIORITY;
-	private ParseTree ONFINISHED;
-	private ParseTree ONSTARTED;
-	private boolean PRELOAD;
-	private boolean RELEASE;
-	private boolean MONITORCOLLISION;
-	private boolean MONITORCOLLISIONALPHA;
-	private ParseTree ONINIT;
-	private ParseTree ONCOLLISION; //Behaviour
-	private ParseTree ONFRAMECHANGED;
-	private String DESCRIPTION;
-	private ParseTree ONCLICK;
-	private ParseTree ONFOCUSOFF;
-	private ParseTree ONFOCUSON;
-	private ParseTree ONRELEASE;
-	private ParseTree ONSIGNAL;
-
-    //private List<>
-
-    /*methods of Animo*/
-    public int GETPOSITIONX() {return 0;}
-    public int GETPOSITIONY() {return 0;}
-
-    public void SETPOSITION(int x, int y) {}
-
-    public void PLAY(String name) {}
-    public void MOVE(int xOffset, int yOffset) {
-        SETPOSITION(GETPOSITIONX()+xOffset, GETPOSITIONY()+yOffset);
-    }
-    public void HIDE() {
-        this.VISIBLE = false;
-    }
-
-    public void SETPRIORITY(int priority) {
-        this.PRIORITY = priority;
-    }
-
-    public void SETFRAME(int number) {}
-
-    public int GETCFRAMEINEVENT() {return 0;}
-
-    /*internal methods*/
-    public String getFILENAME() {
-        return FILENAME;
-    }
-    public void setFILENAME(String FILENAME) {
-        this.FILENAME = FILENAME;
-    }
-    public boolean isTOCANVAS() {
-        return TOCANVAS;
-    }
-    public void setTOCANVAS(boolean TOCANVAS) {
-        this.TOCANVAS = TOCANVAS;
-    }
-    public boolean isVISIBLE() {
-        return VISIBLE;
-    }
-    public void setVISIBLE(boolean VISIBLE) {
-        this.VISIBLE = VISIBLE;
-    }
-    public int getFPS() {
-        return FPS;
-    }
-    public void setFPS(int FPS) {
-        this.FPS = FPS;
-    }
-    public int getPRIORITY() {
-        return PRIORITY;
-    }
-    public void setPRIORITY(int PRIORITY) {
-        this.PRIORITY = PRIORITY;
-    }
-
-	public void setONFINISHED(ParseTree ONFINISHED)
-	{
-		this.ONFINISHED = ONFINISHED;
+	@Override
+	public String getType() {
+		return "ANIMO";
 	}
 
-	public ParseTree getONFINISHED()
-	{
-		return ONFINISHED;
+	@Override
+	public void setAttribute(String name, Attribute attribute) {
+		List<String> knownAttributes = List.of("ASBUTTON", "FILENAME", "FLUSHAFTERPLAYED", "FPS", "MONITORCOLLISION", "MONITORCOLLISIONALPHA", "PRELOAD", "PRIORITY", "RELEASE", "TOCANVAS", "VISIBLE");
+		if(knownAttributes.contains(name)) {
+			super.setAttribute(name, attribute);
+		}
 	}
 
-	public void setONSTARTED(ParseTree ONSTARTED)
-	{
-		this.ONSTARTED = ONSTARTED;
-	}
-
-	public ParseTree getONSTARTED()
-	{
-		return ONSTARTED;
-	}
-	
-	public void setPRELOAD(boolean PRELOAD)
-	{
-		this.PRELOAD = PRELOAD;
-	}
-
-	public boolean getPRELOAD()
-	{
-		return PRELOAD;
-	}
-
-	public void setRELEASE(boolean RELEASE)
-	{
-		this.RELEASE = RELEASE;
-	}
-
-	public boolean isRELEASE()
-	{
-		return RELEASE;
-	}
-
-	public void setMONITORCOLLISION(boolean MONITORCOLLISION)
-	{
-		this.MONITORCOLLISION = MONITORCOLLISION;
-	}
-
-	public boolean getMONITORCOLLISION()
-	{
-		return MONITORCOLLISION;
-	}
-
-	public void setMONITORCOLLISIONALPHA(boolean MONITORCOLLISIONALPHA)
-	{
-		this.MONITORCOLLISIONALPHA = MONITORCOLLISIONALPHA;
-	}
-
-	public boolean getMONITORCOLLISIONALPHA()
-	{
-		return MONITORCOLLISIONALPHA;
-	}
-
-	public void setONINIT(ParseTree ONINIT)
-	{
-		this.ONINIT = ONINIT;
-	}
-
-	public ParseTree getONINIT()
-	{
-		return ONINIT;
-	}
-	
-	public void setONCOLLISION(ParseTree ONCOLLISION)
-	{
-		this.ONCOLLISION = ONCOLLISION;
-	}
-
-	public ParseTree getONCOLLISION()
-	{
-		return ONCOLLISION;
-	}
-
-	public ParseTree getONFRAMECHANGED() {
-		return ONFRAMECHANGED;
-	}
-
-	public void setONFRAMECHANGED(ParseTree ONFRAMECHANGED) {
-		this.ONFRAMECHANGED = ONFRAMECHANGED;
-	}
-	
-	public String getDESCRIPTION() {
-        return DESCRIPTION;
-    }
-
-	public void setDESCRIPTION(String DESCRIPTION)
-	{
-		this.DESCRIPTION = DESCRIPTION;
-	}
-	
-	public void setONCLICK(ParseTree ONCLICK)
-	{
-		this.ONCLICK = ONCLICK;
-	}
-
-	public ParseTree getONCLICK()
-	{
-		return ONCLICK;
-	}
-
-	public void setONFOCUSOFF(ParseTree ONFOCUSOFF)
-	{
-		this.ONFOCUSOFF = ONFOCUSOFF;
-	}
-
-	public ParseTree getONFOCUSOFF()
-	{
-		return ONFOCUSOFF;
-	}
-
-	public void setONFOCUSON(ParseTree ONFOCUSON)
-	{
-		this.ONFOCUSON = ONFOCUSON;
-	}
-
-	public ParseTree getONFOCUSON()
-	{
-		return ONFOCUSON;
-	}
-
-	public void setONRELEASE(ParseTree ONRELEASE)
-	{
-		this.ONRELEASE = ONRELEASE;
-	}
-
-	public ParseTree getONRELEASE()
-	{
-		return ONRELEASE;
-	}
-
-	public void setONSIGNAL(ParseTree ONSIGNAL)
-	{
-		this.ONSIGNAL = ONSIGNAL;
-	}
-
-	public ParseTree getONSIGNAL()
-	{
-		return ONSIGNAL;
-	}
 }

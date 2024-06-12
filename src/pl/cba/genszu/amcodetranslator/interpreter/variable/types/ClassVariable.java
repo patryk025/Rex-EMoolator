@@ -1,32 +1,56 @@
 package pl.cba.genszu.amcodetranslator.interpreter.variable.types;
 
+import pl.cba.genszu.amcodetranslator.interpreter.Context;
+import pl.cba.genszu.amcodetranslator.interpreter.variable.Attribute;
+import pl.cba.genszu.amcodetranslator.interpreter.variable.Method;
+import pl.cba.genszu.amcodetranslator.interpreter.variable.Parameter;
 import pl.cba.genszu.amcodetranslator.interpreter.variable.Variable;
 
+import java.util.List;
+
 public class ClassVariable extends Variable {
-	public ClassVariable(String name, Object value) {
-		super(name);
+	public ClassVariable(String name, Context context) {
+		super(name, context);
+
+		this.setMethod("NEW", new Method(
+			List.of(
+				new Parameter("STRING", "varName", true),
+				new Parameter("mixed", "param1...paramN", true)
+			),
+			"void"
+		) {
+			@Override
+			public Object execute(List<Object> arguments) {
+				// TODO: implement this method
+				return null;
+			}
+		});
+		this.setMethod("DELETE", new Method(
+			List.of(
+				new Parameter("STRING", "varName", true),
+				new Parameter("mixed", "param1...paramN", true)
+			),
+			"void"
+		) {
+			@Override
+			public Object execute(List<Object> arguments) {
+				// TODO: implement this method
+				return null;
+			}
+		});
 	}
 
-	private String BASE;
-	private String DEF;
-	
-	public void setBASE(String BASE)
-	{
-		this.BASE = BASE;
+	@Override
+	public String getType() {
+		return "CLASS";
 	}
 
-	public String getBASE()
-	{
-		return BASE;
+	@Override
+	public void setAttribute(String name, Attribute attribute) {
+		List<String> knownAttributes = List.of("BASE", "DEF");
+		if(knownAttributes.contains(name)) {
+			super.setAttribute(name, attribute);
+		}
 	}
 
-	public void setDEF(String DEF)
-	{
-		this.DEF = DEF;
-	}
-
-	public String getDEF()
-	{
-		return DEF;
-	}
 }

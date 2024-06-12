@@ -1,97 +1,96 @@
 package pl.cba.genszu.amcodetranslator.interpreter.variable.types;
 
-import org.antlr.v4.runtime.tree.ParseTree;
+import pl.cba.genszu.amcodetranslator.interpreter.Context;
+import pl.cba.genszu.amcodetranslator.interpreter.variable.Attribute;
+import pl.cba.genszu.amcodetranslator.interpreter.variable.Method;
+import pl.cba.genszu.amcodetranslator.interpreter.variable.Parameter;
 import pl.cba.genszu.amcodetranslator.interpreter.variable.Variable;
 
-public class SoundVariable extends Variable
-{
-    public SoundVariable(String name, Object value) {
-        super(name);
-    }
+import java.util.List;
 
-    private String FILENAME;
-    private boolean PRELOAD;
-    private boolean RELEASE;
-    private boolean FLUSHAFTERPLAYED;
-    private ParseTree ONSTARTED; //nazwa obiektu Behaviour
-    private ParseTree ONFINISHED; //nazwa obiektu Behaviour
-	private ParseTree ONINIT;
-	private String DESCRIPTION;
+public class SoundVariable extends Variable {
+	public SoundVariable(String name, Context context) {
+		super(name, context);
 
-    /*methods of Sound*/
-    public void PLAY() {
-
-    }
-    public void SETVOLUME(int volume) {
-        
-    }
-
-    /*internal methods*/
-    public String getFILENAME() {
-        return FILENAME;
-    }
-
-    public void setFILENAME(String FILENAME) {
-        this.FILENAME = FILENAME;
-    }
-
-    public boolean isPRELOAD() {
-        return PRELOAD;
-    }
-
-    public void setPRELOAD(boolean PRELOAD) {
-        this.PRELOAD = PRELOAD;
-    }
-
-    public boolean isRELEASE() {
-        return RELEASE;
-    }
-
-    public void setRELEASE(boolean RELEASE) {
-        this.RELEASE = RELEASE;
-    }
-
-    public ParseTree getONSTARTED() {
-        return ONSTARTED;
-    }
-
-    public void setONSTARTED(ParseTree ONSTARTED) {
-        this.ONSTARTED = ONSTARTED;
-    }
-
-    public ParseTree getONFINISHED() {
-        return ONFINISHED;
-    }
-
-    public void setONFINISHED(ParseTree ONFINISHED) {
-        this.ONFINISHED = ONFINISHED;
-    }
-
-    public boolean isFLUSHAFTERPLAYED() {
-        return FLUSHAFTERPLAYED;
-    }
-
-    public void setFLUSHAFTERPLAYED(boolean FLUSHAFTERPLAYED) {
-        this.FLUSHAFTERPLAYED = FLUSHAFTERPLAYED;
-    }
-	
-	public void setDESCRIPTION(String DESCRIPTION)
-	{
-		this.DESCRIPTION = DESCRIPTION;
+		this.setMethod("ISPLAYING", new Method(
+			List.of(),
+			"BOOL"
+		) {
+			@Override
+			public Object execute(List<Object> arguments) {
+				// TODO: implement this method
+				return null;
+			}
+		});
+		this.setMethod("LOAD", new Method(
+			List.of(
+				new Parameter("STRING", "path", true)
+			),
+			"void"
+		) {
+			@Override
+			public Object execute(List<Object> arguments) {
+				// TODO: implement this method
+				return null;
+			}
+		});
+		this.setMethod("PAUSE", new Method(
+			List.of(),
+			"void"
+		) {
+			@Override
+			public Object execute(List<Object> arguments) {
+				// TODO: implement this method
+				return null;
+			}
+		});
+		this.setMethod("PLAY", new Method(
+			List.of(
+				new Parameter("STRING", "unknown", false)
+			),
+			"void"
+		) {
+			@Override
+			public Object execute(List<Object> arguments) {
+				// TODO: implement this method
+				return null;
+			}
+		});
+		this.setMethod("RESUME", new Method(
+			List.of(),
+			"void"
+		) {
+			@Override
+			public Object execute(List<Object> arguments) {
+				// TODO: implement this method
+				return null;
+			}
+		});
+		this.setMethod("STOP", new Method(
+			List.of(
+				new Parameter("BOOL", "emitSignal", false)
+			),
+			"void"
+		) {
+			@Override
+			public Object execute(List<Object> arguments) {
+				// TODO: implement this method
+				return null;
+			}
+		});
 	}
 
-	public String getDESCRIPTION()
-	{
-		return DESCRIPTION;
-	}
-	
-	public void setONINIT(ParseTree ONINIT)
-	{
-		this.ONINIT = ONINIT;
+	@Override
+	public String getType() {
+		return "SOUND";
 	}
 
-	public ParseTree getONINIT()
-	{
-		return ONINIT;
+	@Override
+	public void setAttribute(String name, Attribute attribute) {
+		List<String> knownAttributes = List.of("FILENAME", "FLUSHAFTERPLAYED", "PRELOAD", "RELEASE");
+		if(knownAttributes.contains(name)) {
+			super.setAttribute(name, attribute);
+		}
 	}
+
 }

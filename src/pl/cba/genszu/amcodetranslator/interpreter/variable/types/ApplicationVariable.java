@@ -1,93 +1,89 @@
 package pl.cba.genszu.amcodetranslator.interpreter.variable.types;
 
+import pl.cba.genszu.amcodetranslator.interpreter.Context;
+import pl.cba.genszu.amcodetranslator.interpreter.variable.Attribute;
+import pl.cba.genszu.amcodetranslator.interpreter.variable.Method;
+import pl.cba.genszu.amcodetranslator.interpreter.variable.Parameter;
 import pl.cba.genszu.amcodetranslator.interpreter.variable.Variable;
 
+import java.util.List;
+
 public class ApplicationVariable extends Variable {
-	public ApplicationVariable(String name, Object value) {
-		super(name);
+	public ApplicationVariable(String name, Context context) {
+		super(name, context);
+
+		this.setMethod("EXIT", new Method(
+			List.of(),
+			"void"
+		) {
+			@Override
+			public Object execute(List<Object> arguments) {
+				// TODO: implement this method
+				return null;
+			}
+		});
+		this.setMethod("GETLANGUAGE", new Method(
+			List.of(),
+			"STRING"
+		) {
+			@Override
+			public Object execute(List<Object> arguments) {
+				// TODO: implement this method
+				return null;
+			}
+		});
+		this.setMethod("RUN", new Method(
+			List.of(
+				new Parameter("STRING", "varName", true),
+				new Parameter("STRING", "methodName", true),
+				new Parameter("mixed", "param1...paramN", true)
+			),
+			"mixed?"
+		) {
+			@Override
+			public Object execute(List<Object> arguments) {
+				// TODO: implement this method
+				return null;
+			}
+		});
+		this.setMethod("RUNENV", new Method(
+			List.of(
+				new Parameter("STRING", "sceneName", true),
+				new Parameter("STRING", "behaviourName", true)
+			),
+			"void"
+		) {
+			@Override
+			public Object execute(List<Object> arguments) {
+				// TODO: implement this method
+				return null;
+			}
+		});
+		this.setMethod("SETLANGUAGE", new Method(
+			List.of(
+				new Parameter("STRING", "languageCode", true)
+			),
+			"void"
+		) {
+			@Override
+			public Object execute(List<Object> arguments) {
+				// TODO: implement this method
+				return null;
+			}
+		});
 	}
 
-	private String BLOOMOO_VERSION;
-    private String DESCRIPTION;
-    private String CREATIONTIME;
-    private String LASTMODIFYTIME;
-    private String AUTHOR;
-    private String VERSION;
-    private String EPISODES;
-    private String STARTWITH;
-    private String PATH;
-
-	public void setBLOOMOO_VERSION(String BLOOMOO_VERSION)
-	{
-		this.BLOOMOO_VERSION = BLOOMOO_VERSION;
+	@Override
+	public String getType() {
+		return "APPLICATION";
 	}
 
-	public String getBLOOMOO_VERSION()
-	{
-		return BLOOMOO_VERSION;
+	@Override
+	public void setAttribute(String name, Attribute attribute) {
+		List<String> knownAttributes = List.of("AUTHOR", "BLOOMOO_VERSION", "CREATIONTIME", "DESCRIPTION", "EPISODES", "LASTMODIFYTIME", "PATH", "SCENES", "STARTWITH", "VERSION");
+		if(knownAttributes.contains(name)) {
+			super.setAttribute(name, attribute);
+		}
 	}
 
-    public String getDESCRIPTION() {
-        return DESCRIPTION;
-    }
-
-    public void setDESCRIPTION(String DESCRIPTION) {
-        this.DESCRIPTION = DESCRIPTION;
-    }
-
-    public String getCREATIONTIME() {
-        return CREATIONTIME;
-    }
-
-    public void setCREATIONTIME(String CREATIONTIME) {
-        this.CREATIONTIME = CREATIONTIME;
-    }
-
-    public String getLASTMODIFYTIME() {
-        return LASTMODIFYTIME;
-    }
-
-    public void setLASTMODIFYTIME(String LASTMODIFYTIME) {
-        this.LASTMODIFYTIME = LASTMODIFYTIME;
-    }
-
-    public String getAUTHOR() {
-        return AUTHOR;
-    }
-
-    public void setAUTHOR(String AUTHOR) {
-        this.AUTHOR = AUTHOR;
-    }
-
-    public String getVERSION() {
-        return VERSION;
-    }
-
-    public void setVERSION(String VERSION) {
-        this.VERSION = VERSION;
-    }
-
-    public String getEPISODES() {
-        return EPISODES;
-    }
-
-    public void setEPISODES(String EPISODES) {
-        this.EPISODES = EPISODES;
-    }
-
-    public String getSTARTWITH() {
-        return STARTWITH;
-    }
-
-    public void setSTARTWITH(String STARTWITH) {
-        this.STARTWITH = STARTWITH;
-    }
-
-    public String getPATH() {
-        return PATH;
-    }
-
-    public void setPATH(String PATH) {
-        this.PATH = PATH;
-    }
 }

@@ -1,115 +1,104 @@
 package pl.cba.genszu.amcodetranslator.interpreter.variable.types;
 
-import org.antlr.v4.runtime.tree.ParseTree;
+import pl.cba.genszu.amcodetranslator.interpreter.Context;
+import pl.cba.genszu.amcodetranslator.interpreter.variable.Attribute;
+import pl.cba.genszu.amcodetranslator.interpreter.variable.Method;
+import pl.cba.genszu.amcodetranslator.interpreter.variable.Parameter;
 import pl.cba.genszu.amcodetranslator.interpreter.variable.Variable;
-import java.util.*;
 
+import java.util.List;
 
 public class SequenceVariable extends Variable {
-	public SequenceVariable(String name, Object value) {
-		super(name);
+	public SequenceVariable(String name, Context context) {
+		super(name, context);
+
+		this.setMethod("GETEVENTNAME", new Method(
+			List.of(),
+			"STRING"
+		) {
+			@Override
+			public Object execute(List<Object> arguments) {
+				// TODO: implement this method
+				return null;
+			}
+		});
+		this.setMethod("HIDE", new Method(
+			List.of(),
+			"void"
+		) {
+			@Override
+			public Object execute(List<Object> arguments) {
+				// TODO: implement this method
+				return null;
+			}
+		});
+		this.setMethod("ISPLAYING", new Method(
+			List.of(),
+			"BOOL"
+		) {
+			@Override
+			public Object execute(List<Object> arguments) {
+				// TODO: implement this method
+				return null;
+			}
+		});
+		this.setMethod("PAUSE", new Method(
+			List.of(),
+			"void"
+		) {
+			@Override
+			public Object execute(List<Object> arguments) {
+				// TODO: implement this method
+				return null;
+			}
+		});
+		this.setMethod("PLAY", new Method(
+			List.of(
+				new Parameter("String", "sequenceName", true)
+			),
+			"void"
+		) {
+			@Override
+			public Object execute(List<Object> arguments) {
+				// TODO: implement this method
+				return null;
+			}
+		});
+		this.setMethod("RESUME", new Method(
+			List.of(),
+			"void"
+		) {
+			@Override
+			public Object execute(List<Object> arguments) {
+				// TODO: implement this method
+				return null;
+			}
+		});
+		this.setMethod("STOP", new Method(
+			List.of(
+				new Parameter("BOOL", "emitSignal", false)
+			),
+			"void"
+		) {
+			@Override
+			public Object execute(List<Object> arguments) {
+				// TODO: implement this method
+				return null;
+			}
+		});
 	}
 
-	String FILENAME;
-	ParseTree ONINIT;
-	ParseTree ONFINISHED;
-	ParseTree ONSTARTED;
-	String DESCRIPTION;
-	boolean VISIBLE;
-	HashMap<String, SpeakingVariable> speakingMap;
-	HashMap<String, SequenceVariable> subsequencesMap;
-	HashMap<String, SimpleVariable> simplesMap;
-	HashMap<String, SceneVariable> scenesMap;
-	HashMap<String, String> SEQEVENT; //No, it's String. NumberFormatException is here :/
-	
-	/*public SequenceAM() {
-		this.FILENAME= "";
-		this.ONINIT = new ParseTree();
-		this.ONFINISHED = new ParseTree();
-	}*/
-	
-	public void setFILENAME(String FILENAME)
-	{
-		this.FILENAME = FILENAME;
+	@Override
+	public String getType() {
+		return "SEQUENCE";
 	}
 
-	public String getFILENAME()
-	{
-		return FILENAME;
+	@Override
+	public void setAttribute(String name, Attribute attribute) {
+		List<String> knownAttributes = List.of("FILENAME");
+		if(knownAttributes.contains(name)) {
+			super.setAttribute(name, attribute);
+		}
 	}
 
-	public void setONINIT(ParseTree ONINIT)
-	{
-		this.ONINIT = ONINIT;
-	}
-
-	public ParseTree getONINIT()
-	{
-		return ONINIT;
-	}
-
-	public void setONFINISHED(ParseTree ONFINISHED)
-	{
-		this.ONFINISHED = ONFINISHED;
-	}
-
-	public ParseTree getONFINISHED()
-	{
-		return ONFINISHED;
-	}
-	
-	public void setONSTARTED(ParseTree ONSTARTED)
-	{
-		this.ONSTARTED = ONSTARTED;
-	}
-
-	public ParseTree getONSTARTED()
-	{
-		return ONSTARTED;
-	}
-
-	public void setDESCRIPTION(String DESCRIPTION)
-	{
-		this.DESCRIPTION = DESCRIPTION;
-	}
-
-	public String getDESCRIPTION()
-	{
-		return DESCRIPTION;
-	}
-
-	public void setVISIBLE(boolean VISIBLE)
-	{
-		this.VISIBLE = VISIBLE;
-	}
-
-	public boolean isVISIBLE()
-	{
-		return VISIBLE;
-	}
-	
-	public void addSpeaking(String name, SpeakingVariable sp) {
-		if(speakingMap == null) speakingMap = new HashMap<>();
-		speakingMap.put(name, sp);
-	}
-	
-	public void addSequence(String name, SequenceVariable seq) {
-		if(subsequencesMap == null) subsequencesMap = new HashMap<>();
-		subsequencesMap.put(name, seq);
-	}
-	
-	public void addSimple(String name, SimpleVariable smpl) {
-		if(simplesMap == null) simplesMap = new HashMap<>();
-		simplesMap.put(name, smpl);
-	}
-	
-	public void addScene(String name, SceneVariable scen) {
-		if(scenesMap == null) scenesMap = new HashMap<>();
-		scenesMap.put(name, scen);
-	}
-	
-	public void addSEQEVENT(String name, String val) {
-		if(SEQEVENT == null) SEQEVENT = new HashMap<>();
-		SEQEVENT.put(name, val);
-	}
 }

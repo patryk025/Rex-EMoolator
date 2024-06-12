@@ -8,13 +8,54 @@ import pl.cba.genszu.amcodetranslator.interpreter.variable.Variable;
 
 import java.util.List;
 
-public class VectorVariable extends Variable {
-	public VectorVariable(String name, Context context) {
+public class VirtualGraphicsObjectVariable extends Variable {
+	public VirtualGraphicsObjectVariable(String name, Context context) {
 		super(name, context);
 
-		this.setMethod("ADD", new Method(
+		this.setMethod("GETHEIGHT", new Method(
+			List.of(),
+			"INTEGER"
+		) {
+			@Override
+			public Object execute(List<Object> arguments) {
+				// TODO: implement this method
+				return null;
+			}
+		});
+		this.setMethod("GETPOSITIONX", new Method(
+			List.of(),
+			"INTEGER"
+		) {
+			@Override
+			public Object execute(List<Object> arguments) {
+				// TODO: implement this method
+				return null;
+			}
+		});
+		this.setMethod("GETPOSITIONY", new Method(
+			List.of(),
+			"INTEGER"
+		) {
+			@Override
+			public Object execute(List<Object> arguments) {
+				// TODO: implement this method
+				return null;
+			}
+		});
+		this.setMethod("GETWIDTH", new Method(
+			List.of(),
+			"INTEGER"
+		) {
+			@Override
+			public Object execute(List<Object> arguments) {
+				// TODO: implement this method
+				return null;
+			}
+		});
+		this.setMethod("MOVE", new Method(
 			List.of(
-				new Parameter("STRING|VECTOR", "vectorName", true)
+				new Parameter("INTEGER", "offsetX", true),
+				new Parameter("INTEGER", "offsetY", true)
 			),
 			"void"
 		) {
@@ -24,7 +65,19 @@ public class VectorVariable extends Variable {
 				return null;
 			}
 		});
-		this.setMethod("ASSIGN", new Method(
+		this.setMethod("SETMASK", new Method(
+			List.of(
+				new Parameter("STRING", "mask", true)
+			),
+			"void"
+		) {
+			@Override
+			public Object execute(List<Object> arguments) {
+				// TODO: implement this method
+				return null;
+			}
+		});
+		this.setMethod("SETPOSITION", new Method(
 			List.of(
 				new Parameter("INTEGER", "x", true),
 				new Parameter("INTEGER", "y", true)
@@ -37,21 +90,9 @@ public class VectorVariable extends Variable {
 				return null;
 			}
 		});
-		this.setMethod("GET", new Method(
+		this.setMethod("SETPRIORITY", new Method(
 			List.of(
-				new Parameter("INTEGER", "n", true)
-			),
-			"INTEGER"
-		) {
-			@Override
-			public Object execute(List<Object> arguments) {
-				// TODO: implement this method
-				return null;
-			}
-		});
-		this.setMethod("MUL", new Method(
-			List.of(
-				new Parameter("INTEGER", "scalar", true)
+				new Parameter("INTEGER", "priority", true)
 			),
 			"void"
 		) {
@@ -61,20 +102,9 @@ public class VectorVariable extends Variable {
 				return null;
 			}
 		});
-		this.setMethod("NORMALIZE", new Method(
-			List.of(),
-			"void"
-		) {
-			@Override
-			public Object execute(List<Object> arguments) {
-				// TODO: implement this method
-				return null;
-			}
-		});
-		this.setMethod("REFLECT", new Method(
+		this.setMethod("SETSOURCE", new Method(
 			List.of(
-				new Parameter("STRING", "vectorName", true),
-				new Parameter("STRING", "normalVectorName", true)
+				new Parameter("STRING", "source", true)
 			),
 			"void"
 		) {
@@ -88,12 +118,12 @@ public class VectorVariable extends Variable {
 
 	@Override
 	public String getType() {
-		return "VECTOR";
+		return "VIRTUALGRAPHICSOBJECT";
 	}
 
 	@Override
 	public void setAttribute(String name, Attribute attribute) {
-		List<String> knownAttributes = List.of("SIZE", "INTEGER, INTEGER, [INTEGER...] VALUE");
+		List<String> knownAttributes = List.of("ASBUTTON", "MASK", "MONITORCOLLISION", "MONITORCOLLISIONALPHA", "PRIORITY", "SOURCE", "TOCANVAS", "VISIBLE");
 		if(knownAttributes.contains(name)) {
 			super.setAttribute(name, attribute);
 		}

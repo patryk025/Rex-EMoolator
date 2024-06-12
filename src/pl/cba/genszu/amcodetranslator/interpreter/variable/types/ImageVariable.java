@@ -1,148 +1,217 @@
 package pl.cba.genszu.amcodetranslator.interpreter.variable.types;
 
-import org.antlr.v4.runtime.tree.ParseTree;
+import pl.cba.genszu.amcodetranslator.interpreter.Context;
+import pl.cba.genszu.amcodetranslator.interpreter.variable.Attribute;
+import pl.cba.genszu.amcodetranslator.interpreter.variable.Method;
+import pl.cba.genszu.amcodetranslator.interpreter.variable.Parameter;
 import pl.cba.genszu.amcodetranslator.interpreter.variable.Variable;
 
-public class ImageVariable extends Variable
-{
-    public ImageVariable(String name, Object value) {
-        super(name);
-    }
+import java.util.List;
 
-    private String FILENAME;
-	private String DESCRIPTION;
-    private boolean TOCANVAS;
-    private boolean VISIBLE;
-    private int PRIORITY;
-    private boolean PRELOAD;
-    private boolean RELEASE;
-    private boolean MONITORCOLLISION;
-    private boolean MONITORCOLLISIONALPHA;
-	private ParseTree ONCLICK;
-	private ParseTree ONFOCUSON;
-	private ParseTree ONFOCUSOFF;
-	private ParseTree ONINIT;
+public class ImageVariable extends Variable {
+	public ImageVariable(String name, Context context) {
+		super(name, context);
 
-    public void SHOW() {
-        this.VISIBLE = true;
-    }
-
-    public void HIDE() {
-        this.VISIBLE = false;
-    }
-
-    public void SETPRIORITY(int priority) {
-        this.PRIORITY = priority;
-    }
-	
-    public String getFILENAME() {
-        return FILENAME;
-    }
-
-    public void setFILENAME(String FILENAME) {
-        this.FILENAME = FILENAME;
-    }
-
-    public boolean isTOCANVAS() {
-        return TOCANVAS;
-    }
-
-    public void setTOCANVAS(boolean TOCANVAS) {
-        this.TOCANVAS = TOCANVAS;
-    }
-
-    public boolean isVISIBLE() {
-        return VISIBLE;
-    }
-
-    public void setVISIBLE(boolean VISIBLE) {
-        this.VISIBLE = VISIBLE;
-    }
-
-    public boolean isPRELOAD() {
-        return PRELOAD;
-    }
-
-    public void setPRELOAD(boolean PRELOAD) {
-        this.PRELOAD = PRELOAD;
-    }
-
-    public boolean isRELEASE() {
-        return RELEASE;
-    }
-
-    public void setRELEASE(boolean RELEASE) {
-        this.RELEASE = RELEASE;
-    }
-
-    public boolean isMONITORCOLLISION() {
-        return MONITORCOLLISION;
-    }
-
-    public void setMONITORCOLLISION(boolean MONITORCOLLISION) {
-        this.MONITORCOLLISION = MONITORCOLLISION;
-    }
-
-    public boolean isMONITORCOLLISIONALPHA() {
-        return MONITORCOLLISIONALPHA;
-    }
-
-    public void setMONITORCOLLISIONALPHA(boolean MONITORCOLLISIONALPHA) {
-        this.MONITORCOLLISIONALPHA = MONITORCOLLISIONALPHA;
-    }
-
-    public int getPRIORITY() {
-        return PRIORITY;
-    }
-	
-	public void setDESCRIPTION(String DESCRIPTION)
-	{
-		this.DESCRIPTION = DESCRIPTION;
+		this.setMethod("GETALPHA", new Method(
+			List.of(
+				new Parameter("INTEGER", "posX", true),
+				new Parameter("INTEGER", "posY", true)
+			),
+			"INTEGER"
+		) {
+			@Override
+			public Object execute(List<Object> arguments) {
+				// TODO: implement this method
+				return null;
+			}
+		});
+		this.setMethod("GETHEIGHT", new Method(
+			List.of(),
+			"INTEGER"
+		) {
+			@Override
+			public Object execute(List<Object> arguments) {
+				// TODO: implement this method
+				return null;
+			}
+		});
+		this.setMethod("GETPIXEL", new Method(
+			List.of(
+				new Parameter("INTEGER", "posX", true),
+				new Parameter("INTEGER", "posY", true)
+			),
+			"INTEGER"
+		) {
+			@Override
+			public Object execute(List<Object> arguments) {
+				// TODO: implement this method
+				return null;
+			}
+		});
+		this.setMethod("GETPOSITIONX", new Method(
+			List.of(),
+			"INTEGER"
+		) {
+			@Override
+			public Object execute(List<Object> arguments) {
+				// TODO: implement this method
+				return null;
+			}
+		});
+		this.setMethod("GETPOSITIONY", new Method(
+			List.of(),
+			"INTEGER"
+		) {
+			@Override
+			public Object execute(List<Object> arguments) {
+				// TODO: implement this method
+				return null;
+			}
+		});
+		this.setMethod("GETWIDTH", new Method(
+			List.of(),
+			"INTEGER"
+		) {
+			@Override
+			public Object execute(List<Object> arguments) {
+				// TODO: implement this method
+				return null;
+			}
+		});
+		this.setMethod("HIDE", new Method(
+			List.of(),
+			"void"
+		) {
+			@Override
+			public Object execute(List<Object> arguments) {
+				// TODO: implement this method
+				return null;
+			}
+		});
+		this.setMethod("INVALIDATE", new Method(
+			List.of(),
+			"void"
+		) {
+			@Override
+			public Object execute(List<Object> arguments) {
+				// TODO: implement this method
+				return null;
+			}
+		});
+		this.setMethod("LOAD", new Method(
+			List.of(
+				new Parameter("STRING", "path", true)
+			),
+			"void"
+		) {
+			@Override
+			public Object execute(List<Object> arguments) {
+				// TODO: implement this method
+				return null;
+			}
+		});
+		this.setMethod("MERGEALPHA", new Method(
+			List.of(
+				new Parameter("INTEGER", "posX", true),
+				new Parameter("INTEGER", "posY", true),
+				new Parameter("STRING", "mask", true)
+			),
+			"void"
+		) {
+			@Override
+			public Object execute(List<Object> arguments) {
+				// TODO: implement this method
+				return null;
+			}
+		});
+		this.setMethod("MOVE", new Method(
+			List.of(
+				new Parameter("INTEGER", "offsetX", true),
+				new Parameter("INTEGER", "offsetY", true)
+			),
+			"void"
+		) {
+			@Override
+			public Object execute(List<Object> arguments) {
+				// TODO: implement this method
+				return null;
+			}
+		});
+		this.setMethod("SETCLIPPING", new Method(
+			List.of(
+				new Parameter("INTEGER", "xLeft", true),
+				new Parameter("INTEGER", "yTop", true),
+				new Parameter("INTEGER", "xRight", true),
+				new Parameter("INTEGER", "yBottom", true)
+			),
+			"void"
+		) {
+			@Override
+			public Object execute(List<Object> arguments) {
+				// TODO: implement this method
+				return null;
+			}
+		});
+		this.setMethod("SETOPACITY", new Method(
+			List.of(
+				new Parameter("INTEGER", "opacity", true)
+			),
+			"void"
+		) {
+			@Override
+			public Object execute(List<Object> arguments) {
+				// TODO: implement this method
+				return null;
+			}
+		});
+		this.setMethod("SETPOSITION", new Method(
+			List.of(
+				new Parameter("INTEGER", "posX", true),
+				new Parameter("INTEGER", "posY", true)
+			),
+			"void"
+		) {
+			@Override
+			public Object execute(List<Object> arguments) {
+				// TODO: implement this method
+				return null;
+			}
+		});
+		this.setMethod("SETPRIORITY", new Method(
+			List.of(
+				new Parameter("INTEGER", "priority", true)
+			),
+			"void"
+		) {
+			@Override
+			public Object execute(List<Object> arguments) {
+				// TODO: implement this method
+				return null;
+			}
+		});
+		this.setMethod("SHOW", new Method(
+			List.of(),
+			"void"
+		) {
+			@Override
+			public Object execute(List<Object> arguments) {
+				// TODO: implement this method
+				return null;
+			}
+		});
 	}
 
-	public String getDESCRIPTION()
-	{
-		return DESCRIPTION;
-	}
-	
-	public void setONCLICK(ParseTree ONCLICK)
-	{
-		this.ONCLICK = ONCLICK;
+	@Override
+	public String getType() {
+		return "IMAGE";
 	}
 
-	public ParseTree getONCLICK()
-	{
-		return ONCLICK;
-	}
-	
-	public void setONINIT(ParseTree ONINIT)
-	{
-		this.ONINIT = ONINIT;
+	@Override
+	public void setAttribute(String name, Attribute attribute) {
+		List<String> knownAttributes = List.of("FILENAME", "MONITORCOLLISION", "MONITORCOLLISIONALPHA", "PRELOAD", "PRIORITY", "RELEASE", "TOCANVAS", "VISIBLE");
+		if(knownAttributes.contains(name)) {
+			super.setAttribute(name, attribute);
+		}
 	}
 
-	public ParseTree getONINIT()
-	{
-		return ONINIT;
-	}
-	
-	public void setONFOCUSON(ParseTree oNFOCUSON)
-	{
-		ONFOCUSON = oNFOCUSON;
-	}
-
-	public ParseTree getONFOCUSON()
-	{
-		return ONFOCUSON;
-	}
-
-	public void setONFOCUSOFF(ParseTree oNFOCUSOFF)
-	{
-		ONFOCUSOFF = oNFOCUSOFF;
-	}
-
-	public ParseTree getONFOCUSOFF()
-	{
-		return ONFOCUSOFF;
-	}
-	
 }

@@ -1,99 +1,46 @@
 package pl.cba.genszu.amcodetranslator.interpreter.variable.types;
 
+import pl.cba.genszu.amcodetranslator.interpreter.Context;
+import pl.cba.genszu.amcodetranslator.interpreter.variable.Attribute;
+import pl.cba.genszu.amcodetranslator.interpreter.variable.Method;
+import pl.cba.genszu.amcodetranslator.interpreter.variable.Parameter;
 import pl.cba.genszu.amcodetranslator.interpreter.variable.Variable;
 
+import java.util.List;
+
 public class PatternVariable extends Variable {
-	public PatternVariable(String name, Object value) {
-		super(name);
+	public PatternVariable(String name, Context context) {
+		super(name, context);
+
+		this.setMethod("ADD", new Method(
+			List.of(
+				new Parameter("STRING", "unknown", true),
+				new Parameter("INTEGER", "posX", true),
+				new Parameter("INTEGER", "posY", true),
+				new Parameter("STRING", "animoName", true),
+				new Parameter("INTEGER", "layer?", true)
+			),
+			"void"
+		) {
+			@Override
+			public Object execute(List<Object> arguments) {
+				// TODO: implement this method
+				return null;
+			}
+		});
 	}
 
-	private int LAYERS;
-	private boolean TOCANVAS;
-	private boolean VISIBLE;
-	private int PRIORITY;
-	private int WIDTH;
-	private int HEIGHT;
-	private int GRIDX;
-	private int GRIDY;
-
-
-	public void setLAYERS(int lAYERS)
-	{
-		LAYERS = lAYERS;
+	@Override
+	public String getType() {
+		return "PATTERN";
 	}
 
-	public int getLAYERS()
-	{
-		return LAYERS;
+	@Override
+	public void setAttribute(String name, Attribute attribute) {
+		List<String> knownAttributes = List.of("GRIDX", "GRIDY", "HEIGHT", "LAYERS", "PRIORITY", "TOCANVAS", "VISIBLE", "WIDTH");
+		if(knownAttributes.contains(name)) {
+			super.setAttribute(name, attribute);
+		}
 	}
 
-	public void setTOCANVAS(boolean tOCANVAS)
-	{
-		TOCANVAS = tOCANVAS;
-	}
-
-	public boolean isTOCANVAS()
-	{
-		return TOCANVAS;
-	}
-
-	public void setVISIBLE(boolean vISIBLE)
-	{
-		VISIBLE = vISIBLE;
-	}
-
-	public boolean isVISIBLE()
-	{
-		return VISIBLE;
-	}
-
-	public void setPRIORITY(int pRIORITY)
-	{
-		PRIORITY = pRIORITY;
-	}
-
-	public int getPRIORITY()
-	{
-		return PRIORITY;
-	}
-
-	public void setWIDTH(int wIDTH)
-	{
-		WIDTH = wIDTH;
-	}
-
-	public int getWIDTH()
-	{
-		return WIDTH;
-	}
-
-	public void setHEIGHT(int hEIGHT)
-	{
-		HEIGHT = hEIGHT;
-	}
-
-	public int getHEIGHT()
-	{
-		return HEIGHT;
-	}
-
-	public void setGRIDX(int gRIDX)
-	{
-		GRIDX = gRIDX;
-	}
-
-	public int getGRIDX()
-	{
-		return GRIDX;
-	}
-
-	public void setGRIDY(int gRIDY)
-	{
-		GRIDY = gRIDY;
-	}
-
-	public int getGRIDY()
-	{
-		return GRIDY;
-	}
 }

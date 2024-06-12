@@ -25,6 +25,74 @@ public abstract class Variable {
 		this.methods = new HashMap<>();
 		this.signals = new HashMap<>();
 		this.context = context;
+
+		this.setMethod("ADDBEHAVIOUR", new Method(
+				List.of(
+						new Parameter("STRING", "behaviourName", true),
+						new Parameter("STRING", "behaviourVariable", true)
+				),
+				"void"
+		) {
+			@Override
+			public Object execute(List<Object> arguments) {
+				// TODO: implement this method
+				return null;
+			}
+		});
+		this.setMethod("CLONE", new Method(
+				List.of(),
+				"void?"
+		) {
+			@Override
+			public Object execute(List<Object> arguments) {
+				// TODO: implement this method
+				return null;
+			}
+		});
+		this.setMethod("CLONE", new Method(
+				List.of(
+						new Parameter("INTEGER", "amount", true)
+				),
+				"void?"
+		) {
+			@Override
+			public Object execute(List<Object> arguments) {
+				// TODO: implement this method
+				return null;
+			}
+		});
+		this.setMethod("GETCLONEINDEX", new Method(
+				List.of(),
+				"INTEGER"
+		) {
+			@Override
+			public Object execute(List<Object> arguments) {
+				// TODO: implement this method
+				return null;
+			}
+		});
+		this.setMethod("MSGBOX", new Method(
+				List.of(),
+				"void"
+		) {
+			@Override
+			public Object execute(List<Object> arguments) {
+				// TODO: implement this method
+				return null;
+			}
+		});
+		this.setMethod("REMOVEBEHAVIOUR", new Method(
+				List.of(
+						new Parameter("STRING", "behaviourName", true)
+				),
+				"void"
+		) {
+			@Override
+			public Object execute(List<Object> arguments) {
+				// TODO: implement this method
+				return null;
+			}
+		});
 	}
 
 	public String getName() {
@@ -62,6 +130,11 @@ public abstract class Variable {
 	}
 
 	public Object getValue() {
+		return null;
+	}
+
+	public Variable fireFunction(String method, Variable... params) {
+		//this.getMethod(method, List.of("INTEGER")).execute(params);
 		return null;
 	}
 

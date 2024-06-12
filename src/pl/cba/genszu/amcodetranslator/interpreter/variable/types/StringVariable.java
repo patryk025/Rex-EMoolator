@@ -1,52 +1,185 @@
 package pl.cba.genszu.amcodetranslator.interpreter.variable.types;
 
-import org.antlr.v4.runtime.tree.ParseTree;
+import pl.cba.genszu.amcodetranslator.interpreter.Context;
+import pl.cba.genszu.amcodetranslator.interpreter.variable.Attribute;
+import pl.cba.genszu.amcodetranslator.interpreter.variable.Method;
+import pl.cba.genszu.amcodetranslator.interpreter.variable.Parameter;
 import pl.cba.genszu.amcodetranslator.interpreter.variable.Variable;
 
-public class StringVariable extends Variable
-{
-	public StringVariable() {
-		super(null);
+import java.util.List;
+
+public class StringVariable extends Variable {
+	public StringVariable(String name, String value, Context context) {
+		super(name, context);
+		this.setAttribute("VALUE", new Attribute("STRING", value));
+
+		this.setMethod("ADD", new Method(
+			List.of(
+				new Parameter("STRING", "stringValue", true)
+			),
+			"STRING"
+		) {
+			@Override
+			public Object execute(List<Object> arguments) {
+				// TODO: implement this method
+				return null;
+			}
+		});
+		this.setMethod("CHANGEAT", new Method(
+			List.of(
+				new Parameter("INTEGER", "index", true),
+				new Parameter("STRING", "stringValue", true)
+			),
+			"void"
+		) {
+			@Override
+			public Object execute(List<Object> arguments) {
+				// TODO: implement this method
+				return null;
+			}
+		});
+		this.setMethod("COPYFILE", new Method(
+			List.of(
+				new Parameter("STRING", "source", true),
+				new Parameter("STRING", "destination", true)
+			),
+			"BOOL"
+		) {
+			@Override
+			public Object execute(List<Object> arguments) {
+				// TODO: implement this method
+				return null;
+			}
+		});
+		this.setMethod("CUT", new Method(
+			List.of(
+				new Parameter("INTEGER", "index", true),
+				new Parameter("INTEGER", "length", true)
+			),
+			"void"
+		) {
+			@Override
+			public Object execute(List<Object> arguments) {
+				// TODO: implement this method
+				return null;
+			}
+		});
+		this.setMethod("FIND", new Method(
+			List.of(
+				new Parameter("STRING", "needle", true),
+				new Parameter("INTEGER", "offset", false)
+			),
+			"INTEGER"
+		) {
+			@Override
+			public Object execute(List<Object> arguments) {
+				// TODO: implement this method
+				return null;
+			}
+		});
+		this.setMethod("GET", new Method(
+			List.of(
+				new Parameter("INTEGER", "index", true),
+				new Parameter("INTEGER", "length", false)
+			),
+			"STRING"
+		) {
+			@Override
+			public Object execute(List<Object> arguments) {
+				// TODO: implement this method
+				return null;
+			}
+		});
+		this.setMethod("LENGTH", new Method(
+			List.of(),
+			"INTEGER"
+		) {
+			@Override
+			public Object execute(List<Object> arguments) {
+				// TODO: implement this method
+				return null;
+			}
+		});
+		this.setMethod("REPLACEAT", new Method(
+			List.of(
+				new Parameter("INTEGER", "index", true),
+				new Parameter("STRING", "stringValue", true)
+			),
+			"void"
+		) {
+			@Override
+			public Object execute(List<Object> arguments) {
+				// TODO: implement this method
+				return null;
+			}
+		});
+		this.setMethod("SET", new Method(
+			List.of(
+				new Parameter("STRING", "value", true)
+			),
+			"void"
+		) {
+			@Override
+			public Object execute(List<Object> arguments) {
+				// TODO: implement this method
+				return null;
+			}
+		});
+		this.setMethod("SUB", new Method(
+			List.of(
+				new Parameter("INTEGER", "index", true),
+				new Parameter("INTEGER", "length", true)
+			),
+			"void"
+		) {
+			@Override
+			public Object execute(List<Object> arguments) {
+				// TODO: implement this method
+				return null;
+			}
+		});
+		this.setMethod("UPPER", new Method(
+			List.of(),
+			"void"
+		) {
+			@Override
+			public Object execute(List<Object> arguments) {
+				// TODO: implement this method
+				return null;
+			}
+		});
 	}
-	
-	public StringVariable(String name, Object value) {
-		super(name);
-		this.SET((String) value);
+
+	@Override
+	public String getType() {
+		return "STRING";
 	}
 
-    private String VALUE;
-    private boolean TOINI;
-	private ParseTree ONINIT;
-	private ParseTree ONBRUTALCHANGED;
-	private ParseTree ONCHANGED;
-	private String DESCRIPTION;
+	@Override
+	public Object getValue() {
+		return this.getAttribute("VALUE").getValue();
+	}
 
-	public void SET(String value) {
-		if(value.startsWith("\"") && value.endsWith("\""))
-			value = value.substring(1, value.length()-1);
-        this.VALUE = value;
-    }
+	@Override
+	public void setAttribute(String name, Attribute attribute) {
+		List<String> knownAttributes = List.of("TOINI", "VALUE");
+		if(knownAttributes.contains(name)) {
+			super.setAttribute(name, attribute);
+		}
+	}
 
-    public String GET() {
-        return this.VALUE;
-    }
-
-    public int FIND(String needle) {
-        return VALUE.indexOf(needle);
-    }
-
-    public int toInt() {
-	    try {
-			return Integer.parseInt(VALUE);
+	public int toInt() {
+		try {
+			return Integer.parseInt((String) this.getValue());
 		}
 		catch(NumberFormatException e) {
 			return 0;
 		}
-    }
+	}
 
 	public double toDouble() {
 		try {
-			return Double.parseDouble(VALUE);
+			return Double.parseDouble((String) this.getValue());
 		}
 		catch(NumberFormatException e) {
 			return 0;
@@ -55,7 +188,7 @@ public class StringVariable extends Variable
 
 	public boolean toBool() {
 		try {
-			return Boolean.parseBoolean(VALUE);
+			return Boolean.parseBoolean((String) this.getValue());
 		}
 		catch(NumberFormatException e) {
 			return false;
@@ -64,62 +197,16 @@ public class StringVariable extends Variable
 
 	public Variable convert(String type) {
 		if(type.equals("DOUBLE")) {
-			return new DoubleVariable(this.getName(), this.toDouble());
+			return new DoubleVariable(this.getName(), this.toDouble(), this.context);
 		}
 		else if(type.equals("BOOL")) {
-			return new BoolVariable(this.getName(), this.toBool());
+			return new BoolVariable(this.getName(), this.toBool(), this.context);
 		}
 		else if(type.equals("INTEGER")) {
-			return new IntegerVariable(this.getName(), this.toInt());
+			return new IntegerVariable(this.getName(), this.toInt(), this.context);
 		}
 		else {
 			return this;
 		}
-	}
-
-    public boolean isTOINI() {
-        return TOINI;
-    }
-
-    public void setTOINI(boolean TOINI) {
-        this.TOINI = TOINI;
-    }
-	
-	public void setONINIT(ParseTree ONINIT) {
-		this.ONINIT = ONINIT;
-    }
-
-	public ParseTree getONINIT() {
-		return this.ONINIT;
-	}
-
-	public void setONBRUTALCHANGED(ParseTree ONBRUTALCHANGED)
-	{
-		this.ONBRUTALCHANGED = ONBRUTALCHANGED;
-	}
-
-	public ParseTree getONBRUTALCHANGED()
-	{
-		return this.ONBRUTALCHANGED;
-	}
-
-	public void setONCHANGED(ParseTree ONCHANGED)
-	{
-		this.ONCHANGED = ONCHANGED;
-	}
-
-	public ParseTree getONCHANGED()
-	{
-		return this.ONCHANGED;
-	}
-	
-	public void setDESCRIPTION(String DESCRIPRION)
-	{
-		this.DESCRIPTION = DESCRIPRION;
-	}
-
-	public String getDESCRIPTION()
-	{
-		return DESCRIPTION;
 	}
 }

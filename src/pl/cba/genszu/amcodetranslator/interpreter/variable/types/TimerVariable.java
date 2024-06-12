@@ -1,65 +1,82 @@
 package pl.cba.genszu.amcodetranslator.interpreter.variable.types;
 
-import org.antlr.v4.runtime.tree.ParseTree;
+import pl.cba.genszu.amcodetranslator.interpreter.Context;
+import pl.cba.genszu.amcodetranslator.interpreter.variable.Attribute;
+import pl.cba.genszu.amcodetranslator.interpreter.variable.Method;
+import pl.cba.genszu.amcodetranslator.interpreter.variable.Parameter;
 import pl.cba.genszu.amcodetranslator.interpreter.variable.Variable;
 
+import java.util.List;
 
 public class TimerVariable extends Variable {
-	public TimerVariable(String name, Object value) {
-		super(name);
+	public TimerVariable(String name, Context context) {
+		super(name, context);
+
+		this.setMethod("DISABLE", new Method(
+			List.of(),
+			"void"
+		) {
+			@Override
+			public Object execute(List<Object> arguments) {
+				// TODO: implement this method
+				return null;
+			}
+		});
+		this.setMethod("ENABLE", new Method(
+			List.of(),
+			"void"
+		) {
+			@Override
+			public Object execute(List<Object> arguments) {
+				// TODO: implement this method
+				return null;
+			}
+		});
+		this.setMethod("GETTICKS", new Method(
+			List.of(),
+			"INTEGER"
+		) {
+			@Override
+			public Object execute(List<Object> arguments) {
+				// TODO: implement this method
+				return null;
+			}
+		});
+		this.setMethod("RESET", new Method(
+			List.of(),
+			"void"
+		) {
+			@Override
+			public Object execute(List<Object> arguments) {
+				// TODO: implement this method
+				return null;
+			}
+		});
+		this.setMethod("SETELAPSE", new Method(
+			List.of(
+				new Parameter("INTEGER", "timeMs", true)
+			),
+			"void"
+		) {
+			@Override
+			public Object execute(List<Object> arguments) {
+				// TODO: implement this method
+				return null;
+			}
+		});
 	}
 
-    private int ELAPSE; //prawdopodobnie w ms
-	private boolean ENABLED;
-	private int TICKS;
-	private ParseTree ONINIT;
-	private ParseTree ONTICK;
-
-    public int getELAPSE() {
-        return ELAPSE;
-    }
-
-    public void setELAPSE(int ELAPSE) {
-        this.ELAPSE = ELAPSE;
-    }
-	
-	public void setENABLED(boolean ENABLED)
-	{
-		this.ENABLED = ENABLED;
+	@Override
+	public String getType() {
+		return "TIMER";
 	}
 
-	public boolean isENABLED()
-	{
-		return ENABLED;
+	@Override
+	public void setAttribute(String name, Attribute attribute) {
+		List<String> knownAttributes = List.of("ELAPSE", "ENABLED", "TICKS");
+		if(knownAttributes.contains(name)) {
+			super.setAttribute(name, attribute);
+		}
 	}
 
-	public void setTICKS(int TICKS)
-	{
-		this.TICKS = TICKS;
-	}
-
-	public int getTICKS()
-	{
-		return TICKS;
-	}
-
-	public void setONINIT(ParseTree ONINIT)
-	{
-		this.ONINIT = ONINIT;
-	}
-
-	public ParseTree getONINIT()
-	{
-		return ONINIT;
-	}
-
-	public void setONTICK(ParseTree ONTICK)
-	{
-		this.ONTICK = ONTICK;
-	}
-
-	public ParseTree getONTICK()
-	{
-		return ONTICK;
-	}
 }

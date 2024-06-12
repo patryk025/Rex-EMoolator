@@ -1,95 +1,129 @@
 package pl.cba.genszu.amcodetranslator.interpreter.variable.types;
 
+import pl.cba.genszu.amcodetranslator.interpreter.Context;
+import pl.cba.genszu.amcodetranslator.interpreter.variable.Attribute;
+import pl.cba.genszu.amcodetranslator.interpreter.variable.Method;
+import pl.cba.genszu.amcodetranslator.interpreter.variable.Parameter;
 import pl.cba.genszu.amcodetranslator.interpreter.variable.Variable;
 
+import java.util.List;
+
 public class SceneVariable extends Variable {
-	public SceneVariable(String name, Object value) {
-		super(name);
+	public SceneVariable(String name, Context context) {
+		super(name, context);
+
+		this.setMethod("PAUSE", new Method(
+			List.of(),
+			"void"
+		) {
+			@Override
+			public Object execute(List<Object> arguments) {
+				// TODO: implement this method
+				return null;
+			}
+		});
+		this.setMethod("REMOVECLONES", new Method(
+			List.of(
+				new Parameter("STRING", "varName", true),
+				new Parameter("INTEGER", "unknown", true),
+				new Parameter("INTEGER", "unknown", true)
+			),
+			"void"
+		) {
+			@Override
+			public Object execute(List<Object> arguments) {
+				// TODO: implement this method
+				return null;
+			}
+		});
+		this.setMethod("RESUME", new Method(
+			List.of(),
+			"void"
+		) {
+			@Override
+			public Object execute(List<Object> arguments) {
+				// TODO: implement this method
+				return null;
+			}
+		});
+		this.setMethod("RUN", new Method(
+			List.of(
+				new Parameter("STRING", "varName", true),
+				new Parameter("STRING", "methodName", true),
+				new Parameter("mixed", "param1...paramN", false)
+			),
+			"void"
+		) {
+			@Override
+			public Object execute(List<Object> arguments) {
+				// TODO: implement this method
+				return null;
+			}
+		});
+		this.setMethod("RUNCLONES", new Method(
+			List.of(
+				new Parameter("STRING", "varName", true),
+				new Parameter("INTEGER", "unknown", true),
+				new Parameter("INTEGER", "unknown", true),
+				new Parameter("STRING", "behaviourName", true)
+			),
+			"void"
+		) {
+			@Override
+			public Object execute(List<Object> arguments) {
+				// TODO: implement this method
+				return null;
+			}
+		});
+		this.setMethod("SETMINHSPRIORITY", new Method(
+			List.of(
+				new Parameter("INTEGER", "minHSPriority", true)
+			),
+			"void"
+		) {
+			@Override
+			public Object execute(List<Object> arguments) {
+				// TODO: implement this method
+				return null;
+			}
+		});
+		this.setMethod("SETMUSICVOLUME", new Method(
+			List.of(
+				new Parameter("INTEGER", "volume", true)
+			),
+			"void"
+		) {
+			@Override
+			public Object execute(List<Object> arguments) {
+				// TODO: implement this method
+				return null;
+			}
+		});
+		this.setMethod("STARTMUSIC", new Method(
+			List.of(
+				new Parameter("STRING", "filename", true)
+			),
+			"void"
+		) {
+			@Override
+			public Object execute(List<Object> arguments) {
+				// TODO: implement this method
+				return null;
+			}
+		});
 	}
 
-    private String DESCRIPTION;
-    private String CREATIONTIME;
-    private String LASTMODIFYTIME;
-    private String AUTHOR;
-    private String VERSION;
-    private String PATH;
-    private String BACKGROUND;
-	private String DLLS;
-	private String MUSIC;
-	
-    public String getDESCRIPTION() {
-        return DESCRIPTION;
-    }
-
-    public void setDESCRIPTION(String DESCRIPTION) {
-        this.DESCRIPTION = DESCRIPTION;
-    }
-
-    public String getCREATIONTIME() {
-        return CREATIONTIME;
-    }
-
-    public void setCREATIONTIME(String CREATIONTIME) {
-        this.CREATIONTIME = CREATIONTIME;
-    }
-
-    public String getLASTMODIFYTIME() {
-        return LASTMODIFYTIME;
-    }
-
-    public void setLASTMODIFYTIME(String LASTMODIFYTIME) {
-        this.LASTMODIFYTIME = LASTMODIFYTIME;
-    }
-
-    public String getAUTHOR() {
-        return AUTHOR;
-    }
-
-    public void setAUTHOR(String AUTHOR) {
-        this.AUTHOR = AUTHOR;
-    }
-
-    public String getVERSION() {
-        return VERSION;
-    }
-
-    public void setVERSION(String VERSION) {
-        this.VERSION = VERSION;
-    }
-
-    public String getPATH() {
-        return PATH;
-    }
-
-    public void setPATH(String PATH) {
-        this.PATH = PATH;
-    }
-
-    public String getBACKGROUND() {
-        return BACKGROUND;
-    }
-
-    public void setBACKGROUND(String BACKGROUND) {
-        this.BACKGROUND = BACKGROUND;
-    }
-	
-	public void setDLLS(String DLLS)
-	{
-		this.DLLS = DLLS;
+	@Override
+	public String getType() {
+		return "SCENE";
 	}
 
-	public String getDLLS()
-	{
-		return DLLS;
+	@Override
+	public void setAttribute(String name, Attribute attribute) {
+		List<String> knownAttributes = List.of("AUTHOR", "BACKGROUND", "CREATIONTIME", "DLLS", "LASTMODIFYTIME", "MUSIC", "PATH", "VERSION");
+		if(knownAttributes.contains(name)) {
+			super.setAttribute(name, attribute);
+		}
 	}
 
-	public void setMUSIC(String MUSIC)
-	{
-		this.MUSIC = MUSIC;
-	}
-
-	public String getMUSIC()
-	{
-		return MUSIC;
-	}
 }

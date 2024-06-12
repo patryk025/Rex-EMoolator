@@ -1,31 +1,59 @@
 package pl.cba.genszu.amcodetranslator.interpreter.variable.types;
 
+import pl.cba.genszu.amcodetranslator.interpreter.Context;
+import pl.cba.genszu.amcodetranslator.interpreter.variable.Attribute;
+import pl.cba.genszu.amcodetranslator.interpreter.variable.Method;
+import pl.cba.genszu.amcodetranslator.interpreter.variable.Parameter;
 import pl.cba.genszu.amcodetranslator.interpreter.variable.Variable;
 
-import java.util.*;
+import java.util.List;
 
 public class MultiArrayVariable extends Variable {
-	List<ArrayList<Variable>> dimensions;
+	public MultiArrayVariable(String name, Context context) {
+		super(name, context);
 
-	public MultiArrayVariable() {
-		super(null);
-		//zabezpieczenie przed NullPointerem
-		this.dimensions = new ArrayList<>();
+		this.setMethod("GET", new Method(
+			List.of(
+				new Parameter("INTEGER", "x", true),
+				new Parameter("INTEGER", "y", false),
+				new Parameter("INTEGER", "z...", false)
+			),
+			"mixed"
+		) {
+			@Override
+			public Object execute(List<Object> arguments) {
+				// TODO: implement this method
+				return null;
+			}
+		});
+		this.setMethod("SET", new Method(
+			List.of(
+				new Parameter("INTEGER", "x", true),
+				new Parameter("INTEGER", "y", false),
+				new Parameter("INTEGER", "z...", false),
+				new Parameter("mixed", "value", false)
+			),
+			"void"
+		) {
+			@Override
+			public Object execute(List<Object> arguments) {
+				// TODO: implement this method
+				return null;
+			}
+		});
 	}
-	
-	public MultiArrayVariable(String name, Object value) {
-		super(name);
+
+	@Override
+	public String getType() {
+		return "MULTIARRAY";
 	}
-	
-	/***
-	   * Ustawia ilość wymiarów w tablicy (tutaj list w listach)
-	   * W tym momencie czyści ją przy zmianie (do sprawdzenia jak się zachowuje silnik)
-	 ***/
-	public void setDIMENSIONS(int dimensions) {
-		this.dimensions.clear();
-		
-		for(int i = 0; i < dimensions; i++) {
-			this.dimensions.add(new ArrayList<Variable>());
+
+	@Override
+	public void setAttribute(String name, Attribute attribute) {
+		List<String> knownAttributes = List.of("DIMENSIONS");
+		if(knownAttributes.contains(name)) {
+			super.setAttribute(name, attribute);
 		}
 	}
+
 }

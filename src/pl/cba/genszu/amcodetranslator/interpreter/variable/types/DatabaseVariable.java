@@ -1,37 +1,110 @@
 package pl.cba.genszu.amcodetranslator.interpreter.variable.types;
 
-import org.antlr.v4.runtime.tree.ParseTree;
+import pl.cba.genszu.amcodetranslator.interpreter.Context;
+import pl.cba.genszu.amcodetranslator.interpreter.variable.Attribute;
+import pl.cba.genszu.amcodetranslator.interpreter.variable.Method;
+import pl.cba.genszu.amcodetranslator.interpreter.variable.Parameter;
 import pl.cba.genszu.amcodetranslator.interpreter.variable.Variable;
 
+import java.util.List;
 
 public class DatabaseVariable extends Variable {
-	public DatabaseVariable(String name, Object value) {
-		super(name);
+	public DatabaseVariable(String name, Context context) {
+		super(name, context);
+
+		this.setMethod("FIND", new Method(
+			List.of(
+				new Parameter("STRING", "columnName", true),
+				new Parameter("VARIABLE", "columnValue", true),
+				new Parameter("INTEGER", "defaultIndex?", true)
+			),
+			"INTEGER"
+		) {
+			@Override
+			public Object execute(List<Object> arguments) {
+				// TODO: implement this method
+				return null;
+			}
+		});
+		this.setMethod("GETROWSNO", new Method(
+			List.of(),
+			"INTEGER"
+		) {
+			@Override
+			public Object execute(List<Object> arguments) {
+				// TODO: implement this method
+				return null;
+			}
+		});
+		this.setMethod("LOAD", new Method(
+			List.of(
+				new Parameter("STRING", "dtaName", true)
+			),
+			"void"
+		) {
+			@Override
+			public Object execute(List<Object> arguments) {
+				// TODO: implement this method
+				return null;
+			}
+		});
+		this.setMethod("NEXT", new Method(
+			List.of(),
+			"void"
+		) {
+			@Override
+			public Object execute(List<Object> arguments) {
+				// TODO: implement this method
+				return null;
+			}
+		});
+		this.setMethod("REMOVEALL", new Method(
+			List.of(),
+			"void"
+		) {
+			@Override
+			public Object execute(List<Object> arguments) {
+				// TODO: implement this method
+				return null;
+			}
+		});
+		this.setMethod("SAVE", new Method(
+			List.of(
+				new Parameter("STRING", "dtaName", true)
+			),
+			"void"
+		) {
+			@Override
+			public Object execute(List<Object> arguments) {
+				// TODO: implement this method
+				return null;
+			}
+		});
+		this.setMethod("SELECT", new Method(
+			List.of(
+				new Parameter("INTEGER", "rowIndex", true)
+			),
+			"void"
+		) {
+			@Override
+			public Object execute(List<Object> arguments) {
+				// TODO: implement this method
+				return null;
+			}
+		});
 	}
 
-    //private Struct MODEL;
-	private String MODEL;
-	private ParseTree ONINIT;
-
-	public void setONINIT(ParseTree ONINIT)
-	{
-		this.ONINIT = ONINIT;
+	@Override
+	public String getType() {
+		return "DATABASE";
 	}
 
-	public ParseTree getONINIT()
-	{
-		return ONINIT;
-	}
-	
-	public void setMODEL(String MODEL)
-	{
-		//this.MODEL = new Struct();
-		//this.MODEL.addFIELDS(MODEL);
-		this.MODEL = MODEL;
+	@Override
+	public void setAttribute(String name, Attribute attribute) {
+		List<String> knownAttributes = List.of("MODEL");
+		if(knownAttributes.contains(name)) {
+			super.setAttribute(name, attribute);
+		}
 	}
 
-	public String getMODEL()
-	{
-		return MODEL;
-	}
 }

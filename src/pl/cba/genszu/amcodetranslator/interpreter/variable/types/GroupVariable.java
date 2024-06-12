@@ -1,24 +1,130 @@
 package pl.cba.genszu.amcodetranslator.interpreter.variable.types;
 
-import org.antlr.v4.runtime.tree.ParseTree;
+import pl.cba.genszu.amcodetranslator.interpreter.Context;
+import pl.cba.genszu.amcodetranslator.interpreter.variable.Attribute;
+import pl.cba.genszu.amcodetranslator.interpreter.variable.Method;
+import pl.cba.genszu.amcodetranslator.interpreter.variable.Parameter;
 import pl.cba.genszu.amcodetranslator.interpreter.variable.Variable;
 
-
+import java.util.List;
 
 public class GroupVariable extends Variable {
-	public GroupVariable(String name, Object value) {
-		super(name);
+	public GroupVariable(String name, Context context) {
+		super(name, context);
+
+		this.setMethod("[nazwa metody]", new Method(
+			List.of(
+				new Parameter("mixed", "param1...paramN", true)
+			),
+			"void"
+		) {
+			@Override
+			public Object execute(List<Object> arguments) {
+				// TODO: implement this method
+				return null;
+			}
+		});
+		this.setMethod("ADD", new Method(
+			List.of(
+				new Parameter("STRING", "varName1...varNameN", true)
+			),
+			"void"
+		) {
+			@Override
+			public Object execute(List<Object> arguments) {
+				// TODO: implement this method
+				return null;
+			}
+		});
+		this.setMethod("ADDCLONES", new Method(
+			List.of(
+				new Parameter("STRING", "varName", true),
+				new Parameter("INTEGER", "firstCloneIndex?", true),
+				new Parameter("INTEGER", "numberOfClones", true)
+			),
+			"void"
+		) {
+			@Override
+			public Object execute(List<Object> arguments) {
+				// TODO: implement this method
+				return null;
+			}
+		});
+		this.setMethod("GETSIZE", new Method(
+			List.of(),
+			"INTEGER"
+		) {
+			@Override
+			public Object execute(List<Object> arguments) {
+				// TODO: implement this method
+				return null;
+			}
+		});
+		this.setMethod("NEXT", new Method(
+			List.of(),
+			"mixed"
+		) {
+			@Override
+			public Object execute(List<Object> arguments) {
+				// TODO: implement this method
+				return null;
+			}
+		});
+		this.setMethod("PREV", new Method(
+			List.of(),
+			"mixed"
+		) {
+			@Override
+			public Object execute(List<Object> arguments) {
+				// TODO: implement this method
+				return null;
+			}
+		});
+		this.setMethod("REMOVE", new Method(
+			List.of(
+				new Parameter("STRING", "varName", true)
+			),
+			"void"
+		) {
+			@Override
+			public Object execute(List<Object> arguments) {
+				// TODO: implement this method
+				return null;
+			}
+		});
+		this.setMethod("REMOVEALL", new Method(
+			List.of(),
+			"void"
+		) {
+			@Override
+			public Object execute(List<Object> arguments) {
+				// TODO: implement this method
+				return null;
+			}
+		});
+		this.setMethod("RESETMARKER", new Method(
+			List.of(),
+			"void"
+		) {
+			@Override
+			public Object execute(List<Object> arguments) {
+				// TODO: implement this method
+				return null;
+			}
+		});
 	}
 
-    private ParseTree ONINIT;
-	
-	public void setONINIT(ParseTree ONINIT)
-	{
-		this.ONINIT = ONINIT;
+	@Override
+	public String getType() {
+		return "GROUP";
 	}
 
-	public ParseTree getONINIT()
-	{
-		return ONINIT;
+	@Override
+	public void setAttribute(String name, Attribute attribute) {
+		List<String> knownAttributes = List.o);
+		if(knownAttributes.contains(name)) {
+			super.setAttribute(name, attribute);
+		}
 	}
+
 }
