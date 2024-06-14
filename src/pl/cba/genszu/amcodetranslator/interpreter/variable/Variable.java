@@ -40,7 +40,6 @@ public abstract class Variable {
 			}
 		});
 		this.setMethod("CLONE", new Method(
-				List.of(),
 				"void?"
 		) {
 			@Override
@@ -62,7 +61,6 @@ public abstract class Variable {
 			}
 		});
 		this.setMethod("GETCLONEINDEX", new Method(
-				List.of(),
 				"INTEGER"
 		) {
 			@Override
@@ -72,7 +70,6 @@ public abstract class Variable {
 			}
 		});
 		this.setMethod("MSGBOX", new Method(
-				List.of(),
 				"void"
 		) {
 			@Override
@@ -133,8 +130,9 @@ public abstract class Variable {
 		return null;
 	}
 
-	public Variable fireFunction(String method, Variable... params) {
-		//this.getMethod(method, List.of("INTEGER")).execute(params);
+	public Variable fireMethod(String method, Object... params) {
+		/*Method method = this.getMethod(name, new ArrayList<>());
+		return method.execute(List.of(params));*/
 		return null;
 	}
 
@@ -186,11 +184,6 @@ public abstract class Variable {
 		if (signal != null) {
 			signal.execute(argument);
 		}
-	}
-
-	public Object fireMethod(String name, Object... arguments) {
-		Method method = this.getMethod(name, new ArrayList<>());
-		return method.execute(List.of(arguments));
 	}
 
 	public Context getContext() {
