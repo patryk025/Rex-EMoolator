@@ -25,7 +25,6 @@ public class TextVariable extends Variable {
 			}
 		});
 		this.setMethod("SHOW", new Method(
-			List.of(),
 			"void"
 		) {
 			@Override
@@ -35,7 +34,6 @@ public class TextVariable extends Variable {
 			}
 		});
 		this.setMethod("HIDE", new Method(
-			List.of(),
 			"void"
 		) {
 			@Override

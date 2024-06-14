@@ -110,7 +110,6 @@ public class WorldVariable extends Variable {
 			}
 		});
 		this.setMethod("GETBKGPOSX", new Method(
-			List.of(),
 			"INTEGER"
 		) {
 			@Override
@@ -120,7 +119,6 @@ public class WorldVariable extends Variable {
 			}
 		});
 		this.setMethod("GETBKGPOSY", new Method(
-			List.of(),
 			"INTEGER"
 		) {
 			@Override
@@ -250,7 +248,6 @@ public class WorldVariable extends Variable {
 			}
 		});
 		this.setMethod("MOVEOBJECTS", new Method(
-			List.of(),
 			"void"
 		) {
 			@Override
@@ -440,7 +437,6 @@ public class WorldVariable extends Variable {
 			}
 		});
 		this.setMethod("START", new Method(
-			List.of(),
 			"void"
 		) {
 			@Override
@@ -450,7 +446,6 @@ public class WorldVariable extends Variable {
 			}
 		});
 		this.setMethod("STOP", new Method(
-			List.of(),
 			"void"
 		) {
 			@Override

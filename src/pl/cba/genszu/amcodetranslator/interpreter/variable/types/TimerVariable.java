@@ -13,7 +13,6 @@ public class TimerVariable extends Variable {
 		super(name, context);
 
 		this.setMethod("DISABLE", new Method(
-			List.of(),
 			"void"
 		) {
 			@Override
@@ -23,7 +22,6 @@ public class TimerVariable extends Variable {
 			}
 		});
 		this.setMethod("ENABLE", new Method(
-			List.of(),
 			"void"
 		) {
 			@Override
@@ -33,7 +31,6 @@ public class TimerVariable extends Variable {
 			}
 		});
 		this.setMethod("GETTICKS", new Method(
-			List.of(),
 			"INTEGER"
 		) {
 			@Override
@@ -43,7 +40,6 @@ public class TimerVariable extends Variable {
 			}
 		});
 		this.setMethod("RESET", new Method(
-			List.of(),
 			"void"
 		) {
 			@Override

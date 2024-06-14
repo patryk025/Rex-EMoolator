@@ -126,7 +126,6 @@ public class ArrayVariable extends Variable {
 			}
 		});
 		this.setMethod("GETSIZE", new Method(
-			List.of(),
 			"INTEGER"
 		) {
 			@Override
@@ -136,7 +135,6 @@ public class ArrayVariable extends Variable {
 			}
 		});
 		this.setMethod("GETSUMVALUE", new Method(
-			List.of(),
 			"INTEGER|DOUBLE"
 		) {
 			@Override
@@ -172,7 +170,6 @@ public class ArrayVariable extends Variable {
 			}
 		});
 		this.setMethod("LOADINI", new Method(
-			List.of(),
 			"void"
 		) {
 			@Override
@@ -220,7 +217,6 @@ public class ArrayVariable extends Variable {
 			}
 		});
 		this.setMethod("REMOVEALL", new Method(
-			List.of(),
 			"void"
 		) {
 			@Override
@@ -266,7 +262,6 @@ public class ArrayVariable extends Variable {
 			}
 		});
 		this.setMethod("SAVEINI", new Method(
-			List.of(),
 			"void"
 		) {
 			@Override
@@ -321,10 +316,7 @@ public class ArrayVariable extends Variable {
 
 	@Override
 	public void setAttribute(String name, Attribute attribute) {
-		List<String> knownAttributes = List.o);
-		if(knownAttributes.contains(name)) {
-			super.setAttribute(name, attribute);
-		}
+		return; // no fields in this class
 	}
 
 }

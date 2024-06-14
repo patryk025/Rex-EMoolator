@@ -13,7 +13,6 @@ public class KeyboardVariable extends Variable {
 		super(name, context);
 
 		this.setMethod("DISABLE", new Method(
-			List.of(),
 			"void"
 		) {
 			@Override
@@ -23,7 +22,6 @@ public class KeyboardVariable extends Variable {
 			}
 		});
 		this.setMethod("ENABLE", new Method(
-			List.of(),
 			"void"
 		) {
 			@Override
@@ -33,7 +31,6 @@ public class KeyboardVariable extends Variable {
 			}
 		});
 		this.setMethod("GETLATESTKEY", new Method(
-			List.of(),
 			"STRING"
 		) {
 			@Override
@@ -43,7 +40,6 @@ public class KeyboardVariable extends Variable {
 			}
 		});
 		this.setMethod("ISENABLED", new Method(
-			List.of(),
 			"BOOL"
 		) {
 			@Override
@@ -85,10 +81,7 @@ public class KeyboardVariable extends Variable {
 
 	@Override
 	public void setAttribute(String name, Attribute attribute) {
-		List<String> knownAttributes = List.o);
-		if(knownAttributes.contains(name)) {
-			super.setAttribute(name, attribute);
-		}
+		return; // no fields in this class
 	}
 
 }

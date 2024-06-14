@@ -26,7 +26,6 @@ public class ImageVariable extends Variable {
 			}
 		});
 		this.setMethod("GETHEIGHT", new Method(
-			List.of(),
 			"INTEGER"
 		) {
 			@Override
@@ -49,7 +48,6 @@ public class ImageVariable extends Variable {
 			}
 		});
 		this.setMethod("GETPOSITIONX", new Method(
-			List.of(),
 			"INTEGER"
 		) {
 			@Override
@@ -59,7 +57,6 @@ public class ImageVariable extends Variable {
 			}
 		});
 		this.setMethod("GETPOSITIONY", new Method(
-			List.of(),
 			"INTEGER"
 		) {
 			@Override
@@ -69,7 +66,6 @@ public class ImageVariable extends Variable {
 			}
 		});
 		this.setMethod("GETWIDTH", new Method(
-			List.of(),
 			"INTEGER"
 		) {
 			@Override
@@ -79,7 +75,6 @@ public class ImageVariable extends Variable {
 			}
 		});
 		this.setMethod("HIDE", new Method(
-			List.of(),
 			"void"
 		) {
 			@Override
@@ -89,7 +84,6 @@ public class ImageVariable extends Variable {
 			}
 		});
 		this.setMethod("INVALIDATE", new Method(
-			List.of(),
 			"void"
 		) {
 			@Override
@@ -190,7 +184,6 @@ public class ImageVariable extends Variable {
 			}
 		});
 		this.setMethod("SHOW", new Method(
-			List.of(),
 			"void"
 		) {
 			@Override

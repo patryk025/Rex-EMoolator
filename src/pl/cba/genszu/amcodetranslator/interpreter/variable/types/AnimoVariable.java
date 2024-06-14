@@ -13,7 +13,6 @@ public class AnimoVariable extends Variable {
 		super(name, context);
 
 		this.setMethod("GETCENTERX", new Method(
-			List.of(),
 			"INTEGER"
 		) {
 			@Override
@@ -35,7 +34,6 @@ public class AnimoVariable extends Variable {
 			}
 		});
 		this.setMethod("GETCENTERY", new Method(
-			List.of(),
 			"INTEGER"
 		) {
 			@Override
@@ -57,7 +55,6 @@ public class AnimoVariable extends Variable {
 			}
 		});
 		this.setMethod("GETCFRAMEINEVENT", new Method(
-			List.of(),
 			"INTEGER"
 		) {
 			@Override
@@ -79,7 +76,6 @@ public class AnimoVariable extends Variable {
 			}
 		});
 		this.setMethod("GETCURRFRAMEPOSX", new Method(
-			List.of(),
 			"INTEGER"
 		) {
 			@Override
@@ -89,7 +85,6 @@ public class AnimoVariable extends Variable {
 			}
 		});
 		this.setMethod("GETCURRFRAMEPOSY", new Method(
-			List.of(),
 			"INTEGER"
 		) {
 			@Override
@@ -99,7 +94,6 @@ public class AnimoVariable extends Variable {
 			}
 		});
 		this.setMethod("GETENDX", new Method(
-			List.of(),
 			"INTEGER"
 		) {
 			@Override
@@ -109,7 +103,6 @@ public class AnimoVariable extends Variable {
 			}
 		});
 		this.setMethod("GETENDY", new Method(
-			List.of(),
 			"INTEGER"
 		) {
 			@Override
@@ -119,7 +112,6 @@ public class AnimoVariable extends Variable {
 			}
 		});
 		this.setMethod("GETEVENTNAME", new Method(
-			List.of(),
 			"STRING"
 		) {
 			@Override
@@ -129,7 +121,6 @@ public class AnimoVariable extends Variable {
 			}
 		});
 		this.setMethod("GETFRAME", new Method(
-			List.of(),
 			"INTEGER"
 		) {
 			@Override
@@ -139,7 +130,6 @@ public class AnimoVariable extends Variable {
 			}
 		});
 		this.setMethod("GETFRAMENAME", new Method(
-			List.of(),
 			"STRING"
 		) {
 			@Override
@@ -149,7 +139,6 @@ public class AnimoVariable extends Variable {
 			}
 		});
 		this.setMethod("GETHEIGHT", new Method(
-			List.of(),
 			"INTEGER"
 		) {
 			@Override
@@ -159,7 +148,6 @@ public class AnimoVariable extends Variable {
 			}
 		});
 		this.setMethod("GETMAXWIDTH", new Method(
-			List.of(),
 			"INTEGER"
 		) {
 			@Override
@@ -169,7 +157,6 @@ public class AnimoVariable extends Variable {
 			}
 		});
 		this.setMethod("GETNOE", new Method(
-			List.of(),
 			"INTEGER"
 		) {
 			@Override
@@ -203,7 +190,6 @@ public class AnimoVariable extends Variable {
 			}
 		});
 		this.setMethod("GETPOSITIONX", new Method(
-			List.of(),
 			"INTEGER"
 		) {
 			@Override
@@ -225,7 +211,6 @@ public class AnimoVariable extends Variable {
 			}
 		});
 		this.setMethod("GETPOSITIONY", new Method(
-			List.of(),
 			"INTEGER"
 		) {
 			@Override
@@ -247,7 +232,6 @@ public class AnimoVariable extends Variable {
 			}
 		});
 		this.setMethod("GETWIDTH", new Method(
-			List.of(),
 			"INTEGER"
 		) {
 			@Override
@@ -257,7 +241,6 @@ public class AnimoVariable extends Variable {
 			}
 		});
 		this.setMethod("HIDE", new Method(
-			List.of(),
 			"void"
 		) {
 			@Override
@@ -280,7 +263,6 @@ public class AnimoVariable extends Variable {
 			}
 		});
 		this.setMethod("ISPLAYING", new Method(
-			List.of(),
 			"BOOL"
 		) {
 			@Override
@@ -302,7 +284,6 @@ public class AnimoVariable extends Variable {
 			}
 		});
 		this.setMethod("ISVISIBLE", new Method(
-			List.of(),
 			"BOOL"
 		) {
 			@Override
@@ -337,7 +318,6 @@ public class AnimoVariable extends Variable {
 			}
 		});
 		this.setMethod("NEXTFRAME", new Method(
-			List.of(),
 			"void"
 		) {
 			@Override
@@ -371,7 +351,6 @@ public class AnimoVariable extends Variable {
 			}
 		});
 		this.setMethod("PAUSE", new Method(
-			List.of(),
 			"void"
 		) {
 			@Override
@@ -418,7 +397,6 @@ public class AnimoVariable extends Variable {
 			}
 		});
 		this.setMethod("PREVFRAME", new Method(
-			List.of(),
 			"void"
 		) {
 			@Override
@@ -428,7 +406,6 @@ public class AnimoVariable extends Variable {
 			}
 		});
 		this.setMethod("RESUME", new Method(
-			List.of(),
 			"void"
 		) {
 			@Override
@@ -438,7 +415,6 @@ public class AnimoVariable extends Variable {
 			}
 		});
 		this.setMethod("RUN", new Method(
-			List.of(),
 			"void"
 		) {
 			@Override
@@ -486,7 +462,6 @@ public class AnimoVariable extends Variable {
 			}
 		});
 		this.setMethod("SETBACKWARD", new Method(
-			List.of(),
 			"void"
 		) {
 			@Override
@@ -496,7 +471,6 @@ public class AnimoVariable extends Variable {
 			}
 		});
 		this.setMethod("SETFORWARD", new Method(
-			List.of(),
 			"void"
 		) {
 			@Override
@@ -644,7 +618,6 @@ public class AnimoVariable extends Variable {
 			}
 		});
 		this.setMethod("SHOW", new Method(
-			List.of(),
 			"void"
 		) {
 			@Override
@@ -666,7 +639,6 @@ public class AnimoVariable extends Variable {
 			}
 		});
 		this.setMethod("STOP", new Method(
-			List.of(),
 			"void"
 		) {
 			@Override
@@ -688,7 +660,6 @@ public class AnimoVariable extends Variable {
 			}
 		});
 		this.setMethod("TOP", new Method(
-			List.of(),
 			"void"
 		) {
 			@Override

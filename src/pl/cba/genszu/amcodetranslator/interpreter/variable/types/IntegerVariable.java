@@ -63,7 +63,6 @@ public class IntegerVariable extends Variable {
 			}
 		});
 		this.setMethod("DEC", new Method(
-			List.of(),
 			"void"
 		) {
 			@Override
@@ -85,7 +84,6 @@ public class IntegerVariable extends Variable {
 			}
 		});
 		this.setMethod("INC", new Method(
-			List.of(),
 			"void"
 		) {
 			@Override
@@ -225,6 +223,10 @@ public class IntegerVariable extends Variable {
 		else {
 			return this;
 		}
+	}
+
+	public int GET() {
+		return (int) this.getValue();
 	}
 
 }

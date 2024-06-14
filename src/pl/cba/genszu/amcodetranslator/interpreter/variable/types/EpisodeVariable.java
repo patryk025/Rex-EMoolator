@@ -13,7 +13,6 @@ public class EpisodeVariable extends Variable {
 		super(name, context);
 
 		this.setMethod("BACK", new Method(
-			List.of(),
 			"void"
 		) {
 			@Override
@@ -23,7 +22,6 @@ public class EpisodeVariable extends Variable {
 			}
 		});
 		this.setMethod("GETCURRENTSCENE", new Method(
-			List.of(),
 			"STRING"
 		) {
 			@Override

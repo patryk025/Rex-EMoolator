@@ -13,7 +13,6 @@ public class SoundVariable extends Variable {
 		super(name, context);
 
 		this.setMethod("ISPLAYING", new Method(
-			List.of(),
 			"BOOL"
 		) {
 			@Override
@@ -35,7 +34,6 @@ public class SoundVariable extends Variable {
 			}
 		});
 		this.setMethod("PAUSE", new Method(
-			List.of(),
 			"void"
 		) {
 			@Override
@@ -57,7 +55,6 @@ public class SoundVariable extends Variable {
 			}
 		});
 		this.setMethod("RESUME", new Method(
-			List.of(),
 			"void"
 		) {
 			@Override

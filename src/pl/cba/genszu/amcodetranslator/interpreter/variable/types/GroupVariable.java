@@ -51,7 +51,6 @@ public class GroupVariable extends Variable {
 			}
 		});
 		this.setMethod("GETSIZE", new Method(
-			List.of(),
 			"INTEGER"
 		) {
 			@Override
@@ -61,7 +60,6 @@ public class GroupVariable extends Variable {
 			}
 		});
 		this.setMethod("NEXT", new Method(
-			List.of(),
 			"mixed"
 		) {
 			@Override
@@ -71,7 +69,6 @@ public class GroupVariable extends Variable {
 			}
 		});
 		this.setMethod("PREV", new Method(
-			List.of(),
 			"mixed"
 		) {
 			@Override
@@ -93,7 +90,6 @@ public class GroupVariable extends Variable {
 			}
 		});
 		this.setMethod("REMOVEALL", new Method(
-			List.of(),
 			"void"
 		) {
 			@Override
@@ -103,7 +99,6 @@ public class GroupVariable extends Variable {
 			}
 		});
 		this.setMethod("RESETMARKER", new Method(
-			List.of(),
 			"void"
 		) {
 			@Override
@@ -121,10 +116,7 @@ public class GroupVariable extends Variable {
 
 	@Override
 	public void setAttribute(String name, Attribute attribute) {
-		List<String> knownAttributes = List.o);
-		if(knownAttributes.contains(name)) {
-			super.setAttribute(name, attribute);
-		}
+		return; // no fields in this class
 	}
 
 }

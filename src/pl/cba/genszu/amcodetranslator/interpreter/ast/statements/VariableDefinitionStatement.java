@@ -20,7 +20,7 @@ public class VariableDefinitionStatement extends Statement {
     @Override
     public void execute(Context context) {
         Object value = expression.evaluate(context);
-        Variable variable = VariableFactory.createVariable(type, variableName, value);
+        Variable variable = VariableFactory.createVariable(type, variableName, value, context);
         context.setVariable(variableName, variable);
     }
 }

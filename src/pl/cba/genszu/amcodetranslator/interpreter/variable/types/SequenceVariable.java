@@ -13,7 +13,6 @@ public class SequenceVariable extends Variable {
 		super(name, context);
 
 		this.setMethod("GETEVENTNAME", new Method(
-			List.of(),
 			"STRING"
 		) {
 			@Override
@@ -23,7 +22,6 @@ public class SequenceVariable extends Variable {
 			}
 		});
 		this.setMethod("HIDE", new Method(
-			List.of(),
 			"void"
 		) {
 			@Override
@@ -33,7 +31,6 @@ public class SequenceVariable extends Variable {
 			}
 		});
 		this.setMethod("ISPLAYING", new Method(
-			List.of(),
 			"BOOL"
 		) {
 			@Override
@@ -43,7 +40,6 @@ public class SequenceVariable extends Variable {
 			}
 		});
 		this.setMethod("PAUSE", new Method(
-			List.of(),
 			"void"
 		) {
 			@Override
@@ -65,7 +61,6 @@ public class SequenceVariable extends Variable {
 			}
 		});
 		this.setMethod("RESUME", new Method(
-			List.of(),
 			"void"
 		) {
 			@Override

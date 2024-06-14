@@ -24,13 +24,13 @@ public class LoopStatement extends Statement {
 		int startValue = (int) start.evaluate(context);
 		int endValue = (int) end.evaluate(context);
 		int stepValue = (int) step.evaluate(context);
-		context.setVariable("_I_", new IntegerVariable("_I_", startValue));
+		context.setVariable("_I_", new IntegerVariable("_I_", startValue, context));
         for (int i = startValue; i < endValue; i += stepValue) {
             Object result = body.evaluate(context);
 			if(result instanceof OneBreakStatement) {
 				break;
 			}
-			((IntegerVariable) context.getVariable("_I_")).ADD(stepValue);
+			((IntegerVariable) context.getVariable("_I_")).fireMethod("ADD", stepValue);
         }
     }
 }

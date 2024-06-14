@@ -37,22 +37,22 @@ public class MultiplyOperation extends ArithmeticOperation {
 
     @Override
     public Variable performOperation(IntegerVariable var1, IntegerVariable var2) {
-        return VariableFactory.createVariable("INTEGER", null, var1.GET() * var2.GET());
+        return VariableFactory.createVariable("INTEGER", null, var1.GET() * var2.GET(), var1.getContext());
     }
 
     @Override
     public Variable performOperation(DoubleVariable var1, IntegerVariable var2) {
-        return VariableFactory.createVariable("DOUBLE", null, var1.GET() * var2.GET());
+        return VariableFactory.createVariable("DOUBLE", null, var1.GET() * var2.GET(), var1.getContext());
     }
 
     @Override
     public Variable performOperation(IntegerVariable var1, DoubleVariable var2) {
-        return VariableFactory.createVariable("DOUBLE", null, var1.GET() * var2.GET());
+        return VariableFactory.createVariable("DOUBLE", null, var1.GET() * var2.GET(), var1.getContext());
     }
 
     @Override
     public Variable performOperation(DoubleVariable var1, DoubleVariable var2) {
-        return VariableFactory.createVariable("DOUBLE", null, var1.GET() * var2.GET());
+        return VariableFactory.createVariable("DOUBLE", null, var1.GET() * var2.GET(), var1.getContext());
     }
 
     @Override

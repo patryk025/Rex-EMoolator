@@ -1,5 +1,6 @@
 package pl.cba.genszu.amcodetranslator.interpreter.factories;
 
+import pl.cba.genszu.amcodetranslator.interpreter.Context;
 import pl.cba.genszu.amcodetranslator.interpreter.variable.types.*;
 import pl.cba.genszu.amcodetranslator.interpreter.util.TypeGuesser;
 import pl.cba.genszu.amcodetranslator.interpreter.variable.Variable;
@@ -8,101 +9,89 @@ import java.util.Objects;
 
 public class VariableFactory
 {
-    public static Variable createVariableWithAutoType(String name, Object value) {
-        return createVariable(TypeGuesser.guessType(""+value), name, value);
+    public static Variable createVariableWithAutoType(String name, Object value, Context context) {
+        return createVariable(TypeGuesser.guessType(""+value), name, value, context);
     }
 
-    public static Variable createVariable(String type, String name) {
-        return createVariable(Objects.requireNonNullElse(type, "VOID"), name, null);
+    public static Variable createVariable(String type, String name, Context context) {
+        return createVariable(Objects.requireNonNullElse(type, "VOID"), name, null, context);
     }
 
-    public static Variable createVariable(String type, String name, Object value) {
+    public static Variable createVariable(String type, String name, Object value, Context context) {
         switch (type.toUpperCase()) {
             case "ANIMO":
-                return new AnimoVariable(name, value);
+                return new AnimoVariable(name, context);
             case "APPLICATION":
-                return new ApplicationVariable(name, value);
+                return new ApplicationVariable(name, context);
             case "ARRAY":
-                return new ArrayVariable(name, value);
+                return new ArrayVariable(name, context);
             case "BEHAVIOUR":
-                return new BehaviourVariable(name, value);
+                return new BehaviourVariable(name, context);
             case "BOOL":
-                return new BoolVariable(name, value);
+                return new BoolVariable(name, (Boolean) value, context);
             case "BUTTON":
-                return new ButtonVariable(name, value);
+                return new ButtonVariable(name, context);
             case "CANVASOBSERVER":
-                return new CanvasObserverVariable(name, value);
+                return new CanvasObserverVariable(name, context);
             case "CLASS":
-                return new ClassVariable(name, value);
+                return new ClassVariable(name, context);
             case "CNVLOADER":
-                return new CNVLoaderVariable(name, value);
+                return new CNVLoaderVariable(name, context);
             case "COMPLEXCONDITION":
-                return new ComplexConditionVariable(name, value);
+                return new ComplexConditionVariable(name, context);
             case "CONDITION":
-                return new ConditionVariable(name, value);
+                return new ConditionVariable(name, context);
             case "DATABASE":
-                return new DatabaseVariable(name, value);
+                return new DatabaseVariable(name, context);
             case "DOUBLE":
-                return new DoubleVariable(name, value);
+                return new DoubleVariable(name, (Double) value, context);
             case "EPISODE":
-                return new EpisodeVariable(name, value);
-            case "EXPRESSION":
-                return new ExpressionVariable(name, value);
-            case "FILTER":
-                return new FilterVariable(name, value);
+                return new EpisodeVariable(name, context);
             case "FONT":
-                return new FontVariable(name, value);
+                return new FontVariable(name, context);
             case "GROUP":
-                return new GroupVariable(name, value);
+                return new GroupVariable(name, context);
             case "IMAGE":
-                return new ImageVariable(name, value);
+                return new ImageVariable(name, context);
             case "INERTIA":
-                return new InertiaVariable(name, value);
+                return new InertiaVariable(name, context);
             case "INTEGER":
             case "INT":
-                return new IntegerVariable(name, value);
+                return new IntegerVariable(name, (Integer) value, context);
             case "KEYBOARD":
-                return new KeyboardVariable(name, value);
+                return new KeyboardVariable(name, context);
             case "MATRIX":
-                return new MatrixVariable(name, value);
+                return new MatrixVariable(name, context);
             case "MOUSE":
-                return new MouseVariable(name, value);
+                return new MouseVariable(name, context);
             case "MULTIARRAY":
-                return new MultiArrayVariable(name, value);
-            case "MUSIC":
-                return new MusicVariable(name, value);
+                return new MultiArrayVariable(name, context);
             case "PATTERN":
-                return new PatternVariable(name, value);
-            case "RAND":
-                return new RandVariable(name, value);
+                return new PatternVariable(name, context);
             case "SCENE":
-                return new SceneVariable(name, value);
+                return new SceneVariable(name, context);
             case "SEQUENCE":
-                return new SequenceVariable(name, value);
-            case "SIMPLE":
-                return new SimpleVariable(name, value);
+                return new SequenceVariable(name, context);
+            /*case "SIMPLE": //TODO: implement this class
+                return new SimpleVariable(name, context);*/
             case "SOUND":
-                return new SoundVariable(name, value);
-            case "SPEAKING":
-                return new SpeakingVariable(name, value);
+                return new SoundVariable(name, context);
+            /*case "SPEAKING": //TODO: implement this class
+                return new SpeakingVariable(name, context);*/
             case "STATICFILTER":
-                return new StaticFilterVariable(name, value);
+                return new StaticFilterVariable(name, context);
             case "STRING":
-                return new StringVariable(name, value);
+                return new StringVariable(name, (String) value, context);
             case "STRUCT":
-                return new StructVariable(name, value);
+                return new StructVariable(name, context);
             case "TEXT":
-                return new TextVariable(name, value);
+                return new TextVariable(name, context);
             case "TIMER":
-                return new TimerVariable(name, value);
+                return new TimerVariable(name, context);
             case "VECTOR":
-                return new VectorVariable(name, value);
+                return new VectorVariable(name, context);
             case "WORLD":
-                return new WorldVariable(name, value);
-            case "VOID":
-                return new Variable(null); //void
-            case "OPCODE":
-                return new Variable(name); //zmienna na operacje (break, continue, onebreak)
+                return new WorldVariable(name, context);
             default:
                 throw new IllegalArgumentException("Unknown variable type: " + type);
         }

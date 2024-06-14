@@ -13,7 +13,6 @@ public class SceneVariable extends Variable {
 		super(name, context);
 
 		this.setMethod("PAUSE", new Method(
-			List.of(),
 			"void"
 		) {
 			@Override
@@ -37,7 +36,6 @@ public class SceneVariable extends Variable {
 			}
 		});
 		this.setMethod("RESUME", new Method(
-			List.of(),
 			"void"
 		) {
 			@Override

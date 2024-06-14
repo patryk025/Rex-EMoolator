@@ -97,7 +97,6 @@ public class CanvasObserverVariable extends Variable {
 			}
 		});
 		this.setMethod("REDRAW", new Method(
-			List.of(),
 			"void"
 		) {
 			@Override
@@ -107,7 +106,6 @@ public class CanvasObserverVariable extends Variable {
 			}
 		});
 		this.setMethod("REFRESH", new Method(
-			List.of(),
 			"void"
 		) {
 			@Override
@@ -175,10 +173,7 @@ public class CanvasObserverVariable extends Variable {
 
 	@Override
 	public void setAttribute(String name, Attribute attribute) {
-		List<String> knownAttributes = List.o);
-		if(knownAttributes.contains(name)) {
-			super.setAttribute(name, attribute);
-		}
+		return; // no fields in this class
 	}
 
 }

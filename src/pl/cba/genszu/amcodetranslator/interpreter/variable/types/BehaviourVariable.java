@@ -13,7 +13,6 @@ public class BehaviourVariable extends Variable {
 		super(name, context);
 
 		this.setMethod("PLAY", new Method(
-			List.of(),
 			"mixed"
 		) {
 			@Override

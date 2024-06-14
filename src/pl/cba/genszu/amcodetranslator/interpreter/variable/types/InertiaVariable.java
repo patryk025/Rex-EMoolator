@@ -117,7 +117,6 @@ public class InertiaVariable extends Variable {
 			}
 		});
 		this.setMethod("RESETTIMER", new Method(
-			List.of(),
 			"void"
 		) {
 			@Override
@@ -194,7 +193,6 @@ public class InertiaVariable extends Variable {
 			}
 		});
 		this.setMethod("TICK", new Method(
-			List.of(),
 			"void"
 		) {
 			@Override
@@ -224,10 +222,7 @@ public class InertiaVariable extends Variable {
 
 	@Override
 	public void setAttribute(String name, Attribute attribute) {
-		List<String> knownAttributes = List.o);
-		if(knownAttributes.contains(name)) {
-			super.setAttribute(name, attribute);
-		}
+		return; // no fields in this class
 	}
 
 }

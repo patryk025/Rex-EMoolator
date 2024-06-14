@@ -27,7 +27,6 @@ public class DatabaseVariable extends Variable {
 			}
 		});
 		this.setMethod("GETROWSNO", new Method(
-			List.of(),
 			"INTEGER"
 		) {
 			@Override
@@ -49,7 +48,6 @@ public class DatabaseVariable extends Variable {
 			}
 		});
 		this.setMethod("NEXT", new Method(
-			List.of(),
 			"void"
 		) {
 			@Override
@@ -59,7 +57,6 @@ public class DatabaseVariable extends Variable {
 			}
 		});
 		this.setMethod("REMOVEALL", new Method(
-			List.of(),
 			"void"
 		) {
 			@Override

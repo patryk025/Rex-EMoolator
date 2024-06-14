@@ -13,7 +13,6 @@ public class ApplicationVariable extends Variable {
 		super(name, context);
 
 		this.setMethod("EXIT", new Method(
-			List.of(),
 			"void"
 		) {
 			@Override
@@ -23,7 +22,6 @@ public class ApplicationVariable extends Variable {
 			}
 		});
 		this.setMethod("GETLANGUAGE", new Method(
-			List.of(),
 			"STRING"
 		) {
 			@Override

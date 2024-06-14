@@ -66,12 +66,12 @@ public class AndOperation extends ArithmeticOperation {
 
     @Override
     public Variable performOperation(BoolVariable var1, BoolVariable var2) {
-        return VariableFactory.createVariable("BOOL", "", var1.GET() && var2.GET());
+        return VariableFactory.createVariable("BOOL", "", var1.GET() && var2.GET(), var1.getContext());
     }
 
     @Override
     public Variable performOperation(BoolVariable var1, IntegerVariable var2) {
-        return VariableFactory.createVariable("BOOL", "", var1.GET() && (var2.GET() != 0));
+        return VariableFactory.createVariable("BOOL", "", var1.GET() && (var2.GET() != 0), var1.getContext());
     }
 
     @Override
@@ -81,7 +81,7 @@ public class AndOperation extends ArithmeticOperation {
 
     @Override
     public Variable performOperation(BoolVariable var1, DoubleVariable var2) {
-        return VariableFactory.createVariable("BOOL", "", var1.GET() && (var2.GET() != 0));
+        return VariableFactory.createVariable("BOOL", "", var1.GET() && (var2.GET() != 0), var1.getContext());
     }
 
     @Override

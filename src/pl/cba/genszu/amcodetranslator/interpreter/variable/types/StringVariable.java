@@ -91,7 +91,6 @@ public class StringVariable extends Variable {
 			}
 		});
 		this.setMethod("LENGTH", new Method(
-			List.of(),
 			"INTEGER"
 		) {
 			@Override
@@ -139,7 +138,6 @@ public class StringVariable extends Variable {
 			}
 		});
 		this.setMethod("UPPER", new Method(
-			List.of(),
 			"void"
 		) {
 			@Override
@@ -209,4 +207,9 @@ public class StringVariable extends Variable {
 			return this;
 		}
 	}
+
+	public String GET() {
+		return (String) this.getValue();
+	}
+
 }

@@ -8,6 +8,10 @@ public abstract class Method {
     private List<String> parameterTypes;
     private String returnType;
 
+    public Method(String returnType) {
+        this(new ArrayList<>(), returnType);
+    }
+
     public Method(List<Parameter> parameters, String returnType) {
         this.parameters = parameters;
         this.returnType = returnType;

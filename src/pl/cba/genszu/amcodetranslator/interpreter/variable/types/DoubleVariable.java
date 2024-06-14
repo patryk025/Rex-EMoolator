@@ -245,4 +245,8 @@ public class DoubleVariable extends Variable {
 		}
 	}
 
+	public double GET() {
+		return (double) this.getValue();
+	}
+
 }

@@ -149,7 +149,6 @@ public class MatrixVariable extends Variable {
 			}
 		});
 		this.setMethod("ISGATEEMPTY", new Method(
-			List.of(),
 			"BOOL"
 		) {
 			@Override
@@ -184,7 +183,6 @@ public class MatrixVariable extends Variable {
 			}
 		});
 		this.setMethod("NEXT", new Method(
-			List.of(),
 			"void"
 		) {
 			@Override
@@ -235,7 +233,6 @@ public class MatrixVariable extends Variable {
 			}
 		});
 		this.setMethod("TICK", new Method(
-			List.of(),
 			"void"
 		) {
 			@Override

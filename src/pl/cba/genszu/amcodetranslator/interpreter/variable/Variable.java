@@ -187,4 +187,13 @@ public abstract class Variable {
 			signal.execute(argument);
 		}
 	}
+
+	public Object fireMethod(String name, Object... arguments) {
+		Method method = this.getMethod(name, new ArrayList<>());
+		return method.execute(List.of(arguments));
+	}
+
+	public Context getContext() {
+		return this.context;
+	}
 }

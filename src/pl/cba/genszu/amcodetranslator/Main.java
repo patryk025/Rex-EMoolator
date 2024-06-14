@@ -29,8 +29,8 @@ public class Main
 		String testExpression = "{ITERATOR^SET(5);@STRING(STRING_TEST,[TEST+ITERATOR]);@RETURN(STRING_TEST);}";
 
 		Context context = new Context();
-		context.setVariable("TEST", new StringVariable("TEST", "ANIMO_"));
-		context.setVariable("ITERATOR", new IntegerVariable("ITERATOR", 3));
+		context.setVariable("TEST", new StringVariable("TEST", "ANIMO_", context));
+		context.setVariable("ITERATOR", new IntegerVariable("ITERATOR", 3, context));
 
 		AidemMediaLexer lexer = new AidemMediaLexer(CharStreams.fromString(testExpression));
 		AidemMediaParser parser = new AidemMediaParser(new CommonTokenStream(lexer));

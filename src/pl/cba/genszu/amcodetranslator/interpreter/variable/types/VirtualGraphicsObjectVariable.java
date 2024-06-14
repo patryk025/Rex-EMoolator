@@ -13,7 +13,6 @@ public class VirtualGraphicsObjectVariable extends Variable {
 		super(name, context);
 
 		this.setMethod("GETHEIGHT", new Method(
-			List.of(),
 			"INTEGER"
 		) {
 			@Override
@@ -23,7 +22,6 @@ public class VirtualGraphicsObjectVariable extends Variable {
 			}
 		});
 		this.setMethod("GETPOSITIONX", new Method(
-			List.of(),
 			"INTEGER"
 		) {
 			@Override
@@ -33,7 +31,6 @@ public class VirtualGraphicsObjectVariable extends Variable {
 			}
 		});
 		this.setMethod("GETPOSITIONY", new Method(
-			List.of(),
 			"INTEGER"
 		) {
 			@Override
@@ -43,7 +40,6 @@ public class VirtualGraphicsObjectVariable extends Variable {
 			}
 		});
 		this.setMethod("GETWIDTH", new Method(
-			List.of(),
 			"INTEGER"
 		) {
 			@Override

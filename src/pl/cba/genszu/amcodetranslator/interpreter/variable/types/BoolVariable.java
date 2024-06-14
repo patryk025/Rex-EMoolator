@@ -84,4 +84,9 @@ public class BoolVariable extends Variable {
 			return this;
 		}
 	}
+
+	public boolean GET() {
+		return (boolean) this.getValue();
+	}
+
 }

@@ -13,7 +13,6 @@ public class ButtonVariable extends Variable {
 		super(name, context);
 
 		this.setMethod("DISABLE", new Method(
-			List.of(),
 			"void"
 		) {
 			@Override
@@ -23,7 +22,6 @@ public class ButtonVariable extends Variable {
 			}
 		});
 		this.setMethod("DISABLEBUTVISIBLE", new Method(
-			List.of(),
 			"void"
 		) {
 			@Override
@@ -33,7 +31,6 @@ public class ButtonVariable extends Variable {
 			}
 		});
 		this.setMethod("ENABLE", new Method(
-			List.of(),
 			"void"
 		) {
 			@Override

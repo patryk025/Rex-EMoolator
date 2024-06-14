@@ -62,7 +62,6 @@ public class VectorVariable extends Variable {
 			}
 		});
 		this.setMethod("NORMALIZE", new Method(
-			List.of(),
 			"void"
 		) {
 			@Override

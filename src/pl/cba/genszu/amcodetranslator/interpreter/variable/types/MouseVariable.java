@@ -13,7 +13,6 @@ public class MouseVariable extends Variable {
 		super(name, context);
 
 		this.setMethod("DISABLE", new Method(
-			List.of(),
 			"void"
 		) {
 			@Override
