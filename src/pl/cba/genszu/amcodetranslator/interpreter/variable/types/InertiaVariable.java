@@ -23,6 +23,7 @@ public class InertiaVariable extends Variable {
 			@Override
 			public Object execute(List<Object> arguments) {
 				// TODO: implement this method
+				System.out.println("Method ADDFORCE is not implemented yet");
 				return null;
 			}
 		});
@@ -38,6 +39,7 @@ public class InertiaVariable extends Variable {
 			@Override
 			public Object execute(List<Object> arguments) {
 				// TODO: implement this method
+				System.out.println("Method CREATESPHERE is not implemented yet");
 				return null;
 			}
 		});
@@ -50,6 +52,7 @@ public class InertiaVariable extends Variable {
 			@Override
 			public Object execute(List<Object> arguments) {
 				// TODO: implement this method
+				System.out.println("Method DELETEBODY is not implemented yet");
 				return null;
 			}
 		});
@@ -62,6 +65,7 @@ public class InertiaVariable extends Variable {
 			@Override
 			public Object execute(List<Object> arguments) {
 				// TODO: implement this method
+				System.out.println("Method GETPOSITIONX is not implemented yet");
 				return null;
 			}
 		});
@@ -74,6 +78,7 @@ public class InertiaVariable extends Variable {
 			@Override
 			public Object execute(List<Object> arguments) {
 				// TODO: implement this method
+				System.out.println("Method GETPOSITIONY is not implemented yet");
 				return null;
 			}
 		});
@@ -86,6 +91,7 @@ public class InertiaVariable extends Variable {
 			@Override
 			public Object execute(List<Object> arguments) {
 				// TODO: implement this method
+				System.out.println("Method GETSPEED is not implemented yet");
 				return null;
 			}
 		});
@@ -101,6 +107,7 @@ public class InertiaVariable extends Variable {
 			@Override
 			public Object execute(List<Object> arguments) {
 				// TODO: implement this method
+				System.out.println("Method LINK is not implemented yet");
 				return null;
 			}
 		});
@@ -113,6 +120,7 @@ public class InertiaVariable extends Variable {
 			@Override
 			public Object execute(List<Object> arguments) {
 				// TODO: implement this method
+				System.out.println("Method LOAD is not implemented yet");
 				return null;
 			}
 		});
@@ -122,6 +130,7 @@ public class InertiaVariable extends Variable {
 			@Override
 			public Object execute(List<Object> arguments) {
 				// TODO: implement this method
+				System.out.println("Method RESETTIMER is not implemented yet");
 				return null;
 			}
 		});
@@ -135,6 +144,7 @@ public class InertiaVariable extends Variable {
 			@Override
 			public Object execute(List<Object> arguments) {
 				// TODO: implement this method
+				System.out.println("Method SETGRAVITY is not implemented yet");
 				return null;
 			}
 		});
@@ -148,6 +158,7 @@ public class InertiaVariable extends Variable {
 			@Override
 			public Object execute(List<Object> arguments) {
 				// TODO: implement this method
+				System.out.println("Method SETLINEARDAMPING is not implemented yet");
 				return null;
 			}
 		});
@@ -161,6 +172,7 @@ public class InertiaVariable extends Variable {
 			@Override
 			public Object execute(List<Object> arguments) {
 				// TODO: implement this method
+				System.out.println("Method SETMATERIAL is not implemented yet");
 				return null;
 			}
 		});
@@ -175,6 +187,7 @@ public class InertiaVariable extends Variable {
 			@Override
 			public Object execute(List<Object> arguments) {
 				// TODO: implement this method
+				System.out.println("Method SETPOSITION is not implemented yet");
 				return null;
 			}
 		});
@@ -189,6 +202,7 @@ public class InertiaVariable extends Variable {
 			@Override
 			public Object execute(List<Object> arguments) {
 				// TODO: implement this method
+				System.out.println("Method SETVELOCITY is not implemented yet");
 				return null;
 			}
 		});
@@ -198,6 +212,7 @@ public class InertiaVariable extends Variable {
 			@Override
 			public Object execute(List<Object> arguments) {
 				// TODO: implement this method
+				System.out.println("Method TICK is not implemented yet");
 				return null;
 			}
 		});
@@ -210,6 +225,7 @@ public class InertiaVariable extends Variable {
 			@Override
 			public Object execute(List<Object> arguments) {
 				// TODO: implement this method
+				System.out.println("Method UNLINK is not implemented yet");
 				return null;
 			}
 		});

@@ -22,6 +22,7 @@ public class DoubleVariable extends Variable {
 			@Override
 			public Object execute(List<Object> arguments) {
 				// TODO: implement this method
+				System.out.println("Method ABS is not implemented yet");
 				return null;
 			}
 		});
@@ -34,6 +35,7 @@ public class DoubleVariable extends Variable {
 			@Override
 			public Object execute(List<Object> arguments) {
 				// TODO: implement this method
+				System.out.println("Method ADD is not implemented yet");
 				return null;
 			}
 		});
@@ -46,6 +48,7 @@ public class DoubleVariable extends Variable {
 			@Override
 			public Object execute(List<Object> arguments) {
 				// TODO: implement this method
+				System.out.println("Method ARCTAN is not implemented yet");
 				return null;
 			}
 		});
@@ -59,6 +62,7 @@ public class DoubleVariable extends Variable {
 			@Override
 			public Object execute(List<Object> arguments) {
 				// TODO: implement this method
+				System.out.println("Method ARCTANEX is not implemented yet");
 				return null;
 			}
 		});
@@ -72,6 +76,7 @@ public class DoubleVariable extends Variable {
 			@Override
 			public Object execute(List<Object> arguments) {
 				// TODO: implement this method
+				System.out.println("Method CLAMP is not implemented yet");
 				return null;
 			}
 		});
@@ -84,6 +89,7 @@ public class DoubleVariable extends Variable {
 			@Override
 			public Object execute(List<Object> arguments) {
 				// TODO: implement this method
+				System.out.println("Method COSINUS is not implemented yet");
 				return null;
 			}
 		});
@@ -96,6 +102,7 @@ public class DoubleVariable extends Variable {
 			@Override
 			public Object execute(List<Object> arguments) {
 				// TODO: implement this method
+				System.out.println("Method DIV is not implemented yet");
 				return null;
 			}
 		});
@@ -109,6 +116,7 @@ public class DoubleVariable extends Variable {
 			@Override
 			public Object execute(List<Object> arguments) {
 				// TODO: implement this method
+				System.out.println("Method LENGTH is not implemented yet");
 				return null;
 			}
 		});
@@ -122,6 +130,7 @@ public class DoubleVariable extends Variable {
 			@Override
 			public Object execute(List<Object> arguments) {
 				// TODO: implement this method
+				System.out.println("Method MAXA is not implemented yet");
 				return null;
 			}
 		});
@@ -135,6 +144,7 @@ public class DoubleVariable extends Variable {
 			@Override
 			public Object execute(List<Object> arguments) {
 				// TODO: implement this method
+				System.out.println("Method MINA is not implemented yet");
 				return null;
 			}
 		});
@@ -147,6 +157,7 @@ public class DoubleVariable extends Variable {
 			@Override
 			public Object execute(List<Object> arguments) {
 				// TODO: implement this method
+				System.out.println("Method MUL is not implemented yet");
 				return null;
 			}
 		});
@@ -159,6 +170,7 @@ public class DoubleVariable extends Variable {
 			@Override
 			public Object execute(List<Object> arguments) {
 				// TODO: implement this method
+				System.out.println("Method SET is not implemented yet");
 				return null;
 			}
 		});
@@ -171,6 +183,7 @@ public class DoubleVariable extends Variable {
 			@Override
 			public Object execute(List<Object> arguments) {
 				// TODO: implement this method
+				System.out.println("Method SINUS is not implemented yet");
 				return null;
 			}
 		});
@@ -183,6 +196,7 @@ public class DoubleVariable extends Variable {
 			@Override
 			public Object execute(List<Object> arguments) {
 				// TODO: implement this method
+				System.out.println("Method SQRT is not implemented yet");
 				return null;
 			}
 		});
@@ -195,6 +209,7 @@ public class DoubleVariable extends Variable {
 			@Override
 			public Object execute(List<Object> arguments) {
 				// TODO: implement this method
+				System.out.println("Method SUB is not implemented yet");
 				return null;
 			}
 		});

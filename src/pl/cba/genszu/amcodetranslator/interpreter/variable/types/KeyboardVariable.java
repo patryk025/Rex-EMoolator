@@ -18,6 +18,7 @@ public class KeyboardVariable extends Variable {
 			@Override
 			public Object execute(List<Object> arguments) {
 				// TODO: implement this method
+				System.out.println("Method DISABLE is not implemented yet");
 				return null;
 			}
 		});
@@ -27,6 +28,7 @@ public class KeyboardVariable extends Variable {
 			@Override
 			public Object execute(List<Object> arguments) {
 				// TODO: implement this method
+				System.out.println("Method ENABLE is not implemented yet");
 				return null;
 			}
 		});
@@ -36,6 +38,7 @@ public class KeyboardVariable extends Variable {
 			@Override
 			public Object execute(List<Object> arguments) {
 				// TODO: implement this method
+				System.out.println("Method GETLATESTKEY is not implemented yet");
 				return null;
 			}
 		});
@@ -45,6 +48,7 @@ public class KeyboardVariable extends Variable {
 			@Override
 			public Object execute(List<Object> arguments) {
 				// TODO: implement this method
+				System.out.println("Method ISENABLED is not implemented yet");
 				return null;
 			}
 		});
@@ -57,6 +61,7 @@ public class KeyboardVariable extends Variable {
 			@Override
 			public Object execute(List<Object> arguments) {
 				// TODO: implement this method
+				System.out.println("Method ISKEYDOWN is not implemented yet");
 				return null;
 			}
 		});
@@ -69,6 +74,7 @@ public class KeyboardVariable extends Variable {
 			@Override
 			public Object execute(List<Object> arguments) {
 				// TODO: implement this method
+				System.out.println("Method SETAUTOREPEAT is not implemented yet");
 				return null;
 			}
 		});

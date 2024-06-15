@@ -22,6 +22,7 @@ public class IntegerVariable extends Variable {
 			@Override
 			public Object execute(List<Object> arguments) {
 				// TODO: implement this method
+				System.out.println("Method ABS is not implemented yet");
 				return null;
 			}
 		});
@@ -34,6 +35,7 @@ public class IntegerVariable extends Variable {
 			@Override
 			public Object execute(List<Object> arguments) {
 				// TODO: implement this method
+				System.out.println("Method ADD is not implemented yet");
 				return null;
 			}
 		});
@@ -46,6 +48,7 @@ public class IntegerVariable extends Variable {
 			@Override
 			public Object execute(List<Object> arguments) {
 				// TODO: implement this method
+				System.out.println("Method AND is not implemented yet");
 				return null;
 			}
 		});
@@ -59,6 +62,7 @@ public class IntegerVariable extends Variable {
 			@Override
 			public Object execute(List<Object> arguments) {
 				// TODO: implement this method
+				System.out.println("Method CLAMP is not implemented yet");
 				return null;
 			}
 		});
@@ -68,6 +72,7 @@ public class IntegerVariable extends Variable {
 			@Override
 			public Object execute(List<Object> arguments) {
 				// TODO: implement this method
+				System.out.println("Method DEC is not implemented yet");
 				return null;
 			}
 		});
@@ -80,6 +85,7 @@ public class IntegerVariable extends Variable {
 			@Override
 			public Object execute(List<Object> arguments) {
 				// TODO: implement this method
+				System.out.println("Method DIV is not implemented yet");
 				return null;
 			}
 		});
@@ -89,6 +95,7 @@ public class IntegerVariable extends Variable {
 			@Override
 			public Object execute(List<Object> arguments) {
 				// TODO: implement this method
+				System.out.println("Method INC is not implemented yet");
 				return null;
 			}
 		});
@@ -102,6 +109,7 @@ public class IntegerVariable extends Variable {
 			@Override
 			public Object execute(List<Object> arguments) {
 				// TODO: implement this method
+				System.out.println("Method LENGTH is not implemented yet");
 				return null;
 			}
 		});
@@ -114,6 +122,7 @@ public class IntegerVariable extends Variable {
 			@Override
 			public Object execute(List<Object> arguments) {
 				// TODO: implement this method
+				System.out.println("Method MOD is not implemented yet");
 				return null;
 			}
 		});
@@ -126,6 +135,7 @@ public class IntegerVariable extends Variable {
 			@Override
 			public Object execute(List<Object> arguments) {
 				// TODO: implement this method
+				System.out.println("Method MUL is not implemented yet");
 				return null;
 			}
 		});
@@ -138,6 +148,7 @@ public class IntegerVariable extends Variable {
 			@Override
 			public Object execute(List<Object> arguments) {
 				// TODO: implement this method
+				System.out.println("Method RANDOM is not implemented yet");
 				return null;
 			}
 		});
@@ -151,6 +162,7 @@ public class IntegerVariable extends Variable {
 			@Override
 			public Object execute(List<Object> arguments) {
 				// TODO: implement this method
+				System.out.println("Method RANDOM is not implemented yet");
 				return null;
 			}
 		});
@@ -163,6 +175,7 @@ public class IntegerVariable extends Variable {
 			@Override
 			public Object execute(List<Object> arguments) {
 				// TODO: implement this method
+				System.out.println("Method SET is not implemented yet");
 				return null;
 			}
 		});
@@ -175,6 +188,7 @@ public class IntegerVariable extends Variable {
 			@Override
 			public Object execute(List<Object> arguments) {
 				// TODO: implement this method
+				System.out.println("Method SUB is not implemented yet");
 				return null;
 			}
 		});

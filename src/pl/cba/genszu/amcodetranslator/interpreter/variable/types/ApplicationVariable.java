@@ -18,6 +18,7 @@ public class ApplicationVariable extends Variable {
 			@Override
 			public Object execute(List<Object> arguments) {
 				// TODO: implement this method
+				System.out.println("Method EXIT is not implemented yet");
 				return null;
 			}
 		});
@@ -27,6 +28,7 @@ public class ApplicationVariable extends Variable {
 			@Override
 			public Object execute(List<Object> arguments) {
 				// TODO: implement this method
+				System.out.println("Method GETLANGUAGE is not implemented yet");
 				return null;
 			}
 		});
@@ -41,6 +43,7 @@ public class ApplicationVariable extends Variable {
 			@Override
 			public Object execute(List<Object> arguments) {
 				// TODO: implement this method
+				System.out.println("Method RUN is not implemented yet");
 				return null;
 			}
 		});
@@ -54,6 +57,7 @@ public class ApplicationVariable extends Variable {
 			@Override
 			public Object execute(List<Object> arguments) {
 				// TODO: implement this method
+				System.out.println("Method RUNENV is not implemented yet");
 				return null;
 			}
 		});
@@ -66,6 +70,7 @@ public class ApplicationVariable extends Variable {
 			@Override
 			public Object execute(List<Object> arguments) {
 				// TODO: implement this method
+				System.out.println("Method SETLANGUAGE is not implemented yet");
 				return null;
 			}
 		});

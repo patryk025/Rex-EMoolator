@@ -22,6 +22,7 @@ public class StringVariable extends Variable {
 			@Override
 			public Object execute(List<Object> arguments) {
 				// TODO: implement this method
+				System.out.println("Method ADD is not implemented yet");
 				return null;
 			}
 		});
@@ -35,6 +36,7 @@ public class StringVariable extends Variable {
 			@Override
 			public Object execute(List<Object> arguments) {
 				// TODO: implement this method
+				System.out.println("Method CHANGEAT is not implemented yet");
 				return null;
 			}
 		});
@@ -48,6 +50,7 @@ public class StringVariable extends Variable {
 			@Override
 			public Object execute(List<Object> arguments) {
 				// TODO: implement this method
+				System.out.println("Method COPYFILE is not implemented yet");
 				return null;
 			}
 		});
@@ -61,6 +64,7 @@ public class StringVariable extends Variable {
 			@Override
 			public Object execute(List<Object> arguments) {
 				// TODO: implement this method
+				System.out.println("Method CUT is not implemented yet");
 				return null;
 			}
 		});
@@ -74,6 +78,7 @@ public class StringVariable extends Variable {
 			@Override
 			public Object execute(List<Object> arguments) {
 				// TODO: implement this method
+				System.out.println("Method FIND is not implemented yet");
 				return null;
 			}
 		});
@@ -87,6 +92,7 @@ public class StringVariable extends Variable {
 			@Override
 			public Object execute(List<Object> arguments) {
 				// TODO: implement this method
+				System.out.println("Method GET is not implemented yet");
 				return null;
 			}
 		});
@@ -96,6 +102,7 @@ public class StringVariable extends Variable {
 			@Override
 			public Object execute(List<Object> arguments) {
 				// TODO: implement this method
+				System.out.println("Method LENGTH is not implemented yet");
 				return null;
 			}
 		});
@@ -109,6 +116,7 @@ public class StringVariable extends Variable {
 			@Override
 			public Object execute(List<Object> arguments) {
 				// TODO: implement this method
+				System.out.println("Method REPLACEAT is not implemented yet");
 				return null;
 			}
 		});
@@ -121,6 +129,7 @@ public class StringVariable extends Variable {
 			@Override
 			public Object execute(List<Object> arguments) {
 				// TODO: implement this method
+				System.out.println("Method SET is not implemented yet");
 				return null;
 			}
 		});
@@ -134,6 +143,7 @@ public class StringVariable extends Variable {
 			@Override
 			public Object execute(List<Object> arguments) {
 				// TODO: implement this method
+				System.out.println("Method SUB is not implemented yet");
 				return null;
 			}
 		});
@@ -143,6 +153,7 @@ public class StringVariable extends Variable {
 			@Override
 			public Object execute(List<Object> arguments) {
 				// TODO: implement this method
+				System.out.println("Method UPPER is not implemented yet");
 				return null;
 			}
 		});

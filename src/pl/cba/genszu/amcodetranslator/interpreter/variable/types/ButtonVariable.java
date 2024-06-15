@@ -18,6 +18,7 @@ public class ButtonVariable extends Variable {
 			@Override
 			public Object execute(List<Object> arguments) {
 				// TODO: implement this method
+				System.out.println("Method DISABLE is not implemented yet");
 				return null;
 			}
 		});
@@ -27,6 +28,7 @@ public class ButtonVariable extends Variable {
 			@Override
 			public Object execute(List<Object> arguments) {
 				// TODO: implement this method
+				System.out.println("Method DISABLEBUTVISIBLE is not implemented yet");
 				return null;
 			}
 		});
@@ -36,6 +38,7 @@ public class ButtonVariable extends Variable {
 			@Override
 			public Object execute(List<Object> arguments) {
 				// TODO: implement this method
+				System.out.println("Method ENABLE is not implemented yet");
 				return null;
 			}
 		});
@@ -48,6 +51,7 @@ public class ButtonVariable extends Variable {
 			@Override
 			public Object execute(List<Object> arguments) {
 				// TODO: implement this method
+				System.out.println("Method SETPRIORITY is not implemented yet");
 				return null;
 			}
 		});
@@ -60,6 +64,7 @@ public class ButtonVariable extends Variable {
 			@Override
 			public Object execute(List<Object> arguments) {
 				// TODO: implement this method
+				System.out.println("Method SETRECT is not implemented yet");
 				return null;
 			}
 		});
@@ -75,6 +80,7 @@ public class ButtonVariable extends Variable {
 			@Override
 			public Object execute(List<Object> arguments) {
 				// TODO: implement this method
+				System.out.println("Method SETRECT is not implemented yet");
 				return null;
 			}
 		});
@@ -87,6 +93,7 @@ public class ButtonVariable extends Variable {
 			@Override
 			public Object execute(List<Object> arguments) {
 				// TODO: implement this method
+				System.out.println("Method SETSTD is not implemented yet");
 				return null;
 			}
 		});
@@ -100,6 +107,7 @@ public class ButtonVariable extends Variable {
 			@Override
 			public Object execute(List<Object> arguments) {
 				// TODO: implement this method
+				System.out.println("Method SETSTD is not implemented yet");
 				return null;
 			}
 		});

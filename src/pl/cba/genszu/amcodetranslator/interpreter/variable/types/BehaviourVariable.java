@@ -18,6 +18,7 @@ public class BehaviourVariable extends Variable {
 			@Override
 			public Object execute(List<Object> arguments) {
 				// TODO: implement this method
+				System.out.println("Method PLAY is not implemented yet");
 				return null;
 			}
 		});
@@ -30,6 +31,7 @@ public class BehaviourVariable extends Variable {
 			@Override
 			public Object execute(List<Object> arguments) {
 				// TODO: implement this method
+				System.out.println("Method RUN is not implemented yet");
 				return null;
 			}
 		});
@@ -42,6 +44,7 @@ public class BehaviourVariable extends Variable {
 			@Override
 			public Object execute(List<Object> arguments) {
 				// TODO: implement this method
+				System.out.println("Method RUNC is not implemented yet");
 				return null;
 			}
 		});
@@ -55,6 +58,7 @@ public class BehaviourVariable extends Variable {
 			@Override
 			public Object execute(List<Object> arguments) {
 				// TODO: implement this method
+				System.out.println("Method RUNLOOPED is not implemented yet");
 				return null;
 			}
 		});
@@ -70,6 +74,7 @@ public class BehaviourVariable extends Variable {
 			@Override
 			public Object execute(List<Object> arguments) {
 				// TODO: implement this method
+				System.out.println("Method RUNLOOPED is not implemented yet");
 				return null;
 			}
 		});

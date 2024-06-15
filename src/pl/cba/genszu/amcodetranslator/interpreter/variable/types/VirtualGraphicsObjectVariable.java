@@ -18,6 +18,7 @@ public class VirtualGraphicsObjectVariable extends Variable {
 			@Override
 			public Object execute(List<Object> arguments) {
 				// TODO: implement this method
+				System.out.println("Method GETHEIGHT is not implemented yet");
 				return null;
 			}
 		});
@@ -27,6 +28,7 @@ public class VirtualGraphicsObjectVariable extends Variable {
 			@Override
 			public Object execute(List<Object> arguments) {
 				// TODO: implement this method
+				System.out.println("Method GETPOSITIONX is not implemented yet");
 				return null;
 			}
 		});
@@ -36,6 +38,7 @@ public class VirtualGraphicsObjectVariable extends Variable {
 			@Override
 			public Object execute(List<Object> arguments) {
 				// TODO: implement this method
+				System.out.println("Method GETPOSITIONY is not implemented yet");
 				return null;
 			}
 		});
@@ -45,6 +48,7 @@ public class VirtualGraphicsObjectVariable extends Variable {
 			@Override
 			public Object execute(List<Object> arguments) {
 				// TODO: implement this method
+				System.out.println("Method GETWIDTH is not implemented yet");
 				return null;
 			}
 		});
@@ -58,6 +62,7 @@ public class VirtualGraphicsObjectVariable extends Variable {
 			@Override
 			public Object execute(List<Object> arguments) {
 				// TODO: implement this method
+				System.out.println("Method MOVE is not implemented yet");
 				return null;
 			}
 		});
@@ -70,6 +75,7 @@ public class VirtualGraphicsObjectVariable extends Variable {
 			@Override
 			public Object execute(List<Object> arguments) {
 				// TODO: implement this method
+				System.out.println("Method SETMASK is not implemented yet");
 				return null;
 			}
 		});
@@ -83,6 +89,7 @@ public class VirtualGraphicsObjectVariable extends Variable {
 			@Override
 			public Object execute(List<Object> arguments) {
 				// TODO: implement this method
+				System.out.println("Method SETPOSITION is not implemented yet");
 				return null;
 			}
 		});
@@ -95,6 +102,7 @@ public class VirtualGraphicsObjectVariable extends Variable {
 			@Override
 			public Object execute(List<Object> arguments) {
 				// TODO: implement this method
+				System.out.println("Method SETPRIORITY is not implemented yet");
 				return null;
 			}
 		});
@@ -107,6 +115,7 @@ public class VirtualGraphicsObjectVariable extends Variable {
 			@Override
 			public Object execute(List<Object> arguments) {
 				// TODO: implement this method
+				System.out.println("Method SETSOURCE is not implemented yet");
 				return null;
 			}
 		});

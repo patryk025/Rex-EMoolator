@@ -18,6 +18,7 @@ public class MouseVariable extends Variable {
 			@Override
 			public Object execute(List<Object> arguments) {
 				// TODO: implement this method
+				System.out.println("Method DISABLE is not implemented yet");
 				return null;
 			}
 		});

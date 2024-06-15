@@ -23,6 +23,7 @@ public class DatabaseVariable extends Variable {
 			@Override
 			public Object execute(List<Object> arguments) {
 				// TODO: implement this method
+				System.out.println("Method FIND is not implemented yet");
 				return null;
 			}
 		});
@@ -32,6 +33,7 @@ public class DatabaseVariable extends Variable {
 			@Override
 			public Object execute(List<Object> arguments) {
 				// TODO: implement this method
+				System.out.println("Method GETROWSNO is not implemented yet");
 				return null;
 			}
 		});
@@ -44,6 +46,7 @@ public class DatabaseVariable extends Variable {
 			@Override
 			public Object execute(List<Object> arguments) {
 				// TODO: implement this method
+				System.out.println("Method LOAD is not implemented yet");
 				return null;
 			}
 		});
@@ -53,6 +56,7 @@ public class DatabaseVariable extends Variable {
 			@Override
 			public Object execute(List<Object> arguments) {
 				// TODO: implement this method
+				System.out.println("Method NEXT is not implemented yet");
 				return null;
 			}
 		});
@@ -62,6 +66,7 @@ public class DatabaseVariable extends Variable {
 			@Override
 			public Object execute(List<Object> arguments) {
 				// TODO: implement this method
+				System.out.println("Method REMOVEALL is not implemented yet");
 				return null;
 			}
 		});
@@ -74,6 +79,7 @@ public class DatabaseVariable extends Variable {
 			@Override
 			public Object execute(List<Object> arguments) {
 				// TODO: implement this method
+				System.out.println("Method SAVE is not implemented yet");
 				return null;
 			}
 		});
@@ -86,6 +92,7 @@ public class DatabaseVariable extends Variable {
 			@Override
 			public Object execute(List<Object> arguments) {
 				// TODO: implement this method
+				System.out.println("Method SELECT is not implemented yet");
 				return null;
 			}
 		});

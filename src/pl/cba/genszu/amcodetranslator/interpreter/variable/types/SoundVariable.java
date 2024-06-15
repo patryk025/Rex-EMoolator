@@ -18,6 +18,7 @@ public class SoundVariable extends Variable {
 			@Override
 			public Object execute(List<Object> arguments) {
 				// TODO: implement this method
+				System.out.println("Method ISPLAYING is not implemented yet");
 				return null;
 			}
 		});
@@ -30,6 +31,7 @@ public class SoundVariable extends Variable {
 			@Override
 			public Object execute(List<Object> arguments) {
 				// TODO: implement this method
+				System.out.println("Method LOAD is not implemented yet");
 				return null;
 			}
 		});
@@ -39,6 +41,7 @@ public class SoundVariable extends Variable {
 			@Override
 			public Object execute(List<Object> arguments) {
 				// TODO: implement this method
+				System.out.println("Method PAUSE is not implemented yet");
 				return null;
 			}
 		});
@@ -51,6 +54,7 @@ public class SoundVariable extends Variable {
 			@Override
 			public Object execute(List<Object> arguments) {
 				// TODO: implement this method
+				System.out.println("Method PLAY is not implemented yet");
 				return null;
 			}
 		});
@@ -60,6 +64,7 @@ public class SoundVariable extends Variable {
 			@Override
 			public Object execute(List<Object> arguments) {
 				// TODO: implement this method
+				System.out.println("Method RESUME is not implemented yet");
 				return null;
 			}
 		});
@@ -72,6 +77,7 @@ public class SoundVariable extends Variable {
 			@Override
 			public Object execute(List<Object> arguments) {
 				// TODO: implement this method
+				System.out.println("Method STOP is not implemented yet");
 				return null;
 			}
 		});

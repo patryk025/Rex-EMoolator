@@ -21,6 +21,7 @@ public class VectorVariable extends Variable {
 			@Override
 			public Object execute(List<Object> arguments) {
 				// TODO: implement this method
+				System.out.println("Method ADD is not implemented yet");
 				return null;
 			}
 		});
@@ -34,6 +35,7 @@ public class VectorVariable extends Variable {
 			@Override
 			public Object execute(List<Object> arguments) {
 				// TODO: implement this method
+				System.out.println("Method ASSIGN is not implemented yet");
 				return null;
 			}
 		});
@@ -46,6 +48,7 @@ public class VectorVariable extends Variable {
 			@Override
 			public Object execute(List<Object> arguments) {
 				// TODO: implement this method
+				System.out.println("Method GET is not implemented yet");
 				return null;
 			}
 		});
@@ -58,6 +61,7 @@ public class VectorVariable extends Variable {
 			@Override
 			public Object execute(List<Object> arguments) {
 				// TODO: implement this method
+				System.out.println("Method MUL is not implemented yet");
 				return null;
 			}
 		});
@@ -67,6 +71,7 @@ public class VectorVariable extends Variable {
 			@Override
 			public Object execute(List<Object> arguments) {
 				// TODO: implement this method
+				System.out.println("Method NORMALIZE is not implemented yet");
 				return null;
 			}
 		});
@@ -80,6 +85,7 @@ public class VectorVariable extends Variable {
 			@Override
 			public Object execute(List<Object> arguments) {
 				// TODO: implement this method
+				System.out.println("Method REFLECT is not implemented yet");
 				return null;
 			}
 		});

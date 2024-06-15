@@ -21,6 +21,7 @@ public class TextVariable extends Variable {
 			@Override
 			public Object execute(List<Object> arguments) {
 				// TODO: implement this method
+				System.out.println("Method SETTEXT is not implemented yet");
 				return null;
 			}
 		});
@@ -30,6 +31,7 @@ public class TextVariable extends Variable {
 			@Override
 			public Object execute(List<Object> arguments) {
 				// TODO: implement this method
+				System.out.println("Method SHOW is not implemented yet");
 				return null;
 			}
 		});
@@ -39,6 +41,7 @@ public class TextVariable extends Variable {
 			@Override
 			public Object execute(List<Object> arguments) {
 				// TODO: implement this method
+				System.out.println("Method HIDE is not implemented yet");
 				return null;
 			}
 		});

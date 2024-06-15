@@ -32,6 +32,7 @@ public class WorldVariable extends Variable {
 			@Override
 			public Object execute(List<Object> arguments) {
 				// TODO: implement this method
+				System.out.println("Method ADDBODY is not implemented yet");
 				return null;
 			}
 		});
@@ -47,6 +48,7 @@ public class WorldVariable extends Variable {
 			@Override
 			public Object execute(List<Object> arguments) {
 				// TODO: implement this method
+				System.out.println("Method ADDFORCE is not implemented yet");
 				return null;
 			}
 		});
@@ -61,6 +63,7 @@ public class WorldVariable extends Variable {
 			@Override
 			public Object execute(List<Object> arguments) {
 				// TODO: implement this method
+				System.out.println("Method ADDGRAVITYEX is not implemented yet");
 				return null;
 			}
 		});
@@ -79,6 +82,7 @@ public class WorldVariable extends Variable {
 			@Override
 			public Object execute(List<Object> arguments) {
 				// TODO: implement this method
+				System.out.println("Method FINDPATH is not implemented yet");
 				return null;
 			}
 		});
@@ -94,6 +98,7 @@ public class WorldVariable extends Variable {
 			@Override
 			public Object execute(List<Object> arguments) {
 				// TODO: implement this method
+				System.out.println("Method FOLLOWPATH is not implemented yet");
 				return null;
 			}
 		});
@@ -106,6 +111,7 @@ public class WorldVariable extends Variable {
 			@Override
 			public Object execute(List<Object> arguments) {
 				// TODO: implement this method
+				System.out.println("Method GETANGLE is not implemented yet");
 				return null;
 			}
 		});
@@ -115,6 +121,7 @@ public class WorldVariable extends Variable {
 			@Override
 			public Object execute(List<Object> arguments) {
 				// TODO: implement this method
+				System.out.println("Method GETBKGPOSX is not implemented yet");
 				return null;
 			}
 		});
@@ -124,6 +131,7 @@ public class WorldVariable extends Variable {
 			@Override
 			public Object execute(List<Object> arguments) {
 				// TODO: implement this method
+				System.out.println("Method GETBKGPOSY is not implemented yet");
 				return null;
 			}
 		});
@@ -136,6 +144,7 @@ public class WorldVariable extends Variable {
 			@Override
 			public Object execute(List<Object> arguments) {
 				// TODO: implement this method
+				System.out.println("Method GETMOVEDISTANCE is not implemented yet");
 				return null;
 			}
 		});
@@ -148,6 +157,7 @@ public class WorldVariable extends Variable {
 			@Override
 			public Object execute(List<Object> arguments) {
 				// TODO: implement this method
+				System.out.println("Method GETPOSITIONX is not implemented yet");
 				return null;
 			}
 		});
@@ -160,6 +170,7 @@ public class WorldVariable extends Variable {
 			@Override
 			public Object execute(List<Object> arguments) {
 				// TODO: implement this method
+				System.out.println("Method GETPOSITIONY is not implemented yet");
 				return null;
 			}
 		});
@@ -172,6 +183,7 @@ public class WorldVariable extends Variable {
 			@Override
 			public Object execute(List<Object> arguments) {
 				// TODO: implement this method
+				System.out.println("Method GETPOSITIONZ is not implemented yet");
 				return null;
 			}
 		});
@@ -184,6 +196,7 @@ public class WorldVariable extends Variable {
 			@Override
 			public Object execute(List<Object> arguments) {
 				// TODO: implement this method
+				System.out.println("Method GETROTATIONZ is not implemented yet");
 				return null;
 			}
 		});
@@ -196,6 +209,7 @@ public class WorldVariable extends Variable {
 			@Override
 			public Object execute(List<Object> arguments) {
 				// TODO: implement this method
+				System.out.println("Method GETSPEED is not implemented yet");
 				return null;
 			}
 		});
@@ -218,6 +232,7 @@ public class WorldVariable extends Variable {
 			@Override
 			public Object execute(List<Object> arguments) {
 				// TODO: implement this method
+				System.out.println("Method JOIN is not implemented yet");
 				return null;
 			}
 		});
@@ -232,6 +247,7 @@ public class WorldVariable extends Variable {
 			@Override
 			public Object execute(List<Object> arguments) {
 				// TODO: implement this method
+				System.out.println("Method LINK is not implemented yet");
 				return null;
 			}
 		});
@@ -244,6 +260,7 @@ public class WorldVariable extends Variable {
 			@Override
 			public Object execute(List<Object> arguments) {
 				// TODO: implement this method
+				System.out.println("Method LOAD is not implemented yet");
 				return null;
 			}
 		});
@@ -253,6 +270,7 @@ public class WorldVariable extends Variable {
 			@Override
 			public Object execute(List<Object> arguments) {
 				// TODO: implement this method
+				System.out.println("Method MOVEOBJECTS is not implemented yet");
 				return null;
 			}
 		});
@@ -265,6 +283,7 @@ public class WorldVariable extends Variable {
 			@Override
 			public Object execute(List<Object> arguments) {
 				// TODO: implement this method
+				System.out.println("Method REMOVEOBJECT is not implemented yet");
 				return null;
 			}
 		});
@@ -278,6 +297,7 @@ public class WorldVariable extends Variable {
 			@Override
 			public Object execute(List<Object> arguments) {
 				// TODO: implement this method
+				System.out.println("Method SETACTIVE is not implemented yet");
 				return null;
 			}
 		});
@@ -292,6 +312,7 @@ public class WorldVariable extends Variable {
 			@Override
 			public Object execute(List<Object> arguments) {
 				// TODO: implement this method
+				System.out.println("Method SETACTIVE is not implemented yet");
 				return null;
 			}
 		});
@@ -307,6 +328,7 @@ public class WorldVariable extends Variable {
 			@Override
 			public Object execute(List<Object> arguments) {
 				// TODO: implement this method
+				System.out.println("Method SETBKGSIZE is not implemented yet");
 				return null;
 			}
 		});
@@ -320,6 +342,7 @@ public class WorldVariable extends Variable {
 			@Override
 			public Object execute(List<Object> arguments) {
 				// TODO: implement this method
+				System.out.println("Method SETG is not implemented yet");
 				return null;
 			}
 		});
@@ -334,6 +357,7 @@ public class WorldVariable extends Variable {
 			@Override
 			public Object execute(List<Object> arguments) {
 				// TODO: implement this method
+				System.out.println("Method SETGRAVITY is not implemented yet");
 				return null;
 			}
 		});
@@ -347,6 +371,7 @@ public class WorldVariable extends Variable {
 			@Override
 			public Object execute(List<Object> arguments) {
 				// TODO: implement this method
+				System.out.println("Method SETGRAVITYCENTER is not implemented yet");
 				return null;
 			}
 		});
@@ -365,6 +390,7 @@ public class WorldVariable extends Variable {
 			@Override
 			public Object execute(List<Object> arguments) {
 				// TODO: implement this method
+				System.out.println("Method SETLIMIT is not implemented yet");
 				return null;
 			}
 		});
@@ -378,6 +404,7 @@ public class WorldVariable extends Variable {
 			@Override
 			public Object execute(List<Object> arguments) {
 				// TODO: implement this method
+				System.out.println("Method SETMAXSPEED is not implemented yet");
 				return null;
 			}
 		});
@@ -391,6 +418,7 @@ public class WorldVariable extends Variable {
 			@Override
 			public Object execute(List<Object> arguments) {
 				// TODO: implement this method
+				System.out.println("Method SETMOVEFLAGS is not implemented yet");
 				return null;
 			}
 		});
@@ -406,6 +434,7 @@ public class WorldVariable extends Variable {
 			@Override
 			public Object execute(List<Object> arguments) {
 				// TODO: implement this method
+				System.out.println("Method SETPOSITION is not implemented yet");
 				return null;
 			}
 		});
@@ -418,6 +447,7 @@ public class WorldVariable extends Variable {
 			@Override
 			public Object execute(List<Object> arguments) {
 				// TODO: implement this method
+				System.out.println("Method SETREFOBJECT is not implemented yet");
 				return null;
 			}
 		});
@@ -433,6 +463,7 @@ public class WorldVariable extends Variable {
 			@Override
 			public Object execute(List<Object> arguments) {
 				// TODO: implement this method
+				System.out.println("Method SETVELOCITY is not implemented yet");
 				return null;
 			}
 		});
@@ -442,6 +473,7 @@ public class WorldVariable extends Variable {
 			@Override
 			public Object execute(List<Object> arguments) {
 				// TODO: implement this method
+				System.out.println("Method START is not implemented yet");
 				return null;
 			}
 		});
@@ -451,6 +483,7 @@ public class WorldVariable extends Variable {
 			@Override
 			public Object execute(List<Object> arguments) {
 				// TODO: implement this method
+				System.out.println("Method STOP is not implemented yet");
 				return null;
 			}
 		});
@@ -463,6 +496,7 @@ public class WorldVariable extends Variable {
 			@Override
 			public Object execute(List<Object> arguments) {
 				// TODO: implement this method
+				System.out.println("Method UNLINK is not implemented yet");
 				return null;
 			}
 		});
