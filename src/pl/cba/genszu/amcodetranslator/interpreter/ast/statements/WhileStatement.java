@@ -4,7 +4,7 @@ import pl.cba.genszu.amcodetranslator.interpreter.Context;
 import pl.cba.genszu.amcodetranslator.interpreter.ast.Expression;
 import pl.cba.genszu.amcodetranslator.interpreter.ast.Statement;
 import pl.cba.genszu.amcodetranslator.interpreter.ast.expressions.ConstantExpression;
-import pl.cba.genszu.amcodetranslator.interpreter.types.IntegerVariable;
+import pl.cba.genszu.amcodetranslator.interpreter.variable.types.IntegerVariable;
 
 public class WhileStatement extends Statement {
     private final Expression condition;

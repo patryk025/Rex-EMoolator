@@ -3,6 +3,7 @@ package pl.cba.genszu.amcodetranslator.interpreter.ast.statements;
 import pl.cba.genszu.amcodetranslator.interpreter.*;
 import pl.cba.genszu.amcodetranslator.interpreter.ast.*;
 import pl.cba.genszu.amcodetranslator.interpreter.exceptions.*;
+import pl.cba.genszu.amcodetranslator.interpreter.variable.Variable;
 
 import static pl.cba.genszu.amcodetranslator.interpreter.util.VariableHelper.getVariableFromObject;
 

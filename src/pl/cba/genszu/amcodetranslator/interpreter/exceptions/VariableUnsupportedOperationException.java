@@ -1,6 +1,6 @@
 package pl.cba.genszu.amcodetranslator.interpreter.exceptions;
 
-import pl.cba.genszu.amcodetranslator.interpreter.*;
+import pl.cba.genszu.amcodetranslator.interpreter.variable.Variable;
 
 public class VariableUnsupportedOperationException extends InterpreterException
 {

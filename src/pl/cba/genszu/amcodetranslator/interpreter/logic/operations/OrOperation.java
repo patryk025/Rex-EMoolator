@@ -1,12 +1,12 @@
 package pl.cba.genszu.amcodetranslator.interpreter.logic.operations;
 
-import pl.cba.genszu.amcodetranslator.interpreter.Variable;
+import pl.cba.genszu.amcodetranslator.interpreter.variable.Variable;
 import pl.cba.genszu.amcodetranslator.interpreter.arithmetic.ArithmeticOperation;
 import pl.cba.genszu.amcodetranslator.interpreter.factories.VariableFactory;
-import pl.cba.genszu.amcodetranslator.interpreter.types.BoolVariable;
-import pl.cba.genszu.amcodetranslator.interpreter.types.DoubleVariable;
-import pl.cba.genszu.amcodetranslator.interpreter.types.IntegerVariable;
-import pl.cba.genszu.amcodetranslator.interpreter.types.StringVariable;
+import pl.cba.genszu.amcodetranslator.interpreter.variable.types.BoolVariable;
+import pl.cba.genszu.amcodetranslator.interpreter.variable.types.DoubleVariable;
+import pl.cba.genszu.amcodetranslator.interpreter.variable.types.IntegerVariable;
+import pl.cba.genszu.amcodetranslator.interpreter.variable.types.StringVariable;
 
 public class OrOperation extends ArithmeticOperation {
     @Override
@@ -66,12 +66,12 @@ public class OrOperation extends ArithmeticOperation {
 
     @Override
     public Variable performOperation(BoolVariable var1, BoolVariable var2) {
-        return VariableFactory.createVariable("BOOL", "", var1.GET() || var2.GET());
+        return VariableFactory.createVariable("BOOL", "", var1.GET() || var2.GET(), var1.getContext());
     }
 
     @Override
     public Variable performOperation(BoolVariable var1, IntegerVariable var2) {
-        return VariableFactory.createVariable("BOOL", "", var1.GET() || (var2.GET() != 0));
+        return VariableFactory.createVariable("BOOL", "", var1.GET() || (var2.GET() != 0), var1.getContext());
     }
 
     @Override
@@ -81,7 +81,7 @@ public class OrOperation extends ArithmeticOperation {
 
     @Override
     public Variable performOperation(BoolVariable var1, DoubleVariable var2) {
-        return VariableFactory.createVariable("BOOL", "", var1.GET() || (var2.GET() != 0));
+        return VariableFactory.createVariable("BOOL", "", var1.GET() || (var2.GET() != 0), var1.getContext());
     }
 
     @Override

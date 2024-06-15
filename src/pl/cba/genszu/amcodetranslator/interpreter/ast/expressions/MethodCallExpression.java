@@ -1,7 +1,7 @@
 package pl.cba.genszu.amcodetranslator.interpreter.ast.expressions;
 
 import pl.cba.genszu.amcodetranslator.interpreter.Context;
-import pl.cba.genszu.amcodetranslator.interpreter.Variable;
+import pl.cba.genszu.amcodetranslator.interpreter.variable.Variable;
 import pl.cba.genszu.amcodetranslator.interpreter.ast.Expression;
 import pl.cba.genszu.amcodetranslator.interpreter.exceptions.ClassMethodNotFoundException;
 
@@ -34,7 +34,7 @@ public class MethodCallExpression extends Expression {
             arguments[i] = getVariableFromObject(this.arguments[i], context);
         }
         try {
-            return variable.fireFunction(methodName, arguments);
+            return variable.fireMethod(methodName, (Object) arguments);
         } catch (ClassMethodNotFoundException e) {
             System.out.println("Błąd wywołania metody: " + e.getMessage());
             return null;

@@ -1,0 +1,128 @@
+package pl.cba.genszu.amcodetranslator.interpreter.variable.types;
+
+import pl.cba.genszu.amcodetranslator.interpreter.Context;
+import pl.cba.genszu.amcodetranslator.interpreter.variable.Attribute;
+import pl.cba.genszu.amcodetranslator.interpreter.variable.Method;
+import pl.cba.genszu.amcodetranslator.interpreter.variable.Parameter;
+import pl.cba.genszu.amcodetranslator.interpreter.variable.Variable;
+
+import java.util.List;
+
+public class VirtualGraphicsObjectVariable extends Variable {
+	public VirtualGraphicsObjectVariable(String name, Context context) {
+		super(name, context);
+
+		this.setMethod("GETHEIGHT", new Method(
+			"INTEGER"
+		) {
+			@Override
+			public Object execute(List<Object> arguments) {
+				// TODO: implement this method
+				return null;
+			}
+		});
+		this.setMethod("GETPOSITIONX", new Method(
+			"INTEGER"
+		) {
+			@Override
+			public Object execute(List<Object> arguments) {
+				// TODO: implement this method
+				return null;
+			}
+		});
+		this.setMethod("GETPOSITIONY", new Method(
+			"INTEGER"
+		) {
+			@Override
+			public Object execute(List<Object> arguments) {
+				// TODO: implement this method
+				return null;
+			}
+		});
+		this.setMethod("GETWIDTH", new Method(
+			"INTEGER"
+		) {
+			@Override
+			public Object execute(List<Object> arguments) {
+				// TODO: implement this method
+				return null;
+			}
+		});
+		this.setMethod("MOVE", new Method(
+			List.of(
+				new Parameter("INTEGER", "offsetX", true),
+				new Parameter("INTEGER", "offsetY", true)
+			),
+			"void"
+		) {
+			@Override
+			public Object execute(List<Object> arguments) {
+				// TODO: implement this method
+				return null;
+			}
+		});
+		this.setMethod("SETMASK", new Method(
+			List.of(
+				new Parameter("STRING", "mask", true)
+			),
+			"void"
+		) {
+			@Override
+			public Object execute(List<Object> arguments) {
+				// TODO: implement this method
+				return null;
+			}
+		});
+		this.setMethod("SETPOSITION", new Method(
+			List.of(
+				new Parameter("INTEGER", "x", true),
+				new Parameter("INTEGER", "y", true)
+			),
+			"void"
+		) {
+			@Override
+			public Object execute(List<Object> arguments) {
+				// TODO: implement this method
+				return null;
+			}
+		});
+		this.setMethod("SETPRIORITY", new Method(
+			List.of(
+				new Parameter("INTEGER", "priority", true)
+			),
+			"void"
+		) {
+			@Override
+			public Object execute(List<Object> arguments) {
+				// TODO: implement this method
+				return null;
+			}
+		});
+		this.setMethod("SETSOURCE", new Method(
+			List.of(
+				new Parameter("STRING", "source", true)
+			),
+			"void"
+		) {
+			@Override
+			public Object execute(List<Object> arguments) {
+				// TODO: implement this method
+				return null;
+			}
+		});
+	}
+
+	@Override
+	public String getType() {
+		return "VIRTUALGRAPHICSOBJECT";
+	}
+
+	@Override
+	public void setAttribute(String name, Attribute attribute) {
+		List<String> knownAttributes = List.of("ASBUTTON", "MASK", "MONITORCOLLISION", "MONITORCOLLISIONALPHA", "PRIORITY", "SOURCE", "TOCANVAS", "VISIBLE");
+		if(knownAttributes.contains(name)) {
+			super.setAttribute(name, attribute);
+		}
+	}
+
+}

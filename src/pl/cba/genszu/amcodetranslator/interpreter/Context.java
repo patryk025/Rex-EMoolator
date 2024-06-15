@@ -1,5 +1,7 @@
 package pl.cba.genszu.amcodetranslator.interpreter;
 
+import pl.cba.genszu.amcodetranslator.interpreter.variable.Variable;
+
 import java.util.HashMap;
 import java.util.Map;
 

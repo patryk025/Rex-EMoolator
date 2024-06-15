@@ -1,7 +1,7 @@
 package pl.cba.genszu.amcodetranslator.interpreter.ast.statements;
 
 import pl.cba.genszu.amcodetranslator.interpreter.Context;
-import pl.cba.genszu.amcodetranslator.interpreter.Variable;
+import pl.cba.genszu.amcodetranslator.interpreter.variable.Variable;
 import pl.cba.genszu.amcodetranslator.interpreter.ast.Expression;
 import pl.cba.genszu.amcodetranslator.interpreter.ast.Statement;
 import pl.cba.genszu.amcodetranslator.interpreter.factories.VariableFactory;
@@ -21,10 +21,10 @@ public class VariableDefinitionStatement extends Statement {
     @Override
     public void execute(Context context) {
         Object value = expression.evaluate(context);
-		if(value instanceof ConstantExpression) {
-			value = ((Expression) value).evaluate(context);
-		}
-        Variable variable = VariableFactory.createVariable(type, variableName, value);
+      	if(value instanceof ConstantExpression) {
+			    value = ((Expression) value).evaluate(context);
+		    }
+        Variable variable = VariableFactory.createVariable(type, variableName, value, context);
         context.setVariable(variableName, variable);
     }
 }

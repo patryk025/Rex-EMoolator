@@ -88,9 +88,9 @@ public class Logger
 	}
 	
 	public static void log(String message, boolean newline) {
-		System.out.printf("%s"+(newline?"\n":""), new String[] {message});
+		System.out.printf("%s"+(newline?"\n":""), message);
 		if(logFile != null) {
-			logFile.printf("%s"+(newline?"\n":""), new String[] {message});
+			logFile.printf("%s"+(newline?"\n":""), message);
 			logFile.flush();
 		}
 	}
@@ -103,9 +103,9 @@ public class Logger
 	}
 	
 	public static void log(String level, String message, boolean newline) {
-		System.out.printf("%s: %s"+(newline?"\n":""), new String[] {level, message});
+		System.out.printf("%s: %s"+(newline?"\n":""), level, message);
 		if(logFile != null) {
-			logFile.printf("%s: %s"+(newline?"\n":""), new String[] {level, message});
+			logFile.printf("%s: %s"+(newline?"\n":""), level, message);
 			logFile.flush();
 		}
 	}
