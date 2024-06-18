@@ -189,4 +189,9 @@ public abstract class Variable {
 	public Context getContext() {
 		return this.context;
 	}
+
+	@Override
+	public String toString() {
+		return ""; // technicznie zmienne nie będące BOOLem, INTEGERem, DOUBLE, czy STRINGiem podczas próby wypisania wartości wywalają silnik, my zrobimy pustą wartość
+	}
 }

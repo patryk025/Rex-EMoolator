@@ -6,6 +6,8 @@ import pl.cba.genszu.amcodetranslator.interpreter.variable.Method;
 import pl.cba.genszu.amcodetranslator.interpreter.variable.Parameter;
 import pl.cba.genszu.amcodetranslator.interpreter.variable.Variable;
 
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
 import java.util.List;
 
 public class DoubleVariable extends Variable {
@@ -234,7 +236,7 @@ public class DoubleVariable extends Variable {
 	}
 
 	public int toInt() {
-		return (int) this.getValue();
+		return (int) Math.round((double) this.getValue());
 	}
 
 	public boolean toBool() {
@@ -242,7 +244,8 @@ public class DoubleVariable extends Variable {
 	}
 
 	public String toStringVariable() {
-		return String.valueOf(this.getValue());
+		NumberFormat formatter = new DecimalFormat("#0.00000");
+		return formatter.format(this.getValue());
 	}
 
 	public Variable convert(String type) {
@@ -264,4 +267,8 @@ public class DoubleVariable extends Variable {
 		return (double) this.getValue();
 	}
 
+	@Override
+	public String toString() {
+		return this.toStringVariable();
+	}
 }

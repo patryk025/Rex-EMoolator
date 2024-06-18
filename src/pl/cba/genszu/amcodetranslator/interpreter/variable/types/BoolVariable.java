@@ -91,4 +91,8 @@ public class BoolVariable extends Variable {
 		return (boolean) this.getValue();
 	}
 
+	@Override
+	public String toString() {
+		return this.toStringVariable();
+	}
 }

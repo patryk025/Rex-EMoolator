@@ -12,27 +12,27 @@ import pl.cba.genszu.amcodetranslator.interpreter.variable.types.StringVariable;
 public class MultiplyOperation extends ArithmeticOperation {
     @Override
     public Variable performOperation(StringVariable var1, StringVariable var2) {
-        throw new VariableUnsupportedOperationException(var1, var2, this.getOperation());
+        return var1;
     }
 
     @Override
     public Variable performOperation(IntegerVariable var1, StringVariable var2) {
-        throw new VariableUnsupportedOperationException(var1, var2, this.getOperation());
+        return VariableFactory.createVariable("INTEGER", null, var1.GET() * var2.toInt(), var1.getContext());
     }
 
     @Override
     public Variable performOperation(StringVariable var1, IntegerVariable var2) {
-        throw new VariableUnsupportedOperationException(var1, var2, this.getOperation());
+        return var1;
     }
 
     @Override
     public Variable performOperation(DoubleVariable var1, StringVariable var2) {
-        throw new VariableUnsupportedOperationException(var1, var2, this.getOperation());
+        return VariableFactory.createVariable("DOUBLE", null, var1.GET() * var2.toDouble(), var1.getContext());
     }
 
     @Override
     public Variable performOperation(StringVariable var1, DoubleVariable var2) {
-        throw new VariableUnsupportedOperationException(var1, var2, this.getOperation());
+        return var1;
     }
 
     @Override
@@ -47,7 +47,7 @@ public class MultiplyOperation extends ArithmeticOperation {
 
     @Override
     public Variable performOperation(IntegerVariable var1, DoubleVariable var2) {
-        return VariableFactory.createVariable("DOUBLE", null, var1.GET() * var2.GET(), var1.getContext());
+        return VariableFactory.createVariable("INTEGER", null, var1.GET() * var2.toInt(), var1.getContext());
     }
 
     @Override
@@ -57,36 +57,36 @@ public class MultiplyOperation extends ArithmeticOperation {
 
     @Override
     public Variable performOperation(BoolVariable var1, StringVariable var2) {
-        return null;
+        return var1;
     }
 
     @Override
     public Variable performOperation(StringVariable var1, BoolVariable var2) {
-        return null;
+        return var1;
     }
 
     @Override
     public Variable performOperation(BoolVariable var1, BoolVariable var2) {
-        return null;
+        return VariableFactory.createVariable("BOOL", null, var1.GET() || var2.GET(), var1.getContext()); // Tutaj silnik wygląda, jakby robił alternatywę, albo to, albo tamto
     }
 
     @Override
     public Variable performOperation(BoolVariable var1, IntegerVariable var2) {
-        return null;
+        return VariableFactory.createVariable("BOOL", null, var1.GET() || var2.toBool(), var1.getContext());
     }
 
     @Override
     public Variable performOperation(IntegerVariable var1, BoolVariable var2) {
-        return null;
+        return VariableFactory.createVariable("INTEGER", null, var1.GET() / var2.toInt(), var1.getContext());
     }
 
     @Override
     public Variable performOperation(BoolVariable var1, DoubleVariable var2) {
-        return null;
+        return VariableFactory.createVariable("BOOL", null, var1.GET() || var2.toBool(), var1.getContext());
     }
 
     @Override
     public Variable performOperation(DoubleVariable var1, BoolVariable var2) {
-        return null;
+        return VariableFactory.createVariable("DOUBLE", null, var1.GET() / var2.toDouble(), var1.getContext());
     }
 }

@@ -223,4 +223,8 @@ public class StringVariable extends Variable {
 		return (String) this.getValue();
 	}
 
+	@Override
+	public String toString() {
+		return (String) this.getValue();
+	}
 }

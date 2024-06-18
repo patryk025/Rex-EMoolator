@@ -243,4 +243,8 @@ public class IntegerVariable extends Variable {
 		return (int) this.getValue();
 	}
 
+	@Override
+	public String toString() {
+		return this.toStringVariable();
+	}
 }
