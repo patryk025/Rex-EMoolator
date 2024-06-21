@@ -1,5 +1,6 @@
 package pl.cba.genszu.amcodetranslator.interpreter.logic.operations;
 
+import pl.cba.genszu.amcodetranslator.interpreter.factories.VariableFactory;
 import pl.cba.genszu.amcodetranslator.interpreter.variable.Variable;
 import pl.cba.genszu.amcodetranslator.interpreter.arithmetic.ArithmeticOperation;
 import pl.cba.genszu.amcodetranslator.interpreter.variable.types.BoolVariable;
@@ -10,81 +11,81 @@ import pl.cba.genszu.amcodetranslator.interpreter.variable.types.StringVariable;
 public class GreaterThanOperation extends ArithmeticOperation {
     @Override
     public Variable performOperation(StringVariable var1, StringVariable var2) {
-        return null;
+        return VariableFactory.createVariable("BOOL", "", var1.GET().compareTo(var2.GET()) > 0, var1.getContext());
     }
 
     @Override
     public Variable performOperation(IntegerVariable var1, StringVariable var2) {
-        return null;
+        return VariableFactory.createVariable("BOOL", "", var1.GET() > var2.toInt(), var1.getContext());
     }
 
     @Override
     public Variable performOperation(StringVariable var1, IntegerVariable var2) {
-        return null;
+        return VariableFactory.createVariable("BOOL", "", var1.GET().compareTo(var2.toStringVariable()) > 0, var1.getContext());
     }
 
     @Override
     public Variable performOperation(DoubleVariable var1, StringVariable var2) {
-        return null;
+        return VariableFactory.createVariable("BOOL", "", var1.GET() > var2.toDouble(), var1.getContext());
     }
 
     @Override
     public Variable performOperation(StringVariable var1, DoubleVariable var2) {
-        return null;
+        return VariableFactory.createVariable("BOOL", "", var1.GET().compareTo(var2.toStringVariable()) > 0, var1.getContext());
     }
 
     @Override
     public Variable performOperation(IntegerVariable var1, IntegerVariable var2) {
-        return null;
+        return VariableFactory.createVariable("BOOL", "", var1.GET() > var2.GET(), var1.getContext());
     }
 
     @Override
     public Variable performOperation(DoubleVariable var1, IntegerVariable var2) {
-        return null;
+        return VariableFactory.createVariable("BOOL", "", var1.GET() > var2.toDouble(), var1.getContext());
     }
 
     @Override
     public Variable performOperation(IntegerVariable var1, DoubleVariable var2) {
-        return null;
+        return VariableFactory.createVariable("BOOL", "", var1.GET() > var2.toInt(), var1.getContext());
     }
 
     @Override
     public Variable performOperation(DoubleVariable var1, DoubleVariable var2) {
-        return null;
+        return VariableFactory.createVariable("BOOL", "", var1.GET() > var2.GET(), var1.getContext());
     }
 
     @Override
     public Variable performOperation(BoolVariable var1, StringVariable var2) {
-        return null;
+        return VariableFactory.createVariable("BOOL", "", var1.toInt() > var2.toInt(), var1.getContext());
     }
 
     @Override
     public Variable performOperation(StringVariable var1, BoolVariable var2) {
-        return null;
+        return VariableFactory.createVariable("BOOL", "", var1.GET().compareTo(var2.toStringVariable()) > 0, var1.getContext());
     }
 
     @Override
     public Variable performOperation(BoolVariable var1, BoolVariable var2) {
-        return null;
+        return VariableFactory.createVariable("BOOL", "", var1.toInt() > var2.toInt(), var1.getContext());
     }
 
     @Override
     public Variable performOperation(BoolVariable var1, IntegerVariable var2) {
-        return null;
+        return VariableFactory.createVariable("BOOL", "", var1.toInt() > var2.GET(), var1.getContext());
     }
 
     @Override
     public Variable performOperation(IntegerVariable var1, BoolVariable var2) {
-        return null;
+        return VariableFactory.createVariable("BOOL", "", var1.GET() > var2.toInt(), var1.getContext());
     }
 
     @Override
     public Variable performOperation(BoolVariable var1, DoubleVariable var2) {
-        return null;
+        return VariableFactory.createVariable("BOOL", "", var1.toDouble() > var2.GET(), var1.getContext());
     }
 
     @Override
     public Variable performOperation(DoubleVariable var1, BoolVariable var2) {
-        return null;
+        return VariableFactory.createVariable("BOOL", "", var1.GET() > var2.toDouble(), var1.getContext());
     }
 }
