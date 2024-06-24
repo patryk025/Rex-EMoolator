@@ -11,57 +11,57 @@ import pl.cba.genszu.amcodetranslator.interpreter.variable.types.StringVariable;
 public class AndOperation extends ArithmeticOperation {
     @Override
     public Variable performOperation(StringVariable var1, StringVariable var2) {
-        return null;
+        throw new UnsupportedOperationException(String.format("Nieobsługiwana operacja AND dla zmiennych typu (%s, %s)", var1.getType(), var2.getType()));
     }
 
     @Override
     public Variable performOperation(IntegerVariable var1, StringVariable var2) {
-        return null;
+        throw new UnsupportedOperationException(String.format("Nieobsługiwana operacja AND dla zmiennych typu (%s, %s)", var1.getType(), var2.getType()));
     }
 
     @Override
     public Variable performOperation(StringVariable var1, IntegerVariable var2) {
-        return null;
+        throw new UnsupportedOperationException(String.format("Nieobsługiwana operacja AND dla zmiennych typu (%s, %s)", var1.getType(), var2.getType()));
     }
 
     @Override
     public Variable performOperation(DoubleVariable var1, StringVariable var2) {
-        return null;
+        throw new UnsupportedOperationException(String.format("Nieobsługiwana operacja AND dla zmiennych typu (%s, %s)", var1.getType(), var2.getType()));
     }
 
     @Override
     public Variable performOperation(StringVariable var1, DoubleVariable var2) {
-        return null;
+        throw new UnsupportedOperationException(String.format("Nieobsługiwana operacja AND dla zmiennych typu (%s, %s)", var1.getType(), var2.getType()));
     }
 
     @Override
     public Variable performOperation(IntegerVariable var1, IntegerVariable var2) {
-        return null;
+        throw new UnsupportedOperationException(String.format("Nieobsługiwana operacja AND dla zmiennych typu (%s, %s)", var1.getType(), var2.getType()));
     }
 
     @Override
     public Variable performOperation(DoubleVariable var1, IntegerVariable var2) {
-        return null;
+        throw new UnsupportedOperationException(String.format("Nieobsługiwana operacja AND dla zmiennych typu (%s, %s)", var1.getType(), var2.getType()));
     }
 
     @Override
     public Variable performOperation(IntegerVariable var1, DoubleVariable var2) {
-        return null;
+        throw new UnsupportedOperationException(String.format("Nieobsługiwana operacja AND dla zmiennych typu (%s, %s)", var1.getType(), var2.getType()));
     }
 
     @Override
     public Variable performOperation(DoubleVariable var1, DoubleVariable var2) {
-        return null;
+        throw new UnsupportedOperationException(String.format("Nieobsługiwana operacja AND dla zmiennych typu (%s, %s)", var1.getType(), var2.getType()));
     }
 
     @Override
     public Variable performOperation(BoolVariable var1, StringVariable var2) {
-        return null;
+        throw new UnsupportedOperationException(String.format("Nieobsługiwana operacja AND dla zmiennych typu (%s, %s)", var1.getType(), var2.getType()));
     }
 
     @Override
     public Variable performOperation(StringVariable var1, BoolVariable var2) {
-        return null;
+        throw new UnsupportedOperationException(String.format("Nieobsługiwana operacja AND dla zmiennych typu (%s, %s)", var1.getType(), var2.getType()));
     }
 
     @Override
@@ -71,21 +71,21 @@ public class AndOperation extends ArithmeticOperation {
 
     @Override
     public Variable performOperation(BoolVariable var1, IntegerVariable var2) {
-        return VariableFactory.createVariable("BOOL", "", var1.GET() && (var2.GET() != 0), var1.getContext());
+        throw new UnsupportedOperationException(String.format("Nieobsługiwana operacja AND dla zmiennych typu (%s, %s)", var1.getType(), var2.getType()));
     }
 
     @Override
     public Variable performOperation(IntegerVariable var1, BoolVariable var2) {
-        return null;
+        throw new UnsupportedOperationException(String.format("Nieobsługiwana operacja AND dla zmiennych typu (%s, %s)", var1.getType(), var2.getType()));
     }
 
     @Override
     public Variable performOperation(BoolVariable var1, DoubleVariable var2) {
-        return VariableFactory.createVariable("BOOL", "", var1.GET() && (var2.GET() != 0), var1.getContext());
+        throw new UnsupportedOperationException(String.format("Nieobsługiwana operacja AND dla zmiennych typu (%s, %s)", var1.getType(), var2.getType()));
     }
 
     @Override
     public Variable performOperation(DoubleVariable var1, BoolVariable var2) {
-        return null;
+        throw new UnsupportedOperationException(String.format("Nieobsługiwana operacja AND dla zmiennych typu (%s, %s)", var1.getType(), var2.getType()));
     }
 }
