@@ -130,10 +130,13 @@ public abstract class Variable {
 		return null;
 	}
 
-	public Variable fireMethod(String method, Object... params) {
-		/*Method method = this.getMethod(name, new ArrayList<>());
-		return method.execute(List.of(params));*/
-		return null;
+	public Variable fireMethod(String methodName, Object... params) {
+		List<String> paramsTypes = new ArrayList<>();
+		for(Object param : params) {
+			paramsTypes.add(((Variable) param).getType());
+		}
+		Method method = this.getMethod(methodName, paramsTypes);
+		return (Variable) method.execute(List.of(params));
 	}
 
 	public void setAttribute(String name, Attribute attribute) {
