@@ -244,8 +244,11 @@ public class DoubleVariable extends Variable {
 	}
 
 	public String toStringVariable() {
+		if((double) this.getValue() == 0) {
+			return "0";
+		}
 		NumberFormat formatter = new DecimalFormat("#0.00000");
-		return formatter.format(this.getValue());
+		return formatter.format(this.getValue()).replace(",", ".");
 	}
 
 	public Variable convert(String type) {

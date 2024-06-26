@@ -15,6 +15,6 @@ public class ReturnExpression extends Expression
 
     @Override
     public Object evaluate(Context context) {
-        return getVariableFromObject(returnValue, context).getValue();
+        return getVariableFromObject(returnValue, context);
     }
 }
