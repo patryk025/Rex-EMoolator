@@ -34,7 +34,7 @@ public class MethodCallExpression extends Expression {
             arguments[i] = getVariableFromObject(this.arguments[i], context);
         }
         try {
-            return variable.fireMethod(methodName, (Object) arguments);
+            return variable.fireMethod(methodName, (Object[]) arguments);
         } catch (ClassMethodNotFoundException e) {
             System.out.println("Błąd wywołania metody: " + e.getMessage());
             return null;
