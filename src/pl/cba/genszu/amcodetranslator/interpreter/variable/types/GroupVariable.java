@@ -19,7 +19,7 @@ public class GroupVariable extends Variable {
 			"void"
 		) {
 			@Override
-			public Object execute(List<Object> arguments) {
+			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
 				System.out.println("Method [nazwa metody] is not implemented yet");
 				return null;
@@ -32,7 +32,7 @@ public class GroupVariable extends Variable {
 			"void"
 		) {
 			@Override
-			public Object execute(List<Object> arguments) {
+			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
 				System.out.println("Method ADD is not implemented yet");
 				return null;
@@ -47,7 +47,7 @@ public class GroupVariable extends Variable {
 			"void"
 		) {
 			@Override
-			public Object execute(List<Object> arguments) {
+			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
 				System.out.println("Method ADDCLONES is not implemented yet");
 				return null;
@@ -57,7 +57,7 @@ public class GroupVariable extends Variable {
 			"INTEGER"
 		) {
 			@Override
-			public Object execute(List<Object> arguments) {
+			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
 				System.out.println("Method GETSIZE is not implemented yet");
 				return null;
@@ -67,7 +67,7 @@ public class GroupVariable extends Variable {
 			"mixed"
 		) {
 			@Override
-			public Object execute(List<Object> arguments) {
+			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
 				System.out.println("Method NEXT is not implemented yet");
 				return null;
@@ -77,7 +77,7 @@ public class GroupVariable extends Variable {
 			"mixed"
 		) {
 			@Override
-			public Object execute(List<Object> arguments) {
+			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
 				System.out.println("Method PREV is not implemented yet");
 				return null;
@@ -90,7 +90,7 @@ public class GroupVariable extends Variable {
 			"void"
 		) {
 			@Override
-			public Object execute(List<Object> arguments) {
+			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
 				System.out.println("Method REMOVE is not implemented yet");
 				return null;
@@ -100,7 +100,7 @@ public class GroupVariable extends Variable {
 			"void"
 		) {
 			@Override
-			public Object execute(List<Object> arguments) {
+			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
 				System.out.println("Method REMOVEALL is not implemented yet");
 				return null;
@@ -110,7 +110,7 @@ public class GroupVariable extends Variable {
 			"void"
 		) {
 			@Override
-			public Object execute(List<Object> arguments) {
+			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
 				System.out.println("Method RESETMARKER is not implemented yet");
 				return null;

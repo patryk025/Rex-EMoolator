@@ -1,6 +1,7 @@
 package pl.cba.genszu.amcodetranslator.interpreter.variable.types;
 
 import pl.cba.genszu.amcodetranslator.interpreter.Context;
+import pl.cba.genszu.amcodetranslator.interpreter.factories.VariableFactory;
 import pl.cba.genszu.amcodetranslator.interpreter.variable.Attribute;
 import pl.cba.genszu.amcodetranslator.interpreter.variable.Method;
 import pl.cba.genszu.amcodetranslator.interpreter.variable.Parameter;
@@ -20,7 +21,7 @@ public class StringVariable extends Variable {
 			"STRING"
 		) {
 			@Override
-			public Object execute(List<Object> arguments) {
+			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
 				System.out.println("Method ADD is not implemented yet");
 				return null;
@@ -34,7 +35,7 @@ public class StringVariable extends Variable {
 			"void"
 		) {
 			@Override
-			public Object execute(List<Object> arguments) {
+			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
 				System.out.println("Method CHANGEAT is not implemented yet");
 				return null;
@@ -48,7 +49,7 @@ public class StringVariable extends Variable {
 			"BOOL"
 		) {
 			@Override
-			public Object execute(List<Object> arguments) {
+			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
 				System.out.println("Method COPYFILE is not implemented yet");
 				return null;
@@ -62,7 +63,7 @@ public class StringVariable extends Variable {
 			"void"
 		) {
 			@Override
-			public Object execute(List<Object> arguments) {
+			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
 				System.out.println("Method CUT is not implemented yet");
 				return null;
@@ -76,7 +77,7 @@ public class StringVariable extends Variable {
 			"INTEGER"
 		) {
 			@Override
-			public Object execute(List<Object> arguments) {
+			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
 				System.out.println("Method FIND is not implemented yet");
 				return null;
@@ -90,17 +91,20 @@ public class StringVariable extends Variable {
 			"STRING"
 		) {
 			@Override
-			public Object execute(List<Object> arguments) {
-				// TODO: implement this method
-				System.out.println("Method GET is not implemented yet");
-				return null;
+			public Variable execute(List<Object> arguments) {
+				Variable index = (Variable) arguments.get(0);
+				Variable length = VariableFactory.createVariable("INTEGER", String.valueOf(toString().length()), context);
+				if(arguments.get(1) != null) {
+					length = (Variable) arguments.get(1);
+				}
+				return VariableFactory.createVariable("STRING", toString().substring((int) index.getValue(), (int) length.getValue()), context);
 			}
 		});
 		this.setMethod("LENGTH", new Method(
 			"INTEGER"
 		) {
 			@Override
-			public Object execute(List<Object> arguments) {
+			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
 				System.out.println("Method LENGTH is not implemented yet");
 				return null;
@@ -114,7 +118,7 @@ public class StringVariable extends Variable {
 			"void"
 		) {
 			@Override
-			public Object execute(List<Object> arguments) {
+			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
 				System.out.println("Method REPLACEAT is not implemented yet");
 				return null;
@@ -127,9 +131,9 @@ public class StringVariable extends Variable {
 			"void"
 		) {
 			@Override
-			public Object execute(List<Object> arguments) {
-				// TODO: implement this method
-				System.out.println("Method SET is not implemented yet");
+			public Variable execute(List<Object> arguments) {
+				Variable value = (Variable) arguments.get(0);
+				setAttribute("VALUE", new Attribute("STRING", value.getValue()));
 				return null;
 			}
 		});
@@ -141,7 +145,7 @@ public class StringVariable extends Variable {
 			"void"
 		) {
 			@Override
-			public Object execute(List<Object> arguments) {
+			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
 				System.out.println("Method SUB is not implemented yet");
 				return null;
@@ -151,7 +155,7 @@ public class StringVariable extends Variable {
 			"void"
 		) {
 			@Override
-			public Object execute(List<Object> arguments) {
+			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
 				System.out.println("Method UPPER is not implemented yet");
 				return null;

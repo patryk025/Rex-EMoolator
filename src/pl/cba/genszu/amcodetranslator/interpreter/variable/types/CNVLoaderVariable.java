@@ -19,7 +19,7 @@ public class CNVLoaderVariable extends Variable {
 			"void"
 		) {
 			@Override
-			public Object execute(List<Object> arguments) {
+			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
 				System.out.println("Method LOAD is not implemented yet");
 				return null;
@@ -32,7 +32,7 @@ public class CNVLoaderVariable extends Variable {
 			"void"
 		) {
 			@Override
-			public Object execute(List<Object> arguments) {
+			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
 				System.out.println("Method RELEASE is not implemented yet");
 				return null;

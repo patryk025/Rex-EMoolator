@@ -16,7 +16,7 @@ public class EpisodeVariable extends Variable {
 			"void"
 		) {
 			@Override
-			public Object execute(List<Object> arguments) {
+			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
 				System.out.println("Method BACK is not implemented yet");
 				return null;
@@ -26,7 +26,7 @@ public class EpisodeVariable extends Variable {
 			"STRING"
 		) {
 			@Override
-			public Object execute(List<Object> arguments) {
+			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
 				System.out.println("Method GETCURRENTSCENE is not implemented yet");
 				return null;
@@ -39,7 +39,7 @@ public class EpisodeVariable extends Variable {
 			"void"
 		) {
 			@Override
-			public Object execute(List<Object> arguments) {
+			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
 				System.out.println("Method GOTO is not implemented yet");
 				return null;

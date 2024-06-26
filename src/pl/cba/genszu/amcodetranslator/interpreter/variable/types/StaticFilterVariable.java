@@ -19,7 +19,7 @@ public class StaticFilterVariable extends Variable {
 			"void"
 		) {
 			@Override
-			public Object execute(List<Object> arguments) {
+			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
 				System.out.println("Method LINK is not implemented yet");
 				return null;
@@ -33,7 +33,7 @@ public class StaticFilterVariable extends Variable {
 			"void"
 		) {
 			@Override
-			public Object execute(List<Object> arguments) {
+			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
 				System.out.println("Method SETPROPERTY is not implemented yet");
 				return null;
@@ -46,7 +46,7 @@ public class StaticFilterVariable extends Variable {
 			"void"
 		) {
 			@Override
-			public Object execute(List<Object> arguments) {
+			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
 				System.out.println("Method UNLINK is not implemented yet");
 				return null;

@@ -20,7 +20,7 @@ public class ClassVariable extends Variable {
 			"void"
 		) {
 			@Override
-			public Object execute(List<Object> arguments) {
+			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
 				System.out.println("Method NEW is not implemented yet");
 				return null;
@@ -34,7 +34,7 @@ public class ClassVariable extends Variable {
 			"void"
 		) {
 			@Override
-			public Object execute(List<Object> arguments) {
+			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
 				System.out.println("Method DELETE is not implemented yet");
 				return null;

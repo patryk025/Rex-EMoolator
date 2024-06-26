@@ -20,7 +20,7 @@ public class BoolVariable extends Variable {
 			"void"
 		) {
 			@Override
-			public Object execute(List<Object> arguments) {
+			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
 				System.out.println("Method SET is not implemented yet");
 				return null;
@@ -34,7 +34,7 @@ public class BoolVariable extends Variable {
 			"void"
 		) {
 			@Override
-			public Object execute(List<Object> arguments) {
+			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
 				System.out.println("Method SWITCH is not implemented yet");
 				return null;

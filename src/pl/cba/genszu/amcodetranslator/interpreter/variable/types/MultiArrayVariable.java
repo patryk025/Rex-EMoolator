@@ -21,7 +21,7 @@ public class MultiArrayVariable extends Variable {
 			"mixed"
 		) {
 			@Override
-			public Object execute(List<Object> arguments) {
+			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
 				System.out.println("Method GET is not implemented yet");
 				return null;
@@ -37,7 +37,7 @@ public class MultiArrayVariable extends Variable {
 			"void"
 		) {
 			@Override
-			public Object execute(List<Object> arguments) {
+			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
 				System.out.println("Method SET is not implemented yet");
 				return null;

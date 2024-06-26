@@ -19,7 +19,7 @@ public class CanvasObserverVariable extends Variable {
 			"void"
 		) {
 			@Override
-			public Object execute(List<Object> arguments) {
+			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
 				System.out.println("Method ADD is not implemented yet");
 				return null;
@@ -32,7 +32,7 @@ public class CanvasObserverVariable extends Variable {
 			"void"
 		) {
 			@Override
-			public Object execute(List<Object> arguments) {
+			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
 				System.out.println("Method ENABLENOTIFY is not implemented yet");
 				return null;
@@ -49,7 +49,7 @@ public class CanvasObserverVariable extends Variable {
 			"STRING"
 		) {
 			@Override
-			public Object execute(List<Object> arguments) {
+			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
 				System.out.println("Method GETGRAPHICSAT is not implemented yet");
 				return null;
@@ -67,7 +67,7 @@ public class CanvasObserverVariable extends Variable {
 			"STRING"
 		) {
 			@Override
-			public Object execute(List<Object> arguments) {
+			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
 				System.out.println("Method GETGRAPHICSAT is not implemented yet");
 				return null;
@@ -81,7 +81,7 @@ public class CanvasObserverVariable extends Variable {
 			"void"
 		) {
 			@Override
-			public Object execute(List<Object> arguments) {
+			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
 				System.out.println("Method MOVEBKG is not implemented yet");
 				return null;
@@ -96,7 +96,7 @@ public class CanvasObserverVariable extends Variable {
 			"void"
 		) {
 			@Override
-			public Object execute(List<Object> arguments) {
+			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
 				System.out.println("Method PASTE is not implemented yet");
 				return null;
@@ -106,7 +106,7 @@ public class CanvasObserverVariable extends Variable {
 			"void"
 		) {
 			@Override
-			public Object execute(List<Object> arguments) {
+			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
 				System.out.println("Method REDRAW is not implemented yet");
 				return null;
@@ -116,7 +116,7 @@ public class CanvasObserverVariable extends Variable {
 			"void"
 		) {
 			@Override
-			public Object execute(List<Object> arguments) {
+			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
 				System.out.println("Method REFRESH is not implemented yet");
 				return null;
@@ -129,7 +129,7 @@ public class CanvasObserverVariable extends Variable {
 			"void"
 		) {
 			@Override
-			public Object execute(List<Object> arguments) {
+			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
 				System.out.println("Method REMOVE is not implemented yet");
 				return null;
@@ -143,7 +143,7 @@ public class CanvasObserverVariable extends Variable {
 			"void"
 		) {
 			@Override
-			public Object execute(List<Object> arguments) {
+			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
 				System.out.println("Method SAVE is not implemented yet");
 				return null;
@@ -156,7 +156,7 @@ public class CanvasObserverVariable extends Variable {
 			"void"
 		) {
 			@Override
-			public Object execute(List<Object> arguments) {
+			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
 				System.out.println("Method SETBACKGROUND is not implemented yet");
 				return null;
@@ -170,7 +170,7 @@ public class CanvasObserverVariable extends Variable {
 			"void"
 		) {
 			@Override
-			public Object execute(List<Object> arguments) {
+			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
 				System.out.println("Method SETBKGPOS is not implemented yet");
 				return null;

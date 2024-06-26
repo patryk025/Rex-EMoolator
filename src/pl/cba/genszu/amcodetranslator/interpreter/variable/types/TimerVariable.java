@@ -16,7 +16,7 @@ public class TimerVariable extends Variable {
 			"void"
 		) {
 			@Override
-			public Object execute(List<Object> arguments) {
+			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
 				System.out.println("Method DISABLE is not implemented yet");
 				return null;
@@ -26,7 +26,7 @@ public class TimerVariable extends Variable {
 			"void"
 		) {
 			@Override
-			public Object execute(List<Object> arguments) {
+			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
 				System.out.println("Method ENABLE is not implemented yet");
 				return null;
@@ -36,7 +36,7 @@ public class TimerVariable extends Variable {
 			"INTEGER"
 		) {
 			@Override
-			public Object execute(List<Object> arguments) {
+			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
 				System.out.println("Method GETTICKS is not implemented yet");
 				return null;
@@ -46,7 +46,7 @@ public class TimerVariable extends Variable {
 			"void"
 		) {
 			@Override
-			public Object execute(List<Object> arguments) {
+			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
 				System.out.println("Method RESET is not implemented yet");
 				return null;
@@ -59,7 +59,7 @@ public class TimerVariable extends Variable {
 			"void"
 		) {
 			@Override
-			public Object execute(List<Object> arguments) {
+			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
 				System.out.println("Method SETELAPSE is not implemented yet");
 				return null;

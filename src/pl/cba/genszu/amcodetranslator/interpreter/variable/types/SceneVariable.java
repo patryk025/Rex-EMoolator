@@ -16,7 +16,7 @@ public class SceneVariable extends Variable {
 			"void"
 		) {
 			@Override
-			public Object execute(List<Object> arguments) {
+			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
 				System.out.println("Method PAUSE is not implemented yet");
 				return null;
@@ -31,7 +31,7 @@ public class SceneVariable extends Variable {
 			"void"
 		) {
 			@Override
-			public Object execute(List<Object> arguments) {
+			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
 				System.out.println("Method REMOVECLONES is not implemented yet");
 				return null;
@@ -41,7 +41,7 @@ public class SceneVariable extends Variable {
 			"void"
 		) {
 			@Override
-			public Object execute(List<Object> arguments) {
+			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
 				System.out.println("Method RESUME is not implemented yet");
 				return null;
@@ -56,7 +56,7 @@ public class SceneVariable extends Variable {
 			"void"
 		) {
 			@Override
-			public Object execute(List<Object> arguments) {
+			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
 				System.out.println("Method RUN is not implemented yet");
 				return null;
@@ -72,7 +72,7 @@ public class SceneVariable extends Variable {
 			"void"
 		) {
 			@Override
-			public Object execute(List<Object> arguments) {
+			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
 				System.out.println("Method RUNCLONES is not implemented yet");
 				return null;
@@ -85,7 +85,7 @@ public class SceneVariable extends Variable {
 			"void"
 		) {
 			@Override
-			public Object execute(List<Object> arguments) {
+			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
 				System.out.println("Method SETMINHSPRIORITY is not implemented yet");
 				return null;
@@ -98,7 +98,7 @@ public class SceneVariable extends Variable {
 			"void"
 		) {
 			@Override
-			public Object execute(List<Object> arguments) {
+			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
 				System.out.println("Method SETMUSICVOLUME is not implemented yet");
 				return null;
@@ -111,7 +111,7 @@ public class SceneVariable extends Variable {
 			"void"
 		) {
 			@Override
-			public Object execute(List<Object> arguments) {
+			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
 				System.out.println("Method STARTMUSIC is not implemented yet");
 				return null;

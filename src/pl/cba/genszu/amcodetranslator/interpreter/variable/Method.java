@@ -34,5 +34,5 @@ public abstract class Method {
         return returnType;
     }
 
-    public abstract Object execute(List<Object> arguments);
+    public abstract Variable execute(List<Object> arguments);
 }

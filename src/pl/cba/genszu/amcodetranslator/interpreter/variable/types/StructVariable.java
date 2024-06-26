@@ -19,7 +19,7 @@ public class StructVariable extends Variable {
 			"STRING"
 		) {
 			@Override
-			public Object execute(List<Object> arguments) {
+			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
 				System.out.println("Method GETFIELD is not implemented yet");
 				return null;
@@ -32,7 +32,7 @@ public class StructVariable extends Variable {
 			"void"
 		) {
 			@Override
-			public Object execute(List<Object> arguments) {
+			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
 				System.out.println("Method SET is not implemented yet");
 				return null;

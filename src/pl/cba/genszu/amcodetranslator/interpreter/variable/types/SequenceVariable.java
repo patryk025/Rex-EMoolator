@@ -16,7 +16,7 @@ public class SequenceVariable extends Variable {
 			"STRING"
 		) {
 			@Override
-			public Object execute(List<Object> arguments) {
+			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
 				System.out.println("Method GETEVENTNAME is not implemented yet");
 				return null;
@@ -26,7 +26,7 @@ public class SequenceVariable extends Variable {
 			"void"
 		) {
 			@Override
-			public Object execute(List<Object> arguments) {
+			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
 				System.out.println("Method HIDE is not implemented yet");
 				return null;
@@ -36,7 +36,7 @@ public class SequenceVariable extends Variable {
 			"BOOL"
 		) {
 			@Override
-			public Object execute(List<Object> arguments) {
+			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
 				System.out.println("Method ISPLAYING is not implemented yet");
 				return null;
@@ -46,7 +46,7 @@ public class SequenceVariable extends Variable {
 			"void"
 		) {
 			@Override
-			public Object execute(List<Object> arguments) {
+			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
 				System.out.println("Method PAUSE is not implemented yet");
 				return null;
@@ -59,7 +59,7 @@ public class SequenceVariable extends Variable {
 			"void"
 		) {
 			@Override
-			public Object execute(List<Object> arguments) {
+			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
 				System.out.println("Method PLAY is not implemented yet");
 				return null;
@@ -69,7 +69,7 @@ public class SequenceVariable extends Variable {
 			"void"
 		) {
 			@Override
-			public Object execute(List<Object> arguments) {
+			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
 				System.out.println("Method RESUME is not implemented yet");
 				return null;
@@ -82,7 +82,7 @@ public class SequenceVariable extends Variable {
 			"void"
 		) {
 			@Override
-			public Object execute(List<Object> arguments) {
+			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
 				System.out.println("Method STOP is not implemented yet");
 				return null;

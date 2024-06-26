@@ -34,7 +34,7 @@ public abstract class Variable {
 				"void"
 		) {
 			@Override
-			public Object execute(List<Object> arguments) {
+			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
 				return null;
 			}
@@ -43,7 +43,7 @@ public abstract class Variable {
 				"void?"
 		) {
 			@Override
-			public Object execute(List<Object> arguments) {
+			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
 				return null;
 			}
@@ -55,7 +55,7 @@ public abstract class Variable {
 				"void?"
 		) {
 			@Override
-			public Object execute(List<Object> arguments) {
+			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
 				return null;
 			}
@@ -64,7 +64,7 @@ public abstract class Variable {
 				"INTEGER"
 		) {
 			@Override
-			public Object execute(List<Object> arguments) {
+			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
 				return null;
 			}
@@ -73,7 +73,7 @@ public abstract class Variable {
 				"void"
 		) {
 			@Override
-			public Object execute(List<Object> arguments) {
+			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
 				return null;
 			}
@@ -85,7 +85,7 @@ public abstract class Variable {
 				"void"
 		) {
 			@Override
-			public Object execute(List<Object> arguments) {
+			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
 				return null;
 			}
@@ -136,7 +136,7 @@ public abstract class Variable {
 			paramsTypes.add(((Variable) param).getType());
 		}
 		Method method = this.getMethod(methodName, paramsTypes);
-		return (Variable) method.execute(List.of(params));
+		return method.execute(List.of(params));
 	}
 
 	public void setAttribute(String name, Attribute attribute) {

@@ -20,7 +20,7 @@ public class MatrixVariable extends Variable {
 			"INTEGER"
 		) {
 			@Override
-			public Object execute(List<Object> arguments) {
+			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
 				System.out.println("Method CALCENEMYMOVEDEST is not implemented yet");
 				return null;
@@ -34,7 +34,7 @@ public class MatrixVariable extends Variable {
 			"INTEGER"
 		) {
 			@Override
-			public Object execute(List<Object> arguments) {
+			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
 				System.out.println("Method CALCENEMYMOVEDIR is not implemented yet");
 				return null;
@@ -47,7 +47,7 @@ public class MatrixVariable extends Variable {
 			"BOOL"
 		) {
 			@Override
-			public Object execute(List<Object> arguments) {
+			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
 				System.out.println("Method CANHEROGOTO is not implemented yet");
 				return null;
@@ -60,7 +60,7 @@ public class MatrixVariable extends Variable {
 			"INTEGER"
 		) {
 			@Override
-			public Object execute(List<Object> arguments) {
+			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
 				System.out.println("Method GET is not implemented yet");
 				return null;
@@ -74,7 +74,7 @@ public class MatrixVariable extends Variable {
 			"INTEGER"
 		) {
 			@Override
-			public Object execute(List<Object> arguments) {
+			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
 				System.out.println("Method GETCELLOFFSET is not implemented yet");
 				return null;
@@ -87,7 +87,7 @@ public class MatrixVariable extends Variable {
 			"INTEGER"
 		) {
 			@Override
-			public Object execute(List<Object> arguments) {
+			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
 				System.out.println("Method GETCELLPOSX is not implemented yet");
 				return null;
@@ -100,7 +100,7 @@ public class MatrixVariable extends Variable {
 			"INTEGER"
 		) {
 			@Override
-			public Object execute(List<Object> arguments) {
+			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
 				System.out.println("Method GETCELLPOSY is not implemented yet");
 				return null;
@@ -113,7 +113,7 @@ public class MatrixVariable extends Variable {
 			"INTEGER"
 		) {
 			@Override
-			public Object execute(List<Object> arguments) {
+			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
 				System.out.println("Method GETCELLSNO is not implemented yet");
 				return null;
@@ -126,7 +126,7 @@ public class MatrixVariable extends Variable {
 			"INTEGER"
 		) {
 			@Override
-			public Object execute(List<Object> arguments) {
+			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
 				System.out.println("Method GETFIELDPOSX is not implemented yet");
 				return null;
@@ -139,7 +139,7 @@ public class MatrixVariable extends Variable {
 			"INTEGER"
 		) {
 			@Override
-			public Object execute(List<Object> arguments) {
+			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
 				System.out.println("Method GETFIELDPOSY is not implemented yet");
 				return null;
@@ -153,7 +153,7 @@ public class MatrixVariable extends Variable {
 			"INTEGER"
 		) {
 			@Override
-			public Object execute(List<Object> arguments) {
+			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
 				System.out.println("Method GETOFFSET is not implemented yet");
 				return null;
@@ -163,7 +163,7 @@ public class MatrixVariable extends Variable {
 			"BOOL"
 		) {
 			@Override
-			public Object execute(List<Object> arguments) {
+			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
 				System.out.println("Method ISGATEEMPTY is not implemented yet");
 				return null;
@@ -176,7 +176,7 @@ public class MatrixVariable extends Variable {
 			"BOOL"
 		) {
 			@Override
-			public Object execute(List<Object> arguments) {
+			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
 				System.out.println("Method ISINGATE is not implemented yet");
 				return null;
@@ -190,7 +190,7 @@ public class MatrixVariable extends Variable {
 			"void"
 		) {
 			@Override
-			public Object execute(List<Object> arguments) {
+			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
 				System.out.println("Method MOVE is not implemented yet");
 				return null;
@@ -200,7 +200,7 @@ public class MatrixVariable extends Variable {
 			"void"
 		) {
 			@Override
-			public Object execute(List<Object> arguments) {
+			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
 				System.out.println("Method NEXT is not implemented yet");
 				return null;
@@ -214,7 +214,7 @@ public class MatrixVariable extends Variable {
 			"void"
 		) {
 			@Override
-			public Object execute(List<Object> arguments) {
+			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
 				System.out.println("Method SET is not implemented yet");
 				return null;
@@ -230,7 +230,7 @@ public class MatrixVariable extends Variable {
 			"void"
 		) {
 			@Override
-			public Object execute(List<Object> arguments) {
+			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
 				System.out.println("Method SETGATE is not implemented yet");
 				return null;
@@ -244,7 +244,7 @@ public class MatrixVariable extends Variable {
 			"void"
 		) {
 			@Override
-			public Object execute(List<Object> arguments) {
+			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
 				System.out.println("Method SETROW is not implemented yet");
 				return null;
@@ -254,7 +254,7 @@ public class MatrixVariable extends Variable {
 			"void"
 		) {
 			@Override
-			public Object execute(List<Object> arguments) {
+			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
 				System.out.println("Method TICK is not implemented yet");
 				return null;

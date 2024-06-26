@@ -23,7 +23,7 @@ public class PatternVariable extends Variable {
 			"void"
 		) {
 			@Override
-			public Object execute(List<Object> arguments) {
+			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
 				System.out.println("Method ADD is not implemented yet");
 				return null;

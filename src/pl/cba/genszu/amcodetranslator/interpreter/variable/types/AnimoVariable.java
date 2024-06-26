@@ -16,7 +16,7 @@ public class AnimoVariable extends Variable {
 			"INTEGER"
 		) {
 			@Override
-			public Object execute(List<Object> arguments) {
+			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
 				System.out.println("Method GETCENTERX is not implemented yet");
 				return null;
@@ -29,7 +29,7 @@ public class AnimoVariable extends Variable {
 			"INTEGER"
 		) {
 			@Override
-			public Object execute(List<Object> arguments) {
+			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
 				System.out.println("Method GETCENTERX is not implemented yet");
 				return null;
@@ -39,7 +39,7 @@ public class AnimoVariable extends Variable {
 			"INTEGER"
 		) {
 			@Override
-			public Object execute(List<Object> arguments) {
+			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
 				System.out.println("Method GETCENTERY is not implemented yet");
 				return null;
@@ -52,7 +52,7 @@ public class AnimoVariable extends Variable {
 			"INTEGER"
 		) {
 			@Override
-			public Object execute(List<Object> arguments) {
+			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
 				System.out.println("Method GETCENTERY is not implemented yet");
 				return null;
@@ -62,7 +62,7 @@ public class AnimoVariable extends Variable {
 			"INTEGER"
 		) {
 			@Override
-			public Object execute(List<Object> arguments) {
+			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
 				System.out.println("Method GETCFRAMEINEVENT is not implemented yet");
 				return null;
@@ -75,7 +75,7 @@ public class AnimoVariable extends Variable {
 			"INTEGER"
 		) {
 			@Override
-			public Object execute(List<Object> arguments) {
+			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
 				System.out.println("Method GETCFRAMEINEVENT is not implemented yet");
 				return null;
@@ -85,7 +85,7 @@ public class AnimoVariable extends Variable {
 			"INTEGER"
 		) {
 			@Override
-			public Object execute(List<Object> arguments) {
+			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
 				System.out.println("Method GETCURRFRAMEPOSX is not implemented yet");
 				return null;
@@ -95,7 +95,7 @@ public class AnimoVariable extends Variable {
 			"INTEGER"
 		) {
 			@Override
-			public Object execute(List<Object> arguments) {
+			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
 				System.out.println("Method GETCURRFRAMEPOSY is not implemented yet");
 				return null;
@@ -105,7 +105,7 @@ public class AnimoVariable extends Variable {
 			"INTEGER"
 		) {
 			@Override
-			public Object execute(List<Object> arguments) {
+			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
 				System.out.println("Method GETENDX is not implemented yet");
 				return null;
@@ -115,7 +115,7 @@ public class AnimoVariable extends Variable {
 			"INTEGER"
 		) {
 			@Override
-			public Object execute(List<Object> arguments) {
+			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
 				System.out.println("Method GETENDY is not implemented yet");
 				return null;
@@ -125,7 +125,7 @@ public class AnimoVariable extends Variable {
 			"STRING"
 		) {
 			@Override
-			public Object execute(List<Object> arguments) {
+			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
 				System.out.println("Method GETEVENTNAME is not implemented yet");
 				return null;
@@ -135,7 +135,7 @@ public class AnimoVariable extends Variable {
 			"INTEGER"
 		) {
 			@Override
-			public Object execute(List<Object> arguments) {
+			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
 				System.out.println("Method GETFRAME is not implemented yet");
 				return null;
@@ -145,7 +145,7 @@ public class AnimoVariable extends Variable {
 			"STRING"
 		) {
 			@Override
-			public Object execute(List<Object> arguments) {
+			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
 				System.out.println("Method GETFRAMENAME is not implemented yet");
 				return null;
@@ -155,7 +155,7 @@ public class AnimoVariable extends Variable {
 			"INTEGER"
 		) {
 			@Override
-			public Object execute(List<Object> arguments) {
+			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
 				System.out.println("Method GETHEIGHT is not implemented yet");
 				return null;
@@ -165,7 +165,7 @@ public class AnimoVariable extends Variable {
 			"INTEGER"
 		) {
 			@Override
-			public Object execute(List<Object> arguments) {
+			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
 				System.out.println("Method GETMAXWIDTH is not implemented yet");
 				return null;
@@ -175,7 +175,7 @@ public class AnimoVariable extends Variable {
 			"INTEGER"
 		) {
 			@Override
-			public Object execute(List<Object> arguments) {
+			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
 				System.out.println("Method GETNOE is not implemented yet");
 				return null;
@@ -188,7 +188,7 @@ public class AnimoVariable extends Variable {
 			"INTEGER"
 		) {
 			@Override
-			public Object execute(List<Object> arguments) {
+			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
 				System.out.println("Method GETNOFINEVENT is not implemented yet");
 				return null;
@@ -201,7 +201,7 @@ public class AnimoVariable extends Variable {
 			"INTEGER"
 		) {
 			@Override
-			public Object execute(List<Object> arguments) {
+			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
 				System.out.println("Method GETNOFINEVENT is not implemented yet");
 				return null;
@@ -211,7 +211,7 @@ public class AnimoVariable extends Variable {
 			"INTEGER"
 		) {
 			@Override
-			public Object execute(List<Object> arguments) {
+			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
 				System.out.println("Method GETPOSITIONX is not implemented yet");
 				return null;
@@ -224,7 +224,7 @@ public class AnimoVariable extends Variable {
 			"INTEGER"
 		) {
 			@Override
-			public Object execute(List<Object> arguments) {
+			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
 				System.out.println("Method GETPOSITIONX is not implemented yet");
 				return null;
@@ -234,7 +234,7 @@ public class AnimoVariable extends Variable {
 			"INTEGER"
 		) {
 			@Override
-			public Object execute(List<Object> arguments) {
+			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
 				System.out.println("Method GETPOSITIONY is not implemented yet");
 				return null;
@@ -247,7 +247,7 @@ public class AnimoVariable extends Variable {
 			"INTEGER"
 		) {
 			@Override
-			public Object execute(List<Object> arguments) {
+			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
 				System.out.println("Method GETPOSITIONY is not implemented yet");
 				return null;
@@ -257,7 +257,7 @@ public class AnimoVariable extends Variable {
 			"INTEGER"
 		) {
 			@Override
-			public Object execute(List<Object> arguments) {
+			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
 				System.out.println("Method GETWIDTH is not implemented yet");
 				return null;
@@ -267,7 +267,7 @@ public class AnimoVariable extends Variable {
 			"void"
 		) {
 			@Override
-			public Object execute(List<Object> arguments) {
+			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
 				System.out.println("Method HIDE is not implemented yet");
 				return null;
@@ -281,7 +281,7 @@ public class AnimoVariable extends Variable {
 			"BOOL"
 		) {
 			@Override
-			public Object execute(List<Object> arguments) {
+			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
 				System.out.println("Method ISNEAR is not implemented yet");
 				return null;
@@ -291,7 +291,7 @@ public class AnimoVariable extends Variable {
 			"BOOL"
 		) {
 			@Override
-			public Object execute(List<Object> arguments) {
+			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
 				System.out.println("Method ISPLAYING is not implemented yet");
 				return null;
@@ -304,7 +304,7 @@ public class AnimoVariable extends Variable {
 			"BOOL"
 		) {
 			@Override
-			public Object execute(List<Object> arguments) {
+			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
 				System.out.println("Method ISPLAYING is not implemented yet");
 				return null;
@@ -314,7 +314,7 @@ public class AnimoVariable extends Variable {
 			"BOOL"
 		) {
 			@Override
-			public Object execute(List<Object> arguments) {
+			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
 				System.out.println("Method ISVISIBLE is not implemented yet");
 				return null;
@@ -327,7 +327,7 @@ public class AnimoVariable extends Variable {
 			"void/BOOLEAN?"
 		) {
 			@Override
-			public Object execute(List<Object> arguments) {
+			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
 				System.out.println("Method LOAD is not implemented yet");
 				return null;
@@ -341,7 +341,7 @@ public class AnimoVariable extends Variable {
 			"void"
 		) {
 			@Override
-			public Object execute(List<Object> arguments) {
+			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
 				System.out.println("Method MOVE is not implemented yet");
 				return null;
@@ -351,7 +351,7 @@ public class AnimoVariable extends Variable {
 			"void"
 		) {
 			@Override
-			public Object execute(List<Object> arguments) {
+			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
 				System.out.println("Method NEXTFRAME is not implemented yet");
 				return null;
@@ -364,7 +364,7 @@ public class AnimoVariable extends Variable {
 			"void"
 		) {
 			@Override
-			public Object execute(List<Object> arguments) {
+			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
 				System.out.println("Method NPLAY is not implemented yet");
 				return null;
@@ -377,7 +377,7 @@ public class AnimoVariable extends Variable {
 			"void"
 		) {
 			@Override
-			public Object execute(List<Object> arguments) {
+			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
 				System.out.println("Method NPLAY is not implemented yet");
 				return null;
@@ -387,7 +387,7 @@ public class AnimoVariable extends Variable {
 			"void"
 		) {
 			@Override
-			public Object execute(List<Object> arguments) {
+			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
 				System.out.println("Method PAUSE is not implemented yet");
 				return null;
@@ -400,7 +400,7 @@ public class AnimoVariable extends Variable {
 			"void"
 		) {
 			@Override
-			public Object execute(List<Object> arguments) {
+			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
 				System.out.println("Method PLAY is not implemented yet");
 				return null;
@@ -413,7 +413,7 @@ public class AnimoVariable extends Variable {
 			"void"
 		) {
 			@Override
-			public Object execute(List<Object> arguments) {
+			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
 				System.out.println("Method PLAY is not implemented yet");
 				return null;
@@ -427,7 +427,7 @@ public class AnimoVariable extends Variable {
 			"void"
 		) {
 			@Override
-			public Object execute(List<Object> arguments) {
+			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
 				System.out.println("Method PLAY is not implemented yet");
 				return null;
@@ -437,7 +437,7 @@ public class AnimoVariable extends Variable {
 			"void"
 		) {
 			@Override
-			public Object execute(List<Object> arguments) {
+			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
 				System.out.println("Method PREVFRAME is not implemented yet");
 				return null;
@@ -447,7 +447,7 @@ public class AnimoVariable extends Variable {
 			"void"
 		) {
 			@Override
-			public Object execute(List<Object> arguments) {
+			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
 				System.out.println("Method RESUME is not implemented yet");
 				return null;
@@ -457,7 +457,7 @@ public class AnimoVariable extends Variable {
 			"void"
 		) {
 			@Override
-			public Object execute(List<Object> arguments) {
+			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
 				System.out.println("Method RUN is not implemented yet");
 				return null;
@@ -470,7 +470,7 @@ public class AnimoVariable extends Variable {
 			"void"
 		) {
 			@Override
-			public Object execute(List<Object> arguments) {
+			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
 				System.out.println("Method SETANCHOR is not implemented yet");
 				return null;
@@ -484,7 +484,7 @@ public class AnimoVariable extends Variable {
 			"void"
 		) {
 			@Override
-			public Object execute(List<Object> arguments) {
+			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
 				System.out.println("Method SETANCHOR is not implemented yet");
 				return null;
@@ -498,7 +498,7 @@ public class AnimoVariable extends Variable {
 			"void"
 		) {
 			@Override
-			public Object execute(List<Object> arguments) {
+			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
 				System.out.println("Method SETASBUTTON is not implemented yet");
 				return null;
@@ -508,7 +508,7 @@ public class AnimoVariable extends Variable {
 			"void"
 		) {
 			@Override
-			public Object execute(List<Object> arguments) {
+			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
 				System.out.println("Method SETBACKWARD is not implemented yet");
 				return null;
@@ -518,7 +518,7 @@ public class AnimoVariable extends Variable {
 			"void"
 		) {
 			@Override
-			public Object execute(List<Object> arguments) {
+			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
 				System.out.println("Method SETFORWARD is not implemented yet");
 				return null;
@@ -531,7 +531,7 @@ public class AnimoVariable extends Variable {
 			"void"
 		) {
 			@Override
-			public Object execute(List<Object> arguments) {
+			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
 				System.out.println("Method SETFPS is not implemented yet");
 				return null;
@@ -544,7 +544,7 @@ public class AnimoVariable extends Variable {
 			"void"
 		) {
 			@Override
-			public Object execute(List<Object> arguments) {
+			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
 				System.out.println("Method SETFPS is not implemented yet");
 				return null;
@@ -558,7 +558,7 @@ public class AnimoVariable extends Variable {
 			"void"
 		) {
 			@Override
-			public Object execute(List<Object> arguments) {
+			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
 				System.out.println("Method SETFRAME is not implemented yet");
 				return null;
@@ -571,7 +571,7 @@ public class AnimoVariable extends Variable {
 			"void"
 		) {
 			@Override
-			public Object execute(List<Object> arguments) {
+			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
 				System.out.println("Method SETFRAME is not implemented yet");
 				return null;
@@ -585,7 +585,7 @@ public class AnimoVariable extends Variable {
 			"void"
 		) {
 			@Override
-			public Object execute(List<Object> arguments) {
+			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
 				System.out.println("Method SETFRAME is not implemented yet");
 				return null;
@@ -599,7 +599,7 @@ public class AnimoVariable extends Variable {
 			"void"
 		) {
 			@Override
-			public Object execute(List<Object> arguments) {
+			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
 				System.out.println("Method SETFRAME is not implemented yet");
 				return null;
@@ -614,7 +614,7 @@ public class AnimoVariable extends Variable {
 			"void"
 		) {
 			@Override
-			public Object execute(List<Object> arguments) {
+			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
 				System.out.println("Method SETFRAMENAME is not implemented yet");
 				return null;
@@ -627,7 +627,7 @@ public class AnimoVariable extends Variable {
 			"void"
 		) {
 			@Override
-			public Object execute(List<Object> arguments) {
+			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
 				System.out.println("Method SETOPACITY is not implemented yet");
 				return null;
@@ -640,7 +640,7 @@ public class AnimoVariable extends Variable {
 			"void"
 		) {
 			@Override
-			public Object execute(List<Object> arguments) {
+			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
 				System.out.println("Method SETOPACITY is not implemented yet");
 				return null;
@@ -654,7 +654,7 @@ public class AnimoVariable extends Variable {
 			"void"
 		) {
 			@Override
-			public Object execute(List<Object> arguments) {
+			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
 				System.out.println("Method SETPOSITION is not implemented yet");
 				return null;
@@ -667,7 +667,7 @@ public class AnimoVariable extends Variable {
 			"void"
 		) {
 			@Override
-			public Object execute(List<Object> arguments) {
+			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
 				System.out.println("Method SETPRIORITY is not implemented yet");
 				return null;
@@ -677,7 +677,7 @@ public class AnimoVariable extends Variable {
 			"void"
 		) {
 			@Override
-			public Object execute(List<Object> arguments) {
+			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
 				System.out.println("Method SHOW is not implemented yet");
 				return null;
@@ -690,7 +690,7 @@ public class AnimoVariable extends Variable {
 			"void"
 		) {
 			@Override
-			public Object execute(List<Object> arguments) {
+			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
 				System.out.println("Method SHOW is not implemented yet");
 				return null;
@@ -700,7 +700,7 @@ public class AnimoVariable extends Variable {
 			"void"
 		) {
 			@Override
-			public Object execute(List<Object> arguments) {
+			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
 				System.out.println("Method STOP is not implemented yet");
 				return null;
@@ -713,7 +713,7 @@ public class AnimoVariable extends Variable {
 			"void"
 		) {
 			@Override
-			public Object execute(List<Object> arguments) {
+			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
 				System.out.println("Method STOP is not implemented yet");
 				return null;
@@ -723,7 +723,7 @@ public class AnimoVariable extends Variable {
 			"void"
 		) {
 			@Override
-			public Object execute(List<Object> arguments) {
+			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
 				System.out.println("Method TOP is not implemented yet");
 				return null;
@@ -736,7 +736,7 @@ public class AnimoVariable extends Variable {
 			"void"
 		) {
 			@Override
-			public Object execute(List<Object> arguments) {
+			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
 				System.out.println("Method TOP is not implemented yet");
 				return null;

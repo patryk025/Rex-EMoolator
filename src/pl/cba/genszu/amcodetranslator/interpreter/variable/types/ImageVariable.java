@@ -20,7 +20,7 @@ public class ImageVariable extends Variable {
 			"INTEGER"
 		) {
 			@Override
-			public Object execute(List<Object> arguments) {
+			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
 				System.out.println("Method GETALPHA is not implemented yet");
 				return null;
@@ -30,7 +30,7 @@ public class ImageVariable extends Variable {
 			"INTEGER"
 		) {
 			@Override
-			public Object execute(List<Object> arguments) {
+			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
 				System.out.println("Method GETHEIGHT is not implemented yet");
 				return null;
@@ -44,7 +44,7 @@ public class ImageVariable extends Variable {
 			"INTEGER"
 		) {
 			@Override
-			public Object execute(List<Object> arguments) {
+			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
 				System.out.println("Method GETPIXEL is not implemented yet");
 				return null;
@@ -54,7 +54,7 @@ public class ImageVariable extends Variable {
 			"INTEGER"
 		) {
 			@Override
-			public Object execute(List<Object> arguments) {
+			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
 				System.out.println("Method GETPOSITIONX is not implemented yet");
 				return null;
@@ -64,7 +64,7 @@ public class ImageVariable extends Variable {
 			"INTEGER"
 		) {
 			@Override
-			public Object execute(List<Object> arguments) {
+			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
 				System.out.println("Method GETPOSITIONY is not implemented yet");
 				return null;
@@ -74,7 +74,7 @@ public class ImageVariable extends Variable {
 			"INTEGER"
 		) {
 			@Override
-			public Object execute(List<Object> arguments) {
+			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
 				System.out.println("Method GETWIDTH is not implemented yet");
 				return null;
@@ -84,7 +84,7 @@ public class ImageVariable extends Variable {
 			"void"
 		) {
 			@Override
-			public Object execute(List<Object> arguments) {
+			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
 				System.out.println("Method HIDE is not implemented yet");
 				return null;
@@ -94,7 +94,7 @@ public class ImageVariable extends Variable {
 			"void"
 		) {
 			@Override
-			public Object execute(List<Object> arguments) {
+			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
 				System.out.println("Method INVALIDATE is not implemented yet");
 				return null;
@@ -107,7 +107,7 @@ public class ImageVariable extends Variable {
 			"void"
 		) {
 			@Override
-			public Object execute(List<Object> arguments) {
+			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
 				System.out.println("Method LOAD is not implemented yet");
 				return null;
@@ -122,7 +122,7 @@ public class ImageVariable extends Variable {
 			"void"
 		) {
 			@Override
-			public Object execute(List<Object> arguments) {
+			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
 				System.out.println("Method MERGEALPHA is not implemented yet");
 				return null;
@@ -136,7 +136,7 @@ public class ImageVariable extends Variable {
 			"void"
 		) {
 			@Override
-			public Object execute(List<Object> arguments) {
+			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
 				System.out.println("Method MOVE is not implemented yet");
 				return null;
@@ -152,7 +152,7 @@ public class ImageVariable extends Variable {
 			"void"
 		) {
 			@Override
-			public Object execute(List<Object> arguments) {
+			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
 				System.out.println("Method SETCLIPPING is not implemented yet");
 				return null;
@@ -165,7 +165,7 @@ public class ImageVariable extends Variable {
 			"void"
 		) {
 			@Override
-			public Object execute(List<Object> arguments) {
+			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
 				System.out.println("Method SETOPACITY is not implemented yet");
 				return null;
@@ -179,7 +179,7 @@ public class ImageVariable extends Variable {
 			"void"
 		) {
 			@Override
-			public Object execute(List<Object> arguments) {
+			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
 				System.out.println("Method SETPOSITION is not implemented yet");
 				return null;
@@ -192,7 +192,7 @@ public class ImageVariable extends Variable {
 			"void"
 		) {
 			@Override
-			public Object execute(List<Object> arguments) {
+			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
 				System.out.println("Method SETPRIORITY is not implemented yet");
 				return null;
@@ -202,7 +202,7 @@ public class ImageVariable extends Variable {
 			"void"
 		) {
 			@Override
-			public Object execute(List<Object> arguments) {
+			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
 				System.out.println("Method SHOW is not implemented yet");
 				return null;

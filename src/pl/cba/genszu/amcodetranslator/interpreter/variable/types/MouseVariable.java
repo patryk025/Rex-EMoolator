@@ -3,7 +3,6 @@ package pl.cba.genszu.amcodetranslator.interpreter.variable.types;
 import pl.cba.genszu.amcodetranslator.interpreter.Context;
 import pl.cba.genszu.amcodetranslator.interpreter.variable.Attribute;
 import pl.cba.genszu.amcodetranslator.interpreter.variable.Method;
-import pl.cba.genszu.amcodetranslator.interpreter.variable.Parameter;
 import pl.cba.genszu.amcodetranslator.interpreter.variable.Variable;
 
 import java.util.List;
@@ -16,7 +15,7 @@ public class MouseVariable extends Variable {
 			"void"
 		) {
 			@Override
-			public Object execute(List<Object> arguments) {
+			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
 				System.out.println("Method DISABLE is not implemented yet");
 				return null;
