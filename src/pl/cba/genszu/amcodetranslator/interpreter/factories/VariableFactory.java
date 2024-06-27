@@ -28,7 +28,11 @@ public class VariableFactory
             case "BEHAVIOUR":
                 return new BehaviourVariable(name, context);
             case "BOOL":
-                return new BoolVariable(name, (Boolean) value, context);
+                try {
+                    return new BoolVariable(name, (Boolean) value, context);
+                } catch (ClassCastException e) {
+                    return new StringVariable(name, value.toString(), context);
+                }
             case "BUTTON":
                 return new ButtonVariable(name, context);
             case "CANVASOBSERVER":
@@ -44,7 +48,11 @@ public class VariableFactory
             case "DATABASE":
                 return new DatabaseVariable(name, context);
             case "DOUBLE":
-                return new DoubleVariable(name, (Double) value, context);
+                try {
+                    return new DoubleVariable(name, (Double) value, context);
+                } catch (ClassCastException e) {
+                    return new StringVariable(name, value.toString(), context);
+                }
             case "EPISODE":
                 return new EpisodeVariable(name, context);
             case "FONT":
@@ -57,7 +65,11 @@ public class VariableFactory
                 return new InertiaVariable(name, context);
             case "INTEGER":
             case "INT":
-                return new IntegerVariable(name, (Integer) value, context);
+                try {
+                    return new IntegerVariable(name, (Integer) value, context);
+                } catch (ClassCastException e) {
+                    return new StringVariable(name, value.toString(), context);
+                }
             case "KEYBOARD":
                 return new KeyboardVariable(name, context);
             case "MATRIX":
