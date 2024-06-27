@@ -4,13 +4,11 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="a0a49524-84c3-4aba-b42b-d86b8629f355" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/tests/pl/cba/genszu/amcodetranslator/interpreter/arithmetic/operations/ArithmeticTest.java" afterDir="false" />
+    <list default="true" id="a0a49524-84c3-4aba-b42b-d86b8629f355" name="Changes" comment="Started implementing tests in jUnit">
+      <change afterPath="$PROJECT_DIR$/.github/workflows/ci.yml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/tests/pl/cba/genszu/amcodetranslator/interpreter/arithmetic/operations/AdditionTest.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/AidemMediaBlooMooEmulator.iml" beforeDir="false" afterPath="$PROJECT_DIR$/AidemMediaBlooMooEmulator.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/pl/cba/genszu/amcodetranslator/interpreter/ast/expressions/ReturnExpression.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/pl/cba/genszu/amcodetranslator/interpreter/ast/expressions/ReturnExpression.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/pl/cba/genszu/amcodetranslator/interpreter/variable/types/DoubleVariable.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/pl/cba/genszu/amcodetranslator/interpreter/variable/types/DoubleVariable.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tests/ArithmeticTest.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/pl/cba/genszu/amcodetranslator/interpreter/arithmetic/operations/ArithmeticTest.java" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -41,6 +39,7 @@
   "keyToString": {
     "Application.Main.executor": "Run",
     "Downloaded.Files.Path.Enabled": "true",
+    "JUnit.AdditionTest.executor": "Debug",
     "JUnit.All in AidemMediaBlooMooEmulator.executor": "Run",
     "JUnit.ArithmeticTest.executor": "Run",
     "Repository.Attach.Annotations": "false",
@@ -67,7 +66,7 @@
       <recent name="pl.cba.genszu.amcodetranslator.interpreter.arithmetic.operations" />
     </key>
   </component>
-  <component name="RunManager" selected="JUnit.ArithmeticTest">
+  <component name="RunManager" selected="JUnit.AdditionTest">
     <configuration name="Main" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
       <option name="MAIN_CLASS_NAME" value="pl.cba.genszu.amcodetranslator.Main" />
       <module name="AidemMediaBlooMooEmulator" />
@@ -81,15 +80,7 @@
         <option name="Make" enabled="true" />
       </method>
     </configuration>
-    <configuration name="All in AidemMediaBlooMooEmulator" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
-      <module name="AidemMediaBlooMooEmulator" />
-      <option name="PACKAGE_NAME" value="" />
-      <option name="TEST_OBJECT" value="package" />
-      <method v="2">
-        <option name="Make" enabled="true" />
-      </method>
-    </configuration>
-    <configuration name="ArithmeticTest" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+    <configuration name="AdditionTest" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
       <module name="AidemMediaBlooMooEmulator" />
       <extension name="coverage">
         <pattern>
@@ -98,8 +89,16 @@
         </pattern>
       </extension>
       <option name="PACKAGE_NAME" value="pl.cba.genszu.amcodetranslator.interpreter.arithmetic.operations" />
-      <option name="MAIN_CLASS_NAME" value="pl.cba.genszu.amcodetranslator.interpreter.arithmetic.operations.ArithmeticTest" />
+      <option name="MAIN_CLASS_NAME" value="pl.cba.genszu.amcodetranslator.interpreter.arithmetic.operations.AdditionTest" />
       <option name="TEST_OBJECT" value="class" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="All in AidemMediaBlooMooEmulator" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+      <module name="AidemMediaBlooMooEmulator" />
+      <option name="PACKAGE_NAME" value="" />
+      <option name="TEST_OBJECT" value="package" />
       <method v="2">
         <option name="Make" enabled="true" />
       </method>
@@ -117,7 +116,7 @@
     </configuration>
     <recent_temporary>
       <list>
-        <item itemvalue="JUnit.ArithmeticTest" />
+        <item itemvalue="JUnit.AdditionTest" />
         <item itemvalue="JUnit.All in AidemMediaBlooMooEmulator" />
         <item itemvalue="Application.Main" />
       </list>
@@ -133,6 +132,17 @@
       <updated>1717163833498</updated>
     </task>
     <servers />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
   </component>
   <component name="XDebuggerManager">
     <watches-manager>
