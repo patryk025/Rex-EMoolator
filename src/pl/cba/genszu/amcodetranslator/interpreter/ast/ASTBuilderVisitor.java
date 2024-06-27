@@ -120,8 +120,8 @@ public class ASTBuilderVisitor extends AidemMediaBaseVisitor<Node> {
 
         List<Expression> operands = new ArrayList<>();
 		for (int i = 1; i < ctx.getChildCount()-1; i++) {
-			if(ctx.getChild(i).getText().matches("[+\\-*@%()]")) {
-				operands.add(new OperatorExpression(ctx.getChild(i).getText()));
+			if(ctx.getChild(i).getText().trim().matches("[+\\-*@%()]")) {
+				operands.add(new OperatorExpression(ctx.getChild(i).getText().trim()));
 			}
 			else {
 				operands.add((Expression) visit(ctx.getChild(i)));

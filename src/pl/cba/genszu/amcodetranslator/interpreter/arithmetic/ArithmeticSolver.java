@@ -1,5 +1,6 @@
 package pl.cba.genszu.amcodetranslator.interpreter.arithmetic;
 
+import pl.cba.genszu.amcodetranslator.interpreter.factories.VariableFactory;
 import pl.cba.genszu.amcodetranslator.interpreter.variable.Variable;
 import pl.cba.genszu.amcodetranslator.interpreter.arithmetic.operations.*;
 
@@ -23,10 +24,18 @@ public class ArithmeticSolver {
     }
 
     public static Variable divide(Variable var1, Variable var2) {
-        return divideOperation.performOperation(var1, var2);
+        try {
+            return divideOperation.performOperation(var1, var2);
+        } catch (ArithmeticException e) {
+            return VariableFactory.createVariable("STRING", null, "NULL", var1.getContext());
+        }
     }
 
     public static Variable modulo(Variable var1, Variable var2) {
-        return moduloOperation.performOperation(var1, var2);
+        try {
+            return moduloOperation.performOperation(var1, var2);
+        } catch (ArithmeticException e) {
+            return VariableFactory.createVariable("STRING", null, "NULL", var1.getContext());
+        }
     }
 }

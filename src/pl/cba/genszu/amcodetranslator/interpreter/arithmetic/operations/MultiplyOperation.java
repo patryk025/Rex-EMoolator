@@ -77,7 +77,7 @@ public class MultiplyOperation extends ArithmeticOperation {
 
     @Override
     public Variable performOperation(IntegerVariable var1, BoolVariable var2) {
-        return VariableFactory.createVariable("INTEGER", null, var1.GET() / var2.toInt(), var1.getContext());
+        return VariableFactory.createVariable("INTEGER", null, var1.GET() * var2.toInt(), var1.getContext());
     }
 
     @Override
@@ -87,6 +87,6 @@ public class MultiplyOperation extends ArithmeticOperation {
 
     @Override
     public Variable performOperation(DoubleVariable var1, BoolVariable var2) {
-        return VariableFactory.createVariable("DOUBLE", null, var1.GET() / var2.toDouble(), var1.getContext());
+        return VariableFactory.createVariable("DOUBLE", null, var1.GET() * var2.toDouble(), var1.getContext());
     }
 }
