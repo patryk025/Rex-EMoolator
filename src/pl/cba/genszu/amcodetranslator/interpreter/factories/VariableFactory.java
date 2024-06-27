@@ -31,6 +31,12 @@ public class VariableFactory
                 try {
                     return new BoolVariable(name, (Boolean) value, context);
                 } catch (ClassCastException e) {
+                    if(value instanceof Double) {
+                        return new BoolVariable(name, !value.equals(0.0), context);
+                    }
+                    else if(value instanceof Integer) {
+                        return new BoolVariable(name, !value.equals(0), context);
+                    }
                     return new StringVariable(name, value.toString(), context);
                 }
             case "BUTTON":
@@ -51,6 +57,12 @@ public class VariableFactory
                 try {
                     return new DoubleVariable(name, (Double) value, context);
                 } catch (ClassCastException e) {
+                    if(value instanceof Integer) {
+                        return new DoubleVariable(name, ((Integer) value).doubleValue(), context);
+                    }
+                    else if(value instanceof Boolean) {
+                        return new DoubleVariable(name, ((Boolean) value) ? 1.0 : 0.0, context);
+                    }
                     return new StringVariable(name, value.toString(), context);
                 }
             case "EPISODE":
@@ -68,6 +80,12 @@ public class VariableFactory
                 try {
                     return new IntegerVariable(name, (Integer) value, context);
                 } catch (ClassCastException e) {
+                    if(value instanceof Double) {
+                        return new IntegerVariable(name, ((Double) value).intValue(), context);
+                    }
+                    else if(value instanceof Boolean) {
+                        return new IntegerVariable(name, ((Boolean) value) ? 1 : 0, context);
+                    }
                     return new StringVariable(name, value.toString(), context);
                 }
             case "KEYBOARD":
