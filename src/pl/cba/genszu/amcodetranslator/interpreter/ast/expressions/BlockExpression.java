@@ -11,6 +11,7 @@ import java.util.List;
 
 public class BlockExpression extends Expression {
     private final List<Node> nodes;
+    private Object returnValue;
 
     public BlockExpression(List<Node> nodes) {
         this.nodes = nodes;
@@ -24,12 +25,14 @@ public class BlockExpression extends Expression {
                     ((Statement) node).execute(context);
                 } else {
                     if (node instanceof ReturnExpression) {
-                        return ((ReturnExpression) node).evaluate(context);
+                        returnValue = ((ReturnExpression) node).evaluate(context);
+                        context.setReturnValue(returnValue);
                     } else {
                         ((Expression) node).evaluate(context);
                     }
                 }
             }
+            return returnValue;
         } catch (OneBreakException e) {
             // zwraca nulla i przerywa procedurę, nie propaguje się dalej
             return null;
@@ -37,7 +40,5 @@ public class BlockExpression extends Expression {
             // nic nie zwraca i propaguje się dalej
             throw e;
         }
-
-        return null;
     }
 }

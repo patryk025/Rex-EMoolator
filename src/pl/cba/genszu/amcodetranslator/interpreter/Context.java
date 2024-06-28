@@ -8,6 +8,7 @@ import java.util.Map;
 public class Context {
     private Map<String, Variable> variables = new HashMap<>();
 	private String sceneName = "BRAKSCENY";
+    private Object returnValue;
 
     public Variable getVariable(String name) {
         return variables.get(name);
@@ -34,5 +35,12 @@ public class Context {
 	{
 		return sceneName;
 	}
+
+    public void setReturnValue(Object returnValue) {
+        this.returnValue = returnValue;
+    }
+    public Object getReturnValue() {
+        return returnValue;
+    }
 }
 

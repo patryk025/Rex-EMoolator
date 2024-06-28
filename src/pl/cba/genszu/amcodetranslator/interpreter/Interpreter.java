@@ -30,6 +30,9 @@ public class Interpreter
 			else if (astRoot instanceof Expression)
 			{
 				this.returnValue = ((Expression) astRoot).evaluate(this.context);
+				if(this.returnValue == null && this.context.getReturnValue() != null) {
+					this.returnValue = this.context.getReturnValue();
+				}
 			}
 		}
 		catch (BreakException e)
