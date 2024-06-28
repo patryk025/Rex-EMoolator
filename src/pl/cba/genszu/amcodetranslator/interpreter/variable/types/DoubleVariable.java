@@ -236,7 +236,12 @@ public class DoubleVariable extends Variable {
 	}
 
 	public int toInt() {
-		return (int) Math.round((double) this.getValue());
+		double value = (double) this.getValue();
+		if (value > 0) {
+			return (int) Math.round(value);
+		} else {
+			return (int) Math.ceil(value - 0.5); // liczby ujemne zaokrągla "w dół"? Zamiast -0.5 == 0 robi -1
+		}
 	}
 
 	public boolean toBool() {
