@@ -56,7 +56,7 @@ public class GreaterOrEqualsOperation extends ArithmeticOperation {
 
     @Override
     public Variable performOperation(BoolVariable var1, StringVariable var2) {
-        return VariableFactory.createVariable("BOOL", "", var1.toInt() >= var2.toInt(), var1.getContext());
+        return VariableFactory.createVariable("BOOL", "", var1.toInt() >= var2.toInt(true), var1.getContext());
     }
 
     @Override
@@ -71,7 +71,7 @@ public class GreaterOrEqualsOperation extends ArithmeticOperation {
 
     @Override
     public Variable performOperation(BoolVariable var1, IntegerVariable var2) {
-        return VariableFactory.createVariable("BOOL", "", var1.toInt() >= var2.GET(), var1.getContext());
+        return VariableFactory.createVariable("BOOL", "", var1.toInt() >= var2.clipToBool(), var1.getContext());
     }
 
     @Override
@@ -81,7 +81,7 @@ public class GreaterOrEqualsOperation extends ArithmeticOperation {
 
     @Override
     public Variable performOperation(BoolVariable var1, DoubleVariable var2) {
-        return VariableFactory.createVariable("BOOL", "", var1.toDouble() >= var2.GET(), var1.getContext());
+        return VariableFactory.createVariable("BOOL", "", var1.toDouble() >= var2.clipToBool(), var1.getContext());
     }
 
     @Override

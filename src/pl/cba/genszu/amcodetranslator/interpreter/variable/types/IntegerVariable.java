@@ -224,6 +224,10 @@ public class IntegerVariable extends Variable {
 		return (double) (Integer) this.getValue();
 	}
 
+	public int clipToBool() {
+		return (int) this.getValue() != 0 ? 1 : 0;
+	}
+
 	public Variable convert(String type) {
 		if(type.equals("DOUBLE")) {
 			return new DoubleVariable(this.getName(), this.toDouble(), this.context);

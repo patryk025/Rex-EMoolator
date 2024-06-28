@@ -182,7 +182,14 @@ public class StringVariable extends Variable {
 	}
 
 	public int toInt() {
+		return toInt(false);
+	}
+
+	public int toInt(boolean clipToBool) {
 		try {
+			if(clipToBool) {
+				return Integer.parseInt((String) this.getValue()) != 0 ? 1 : 0;
+			}
 			return Integer.parseInt((String) this.getValue());
 		}
 		catch(NumberFormatException e) {
@@ -191,6 +198,10 @@ public class StringVariable extends Variable {
 	}
 
 	public double toDouble() {
+		return toDouble(false);
+	}
+
+	public double toDouble(boolean clipToBool) {
 		try {
 			return Double.parseDouble((String) this.getValue());
 		}

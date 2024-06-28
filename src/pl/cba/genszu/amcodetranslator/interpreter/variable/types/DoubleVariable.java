@@ -256,6 +256,10 @@ public class DoubleVariable extends Variable {
 		return formatter.format(this.getValue()).replace(",", ".");
 	}
 
+	public double clipToBool() {
+		return (double) this.getValue() != 0 ? 1 : 0;
+	}
+
 	public Variable convert(String type) {
 		if(type.equals("INTEGER")) {
 			return new IntegerVariable(this.getName(), this.toInt(), this.context);
