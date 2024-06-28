@@ -9,6 +9,10 @@ import pl.cba.genszu.amcodetranslator.interpreter.variable.Variable;
 import java.util.List;
 
 public class BoolVariable extends Variable {
+	public BoolVariable(String name, int value, Context context) {
+		this(name, value != 0, context);
+	}
+
 	public BoolVariable(String name, boolean value, Context context) {
 		super(name, context);
 		this.setAttribute("VALUE", new Attribute("BOOL", value));

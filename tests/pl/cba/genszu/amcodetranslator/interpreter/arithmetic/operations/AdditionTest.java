@@ -74,12 +74,12 @@ public class AdditionTest {
                 contexts[i].setVariable("TEST4_COMPARE", new IntegerVariable("TEST4_COMPARE", 3, contexts[i]));
             } else if(i == 2) {
                 contexts[i].setVariable("TEST_COMPARE", new StringVariable("TEST_COMPARE", "3", contexts[i]));
-                contexts[i].setVariable("TEST2_COMPARE", new IntegerVariable("TEST2_COMPARE", 2, contexts[i]));
+                contexts[i].setVariable("TEST2_COMPARE", new BoolVariable("TEST2_COMPARE", 2, contexts[i]));
                 contexts[i].setVariable("TEST3_COMPARE", new DoubleVariable("TEST3_COMPARE", -2.5, contexts[i]));
                 contexts[i].setVariable("TEST4_COMPARE", new IntegerVariable("TEST4_COMPARE", -3, contexts[i]));
             } else if(i == 3) {
                 contexts[i].setVariable("TEST_COMPARE", new StringVariable("TEST_COMPARE", "TEST3", contexts[i]));
-                contexts[i].setVariable("TEST2_COMPARE", new IntegerVariable("TEST2_COMPARE", 0, contexts[i]));
+                contexts[i].setVariable("TEST2_COMPARE", new BoolVariable("TEST2_COMPARE", 0, contexts[i]));
                 contexts[i].setVariable("TEST3_COMPARE", new DoubleVariable("TEST3_COMPARE", 1.00001, contexts[i]));
                 contexts[i].setVariable("TEST4_COMPARE", new IntegerVariable("TEST4_COMPARE", -5, contexts[i]));
             }
