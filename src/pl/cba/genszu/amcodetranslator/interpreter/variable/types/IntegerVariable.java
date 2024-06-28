@@ -221,7 +221,7 @@ public class IntegerVariable extends Variable {
 	}
 
 	public double toDouble() {
-		return (double) this.getValue();
+		return (double) (Integer) this.getValue();
 	}
 
 	public Variable convert(String type) {
