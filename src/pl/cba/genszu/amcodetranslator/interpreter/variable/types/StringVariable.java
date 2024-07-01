@@ -10,7 +10,7 @@ import pl.cba.genszu.amcodetranslator.interpreter.variable.Variable;
 import java.util.List;
 
 public class StringVariable extends Variable {
-	public StringVariable(String name, String value, Context context) {
+	public StringVariable(String name, String value, final Context context) {
 		super(name, context);
 		this.setAttribute("VALUE", new Attribute("STRING", value));
 
@@ -22,9 +22,9 @@ public class StringVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				// TODO: implement this method
-				System.out.println("Method ADD is not implemented yet");
-				return null;
+				String value = getAttribute("VALUE").getValue().toString();
+				setAttribute("VALUE", new Attribute("STRING", value + arguments.get(0)));
+				return StringVariable.this;
 			}
 		});
 		this.setMethod("CHANGEAT", new Method(
@@ -36,8 +36,11 @@ public class StringVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				// TODO: implement this method
-				System.out.println("Method CHANGEAT is not implemented yet");
+				//TODO: do sprawdzenia
+				String value = getAttribute("VALUE").getValue().toString();
+				int index = (int) arguments.get(0);
+				value = value.substring(0, index) + arguments.get(1) + value.substring(index + 1);
+				setAttribute("VALUE", new Attribute("STRING", value));
 				return null;
 			}
 		});
@@ -64,8 +67,11 @@ public class StringVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				// TODO: implement this method
-				System.out.println("Method CUT is not implemented yet");
+				String value = getAttribute("VALUE").getValue().toString();
+				int index = (int) arguments.get(0);
+				int length = (int) arguments.get(1);
+				value = value.substring(index, index + length);
+				setAttribute("VALUE", new Attribute("STRING", value));
 				return null;
 			}
 		});
@@ -78,9 +84,15 @@ public class StringVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				// TODO: implement this method
-				System.out.println("Method FIND is not implemented yet");
-				return null;
+				String value = getAttribute("VALUE").getValue().toString();
+				Variable needle = (Variable) arguments.get(0);
+				Variable offset = VariableFactory.createVariable("INTEGER", "0", context);
+				if (arguments.size() > 1 && arguments.get(1) != null) {
+					offset = (Variable) arguments.get(1);
+				}
+				int offsetValue = (int) offset.getValue();
+				int index = value.indexOf(needle.getValue().toString(), offsetValue);
+				return VariableFactory.createVariable("INTEGER", String.valueOf(index), context);
 			}
 		});
 		this.setMethod("GET", new Method(
@@ -92,12 +104,15 @@ public class StringVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
+				String value = getAttribute("VALUE").getValue().toString();
 				Variable index = (Variable) arguments.get(0);
-				Variable length = VariableFactory.createVariable("INTEGER", String.valueOf(toString().length()), context);
-				if(arguments.get(1) != null) {
+				Variable length = VariableFactory.createVariable("INTEGER", String.valueOf(value.length()), context);
+				if (arguments.size() > 1 && arguments.get(1) != null) {
 					length = (Variable) arguments.get(1);
 				}
-				return VariableFactory.createVariable("STRING", toString().substring((int) index.getValue(), (int) length.getValue()), context);
+				int startIndex = (int) index.getValue();
+				int endIndex = Math.min(startIndex + (int) length.getValue(), value.length());
+				return VariableFactory.createVariable("STRING", value.substring(startIndex, endIndex), context);
 			}
 		});
 		this.setMethod("LENGTH", new Method(
@@ -105,9 +120,8 @@ public class StringVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				// TODO: implement this method
-				System.out.println("Method LENGTH is not implemented yet");
-				return null;
+				String value = getAttribute("VALUE").getValue().toString();
+				return VariableFactory.createVariable("INTEGER", String.valueOf(value.length()), context);
 			}
 		});
 		this.setMethod("REPLACEAT", new Method(
@@ -119,8 +133,26 @@ public class StringVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				// TODO: implement this method
-				System.out.println("Method REPLACEAT is not implemented yet");
+				String value = getAttribute("VALUE").getValue().toString();
+
+				Variable indexVar = (Variable) arguments.get(0);
+				Variable stringVar = (Variable) arguments.get(1);
+
+				int index = (int) indexVar.getValue();
+				String stringValue = stringVar.toString();
+
+				String newValue;
+				if (index < 0 || index > value.length()) {
+					throw new IndexOutOfBoundsException("Index out of bounds: " + index);
+				}
+
+				if (index + stringValue.length() > value.length()) {
+					newValue = value.substring(0, index) + stringValue;
+				} else {
+					newValue = value.substring(0, index) + stringValue + value.substring(index + stringValue.length());
+				}
+
+				setAttribute("VALUE", new Attribute("STRING", newValue));
 				return null;
 			}
 		});
@@ -146,8 +178,12 @@ public class StringVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				// TODO: implement this method
-				System.out.println("Method SUB is not implemented yet");
+				String value = getAttribute("VALUE").getValue().toString();
+				int index = (int) arguments.get(0);
+				int length = (int) arguments.get(1);
+
+				String newValue = value.substring(0, index) + value.substring(index + length);
+				setAttribute("VALUE", new Attribute("STRING", newValue));
 				return null;
 			}
 		});
@@ -156,8 +192,8 @@ public class StringVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				// TODO: implement this method
-				System.out.println("Method UPPER is not implemented yet");
+				String value = getAttribute("VALUE").getValue().toString();
+				setAttribute("VALUE", new Attribute("STRING", value.toUpperCase()));
 				return null;
 			}
 		});
@@ -179,6 +215,14 @@ public class StringVariable extends Variable {
 		if(knownAttributes.contains(name)) {
 			super.setAttribute(name, attribute);
 		}
+	}
+
+	public Attribute getAttribute(String name) {
+		List<String> knownAttributes = List.of("TOINI", "VALUE");
+		if(knownAttributes.contains(name)) {
+			return super.getAttribute(name);
+		}
+		return null;
 	}
 
 	public int toInt() {
