@@ -26,7 +26,7 @@ public class ArithmeticExpression extends Expression {
 
         assert leftValue != null;
         assert rightValue != null;
-        System.out.println("DEBUG: " + leftValue.getValue() + " " + operator + " " + rightValue.getValue() + " = " + result);
+        // System.out.println("DEBUG: " + leftValue.getValue() + " " + operator + " " + rightValue.getValue() + " = " + result);
         return new ConstantExpression(result);
     }
 

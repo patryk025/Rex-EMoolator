@@ -9,7 +9,7 @@ import pl.cba.genszu.amcodetranslator.interpreter.variable.types.StringVariable;
 
 public abstract class ArithmeticOperation {
     public Variable performOperation(Variable var1, Variable var2) {
-		System.out.println("("+var1.getType()+") "+var1.getValue()+", ("+var2.getType()+") "+var2.getValue());
+		// System.out.println("("+var1.getType()+") "+var1.getValue()+", ("+var2.getType()+") "+var2.getValue());
         switch (var1.getType()) {
             case "STRING":
                 if (var2.getType().equals("STRING")) {

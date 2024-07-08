@@ -18,7 +18,7 @@ public class VariableFactory
     }
 
     public static Variable createVariable(String type, String name, Object value, Context context) {
-        System.out.println("VariableFactory, type: "+type+", valie: "+value);
+        // System.out.println("VariableFactory, type: "+type+", valie: "+value);
 		switch (type.toUpperCase()) {
             case "ANIMO":
                 return new AnimoVariable(name, context);
@@ -29,15 +29,20 @@ public class VariableFactory
             case "BEHAVIOUR":
                 return new BehaviourVariable(name, context);
             case "BOOL":
-                try {
+                if (value instanceof Boolean) {
                     return new BoolVariable(name, (Boolean) value, context);
-                } catch (ClassCastException e) {
-                    if(value instanceof Double) {
-                        return new BoolVariable(name, !value.equals(0.0), context);
+                } else if (value instanceof Integer) {
+                    return new BoolVariable(name, (Integer) value != 0, context);
+                } else if (value instanceof Double) {
+                    return new BoolVariable(name, (Double) value != 0, context);
+                }
+                else if (value instanceof String) {
+                    try {
+                        return new BoolVariable(name, Boolean.parseBoolean((String) value), context);
+                    } catch (NumberFormatException e) {
+                        return new StringVariable(name, (String) value, context);
                     }
-                    else if(value instanceof Integer) {
-                        return new BoolVariable(name, !value.equals(0), context);
-                    }
+                } else {
                     return new StringVariable(name, value.toString(), context);
                 }
             case "BUTTON":
@@ -55,15 +60,19 @@ public class VariableFactory
             case "DATABASE":
                 return new DatabaseVariable(name, context);
             case "DOUBLE":
-                try {
+                if (value instanceof Double) {
                     return new DoubleVariable(name, (Double) value, context);
-                } catch (ClassCastException e) {
-                    if(value instanceof Integer) {
-                        return new DoubleVariable(name, ((Integer) value).doubleValue(), context);
+                } else if (value instanceof Integer) {
+                    return new DoubleVariable(name, ((Integer) value).doubleValue(), context);
+                } else if (value instanceof String) {
+                    try {
+                        return new DoubleVariable(name, Double.parseDouble((String) value), context);
+                    } catch (NumberFormatException e) {
+                        return new StringVariable(name, (String) value, context);
                     }
-                    else if(value instanceof Boolean) {
-                        return new DoubleVariable(name, ((Boolean) value) ? 1.0 : 0.0, context);
-                    }
+                } else if(value instanceof Boolean) {
+                    return new DoubleVariable(name, ((Boolean) value) ? 1.0 : 0.0, context);
+                } else {
                     return new StringVariable(name, value.toString(), context);
                 }
             case "EPISODE":
@@ -78,15 +87,19 @@ public class VariableFactory
                 return new InertiaVariable(name, context);
             case "INTEGER":
             case "INT":
-                try {
+                if (value instanceof Integer) {
                     return new IntegerVariable(name, (Integer) value, context);
-                } catch (ClassCastException e) {
-                    if(value instanceof Double) {
-                        return new IntegerVariable(name, ((Double) value).intValue(), context);
+                } else if (value instanceof Double) {
+                    return new IntegerVariable(name, ((Double) value).intValue(), context);
+                } else if (value instanceof Boolean) {
+                    return new IntegerVariable(name, ((Boolean) value) ? 1 : 0, context);
+                } else if (value instanceof String) {
+                    try {
+                        return new IntegerVariable(name, Integer.parseInt((String) value), context);
+                    } catch (NumberFormatException e) {
+                        return new StringVariable(name, (String) value, context);
                     }
-                    else if(value instanceof Boolean) {
-                        return new IntegerVariable(name, ((Boolean) value) ? 1 : 0, context);
-                    }
+                } else {
                     return new StringVariable(name, value.toString(), context);
                 }
             case "KEYBOARD":
