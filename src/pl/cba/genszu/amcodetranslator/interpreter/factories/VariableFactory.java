@@ -18,7 +18,8 @@ public class VariableFactory
     }
 
     public static Variable createVariable(String type, String name, Object value, Context context) {
-        switch (type.toUpperCase()) {
+        System.out.println("VariableFactory, type: "+type+", valie: "+value);
+		switch (type.toUpperCase()) {
             case "ANIMO":
                 return new AnimoVariable(name, context);
             case "APPLICATION":
