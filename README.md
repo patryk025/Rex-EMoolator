@@ -27,6 +27,6 @@ Lista TODO (w trakcie tworzenia):
 - [ ] Obsługa fontów (klasa Font; mniejszy priorytet, głównie do testów)
 - [ ] Emulacja silników fizycznych Sekai i Inertia
 - [ ] Bindy do silnika libGDX
-- [ ] Podłączenie funkcji deszyfrujących z bracha main (szyfr skryptów, CRLE, CLZW2)
+- [ ] Podłączenie funkcji deszyfrujących z bracha main (szyfr skryptów, CRLE, CLZW2) (są wrzucone)
 - [ ] Przygotowanie instrukcji cache'ujących skrypty oraz tłumaczących animacje na format dla libGDX
 - [ ] Zapisywanie danych do pliku INI, wraz z ich odczytywaniem
