@@ -42,7 +42,7 @@ public class BlooMooEmulator extends ApplicationAdapter {
 
         FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("Roboto-Regular.ttf"));
         FreeTypeFontParameter parameter = new FreeTypeFontParameter();
-        parameter.size = 72;
+        parameter.size = 14;
         font = generator.generateFont(parameter);
         generator.dispose();
 
@@ -55,6 +55,7 @@ public class BlooMooEmulator extends ApplicationAdapter {
         Node astRoot = astBuilder.visit(tree);
         interpreter = new Interpreter(astRoot, context);
         point = new Point(300, 400);
+        
         Gdx.app.debug("POINT", point.toString());
 
         camera = new OrthographicCamera();
@@ -80,7 +81,6 @@ public class BlooMooEmulator extends ApplicationAdapter {
     @Override
     public void resize(int width, int height) {
         viewport.update(width, height);
-        CoordinatesHelper.updateScale(width, height);
     }
 
     @Override

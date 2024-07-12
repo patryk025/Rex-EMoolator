@@ -7,6 +7,7 @@ public class Point {
     public Point(int x, int y) {
         this.x = x;
         this.y = y;
+        CoordinatesHelper.reverseY(this);
     }
 
     public int getX() {
@@ -27,10 +28,12 @@ public class Point {
 
     public void setY(int y) {
         this.y = y;
+        CoordinatesHelper.reverseY(point);
     }
     
     public void setY(double y) {
         this.y = (int) y;
+        CoordinatesHelper.reverseY(point);
     }
     
     @Override
