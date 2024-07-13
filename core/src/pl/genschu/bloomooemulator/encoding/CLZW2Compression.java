@@ -5,44 +5,34 @@ import java.nio.ByteOrder;
 import java.util.Arrays;
 
 // adapted and translated from https://gist.github.com/Dove6/0d21e763919daa8b5049e20b6bdacfaa#file-clzw2_decoder-py
-class CLZW2Compression
+public class CLZW2Compression
 {
-    protected int input_size;
-    protected byte[] input_ptr;
+    private static final int HEADER_LENGTH = 8;
+    private static final byte[] ETX_MARKER = new byte[]{(byte) 0x11, 0x00, 0x00};
+    private static final int MINIMAL_ENCODED_LENGTH = HEADER_LENGTH + ETX_MARKER.length;
 
-    public CLZW2Compression(byte[] data) {
-        this.input_size = data.length;
-        this.input_ptr = data;
-    }
-
-    private final int HEADER_LENGTH = 8;
-    private final byte[] ETX_MARKER = new byte[]{(byte) 0x11, 0x00, 0x00};
-    private final int MINIMAL_ENCODED_LENGTH = HEADER_LENGTH + ETX_MARKER.length;
-
-    public int readInt(byte[] data) {
+    private static int readInt(byte[] data) {
         return ByteBuffer.wrap(Arrays.copyOfRange(data, 0, 4)).order(ByteOrder.LITTLE_ENDIAN).getInt();
     }
 
-    public int readShort(byte[] data) {
+    private static int readShort(byte[] data) {
         return ByteBuffer.wrap(Arrays.copyOfRange(data, 0, 2)).order(ByteOrder.LITTLE_ENDIAN).getShort();
     }
 
-    public int readByte(byte[] data) {
+    private static int readByte(byte[] data) {
         return data[0] & 0xFF;
     }
 
-    public int readMostSignificantNibble(byte[] data) {
+    private static int readMostSignificantNibble(byte[] data) {
         return (readByte(data) >> 4) & 0x0F;
     }
 
-    public byte[] compress() throws Exception {
+    public static byte[] compress() throws Exception {
         throw new Exception("Not implemented");
     }
 
     // translated from https://gist.github.com/Dove6/0d21e763919daa8b5049e20b6bdacfaa#file-clzw2_decoder-py
-    public byte[] decompress() throws Exception {
-        byte[] data = input_ptr;
-
+    public static byte[] decompress(byte[] data) throws IllegalArgumentException {
         if (data.length < MINIMAL_ENCODED_LENGTH) {
             throw new IllegalArgumentException("Encoded data too short");
         }
