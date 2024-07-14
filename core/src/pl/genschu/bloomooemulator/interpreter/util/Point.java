@@ -1,5 +1,7 @@
 package pl.genschu.bloomooemulator.interpreter.util;
 
+import pl.genschu.bloomooemulator.utils.CoordinatesHelper;
+
 public class Point {
     private int x;
     private int y;
@@ -7,7 +9,7 @@ public class Point {
     public Point(int x, int y) {
         this.x = x;
         this.y = y;
-        CoordinatesHelper.reverseY(this);
+        this.y = CoordinatesHelper.reverseY(this);
     }
 
     public int getX() {
@@ -28,12 +30,12 @@ public class Point {
 
     public void setY(int y) {
         this.y = y;
-        CoordinatesHelper.reverseY(point);
+        this.y = CoordinatesHelper.reverseY(this);
     }
     
     public void setY(double y) {
         this.y = (int) y;
-        CoordinatesHelper.reverseY(point);
+        this.y = CoordinatesHelper.reverseY(this);
     }
     
     @Override

@@ -93,5 +93,6 @@ project(":core") {
         api "com.badlogicgames.gdx:gdx-freetype:$gdxVersion"
         api "com.badlogicgames.gdx:gdx-box2d:$gdxVersion"
         api "org.antlr:antlr4-runtime:$antlrVersion"
+        api "com.badlogicgames.gdx:gdx-tools:$gdxVersion"
     }
 }

@@ -3,6 +3,7 @@ package pl.genschu.bloomooemulator;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3Application;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3ApplicationConfiguration;
 import pl.genschu.bloomooemulator.BlooMooEmulator;
+import pl.genschu.bloomooemulator.ui.GameListApp;
 
 // Please note that on macOS your application needs to be started with the -XstartOnFirstThread JVM argument
 public class DesktopLauncher {
@@ -10,6 +11,6 @@ public class DesktopLauncher {
 		Lwjgl3ApplicationConfiguration config = new Lwjgl3ApplicationConfiguration();
 		config.setForegroundFPS(60);
 		config.setTitle("AidemMediaBlooMooEmulator");
-		new Lwjgl3Application(new BlooMooEmulator(), config);
+		new Lwjgl3Application(new GameListApp(), config);
 	}
 }
