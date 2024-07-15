@@ -138,8 +138,7 @@ public class GameListApp extends ApplicationAdapter {
             }
         });
 
-        row.add(new Label(game.getName(), skin)).expandX().fillX();
-        row.add(new Label(game.getVersion(), skin)).expandX().fillX();
+        row.add(new Label(game.toString(), skin)).expandX().fillX();
         row.add(runButton);
         row.add(editButton);
         row.add(deleteButton);
