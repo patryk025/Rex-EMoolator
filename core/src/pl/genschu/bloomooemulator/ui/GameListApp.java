@@ -21,7 +21,7 @@ public class GameListApp extends ApplicationAdapter {
 
     @Override
     public void create() {
-        gameManager = new GameManager();
+        gameManager = new GameManager(Gdx.files.internal("").path());
         stage = new Stage(new ScreenViewport());
         Gdx.input.setInputProcessor(stage);
         skin = new Skin(Gdx.files.internal("default_skin/uiskin.json"));

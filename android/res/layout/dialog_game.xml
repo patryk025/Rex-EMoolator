@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <EditText
+        android:id="@+id/nameField"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Nazwa gry"/>
+
+    <EditText
+        android:id="@+id/pathField"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Ścieżka do plików"/>
+
+    <Spinner
+        android:id="@+id/mouseModeSelectBox"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:entries="@array/mouse_modes"/>
+
+    <CheckBox
+        android:id="@+id/joystickCheckbox"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Używaj wirtualnego joysticka do obsługi myszy"/>
+
+    <CheckBox
+        android:id="@+id/skipPoliceCheckbox"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Pomiń wprowadzanie kodu (Pana Policjanta)"/>
+
+    <CheckBox
+        android:id="@+id/fullscreenCheckbox"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Rozciągaj na cały ekran (ignoruj proporcje ekranu)"/>
+</LinearLayout>
