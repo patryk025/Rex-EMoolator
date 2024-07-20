@@ -1,29 +1,42 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
+<androidx.constraintlayout.widget.ConstraintLayout
      xmlns:android="http://schemas.android.com/apk/res/android"
+     xmlns:app="http://schemas.android.com/apk/res-auto"
      android:layout_height="match_parent"
      android:layout_width="match_parent"
-     android:padding="16dp"
-     android:orientation="vertical">
+     android:padding="16dp">
 
     <TextView
          android:layout_height="wrap_content"
          android:layout_width="wrap_content"
+         app:layout_constraintTop_toTopOf="parent"
+         app:layout_constraintHorizontal_bias="0.5"
+         app:layout_constraintStart_toStartOf="parent"
          android:textSize="24sp"
+         app:layout_constraintEnd_toEndOf="parent"
          android:id="@+id/header"
          android:text="Lista gier"
-         android:layout_gravity="center_horizontal" />
+         android:textStyle="bold" />
 
     <Button
          android:layout_height="wrap_content"
-         android:layout_width="match_parent"
+         android:layout_width="0dp"
+         app:layout_constraintStart_toStartOf="parent"
+         app:layout_constraintWidth_percent="1.0"
+         app:layout_constraintEnd_toEndOf="parent"
+         android:layout_marginTop="16dp"
+         app:layout_constraintTop_toBottomOf="@id/header"
          android:id="@+id/addGameButton"
          android:text="Dodaj grę" />
 
     <androidx.recyclerview.widget.RecyclerView
-         android:layout_height="0dp"
-         android:layout_width="match_parent"
-         android:layout_weight="1"
-         android:id="@+id/gamesRecyclerView" />
+            android:id="@+id/gamesRecyclerView"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            app:layout_constraintTop_toBottomOf="@id/addGameButton"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:layout_marginTop="16dp" />
 
-</LinearLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

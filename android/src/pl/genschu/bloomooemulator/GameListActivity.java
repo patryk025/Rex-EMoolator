@@ -29,6 +29,8 @@ public class GameListActivity extends AppCompatActivity {
         gamesRecyclerView.setLayoutManager(new LinearLayoutManager(this));
         adapter = new GameListAdapter(this, gameManager.getGames());
         gamesRecyclerView.setAdapter(adapter);
+        
+        Toast.makeText(getApplicationContext(), "Załadowano "+gameManager.getGames().size+" gier", Toast.LENGTH_LONG).show();
 
         Button addGameButton = findViewById(R.id.addGameButton);
         addGameButton.setOnClickListener(v -> showGameDialog());
@@ -38,11 +40,11 @@ public class GameListActivity extends AppCompatActivity {
         return getFilesDir().getAbsolutePath();
     }
 
-    private void showGameDialog() {
+    public void showGameDialog() {
         showGameDialog(null);
     }
 
-    private void showGameDialog(GameEntry game) {
+    public void showGameDialog(GameEntry game) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle(game == null ? "Dodaj grę" : "Edytuj grę");
 
@@ -74,6 +76,8 @@ public class GameListActivity extends AppCompatActivity {
                         joystickCheckbox.isChecked(),
                         skipPoliceCheckbox.isChecked(),
                         fullscreenCheckbox.isChecked()));
+
+                adapter.notifyItemInserted(gameManager.getGames().indexOf(game, true));
             } else {
                 game.setName(nameField.getText().toString());
                 game.setPath(pathField.getText().toString());
@@ -82,6 +86,8 @@ public class GameListActivity extends AppCompatActivity {
                 game.setSkipLicenceCode(skipPoliceCheckbox.isChecked());
                 game.setMaintainAspectRatio(fullscreenCheckbox.isChecked());
                 gameManager.updateGame(game);
+
+                adapter.notifyItemChanged(gameManager.getGames().indexOf(game, true));
             }
         });
 
@@ -89,12 +95,14 @@ public class GameListActivity extends AppCompatActivity {
         builder.show();
     }
 
-    private void showDeleteDialog(GameEntry game) {
+    public void showDeleteDialog(GameEntry game) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("Usuwanie gry");
         builder.setMessage("Czy aby na pewno chcesz usunąć " + game.getName() + "?");
         builder.setPositiveButton("Tak", (dialog, which) -> {
+            int index = gameManager.getGames().indexOf(game, true);
             gameManager.removeGame(game);
+            adapter.notifyItemRemoved(index);
         });
         builder.setNegativeButton("Nie", null);
         builder.show();
