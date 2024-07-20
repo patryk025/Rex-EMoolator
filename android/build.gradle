@@ -19,7 +19,7 @@ android {
     }
     defaultConfig {
         applicationId "pl.genschu.bloomooemulator"
-        minSdkVersion 19
+        minSdkVersion 21
         targetSdkVersion 34
         versionCode 1
         versionName "1.0"

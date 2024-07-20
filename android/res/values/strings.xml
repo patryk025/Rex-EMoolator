@@ -2,5 +2,10 @@
 <resources>
 
     <string name="app_name">Rex EMoolator</string>
-
+    
+    <string-array name="mouse_modes">
+        <item>Dotykowo</item>
+        <item>Fizyczny kursor</item>
+    </string-array>
+    
 </resources>
