@@ -1,13 +1,15 @@
-package pl.cba.genszu.amcodetranslator.loader;
+package pl.genschu.bloomooemulator.loader;
+
+import com.badlogic.gdx.Gdx;
+import pl.genschu.bloomooemulator.interpreter.exceptions.InterpreterException;
+import pl.genschu.bloomooemulator.interpreter.factories.VariableFactory;
+import pl.genschu.bloomooemulator.interpreter.variable.Variable;
+import pl.genschu.bloomooemulator.encoding.ScriptDecypher;
+import pl.genschu.bloomooemulator.interpreter.variable.types.SequenceVariable;
+import pl.genschu.bloomooemulator.utils.StringUtils;
 
 import java.io.*;
 import java.util.*;
-import pl.cba.genszu.amcodetranslator.encoding.*;
-import pl.cba.genszu.amcodetranslator.interpreter.exceptions.*;
-import pl.cba.genszu.amcodetranslator.interpreter.variable.Variable;
-import pl.cba.genszu.amcodetranslator.utils.*;
-import pl.cba.genszu.amcodetranslator.interpreter.factories.*;
-import pl.cba.genszu.amcodetranslator.interpreter.variable.types.*;
 
 public class CNVParser
 {
@@ -23,11 +25,11 @@ public class CNVParser
         return cap;
     }
 	
-	private Variable getVariable(String name) throws InterpreterException {
+	private Variable getVariable(String name) {
 		for(Variable var : variables) {
 			if(var.getName().equals(name)) return var;
 		}
-		throw new InterpreterException("Variable "+name+" not found");
+		return VariableFactory.createVariable("STRING", name, null);
 	}
 
     public void parseFile(File plik) throws Exception
@@ -95,7 +97,7 @@ public class CNVParser
 		for (String line : lines)
 		{
 			if(line.contains(":}")) {
-				Logger.i("Corrected typo in line " + line);
+				Gdx.app.log("CNVParser", "Corrected typo in line " + line);
 				line = line.replace(":}", ";}");
 			}
 			if(recoveryMode) line = line.replace("?", "_");
@@ -109,9 +111,9 @@ public class CNVParser
 					{
 						tmp = line.split("OBJECT"+separator)[1];
 						if(tmp.contains("?") && !recoveryMode) {
-							Logger.w("probable script errors, entering into recovery mode...");
+							Gdx.app.log("CNVParser", "probable script errors, entering into recovery mode...");
 							tmp = tmp.replace("?", "_");
-							Logger.i("Recovered variable name: " + tmp);
+							Gdx.app.log("CNVParser", "Recovered variable name: " + tmp);
 							recoveryMode = true;
 						}
 						//variables.add(new Variable(tmp));
@@ -122,12 +124,12 @@ public class CNVParser
 					catch (ArrayIndexOutOfBoundsException e)
 					{
 						tmp = null;
-						Logger.w("empty variable name, ignoring");
+						Gdx.app.log("CNVParser", "empty variable name, ignoring");
 					}
 					unorderedProperties.clear();
 				}
 				else if(line.startsWith("NAME"+separator)) {
-					Logger.d("Sequence definition detected");
+					Gdx.app.log("CNVParser", "Sequence definition detected");
 					tmp = line.split("NAME"+separator)[1];
 					//variables.add(new Variable(tmp));
 					tmpVariableInfo.clear();
@@ -142,29 +144,29 @@ public class CNVParser
 					{
 						String varName = line.split(":TYPE"+separator)[0];
 						if(varName.contains("?") && !recoveryMode) {
-							Logger.w("probable script errors, entering into recovery mode...");
+							Gdx.app.log("CNVParser", "probable script errors, entering into recovery mode...");
 							recoveryMode = true;
 						}
 						if (!tmp.equals(varName))
 						{
-							Logger.w("variable names doesn't match (" + tmp + " != " + varName + ")!");
+							Gdx.app.log("CNVParser", "variable names doesn't match (" + tmp + " != " + varName + ")!");
 							if(recoveryMode) {
 								varName = varName.replace("?", "_");
-								Logger.i("Recovered variable name: " + varName);
+								Gdx.app.log("CNVParser", "Recovered variable name: " + varName);
 								if (!tmp.equals(varName))
 								{
-									Logger.w("variable names still doesn't match (" + tmp + " != " + varName + ")!");
+									Gdx.app.log("CNVParser", "variable names still doesn't match (" + tmp + " != " + varName + ")!");
 								}
 							}
 						}
 						typ = line.split(":TYPE"+separator)[1];
 						typ = capitalize(typ);
 
-						Variable tmpVar = VariableFactory.createVariable(typ, tmpVariableInfo.get("NAME"));
+						Variable tmpVar = VariableFactory.createVariable(typ, tmpVariableInfo.get("NAME"), null);
 						
-						if(unorderedProperties.size() > 0) { //jeśli były jakieś parametry przed TYPE to je wstaw
+						if(!unorderedProperties.isEmpty()) { //jeśli były jakieś parametry przed TYPE to je wstaw
 							for(String key : unorderedProperties.keySet()) {
-								tmpVar.setProperty(key, unorderedProperties.get(key));
+								tmpVar.setAttribute(key, unorderedProperties.get(key));
 							}
 							unorderedProperties.clear();
 						}
@@ -189,10 +191,10 @@ public class CNVParser
 									String testName = segments[0];
 									
 									if(!testName.equals(tmp)) {
-										Logger.w("variable names missmatch ("+testName+" != "+tmp+")!");
-										Logger.w("line corrected, "+line+" -> ", false);
+										Gdx.app.log("CNVParser", "variable names missmatch ("+testName+" != "+tmp+")!");
+										Gdx.app.log("CNVParser", "line corrected, old line: "+line);
 										line = line.replace(testName+":", tmp+":");
-										Logger.log(line);
+										Gdx.app.log("CNVParser", "new line: "+line);
 									}
 
 									String[] splitTmp = (segments[1]).split(separator);
@@ -215,18 +217,18 @@ public class CNVParser
 											//if(!typ.equals("Animo"))
 											//System.out.println("Nie wiem co z tym: "+line);
 											//System.out.println(variables.get(variables.size()-1).getType()+"."+method);
-											variables.get(variables.size() - 1).setProperty(method, methodParam + "$$" + tmpVal);
+											variables.get(variables.size() - 1).setAttribute(method, methodParam + "$$" + tmpVal);
 										}
 										else
 										{
 											Variable tmpVar = variables.get(variables.size() - 1);
 											try
 											{
-												tmpVar.setProperty(method, tmpVal);
+												tmpVar.setAttribute(method, tmpVal);
 											}
 											catch(Exception e) {
 												if(tmpVar == null) { //no czasami parametr TYPE jest gdzieś pośrodku zamiast na początku
-													Logger.w("Variable defined but not initialised, saving \""+methodParam+"\" value for later use...");
+													Gdx.app.log("CNVParser", "Variable defined but not initialised, saving \""+methodParam+"\" value for later use...");
 													unorderedProperties.put(method, tmpVal); //cachujemy wartości
 												}
 												else {
@@ -242,34 +244,37 @@ public class CNVParser
 										{
 											SequenceVariable seq = (SequenceVariable) getVariable(seqName);
 											Variable varTmp = getVariable(tmp);
+											/*
 											if(varTmp.getType().equals("Speaking")) {
 												seq.addSpeaking(tmp, (SpeakingVariable) varTmp);
-												Logger.i("successfully registered Speaking "+tmp+" in Sequence "+seqName);
+												Gdx.app.log("CNVParser", "successfully registered Speaking "+tmp+" in Sequence "+seqName);
 											}
 											else if(varTmp.getType().equals("Sequence")) {
 												seq.addSequence(tmp, (SequenceVariable) varTmp);
-												Logger.i("successfully registered Sequence "+tmp+" in Sequence "+seqName);
+												Gdx.app.log("CNVParser", "successfully registered Sequence "+tmp+" in Sequence "+seqName);
 											}
 											else if(varTmp.getType().equals("Simple")) {
 												seq.addSimple(tmp, (SimpleVariable) varTmp);
-												Logger.i("successfully registered Simple "+tmp+" in Sequence "+seqName);
+												Gdx.app.log("CNVParser", "successfully registered Simple "+tmp+" in Sequence "+seqName);
 											}
 											else {
-												Logger.w("incompatible type "+varTmp.getType() + " with Sequence. Ignoring...");
+												Gdx.app.log("CNVParser", "incompatible type "+varTmp.getType() + " with Sequence. Ignoring...");
 											}
-											Logger.d("line => "+line);
+
+											 */
+											Gdx.app.log("CNVParser", "line => "+line);
 										}
 										catch (InterpreterException e)
 										{
-											Logger.e("sequence/speaking "+seqName+" does not exists or is declared later");
+											Gdx.app.log("CNVParser", "sequence/speaking "+seqName+" does not exists or is declared later");
 										}
 										catch(ClassCastException e) {
-											Logger.e("Variable type casting exception: " + seqName);
+											Gdx.app.log("CNVParser", "Variable type casting exception: " + seqName);
 											try
 											{
-												Logger.e("Expected: Sequence, got: " + getVariable(seqName).getType());
+												Gdx.app.log("CNVParser", "Expected: Sequence, got: " + getVariable(seqName).getType());
 												//System.out.println(variables);
-												Logger.d(line);
+												Gdx.app.log("CNVParser", line);
 											}
 											catch (InterpreterException ignored)
 											{}
@@ -277,14 +282,14 @@ public class CNVParser
 										}
 									}
 									else {
-										Logger.w("no value after equal sign, ignoring...");
-										Logger.d("line => "+line);
+										Gdx.app.log("CNVParser", "no value after equal sign, ignoring...");
+										Gdx.app.log("CNVParser", "line => "+line);
 									}
 								}
 								else if(segments.length == 3) {
 									System.out.println(line);
 									String[] val = segments[2].split(separator);
-									variables.get(variables.size() - 1).setProperty(segments[1], val[0] + "$$" + val[1]);
+									variables.get(variables.size() - 1).setAttribute(segments[1], val[0] + "$$" + val[1]);
 								}
 								else {
 									//last chance
@@ -294,26 +299,26 @@ public class CNVParser
 									if(parts1.length == 2) {
 										String[] parts2 = parts1[1].split(separator, 2);
 										if(parts2.length == 2) {
-											variables.get(variables.size() - 1).setProperty(parts2[0], parts2[1]);
+											variables.get(variables.size() - 1).setAttribute(parts2[0], parts2[1]);
 										}
 										else giveUp = true;
 									}
 									else giveUp = true;
 									
 									if(giveUp)
-										Logger.w("something is wrong with line " + line);
+										Gdx.app.log("CNVParser", "something is wrong with line " + line);
 								}
 							}
 							else
 							{
-								Logger.w("empty field/signal/method name");
-								Logger.d("line => "+line);
+								Gdx.app.log("CNVParser", "empty field/signal/method name");
+								Gdx.app.log("CNVParser", "line => "+line);
 							}
 						}
 						catch (ArrayIndexOutOfBoundsException e)
 						{
 							e.printStackTrace();
-							Logger.d("Linia: " + line);
+							Gdx.app.log("CNVParser", "Linia: " + line);
 						}
 					}
 				}

@@ -143,6 +143,10 @@ public abstract class Variable {
 		attributes.put(name, attribute);
 	}
 
+	public void setAttribute(String name, String attribute) {
+		attributes.put(name, new Attribute(name, attribute));
+	}
+
 	public Attribute getAttribute(String name) {
 		return attributes.get(name);
 	}
