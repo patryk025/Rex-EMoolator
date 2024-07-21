@@ -5,10 +5,13 @@ import pl.genschu.bloomooemulator.interpreter.variable.Attribute;
 import pl.genschu.bloomooemulator.interpreter.variable.Method;
 import pl.genschu.bloomooemulator.interpreter.variable.Parameter;
 import pl.genschu.bloomooemulator.interpreter.variable.Variable;
+import pl.genschu.bloomooemulator.objects.Image;
 
 import java.util.List;
 
 public class ImageVariable extends Variable {
+	Image image;
+
 	public ImageVariable(String name, Context context) {
 		super(name, context);
 
@@ -223,4 +226,11 @@ public class ImageVariable extends Variable {
 		}
 	}
 
+	public Image getImage() {
+		return image;
+	}
+
+	public void setImage(Image image) {
+		this.image = image;
+	}
 }

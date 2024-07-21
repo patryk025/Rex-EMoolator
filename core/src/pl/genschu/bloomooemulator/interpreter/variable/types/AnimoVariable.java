@@ -5,10 +5,24 @@ import pl.genschu.bloomooemulator.interpreter.variable.Attribute;
 import pl.genschu.bloomooemulator.interpreter.variable.Method;
 import pl.genschu.bloomooemulator.interpreter.variable.Parameter;
 import pl.genschu.bloomooemulator.interpreter.variable.Variable;
+import pl.genschu.bloomooemulator.objects.Event;
+import pl.genschu.bloomooemulator.objects.Image;
 
 import java.util.List;
 
 public class AnimoVariable extends Variable {
+	private int imagesCount = 0;
+	private int colorDepth;
+	private int eventsCount = 0;
+	private String description;
+	private int fps;
+	private int opacity;
+	private String signature;
+	private List<Event> events;
+	private List<Image> images;
+
+	// TODO: add fields with info about current played animation
+
 	public AnimoVariable(String name, Context context) {
 		super(name, context);
 
@@ -757,4 +771,75 @@ public class AnimoVariable extends Variable {
 		}
 	}
 
+	public int getImagesCount() {
+		return imagesCount;
+	}
+
+	public void setImagesCount(int imagesCount) {
+		this.imagesCount = imagesCount;
+	}
+
+	public int getColorDepth() {
+		return colorDepth;
+	}
+
+	public void setColorDepth(int colorDepth) {
+		this.colorDepth = colorDepth;
+	}
+
+	public int getEventsCount() {
+		return eventsCount;
+	}
+
+	public void setEventsCount(int eventsCount) {
+		this.eventsCount = eventsCount;
+	}
+
+	public String getDescription() {
+		return description;
+	}
+
+	public void setDescription(String description) {
+		this.description = description;
+	}
+
+	public int getFps() {
+		return fps;
+	}
+
+	public void setFps(int fps) {
+		this.fps = fps;
+	}
+
+	public int getOpacity() {
+		return opacity;
+	}
+
+	public void setOpacity(int opacity) {
+		this.opacity = opacity;
+	}
+
+	public String getSignature() {
+		return signature;
+	}
+
+	public void setSignature(String signature) {
+		this.signature = signature;
+	}
+
+	public List<Event> getEvents() {
+		return events;
+	}
+
+	public void setEvents(List<Event> events) {
+		this.events = events;
+	}
+
+	public List<Image> getImages() {
+		return images;
+	}
+
+	public void setImages(List<Image> images) {
+		this.images = images;
+	}
 }

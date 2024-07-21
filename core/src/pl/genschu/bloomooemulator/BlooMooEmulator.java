@@ -18,6 +18,10 @@ import org.antlr.v4.runtime.tree.ParseTree;
 import pl.genschu.bloomooemulator.interpreter.ast.ASTBuilderVisitor;
 import pl.genschu.bloomooemulator.interpreter.ast.Node;
 import pl.genschu.bloomooemulator.interpreter.util.Point;
+import pl.genschu.bloomooemulator.interpreter.variable.Attribute;
+import pl.genschu.bloomooemulator.interpreter.variable.types.ImageVariable;
+import pl.genschu.bloomooemulator.loader.ImageLoader;
+import pl.genschu.bloomooemulator.objects.Image;
 import pl.genschu.bloomooemulator.utils.CoordinatesHelper;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.utils.viewport.FitViewport;
@@ -30,33 +34,26 @@ public class BlooMooEmulator extends ApplicationAdapter {
     SpriteBatch batch;
     BitmapFont font;
     Context context;
-    Interpreter interpreter;
-    Point point;
     OrthographicCamera camera;
     Viewport viewport;
+
+    String gamePath;
+
+    ImageVariable imageVariable;
+
+    public BlooMooEmulator(String gamePath) {
+        this.gamePath = gamePath;
+    }
 
     @Override
     public void create () {
         batch = new SpriteBatch();
         context = new Context();
 
-        FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("Roboto-Regular.ttf"));
-        FreeTypeFontParameter parameter = new FreeTypeFontParameter();
-        parameter.size = 14;
-        font = generator.generateFont(parameter);
-        generator.dispose();
+        imageVariable = new ImageVariable("TEST", null);
+        imageVariable.setAttribute("FILENAME", new Attribute("FILENAME", "D:\\Program Files\\AidemMedia\\Reksio i Wehikuł Czasu\\dane\\game\\przygoda\\CS_ZANURZENIEKRETA\\cpl_bkg.img"));
 
-        String testExpression = "{@RETURN([7+7@7+7*7-7]);}";
-        AidemMediaLexer lexer = new AidemMediaLexer(CharStreams.fromString(testExpression));
-        AidemMediaParser parser = new AidemMediaParser(new CommonTokenStream(lexer));
-        ParseTree tree = parser.script();
-
-        ASTBuilderVisitor astBuilder = new ASTBuilderVisitor(context);
-        Node astRoot = astBuilder.visit(tree);
-        interpreter = new Interpreter(astRoot, context);
-        point = new Point(300, 400);
-        
-        Gdx.app.debug("POINT", point.toString());
+        ImageLoader.loadImage(imageVariable);
 
         camera = new OrthographicCamera();
         viewport = new FitViewport(VIRTUAL_WIDTH, VIRTUAL_HEIGHT, camera);
@@ -73,8 +70,10 @@ public class BlooMooEmulator extends ApplicationAdapter {
         batch.setProjectionMatrix(camera.combined);
 
         batch.begin();
-        interpreter.interpret();
-        font.draw(batch, "7+7/7+7*7-7=" + interpreter.getReturnValue(), point.getX(), point.getY());
+
+        Image image = imageVariable.getImage();
+        batch.draw(image.getImageTexture(), 0, 0, image.width, image.height);
+
         batch.end();
     }
 
