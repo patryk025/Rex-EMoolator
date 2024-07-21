@@ -116,7 +116,7 @@ public class Image {
         for (int i = 0; i < imageData.length; i += (isJPEG ? 3 : 2)) {
             int[] rgb888;
             if(isJPEG) {
-                rgb888 = new int[] {imageData[i] & 0xFF, imageData[i + 1] & 0xFF, imageData[i + 2] & 0xFF};
+                rgb888 = new int[] {imageData[i + 2] & 0xFF, imageData[i + 1] & 0xFF, imageData[i] & 0xFF};
             }
             else {
                 int rgb565 = (imageData[i] & 0xFF) + ((imageData[i + 1] & 0xFF) << 8);
