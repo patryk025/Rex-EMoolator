@@ -17,7 +17,7 @@
          android:id="@+id/gameNameTextView"
          android:text="Nazwa Gry"
          android:textStyle="bold" />
-
+    
     <TextView
          android:layout_height="wrap_content"
          android:layout_width="0dp"
@@ -27,6 +27,19 @@
          app:layout_constraintEnd_toStartOf="@id/buttonsLayout"
          app:layout_constraintBottom_toBottomOf="parent"
          app:layout_constraintTop_toBottomOf="@id/gameNameTextView"
+         android:id="@+id/detectedGameNameTextView"
+         android:text="Wykryta gra" />
+
+
+    <TextView
+         android:layout_height="wrap_content"
+         android:layout_width="0dp"
+         app:layout_constraintStart_toStartOf="parent"
+         android:textSize="14sp"
+         android:textColor="?android:attr/textColorSecondary"
+         app:layout_constraintEnd_toStartOf="@id/buttonsLayout"
+         app:layout_constraintBottom_toBottomOf="parent"
+         app:layout_constraintTop_toBottomOf="@id/detectedGameNameTextView"
          android:id="@+id/gameVersionTextView"
          android:text="Wersja Gry" />
 

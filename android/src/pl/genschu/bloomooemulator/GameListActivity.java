@@ -1,10 +1,15 @@
 package pl.genschu.bloomooemulator;
 
 import android.Manifest;
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
+import android.provider.Settings;
 import android.view.View;
 import android.widget.*;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 import android.content.pm.PackageManager;
 import androidx.core.app.ActivityCompat;
@@ -16,13 +21,11 @@ import pl.genschu.bloomooemulator.adapters.GameListAdapter;
 import pl.genschu.bloomooemulator.logic.GameEntry;
 import pl.genschu.bloomooemulator.logic.GameManager;
 
-import java.io.File;
-
 public class GameListActivity extends AppCompatActivity {
     private RecyclerView gamesRecyclerView;
     private GameListAdapter adapter;
     private GameManager gameManager;
-    
+
     private static final int REQUEST_CODE_PERMISSIONS = 1001;
 
     @Override
@@ -37,16 +40,26 @@ public class GameListActivity extends AppCompatActivity {
         adapter = new GameListAdapter(this, gameManager.getGames());
         gamesRecyclerView.setAdapter(adapter);
         
-        Toast.makeText(getApplicationContext(), "Załadowano "+gameManager.getGames().size+" gier", Toast.LENGTH_LONG).show();
+        Toast.makeText(getApplicationContext(), "Załadowano " + gameManager.getGames().size + " gier", Toast.LENGTH_LONG).show();
 
         Button addGameButton = findViewById(R.id.addGameButton);
         addGameButton.setOnClickListener(v -> showGameDialog());
-    
+
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED ||
-            ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+            ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED ||
+            !Settings.System.canWrite(this)) {
             ActivityCompat.requestPermissions(this,
                 new String[]{Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE},
                 REQUEST_CODE_PERMISSIONS);
+        }
+        
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.R) {
+            if (!Environment.isExternalStorageManager()) {
+                Intent intent = new Intent(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION);
+                intent.addCategory("android.intent.category.DEFAULT");
+                intent.setData(Uri.parse(String.format("package:%s", getApplicationContext().getPackageName())));
+                startActivityForResult(intent, REQUEST_CODE_PERMISSIONS);
+            }
         }
     }
 
@@ -61,7 +74,21 @@ public class GameListActivity extends AppCompatActivity {
             }
         }
     }
-
+    
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == REQUEST_CODE_PERMISSIONS) {
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.R) {
+                if (Environment.isExternalStorageManager()) {
+                    Toast.makeText(this, "Uprawnienia do zarządzania plikami przyznane!", Toast.LENGTH_SHORT).show();
+                } else {
+                    Toast.makeText(this, "Uprawnienia do zarządzania plikami odmówione!", Toast.LENGTH_SHORT).show();
+                }
+            }
+        }
+    }
+    
     private String getFolderPath() {
         return getFilesDir().getAbsolutePath();
     }

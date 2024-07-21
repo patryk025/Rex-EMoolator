@@ -52,6 +52,7 @@ public class GameListAdapter extends RecyclerView.Adapter<GameListAdapter.GameVi
     public class GameViewHolder extends RecyclerView.ViewHolder {
 
         TextView gameNameTextView;
+        TextView detectedGameNameTextView;
         TextView gameVersionTextView;
         ImageButton runButton;
         ImageButton editButton;
@@ -60,6 +61,7 @@ public class GameListAdapter extends RecyclerView.Adapter<GameListAdapter.GameVi
         public GameViewHolder(@NonNull View itemView) {
             super(itemView);
             gameNameTextView = itemView.findViewById(R.id.gameNameTextView);
+            detectedGameNameTextView = itemView.findViewById(R.id.detectedGameNameTextView);
             gameVersionTextView = itemView.findViewById(R.id.gameVersionTextView);
             runButton = itemView.findViewById(R.id.runButton);
             editButton = itemView.findViewById(R.id.editButton);
@@ -88,6 +90,7 @@ public class GameListAdapter extends RecyclerView.Adapter<GameListAdapter.GameVi
 
         public void bind(GameEntry game) {
             gameNameTextView.setText(game.getName());
+            detectedGameNameTextView.setText(game.getGameName());
             gameVersionTextView.setText(game.getVersion());
         }
     }
