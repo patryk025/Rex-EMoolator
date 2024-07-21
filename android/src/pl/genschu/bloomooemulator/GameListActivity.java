@@ -1,8 +1,13 @@
 package pl.genschu.bloomooemulator;
 
+import android.Manifest;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.*;
+import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
+import android.content.pm.PackageManager;
+import androidx.core.app.ActivityCompat;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -17,6 +22,8 @@ public class GameListActivity extends AppCompatActivity {
     private RecyclerView gamesRecyclerView;
     private GameListAdapter adapter;
     private GameManager gameManager;
+    
+    private static final int REQUEST_CODE_PERMISSIONS = 1001;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,6 +41,25 @@ public class GameListActivity extends AppCompatActivity {
 
         Button addGameButton = findViewById(R.id.addGameButton);
         addGameButton.setOnClickListener(v -> showGameDialog());
+    
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED ||
+            ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this,
+                new String[]{Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                REQUEST_CODE_PERMISSIONS);
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == REQUEST_CODE_PERMISSIONS) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                Toast.makeText(this, "Uprawnienia przyznane!", Toast.LENGTH_SHORT).show();
+            } else {
+                Toast.makeText(this, "Uprawnienia odmówione!", Toast.LENGTH_SHORT).show();
+            }
+        }
     }
 
     private String getFolderPath() {
