@@ -1,6 +1,7 @@
 package pl.genschu.bloomooemulator.loader;
 
 import com.badlogic.gdx.Gdx;
+import pl.genschu.bloomooemulator.interpreter.Context;
 import pl.genschu.bloomooemulator.interpreter.exceptions.InterpreterException;
 import pl.genschu.bloomooemulator.interpreter.factories.VariableFactory;
 import pl.genschu.bloomooemulator.interpreter.variable.Variable;
@@ -13,7 +14,6 @@ import java.util.*;
 
 public class CNVParser
 {
-    List<Variable> variables = new ArrayList<>();
     Map<String, String> tmpVariableInfo = new HashMap<>();
     int index = -1;
 
@@ -25,14 +25,7 @@ public class CNVParser
         return cap;
     }
 
-    private Variable getVariable(String name) {
-        for(Variable var : variables) {
-            if(var.getName().equals(name)) return var;
-        }
-        return VariableFactory.createVariable("STRING", name, null);
-    }
-
-    public void parseFile(File plik) throws Exception
+    public void parseFile(File plik, Context context) throws Exception
     {
         try
         {
@@ -63,10 +56,10 @@ public class CNVParser
                 if (decypher)
                 {
                     System.out.println("Decyphering " + plik.getName() + "...");
-                    parseString(ScriptDecypher.decode(content.toString(), offset));
+                    parseString(ScriptDecypher.decode(content.toString(), offset), context);
                 }
                 else
-                    parseString(content.toString());
+                    parseString(content.toString(), context);
             }
             catch (IOException e)
             {
@@ -79,18 +72,18 @@ public class CNVParser
         }
     }
 
-    public void parseString(String string) throws Exception
+    public void parseString(String string, Context context) throws Exception
     {
+        // TODO: przepisać to inaczej (serio to ja pisałem?)
+        /*
         String[] lines = string.split("\n");
 
         String tmp = "";
-        String typ = "";
+        String typ;
 
         boolean recoveryMode = false;
 
-        String separator = "=";
-
-        variables.clear(); // czyść zmienne
+        String separator;
 
         Map<String, String> unorderedProperties = new HashMap<>();
 
@@ -116,7 +109,6 @@ public class CNVParser
                             Gdx.app.log("CNVParser", "Recovered variable name: " + tmp);
                             recoveryMode = true;
                         }
-                        //variables.add(new Variable(tmp));
                         tmpVariableInfo.clear();
                         tmpVariableInfo.put("NAME", tmp);
                         index++;
@@ -131,7 +123,6 @@ public class CNVParser
                 else if(line.startsWith("NAME"+separator)) {
                     Gdx.app.log("CNVParser", "Sequence definition detected");
                     tmp = line.split("NAME"+separator)[1];
-                    //variables.add(new Variable(tmp));
                     tmpVariableInfo.clear();
                     tmpVariableInfo.put("NAME", tmp);
                     index++;
@@ -198,14 +189,7 @@ public class CNVParser
                                     }
 
                                     String[] splitTmp = (segments[1]).split(separator);
-									/*try {
-										splitTmp = (line.split(tmp + ":")[1]).split("=");
-									}
-									catch(Exception e) {
-										System.out.println(Arrays.asList(line.split(tmp + ":")));
-										System.out.println(tmp);
-										System.out.println(line);
-									}*/
+
                                     String tmpVal = "";
                                     if (splitTmp.length == 2)
                                     {
@@ -213,10 +197,6 @@ public class CNVParser
 
                                         if (!methodParam.isEmpty())
                                         {
-                                            //InstructionsBlock.addListenerParam
-                                            //if(!typ.equals("Animo"))
-                                            //System.out.println("Nie wiem co z tym: "+line);
-                                            //System.out.println(variables.get(variables.size()-1).getType()+"."+method);
                                             variables.get(variables.size() - 1).setAttribute(method, methodParam + "$$" + tmpVal);
                                         }
                                         else
@@ -261,7 +241,7 @@ public class CNVParser
 												Gdx.app.log("CNVParser", "incompatible type "+varTmp.getType() + " with Sequence. Ignoring...");
 											}
 
-											 */
+											 /
                                             Gdx.app.log("CNVParser", "line => "+line);
                                         }
                                         catch (InterpreterException e)
@@ -323,6 +303,6 @@ public class CNVParser
                     }
                 }
             }
-        }
+        }*/
     }
 }

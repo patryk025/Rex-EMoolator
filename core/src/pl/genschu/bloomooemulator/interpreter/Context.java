@@ -1,5 +1,6 @@
 package pl.genschu.bloomooemulator.interpreter;
 
+import pl.genschu.bloomooemulator.interpreter.factories.VariableFactory;
 import pl.genschu.bloomooemulator.interpreter.variable.Variable;
 
 import java.util.HashMap;
@@ -20,8 +21,12 @@ public class Context {
 
     public Variable getVariable(String name) {
         Variable variable = variables.get(name);
-        if (variable == null && parentContext != null) {
-            return parentContext.getVariable(name);
+        if (variable == null) {
+            if(parentContext != null)
+                return parentContext.getVariable(name);
+
+            variable = VariableFactory.createVariable("STRING", name, null);
+
         }
         return variable;
     }
