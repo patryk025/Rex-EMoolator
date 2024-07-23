@@ -4,7 +4,9 @@ import pl.genschu.bloomooemulator.interpreter.factories.VariableFactory;
 import pl.genschu.bloomooemulator.interpreter.variable.Variable;
 import pl.genschu.bloomooemulator.objects.Game;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class Context {
@@ -13,14 +15,18 @@ public class Context {
     private Object returnValue;
     private Game game;
 
+    private Map<String, Variable> graphicsVariables; // cache for faster drawing
+
     public Context() {
         this.parentContext = null;
         this.game = null;
+        this.graphicsVariables = new HashMap<>();
     }
 
     public Context(Context parentContext, Game game) {
         this.parentContext = parentContext;
         this.game = game;
+        this.graphicsVariables = new HashMap<>();
     }
 
     public Variable getVariable(String name) {
@@ -35,8 +41,16 @@ public class Context {
         return variable;
     }
 
+    public Map<String, Variable> getGraphicsVariables() {
+        return graphicsVariables;
+    }
+
     public void setVariable(String name, Variable variable) {
         variables.put(name, variable);
+
+        if(variable.getType().equals("ANIMO") || variable.getType().equals("IMAGE")) {
+            graphicsVariables.put(name, variable);
+        }
     }
 
     public boolean hasVariable(String name) {
@@ -48,6 +62,8 @@ public class Context {
 
     public void removeVariable(String name) {
         variables.remove(name);
+
+        graphicsVariables.remove(name);
     }
 
     public void setReturnValue(Object returnValue) {
@@ -78,5 +94,19 @@ public class Context {
             return parentContext.getGame();
 
         return null;
+    }
+
+
+    public Map<String, Variable> getVariables() {
+        return getVariables(false);
+    }
+
+    public Map<String, Variable> getVariables(boolean includeParent) {
+        Map<String, Variable> variables = new HashMap<>();
+        if(includeParent && parentContext != null) {
+            variables.putAll(parentContext.getVariables());
+        }
+        variables.putAll(this.variables);
+        return variables;
     }
 }

@@ -6,9 +6,15 @@ import pl.genschu.bloomooemulator.interpreter.variable.Method;
 import pl.genschu.bloomooemulator.interpreter.variable.Parameter;
 import pl.genschu.bloomooemulator.interpreter.variable.Variable;
 
+import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
 
 public class EpisodeVariable extends Variable {
+	private List<SceneVariable> scenes;
+	private SceneVariable firstScene;
+	private File path;
+
 	public EpisodeVariable(String name, Context context) {
 		super(name, context);
 
@@ -60,4 +66,42 @@ public class EpisodeVariable extends Variable {
 		}
 	}
 
+	public List<SceneVariable> getScenes() {
+		return scenes;
+	}
+
+	public void setScenes(List<SceneVariable> scenes) {
+		this.scenes = scenes;
+	}
+
+	public SceneVariable getFirstScene() {
+		return firstScene;
+	}
+
+	public void setFirstScene(SceneVariable firstScene) {
+		this.firstScene = firstScene;
+	}
+
+	public File getPath() {
+		return path;
+	}
+
+	public void setPath(File path) {
+		this.path = path;
+	}
+
+	public void reloadScenes() {
+		String[] scenes = this.getAttribute("SCENES").getValue().toString().split(",");
+		String firstEpisode = this.getAttribute("STARTWITH").toString();
+
+		this.scenes = new ArrayList<>();
+
+		for(String scene : scenes) {
+			Variable sceneVariable = this.getContext().getVariable(scene);
+			if(sceneVariable.getName().equals(firstEpisode)) {
+				this.firstScene = (SceneVariable) sceneVariable;
+			}
+			this.scenes.add((SceneVariable) sceneVariable);
+		}
+	}
 }

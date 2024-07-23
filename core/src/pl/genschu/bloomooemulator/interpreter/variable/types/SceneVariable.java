@@ -6,9 +6,12 @@ import pl.genschu.bloomooemulator.interpreter.variable.Method;
 import pl.genschu.bloomooemulator.interpreter.variable.Parameter;
 import pl.genschu.bloomooemulator.interpreter.variable.Variable;
 
+import java.io.File;
 import java.util.List;
 
 public class SceneVariable extends Variable {
+	private File path;
+
 	public SceneVariable(String name, Context context) {
 		super(name, context);
 
@@ -117,6 +120,14 @@ public class SceneVariable extends Variable {
 				return null;
 			}
 		});
+	}
+
+	public File getPath() {
+		return path;
+	}
+
+	public void setPath(File path) {
+		this.path = path;
 	}
 
 	@Override

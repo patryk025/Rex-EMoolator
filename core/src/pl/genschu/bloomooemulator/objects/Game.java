@@ -1,30 +1,36 @@
 package pl.genschu.bloomooemulator.objects;
 
 import pl.genschu.bloomooemulator.interpreter.Context;
+import pl.genschu.bloomooemulator.interpreter.variable.Variable;
+import pl.genschu.bloomooemulator.interpreter.variable.types.ApplicationVariable;
+import pl.genschu.bloomooemulator.interpreter.variable.types.EpisodeVariable;
+import pl.genschu.bloomooemulator.interpreter.variable.types.SceneVariable;
 import pl.genschu.bloomooemulator.loader.CNVParser;
 import pl.genschu.bloomooemulator.logic.GameEntry;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.List;
-import java.util.ArrayList;
+import java.util.Map;
 
 import com.badlogic.gdx.Gdx;
+import pl.genschu.bloomooemulator.utils.FileUtils;
 
 public class Game {
-    private Context mainContext;
+    private Context definitionContext;
     private GameEntry game;
     private String currentScene = "BRAKSCENY";
-    private List<Episode> episodes;
+
+    private ApplicationVariable applicationVariable;
+
     private CNVParser cnvParser = new CNVParser();
     private File daneFolder = null;
     private File commonFolder = null;
     private File wavsFolder = null;
+    private Context currentSceneContext;
 
     public Game(GameEntry game) {
-        this.mainContext = new Context();
+        this.definitionContext = new Context();
         this.game = game;
-        this.episodes = new ArrayList<>();
 
         scanGameDirectory();
     }
@@ -53,7 +59,11 @@ public class Game {
                 }
             }
         }
-        
+
+        if(daneFolder == null) {
+            Gdx.app.error("Game loader", "Folder dane not found");
+            return;
+        }
         files = daneFolder.listFiles();
         
         // find application.def
@@ -62,19 +72,53 @@ public class Game {
             for (File file : files) {
                 if(file.getName().toLowerCase().matches("application.def")) {
                     try {
-                        cnvParser.parseFile(file, mainContext);
+                        cnvParser.parseFile(file, definitionContext);
+                        applicationDefFound = true;
                         break;
                     } catch(IOException e) {
                         Gdx.app.error("Game loader", e.getMessage());
                     }
-                    applicationDefFound = true;
                 }
             }
         }
+
+        if(!applicationDefFound) {
+            Gdx.app.error("Game loader", "Application.def not found");
+            return;
+        }
+
+        // find APPLICATION variable
+        Map<String, Variable> variables = definitionContext.getVariables();
+        for(Map.Entry<String, Variable> entry : variables.entrySet()) {
+            Variable variable = entry.getValue();
+            if(variable instanceof ApplicationVariable) {
+                applicationVariable = (ApplicationVariable) variable;
+                break;
+            }
+        }
+
+        if(applicationVariable == null) {
+            Gdx.app.error("Game loader", "APPLICATION variable not found");
+            return;
+        }
+
+        applicationVariable.reloadEpisodes();
+        applicationVariable.setPath(daneFolder);
+
+        for(EpisodeVariable episode : applicationVariable.getEpisodes()) {
+            episode.reloadScenes();
+            episode.setPath(FileUtils.findRelativeFileIgnoreCase(daneFolder, episode.getAttribute("PATH").getValue().toString()));
+
+            for(SceneVariable scene : episode.getScenes()) {
+                scene.setPath(FileUtils.findRelativeFileIgnoreCase(daneFolder, scene.getAttribute("PATH").getValue().toString()));
+            }
+        }
+
+        Gdx.app.log("Game loader", "Application.def loaded");
     }
 
-    public Context getMainContext() {
-        return mainContext;
+    public Context getDefinitionContext() {
+        return definitionContext;
     }
 
     public GameEntry getGame() {
@@ -85,8 +129,8 @@ public class Game {
         this.game = game;
     }
 
-    public void setMainContext(Context mainContext) {
-        this.mainContext = mainContext;
+    public void setDefinitionContext(Context definitionContext) {
+        this.definitionContext = definitionContext;
     }
 
     public String getCurrentScene() {
@@ -96,48 +140,12 @@ public class Game {
     public void setCurrentScene(String currentScene) {
         this.currentScene = currentScene;
     }
-    
-    class Episode {
-        private List<Scene> scenes;
-        private Scene firstScene;
-        private File episodePath;
-        private String name;
-        
-        public Episode(File episodePath) {
-            this.episodePath = episodePath;
-        }
-    
-        public List<Scene> getScenes() {
-            return this.scenes;
-        }
-        
-        public void addScene(String name) {
-            
-        }
-        
-        public Scene getFirstScene() {
-            return this.firstScene;
-        }
-        
-        public void setFirstScene(Scene firstScene) {
-            this.firstScene = firstScene;
-        }
-        
-        public File getEpisodePath() {
-            return this.episodePath;
-        }
-        
-        public void setEpisodePath(File episodePath) {
-            this.episodePath = episodePath;
-        }
+
+    public Context getCurrentSceneContext() {
+        return currentSceneContext;
     }
-    
-    class Scene {
-        private String name;
-        private File scenePath;
-        
-        public File getScenePath() {
-            return scenePath;
-        }
+
+    public void setCurrentSceneContext(Context currentSceneContext) {
+        this.currentSceneContext = currentSceneContext;
     }
 }

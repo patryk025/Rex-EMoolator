@@ -8,6 +8,7 @@ import com.badlogic.gdx.utils.Logger;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator.FreeTypeFontParameter;
+import com.badlogic.gdx.utils.viewport.StretchViewport;
 import pl.genschu.bloomooemulator.interpreter.Context;
 import pl.genschu.bloomooemulator.interpreter.Interpreter;
 import pl.genschu.bloomooemulator.interpreter.antlr.AidemMediaLexer;
@@ -19,9 +20,13 @@ import pl.genschu.bloomooemulator.interpreter.ast.ASTBuilderVisitor;
 import pl.genschu.bloomooemulator.interpreter.ast.Node;
 import pl.genschu.bloomooemulator.interpreter.util.Point;
 import pl.genschu.bloomooemulator.interpreter.variable.Attribute;
+import pl.genschu.bloomooemulator.interpreter.variable.Variable;
+import pl.genschu.bloomooemulator.interpreter.variable.types.AnimoVariable;
 import pl.genschu.bloomooemulator.interpreter.variable.types.ImageVariable;
 import pl.genschu.bloomooemulator.loader.ImageLoader;
 import pl.genschu.bloomooemulator.logic.GameEntry;
+import pl.genschu.bloomooemulator.objects.Event;
+import pl.genschu.bloomooemulator.objects.FrameData;
 import pl.genschu.bloomooemulator.objects.Game;
 import pl.genschu.bloomooemulator.objects.Image;
 import pl.genschu.bloomooemulator.utils.CoordinatesHelper;
@@ -41,6 +46,8 @@ public class BlooMooEmulator extends ApplicationAdapter {
     GameEntry gameEntry;
     Game game;
 
+
+
     public BlooMooEmulator(GameEntry gameEntry) {
         this.gameEntry = gameEntry;
     }
@@ -54,7 +61,10 @@ public class BlooMooEmulator extends ApplicationAdapter {
 
         
         camera = new OrthographicCamera();
-        viewport = new FitViewport(VIRTUAL_WIDTH, VIRTUAL_HEIGHT, camera);
+        if(gameEntry.isMaintainAspectRatio())
+            viewport = new FitViewport(VIRTUAL_WIDTH, VIRTUAL_HEIGHT, camera);
+        else
+            viewport = new StretchViewport(VIRTUAL_WIDTH, VIRTUAL_HEIGHT, camera);
         viewport.apply();
         camera.position.set(camera.viewportWidth / 2, camera.viewportHeight / 2, 0);
 
@@ -69,7 +79,21 @@ public class BlooMooEmulator extends ApplicationAdapter {
 
         batch.begin();
 
-
+        for(String key : context.getGraphicsVariables().keySet()) {
+            Variable variable = context.getGraphicsVariables().get(key);
+            if(variable instanceof ImageVariable) {
+                Image image = ((ImageVariable) variable).getImage();
+                batch.draw(image.getImageTexture(), image.offsetX, image.offsetY, image.width, image.height);
+            }
+            // TODO: system animacji
+            /*if(variable instanceof AnimoVariable) {
+                AnimoVariable animoVariable = (AnimoVariable) variable;
+                Image image = animoVariable.getCurrentImage();
+                Event event = animoVariable.getCurrentEvent();
+                FrameData frameData = event.getFrameData().get(animoVariable.getFrameIndex());
+                batch.draw(image.getImageTexture(), frameData.getOffsetX()+image.offsetX, frameData.getOffsetY()+image.offsetY, image.width, image.height);
+            }*/
+        }
 
         batch.end();
     }

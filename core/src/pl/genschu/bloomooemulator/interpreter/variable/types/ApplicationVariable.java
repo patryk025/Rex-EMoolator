@@ -6,9 +6,15 @@ import pl.genschu.bloomooemulator.interpreter.variable.Method;
 import pl.genschu.bloomooemulator.interpreter.variable.Parameter;
 import pl.genschu.bloomooemulator.interpreter.variable.Variable;
 
+import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
 
 public class ApplicationVariable extends Variable {
+	private List<EpisodeVariable> episodes;
+	private EpisodeVariable firstEpisode;
+	private File path;
+
 	public ApplicationVariable(String name, Context context) {
 		super(name, context);
 
@@ -89,4 +95,42 @@ public class ApplicationVariable extends Variable {
 		}
 	}
 
+	public List<EpisodeVariable> getEpisodes() {
+		return episodes;
+	}
+
+	public void setEpisodes(List<EpisodeVariable> episodes) {
+		this.episodes = episodes;
+	}
+
+	public EpisodeVariable getFirstEpisode() {
+		return firstEpisode;
+	}
+
+	public void setFirstEpisode(EpisodeVariable firstEpisode) {
+		this.firstEpisode = firstEpisode;
+	}
+
+	public File getPath() {
+		return path;
+	}
+
+	public void setPath(File path) {
+		this.path = path;
+	}
+
+	public void reloadEpisodes() {
+		String[] episodes = this.getAttribute("EPISODES").getValue().toString().split(",");
+		String firstEpisode = this.getAttribute("STARTWITH").toString();
+
+		this.episodes = new ArrayList<>();
+
+		for(String episode : episodes) {
+			Variable episodeVariable = this.getContext().getVariable(episode);
+			if(episodeVariable.getName().equals(firstEpisode)) {
+				this.firstEpisode = (EpisodeVariable) episodeVariable;
+			}
+			this.episodes.add((EpisodeVariable) episodeVariable);
+		}
+	}
 }
