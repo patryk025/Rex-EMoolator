@@ -1,5 +1,8 @@
 package pl.genschu.bloomooemulator.ui.buttons;
 
+import com.badlogic.gdx.backends.lwjgl3.Lwjgl3Application;
+import com.badlogic.gdx.backends.lwjgl3.Lwjgl3ApplicationConfiguration;
+import pl.genschu.bloomooemulator.BlooMooEmulator;
 import pl.genschu.bloomooemulator.logic.GameEntry;
 import pl.genschu.bloomooemulator.logic.GameManager;
 import pl.genschu.bloomooemulator.ui.ButtonColumn;
@@ -21,6 +24,12 @@ public class RunButton extends ButtonColumn {
         // get selected row
         int row = table.getSelectedRow();
         GameEntry game = gameManager.getGames().get(row);
-        JOptionPane.showMessageDialog(null, "Uruchamianie gier jeszcze nie jest wspierane");
+
+        Lwjgl3ApplicationConfiguration config = new Lwjgl3ApplicationConfiguration();
+        config.setForegroundFPS(60);
+        config.setWindowedMode(800, 600); // temporary for testing
+        config.setTitle("Rex EMoolator");
+
+        new Lwjgl3Application(new BlooMooEmulator(game), config);
     }
 }

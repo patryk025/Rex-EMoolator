@@ -4,19 +4,19 @@ import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.badlogic.gdx.backends.android.AndroidApplicationConfiguration;
+import com.badlogic.gdx.backends.android.AndroidApplication;
 import com.badlogic.gdx.utils.Array;
-import com.google.android.material.button.MaterialButton;
-import com.google.android.material.textview.MaterialTextView;
 
 import java.util.List;
+
+import pl.genschu.bloomooemulator.BlooMooEmulator;
 import pl.genschu.bloomooemulator.GameListActivity;
 import pl.genschu.bloomooemulator.R;
 import pl.genschu.bloomooemulator.logic.GameEntry;
@@ -70,8 +70,8 @@ public class GameListAdapter extends RecyclerView.Adapter<GameListAdapter.GameVi
             runButton.setOnClickListener(v -> {
                 int position = getAdapterPosition();
                 GameEntry game = games.get(position);
-                // Add your logic for running the game
-                Toast.makeText(context, "Running " + game.getName(), Toast.LENGTH_SHORT).show();
+
+                // TODO: open AndroidLauncher
             });
 
             editButton.setOnClickListener(v -> {

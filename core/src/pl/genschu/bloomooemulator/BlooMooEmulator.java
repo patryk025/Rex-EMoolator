@@ -21,6 +21,8 @@ import pl.genschu.bloomooemulator.interpreter.util.Point;
 import pl.genschu.bloomooemulator.interpreter.variable.Attribute;
 import pl.genschu.bloomooemulator.interpreter.variable.types.ImageVariable;
 import pl.genschu.bloomooemulator.loader.ImageLoader;
+import pl.genschu.bloomooemulator.logic.GameEntry;
+import pl.genschu.bloomooemulator.objects.Game;
 import pl.genschu.bloomooemulator.objects.Image;
 import pl.genschu.bloomooemulator.utils.CoordinatesHelper;
 import com.badlogic.gdx.graphics.OrthographicCamera;
@@ -32,17 +34,15 @@ public class BlooMooEmulator extends ApplicationAdapter {
     private static final float VIRTUAL_HEIGHT = 600;
 
     SpriteBatch batch;
-    BitmapFont font;
     Context context;
     OrthographicCamera camera;
     Viewport viewport;
 
-    String gamePath;
+    GameEntry gameEntry;
+    Game game;
 
-    ImageVariable imageVariable;
-
-    public BlooMooEmulator(String gamePath) {
-        this.gamePath = gamePath;
+    public BlooMooEmulator(GameEntry gameEntry) {
+        this.gameEntry = gameEntry;
     }
 
     @Override
@@ -50,11 +50,9 @@ public class BlooMooEmulator extends ApplicationAdapter {
         batch = new SpriteBatch();
         context = new Context();
 
-        imageVariable = new ImageVariable("TEST", null);
-        imageVariable.setAttribute("FILENAME", new Attribute("FILENAME", "D:\\Program Files\\AidemMedia\\Reksio i Wehikuł Czasu\\dane\\game\\przygoda\\CS_ZANURZENIEKRETA\\cpl_bkg.img"));
+        this.game = new Game(this.gameEntry);
 
-        ImageLoader.loadImage(imageVariable);
-
+        
         camera = new OrthographicCamera();
         viewport = new FitViewport(VIRTUAL_WIDTH, VIRTUAL_HEIGHT, camera);
         viewport.apply();
@@ -71,8 +69,7 @@ public class BlooMooEmulator extends ApplicationAdapter {
 
         batch.begin();
 
-        Image image = imageVariable.getImage();
-        batch.draw(image.getImageTexture(), 0, 0, image.width, image.height);
+
 
         batch.end();
     }
@@ -85,6 +82,5 @@ public class BlooMooEmulator extends ApplicationAdapter {
     @Override
     public void dispose () {
         batch.dispose();
-        font.dispose();
     }
 }

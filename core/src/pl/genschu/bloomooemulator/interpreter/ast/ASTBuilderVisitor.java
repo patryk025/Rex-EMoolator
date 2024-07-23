@@ -208,7 +208,7 @@ public class ASTBuilderVisitor extends AidemMediaBaseVisitor<Node> {
 				// TODO: podejrzeć jak to PikLib zwraca
 				return new ConstantExpression("<no value>");
 			case "GETCURRENTSCENE":
-				return new ConstantExpression(this.context.getSceneName());
+				return new ConstantExpression(this.context.getGame().getCurrentScene());
 				
 			default:
                 return null;

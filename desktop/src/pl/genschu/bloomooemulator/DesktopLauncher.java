@@ -11,8 +11,8 @@ public class DesktopLauncher {
 		config.setForegroundFPS(60);
 		config.setTitle("Rex EMoolator");
 
-		String testScene = "D:\\Program Files\\AidemMedia\\Reksio i Wehikuł Czasu\\dane\\game\\przygoda\\CS_ZANURZENIEKRETA";
+		//String testScene = "D:\\Program Files\\AidemMedia\\Reksio i Wehikuł Czasu\\dane\\game\\przygoda\\CS_ZANURZENIEKRETA";
 
-		new Lwjgl3Application(new BlooMooEmulator(testScene), config);
+		new Lwjgl3Application(new BlooMooEmulator(null), config);
 	}
 }
