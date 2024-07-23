@@ -1,6 +1,7 @@
 package pl.genschu.bloomooemulator.adapters;
 
 import android.content.Context;
+import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,6 +17,7 @@ import com.badlogic.gdx.utils.Array;
 
 import java.util.List;
 
+import pl.genschu.bloomooemulator.AndroidLauncher;
 import pl.genschu.bloomooemulator.BlooMooEmulator;
 import pl.genschu.bloomooemulator.GameListActivity;
 import pl.genschu.bloomooemulator.R;
@@ -71,7 +73,9 @@ public class GameListAdapter extends RecyclerView.Adapter<GameListAdapter.GameVi
                 int position = getAdapterPosition();
                 GameEntry game = games.get(position);
 
-                // TODO: open AndroidLauncher
+                Intent i = new Intent(context, AndroidLauncher.class);
+                i.putExtra("game", game);
+                context.startActivity(i);
             });
 
             editButton.setOnClickListener(v -> {

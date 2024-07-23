@@ -1,5 +1,8 @@
 package pl.genschu.bloomooemulator;
 
+import android.content.Intent;
+import pl.genschu.bloomooemulator.logic.GameEntry;
+import pl.genschu.bloomooemulator.objects.Game;
 import android.os.Bundle;
 
 import com.badlogic.gdx.backends.android.AndroidApplication;
@@ -10,7 +13,11 @@ public class AndroidLauncher extends AndroidApplication {
 	@Override
 	protected void onCreate (Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+        
+        Intent i = getIntent();
+        GameEntry game = (GameEntry) i.getSerializableExtra("game");
+        
 		AndroidApplicationConfiguration config = new AndroidApplicationConfiguration();
-		initialize(new BlooMooEmulator(null), config);
+		initialize(new BlooMooEmulator(game), config);
 	}
 }
