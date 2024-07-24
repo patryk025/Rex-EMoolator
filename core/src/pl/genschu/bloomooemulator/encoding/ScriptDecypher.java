@@ -15,9 +15,9 @@ public class ScriptDecypher
 		for(String line : lines) {
 			i = 0;
 			while(i < line.length()) {
-				if(line.substring(i, i+3).equals("<E>")) {
-					decode = decode.append("\n");
-					i += 2;
+				if(line.startsWith("<E>", i)) {
+                    decode.append("\n");
+                    i += 2;
 				}
 				else {
 					if(!add){
@@ -27,9 +27,9 @@ public class ScriptDecypher
                         shift++;
                     }
 					
-					if(letter == '￺') letter = '}'; //naprawa drobnych artefaktów
-					
-                    decode = decode.append(letter);
+					if(letter == 8361) letter = '}'; //naprawa drobnych artefaktów
+
+                    decode.append(letter);
                     add=!add;
                     if(shift>reset)
                         shift=1;
