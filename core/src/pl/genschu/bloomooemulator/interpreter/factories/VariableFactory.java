@@ -35,19 +35,21 @@ public class VariableFactory
                     return new BoolVariable(name, (Integer) value != 0, context);
                 } else if (value instanceof Double) {
                     return new BoolVariable(name, (Double) value != 0, context);
-                }
-                else if (value instanceof String) {
+                } else if (value instanceof String) {
                     try {
                         return new BoolVariable(name, Boolean.parseBoolean((String) value), context);
                     } catch (NumberFormatException e) {
                         return new StringVariable(name, (String) value, context);
                     }
+                } else if (value == null) {
+                    return new BoolVariable(name, false, context);
                 } else {
                     return new StringVariable(name, value.toString(), context);
                 }
             case "BUTTON":
                 return new ButtonVariable(name, context);
             case "CANVASOBSERVER":
+            case "CANVAS_OBSERVER":
                 return new CanvasObserverVariable(name, context);
             case "CLASS":
                 return new ClassVariable(name, context);
@@ -70,8 +72,10 @@ public class VariableFactory
                     } catch (NumberFormatException e) {
                         return new StringVariable(name, (String) value, context);
                     }
-                } else if(value instanceof Boolean) {
+                } else if (value instanceof Boolean) {
                     return new DoubleVariable(name, ((Boolean) value) ? 1.0 : 0.0, context);
+                } else if (value == null) {
+                    return new DoubleVariable(name, 0.0, context);
                 } else {
                     return new StringVariable(name, value.toString(), context);
                 }
@@ -99,7 +103,9 @@ public class VariableFactory
                     } catch (NumberFormatException e) {
                         return new StringVariable(name, (String) value, context);
                     }
-                } else {
+                } else if (value == null) {
+                    return new IntegerVariable(name, 0, context);
+                }else {
                     return new StringVariable(name, value.toString(), context);
                 }
             case "KEYBOARD":
@@ -125,6 +131,9 @@ public class VariableFactory
             case "STATICFILTER":
                 return new StaticFilterVariable(name, context);
             case "STRING":
+                if(value == null) {
+                    return new StringVariable(name, "", context);
+                }
                 return new StringVariable(name, (String) value, context);
             case "STRUCT":
                 return new StructVariable(name, context);
