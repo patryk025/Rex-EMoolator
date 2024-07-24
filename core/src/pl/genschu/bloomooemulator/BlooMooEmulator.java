@@ -84,7 +84,12 @@ public class BlooMooEmulator extends ApplicationAdapter {
             Variable variable = context.getGraphicsVariables().get(key);
             if(variable instanceof ImageVariable) {
                 Image image = ((ImageVariable) variable).getImage();
-                batch.draw(image.getImageTexture(), image.offsetX, image.offsetY, image.width, image.height);
+                if(
+                        variable.getAttribute("VISIBLE").getValue().toString().equals("TRUE")
+                    &&  variable.getAttribute("TOCANVAS").getValue().toString().equals("TRUE")
+                ) {
+                    batch.draw(image.getImageTexture(), image.offsetX, image.offsetY, image.width, image.height);
+                }
             }
             // TODO: system animacji
             /*if(variable instanceof AnimoVariable) {
