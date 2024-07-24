@@ -86,7 +86,11 @@ public class CNVParser {
             return;
         }
 
-        Variable variable = VariableFactory.createVariable(type, objectName, context);
+        Gdx.app.log("CNVParser", "Processing object " + objectName + " of type " + type);
+
+        Object value = properties.get(objectName + ":VALUE");
+
+        Variable variable = VariableFactory.createVariable(type, objectName, value, context);
         for (Map.Entry<String, String> property : properties.entrySet()) {
             if (
                 !property.getKey().equals(objectName + ":TYPE")

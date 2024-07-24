@@ -11,6 +11,7 @@ import pl.genschu.bloomooemulator.logic.GameEntry;
 import java.io.File;
 import java.io.IOException;
 import java.util.Map;
+import java.util.Objects;
 
 import com.badlogic.gdx.Gdx;
 import pl.genschu.bloomooemulator.utils.FileUtils;
@@ -18,14 +19,18 @@ import pl.genschu.bloomooemulator.utils.FileUtils;
 public class Game {
     private Context definitionContext;
     private GameEntry game;
+    private String currentEpisode = "BRAKEPIZODU";
     private String currentScene = "BRAKSCENY";
+    private File currentSceneFile = null;
 
     private ApplicationVariable applicationVariable;
 
     private CNVParser cnvParser = new CNVParser();
-    private File daneFolder = null;
-    private File commonFolder = null;
-    private File wavsFolder = null;
+    private File daneFolder = null; // $
+    private File commonFolder = null; // $COMMON
+    private File wavsFolder = null; // $WAVS
+    private Context currentApplicationContext;
+    private Context currentEpisodeContext;
     private Context currentSceneContext;
 
     public Game(GameEntry game) {
@@ -38,7 +43,7 @@ public class Game {
     private void scanGameDirectory() {
         File folder = new File(this.game.getPath());
         File[] files = folder.listFiles();
-        
+
         daneFolder = null;
         commonFolder = null;
         wavsFolder = null;
@@ -65,7 +70,7 @@ public class Game {
             return;
         }
         files = daneFolder.listFiles();
-        
+
         // find application.def
         boolean applicationDefFound = false;
         if (files != null) {
@@ -103,7 +108,7 @@ public class Game {
         }
 
         applicationVariable.reloadEpisodes();
-        applicationVariable.setPath(daneFolder);
+        applicationVariable.setPath(FileUtils.findRelativeFileIgnoreCase(daneFolder, applicationVariable.getAttribute("PATH").getValue().toString()));
 
         for(EpisodeVariable episode : applicationVariable.getEpisodes()) {
             episode.reloadScenes();
@@ -115,6 +120,84 @@ public class Game {
         }
 
         Gdx.app.log("Game loader", "Application.def loaded");
+
+        Gdx.app.log("Game loader", "Loading application variables...");
+
+        try {
+            currentApplicationContext = new Context();
+            currentApplicationContext.setGame(this);
+
+            cnvParser.parseFile(FileUtils.findRelativeFileIgnoreCase(applicationVariable.getPath(), applicationVariable.getName()+".cnv"), currentApplicationContext);
+
+            Gdx.app.log("Game loader", "Application variables loaded");
+
+            goTo(applicationVariable.getFirstEpisode().getFirstScene().getName());
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void goTo(String name) {
+        Variable variable = definitionContext.getVariable(name);
+
+        if (variable instanceof EpisodeVariable) {
+            loadEpisode((EpisodeVariable) variable);
+        } else if (variable instanceof SceneVariable) {
+            if(currentEpisodeContext == null) {
+                // find episode name containing this scene
+                for(EpisodeVariable episode : applicationVariable.getEpisodes()) {
+                    if(episode.getScenes().contains((SceneVariable) variable)) {
+                        loadEpisode(episode);
+                        break;
+                    }
+                }
+            }
+            if(variable.getName().equals(currentScene)) {
+                return;
+            }
+            loadScene((SceneVariable) variable);
+        }
+    }
+
+    private void loadEpisode(EpisodeVariable episode) {
+        if (!Objects.equals(currentEpisode, episode.getName())) {
+            Gdx.app.log("Game", "Loading episode " + episode.getName());
+            try {
+                currentEpisodeContext = new Context();
+                File episodeFile = FileUtils.findRelativeFileIgnoreCase(episode.getPath(), episode.getName() + ".cnv");
+                try {
+                    cnvParser.parseFile(episodeFile, currentEpisodeContext);
+                } catch (NullPointerException e) {
+                    Gdx.app.error("Game", "Episode " + episode.getName() + " doesn't have preload scripts, but it's okey. Continue without it.");
+                }
+
+                currentEpisode = episode.getName();
+                currentScene = episode.getFirstScene().getName();
+
+                loadScene(episode.getFirstScene());
+                currentEpisodeContext.setParentContext(currentApplicationContext);
+
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
+    }
+
+    private void loadScene(SceneVariable scene) {
+        Gdx.app.log("Game", "Loading scene " + scene.getName());
+        try {
+            currentSceneContext = new Context();
+            File sceneFile = FileUtils.findRelativeFileIgnoreCase(scene.getPath(), scene.getName() + ".cnv");
+            cnvParser.parseFile(sceneFile, currentSceneContext);
+            currentSceneFile = scene.getPath();
+
+            currentSceneContext.setParentContext(currentEpisodeContext);
+            currentEpisodeContext.setParentContext(currentApplicationContext);
+            currentScene = scene.getName();
+
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public Context getDefinitionContext() {
@@ -147,5 +230,37 @@ public class Game {
 
     public void setCurrentSceneContext(Context currentSceneContext) {
         this.currentSceneContext = currentSceneContext;
+    }
+
+    public File getDaneFolder() {
+        return daneFolder;
+    }
+
+    public void setDaneFolder(File daneFolder) {
+        this.daneFolder = daneFolder;
+    }
+
+    public File getCommonFolder() {
+        return commonFolder;
+    }
+
+    public void setCommonFolder(File commonFolder) {
+        this.commonFolder = commonFolder;
+    }
+
+    public File getWavsFolder() {
+        return wavsFolder;
+    }
+
+    public void setWavsFolder(File wavsFolder) {
+        this.wavsFolder = wavsFolder;
+    }
+
+    public File getCurrentSceneFile() {
+        return currentSceneFile;
+    }
+
+    public void setCurrentSceneFile(File currentSceneFile) {
+        this.currentSceneFile = currentSceneFile;
     }
 }

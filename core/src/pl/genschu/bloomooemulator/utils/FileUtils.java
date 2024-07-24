@@ -15,7 +15,7 @@ public class FileUtils {
             return targetFile;
         }
 
-        String[] pathSegments = platformPath.split(File.separator.equals("\\") ? "\\\\" : File.separator);
+        String[] pathSegments = platformPath.split(File.separator.equals("\\") ? "\\\\" : "/");
 
         return findFileIgnoreCase(baseDirectory, pathSegments, 0);
     }

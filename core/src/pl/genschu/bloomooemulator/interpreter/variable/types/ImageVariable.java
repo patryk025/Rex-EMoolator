@@ -5,6 +5,7 @@ import pl.genschu.bloomooemulator.interpreter.variable.Attribute;
 import pl.genschu.bloomooemulator.interpreter.variable.Method;
 import pl.genschu.bloomooemulator.interpreter.variable.Parameter;
 import pl.genschu.bloomooemulator.interpreter.variable.Variable;
+import pl.genschu.bloomooemulator.loader.ImageLoader;
 import pl.genschu.bloomooemulator.objects.Image;
 
 import java.util.List;
@@ -227,6 +228,9 @@ public class ImageVariable extends Variable {
 	}
 
 	public Image getImage() {
+		if(image == null) {
+			ImageLoader.loadImage(this);
+		}
 		return image;
 	}
 

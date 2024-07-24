@@ -14,6 +14,18 @@ import java.nio.charset.StandardCharsets;
 public class ImageLoader {
     public static void loadImage(ImageVariable variable) {
         String filePath = variable.getAttribute("FILENAME").getValue().toString();
+        if(filePath.startsWith("$")) {
+            if(filePath.contains("$COMMON"))
+                filePath = filePath.replace("$COMMON", variable.getContext().getGame().getCommonFolder().getAbsolutePath());
+            else if(filePath.contains("$WAVS"))
+                filePath = filePath.replace("$WAVS", variable.getContext().getGame().getWavsFolder().getAbsolutePath());
+            else
+                filePath = filePath.replace("$", variable.getContext().getGame().getDaneFolder().getAbsolutePath());
+        }
+        else {
+            // probably is relative path
+            filePath = variable.getContext().getGame().getCurrentSceneFile().getAbsolutePath() + "/" + filePath;
+        }
         try (FileInputStream f = new FileInputStream(filePath)) {
             readImage(variable, f);
         } catch (IOException e) {

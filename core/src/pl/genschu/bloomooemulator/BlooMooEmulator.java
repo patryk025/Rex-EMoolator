@@ -55,9 +55,10 @@ public class BlooMooEmulator extends ApplicationAdapter {
     @Override
     public void create () {
         batch = new SpriteBatch();
-        context = new Context();
 
         this.game = new Game(this.gameEntry);
+
+        context = this.game.getCurrentSceneContext();
 
         
         camera = new OrthographicCamera();
