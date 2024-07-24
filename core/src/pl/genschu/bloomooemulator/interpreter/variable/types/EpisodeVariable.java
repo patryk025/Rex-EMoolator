@@ -92,7 +92,7 @@ public class EpisodeVariable extends Variable {
 
 	public void reloadScenes() {
 		String[] scenes = this.getAttribute("SCENES").getValue().toString().split(",");
-		String firstEpisode = this.getAttribute("STARTWITH").toString();
+		String firstEpisode = this.getAttribute("STARTWITH").getValue().toString();
 
 		this.scenes = new ArrayList<>();
 

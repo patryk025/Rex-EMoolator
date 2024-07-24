@@ -121,7 +121,7 @@ public class ApplicationVariable extends Variable {
 
 	public void reloadEpisodes() {
 		String[] episodes = this.getAttribute("EPISODES").getValue().toString().split(",");
-		String firstEpisode = this.getAttribute("STARTWITH").toString();
+		String firstEpisode = this.getAttribute("STARTWITH").getValue().toString();
 
 		this.episodes = new ArrayList<>();
 
