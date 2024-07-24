@@ -10,6 +10,7 @@ import pl.genschu.bloomooemulator.logic.GameEntry;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Collections;
 import java.util.Map;
 import java.util.Objects;
 
@@ -165,9 +166,15 @@ public class Game {
             try {
                 currentEpisodeContext = new Context();
                 File episodeFile = FileUtils.findRelativeFileIgnoreCase(episode.getPath(), episode.getName() + ".cnv");
-                try {
-                    cnvParser.parseFile(episodeFile, currentEpisodeContext);
-                } catch (NullPointerException e) {
+
+                if(episodeFile.exists()) {
+                    try {
+                        cnvParser.parseFile(episodeFile, currentEpisodeContext);
+                    } catch (NullPointerException e) {
+                        Gdx.app.error("Game", "Error while loading episode " + episode.getName() + ":\n" + e.getMessage());
+                    }
+                }
+                else {
                     Gdx.app.error("Game", "Episode " + episode.getName() + " doesn't have preload scripts, but it's okey. Continue without it.");
                 }
 
@@ -195,6 +202,7 @@ public class Game {
             currentEpisodeContext.setParentContext(currentApplicationContext);
             currentScene = scene.getName();
 
+            currentSceneContext.getVariable("__INIT__").getMethod("RUN", Collections.singletonList("mixed")).execute(null);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

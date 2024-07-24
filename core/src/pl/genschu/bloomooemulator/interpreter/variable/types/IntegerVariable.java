@@ -244,7 +244,11 @@ public class IntegerVariable extends Variable {
 	}
 
 	public int GET() {
-		return (int) this.getValue();
+		try {
+			return (int) this.getValue();
+		} catch (ClassCastException e) {
+			return Integer.parseInt(String.valueOf(this.getValue()));
+		}
 	}
 
 	@Override

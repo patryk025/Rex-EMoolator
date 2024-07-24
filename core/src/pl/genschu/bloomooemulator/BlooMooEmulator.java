@@ -88,7 +88,7 @@ public class BlooMooEmulator extends ApplicationAdapter {
                         variable.getAttribute("VISIBLE").getValue().toString().equals("TRUE")
                     &&  variable.getAttribute("TOCANVAS").getValue().toString().equals("TRUE")
                 ) {
-                    batch.draw(image.getImageTexture(), image.offsetX, image.offsetY, image.width, image.height);
+                    batch.draw(image.getImageTexture(), image.offsetX, Gdx.graphics.getHeight()-image.offsetY-image.height, image.width, image.height);
                 }
             }
             // TODO: system animacji

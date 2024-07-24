@@ -31,13 +31,13 @@ public class CNVParser {
                 }
             }
             if (decypher) {
-                System.out.println("Decyphering " + plik.getName() + "...");
+                Gdx.app.log("CNVParser", "Decyphering " + plik.getName() + "...");
                 parseString(ScriptDecypher.decode(content.toString(), offset), context);
             } else {
                 parseString(content.toString(), context);
             }
         } catch (FileNotFoundException e) {
-            e.printStackTrace();
+            Gdx.app.error("CNVParser", "File not found: " + plik.getName());
         }
     }
 
@@ -88,19 +88,28 @@ public class CNVParser {
 
         Gdx.app.log("CNVParser", "Processing object " + objectName + " of type " + type);
 
-        Object value = properties.get(objectName + ":VALUE");
+        Object value;
 
-        Variable variable = VariableFactory.createVariable(type, objectName, value, context);
-        for (Map.Entry<String, String> property : properties.entrySet()) {
-            if (
-                !property.getKey().equals(objectName + ":TYPE")
-            &&  !property.getKey().startsWith(objectName + ":ON") // events need to have code parsed by ANTLR visitor
-            ) {
-                variable.setAttribute(property.getKey().replace(objectName + ":", ""), property.getValue());
+        if(type.equals("BEHAVIOUR"))
+            value = properties.get(objectName + ":CODE");
+        else
+            value = properties.get(objectName + ":VALUE");
+
+        try {
+            Variable variable = VariableFactory.createVariable(type, objectName, value, context);
+            for (Map.Entry<String, String> property : properties.entrySet()) {
+                if (
+                       !property.getKey().equals(objectName + ":TYPE")
+                    && !property.getKey().startsWith(objectName + ":ON") // events need to have code parsed by ANTLR visitor
+                ) {
+                    variable.setAttribute(property.getKey().replace(objectName + ":", ""), property.getValue());
+                }
+                // TODO: events with parameters
             }
-            // TODO: events with parameters
-        }
 
-        context.setVariable(objectName, variable);
+            context.setVariable(objectName, variable);
+        } catch (IllegalArgumentException e) {
+            Gdx.app.error("CNVParser", "Failed to create variable " + objectName + ": " + e.getMessage());
+        }
     }
 }

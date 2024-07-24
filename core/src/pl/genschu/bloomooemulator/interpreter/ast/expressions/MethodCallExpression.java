@@ -1,5 +1,6 @@
 package pl.genschu.bloomooemulator.interpreter.ast.expressions;
 
+import com.badlogic.gdx.Gdx;
 import pl.genschu.bloomooemulator.interpreter.Context;
 import pl.genschu.bloomooemulator.interpreter.variable.Variable;
 import pl.genschu.bloomooemulator.interpreter.ast.Expression;
@@ -35,8 +36,8 @@ public class MethodCallExpression extends Expression {
         }
         try {
             return variable.fireMethod(methodName, (Object[]) arguments);
-        } catch (ClassMethodNotFoundException e) {
-            System.out.println("Błąd wywołania metody: " + e.getMessage());
+        } catch (NoSuchMethodError e) {
+            Gdx.app.error("MethodCallExpression", "Błąd wywołania metody: " + e.getMessage());
             return null;
         }
     }

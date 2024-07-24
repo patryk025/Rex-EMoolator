@@ -1,5 +1,6 @@
 package pl.genschu.bloomooemulator.interpreter;
 
+import com.badlogic.gdx.Gdx;
 import pl.genschu.bloomooemulator.interpreter.ast.Expression;
 import pl.genschu.bloomooemulator.interpreter.ast.Node;
 import pl.genschu.bloomooemulator.interpreter.ast.Statement;
@@ -37,7 +38,7 @@ public class Interpreter
 		}
 		catch (BreakException e)
 		{
-			System.out.println("BEHAVIOUR breaked");
+			Gdx.app.log("Interpreter", "BEHAVIOUR breaked");
 		}
     }
 

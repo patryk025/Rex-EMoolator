@@ -27,7 +27,7 @@ public class VariableFactory
             case "ARRAY":
                 return new ArrayVariable(name, context);
             case "BEHAVIOUR":
-                return new BehaviourVariable(name, context);
+                return new BehaviourVariable(name, value.toString(), context);
             case "BOOL":
                 if (value instanceof Boolean) {
                     return new BoolVariable(name, (Boolean) value, context);
