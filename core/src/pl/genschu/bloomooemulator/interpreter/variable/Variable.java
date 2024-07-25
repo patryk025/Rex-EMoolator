@@ -1,16 +1,14 @@
 package pl.genschu.bloomooemulator.interpreter.variable;
 
 import pl.genschu.bloomooemulator.interpreter.Context;
+import pl.genschu.bloomooemulator.interpreter.exceptions.ClassMethodNotFoundException;
 import pl.genschu.bloomooemulator.interpreter.exceptions.VariableUnsupportedOperationException;
 import pl.genschu.bloomooemulator.interpreter.variable.types.BoolVariable;
 import pl.genschu.bloomooemulator.interpreter.variable.types.DoubleVariable;
 import pl.genschu.bloomooemulator.interpreter.variable.types.IntegerVariable;
 import pl.genschu.bloomooemulator.interpreter.variable.types.StringVariable;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.HashMap;
+import java.util.*;
 
 public abstract class Variable {
 	protected String name;
@@ -162,13 +160,54 @@ public abstract class Variable {
 		List<Method> methodList = methods.get(name);
 		if (methodList != null) {
 			for (Method method : methodList) {
-				if (method.getParameterTypes().equals(paramTypes)) {
+				List<String> methodParamTypes = method.getParameterTypes();
+
+				if (isParameterListMatching(methodParamTypes, paramTypes)) {
 					return method;
 				}
 			}
 		}
-		throw new NoSuchMethodError("No method found with name: " + name + " and parameter types: " + paramTypes);
+		throw new ClassMethodNotFoundException(name, paramTypes);
 	}
+
+	private boolean isParameterListMatching(List<String> methodParamTypes, List<String> paramTypes) {
+		int requiredParams = 0;
+		if (methodParamTypes.size() != paramTypes.size()) {
+			// get number of required parameters
+			for (String methodParamType : methodParamTypes) {
+				if (!methodParamType.endsWith("?")) {
+					requiredParams++;
+				}
+			}
+
+			if(paramTypes.size() < requiredParams) {
+				return false;
+			}
+		}
+
+		for (int i = 0; i < requiredParams; i++) {
+			String methodParamType = methodParamTypes.get(i);
+			String paramType = paramTypes.get(i);
+
+			if (!isTypeCompatible(methodParamType, paramType)) {
+				return false;
+			}
+		}
+		return true;
+	}
+
+	private boolean isTypeCompatible(String methodParamType, String paramType) {
+		if(methodParamType.endsWith("?")) {
+			methodParamType = methodParamType.substring(0, methodParamType.length() - 1);
+		}
+
+		if (methodParamType.equals(paramType)) {
+			return true;
+		}
+
+		String[] primitiveMethods = {"INTEGER", "DOUBLE", "BOOL", "STRING"};
+        return Arrays.asList(primitiveMethods).contains(methodParamType) && Arrays.asList(primitiveMethods).contains(paramType) || methodParamType.equals("mixed");
+    }
 
 	public void setSignal(String name, Signal signal) {
 		signals.put(name, signal);
