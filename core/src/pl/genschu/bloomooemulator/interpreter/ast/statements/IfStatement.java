@@ -4,6 +4,10 @@ import pl.genschu.bloomooemulator.interpreter.Context;
 import pl.genschu.bloomooemulator.interpreter.ast.Expression;
 import pl.genschu.bloomooemulator.interpreter.ast.Statement;
 import pl.genschu.bloomooemulator.interpreter.ast.expressions.ConstantExpression;
+import pl.genschu.bloomooemulator.interpreter.factories.VariableFactory;
+import pl.genschu.bloomooemulator.interpreter.variable.Variable;
+
+import static pl.genschu.bloomooemulator.interpreter.util.VariableHelper.getVariableFromObject;
 
 public class IfStatement extends Statement {
     private final Expression condition;
@@ -18,10 +22,18 @@ public class IfStatement extends Statement {
 
     @Override
     public void execute(Context context) {
+        Object result;
         if ((Boolean) (((ConstantExpression) condition.evaluate(context)).evaluate(null))) {
-            trueBranch.evaluate(context);
+            result = trueBranch.evaluate(context);
         } else if (falseBranch != null) {
-            falseBranch.evaluate(context);
+            result = falseBranch.evaluate(context);
+        }
+        else {
+            result = null;
+        }
+
+        if(result instanceof ConstantExpression) {
+            Variable variable = getVariableFromObject(result, context);
         }
     }
 }

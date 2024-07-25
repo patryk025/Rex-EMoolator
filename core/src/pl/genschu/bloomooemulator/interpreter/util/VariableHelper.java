@@ -16,7 +16,7 @@ public class VariableHelper {
         else if(value instanceof ConstantExpression) {
             Object valueString = ((ConstantExpression) value).evaluate(null);
 
-            if(context.getVariable(valueString.toString(), null) == null) {
+            if(!context.hasVariable(valueString.toString())) {
                 return VariableFactory.createVariableWithAutoType("", valueString, context);
             }
 
