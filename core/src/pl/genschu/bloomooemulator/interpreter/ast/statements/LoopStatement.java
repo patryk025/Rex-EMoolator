@@ -29,7 +29,7 @@ public class LoopStatement extends Statement {
 			if(result instanceof OneBreakStatement) {
 				break;
 			}
-			((IntegerVariable) context.getVariable("_I_")).fireMethod("ADD", stepValue);
+			context.getVariable("_I_", null).fireMethod("ADD", stepValue);
         }
     }
 }

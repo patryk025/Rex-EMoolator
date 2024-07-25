@@ -21,7 +21,7 @@ public class PointerExpression extends Expression {
             throw new RuntimeException("Dereferenced value must be a string: " + result);
         }
         String targetVariableName = (String) result;
-        Variable targetVariable = context.getVariable(targetVariableName);
+        Variable targetVariable = context.getVariable(targetVariableName, null);
         if (targetVariable == null) {
             throw new RuntimeException("Variable not defined: " + targetVariableName);
         }

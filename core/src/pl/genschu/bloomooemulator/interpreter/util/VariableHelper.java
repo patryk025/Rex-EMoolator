@@ -16,17 +16,17 @@ public class VariableHelper {
         else if(value instanceof ConstantExpression) {
             Object valueString = ((ConstantExpression) value).evaluate(null);
 
-            if(context.getVariable(valueString.toString()) == null) {
+            if(context.getVariable(valueString.toString(), null) == null) {
                 return VariableFactory.createVariableWithAutoType("", valueString, context);
             }
 
-            return context.getVariable(valueString.toString());
+            return context.getVariable(valueString.toString(), null);
         }
         else if(value instanceof VariableExpression) {
             return (Variable) ((VariableExpression) value).evaluate(context);
         }
         else if(value instanceof PointerExpression) {
-            return context.getVariable(((PointerExpression) value).evaluate(context).toString());
+            return context.getVariable(((PointerExpression) value).evaluate(context).toString(), null);
         }
 
         return null;

@@ -1,6 +1,8 @@
 package pl.genschu.bloomooemulator.interpreter.variable.types;
 
+import com.badlogic.gdx.Gdx;
 import pl.genschu.bloomooemulator.interpreter.Context;
+import pl.genschu.bloomooemulator.interpreter.factories.VariableFactory;
 import pl.genschu.bloomooemulator.interpreter.variable.Attribute;
 import pl.genschu.bloomooemulator.interpreter.variable.Method;
 import pl.genschu.bloomooemulator.interpreter.variable.Parameter;
@@ -23,8 +25,7 @@ public class ApplicationVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				// TODO: implement this method
-				System.out.println("Method EXIT is not implemented yet");
+				Gdx.app.exit();
 				return null;
 			}
 		});
@@ -33,9 +34,8 @@ public class ApplicationVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				// TODO: implement this method
-				System.out.println("Method GETLANGUAGE is not implemented yet");
-				return null;
+				// TODO: check if is get from system
+				return VariableFactory.createVariable("STRING", null, "POL", getContext()); // default
 			}
 		});
 		this.setMethod("RUN", new Method(
@@ -126,7 +126,7 @@ public class ApplicationVariable extends Variable {
 		this.episodes = new ArrayList<>();
 
 		for(String episode : episodes) {
-			Variable episodeVariable = this.getContext().getVariable(episode);
+			Variable episodeVariable = this.getContext().getVariable(episode, this);
 			if(episodeVariable.getName().equals(firstEpisode)) {
 				this.firstEpisode = (EpisodeVariable) episodeVariable;
 			}

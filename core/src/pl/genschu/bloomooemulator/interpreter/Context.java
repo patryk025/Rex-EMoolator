@@ -29,11 +29,17 @@ public class Context {
         this.graphicsVariables = new HashMap<>();
     }
 
-    public Variable getVariable(String name) {
+    public Variable getVariable(String name, Variable thisVariable) {
+        if(name.equals("THIS")) {
+            if(thisVariable != null) {
+                return thisVariable;
+            }
+        }
+
         Variable variable = variables.get(name);
         if (variable == null) {
             if(parentContext != null)
-                return parentContext.getVariable(name);
+                return parentContext.getVariable(name, thisVariable);
 
             variable = VariableFactory.createVariable("STRING", name, null);
 

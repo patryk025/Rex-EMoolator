@@ -124,9 +124,12 @@ public class Game {
 
         Gdx.app.log("Game loader", "Loading application variables...");
 
+
+        definitionContext.setGame(this);
+
         try {
             currentApplicationContext = new Context();
-            currentApplicationContext.setGame(this);
+            currentApplicationContext.setParentContext(definitionContext);
 
             cnvParser.parseFile(FileUtils.findRelativeFileIgnoreCase(applicationVariable.getPath(), applicationVariable.getName()+".cnv"), currentApplicationContext);
 
@@ -139,7 +142,7 @@ public class Game {
     }
 
     public void goTo(String name) {
-        Variable variable = definitionContext.getVariable(name);
+        Variable variable = definitionContext.getVariable(name, null);
 
         if (variable instanceof EpisodeVariable) {
             loadEpisode((EpisodeVariable) variable);
@@ -165,6 +168,7 @@ public class Game {
             Gdx.app.log("Game", "Loading episode " + episode.getName());
             try {
                 currentEpisodeContext = new Context();
+                currentEpisodeContext.setParentContext(currentApplicationContext);
                 File episodeFile = FileUtils.findRelativeFileIgnoreCase(episode.getPath(), episode.getName() + ".cnv");
 
                 if(episodeFile.exists()) {
@@ -182,7 +186,6 @@ public class Game {
                 currentScene = episode.getFirstScene().getName();
 
                 loadScene(episode.getFirstScene());
-                currentEpisodeContext.setParentContext(currentApplicationContext);
 
             } catch (IOException e) {
                 throw new RuntimeException(e);
@@ -194,15 +197,20 @@ public class Game {
         Gdx.app.log("Game", "Loading scene " + scene.getName());
         try {
             currentSceneContext = new Context();
+            currentSceneContext.setParentContext(currentEpisodeContext);
+
             File sceneFile = FileUtils.findRelativeFileIgnoreCase(scene.getPath(), scene.getName() + ".cnv");
             cnvParser.parseFile(sceneFile, currentSceneContext);
             currentSceneFile = scene.getPath();
-
-            currentSceneContext.setParentContext(currentEpisodeContext);
-            currentEpisodeContext.setParentContext(currentApplicationContext);
             currentScene = scene.getName();
 
-            currentSceneContext.getVariable("__INIT__").getMethod("RUN", Collections.singletonList("mixed")).execute(null);
+            try {
+                currentSceneContext.getVariable("__INIT__", null).getMethod("RUN", Collections.singletonList("mixed")).execute(null);
+            } catch (NullPointerException e) {
+                Gdx.app.log("Game", "__INIT__ BEHAVIOUR not found. Continue without it.");
+            } catch (Exception e) {
+                Gdx.app.error("Game", "Error while running __INIT__ BEHAVIOUR: " + e.getMessage(), e);
+            }
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

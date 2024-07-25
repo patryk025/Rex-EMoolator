@@ -46,22 +46,6 @@ public class BehaviourVariable extends Variable {
 				return null;
 			}
 		});
-		// temporary implementation
-		this.setMethod("RUN", new Method(
-				List.of(
-				),
-				"mixed"
-		) {
-			@Override
-			public Variable execute(List<Object> arguments) {
-				if(interpreter == null) {
-					Gdx.app.error("BehaviourVariable", "Interpreter is null");
-					return null;
-				}
-				interpreter.interpret();
-				return (Variable) interpreter.getReturnValue();
-			}
-		});
 		this.setMethod("RUN", new Method(
 			List.of(
 				new Parameter("mixed", "param1...paramN", false)

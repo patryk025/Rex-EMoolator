@@ -1,6 +1,7 @@
 package pl.genschu.bloomooemulator.interpreter.variable.types;
 
 import pl.genschu.bloomooemulator.interpreter.Context;
+import pl.genschu.bloomooemulator.interpreter.factories.VariableFactory;
 import pl.genschu.bloomooemulator.interpreter.variable.Attribute;
 import pl.genschu.bloomooemulator.interpreter.variable.Method;
 import pl.genschu.bloomooemulator.interpreter.variable.Parameter;
@@ -33,9 +34,8 @@ public class EpisodeVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				// TODO: implement this method
-				System.out.println("Method GETCURRENTSCENE is not implemented yet");
-				return null;
+				String currentScene = context.getGame().getCurrentScene();
+				return VariableFactory.createVariable("STRING", null, currentScene, getContext());
 			}
 		});
 		this.setMethod("GOTO", new Method(
@@ -97,7 +97,7 @@ public class EpisodeVariable extends Variable {
 		this.scenes = new ArrayList<>();
 
 		for(String scene : scenes) {
-			Variable sceneVariable = this.getContext().getVariable(scene);
+			Variable sceneVariable = this.getContext().getVariable(scene, this);
 			if(sceneVariable.getName().equals(firstEpisode)) {
 				this.firstScene = (SceneVariable) sceneVariable;
 			}
