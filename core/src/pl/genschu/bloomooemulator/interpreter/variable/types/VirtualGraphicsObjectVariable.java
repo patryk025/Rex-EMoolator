@@ -1,5 +1,6 @@
 package pl.genschu.bloomooemulator.interpreter.variable.types;
 
+import pl.genschu.bloomooemulator.interpreter.exceptions.ClassMethodNotImplementedException;
 import pl.genschu.bloomooemulator.interpreter.Context;
 import pl.genschu.bloomooemulator.interpreter.variable.Attribute;
 import pl.genschu.bloomooemulator.interpreter.variable.Method;
@@ -18,8 +19,7 @@ public class VirtualGraphicsObjectVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
-				System.out.println("Method GETHEIGHT is not implemented yet");
-				return null;
+				throw new ClassMethodNotImplementedException("Method GETHEIGHT is not implemented yet");
 			}
 		});
 		this.setMethod("GETPOSITIONX", new Method(
@@ -28,8 +28,7 @@ public class VirtualGraphicsObjectVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
-				System.out.println("Method GETPOSITIONX is not implemented yet");
-				return null;
+				throw new ClassMethodNotImplementedException("Method GETPOSITIONX is not implemented yet");
 			}
 		});
 		this.setMethod("GETPOSITIONY", new Method(
@@ -38,8 +37,7 @@ public class VirtualGraphicsObjectVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
-				System.out.println("Method GETPOSITIONY is not implemented yet");
-				return null;
+				throw new ClassMethodNotImplementedException("Method GETPOSITIONY is not implemented yet");
 			}
 		});
 		this.setMethod("GETWIDTH", new Method(
@@ -48,8 +46,7 @@ public class VirtualGraphicsObjectVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
-				System.out.println("Method GETWIDTH is not implemented yet");
-				return null;
+				throw new ClassMethodNotImplementedException("Method GETWIDTH is not implemented yet");
 			}
 		});
 		this.setMethod("MOVE", new Method(
@@ -62,8 +59,7 @@ public class VirtualGraphicsObjectVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
-				System.out.println("Method MOVE is not implemented yet");
-				return null;
+				throw new ClassMethodNotImplementedException("Method MOVE is not implemented yet");
 			}
 		});
 		this.setMethod("SETMASK", new Method(
@@ -75,8 +71,7 @@ public class VirtualGraphicsObjectVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
-				System.out.println("Method SETMASK is not implemented yet");
-				return null;
+				throw new ClassMethodNotImplementedException("Method SETMASK is not implemented yet");
 			}
 		});
 		this.setMethod("SETPOSITION", new Method(
@@ -89,8 +84,7 @@ public class VirtualGraphicsObjectVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
-				System.out.println("Method SETPOSITION is not implemented yet");
-				return null;
+				throw new ClassMethodNotImplementedException("Method SETPOSITION is not implemented yet");
 			}
 		});
 		this.setMethod("SETPRIORITY", new Method(
@@ -102,8 +96,7 @@ public class VirtualGraphicsObjectVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
-				System.out.println("Method SETPRIORITY is not implemented yet");
-				return null;
+				throw new ClassMethodNotImplementedException("Method SETPRIORITY is not implemented yet");
 			}
 		});
 		this.setMethod("SETSOURCE", new Method(
@@ -115,8 +108,7 @@ public class VirtualGraphicsObjectVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
-				System.out.println("Method SETSOURCE is not implemented yet");
-				return null;
+				throw new ClassMethodNotImplementedException("Method SETSOURCE is not implemented yet");
 			}
 		});
 	}

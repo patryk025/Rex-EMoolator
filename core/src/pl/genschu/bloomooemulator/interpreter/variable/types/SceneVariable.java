@@ -1,5 +1,6 @@
 package pl.genschu.bloomooemulator.interpreter.variable.types;
 
+import pl.genschu.bloomooemulator.interpreter.exceptions.ClassMethodNotImplementedException;
 import pl.genschu.bloomooemulator.interpreter.Context;
 import pl.genschu.bloomooemulator.interpreter.variable.Attribute;
 import pl.genschu.bloomooemulator.interpreter.variable.Method;
@@ -21,8 +22,7 @@ public class SceneVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
-				System.out.println("Method PAUSE is not implemented yet");
-				return null;
+				throw new ClassMethodNotImplementedException("Method PAUSE is not implemented yet");
 			}
 		});
 		this.setMethod("REMOVECLONES", new Method(
@@ -36,8 +36,7 @@ public class SceneVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
-				System.out.println("Method REMOVECLONES is not implemented yet");
-				return null;
+				throw new ClassMethodNotImplementedException("Method REMOVECLONES is not implemented yet");
 			}
 		});
 		this.setMethod("RESUME", new Method(
@@ -46,8 +45,7 @@ public class SceneVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
-				System.out.println("Method RESUME is not implemented yet");
-				return null;
+				throw new ClassMethodNotImplementedException("Method RESUME is not implemented yet");
 			}
 		});
 		this.setMethod("RUN", new Method(
@@ -61,8 +59,7 @@ public class SceneVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
-				System.out.println("Method RUN is not implemented yet");
-				return null;
+				throw new ClassMethodNotImplementedException("Method RUN is not implemented yet");
 			}
 		});
 		this.setMethod("RUNCLONES", new Method(
@@ -77,8 +74,7 @@ public class SceneVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
-				System.out.println("Method RUNCLONES is not implemented yet");
-				return null;
+				throw new ClassMethodNotImplementedException("Method RUNCLONES is not implemented yet");
 			}
 		});
 		this.setMethod("SETMINHSPRIORITY", new Method(
@@ -90,8 +86,7 @@ public class SceneVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
-				System.out.println("Method SETMINHSPRIORITY is not implemented yet");
-				return null;
+				throw new ClassMethodNotImplementedException("Method SETMINHSPRIORITY is not implemented yet");
 			}
 		});
 		this.setMethod("SETMUSICVOLUME", new Method(
@@ -103,8 +98,7 @@ public class SceneVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
-				System.out.println("Method SETMUSICVOLUME is not implemented yet");
-				return null;
+				throw new ClassMethodNotImplementedException("Method SETMUSICVOLUME is not implemented yet");
 			}
 		});
 		this.setMethod("STARTMUSIC", new Method(
@@ -116,8 +110,7 @@ public class SceneVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
-				System.out.println("Method STARTMUSIC is not implemented yet");
-				return null;
+				throw new ClassMethodNotImplementedException("Method STARTMUSIC is not implemented yet");
 			}
 		});
 	}

@@ -1,5 +1,6 @@
 package pl.genschu.bloomooemulator.interpreter.variable.types;
 
+import pl.genschu.bloomooemulator.interpreter.exceptions.ClassMethodNotImplementedException;
 import pl.genschu.bloomooemulator.interpreter.Context;
 import pl.genschu.bloomooemulator.interpreter.variable.Attribute;
 import pl.genschu.bloomooemulator.interpreter.variable.Method;
@@ -32,8 +33,7 @@ public class WorldVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
-				System.out.println("Method ADDBODY is not implemented yet");
-				return null;
+				throw new ClassMethodNotImplementedException("Method ADDBODY is not implemented yet");
 			}
 		});
 		this.setMethod("ADDFORCE", new Method(
@@ -48,8 +48,7 @@ public class WorldVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
-				System.out.println("Method ADDFORCE is not implemented yet");
-				return null;
+				throw new ClassMethodNotImplementedException("Method ADDFORCE is not implemented yet");
 			}
 		});
 		this.setMethod("ADDGRAVITYEX", new Method(
@@ -63,8 +62,7 @@ public class WorldVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
-				System.out.println("Method ADDGRAVITYEX is not implemented yet");
-				return null;
+				throw new ClassMethodNotImplementedException("Method ADDGRAVITYEX is not implemented yet");
 			}
 		});
 		this.setMethod("FINDPATH", new Method(
@@ -82,8 +80,7 @@ public class WorldVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
-				System.out.println("Method FINDPATH is not implemented yet");
-				return null;
+				throw new ClassMethodNotImplementedException("Method FINDPATH is not implemented yet");
 			}
 		});
 		this.setMethod("FOLLOWPATH", new Method(
@@ -98,8 +95,7 @@ public class WorldVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
-				System.out.println("Method FOLLOWPATH is not implemented yet");
-				return null;
+				throw new ClassMethodNotImplementedException("Method FOLLOWPATH is not implemented yet");
 			}
 		});
 		this.setMethod("GETANGLE", new Method(
@@ -111,8 +107,7 @@ public class WorldVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
-				System.out.println("Method GETANGLE is not implemented yet");
-				return null;
+				throw new ClassMethodNotImplementedException("Method GETANGLE is not implemented yet");
 			}
 		});
 		this.setMethod("GETBKGPOSX", new Method(
@@ -121,8 +116,7 @@ public class WorldVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
-				System.out.println("Method GETBKGPOSX is not implemented yet");
-				return null;
+				throw new ClassMethodNotImplementedException("Method GETBKGPOSX is not implemented yet");
 			}
 		});
 		this.setMethod("GETBKGPOSY", new Method(
@@ -131,8 +125,7 @@ public class WorldVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
-				System.out.println("Method GETBKGPOSY is not implemented yet");
-				return null;
+				throw new ClassMethodNotImplementedException("Method GETBKGPOSY is not implemented yet");
 			}
 		});
 		this.setMethod("GETMOVEDISTANCE", new Method(
@@ -144,8 +137,7 @@ public class WorldVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
-				System.out.println("Method GETMOVEDISTANCE is not implemented yet");
-				return null;
+				throw new ClassMethodNotImplementedException("Method GETMOVEDISTANCE is not implemented yet");
 			}
 		});
 		this.setMethod("GETPOSITIONX", new Method(
@@ -157,8 +149,7 @@ public class WorldVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
-				System.out.println("Method GETPOSITIONX is not implemented yet");
-				return null;
+				throw new ClassMethodNotImplementedException("Method GETPOSITIONX is not implemented yet");
 			}
 		});
 		this.setMethod("GETPOSITIONY", new Method(
@@ -170,8 +161,7 @@ public class WorldVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
-				System.out.println("Method GETPOSITIONY is not implemented yet");
-				return null;
+				throw new ClassMethodNotImplementedException("Method GETPOSITIONY is not implemented yet");
 			}
 		});
 		this.setMethod("GETPOSITIONZ", new Method(
@@ -183,8 +173,7 @@ public class WorldVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
-				System.out.println("Method GETPOSITIONZ is not implemented yet");
-				return null;
+				throw new ClassMethodNotImplementedException("Method GETPOSITIONZ is not implemented yet");
 			}
 		});
 		this.setMethod("GETROTATIONZ", new Method(
@@ -196,8 +185,7 @@ public class WorldVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
-				System.out.println("Method GETROTATIONZ is not implemented yet");
-				return null;
+				throw new ClassMethodNotImplementedException("Method GETROTATIONZ is not implemented yet");
 			}
 		});
 		this.setMethod("GETSPEED", new Method(
@@ -209,8 +197,7 @@ public class WorldVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
-				System.out.println("Method GETSPEED is not implemented yet");
-				return null;
+				throw new ClassMethodNotImplementedException("Method GETSPEED is not implemented yet");
 			}
 		});
 		this.setMethod("JOIN", new Method(
@@ -232,8 +219,7 @@ public class WorldVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
-				System.out.println("Method JOIN is not implemented yet");
-				return null;
+				throw new ClassMethodNotImplementedException("Method JOIN is not implemented yet");
 			}
 		});
 		this.setMethod("LINK", new Method(
@@ -247,8 +233,7 @@ public class WorldVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
-				System.out.println("Method LINK is not implemented yet");
-				return null;
+				throw new ClassMethodNotImplementedException("Method LINK is not implemented yet");
 			}
 		});
 		this.setMethod("LOAD", new Method(
@@ -260,8 +245,7 @@ public class WorldVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
-				System.out.println("Method LOAD is not implemented yet");
-				return null;
+				throw new ClassMethodNotImplementedException("Method LOAD is not implemented yet");
 			}
 		});
 		this.setMethod("MOVEOBJECTS", new Method(
@@ -270,8 +254,7 @@ public class WorldVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
-				System.out.println("Method MOVEOBJECTS is not implemented yet");
-				return null;
+				throw new ClassMethodNotImplementedException("Method MOVEOBJECTS is not implemented yet");
 			}
 		});
 		this.setMethod("REMOVEOBJECT", new Method(
@@ -283,8 +266,7 @@ public class WorldVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
-				System.out.println("Method REMOVEOBJECT is not implemented yet");
-				return null;
+				throw new ClassMethodNotImplementedException("Method REMOVEOBJECT is not implemented yet");
 			}
 		});
 		this.setMethod("SETACTIVE", new Method(
@@ -297,8 +279,7 @@ public class WorldVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
-				System.out.println("Method SETACTIVE is not implemented yet");
-				return null;
+				throw new ClassMethodNotImplementedException("Method SETACTIVE is not implemented yet");
 			}
 		});
 		this.setMethod("SETACTIVE", new Method(
@@ -312,8 +293,7 @@ public class WorldVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
-				System.out.println("Method SETACTIVE is not implemented yet");
-				return null;
+				throw new ClassMethodNotImplementedException("Method SETACTIVE is not implemented yet");
 			}
 		});
 		this.setMethod("SETBKGSIZE", new Method(
@@ -328,8 +308,7 @@ public class WorldVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
-				System.out.println("Method SETBKGSIZE is not implemented yet");
-				return null;
+				throw new ClassMethodNotImplementedException("Method SETBKGSIZE is not implemented yet");
 			}
 		});
 		this.setMethod("SETG", new Method(
@@ -342,8 +321,7 @@ public class WorldVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
-				System.out.println("Method SETG is not implemented yet");
-				return null;
+				throw new ClassMethodNotImplementedException("Method SETG is not implemented yet");
 			}
 		});
 		this.setMethod("SETGRAVITY", new Method(
@@ -357,8 +335,7 @@ public class WorldVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
-				System.out.println("Method SETGRAVITY is not implemented yet");
-				return null;
+				throw new ClassMethodNotImplementedException("Method SETGRAVITY is not implemented yet");
 			}
 		});
 		this.setMethod("SETGRAVITYCENTER", new Method(
@@ -371,8 +348,7 @@ public class WorldVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
-				System.out.println("Method SETGRAVITYCENTER is not implemented yet");
-				return null;
+				throw new ClassMethodNotImplementedException("Method SETGRAVITYCENTER is not implemented yet");
 			}
 		});
 		this.setMethod("SETLIMIT", new Method(
@@ -390,8 +366,7 @@ public class WorldVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
-				System.out.println("Method SETLIMIT is not implemented yet");
-				return null;
+				throw new ClassMethodNotImplementedException("Method SETLIMIT is not implemented yet");
 			}
 		});
 		this.setMethod("SETMAXSPEED", new Method(
@@ -404,8 +379,7 @@ public class WorldVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
-				System.out.println("Method SETMAXSPEED is not implemented yet");
-				return null;
+				throw new ClassMethodNotImplementedException("Method SETMAXSPEED is not implemented yet");
 			}
 		});
 		this.setMethod("SETMOVEFLAGS", new Method(
@@ -418,8 +392,7 @@ public class WorldVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
-				System.out.println("Method SETMOVEFLAGS is not implemented yet");
-				return null;
+				throw new ClassMethodNotImplementedException("Method SETMOVEFLAGS is not implemented yet");
 			}
 		});
 		this.setMethod("SETPOSITION", new Method(
@@ -434,8 +407,7 @@ public class WorldVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
-				System.out.println("Method SETPOSITION is not implemented yet");
-				return null;
+				throw new ClassMethodNotImplementedException("Method SETPOSITION is not implemented yet");
 			}
 		});
 		this.setMethod("SETREFOBJECT", new Method(
@@ -447,8 +419,7 @@ public class WorldVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
-				System.out.println("Method SETREFOBJECT is not implemented yet");
-				return null;
+				throw new ClassMethodNotImplementedException("Method SETREFOBJECT is not implemented yet");
 			}
 		});
 		this.setMethod("SETVELOCITY", new Method(
@@ -463,8 +434,7 @@ public class WorldVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
-				System.out.println("Method SETVELOCITY is not implemented yet");
-				return null;
+				throw new ClassMethodNotImplementedException("Method SETVELOCITY is not implemented yet");
 			}
 		});
 		this.setMethod("START", new Method(
@@ -473,8 +443,7 @@ public class WorldVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
-				System.out.println("Method START is not implemented yet");
-				return null;
+				throw new ClassMethodNotImplementedException("Method START is not implemented yet");
 			}
 		});
 		this.setMethod("STOP", new Method(
@@ -483,8 +452,7 @@ public class WorldVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
-				System.out.println("Method STOP is not implemented yet");
-				return null;
+				throw new ClassMethodNotImplementedException("Method STOP is not implemented yet");
 			}
 		});
 		this.setMethod("UNLINK", new Method(
@@ -496,8 +464,7 @@ public class WorldVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
-				System.out.println("Method UNLINK is not implemented yet");
-				return null;
+				throw new ClassMethodNotImplementedException("Method UNLINK is not implemented yet");
 			}
 		});
 	}

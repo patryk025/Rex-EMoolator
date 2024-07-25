@@ -1,5 +1,6 @@
 package pl.genschu.bloomooemulator.interpreter.variable.types;
 
+import pl.genschu.bloomooemulator.interpreter.exceptions.ClassMethodNotImplementedException;
 import pl.genschu.bloomooemulator.interpreter.Context;
 import pl.genschu.bloomooemulator.interpreter.variable.Attribute;
 import pl.genschu.bloomooemulator.interpreter.variable.Method;
@@ -23,8 +24,7 @@ public class MultiArrayVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
-				System.out.println("Method GET is not implemented yet");
-				return null;
+				throw new ClassMethodNotImplementedException("Method GET is not implemented yet");
 			}
 		});
 		this.setMethod("SET", new Method(
@@ -39,8 +39,7 @@ public class MultiArrayVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
-				System.out.println("Method SET is not implemented yet");
-				return null;
+				throw new ClassMethodNotImplementedException("Method SET is not implemented yet");
 			}
 		});
 	}

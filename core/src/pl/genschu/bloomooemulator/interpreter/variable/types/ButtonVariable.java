@@ -1,5 +1,6 @@
 package pl.genschu.bloomooemulator.interpreter.variable.types;
 
+import pl.genschu.bloomooemulator.interpreter.exceptions.ClassMethodNotImplementedException;
 import pl.genschu.bloomooemulator.interpreter.Context;
 import pl.genschu.bloomooemulator.interpreter.variable.Attribute;
 import pl.genschu.bloomooemulator.interpreter.variable.Method;
@@ -18,8 +19,7 @@ public class ButtonVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
-				System.out.println("Method DISABLE is not implemented yet");
-				return null;
+				throw new ClassMethodNotImplementedException("Method DISABLE is not implemented yet");
 			}
 		});
 		this.setMethod("DISABLEBUTVISIBLE", new Method(
@@ -28,8 +28,7 @@ public class ButtonVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
-				System.out.println("Method DISABLEBUTVISIBLE is not implemented yet");
-				return null;
+				throw new ClassMethodNotImplementedException("Method DISABLEBUTVISIBLE is not implemented yet");
 			}
 		});
 		this.setMethod("ENABLE", new Method(
@@ -38,8 +37,7 @@ public class ButtonVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
-				System.out.println("Method ENABLE is not implemented yet");
-				return null;
+				throw new ClassMethodNotImplementedException("Method ENABLE is not implemented yet");
 			}
 		});
 		this.setMethod("SETPRIORITY", new Method(
@@ -51,8 +49,7 @@ public class ButtonVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
-				System.out.println("Method SETPRIORITY is not implemented yet");
-				return null;
+				throw new ClassMethodNotImplementedException("Method SETPRIORITY is not implemented yet");
 			}
 		});
 		this.setMethod("SETRECT", new Method(
@@ -64,8 +61,7 @@ public class ButtonVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
-				System.out.println("Method SETRECT is not implemented yet");
-				return null;
+				throw new ClassMethodNotImplementedException("Method SETRECT is not implemented yet");
 			}
 		});
 		this.setMethod("SETRECT", new Method(
@@ -80,8 +76,7 @@ public class ButtonVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
-				System.out.println("Method SETRECT is not implemented yet");
-				return null;
+				throw new ClassMethodNotImplementedException("Method SETRECT is not implemented yet");
 			}
 		});
 		this.setMethod("SETSTD", new Method(
@@ -93,8 +88,7 @@ public class ButtonVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
-				System.out.println("Method SETSTD is not implemented yet");
-				return null;
+				throw new ClassMethodNotImplementedException("Method SETSTD is not implemented yet");
 			}
 		});
 		this.setMethod("SETSTD", new Method(
@@ -107,8 +101,7 @@ public class ButtonVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
-				System.out.println("Method SETSTD is not implemented yet");
-				return null;
+				throw new ClassMethodNotImplementedException("Method SETSTD is not implemented yet");
 			}
 		});
 	}

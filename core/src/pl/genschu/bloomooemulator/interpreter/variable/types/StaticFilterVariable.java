@@ -1,5 +1,6 @@
 package pl.genschu.bloomooemulator.interpreter.variable.types;
 
+import pl.genschu.bloomooemulator.interpreter.exceptions.ClassMethodNotImplementedException;
 import pl.genschu.bloomooemulator.interpreter.Context;
 import pl.genschu.bloomooemulator.interpreter.variable.Attribute;
 import pl.genschu.bloomooemulator.interpreter.variable.Method;
@@ -21,8 +22,7 @@ public class StaticFilterVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
-				System.out.println("Method LINK is not implemented yet");
-				return null;
+				throw new ClassMethodNotImplementedException("Method LINK is not implemented yet");
 			}
 		});
 		this.setMethod("SETPROPERTY", new Method(
@@ -35,8 +35,7 @@ public class StaticFilterVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
-				System.out.println("Method SETPROPERTY is not implemented yet");
-				return null;
+				throw new ClassMethodNotImplementedException("Method SETPROPERTY is not implemented yet");
 			}
 		});
 		this.setMethod("UNLINK", new Method(
@@ -48,8 +47,7 @@ public class StaticFilterVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
-				System.out.println("Method UNLINK is not implemented yet");
-				return null;
+				throw new ClassMethodNotImplementedException("Method UNLINK is not implemented yet");
 			}
 		});
 	}

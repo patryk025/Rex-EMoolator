@@ -1,7 +1,9 @@
 package pl.genschu.bloomooemulator.interpreter.variable;
 
+import com.badlogic.gdx.Gdx;
 import pl.genschu.bloomooemulator.interpreter.Context;
 import pl.genschu.bloomooemulator.interpreter.exceptions.ClassMethodNotFoundException;
+import pl.genschu.bloomooemulator.interpreter.exceptions.ClassMethodNotImplementedException;
 import pl.genschu.bloomooemulator.interpreter.exceptions.VariableUnsupportedOperationException;
 import pl.genschu.bloomooemulator.interpreter.variable.types.BoolVariable;
 import pl.genschu.bloomooemulator.interpreter.variable.types.DoubleVariable;
@@ -134,7 +136,12 @@ public abstract class Variable {
 			paramsTypes.add(((Variable) param).getType());
 		}
 		Method method = this.getMethod(methodName, paramsTypes);
-		return method.execute(List.of(params));
+		try {
+			return method.execute(List.of(params));
+		} catch (ClassMethodNotFoundException | ClassMethodNotImplementedException e) {
+			Gdx.app.error("Variable", "Method call error in class " + this.getType() + ": " + e.getMessage());
+			return null;
+		}
 	}
 
 	public void setAttribute(String name, Attribute attribute) {

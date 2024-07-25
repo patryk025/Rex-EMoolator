@@ -1,5 +1,6 @@
 package pl.genschu.bloomooemulator.interpreter.variable.types;
 
+import pl.genschu.bloomooemulator.interpreter.exceptions.ClassMethodNotImplementedException;
 import pl.genschu.bloomooemulator.interpreter.Context;
 import pl.genschu.bloomooemulator.interpreter.variable.Attribute;
 import pl.genschu.bloomooemulator.interpreter.variable.Method;
@@ -32,8 +33,7 @@ public class AnimoVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
-				System.out.println("Method GETCENTERX is not implemented yet");
-				return null;
+				throw new ClassMethodNotImplementedException("Method GETCENTERX is not implemented yet");
 			}
 		});
 		this.setMethod("GETCENTERX", new Method(
@@ -45,8 +45,7 @@ public class AnimoVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
-				System.out.println("Method GETCENTERX is not implemented yet");
-				return null;
+				throw new ClassMethodNotImplementedException("Method GETCENTERX is not implemented yet");
 			}
 		});
 		this.setMethod("GETCENTERY", new Method(
@@ -55,8 +54,7 @@ public class AnimoVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
-				System.out.println("Method GETCENTERY is not implemented yet");
-				return null;
+				throw new ClassMethodNotImplementedException("Method GETCENTERY is not implemented yet");
 			}
 		});
 		this.setMethod("GETCENTERY", new Method(
@@ -68,8 +66,7 @@ public class AnimoVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
-				System.out.println("Method GETCENTERY is not implemented yet");
-				return null;
+				throw new ClassMethodNotImplementedException("Method GETCENTERY is not implemented yet");
 			}
 		});
 		this.setMethod("GETCFRAMEINEVENT", new Method(
@@ -78,8 +75,7 @@ public class AnimoVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
-				System.out.println("Method GETCFRAMEINEVENT is not implemented yet");
-				return null;
+				throw new ClassMethodNotImplementedException("Method GETCFRAMEINEVENT is not implemented yet");
 			}
 		});
 		this.setMethod("GETCFRAMEINEVENT", new Method(
@@ -91,8 +87,7 @@ public class AnimoVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
-				System.out.println("Method GETCFRAMEINEVENT is not implemented yet");
-				return null;
+				throw new ClassMethodNotImplementedException("Method GETCFRAMEINEVENT is not implemented yet");
 			}
 		});
 		this.setMethod("GETCURRFRAMEPOSX", new Method(
@@ -101,8 +96,7 @@ public class AnimoVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
-				System.out.println("Method GETCURRFRAMEPOSX is not implemented yet");
-				return null;
+				throw new ClassMethodNotImplementedException("Method GETCURRFRAMEPOSX is not implemented yet");
 			}
 		});
 		this.setMethod("GETCURRFRAMEPOSY", new Method(
@@ -111,8 +105,7 @@ public class AnimoVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
-				System.out.println("Method GETCURRFRAMEPOSY is not implemented yet");
-				return null;
+				throw new ClassMethodNotImplementedException("Method GETCURRFRAMEPOSY is not implemented yet");
 			}
 		});
 		this.setMethod("GETENDX", new Method(
@@ -121,8 +114,7 @@ public class AnimoVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
-				System.out.println("Method GETENDX is not implemented yet");
-				return null;
+				throw new ClassMethodNotImplementedException("Method GETENDX is not implemented yet");
 			}
 		});
 		this.setMethod("GETENDY", new Method(
@@ -131,8 +123,7 @@ public class AnimoVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
-				System.out.println("Method GETENDY is not implemented yet");
-				return null;
+				throw new ClassMethodNotImplementedException("Method GETENDY is not implemented yet");
 			}
 		});
 		this.setMethod("GETEVENTNAME", new Method(
@@ -141,8 +132,7 @@ public class AnimoVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
-				System.out.println("Method GETEVENTNAME is not implemented yet");
-				return null;
+				throw new ClassMethodNotImplementedException("Method GETEVENTNAME is not implemented yet");
 			}
 		});
 		this.setMethod("GETFRAME", new Method(
@@ -151,8 +141,7 @@ public class AnimoVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
-				System.out.println("Method GETFRAME is not implemented yet");
-				return null;
+				throw new ClassMethodNotImplementedException("Method GETFRAME is not implemented yet");
 			}
 		});
 		this.setMethod("GETFRAMENAME", new Method(
@@ -161,8 +150,7 @@ public class AnimoVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
-				System.out.println("Method GETFRAMENAME is not implemented yet");
-				return null;
+				throw new ClassMethodNotImplementedException("Method GETFRAMENAME is not implemented yet");
 			}
 		});
 		this.setMethod("GETHEIGHT", new Method(
@@ -171,8 +159,7 @@ public class AnimoVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
-				System.out.println("Method GETHEIGHT is not implemented yet");
-				return null;
+				throw new ClassMethodNotImplementedException("Method GETHEIGHT is not implemented yet");
 			}
 		});
 		this.setMethod("GETMAXWIDTH", new Method(
@@ -181,8 +168,7 @@ public class AnimoVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
-				System.out.println("Method GETMAXWIDTH is not implemented yet");
-				return null;
+				throw new ClassMethodNotImplementedException("Method GETMAXWIDTH is not implemented yet");
 			}
 		});
 		this.setMethod("GETNOE", new Method(
@@ -191,8 +177,7 @@ public class AnimoVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
-				System.out.println("Method GETNOE is not implemented yet");
-				return null;
+				throw new ClassMethodNotImplementedException("Method GETNOE is not implemented yet");
 			}
 		});
 		this.setMethod("GETNOFINEVENT", new Method(
@@ -204,8 +189,7 @@ public class AnimoVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
-				System.out.println("Method GETNOFINEVENT is not implemented yet");
-				return null;
+				throw new ClassMethodNotImplementedException("Method GETNOFINEVENT is not implemented yet");
 			}
 		});
 		this.setMethod("GETNOFINEVENT", new Method(
@@ -217,8 +201,7 @@ public class AnimoVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
-				System.out.println("Method GETNOFINEVENT is not implemented yet");
-				return null;
+				throw new ClassMethodNotImplementedException("Method GETNOFINEVENT is not implemented yet");
 			}
 		});
 		this.setMethod("GETPOSITIONX", new Method(
@@ -227,8 +210,7 @@ public class AnimoVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
-				System.out.println("Method GETPOSITIONX is not implemented yet");
-				return null;
+				throw new ClassMethodNotImplementedException("Method GETPOSITIONX is not implemented yet");
 			}
 		});
 		this.setMethod("GETPOSITIONX", new Method(
@@ -240,8 +222,7 @@ public class AnimoVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
-				System.out.println("Method GETPOSITIONX is not implemented yet");
-				return null;
+				throw new ClassMethodNotImplementedException("Method GETPOSITIONX is not implemented yet");
 			}
 		});
 		this.setMethod("GETPOSITIONY", new Method(
@@ -250,8 +231,7 @@ public class AnimoVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
-				System.out.println("Method GETPOSITIONY is not implemented yet");
-				return null;
+				throw new ClassMethodNotImplementedException("Method GETPOSITIONY is not implemented yet");
 			}
 		});
 		this.setMethod("GETPOSITIONY", new Method(
@@ -263,8 +243,7 @@ public class AnimoVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
-				System.out.println("Method GETPOSITIONY is not implemented yet");
-				return null;
+				throw new ClassMethodNotImplementedException("Method GETPOSITIONY is not implemented yet");
 			}
 		});
 		this.setMethod("GETWIDTH", new Method(
@@ -273,8 +252,7 @@ public class AnimoVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
-				System.out.println("Method GETWIDTH is not implemented yet");
-				return null;
+				throw new ClassMethodNotImplementedException("Method GETWIDTH is not implemented yet");
 			}
 		});
 		this.setMethod("HIDE", new Method(
@@ -283,8 +261,7 @@ public class AnimoVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
-				System.out.println("Method HIDE is not implemented yet");
-				return null;
+				throw new ClassMethodNotImplementedException("Method HIDE is not implemented yet");
 			}
 		});
 		this.setMethod("ISNEAR", new Method(
@@ -297,8 +274,7 @@ public class AnimoVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
-				System.out.println("Method ISNEAR is not implemented yet");
-				return null;
+				throw new ClassMethodNotImplementedException("Method ISNEAR is not implemented yet");
 			}
 		});
 		this.setMethod("ISPLAYING", new Method(
@@ -307,8 +283,7 @@ public class AnimoVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
-				System.out.println("Method ISPLAYING is not implemented yet");
-				return null;
+				throw new ClassMethodNotImplementedException("Method ISPLAYING is not implemented yet");
 			}
 		});
 		this.setMethod("ISPLAYING", new Method(
@@ -320,8 +295,7 @@ public class AnimoVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
-				System.out.println("Method ISPLAYING is not implemented yet");
-				return null;
+				throw new ClassMethodNotImplementedException("Method ISPLAYING is not implemented yet");
 			}
 		});
 		this.setMethod("ISVISIBLE", new Method(
@@ -330,8 +304,7 @@ public class AnimoVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
-				System.out.println("Method ISVISIBLE is not implemented yet");
-				return null;
+				throw new ClassMethodNotImplementedException("Method ISVISIBLE is not implemented yet");
 			}
 		});
 		this.setMethod("LOAD", new Method(
@@ -343,8 +316,7 @@ public class AnimoVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
-				System.out.println("Method LOAD is not implemented yet");
-				return null;
+				throw new ClassMethodNotImplementedException("Method LOAD is not implemented yet");
 			}
 		});
 		this.setMethod("MOVE", new Method(
@@ -357,8 +329,7 @@ public class AnimoVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
-				System.out.println("Method MOVE is not implemented yet");
-				return null;
+				throw new ClassMethodNotImplementedException("Method MOVE is not implemented yet");
 			}
 		});
 		this.setMethod("NEXTFRAME", new Method(
@@ -367,8 +338,7 @@ public class AnimoVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
-				System.out.println("Method NEXTFRAME is not implemented yet");
-				return null;
+				throw new ClassMethodNotImplementedException("Method NEXTFRAME is not implemented yet");
 			}
 		});
 		this.setMethod("NPLAY", new Method(
@@ -380,8 +350,7 @@ public class AnimoVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
-				System.out.println("Method NPLAY is not implemented yet");
-				return null;
+				throw new ClassMethodNotImplementedException("Method NPLAY is not implemented yet");
 			}
 		});
 		this.setMethod("NPLAY", new Method(
@@ -393,8 +362,7 @@ public class AnimoVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
-				System.out.println("Method NPLAY is not implemented yet");
-				return null;
+				throw new ClassMethodNotImplementedException("Method NPLAY is not implemented yet");
 			}
 		});
 		this.setMethod("PAUSE", new Method(
@@ -403,8 +371,7 @@ public class AnimoVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
-				System.out.println("Method PAUSE is not implemented yet");
-				return null;
+				throw new ClassMethodNotImplementedException("Method PAUSE is not implemented yet");
 			}
 		});
 		this.setMethod("PLAY", new Method(
@@ -416,8 +383,7 @@ public class AnimoVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
-				System.out.println("Method PLAY is not implemented yet");
-				return null;
+				throw new ClassMethodNotImplementedException("Method PLAY is not implemented yet");
 			}
 		});
 		this.setMethod("PLAY", new Method(
@@ -429,8 +395,7 @@ public class AnimoVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
-				System.out.println("Method PLAY is not implemented yet");
-				return null;
+				throw new ClassMethodNotImplementedException("Method PLAY is not implemented yet");
 			}
 		});
 		this.setMethod("PLAY", new Method(
@@ -443,8 +408,7 @@ public class AnimoVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
-				System.out.println("Method PLAY is not implemented yet");
-				return null;
+				throw new ClassMethodNotImplementedException("Method PLAY is not implemented yet");
 			}
 		});
 		this.setMethod("PREVFRAME", new Method(
@@ -453,8 +417,7 @@ public class AnimoVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
-				System.out.println("Method PREVFRAME is not implemented yet");
-				return null;
+				throw new ClassMethodNotImplementedException("Method PREVFRAME is not implemented yet");
 			}
 		});
 		this.setMethod("RESUME", new Method(
@@ -463,8 +426,7 @@ public class AnimoVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
-				System.out.println("Method RESUME is not implemented yet");
-				return null;
+				throw new ClassMethodNotImplementedException("Method RESUME is not implemented yet");
 			}
 		});
 		this.setMethod("RUN", new Method(
@@ -473,8 +435,7 @@ public class AnimoVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
-				System.out.println("Method RUN is not implemented yet");
-				return null;
+				throw new ClassMethodNotImplementedException("Method RUN is not implemented yet");
 			}
 		});
 		this.setMethod("SETANCHOR", new Method(
@@ -486,8 +447,7 @@ public class AnimoVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
-				System.out.println("Method SETANCHOR is not implemented yet");
-				return null;
+				throw new ClassMethodNotImplementedException("Method SETANCHOR is not implemented yet");
 			}
 		});
 		this.setMethod("SETANCHOR", new Method(
@@ -500,8 +460,7 @@ public class AnimoVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
-				System.out.println("Method SETANCHOR is not implemented yet");
-				return null;
+				throw new ClassMethodNotImplementedException("Method SETANCHOR is not implemented yet");
 			}
 		});
 		this.setMethod("SETASBUTTON", new Method(
@@ -514,8 +473,7 @@ public class AnimoVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
-				System.out.println("Method SETASBUTTON is not implemented yet");
-				return null;
+				throw new ClassMethodNotImplementedException("Method SETASBUTTON is not implemented yet");
 			}
 		});
 		this.setMethod("SETBACKWARD", new Method(
@@ -524,8 +482,7 @@ public class AnimoVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
-				System.out.println("Method SETBACKWARD is not implemented yet");
-				return null;
+				throw new ClassMethodNotImplementedException("Method SETBACKWARD is not implemented yet");
 			}
 		});
 		this.setMethod("SETFORWARD", new Method(
@@ -534,8 +491,7 @@ public class AnimoVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
-				System.out.println("Method SETFORWARD is not implemented yet");
-				return null;
+				throw new ClassMethodNotImplementedException("Method SETFORWARD is not implemented yet");
 			}
 		});
 		this.setMethod("SETFPS", new Method(
@@ -547,8 +503,7 @@ public class AnimoVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
-				System.out.println("Method SETFPS is not implemented yet");
-				return null;
+				throw new ClassMethodNotImplementedException("Method SETFPS is not implemented yet");
 			}
 		});
 		this.setMethod("SETFPS", new Method(
@@ -560,8 +515,7 @@ public class AnimoVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
-				System.out.println("Method SETFPS is not implemented yet");
-				return null;
+				throw new ClassMethodNotImplementedException("Method SETFPS is not implemented yet");
 			}
 		});
 		this.setMethod("SETFRAME", new Method(
@@ -574,8 +528,7 @@ public class AnimoVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
-				System.out.println("Method SETFRAME is not implemented yet");
-				return null;
+				throw new ClassMethodNotImplementedException("Method SETFRAME is not implemented yet");
 			}
 		});
 		this.setMethod("SETFRAME", new Method(
@@ -587,8 +540,7 @@ public class AnimoVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
-				System.out.println("Method SETFRAME is not implemented yet");
-				return null;
+				throw new ClassMethodNotImplementedException("Method SETFRAME is not implemented yet");
 			}
 		});
 		this.setMethod("SETFRAME", new Method(
@@ -601,8 +553,7 @@ public class AnimoVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
-				System.out.println("Method SETFRAME is not implemented yet");
-				return null;
+				throw new ClassMethodNotImplementedException("Method SETFRAME is not implemented yet");
 			}
 		});
 		this.setMethod("SETFRAME", new Method(
@@ -615,8 +566,7 @@ public class AnimoVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
-				System.out.println("Method SETFRAME is not implemented yet");
-				return null;
+				throw new ClassMethodNotImplementedException("Method SETFRAME is not implemented yet");
 			}
 		});
 		this.setMethod("SETFRAMENAME", new Method(
@@ -630,8 +580,7 @@ public class AnimoVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
-				System.out.println("Method SETFRAMENAME is not implemented yet");
-				return null;
+				throw new ClassMethodNotImplementedException("Method SETFRAMENAME is not implemented yet");
 			}
 		});
 		this.setMethod("SETOPACITY", new Method(
@@ -643,8 +592,7 @@ public class AnimoVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
-				System.out.println("Method SETOPACITY is not implemented yet");
-				return null;
+				throw new ClassMethodNotImplementedException("Method SETOPACITY is not implemented yet");
 			}
 		});
 		this.setMethod("SETOPACITY", new Method(
@@ -656,8 +604,7 @@ public class AnimoVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
-				System.out.println("Method SETOPACITY is not implemented yet");
-				return null;
+				throw new ClassMethodNotImplementedException("Method SETOPACITY is not implemented yet");
 			}
 		});
 		this.setMethod("SETPOSITION", new Method(
@@ -670,8 +617,7 @@ public class AnimoVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
-				System.out.println("Method SETPOSITION is not implemented yet");
-				return null;
+				throw new ClassMethodNotImplementedException("Method SETPOSITION is not implemented yet");
 			}
 		});
 		this.setMethod("SETPRIORITY", new Method(
@@ -683,8 +629,7 @@ public class AnimoVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
-				System.out.println("Method SETPRIORITY is not implemented yet");
-				return null;
+				throw new ClassMethodNotImplementedException("Method SETPRIORITY is not implemented yet");
 			}
 		});
 		this.setMethod("SHOW", new Method(
@@ -693,8 +638,7 @@ public class AnimoVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
-				System.out.println("Method SHOW is not implemented yet");
-				return null;
+				throw new ClassMethodNotImplementedException("Method SHOW is not implemented yet");
 			}
 		});
 		this.setMethod("SHOW", new Method(
@@ -706,8 +650,7 @@ public class AnimoVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
-				System.out.println("Method SHOW is not implemented yet");
-				return null;
+				throw new ClassMethodNotImplementedException("Method SHOW is not implemented yet");
 			}
 		});
 		this.setMethod("STOP", new Method(
@@ -716,8 +659,7 @@ public class AnimoVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
-				System.out.println("Method STOP is not implemented yet");
-				return null;
+				throw new ClassMethodNotImplementedException("Method STOP is not implemented yet");
 			}
 		});
 		this.setMethod("STOP", new Method(
@@ -729,8 +671,7 @@ public class AnimoVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
-				System.out.println("Method STOP is not implemented yet");
-				return null;
+				throw new ClassMethodNotImplementedException("Method STOP is not implemented yet");
 			}
 		});
 		this.setMethod("TOP", new Method(
@@ -739,8 +680,7 @@ public class AnimoVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
-				System.out.println("Method TOP is not implemented yet");
-				return null;
+				throw new ClassMethodNotImplementedException("Method TOP is not implemented yet");
 			}
 		});
 		this.setMethod("TOP", new Method(
@@ -752,8 +692,7 @@ public class AnimoVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
-				System.out.println("Method TOP is not implemented yet");
-				return null;
+				throw new ClassMethodNotImplementedException("Method TOP is not implemented yet");
 			}
 		});
 	}

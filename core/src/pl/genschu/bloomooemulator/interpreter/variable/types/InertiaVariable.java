@@ -1,5 +1,6 @@
 package pl.genschu.bloomooemulator.interpreter.variable.types;
 
+import pl.genschu.bloomooemulator.interpreter.exceptions.ClassMethodNotImplementedException;
 import pl.genschu.bloomooemulator.interpreter.Context;
 import pl.genschu.bloomooemulator.interpreter.variable.Attribute;
 import pl.genschu.bloomooemulator.interpreter.variable.Method;
@@ -23,8 +24,7 @@ public class InertiaVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
-				System.out.println("Method ADDFORCE is not implemented yet");
-				return null;
+				throw new ClassMethodNotImplementedException("Method ADDFORCE is not implemented yet");
 			}
 		});
 		this.setMethod("CREATESPHERE", new Method(
@@ -39,8 +39,7 @@ public class InertiaVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
-				System.out.println("Method CREATESPHERE is not implemented yet");
-				return null;
+				throw new ClassMethodNotImplementedException("Method CREATESPHERE is not implemented yet");
 			}
 		});
 		this.setMethod("DELETEBODY", new Method(
@@ -52,8 +51,7 @@ public class InertiaVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
-				System.out.println("Method DELETEBODY is not implemented yet");
-				return null;
+				throw new ClassMethodNotImplementedException("Method DELETEBODY is not implemented yet");
 			}
 		});
 		this.setMethod("GETPOSITIONX", new Method(
@@ -65,8 +63,7 @@ public class InertiaVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
-				System.out.println("Method GETPOSITIONX is not implemented yet");
-				return null;
+				throw new ClassMethodNotImplementedException("Method GETPOSITIONX is not implemented yet");
 			}
 		});
 		this.setMethod("GETPOSITIONY", new Method(
@@ -78,8 +75,7 @@ public class InertiaVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
-				System.out.println("Method GETPOSITIONY is not implemented yet");
-				return null;
+				throw new ClassMethodNotImplementedException("Method GETPOSITIONY is not implemented yet");
 			}
 		});
 		this.setMethod("GETSPEED", new Method(
@@ -91,8 +87,7 @@ public class InertiaVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
-				System.out.println("Method GETSPEED is not implemented yet");
-				return null;
+				throw new ClassMethodNotImplementedException("Method GETSPEED is not implemented yet");
 			}
 		});
 		this.setMethod("LINK", new Method(
@@ -107,8 +102,7 @@ public class InertiaVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
-				System.out.println("Method LINK is not implemented yet");
-				return null;
+				throw new ClassMethodNotImplementedException("Method LINK is not implemented yet");
 			}
 		});
 		this.setMethod("LOAD", new Method(
@@ -120,8 +114,7 @@ public class InertiaVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
-				System.out.println("Method LOAD is not implemented yet");
-				return null;
+				throw new ClassMethodNotImplementedException("Method LOAD is not implemented yet");
 			}
 		});
 		this.setMethod("RESETTIMER", new Method(
@@ -130,8 +123,7 @@ public class InertiaVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
-				System.out.println("Method RESETTIMER is not implemented yet");
-				return null;
+				throw new ClassMethodNotImplementedException("Method RESETTIMER is not implemented yet");
 			}
 		});
 		this.setMethod("SETGRAVITY", new Method(
@@ -144,8 +136,7 @@ public class InertiaVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
-				System.out.println("Method SETGRAVITY is not implemented yet");
-				return null;
+				throw new ClassMethodNotImplementedException("Method SETGRAVITY is not implemented yet");
 			}
 		});
 		this.setMethod("SETLINEARDAMPING", new Method(
@@ -158,8 +149,7 @@ public class InertiaVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
-				System.out.println("Method SETLINEARDAMPING is not implemented yet");
-				return null;
+				throw new ClassMethodNotImplementedException("Method SETLINEARDAMPING is not implemented yet");
 			}
 		});
 		this.setMethod("SETMATERIAL", new Method(
@@ -172,8 +162,7 @@ public class InertiaVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
-				System.out.println("Method SETMATERIAL is not implemented yet");
-				return null;
+				throw new ClassMethodNotImplementedException("Method SETMATERIAL is not implemented yet");
 			}
 		});
 		this.setMethod("SETPOSITION", new Method(
@@ -187,8 +176,7 @@ public class InertiaVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
-				System.out.println("Method SETPOSITION is not implemented yet");
-				return null;
+				throw new ClassMethodNotImplementedException("Method SETPOSITION is not implemented yet");
 			}
 		});
 		this.setMethod("SETVELOCITY", new Method(
@@ -202,8 +190,7 @@ public class InertiaVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
-				System.out.println("Method SETVELOCITY is not implemented yet");
-				return null;
+				throw new ClassMethodNotImplementedException("Method SETVELOCITY is not implemented yet");
 			}
 		});
 		this.setMethod("TICK", new Method(
@@ -212,8 +199,7 @@ public class InertiaVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
-				System.out.println("Method TICK is not implemented yet");
-				return null;
+				throw new ClassMethodNotImplementedException("Method TICK is not implemented yet");
 			}
 		});
 		this.setMethod("UNLINK", new Method(
@@ -225,8 +211,7 @@ public class InertiaVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
-				System.out.println("Method UNLINK is not implemented yet");
-				return null;
+				throw new ClassMethodNotImplementedException("Method UNLINK is not implemented yet");
 			}
 		});
 	}

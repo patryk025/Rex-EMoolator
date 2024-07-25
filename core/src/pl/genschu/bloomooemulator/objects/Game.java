@@ -209,7 +209,7 @@ public class Game {
             } catch (NullPointerException e) {
                 Gdx.app.log("Game", "__INIT__ BEHAVIOUR not found. Continue without it.");
             } catch (Exception e) {
-                Gdx.app.error("Game", "Error while running __INIT__ BEHAVIOUR: " + e.getMessage(), e);
+                Gdx.app.error("Game", "Error while running __INIT__ BEHAVIOUR: " + e.getMessage());
             }
         } catch (IOException e) {
             throw new RuntimeException(e);

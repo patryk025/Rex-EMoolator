@@ -1,5 +1,6 @@
 package pl.genschu.bloomooemulator.interpreter.variable.types;
 
+import pl.genschu.bloomooemulator.interpreter.exceptions.ClassMethodNotImplementedException;
 import pl.genschu.bloomooemulator.interpreter.Context;
 import pl.genschu.bloomooemulator.interpreter.variable.Attribute;
 import pl.genschu.bloomooemulator.interpreter.variable.Method;
@@ -21,8 +22,7 @@ public class GroupVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
-				System.out.println("Method [nazwa metody] is not implemented yet");
-				return null;
+				throw new ClassMethodNotImplementedException("Method [nazwa metody] is not implemented yet");
 			}
 		});
 		this.setMethod("ADD", new Method(
@@ -34,8 +34,7 @@ public class GroupVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
-				System.out.println("Method ADD is not implemented yet");
-				return null;
+				throw new ClassMethodNotImplementedException("Method ADD is not implemented yet");
 			}
 		});
 		this.setMethod("ADDCLONES", new Method(
@@ -49,8 +48,7 @@ public class GroupVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
-				System.out.println("Method ADDCLONES is not implemented yet");
-				return null;
+				throw new ClassMethodNotImplementedException("Method ADDCLONES is not implemented yet");
 			}
 		});
 		this.setMethod("GETSIZE", new Method(
@@ -59,8 +57,7 @@ public class GroupVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
-				System.out.println("Method GETSIZE is not implemented yet");
-				return null;
+				throw new ClassMethodNotImplementedException("Method GETSIZE is not implemented yet");
 			}
 		});
 		this.setMethod("NEXT", new Method(
@@ -69,8 +66,7 @@ public class GroupVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
-				System.out.println("Method NEXT is not implemented yet");
-				return null;
+				throw new ClassMethodNotImplementedException("Method NEXT is not implemented yet");
 			}
 		});
 		this.setMethod("PREV", new Method(
@@ -79,8 +75,7 @@ public class GroupVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
-				System.out.println("Method PREV is not implemented yet");
-				return null;
+				throw new ClassMethodNotImplementedException("Method PREV is not implemented yet");
 			}
 		});
 		this.setMethod("REMOVE", new Method(
@@ -92,8 +87,7 @@ public class GroupVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
-				System.out.println("Method REMOVE is not implemented yet");
-				return null;
+				throw new ClassMethodNotImplementedException("Method REMOVE is not implemented yet");
 			}
 		});
 		this.setMethod("REMOVEALL", new Method(
@@ -102,8 +96,7 @@ public class GroupVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
-				System.out.println("Method REMOVEALL is not implemented yet");
-				return null;
+				throw new ClassMethodNotImplementedException("Method REMOVEALL is not implemented yet");
 			}
 		});
 		this.setMethod("RESETMARKER", new Method(
@@ -112,8 +105,7 @@ public class GroupVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
-				System.out.println("Method RESETMARKER is not implemented yet");
-				return null;
+				throw new ClassMethodNotImplementedException("Method RESETMARKER is not implemented yet");
 			}
 		});
 	}

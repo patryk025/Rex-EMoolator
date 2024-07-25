@@ -1,5 +1,6 @@
 package pl.genschu.bloomooemulator.interpreter.variable.types;
 
+import pl.genschu.bloomooemulator.interpreter.exceptions.ClassMethodNotImplementedException;
 import pl.genschu.bloomooemulator.interpreter.Context;
 import pl.genschu.bloomooemulator.interpreter.variable.Attribute;
 import pl.genschu.bloomooemulator.interpreter.variable.Method;
@@ -21,8 +22,7 @@ public class CanvasObserverVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
-				System.out.println("Method ADD is not implemented yet");
-				return null;
+				throw new ClassMethodNotImplementedException("Method ADD is not implemented yet");
 			}
 		});
 		this.setMethod("ENABLENOTIFY", new Method(
@@ -34,8 +34,7 @@ public class CanvasObserverVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
-				System.out.println("Method ENABLENOTIFY is not implemented yet");
-				return null;
+				throw new ClassMethodNotImplementedException("Method ENABLENOTIFY is not implemented yet");
 			}
 		});
 		this.setMethod("GETGRAPHICSAT", new Method(
@@ -51,8 +50,7 @@ public class CanvasObserverVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
-				System.out.println("Method GETGRAPHICSAT is not implemented yet");
-				return null;
+				throw new ClassMethodNotImplementedException("Method GETGRAPHICSAT is not implemented yet");
 			}
 		});
 		this.setMethod("GETGRAPHICSAT", new Method(
@@ -69,8 +67,7 @@ public class CanvasObserverVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
-				System.out.println("Method GETGRAPHICSAT is not implemented yet");
-				return null;
+				throw new ClassMethodNotImplementedException("Method GETGRAPHICSAT is not implemented yet");
 			}
 		});
 		this.setMethod("MOVEBKG", new Method(
@@ -83,8 +80,7 @@ public class CanvasObserverVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
-				System.out.println("Method MOVEBKG is not implemented yet");
-				return null;
+				throw new ClassMethodNotImplementedException("Method MOVEBKG is not implemented yet");
 			}
 		});
 		this.setMethod("PASTE", new Method(
@@ -98,8 +94,7 @@ public class CanvasObserverVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
-				System.out.println("Method PASTE is not implemented yet");
-				return null;
+				throw new ClassMethodNotImplementedException("Method PASTE is not implemented yet");
 			}
 		});
 		this.setMethod("REDRAW", new Method(
@@ -108,8 +103,7 @@ public class CanvasObserverVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
-				System.out.println("Method REDRAW is not implemented yet");
-				return null;
+				throw new ClassMethodNotImplementedException("Method REDRAW is not implemented yet");
 			}
 		});
 		this.setMethod("REFRESH", new Method(
@@ -118,8 +112,7 @@ public class CanvasObserverVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
-				System.out.println("Method REFRESH is not implemented yet");
-				return null;
+				throw new ClassMethodNotImplementedException("Method REFRESH is not implemented yet");
 			}
 		});
 		this.setMethod("REMOVE", new Method(
@@ -131,8 +124,7 @@ public class CanvasObserverVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
-				System.out.println("Method REMOVE is not implemented yet");
-				return null;
+				throw new ClassMethodNotImplementedException("Method REMOVE is not implemented yet");
 			}
 		});
 		this.setMethod("SAVE", new Method(
@@ -145,8 +137,7 @@ public class CanvasObserverVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
-				System.out.println("Method SAVE is not implemented yet");
-				return null;
+				throw new ClassMethodNotImplementedException("Method SAVE is not implemented yet");
 			}
 		});
 		this.setMethod("SETBACKGROUND", new Method(
@@ -158,8 +149,7 @@ public class CanvasObserverVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
-				System.out.println("Method SETBACKGROUND is not implemented yet");
-				return null;
+				throw new ClassMethodNotImplementedException("Method SETBACKGROUND is not implemented yet");
 			}
 		});
 		this.setMethod("SETBKGPOS", new Method(
@@ -172,8 +162,7 @@ public class CanvasObserverVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
-				System.out.println("Method SETBKGPOS is not implemented yet");
-				return null;
+				throw new ClassMethodNotImplementedException("Method SETBKGPOS is not implemented yet");
 			}
 		});
 	}

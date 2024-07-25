@@ -1,5 +1,6 @@
 package pl.genschu.bloomooemulator.interpreter.variable.types;
 
+import pl.genschu.bloomooemulator.interpreter.exceptions.ClassMethodNotImplementedException;
 import pl.genschu.bloomooemulator.interpreter.Context;
 import pl.genschu.bloomooemulator.interpreter.variable.Attribute;
 import pl.genschu.bloomooemulator.interpreter.variable.Method;
@@ -23,8 +24,7 @@ public class DatabaseVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
-				System.out.println("Method FIND is not implemented yet");
-				return null;
+				throw new ClassMethodNotImplementedException("Method FIND is not implemented yet");
 			}
 		});
 		this.setMethod("GETROWSNO", new Method(
@@ -33,8 +33,7 @@ public class DatabaseVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
-				System.out.println("Method GETROWSNO is not implemented yet");
-				return null;
+				throw new ClassMethodNotImplementedException("Method GETROWSNO is not implemented yet");
 			}
 		});
 		this.setMethod("LOAD", new Method(
@@ -46,8 +45,7 @@ public class DatabaseVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
-				System.out.println("Method LOAD is not implemented yet");
-				return null;
+				throw new ClassMethodNotImplementedException("Method LOAD is not implemented yet");
 			}
 		});
 		this.setMethod("NEXT", new Method(
@@ -56,8 +54,7 @@ public class DatabaseVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
-				System.out.println("Method NEXT is not implemented yet");
-				return null;
+				throw new ClassMethodNotImplementedException("Method NEXT is not implemented yet");
 			}
 		});
 		this.setMethod("REMOVEALL", new Method(
@@ -66,8 +63,7 @@ public class DatabaseVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
-				System.out.println("Method REMOVEALL is not implemented yet");
-				return null;
+				throw new ClassMethodNotImplementedException("Method REMOVEALL is not implemented yet");
 			}
 		});
 		this.setMethod("SAVE", new Method(
@@ -79,8 +75,7 @@ public class DatabaseVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
-				System.out.println("Method SAVE is not implemented yet");
-				return null;
+				throw new ClassMethodNotImplementedException("Method SAVE is not implemented yet");
 			}
 		});
 		this.setMethod("SELECT", new Method(
@@ -92,8 +87,7 @@ public class DatabaseVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
-				System.out.println("Method SELECT is not implemented yet");
-				return null;
+				throw new ClassMethodNotImplementedException("Method SELECT is not implemented yet");
 			}
 		});
 	}

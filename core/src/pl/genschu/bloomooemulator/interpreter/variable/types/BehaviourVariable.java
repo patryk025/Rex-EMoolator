@@ -1,5 +1,6 @@
 package pl.genschu.bloomooemulator.interpreter.variable.types;
 
+import pl.genschu.bloomooemulator.interpreter.exceptions.ClassMethodNotImplementedException;
 import com.badlogic.gdx.Gdx;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
@@ -42,8 +43,7 @@ public class BehaviourVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
-				System.out.println("Method PLAY is not implemented yet");
-				return null;
+				throw new ClassMethodNotImplementedException("Method PLAY is not implemented yet");
 			}
 		});
 		this.setMethod("RUN", new Method(
@@ -72,8 +72,7 @@ public class BehaviourVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
-				System.out.println("Method RUNC is not implemented yet");
-				return null;
+				throw new ClassMethodNotImplementedException("Method RUNC is not implemented yet");
 			}
 		});
 		this.setMethod("RUNLOOPED", new Method(
@@ -86,8 +85,7 @@ public class BehaviourVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
-				System.out.println("Method RUNLOOPED is not implemented yet");
-				return null;
+				throw new ClassMethodNotImplementedException("Method RUNLOOPED is not implemented yet");
 			}
 		});
 		this.setMethod("RUNLOOPED", new Method(
@@ -102,8 +100,7 @@ public class BehaviourVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
-				System.out.println("Method RUNLOOPED is not implemented yet");
-				return null;
+				throw new ClassMethodNotImplementedException("Method RUNLOOPED is not implemented yet");
 			}
 		});
 	}

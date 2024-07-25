@@ -1,5 +1,6 @@
 package pl.genschu.bloomooemulator.interpreter.variable.types;
 
+import pl.genschu.bloomooemulator.interpreter.exceptions.ClassMethodNotImplementedException;
 import pl.genschu.bloomooemulator.interpreter.Context;
 import pl.genschu.bloomooemulator.interpreter.variable.Attribute;
 import pl.genschu.bloomooemulator.interpreter.variable.Method;
@@ -21,8 +22,7 @@ public class ArrayVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
-				System.out.println("Method ADD is not implemented yet");
-				return null;
+				throw new ClassMethodNotImplementedException("Method ADD is not implemented yet");
 			}
 		});
 		this.setMethod("ADDAT", new Method(
@@ -35,8 +35,7 @@ public class ArrayVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
-				System.out.println("Method ADDAT is not implemented yet");
-				return null;
+				throw new ClassMethodNotImplementedException("Method ADDAT is not implemented yet");
 			}
 		});
 		this.setMethod("CHANGEAT", new Method(
@@ -49,8 +48,7 @@ public class ArrayVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
-				System.out.println("Method CHANGEAT is not implemented yet");
-				return null;
+				throw new ClassMethodNotImplementedException("Method CHANGEAT is not implemented yet");
 			}
 		});
 		this.setMethod("CLAMPAT", new Method(
@@ -64,8 +62,7 @@ public class ArrayVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
-				System.out.println("Method CLAMPAT is not implemented yet");
-				return null;
+				throw new ClassMethodNotImplementedException("Method CLAMPAT is not implemented yet");
 			}
 		});
 		this.setMethod("CONTAINS", new Method(
@@ -77,8 +74,7 @@ public class ArrayVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
-				System.out.println("Method CONTAINS is not implemented yet");
-				return null;
+				throw new ClassMethodNotImplementedException("Method CONTAINS is not implemented yet");
 			}
 		});
 		this.setMethod("COPYTO", new Method(
@@ -90,8 +86,7 @@ public class ArrayVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
-				System.out.println("Method COPYTO is not implemented yet");
-				return null;
+				throw new ClassMethodNotImplementedException("Method COPYTO is not implemented yet");
 			}
 		});
 		this.setMethod("FIND", new Method(
@@ -103,8 +98,7 @@ public class ArrayVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
-				System.out.println("Method FIND is not implemented yet");
-				return null;
+				throw new ClassMethodNotImplementedException("Method FIND is not implemented yet");
 			}
 		});
 		this.setMethod("GET", new Method(
@@ -116,8 +110,7 @@ public class ArrayVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
-				System.out.println("Method GET is not implemented yet");
-				return null;
+				throw new ClassMethodNotImplementedException("Method GET is not implemented yet");
 			}
 		});
 		this.setMethod("GET", new Method(
@@ -130,8 +123,7 @@ public class ArrayVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
-				System.out.println("Method GET is not implemented yet");
-				return null;
+				throw new ClassMethodNotImplementedException("Method GET is not implemented yet");
 			}
 		});
 		this.setMethod("GETSIZE", new Method(
@@ -140,8 +132,7 @@ public class ArrayVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
-				System.out.println("Method GETSIZE is not implemented yet");
-				return null;
+				throw new ClassMethodNotImplementedException("Method GETSIZE is not implemented yet");
 			}
 		});
 		this.setMethod("GETSUMVALUE", new Method(
@@ -150,8 +141,7 @@ public class ArrayVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
-				System.out.println("Method GETSUMVALUE is not implemented yet");
-				return null;
+				throw new ClassMethodNotImplementedException("Method GETSUMVALUE is not implemented yet");
 			}
 		});
 		this.setMethod("INSERTAT", new Method(
@@ -164,8 +154,7 @@ public class ArrayVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
-				System.out.println("Method INSERTAT is not implemented yet");
-				return null;
+				throw new ClassMethodNotImplementedException("Method INSERTAT is not implemented yet");
 			}
 		});
 		this.setMethod("LOAD", new Method(
@@ -178,8 +167,7 @@ public class ArrayVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
-				System.out.println("Method LOAD is not implemented yet");
-				return null;
+				throw new ClassMethodNotImplementedException("Method LOAD is not implemented yet");
 			}
 		});
 		this.setMethod("LOADINI", new Method(
@@ -188,8 +176,7 @@ public class ArrayVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
-				System.out.println("Method LOADINI is not implemented yet");
-				return null;
+				throw new ClassMethodNotImplementedException("Method LOADINI is not implemented yet");
 			}
 		});
 		this.setMethod("MODAT", new Method(
@@ -202,8 +189,7 @@ public class ArrayVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
-				System.out.println("Method MODAT is not implemented yet");
-				return null;
+				throw new ClassMethodNotImplementedException("Method MODAT is not implemented yet");
 			}
 		});
 		this.setMethod("MULAT", new Method(
@@ -216,8 +202,7 @@ public class ArrayVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
-				System.out.println("Method MULAT is not implemented yet");
-				return null;
+				throw new ClassMethodNotImplementedException("Method MULAT is not implemented yet");
 			}
 		});
 		this.setMethod("REMOVE", new Method(
@@ -229,8 +214,7 @@ public class ArrayVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
-				System.out.println("Method REMOVE is not implemented yet");
-				return null;
+				throw new ClassMethodNotImplementedException("Method REMOVE is not implemented yet");
 			}
 		});
 		this.setMethod("REMOVEALL", new Method(
@@ -239,8 +223,7 @@ public class ArrayVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
-				System.out.println("Method REMOVEALL is not implemented yet");
-				return null;
+				throw new ClassMethodNotImplementedException("Method REMOVEALL is not implemented yet");
 			}
 		});
 		this.setMethod("REMOVEAT", new Method(
@@ -252,8 +235,7 @@ public class ArrayVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
-				System.out.println("Method REMOVEAT is not implemented yet");
-				return null;
+				throw new ClassMethodNotImplementedException("Method REMOVEAT is not implemented yet");
 			}
 		});
 		this.setMethod("REVERSEFIND", new Method(
@@ -265,8 +247,7 @@ public class ArrayVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
-				System.out.println("Method REVERSEFIND is not implemented yet");
-				return null;
+				throw new ClassMethodNotImplementedException("Method REVERSEFIND is not implemented yet");
 			}
 		});
 		this.setMethod("SAVE", new Method(
@@ -278,8 +259,7 @@ public class ArrayVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
-				System.out.println("Method SAVE is not implemented yet");
-				return null;
+				throw new ClassMethodNotImplementedException("Method SAVE is not implemented yet");
 			}
 		});
 		this.setMethod("SAVEINI", new Method(
@@ -288,8 +268,7 @@ public class ArrayVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
-				System.out.println("Method SAVEINI is not implemented yet");
-				return null;
+				throw new ClassMethodNotImplementedException("Method SAVEINI is not implemented yet");
 			}
 		});
 		this.setMethod("SUB", new Method(
@@ -301,8 +280,7 @@ public class ArrayVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
-				System.out.println("Method SUB is not implemented yet");
-				return null;
+				throw new ClassMethodNotImplementedException("Method SUB is not implemented yet");
 			}
 		});
 		this.setMethod("SUBAT", new Method(
@@ -315,8 +293,7 @@ public class ArrayVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
-				System.out.println("Method SUBAT is not implemented yet");
-				return null;
+				throw new ClassMethodNotImplementedException("Method SUBAT is not implemented yet");
 			}
 		});
 		this.setMethod("SUM", new Method(
@@ -328,8 +305,7 @@ public class ArrayVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
-				System.out.println("Method SUM is not implemented yet");
-				return null;
+				throw new ClassMethodNotImplementedException("Method SUM is not implemented yet");
 			}
 		});
 	}

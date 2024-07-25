@@ -1,5 +1,6 @@
 package pl.genschu.bloomooemulator.interpreter.variable.types;
 
+import pl.genschu.bloomooemulator.interpreter.exceptions.ClassMethodNotImplementedException;
 import pl.genschu.bloomooemulator.interpreter.Context;
 import pl.genschu.bloomooemulator.interpreter.variable.Attribute;
 import pl.genschu.bloomooemulator.interpreter.variable.Method;
@@ -24,8 +25,7 @@ public class DoubleVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
-				System.out.println("Method ABS is not implemented yet");
-				return null;
+				throw new ClassMethodNotImplementedException("Method ABS is not implemented yet");
 			}
 		});
 		this.setMethod("ADD", new Method(
@@ -37,8 +37,7 @@ public class DoubleVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
-				System.out.println("Method ADD is not implemented yet");
-				return null;
+				throw new ClassMethodNotImplementedException("Method ADD is not implemented yet");
 			}
 		});
 		this.setMethod("ARCTAN", new Method(
@@ -50,8 +49,7 @@ public class DoubleVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
-				System.out.println("Method ARCTAN is not implemented yet");
-				return null;
+				throw new ClassMethodNotImplementedException("Method ARCTAN is not implemented yet");
 			}
 		});
 		this.setMethod("ARCTANEX", new Method(
@@ -64,8 +62,7 @@ public class DoubleVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
-				System.out.println("Method ARCTANEX is not implemented yet");
-				return null;
+				throw new ClassMethodNotImplementedException("Method ARCTANEX is not implemented yet");
 			}
 		});
 		this.setMethod("CLAMP", new Method(
@@ -78,8 +75,7 @@ public class DoubleVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
-				System.out.println("Method CLAMP is not implemented yet");
-				return null;
+				throw new ClassMethodNotImplementedException("Method CLAMP is not implemented yet");
 			}
 		});
 		this.setMethod("COSINUS", new Method(
@@ -91,8 +87,7 @@ public class DoubleVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
-				System.out.println("Method COSINUS is not implemented yet");
-				return null;
+				throw new ClassMethodNotImplementedException("Method COSINUS is not implemented yet");
 			}
 		});
 		this.setMethod("DIV", new Method(
@@ -104,8 +99,7 @@ public class DoubleVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
-				System.out.println("Method DIV is not implemented yet");
-				return null;
+				throw new ClassMethodNotImplementedException("Method DIV is not implemented yet");
 			}
 		});
 		this.setMethod("LENGTH", new Method(
@@ -118,8 +112,7 @@ public class DoubleVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
-				System.out.println("Method LENGTH is not implemented yet");
-				return null;
+				throw new ClassMethodNotImplementedException("Method LENGTH is not implemented yet");
 			}
 		});
 		this.setMethod("MAXA", new Method(
@@ -132,8 +125,7 @@ public class DoubleVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
-				System.out.println("Method MAXA is not implemented yet");
-				return null;
+				throw new ClassMethodNotImplementedException("Method MAXA is not implemented yet");
 			}
 		});
 		this.setMethod("MINA", new Method(
@@ -146,8 +138,7 @@ public class DoubleVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
-				System.out.println("Method MINA is not implemented yet");
-				return null;
+				throw new ClassMethodNotImplementedException("Method MINA is not implemented yet");
 			}
 		});
 		this.setMethod("MUL", new Method(
@@ -159,8 +150,7 @@ public class DoubleVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
-				System.out.println("Method MUL is not implemented yet");
-				return null;
+				throw new ClassMethodNotImplementedException("Method MUL is not implemented yet");
 			}
 		});
 		this.setMethod("SET", new Method(
@@ -172,8 +162,7 @@ public class DoubleVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
-				System.out.println("Method SET is not implemented yet");
-				return null;
+				throw new ClassMethodNotImplementedException("Method SET is not implemented yet");
 			}
 		});
 		this.setMethod("SINUS", new Method(
@@ -185,8 +174,7 @@ public class DoubleVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
-				System.out.println("Method SINUS is not implemented yet");
-				return null;
+				throw new ClassMethodNotImplementedException("Method SINUS is not implemented yet");
 			}
 		});
 		this.setMethod("SQRT", new Method(
@@ -198,8 +186,7 @@ public class DoubleVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
-				System.out.println("Method SQRT is not implemented yet");
-				return null;
+				throw new ClassMethodNotImplementedException("Method SQRT is not implemented yet");
 			}
 		});
 		this.setMethod("SUB", new Method(
@@ -211,8 +198,7 @@ public class DoubleVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
-				System.out.println("Method SUB is not implemented yet");
-				return null;
+				throw new ClassMethodNotImplementedException("Method SUB is not implemented yet");
 			}
 		});
 	}
