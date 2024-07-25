@@ -191,6 +191,9 @@ public abstract class Variable {
 				return false;
 			}
 		}
+		else {
+			requiredParams = paramTypes.size();
+		}
 
 		for (int i = 0; i < requiredParams; i++) {
 			String methodParamType = methodParamTypes.get(i);

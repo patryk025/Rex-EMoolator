@@ -135,6 +135,8 @@ public class Game {
 
             Gdx.app.log("Game loader", "Application variables loaded");
 
+            runInit(currentApplicationContext);
+
             goTo(applicationVariable.getFirstEpisode().getFirstScene().getName());
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -185,6 +187,8 @@ public class Game {
                 currentEpisode = episode.getName();
                 currentScene = episode.getFirstScene().getName();
 
+                runInit(currentEpisodeContext);
+
                 loadScene(episode.getFirstScene());
 
             } catch (IOException e) {
@@ -204,15 +208,22 @@ public class Game {
             currentSceneFile = scene.getPath();
             currentScene = scene.getName();
 
-            try {
-                currentSceneContext.getVariable("__INIT__", null).getMethod("RUN", Collections.singletonList("mixed")).execute(null);
-            } catch (NullPointerException e) {
-                Gdx.app.log("Game", "__INIT__ BEHAVIOUR not found. Continue without it.");
-            } catch (Exception e) {
-                Gdx.app.error("Game", "Error while running __INIT__ BEHAVIOUR: " + e.getMessage());
-            }
+            runInit(currentSceneContext);
         } catch (IOException e) {
             throw new RuntimeException(e);
+        }
+    }
+
+    private void runInit(Context context) {
+        if(!context.hasVariable("__INIT__")) {
+            Gdx.app.log("Game", "__INIT__ BEHAVIOUR not found. Continue without it.");
+            return;
+        }
+
+        try {
+            context.getVariable("__INIT__", null).getMethod("RUN", Collections.singletonList("mixed")).execute(null);
+        } catch (Exception e) {
+            Gdx.app.error("Game", "Error while running __INIT__ BEHAVIOUR: " + e.getMessage());
         }
     }
 
