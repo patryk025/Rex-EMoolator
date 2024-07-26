@@ -27,7 +27,10 @@ public class ScriptDecypher
                         shift++;
                     }
 					
-					if(letter == 8361) letter = '}'; //naprawa drobnych artefaktów
+					if(
+                        letter == 8361 // on Windows
+                    ||  letter == 65530 // on Linux
+                    ) letter = '}'; //naprawa drobnych artefaktów
 
                     decode.append(letter);
                     add=!add;

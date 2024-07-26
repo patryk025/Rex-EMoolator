@@ -1,4 +1,4 @@
 # Rex EMoolator
 Prototyp emulatora silnika graficznego Piklib/BlooMoo autorstwa firmy Aidem Media oraz interpretera skryptów.
 
-## Na ten moment dopinany jest silnik libGDX a samo README jest w trakcie tworzenia.
+## Trwa walka, żeby uruchomiło się intro Reksio i Wehikuł Czasu. Jak na razie ładuje się napis z tytułem gry, animacje jeszcze się nie rysują.

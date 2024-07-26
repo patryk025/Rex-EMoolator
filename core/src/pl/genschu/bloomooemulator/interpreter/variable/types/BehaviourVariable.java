@@ -23,7 +23,7 @@ public class BehaviourVariable extends Variable {
 
 	public BehaviourVariable(String name, String code, Context context) {
 		super(name, context);
-
+        
 		try {
 			AidemMediaLexer lexer = new AidemMediaLexer(CharStreams.fromString(code));
 			AidemMediaParser parser = new AidemMediaParser(new CommonTokenStream(lexer));
