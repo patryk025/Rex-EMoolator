@@ -42,7 +42,7 @@ public class FileUtils {
     public static String resolveRelativePath(Variable variable) {
         String filePath = variable.getAttribute("FILENAME").getValue().toString();
 
-        return resolveRelativePath(variable, filePath);
+        return convertToPlatformPath(resolveRelativePath(variable, filePath));
     }
 
     public static String resolveRelativePath(Variable variable, String filePath) {

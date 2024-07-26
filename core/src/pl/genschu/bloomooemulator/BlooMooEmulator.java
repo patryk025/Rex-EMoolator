@@ -95,7 +95,11 @@ public class BlooMooEmulator extends ApplicationAdapter {
                     } catch(NullPointerException e) {
                         batch.setColor(1, 1, 1, 1);
                     }
-                    batch.draw(image.getImageTexture(), image.offsetX, Gdx.graphics.getHeight()-image.offsetY-image.height, image.width, image.height);
+                    try {
+                        batch.draw(image.getImageTexture(), image.offsetX, Gdx.graphics.getHeight()-image.offsetY-image.height, image.width, image.height);
+                    } catch(NullPointerException ignored) {
+                        // skip for now
+                    }
                 }
             }
             // TODO: system animacji
