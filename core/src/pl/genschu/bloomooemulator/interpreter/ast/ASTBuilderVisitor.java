@@ -129,7 +129,9 @@ public class ASTBuilderVisitor extends AidemMediaBaseVisitor<Node> {
 				operands.add(new OperatorExpression(ctx.getChild(i).getText().trim()));
 			}
 			else {
-				operands.add((Expression) visit(ctx.getChild(i)));
+                Expression operand = (Expression) visit(ctx.getChild(i));
+                if(operand != null)
+				    operands.add(operand);
 			}
 		}
 
