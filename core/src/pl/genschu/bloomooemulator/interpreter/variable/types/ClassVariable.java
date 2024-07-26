@@ -49,6 +49,8 @@ public class ClassVariable extends Variable {
 						Gdx.app.error("Game", "Error while loading class " + className + " to variable " + ClassVariable.this.getName() + ":\n" + e.getMessage());
 						return null;
 					}
+				} else {
+					Gdx.app.error("Game", "Class definition " + className + " doesn't exist. Instance will be empty.");
 				}
 
 				String varName = arguments.get(0).toString();

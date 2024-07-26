@@ -13,6 +13,9 @@ import java.util.List;
 
 public class ImageVariable extends Variable {
 	Image image;
+	private int posX;
+	private int posY;
+	private int opacity;
 
 	public ImageVariable(String name, Context context) {
 		super(name, context);
@@ -57,8 +60,7 @@ public class ImageVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				// TODO: implement this method
-				throw new ClassMethodNotImplementedException("Method GETPOSITIONX is not implemented yet");
+				return new IntegerVariable("", posX, context);
 			}
 		});
 		this.setMethod("GETPOSITIONY", new Method(
@@ -66,8 +68,7 @@ public class ImageVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				// TODO: implement this method
-				throw new ClassMethodNotImplementedException("Method GETPOSITIONY is not implemented yet");
+				return new IntegerVariable("", posY, context);
 			}
 		});
 		this.setMethod("GETWIDTH", new Method(
@@ -75,8 +76,7 @@ public class ImageVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				// TODO: implement this method
-				throw new ClassMethodNotImplementedException("Method GETWIDTH is not implemented yet");
+				return new IntegerVariable("", image.width, context);
 			}
 		});
 		this.setMethod("HIDE", new Method(
@@ -84,8 +84,8 @@ public class ImageVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				// TODO: implement this method
-				throw new ClassMethodNotImplementedException("Method HIDE is not implemented yet");
+				setAttribute("VISIBLE", "FALSE");
+				return null;
 			}
 		});
 		this.setMethod("INVALIDATE", new Method(
@@ -132,8 +132,11 @@ public class ImageVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				// TODO: implement this method
-				throw new ClassMethodNotImplementedException("Method MOVE is not implemented yet");
+				int offsetX = (int)((Variable) arguments.get(0)).getValue();
+				int offsetY = (int)((Variable) arguments.get(1)).getValue();
+				posX += offsetX;
+				posY += offsetY;
+				return null;
 			}
 		});
 		this.setMethod("SETCLIPPING", new Method(
@@ -159,8 +162,8 @@ public class ImageVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				// TODO: implement this method
-				throw new ClassMethodNotImplementedException("Method SETOPACITY is not implemented yet");
+				opacity = (int)((Variable) arguments.get(0)).getValue();
+				return null;
 			}
 		});
 		this.setMethod("SETPOSITION", new Method(
@@ -172,8 +175,9 @@ public class ImageVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				// TODO: implement this method
-				throw new ClassMethodNotImplementedException("Method SETPOSITION is not implemented yet");
+				posX = (int)((Variable) arguments.get(0)).getValue();
+				posY = (int)((Variable) arguments.get(1)).getValue();
+				return null;
 			}
 		});
 		this.setMethod("SETPRIORITY", new Method(
@@ -184,8 +188,8 @@ public class ImageVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				// TODO: implement this method
-				throw new ClassMethodNotImplementedException("Method SETPRIORITY is not implemented yet");
+				setAttribute("PRIORITY", (int)((Variable) arguments.get(0)).getValue() + "");
+				return null;
 			}
 		});
 		this.setMethod("SHOW", new Method(
@@ -193,8 +197,8 @@ public class ImageVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				// TODO: implement this method
-				throw new ClassMethodNotImplementedException("Method SHOW is not implemented yet");
+				setAttribute("VISIBLE", "TRUE");
+				return null;
 			}
 		});
 	}

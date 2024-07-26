@@ -10,6 +10,8 @@ import pl.genschu.bloomooemulator.interpreter.variable.Variable;
 import java.util.List;
 
 public class GroupVariable extends Variable {
+	List<Variable> variables;
+
 	public GroupVariable(String name, Context context) {
 		super(name, context);
 

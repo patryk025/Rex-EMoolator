@@ -2,6 +2,7 @@ package pl.genschu.bloomooemulator;
 import com.badlogic.gdx.Application;
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.utils.Logger;
@@ -79,6 +80,7 @@ public class BlooMooEmulator extends ApplicationAdapter {
         batch.setProjectionMatrix(camera.combined);
 
         batch.begin();
+        batch.setBlendFunction(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
 
         for(String key : context.getGraphicsVariables().keySet()) {
             Variable variable = context.getGraphicsVariables().get(key);
@@ -88,6 +90,11 @@ public class BlooMooEmulator extends ApplicationAdapter {
                         variable.getAttribute("VISIBLE").getValue().toString().equals("TRUE")
                     &&  variable.getAttribute("TOCANVAS").getValue().toString().equals("TRUE")
                 ) {
+                    try {
+                        batch.setColor(1, 1, 1, ((int) variable.getAttribute("OPACITY").getValue()) / 255f);
+                    } catch(NullPointerException e) {
+                        batch.setColor(1, 1, 1, 1);
+                    }
                     batch.draw(image.getImageTexture(), image.offsetX, Gdx.graphics.getHeight()-image.offsetY-image.height, image.width, image.height);
                 }
             }
