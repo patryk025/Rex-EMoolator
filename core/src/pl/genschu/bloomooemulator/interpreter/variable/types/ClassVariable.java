@@ -18,7 +18,6 @@ import java.util.Map;
 import java.util.Objects;
 
 public class ClassVariable extends Variable {
-	private final Map<String, Context> classContexts = new HashMap<>();
 	private final CNVParser cnvParser = new CNVParser();
 
 	public ClassVariable(String name, Context context) {
@@ -34,6 +33,8 @@ public class ClassVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				String className = getAttribute("DEF").getValue().toString();
+				// classes are in common/classes/ directory
+				className = "$COMMON/classes/" + className;
 				Gdx.app.log("ClassVariable", "Loading class " + className);
 				Context classContext = new Context();
 				classContext.setParentContext(context);
@@ -98,18 +99,6 @@ public class ClassVariable extends Variable {
 				return null;
 			}
 		});
-	}
-
-	@Override
-	public Method getMethod(String name, List<String> paramTypes) {
-		Context classContext = classContexts.get(this.getName());
-		if (classContext != null) {
-			Variable methodVar = classContext.getVariable(name, null);
-			if (methodVar instanceof BehaviourVariable) {
-				return methodVar.getMethod("RUN", paramTypes);
-			}
-		}
-		return super.getMethod(name, paramTypes);
 	}
 
 	@Override
