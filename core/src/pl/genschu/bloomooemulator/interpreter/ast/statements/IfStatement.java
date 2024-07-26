@@ -43,7 +43,7 @@ public class IfStatement extends Statement {
                 try {
                     variable.getMethod("RUN", Collections.singletonList("mixed")).execute(null);
                 } catch (Exception e) {
-                    Gdx.app.error("Game", "Error while running "+variable.getName()+" BEHAVIOUR in if instruction: " + e.getMessage());
+                    Gdx.app.error("IfStatement", "Error while running "+variable.getName()+" BEHAVIOUR in if instruction: " + e.getMessage(), e);
                 }
             }
         }

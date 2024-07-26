@@ -54,12 +54,23 @@ public class BehaviourVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				// TODO: przepakowanie argumentów do $1, $2, $3 itd.
+				if(arguments == null) {
+					arguments = List.of();
+				}
+
+				for(int i = 0; i < arguments.size(); i++) {
+					context.setVariable("$"+(i+1), (Variable) arguments.get(i));
+				}
+
 				if(interpreter == null) {
 					Gdx.app.error("BehaviourVariable", "Interpreter is null");
 					return null;
 				}
 				interpreter.interpret();
+
+				for(int i = 0; i < arguments.size(); i++) {
+					context.removeVariable("$"+(i+1));
+				}
 				return (Variable) interpreter.getReturnValue();
 			}
 		});

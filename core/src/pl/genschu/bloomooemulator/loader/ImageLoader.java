@@ -1,8 +1,10 @@
 package pl.genschu.bloomooemulator.loader;
 
+import com.badlogic.gdx.Gdx;
 import pl.genschu.bloomooemulator.interpreter.variable.types.AnimoVariable;
 import pl.genschu.bloomooemulator.interpreter.variable.types.ImageVariable;
 import pl.genschu.bloomooemulator.objects.Image;
+import pl.genschu.bloomooemulator.utils.FileUtils;
 
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -13,23 +15,11 @@ import java.nio.charset.StandardCharsets;
 
 public class ImageLoader {
     public static void loadImage(ImageVariable variable) {
-        String filePath = variable.getAttribute("FILENAME").getValue().toString();
-        if(filePath.startsWith("$")) {
-            if(filePath.contains("$COMMON"))
-                filePath = filePath.replace("$COMMON", variable.getContext().getGame().getCommonFolder().getAbsolutePath());
-            else if(filePath.contains("$WAVS"))
-                filePath = filePath.replace("$WAVS", variable.getContext().getGame().getWavsFolder().getAbsolutePath());
-            else
-                filePath = filePath.replace("$", variable.getContext().getGame().getDaneFolder().getAbsolutePath());
-        }
-        else {
-            // probably is relative path
-            filePath = variable.getContext().getGame().getCurrentSceneFile().getAbsolutePath() + "/" + filePath;
-        }
+        String filePath = FileUtils.resolveRelativePath(variable);
         try (FileInputStream f = new FileInputStream(filePath)) {
             readImage(variable, f);
         } catch (IOException e) {
-            e.printStackTrace();
+            Gdx.app.error("ImageLoader", "Error while loading IMG: " + e.getMessage());
         }
     }
 

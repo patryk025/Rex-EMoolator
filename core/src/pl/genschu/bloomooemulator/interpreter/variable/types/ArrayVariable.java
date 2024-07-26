@@ -6,12 +6,18 @@ import pl.genschu.bloomooemulator.interpreter.variable.Attribute;
 import pl.genschu.bloomooemulator.interpreter.variable.Method;
 import pl.genschu.bloomooemulator.interpreter.variable.Parameter;
 import pl.genschu.bloomooemulator.interpreter.variable.Variable;
+import pl.genschu.bloomooemulator.loader.ArrayLoader;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class ArrayVariable extends Variable {
+	List<Variable> elements;
+
 	public ArrayVariable(String name, Context context) {
 		super(name, context);
+
+		this.elements = new ArrayList<>();
 
 		this.setMethod("ADD", new Method(
 			List.of(
@@ -21,8 +27,10 @@ public class ArrayVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				// TODO: implement this method
-				throw new ClassMethodNotImplementedException("Method ADD is not implemented yet");
+				for(Object argument : arguments) {
+					elements.add((Variable) argument);
+				}
+				return null;
 			}
 		});
 		this.setMethod("ADDAT", new Method(
@@ -103,27 +111,18 @@ public class ArrayVariable extends Variable {
 		});
 		this.setMethod("GET", new Method(
 			List.of(
-				new Parameter("INTEGER", "index", true)
-			),
-			"mixed"
-		) {
-			@Override
-			public Variable execute(List<Object> arguments) {
-				// TODO: implement this method
-				throw new ClassMethodNotImplementedException("Method GET is not implemented yet");
-			}
-		});
-		this.setMethod("GET", new Method(
-			List.of(
 				new Parameter("INTEGER", "index", true),
-				new Parameter("mixed", "default", true)
+				new Parameter("mixed", "default", false)
 			),
 			"mixed"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				// TODO: implement this method
-				throw new ClassMethodNotImplementedException("Method GET is not implemented yet");
+				try {
+					return elements.get((int)((Variable) arguments.get(0)).getValue());
+				} catch (IndexOutOfBoundsException e) {
+					return (Variable) arguments.get(1);
+				}
 			}
 		});
 		this.setMethod("GETSIZE", new Method(
@@ -131,8 +130,7 @@ public class ArrayVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				// TODO: implement this method
-				throw new ClassMethodNotImplementedException("Method GETSIZE is not implemented yet");
+				return new IntegerVariable("", elements.size(), context);
 			}
 		});
 		this.setMethod("GETSUMVALUE", new Method(
@@ -159,15 +157,16 @@ public class ArrayVariable extends Variable {
 		});
 		this.setMethod("LOAD", new Method(
 			List.of(
-				new Parameter("INTEGER", "index", true),
 				new Parameter("mixed", "value", true)
 			),
 			"void"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				// TODO: implement this method
-				throw new ClassMethodNotImplementedException("Method LOAD is not implemented yet");
+				elements.clear();
+				StringVariable var = (StringVariable) arguments.get(0);
+				ArrayLoader.loadArray(ArrayVariable.this, var.getValue().toString());
+				return null;
 			}
 		});
 		this.setMethod("LOADINI", new Method(
@@ -222,8 +221,8 @@ public class ArrayVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				// TODO: implement this method
-				throw new ClassMethodNotImplementedException("Method REMOVEALL is not implemented yet");
+				elements.clear();
+				return null;
 			}
 		});
 		this.setMethod("REMOVEAT", new Method(
@@ -320,4 +319,11 @@ public class ArrayVariable extends Variable {
 		return; // no fields in this class
 	}
 
+	public List<Variable> getElements() {
+		return elements;
+	}
+
+	public void setElements(List<Variable> elements) {
+		this.elements = elements;
+	}
 }

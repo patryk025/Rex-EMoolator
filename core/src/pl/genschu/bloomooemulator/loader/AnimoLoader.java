@@ -1,9 +1,11 @@
 package pl.genschu.bloomooemulator.loader;
 
+import com.badlogic.gdx.Gdx;
 import pl.genschu.bloomooemulator.interpreter.variable.types.AnimoVariable;
 import pl.genschu.bloomooemulator.objects.Event;
 import pl.genschu.bloomooemulator.objects.FrameData;
 import pl.genschu.bloomooemulator.objects.Image;
+import pl.genschu.bloomooemulator.utils.FileUtils;
 
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -16,13 +18,13 @@ import java.util.*;
 public class AnimoLoader {
 
     public static void loadAnimo(AnimoVariable variable) {
-        String filePath = variable.getAttribute("FILENAME").getValue().toString();
+        String filePath = FileUtils.resolveRelativePath(variable);
         try (FileInputStream f = new FileInputStream(filePath)) {
             readHeader(variable, f);
             readEvents(variable, f);
             readImagesMetadata(variable, f);
         } catch (IOException e) {
-            e.printStackTrace();
+            Gdx.app.error("Animo loader", "Error while loading ANIMO: " + e.getMessage());
         }
     }
 

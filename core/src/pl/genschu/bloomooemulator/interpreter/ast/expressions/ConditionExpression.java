@@ -1,5 +1,6 @@
 package pl.genschu.bloomooemulator.interpreter.ast.expressions;
 
+import com.badlogic.gdx.Gdx;
 import pl.genschu.bloomooemulator.interpreter.Context;
 import pl.genschu.bloomooemulator.interpreter.ast.Expression;
 import pl.genschu.bloomooemulator.interpreter.logic.LogicSolver;
@@ -27,7 +28,7 @@ public class ConditionExpression extends Expression {
 
         assert leftValue != null;
         assert rightValue != null;
-        System.out.println("DEBUG: " + leftValue.getValue() + " " + operator + " " + rightValue.getValue() + " = " + result);
+        Gdx.app.log("ConditionExpression", "DEBUG: " + leftValue.getValue() + " " + operator + " " + rightValue.getValue() + " = " + result);
         return new ConstantExpression(result);
     }
 
