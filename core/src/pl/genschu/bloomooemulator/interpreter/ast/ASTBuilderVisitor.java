@@ -109,6 +109,11 @@ public class ASTBuilderVisitor extends AidemMediaBaseVisitor<Node> {
     }
 
     @Override
+    public Node visitLogic(AidemMediaParser.LogicContext ctx) {
+        return new ConstantExpression(ctx.getText());
+    }
+
+    @Override
     public Node visitStringRef(AidemMediaParser.StringRefContext ctx) {
         if(ctx.expression() != null) {
             return new PointerExpression((Expression) visit(ctx.expression()));
