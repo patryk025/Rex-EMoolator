@@ -29,6 +29,9 @@ public class VariableHelper {
                 return context.getVariable(valueString.toString(), null);
             }
 
+            if(valueString.toString().equals("_I_")) {
+                return context.getVariable(valueString.toString(), null);
+            }
             return new StringVariable("", valueString.toString(), context);
         }
         else if(value instanceof VariableExpression) {

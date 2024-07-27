@@ -22,8 +22,8 @@ public class ConditionExpression extends Expression {
 
     @Override
     public Object evaluate(Context context) {
-        Variable leftValue = getVariableFromObject(left, context);
-        Variable rightValue = getVariableFromObject(right, context);
+        Variable leftValue = getVariableFromObject(left, context, true);
+        Variable rightValue = getVariableFromObject(right, context, true);
         Object result = performOperation(leftValue, rightValue, operator).getValue();
 
         assert leftValue != null;
