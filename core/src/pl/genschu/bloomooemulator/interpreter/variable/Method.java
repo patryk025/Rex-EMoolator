@@ -17,11 +17,14 @@ public abstract class Method {
         this.returnType = returnType;
         List<String> parameterTypes = new ArrayList<>();
         for (Parameter parameter : parameters) {
-            if(parameter.isMandatory()) {
-                parameterTypes.add(parameter.getType());
+            String type = parameter.getType();
+            if(!parameter.isMandatory()) {
+                type = type + "?";
             }
-            else {
-                parameterTypes.add(parameter.getType() + "?");
+            if(parameter.isVarArgs()) {
+                parameterTypes.add(type + "...");
+            } else {
+                parameterTypes.add(type);
             }
         }
         this.parameterTypes = parameterTypes;
@@ -32,7 +35,7 @@ public abstract class Method {
     }
 
     public List<String> getParameterTypes() {
-        return parameterTypes;
+        return new ArrayList<>(parameterTypes);
     }
 
     public String getReturnType() {

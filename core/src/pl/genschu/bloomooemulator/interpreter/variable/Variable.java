@@ -169,6 +169,27 @@ public abstract class Variable {
 			for (Method method : methodList) {
 				List<String> methodParamTypes = method.getParameterTypes();
 
+				int argsCount = paramTypes.size();
+
+				for(int i = 0; i < methodParamTypes.size(); i++) {
+					String methodParamType = methodParamTypes.get(i);
+					if(methodParamType.endsWith("...")) {
+						if(i != methodParamTypes.size() - 1) {
+							Gdx.app.error("Variable", "VarArgs can be only the last parameter in method " + name + ". Other situations are not supported for now. Probably it's a error in method definition.");
+						}
+						else {
+							String tmpMethodParamType = methodParamType.substring(0, methodParamType.length() - 3);
+							methodParamTypes = methodParamTypes.subList(0, i);
+
+							while(methodParamTypes.size() < argsCount) {
+								methodParamTypes.add(tmpMethodParamType);
+							}
+						}
+
+						break;
+					}
+				}
+
 				if (isParameterListMatching(methodParamTypes, paramTypes)) {
 					return method;
 				}
@@ -212,6 +233,10 @@ public abstract class Variable {
 		}
 
 		if (methodParamType.equals(paramType)) {
+			return true;
+		}
+
+		if(methodParamType.equals("mixed")) {
 			return true;
 		}
 
