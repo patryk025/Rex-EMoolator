@@ -1,5 +1,7 @@
 package pl.genschu.bloomooemulator.interpreter.variable.types;
 
+import com.badlogic.gdx.Gdx;
+import pl.genschu.bloomooemulator.interpreter.exceptions.ClassMethodNotFoundException;
 import pl.genschu.bloomooemulator.interpreter.exceptions.ClassMethodNotImplementedException;
 import pl.genschu.bloomooemulator.interpreter.Context;
 import pl.genschu.bloomooemulator.interpreter.variable.Attribute;
@@ -7,6 +9,7 @@ import pl.genschu.bloomooemulator.interpreter.variable.Method;
 import pl.genschu.bloomooemulator.interpreter.variable.Parameter;
 import pl.genschu.bloomooemulator.interpreter.variable.Variable;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class GroupVariable extends Variable {
@@ -15,28 +18,21 @@ public class GroupVariable extends Variable {
 	public GroupVariable(String name, Context context) {
 		super(name, context);
 
-		this.setMethod("[nazwa metody]", new Method(
-			List.of(
-				new Parameter("mixed", "param1...paramN", true)
-			),
-			"void"
-		) {
-			@Override
-			public Variable execute(List<Object> arguments) {
-				// TODO: implement this method
-				throw new ClassMethodNotImplementedException("Method [nazwa metody] is not implemented yet");
-			}
-		});
+		this.variables = new ArrayList<>();
+
 		this.setMethod("ADD", new Method(
 			List.of(
-				new Parameter("STRING", "varName1...varNameN", true)
+				new Parameter("mixed", "varName1...varNameN", true)
 			),
 			"void"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				// TODO: implement this method
-				throw new ClassMethodNotImplementedException("Method ADD is not implemented yet");
+				for(Object argument : arguments) {
+					Variable variable = (Variable) argument;
+					variables.add(variable);
+				}
+				return null;
 			}
 		});
 		this.setMethod("ADDCLONES", new Method(
@@ -110,6 +106,30 @@ public class GroupVariable extends Variable {
 				throw new ClassMethodNotImplementedException("Method RESETMARKER is not implemented yet");
 			}
 		});
+	}
+
+	@Override
+	public Method getMethod(String name, List<String> paramTypes) {
+		try {
+			return super.getMethod(name, paramTypes);
+		} catch (ClassMethodNotFoundException e) {
+			Gdx.app.log("GroupVariable", "Firing method " + name + " on every variable in group " + this.getName());
+			return new Method("void") {
+
+				@Override
+				public Variable execute(List<Object> arguments) {
+					for(Variable variable : variables) {
+						try {
+							variable.getMethod(name, paramTypes).execute(arguments);
+						} catch (ClassMethodNotFoundException | ClassMethodNotImplementedException ignored) {
+							// nothing to do
+						}
+					}
+
+					return null;
+				}
+			};
+		}
 	}
 
 	@Override

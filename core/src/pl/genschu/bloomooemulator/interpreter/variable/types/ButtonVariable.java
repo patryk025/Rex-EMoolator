@@ -18,8 +18,9 @@ public class ButtonVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				// TODO: implement this method
-				throw new ClassMethodNotImplementedException("Method DISABLE is not implemented yet");
+				setAttribute("ENABLE", new Attribute("BOOL", "FALSE"));
+				setAttribute("VISIBLE", new Attribute("BOOL", "FALSE"));
+				return null;
 			}
 		});
 		this.setMethod("DISABLEBUTVISIBLE", new Method(
@@ -27,8 +28,9 @@ public class ButtonVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				// TODO: implement this method
-				throw new ClassMethodNotImplementedException("Method DISABLEBUTVISIBLE is not implemented yet");
+				setAttribute("ENABLE", new Attribute("BOOL", "FALSE"));
+				setAttribute("VISIBLE", new Attribute("BOOL", "TRUE"));
+				return null;
 			}
 		});
 		this.setMethod("ENABLE", new Method(
@@ -36,8 +38,9 @@ public class ButtonVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				// TODO: implement this method
-				throw new ClassMethodNotImplementedException("Method ENABLE is not implemented yet");
+				setAttribute("ENABLE", new Attribute("BOOL", "TRUE"));
+				setAttribute("VISIBLE", new Attribute("BOOL", "TRUE"));
+				return null;
 			}
 		});
 		this.setMethod("SETPRIORITY", new Method(
@@ -48,8 +51,8 @@ public class ButtonVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				// TODO: implement this method
-				throw new ClassMethodNotImplementedException("Method SETPRIORITY is not implemented yet");
+				setAttribute("PRIORITY", new Attribute("PRIORITY", arguments.get(0).toString()));
+				return null;
 			}
 		});
 		this.setMethod("SETRECT", new Method(
@@ -81,20 +84,8 @@ public class ButtonVariable extends Variable {
 		});
 		this.setMethod("SETSTD", new Method(
 			List.of(
-				new Parameter("STRING", "varName", true)
-			),
-			"void"
-		) {
-			@Override
-			public Variable execute(List<Object> arguments) {
-				// TODO: implement this method
-				throw new ClassMethodNotImplementedException("Method SETSTD is not implemented yet");
-			}
-		});
-		this.setMethod("SETSTD", new Method(
-			List.of(
 				new Parameter("STRING", "varName", true),
-				new Parameter("BOOLEAN", "unknown", true)
+				new Parameter("BOOLEAN", "unknown", false)
 			),
 			"void"
 		) {

@@ -138,11 +138,11 @@ public abstract class Variable {
 		Method method = this.getMethod(methodName, paramsTypes);
 		try {
 			return method.execute(List.of(params));
-		} catch (ClassMethodNotFoundException | ClassMethodNotImplementedException e) {
+		} catch (ClassMethodNotFoundException | ClassMethodNotImplementedException | ClassCastException e) {
 			Gdx.app.error("Variable", "Method call error in class " + this.getType() + ": " + e.getMessage());
 			return null;
 		}
-	}
+    }
 
 	public void setAttribute(String name, Attribute attribute) {
 		attributes.put(name, attribute);

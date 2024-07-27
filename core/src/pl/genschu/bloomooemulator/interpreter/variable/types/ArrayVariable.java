@@ -119,7 +119,7 @@ public class ArrayVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				try {
-					return elements.get((int)((Variable) arguments.get(0)).getValue());
+					return elements.get(Integer.parseInt(((Variable) arguments.get(0)).getValue().toString()));
 				} catch (IndexOutOfBoundsException e) {
 					return (Variable) arguments.get(1);
 				}

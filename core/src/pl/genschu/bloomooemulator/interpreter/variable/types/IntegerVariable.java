@@ -8,6 +8,9 @@ import pl.genschu.bloomooemulator.interpreter.variable.Parameter;
 import pl.genschu.bloomooemulator.interpreter.variable.Variable;
 
 import java.util.List;
+import java.util.Random;
+
+import static pl.genschu.bloomooemulator.interpreter.util.VariableHelper.getValueFromString;
 
 public class IntegerVariable extends Variable {
 	public IntegerVariable(String name, int value, Context context) {
@@ -22,8 +25,9 @@ public class IntegerVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				// TODO: implement this method
-				throw new ClassMethodNotImplementedException("Method ABS is not implemented yet");
+				int result = Math.abs(GET());
+				getAttribute("VALUE").setValue(result);
+				return IntegerVariable.this;
 			}
 		});
 		this.setMethod("ADD", new Method(
@@ -34,8 +38,9 @@ public class IntegerVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				// TODO: implement this method
-				throw new ClassMethodNotImplementedException("Method ADD is not implemented yet");
+				int result = GET() + getValueFromString((Variable) arguments.get(0));
+				getAttribute("VALUE").setValue(result);
+				return IntegerVariable.this;
 			}
 		});
 		this.setMethod("AND", new Method(
@@ -59,8 +64,18 @@ public class IntegerVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				// TODO: implement this method
-				throw new ClassMethodNotImplementedException("Method CLAMP is not implemented yet");
+				int currentValue = GET();
+				int rangeMin = getValueFromString((Variable) arguments.get(0));
+				int rangeMax = getValueFromString((Variable) arguments.get(1));
+
+				if (currentValue < rangeMin) {
+					currentValue = rangeMin;
+				} else if (currentValue > rangeMax) {
+					currentValue = rangeMax;
+				}
+
+				getAttribute("VALUE").setValue(currentValue);
+				return IntegerVariable.this;
 			}
 		});
 		this.setMethod("DEC", new Method(
@@ -68,8 +83,9 @@ public class IntegerVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				// TODO: implement this method
-				throw new ClassMethodNotImplementedException("Method DEC is not implemented yet");
+				int result = GET() - 1;
+				getAttribute("VALUE").setValue(result);
+				return IntegerVariable.this;
 			}
 		});
 		this.setMethod("DIV", new Method(
@@ -80,8 +96,9 @@ public class IntegerVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				// TODO: implement this method
-				throw new ClassMethodNotImplementedException("Method DIV is not implemented yet");
+				int result = GET() / getValueFromString((Variable) arguments.get(0));
+				getAttribute("VALUE").setValue(result);
+				return IntegerVariable.this;
 			}
 		});
 		this.setMethod("INC", new Method(
@@ -89,8 +106,9 @@ public class IntegerVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				// TODO: implement this method
-				throw new ClassMethodNotImplementedException("Method INC is not implemented yet");
+				int result = GET() + 1;
+				getAttribute("VALUE").setValue(result);
+				return IntegerVariable.this;
 			}
 		});
 		this.setMethod("LENGTH", new Method(
@@ -114,45 +132,42 @@ public class IntegerVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				// TODO: implement this method
-				throw new ClassMethodNotImplementedException("Method MOD is not implemented yet");
+				int result = GET() % ((int) ((Variable) arguments.get(0)).getValue());
+				getAttribute("VALUE").setValue(result);
+				return IntegerVariable.this;
 			}
 		});
 		this.setMethod("MUL", new Method(
 			List.of(
-				new Parameter("INTEGER", "divisor", true)
+				new Parameter("INTEGER", "multiplier", true)
 			),
 			"INTEGER"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				// TODO: implement this method
-				throw new ClassMethodNotImplementedException("Method MUL is not implemented yet");
+				int result = GET() * getValueFromString((Variable) arguments.get(0));
+				getAttribute("VALUE").setValue(result);
+				return IntegerVariable.this;
 			}
 		});
 		this.setMethod("RANDOM", new Method(
 			List.of(
-				new Parameter("INTEGER", "rangeMax", true)
+				new Parameter("INTEGER", "param1", true),
+				new Parameter("INTEGER", "param2", false)
 			),
 			"INTEGER"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				// TODO: implement this method
-				throw new ClassMethodNotImplementedException("Method RANDOM is not implemented yet");
-			}
-		});
-		this.setMethod("RANDOM", new Method(
-			List.of(
-				new Parameter("INTEGER", "offset", true),
-				new Parameter("INTEGER", "rangeMax", true)
-			),
-			"INTEGER"
-		) {
-			@Override
-			public Variable execute(List<Object> arguments) {
-				// TODO: implement this method
-				throw new ClassMethodNotImplementedException("Method RANDOM is not implemented yet");
+				if(arguments.size() == 1) {
+					int result = new Random().nextInt(getValueFromString((Variable) arguments.get(0)));
+					getAttribute("VALUE").setValue(result);
+					return IntegerVariable.this;
+				} else {
+					int result = new Random().nextInt(getValueFromString((Variable) arguments.get(0)), getValueFromString((Variable) arguments.get(1)));
+					getAttribute("VALUE").setValue(result);
+					return IntegerVariable.this;
+				}
 			}
 		});
 		this.setMethod("SET", new Method(
@@ -176,8 +191,9 @@ public class IntegerVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				// TODO: implement this method
-				throw new ClassMethodNotImplementedException("Method SUB is not implemented yet");
+				int result = GET() - getValueFromString((Variable) arguments.get(0));
+				getAttribute("VALUE").setValue(result);
+				return IntegerVariable.this;
 			}
 		});
 	}

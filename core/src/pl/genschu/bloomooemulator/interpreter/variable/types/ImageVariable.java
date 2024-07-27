@@ -11,6 +11,8 @@ import pl.genschu.bloomooemulator.objects.Image;
 
 import java.util.List;
 
+import static pl.genschu.bloomooemulator.interpreter.util.VariableHelper.getValueFromString;
+
 public class ImageVariable extends Variable {
 	Image image;
 	private int posX;
@@ -132,8 +134,8 @@ public class ImageVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				int offsetX = (int)((Variable) arguments.get(0)).getValue();
-				int offsetY = (int)((Variable) arguments.get(1)).getValue();
+				int offsetX = getValueFromString((Variable) arguments.get(0));
+				int offsetY = getValueFromString((Variable) arguments.get(1));
 				posX += offsetX;
 				posY += offsetY;
 				return null;
@@ -162,7 +164,7 @@ public class ImageVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				opacity = (int)((Variable) arguments.get(0)).getValue();
+				opacity = getValueFromString((Variable) arguments.get(0));
 				return null;
 			}
 		});
@@ -175,8 +177,8 @@ public class ImageVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				posX = (int)((Variable) arguments.get(0)).getValue();
-				posY = (int)((Variable) arguments.get(1)).getValue();
+				posX = getValueFromString((Variable) arguments.get(0));
+				posY = getValueFromString((Variable) arguments.get(1));
 				return null;
 			}
 		});
@@ -188,7 +190,7 @@ public class ImageVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				setAttribute("PRIORITY", (int)((Variable) arguments.get(0)).getValue() + "");
+				setAttribute("PRIORITY", getValueFromString((Variable) arguments.get(0)) + "");
 				return null;
 			}
 		});
@@ -225,5 +227,29 @@ public class ImageVariable extends Variable {
 
 	public void setImage(Image image) {
 		this.image = image;
+	}
+
+	public int getPosX() {
+		return posX;
+	}
+
+	public void setPosX(int posX) {
+		this.posX = posX;
+	}
+
+	public int getPosY() {
+		return posY;
+	}
+
+	public void setPosY(int posY) {
+		this.posY = posY;
+	}
+
+	public int getOpacity() {
+		return opacity;
+	}
+
+	public void setOpacity(int opacity) {
+		this.opacity = opacity;
 	}
 }
