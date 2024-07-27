@@ -42,7 +42,7 @@ public class ASTBuilderVisitor extends AidemMediaBaseVisitor<Node> {
         }
 
         Expression targetExpression;
-        if (ctx.literal() != null) {
+        if (ctx.literal() != null && ctx.literal().size() == 2) {
             targetExpression = new VariableExpression(ctx.literal(0).getText());
         } else if (ctx.iterator() != null) {
             targetExpression = new VariableExpression("_I_");

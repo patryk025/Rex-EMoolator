@@ -26,8 +26,9 @@ public class BoolVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				// TODO: implement this method
-				throw new ClassMethodNotImplementedException("Method SET is not implemented yet");
+				Object value = ((Variable) arguments.get(0)).getValue();
+				getAttribute("VALUE").setValue(value);
+				return null;
 			}
 		});
 		this.setMethod("SWITCH", new Method(

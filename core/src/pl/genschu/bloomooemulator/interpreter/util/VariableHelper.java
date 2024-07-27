@@ -19,7 +19,7 @@ public class VariableHelper {
             return VariableFactory.createVariableWithAutoType("",  ((ConstantExpression) ((ArithmeticExpression) value).evaluate(context)).evaluate(null).toString(), context);
         }
         else if(value instanceof ConstantExpression) {
-            Object valueString = ((ConstantExpression) value).evaluate(null);
+            Object valueString = ((ConstantExpression) value).evaluate(context);
 
             if(resolveString) {
                 if(!context.hasVariable(valueString.toString())) {
