@@ -6,6 +6,7 @@ import pl.genschu.bloomooemulator.interpreter.variable.Attribute;
 import pl.genschu.bloomooemulator.interpreter.variable.Method;
 import pl.genschu.bloomooemulator.interpreter.variable.Parameter;
 import pl.genschu.bloomooemulator.interpreter.variable.Variable;
+import pl.genschu.bloomooemulator.loader.AnimoLoader;
 import pl.genschu.bloomooemulator.objects.Event;
 import pl.genschu.bloomooemulator.objects.Image;
 
@@ -659,6 +660,13 @@ public class AnimoVariable extends Variable {
 		}
 	}
 
+	@Override
+	public Method getMethod(String name, List<String> paramTypes) {
+		if(events == null)
+			AnimoLoader.loadAnimo(this);
+		return super.getMethod(name, paramTypes);
+	}
+
 	public int getImagesCount() {
 		return imagesCount;
 	}
@@ -773,6 +781,9 @@ public class AnimoVariable extends Variable {
 	}
 
 	public Image getCurrentImage() {
+		if(currentImage == null) {
+			currentImage = currentEvent.getFrames().get(currentImageNumber);
+		}
 		return currentImage;
 	}
 

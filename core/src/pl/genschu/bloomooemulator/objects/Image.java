@@ -122,7 +122,7 @@ public class Image {
                 int rgb565 = (imageData[i] & 0xFF) + ((imageData[i + 1] & 0xFF) << 8);
                 rgb888 = this.convertRgbToRgb888(rgb565, colorDepth);
             }
-            int alpha = alphaData != null ? alphaData[counter] & 0xFF : 255;
+            int alpha = alphaData != null && alphaData.length > 0 ? alphaData[counter] & 0xFF : 255;
 
             pixmap.drawPixel(counter % width, counter / width, Color.rgba8888(rgb888[0] / 255f, rgb888[1] / 255f, rgb888[2] / 255f, alpha / 255f));
             counter++;

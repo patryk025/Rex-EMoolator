@@ -18,13 +18,15 @@ import java.util.*;
 public class AnimoLoader {
 
     public static void loadAnimo(AnimoVariable variable) {
+        Gdx.app.log("AnimoLoader", "Loading ANIMO: " + variable.getName());
         String filePath = FileUtils.resolveRelativePath(variable);
         try (FileInputStream f = new FileInputStream(filePath)) {
             readHeader(variable, f);
             readEvents(variable, f);
             readImagesMetadata(variable, f);
-        } catch (IOException e) {
-            Gdx.app.error("Animo loader", "Error while loading ANIMO: " + e.getMessage());
+            Gdx.app.log("AnimoLoader", "Loaded ANIMO: " + variable.getName());
+        } catch (Exception e) {
+            Gdx.app.error("Animo loader", "Error while loading ANIMO: " + e.getMessage(), e);
         }
     }
 
@@ -46,14 +48,19 @@ public class AnimoLoader {
 
         byte[] descriptionBytes = new byte[13];
         buffer.get(descriptionBytes);
-        String description = new String(descriptionBytes, StandardCharsets.UTF_8).split("\0")[0];
+
+        String description = "";
+        try {
+            description = new String(descriptionBytes, StandardCharsets.UTF_8).split("\0")[0];
+        } catch (ArrayIndexOutOfBoundsException ignored) {
+        }
 
         variable.setDescription(description);
 
         variable.setFps(buffer.getInt());
 
         buffer.position(buffer.position() + 4);
-        variable.setOpacity((int) buffer.get() & 0xFF);
+        variable.setOpacity(buffer.get() & 0xFF);
         buffer.position(buffer.position() + 12);
         int signature_length = buffer.getInt();
 
@@ -83,9 +90,9 @@ public class AnimoLoader {
             event.setFramesCount(buffer.getShort() & 0xFFFF);
             buffer.position(buffer.position() + 6);
             event.setLoopBy(buffer.getInt());
-            f.skip(4); // weird numbers
+            buffer.position(buffer.position() + 4); // weird numbers
             buffer.position(buffer.position() + 6);
-            event.setOpacity((int) buffer.get() & 0xFF);
+            event.setOpacity(buffer.get() & 0xFF);
 
             buffer.position(buffer.position() + 12);
 
@@ -116,7 +123,7 @@ public class AnimoLoader {
                 fbBuffer.position(fbBuffer.position() + 4);
                 frame.setSfxRandomSeed(fbBuffer.getInt());
                 fbBuffer.position(fbBuffer.position() + 4);
-                frame.setOpacity((int) fbBuffer.get() & 0xFF);
+                frame.setOpacity(fbBuffer.get() & 0xFF);
                 fbBuffer.position(fbBuffer.position() + 5);
                 int nameLength = fbBuffer.getInt();
 
@@ -156,11 +163,11 @@ public class AnimoLoader {
             Map<String, Object> metadata = new HashMap<>();
             metadata.put("width", buffer.getShort() & 0xFFFF);
             metadata.put("height", buffer.getShort() & 0xFFFF);
-            metadata.put("offset_x", buffer.getShort());
-            metadata.put("offset_y", buffer.getShort());
+            metadata.put("offset_x", (int) buffer.getShort());
+            metadata.put("offset_y", (int) buffer.getShort());
             metadata.put("compression_type", buffer.getShort() & 0xFFFF);
             metadata.put("image_size", buffer.getInt());
-            buffer.position(buffer.position() + 10);
+            buffer.position(buffer.position() + 14);
             metadata.put("alpha_size", buffer.getInt());
 
             byte[] nameBytes = new byte[20];
@@ -183,14 +190,14 @@ public class AnimoLoader {
             f.read(alphaData);
 
             Image image = new Image(
-                    (int) imageMetadata.get("width"),
-                    (int) imageMetadata.get("height"),
-                    (int) imageMetadata.get("offset_x"),
-                    (int) imageMetadata.get("offset_y"),
-                    (int) imageMetadata.get("compression_type"),
+                    ((Integer) imageMetadata.get("width")).intValue(),
+                    ((Integer) imageMetadata.get("height")).intValue(),
+                    ((Integer) imageMetadata.get("offset_x")).intValue(),
+                    ((Integer) imageMetadata.get("offset_y")).intValue(),
+                    variable.getColorDepth(),
                     imageData,
                     alphaData,
-                    (int) imageMetadata.get("compression_type")
+                    ((Integer) imageMetadata.get("compression_type")).intValue()
             );
             images.add(image);
         }
