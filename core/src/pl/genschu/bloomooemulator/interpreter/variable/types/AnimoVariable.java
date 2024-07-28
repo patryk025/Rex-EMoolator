@@ -648,12 +648,14 @@ public class AnimoVariable extends Variable {
 		if (elapsedTime >= frameDuration) {
 			elapsedTime -= frameDuration;
 			currentFrameNumber += direction;
-			currentImageNumber = currentEvent.getFramesNumbers().get(currentFrameNumber);
-			currentImage = currentEvent.getFrames().get(currentImageNumber);
 
 			if (currentFrameNumber >= currentEvent.getFrames().size()) {
 				currentFrameNumber = 0;
-				if(currentEvent.getLoopBy() == 0) {
+
+				currentImageNumber = currentEvent.getFramesNumbers().get(currentFrameNumber);
+				currentImage = currentEvent.getFrames().get(currentImageNumber);
+
+				if(currentEvent.getLoopBy() == 0) { // TODO: check, how this value works
 					isPlaying = false;
 				}
 			}

@@ -203,5 +203,19 @@ public class AnimoLoader {
         }
 
         variable.setImages(images);
+
+        // TODO: check default behaviour
+        variable.setImagesCount(images.size());
+        variable.setEventsCount(variable.getEvents().size());
+
+        for(Event event : variable.getEvents()) {
+            List<Image> eventFrames = new ArrayList<>();
+
+            for(Integer frameNumber : event.getFramesNumbers()) {
+                eventFrames.add(images.get(frameNumber));
+            }
+
+            event.setFrames(eventFrames);
+        }
     }
 }
