@@ -47,7 +47,7 @@ public class ASTBuilderVisitor extends AidemMediaBaseVisitor<Node> {
         } else if (ctx.iterator() != null) {
             targetExpression = new VariableExpression("_I_");
         } else if (ctx.stringRef() != null) {
-            targetExpression = new PointerExpression((Expression) visit(ctx.stringRef()));
+            targetExpression = (Expression) visit(ctx.stringRef());
         } else if (ctx.struct() != null) {
             targetExpression = (Expression) visit(ctx.struct());
         } else if (ctx.variable() != null) {

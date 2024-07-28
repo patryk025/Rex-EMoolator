@@ -51,7 +51,7 @@ public class SequenceVariable extends Variable {
 		});
 		this.setMethod("PLAY", new Method(
 			List.of(
-				new Parameter("String", "sequenceName", true)
+				new Parameter("STRING", "sequenceName", true)
 			),
 			"void"
 		) {

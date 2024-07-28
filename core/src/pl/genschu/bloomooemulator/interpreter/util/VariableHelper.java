@@ -16,7 +16,7 @@ public class VariableHelper {
             return (Variable) ((MethodCallExpression) value).evaluate(context);
         }
         else if(value instanceof ArithmeticExpression) {
-            return VariableFactory.createVariableWithAutoType("",  ((ConstantExpression) ((ArithmeticExpression) value).evaluate(context)).evaluate(null).toString(), context);
+            return VariableFactory.createVariableWithAutoType("",  ((ConstantExpression) ((ArithmeticExpression) value).evaluate(context)).evaluate(context).toString(), context);
         }
         else if(value instanceof ConstantExpression) {
             Object valueString = ((ConstantExpression) value).evaluate(context);
