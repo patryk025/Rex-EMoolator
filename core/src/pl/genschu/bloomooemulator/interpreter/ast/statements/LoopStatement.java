@@ -3,6 +3,7 @@ package pl.genschu.bloomooemulator.interpreter.ast.statements;
 import pl.genschu.bloomooemulator.interpreter.Context;
 import pl.genschu.bloomooemulator.interpreter.ast.Statement;
 import pl.genschu.bloomooemulator.interpreter.ast.Expression;
+import pl.genschu.bloomooemulator.interpreter.exceptions.ClassMethodNotFoundException;
 import pl.genschu.bloomooemulator.interpreter.variable.types.IntegerVariable;
 
 public class LoopStatement extends Statement {

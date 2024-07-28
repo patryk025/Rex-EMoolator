@@ -32,7 +32,7 @@ public class IntegerVariable extends Variable {
 		});
 		this.setMethod("ADD", new Method(
 			List.of(
-				new Parameter("INTEGER|DOUBLE", "addend", true)
+				new Parameter("INTEGER", "addend", true)
 			),
 			"INTEGER"
 		) {

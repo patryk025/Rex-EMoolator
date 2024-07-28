@@ -17,56 +17,52 @@ public class AnimoVariable extends Variable {
 	private int eventsCount = 0;
 	private String description;
 	private int fps;
+	private float frameDuration;
 	private int opacity;
 	private String signature;
 	private List<Event> events;
 	private List<Image> images;
 
-	// TODO: add fields with info about current played animation
+	private Event currentEvent;
+	private int currentFrameNumber = 0;
+	private int currentImageNumber = 0;
+	private Image currentImage;
+	private boolean isPlaying = false;
+	private int posX = 0;
+	private int posY = 0;
+	private int endPosX = 0;
+	private int endPosY = 0;
+	private int centerX = 0;
+	private int centerY = 0;
+	private int maxWidth = 0;
+	private int maxHeight = 0;
+	private int direction = 1;
+	private int priority = 0;
+	private float elapsedTime = 0f;
 
 	public AnimoVariable(String name, Context context) {
 		super(name, context);
 
 		this.setMethod("GETCENTERX", new Method(
-			"INTEGER"
-		) {
-			@Override
-			public Variable execute(List<Object> arguments) {
-				// TODO: implement this method
-				throw new ClassMethodNotImplementedException("Method GETCENTERX is not implemented yet");
-			}
-		});
-		this.setMethod("GETCENTERX", new Method(
 			List.of(
-				new Parameter("BOOL", "unknown", true)
+				new Parameter("BOOL", "unknown", false)
 			),
 			"INTEGER"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				// TODO: implement this method
-				throw new ClassMethodNotImplementedException("Method GETCENTERX is not implemented yet");
-			}
-		});
-		this.setMethod("GETCENTERY", new Method(
-			"INTEGER"
-		) {
-			@Override
-			public Variable execute(List<Object> arguments) {
-				// TODO: implement this method
-				throw new ClassMethodNotImplementedException("Method GETCENTERY is not implemented yet");
+				return new IntegerVariable("", centerX, context);
 			}
 		});
 		this.setMethod("GETCENTERY", new Method(
 			List.of(
-				new Parameter("BOOL", "unknown", true)
+				new Parameter("BOOL", "unknown", false)
 			),
 			"INTEGER"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				// TODO: implement this method
-				throw new ClassMethodNotImplementedException("Method GETCENTERY is not implemented yet");
+				return new IntegerVariable("", centerY, context);
 			}
 		});
 		this.setMethod("GETCFRAMEINEVENT", new Method(
@@ -74,20 +70,7 @@ public class AnimoVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				// TODO: implement this method
-				throw new ClassMethodNotImplementedException("Method GETCFRAMEINEVENT is not implemented yet");
-			}
-		});
-		this.setMethod("GETCFRAMEINEVENT", new Method(
-			List.of(
-				new Parameter("STRING", "event", true)
-			),
-			"INTEGER"
-		) {
-			@Override
-			public Variable execute(List<Object> arguments) {
-				// TODO: implement this method
-				throw new ClassMethodNotImplementedException("Method GETCFRAMEINEVENT is not implemented yet");
+				return new IntegerVariable("", currentFrameNumber, context);
 			}
 		});
 		this.setMethod("GETCURRFRAMEPOSX", new Method(
@@ -95,8 +78,7 @@ public class AnimoVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				// TODO: implement this method
-				throw new ClassMethodNotImplementedException("Method GETCURRFRAMEPOSX is not implemented yet");
+				return new IntegerVariable("", currentEvent.getFrameData().get(currentFrameNumber).getOffsetX(), context);
 			}
 		});
 		this.setMethod("GETCURRFRAMEPOSY", new Method(
@@ -104,8 +86,7 @@ public class AnimoVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				// TODO: implement this method
-				throw new ClassMethodNotImplementedException("Method GETCURRFRAMEPOSY is not implemented yet");
+				return new IntegerVariable("", currentEvent.getFrameData().get(currentFrameNumber).getOffsetY(), context);
 			}
 		});
 		this.setMethod("GETENDX", new Method(
@@ -113,8 +94,7 @@ public class AnimoVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				// TODO: implement this method
-				throw new ClassMethodNotImplementedException("Method GETENDX is not implemented yet");
+				return new IntegerVariable("", endPosX, context);
 			}
 		});
 		this.setMethod("GETENDY", new Method(
@@ -122,8 +102,7 @@ public class AnimoVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				// TODO: implement this method
-				throw new ClassMethodNotImplementedException("Method GETENDY is not implemented yet");
+				return new IntegerVariable("", endPosY, context);
 			}
 		});
 		this.setMethod("GETEVENTNAME", new Method(
@@ -131,8 +110,7 @@ public class AnimoVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				// TODO: implement this method
-				throw new ClassMethodNotImplementedException("Method GETEVENTNAME is not implemented yet");
+				return new StringVariable("", currentEvent.getName(), context);
 			}
 		});
 		this.setMethod("GETFRAME", new Method(
@@ -140,8 +118,7 @@ public class AnimoVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				// TODO: implement this method
-				throw new ClassMethodNotImplementedException("Method GETFRAME is not implemented yet");
+				return new IntegerVariable("", currentImageNumber, context);
 			}
 		});
 		this.setMethod("GETFRAMENAME", new Method(
@@ -149,8 +126,7 @@ public class AnimoVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				// TODO: implement this method
-				throw new ClassMethodNotImplementedException("Method GETFRAMENAME is not implemented yet");
+				return new StringVariable("", currentEvent.getFrameData().get(currentFrameNumber).getName(), context);
 			}
 		});
 		this.setMethod("GETHEIGHT", new Method(
@@ -158,8 +134,7 @@ public class AnimoVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				// TODO: implement this method
-				throw new ClassMethodNotImplementedException("Method GETHEIGHT is not implemented yet");
+				return new IntegerVariable("", currentImage.height, context);
 			}
 		});
 		this.setMethod("GETMAXWIDTH", new Method(
@@ -167,8 +142,15 @@ public class AnimoVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				// TODO: implement this method
-				throw new ClassMethodNotImplementedException("Method GETMAXWIDTH is not implemented yet");
+				return new IntegerVariable("", maxWidth, context);
+			}
+		});
+		this.setMethod("GETMAXHEIGHT", new Method(
+				"INTEGER"
+		) {
+			@Override
+			public Variable execute(List<Object> arguments) {
+				return new IntegerVariable("", maxHeight, context);
 			}
 		});
 		this.setMethod("GETNOE", new Method(
@@ -176,20 +158,15 @@ public class AnimoVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				// TODO: implement this method
-				throw new ClassMethodNotImplementedException("Method GETNOE is not implemented yet");
+				return new IntegerVariable("", eventsCount, context);
 			}
 		});
-		this.setMethod("GETNOFINEVENT", new Method(
-			List.of(
-				new Parameter("INTEGER", "eventNumber?", true)
-			),
-			"INTEGER"
+		this.setMethod("GETNOF", new Method(
+				"INTEGER"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				// TODO: implement this method
-				throw new ClassMethodNotImplementedException("Method GETNOFINEVENT is not implemented yet");
+				return new IntegerVariable("", imagesCount, context);
 			}
 		});
 		this.setMethod("GETNOFINEVENT", new Method(
@@ -200,50 +177,55 @@ public class AnimoVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				// TODO: implement this method
-				throw new ClassMethodNotImplementedException("Method GETNOFINEVENT is not implemented yet");
-			}
-		});
-		this.setMethod("GETPOSITIONX", new Method(
-			"INTEGER"
-		) {
-			@Override
-			public Variable execute(List<Object> arguments) {
-				// TODO: implement this method
-				throw new ClassMethodNotImplementedException("Method GETPOSITIONX is not implemented yet");
+				String eventName = ((Variable) arguments.get(0)).getValue().toString();
+
+				try {
+					int eventNumber = Integer.parseInt(eventName);
+					return new IntegerVariable("", events.get(eventNumber).getFramesCount(), context);
+				} catch (NumberFormatException e) {
+					int framesNumber = 0;
+					for (Event event : events) {
+						if (event.getName().equals(eventName)) {
+							framesNumber = event.getFramesCount();
+							break;
+						}
+					}
+					return new IntegerVariable("", framesNumber, context);
+				}
 			}
 		});
 		this.setMethod("GETPOSITIONX", new Method(
 			List.of(
-				new Parameter("BOOL", "unknown", true)
+				new Parameter("BOOL", "absolute", false)
 			),
 			"INTEGER"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				// TODO: implement this method
-				throw new ClassMethodNotImplementedException("Method GETPOSITIONX is not implemented yet");
-			}
-		});
-		this.setMethod("GETPOSITIONY", new Method(
-			"INTEGER"
-		) {
-			@Override
-			public Variable execute(List<Object> arguments) {
-				// TODO: implement this method
-				throw new ClassMethodNotImplementedException("Method GETPOSITIONY is not implemented yet");
+				boolean absolute = !arguments.isEmpty(); // it seems like it must be any argument
+
+				if(absolute) {
+					return new IntegerVariable("", posX, context);
+				} else {
+					return new IntegerVariable("", posX+currentEvent.getFrameData().get(currentFrameNumber).getOffsetX(), context);
+				}
 			}
 		});
 		this.setMethod("GETPOSITIONY", new Method(
 			List.of(
-				new Parameter("BOOL", "unknown", true)
+				new Parameter("BOOL", "absolute", false)
 			),
 			"INTEGER"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				// TODO: implement this method
-				throw new ClassMethodNotImplementedException("Method GETPOSITIONY is not implemented yet");
+				boolean absolute = !arguments.isEmpty(); // it seems like it must be any argument
+
+				if(absolute) {
+					return new IntegerVariable("", posY, context);
+				} else {
+					return new IntegerVariable("", posY+currentEvent.getFrameData().get(currentFrameNumber).getOffsetY(), context);
+				}
 			}
 		});
 		this.setMethod("GETWIDTH", new Method(
@@ -251,8 +233,7 @@ public class AnimoVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				// TODO: implement this method
-				throw new ClassMethodNotImplementedException("Method GETWIDTH is not implemented yet");
+				return new IntegerVariable("", currentImage.width, context);
 			}
 		});
 		this.setMethod("HIDE", new Method(
@@ -260,8 +241,8 @@ public class AnimoVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				// TODO: implement this method
-				throw new ClassMethodNotImplementedException("Method HIDE is not implemented yet");
+				getAttribute("VISIBLE").setValue("FALSE");
+				return null;
 			}
 		});
 		this.setMethod("ISNEAR", new Method(
@@ -273,29 +254,24 @@ public class AnimoVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				// TODO: implement this method
+				// TODO: implement this method (I'm checking how it works)
 				throw new ClassMethodNotImplementedException("Method ISNEAR is not implemented yet");
 			}
 		});
 		this.setMethod("ISPLAYING", new Method(
-			"BOOL"
-		) {
-			@Override
-			public Variable execute(List<Object> arguments) {
-				// TODO: implement this method
-				throw new ClassMethodNotImplementedException("Method ISPLAYING is not implemented yet");
-			}
-		});
-		this.setMethod("ISPLAYING", new Method(
 			List.of(
-				new Parameter("STRING", "event", true)
+				new Parameter("STRING", "event", false)
 			),
 			"BOOL"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				// TODO: implement this method
-				throw new ClassMethodNotImplementedException("Method ISPLAYING is not implemented yet");
+				// TODO: check if it works correct
+				String eventName = arguments.isEmpty() ? null : ((Variable) arguments.get(0)).getValue().toString();
+				if(eventName == null) {
+					return new BoolVariable("", isPlaying, context);
+				}
+				return new BoolVariable("", currentEvent.getName().equals(eventName) && isPlaying, context);
 			}
 		});
 		this.setMethod("ISVISIBLE", new Method(
@@ -303,8 +279,7 @@ public class AnimoVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				// TODO: implement this method
-				throw new ClassMethodNotImplementedException("Method ISVISIBLE is not implemented yet");
+				return new BoolVariable("", getAttribute("VISIBLE").getValue().equals("TRUE"), context);
 			}
 		});
 		this.setMethod("LOAD", new Method(
@@ -328,8 +303,13 @@ public class AnimoVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				// TODO: implement this method
-				throw new ClassMethodNotImplementedException("Method MOVE is not implemented yet");
+				int offsetX = ((IntegerVariable) arguments.get(0)).GET();
+				int offsetY = ((IntegerVariable) arguments.get(1)).GET();
+
+				posX += offsetX;
+				posY += offsetY;
+
+				return null;
 			}
 		});
 		this.setMethod("NEXTFRAME", new Method(
@@ -337,32 +317,30 @@ public class AnimoVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				// TODO: implement this method
-				throw new ClassMethodNotImplementedException("Method NEXTFRAME is not implemented yet");
+				currentFrameNumber++;
+
+				if(currentFrameNumber >= currentEvent.getFramesNumbers().size()) {
+					currentFrameNumber = 0;
+				}
+
+				currentImageNumber = currentEvent.getFramesNumbers().get(currentFrameNumber);
+				currentImage = currentEvent.getFrames().get(currentImageNumber);
+				return null;
 			}
 		});
 		this.setMethod("NPLAY", new Method(
 			List.of(
-				new Parameter("INTEGER", "eventNumber", true)
+				new Parameter("INTEGER", "eventId", true)
 			),
 			"void"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				// TODO: implement this method
-				throw new ClassMethodNotImplementedException("Method NPLAY is not implemented yet");
-			}
-		});
-		this.setMethod("NPLAY", new Method(
-			List.of(
-				new Parameter("STRING", "event", true)
-			),
-			"void"
-		) {
-			@Override
-			public Variable execute(List<Object> arguments) {
-				// TODO: implement this method
-				throw new ClassMethodNotImplementedException("Method NPLAY is not implemented yet");
+				int eventId = ((IntegerVariable) arguments.get(0)).GET();
+				currentEvent = events.get(eventId);
+				currentFrameNumber = 0;
+				isPlaying = true;
+				return null;
 			}
 		});
 		this.setMethod("PAUSE", new Method(
@@ -370,20 +348,8 @@ public class AnimoVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				// TODO: implement this method
-				throw new ClassMethodNotImplementedException("Method PAUSE is not implemented yet");
-			}
-		});
-		this.setMethod("PLAY", new Method(
-			List.of(
-				new Parameter("INTEGER", "animNumber?", true)
-			),
-			"void"
-		) {
-			@Override
-			public Variable execute(List<Object> arguments) {
-				// TODO: implement this method
-				throw new ClassMethodNotImplementedException("Method PLAY is not implemented yet");
+				isPlaying = false;
+				return null;
 			}
 		});
 		this.setMethod("PLAY", new Method(
@@ -394,21 +360,16 @@ public class AnimoVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				// TODO: implement this method
-				throw new ClassMethodNotImplementedException("Method PLAY is not implemented yet");
-			}
-		});
-		this.setMethod("PLAY", new Method(
-			List.of(
-				new Parameter("STRING", "anim", true),
-				new Parameter("INTEGER", "frameNo?", true)
-			),
-			"void"
-		) {
-			@Override
-			public Variable execute(List<Object> arguments) {
-				// TODO: implement this method
-				throw new ClassMethodNotImplementedException("Method PLAY is not implemented yet");
+				String eventName = ((Variable) arguments.get(0)).getValue().toString();
+				for(Event event : events) {
+					if(event.getName().equals(eventName)) {
+						currentEvent = event;
+						currentFrameNumber = 0;
+						isPlaying = true;
+						break;
+					}
+				}
+				return null;
 			}
 		});
 		this.setMethod("PREVFRAME", new Method(
@@ -416,8 +377,13 @@ public class AnimoVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				// TODO: implement this method
-				throw new ClassMethodNotImplementedException("Method PREVFRAME is not implemented yet");
+				currentFrameNumber--;
+				if(currentFrameNumber < 0) {
+					currentFrameNumber = currentEvent.getFramesNumbers().size() - 1;
+				}
+				currentImageNumber = currentEvent.getFramesNumbers().get(currentFrameNumber);
+				currentImage = currentEvent.getFrames().get(currentImageNumber);
+				return null;
 			}
 		});
 		this.setMethod("RESUME", new Method(
@@ -425,22 +391,13 @@ public class AnimoVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				// TODO: implement this method
-				throw new ClassMethodNotImplementedException("Method RESUME is not implemented yet");
-			}
-		});
-		this.setMethod("RUN", new Method(
-			"void"
-		) {
-			@Override
-			public Variable execute(List<Object> arguments) {
-				// TODO: implement this method
-				throw new ClassMethodNotImplementedException("Method RUN is not implemented yet");
+				isPlaying = true;
+				return null;
 			}
 		});
 		this.setMethod("SETANCHOR", new Method(
 			List.of(
-				new Parameter("Enum<STRING>", "anchor", true)
+				new Parameter("STRING", "anchor", true)
 			),
 			"void"
 		) {
@@ -481,8 +438,8 @@ public class AnimoVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				// TODO: implement this method
-				throw new ClassMethodNotImplementedException("Method SETBACKWARD is not implemented yet");
+				direction = -1;
+				return null;
 			}
 		});
 		this.setMethod("SETFORWARD", new Method(
@@ -490,8 +447,8 @@ public class AnimoVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				// TODO: implement this method
-				throw new ClassMethodNotImplementedException("Method SETFORWARD is not implemented yet");
+				direction = 1;
+				return null;
 			}
 		});
 		this.setMethod("SETFPS", new Method(
@@ -502,71 +459,40 @@ public class AnimoVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				// TODO: implement this method
-				throw new ClassMethodNotImplementedException("Method SETFPS is not implemented yet");
-			}
-		});
-		this.setMethod("SETFPS", new Method(
-			List.of(
-				new Parameter("STRING", "fps", true)
-			),
-			"void"
-		) {
-			@Override
-			public Variable execute(List<Object> arguments) {
-				// TODO: implement this method
-				throw new ClassMethodNotImplementedException("Method SETFPS is not implemented yet");
+				int fps = ((IntegerVariable) arguments.get(0)).GET();
+				setFps(fps);
+				return null;
 			}
 		});
 		this.setMethod("SETFRAME", new Method(
 			List.of(
 				new Parameter("STRING", "event", true),
-				new Parameter("INTEGER", "frameNumber", true)
+				new Parameter("INTEGER", "frameNumber", false)
 			),
 			"void"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				// TODO: implement this method
-				throw new ClassMethodNotImplementedException("Method SETFRAME is not implemented yet");
-			}
-		});
-		this.setMethod("SETFRAME", new Method(
-			List.of(
-				new Parameter("INTEGER", "eventNumber?", true)
-			),
-			"void"
-		) {
-			@Override
-			public Variable execute(List<Object> arguments) {
-				// TODO: implement this method
-				throw new ClassMethodNotImplementedException("Method SETFRAME is not implemented yet");
-			}
-		});
-		this.setMethod("SETFRAME", new Method(
-			List.of(
-				new Parameter("INTEGER", "eventNumber?", true),
-				new Parameter("INTEGER", "frameNumber", true)
-			),
-			"void"
-		) {
-			@Override
-			public Variable execute(List<Object> arguments) {
-				// TODO: implement this method
-				throw new ClassMethodNotImplementedException("Method SETFRAME is not implemented yet");
-			}
-		});
-		this.setMethod("SETFRAME", new Method(
-			List.of(
-				new Parameter("STRING", "eventNumber?", true),
-				new Parameter("STRING", "frameName?", true)
-			),
-			"void"
-		) {
-			@Override
-			public Variable execute(List<Object> arguments) {
-				// TODO: implement this method
-				throw new ClassMethodNotImplementedException("Method SETFRAME is not implemented yet");
+				String eventName = ((Variable) arguments.get(0)).getValue().toString();
+				try {
+					int eventNumber = Integer.parseInt(eventName);
+					currentEvent = events.get(eventNumber);
+					currentFrameNumber = arguments.size() >= 2 ? ((IntegerVariable) arguments.get(1)).GET() : 0;
+					currentImageNumber = currentEvent.getFramesNumbers().get(currentFrameNumber);
+					currentImage = currentEvent.getFrames().get(currentImageNumber);
+					return null;
+				} catch (NumberFormatException e) {
+					for (Event event : events) {
+						if (event.getName().equals(eventName)) {
+							currentEvent = event;
+							currentFrameNumber = arguments.size() >= 2 ? ((IntegerVariable) arguments.get(1)).GET() : 0;
+							currentImageNumber = currentEvent.getFramesNumbers().get(currentFrameNumber);
+							currentImage = currentEvent.getFrames().get(currentImageNumber);
+							break;
+						}
+					}
+					return null;
+				}
 			}
 		});
 		this.setMethod("SETFRAMENAME", new Method(
@@ -616,8 +542,9 @@ public class AnimoVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				// TODO: implement this method
-				throw new ClassMethodNotImplementedException("Method SETPOSITION is not implemented yet");
+				posX = ((IntegerVariable) arguments.get(0)).GET();
+				posY = ((IntegerVariable) arguments.get(1)).GET();
+				return null;
 			}
 		});
 		this.setMethod("SETPRIORITY", new Method(
@@ -628,50 +555,44 @@ public class AnimoVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				// TODO: implement this method
-				throw new ClassMethodNotImplementedException("Method SETPRIORITY is not implemented yet");
-			}
-		});
-		this.setMethod("SHOW", new Method(
-			"void"
-		) {
-			@Override
-			public Variable execute(List<Object> arguments) {
-				// TODO: implement this method
-				throw new ClassMethodNotImplementedException("Method SHOW is not implemented yet");
+                priority = ((IntegerVariable) arguments.get(0)).GET();
+				return null;
 			}
 		});
 		this.setMethod("SHOW", new Method(
 			List.of(
-				new Parameter("BOOL", "unknown", true)
+				new Parameter("BOOL", "unknown", false)
 			),
 			"void"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				// TODO: implement this method
-				throw new ClassMethodNotImplementedException("Method SHOW is not implemented yet");
-			}
-		});
-		this.setMethod("STOP", new Method(
-			"void"
-		) {
-			@Override
-			public Variable execute(List<Object> arguments) {
-				// TODO: implement this method
-				throw new ClassMethodNotImplementedException("Method STOP is not implemented yet");
+				getAttribute("VISIBLE").setValue("TRUE");
+				return null;
 			}
 		});
 		this.setMethod("STOP", new Method(
 			List.of(
-				new Parameter("BOOL", "emitSignal", true)
+				new Parameter("BOOL", "emitSignal", false)
 			),
 			"void"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				// TODO: implement this method
-				throw new ClassMethodNotImplementedException("Method STOP is not implemented yet");
+				boolean emitSignal = arguments.isEmpty();
+
+				if(!emitSignal) {
+					emitSignal =  ((Variable) arguments.get(0)).getValue().toString().equals("FALSE");
+				}
+
+				currentFrameNumber = 0;
+				currentImageNumber = currentEvent.getFramesNumbers().get(currentFrameNumber);
+				currentImage = currentEvent.getFrames().get(currentImageNumber);
+
+				if(emitSignal) {
+					emitSignal("ONFINISHED", currentEvent.getName());
+				}
+				return null;
 			}
 		});
 		this.setMethod("TOP", new Method(
@@ -707,6 +628,34 @@ public class AnimoVariable extends Variable {
 		List<String> knownAttributes = List.of("ASBUTTON", "FILENAME", "FLUSHAFTERPLAYED", "FPS", "MONITORCOLLISION", "MONITORCOLLISIONALPHA", "PRELOAD", "PRIORITY", "RELEASE", "TOCANVAS", "VISIBLE");
 		if(knownAttributes.contains(name)) {
 			super.setAttribute(name, attribute);
+			if(name.equals("FPS")) {
+				setFps(Integer.parseInt(getAttribute("FPS").getValue().toString()));
+			}
+		}
+	}
+
+	public void updateAnimation(float deltaTime) {
+		if (currentEvent == null) {
+			return;
+		}
+
+		if (!isPlaying) {
+			return;
+		}
+
+		elapsedTime += deltaTime;
+		if (elapsedTime >= frameDuration) {
+			elapsedTime -= frameDuration;
+			currentFrameNumber += direction;
+			currentImageNumber = currentEvent.getFramesNumbers().get(currentFrameNumber);
+			currentImage = currentEvent.getFrames().get(currentImageNumber);
+
+			if (currentFrameNumber >= currentEvent.getFrames().size()) {
+				currentFrameNumber = 0;
+				if(currentEvent.getLoopBy() == 0) {
+					isPlaying = false;
+				}
+			}
 		}
 	}
 
@@ -748,6 +697,7 @@ public class AnimoVariable extends Variable {
 
 	public void setFps(int fps) {
 		this.fps = fps;
+		this.frameDuration = 1f / fps;
 	}
 
 	public int getOpacity() {
@@ -780,5 +730,61 @@ public class AnimoVariable extends Variable {
 
 	public void setImages(List<Image> images) {
 		this.images = images;
+	}
+
+	public int getPosX() {
+		return posX;
+	}
+
+	public void setPosX(int posX) {
+		this.posX = posX;
+	}
+
+	public int getPosY() {
+		return posY;
+	}
+
+	public void setPosY(int posY) {
+		this.posY = posY;
+	}
+
+	public Event getCurrentEvent() {
+		return currentEvent;
+	}
+
+	public void setCurrentEvent(Event currentEvent) {
+		this.currentEvent = currentEvent;
+	}
+
+	public int getCurrentFrameNumber() {
+		return currentFrameNumber;
+	}
+
+	public void setCurrentFrameNumber(int currentFrameNumber) {
+		this.currentFrameNumber = currentFrameNumber;
+	}
+
+	public int getCurrentImageNumber() {
+		return currentImageNumber;
+	}
+
+	public void setCurrentImageNumber(int currentImageNumber) {
+		this.currentImageNumber = currentImageNumber;
+	}
+
+	public Image getCurrentImage() {
+		return currentImage;
+	}
+
+	public void setCurrentImage(Image currentImage) {
+		this.currentImage = currentImage;
+	}
+
+	public int getPriority() {
+		return priority;
+	}
+
+	public void setPriority(int priority) {
+		this.priority = priority;
 	}
 }

@@ -75,6 +75,7 @@ public class BlooMooEmulator extends ApplicationAdapter {
 
     @Override
     public void render () {
+        float deltaTime = Gdx.graphics.getDeltaTime();
         ScreenUtils.clear(0, 0, 0, 1);
         camera.update();
         batch.setProjectionMatrix(camera.combined);
@@ -103,13 +104,20 @@ public class BlooMooEmulator extends ApplicationAdapter {
                 }
             }
             // TODO: system animacji
-            /*if(variable instanceof AnimoVariable) {
+            if(variable instanceof AnimoVariable) {
                 AnimoVariable animoVariable = (AnimoVariable) variable;
-                Image image = animoVariable.getCurrentImage();
-                Event event = animoVariable.getCurrentEvent();
-                FrameData frameData = event.getFrameData().get(animoVariable.getFrameIndex());
-                batch.draw(image.getImageTexture(), frameData.getOffsetX()+image.offsetX, frameData.getOffsetY()+image.offsetY, image.width, image.height);
-            }*/
+                if(
+                    variable.getAttribute("VISIBLE").getValue().toString().equals("TRUE")
+                &&  variable.getAttribute("TOCANVAS").getValue().toString().equals("TRUE")
+                ) {
+                    Image image = animoVariable.getCurrentImage();
+                    Event event = animoVariable.getCurrentEvent();
+                    if(event == null) continue;
+                    FrameData frameData = event.getFrameData().get(animoVariable.getCurrentFrameNumber());
+                    batch.draw(image.getImageTexture(), animoVariable.getPosX() + frameData.getOffsetX() + image.offsetX, Gdx.graphics.getHeight() - animoVariable.getPosY() - frameData.getOffsetY() - image.offsetY - image.height, image.width, image.height);
+                    animoVariable.updateAnimation(deltaTime);
+                }
+            }
         }
 
         batch.end();
