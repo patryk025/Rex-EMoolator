@@ -265,6 +265,12 @@ public abstract class Variable {
 		if (signal != null) {
 			signal.execute(argument);
 		}
+		else {
+			signal = this.getSignal(name);
+			if (signal != null) {
+				signal.execute(null);
+			}
+		}
 	}
 
 	public Context getContext() {
