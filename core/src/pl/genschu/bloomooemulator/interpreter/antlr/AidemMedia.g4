@@ -84,7 +84,7 @@ iterator
 	;
 
 string
-	:	QUOTEMARK ((literal | FIREFUNC | arithmetic? (number | floatNumber) | compare | SLASH | struct | LPAREN | RPAREN | SEPARATOR | arithmetic | VARREF | iterator | expression | functionFire | STRUCTFIELD)+ | (variable (SLASH literal?)?) | string | bool)? QUOTEMARK
+	:	QUOTEMARK ((literal | FIREFUNC | arithmetic? (number | floatNumber) | compare | SLASH | struct | LPAREN | RPAREN | SEPARATOR | arithmetic | VARREF | iterator | expression | functionFire)+ | (variable (SLASH literal?)?) | string | bool)? QUOTEMARK
 	;
 
 instr

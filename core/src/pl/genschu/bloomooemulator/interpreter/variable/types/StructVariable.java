@@ -51,7 +51,7 @@ public class StructVariable extends Variable {
 
 	private Variable getField(int columnIndex) {
 		if (columnIndex >= 0 && columnIndex < fields.size()) {
-			return new StringVariable("", fields.get(columnIndex), context);
+			return values.get(columnIndex);
 		}
 		return null;
 	}
@@ -61,7 +61,7 @@ public class StructVariable extends Variable {
 		if (db != null) {
 			List<String> currentRow = db.getCurrentRow();
 			for (int i = 0; i < fields.size(); i++) {
-				setAttribute(fields.get(i), new Attribute("STRING", currentRow.get(i)));
+				values.set(i, VariableFactory.createVariable(types.get(i), "", currentRow.get(i), context));
 			}
 		}
 	}
