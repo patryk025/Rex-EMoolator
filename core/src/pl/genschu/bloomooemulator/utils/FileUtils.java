@@ -42,7 +42,7 @@ public class FileUtils {
     public static String resolveRelativePath(Variable variable) {
         String filePath = variable.getAttribute("FILENAME").getValue().toString();
 
-        return convertToPlatformPath(resolveRelativePath(variable, filePath));
+        return resolveRelativePath(variable, filePath);
     }
 
     public static String resolveRelativePath(Variable variable, String filePath) {
@@ -59,6 +59,6 @@ public class FileUtils {
             filePath = variable.getContext().getGame().getCurrentSceneFile().getAbsolutePath() + "/" + filePath;
         }
 
-        return filePath;
+        return convertToPlatformPath(filePath);
     }
 }

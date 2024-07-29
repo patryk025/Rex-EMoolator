@@ -13,7 +13,7 @@ import java.util.List;
 public class StringVariable extends Variable {
 	public StringVariable(String name, String value, final Context context) {
 		super(name, context);
-		this.setAttribute("VALUE", new Attribute("STRING", value));
+		setAttribute("VALUE", new Attribute("STRING", value));
 
 		this.setMethod("ADD", new Method(
 			List.of(
@@ -24,7 +24,7 @@ public class StringVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				String value = getAttribute("VALUE").getValue().toString();
-				setAttribute("VALUE", new Attribute("STRING", value + arguments.get(0)));
+				set(value + arguments.get(0));
 				return StringVariable.this;
 			}
 		});
@@ -41,7 +41,7 @@ public class StringVariable extends Variable {
 				String value = getAttribute("VALUE").getValue().toString();
 				int index = (int) arguments.get(0);
 				value = value.substring(0, index) + arguments.get(1) + value.substring(index + 1);
-				setAttribute("VALUE", new Attribute("STRING", value));
+				set(value);
 				return null;
 			}
 		});
@@ -71,7 +71,7 @@ public class StringVariable extends Variable {
 				int index = (int) arguments.get(0);
 				int length = (int) arguments.get(1);
 				value = value.substring(index, index + length);
-				setAttribute("VALUE", new Attribute("STRING", value));
+				set(value);
 				return null;
 			}
 		});
@@ -152,7 +152,7 @@ public class StringVariable extends Variable {
 					newValue = value.substring(0, index) + stringValue + value.substring(index + stringValue.length());
 				}
 
-				setAttribute("VALUE", new Attribute("STRING", newValue));
+				set(newValue);
 				return null;
 			}
 		});
@@ -165,7 +165,7 @@ public class StringVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				Variable value = (Variable) arguments.get(0);
-				setAttribute("VALUE", new Attribute("STRING", value.getValue()));
+				set(value.getValue());
 				return null;
 			}
 		});
@@ -183,7 +183,7 @@ public class StringVariable extends Variable {
 				int length = (int) arguments.get(1);
 
 				String newValue = value.substring(0, index) + value.substring(index + length);
-				setAttribute("VALUE", new Attribute("STRING", newValue));
+				set(newValue);
 				return null;
 			}
 		});
@@ -193,7 +193,7 @@ public class StringVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				String value = getAttribute("VALUE").getValue().toString();
-				setAttribute("VALUE", new Attribute("STRING", value.toUpperCase()));
+				set(value.toUpperCase());
 				return null;
 			}
 		});
@@ -281,6 +281,17 @@ public class StringVariable extends Variable {
 	public String GET() {
 		return (String) this.getValue();
 	}
+    
+    private void set(Object value) {
+        Object currentValue = getAttribute("VALUE").getValue();
+        if(value.toString().equals(currentValue.toString())) {
+            emitSignal("ONBRUTALCHANGE", value.toString());
+        }
+        else {
+            emitSignal("ONCHANGE", value.toString());
+        }
+        getAttribute("VALUE").setValue(value);
+    }
 
 	@Override
 	public String toString() {

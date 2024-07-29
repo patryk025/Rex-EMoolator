@@ -26,7 +26,7 @@ public class IntegerVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				int result = Math.abs(GET());
-				getAttribute("VALUE").setValue(result);
+				set(result);
 				return IntegerVariable.this;
 			}
 		});
@@ -39,7 +39,7 @@ public class IntegerVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				int result = GET() + getValueFromString((Variable) arguments.get(0));
-				getAttribute("VALUE").setValue(result);
+				set(result);
 				return IntegerVariable.this;
 			}
 		});
@@ -74,7 +74,7 @@ public class IntegerVariable extends Variable {
 					currentValue = rangeMax;
 				}
 
-				getAttribute("VALUE").setValue(currentValue);
+				set(currentValue);
 				return IntegerVariable.this;
 			}
 		});
@@ -84,7 +84,7 @@ public class IntegerVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				int result = GET() - 1;
-				getAttribute("VALUE").setValue(result);
+				set(result);
 				return IntegerVariable.this;
 			}
 		});
@@ -97,7 +97,7 @@ public class IntegerVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				int result = GET() / getValueFromString((Variable) arguments.get(0));
-				getAttribute("VALUE").setValue(result);
+				set(result);
 				return IntegerVariable.this;
 			}
 		});
@@ -107,7 +107,7 @@ public class IntegerVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				int result = GET() + 1;
-				getAttribute("VALUE").setValue(result);
+				set(result);
 				return IntegerVariable.this;
 			}
 		});
@@ -133,7 +133,7 @@ public class IntegerVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				int result = GET() % ((int) ((Variable) arguments.get(0)).getValue());
-				getAttribute("VALUE").setValue(result);
+				set(result);
 				return IntegerVariable.this;
 			}
 		});
@@ -146,7 +146,7 @@ public class IntegerVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				int result = GET() * getValueFromString((Variable) arguments.get(0));
-				getAttribute("VALUE").setValue(result);
+				set(result);
 				return IntegerVariable.this;
 			}
 		});
@@ -161,11 +161,11 @@ public class IntegerVariable extends Variable {
 			public Variable execute(List<Object> arguments) {
 				if(arguments.size() == 1) {
 					int result = new Random().nextInt(getValueFromString((Variable) arguments.get(0)));
-					getAttribute("VALUE").setValue(result);
+					set(result);
 					return IntegerVariable.this;
 				} else {
 					int result = new Random().nextInt(getValueFromString((Variable) arguments.get(0)), getValueFromString((Variable) arguments.get(1)));
-					getAttribute("VALUE").setValue(result);
+					set(result);
 					return IntegerVariable.this;
 				}
 			}
@@ -179,7 +179,7 @@ public class IntegerVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				Object value = ((Variable) arguments.get(0)).getValue();
-				getAttribute("VALUE").setValue(value);
+				set(value);
 				return null;
 			}
 		});
@@ -192,7 +192,7 @@ public class IntegerVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				int result = GET() - getValueFromString((Variable) arguments.get(0));
-				getAttribute("VALUE").setValue(result);
+				set(result);
 				return IntegerVariable.this;
 			}
 		});
@@ -254,6 +254,17 @@ public class IntegerVariable extends Variable {
 			return Integer.parseInt(String.valueOf(this.getValue()));
 		}
 	}
+    
+    private void set(Object value) {
+        Object currentValue = getAttribute("VALUE").getValue();
+        if(value.toString().equals(currentValue.toString())) {
+            emitSignal("ONBRUTALCHANGE", value.toString());
+        }
+        else {
+            emitSignal("ONCHANGE", value.toString());
+        }
+        getAttribute("VALUE").setValue(value);
+    }
 
 	@Override
 	public String toString() {

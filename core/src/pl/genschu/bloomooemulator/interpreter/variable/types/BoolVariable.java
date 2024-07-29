@@ -27,7 +27,7 @@ public class BoolVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				Object value = ((Variable) arguments.get(0)).getValue();
-				getAttribute("VALUE").setValue(value);
+				set(value);
 				return null;
 			}
 		});
@@ -94,6 +94,17 @@ public class BoolVariable extends Variable {
 	public boolean GET() {
 		return this.getValue().toString().equals("TRUE");
 	}
+    
+    private void set(Object value) {
+        Object currentValue = getAttribute("VALUE").getValue();
+        if(value.toString().equals(currentValue.toString())) {
+            emitSignal("ONBRUTALCHANGE", value.toString());
+        }
+        else {
+            emitSignal("ONCHANGE", value.toString());
+        }
+        getAttribute("VALUE").setValue(value);
+    }
 
 	@Override
 	public String toString() {

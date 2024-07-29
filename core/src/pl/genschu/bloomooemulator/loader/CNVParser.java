@@ -1,6 +1,15 @@
 package pl.genschu.bloomooemulator.loader;
 
 import pl.genschu.bloomooemulator.interpreter.Context;
+import pl.genschu.bloomooemulator.interpreter.Interpreter;
+import pl.genschu.bloomooemulator.interpreter.antlr.AidemMediaLexer;
+import org.antlr.v4.runtime.CharStreams;
+import pl.genschu.bloomooemulator.interpreter.antlr.AidemMediaParser;
+import org.antlr.v4.runtime.CommonTokenStream;
+import org.antlr.v4.runtime.tree.ParseTree;
+import pl.genschu.bloomooemulator.interpreter.ast.ASTBuilderVisitor;
+import pl.genschu.bloomooemulator.interpreter.ast.Node;
+import pl.genschu.bloomooemulator.interpreter.variable.Signal;
 import pl.genschu.bloomooemulator.interpreter.variable.Variable;
 import pl.genschu.bloomooemulator.interpreter.factories.VariableFactory;
 import pl.genschu.bloomooemulator.encoding.ScriptDecypher;
@@ -100,16 +109,36 @@ public class CNVParser {
             for (Map.Entry<String, String> property : properties.entrySet()) {
                 if (
                        !property.getKey().equals(objectName + ":TYPE")
-                    && !property.getKey().startsWith(objectName + ":ON") // events need to have code parsed by ANTLR visitor
                 ) {
-                    variable.setAttribute(property.getKey().replace(objectName + ":", ""), property.getValue());
+                    if(!property.getKey().startsWith(objectName + ":ON")) {
+                        variable.setAttribute(property.getKey().replace(objectName + ":", ""), property.getValue());
+                    }
+                    else {
+                        variable.setSignal(property.getKey().replace(objectName + ":", ""), new Signal() {
+                            @Override
+                            public void execute(Object argument) {
+                                Interpreter intepreter = processEventCode(property.getValue(), context);
+                                intepreter.interpret();
+                            }
+                        });
+                    }
                 }
-                // TODO: events with parameters
             }
 
             context.setVariable(objectName, variable);
         } catch (IllegalArgumentException e) {
             Gdx.app.error("CNVParser", "Failed to create variable " + objectName + ": " + e.getMessage());
         }
+    }
+    
+    private Interpreter processEventCode(String code, Context context) {
+        AidemMediaLexer lexer = new AidemMediaLexer(CharStreams.fromString(code));
+		AidemMediaParser parser = new AidemMediaParser(new CommonTokenStream(lexer));
+		ParseTree tree = parser.script();
+
+		ASTBuilderVisitor astBuilder = new ASTBuilderVisitor(context);
+		Node astRoot = astBuilder.visit(tree);
+
+		return new Interpreter(astRoot, context);
     }
 }
