@@ -71,6 +71,11 @@ public class StructVariable extends Variable {
 		return "STRUCT";
 	}
 
+	public Variable getField(String fieldName) {
+		setAttributes();
+		return getField(fields.indexOf(fieldName));
+	}
+
 	public List<String> getFields() {
 		setAttributes();
 		return fields;

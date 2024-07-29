@@ -40,6 +40,9 @@ public class VariableHelper {
         else if(value instanceof PointerExpression) {
             return context.getVariable(((PointerExpression) value).evaluate(context).toString(), null);
         }
+        else if(value instanceof StructExpression) {
+            return context.getVariable(((StructExpression) value).evaluate(context).toString(), null);
+        }
         if (value instanceof String) {
             if(resolveString) {
                 return context.getVariable((String) value, null);

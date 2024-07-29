@@ -26,7 +26,7 @@ public class AnimoLoader {
             readImagesMetadata(variable, f);
             Gdx.app.log("AnimoLoader", "Loaded ANIMO: " + variable.getName());
         } catch (Exception e) {
-            Gdx.app.error("Animo loader", "Error while loading ANIMO: " + e.getMessage(), e);
+            Gdx.app.error("AnimoLoader", "Error while loading ANIMO: " + e.getMessage(), e);
         }
     }
 

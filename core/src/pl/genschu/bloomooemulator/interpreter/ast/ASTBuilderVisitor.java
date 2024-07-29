@@ -123,6 +123,11 @@ public class ASTBuilderVisitor extends AidemMediaBaseVisitor<Node> {
         }
     }
 
+    @Override
+    public Node visitStruct(AidemMediaParser.StructContext ctx) {
+        return new StructExpression(ctx.literal(0).getText(), ctx.literal(1).getText());
+    }
+
     private Expression buildExpression(AidemMediaParser.ExpressionContext ctx) {
         if (ctx.getChildCount() == 3) {
             return (Expression) visit(ctx.getChild(1));
