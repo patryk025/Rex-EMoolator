@@ -5,6 +5,7 @@ import pl.genschu.bloomooemulator.interpreter.Context;
 import pl.genschu.bloomooemulator.interpreter.ast.Expression;
 import pl.genschu.bloomooemulator.interpreter.logic.LogicSolver;
 import pl.genschu.bloomooemulator.interpreter.variable.Variable;
+import pl.genschu.bloomooemulator.interpreter.variable.types.StringVariable;
 
 import static pl.genschu.bloomooemulator.interpreter.util.VariableHelper.getVariableFromObject;
 
@@ -24,6 +25,16 @@ public class ConditionExpression extends Expression {
     public Object evaluate(Context context) {
         Variable leftValue = getVariableFromObject(left, context, true);
         Variable rightValue = getVariableFromObject(right, context, true);
+
+        // little dirty hacking (for surrounding quotes)
+        if(rightValue instanceof StringVariable) {
+            String value = rightValue.getValue().toString();
+
+            if(value.startsWith("\"") && value.endsWith("\"")) {
+                rightValue.getAttribute("VALUE").setValue(value.substring(1, value.length() - 1));
+            }
+        }
+
         Object result = performOperation(leftValue, rightValue, operator).getValue();
 
         assert leftValue != null;
