@@ -8,6 +8,7 @@ import pl.genschu.bloomooemulator.interpreter.variable.Parameter;
 import pl.genschu.bloomooemulator.interpreter.variable.Variable;
 
 import java.util.List;
+import java.util.ArrayList;
 
 public class SequenceVariable extends Variable {
 	public SequenceVariable(String name, Context context) {
@@ -97,4 +98,91 @@ public class SequenceVariable extends Variable {
 		}
 	}
 
+    class SequenceEvent {
+        private String name;
+        private String mode;
+        private List<SequenceEvent> events;
+        
+        public SequenceEvent(String name) {
+            this.name = name;
+            this.mode = "SEQUENCE";
+            this.events = new ArrayList<>();
+        }
+        
+        public void add(SequenceEvent event) {
+            this.events.add(event);
+        }
+
+        public String getName() {
+            return this.name;
+        }
+
+        public void setName(String name) {
+            this.name = name;
+        }
+
+        public String getMode() {
+            return this.mode;
+        }
+
+        public void setMode(String mode) {
+            this.mode = mode;
+        }
+
+        public List<SequenceEvent> getEvents() {
+            return this.events;
+        }
+
+        public void setEvents(List<SequenceEvent> events) {
+            this.events = events;
+        }
+    }
+
+    class SimpleEvent extends SequenceEvent {
+        private String filename;
+        private String event;
+    
+        public SimpleEvent(String name, String filename, String event) {
+            super(name);
+            this.filename = filename;
+            this.event = event;
+        }
+        
+        public void play() {
+            // TODO: play animo
+        }
+    }
+    
+    class SpeakingEvent extends SequenceEvent {
+        private String animofn;
+        private String prefix;
+        private String wavfn;
+        private boolean starting;
+        private boolean ending;
+    
+        public SpeakingEvent(String name, String animofn, String prefix, String wavfn, boolean starting, boolean ending) {
+            super(name);
+            this.animofn = animofn;
+            this.prefix = prefix;
+            this.wavfn = wavfn;
+            this.starting = starting;
+            this.ending = ending;
+        }
+    
+        public void play() {
+            if (starting) {
+                triggerEvent(prefix + "_START");
+            }
+            
+            // TODO: ANIMO and SOUND
+    
+            if (ending) {
+                triggerEvent(prefix + "_STOP");
+            }
+        }
+    
+        private void triggerEvent(String eventName) {
+            // TODO: another TODO, booooring
+        }
+    }
 }
