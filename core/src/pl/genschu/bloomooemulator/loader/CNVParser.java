@@ -114,11 +114,12 @@ public class CNVParser {
                         variable.setAttribute(property.getKey().replace(objectName + ":", ""), property.getValue());
                     }
                     else {
+                        Interpreter intepreter = processEventCode(property.getValue(), context);
                         variable.setSignal(property.getKey().replace(objectName + ":", ""), new Signal() {
                             @Override
                             public void execute(Object argument) {
-                                Interpreter intepreter = processEventCode(property.getValue(), context);
                                 intepreter.interpret();
+                                Gdx.app.log("Signal", "Signal " + property.getKey().replace(objectName + ":", "") + " done");
                             }
                         });
                     }

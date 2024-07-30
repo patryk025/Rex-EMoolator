@@ -241,7 +241,7 @@ public abstract class Variable {
 		}
 
 		String[] primitiveMethods = {"INTEGER", "DOUBLE", "BOOL", "STRING"};
-        return Arrays.asList(primitiveMethods).contains(methodParamType) && Arrays.asList(primitiveMethods).contains(paramType) || methodParamType.equals("mixed");
+        return Arrays.asList(primitiveMethods).contains(methodParamType) && Arrays.asList(primitiveMethods).contains(paramType);
     }
 
 	public void setSignal(String name, Signal signal) {
@@ -271,6 +271,19 @@ public abstract class Variable {
 				signal.execute(null);
 			}
 		}
+	}
+
+	protected void set(Object value) {
+		Object currentValue = getAttribute("VALUE").getValue();
+		if(value.toString().equals(currentValue.toString())) {
+			Gdx.app.log("Variable", "Emitting signal ONBRUTALCHANGE for variable " + this.getName() + ", class type " + this.getType());
+			emitSignal("ONBRUTALCHANGE", value.toString());
+		}
+		else {
+			Gdx.app.log("Variable", "Emitting signal ONCHANGE for variable " + this.getName() + ", class type " + this.getType());
+			emitSignal("ONCHANGE", value.toString());
+		}
+		getAttribute("VALUE").setValue(value);
 	}
 
 	public Context getContext() {

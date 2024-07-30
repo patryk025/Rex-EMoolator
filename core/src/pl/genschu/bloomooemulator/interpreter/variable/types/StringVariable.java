@@ -281,17 +281,6 @@ public class StringVariable extends Variable {
 	public String GET() {
 		return (String) this.getValue();
 	}
-    
-    private void set(Object value) {
-        Object currentValue = getAttribute("VALUE").getValue();
-        if(value.toString().equals(currentValue.toString())) {
-            emitSignal("ONBRUTALCHANGE", value.toString());
-        }
-        else {
-            emitSignal("ONCHANGE", value.toString());
-        }
-        getAttribute("VALUE").setValue(value);
-    }
 
 	@Override
 	public String toString() {

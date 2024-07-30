@@ -254,17 +254,6 @@ public class IntegerVariable extends Variable {
 			return Integer.parseInt(String.valueOf(this.getValue()));
 		}
 	}
-    
-    private void set(Object value) {
-        Object currentValue = getAttribute("VALUE").getValue();
-        if(value.toString().equals(currentValue.toString())) {
-            emitSignal("ONBRUTALCHANGE", value.toString());
-        }
-        else {
-            emitSignal("ONCHANGE", value.toString());
-        }
-        getAttribute("VALUE").setValue(value);
-    }
 
 	@Override
 	public String toString() {
