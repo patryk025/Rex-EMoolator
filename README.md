@@ -17,12 +17,12 @@ Aktualny status gier opartych na silniku Piklib/BlooMoo:
 <tr>
 <td>Reksio i Skarb Piratów</td>
 <td><img alt="Niegrywalne" src="https://img.shields.io/badge/Niegrywalne-red"/></td>
-<td>Crashuje silnik</td>
+<td>Crashuje silnik przy próbie uzyskania dostępu do animacji</td>
 </tr>
 <tr>
 <td>Reksio i Ufo</td>
 <td><img alt="Niegrywalne" src="https://img.shields.io/badge/Niegrywalne-red"/></td>
-<td>Crashuje się przy ładowaniu skryptów</td>
+<td>Crashuje silnik przy próbie uzyskania dostępu do animacji</td>
 </tr>
 <tr>
 <td>Reksio i Czarodzieje</td>
@@ -47,22 +47,22 @@ Aktualny status gier opartych na silniku Piklib/BlooMoo:
 <tr>
 <td>Poznaj Mity: Wyprawa po Złote Runo</td>
 <td><img alt="Niegrywalne" src="https://img.shields.io/badge/Niegrywalne-red"/></td>
-<td>Crashuje się przy ładowaniu skryptów</td>
+<td>Czarny ekran, występują pewne problemy z ładowaniem skryptów</td>
 </tr>
 <tr>
 <td>Poznaj Mity: Wojna Trojańska</td>
 <td><img alt="Niegrywalne" src="https://img.shields.io/badge/Niegrywalne-red"/></td>
-<td>Crashuje się przy ładowaniu skryptów</td>
+<td>Czarny ekran, występują pewne problemy z ładowaniem skryptów</td>
 </tr>
 <tr>
 <td>Poznaj Mity: Przygody Odyseusza</td>
 <td><img alt="Niegrywalne" src="https://img.shields.io/badge/Niegrywalne-red"/></td>
-<td>Crashuje się przy ładowaniu skryptów</td>
+<td>Czarny ekran, występują pewne problemy z ładowaniem skryptów</td>
 </tr>
 <tr>
 <td>Poznaj Mity: Herkules</td>
 <td><img alt="Niegrywalne" src="https://img.shields.io/badge/Niegrywalne-red"/></td>
-<td>Crashuje się przy ładowaniu skryptów</td>
+<td>Czarny ekran, występują pewne problemy z ładowaniem skryptów</td>
 </tr>
 </tbody>
 </table>

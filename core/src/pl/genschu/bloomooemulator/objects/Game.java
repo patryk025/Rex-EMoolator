@@ -113,7 +113,11 @@ public class Game {
 
         for(EpisodeVariable episode : applicationVariable.getEpisodes()) {
             episode.reloadScenes();
-            episode.setPath(FileUtils.findRelativeFileIgnoreCase(daneFolder, episode.getAttribute("PATH").getValue().toString()));
+            try {
+                episode.setPath(FileUtils.findRelativeFileIgnoreCase(daneFolder, episode.getAttribute("PATH").getValue().toString()));
+            } catch(NullPointerException e) {
+                episode.setPath(null); // in Reksio i Skarb Piratów PATH is missing
+            }
 
             for(SceneVariable scene : episode.getScenes()) {
                 scene.setPath(FileUtils.findRelativeFileIgnoreCase(daneFolder, scene.getAttribute("PATH").getValue().toString()));
@@ -123,7 +127,6 @@ public class Game {
         Gdx.app.log("Game loader", "Application.def loaded");
 
         Gdx.app.log("Game loader", "Loading application variables...");
-
 
         definitionContext.setGame(this);
 
@@ -167,6 +170,11 @@ public class Game {
 
     private void loadEpisode(EpisodeVariable episode) {
         if (!Objects.equals(currentEpisode, episode.getName())) {
+            if(episode.getPath() == null) {
+                Gdx.app.log("Game", "Episode " + episode.getName() + " doesn't have PATH attribute. Skipping...");
+                loadScene(episode.getFirstScene());
+                return;
+            }
             Gdx.app.log("Game", "Loading episode " + episode.getName());
             try {
                 currentEpisodeContext = new Context();

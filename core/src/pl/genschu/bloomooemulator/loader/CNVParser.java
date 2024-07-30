@@ -14,6 +14,7 @@ import pl.genschu.bloomooemulator.interpreter.variable.Variable;
 import pl.genschu.bloomooemulator.interpreter.factories.VariableFactory;
 import pl.genschu.bloomooemulator.encoding.ScriptDecypher;
 import com.badlogic.gdx.Gdx;
+import pl.genschu.bloomooemulator.interpreter.variable.types.BehaviourVariable;
 
 import java.io.*;
 import java.util.*;
@@ -48,6 +49,7 @@ public class CNVParser {
         } catch (FileNotFoundException e) {
             Gdx.app.error("CNVParser", "File not found: " + plik.getName());
         }
+        assignSignals(context);
     }
 
     public void parseString(String string, Context context) throws IOException {
@@ -114,14 +116,10 @@ public class CNVParser {
                         variable.setAttribute(property.getKey().replace(objectName + ":", ""), property.getValue());
                     }
                     else {
-                        Interpreter intepreter = processEventCode(property.getValue(), context);
-                        variable.setSignal(property.getKey().replace(objectName + ":", ""), new Signal() {
-                            @Override
-                            public void execute(Object argument) {
-                                intepreter.interpret();
-                                Gdx.app.log("Signal", "Signal " + property.getKey().replace(objectName + ":", "") + " done");
-                            }
-                        });
+                        // Store signal information for later processing
+                        String signalName = property.getKey().replace(objectName + ":", "");
+                        String signalCode = property.getValue();
+                        variable.addPendingSignal(signalName, signalCode);
                     }
                 }
             }
@@ -131,15 +129,44 @@ public class CNVParser {
             Gdx.app.error("CNVParser", "Failed to create variable " + objectName + ": " + e.getMessage());
         }
     }
-    
-    private Interpreter processEventCode(String code, Context context) {
-        AidemMediaLexer lexer = new AidemMediaLexer(CharStreams.fromString(code));
-		AidemMediaParser parser = new AidemMediaParser(new CommonTokenStream(lexer));
-		ParseTree tree = parser.script();
 
-		ASTBuilderVisitor astBuilder = new ASTBuilderVisitor(context);
-		Node astRoot = astBuilder.visit(tree);
+    private void assignSignals(Context context) {
+        for (Variable variable : context.getVariables().values()) {
+            for (Map.Entry<String, String> entry : variable.getPendingSignals().entrySet()) {
+                String signalName = entry.getKey();
+                String signalCode = entry.getValue();
+                BehaviourVariable behVariable = processEventCode(signalCode, context);
+                if (behVariable == null) {
+                    Gdx.app.error("CNVParser", "Failed to get behaviour variable for signal " + signalName);
+                    continue;
+                }
+                variable.setSignal(signalName, new Signal() {
+                    @Override
+                    public void execute(Object argument) {
+                        behVariable.getMethod("RUN", new ArrayList<>()).execute(null);
+                        Gdx.app.log("Signal", "Signal " + signalName + " done");
+                    }
+                });
+            }
+        }
+    }
 
-		return new Interpreter(astRoot, context);
+    private BehaviourVariable processEventCode(String code, Context context) {
+        // first we need to check if it's not a code
+        if (code.startsWith("{") && code.endsWith("}")) {
+            if(code.endsWith(":}")) {
+                code = code.substring(0, code.length() - 2) + ";}"; // little fix
+            }
+            return new BehaviourVariable("", code, context); // parse code
+        }
+        // okey then, let's find behaviour variable
+        Variable behaviourVariable = context.getVariable(code, null);
+        if(behaviourVariable.getType().equals("BEHAVIOUR")) {
+            return (BehaviourVariable) behaviourVariable;
+        }
+        else {
+            Gdx.app.error("CNVParser", "Variable " + code + " is not a BEHAVIOUR variable");
+            return null;
+        }
     }
 }

@@ -19,6 +19,8 @@ public abstract class Variable {
 	protected Map<String, Signal> signals;
 	protected Context context;
 
+	private Map<String, String> pendingSignals = new HashMap<>(); // unprocessed signals
+
 	public Variable(String name, Context context) {
 		this.name = name;
 		this.attributes = new HashMap<>();
@@ -293,5 +295,13 @@ public abstract class Variable {
 	@Override
 	public String toString() {
 		return ""; // technicznie zmienne nie będące BOOLem, INTEGERem, DOUBLE, czy STRINGiem podczas próby wypisania wartości wywalają silnik, my zrobimy pustą wartość
+	}
+
+	public void addPendingSignal(String signalName, String signalCode) {
+		pendingSignals.put(signalName, signalCode);
+	}
+
+	public Map<String, String> getPendingSignals() {
+		return pendingSignals;
 	}
 }
