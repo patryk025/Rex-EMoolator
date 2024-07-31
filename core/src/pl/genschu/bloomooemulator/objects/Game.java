@@ -181,7 +181,7 @@ public class Game {
                 currentEpisodeContext.setParentContext(currentApplicationContext);
                 File episodeFile = FileUtils.findRelativeFileIgnoreCase(episode.getPath(), episode.getName() + ".cnv");
 
-                if(episodeFile.exists()) {
+                if(episodeFile != null) {
                     try {
                         cnvParser.parseFile(episodeFile, currentEpisodeContext);
                     } catch (NullPointerException e) {
@@ -212,9 +212,9 @@ public class Game {
             currentSceneContext.setParentContext(currentEpisodeContext);
 
             File sceneFile = FileUtils.findRelativeFileIgnoreCase(scene.getPath(), scene.getName() + ".cnv");
-            cnvParser.parseFile(sceneFile, currentSceneContext);
             currentSceneFile = scene.getPath();
             currentScene = scene.getName();
+            cnvParser.parseFile(sceneFile, currentSceneContext);
 
             runInit(currentSceneContext);
         } catch (IOException e) {

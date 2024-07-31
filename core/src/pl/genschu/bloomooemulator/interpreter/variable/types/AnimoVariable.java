@@ -304,8 +304,8 @@ public class AnimoVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				int offsetX = ((IntegerVariable) arguments.get(0)).GET();
-				int offsetY = ((IntegerVariable) arguments.get(1)).GET();
+				int offsetX = Integer.parseInt(((Variable) arguments.get(0)).getValue().toString());
+				int offsetY = Integer.parseInt(((Variable) arguments.get(1)).getValue().toString());
 
 				posX += offsetX;
 				posY += offsetY;
@@ -337,7 +337,7 @@ public class AnimoVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				int eventId = ((IntegerVariable) arguments.get(0)).GET();
+				int eventId = Integer.parseInt(((Variable) arguments.get(0)).getValue().toString());
 				currentEvent = events.get(eventId);
 				currentFrameNumber = 0;
 				isPlaying = true;
@@ -460,7 +460,7 @@ public class AnimoVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				int fps = ((IntegerVariable) arguments.get(0)).GET();
+				int fps = Integer.parseInt(((Variable) arguments.get(0)).getValue().toString());
 				setFps(fps);
 				return null;
 			}
@@ -478,7 +478,7 @@ public class AnimoVariable extends Variable {
 				try {
 					int eventNumber = Integer.parseInt(eventName);
 					currentEvent = events.get(eventNumber);
-					currentFrameNumber = arguments.size() >= 2 ? ((IntegerVariable) arguments.get(1)).GET() : 0;
+					currentFrameNumber = arguments.size() >= 2 ? Integer.parseInt(((Variable) arguments.get(1)).getValue().toString()) : 0;
 					currentImageNumber = currentEvent.getFramesNumbers().get(currentFrameNumber);
 					currentImage = currentEvent.getFrames().get(currentImageNumber);
 					return null;
@@ -486,7 +486,7 @@ public class AnimoVariable extends Variable {
 					for (Event event : events) {
 						if (event.getName().equals(eventName)) {
 							currentEvent = event;
-							currentFrameNumber = arguments.size() >= 2 ? ((IntegerVariable) arguments.get(1)).GET() : 0;
+							currentFrameNumber = arguments.size() >= 2 ? Integer.parseInt(((Variable) arguments.get(1)).getValue().toString()) : 0;
 							currentImageNumber = currentEvent.getFramesNumbers().get(currentFrameNumber);
 							currentImage = currentEvent.getFrames().get(currentImageNumber);
 							break;
@@ -543,8 +543,8 @@ public class AnimoVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				posX = ((IntegerVariable) arguments.get(0)).GET();
-				posY = ((IntegerVariable) arguments.get(1)).GET();
+				posX = Integer.parseInt(((Variable) arguments.get(0)).getValue().toString());
+				posY = Integer.parseInt(((Variable) arguments.get(1)).getValue().toString());
 				return null;
 			}
 		});
@@ -556,7 +556,7 @@ public class AnimoVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-                priority = ((IntegerVariable) arguments.get(0)).GET();
+				priority = Integer.parseInt(((Variable) arguments.get(0)).getValue().toString());
 				return null;
 			}
 		});
@@ -632,6 +632,9 @@ public class AnimoVariable extends Variable {
 			if(name.equals("FPS")) {
 				setFps(Integer.parseInt(getAttribute("FPS").getValue().toString()));
 			}
+			else if(name.equals("FILENAME")) {
+				AnimoLoader.loadAnimo(this);
+			}
 		}
 	}
 
@@ -664,8 +667,6 @@ public class AnimoVariable extends Variable {
 
 	@Override
 	public Method getMethod(String name, List<String> paramTypes) {
-		if(events == null)
-			AnimoLoader.loadAnimo(this);
 		return super.getMethod(name, paramTypes);
 	}
 

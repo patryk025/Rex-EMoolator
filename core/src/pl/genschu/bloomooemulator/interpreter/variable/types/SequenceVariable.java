@@ -1,26 +1,33 @@
 package pl.genschu.bloomooemulator.interpreter.variable.types;
 
-import pl.genschu.bloomooemulator.interpreter.exceptions.ClassMethodNotImplementedException;
+import com.badlogic.gdx.Gdx;
 import pl.genschu.bloomooemulator.interpreter.Context;
+import pl.genschu.bloomooemulator.interpreter.exceptions.ClassMethodNotImplementedException;
 import pl.genschu.bloomooemulator.interpreter.variable.Attribute;
 import pl.genschu.bloomooemulator.interpreter.variable.Method;
 import pl.genschu.bloomooemulator.interpreter.variable.Parameter;
 import pl.genschu.bloomooemulator.interpreter.variable.Variable;
 import pl.genschu.bloomooemulator.loader.AnimoLoader;
+import pl.genschu.bloomooemulator.loader.SEQParser;
 
+import java.io.IOException;
 import java.util.*;
 
 public class SequenceVariable extends Variable {
+	private List<SequenceEvent> events = new ArrayList<>();
+	private Map<String, SequenceEvent> eventMap = new HashMap<>();
+	private String currentEventName;
+	private boolean isPlaying;
+
 	public SequenceVariable(String name, Context context) {
 		super(name, context);
 
-		this.setMethod("GETEVENTNAME", new Method(
+        this.setMethod("GETEVENTNAME", new Method(
 			"STRING"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				// TODO: implement this method
-				throw new ClassMethodNotImplementedException("Method GETEVENTNAME is not implemented yet");
+				return new StringVariable("", currentEventName, getContext());
 			}
 		});
 		this.setMethod("HIDE", new Method(
@@ -37,8 +44,7 @@ public class SequenceVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				// TODO: implement this method
-				throw new ClassMethodNotImplementedException("Method ISPLAYING is not implemented yet");
+				return new BoolVariable("", isPlaying, getContext());
 			}
 		});
 		this.setMethod("PAUSE", new Method(
@@ -46,43 +52,42 @@ public class SequenceVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				// TODO: implement this method
-				throw new ClassMethodNotImplementedException("Method PAUSE is not implemented yet");
+				isPlaying = false;
+				return null;
 			}
 		});
 		this.setMethod("PLAY", new Method(
-			List.of(
-				new Parameter("STRING", "sequenceName", true)
-			),
-			"void"
+				List.of(
+						new Parameter("STRING", "eventName", true)
+				),
+				"void"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				// TODO: implement this method
-				throw new ClassMethodNotImplementedException("Method PLAY is not implemented yet");
+				String eventName = ((StringVariable) arguments.get(0)).GET();
+				playEvent(eventName);
+				return null;
 			}
 		});
-		this.setMethod("RESUME", new Method(
-			"void"
-		) {
-			@Override
-			public Variable execute(List<Object> arguments) {
-				// TODO: implement this method
-				throw new ClassMethodNotImplementedException("Method RESUME is not implemented yet");
-			}
-		});
-		this.setMethod("STOP", new Method(
-			List.of(
-				new Parameter("BOOL", "emitSignal", false)
-			),
-			"void"
-		) {
-			@Override
-			public Variable execute(List<Object> arguments) {
-				// TODO: implement this method
-				throw new ClassMethodNotImplementedException("Method STOP is not implemented yet");
-			}
-		});
+	}
+
+	public void loadSequence() {
+		try {
+			SEQParser.parseFile(this);
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	private void playEvent(String eventName) {
+		SequenceEvent event = eventMap.get(eventName);
+		if (event != null) {
+			currentEventName = eventName;
+			isPlaying = true;
+			event.play();
+		} else {
+			Gdx.app.error("SequenceVariable", "Event not found: " + eventName);
+		}
 	}
 
 	@Override
@@ -98,119 +103,87 @@ public class SequenceVariable extends Variable {
 		}
 	}
 
-    static class SequenceEvent {
-        private String name;
-        private String mode; // TODO: check what it change
-        private List<SequenceEvent> events;
-		private Map<String, Integer> seqevent;
-        
-        public SequenceEvent(String name) {
-            this.name = name;
-            this.mode = "SEQUENCE";
-            this.events = new ArrayList<>();
-			this.seqevent = new HashMap<>();
-        }
+	static class SequenceEvent {
+		private final String name;
+		private String nextEventName;
+		private final SequenceVariable sequenceVariable;
+
+		public SequenceEvent(String name, SequenceVariable sequenceVariable) {
+			this.name = name;
+			this.sequenceVariable = sequenceVariable;
+		}
 
 		public void play() {
-			for(SequenceEvent event : events) {
-				event.play();
-			}
-		}
-        
-        public void add(SequenceEvent event) {
-            this.events.add(event);
-        }
-
-		public void addSeqevent(String name, int seqVal) {
-			this.seqevent.put(name, seqVal);
+			Gdx.app.log("SequenceEvent", "Playing event: " + name);
 		}
 
-        public String getName() {
-            return this.name;
-        }
+		public String getName() {
+			return name;
+		}
 
-        public void setName(String name) {
-            this.name = name;
-        }
+		public String getNextEventName() {
+			return nextEventName;
+		}
 
-        public String getMode() {
-            return this.mode;
-        }
+		public void setNextEventName(String nextEventName) {
+			this.nextEventName = nextEventName;
+		}
+	}
 
-        public void setMode(String mode) {
-            this.mode = mode;
-        }
+	class SimpleEvent extends SequenceEvent {
+		private final StringVariable event;
+		private final AnimoVariable animoVariable;
 
-        public List<SequenceEvent> getEvents() {
-            return this.events;
-        }
-
-        public void setEvents(List<SequenceEvent> events) {
-            this.events = events;
-        }
-    }
-
-    class SimpleEvent extends SequenceEvent {
-        private final StringVariable event;
-		private AnimoVariable animoVariable;
-    
-        public SimpleEvent(String name, String filename, String event) {
-            super(name);
-            this.event = new StringVariable("", event, getContext());
+		public SimpleEvent(String name, String filename, String event) {
+			super(name, SequenceVariable.this);
+			this.event = new StringVariable("", event, getContext());
 			this.animoVariable = new AnimoVariable("", getContext());
 			this.animoVariable.setAttribute("FILENAME", filename);
 			AnimoLoader.loadAnimo(this.animoVariable);
-        }
-
-		@Override
-        public void play() {
-            this.animoVariable.getMethod("PLAY", Collections.singletonList("STRING")).execute(List.of(event));
-        }
-
-		public AnimoVariable getAnimoVariable() {
-			return animoVariable;
 		}
 
-		public void setAnimoVariable(AnimoVariable animoVariable) {
-			this.animoVariable = animoVariable;
+		@Override
+		public void play() {
+			this.animoVariable.getMethod("PLAY", Collections.singletonList("STRING")).execute(List.of(event));
+			super.play();
 		}
 	}
-    
-    class SpeakingEvent extends SequenceEvent {
-        private String prefix;
-        private boolean starting;
-        private boolean ending;
 
-		private AnimoVariable animoVariable;
-		private SoundVariable soundVariable;
-    
-        public SpeakingEvent(String name, String animofn, String prefix, String wavfn, boolean starting, boolean ending) {
-            super(name);
-            this.animoVariable = new AnimoVariable("", getContext());
+	class SpeakingEvent extends SequenceEvent {
+		private final String prefix;
+		private final boolean starting;
+		private final boolean ending;
+		private final AnimoVariable animoVariable;
+		private final SoundVariable soundVariable;
+
+		public SpeakingEvent(String name, String animofn, String prefix, String wavfn, boolean starting, boolean ending) {
+			super(name, SequenceVariable.this);
+			this.animoVariable = new AnimoVariable("", getContext());
 			this.animoVariable.setAttribute("FILENAME", animofn);
-            this.prefix = prefix;
-            this.soundVariable = new SoundVariable("", getContext());
+			this.prefix = prefix;
+			this.soundVariable = new SoundVariable("", getContext());
 			this.soundVariable.setAttribute("FILENAME", wavfn);
-            this.starting = starting;
-            this.ending = ending;
-        }
+			this.starting = starting;
+			this.ending = ending;
+		}
 
 		@Override
-        public void play() {
-            if (starting) {
-                triggerEvent(prefix + "_START");
-            }
-            
-            triggerEvent(prefix); // TODO: add _1 or something?
+		public void play() {
+			if (starting) {
+				triggerEvent(prefix + "_START");
+			}
+
+			triggerEvent(prefix); // TODO: add _1 or something?
 			// TODO: play audio
-    
-            if (ending) {
-                triggerEvent(prefix + "_STOP");
-            }
-        }
-    
-        private void triggerEvent(String eventName) {
-            this.animoVariable.getMethod("RUN", Collections.singletonList("STRING")).execute(List.of(eventName));
-        }
-    }
+
+			if (ending) {
+				triggerEvent(prefix + "_STOP");
+			}
+			super.play();
+		}
+
+		private void triggerEvent(String eventName) {
+			this.animoVariable.getMethod("RUN", Collections.singletonList("STRING")).execute(List.of(eventName));
+		}
+	}
 }

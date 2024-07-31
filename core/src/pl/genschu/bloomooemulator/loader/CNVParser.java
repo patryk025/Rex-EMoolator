@@ -15,6 +15,7 @@ import pl.genschu.bloomooemulator.interpreter.factories.VariableFactory;
 import pl.genschu.bloomooemulator.encoding.ScriptDecypher;
 import com.badlogic.gdx.Gdx;
 import pl.genschu.bloomooemulator.interpreter.variable.types.BehaviourVariable;
+import pl.genschu.bloomooemulator.interpreter.variable.types.SequenceVariable;
 
 import java.io.*;
 import java.util.*;
@@ -126,6 +127,10 @@ public class CNVParser {
                 }
             }
 
+            if(type.equals("SEQUENCE")) {
+                ((SequenceVariable) variable).loadSequence();
+            }
+
             context.setVariable(objectName, variable);
         } catch (IllegalArgumentException e) {
             Gdx.app.error("CNVParser", "Failed to create variable " + objectName + ": " + e.getMessage());
@@ -146,7 +151,7 @@ public class CNVParser {
                 variable.setSignal(signalName, new Signal() {
                     @Override
                     public void execute(Object argument) {
-                    behVariable.getMethod("RUN", new ArrayList<>()).execute(tmpParam != null ? Arrays.asList(tmpParam) : null);
+                    behVariable.getMethod("RUN", Collections.singletonList("mixed")).execute(tmpParam != null ? new ArrayList<>(Arrays.asList(tmpParam)) : null);
                     Gdx.app.log("Signal", "Signal " + signalName + " done");
                     }
                 });
