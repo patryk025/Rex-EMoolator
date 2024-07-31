@@ -20,6 +20,8 @@ import java.io.*;
 import java.util.*;
 
 public class CNVParser {
+    String[] tmpParam = null;
+
     public void parseFile(File plik, Context context) throws IOException {
         try {
             FileReader reader = new FileReader(plik);
@@ -135,6 +137,7 @@ public class CNVParser {
             for (Map.Entry<String, String> entry : variable.getPendingSignals().entrySet()) {
                 String signalName = entry.getKey();
                 String signalCode = entry.getValue();
+                tmpParam = null;
                 BehaviourVariable behVariable = processEventCode(signalCode, context);
                 if (behVariable == null) {
                     Gdx.app.error("CNVParser", "Failed to get behaviour variable for signal " + signalName);
@@ -143,8 +146,8 @@ public class CNVParser {
                 variable.setSignal(signalName, new Signal() {
                     @Override
                     public void execute(Object argument) {
-                        behVariable.getMethod("RUN", new ArrayList<>()).execute(null);
-                        Gdx.app.log("Signal", "Signal " + signalName + " done");
+                    behVariable.getMethod("RUN", new ArrayList<>()).execute(tmpParam != null ? Arrays.asList(tmpParam) : null);
+                    Gdx.app.log("Signal", "Signal " + signalName + " done");
                     }
                 });
             }
@@ -160,6 +163,12 @@ public class CNVParser {
             return new BehaviourVariable("", code, context); // parse code
         }
         // okey then, let's find behaviour variable
+        // firstly we check if it has param in parentheses
+        if(code.matches(".*\\(.*\\)")) {
+            String[] tmp = code.split("\\(");
+            code = tmp[0];
+            tmpParam = tmp[1].substring(0, tmp[1].length()-1).split(",");
+        }
         Variable behaviourVariable = context.getVariable(code, null);
         if(behaviourVariable.getType().equals("BEHAVIOUR")) {
             return (BehaviourVariable) behaviourVariable;

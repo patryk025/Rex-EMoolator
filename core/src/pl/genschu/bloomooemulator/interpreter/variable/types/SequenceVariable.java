@@ -6,9 +6,9 @@ import pl.genschu.bloomooemulator.interpreter.variable.Attribute;
 import pl.genschu.bloomooemulator.interpreter.variable.Method;
 import pl.genschu.bloomooemulator.interpreter.variable.Parameter;
 import pl.genschu.bloomooemulator.interpreter.variable.Variable;
+import pl.genschu.bloomooemulator.loader.AnimoLoader;
 
-import java.util.List;
-import java.util.ArrayList;
+import java.util.*;
 
 public class SequenceVariable extends Variable {
 	public SequenceVariable(String name, Context context) {
@@ -98,20 +98,32 @@ public class SequenceVariable extends Variable {
 		}
 	}
 
-    class SequenceEvent {
+    static class SequenceEvent {
         private String name;
-        private String mode;
+        private String mode; // TODO: check what it change
         private List<SequenceEvent> events;
+		private Map<String, Integer> seqevent;
         
         public SequenceEvent(String name) {
             this.name = name;
             this.mode = "SEQUENCE";
             this.events = new ArrayList<>();
+			this.seqevent = new HashMap<>();
         }
+
+		public void play() {
+			for(SequenceEvent event : events) {
+				event.play();
+			}
+		}
         
         public void add(SequenceEvent event) {
             this.events.add(event);
         }
+
+		public void addSeqevent(String name, int seqVal) {
+			this.seqevent.put(name, seqVal);
+		}
 
         public String getName() {
             return this.name;
@@ -139,42 +151,58 @@ public class SequenceVariable extends Variable {
     }
 
     class SimpleEvent extends SequenceEvent {
-        private String filename;
-        private String event;
+        private final StringVariable event;
+		private AnimoVariable animoVariable;
     
         public SimpleEvent(String name, String filename, String event) {
             super(name);
-            this.filename = filename;
-            this.event = event;
+            this.event = new StringVariable("", event, getContext());
+			this.animoVariable = new AnimoVariable("", getContext());
+			this.animoVariable.setAttribute("FILENAME", filename);
+			AnimoLoader.loadAnimo(this.animoVariable);
         }
-        
+
+		@Override
         public void play() {
-            // TODO: play animo
+            this.animoVariable.getMethod("PLAY", Collections.singletonList("STRING")).execute(List.of(event));
         }
-    }
+
+		public AnimoVariable getAnimoVariable() {
+			return animoVariable;
+		}
+
+		public void setAnimoVariable(AnimoVariable animoVariable) {
+			this.animoVariable = animoVariable;
+		}
+	}
     
     class SpeakingEvent extends SequenceEvent {
-        private String animofn;
         private String prefix;
-        private String wavfn;
         private boolean starting;
         private boolean ending;
+
+		private AnimoVariable animoVariable;
+		private SoundVariable soundVariable;
     
         public SpeakingEvent(String name, String animofn, String prefix, String wavfn, boolean starting, boolean ending) {
             super(name);
-            this.animofn = animofn;
+            this.animoVariable = new AnimoVariable("", getContext());
+			this.animoVariable.setAttribute("FILENAME", animofn);
             this.prefix = prefix;
-            this.wavfn = wavfn;
+            this.soundVariable = new SoundVariable("", getContext());
+			this.soundVariable.setAttribute("FILENAME", wavfn);
             this.starting = starting;
             this.ending = ending;
         }
-    
+
+		@Override
         public void play() {
             if (starting) {
                 triggerEvent(prefix + "_START");
             }
             
-            // TODO: ANIMO and SOUND
+            triggerEvent(prefix); // TODO: add _1 or something?
+			// TODO: play audio
     
             if (ending) {
                 triggerEvent(prefix + "_STOP");
@@ -182,7 +210,7 @@ public class SequenceVariable extends Variable {
         }
     
         private void triggerEvent(String eventName) {
-            // TODO: another TODO, booooring
+            this.animoVariable.getMethod("RUN", Collections.singletonList("STRING")).execute(List.of(eventName));
         }
     }
 }
