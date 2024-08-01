@@ -1,5 +1,6 @@
 package pl.genschu.bloomooemulator.interpreter.variable.types;
 
+import com.badlogic.gdx.audio.Sound;
 import pl.genschu.bloomooemulator.interpreter.exceptions.ClassMethodNotImplementedException;
 import pl.genschu.bloomooemulator.interpreter.Context;
 import pl.genschu.bloomooemulator.interpreter.variable.Attribute;
@@ -10,6 +11,8 @@ import pl.genschu.bloomooemulator.interpreter.variable.Variable;
 import java.util.List;
 
 public class SoundVariable extends Variable {
+	private Sound sound;
+
 	public SoundVariable(String name, Context context) {
 		super(name, context);
 

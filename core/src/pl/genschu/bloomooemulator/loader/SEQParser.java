@@ -11,7 +11,7 @@ import java.io.*;
 import java.util.HashMap;
 import java.util.Map;
 
-public  class SEQParser {
+public class SEQParser {
     public static void parseFile(SequenceVariable sequenceVariable) throws IOException {
         String filePath = FileUtils.resolveRelativePath(sequenceVariable);
         File file = new File(filePath);
@@ -59,7 +59,12 @@ public  class SEQParser {
                 currentObjectName = line.split("=")[1].trim();
                 properties = new HashMap<>();
             } else {
-                String[] parts = line.split("=");
+                String[] parts;
+                if (line.contains("="))
+                    parts = line.split("=");
+                else {
+                    parts = line.split(" "); // :ADD
+                }
                 if (parts.length == 2) {
                     properties.put(parts[0].trim(), parts[1].trim());
                 }
@@ -71,6 +76,46 @@ public  class SEQParser {
     }
 
     private static void createSequenceVariable(String objectName, Map<String, String> properties, SequenceVariable sequenceVariable) {
-       // TODO: implement
+        String type = properties.get(objectName + ":TYPE");
+
+        SequenceVariable.SequenceEvent event;
+        String animoFile;
+        String animoEvent;
+
+        switch (type) {
+            case "SEQUENCE":
+                event = new SequenceVariable.SequenceEvent(objectName, sequenceVariable.getContext());
+                break;
+            case "SPEAKING":
+                animoFile = properties.get(objectName + ":ANIMOFN");
+                animoEvent = properties.get(objectName + ":PREFIX");
+                String sequenceWav = properties.get(objectName + ":WAVFN");
+                boolean starting = properties.get(objectName + ":STARTING").equals("TRUE");
+                boolean ending = properties.get(objectName + ":ENDING").equals("TRUE");
+                event = new SequenceVariable.SpeakingEvent(objectName, animoFile, animoEvent, sequenceWav, starting, ending, sequenceVariable.getContext());
+                break;
+            case "SIMPLE":
+                animoFile = properties.get(objectName + ":FILENAME");
+                animoEvent = properties.get(objectName + ":EVENT");
+                event = new SequenceVariable.SimpleEvent(objectName, animoFile, animoEvent, sequenceVariable.getContext());
+                break;
+            default:
+                Gdx.app.error("SEQParser", "Unknown event type: " + type);
+                return;
+        }
+
+        String addTo = properties.get(objectName + ":EVENT");
+
+        if (addTo != null) {
+            SequenceVariable.SequenceEvent sequenceEvent = sequenceVariable.getEventMap().get(addTo);
+            if(sequenceEvent != null) {
+                sequenceEvent.getEventMap().put(objectName, event);
+            }
+            else {
+                Gdx.app.error("SEQParser", "Event not found: " + objectName);
+            }
+        }
+
+        sequenceVariable.getEventMap().put(objectName, event);
     }
 }

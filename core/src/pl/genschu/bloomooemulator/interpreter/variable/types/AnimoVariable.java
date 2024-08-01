@@ -634,6 +634,10 @@ public class AnimoVariable extends Variable {
 			}
 			else if(name.equals("FILENAME")) {
 				AnimoLoader.loadAnimo(this);
+				currentEvent = events.get(0);
+				currentFrameNumber = 0;
+				currentImageNumber = currentEvent.getFramesNumbers().get(currentFrameNumber);
+				currentImage = currentEvent.getFrames().get(currentImageNumber);
 			}
 		}
 	}
@@ -785,7 +789,15 @@ public class AnimoVariable extends Variable {
 
 	public Image getCurrentImage() {
 		if(currentImage == null) {
-			currentImage = currentEvent.getFrames().get(currentImageNumber);
+			try {
+				currentImage = currentEvent.getFrames().get(currentImageNumber);
+			} catch (NullPointerException e) {
+				AnimoLoader.loadAnimo(this);
+				currentEvent = events.get(0);
+				currentFrameNumber = 0;
+				currentImageNumber = currentEvent.getFramesNumbers().get(currentFrameNumber);
+				currentImage = currentEvent.getFrames().get(currentImageNumber);
+			}
 		}
 		return currentImage;
 	}

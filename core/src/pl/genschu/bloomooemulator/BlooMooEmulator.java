@@ -110,15 +110,19 @@ public class BlooMooEmulator extends ApplicationAdapter {
                     variable.getAttribute("VISIBLE").getValue().toString().equals("TRUE")
                 &&  variable.getAttribute("TOCANVAS").getValue().toString().equals("TRUE")
                 ) {
-                    Image image = animoVariable.getCurrentImage();
-                    Event event = animoVariable.getCurrentEvent();
-                    if(event == null) continue;
-                    FrameData frameData = event.getFrameData().get(animoVariable.getCurrentFrameNumber());
                     try {
-                        batch.draw(image.getImageTexture(), animoVariable.getPosX() + frameData.getOffsetX() + image.offsetX, Gdx.graphics.getHeight() - animoVariable.getPosY() - frameData.getOffsetY() - image.offsetY - image.height, image.width, image.height);
-                    } catch (NullPointerException ignored) {
+                        Image image = animoVariable.getCurrentImage();
+                        Event event = animoVariable.getCurrentEvent();
+                        if (event == null) continue;
+                        FrameData frameData = event.getFrameData().get(animoVariable.getCurrentFrameNumber());
+                        try {
+                            batch.draw(image.getImageTexture(), animoVariable.getPosX() + frameData.getOffsetX() + image.offsetX, Gdx.graphics.getHeight() - animoVariable.getPosY() - frameData.getOffsetY() - image.offsetY - image.height, image.width, image.height);
+                        } catch (NullPointerException ignored) {
+                        }
+                        animoVariable.updateAnimation(deltaTime);
+                    } catch(NullPointerException ignored) {
+                        Gdx.app.log("AnimoVariable", "Image not found");
                     }
-                    animoVariable.updateAnimation(deltaTime);
                 }
             }
         }

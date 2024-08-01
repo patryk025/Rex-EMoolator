@@ -14,7 +14,6 @@ import java.io.IOException;
 import java.util.*;
 
 public class SequenceVariable extends Variable {
-	private List<SequenceEvent> events = new ArrayList<>();
 	private Map<String, SequenceEvent> eventMap = new HashMap<>();
 	private String currentEventName;
 	private boolean isPlaying;
@@ -22,7 +21,7 @@ public class SequenceVariable extends Variable {
 	public SequenceVariable(String name, Context context) {
 		super(name, context);
 
-        this.setMethod("GETEVENTNAME", new Method(
+		this.setMethod("GETEVENTNAME", new Method(
 			"STRING"
 		) {
 			@Override
@@ -100,46 +99,37 @@ public class SequenceVariable extends Variable {
 		List<String> knownAttributes = List.of("FILENAME");
 		if(knownAttributes.contains(name)) {
 			super.setAttribute(name, attribute);
+			loadSequence();
 		}
 	}
 
-	static class SequenceEvent {
-		private final String name;
-		private String nextEventName;
-		private final SequenceVariable sequenceVariable;
+	public Map<String, SequenceEvent> getEventMap() {
+		return eventMap;
+	}
 
-		public SequenceEvent(String name, SequenceVariable sequenceVariable) {
-			this.name = name;
-			this.sequenceVariable = sequenceVariable;
+	public void setEventMap(Map<String, SequenceEvent> eventMap) {
+		this.eventMap = eventMap;
+	}
+
+	public static class SequenceEvent extends SequenceVariable {
+		public SequenceEvent(String name, Context context) {
+            super(name, context);
 		}
 
 		public void play() {
 			Gdx.app.log("SequenceEvent", "Playing event: " + name);
 		}
-
-		public String getName() {
-			return name;
-		}
-
-		public String getNextEventName() {
-			return nextEventName;
-		}
-
-		public void setNextEventName(String nextEventName) {
-			this.nextEventName = nextEventName;
-		}
 	}
 
-	class SimpleEvent extends SequenceEvent {
+	public static class SimpleEvent extends SequenceEvent {
 		private final StringVariable event;
 		private final AnimoVariable animoVariable;
 
-		public SimpleEvent(String name, String filename, String event) {
-			super(name, SequenceVariable.this);
-			this.event = new StringVariable("", event, getContext());
-			this.animoVariable = new AnimoVariable("", getContext());
+		public SimpleEvent(String name, String filename, String event, Context context) {
+			super(name, context);
+			this.event = new StringVariable("", event, context);
+			this.animoVariable = new AnimoVariable("", context);
 			this.animoVariable.setAttribute("FILENAME", filename);
-			AnimoLoader.loadAnimo(this.animoVariable);
 		}
 
 		@Override
@@ -149,19 +139,19 @@ public class SequenceVariable extends Variable {
 		}
 	}
 
-	class SpeakingEvent extends SequenceEvent {
+	public static class SpeakingEvent extends SequenceEvent {
 		private final String prefix;
 		private final boolean starting;
 		private final boolean ending;
 		private final AnimoVariable animoVariable;
 		private final SoundVariable soundVariable;
 
-		public SpeakingEvent(String name, String animofn, String prefix, String wavfn, boolean starting, boolean ending) {
-			super(name, SequenceVariable.this);
-			this.animoVariable = new AnimoVariable("", getContext());
+		public SpeakingEvent(String name, String animofn, String prefix, String wavfn, boolean starting, boolean ending, Context context) {
+			super(name, context);
+			this.animoVariable = new AnimoVariable("", context);
 			this.animoVariable.setAttribute("FILENAME", animofn);
 			this.prefix = prefix;
-			this.soundVariable = new SoundVariable("", getContext());
+			this.soundVariable = new SoundVariable("", context);
 			this.soundVariable.setAttribute("FILENAME", wavfn);
 			this.starting = starting;
 			this.ending = ending;
