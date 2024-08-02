@@ -4,7 +4,6 @@ import com.badlogic.gdx.Gdx;
 import pl.genschu.bloomooemulator.interpreter.Context;
 import pl.genschu.bloomooemulator.interpreter.exceptions.ClassMethodNotImplementedException;
 import pl.genschu.bloomooemulator.interpreter.variable.*;
-import pl.genschu.bloomooemulator.loader.AnimoLoader;
 import pl.genschu.bloomooemulator.loader.SEQParser;
 
 import java.util.*;
@@ -61,7 +60,7 @@ public class SequenceVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				String eventName = ((StringVariable) arguments.get(0)).GET();
+				StringVariable eventName = ((StringVariable) arguments.get(0));
 				playEvent(eventName);
 				return null;
 			}
@@ -76,9 +75,10 @@ public class SequenceVariable extends Variable {
 		}
 	}
 
-	private void playEvent(String eventName) {
-		SequenceEvent event = eventMap.get(eventName);
+	private void playEvent(StringVariable eventName) {
+		SequenceEvent event = eventMap.get(eventName.GET());
 		if (event != null) {
+			currentEventName = eventName.GET();
 			event.play(this); // Pass the parent object to the play method
 		} else {
 			Gdx.app.error("SequenceVariable", "Event not found: " + eventName);
@@ -181,9 +181,8 @@ public class SequenceVariable extends Variable {
 
 		@Override
 		public void play(SequenceVariable parent) {
-			Gdx.app.log("SimpleEvent", "Playing event " + event.GET());
+			Gdx.app.log("SimpleEvent", "Playing event " + parent.currentEventName);
 			this.animoVariable.getMethod("PLAY", Collections.singletonList("STRING")).execute(List.of(event));
-			parent.setCurrentEventName(event.GET());
 			parent.setPlaying(true);
 			parent.setCurrentAnimo(animoVariable);
 		}
@@ -195,7 +194,6 @@ public class SequenceVariable extends Variable {
 		private final boolean ending;
 		private final AnimoVariable animoVariable;
 		private final SoundVariable soundVariable;
-		private int finishedTaskCount;
 
 		public SpeakingEvent(String name, String animofn, String prefix, String wavfn, boolean starting, boolean ending, Context context) {
 			super(name, context);
@@ -205,7 +203,6 @@ public class SequenceVariable extends Variable {
 			this.soundVariable.setAttribute("FILENAME", wavfn);
 			this.starting = starting;
 			this.ending = ending;
-			this.finishedTaskCount = 0;
 		}
 
 		private AnimoVariable loadAnimoVariable(String filename, Context context) {
@@ -220,51 +217,57 @@ public class SequenceVariable extends Variable {
 
 		@Override
 		public void play(SequenceVariable parent) {
-			if (starting) {
-				triggerEvent(prefix + "_START");
-			}
-
-			playAnimation(parent);
-			playSound(parent);
-		}
-
-		private void playAnimation(SequenceVariable parent) {
-			this.animoVariable.getMethod("PLAY", Collections.singletonList("STRING")).execute(List.of(prefix));
-			this.animoVariable.setSignal("ONFINISHED", new Signal() {
+			Signal onMainFinished = new Signal() {
 				@Override
 				public void execute(Object argument) {
-					onTaskFinished(parent);
+					if (ending) {
+						playAnimation(parent, prefix + "_END", new Signal() {
+							@Override
+							public void execute(Object argument) {
+								emitSignal("ONFINISHED", parent.currentEventName);
+							}
+						});
+					}
+					else {
+						emitSignal("ONFINISHED", parent.currentEventName);
+					}
 				}
-			});
+			};
+
+			Signal onStartFinished = new Signal() {
+				@Override
+				public void execute(Object argument) {
+					playAnimation(parent, prefix+"_1", new Signal() {
+						@Override
+						public void execute(Object argument) {
+							// play in loop until sound end
+						}
+					});
+					playSound(parent, onMainFinished);
+				}
+			};
+
+			if (starting) {
+				playAnimation(parent, prefix + "_START", onStartFinished);
+			}
+			else {
+				playAnimation(parent, prefix, onMainFinished);
+			}
+
+		}
+
+		private void playAnimation(SequenceVariable parent, String event, Signal onFinished) {
+			StringVariable prefixVar = new StringVariable("", event, context);
+			this.animoVariable.getMethod("PLAY", Collections.singletonList("STRING")).execute(List.of(prefixVar));
+			this.animoVariable.setSignal("ONFINISHED^"+event, onFinished);
 			parent.setCurrentEventName(prefix);
 			parent.setPlaying(true);
 			parent.setCurrentAnimo(animoVariable);
 		}
 
-		private void playSound(SequenceVariable parent) {
+		private void playSound(SequenceVariable parent, Signal onFinished) {
 			this.soundVariable.getMethod("PLAY", Collections.emptyList()).execute(Collections.emptyList());
-			this.soundVariable.setSignal("ONFINISHED", new Signal() {
-				@Override
-				public void execute(Object argument) {
-					onTaskFinished(parent);
-				}
-			});
-		}
-
-		private synchronized void onTaskFinished(SequenceVariable parent) {
-			finishedTaskCount++;
-			if (finishedTaskCount >= 2) {
-				if (ending) {
-					triggerEvent(prefix + "_STOP");
-				}
-				parent.setPlaying(false);
-				parent.emitSignal("ONFINISHED");
-			}
-		}
-
-		private void triggerEvent(String eventName) {
-			Gdx.app.log("SpeakingEvent", "Playing event " + eventName);
-			this.animoVariable.getMethod("RUN", Collections.singletonList("STRING")).execute(List.of(eventName));
+			this.soundVariable.setSignal("ONFINISHED", onFinished);
 		}
 
 		public void emitSignal(String signalName) {

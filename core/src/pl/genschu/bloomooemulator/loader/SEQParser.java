@@ -3,6 +3,7 @@ package pl.genschu.bloomooemulator.loader;
 import com.badlogic.gdx.Gdx;
 import pl.genschu.bloomooemulator.encoding.ScriptDecypher;
 import pl.genschu.bloomooemulator.interpreter.Context;
+import pl.genschu.bloomooemulator.interpreter.variable.Signal;
 import pl.genschu.bloomooemulator.interpreter.variable.Variable;
 import pl.genschu.bloomooemulator.interpreter.variable.types.SequenceVariable;
 import pl.genschu.bloomooemulator.utils.FileUtils;
@@ -103,12 +104,6 @@ public class SEQParser {
                 Gdx.app.error("SEQParser", "Unknown event type: " + type);
                 return;
         }
-
-        /*for(String property : properties.keySet()) {
-            if(property.startsWith(objectName + ":ON")) {
-                event.setSignal(property.split(":ON")[1], sequenceVariable.getVariable(property.split(":ON")[1]));
-            }
-        }*/
 
         String addTo = properties.get(objectName + ":ADD");
 

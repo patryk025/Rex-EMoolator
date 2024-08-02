@@ -1,0 +1,24 @@
+package pl.genschu.bloomooemulator.loader;
+
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.files.FileHandle;
+import pl.genschu.bloomooemulator.interpreter.variable.Attribute;
+import pl.genschu.bloomooemulator.interpreter.variable.types.SoundVariable;
+import pl.genschu.bloomooemulator.utils.FileUtils;
+
+public class SoundLoader {
+    public static void loadSound(SoundVariable variable) {
+        try {
+            Attribute filename = variable.getAttribute("FILENAME");
+            if(!filename.getValue().toString().startsWith("$")) {
+                filename.setValue("$WAVS\\"+filename.getValue().toString());
+            }
+            String filePath = FileUtils.resolveRelativePath(variable);
+            FileHandle soundFileHandle = Gdx.files.absolute(filePath);
+
+            variable.setSound(Gdx.audio.newSound(soundFileHandle));
+        } catch (Exception e) {
+            Gdx.app.error("SoundLoader", "Error while loading sound: " + e.getMessage());
+        }
+    }
+}

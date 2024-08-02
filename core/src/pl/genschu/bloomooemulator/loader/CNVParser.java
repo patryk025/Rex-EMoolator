@@ -16,6 +16,7 @@ import pl.genschu.bloomooemulator.encoding.ScriptDecypher;
 import com.badlogic.gdx.Gdx;
 import pl.genschu.bloomooemulator.interpreter.variable.types.BehaviourVariable;
 import pl.genschu.bloomooemulator.interpreter.variable.types.SequenceVariable;
+import pl.genschu.bloomooemulator.interpreter.variable.types.SoundVariable;
 
 import java.io.*;
 import java.util.*;

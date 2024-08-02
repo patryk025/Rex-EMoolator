@@ -662,6 +662,7 @@ public class AnimoVariable extends Variable {
 
 				if(currentEvent.getLoopBy() == 0) { // TODO: check, how this value works
 					isPlaying = false;
+					emitSignal("ONFINISHED", currentEvent.getName());
 				}
 				else {
 					currentFrameNumber = 0;

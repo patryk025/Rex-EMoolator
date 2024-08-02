@@ -7,11 +7,14 @@ import pl.genschu.bloomooemulator.interpreter.variable.Attribute;
 import pl.genschu.bloomooemulator.interpreter.variable.Method;
 import pl.genschu.bloomooemulator.interpreter.variable.Parameter;
 import pl.genschu.bloomooemulator.interpreter.variable.Variable;
+import pl.genschu.bloomooemulator.loader.SoundLoader;
 
 import java.util.List;
 
 public class SoundVariable extends Variable {
 	private Sound sound;
+	private long soundId;
+	private boolean isPlaying;
 
 	public SoundVariable(String name, Context context) {
 		super(name, context);
@@ -21,8 +24,7 @@ public class SoundVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				// TODO: implement this method
-				throw new ClassMethodNotImplementedException("Method ISPLAYING is not implemented yet");
+				return new BoolVariable("", isPlaying, getContext());
 			}
 		});
 		this.setMethod("LOAD", new Method(
@@ -33,8 +35,8 @@ public class SoundVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				// TODO: implement this method
-				throw new ClassMethodNotImplementedException("Method LOAD is not implemented yet");
+				setAttribute("FILENAME", new Attribute("STRING", ((Variable) arguments.get(0)).getValue().toString()));
+				return null;
 			}
 		});
 		this.setMethod("PAUSE", new Method(
@@ -42,8 +44,9 @@ public class SoundVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				// TODO: implement this method
-				throw new ClassMethodNotImplementedException("Method PAUSE is not implemented yet");
+				sound.pause(soundId);
+				isPlaying = false;
+				return null;
 			}
 		});
 		this.setMethod("PLAY", new Method(
@@ -54,8 +57,13 @@ public class SoundVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				// TODO: implement this method
-				throw new ClassMethodNotImplementedException("Method PLAY is not implemented yet");
+				if(sound == null) {
+					loadSound();
+				}
+				soundId = sound.play();
+				isPlaying = true;
+				sound.setVolume(soundId, 1.0f);
+				return null;
 			}
 		});
 		this.setMethod("RESUME", new Method(
@@ -63,8 +71,9 @@ public class SoundVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				// TODO: implement this method
-				throw new ClassMethodNotImplementedException("Method RESUME is not implemented yet");
+				sound.resume(soundId);
+				isPlaying = true;
+				return null;
 			}
 		});
 		this.setMethod("STOP", new Method(
@@ -75,8 +84,9 @@ public class SoundVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				// TODO: implement this method
-				throw new ClassMethodNotImplementedException("Method STOP is not implemented yet");
+				sound.stop(soundId);
+				isPlaying = false;
+				return null;
 			}
 		});
 	}
@@ -94,4 +104,17 @@ public class SoundVariable extends Variable {
 		}
 	}
 
+	public void loadSound() {
+		if(sound == null) {
+			SoundLoader.loadSound(this);
+		}
+	}
+
+	public Sound getSound() {
+		return sound;
+	}
+
+	public void setSound(Sound sound) {
+		this.sound = sound;
+	}
 }
