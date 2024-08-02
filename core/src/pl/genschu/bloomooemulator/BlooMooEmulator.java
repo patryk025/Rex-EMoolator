@@ -134,7 +134,10 @@ public class BlooMooEmulator extends ApplicationAdapter {
             }
             if(variable instanceof SequenceVariable) {
                 SequenceVariable sequenceVariable = (SequenceVariable) variable;
+
                 try {
+                    //Gdx.app.log("SequenceVariable", "Is ANIMO available? " + (sequenceVariable.getCurrentAnimo() != null));
+                    //Gdx.app.log("SequenceVariable", "Frame number: " + (sequenceVariable.getCurrentAnimo().getCurrentFrameNumber()));
                     Image image = sequenceVariable.getCurrentAnimo().getCurrentImage();
                     Event event = sequenceVariable.getCurrentAnimo().getCurrentEvent();
                     if (event == null) continue;
@@ -143,9 +146,11 @@ public class BlooMooEmulator extends ApplicationAdapter {
                         batch.draw(image.getImageTexture(), frameData.getOffsetX() + image.offsetX, VIRTUAL_HEIGHT - frameData.getOffsetY() - image.offsetY - image.height, image.width, image.height);
                     } catch (NullPointerException ignored) {
                     }
-                    sequenceVariable.getCurrentAnimo().updateAnimation(deltaTime);
-                } catch(NullPointerException ignored) {
-                    Gdx.app.log("AnimoVariable", "Image not found");
+                    if(sequenceVariable.isPlaying()) {
+                        sequenceVariable.updateAnimation(deltaTime);
+                    }
+                } catch(NullPointerException e) {
+                    Gdx.app.log("SequenceVariable", "Image not found");
                 }
             }
         }

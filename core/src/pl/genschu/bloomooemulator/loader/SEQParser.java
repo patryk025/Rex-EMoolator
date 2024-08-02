@@ -104,6 +104,12 @@ public class SEQParser {
                 return;
         }
 
+        /*for(String property : properties.keySet()) {
+            if(property.startsWith(objectName + ":ON")) {
+                event.setSignal(property.split(":ON")[1], sequenceVariable.getVariable(property.split(":ON")[1]));
+            }
+        }*/
+
         String addTo = properties.get(objectName + ":ADD");
 
         if (addTo != null) {

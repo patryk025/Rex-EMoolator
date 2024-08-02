@@ -658,14 +658,20 @@ public class AnimoVariable extends Variable {
 			currentFrameNumber += direction;
 
 			if (currentFrameNumber >= currentEvent.getFrames().size()) {
-				currentFrameNumber = 0;
-
-				currentImageNumber = currentEvent.getFramesNumbers().get(currentFrameNumber);
-				currentImage = currentEvent.getFrames().get(currentImageNumber);
+				currentFrameNumber = currentEvent.getFrames().size() - 1;
 
 				if(currentEvent.getLoopBy() == 0) { // TODO: check, how this value works
 					isPlaying = false;
 				}
+				else {
+					currentFrameNumber = 0;
+					currentImageNumber = currentEvent.getFramesNumbers().get(currentFrameNumber);
+					currentImage = currentEvent.getFrames().get(currentFrameNumber);
+				}
+			}
+			else {
+				currentImageNumber = currentEvent.getFramesNumbers().get(currentFrameNumber);
+				currentImage = currentEvent.getFrames().get(currentFrameNumber);
 			}
 		}
 	}
@@ -805,5 +811,13 @@ public class AnimoVariable extends Variable {
 
 	public void setPriority(int priority) {
 		this.priority = priority;
+	}
+
+	public boolean isPlaying() {
+		return isPlaying;
+	}
+
+	public void setPlaying(boolean playing) {
+		isPlaying = playing;
 	}
 }
