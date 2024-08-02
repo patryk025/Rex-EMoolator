@@ -151,7 +151,7 @@ public abstract class Variable {
 	}
 
 	public void setAttribute(String name, String attribute) {
-		attributes.put(name, new Attribute(name, attribute));
+		setAttribute(name, new Attribute(name, attribute));
 	}
 
 	public Attribute getAttribute(String name) {

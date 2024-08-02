@@ -1,17 +1,21 @@
 package pl.genschu.bloomooemulator.interpreter.variable.types;
 
+import com.badlogic.gdx.audio.Music;
 import pl.genschu.bloomooemulator.interpreter.exceptions.ClassMethodNotImplementedException;
 import pl.genschu.bloomooemulator.interpreter.Context;
 import pl.genschu.bloomooemulator.interpreter.variable.Attribute;
 import pl.genschu.bloomooemulator.interpreter.variable.Method;
 import pl.genschu.bloomooemulator.interpreter.variable.Parameter;
 import pl.genschu.bloomooemulator.interpreter.variable.Variable;
+import pl.genschu.bloomooemulator.loader.ImageLoader;
 
 import java.io.File;
 import java.util.List;
 
 public class SceneVariable extends Variable {
 	private File path;
+	private ImageVariable background;
+	private Music music;
 
 	public SceneVariable(String name, Context context) {
 		super(name, context);
@@ -136,4 +140,26 @@ public class SceneVariable extends Variable {
 		}
 	}
 
+	public ImageVariable getBackground() {
+		if(background == null && getAttribute("BACKGROUND") != null) {
+			background = new ImageVariable(this.name + "_BACKGROUND", getContext());
+			background.setAttribute("FILENAME", new Attribute("FILENAME", getAttribute("BACKGROUND").getValue().toString()));
+			background.setAttribute("PRIORITY", new Attribute("PRIORITY", 0));
+			background.setAttribute("VISIBLE", new Attribute("VISIBLE", true));
+		}
+
+		return background;
+	}
+
+	public void setBackground(ImageVariable background) {
+		this.background = background;
+	}
+
+	public Music getMusic() {
+		return music;
+	}
+
+	public void setMusic(Music music) {
+		this.music = music;
+	}
 }

@@ -287,12 +287,13 @@ public class AnimoVariable extends Variable {
 			List.of(
 				new Parameter("STRING", "path", true)
 			),
-			"void/BOOLEAN?"
+			"void"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				// TODO: implement this method
-				throw new ClassMethodNotImplementedException("Method LOAD is not implemented yet");
+				String path = ((Variable) arguments.get(0)).getValue().toString();
+				setAttribute("FILENAME", path);
+				return null;
 			}
 		});
 		this.setMethod("MOVE", new Method(
@@ -789,15 +790,7 @@ public class AnimoVariable extends Variable {
 
 	public Image getCurrentImage() {
 		if(currentImage == null) {
-			try {
-				currentImage = currentEvent.getFrames().get(currentImageNumber);
-			} catch (NullPointerException e) {
-				AnimoLoader.loadAnimo(this);
-				currentEvent = events.get(0);
-				currentFrameNumber = 0;
-				currentImageNumber = currentEvent.getFramesNumbers().get(currentFrameNumber);
-				currentImage = currentEvent.getFrames().get(currentImageNumber);
-			}
+			currentImage = currentEvent.getFrames().get(currentImageNumber);
 		}
 		return currentImage;
 	}

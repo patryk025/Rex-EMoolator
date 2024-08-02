@@ -215,13 +215,13 @@ public class ImageVariable extends Variable {
 		List<String> knownAttributes = List.of("FILENAME", "MONITORCOLLISION", "MONITORCOLLISIONALPHA", "PRELOAD", "PRIORITY", "RELEASE", "TOCANVAS", "VISIBLE");
 		if(knownAttributes.contains(name)) {
 			super.setAttribute(name, attribute);
+			if(name.equals("FILENAME")) {
+				ImageLoader.loadImage(this);
+			}
 		}
 	}
 
 	public Image getImage() {
-		if(image == null) {
-			ImageLoader.loadImage(this);
-		}
 		return image;
 	}
 

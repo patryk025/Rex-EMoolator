@@ -24,6 +24,8 @@ public class Game {
     private String currentScene = "BRAKSCENY";
     private File currentSceneFile = null;
 
+    private SceneVariable currentSceneVariable;
+
     private ApplicationVariable applicationVariable;
 
     private CNVParser cnvParser = new CNVParser();
@@ -37,6 +39,8 @@ public class Game {
     public Game(GameEntry game) {
         this.definitionContext = new Context();
         this.game = game;
+
+        definitionContext.setGame(this);
 
         scanGameDirectory();
     }
@@ -128,8 +132,6 @@ public class Game {
 
         Gdx.app.log("Game loader", "Loading application variables...");
 
-        definitionContext.setGame(this);
-
         try {
             currentApplicationContext = new Context();
             currentApplicationContext.setParentContext(definitionContext);
@@ -214,6 +216,9 @@ public class Game {
             File sceneFile = FileUtils.findRelativeFileIgnoreCase(scene.getPath(), scene.getName() + ".cnv");
             currentSceneFile = scene.getPath();
             currentScene = scene.getName();
+
+            currentSceneVariable = scene;
+
             cnvParser.parseFile(sceneFile, currentSceneContext);
 
             runInit(currentSceneContext);
@@ -233,6 +238,14 @@ public class Game {
         } catch (Exception e) {
             Gdx.app.error("Game", "Error while running __INIT__ BEHAVIOUR: " + e.getMessage(), e);
         }
+    }
+
+    public SceneVariable getCurrentSceneVariable() {
+        return currentSceneVariable;
+    }
+
+    public void setCurrentSceneVariable(SceneVariable currentSceneVariable) {
+        this.currentSceneVariable = currentSceneVariable;
     }
 
     public Context getDefinitionContext() {

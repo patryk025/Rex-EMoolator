@@ -104,7 +104,7 @@ public class SEQParser {
                 return;
         }
 
-        String addTo = properties.get(objectName + ":EVENT");
+        String addTo = properties.get(objectName + ":ADD");
 
         if (addTo != null) {
             SequenceVariable.SequenceEvent sequenceEvent = sequenceVariable.getEventMap().get(addTo);

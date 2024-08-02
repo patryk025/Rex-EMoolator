@@ -24,6 +24,7 @@ import pl.genschu.bloomooemulator.interpreter.variable.Attribute;
 import pl.genschu.bloomooemulator.interpreter.variable.Variable;
 import pl.genschu.bloomooemulator.interpreter.variable.types.AnimoVariable;
 import pl.genschu.bloomooemulator.interpreter.variable.types.ImageVariable;
+import pl.genschu.bloomooemulator.interpreter.variable.types.SequenceVariable;
 import pl.genschu.bloomooemulator.loader.ImageLoader;
 import pl.genschu.bloomooemulator.logic.GameEntry;
 import pl.genschu.bloomooemulator.objects.Event;
@@ -83,6 +84,12 @@ public class BlooMooEmulator extends ApplicationAdapter {
         batch.begin();
         batch.setBlendFunction(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
 
+        ImageVariable background = game.getCurrentSceneVariable().getBackground();
+        if(background != null) {
+            Image image = background.getImage();
+            batch.draw(image.getImageTexture(), image.offsetX, Gdx.graphics.getHeight()-image.offsetY-image.height, image.width, image.height);
+        }
+
         for(String key : context.getGraphicsVariables().keySet()) {
             Variable variable = context.getGraphicsVariables().get(key);
             if(variable instanceof ImageVariable) {
@@ -123,6 +130,22 @@ public class BlooMooEmulator extends ApplicationAdapter {
                     } catch(NullPointerException ignored) {
                         Gdx.app.log("AnimoVariable", "Image not found");
                     }
+                }
+            }
+            if(variable instanceof SequenceVariable) {
+                SequenceVariable sequenceVariable = (SequenceVariable) variable;
+                try {
+                    Image image = sequenceVariable.getCurrentAnimo().getCurrentImage();
+                    Event event = sequenceVariable.getCurrentAnimo().getCurrentEvent();
+                    if (event == null) continue;
+                    FrameData frameData = event.getFrameData().get(sequenceVariable.getCurrentAnimo().getCurrentFrameNumber());
+                    try {
+                        batch.draw(image.getImageTexture(), frameData.getOffsetX() + image.offsetX, Gdx.graphics.getHeight() - frameData.getOffsetY() - image.offsetY - image.height, image.width, image.height);
+                    } catch (NullPointerException ignored) {
+                    }
+                    sequenceVariable.getCurrentAnimo().updateAnimation(deltaTime);
+                } catch(NullPointerException ignored) {
+                    Gdx.app.log("AnimoVariable", "Image not found");
                 }
             }
         }

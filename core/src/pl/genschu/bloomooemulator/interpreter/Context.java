@@ -54,7 +54,7 @@ public class Context {
     public void setVariable(String name, Variable variable) {
         variables.put(name, variable);
 
-        if(variable.getType().equals("ANIMO") || variable.getType().equals("IMAGE")) {
+        if(variable.getType().equals("ANIMO") || variable.getType().equals("IMAGE") || variable.getType().equals("SEQUENCE")) {
             graphicsVariables.put(name, variable);
         }
     }

@@ -10,19 +10,20 @@ import pl.genschu.bloomooemulator.interpreter.variable.Variable;
 import pl.genschu.bloomooemulator.loader.AnimoLoader;
 import pl.genschu.bloomooemulator.loader.SEQParser;
 
-import java.io.IOException;
 import java.util.*;
 
 public class SequenceVariable extends Variable {
+	private static Map<String, AnimoVariable> animoCache = new HashMap<>();
 	private Map<String, SequenceEvent> eventMap = new HashMap<>();
 	private String currentEventName;
+	private AnimoVariable currentAnimo;
 	private boolean isPlaying;
 
 	public SequenceVariable(String name, Context context) {
 		super(name, context);
 
 		this.setMethod("GETEVENTNAME", new Method(
-			"STRING"
+				"STRING"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
@@ -30,7 +31,7 @@ public class SequenceVariable extends Variable {
 			}
 		});
 		this.setMethod("HIDE", new Method(
-			"void"
+				"void"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
@@ -39,7 +40,7 @@ public class SequenceVariable extends Variable {
 			}
 		});
 		this.setMethod("ISPLAYING", new Method(
-			"BOOL"
+				"BOOL"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
@@ -47,7 +48,7 @@ public class SequenceVariable extends Variable {
 			}
 		});
 		this.setMethod("PAUSE", new Method(
-			"void"
+				"void"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
@@ -97,10 +98,14 @@ public class SequenceVariable extends Variable {
 	@Override
 	public void setAttribute(String name, Attribute attribute) {
 		List<String> knownAttributes = List.of("FILENAME");
-		if(knownAttributes.contains(name)) {
+		if (knownAttributes.contains(name)) {
 			super.setAttribute(name, attribute);
 			loadSequence();
 		}
+	}
+
+	public AnimoVariable getCurrentAnimo() {
+		return currentAnimo;
 	}
 
 	public Map<String, SequenceEvent> getEventMap() {
@@ -113,11 +118,11 @@ public class SequenceVariable extends Variable {
 
 	public static class SequenceEvent extends SequenceVariable {
 		public SequenceEvent(String name, Context context) {
-            super(name, context);
+			super(name, context);
 		}
 
 		public void play() {
-			Gdx.app.log("SequenceEvent", "Playing event: " + name);
+			Gdx.app.log("SequenceEvent", "Playing from sequence subtype not supported."); // That's how engine works
 		}
 	}
 
@@ -128,8 +133,17 @@ public class SequenceVariable extends Variable {
 		public SimpleEvent(String name, String filename, String event, Context context) {
 			super(name, context);
 			this.event = new StringVariable("", event, context);
-			this.animoVariable = new AnimoVariable("", context);
-			this.animoVariable.setAttribute("FILENAME", filename);
+			this.animoVariable = loadAnimoVariable(filename, context);
+		}
+
+		private AnimoVariable loadAnimoVariable(String filename, Context context) {
+			AnimoVariable animoVar = animoCache.get(filename);
+			if (animoVar == null) {
+				animoVar = new AnimoVariable(filename.replace(".ANN", ""), context);
+				animoVar.setAttribute("FILENAME", filename);
+				animoCache.put(filename, animoVar);
+			}
+			return animoVar;
 		}
 
 		@Override
@@ -148,13 +162,22 @@ public class SequenceVariable extends Variable {
 
 		public SpeakingEvent(String name, String animofn, String prefix, String wavfn, boolean starting, boolean ending, Context context) {
 			super(name, context);
-			this.animoVariable = new AnimoVariable("", context);
-			this.animoVariable.setAttribute("FILENAME", animofn);
+			this.animoVariable = loadAnimoVariable(animofn, context);
 			this.prefix = prefix;
 			this.soundVariable = new SoundVariable("", context);
 			this.soundVariable.setAttribute("FILENAME", wavfn);
 			this.starting = starting;
 			this.ending = ending;
+		}
+
+		private AnimoVariable loadAnimoVariable(String filename, Context context) {
+			AnimoVariable animoVar = animoCache.get(filename);
+			if (animoVar == null) {
+				animoVar = new AnimoVariable(filename.replace(".ANN", ""), context);
+				animoVar.setAttribute("FILENAME", filename);
+				animoCache.put(filename, animoVar);
+			}
+			return animoVar;
 		}
 
 		@Override

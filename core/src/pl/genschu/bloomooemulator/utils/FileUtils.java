@@ -1,5 +1,6 @@
 package pl.genschu.bloomooemulator.utils;
 
+import com.badlogic.gdx.Gdx;
 import pl.genschu.bloomooemulator.interpreter.variable.Variable;
 
 import java.io.File;
