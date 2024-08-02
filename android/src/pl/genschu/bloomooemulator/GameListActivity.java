@@ -116,7 +116,7 @@ public class GameListActivity extends AppCompatActivity {
             mouseModeSelectBox.setSelection(game.getMouseMode().equals("Dotykowo") ? 0 : 1);
             joystickCheckbox.setChecked(game.isMouseVirtualJoystick());
             skipPoliceCheckbox.setChecked(game.isSkipLicenceCode());
-            fullscreenCheckbox.setChecked(game.isMaintainAspectRatio());
+            fullscreenCheckbox.setChecked(!game.isMaintainAspectRatio());
         }
 
         builder.setPositiveButton("Zapisz", (dialog, which) -> {
@@ -127,7 +127,7 @@ public class GameListActivity extends AppCompatActivity {
                         mouseModeSelectBox.getSelectedItem().toString(),
                         joystickCheckbox.isChecked(),
                         skipPoliceCheckbox.isChecked(),
-                        fullscreenCheckbox.isChecked()));
+                        !fullscreenCheckbox.isChecked()));
 
                 adapter.notifyItemInserted(gameManager.getGames().indexOf(game, true));
             } else {

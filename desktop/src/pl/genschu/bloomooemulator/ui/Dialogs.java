@@ -55,7 +55,7 @@ public class Dialogs {
             mouseModeSelectBox.setSelectedItem(game.getMouseMode());
             joystickCheckbox.setSelected(game.isMouseVirtualJoystick());
             skipPoliceCheckbox.setSelected(game.isSkipLicenceCode());
-            fullscreenCheckbox.setSelected(game.isMaintainAspectRatio());
+            fullscreenCheckbox.setSelected(!game.isMaintainAspectRatio());
         }
 
         dialog.add(new JLabel(resourceBundle.getString("game_name")));
@@ -84,7 +84,7 @@ public class Dialogs {
                 game.setMouseMode(mouseModeSelectBox.getSelectedItem().toString());
                 game.setMouseVirtualJoystick(joystickCheckbox.isSelected());
                 game.setSkipLicenceCode(skipPoliceCheckbox.isSelected());
-                game.setMaintainAspectRatio(fullscreenCheckbox.isSelected());
+                game.setMaintainAspectRatio(!fullscreenCheckbox.isSelected());
                 gameManager.updateGame(game);
             }
             gameListFrame.refreshGameList();
