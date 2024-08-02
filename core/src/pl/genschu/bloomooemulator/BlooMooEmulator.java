@@ -87,7 +87,7 @@ public class BlooMooEmulator extends ApplicationAdapter {
         ImageVariable background = game.getCurrentSceneVariable().getBackground();
         if(background != null) {
             Image image = background.getImage();
-            batch.draw(image.getImageTexture(), image.offsetX, Gdx.graphics.getHeight()-image.offsetY-image.height, image.width, image.height);
+            batch.draw(image.getImageTexture(), image.offsetX, VIRTUAL_HEIGHT-image.offsetY-image.height, image.width, image.height);
         }
 
         for(String key : context.getGraphicsVariables().keySet()) {
@@ -104,7 +104,7 @@ public class BlooMooEmulator extends ApplicationAdapter {
                         batch.setColor(1, 1, 1, 1);
                     }
                     try {
-                        batch.draw(image.getImageTexture(), image.offsetX, Gdx.graphics.getHeight()-image.offsetY-image.height, image.width, image.height);
+                        batch.draw(image.getImageTexture(), image.offsetX, VIRTUAL_HEIGHT-image.offsetY-image.height, image.width, image.height);
                     } catch(NullPointerException ignored) {
                         // skip for now
                     }
@@ -123,7 +123,7 @@ public class BlooMooEmulator extends ApplicationAdapter {
                         if (event == null) continue;
                         FrameData frameData = event.getFrameData().get(animoVariable.getCurrentFrameNumber());
                         try {
-                            batch.draw(image.getImageTexture(), animoVariable.getPosX() + frameData.getOffsetX() + image.offsetX, Gdx.graphics.getHeight() - animoVariable.getPosY() - frameData.getOffsetY() - image.offsetY - image.height, image.width, image.height);
+                            batch.draw(image.getImageTexture(), animoVariable.getPosX() + frameData.getOffsetX() + image.offsetX, VIRTUAL_HEIGHT - animoVariable.getPosY() - frameData.getOffsetY() - image.offsetY - image.height, image.width, image.height);
                         } catch (NullPointerException ignored) {
                         }
                         animoVariable.updateAnimation(deltaTime);
@@ -140,7 +140,7 @@ public class BlooMooEmulator extends ApplicationAdapter {
                     if (event == null) continue;
                     FrameData frameData = event.getFrameData().get(sequenceVariable.getCurrentAnimo().getCurrentFrameNumber());
                     try {
-                        batch.draw(image.getImageTexture(), frameData.getOffsetX() + image.offsetX, Gdx.graphics.getHeight() - frameData.getOffsetY() - image.offsetY - image.height, image.width, image.height);
+                        batch.draw(image.getImageTexture(), frameData.getOffsetX() + image.offsetX, VIRTUAL_HEIGHT - frameData.getOffsetY() - image.offsetY - image.height, image.width, image.height);
                     } catch (NullPointerException ignored) {
                     }
                     sequenceVariable.getCurrentAnimo().updateAnimation(deltaTime);
