@@ -1,5 +1,6 @@
 package pl.genschu.bloomooemulator.interpreter.variable.types;
 
+import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.audio.Sound;
 import pl.genschu.bloomooemulator.interpreter.exceptions.ClassMethodNotImplementedException;
 import pl.genschu.bloomooemulator.interpreter.Context;
@@ -12,8 +13,7 @@ import pl.genschu.bloomooemulator.loader.SoundLoader;
 import java.util.List;
 
 public class SoundVariable extends Variable {
-	private Sound sound;
-	private long soundId;
+	private Music sound;
 	private boolean isPlaying;
 
 	public SoundVariable(String name, Context context) {
@@ -44,7 +44,7 @@ public class SoundVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				sound.pause(soundId);
+				sound.pause();
 				isPlaying = false;
 				return null;
 			}
@@ -60,9 +60,9 @@ public class SoundVariable extends Variable {
 				if(sound == null) {
 					loadSound();
 				}
-				soundId = sound.play();
+				sound.play();
 				isPlaying = true;
-				sound.setVolume(soundId, 1.0f);
+				sound.setVolume(1.0f);
 				return null;
 			}
 		});
@@ -71,7 +71,7 @@ public class SoundVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				sound.resume(soundId);
+				sound.play();
 				isPlaying = true;
 				return null;
 			}
@@ -84,7 +84,7 @@ public class SoundVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				sound.stop(soundId);
+				sound.stop();
 				isPlaying = false;
 				return null;
 			}
@@ -107,14 +107,17 @@ public class SoundVariable extends Variable {
 	public void loadSound() {
 		if(sound == null) {
 			SoundLoader.loadSound(this);
+			sound.setOnCompletionListener(music -> {
+                emitSignal("ONFINISHED");
+            });
 		}
 	}
 
-	public Sound getSound() {
+	public Music getSound() {
 		return sound;
 	}
 
-	public void setSound(Sound sound) {
+	public void setSound(Music sound) {
 		this.sound = sound;
 	}
 }

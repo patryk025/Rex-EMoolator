@@ -367,6 +367,7 @@ public class AnimoVariable extends Variable {
 					if(event.getName().equals(eventName)) {
 						currentEvent = event;
 						currentFrameNumber = 0;
+						currentImage = currentEvent.getFrames().get(currentFrameNumber);
 						isPlaying = true;
 						break;
 					}

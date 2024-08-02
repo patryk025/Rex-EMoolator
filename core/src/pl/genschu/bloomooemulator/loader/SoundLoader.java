@@ -16,7 +16,7 @@ public class SoundLoader {
             String filePath = FileUtils.resolveRelativePath(variable);
             FileHandle soundFileHandle = Gdx.files.absolute(filePath);
 
-            variable.setSound(Gdx.audio.newSound(soundFileHandle));
+            variable.setSound(Gdx.audio.newMusic(soundFileHandle));
         } catch (Exception e) {
             Gdx.app.error("SoundLoader", "Error while loading sound: " + e.getMessage());
         }

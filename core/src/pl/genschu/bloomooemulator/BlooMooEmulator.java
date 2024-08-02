@@ -136,8 +136,8 @@ public class BlooMooEmulator extends ApplicationAdapter {
                 SequenceVariable sequenceVariable = (SequenceVariable) variable;
 
                 try {
-                    Gdx.app.log("SequenceVariable", "Is ANIMO available? " + (sequenceVariable.getCurrentAnimo() != null));
-                    Gdx.app.log("SequenceVariable", "Frame number: " + (sequenceVariable.getCurrentAnimo().getCurrentFrameNumber()));
+                    //Gdx.app.log("SequenceVariable", "Is ANIMO available? " + (sequenceVariable.getCurrentAnimo() != null));
+                    //Gdx.app.log("SequenceVariable", "Frame number: " + (sequenceVariable.getCurrentAnimo().getCurrentFrameNumber()));
                     Image image = sequenceVariable.getCurrentAnimo().getCurrentImage();
                     Event event = sequenceVariable.getCurrentAnimo().getCurrentEvent();
                     if (event == null) continue;

@@ -259,6 +259,7 @@ public abstract class Variable {
 	}
 
 	public void emitSignal(String name, Object argument) {
+		Gdx.app.log("Variable", "Emitting signal " + name + " with argument " + argument);
 		String signalName = name;
 		if(argument != null) {
 			signalName += "^" + argument;

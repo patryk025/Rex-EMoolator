@@ -220,16 +220,18 @@ public class SequenceVariable extends Variable {
 			Signal onMainFinished = new Signal() {
 				@Override
 				public void execute(Object argument) {
+					parent.getCurrentAnimo().setPlaying(false);
+
 					if (ending) {
-						playAnimation(parent, prefix + "_END", new Signal() {
+						playAnimation(parent, prefix + "_STOP", new Signal() {
 							@Override
 							public void execute(Object argument) {
-								emitSignal("ONFINISHED", parent.currentEventName);
+								parent.emitSignal("ONFINISHED", parent.currentEventName);
 							}
 						});
 					}
 					else {
-						emitSignal("ONFINISHED", parent.currentEventName);
+						parent.emitSignal("ONFINISHED", parent.currentEventName);
 					}
 				}
 			};
@@ -240,7 +242,7 @@ public class SequenceVariable extends Variable {
 					playAnimation(parent, prefix+"_1", new Signal() {
 						@Override
 						public void execute(Object argument) {
-							// play in loop until sound end
+							playAnimation(parent, prefix+"_1", this);
 						}
 					});
 					playSound(parent, onMainFinished);
@@ -257,10 +259,10 @@ public class SequenceVariable extends Variable {
 		}
 
 		private void playAnimation(SequenceVariable parent, String event, Signal onFinished) {
+			Gdx.app.log("SpeakingEvent", "Playing animation " + event);
 			StringVariable prefixVar = new StringVariable("", event, context);
 			this.animoVariable.getMethod("PLAY", Collections.singletonList("STRING")).execute(List.of(prefixVar));
 			this.animoVariable.setSignal("ONFINISHED^"+event, onFinished);
-			parent.setCurrentEventName(prefix);
 			parent.setPlaying(true);
 			parent.setCurrentAnimo(animoVariable);
 		}
