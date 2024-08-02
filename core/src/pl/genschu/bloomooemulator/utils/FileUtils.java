@@ -53,7 +53,7 @@ public class FileUtils {
             else if(filePath.contains("$WAVS"))
                 filePath = filePath.replace("$WAVS", variable.getContext().getGame().getWavsFolder().getAbsolutePath());
             else
-                filePath = filePath.replace("$", variable.getContext().getGame().getDaneFolder().getAbsolutePath());
+                filePath = filePath.replace("$", variable.getContext().getGame().getDaneFolder().getParentFile().getAbsolutePath());
         }
         else {
             // probably is relative path
