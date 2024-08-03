@@ -9,7 +9,7 @@ import pl.genschu.bloomooemulator.loader.SEQParser;
 import java.util.*;
 
 public class SequenceVariable extends Variable {
-	private static Map<String, AnimoVariable> animoCache = new HashMap<>();
+	private final Map<String, AnimoVariable> animoCache = new HashMap<>();
 	protected Map<String, SequenceEvent> eventMap = new HashMap<>();
 	private String currentEventName;
 	private AnimoVariable currentAnimo;
@@ -60,7 +60,7 @@ public class SequenceVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				StringVariable eventName = ((StringVariable) arguments.get(0));
+				String eventName = ((StringVariable) arguments.get(0)).GET();
 				playEvent(eventName);
 				return null;
 			}
@@ -75,10 +75,10 @@ public class SequenceVariable extends Variable {
 		}
 	}
 
-	private void playEvent(StringVariable eventName) {
-		SequenceEvent event = eventMap.get(eventName.GET());
+	private void playEvent(String eventName) {
+		SequenceEvent event = eventMap.get(eventName);
 		if (event != null) {
-			currentEventName = eventName.GET();
+			currentEventName = eventName;
 			event.play(this); // Pass the parent object to the play method
 		} else {
 			Gdx.app.error("SequenceVariable", "Event not found: " + eventName);
@@ -88,19 +88,11 @@ public class SequenceVariable extends Variable {
 	public void updateAnimation(float deltaTime) {
 		if (isPlaying && currentAnimo != null) {
 			currentAnimo.updateAnimation(deltaTime);
-			if(!currentAnimo.isPlaying()) {
+			if (!currentAnimo.isPlaying()) {
 				isPlaying = false;
 				emitSignal("ONFINISHED", currentEventName);
 			}
 		}
-	}
-
-	public static Map<String, AnimoVariable> getAnimoCache() {
-		return animoCache;
-	}
-
-	public static void setAnimoCache(Map<String, AnimoVariable> animoCache) {
-		SequenceVariable.animoCache = animoCache;
 	}
 
 	public String getCurrentEventName() {
@@ -149,9 +141,16 @@ public class SequenceVariable extends Variable {
 		this.eventMap = eventMap;
 	}
 
-	public static class SequenceEvent extends SequenceVariable {
-		public SequenceEvent(String name, Context context) {
-			super(name, context);
+	public Map<String, AnimoVariable> getAnimoCache() {
+		return animoCache;
+	}
+
+	public class SequenceEvent extends SequenceVariable{
+		protected final SequenceVariable parent;
+
+		public SequenceEvent(String name, SequenceVariable parent) {
+			super(name, parent.getContext());
+			this.parent = parent;
 		}
 
 		public void play(SequenceVariable parent) {
@@ -159,22 +158,22 @@ public class SequenceVariable extends Variable {
 		}
 	}
 
-	public static class SimpleEvent extends SequenceEvent {
+	public class SimpleEvent extends SequenceEvent {
 		private final StringVariable event;
 		private final AnimoVariable animoVariable;
 
-		public SimpleEvent(String name, String filename, String event, Context context) {
-			super(name, context);
-			this.event = new StringVariable("", event, context);
-			this.animoVariable = loadAnimoVariable(filename, context);
+		public SimpleEvent(String name, String filename, String event, SequenceVariable parent) {
+			super(name, parent);
+			this.event = new StringVariable("", event, parent.getContext());
+			this.animoVariable = loadAnimoVariable(filename, parent);
 		}
 
-		private AnimoVariable loadAnimoVariable(String filename, Context context) {
-			AnimoVariable animoVar = animoCache.get(filename);
+		private AnimoVariable loadAnimoVariable(String filename, SequenceVariable parent) {
+			AnimoVariable animoVar = parent.animoCache.get(filename);
 			if (animoVar == null) {
-				animoVar = new AnimoVariable(filename.replace(".ANN", ""), context);
+				animoVar = new AnimoVariable(filename.replace(".ANN", ""), parent.getContext());
 				animoVar.setAttribute("FILENAME", filename);
-				animoCache.put(filename, animoVar);
+				parent.animoCache.put(filename, animoVar);
 			}
 			return animoVar;
 		}
@@ -188,29 +187,29 @@ public class SequenceVariable extends Variable {
 		}
 	}
 
-	public static class SpeakingEvent extends SequenceEvent {
+	public class SpeakingEvent extends SequenceEvent {
 		private final String prefix;
 		private final boolean starting;
 		private final boolean ending;
 		private final AnimoVariable animoVariable;
 		private final SoundVariable soundVariable;
 
-		public SpeakingEvent(String name, String animofn, String prefix, String wavfn, boolean starting, boolean ending, Context context) {
-			super(name, context);
-			this.animoVariable = loadAnimoVariable(animofn, context);
+		public SpeakingEvent(String name, String animofn, String prefix, String wavfn, boolean starting, boolean ending, SequenceVariable parent) {
+			super(name, parent);
+			this.animoVariable = loadAnimoVariable(animofn, parent);
 			this.prefix = prefix;
-			this.soundVariable = new SoundVariable("", context);
+			this.soundVariable = new SoundVariable("", parent.getContext());
 			this.soundVariable.setAttribute("FILENAME", wavfn);
 			this.starting = starting;
 			this.ending = ending;
 		}
 
-		private AnimoVariable loadAnimoVariable(String filename, Context context) {
-			AnimoVariable animoVar = animoCache.get(filename);
+		private AnimoVariable loadAnimoVariable(String filename, SequenceVariable parent) {
+			AnimoVariable animoVar = parent.animoCache.get(filename);
 			if (animoVar == null) {
-				animoVar = new AnimoVariable(filename.replace(".ANN", ""), context);
+				animoVar = new AnimoVariable(filename.replace(".ANN", ""), parent.getContext());
 				animoVar.setAttribute("FILENAME", filename);
-				animoCache.put(filename, animoVar);
+				parent.animoCache.put(filename, animoVar);
 			}
 			return animoVar;
 		}
@@ -229,8 +228,7 @@ public class SequenceVariable extends Variable {
 								parent.emitSignal("ONFINISHED", parent.currentEventName);
 							}
 						});
-					}
-					else {
+					} else {
 						parent.emitSignal("ONFINISHED", parent.currentEventName);
 					}
 				}
@@ -239,10 +237,10 @@ public class SequenceVariable extends Variable {
 			Signal onStartFinished = new Signal() {
 				@Override
 				public void execute(Object argument) {
-					playAnimation(parent, prefix+"_1", new Signal() {
+					playAnimation(parent, prefix + "_1", new Signal() {
 						@Override
 						public void execute(Object argument) {
-							playAnimation(parent, prefix+"_1", this);
+							playAnimation(parent, prefix + "_1", this);
 						}
 					});
 					playSound(parent, onMainFinished);
@@ -251,8 +249,7 @@ public class SequenceVariable extends Variable {
 
 			if (starting) {
 				playAnimation(parent, prefix + "_START", onStartFinished);
-			}
-			else {
+			} else {
 				playAnimation(parent, prefix, onMainFinished);
 			}
 
@@ -260,9 +257,9 @@ public class SequenceVariable extends Variable {
 
 		private void playAnimation(SequenceVariable parent, String event, Signal onFinished) {
 			Gdx.app.log("SpeakingEvent", "Playing animation " + event);
-			StringVariable prefixVar = new StringVariable("", event, context);
+			StringVariable prefixVar = new StringVariable("", event, parent.getContext());
 			this.animoVariable.getMethod("PLAY", Collections.singletonList("STRING")).execute(List.of(prefixVar));
-			this.animoVariable.setSignal("ONFINISHED^"+event, onFinished);
+			this.animoVariable.setSignal("ONFINISHED^" + event, onFinished);
 			parent.setPlaying(true);
 			parent.setCurrentAnimo(animoVariable);
 		}

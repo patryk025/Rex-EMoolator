@@ -85,7 +85,7 @@ public class SEQParser {
 
         switch (type) {
             case "SEQUENCE":
-                event = new SequenceVariable.SequenceEvent(objectName, sequenceVariable.getContext());
+                event = sequenceVariable.new SequenceEvent(objectName, sequenceVariable);
                 break;
             case "SPEAKING":
                 animoFile = properties.get(objectName + ":ANIMOFN");
@@ -93,12 +93,12 @@ public class SEQParser {
                 String sequenceWav = properties.get(objectName + ":WAVFN");
                 boolean starting = properties.get(objectName + ":STARTING").equals("TRUE");
                 boolean ending = properties.get(objectName + ":ENDING").equals("TRUE");
-                event = new SequenceVariable.SpeakingEvent(objectName, animoFile, animoEvent, sequenceWav, starting, ending, sequenceVariable.getContext());
+                event = sequenceVariable.new SpeakingEvent(objectName, animoFile, animoEvent, sequenceWav, starting, ending, sequenceVariable);
                 break;
             case "SIMPLE":
                 animoFile = properties.get(objectName + ":FILENAME");
                 animoEvent = properties.get(objectName + ":EVENT");
-                event = new SequenceVariable.SimpleEvent(objectName, animoFile, animoEvent, sequenceVariable.getContext());
+                event = sequenceVariable.new SimpleEvent(objectName, animoFile, animoEvent, sequenceVariable);
                 break;
             default:
                 Gdx.app.error("SEQParser", "Unknown event type: " + type);
@@ -109,10 +109,9 @@ public class SEQParser {
 
         if (addTo != null) {
             SequenceVariable.SequenceEvent sequenceEvent = sequenceVariable.getEventMap().get(addTo);
-            if(sequenceEvent != null) {
+            if (sequenceEvent != null) {
                 sequenceEvent.getEventMap().put(objectName, event);
-            }
-            else {
+            } else {
                 Gdx.app.error("SEQParser", "Event not found: " + objectName);
             }
         }
