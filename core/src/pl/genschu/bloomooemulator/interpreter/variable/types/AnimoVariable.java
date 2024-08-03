@@ -9,6 +9,7 @@ import pl.genschu.bloomooemulator.interpreter.variable.Variable;
 import pl.genschu.bloomooemulator.loader.AnimoLoader;
 import pl.genschu.bloomooemulator.objects.Event;
 import pl.genschu.bloomooemulator.objects.Image;
+import pl.genschu.bloomooemulator.utils.ArgumentsHelper;
 
 import java.util.List;
 
@@ -178,7 +179,7 @@ public class AnimoVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				String eventName = ((Variable) arguments.get(0)).getValue().toString();
+				String eventName = ArgumentsHelper.getString(arguments.get(0));
 
 				try {
 					int eventNumber = Integer.parseInt(eventName);
@@ -268,7 +269,7 @@ public class AnimoVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				// TODO: check if it works correct
-				String eventName = arguments.isEmpty() ? null : ((Variable) arguments.get(0)).getValue().toString();
+				String eventName = arguments.isEmpty() ? null : ArgumentsHelper.getString(arguments.get(0));
 				if(eventName == null) {
 					return new BoolVariable("", isPlaying, context);
 				}
@@ -291,7 +292,7 @@ public class AnimoVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				String path = ((Variable) arguments.get(0)).getValue().toString();
+				String path = ArgumentsHelper.getString(arguments.get(0));
 				setAttribute("FILENAME", path);
 				return null;
 			}
@@ -305,8 +306,8 @@ public class AnimoVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				int offsetX = Integer.parseInt(((Variable) arguments.get(0)).getValue().toString());
-				int offsetY = Integer.parseInt(((Variable) arguments.get(1)).getValue().toString());
+				int offsetX = ArgumentsHelper.getInteger(arguments.get(0));
+				int offsetY = ArgumentsHelper.getInteger(arguments.get(1));
 
 				posX += offsetX;
 				posY += offsetY;
@@ -338,7 +339,7 @@ public class AnimoVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				int eventId = Integer.parseInt(((Variable) arguments.get(0)).getValue().toString());
+				int eventId = ArgumentsHelper.getInteger(arguments.get(0));
 				currentEvent = events.get(eventId);
 				currentFrameNumber = 0;
 				isPlaying = true;
@@ -362,7 +363,7 @@ public class AnimoVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				String eventName = ((Variable) arguments.get(0)).getValue().toString();
+				String eventName = ArgumentsHelper.getString(arguments.get(0));
 				for(Event event : events) {
 					if(event.getName().equals(eventName)) {
 						currentEvent = event;
@@ -462,7 +463,7 @@ public class AnimoVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				int fps = Integer.parseInt(((Variable) arguments.get(0)).getValue().toString());
+				int fps = ArgumentsHelper.getInteger(arguments.get(0));
 				setFps(fps);
 				return null;
 			}
@@ -476,7 +477,7 @@ public class AnimoVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				String eventName = ((Variable) arguments.get(0)).getValue().toString();
+				String eventName = ArgumentsHelper.getString(arguments.get(0));
 				try {
 					int eventNumber = Integer.parseInt(eventName);
 					currentEvent = events.get(eventNumber);
@@ -514,18 +515,6 @@ public class AnimoVariable extends Variable {
 		});
 		this.setMethod("SETOPACITY", new Method(
 			List.of(
-				new Parameter("STRING", "opacity", true)
-			),
-			"void"
-		) {
-			@Override
-			public Variable execute(List<Object> arguments) {
-				// TODO: implement this method
-				throw new ClassMethodNotImplementedException("Method SETOPACITY is not implemented yet");
-			}
-		});
-		this.setMethod("SETOPACITY", new Method(
-			List.of(
 				new Parameter("INTEGER", "opacity", true)
 			),
 			"void"
@@ -545,8 +534,8 @@ public class AnimoVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				posX = Integer.parseInt(((Variable) arguments.get(0)).getValue().toString());
-				posY = Integer.parseInt(((Variable) arguments.get(1)).getValue().toString());
+				posX = ArgumentsHelper.getInteger(arguments.get(0));
+				posY = ArgumentsHelper.getInteger(arguments.get(1));
 				return null;
 			}
 		});
@@ -558,7 +547,7 @@ public class AnimoVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				priority = Integer.parseInt(((Variable) arguments.get(0)).getValue().toString());
+				priority = ArgumentsHelper.getInteger(arguments.get(0));
 				return null;
 			}
 		});
@@ -585,7 +574,7 @@ public class AnimoVariable extends Variable {
 				boolean emitSignal = arguments.isEmpty();
 
 				if(!emitSignal) {
-					emitSignal =  ((Variable) arguments.get(0)).getValue().toString().equals("FALSE");
+					emitSignal = ArgumentsHelper.getBoolean(arguments.get(0));
 				}
 
 				currentFrameNumber = 0;
@@ -599,17 +588,8 @@ public class AnimoVariable extends Variable {
 			}
 		});
 		this.setMethod("TOP", new Method(
-			"void"
-		) {
-			@Override
-			public Variable execute(List<Object> arguments) {
-				// TODO: implement this method
-				throw new ClassMethodNotImplementedException("Method TOP is not implemented yet");
-			}
-		});
-		this.setMethod("TOP", new Method(
 			List.of(
-				new Parameter("BOOL", "unknown", true)
+				new Parameter("BOOL", "unknown", false)
 			),
 			"void"
 		) {

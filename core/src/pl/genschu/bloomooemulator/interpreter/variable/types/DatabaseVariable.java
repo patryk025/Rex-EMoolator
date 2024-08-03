@@ -8,6 +8,7 @@ import pl.genschu.bloomooemulator.interpreter.variable.Method;
 import pl.genschu.bloomooemulator.interpreter.variable.Parameter;
 import pl.genschu.bloomooemulator.interpreter.variable.Variable;
 import pl.genschu.bloomooemulator.loader.DBLoader;
+import pl.genschu.bloomooemulator.utils.ArgumentsHelper;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,9 +31,9 @@ public class DatabaseVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				String columnName = arguments.get(0).toString();
-				String columnValue = arguments.get(1).toString();
-				int defaultIndex = Integer.parseInt(arguments.get(2).toString());
+				String columnName = ArgumentsHelper.getString(arguments.get(0));
+				String columnValue = ArgumentsHelper.getString(arguments.get(1));
+				int defaultIndex = ArgumentsHelper.getInteger(arguments.get(2));
 
 				if(columns == null) {
 					Variable tmpColumns = context.getVariable(getAttribute("MODEL").getValue().toString(), null);
@@ -66,7 +67,7 @@ public class DatabaseVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				String dtaName = arguments.get(0).toString();
+				String dtaName = ArgumentsHelper.getString(arguments.get(0));
 				DBLoader.loadDatabase(DatabaseVariable.this, dtaName);
 				return null;
 			}
@@ -109,7 +110,7 @@ public class DatabaseVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				Variable rowIndex = context.getVariable(((Variable) arguments.get(0)).getValue().toString(), null);
+				Variable rowIndex = context.getVariable(ArgumentsHelper.getString(arguments.get(0)), null);
 				if(rowIndex == null) {
 					select(0);
 				}

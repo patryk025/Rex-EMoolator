@@ -58,14 +58,15 @@ public class BehaviourVariable extends Variable {
 					arguments = List.of();
 				}
 
-				for(int i = 0; i < arguments.size(); i++) {
-					context.setVariable("$"+(i+1), (Variable) arguments.get(i));
-				}
-
 				if(interpreter == null) {
 					Gdx.app.error("BehaviourVariable", "Interpreter is null");
 					return null;
 				}
+
+				for(int i = 0; i < arguments.size(); i++) {
+					context.setVariable("$"+(i+1), (Variable) arguments.get(i));
+				}
+
 				interpreter.interpret();
 
 				for(int i = 0; i < arguments.size(); i++) {

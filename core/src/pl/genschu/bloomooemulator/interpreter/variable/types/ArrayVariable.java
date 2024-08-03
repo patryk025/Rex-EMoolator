@@ -1,5 +1,7 @@
 package pl.genschu.bloomooemulator.interpreter.variable.types;
 
+import pl.genschu.bloomooemulator.interpreter.arithmetic.ArithmeticOperation;
+import pl.genschu.bloomooemulator.interpreter.arithmetic.operations.AddOperation;
 import pl.genschu.bloomooemulator.interpreter.exceptions.ClassMethodNotImplementedException;
 import pl.genschu.bloomooemulator.interpreter.Context;
 import pl.genschu.bloomooemulator.interpreter.variable.Attribute;
@@ -7,6 +9,7 @@ import pl.genschu.bloomooemulator.interpreter.variable.Method;
 import pl.genschu.bloomooemulator.interpreter.variable.Parameter;
 import pl.genschu.bloomooemulator.interpreter.variable.Variable;
 import pl.genschu.bloomooemulator.loader.ArrayLoader;
+import pl.genschu.bloomooemulator.utils.ArgumentsHelper;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -42,8 +45,10 @@ public class ArrayVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				// TODO: implement this method
-				throw new ClassMethodNotImplementedException("Method ADDAT is not implemented yet");
+				int index = ArgumentsHelper.getInteger(arguments.get(0));
+				AddOperation operation = new AddOperation();
+				elements.set(index, operation.performOperation(elements.get(index), (Variable) arguments.get(1)));
+				return null;
 			}
 		});
 		this.setMethod("CHANGEAT", new Method(
@@ -55,8 +60,9 @@ public class ArrayVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				// TODO: implement this method
-				throw new ClassMethodNotImplementedException("Method CHANGEAT is not implemented yet");
+				int index = ArgumentsHelper.getInteger(arguments.get(0));
+				elements.set(index, (Variable) arguments.get(1));
+				return null;
 			}
 		});
 		this.setMethod("CLAMPAT", new Method(
@@ -69,6 +75,10 @@ public class ArrayVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
+				int index = ArgumentsHelper.getInteger(arguments.get(0));
+				double rangeMin = ArgumentsHelper.getDouble(arguments.get(1));
+				double rangeMax = ArgumentsHelper.getDouble(arguments.get(2));
+
 				// TODO: implement this method
 				throw new ClassMethodNotImplementedException("Method CLAMPAT is not implemented yet");
 			}
@@ -119,7 +129,7 @@ public class ArrayVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				try {
-					return elements.get(Integer.parseInt(((Variable) arguments.get(0)).getValue().toString()));
+					return elements.get(ArgumentsHelper.getInteger(arguments.get(0)));
 				} catch (IndexOutOfBoundsException e) {
 					return (Variable) arguments.get(1);
 				}
@@ -138,8 +148,12 @@ public class ArrayVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				// TODO: implement this method
-				throw new ClassMethodNotImplementedException("Method GETSUMVALUE is not implemented yet");
+				DoubleVariable sum = new DoubleVariable("", 0.0, context);
+				AddOperation operation = new AddOperation();
+				for(Variable element : elements) {
+					sum = (DoubleVariable) operation.performOperation(sum, element);
+				}
+				return sum;
 			}
 		});
 		this.setMethod("INSERTAT", new Method(
@@ -151,8 +165,9 @@ public class ArrayVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				// TODO: implement this method
-				throw new ClassMethodNotImplementedException("Method INSERTAT is not implemented yet");
+				int index = ArgumentsHelper.getInteger(arguments.get(0));
+				elements.add(index, (Variable) arguments.get(1));
+				return null;
 			}
 		});
 		this.setMethod("LOAD", new Method(
@@ -164,8 +179,8 @@ public class ArrayVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				elements.clear();
-				StringVariable var = (StringVariable) arguments.get(0);
-				ArrayLoader.loadArray(ArrayVariable.this, var.getValue().toString());
+				String path = ArgumentsHelper.getString(arguments.get(0));
+				ArrayLoader.loadArray(ArrayVariable.this, path);
 				return null;
 			}
 		});

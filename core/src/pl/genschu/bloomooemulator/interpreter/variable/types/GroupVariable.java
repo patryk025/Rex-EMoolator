@@ -54,8 +54,7 @@ public class GroupVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				// TODO: implement this method
-				throw new ClassMethodNotImplementedException("Method GETSIZE is not implemented yet");
+				return new IntegerVariable("", variables.size(), context);
 			}
 		});
 		this.setMethod("NEXT", new Method(
