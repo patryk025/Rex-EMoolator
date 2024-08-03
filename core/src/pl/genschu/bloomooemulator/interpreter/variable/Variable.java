@@ -293,6 +293,10 @@ public abstract class Variable {
 		return this.context;
 	}
 
+	public void setContext(Context context) {
+		this.context = context;
+	}
+
 	@Override
 	public String toString() {
 		return ""; // technicznie zmienne nie będące BOOLem, INTEGERem, DOUBLE, czy STRINGiem podczas próby wypisania wartości wywalają silnik, my zrobimy pustą wartość

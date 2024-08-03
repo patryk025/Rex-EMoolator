@@ -2,15 +2,19 @@ package pl.genschu.bloomooemulator.objects;
 
 import pl.genschu.bloomooemulator.interpreter.Context;
 import pl.genschu.bloomooemulator.interpreter.variable.Variable;
+import pl.genschu.bloomooemulator.interpreter.variable.types.AnimoVariable;
 import pl.genschu.bloomooemulator.interpreter.variable.types.ApplicationVariable;
 import pl.genschu.bloomooemulator.interpreter.variable.types.EpisodeVariable;
+import pl.genschu.bloomooemulator.interpreter.variable.types.ImageVariable;
 import pl.genschu.bloomooemulator.interpreter.variable.types.SceneVariable;
+import pl.genschu.bloomooemulator.interpreter.variable.types.SequenceVariable;
 import pl.genschu.bloomooemulator.loader.CNVParser;
 import pl.genschu.bloomooemulator.logic.GameEntry;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
@@ -237,6 +241,53 @@ public class Game {
             context.getVariable("__INIT__", null).getMethod("RUN", Collections.singletonList("mixed")).execute(null);
         } catch (Exception e) {
             Gdx.app.error("Game", "Error while running __INIT__ BEHAVIOUR: " + e.getMessage(), e);
+        }
+    }
+
+    // method for release data from memory
+    public void dispose() {
+        for(String key : definitionContext.getVariables().keySet()) {
+            Variable variable = definitionContext.getVariable(key, null);
+            if(variable instanceof SceneVariable) {
+                SceneVariable scene = (SceneVariable) variable;
+                if(scene.getBackground() != null) {
+                    try {
+                        scene.getBackground().getImage().getImageTexture().dispose();
+                    } catch (NullPointerException ignored) {}
+                }
+                for(String varKey : scene.getContext().getGraphicsVariables().keySet()) {
+                    Variable graphic = scene.getContext().getVariable(varKey, null);
+                    if(graphic instanceof AnimoVariable) {
+                        List<Image> images = ((AnimoVariable) graphic).getImages();
+                        for(Image image : images) {
+                            try {
+                                image.getImageTexture().dispose();
+                            } catch (NullPointerException ignored) {}
+                        }
+                    }
+                    if(graphic instanceof ImageVariable) {
+                        try {
+                            ((ImageVariable) graphic).getImage().getImageTexture().dispose();
+                        } catch (NullPointerException ignored) {}
+                    }
+                    if(graphic instanceof SequenceVariable) {
+                        SequenceVariable sequence = (SequenceVariable) graphic;
+                        
+                        Map<String, AnimoVariable> animos = sequence.getAnimoCache();
+                        
+                        for(String animoName : animos.keySet()) {
+                            AnimoVariable animo = animos.get(animoName);
+                            List<Image> images = animo.getImages();
+                            for(Image image : images) {
+                                try {
+                                    image.getImageTexture().dispose();
+                                } catch (NullPointerException ignored) {}
+                            }
+                        }
+                    }
+                }
+            }
+            variable.setContext(null);
         }
     }
 
