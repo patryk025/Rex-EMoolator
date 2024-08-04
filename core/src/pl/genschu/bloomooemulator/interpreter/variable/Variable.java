@@ -269,10 +269,14 @@ public abstract class Variable {
 			signal.execute(argument);
 		}
 		else {
+            Gdx.app.log(this.getClass().toString(), "Signal "+signalName+" not found. Looking for generic "+name+"...");
 			signal = this.getSignal(name);
 			if (signal != null) {
 				signal.execute(null);
 			}
+            else {
+                Gdx.app.log(this.getClass().toString(), "Signal "+name+" not found. Omitting...");
+            }
 		}
 	}
 

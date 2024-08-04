@@ -1,5 +1,6 @@
 package pl.genschu.bloomooemulator.interpreter.variable.types;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.audio.Sound;
 import pl.genschu.bloomooemulator.interpreter.exceptions.ClassMethodNotImplementedException;
@@ -60,9 +61,13 @@ public class SoundVariable extends Variable {
 				if(sound == null) {
 					loadSound();
 				}
-				sound.play();
-				isPlaying = true;
-				sound.setVolume(1.0f);
+                try {
+				    sound.play();
+				    isPlaying = true;
+				    sound.setVolume(1.0f);
+                } catch(Exception e) {
+                    Gdx.app.log("SoundVariable", "Error on playing sound: "+e.getMessage(), e);
+                }
 				return null;
 			}
 		});

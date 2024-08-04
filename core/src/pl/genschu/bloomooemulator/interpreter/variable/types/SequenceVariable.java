@@ -243,14 +243,28 @@ public class SequenceVariable extends Variable {
 							playAnimation(parent, prefix + "_1", this);
 						}
 					});
-					playSound(parent, onMainFinished);
+                    try {
+					    playSound(parent, onMainFinished);
+                    } catch(Exception e) {
+                        Gdx.app.error("SpeakingEvent", "Error on sound playing: "+e.getMessage(), e);
+                        onMainFinished.execute(null);
+                    }
 				}
 			};
 
 			if (starting) {
 				playAnimation(parent, prefix + "_START", onStartFinished);
 			} else {
-				playAnimation(parent, prefix, onMainFinished);
+				playAnimation(parent, prefix + "_1", new Signal() {
+                    @Override
+				    public void execute(Object argument) {}
+                });
+                try {
+					playSound(parent, onMainFinished);
+                } catch(Exception e) {
+                    Gdx.app.error("SpeakingEvent", "Error on sound playing: "+e.getMessage(), e);
+                    onMainFinished.execute(null);
+                }
 			}
 
 		}
