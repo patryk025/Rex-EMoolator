@@ -28,6 +28,7 @@ public class Context {
         this.parentContext = null;
         this.game = null;
         this.graphicsVariables = new HashMap<>();
+        this.buttonsVariables = new HashMap<>();
     }
 
     public Context(Context parentContext, Game game) {

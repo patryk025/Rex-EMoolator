@@ -159,10 +159,10 @@ public class BlooMooEmulator extends ApplicationAdapter {
 
         for (Variable variable : new ArrayList<>(context.getButtonsVariables().values())) {
             ButtonVariable button = (ButtonVariable) variable;
-            Gdx.app.log("ButtonDebug", button.getName());
-            Gdx.app.log("ButtonDebug", button.getRect() != null ? button.getRect().toString() : null);
-            Gdx.app.log("ButtonDebug", "x: " + x + " y: " + y);
-            Gdx.app.log("ButtonDebug", "contains: " + (button.getRect() != null && button.getRect().contains(x, y)) + " pressed: " + button.isPressed());
+            //Gdx.app.log("ButtonDebug", button.getName());
+            //Gdx.app.log("ButtonDebug", button.getRect() != null ? button.getRect().toString() : null);
+            //Gdx.app.log("ButtonDebug", "x: " + x + " y: " + y);
+            //Gdx.app.log("ButtonDebug", "contains: " + (button.getRect() != null && button.getRect().contains(x, y)) + " pressed: " + button.isPressed());
             if (button.getRect() != null) {
                 if (button.getRect().contains(x, y)) {
                     if (isPressed && !button.isPressed()) {
@@ -217,7 +217,7 @@ public class BlooMooEmulator extends ApplicationAdapter {
                 return Integer.compare(priority1, priority2);
             }
         };
-        drawList.sort(comparator);
+        Collections.sort(drawList, comparator);
         return drawList;
     }
 

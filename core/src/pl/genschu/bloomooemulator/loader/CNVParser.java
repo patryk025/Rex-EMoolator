@@ -21,6 +21,8 @@ import pl.genschu.bloomooemulator.interpreter.variable.types.SoundVariable;
 import java.io.*;
 import java.util.*;
 
+import static pl.genschu.bloomooemulator.interpreter.util.VariableHelper.getVariableFromObject;
+
 public class CNVParser {
     String[] tmpParam = null;
 
@@ -143,45 +145,67 @@ public class CNVParser {
             for (Map.Entry<String, String> entry : variable.getPendingSignals().entrySet()) {
                 String signalName = entry.getKey();
                 String signalCode = entry.getValue();
-                tmpParam = null;
-                BehaviourVariable behVariable = processEventCode(signalCode, context);
-                if (behVariable == null) {
+
+                // Process the event code and retrieve the parameters
+                SignalAndParams signalAndParams = processEventCode(signalCode, context);
+
+                if (signalAndParams == null || signalAndParams.behaviourVariable == null) {
                     Gdx.app.error("CNVParser", "Failed to get behaviour variable for signal " + signalName);
                     continue;
                 }
+
                 variable.setSignal(signalName, new Signal() {
                     @Override
                     public void execute(Object argument) {
-                    behVariable.getMethod("RUN", Collections.singletonList("mixed")).execute(tmpParam != null ? new ArrayList<>(Arrays.asList(tmpParam)) : null);
-                    Gdx.app.log("Signal", "Signal " + signalName + " done");
+                        List<Object> arguments = new ArrayList<>();
+                        if(signalAndParams.params != null)
+                            for(String param : signalAndParams.params) {
+                                arguments.add(getVariableFromObject(param, context));
+                            }
+                        signalAndParams.behaviourVariable.getMethod("RUN", Collections.singletonList("mixed"))
+                                .execute(!arguments.isEmpty() ? arguments : null);
+                        Gdx.app.log("Signal", "Signal " + signalName + " done");
                     }
                 });
             }
         }
     }
 
-    private BehaviourVariable processEventCode(String code, Context context) {
-        // first we need to check if it's not a code
+    private SignalAndParams processEventCode(String code, Context context) {
+        // First, check if it's a code block
         if (code.startsWith("{") && code.endsWith("}")) {
-            if(code.endsWith(":}")) {
-                code = code.substring(0, code.length() - 2) + ";}"; // little fix
+            if (code.endsWith(":}")) {
+                code = code.substring(0, code.length() - 2) + ";}"; // Fix the code format
             }
-            return new BehaviourVariable("", code, context); // parse code
+            return new SignalAndParams(new BehaviourVariable("", code, context), null); // Return the behaviour variable with no params
         }
-        // okey then, let's find behaviour variable
-        // firstly we check if it has param in parentheses
-        if(code.matches(".*\\(.*\\)")) {
+
+        // Check if it has parameters in parentheses
+        String[] params = null;
+        if (code.matches(".*\\(.*\\)")) {
             String[] tmp = code.split("\\(");
             code = tmp[0];
-            tmpParam = tmp[1].substring(0, tmp[1].length()-1).split(",");
+            params = tmp[1].substring(0, tmp[1].length() - 1).split(",");
         }
+
+        // Retrieve the behaviour variable
         Variable behaviourVariable = context.getVariable(code, null);
-        if(behaviourVariable.getType().equals("BEHAVIOUR")) {
-            return (BehaviourVariable) behaviourVariable;
-        }
-        else {
+        if (behaviourVariable != null && behaviourVariable.getType().equals("BEHAVIOUR")) {
+            return new SignalAndParams((BehaviourVariable) behaviourVariable, params);
+        } else {
             Gdx.app.error("CNVParser", "Variable " + code + " is not a BEHAVIOUR variable");
             return null;
+        }
+    }
+
+    // Helper class to store the behaviour variable and its parameters
+    private static class SignalAndParams {
+        BehaviourVariable behaviourVariable;
+        String[] params;
+
+        SignalAndParams(BehaviourVariable behaviourVariable, String[] params) {
+            this.behaviourVariable = behaviourVariable;
+            this.params = params;
         }
     }
 }

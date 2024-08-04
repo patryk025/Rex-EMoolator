@@ -29,10 +29,13 @@ public class MethodCallExpression extends Expression {
     }
 
     private Object callMethod(Variable variable, String methodName, Context context) {
+        Gdx.app.log("MethodCallExpression", "Calling method " + methodName + " on " + variable.getName() + " (" + variable.getType() + ")");
         int argumentsLength = this.arguments.length;
         Variable[] arguments = new Variable[argumentsLength];
+        Gdx.app.log("MethodCallExpression", "Arguments: ");
         for (int i = 0; i < argumentsLength; i++) {
             arguments[i] = getVariableFromObject(this.arguments[i], context);
+            Gdx.app.log("MethodCallExpression", "Argument " + i + ": " + arguments[i].getValue().toString());
         }
         try {
             return variable.fireMethod(methodName, (Object[]) arguments);

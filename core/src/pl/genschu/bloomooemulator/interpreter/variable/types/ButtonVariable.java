@@ -157,23 +157,36 @@ public class ButtonVariable extends Variable {
 	}
 
 	public Rectangle getRect() {
-		if(rect == null && getAttribute("GFXSTANDARD") != null) {
-			Gdx.app.log("ButtonVariable", "RECT is missing, but GFXSTANDARD is present: " + getAttribute("GFXSTANDARD").getValue());
-			String gfx = getAttribute("GFXSTANDARD").getValue().toString();
+		if(rect == null) {
+			if (getAttribute("GFXSTANDARD") != null) {
+				Gdx.app.log("ButtonVariable", "RECT is missing, but GFXSTANDARD is present: " + getAttribute("GFXSTANDARD").getValue());
+				String gfx = getAttribute("GFXSTANDARD").getValue().toString();
 
-			Variable gfxVariable = context.getVariable(gfx, null);
+				Variable gfxVariable = context.getVariable(gfx, null);
 
-			if(gfxVariable == null) {
-				return null;
+				if (gfxVariable == null) {
+					return null;
+				}
+
+				if (gfxVariable instanceof ImageVariable) {
+					ImageVariable imageVariable = (ImageVariable) gfxVariable;
+					rect = imageVariable.getRect();
+				} else if (gfxVariable instanceof AnimoVariable) {
+					AnimoVariable animoVariable = (AnimoVariable) gfxVariable;
+					rect = animoVariable.getRect();
+				}
 			}
-
-			if(gfxVariable instanceof ImageVariable) {
-				ImageVariable imageVariable = (ImageVariable) gfxVariable;
-				rect = imageVariable.getRect();
-			}
-			else if(gfxVariable instanceof AnimoVariable) {
-				AnimoVariable animoVariable = (AnimoVariable) gfxVariable;
-				rect = animoVariable.getRect();
+			else if(getAttribute("RECT") != null) {
+				Variable rectVariable = context.getVariable(getAttribute("RECT").getValue().toString(), null);
+				if(rectVariable != null) {
+					if (rectVariable instanceof ImageVariable) {
+						ImageVariable imageVariable = (ImageVariable) rectVariable;
+						rect = imageVariable.getRect();
+					} else if (rectVariable instanceof AnimoVariable) {
+						AnimoVariable animoVariable = (AnimoVariable) rectVariable;
+						rect = animoVariable.getRect();
+					}
+				}
 			}
 		}
 		return rect;

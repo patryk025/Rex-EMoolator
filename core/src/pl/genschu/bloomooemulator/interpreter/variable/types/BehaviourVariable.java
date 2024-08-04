@@ -67,6 +67,12 @@ public class BehaviourVariable extends Variable {
 					context.setVariable("$"+(i+1), (Variable) arguments.get(i));
 				}
 
+				Gdx.app.log("BehaviourVariable", "Running behaviour " + getName() + " with " + arguments.size() + " arguments");
+
+				for(int i = 0; i < arguments.size(); i++) {
+					Gdx.app.log("BehaviourVariable", "Argument " + (i+1) + ": " + arguments.get(i));
+				}
+
 				interpreter.interpret();
 
 				for(int i = 0; i < arguments.size(); i++) {
@@ -90,22 +96,9 @@ public class BehaviourVariable extends Variable {
 		this.setMethod("RUNLOOPED", new Method(
 			List.of(
 				new Parameter("INTEGER|DOUBLE", "startVal", true),
-				new Parameter("INTEGER|DOUBLE", "endDiff", true)
-			),
-			"mixed"
-		) {
-			@Override
-			public Variable execute(List<Object> arguments) {
-				// TODO: implement this method
-				throw new ClassMethodNotImplementedException("Method RUNLOOPED is not implemented yet");
-			}
-		});
-		this.setMethod("RUNLOOPED", new Method(
-			List.of(
-				new Parameter("INTEGER|DOUBLE", "startVal", true),
 				new Parameter("INTEGER|DOUBLE", "endDiff", true),
-				new Parameter("INTEGER|DOUBLE", "incrementBy", true),
-				new Parameter("mixed", "param1...paramN", true)
+				new Parameter("INTEGER|DOUBLE", "incrementBy", false),
+				new Parameter("mixed", "param1...paramN", false)
 			),
 			"mixed"
 		) {
