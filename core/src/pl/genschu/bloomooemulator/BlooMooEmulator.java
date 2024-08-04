@@ -3,9 +3,14 @@ import com.badlogic.gdx.Application;
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
+import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.GL20;
+import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Logger;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
@@ -50,12 +55,12 @@ public class BlooMooEmulator extends ApplicationAdapter {
     GameEntry gameEntry;
     Game game;
 
-
+    private Texture cursorTexture;
 
     public BlooMooEmulator(GameEntry gameEntry) {
         this.gameEntry = gameEntry;
     }
-
+    
     @Override
     public void create () {
         batch = new SpriteBatch();
@@ -71,6 +76,8 @@ public class BlooMooEmulator extends ApplicationAdapter {
             viewport = new StretchViewport(VIRTUAL_WIDTH, VIRTUAL_HEIGHT, camera);
         viewport.apply();
         camera.position.set(camera.viewportWidth / 2, camera.viewportHeight / 2, 0);
+        
+        cursorTexture = new Texture(Gdx.files.internal("kropka.png"));
 
         Gdx.app.setLogLevel(Application.LOG_DEBUG);
     }
@@ -146,12 +153,19 @@ public class BlooMooEmulator extends ApplicationAdapter {
             }
         }
 
-        batch.end();
-
         // Handle mouse events
         int x = Gdx.input.getX();
         int y = Gdx.input.getY();
         boolean isPressed = Gdx.input.isButtonPressed(Input.Buttons.LEFT);
+        
+        Gdx.app.log("MouseData", "Mouse coords: ("+x+", "+y+")");
+        
+        // correct coordinates according to window size
+        Vector2 correctedVector = getCorrectedMouseCoords(x, y, Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), (int) VIRTUAL_WIDTH, (int) VIRTUAL_HEIGHT);
+        x = (int) correctedVector.x;
+        y = (int) correctedVector.y;
+        
+        Gdx.app.log("MouseData", "Corrected mouse coords: ("+x+", "+y+")");
 
         // TODO: implement
         //MouseVariable mouse = context.getMouseVariable();
@@ -203,6 +217,10 @@ public class BlooMooEmulator extends ApplicationAdapter {
                 }
             }
         }
+        
+        // batch.draw(cursorTexture, x - 25, VIRTUAL_HEIGHT - y - 25, 50, 50);
+        
+        batch.end();
     }
 
     private List<Variable> getGraphicsVariables() {
@@ -232,4 +250,21 @@ public class BlooMooEmulator extends ApplicationAdapter {
         batch.dispose();
         game.dispose();
     }
+    
+    public Vector2 getCorrectedMouseCoords(int screenX, int screenY, int windowWidth, int windowHeight, int virtualWidth, int virtualHeight) {
+    // calculate scales
+    float aspectRatio = (float) virtualWidth / virtualHeight;
+    float windowRatio = (float) windowWidth / windowHeight;
+
+    float scale = windowRatio > aspectRatio ? (float) windowHeight / virtualHeight : (float) windowWidth / virtualWidth;
+
+    float correctX = (windowWidth - virtualWidth * scale) / 2;
+    float correctY = (windowHeight - virtualHeight * scale) / 2;
+
+    // correct coordinates
+    float x = (screenX - correctX) / scale;
+    float y = (screenY - correctY) / scale;
+
+    return new Vector2(x, y);
+}
 }
