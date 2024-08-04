@@ -27,10 +27,7 @@ import pl.genschu.bloomooemulator.interpreter.variable.types.ImageVariable;
 import pl.genschu.bloomooemulator.interpreter.variable.types.SequenceVariable;
 import pl.genschu.bloomooemulator.loader.ImageLoader;
 import pl.genschu.bloomooemulator.logic.GameEntry;
-import pl.genschu.bloomooemulator.objects.Event;
-import pl.genschu.bloomooemulator.objects.FrameData;
-import pl.genschu.bloomooemulator.objects.Game;
-import pl.genschu.bloomooemulator.objects.Image;
+import pl.genschu.bloomooemulator.objects.*;
 import pl.genschu.bloomooemulator.utils.CoordinatesHelper;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.utils.viewport.FitViewport;
@@ -62,7 +59,6 @@ public class BlooMooEmulator extends ApplicationAdapter {
 
         context = this.game.getCurrentSceneContext();
 
-        
         camera = new OrthographicCamera();
         if(gameEntry.isMaintainAspectRatio())
             viewport = new FitViewport(VIRTUAL_WIDTH, VIRTUAL_HEIGHT, camera);
@@ -96,15 +92,16 @@ public class BlooMooEmulator extends ApplicationAdapter {
                 Image image = ((ImageVariable) variable).getImage();
                 if(
                         variable.getAttribute("VISIBLE").getValue().toString().equals("TRUE")
-                    &&  variable.getAttribute("TOCANVAS").getValue().toString().equals("TRUE")
+                                &&  variable.getAttribute("TOCANVAS").getValue().toString().equals("TRUE")
                 ) {
                     try {
                         batch.setColor(1, 1, 1, ((int) variable.getAttribute("OPACITY").getValue()) / 255f);
                     } catch(NullPointerException e) {
                         batch.setColor(1, 1, 1, 1);
                     }
+                    Rectangle rect = ((ImageVariable) variable).getRect();
                     try {
-                        batch.draw(image.getImageTexture(), image.offsetX, VIRTUAL_HEIGHT-image.offsetY-image.height, image.width, image.height);
+                        batch.draw(image.getImageTexture(), rect.getXLeft(), VIRTUAL_HEIGHT-rect.getYTop()-image.height, image.width, image.height);
                     } catch(NullPointerException ignored) {
                         // skip for now
                     }
@@ -114,16 +111,16 @@ public class BlooMooEmulator extends ApplicationAdapter {
             if(variable instanceof AnimoVariable) {
                 AnimoVariable animoVariable = (AnimoVariable) variable;
                 if(
-                    variable.getAttribute("VISIBLE").getValue().toString().equals("TRUE")
-                &&  variable.getAttribute("TOCANVAS").getValue().toString().equals("TRUE")
+                        variable.getAttribute("VISIBLE").getValue().toString().equals("TRUE")
+                                &&  variable.getAttribute("TOCANVAS").getValue().toString().equals("TRUE")
                 ) {
                     try {
                         Image image = animoVariable.getCurrentImage();
                         Event event = animoVariable.getCurrentEvent();
                         if (event == null) continue;
-                        FrameData frameData = event.getFrameData().get(animoVariable.getCurrentFrameNumber());
+                        Rectangle rect = animoVariable.getRect();
                         try {
-                            batch.draw(image.getImageTexture(), frameData.getOffsetX() + image.offsetX - animoVariable.getPosX(), VIRTUAL_HEIGHT - frameData.getOffsetY() - image.offsetY - image.height + animoVariable.getPosY(), image.width, image.height);
+                            batch.draw(image.getImageTexture(), rect.getXLeft(), VIRTUAL_HEIGHT - rect.getYTop() - image.height, image.width, image.height);
                         } catch (NullPointerException ignored) {
                         }
                         animoVariable.updateAnimation(deltaTime);
@@ -141,9 +138,9 @@ public class BlooMooEmulator extends ApplicationAdapter {
                     Image image = sequenceVariable.getCurrentAnimo().getCurrentImage();
                     Event event = sequenceVariable.getCurrentAnimo().getCurrentEvent();
                     if (event == null) continue;
-                    FrameData frameData = event.getFrameData().get(sequenceVariable.getCurrentAnimo().getCurrentFrameNumber());
+                    Rectangle rect = sequenceVariable.getCurrentAnimo().getRect();
                     try {
-                        batch.draw(image.getImageTexture(), frameData.getOffsetX() + image.offsetX, VIRTUAL_HEIGHT - frameData.getOffsetY() - image.offsetY - image.height, image.width, image.height);
+                        batch.draw(image.getImageTexture(), rect.getXLeft(), VIRTUAL_HEIGHT - rect.getYTop() - image.height, image.width, image.height);
                     } catch (NullPointerException ignored) {
                     }
                     if(sequenceVariable.isPlaying()) {

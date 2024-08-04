@@ -8,7 +8,9 @@ import pl.genschu.bloomooemulator.interpreter.variable.Parameter;
 import pl.genschu.bloomooemulator.interpreter.variable.Variable;
 import pl.genschu.bloomooemulator.loader.AnimoLoader;
 import pl.genschu.bloomooemulator.objects.Event;
+import pl.genschu.bloomooemulator.objects.FrameData;
 import pl.genschu.bloomooemulator.objects.Image;
+import pl.genschu.bloomooemulator.objects.Rectangle;
 import pl.genschu.bloomooemulator.utils.ArgumentsHelper;
 
 import java.util.List;
@@ -42,8 +44,12 @@ public class AnimoVariable extends Variable {
 	private int priority = 0;
 	private float elapsedTime = 0f;
 
+	private Rectangle rect;
+
 	public AnimoVariable(String name, Context context) {
 		super(name, context);
+
+		rect = new Rectangle(0, 0, 0, 0);
 
 		this.setMethod("GETCENTERX", new Method(
 			List.of(
@@ -311,6 +317,7 @@ public class AnimoVariable extends Variable {
 
 				posX += offsetX;
 				posY += offsetY;
+				updateRect();
 
 				return null;
 			}
@@ -328,6 +335,7 @@ public class AnimoVariable extends Variable {
 
 				currentImageNumber = currentEvent.getFramesNumbers().get(currentFrameNumber);
 				currentImage = currentEvent.getFrames().get(currentImageNumber);
+				updateRect();
 				return null;
 			}
 		});
@@ -343,6 +351,7 @@ public class AnimoVariable extends Variable {
 				currentEvent = events.get(eventId);
 				currentFrameNumber = 0;
 				isPlaying = true;
+				updateRect();
 				return null;
 			}
 		});
@@ -370,6 +379,7 @@ public class AnimoVariable extends Variable {
 						currentFrameNumber = 0;
 						currentImage = currentEvent.getFrames().get(currentFrameNumber);
 						isPlaying = true;
+						updateRect();
 						break;
 					}
 				}
@@ -387,6 +397,7 @@ public class AnimoVariable extends Variable {
 				}
 				currentImageNumber = currentEvent.getFramesNumbers().get(currentFrameNumber);
 				currentImage = currentEvent.getFrames().get(currentImageNumber);
+				updateRect();
 				return null;
 			}
 		});
@@ -484,6 +495,7 @@ public class AnimoVariable extends Variable {
 					currentFrameNumber = arguments.size() >= 2 ? Integer.parseInt(((Variable) arguments.get(1)).getValue().toString()) : 0;
 					currentImageNumber = currentEvent.getFramesNumbers().get(currentFrameNumber);
 					currentImage = currentEvent.getFrames().get(currentImageNumber);
+					updateRect();
 					return null;
 				} catch (NumberFormatException e) {
 					for (Event event : events) {
@@ -492,6 +504,7 @@ public class AnimoVariable extends Variable {
 							currentFrameNumber = arguments.size() >= 2 ? Integer.parseInt(((Variable) arguments.get(1)).getValue().toString()) : 0;
 							currentImageNumber = currentEvent.getFramesNumbers().get(currentFrameNumber);
 							currentImage = currentEvent.getFrames().get(currentImageNumber);
+							updateRect();
 							break;
 						}
 					}
@@ -536,6 +549,7 @@ public class AnimoVariable extends Variable {
 			public Variable execute(List<Object> arguments) {
 				posX = ArgumentsHelper.getInteger(arguments.get(0));
 				posY = ArgumentsHelper.getInteger(arguments.get(1));
+				updateRect();
 				return null;
 			}
 		});
@@ -580,6 +594,7 @@ public class AnimoVariable extends Variable {
 				currentFrameNumber = 0;
 				currentImageNumber = currentEvent.getFramesNumbers().get(currentFrameNumber);
 				currentImage = currentEvent.getFrames().get(currentImageNumber);
+				updateRect();
 
 				if(emitSignal) {
 					emitSignal("ONFINISHED", currentEvent.getName());
@@ -620,6 +635,7 @@ public class AnimoVariable extends Variable {
 				currentFrameNumber = 0;
 				currentImageNumber = currentEvent.getFramesNumbers().get(currentFrameNumber);
 				currentImage = currentEvent.getFrames().get(currentImageNumber);
+				updateRect();
 			}
 		}
 	}
@@ -655,7 +671,22 @@ public class AnimoVariable extends Variable {
 				currentImageNumber = currentEvent.getFramesNumbers().get(currentFrameNumber);
 				currentImage = currentEvent.getFrames().get(currentFrameNumber);
 			}
+
+			updateRect();
 		}
+	}
+
+	public Rectangle getRect() {
+		return rect;
+	}
+
+	private void updateRect() {
+		FrameData frameData = currentEvent.getFrameData().get(currentFrameNumber);
+
+		rect.setXLeft(frameData.getOffsetX() + currentImage.offsetX - posX);
+		rect.setYTop(frameData.getOffsetY() + currentImage.offsetY - posY);
+		rect.setXRight(rect.getXLeft() + currentImage.width);
+		rect.setYBottom(rect.getYTop() + currentImage.height);
 	}
 
 	@Override
@@ -742,6 +773,7 @@ public class AnimoVariable extends Variable {
 
 	public void setPosX(int posX) {
 		this.posX = posX;
+		updateRect();
 	}
 
 	public int getPosY() {
@@ -750,6 +782,7 @@ public class AnimoVariable extends Variable {
 
 	public void setPosY(int posY) {
 		this.posY = posY;
+		updateRect();
 	}
 
 	public Event getCurrentEvent() {

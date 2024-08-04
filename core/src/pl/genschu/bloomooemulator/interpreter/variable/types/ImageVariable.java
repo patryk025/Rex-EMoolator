@@ -8,6 +8,7 @@ import pl.genschu.bloomooemulator.interpreter.variable.Parameter;
 import pl.genschu.bloomooemulator.interpreter.variable.Variable;
 import pl.genschu.bloomooemulator.loader.ImageLoader;
 import pl.genschu.bloomooemulator.objects.Image;
+import pl.genschu.bloomooemulator.objects.Rectangle;
 
 import java.util.List;
 
@@ -18,9 +19,12 @@ public class ImageVariable extends Variable {
 	private int posX;
 	private int posY;
 	private int opacity;
+	private Rectangle rect;
 
 	public ImageVariable(String name, Context context) {
 		super(name, context);
+
+		rect = new Rectangle(0, 0, 0, 0);
 
 		this.setMethod("GETALPHA", new Method(
 			List.of(
@@ -138,6 +142,7 @@ public class ImageVariable extends Variable {
 				int offsetY = getValueFromString((Variable) arguments.get(1));
 				posX += offsetX;
 				posY += offsetY;
+				updateRect();
 				return null;
 			}
 		});
@@ -179,6 +184,7 @@ public class ImageVariable extends Variable {
 			public Variable execute(List<Object> arguments) {
 				posX = getValueFromString((Variable) arguments.get(0));
 				posY = getValueFromString((Variable) arguments.get(1));
+				updateRect();
 				return null;
 			}
 		});
@@ -217,8 +223,20 @@ public class ImageVariable extends Variable {
 			super.setAttribute(name, attribute);
 			if(name.equals("FILENAME")) {
 				ImageLoader.loadImage(this);
+				updateRect();
 			}
 		}
+	}
+
+	public Rectangle getRect() {
+		return rect;
+	}
+
+	private void updateRect() {
+		rect.setXLeft(image.offsetX - posX);
+		rect.setYTop(image.offsetY - posY);
+		rect.setXRight(rect.getXLeft() + image.width);
+		rect.setYBottom(rect.getYTop() + image.height);
 	}
 
 	public Image getImage() {
