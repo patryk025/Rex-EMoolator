@@ -151,6 +151,10 @@ public class SceneVariable extends Variable {
 		return background;
 	}
 
+	public boolean isBackgroundLoaded() {
+		return getBackground() != null;
+	}
+
 	public void setBackground(ImageVariable background) {
 		this.background = background;
 	}

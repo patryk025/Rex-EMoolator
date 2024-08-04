@@ -2,6 +2,8 @@ package pl.genschu.bloomooemulator.interpreter;
 
 import pl.genschu.bloomooemulator.interpreter.factories.VariableFactory;
 import pl.genschu.bloomooemulator.interpreter.variable.Variable;
+import pl.genschu.bloomooemulator.interpreter.variable.types.KeyboardVariable;
+import pl.genschu.bloomooemulator.interpreter.variable.types.MouseVariable;
 import pl.genschu.bloomooemulator.objects.Game;
 
 import java.util.ArrayList;
@@ -16,6 +18,11 @@ public class Context {
     private Game game;
 
     private Map<String, Variable> graphicsVariables; // cache for faster drawing
+    private Map<String, Variable> buttonsVariables;
+
+    // TODO: implement
+    //private MouseVariable mouseVariable;
+    //private KeyboardVariable keyboardVariable;
 
     public Context() {
         this.parentContext = null;
@@ -51,11 +58,22 @@ public class Context {
         return graphicsVariables;
     }
 
+    public Map<String, Variable> getButtonsVariables() {
+        return buttonsVariables;
+    }
+
     public void setVariable(String name, Variable variable) {
         variables.put(name, variable);
 
         if(variable.getType().equals("ANIMO") || variable.getType().equals("IMAGE") || variable.getType().equals("SEQUENCE")) {
             graphicsVariables.put(name, variable);
+        }
+
+        if(variable.getType().equals("BUTTON")) {
+            if(buttonsVariables == null) {
+                buttonsVariables = new HashMap<>();
+            }
+            buttonsVariables.put(name, variable);
         }
     }
 

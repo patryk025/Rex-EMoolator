@@ -46,6 +46,16 @@ public class Rectangle {
     }
 
     public boolean contains(int x, int y) {
-        return x >= xLeft && x <= xRight && y >= yBottom && y <= yTop;
+        return x >= xLeft && x <= xRight && y <= yBottom && y >= yTop;
+    }
+
+    @Override
+    public String toString() {
+        return "Rectangle{" +
+                "xLeft=" + xLeft +
+                ", yBottom=" + yBottom +
+                ", xRight=" + xRight +
+                ", yTop=" + yTop +
+                '}';
     }
 }

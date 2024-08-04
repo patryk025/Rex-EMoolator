@@ -2,6 +2,7 @@ package pl.genschu.bloomooemulator;
 import com.badlogic.gdx.Application;
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -21,10 +22,9 @@ import pl.genschu.bloomooemulator.interpreter.ast.ASTBuilderVisitor;
 import pl.genschu.bloomooemulator.interpreter.ast.Node;
 import pl.genschu.bloomooemulator.interpreter.util.Point;
 import pl.genschu.bloomooemulator.interpreter.variable.Attribute;
+import pl.genschu.bloomooemulator.interpreter.variable.Signal;
 import pl.genschu.bloomooemulator.interpreter.variable.Variable;
-import pl.genschu.bloomooemulator.interpreter.variable.types.AnimoVariable;
-import pl.genschu.bloomooemulator.interpreter.variable.types.ImageVariable;
-import pl.genschu.bloomooemulator.interpreter.variable.types.SequenceVariable;
+import pl.genschu.bloomooemulator.interpreter.variable.types.*;
 import pl.genschu.bloomooemulator.loader.ImageLoader;
 import pl.genschu.bloomooemulator.logic.GameEntry;
 import pl.genschu.bloomooemulator.objects.*;
@@ -32,6 +32,11 @@ import pl.genschu.bloomooemulator.utils.CoordinatesHelper;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
 
 public class BlooMooEmulator extends ApplicationAdapter {
     private static final float VIRTUAL_WIDTH = 800;
@@ -77,6 +82,8 @@ public class BlooMooEmulator extends ApplicationAdapter {
         camera.update();
         batch.setProjectionMatrix(camera.combined);
 
+        List<Variable> drawList = getGraphicsVariables();
+
         batch.begin();
         batch.setBlendFunction(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
 
@@ -86,14 +93,11 @@ public class BlooMooEmulator extends ApplicationAdapter {
             batch.draw(image.getImageTexture(), image.offsetX, VIRTUAL_HEIGHT-image.offsetY-image.height, image.width, image.height);
         }
 
-        for(String key : context.getGraphicsVariables().keySet()) {
-            Variable variable = context.getGraphicsVariables().get(key);
+        for (Variable variable : drawList) {
             if(variable instanceof ImageVariable) {
                 Image image = ((ImageVariable) variable).getImage();
-                if(
-                        variable.getAttribute("VISIBLE").getValue().toString().equals("TRUE")
-                                &&  variable.getAttribute("TOCANVAS").getValue().toString().equals("TRUE")
-                ) {
+                if(variable.getAttribute("VISIBLE").getValue().toString().equals("TRUE")
+                        &&  variable.getAttribute("TOCANVAS").getValue().toString().equals("TRUE")) {
                     try {
                         batch.setColor(1, 1, 1, ((int) variable.getAttribute("OPACITY").getValue()) / 255f);
                     } catch(NullPointerException e) {
@@ -106,14 +110,10 @@ public class BlooMooEmulator extends ApplicationAdapter {
                         // skip for now
                     }
                 }
-            }
-            // TODO: system animacji
-            if(variable instanceof AnimoVariable) {
+            } else if(variable instanceof AnimoVariable) {
                 AnimoVariable animoVariable = (AnimoVariable) variable;
-                if(
-                        variable.getAttribute("VISIBLE").getValue().toString().equals("TRUE")
-                                &&  variable.getAttribute("TOCANVAS").getValue().toString().equals("TRUE")
-                ) {
+                if(variable.getAttribute("VISIBLE").getValue().toString().equals("TRUE")
+                        &&  variable.getAttribute("TOCANVAS").getValue().toString().equals("TRUE")) {
                     try {
                         Image image = animoVariable.getCurrentImage();
                         Event event = animoVariable.getCurrentEvent();
@@ -121,28 +121,22 @@ public class BlooMooEmulator extends ApplicationAdapter {
                         Rectangle rect = animoVariable.getRect();
                         try {
                             batch.draw(image.getImageTexture(), rect.getXLeft(), VIRTUAL_HEIGHT - rect.getYTop() - image.height, image.width, image.height);
-                        } catch (NullPointerException ignored) {
-                        }
+                        } catch (NullPointerException ignored) {}
                         animoVariable.updateAnimation(deltaTime);
                     } catch(NullPointerException ignored) {
                         Gdx.app.log("AnimoVariable", "Image not found");
                     }
                 }
-            }
-            if(variable instanceof SequenceVariable) {
+            } else if(variable instanceof SequenceVariable) {
                 SequenceVariable sequenceVariable = (SequenceVariable) variable;
-
                 try {
-                    //Gdx.app.log("SequenceVariable", "Is ANIMO available? " + (sequenceVariable.getCurrentAnimo() != null));
-                    //Gdx.app.log("SequenceVariable", "Frame number: " + (sequenceVariable.getCurrentAnimo().getCurrentFrameNumber()));
                     Image image = sequenceVariable.getCurrentAnimo().getCurrentImage();
                     Event event = sequenceVariable.getCurrentAnimo().getCurrentEvent();
                     if (event == null) continue;
                     Rectangle rect = sequenceVariable.getCurrentAnimo().getRect();
                     try {
                         batch.draw(image.getImageTexture(), rect.getXLeft(), VIRTUAL_HEIGHT - rect.getYTop() - image.height, image.width, image.height);
-                    } catch (NullPointerException ignored) {
-                    }
+                    } catch (NullPointerException ignored) {}
                     if(sequenceVariable.isPlaying()) {
                         sequenceVariable.updateAnimation(deltaTime);
                     }
@@ -153,7 +147,80 @@ public class BlooMooEmulator extends ApplicationAdapter {
         }
 
         batch.end();
+
+        // Handle mouse events
+        int x = Gdx.input.getX();
+        int y = Gdx.input.getY();
+        boolean isPressed = Gdx.input.isButtonPressed(Input.Buttons.LEFT);
+
+        // TODO: implement
+        //MouseVariable mouse = context.getMouseVariable();
+        //mouse.update(x, y, isPressed);
+
+        for (Variable variable : new ArrayList<>(context.getButtonsVariables().values())) {
+            ButtonVariable button = (ButtonVariable) variable;
+            Gdx.app.log("ButtonDebug", button.getName());
+            Gdx.app.log("ButtonDebug", button.getRect() != null ? button.getRect().toString() : null);
+            Gdx.app.log("ButtonDebug", "x: " + x + " y: " + y);
+            Gdx.app.log("ButtonDebug", "contains: " + (button.getRect() != null && button.getRect().contains(x, y)) + " pressed: " + button.isPressed());
+            if (button.getRect() != null) {
+                if (button.getRect().contains(x, y)) {
+                    if (isPressed && !button.isPressed()) {
+                        Signal onClickSignal = button.getSignal("ONCLICKED");
+                        if (onClickSignal != null) {
+                            onClickSignal.execute(null);
+                        }
+                        button.setPressed(true);
+                    } else if (!isPressed && button.isPressed()) {
+                        button.setPressed(false);
+                        Signal onReleasedSignal = button.getSignal("ONRELEASED");
+                        if (onReleasedSignal != null) {
+                            onReleasedSignal.execute(null);
+                        }
+                    }
+                    if (!button.isFocused()) {
+                        button.setFocused(true);
+                        Signal onFocusSignal = button.getSignal("ONFOCUSON");
+                        if (onFocusSignal != null) {
+                            onFocusSignal.execute(null);
+                        }
+                    }
+                } else {
+                    if (button.isPressed() && !isPressed) {
+                        button.setPressed(false);
+                        Signal onReleasedSignal = button.getSignal("ONRELEASED");
+                        if (onReleasedSignal != null) {
+                            onReleasedSignal.execute(null);
+                        }
+                    }
+                    if (button.isFocused()) {
+                        button.setFocused(false);
+                        Signal onFocusLossSignal = button.getSignal("ONFOCUSOFF");
+                        if (onFocusLossSignal != null) {
+                            onFocusLossSignal.execute(null);
+                        }
+                    }
+                }
+            }
+        }
     }
+
+    private List<Variable> getGraphicsVariables() {
+        List<Variable> drawList = new ArrayList<>(context.getGraphicsVariables().values());
+        Comparator<Variable> comparator = new Comparator<Variable>() {
+            @Override
+            public int compare(Variable o1, Variable o2) {
+                Attribute priorityAttr1 = o1.getAttribute("PRIORITY");
+                Attribute priorityAttr2 = o2.getAttribute("PRIORITY");
+                int priority1 = priorityAttr1 != null ? Integer.parseInt(priorityAttr1.getValue().toString()) : 0;
+                int priority2 = priorityAttr2 != null ? Integer.parseInt(priorityAttr2.getValue().toString()) : 0;
+                return Integer.compare(priority1, priority2);
+            }
+        };
+        drawList.sort(comparator);
+        return drawList;
+    }
+
 
     @Override
     public void resize(int width, int height) {

@@ -252,7 +252,8 @@ public class Game {
                 SceneVariable scene = (SceneVariable) variable;
                 if(scene.getBackground() != null) {
                     try {
-                        scene.getBackground().getImage().getImageTexture().dispose();
+                        if(scene.isBackgroundLoaded())
+                            scene.getBackground().getImage().getImageTexture().dispose();
                     } catch (NullPointerException ignored) {}
                 }
                 for(String varKey : scene.getContext().getGraphicsVariables().keySet()) {
