@@ -168,6 +168,7 @@ public class CNVParser {
                     }
                 });
             }
+            variable.emitSignal("ONINIT");
         }
     }
 

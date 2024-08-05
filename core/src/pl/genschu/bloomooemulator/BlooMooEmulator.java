@@ -158,19 +158,20 @@ public class BlooMooEmulator extends ApplicationAdapter {
         int y = Gdx.input.getY();
         boolean isPressed = Gdx.input.isButtonPressed(Input.Buttons.LEFT);
         
-        Gdx.app.log("MouseData", "Mouse coords: ("+x+", "+y+")");
+        //Gdx.app.log("MouseData", "Mouse coords: ("+x+", "+y+")");
         
         // correct coordinates according to window size
         Vector2 correctedVector = getCorrectedMouseCoords(x, y, Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), (int) VIRTUAL_WIDTH, (int) VIRTUAL_HEIGHT);
         x = (int) correctedVector.x;
         y = (int) correctedVector.y;
         
-        Gdx.app.log("MouseData", "Corrected mouse coords: ("+x+", "+y+")");
+        //Gdx.app.log("MouseData", "Corrected mouse coords: ("+x+", "+y+")");
 
         // TODO: implement
         //MouseVariable mouse = context.getMouseVariable();
         //mouse.update(x, y, isPressed);
 
+        // TODO: if mouse is clicked and left button is hold, don't click everything where mouse is hovering
         for (Variable variable : new ArrayList<>(context.getButtonsVariables().values())) {
             ButtonVariable button = (ButtonVariable) variable;
             //Gdx.app.log("ButtonDebug", button.getName());
@@ -252,19 +253,19 @@ public class BlooMooEmulator extends ApplicationAdapter {
     }
     
     public Vector2 getCorrectedMouseCoords(int screenX, int screenY, int windowWidth, int windowHeight, int virtualWidth, int virtualHeight) {
-    // calculate scales
-    float aspectRatio = (float) virtualWidth / virtualHeight;
-    float windowRatio = (float) windowWidth / windowHeight;
-
-    float scale = windowRatio > aspectRatio ? (float) windowHeight / virtualHeight : (float) windowWidth / virtualWidth;
-
-    float correctX = (windowWidth - virtualWidth * scale) / 2;
-    float correctY = (windowHeight - virtualHeight * scale) / 2;
-
-    // correct coordinates
-    float x = (screenX - correctX) / scale;
-    float y = (screenY - correctY) / scale;
-
-    return new Vector2(x, y);
-}
+        // calculate ratios and scales
+        float aspectRatio = (float) virtualWidth / virtualHeight;
+        float windowRatio = (float) windowWidth / windowHeight;
+    
+        float scale = windowRatio > aspectRatio ? (float) windowHeight / virtualHeight : (float) windowWidth / virtualWidth;
+    
+        float correctX = (windowWidth - virtualWidth * scale) / 2;
+        float correctY = (windowHeight - virtualHeight * scale) / 2;
+    
+        // correct coordinates
+        float x = (screenX - correctX) / scale;
+        float y = (screenY - correctY) / scale;
+    
+        return new Vector2(x, y);
+    }
 }
