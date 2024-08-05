@@ -482,7 +482,7 @@ public class AnimoVariable extends Variable {
 		this.setMethod("SETFRAME", new Method(
 			List.of(
 				new Parameter("STRING", "event", true),
-				new Parameter("INTEGER", "frameNumber", false)
+				new Parameter("STRING", "frameName", false)
 			),
 			"void"
 		) {
@@ -492,24 +492,37 @@ public class AnimoVariable extends Variable {
 				try {
 					int eventNumber = Integer.parseInt(eventName);
 					currentEvent = events.get(eventNumber);
-					currentFrameNumber = arguments.size() >= 2 ? Integer.parseInt(((Variable) arguments.get(1)).getValue().toString()) : 0;
-					currentImageNumber = currentEvent.getFramesNumbers().get(currentFrameNumber);
-					currentImage = currentEvent.getFrames().get(currentImageNumber);
-					updateRect();
-					return null;
 				} catch (NumberFormatException e) {
 					for (Event event : events) {
 						if (event.getName().equals(eventName)) {
 							currentEvent = event;
-							currentFrameNumber = arguments.size() >= 2 ? Integer.parseInt(((Variable) arguments.get(1)).getValue().toString()) : 0;
-							currentImageNumber = currentEvent.getFramesNumbers().get(currentFrameNumber);
-							currentImage = currentEvent.getFrames().get(currentImageNumber);
-							updateRect();
 							break;
 						}
 					}
-					return null;
 				}
+				if(arguments.size() >= 2) {
+					String frameName = ArgumentsHelper.getString(arguments.get(1));
+					int tmpIndex = 0;
+					boolean found = false;
+					for(FrameData frameData : currentEvent.getFrameData()) {
+						if(frameData.getName().equals(frameName)) {
+							currentFrameNumber = tmpIndex;
+							found = true;
+							break;
+						}
+						tmpIndex++;
+					}
+					if(!found) {
+						currentFrameNumber = 0;
+					}
+				}
+				else {
+					currentFrameNumber = 0;
+				}
+				currentImageNumber = currentEvent.getFramesNumbers().get(currentFrameNumber);
+				currentImage = currentEvent.getFrames().get(currentFrameNumber);
+				updateRect();
+				return null;
 			}
 		});
 		this.setMethod("SETFRAMENAME", new Method(
