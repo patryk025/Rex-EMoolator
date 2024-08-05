@@ -177,6 +177,8 @@ public class Game {
     private void loadEpisode(EpisodeVariable episode) {
         if (!Objects.equals(currentEpisode, episode.getName())) {
             if(episode.getPath() == null) {
+                currentEpisodeContext = new Context();
+                currentEpisodeContext.setParentContext(currentApplicationContext);
                 Gdx.app.log("Game", "Episode " + episode.getName() + " doesn't have PATH attribute. Skipping...");
                 loadScene(episode.getFirstScene());
                 return;

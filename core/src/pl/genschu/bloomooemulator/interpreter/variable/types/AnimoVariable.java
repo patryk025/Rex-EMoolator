@@ -646,9 +646,15 @@ public class AnimoVariable extends Variable {
 				AnimoLoader.loadAnimo(this);
 				currentEvent = events.get(0);
 				currentFrameNumber = 0;
-				currentImageNumber = currentEvent.getFramesNumbers().get(currentFrameNumber);
-				currentImage = currentEvent.getFrames().get(currentImageNumber);
-				updateRect();
+				if(!currentEvent.getFrames().isEmpty()) {
+					currentImageNumber = currentEvent.getFramesNumbers().get(currentFrameNumber);
+					currentImage = currentEvent.getFrames().get(currentImageNumber);
+					updateRect();
+				}
+				else {
+					currentImageNumber = 0;
+					currentImage = null;
+				}
 			}
 		}
 	}
