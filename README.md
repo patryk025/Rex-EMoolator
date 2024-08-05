@@ -17,12 +17,12 @@ Aktualny status gier opartych na silniku Piklib/BlooMoo:
 <tr>
 <td>Reksio i Skarb Piratów</td>
 <td><img alt="Niegrywalne" src="https://img.shields.io/badge/Niegrywalne-red"/></td>
-<td>Crashuje silnik przy próbie załadowania animacji</td>
+<td>Działa pierwsza animacja z intra, ale bez dźwięku, nie przechodzi dalej</td>
 </tr>
 <tr>
 <td>Reksio i Ufo</td>
 <td><img alt="Niegrywalne" src="https://img.shields.io/badge/Niegrywalne-red"/></td>
-<td>Wyświetla się plansza z intra, logiem AidemMedia, jednak z drobnymi błędami (przez brak obsługi Z-buffera)</td>
+<td>Działa pierwsza animacja z intra, ale bez dźwięku, nie przechodzi dalej</td>
 </tr>
 <tr>
 <td>Reksio i Czarodzieje</td>
@@ -32,7 +32,7 @@ Aktualny status gier opartych na silniku Piklib/BlooMoo:
 <tr>
 <td>Reksio i Wehikuł Czasu</td>
 <td><img alt="Niegrywalne" src="https://img.shields.io/badge/Niegrywalne-red"/></td>
-<td>Czarny ekran, problemy z uruchomieniem sekwencji</td>
+<td>Czarny ekran, są pewne problemy z przejściem dalej</td>
 </tr>
 <tr>
 <td>Reksio i Kapitan Nemo</td>
@@ -47,27 +47,30 @@ Aktualny status gier opartych na silniku Piklib/BlooMoo:
 <tr>
 <td>Poznaj Mity: Wyprawa po Złote Runo</td>
 <td><img alt="Niegrywalne" src="https://img.shields.io/badge/Niegrywalne-red"/></td>
-<td>Crash podczas ładowania sekwencji</td>
+<td>Pojawia się plansza startowa, nie przechodzi dalej</td>
 </tr>
 <tr>
 <td>Poznaj Mity: Wojna Trojańska</td>
 <td><img alt="Niegrywalne" src="https://img.shields.io/badge/Niegrywalne-red"/></td>
-<td>Crash podczas ładowania sekwencji</td>
+<td>Pojawia się plansza startowa, nie przechodzi dalej</td>
 </tr>
 <tr>
 <td>Poznaj Mity: Przygody Odyseusza</td>
 <td><img alt="Niegrywalne" src="https://img.shields.io/badge/Niegrywalne-red"/></td>
-<td>Crash podczas ładowania sekwencji</td>
+<td>Pojawia się plansza startowa, nie przechodzi dalej</td>
 </tr>
 <tr>
 <td>Poznaj Mity: Herkules</td>
 <td><img alt="Niegrywalne" src="https://img.shields.io/badge/Niegrywalne-red"/></td>
-<td>Crash podczas ładowania sekwencji</td>
+<td>Pojawia się plansza startowa, nie przechodzi dalej</td>
 </tr>
 </tbody>
 </table>
 
 ## Garść screenshotów
+![Screen z próby uruchomienia Reksio i Skarb Piratów](images/risp.jpg)
+*Screen z próby uruchomienia Reksio i Skarb Piratów*
+
 ![Screen z próby uruchomienia Reksio i Ufo](images/riu.jpg)
 *Screen z próby uruchomienia Reksio i Ufo*
 
