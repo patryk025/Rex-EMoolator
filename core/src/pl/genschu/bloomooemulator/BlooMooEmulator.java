@@ -57,6 +57,9 @@ public class BlooMooEmulator extends ApplicationAdapter {
 
     private Texture cursorTexture;
 
+    private ButtonVariable activeButton = null;
+    private boolean prevPressed = false;
+
     public BlooMooEmulator(GameEntry gameEntry) {
         this.gameEntry = gameEntry;
     }
@@ -157,6 +160,8 @@ public class BlooMooEmulator extends ApplicationAdapter {
         int x = Gdx.input.getX();
         int y = Gdx.input.getY();
         boolean isPressed = Gdx.input.isButtonPressed(Input.Buttons.LEFT);
+        boolean justPressed = !prevPressed && isPressed;
+        boolean justReleased = prevPressed && !isPressed;
         
         //Gdx.app.log("MouseData", "Mouse coords: ("+x+", "+y+")");
         
@@ -171,70 +176,74 @@ public class BlooMooEmulator extends ApplicationAdapter {
         //MouseVariable mouse = context.getMouseVariable();
         //mouse.update(x, y, isPressed);
 
-        // TODO: if mouse is clicked and left button is hold, don't click everything where mouse is hovering
-        for (Variable variable : new ArrayList<>(context.getButtonsVariables().values())) {
-            ButtonVariable button = (ButtonVariable) variable;
-            //Gdx.app.log("ButtonDebug", button.getName());
-            //Gdx.app.log("ButtonDebug", button.getRect() != null ? button.getRect().toString() : null);
-            //Gdx.app.log("ButtonDebug", "x: " + x + " y: " + y);
-            //Gdx.app.log("ButtonDebug", "contains: " + (button.getRect() != null && button.getRect().contains(x, y)) + " pressed: " + button.isPressed());
-            if (button.getRect() != null) {
-                if (button.getRect().contains(x, y)) {
-                    if (isPressed && !button.isPressed()) {
-                        Signal onClickSignal = button.getSignal("ONCLICKED");
-                        if (onClickSignal != null) {
-                            onClickSignal.execute(null);
-                        }
-                        button.setPressed(true);
-                    } else if (!isPressed && button.isPressed()) {
-                        button.setPressed(false);
-                        Signal onReleasedSignal = button.getSignal("ONRELEASED");
-                        if (onReleasedSignal != null) {
-                            onReleasedSignal.execute(null);
-                        }
-                    }
-                    if (!button.isFocused()) {
-                        button.setFocused(true);
-                        Signal onFocusSignal = button.getSignal("ONFOCUSON");
-                        if (onFocusSignal != null) {
-                            onFocusSignal.execute(null);
-                        }
-                    }
-                } else {
-                    if (button.isPressed() && !isPressed) {
-                        button.setPressed(false);
-                        Signal onReleasedSignal = button.getSignal("ONRELEASED");
-                        if (onReleasedSignal != null) {
-                            onReleasedSignal.execute(null);
-                        }
-                    }
-                    if (button.isFocused()) {
-                        button.setFocused(false);
-                        Signal onFocusLossSignal = button.getSignal("ONFOCUSOFF");
-                        if (onFocusLossSignal != null) {
-                            onFocusLossSignal.execute(null);
-                        }
-                    }
-                }
-            }
-        }
+        handleMouseInput(x, y, isPressed, justPressed, justReleased);
+
+        prevPressed = isPressed;
         
         // batch.draw(cursorTexture, x - 25, VIRTUAL_HEIGHT - y - 25, 50, 50);
         
         batch.end();
     }
 
+    public void handleMouseInput(int x, int y, boolean isPressed, boolean justPressed, boolean justReleased) {
+        for (Variable variable : new ArrayList<>(context.getButtonsVariables().values())) {
+            ButtonVariable button = (ButtonVariable) variable;
+            if (button.getRect() != null && button.getRect().contains(x, y)) {
+                if (justPressed) {
+                    if (activeButton == null) {
+                        activeButton = button;
+                        triggerSignal(button, "ONCLICKED");
+                    }
+                }
+                if (button == activeButton) {
+                    if (isPressed) {
+                        // Dragging goes here
+                    } else if (justReleased) {
+                        triggerSignal(button, "ONRELEASED");
+                        activeButton = null;
+                    }
+                }
+
+                if (!button.isFocused() && !isPressed) {
+                    button.setFocused(true);
+                    Signal onFocusSignal = button.getSignal("ONFOCUSON");
+                    if (onFocusSignal != null) {
+                        onFocusSignal.execute(null);
+                    }
+                }
+            }
+            else {
+                if (button.isFocused() && !isPressed) {
+                    button.setFocused(false);
+                    Signal onFocusLossSignal = button.getSignal("ONFOCUSOFF");
+                    if (onFocusLossSignal != null) {
+                        onFocusLossSignal.execute(null);
+                    }
+                }
+            }
+        }
+
+        if (justReleased && activeButton != null) {
+            triggerSignal(activeButton, "ONRELEASED");
+            activeButton = null;
+        }
+    }
+
+    private void triggerSignal(ButtonVariable button, String signalName) {
+        Signal signal = button.getSignal(signalName);
+        if (signal != null) {
+            signal.execute(null);
+        }
+    }
+
     private List<Variable> getGraphicsVariables() {
         List<Variable> drawList = new ArrayList<>(context.getGraphicsVariables().values());
-        Comparator<Variable> comparator = new Comparator<Variable>() {
-            @Override
-            public int compare(Variable o1, Variable o2) {
-                Attribute priorityAttr1 = o1.getAttribute("PRIORITY");
-                Attribute priorityAttr2 = o2.getAttribute("PRIORITY");
-                int priority1 = priorityAttr1 != null ? Integer.parseInt(priorityAttr1.getValue().toString()) : 0;
-                int priority2 = priorityAttr2 != null ? Integer.parseInt(priorityAttr2.getValue().toString()) : 0;
-                return Integer.compare(priority1, priority2);
-            }
+        Comparator<Variable> comparator = (o1, o2) -> {
+            Attribute priorityAttr1 = o1.getAttribute("PRIORITY");
+            Attribute priorityAttr2 = o2.getAttribute("PRIORITY");
+            int priority1 = priorityAttr1 != null ? Integer.parseInt(priorityAttr1.getValue().toString()) : 0;
+            int priority2 = priorityAttr2 != null ? Integer.parseInt(priorityAttr2.getValue().toString()) : 0;
+            return Integer.compare(priority1, priority2);
         };
         Collections.sort(drawList, comparator);
         return drawList;
