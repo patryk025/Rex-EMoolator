@@ -288,6 +288,7 @@ public abstract class Variable {
 
 	protected void set(Object value) {
 		Object currentValue = getAttribute("VALUE").getValue();
+		getAttribute("VALUE").setValue(value);
 		if(value.toString().equals(currentValue.toString())) {
 			Gdx.app.log("Variable", "Emitting signal ONBRUTALCHANGED for variable " + this.getName() + ", class type " + this.getType());
 			emitSignal("ONBRUTALCHANGED", value.toString());
@@ -296,7 +297,6 @@ public abstract class Variable {
 			Gdx.app.log("Variable", "Emitting signal ONCHANGED for variable " + this.getName() + ", class type " + this.getType());
 			emitSignal("ONCHANGED", value.toString());
 		}
-		getAttribute("VALUE").setValue(value);
 	}
 
 	public Context getContext() {
