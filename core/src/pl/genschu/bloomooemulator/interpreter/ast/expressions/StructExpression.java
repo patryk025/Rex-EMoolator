@@ -18,7 +18,7 @@ public class StructExpression extends Expression {
 
     @Override
     public Object evaluate(Context context) {
-        Variable targetVariable = context.getVariable(structName, null);
+        Variable targetVariable = context.getVariable(structName);
         if (targetVariable == null) {
             throw new RuntimeException("Target struct not defined: " + structName);
         }

@@ -60,7 +60,7 @@ public class ClassVariable extends Variable {
 				Gdx.app.log("ClassVariable", "Class " + className + " loaded to variable " + varName + ". Running constructor...");
 
 				// fire constructor behaviour in the class
-				Variable constructorBehaviour = classContext.getVariable("CONSTRUCTOR", null);
+				Variable constructorBehaviour = classContext.getVariable("CONSTRUCTOR");
 
 				if (constructorBehaviour instanceof StringVariable) {
 					Gdx.app.log("ClassVariable", "CONSTRUCTOR BEHAVIOUR not found. Continue without it...");
@@ -82,14 +82,14 @@ public class ClassVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				String varName = ArgumentsHelper.getString(arguments.get(0));
-				InstanceVariable var = (InstanceVariable) context.getVariable(varName, null);
+				InstanceVariable var = (InstanceVariable) context.getVariable(varName);
 
 				if (var == null) {
 					Gdx.app.error("ClassVariable", "Variable not found: " + varName);
 					return null;
 				}
 
-				BehaviourVariable destructor = (BehaviourVariable) var.getContext().getVariable("DESTRUCTOR", null);
+				BehaviourVariable destructor = (BehaviourVariable) var.getContext().getVariable("DESTRUCTOR");
 
 				if (destructor != null) {
 					destructor.getMethod("RUN", List.of("mixed")).execute(arguments.subList(1, arguments.size()));
@@ -131,7 +131,7 @@ public class ClassVariable extends Variable {
 
 		@Override
 		public Method getMethod(String name, List<String> paramTypes) {
-			return instanceContext.getVariable(name, null).getMethod("RUN", paramTypes);
+			return instanceContext.getVariable(name).getMethod("RUN", paramTypes);
 		}
 
 		@Override

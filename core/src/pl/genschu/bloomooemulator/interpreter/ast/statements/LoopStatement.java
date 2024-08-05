@@ -33,7 +33,7 @@ public class LoopStatement extends Statement {
 			if(result instanceof OneBreakStatement) {
 				break;
 			}
-			context.getVariable("_I_", null).fireMethod("ADD", stepVariable);
+			context.getVariable("_I_").fireMethod("ADD", stepVariable);
         }
     }
 }

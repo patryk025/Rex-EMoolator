@@ -124,7 +124,7 @@ public class ApplicationVariable extends Variable {
 		this.episodes = new ArrayList<>();
 
 		for(String episode : episodes) {
-			Variable episodeVariable = this.getContext().getVariable(episode, this);
+			Variable episodeVariable = this.getContext().getVariable(episode);
 			if(episodeVariable.getName().equals(firstEpisode)) {
 				this.firstEpisode = (EpisodeVariable) episodeVariable;
 			}

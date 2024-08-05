@@ -26,11 +26,11 @@ public class VariableHelper {
                     return VariableFactory.createVariableWithAutoType("", valueString, context);
                 }
 
-                return context.getVariable(valueString.toString(), null);
+                return context.getVariable(valueString.toString());
             }
 
             if(valueString.toString().equals("_I_")) {
-                return context.getVariable(valueString.toString(), null);
+                return context.getVariable(valueString.toString());
             }
             return new StringVariable("", valueString.toString(), context);
         }
@@ -38,14 +38,14 @@ public class VariableHelper {
             return (Variable) ((VariableExpression) value).evaluate(context);
         }
         else if(value instanceof PointerExpression) {
-            return context.getVariable(((PointerExpression) value).evaluate(context).toString(), null);
+            return context.getVariable(((PointerExpression) value).evaluate(context).toString());
         }
         else if(value instanceof StructExpression) {
             return (Variable) ((StructExpression) value).evaluate(context);
         }
         if (value instanceof String) {
             if(resolveString) {
-                return context.getVariable((String) value, null);
+                return context.getVariable((String) value);
             }
             return new StringVariable("", (String) value, context);
         }
@@ -57,7 +57,7 @@ public class VariableHelper {
         try {
             return Integer.parseInt(value.getValue().toString());
         } catch (NumberFormatException e) {
-            Variable variable = value.getContext().getVariable(value.getValue().toString(), null);
+            Variable variable = value.getContext().getVariable(value.getValue().toString());
             if(variable == null) {
                 return 0;
             }

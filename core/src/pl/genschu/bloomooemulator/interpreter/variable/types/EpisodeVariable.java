@@ -96,7 +96,7 @@ public class EpisodeVariable extends Variable {
 		this.scenes = new ArrayList<>();
 
 		for(String scene : scenes) {
-			Variable sceneVariable = this.getContext().getVariable(scene, this);
+			Variable sceneVariable = this.getContext().getVariable(scene);
 			if(sceneVariable.getName().equals(firstEpisode)) {
 				this.firstScene = (SceneVariable) sceneVariable;
 			}

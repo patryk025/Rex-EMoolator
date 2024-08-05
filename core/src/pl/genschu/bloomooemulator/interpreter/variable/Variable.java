@@ -260,6 +260,9 @@ public abstract class Variable {
 
 	public void emitSignal(String name, Object argument) {
 		Gdx.app.log("Variable", "Emitting signal " + name + " with argument " + argument);
+		Gdx.app.log("Variable", "Setting THIS variable to " + this.getName());
+		context.setThisVariable(this);
+
 		String signalName = name;
 		if(argument != null) {
 			signalName += "^" + argument;
@@ -278,6 +281,9 @@ public abstract class Variable {
                 Gdx.app.log(this.getClass().getSimpleName(), "Signal "+name+" not found. Omitting...");
             }
 		}
+
+		Gdx.app.log("Variable", "Setting THIS variable to null");
+		context.setThisVariable(null);
 	}
 
 	protected void set(Object value) {

@@ -74,7 +74,7 @@ public class ButtonVariable extends Variable {
 			public Variable execute(List<Object> arguments) {
 				String varName = ArgumentsHelper.getString(arguments.get(0));
 
-				Variable variable = context.getVariable(varName, null);
+				Variable variable = context.getVariable(varName);
 
 				if (variable == null) {
 					Gdx.app.log("ButtonVariable", "Variable " + varName + " not found, RECT is not changed");
@@ -162,7 +162,7 @@ public class ButtonVariable extends Variable {
 				Gdx.app.log("ButtonVariable", "RECT is missing, but GFXSTANDARD is present: " + getAttribute("GFXSTANDARD").getValue());
 				String gfx = getAttribute("GFXSTANDARD").getValue().toString();
 
-				Variable gfxVariable = context.getVariable(gfx, null);
+				Variable gfxVariable = context.getVariable(gfx);
 
 				if (gfxVariable == null) {
 					return null;
@@ -177,7 +177,7 @@ public class ButtonVariable extends Variable {
 				}
 			}
 			else if(getAttribute("RECT") != null) {
-				Variable rectVariable = context.getVariable(getAttribute("RECT").getValue().toString(), null);
+				Variable rectVariable = context.getVariable(getAttribute("RECT").getValue().toString());
 				if(rectVariable != null) {
 					if (rectVariable instanceof ImageVariable) {
 						ImageVariable imageVariable = (ImageVariable) rectVariable;

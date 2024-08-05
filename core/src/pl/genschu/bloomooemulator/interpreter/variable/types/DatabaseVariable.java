@@ -36,7 +36,7 @@ public class DatabaseVariable extends Variable {
 				int defaultIndex = ArgumentsHelper.getInteger(arguments.get(2));
 
 				if(columns == null) {
-					Variable tmpColumns = context.getVariable(getAttribute("MODEL").getValue().toString(), null);
+					Variable tmpColumns = context.getVariable(getAttribute("MODEL").getValue().toString());
 					if(tmpColumns == null) {
 						Gdx.app.error("DatabaseVariable", "Database doesn't have column information. Find is not possible");
 						return new IntegerVariable("", defaultIndex, context);
@@ -110,7 +110,7 @@ public class DatabaseVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				Variable rowIndex = context.getVariable(ArgumentsHelper.getString(arguments.get(0)), null);
+				Variable rowIndex = context.getVariable(ArgumentsHelper.getString(arguments.get(0)));
 				if(rowIndex == null) {
 					select(0);
 				}

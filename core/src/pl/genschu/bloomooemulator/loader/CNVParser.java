@@ -190,7 +190,7 @@ public class CNVParser {
         }
 
         // Retrieve the behaviour variable
-        Variable behaviourVariable = context.getVariable(code, null);
+        Variable behaviourVariable = context.getVariable(code);
         if (behaviourVariable != null && behaviourVariable.getType().equals("BEHAVIOUR")) {
             return new SignalAndParams((BehaviourVariable) behaviourVariable, params);
         } else {

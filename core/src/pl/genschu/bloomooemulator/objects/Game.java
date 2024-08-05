@@ -153,7 +153,7 @@ public class Game {
     }
 
     public void goTo(String name) {
-        Variable variable = definitionContext.getVariable(name, null);
+        Variable variable = definitionContext.getVariable(name);
 
         if (variable instanceof EpisodeVariable) {
             loadEpisode((EpisodeVariable) variable);
@@ -238,7 +238,7 @@ public class Game {
         }
 
         try {
-            context.getVariable("__INIT__", null).getMethod("RUN", Collections.singletonList("mixed")).execute(null);
+            context.getVariable("__INIT__").getMethod("RUN", Collections.singletonList("mixed")).execute(null);
         } catch (Exception e) {
             Gdx.app.error("Game", "Error while running __INIT__ BEHAVIOUR: " + e.getMessage(), e);
         }
@@ -247,7 +247,7 @@ public class Game {
     // method for release data from memory
     public void dispose() {
         for(String key : definitionContext.getVariables().keySet()) {
-            Variable variable = definitionContext.getVariable(key, null);
+            Variable variable = definitionContext.getVariable(key);
             if(variable instanceof SceneVariable) {
                 SceneVariable scene = (SceneVariable) variable;
                 if(scene.getBackground() != null) {
@@ -257,7 +257,7 @@ public class Game {
                     } catch (NullPointerException ignored) {}
                 }
                 for(String varKey : scene.getContext().getGraphicsVariables().keySet()) {
-                    Variable graphic = scene.getContext().getVariable(varKey, null);
+                    Variable graphic = scene.getContext().getVariable(varKey);
                     if(graphic instanceof AnimoVariable) {
                         List<Image> images = ((AnimoVariable) graphic).getImages();
                         for(Image image : images) {

@@ -13,7 +13,7 @@ public class VariableExpression extends Expression {
 
     @Override
     public Object evaluate(Context context) {
-        Variable variable = context.getVariable(variableName, null);
+        Variable variable = context.getVariable(variableName);
         if (variable == null) {
             throw new RuntimeException("Variable not defined: " + variableName);
         }

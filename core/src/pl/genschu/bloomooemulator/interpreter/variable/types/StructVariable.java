@@ -57,7 +57,7 @@ public class StructVariable extends Variable {
 	}
 
 	private void set(String varName) {
-		DatabaseVariable db = (DatabaseVariable) getContext().getVariable(varName.split("_CURSOR")[0], null);
+		DatabaseVariable db = (DatabaseVariable) getContext().getVariable(varName.split("_CURSOR")[0]);
 		if (db != null) {
 			List<String> currentRow = db.getCurrentRow();
 			for (int i = 0; i < fields.size(); i++) {

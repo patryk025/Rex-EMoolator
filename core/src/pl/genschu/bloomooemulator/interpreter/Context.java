@@ -20,6 +20,8 @@ public class Context {
     private Map<String, Variable> graphicsVariables; // cache for faster drawing
     private Map<String, Variable> buttonsVariables;
 
+    Variable thisVariable = null;
+
     // TODO: implement
     //private MouseVariable mouseVariable;
     //private KeyboardVariable keyboardVariable;
@@ -37,7 +39,7 @@ public class Context {
         this.graphicsVariables = new HashMap<>();
     }
 
-    public Variable getVariable(String name, Variable thisVariable) {
+    public Variable getVariable(String name) {
         if(name.equals("THIS")) {
             if(thisVariable != null) {
                 return thisVariable;
@@ -47,10 +49,9 @@ public class Context {
         Variable variable = variables.get(name);
         if (variable == null) {
             if(parentContext != null)
-                return parentContext.getVariable(name, thisVariable);
+                return parentContext.getVariable(name);
 
-            variable = VariableFactory.createVariable("STRING", name, null);
-
+            variable = VariableFactory.createVariable("STRING", name, name, this);
         }
         return variable;
     }
@@ -133,5 +134,19 @@ public class Context {
         }
         variables.putAll(this.variables);
         return variables;
+    }
+
+    public Variable getThisVariable() {
+        if(parentContext != null)
+            return parentContext.getThisVariable();
+
+        return this.thisVariable;
+    }
+
+    public void setThisVariable(Variable thisVariable) {
+        if(parentContext != null)
+            parentContext.setThisVariable(thisVariable);
+        else
+            this.thisVariable = thisVariable;
     }
 }
