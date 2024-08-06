@@ -563,7 +563,7 @@ public class AnimoVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				posX = ArgumentsHelper.getInteger(arguments.get(0));
-				posY = ArgumentsHelper.getInteger(arguments.get(1));
+				posY = -ArgumentsHelper.getInteger(arguments.get(1));
 				updateRect();
 				return null;
 			}
@@ -707,7 +707,7 @@ public class AnimoVariable extends Variable {
 		rect.setXLeft(frameData.getOffsetX() + currentImage.offsetX - posX);
 		rect.setYTop(frameData.getOffsetY() + currentImage.offsetY - posY);
 		rect.setXRight(rect.getXLeft() + currentImage.width);
-		rect.setYBottom(rect.getYTop() + currentImage.height);
+		rect.setYBottom(rect.getYTop() - currentImage.height);
 	}
 
 	@Override

@@ -1,5 +1,6 @@
 package pl.genschu.bloomooemulator.interpreter.variable.types;
 
+import com.badlogic.gdx.Gdx;
 import pl.genschu.bloomooemulator.interpreter.exceptions.ClassMethodNotImplementedException;
 import pl.genschu.bloomooemulator.interpreter.Context;
 import pl.genschu.bloomooemulator.interpreter.variable.Attribute;
@@ -183,7 +184,7 @@ public class ImageVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				posX = getValueFromString((Variable) arguments.get(0));
-				posY = getValueFromString((Variable) arguments.get(1));
+				posY = -getValueFromString((Variable) arguments.get(1)); // Y need to be reversed (maybe I will change it later)
 				updateRect();
 				return null;
 			}
@@ -237,7 +238,10 @@ public class ImageVariable extends Variable {
 		rect.setXLeft(image.offsetX - posX);
 		rect.setYTop(image.offsetY - posY);
 		rect.setXRight(rect.getXLeft() + image.width);
-		rect.setYBottom(rect.getYTop() + image.height);
+		rect.setYBottom(rect.getYTop() - image.height);
+		if(getName().equals("MIASTO") || getName().equals("GWIAZDY")) {
+			Gdx.app.log("ImageVariable", "[" + getName() + "] Rect: " + rect.toString());
+		}
 	}
 
 	public Image getImage() {
