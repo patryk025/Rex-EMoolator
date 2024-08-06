@@ -29,6 +29,8 @@ public class Image {
     public int colorDepth;
     private Texture imageTexture;
 
+    private boolean isLoaded = false;
+
     public Image(int width, int height, int offsetX, int offsetY, int colorDepth, byte[] imageData, byte[] alphaData, int compressionType) {
         this.width = width;
         this.height = height;
@@ -79,6 +81,8 @@ public class Image {
         }
 
         imageTexture = combineImageDataWithAlpha(new int[]{width, height}, imageData, alphaData, colorDepth, isJPEG);
+
+        isLoaded = true;
     }
 
     private int[] convertRgbToRgb888(int rgb, int colorDepth) {
@@ -133,5 +137,9 @@ public class Image {
 
     public Texture getImageTexture() {
         return imageTexture;
+    }
+
+    public boolean isLoaded() {
+        return isLoaded;
     }
 }

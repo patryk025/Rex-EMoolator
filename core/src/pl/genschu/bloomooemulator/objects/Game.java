@@ -252,26 +252,23 @@ public class Game {
             Variable variable = definitionContext.getVariable(key);
             if(variable instanceof SceneVariable) {
                 SceneVariable scene = (SceneVariable) variable;
-                if(scene.getBackground() != null) {
-                    try {
-                        if(scene.isBackgroundLoaded())
-                            scene.getBackground().getImage().getImageTexture().dispose();
-                    } catch (NullPointerException ignored) {}
+                if(scene.isBackgroundLoaded()) {
+                    scene.getBackground().getImage().getImageTexture().dispose();
                 }
                 for(String varKey : scene.getContext().getGraphicsVariables().keySet()) {
                     Variable graphic = scene.getContext().getVariable(varKey);
                     if(graphic instanceof AnimoVariable) {
                         List<Image> images = ((AnimoVariable) graphic).getImages();
                         for(Image image : images) {
-                            try {
+                            if(image.isLoaded()) {
                                 image.getImageTexture().dispose();
-                            } catch (NullPointerException ignored) {}
+                            }
                         }
                     }
                     if(graphic instanceof ImageVariable) {
-                        try {
+                        if(((ImageVariable) graphic).getImage().isLoaded()) {
                             ((ImageVariable) graphic).getImage().getImageTexture().dispose();
-                        } catch (NullPointerException ignored) {}
+                        }
                     }
                     if(graphic instanceof SequenceVariable) {
                         SequenceVariable sequence = (SequenceVariable) graphic;
@@ -282,9 +279,9 @@ public class Game {
                             AnimoVariable animo = animos.get(animoName);
                             List<Image> images = animo.getImages();
                             for(Image image : images) {
-                                try {
+                                if(image.isLoaded()) {
                                     image.getImageTexture().dispose();
-                                } catch (NullPointerException ignored) {}
+                                }
                             }
                         }
                     }
