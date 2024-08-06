@@ -1,6 +1,8 @@
 package pl.genschu.bloomooemulator.loader;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.audio.Music;
+import com.badlogic.gdx.files.FileHandle;
 import pl.genschu.bloomooemulator.interpreter.variable.types.AnimoVariable;
 import pl.genschu.bloomooemulator.objects.Event;
 import pl.genschu.bloomooemulator.objects.FrameData;
@@ -138,7 +140,18 @@ public class AnimoLoader {
                     byte[] sfxDescriptionBytes = new byte[sfxDescriptionLength];
                     f.read(sfxDescriptionBytes);
                     String sfxDescription = new String(sfxDescriptionBytes, StandardCharsets.UTF_8).split("\0")[0];
-                    frame.setSfxAudio(Arrays.asList(sfxDescription.split(";")));
+                    String[] sfxFiles = sfxDescription.split(";");
+                    List<Music> sfxAudioList = new ArrayList<>();
+                    for(String sfxFile : sfxFiles) {
+                        if(!sfxFile.startsWith("$")) {
+                            sfxFile = "$WAVS\\"+ sfxFile;
+                        }
+                        sfxFile = FileUtils.resolveRelativePath(variable, sfxFile);
+                        FileHandle soundFileHandle = Gdx.files.absolute(sfxFile);
+
+                        sfxAudioList.add(Gdx.audio.newMusic(soundFileHandle));
+                    }
+                    frame.setSfxAudio(sfxAudioList);
                 } else {
                     frame.setSfxAudio(new ArrayList<>());
                 }

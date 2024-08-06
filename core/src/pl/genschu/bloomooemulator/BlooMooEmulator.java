@@ -136,7 +136,7 @@ public class BlooMooEmulator extends ApplicationAdapter {
                         } catch (NullPointerException ignored) {}
                         animoVariable.updateAnimation(deltaTime);
                     } catch(NullPointerException ignored) {
-                        Gdx.app.log("AnimoVariable", "Image not found");
+                        Gdx.app.log("AnimoVariable", "Image not found in Animo "+animoVariable.getName());
                     }
                 }
             } else if(variable instanceof SequenceVariable) {
@@ -153,7 +153,7 @@ public class BlooMooEmulator extends ApplicationAdapter {
                         sequenceVariable.updateAnimation(deltaTime);
                     }
                 } catch(NullPointerException e) {
-                    Gdx.app.log("SequenceVariable", "Image not found");
+                    Gdx.app.log("SequenceVariable", "Image not found in Sequence "+sequenceVariable.getName());
                 }
             }
         }

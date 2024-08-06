@@ -259,7 +259,7 @@ public abstract class Variable {
 	}
 
 	public void emitSignal(String name, Object argument) {
-		Gdx.app.log("Variable", "Emitting signal " + name + " with argument " + argument);
+		Gdx.app.log("Variable", "Emitting signal " + name + " for variable " + this.getName() + " with argument " + argument);
 		// Gdx.app.log("Variable", "Setting THIS variable to " + this.getName());
 		context.setThisVariable(this);
 

@@ -1,5 +1,7 @@
 package pl.genschu.bloomooemulator.objects;
 
+import com.badlogic.gdx.audio.Music;
+
 import java.util.List;
 
 public class FrameData {
@@ -9,7 +11,7 @@ public class FrameData {
     private int sfxRandomSeed; // i guess?
     private int opacity;
     private String name;
-    private List<String> sfxAudio;
+    private List<Music> sfxAudio;
 
     public byte[] getStartingBytes() {
         return startingBytes;
@@ -59,11 +61,11 @@ public class FrameData {
         this.name = name;
     }
 
-    public List<String> getSfxAudio() {
+    public List<Music> getSfxAudio() {
         return sfxAudio;
     }
 
-    public void setSfxAudio(List<String> sfxAudio) {
+    public void setSfxAudio(List<Music> sfxAudio) {
         this.sfxAudio = sfxAudio;
     }
 }

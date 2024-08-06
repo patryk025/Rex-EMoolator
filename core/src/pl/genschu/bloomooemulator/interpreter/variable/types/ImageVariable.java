@@ -239,9 +239,6 @@ public class ImageVariable extends Variable {
 		rect.setYTop(image.offsetY - posY);
 		rect.setXRight(rect.getXLeft() + image.width);
 		rect.setYBottom(rect.getYTop() - image.height);
-		if(getName().equals("MIASTO") || getName().equals("GWIAZDY")) {
-			Gdx.app.log("ImageVariable", "[" + getName() + "] Rect: " + rect.toString());
-		}
 	}
 
 	public Image getImage() {

@@ -1,5 +1,7 @@
 package pl.genschu.bloomooemulator.interpreter.variable.types;
 
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.audio.Music;
 import pl.genschu.bloomooemulator.interpreter.exceptions.ClassMethodNotImplementedException;
 import pl.genschu.bloomooemulator.interpreter.Context;
 import pl.genschu.bloomooemulator.interpreter.variable.Attribute;
@@ -14,6 +16,7 @@ import pl.genschu.bloomooemulator.objects.Rectangle;
 import pl.genschu.bloomooemulator.utils.ArgumentsHelper;
 
 import java.util.List;
+import java.util.Random;
 
 public class AnimoVariable extends Variable {
 	private int imagesCount = 0;
@@ -45,6 +48,7 @@ public class AnimoVariable extends Variable {
 	private float elapsedTime = 0f;
 
 	private Rectangle rect;
+	private Music currentSfx;
 
 	public AnimoVariable(String name, Context context) {
 		super(name, context);
@@ -353,6 +357,7 @@ public class AnimoVariable extends Variable {
 				isPlaying = true;
 				updateRect();
 				getAttribute("VISIBLE").setValue("TRUE");
+				emitSignal("ONSTARTED", currentEvent.getName());
 				return null;
 			}
 		});
@@ -382,6 +387,7 @@ public class AnimoVariable extends Variable {
 						isPlaying = true;
 						updateRect();
 						getAttribute("VISIBLE").setValue("TRUE");
+						emitSignal("ONSTARTED", currentEvent.getName());
 						break;
 					}
 				}
@@ -678,6 +684,8 @@ public class AnimoVariable extends Variable {
 			if (currentFrameNumber >= currentEvent.getFrames().size()) {
 				currentFrameNumber = currentEvent.getFrames().size() - 1;
 
+				playSfx();
+
 				if(currentEvent.getLoopBy() == 0) { // TODO: check, how this value works
 					isPlaying = false;
 					emitSignal("ONFINISHED", currentEvent.getName());
@@ -689,6 +697,7 @@ public class AnimoVariable extends Variable {
 				}
 			}
 			else {
+				playSfx();
 				currentImageNumber = currentEvent.getFramesNumbers().get(currentFrameNumber);
 				currentImage = currentEvent.getFrames().get(currentFrameNumber);
 			}
@@ -696,6 +705,23 @@ public class AnimoVariable extends Variable {
 			updateRect();
 		}
 	}
+
+private void playSfx() {
+    if (!currentEvent.getFrameData().get(currentFrameNumber).getSfxAudio().isEmpty()) {
+        Gdx.app.log("AnimoVariable", "Playing sfx in animo " + currentEvent.getName());
+        int randomIndex = getRandomIndex(currentEvent.getFrameData().get(currentFrameNumber).getSfxAudio());
+        Music music = currentEvent.getFrameData().get(currentFrameNumber).getSfxAudio().get(randomIndex);
+
+        if(currentSfx != null) currentSfx.stop();
+		currentSfx = music;
+		currentSfx.play();
+    }
+}
+
+private int getRandomIndex(List<Music> musicList) {
+    return new Random().nextInt(musicList.size());
+}
+
 
 	public Rectangle getRect() {
 		return rect;
