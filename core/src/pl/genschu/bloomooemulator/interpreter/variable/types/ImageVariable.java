@@ -233,6 +233,7 @@ public class ImageVariable extends Variable {
 	}
 
 	private void updateRect() {
+		if(image == null) return;
 		rect.setXLeft(image.offsetX - posX);
 		rect.setYTop(image.offsetY - posY);
 		rect.setXRight(rect.getXLeft() + image.width);

@@ -1,6 +1,5 @@
 package pl.genschu.bloomooemulator.logic;
 
-import java.util.HashMap;
 import java.util.Map;
 import static java.util.Map.entry;
 
@@ -31,7 +30,8 @@ public class KnownHashes {
             // my hashes
             entry("D1CC807BCBE5A478CBEC49CA795C2A8EA63D0B67", "Poznaj Mity: Wyprawa po Złote Runo"),
             entry("4666638DD606241664691DE60F4ACFFAF4AB272D", "Poznaj Mity: Wojna Trojańska"), // jedyny znany mi egzemplarz biblioteki Piklib w wersji 7.2
-            entry("E80093DE96363524A209BBB80901458D9D524925", "Poznaj Mity: Herkules/Odyseusz") // te dwie gry pracują na tej samej wersji Piklib 8 o tym samym hashu
+            entry("E80093DE96363524A209BBB80901458D9D524925", "Poznaj Mity: Herkules/Odyseusz"), // te dwie gry pracują na tej samej wersji Piklib 8 o tym samym hashu
+            entry("DB853DBE96751160D436F267CA378DB1CBA81A52", "Reksio i Skarb Piratów (wersja z czasopisma Komputer Świat Gry")
     );
 
     public static String checkHash(String hash) {

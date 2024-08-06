@@ -19,6 +19,7 @@ public class Context {
 
     private Map<String, Variable> graphicsVariables; // cache for faster drawing
     private Map<String, Variable> buttonsVariables;
+    private Map<String, Variable> timerVariables;
 
     Variable thisVariable = null;
 
@@ -31,12 +32,15 @@ public class Context {
         this.game = null;
         this.graphicsVariables = new HashMap<>();
         this.buttonsVariables = new HashMap<>();
+        this.timerVariables = new HashMap<>();
     }
 
     public Context(Context parentContext, Game game) {
         this.parentContext = parentContext;
         this.game = game;
         this.graphicsVariables = new HashMap<>();
+        this.buttonsVariables = new HashMap<>();
+        this.timerVariables = new HashMap<>();
     }
 
     public Variable getVariable(String name) {
@@ -64,6 +68,10 @@ public class Context {
         return buttonsVariables;
     }
 
+    public Map<String, Variable> getTimerVariables() {
+        return timerVariables;
+    }
+
     public void setVariable(String name, Variable variable) {
         variables.put(name, variable);
 
@@ -72,10 +80,11 @@ public class Context {
         }
 
         if(variable.getType().equals("BUTTON")) {
-            if(buttonsVariables == null) {
-                buttonsVariables = new HashMap<>();
-            }
             buttonsVariables.put(name, variable);
+        }
+
+        if(variable.getType().equals("TIMER")) {
+            timerVariables.put(name, variable);
         }
     }
 
@@ -149,4 +158,6 @@ public class Context {
         else
             this.thisVariable = thisVariable;
     }
+
+
 }

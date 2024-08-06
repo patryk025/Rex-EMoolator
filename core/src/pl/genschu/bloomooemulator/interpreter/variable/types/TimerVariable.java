@@ -1,64 +1,72 @@
 package pl.genschu.bloomooemulator.interpreter.variable.types;
 
-import pl.genschu.bloomooemulator.interpreter.exceptions.ClassMethodNotImplementedException;
+import com.badlogic.gdx.Gdx;
 import pl.genschu.bloomooemulator.interpreter.Context;
 import pl.genschu.bloomooemulator.interpreter.variable.Attribute;
 import pl.genschu.bloomooemulator.interpreter.variable.Method;
 import pl.genschu.bloomooemulator.interpreter.variable.Parameter;
 import pl.genschu.bloomooemulator.interpreter.variable.Variable;
+import pl.genschu.bloomooemulator.utils.ArgumentsHelper;
 
 import java.util.List;
 
 public class TimerVariable extends Variable {
+	private long elapse;
+	private boolean enabled;
+	private int ticks;
+	private long lastTickTime;
+	private int currentTickCount;
+
 	public TimerVariable(String name, Context context) {
 		super(name, context);
 
 		this.setMethod("DISABLE", new Method(
-			"void"
+				"void"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				// TODO: implement this method
-				throw new ClassMethodNotImplementedException("Method DISABLE is not implemented yet");
+				enabled = false;
+				return null;
 			}
 		});
 		this.setMethod("ENABLE", new Method(
-			"void"
+				"void"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				// TODO: implement this method
-				throw new ClassMethodNotImplementedException("Method ENABLE is not implemented yet");
+				enabled = true;
+				lastTickTime = System.currentTimeMillis();
+				return null;
 			}
 		});
 		this.setMethod("GETTICKS", new Method(
-			"INTEGER"
+				"INTEGER"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				// TODO: implement this method
-				throw new ClassMethodNotImplementedException("Method GETTICKS is not implemented yet");
+				return new IntegerVariable("", currentTickCount, getContext());
 			}
 		});
 		this.setMethod("RESET", new Method(
-			"void"
+				"void"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				// TODO: implement this method
-				throw new ClassMethodNotImplementedException("Method RESET is not implemented yet");
+				currentTickCount = 0;
+				lastTickTime = System.currentTimeMillis();
+				return null;
 			}
 		});
 		this.setMethod("SETELAPSE", new Method(
-			List.of(
-				new Parameter("INTEGER", "timeMs", true)
-			),
-			"void"
+				List.of(
+						new Parameter("INTEGER", "timeMs", true)
+				),
+				"void"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				// TODO: implement this method
-				throw new ClassMethodNotImplementedException("Method SETELAPSE is not implemented yet");
+				elapse = ArgumentsHelper.getInteger(arguments.get(0));
+				return null;
 			}
 		});
 	}
@@ -70,10 +78,36 @@ public class TimerVariable extends Variable {
 
 	@Override
 	public void setAttribute(String name, Attribute attribute) {
-		List<String> knownAttributes = List.of("ELAPSE", "ENABLED", "TICKS");
-		if(knownAttributes.contains(name)) {
-			super.setAttribute(name, attribute);
+		switch (name) {
+			case "ELAPSE":
+				elapse = Long.parseLong(attribute.getValue().toString());
+				break;
+			case "ENABLED":
+				enabled = Boolean.parseBoolean(attribute.getValue().toString());
+				if (enabled) {
+					lastTickTime = System.currentTimeMillis();
+				}
+				break;
+			case "TICKS":
+				ticks = Integer.parseInt(attribute.getValue().toString());
+				break;
+			default:
+				super.setAttribute(name, attribute);
+				break;
 		}
 	}
 
+	public void update() {
+		if (enabled) {
+			long currentTime = System.currentTimeMillis();
+			if (currentTime - lastTickTime >= elapse) {
+				lastTickTime = currentTime;
+				currentTickCount++;
+				emitSignal("ONTICK", currentTickCount);
+				if (ticks != 0 && currentTickCount >= ticks) {
+					enabled = false;
+				}
+			}
+		}
+	}
 }

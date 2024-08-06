@@ -156,6 +156,12 @@ public class BlooMooEmulator extends ApplicationAdapter {
             }
         }
 
+        // update timers
+        for (Variable variable : new ArrayList<>(context.getTimerVariables().values())) {
+            TimerVariable timer = (TimerVariable) variable;
+            timer.update();
+        }
+
         // Handle mouse events
         int x = Gdx.input.getX();
         int y = Gdx.input.getY();
