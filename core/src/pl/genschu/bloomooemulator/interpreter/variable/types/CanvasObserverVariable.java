@@ -6,10 +6,13 @@ import pl.genschu.bloomooemulator.interpreter.variable.Attribute;
 import pl.genschu.bloomooemulator.interpreter.variable.Method;
 import pl.genschu.bloomooemulator.interpreter.variable.Parameter;
 import pl.genschu.bloomooemulator.interpreter.variable.Variable;
+import pl.genschu.bloomooemulator.utils.ArgumentsHelper;
 
 import java.util.List;
 
 public class CanvasObserverVariable extends Variable {
+	// TODO: implement canvas observer
+
 	public CanvasObserverVariable(String name, Context context) {
 		super(name, context);
 
@@ -148,8 +151,12 @@ public class CanvasObserverVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				// TODO: implement this method
-				throw new ClassMethodNotImplementedException("Method SETBACKGROUND is not implemented yet");
+				// hacky way for now
+				String imageName = ArgumentsHelper.getString(arguments.get(0));
+				ImageVariable image = new ImageVariable("", context);
+				image.setAttribute("FILENAME", new Attribute("STRING", imageName));
+				context.getGame().getCurrentSceneVariable().setBackground(image);
+				return null;
 			}
 		});
 		this.setMethod("SETBKGPOS", new Method(

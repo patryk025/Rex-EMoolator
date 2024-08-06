@@ -386,7 +386,11 @@ public class AnimoVariable extends Variable {
 						currentImage = currentEvent.getFrames().get(currentFrameNumber);
 						isPlaying = true;
 						updateRect();
-						getAttribute("VISIBLE").setValue("TRUE");
+						try {
+							getAttribute("VISIBLE").setValue("TRUE");
+						} catch (NullPointerException e) {
+							setAttribute("VISIBLE", new Attribute("BOOL", "TRUE"));
+						}
 						emitSignal("ONSTARTED", currentEvent.getName());
 						break;
 					}
