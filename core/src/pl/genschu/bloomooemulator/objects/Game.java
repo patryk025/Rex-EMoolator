@@ -228,6 +228,10 @@ public class Game {
             cnvParser.parseFile(sceneFile, currentSceneContext);
 
             runInit(currentSceneContext);
+
+            if(scene.getMusic() != null) {
+                scene.getMusic().play();
+            }
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

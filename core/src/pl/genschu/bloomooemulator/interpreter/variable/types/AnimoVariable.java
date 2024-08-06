@@ -352,6 +352,7 @@ public class AnimoVariable extends Variable {
 				currentFrameNumber = 0;
 				isPlaying = true;
 				updateRect();
+				getAttribute("VISIBLE").setValue("TRUE");
 				return null;
 			}
 		});
@@ -380,6 +381,7 @@ public class AnimoVariable extends Variable {
 						currentImage = currentEvent.getFrames().get(currentFrameNumber);
 						isPlaying = true;
 						updateRect();
+						getAttribute("VISIBLE").setValue("TRUE");
 						break;
 					}
 				}

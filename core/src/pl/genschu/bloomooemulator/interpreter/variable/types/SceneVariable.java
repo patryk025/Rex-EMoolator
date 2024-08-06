@@ -1,6 +1,8 @@
 package pl.genschu.bloomooemulator.interpreter.variable.types;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.audio.Music;
+import com.badlogic.gdx.files.FileHandle;
 import pl.genschu.bloomooemulator.interpreter.exceptions.ClassMethodNotImplementedException;
 import pl.genschu.bloomooemulator.interpreter.Context;
 import pl.genschu.bloomooemulator.interpreter.variable.Attribute;
@@ -8,6 +10,9 @@ import pl.genschu.bloomooemulator.interpreter.variable.Method;
 import pl.genschu.bloomooemulator.interpreter.variable.Parameter;
 import pl.genschu.bloomooemulator.interpreter.variable.Variable;
 import pl.genschu.bloomooemulator.loader.ImageLoader;
+import pl.genschu.bloomooemulator.loader.SoundLoader;
+import pl.genschu.bloomooemulator.utils.ArgumentsHelper;
+import pl.genschu.bloomooemulator.utils.FileUtils;
 
 import java.io.File;
 import java.util.List;
@@ -25,8 +30,11 @@ public class SceneVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				// TODO: implement this method
-				throw new ClassMethodNotImplementedException("Method PAUSE is not implemented yet");
+				// TODO: check how it should work
+				if(music != null) {
+					music.pause();
+				}
+				return null;
 			}
 		});
 		this.setMethod("REMOVECLONES", new Method(
@@ -101,8 +109,11 @@ public class SceneVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				// TODO: implement this method
-				throw new ClassMethodNotImplementedException("Method SETMUSICVOLUME is not implemented yet");
+				int volume = ArgumentsHelper.getInteger(arguments.get(0));
+				if(music != null) {
+					music.setVolume(volume / 255.0f);
+				}
+				return null;
 			}
 		});
 		this.setMethod("STARTMUSIC", new Method(
@@ -113,8 +124,10 @@ public class SceneVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				// TODO: implement this method
-				throw new ClassMethodNotImplementedException("Method STARTMUSIC is not implemented yet");
+				if(music != null) {
+					music.play();
+				}
+				return null;
 			}
 		});
 	}
@@ -160,6 +173,19 @@ public class SceneVariable extends Variable {
 	}
 
 	public Music getMusic() {
+		if(music == null && getAttribute("MUSIC") != null) {
+			String filePath = getAttribute("MUSIC").getValue().toString();
+			if(!filePath.startsWith("$")) {
+				filePath = "$\\"+ filePath;
+			}
+			filePath = FileUtils.resolveRelativePath(this, filePath);
+			FileHandle soundFileHandle = Gdx.files.absolute(filePath);
+
+			music = Gdx.audio.newMusic(soundFileHandle);
+			if(music != null) {
+				music.setLooping(false);
+			}
+		}
 		return music;
 	}
 

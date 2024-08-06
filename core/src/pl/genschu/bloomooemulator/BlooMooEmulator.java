@@ -92,6 +92,8 @@ public class BlooMooEmulator extends ApplicationAdapter {
         camera.update();
         batch.setProjectionMatrix(camera.combined);
 
+        context = this.game.getCurrentSceneContext();
+
         List<Variable> drawList = getGraphicsVariables();
 
         batch.begin();
