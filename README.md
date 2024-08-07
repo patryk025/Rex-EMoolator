@@ -17,12 +17,12 @@ Aktualny status gier opartych na silniku Piklib/BlooMoo:
 <tr>
 <td>Reksio i Skarb Piratów</td>
 <td><img alt="Niegrywalne" src="https://img.shields.io/badge/Niegrywalne-red"/></td>
-<td>Działa pierwsza animacja z intra, ale bez dźwięku, nie przechodzi dalej</td>
+<td>Prawie działa cała sekwencja intra, z brakującymi kilkoma dźwiękami, crashuje się przy przejściu do wraku</td>
 </tr>
 <tr>
 <td>Reksio i Ufo</td>
 <td><img alt="Niegrywalne" src="https://img.shields.io/badge/Niegrywalne-red"/></td>
-<td>Działa pierwsza animacja z intra, ale bez dźwięku, nie przechodzi dalej</td>
+<td>Działa praktycznie całe intro z małym problemem z muzyką w tlem, która nie chce się odtwarzać w pętli, na podwórku gra staje.</td>
 </tr>
 <tr>
 <td>Reksio i Czarodzieje</td>
@@ -62,7 +62,7 @@ Aktualny status gier opartych na silniku Piklib/BlooMoo:
 <tr>
 <td>Poznaj Mity: Herkules</td>
 <td><img alt="Niegrywalne" src="https://img.shields.io/badge/Niegrywalne-red"/></td>
-<td>Pojawia się plansza startowa, nie przechodzi dalej</td>
+<td>Pojawia się plansza startowa i wchodzi do menu</td>
 </tr>
 </tbody>
 </table>
