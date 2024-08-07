@@ -70,8 +70,27 @@ public class SceneVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				// TODO: implement this method
-				throw new ClassMethodNotImplementedException("Method RUN is not implemented yet");
+				String varName = ArgumentsHelper.getString(arguments.get(0));
+				String methodName = ArgumentsHelper.getString(arguments.get(1));
+				Object[] params = new Object[arguments.size() - 2];
+				for(int i = 2; i < arguments.size(); i++) {
+					params[i - 2] = arguments.get(i);
+				}
+				Context variableContext = ((Variable) arguments.get(0)).getContext(); // we need to get context from argument, as Scene has only context from Application.def
+
+				Variable var = variableContext.getVariable(varName);
+				Variable currentThis = variableContext.getThisVariable();
+				variableContext.setThisVariable(var);
+				if(var == null) {
+					Gdx.app.error("SceneVariable", "Variable not found: " + varName);
+					return null;
+				}
+				if(var instanceof ExpressionVariable) {
+					var = (Variable) var.getValue();
+				}
+				var.fireMethod(methodName, params);
+				variableContext.setThisVariable(currentThis);
+				return null;
 			}
 		});
 		this.setMethod("RUNCLONES", new Method(
@@ -126,6 +145,7 @@ public class SceneVariable extends Variable {
 			public Variable execute(List<Object> arguments) {
 				if(music != null) {
 					music.play();
+					music.setLooping(true);
 				}
 				return null;
 			}

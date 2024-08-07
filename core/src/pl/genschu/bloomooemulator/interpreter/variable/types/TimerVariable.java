@@ -20,6 +20,8 @@ public class TimerVariable extends Variable {
 	public TimerVariable(String name, Context context) {
 		super(name, context);
 
+		this.enabled = true;
+
 		this.setMethod("DISABLE", new Method(
 				"void"
 		) {
@@ -83,7 +85,7 @@ public class TimerVariable extends Variable {
 				elapse = Long.parseLong(attribute.getValue().toString());
 				break;
 			case "ENABLED":
-				enabled = Boolean.parseBoolean(attribute.getValue().toString());
+				enabled = attribute.getValue().toString().equals("TRUE");
 				if (enabled) {
 					lastTickTime = System.currentTimeMillis();
 				}

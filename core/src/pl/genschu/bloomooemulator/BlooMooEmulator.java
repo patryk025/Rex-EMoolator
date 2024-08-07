@@ -53,7 +53,7 @@ public class BlooMooEmulator extends ApplicationAdapter {
     GameEntry gameEntry;
     Game game;
 
-    private boolean debugButtons = true;
+    private boolean debugButtons = false;
 
     private Texture cursorTexture;
 
@@ -156,7 +156,7 @@ public class BlooMooEmulator extends ApplicationAdapter {
                         sequenceVariable.updateAnimation(deltaTime);
                     }
                 } catch(NullPointerException e) {
-                    Gdx.app.log("SequenceVariable", "Image not found in Sequence "+sequenceVariable.getName());
+                    //Gdx.app.log("SequenceVariable", "Image not found in Sequence "+sequenceVariable.getName());
                 }
             }
         }

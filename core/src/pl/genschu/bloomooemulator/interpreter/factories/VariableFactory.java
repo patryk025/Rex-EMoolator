@@ -81,6 +81,8 @@ public class VariableFactory
                 }
             case "EPISODE":
                 return new EpisodeVariable(name, context);
+            case "EXPRESSION":
+                return new ExpressionVariable(name, context);
             case "FONT":
                 return new FontVariable(name, context);
             case "GROUP":

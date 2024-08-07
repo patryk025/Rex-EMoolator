@@ -1,5 +1,6 @@
 package pl.genschu.bloomooemulator.objects;
 
+import com.badlogic.gdx.audio.Music;
 import pl.genschu.bloomooemulator.interpreter.Context;
 import pl.genschu.bloomooemulator.interpreter.variable.Variable;
 import pl.genschu.bloomooemulator.interpreter.variable.types.AnimoVariable;
@@ -222,6 +223,13 @@ public class Game {
             File sceneFile = FileUtils.findRelativeFileIgnoreCase(scene.getPath(), scene.getName() + ".cnv");
             currentSceneFile = scene.getPath();
             currentScene = scene.getName();
+
+            if(currentSceneVariable != null) {
+                Music music = currentSceneVariable.getMusic();
+                if(music != null) {
+                    music.stop();
+                }
+            }
 
             currentSceneVariable = scene;
 

@@ -358,6 +358,7 @@ public class AnimoVariable extends Variable {
 				updateRect();
 				getAttribute("VISIBLE").setValue("TRUE");
 				emitSignal("ONSTARTED", currentEvent.getName());
+				playSfx();
 				return null;
 			}
 		});
@@ -392,6 +393,7 @@ public class AnimoVariable extends Variable {
 							setAttribute("VISIBLE", new Attribute("BOOL", "TRUE"));
 						}
 						emitSignal("ONSTARTED", currentEvent.getName());
+						playSfx();
 						break;
 					}
 				}

@@ -106,15 +106,21 @@ public class SoundVariable extends Variable {
 		List<String> knownAttributes = List.of("FILENAME", "FLUSHAFTERPLAYED", "PRELOAD", "RELEASE");
 		if(knownAttributes.contains(name)) {
 			super.setAttribute(name, attribute);
+
+			if(name.equals("FILENAME")) {
+				loadSound();
+			}
 		}
 	}
 
 	public void loadSound() {
 		if(sound == null) {
 			SoundLoader.loadSound(this);
-			sound.setOnCompletionListener(music -> {
-                emitSignal("ONFINISHED");
-            });
+			if(sound != null) {
+				sound.setOnCompletionListener(music -> {
+					emitSignal("ONFINISHED");
+				});
+			}
 		}
 	}
 

@@ -146,6 +146,9 @@ public class AnimoLoader {
                         if(!sfxFile.startsWith("$")) {
                             sfxFile = "$WAVS\\"+ sfxFile;
                         }
+                        if(sfxFile.endsWith("\0")) {
+                            sfxFile = sfxFile.substring(0, sfxFile.length() - 1);
+                        }
                         sfxFile = FileUtils.resolveRelativePath(variable, sfxFile);
                         FileHandle soundFileHandle = Gdx.files.absolute(sfxFile);
 
