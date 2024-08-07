@@ -862,7 +862,12 @@ private int getRandomIndex(List<Music> musicList) {
 
 	public Image getCurrentImage() {
 		if(currentImage == null) {
-			currentImage = currentEvent.getFrames().get(currentImageNumber);
+			if(!currentEvent.getFrames().isEmpty()) {
+				currentImage = currentEvent.getFrames().get(currentImageNumber);
+			}
+			else {
+				currentImage = null;
+			}
 		}
 		return currentImage;
 	}

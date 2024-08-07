@@ -153,6 +153,12 @@ public class CanvasObserverVariable extends Variable {
 			public Variable execute(List<Object> arguments) {
 				// hacky way for now
 				String imageName = ArgumentsHelper.getString(arguments.get(0));
+				// check if it is not a variable
+				Variable var = context.getVariable(imageName);
+				if (var != null && var.getType().equals("IMAGE")) {
+					context.getGame().getCurrentSceneVariable().setBackground((ImageVariable) var);
+					return null;
+				}
 				ImageVariable image = new ImageVariable("", context);
 				image.setAttribute("FILENAME", new Attribute("STRING", imageName));
 				context.getGame().getCurrentSceneVariable().setBackground(image);

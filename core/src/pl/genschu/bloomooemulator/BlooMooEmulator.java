@@ -130,6 +130,7 @@ public class BlooMooEmulator extends ApplicationAdapter {
                         &&  variable.getAttribute("TOCANVAS").getValue().toString().equals("TRUE")) {
                     try {
                         Image image = animoVariable.getCurrentImage();
+                        if(image == null) continue;
                         Event event = animoVariable.getCurrentEvent();
                         if (event == null) continue;
                         Rectangle rect = animoVariable.getRect();

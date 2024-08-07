@@ -25,14 +25,15 @@ public class ConditionVariable extends Variable {
 
 		this.setMethod("BREAK", new Method(
 				List.of(
-						new Parameter("BOOL", "unknown", true)
+						new Parameter("BOOL", "expectedResult", true)
 				),
 				"void"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				boolean result = check();
-				if(result) {
+				boolean expectedResult = ArgumentsHelper.getBoolean(arguments.get(0));
+				if(result == expectedResult) {
 					throw new BreakException("Break statement encountered");
 				}
 				return null;
@@ -40,32 +41,34 @@ public class ConditionVariable extends Variable {
 		});
 		this.setMethod("CHECK", new Method(
 				List.of(
-						new Parameter("BOOL", "unknown", true)
+						new Parameter("BOOL", "expectedResult?", true)
 				),
 				"BOOL"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				boolean result = check();
-				if(result) {
-					emitSignal("ONRUNTIMEFAILED"); // yeah, FAILED :)
+				boolean expectedResult = ArgumentsHelper.getBoolean(arguments.get(0));
+				if(result == expectedResult) {
+					emitSignal("ONRUNTIMESUCCESS");
 				}
 				else {
-					emitSignal("ONRUNTIMESUCCESS");
+					emitSignal("ONRUNTIMEFAILED");
 				}
 				return new BoolVariable("", result, context);
 			}
 		});
 		this.setMethod("ONE_BREAK", new Method(
 				List.of(
-						new Parameter("BOOL", "unknown", true)
+						new Parameter("BOOL", "expectedResult", true)
 				),
 				"void"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				boolean result = check();
-				if(result) {
+				boolean expectedResult = ArgumentsHelper.getBoolean(arguments.get(0));
+				if(result == expectedResult) {
 					throw new OneBreakException("OneBreak statement encountered");
 				}
 				return null;
