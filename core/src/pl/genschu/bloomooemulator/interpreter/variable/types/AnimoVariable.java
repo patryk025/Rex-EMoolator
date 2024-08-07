@@ -573,7 +573,7 @@ public class AnimoVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				posX = ArgumentsHelper.getInteger(arguments.get(0));
-				posY = -ArgumentsHelper.getInteger(arguments.get(1));
+				posY = ArgumentsHelper.getInteger(arguments.get(1)); //TODO: somehow it is working with no minus in BlooMoo (to check)
 				updateRect();
 				return null;
 			}
@@ -716,7 +716,7 @@ private void playSfx() {
         int randomIndex = getRandomIndex(currentEvent.getFrameData().get(currentFrameNumber).getSfxAudio());
         Music music = currentEvent.getFrameData().get(currentFrameNumber).getSfxAudio().get(randomIndex);
 
-        if(currentSfx != null) currentSfx.stop();
+		if(currentSfx != null) currentSfx.stop();
 		currentSfx = music;
 		currentSfx.play();
     }

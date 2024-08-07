@@ -6,11 +6,16 @@ public class Rectangle {
     private int xRight;
     private int yTop;
 
+    private int width;
+    private int height;
+
     public Rectangle(int xLeft, int yBottom, int xRight, int yTop) {
         this.xLeft = xLeft;
         this.yBottom = yBottom;
         this.xRight = xRight;
         this.yTop = yTop;
+        this.width = xRight - xLeft;
+        this.height = yTop - yBottom;
     }
 
     public int getXLeft() {
@@ -35,6 +40,7 @@ public class Rectangle {
 
     public void setYBottom(int yBottom) {
         this.yBottom = yBottom;
+        this.height = yTop - yBottom;
     }
 
     public void setXRight(int xRight) {
@@ -43,10 +49,27 @@ public class Rectangle {
 
     public void setYTop(int yTop) {
         this.yTop = yTop;
+        this.height = yTop - yBottom;
     }
 
     public boolean contains(int x, int y) {
-        return x >= xLeft && x <= xRight && y <= yBottom && y >= yTop;
+        return x >= xLeft && x <= xRight && y >= yBottom + getHeight() && y <= yTop + getHeight();
+    }
+
+    public int getWidth() {
+        return width;
+    }
+
+    public void setWidth(int width) {
+        this.width = width;
+    }
+
+    public int getHeight() {
+        return height;
+    }
+
+    public void setHeight(int height) {
+        this.height = height;
     }
 
     @Override

@@ -3,12 +3,11 @@ import com.badlogic.gdx.Application;
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
-import com.badlogic.gdx.graphics.Camera;
-import com.badlogic.gdx.graphics.GL20;
-import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.*;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Logger;
@@ -34,7 +33,6 @@ import pl.genschu.bloomooemulator.loader.ImageLoader;
 import pl.genschu.bloomooemulator.logic.GameEntry;
 import pl.genschu.bloomooemulator.objects.*;
 import pl.genschu.bloomooemulator.utils.CoordinatesHelper;
-import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 
@@ -55,10 +53,13 @@ public class BlooMooEmulator extends ApplicationAdapter {
     GameEntry gameEntry;
     Game game;
 
+    private boolean debugButtons = true;
+
     private Texture cursorTexture;
 
     private ButtonVariable activeButton = null;
     private boolean prevPressed = false;
+    private ShapeRenderer shape;
 
     public BlooMooEmulator(GameEntry gameEntry) {
         this.gameEntry = gameEntry;
@@ -72,6 +73,7 @@ public class BlooMooEmulator extends ApplicationAdapter {
 
         context = this.game.getCurrentSceneContext();
 
+        shape = new ShapeRenderer();
         camera = new OrthographicCamera();
         if(gameEntry.isMaintainAspectRatio())
             viewport = new FitViewport(VIRTUAL_WIDTH, VIRTUAL_HEIGHT, camera);
@@ -197,6 +199,10 @@ public class BlooMooEmulator extends ApplicationAdapter {
         for (Variable variable : new ArrayList<>(context.getButtonsVariables().values())) {
             ButtonVariable button = (ButtonVariable) variable;
             if (button.getRect() != null && button.getRect().contains(x, y)) {
+                if(debugButtons) {
+                    // draw rect
+                    drawRectangle(button.getRect(), Color.GREEN );
+                }
                 if (justPressed) {
                     if (activeButton == null) {
                         activeButton = button;
@@ -221,6 +227,11 @@ public class BlooMooEmulator extends ApplicationAdapter {
                 }
             }
             else {
+                if(debugButtons && button.getRect() != null) {
+                    // draw rect
+                    drawRectangle(button.getRect(), Color.RED);
+                }
+
                 if (button.isFocused() && !isPressed) {
                     button.setFocused(false);
                     Signal onFocusLossSignal = button.getSignal("ONFOCUSOFF");
@@ -235,6 +246,16 @@ public class BlooMooEmulator extends ApplicationAdapter {
             triggerSignal(activeButton, "ONRELEASED");
             activeButton = null;
         }
+    }
+
+    private void drawRectangle(Rectangle rect, Color color) {
+        shape.setProjectionMatrix(camera.combined);
+        shape.begin(ShapeRenderer.ShapeType.Line);
+        shape.setColor(color);
+        int height = rect.getYTop() - rect.getYBottom();
+        int width = rect.getXRight() - rect.getXLeft();
+        shape.rect(rect.getXLeft(), VIRTUAL_HEIGHT - rect.getYTop() - height, width, height);
+        shape.end();
     }
 
     private void triggerSignal(ButtonVariable button, String signalName) {
