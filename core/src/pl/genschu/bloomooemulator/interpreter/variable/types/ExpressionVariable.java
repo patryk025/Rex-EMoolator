@@ -8,8 +8,8 @@ import java.util.List;
 
 public class ExpressionVariable  extends Variable {
     // It's just fancy way to replace [operand1^operator(operand2)]
-    private Variable operand1;
-    private Variable operand2;
+    private String operand1;
+    private String operand2;
     private String operator;
 
     public ExpressionVariable(String name, Context context) {
@@ -22,8 +22,8 @@ public class ExpressionVariable  extends Variable {
             super.setAttribute(name, attribute);
 
             if(getAttribute("OPERAND1") != null && getAttribute("OPERAND2") != null && getAttribute("OPERATOR") != null) {
-                operand1 = parseOperand(getAttribute("OPERAND1").getValue().toString());
-                operand2 = parseOperand(getAttribute("OPERAND2").getValue().toString());
+                operand1 = getAttribute("OPERAND1").getValue().toString();
+                operand2 = getAttribute("OPERAND2").getValue().toString();
                 operator = getAttribute("OPERATOR").getValue().toString();
             }
         }
@@ -44,6 +44,8 @@ public class ExpressionVariable  extends Variable {
 
     @Override
     public Object getValue() {
+        Variable operand1 = parseOperand(this.operand1);
+        Variable operand2 = parseOperand(this.operand2);
         return operand1.fireMethod(operator, operand2);
     }
 }
