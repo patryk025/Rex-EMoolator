@@ -15,11 +15,13 @@ import pl.genschu.bloomooemulator.interpreter.variable.Attribute;
 import pl.genschu.bloomooemulator.interpreter.variable.Method;
 import pl.genschu.bloomooemulator.interpreter.variable.Parameter;
 import pl.genschu.bloomooemulator.interpreter.variable.Variable;
+import pl.genschu.bloomooemulator.utils.ArgumentsHelper;
 
 import java.util.List;
 
 public class BehaviourVariable extends Variable {
 	private Interpreter interpreter;
+	private ConditionVariable condition;
 
 	public BehaviourVariable(String name, String code, Context context) {
 		super(name, context);
@@ -89,8 +91,63 @@ public class BehaviourVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				// TODO: implement this method
-				throw new ClassMethodNotImplementedException("Method RUNC is not implemented yet");
+				boolean conditionResult = false;
+
+				if(condition != null) {
+					conditionResult = condition.check();
+				}
+				else {
+					if(getAttribute("CONDITION") != null) {
+						Attribute attribute = getAttribute("CONDITION");
+						Variable variable = context.getVariable(attribute.getValue().toString());
+						if(variable != null) {
+							if(variable instanceof ConditionVariable) {
+								condition = (ConditionVariable) variable;
+
+								conditionResult = ArgumentsHelper.getBoolean(condition.getValue());
+							}
+							else {
+								Gdx.app.error("BehaviourVariable", "Variable " + attribute.getValue().toString() + " is not a condition variable");
+							}
+						}
+						else {
+							Gdx.app.error("BehaviourVariable", "Condition variable " + attribute.getValue().toString() + " not found");
+						}
+					}
+					else {
+						Gdx.app.error("BehaviourVariable", "Condition variable not set in behaviour " + getName() + ". Assume false?");
+					}
+				}
+
+				if(conditionResult) {
+					return null;
+				}
+
+				if(arguments == null) {
+					arguments = List.of();
+				}
+
+				if(interpreter == null) {
+					Gdx.app.error("BehaviourVariable", "Interpreter is null");
+					return null;
+				}
+
+				for(int i = 0; i < arguments.size(); i++) {
+					context.setVariable("$"+(i+1), (Variable) arguments.get(i));
+				}
+
+				Gdx.app.log("BehaviourVariable", "Running behaviour " + getName() + " with " + arguments.size() + " arguments");
+
+				for(int i = 0; i < arguments.size(); i++) {
+					Gdx.app.log("BehaviourVariable", "Argument " + (i+1) + ": " + arguments.get(i));
+				}
+
+				interpreter.interpret();
+
+				for(int i = 0; i < arguments.size(); i++) {
+					context.removeVariable("$"+(i+1));
+				}
+				return (Variable) interpreter.getReturnValue();
 			}
 		});
 		this.setMethod("RUNLOOPED", new Method(

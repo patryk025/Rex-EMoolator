@@ -1,6 +1,7 @@
 package pl.genschu.bloomooemulator.utils;
 
 import com.sun.jdi.BooleanValue;
+import pl.genschu.bloomooemulator.interpreter.variable.Variable;
 import pl.genschu.bloomooemulator.interpreter.variable.types.BoolVariable;
 import pl.genschu.bloomooemulator.interpreter.variable.types.DoubleVariable;
 import pl.genschu.bloomooemulator.interpreter.variable.types.IntegerVariable;

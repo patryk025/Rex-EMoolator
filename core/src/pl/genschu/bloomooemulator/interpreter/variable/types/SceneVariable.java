@@ -203,7 +203,7 @@ public class SceneVariable extends Variable {
 
 			music = Gdx.audio.newMusic(soundFileHandle);
 			if(music != null) {
-				music.setLooping(false);
+				music.setLooping(true);
 			}
 		}
 		return music;

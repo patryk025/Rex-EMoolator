@@ -92,7 +92,7 @@ public class BoolVariable extends Variable {
 	}
 
 	public boolean GET() {
-		return this.getValue().toString().equals("TRUE");
+		return this.getValue().toString().equalsIgnoreCase("TRUE");
 	}
 
 	@Override

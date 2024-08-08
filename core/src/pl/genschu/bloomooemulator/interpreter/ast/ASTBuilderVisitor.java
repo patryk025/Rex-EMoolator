@@ -101,6 +101,9 @@ public class ASTBuilderVisitor extends AidemMediaBaseVisitor<Node> {
             AidemMediaParser.StructContext structContext = ctx.struct(0);
             return new StructExpression(structContext.literal(0).getText(), structContext.literal(1).getText());
         }
+        else if(ctx.functionFire(0) != null) {
+            return visit(ctx.functionFire(0));
+        }
         else {
 			String text = ctx.getText();
             return new ConstantExpression(text.substring(1, text.length()-1));

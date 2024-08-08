@@ -219,7 +219,11 @@ public class AnimoVariable extends Variable {
 				if(absolute) {
 					return new IntegerVariable("", posX, context);
 				} else {
-					return new IntegerVariable("", posX+currentEvent.getFrameData().get(currentFrameNumber).getOffsetX(), context);
+					try {
+						return new IntegerVariable("", posX + currentEvent.getFrameData().get(currentFrameNumber).getOffsetX(), context);
+					} catch (IndexOutOfBoundsException e) {
+						return new IntegerVariable("", posX, context);
+					}
 				}
 			}
 		});
@@ -236,7 +240,11 @@ public class AnimoVariable extends Variable {
 				if(absolute) {
 					return new IntegerVariable("", posY, context);
 				} else {
-					return new IntegerVariable("", posY+currentEvent.getFrameData().get(currentFrameNumber).getOffsetY(), context);
+					try {
+						return new IntegerVariable("", posY + currentEvent.getFrameData().get(currentFrameNumber).getOffsetY(), context);
+					} catch (IndexOutOfBoundsException e) {
+						return new IntegerVariable("", posY, context);
+					}
 				}
 			}
 		});
@@ -494,15 +502,37 @@ public class AnimoVariable extends Variable {
 			}
 		});
 		this.setMethod("SETFRAME", new Method(
+				List.of(
+						new Parameter("INTEGER", "frameNumber", true)
+				),
+				"void"
+		) {
+			@Override
+			public Variable execute(List<Object> arguments) {
+				int frameNumber = ArgumentsHelper.getInteger(arguments.get(0));
+				currentEvent = events.get(0);
+				currentFrameNumber = 0;
+
+				currentImageNumber = frameNumber;
+				currentImage = getImages().get(currentImageNumber);
+				updateRect(currentImage);
+				return null;
+			}
+		});
+		this.setMethod("SETFRAME", new Method(
 			List.of(
 				new Parameter("STRING", "event", true),
-				new Parameter("STRING", "frameName", false)
+				new Parameter("STRING", "frameName", true)
 			),
 			"void"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				String eventName = ArgumentsHelper.getString(arguments.get(0));
+				Variable variable = getContext().getVariable(eventName);
+				if(variable != null) {
+					eventName = variable.getValue().toString();
+				}
 				try {
 					int eventNumber = Integer.parseInt(eventName);
 					currentEvent = events.get(eventNumber);
@@ -533,9 +563,15 @@ public class AnimoVariable extends Variable {
 				else {
 					currentFrameNumber = 0;
 				}
-				currentImageNumber = currentEvent.getFramesNumbers().get(currentFrameNumber);
-				currentImage = currentEvent.getFrames().get(currentFrameNumber);
-				updateRect();
+				if(!currentEvent.getFrames().isEmpty()) {
+					currentImageNumber = currentEvent.getFramesNumbers().get(currentFrameNumber);
+					currentImage = currentEvent.getFrames().get(currentFrameNumber);
+					updateRect();
+				}
+				else {
+					currentImageNumber = 0;
+					currentImage = null;
+				}
 				return null;
 			}
 		});
@@ -734,12 +770,33 @@ private int getRandomIndex(List<Music> musicList) {
 	}
 
 	private void updateRect() {
-		FrameData frameData = currentEvent.getFrameData().get(currentFrameNumber);
+		try {
+			FrameData frameData = currentEvent.getFrameData().get(currentFrameNumber);
 
-		rect.setXLeft(frameData.getOffsetX() + currentImage.offsetX - posX);
-		rect.setYTop(frameData.getOffsetY() + currentImage.offsetY - posY);
-		rect.setXRight(rect.getXLeft() + currentImage.width);
-		rect.setYBottom(rect.getYTop() - currentImage.height);
+			rect.setXLeft(frameData.getOffsetX() + currentImage.offsetX - posX);
+			rect.setYTop(frameData.getOffsetY() + currentImage.offsetY - posY);
+			rect.setXRight(rect.getXLeft() + currentImage.width);
+			rect.setYBottom(rect.getYTop() - currentImage.height);
+			if(getName().equals("REKIN"))
+				Gdx.app.error("AnimoVariable", "rect: " + rect.toString());
+		} catch (IndexOutOfBoundsException e) {
+			if(currentImage != null)
+				updateRect(currentImage);
+			else {
+				// last try, use only posX and posY
+				rect.setXLeft(posX);
+				rect.setYTop(posY);
+				rect.setXRight(rect.getXLeft() + 1);
+				rect.setYBottom(rect.getYTop() - 1);
+			}
+		}
+	}
+
+	private void updateRect(Image image) {
+		rect.setXLeft(image.offsetX - posX);
+		rect.setYTop(image.offsetY - posY);
+		rect.setXRight(image.width);
+		rect.setYBottom(image.height);
 	}
 
 	@Override
