@@ -67,7 +67,7 @@ public class ImageVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				return new IntegerVariable("", posX, context);
+				return new IntegerVariable("", posX+image.offsetX, context);
 			}
 		});
 		this.setMethod("GETPOSITIONY", new Method(
@@ -75,7 +75,7 @@ public class ImageVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				return new IntegerVariable("", posY, context);
+				return new IntegerVariable("", posY+image.offsetY, context);
 			}
 		});
 		this.setMethod("GETWIDTH", new Method(
@@ -184,7 +184,7 @@ public class ImageVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				posX = getValueFromString((Variable) arguments.get(0));
-				posY = -getValueFromString((Variable) arguments.get(1)); // Y need to be reversed (maybe I will change it later)
+				posY = getValueFromString((Variable) arguments.get(1));
 				updateRect();
 				return null;
 			}
@@ -235,8 +235,8 @@ public class ImageVariable extends Variable {
 
 	private void updateRect() {
 		if(image == null) return;
-		rect.setXLeft(image.offsetX - posX);
-		rect.setYTop(image.offsetY - posY);
+		rect.setXLeft(posX + image.offsetX);
+		rect.setYTop(posY + image.offsetY);
 		rect.setXRight(rect.getXLeft() + image.width);
 		rect.setYBottom(rect.getYTop() - image.height);
 	}

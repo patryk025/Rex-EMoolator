@@ -140,6 +140,25 @@ public class ASTBuilderVisitor extends AidemMediaBaseVisitor<Node> {
         return new VariableExpression(ctx.getText());
     }
 
+    @Override
+    public Node visitParam(AidemMediaParser.ParamContext ctx) {
+        if(ctx.number() != null) {
+            String number = ctx.number().getText();
+            if(ctx.arithmetic() != null && ctx.arithmetic().getText().equals("-")) {
+                return new ConstantExpression(Integer.parseInt("-" + number));
+            }
+            return new ConstantExpression(Integer.parseInt(ctx.getText()));
+        }
+        else if(ctx.floatNumber() != null) {
+            String number = ctx.number().getText();
+            if(ctx.arithmetic() != null && ctx.arithmetic().getText().equals("-")) {
+                return new ConstantExpression(Double.parseDouble("-" + number));
+            }
+            return new ConstantExpression(Double.parseDouble(ctx.getText()));
+        }
+        return super.visitParam(ctx);
+    }
+
     private Expression buildExpression(AidemMediaParser.ExpressionContext ctx) {
         if (ctx.getChildCount() == 3) {
             return (Expression) visit(ctx.getChild(1));

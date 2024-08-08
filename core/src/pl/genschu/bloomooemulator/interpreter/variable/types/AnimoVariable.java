@@ -220,7 +220,7 @@ public class AnimoVariable extends Variable {
 					return new IntegerVariable("", posX, context);
 				} else {
 					try {
-						return new IntegerVariable("", posX + currentEvent.getFrameData().get(currentFrameNumber).getOffsetX(), context);
+						return new IntegerVariable("", posX + currentEvent.getFrameData().get(currentFrameNumber).getOffsetX() + currentImage.offsetX, context);
 					} catch (IndexOutOfBoundsException e) {
 						return new IntegerVariable("", posX, context);
 					}
@@ -241,7 +241,7 @@ public class AnimoVariable extends Variable {
 					return new IntegerVariable("", posY, context);
 				} else {
 					try {
-						return new IntegerVariable("", posY + currentEvent.getFrameData().get(currentFrameNumber).getOffsetY(), context);
+						return new IntegerVariable("", posY + currentEvent.getFrameData().get(currentFrameNumber).getOffsetY() + currentImage.offsetY, context);
 					} catch (IndexOutOfBoundsException e) {
 						return new IntegerVariable("", posY, context);
 					}
@@ -773,12 +773,10 @@ private int getRandomIndex(List<Music> musicList) {
 		try {
 			FrameData frameData = currentEvent.getFrameData().get(currentFrameNumber);
 
-			rect.setXLeft(frameData.getOffsetX() + currentImage.offsetX - posX);
-			rect.setYTop(frameData.getOffsetY() + currentImage.offsetY - posY);
+			rect.setXLeft(posX + frameData.getOffsetX() + currentImage.offsetX);
+			rect.setYTop(posY + frameData.getOffsetY() + currentImage.offsetY);
 			rect.setXRight(rect.getXLeft() + currentImage.width);
 			rect.setYBottom(rect.getYTop() - currentImage.height);
-			if(getName().equals("REKIN"))
-				Gdx.app.error("AnimoVariable", "rect: " + rect.toString());
 		} catch (IndexOutOfBoundsException e) {
 			if(currentImage != null)
 				updateRect(currentImage);

@@ -119,7 +119,9 @@ public class BehaviourVariable extends Variable {
 					}
 				}
 
-				if(conditionResult) {
+				Gdx.app.log("BehaviourVariable", "RUNC in behaviour " + getName() + " condition result: " + conditionResult);
+
+				if(!conditionResult) {
 					return null;
 				}
 
