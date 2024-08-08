@@ -17,17 +17,17 @@ Aktualny status gier opartych na silniku Piklib/BlooMoo:
 <tr>
 <td>Reksio i Skarb Piratów</td>
 <td><img alt="Niegrywalne" src="https://img.shields.io/badge/Niegrywalne-red"/></td>
-<td>Prawie działa cała sekwencja intra, z brakującymi kilkoma dźwiękami, crashuje się przy przejściu do wraku</td>
+<td>W pełni działająca sekwencja intra, przenosi poprawnie do wraku, nie działa myszka</td>
 </tr>
 <tr>
 <td>Reksio i Ufo</td>
 <td><img alt="Niegrywalne" src="https://img.shields.io/badge/Niegrywalne-red"/></td>
-<td>Działa praktycznie całe intro z małym problemem z muzyką w tlem, która nie chce się odtwarzać w pętli, na podwórku gra staje.</td>
+<td>Działa cała sekwencja intra, coś chyba jeszcze jest nie tak z muzyką w tle, są problemy z animacjami Koguta, nie działa myszka</td>
 </tr>
 <tr>
 <td>Reksio i Czarodzieje</td>
 <td><img alt="Niegrywalne" src="https://img.shields.io/badge/Niegrywalne-red"/></td>
-<td>Wyświetla się plansza z tłem i napisem "Reksio i Czarodzieje", skrypty się ładują w większość poprawnie</td>
+<td>Załącza się sekwencja intra, jednak narrator się zawiesza i w pętli mówi "W poprzednich odcinkach".</td>
 </tr>
 <tr>
 <td>Reksio i Wehikuł Czasu</td>
@@ -62,7 +62,7 @@ Aktualny status gier opartych na silniku Piklib/BlooMoo:
 <tr>
 <td>Poznaj Mity: Herkules</td>
 <td><img alt="Niegrywalne" src="https://img.shields.io/badge/Niegrywalne-red"/></td>
-<td>Pojawia się plansza startowa i wchodzi do menu</td>
+<td>Pojawia się plansza startowa i wchodzi do menu, buguje się</td>
 </tr>
 </tbody>
 </table>

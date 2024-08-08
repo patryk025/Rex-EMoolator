@@ -76,7 +76,7 @@ public class ConditionVariable extends Variable {
 		});
 	}
 
-	public boolean check() {
+	private boolean check() {
 		behaviourVariable.getMethod("RUN", Collections.singletonList("mixed"))
 				.execute(null);
 		Object checkResult = behaviourVariable.getContext().getReturnValue();

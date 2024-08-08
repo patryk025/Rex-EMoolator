@@ -91,10 +91,10 @@ public class BehaviourVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				boolean conditionResult = false;
+				Variable conditionResult = new BoolVariable("", false, context);
 
 				if(condition != null) {
-					conditionResult = condition.check();
+					conditionResult = condition.fireMethod("CHECK", new BoolVariable("", true, context));
 				}
 				else {
 					if(getAttribute("CONDITION") != null) {
@@ -104,7 +104,7 @@ public class BehaviourVariable extends Variable {
 							if(variable instanceof ConditionVariable) {
 								condition = (ConditionVariable) variable;
 
-								conditionResult = ArgumentsHelper.getBoolean(condition.getValue());
+								conditionResult = condition.fireMethod("CHECK", new BoolVariable("", true, context));
 							}
 							else {
 								Gdx.app.error("BehaviourVariable", "Variable " + attribute.getValue().toString() + " is not a condition variable");
@@ -119,9 +119,11 @@ public class BehaviourVariable extends Variable {
 					}
 				}
 
-				Gdx.app.log("BehaviourVariable", "RUNC in behaviour " + getName() + " condition result: " + conditionResult);
+				boolean result = ArgumentsHelper.getBoolean(conditionResult);
 
-				if(!conditionResult) {
+				Gdx.app.log("BehaviourVariable", "RUNC in behaviour " + getName() + " condition result: " + result);
+
+				if(!result) {
 					return null;
 				}
 

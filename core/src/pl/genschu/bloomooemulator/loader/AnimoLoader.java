@@ -143,7 +143,7 @@ public class AnimoLoader {
                     String[] sfxFiles = sfxDescription.split(";");
                     List<Music> sfxAudioList = new ArrayList<>();
                     for(String sfxFile : sfxFiles) {
-                        if(!sfxFile.startsWith("sfx\\")) {
+                        if(!sfxFile.toLowerCase().startsWith("sfx\\")) {
                             sfxFile = "sfx\\"+ sfxFile;
                         }
                         if(!sfxFile.startsWith("$")) {
