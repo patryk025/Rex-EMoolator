@@ -21,24 +21,17 @@ public class Interpreter
 
     public void interpret()
 	{
-		try
+		if (astRoot instanceof Statement)
 		{
-        	if (astRoot instanceof Statement)
-			{
-				((Statement) astRoot).execute(this.context);
-				this.returnValue = null;
-        	}
-			else if (astRoot instanceof Expression)
-			{
-				this.returnValue = ((Expression) astRoot).evaluate(this.context);
-				if(this.returnValue == null && this.context.getReturnValue() != null) {
-					this.returnValue = this.context.getReturnValue();
-				}
-			}
+			((Statement) astRoot).execute(this.context);
+			this.returnValue = null;
 		}
-		catch (BreakException e)
+		else if (astRoot instanceof Expression)
 		{
-			Gdx.app.log("Interpreter", "BEHAVIOUR breaked");
+			this.returnValue = ((Expression) astRoot).evaluate(this.context);
+			if(this.returnValue == null && this.context.getReturnValue() != null) {
+				this.returnValue = this.context.getReturnValue();
+			}
 		}
     }
 

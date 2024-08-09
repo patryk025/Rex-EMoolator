@@ -141,7 +141,7 @@ public abstract class Variable {
 		try {
 			return method.execute(List.of(params));
 		} catch (ClassMethodNotFoundException | ClassMethodNotImplementedException | ClassCastException e) {
-			Gdx.app.error("Variable", "Method call error in class " + this.getType() + ": " + e.getMessage(), e);
+			Gdx.app.error("Variable", "Method call error in class " + this.getType() + ": " + e.getMessage());
 			return null;
 		}
     }

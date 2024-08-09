@@ -150,7 +150,7 @@ public class ASTBuilderVisitor extends AidemMediaBaseVisitor<Node> {
             return new ConstantExpression(Integer.parseInt(ctx.getText()));
         }
         else if(ctx.floatNumber() != null) {
-            String number = ctx.number().getText();
+            String number = ctx.floatNumber().getText();
             if(ctx.arithmetic() != null && ctx.arithmetic().getText().equals("-")) {
                 return new ConstantExpression(Double.parseDouble("-" + number));
             }

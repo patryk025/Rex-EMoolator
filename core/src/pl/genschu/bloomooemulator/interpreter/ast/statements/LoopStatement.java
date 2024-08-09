@@ -4,7 +4,9 @@ import pl.genschu.bloomooemulator.interpreter.Context;
 import pl.genschu.bloomooemulator.interpreter.ast.Statement;
 import pl.genschu.bloomooemulator.interpreter.ast.Expression;
 import pl.genschu.bloomooemulator.interpreter.exceptions.ClassMethodNotFoundException;
+import pl.genschu.bloomooemulator.interpreter.variable.Variable;
 import pl.genschu.bloomooemulator.interpreter.variable.types.IntegerVariable;
+import pl.genschu.bloomooemulator.utils.ArgumentsHelper;
 
 public class LoopStatement extends Statement {
     private final Expression body;
@@ -21,9 +23,9 @@ public class LoopStatement extends Statement {
 
     @Override
     public void execute(Context context) {
-		int startValue = (int) start.evaluate(context);
-		int endValue = (int) end.evaluate(context);
-		int stepValue = (int) step.evaluate(context);
+		int startValue = getIntValue(start.evaluate(context), context);
+		int endValue = getIntValue(end.evaluate(context), context);
+		int stepValue = getIntValue(step.evaluate(context), context);
 
         IntegerVariable stepVariable = new IntegerVariable("", stepValue, context); // just for fireMethod :)
 
@@ -34,6 +36,19 @@ public class LoopStatement extends Statement {
 				break;
 			}
 			context.getVariable("_I_").fireMethod("ADD", stepVariable);
+        }
+    }
+
+    private int getIntValue(Object object, Context context) {
+        String value = object.toString();
+        try {
+            return Integer.parseInt(value);
+        } catch (NumberFormatException e) {
+            Variable var = context.getVariable(value);
+            if(var != null) {
+                return ArgumentsHelper.getInteger(var);
+            }
+            return 0;
         }
     }
 }

@@ -147,7 +147,12 @@ public class SceneVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				if(music != null) {
-					music.play();
+					if(music.isPlaying()) {
+						music.stop();
+						music = null;
+					}
+					getAttribute("MUSIC").setValue(ArgumentsHelper.getString(arguments.get(0)));
+					getMusic();
 					music.setLooping(true);
 				}
 				return null;

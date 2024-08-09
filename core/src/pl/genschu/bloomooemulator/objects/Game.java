@@ -226,7 +226,7 @@ public class Game {
 
             if(currentSceneVariable != null) {
                 Music music = currentSceneVariable.getMusic();
-                if(music != null) {
+                if(music != null && music.isPlaying()) {
                     music.stop();
                 }
             }

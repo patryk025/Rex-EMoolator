@@ -10,6 +10,7 @@ import pl.genschu.bloomooemulator.interpreter.variable.Method;
 import pl.genschu.bloomooemulator.interpreter.variable.Parameter;
 import pl.genschu.bloomooemulator.interpreter.variable.Variable;
 import pl.genschu.bloomooemulator.loader.SoundLoader;
+import pl.genschu.bloomooemulator.utils.ArgumentsHelper;
 
 import java.util.List;
 
@@ -36,7 +37,13 @@ public class SoundVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				setAttribute("FILENAME", new Attribute("STRING", ((Variable) arguments.get(0)).getValue().toString()));
+				if(sound != null) {
+					sound.stop();
+					sound.dispose();
+					sound = null;
+				}
+				isPlaying = false;
+				setAttribute("FILENAME", new Attribute("STRING", ArgumentsHelper.getString(arguments.get(0))));
 				return null;
 			}
 		});
