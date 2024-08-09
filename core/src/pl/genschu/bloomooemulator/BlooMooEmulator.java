@@ -109,15 +109,13 @@ public class BlooMooEmulator extends ApplicationAdapter {
 
         for (Variable variable : drawList) {
             if(variable instanceof ImageVariable) {
-                Image image = ((ImageVariable) variable).getImage();
-                if(variable.getAttribute("VISIBLE").getValue().toString().equals("TRUE")
-                        &&  variable.getAttribute("TOCANVAS").getValue().toString().equals("TRUE")) {
-                    try {
-                        batch.setColor(1, 1, 1, ((int) variable.getAttribute("OPACITY").getValue()) / 255f);
-                    } catch(NullPointerException e) {
-                        batch.setColor(1, 1, 1, 1);
-                    }
-                    Rectangle rect = ((ImageVariable) variable).getRect();
+                ImageVariable imageVariable = (ImageVariable) variable;
+                Image image = imageVariable.getImage();
+                if(imageVariable.isVisible()) {
+
+                    batch.setColor(1, 1, 1, imageVariable.getOpacity());
+
+                    Rectangle rect = imageVariable.getRect();
                     try {
                         batch.draw(image.getImageTexture(), rect.getXLeft(), VIRTUAL_HEIGHT-rect.getYTop()-image.height, image.width, image.height);
                     } catch(NullPointerException ignored) {
@@ -126,13 +124,15 @@ public class BlooMooEmulator extends ApplicationAdapter {
                 }
             } else if(variable instanceof AnimoVariable) {
                 AnimoVariable animoVariable = (AnimoVariable) variable;
-                if(variable.getAttribute("VISIBLE").getValue().toString().equals("TRUE")
-                        &&  variable.getAttribute("TOCANVAS").getValue().toString().equals("TRUE")) {
+                if(animoVariable.isVisible()) {
                     try {
                         Image image = animoVariable.getCurrentImage();
                         if(image == null) continue;
                         Event event = animoVariable.getCurrentEvent();
                         if (event == null) continue;
+
+                        batch.setColor(1, 1, 1, animoVariable.getOpacity());
+
                         Rectangle rect = animoVariable.getRect();
                         try {
                             batch.draw(image.getImageTexture(), rect.getXLeft(), VIRTUAL_HEIGHT - rect.getYTop() - image.height, image.width, image.height);
@@ -148,6 +148,9 @@ public class BlooMooEmulator extends ApplicationAdapter {
                     Image image = sequenceVariable.getCurrentAnimo().getCurrentImage();
                     Event event = sequenceVariable.getCurrentAnimo().getCurrentEvent();
                     if (event == null) continue;
+
+                    batch.setColor(1, 1, 1, sequenceVariable.getCurrentAnimo().getOpacity());
+
                     Rectangle rect = sequenceVariable.getCurrentAnimo().getRect();
                     try {
                         batch.draw(image.getImageTexture(), rect.getXLeft(), VIRTUAL_HEIGHT - rect.getYTop() - image.height, image.width, image.height);

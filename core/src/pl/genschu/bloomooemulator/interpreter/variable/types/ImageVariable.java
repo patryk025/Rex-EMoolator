@@ -1,6 +1,9 @@
 package pl.genschu.bloomooemulator.interpreter.variable.types;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.Pixmap;
+import com.badlogic.gdx.graphics.TextureData;
 import pl.genschu.bloomooemulator.interpreter.exceptions.ClassMethodNotImplementedException;
 import pl.genschu.bloomooemulator.interpreter.Context;
 import pl.genschu.bloomooemulator.interpreter.variable.Attribute;
@@ -10,6 +13,7 @@ import pl.genschu.bloomooemulator.interpreter.variable.Variable;
 import pl.genschu.bloomooemulator.loader.ImageLoader;
 import pl.genschu.bloomooemulator.objects.Image;
 import pl.genschu.bloomooemulator.objects.Rectangle;
+import pl.genschu.bloomooemulator.utils.ArgumentsHelper;
 
 import java.util.List;
 
@@ -19,13 +23,14 @@ public class ImageVariable extends Variable {
 	Image image;
 	private int posX;
 	private int posY;
-	private int opacity;
+	private float opacity;
 	private Rectangle rect;
 
 	public ImageVariable(String name, Context context) {
 		super(name, context);
 
 		rect = new Rectangle(0, 0, 0, 0);
+		opacity = 255;
 
 		this.setMethod("GETALPHA", new Method(
 			List.of(
@@ -36,8 +41,16 @@ public class ImageVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				// TODO: implement this method
-				throw new ClassMethodNotImplementedException("Method GETALPHA is not implemented yet");
+				if(image == null) return new IntegerVariable("", 0, context);
+				else {
+					if(image.getImageTexture() == null) return new IntegerVariable("", 0, context);
+					else {
+						Pixmap pixmap = image.getImageTexture().getTextureData().consumePixmap();
+						Color color = new Color(pixmap.getPixel(posX, posY));
+						int alpha = (int) (color.a * 255f);
+						return new IntegerVariable("", alpha, context);
+					}
+				}
 			}
 		});
 		this.setMethod("GETHEIGHT", new Method(
@@ -45,8 +58,7 @@ public class ImageVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				// TODO: implement this method
-				throw new ClassMethodNotImplementedException("Method GETHEIGHT is not implemented yet");
+				return new IntegerVariable("", image.height, context);
 			}
 		});
 		this.setMethod("GETPIXEL", new Method(
@@ -58,8 +70,31 @@ public class ImageVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				// TODO: implement this method
-				throw new ClassMethodNotImplementedException("Method GETPIXEL is not implemented yet");
+				if(image == null) return new IntegerVariable("", 0, context);
+				else {
+					if(image.getImageTexture() == null) return new IntegerVariable("", 0, context);
+					else {
+						TextureData textureData = image.getImageTexture().getTextureData();
+						if (!textureData.isPrepared()) {
+							textureData.prepare();
+						}
+						Pixmap pixmap = textureData.consumePixmap();
+						Color color = new Color(pixmap.getPixel(posX, posY));
+						int red = (int) (color.r * 255f);
+						int green = (int) (color.g * 255f);
+						int blue = (int) (color.b * 255f);
+
+						if(image.colorDepth == 16) {
+							int rgb565 = (red & 0xF8) << 8 | (green & 0xFC) << 3 | (blue & 0xF8) >> 3;
+							return new IntegerVariable("", rgb565, context);
+						}
+						else if(image.colorDepth == 15) {
+							int rgb555 = (red & 0xF8) << 7 | (green & 0xF8) << 2 | (blue & 0xF8) >> 3;
+							return new IntegerVariable("", rgb555, context);
+						}
+						return new IntegerVariable("", 255, context);
+					}
+				}
 			}
 		});
 		this.setMethod("GETPOSITIONX", new Method(
@@ -100,8 +135,9 @@ public class ImageVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				// TODO: implement this method
-				throw new ClassMethodNotImplementedException("Method INVALIDATE is not implemented yet");
+				getImage().getImageTexture().dispose();
+				setImage(null);
+				return null;
 			}
 		});
 		this.setMethod("LOAD", new Method(
@@ -112,8 +148,10 @@ public class ImageVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				// TODO: implement this method
-				throw new ClassMethodNotImplementedException("Method LOAD is not implemented yet");
+				String path = ArgumentsHelper.getString(arguments.get(0));
+				setAttribute("FILENAME", path);
+				ImageLoader.loadImage(ImageVariable.this);
+				return null;
 			}
 		});
 		this.setMethod("MERGEALPHA", new Method(
@@ -139,8 +177,8 @@ public class ImageVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				int offsetX = getValueFromString((Variable) arguments.get(0));
-				int offsetY = getValueFromString((Variable) arguments.get(1));
+				int offsetX = ArgumentsHelper.getInteger(arguments.get(0));
+				int offsetY = ArgumentsHelper.getInteger(arguments.get(1));
 				posX += offsetX;
 				posY += offsetY;
 				updateRect();
@@ -170,7 +208,7 @@ public class ImageVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				opacity = getValueFromString((Variable) arguments.get(0));
+				opacity = ArgumentsHelper.getInteger(arguments.get(0)) / 255.0f;
 				return null;
 			}
 		});
@@ -183,8 +221,8 @@ public class ImageVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				posX = getValueFromString((Variable) arguments.get(0));
-				posY = getValueFromString((Variable) arguments.get(1));
+				posX = ArgumentsHelper.getInteger(arguments.get(0));
+				posY = ArgumentsHelper.getInteger(arguments.get(1));
 				updateRect();
 				return null;
 			}
@@ -197,7 +235,7 @@ public class ImageVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				setAttribute("PRIORITY", getValueFromString((Variable) arguments.get(0)) + "");
+				setAttribute("PRIORITY", ""+ArgumentsHelper.getInteger(arguments.get(0)));
 				return null;
 			}
 		});
@@ -265,11 +303,16 @@ public class ImageVariable extends Variable {
 		this.posY = posY;
 	}
 
-	public int getOpacity() {
+	public float getOpacity() {
 		return opacity;
 	}
 
-	public void setOpacity(int opacity) {
+	public void setOpacity(float opacity) {
 		this.opacity = opacity;
+	}
+
+	public boolean isVisible() {
+		return this.getAttribute("VISIBLE").getValue().toString().equals("TRUE")
+				&&  this.getAttribute("TOCANVAS").getValue().toString().equals("TRUE");
 	}
 }

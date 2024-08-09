@@ -844,6 +844,15 @@ private int getRandomIndex(List<Music> musicList) {
 	}
 
 	public int getOpacity() {
+		int opacity = this.opacity;
+		if(this.currentEvent != null) {
+			opacity *= this.currentEvent.getOpacity();
+
+			if(currentImage != null && !currentEvent.getFrameData().isEmpty()) {
+				opacity *= currentEvent.getFrameData().get(currentFrameNumber).getOpacity();
+			}
+		}
+
 		return opacity;
 	}
 
@@ -947,5 +956,10 @@ private int getRandomIndex(List<Music> musicList) {
 
 	public void setPlaying(boolean playing) {
 		isPlaying = playing;
+	}
+
+	public boolean isVisible() {
+		return this.getAttribute("VISIBLE").getValue().toString().equals("TRUE")
+				&&  this.getAttribute("TOCANVAS").getValue().toString().equals("TRUE");
 	}
 }

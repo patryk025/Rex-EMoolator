@@ -1,6 +1,5 @@
 package pl.genschu.bloomooemulator.utils;
 
-import com.sun.jdi.BooleanValue;
 import pl.genschu.bloomooemulator.interpreter.variable.Variable;
 import pl.genschu.bloomooemulator.interpreter.variable.types.BoolVariable;
 import pl.genschu.bloomooemulator.interpreter.variable.types.DoubleVariable;
@@ -9,10 +8,22 @@ import pl.genschu.bloomooemulator.interpreter.variable.types.StringVariable;
 
 public class ArgumentsHelper {
     public static int getInteger(Object object) {
+        return getInteger(object, true);
+    }
+
+    public static int getInteger(Object object, boolean resolveString) {
         if(object instanceof IntegerVariable) {
             return ((IntegerVariable) object).GET();
         }
         else if(object instanceof StringVariable) {
+            if(resolveString) {
+                String value = ((StringVariable) object).GET();
+                Variable var = ((StringVariable) object).getContext().getVariable(value);
+                if(isPrimitive(var)) {
+                    return getInteger(var, false);
+                }
+                return ((StringVariable) object).toInt();
+            }
             return ((StringVariable) object).toInt();
         }
         else if(object instanceof DoubleVariable) {
@@ -27,10 +38,22 @@ public class ArgumentsHelper {
     }
 
     public static boolean getBoolean(Object object) {
+        return getBoolean(object, true);
+    }
+
+    public static boolean getBoolean(Object object, boolean resolveString) {
         if(object instanceof IntegerVariable) {
             return ((IntegerVariable) object).toBool();
         }
         else if(object instanceof StringVariable) {
+            if(resolveString) {
+                String value = ((StringVariable) object).GET();
+                Variable var = ((StringVariable) object).getContext().getVariable(value);
+                if(isPrimitive(var)) {
+                    return getBoolean(var, false);
+                }
+                return ((StringVariable) object).toBool();
+            }
             return ((StringVariable) object).toBool();
         }
         else if(object instanceof DoubleVariable) {
@@ -45,10 +68,22 @@ public class ArgumentsHelper {
     }
 
     public static double getDouble(Object object) {
+        return getDouble(object, true);
+    }
+
+    public static double getDouble(Object object, boolean resolveString) {
         if(object instanceof IntegerVariable) {
             return ((IntegerVariable) object).toDouble();
         }
         else if(object instanceof StringVariable) {
+            if(resolveString) {
+                String value = ((StringVariable) object).GET();
+                Variable var = ((StringVariable) object).getContext().getVariable(value);
+                if(isPrimitive(var)) {
+                    return getDouble(var, false);
+                }
+                return ((StringVariable) object).toDouble();
+            }
             return ((StringVariable) object).toDouble();
         }
         else if(object instanceof DoubleVariable) {
@@ -63,10 +98,22 @@ public class ArgumentsHelper {
     }
 
     public static String getString(Object object) {
+        return getString(object, true);
+    }
+
+    public static String getString(Object object, boolean resolveString) {
         if(object instanceof IntegerVariable) {
             return ((IntegerVariable) object).toStringVariable();
         }
         else if(object instanceof StringVariable) {
+            if(resolveString) {
+                String value = ((StringVariable) object).GET();
+                Variable var = ((StringVariable) object).getContext().getVariable(value);
+                if(isPrimitive(var)) {
+                    return getString(var, false);
+                }
+                return ((StringVariable) object).GET();
+            }
             return ((StringVariable) object).GET();
         }
         else if(object instanceof DoubleVariable) {
@@ -78,5 +125,9 @@ public class ArgumentsHelper {
         else {
             return object.toString();
         }
+    }
+
+    private static boolean isPrimitive(Variable var) {
+        return var instanceof IntegerVariable || var instanceof StringVariable || var instanceof DoubleVariable || var instanceof BoolVariable;
     }
 }
