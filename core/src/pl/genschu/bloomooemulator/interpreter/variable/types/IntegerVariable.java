@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Random;
 
 import static pl.genschu.bloomooemulator.interpreter.util.VariableHelper.getValueFromString;
+import pl.genschu.bloomooemulator.utils.ArgumentsHelper;
 
 public class IntegerVariable extends Variable {
 	public IntegerVariable(String name, int value, Context context) {
@@ -160,12 +161,17 @@ public class IntegerVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				if(arguments.size() == 1) {
-					int result = new Random().nextInt(getValueFromString((Variable) arguments.get(0)));
+                    Random random = new Random();
+                    int bound = ArgumentsHelper.getInteger(arguments.get(0));
+                    int result = random.nextInt(bound);
 					set(result);
 					return IntegerVariable.this;
 				} else {
-					int result = new Random().nextInt(getValueFromString((Variable) arguments.get(0)), getValueFromString((Variable) arguments.get(1)));
-					set(result);
+					int min = ArgumentsHelper.getInteger(arguments.get(0));
+                    int max = ArgumentsHelper.getInteger(arguments.get(1));
+                    Random random = new Random();
+                    int result = min + random.nextInt(max - min + 1);
+                    set(result);
 					return IntegerVariable.this;
 				}
 			}
