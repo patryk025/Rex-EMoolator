@@ -5,6 +5,7 @@ import pl.genschu.bloomooemulator.interpreter.Context;
 import pl.genschu.bloomooemulator.interpreter.ast.Expression;
 import pl.genschu.bloomooemulator.interpreter.ast.Statement;
 import pl.genschu.bloomooemulator.interpreter.ast.expressions.ConstantExpression;
+import pl.genschu.bloomooemulator.interpreter.exceptions.BreakException;
 import pl.genschu.bloomooemulator.interpreter.factories.VariableFactory;
 import pl.genschu.bloomooemulator.interpreter.variable.Variable;
 import pl.genschu.bloomooemulator.interpreter.variable.types.BehaviourVariable;
@@ -42,7 +43,11 @@ public class IfStatement extends Statement {
             if(variable instanceof BehaviourVariable) {
                 try {
                     variable.getMethod("RUN", Collections.singletonList("mixed")).execute(null);
-                } catch (Exception e) {
+                } catch(BreakException e) {
+                    Gdx.app.log("IfStatement", "BREAK instruction in "+variable.getName()+" BEHAVIOUR");
+                    throw e;
+                }
+                catch (Exception e) {
                     Gdx.app.error("IfStatement", "Error while running "+variable.getName()+" BEHAVIOUR in if instruction: " + e.getMessage(), e);
                 }
             }

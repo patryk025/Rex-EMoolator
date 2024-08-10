@@ -104,6 +104,7 @@ public class BlooMooEmulator extends ApplicationAdapter {
         ImageVariable background = game.getCurrentSceneVariable().getBackground();
         if(background != null) {
             Image image = background.getImage();
+            batch.setColor(1, 1, 1, background.getOpacity());
             batch.draw(image.getImageTexture(), image.offsetX, VIRTUAL_HEIGHT-image.offsetY-image.height, image.width, image.height);
         }
 
