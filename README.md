@@ -1,8 +1,8 @@
 # Rex EMoolator
-Prototyp emulatora silnika graficznego Piklib/BlooMoo autorstwa firmy Aidem Media oraz interpretera skryptów.
+Emulator silnika graficznego Piklib/BlooMoo autorstwa firmy Aidem Media oraz interpretera skryptów.
 
 > [!WARNING]
-> Na ten moment działa ładowanie plików graficznych oraz animacji, podczas gdy prace nad interpreterem oraz ładowaniem skryptów są w toku.
+> Na ten moment działa ładowanie plików graficznych, animacji oraz są postępu w odtwarzaniu intra w kilku grach, ale prace nad interpreterem oraz ładowaniem skryptów są w toku.
 
 Aktualny status gier opartych na silniku Piklib/BlooMoo:
 <table>
@@ -27,7 +27,7 @@ Aktualny status gier opartych na silniku Piklib/BlooMoo:
 <tr>
 <td>Reksio i Czarodzieje</td>
 <td><img alt="Niegrywalne" src="https://img.shields.io/badge/Niegrywalne-red"/></td>
-<td>Załącza się sekwencja intra, jednak narrator się zawiesza i w pętli mówi "W poprzednich odcinkach".</td>
+<td>Działa część sekwencji intra z przerzucaniem kartek i streszczeniem poprzednich części, jednak bez animacji przekładania kartek. Na Androidzie dodatkowo ten segment się nieco przymula przez częstą zmianę plików audio i grafik. Gra zawiesza się na widoku kogutów, nie załączają się animacje</td>
 </tr>
 <tr>
 <td>Reksio i Wehikuł Czasu</td>
