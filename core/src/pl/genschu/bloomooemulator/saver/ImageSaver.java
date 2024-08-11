@@ -14,7 +14,7 @@ public class ImageSaver {
     public static void saveScreenshot(Variable variable, String path, byte[] data) {
         String filePath = FileUtils.resolveRelativePath(variable, path);
 
-        byte[] imgData = generateData(data, 800, 600, 16, 0, null, 0, 0);
+        byte[] imgData = generateData(data, 800, 600, 16, 0, null, -2, 0); // -2, temporary fix
 
         try (FileOutputStream f = new FileOutputStream(filePath)) {
             f.write(imgData);
