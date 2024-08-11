@@ -3,6 +3,7 @@ package pl.genschu.bloomooemulator.interpreter.variable.types;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.files.FileHandle;
+import games.rednblack.miniaudio.MASound;
 import pl.genschu.bloomooemulator.interpreter.exceptions.ClassMethodNotImplementedException;
 import pl.genschu.bloomooemulator.interpreter.Context;
 import pl.genschu.bloomooemulator.interpreter.variable.Attribute;
@@ -20,7 +21,7 @@ import java.util.List;
 public class SceneVariable extends Variable {
 	private File path;
 	private ImageVariable background;
-	private Music music;
+	private MASound music;
 
 	public SceneVariable(String name, Context context) {
 		super(name, context);
@@ -133,7 +134,7 @@ public class SceneVariable extends Variable {
 			public Variable execute(List<Object> arguments) {
 				int volume = ArgumentsHelper.getInteger(arguments.get(0));
 				if(music != null) {
-					music.setVolume(volume / 255.0f);
+					music.setVolume(volume / 1024.0f);
 				}
 				return null;
 			}
@@ -200,16 +201,15 @@ public class SceneVariable extends Variable {
 		this.background = background;
 	}
 
-	public Music getMusic() {
+	public MASound getMusic() {
 		if(music == null && getAttribute("MUSIC") != null) {
 			String filePath = getAttribute("MUSIC").getValue().toString();
 			if(!filePath.startsWith("$")) {
 				filePath = "$\\"+ filePath;
 			}
 			filePath = FileUtils.resolveRelativePath(this, filePath);
-			FileHandle soundFileHandle = Gdx.files.absolute(filePath);
 
-			music = Gdx.audio.newMusic(soundFileHandle);
+			music = getContext().getGame().getMiniAudio().createSound(filePath);
 			if(music != null) {
 				music.setLooping(true);
 			}
@@ -217,7 +217,7 @@ public class SceneVariable extends Variable {
 		return music;
 	}
 
-	public void setMusic(Music music) {
+	public void setMusic(MASound music) {
 		this.music = music;
 	}
 }

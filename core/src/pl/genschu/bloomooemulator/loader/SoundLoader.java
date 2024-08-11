@@ -20,9 +20,8 @@ public class SoundLoader {
                 filename.setValue("$WAVS\\" + filenameString);
             }
             String filePath = FileUtils.resolveRelativePath(variable);
-            FileHandle soundFileHandle = Gdx.files.absolute(filePath);
 
-            variable.setSound(Gdx.audio.newMusic(soundFileHandle));
+            variable.setSound(variable.getContext().getGame().getMiniAudio().createSound(filePath));
         } catch (Exception e) {
             Gdx.app.error("SoundLoader", "Error while loading sound: " + e.getMessage());
         }

@@ -1,6 +1,9 @@
 package pl.genschu.bloomooemulator.objects;
 
 import com.badlogic.gdx.audio.Music;
+import games.rednblack.miniaudio.MASound;
+import games.rednblack.miniaudio.MASoundEndListener;
+import games.rednblack.miniaudio.MiniAudio;
 import pl.genschu.bloomooemulator.interpreter.Context;
 import pl.genschu.bloomooemulator.interpreter.variable.Variable;
 import pl.genschu.bloomooemulator.interpreter.variable.types.AnimoVariable;
@@ -41,9 +44,13 @@ public class Game {
     private Context currentEpisodeContext;
     private Context currentSceneContext;
 
+    private MiniAudio miniAudio;
+
     public Game(GameEntry game) {
         this.definitionContext = new Context();
         this.game = game;
+
+        this.miniAudio = new MiniAudio();
 
         definitionContext.setGame(this);
 
@@ -225,7 +232,7 @@ public class Game {
             currentScene = scene.getName();
 
             if(currentSceneVariable != null) {
-                Music music = currentSceneVariable.getMusic();
+                MASound music = currentSceneVariable.getMusic();
                 if(music != null && music.isPlaying()) {
                     music.stop();
                 }
@@ -267,6 +274,10 @@ public class Game {
                 if(scene.isBackgroundLoaded()) {
                     scene.getBackground().getImage().getImageTexture().dispose();
                 }
+                if(scene.getMusic() != null) {
+                    scene.getMusic().stop();
+                    scene.getMusic().dispose();
+                }
                 for(String varKey : scene.getContext().getGraphicsVariables().keySet()) {
                     Variable graphic = scene.getContext().getVariable(varKey);
                     if(graphic instanceof AnimoVariable) {
@@ -301,6 +312,7 @@ public class Game {
             }
             variable.setContext(null);
         }
+        miniAudio.dispose();
     }
 
     public SceneVariable getCurrentSceneVariable() {
@@ -373,5 +385,19 @@ public class Game {
 
     public void setCurrentSceneFile(File currentSceneFile) {
         this.currentSceneFile = currentSceneFile;
+    }
+
+    public MiniAudio getMiniAudio() {
+        return miniAudio;
+    }
+
+    public void setMiniAudio(MiniAudio miniAudio) {
+        this.miniAudio = miniAudio;
+    }
+
+    public void setOnEndListener(MASoundEndListener endListener) {
+        if(miniAudio != null) {
+            miniAudio.setEndListener(endListener);
+        }
     }
 }

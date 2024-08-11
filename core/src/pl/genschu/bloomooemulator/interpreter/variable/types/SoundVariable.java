@@ -3,6 +3,8 @@ package pl.genschu.bloomooemulator.interpreter.variable.types;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.audio.Sound;
+import games.rednblack.miniaudio.MASound;
+import games.rednblack.miniaudio.MASoundEndListener;
 import pl.genschu.bloomooemulator.interpreter.exceptions.ClassMethodNotImplementedException;
 import pl.genschu.bloomooemulator.interpreter.Context;
 import pl.genschu.bloomooemulator.interpreter.variable.Attribute;
@@ -15,7 +17,7 @@ import pl.genschu.bloomooemulator.utils.ArgumentsHelper;
 import java.util.List;
 
 public class SoundVariable extends Variable {
-	private Music sound;
+	private MASound sound;
 	private boolean isPlaying;
 
 	public SoundVariable(String name, Context context) {
@@ -124,18 +126,22 @@ public class SoundVariable extends Variable {
 		if(sound == null) {
 			SoundLoader.loadSound(this);
 			if(sound != null) {
-				sound.setOnCompletionListener(music -> {
-					emitSignal("ONFINISHED");
-				});
+				MASoundEndListener endListener = maSound -> {
+					Gdx.app.postRunnable(() -> {
+						Gdx.app.log("MASoundEndListener", getAttribute("FILENAME").getValue().toString() + " finished");
+						emitSignal("ONFINISHED");
+					});
+				};
+				getContext().getGame().setOnEndListener(endListener);
 			}
 		}
 	}
 
-	public Music getSound() {
+	public MASound getSound() {
 		return sound;
 	}
 
-	public void setSound(Music sound) {
+	public void setSound(MASound sound) {
 		this.sound = sound;
 	}
 }
