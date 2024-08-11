@@ -25,11 +25,13 @@ public class ImageVariable extends Variable {
 	private int posY;
 	private float opacity;
 	private Rectangle rect;
+	private Rectangle clippingRect;
 
 	public ImageVariable(String name, Context context) {
 		super(name, context);
 
 		rect = new Rectangle(0, 0, 0, 0);
+		clippingRect = null;
 		opacity = 255;
 
 		this.setMethod("GETALPHA", new Method(
@@ -135,9 +137,8 @@ public class ImageVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				getImage().getImageTexture().dispose();
-				setImage(null);
-				return null;
+				// TODO: implement this method
+				throw new ClassMethodNotImplementedException("Method INVALIDATE is not implemented yet");
 			}
 		});
 		this.setMethod("LOAD", new Method(
@@ -188,16 +189,21 @@ public class ImageVariable extends Variable {
 		this.setMethod("SETCLIPPING", new Method(
 			List.of(
 				new Parameter("INTEGER", "xLeft", true),
-				new Parameter("INTEGER", "yTop", true),
+				new Parameter("INTEGER", "yBottom", true),
 				new Parameter("INTEGER", "xRight", true),
-				new Parameter("INTEGER", "yBottom", true)
+				new Parameter("INTEGER", "yTop", true)
 			),
 			"void"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				// TODO: implement this method
-				throw new ClassMethodNotImplementedException("Method SETCLIPPING is not implemented yet");
+				int xLeft = ArgumentsHelper.getInteger(arguments.get(0));
+				int yBottom = ArgumentsHelper.getInteger(arguments.get(1));
+				int xRight = ArgumentsHelper.getInteger(arguments.get(2));
+				int yTop = ArgumentsHelper.getInteger(arguments.get(3));
+
+				clippingRect = new Rectangle(xLeft, yBottom, xRight, yTop);
+				return null;
 			}
 		});
 		this.setMethod("SETOPACITY", new Method(
@@ -309,6 +315,14 @@ public class ImageVariable extends Variable {
 
 	public void setOpacity(float opacity) {
 		this.opacity = opacity;
+	}
+
+	public Rectangle getClippingRect() {
+		return clippingRect;
+	}
+
+	public void setClippingRect(Rectangle clippingRect) {
+		this.clippingRect = clippingRect;
 	}
 
 	public boolean isVisible() {

@@ -348,6 +348,7 @@ public class AnimoVariable extends Variable {
 				currentImageNumber = currentEvent.getFramesNumbers().get(currentFrameNumber);
 				currentImage = currentEvent.getFrames().get(currentImageNumber);
 				updateRect();
+				emitSignal("ONFRAMECHANGED", currentEvent.getName());
 				return null;
 			}
 		});
@@ -365,8 +366,9 @@ public class AnimoVariable extends Variable {
 				isPlaying = true;
 				updateRect();
 				getAttribute("VISIBLE").setValue("TRUE");
-				emitSignal("ONSTARTED", currentEvent.getName());
 				playSfx();
+				emitSignal("ONSTARTED", currentEvent.getName());
+				emitSignal("ONFRAMECHANGED", currentEvent.getName());
 				return null;
 			}
 		});
@@ -400,8 +402,9 @@ public class AnimoVariable extends Variable {
 						} catch (NullPointerException e) {
 							setAttribute("VISIBLE", new Attribute("BOOL", "TRUE"));
 						}
-						emitSignal("ONSTARTED", currentEvent.getName());
 						playSfx();
+						emitSignal("ONSTARTED", currentEvent.getName());
+						emitSignal("ONFRAMECHANGED", currentEvent.getName());
 						break;
 					}
 				}
@@ -420,6 +423,7 @@ public class AnimoVariable extends Variable {
 				currentImageNumber = currentEvent.getFramesNumbers().get(currentFrameNumber);
 				currentImage = currentEvent.getFrames().get(currentImageNumber);
 				updateRect();
+				emitSignal("ONFRAMECHANGED", currentEvent.getName());
 				return null;
 			}
 		});
@@ -515,6 +519,7 @@ public class AnimoVariable extends Variable {
 
 				currentImageNumber = frameNumber;
 				currentImage = getImages().get(currentImageNumber);
+				emitSignal("ONFRAMECHANGED");
 				updateRect(currentImage);
 				return null;
 			}
@@ -572,6 +577,7 @@ public class AnimoVariable extends Variable {
 					currentImageNumber = 0;
 					currentImage = null;
 				}
+				emitSignal("ONFRAMECHANGED", currentEvent.getName());
 				return null;
 			}
 		});
@@ -745,6 +751,7 @@ public class AnimoVariable extends Variable {
 			}
 
 			updateRect();
+			emitSignal("ONFRAMECHANGED", currentEvent.getName());
 		}
 	}
 

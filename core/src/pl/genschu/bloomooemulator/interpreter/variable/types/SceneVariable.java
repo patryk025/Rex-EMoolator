@@ -133,7 +133,7 @@ public class SceneVariable extends Variable {
 			public Variable execute(List<Object> arguments) {
 				int volume = ArgumentsHelper.getInteger(arguments.get(0));
 				if(music != null) {
-					music.setVolume(volume / 255.0f);
+					music.setVolume(volume / 1024.0f);
 				}
 				return null;
 			}

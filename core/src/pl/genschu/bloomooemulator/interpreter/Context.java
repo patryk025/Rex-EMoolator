@@ -61,15 +61,27 @@ public class Context {
     }
 
     public Map<String, Variable> getGraphicsVariables() {
-        return graphicsVariables;
+        Map<String, Variable> result = new HashMap<>(graphicsVariables);
+        if (parentContext != null) {
+            result.putAll(parentContext.getGraphicsVariables());
+        }
+        return result;
     }
 
     public Map<String, Variable> getButtonsVariables() {
-        return buttonsVariables;
+        Map<String, Variable> result = new HashMap<>(buttonsVariables);
+        if (parentContext != null) {
+            result.putAll(parentContext.getButtonsVariables());
+        }
+        return result;
     }
 
     public Map<String, Variable> getTimerVariables() {
-        return timerVariables;
+        Map<String, Variable> result = new HashMap<>(timerVariables);
+        if (parentContext != null) {
+            result.putAll(parentContext.getTimerVariables());
+        }
+        return result;
     }
 
     public void setVariable(String name, Variable variable) {

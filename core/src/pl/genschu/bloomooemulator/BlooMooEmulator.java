@@ -117,10 +117,42 @@ public class BlooMooEmulator extends ApplicationAdapter {
                     batch.setColor(1, 1, 1, imageVariable.getOpacity());
 
                     Rectangle rect = imageVariable.getRect();
-                    try {
-                        batch.draw(image.getImageTexture(), rect.getXLeft(), VIRTUAL_HEIGHT-rect.getYTop()-image.height, image.width, image.height);
-                    } catch(NullPointerException ignored) {
-                        // skip for now
+                    Rectangle clippingRect = imageVariable.getClippingRect();
+                    if(clippingRect != null) {
+                        int xLeft = clippingRect.getXLeft();
+                        int yTop = (int) (VIRTUAL_HEIGHT - clippingRect.getYTop());
+
+                        int xRight = clippingRect.getXRight();
+                        int yBottom = (int) (VIRTUAL_HEIGHT - clippingRect.getYBottom());
+
+                        Vector2 projectedCoordsLeftTop = cameraToWindowCoordinates(camera, xLeft, yTop);
+                        Vector2 projectedCoordsRightBottom = cameraToWindowCoordinates(camera, xRight, yBottom);
+
+                        int scissorX = (int) projectedCoordsLeftTop.x;
+                        int scissorY = (int) projectedCoordsLeftTop.y;
+                        int scissorWidth = (int) (projectedCoordsRightBottom.x - projectedCoordsLeftTop.x);
+                        int scissorHeight = (int) (projectedCoordsRightBottom.y - projectedCoordsLeftTop.y);
+
+                        batch.flush();
+
+                        Gdx.gl.glEnable(GL20.GL_SCISSOR_TEST);
+                        Gdx.gl.glScissor(scissorX, scissorY, scissorWidth, scissorHeight);
+
+                        try {
+                            batch.draw(image.getImageTexture(), rect.getXLeft(), VIRTUAL_HEIGHT - rect.getYTop() - image.height, image.width, image.height);
+                        } catch(NullPointerException e) {
+                            Gdx.app.error("Render", e.getMessage());
+                        }
+
+                        batch.flush();
+
+                        Gdx.gl.glDisable(GL20.GL_SCISSOR_TEST);
+                    }
+                    else {
+                        try {
+                            batch.draw(image.getImageTexture(), rect.getXLeft(), VIRTUAL_HEIGHT - rect.getYTop() - image.height, image.width, image.height);
+                        } catch(NullPointerException ignored) {
+                        }
                     }
                 }
             } else if(variable instanceof AnimoVariable) {
@@ -310,5 +342,12 @@ public class BlooMooEmulator extends ApplicationAdapter {
         float y = (screenY - correctY) / scale;
     
         return new Vector2(x, y);
+    }
+
+    public Vector2 cameraToWindowCoordinates(Camera camera, float x, float y) {
+        Vector3 worldCoordinates = new Vector3(x, y, 0);
+        Vector3 windowCoordinates = camera.project(worldCoordinates);
+
+        return new Vector2(windowCoordinates.x, windowCoordinates.y);
     }
 }

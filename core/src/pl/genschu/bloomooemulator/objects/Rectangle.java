@@ -36,6 +36,7 @@ public class Rectangle {
 
     public void setXLeft(int xLeft) {
         this.xLeft = xLeft;
+        this.width = xRight - xLeft;
     }
 
     public void setYBottom(int yBottom) {
@@ -45,6 +46,7 @@ public class Rectangle {
 
     public void setXRight(int xRight) {
         this.xRight = xRight;
+        this.width = xRight - xLeft;
     }
 
     public void setYTop(int yTop) {
@@ -60,16 +62,8 @@ public class Rectangle {
         return width;
     }
 
-    public void setWidth(int width) {
-        this.width = width;
-    }
-
     public int getHeight() {
         return height;
-    }
-
-    public void setHeight(int height) {
-        this.height = height;
     }
 
     @Override

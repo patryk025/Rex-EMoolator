@@ -1,14 +1,18 @@
 package pl.genschu.bloomooemulator.interpreter.variable.types;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.GL20;
+import com.badlogic.gdx.graphics.Pixmap;
 import pl.genschu.bloomooemulator.interpreter.exceptions.ClassMethodNotImplementedException;
 import pl.genschu.bloomooemulator.interpreter.Context;
 import pl.genschu.bloomooemulator.interpreter.variable.Attribute;
 import pl.genschu.bloomooemulator.interpreter.variable.Method;
 import pl.genschu.bloomooemulator.interpreter.variable.Parameter;
 import pl.genschu.bloomooemulator.interpreter.variable.Variable;
+import pl.genschu.bloomooemulator.saver.ImageSaver;
 import pl.genschu.bloomooemulator.utils.ArgumentsHelper;
 
+import java.nio.ByteBuffer;
 import java.util.List;
 
 public class CanvasObserverVariable extends Variable {
@@ -140,8 +144,22 @@ public class CanvasObserverVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				// TODO: implement this method
-				throw new ClassMethodNotImplementedException("Method SAVE is not implemented yet");
+				String imgFileName = ArgumentsHelper.getString(arguments.get(0));
+
+				Pixmap pixmap = new Pixmap(Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), Pixmap.Format.RGB565);
+
+				Gdx.gl.glReadPixels(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), GL20.GL_RGB, GL20.GL_UNSIGNED_SHORT_5_6_5, pixmap.getPixels());
+
+				flipPixmapVertically(pixmap);
+
+				ByteBuffer buffer = pixmap.getPixels();
+				byte[] byteArray = new byte[buffer.remaining()];
+				buffer.get(byteArray);
+				pixmap.dispose();
+
+				ImageSaver.saveScreenshot(CanvasObserverVariable.this, imgFileName, byteArray);
+
+				return null;
 			}
 		});
 		this.setMethod("SETBACKGROUND", new Method(
@@ -191,4 +209,23 @@ public class CanvasObserverVariable extends Variable {
 		return; // no fields in this class
 	}
 
+	// modified from https://stackoverflow.com/a/44403355/19906361
+	public static void flipPixmapVertically(Pixmap p) {
+		int w = p.getWidth();
+		int h = p.getHeight();
+		int hold;
+
+		p.setBlending(Pixmap.Blending.None);
+
+		for (int y = 0; y < h / 2; y++) {
+			for (int x = 0; x < w; x++) {
+				// Zamień piksele na osi Y (z góry na dół)
+				hold = p.getPixel(x, y);
+				p.drawPixel(x, y, p.getPixel(x, h - y - 1));
+				p.drawPixel(x, h - y - 1, hold);
+			}
+		}
+
+		p.setBlending(Pixmap.Blending.SourceOver);
+	}
 }
