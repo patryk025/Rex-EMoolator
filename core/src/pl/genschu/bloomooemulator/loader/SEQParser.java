@@ -85,7 +85,7 @@ public class SEQParser {
 
         switch (type) {
             case "SEQUENCE":
-                event = sequenceVariable.new SequenceEvent(objectName, sequenceVariable);
+                event = sequenceVariable.new SequenceEvent(objectName, sequenceVariable, properties.get(objectName + ":MODE"));
                 break;
             case "SPEAKING":
                 animoFile = properties.get(objectName + ":ANIMOFN");

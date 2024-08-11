@@ -147,14 +147,21 @@ public class SequenceVariable extends Variable {
 
 	public class SequenceEvent extends SequenceVariable{
 		protected final SequenceVariable parent;
+		private String mode;
 
-		public SequenceEvent(String name, SequenceVariable parent) {
+		public SequenceEvent(String name, SequenceVariable parent, String mode) {
 			super(name, parent.getContext());
 			this.parent = parent;
+			this.mode = mode;
 		}
 
 		public void play(SequenceVariable parent) {
-			Gdx.app.log("SequenceEvent", "Playing from sequence subtype not supported."); // That's how engine works
+			if(this.mode != null && this.mode.equals("SEQUENCE")) {
+				for(SequenceEvent event : this.getEventMap().values()) {
+					event.play(parent);
+					break;
+				}
+			}
 		}
 	}
 
@@ -163,7 +170,7 @@ public class SequenceVariable extends Variable {
 		private final AnimoVariable animoVariable;
 
 		public SimpleEvent(String name, String filename, String event, SequenceVariable parent) {
-			super(name, parent);
+			super(name, parent, null);
 			this.event = new StringVariable("", event, parent.getContext());
 			this.animoVariable = loadAnimoVariable(filename, parent);
 		}
@@ -171,8 +178,12 @@ public class SequenceVariable extends Variable {
 		private AnimoVariable loadAnimoVariable(String filename, SequenceVariable parent) {
 			AnimoVariable animoVar = parent.animoCache.get(filename);
 			if (animoVar == null) {
-				animoVar = new AnimoVariable(filename.replace(".ANN", ""), parent.getContext());
-				animoVar.setAttribute("FILENAME", filename);
+				// at first try to find ANIMO variable with the same filename
+				animoVar = findAnimoWithFileName(filename, parent);
+				if(animoVar == null) {
+					animoVar = new AnimoVariable(filename.replace(".ANN", ""), parent.getContext());
+					animoVar.setAttribute("FILENAME", filename);
+				}
 				parent.animoCache.put(filename, animoVar);
 			}
 			return animoVar;
@@ -195,7 +206,7 @@ public class SequenceVariable extends Variable {
 		private final SoundVariable soundVariable;
 
 		public SpeakingEvent(String name, String animofn, String prefix, String wavfn, boolean starting, boolean ending, SequenceVariable parent) {
-			super(name, parent);
+			super(name, parent, null);
 			this.animoVariable = loadAnimoVariable(animofn, parent);
 			this.prefix = prefix;
 			this.soundVariable = new SoundVariable("", parent.getContext());
@@ -207,8 +218,12 @@ public class SequenceVariable extends Variable {
 		private AnimoVariable loadAnimoVariable(String filename, SequenceVariable parent) {
 			AnimoVariable animoVar = parent.animoCache.get(filename);
 			if (animoVar == null) {
-				animoVar = new AnimoVariable(filename.replace(".ANN", ""), parent.getContext());
-				animoVar.setAttribute("FILENAME", filename);
+				// at first try to find ANIMO variable with the same filename
+				animoVar = findAnimoWithFileName(filename, parent);
+				if(animoVar == null) {
+					animoVar = new AnimoVariable(filename.replace(".ANN", ""), parent.getContext());
+					animoVar.setAttribute("FILENAME", filename);
+				}
 				parent.animoCache.put(filename, animoVar);
 			}
 			return animoVar;
@@ -289,5 +304,20 @@ public class SequenceVariable extends Variable {
 				signal.execute(null);
 			}
 		}
+	}
+
+	private AnimoVariable findAnimoWithFileName(String filename, SequenceVariable parent) {
+		List<Variable> graphicsVariables = new ArrayList<>(parent.getContext().getGraphicsVariables().values());
+
+		for(Variable variable : graphicsVariables) {
+			if(variable instanceof AnimoVariable) {
+				AnimoVariable animoVar = (AnimoVariable) variable;
+				if(animoVar.getAttribute("FILENAME").getValue().equals(filename)) {
+					return animoVar;
+				}
+			}
+		}
+
+		return null;
 	}
 }
