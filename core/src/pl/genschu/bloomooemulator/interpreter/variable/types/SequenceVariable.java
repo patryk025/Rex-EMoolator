@@ -148,20 +148,56 @@ public class SequenceVariable extends Variable {
 	public class SequenceEvent extends SequenceVariable{
 		protected final SequenceVariable parent;
 		private String mode;
+		private Queue<SequenceEvent> eventQueue;
 
 		public SequenceEvent(String name, SequenceVariable parent, String mode) {
 			super(name, parent.getContext());
 			this.parent = parent;
 			this.mode = mode;
+			this.eventQueue = new LinkedList<>();
 		}
 
 		public void play(SequenceVariable parent) {
-			if(this.mode != null && this.mode.equals("SEQUENCE")) {
-				for(SequenceEvent event : this.getEventMap().values()) {
-					event.play(parent);
-					break;
-				}
+			if (this.mode != null && this.mode.equals("SEQUENCE")) {
+				eventQueue.addAll(this.getEventMap().values());
+				playNextEvent(parent);
 			}
+		}
+
+		private void playNextEvent(SequenceVariable parent) {
+			if (eventQueue.isEmpty()) {
+				parent.emitSignal("ONFINISHED", parent.currentEventName);
+				return;
+			}
+
+			SequenceEvent nextEvent = eventQueue.poll();
+
+			Gdx.app.log("SequenceEvent", "Playing next event: " + nextEvent.getName());
+			Gdx.app.log("SequenceEvent", "Queue size: " + eventQueue.size());
+
+			Signal oldGenericSignal = null;
+			Signal oldSignal = null;
+
+			if(nextEvent instanceof SpeakingEvent) {
+				oldGenericSignal = ((SpeakingEvent) nextEvent).soundVariable.getSignal("ONFINISHED");
+			}
+			else if(nextEvent instanceof SimpleEvent) {
+				oldGenericSignal = ((SimpleEvent) nextEvent).animoVariable.getSignal("ONFINISHED");
+				oldSignal = ((SimpleEvent) nextEvent).animoVariable.getSignal("ONFINISHED^"+nextEvent.getName());
+			}
+
+			Signal finalOldSignal = oldSignal;
+			Signal finalOldGenericSignal = oldGenericSignal;
+			nextEvent.setSignal("ONFINISHED", new Signal() {
+				@Override
+				public void execute(Object argument) {
+					playNextEvent(parent);
+					if(finalOldSignal != null) finalOldSignal.execute(argument);
+					else if(finalOldGenericSignal != null) finalOldGenericSignal.execute(argument);
+				}
+			});
+
+			nextEvent.play(parent);
 		}
 	}
 
