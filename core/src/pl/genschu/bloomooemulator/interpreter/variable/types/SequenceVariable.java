@@ -10,10 +10,11 @@ import java.util.*;
 
 public class SequenceVariable extends Variable {
 	private final Map<String, AnimoVariable> animoCache = new HashMap<>();
-	protected Map<String, SequenceEvent> eventMap = new HashMap<>();
+	protected Map<String, SequenceEvent> eventMap = new LinkedHashMap<>();
 	private String currentEventName;
 	private AnimoVariable currentAnimo;
 	private boolean isPlaying;
+	private Map<String, Integer> animosCounters = new HashMap<>();
 
 	public SequenceVariable(String name, Context context) {
 		super(name, context);
@@ -61,6 +62,7 @@ public class SequenceVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				String eventName = ((StringVariable) arguments.get(0)).GET();
+				animosCounters.clear();
 				playEvent(eventName);
 				return null;
 			}
@@ -229,6 +231,12 @@ public class SequenceVariable extends Variable {
 		public void play(SequenceVariable parent) {
 			Gdx.app.log("SimpleEvent", "Playing event " + parent.currentEventName);
 			this.animoVariable.getMethod("PLAY", Collections.singletonList("STRING")).execute(List.of(event));
+			this.animoVariable.setSignal("ONFINISHED^" + event, new Signal() {
+				@Override
+				public void execute(Object argument) {
+					emitSignal("ONFINISHED", SimpleEvent.this.getName());
+				}
+			});
 			parent.setPlaying(true);
 			parent.setCurrentAnimo(animoVariable);
 		}
@@ -267,6 +275,15 @@ public class SequenceVariable extends Variable {
 
 		@Override
 		public void play(SequenceVariable parent) {
+			String animoFileName = (String) animoVariable.getAttribute("FILENAME").getValue();
+			if(parent.animosCounters.containsKey(animoFileName)) {
+				parent.animosCounters.put(animoFileName, parent.animosCounters.get(animoFileName) + 1);
+			} else {
+				parent.animosCounters.put(animoFileName, 1);
+			}
+
+			Integer counter = parent.animosCounters.get(animoFileName);
+
 			Signal onMainFinished = new Signal() {
 				@Override
 				public void execute(Object argument) {
@@ -276,11 +293,11 @@ public class SequenceVariable extends Variable {
 						playAnimation(parent, prefix + "_STOP", new Signal() {
 							@Override
 							public void execute(Object argument) {
-								parent.emitSignal("ONFINISHED", parent.currentEventName);
+								emitSignal("ONFINISHED", SpeakingEvent.this.getName());
 							}
 						});
 					} else {
-						parent.emitSignal("ONFINISHED", parent.currentEventName);
+						emitSignal("ONFINISHED", SpeakingEvent.this.getName());
 					}
 				}
 			};
@@ -288,10 +305,10 @@ public class SequenceVariable extends Variable {
 			Signal onStartFinished = new Signal() {
 				@Override
 				public void execute(Object argument) {
-					playAnimation(parent, prefix + "_1", new Signal() {
+					playAnimation(parent, prefix + "_" + counter, new Signal() {
 						@Override
 						public void execute(Object argument) {
-							playAnimation(parent, prefix + "_1", this);
+							playAnimation(parent, prefix + "_" + counter, this);
 						}
 					});
                     try {
@@ -306,9 +323,10 @@ public class SequenceVariable extends Variable {
 			if (starting) {
 				playAnimation(parent, prefix + "_START", onStartFinished);
 			} else {
-				playAnimation(parent, prefix + "_1", new Signal() {
+				playAnimation(parent, prefix + "_" + counter, new Signal() {
                     @Override
-				    public void execute(Object argument) {}
+				    public void execute(Object argument) {
+					}
                 });
                 try {
 					playSound(parent, onMainFinished);
