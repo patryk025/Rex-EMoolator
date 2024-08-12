@@ -253,6 +253,10 @@ public abstract class Variable {
 	public Signal getSignal(String name) {
 		return signals.get(name);
 	}
+    
+    public void removeSignal(String name) {
+        signals.remove(name);
+    }
 
 	public void emitSignal(String name) {
 		this.emitSignal(name, null);

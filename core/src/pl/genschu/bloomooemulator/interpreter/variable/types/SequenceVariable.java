@@ -15,6 +15,7 @@ public class SequenceVariable extends Variable {
 	private AnimoVariable currentAnimo;
 	private boolean isPlaying;
 	private Map<String, Integer> animosCounters = new HashMap<>();
+    private boolean isVisible = true;
 
 	public SequenceVariable(String name, Context context) {
 		super(name, context);
@@ -32,8 +33,8 @@ public class SequenceVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				// TODO: implement this method
-				throw new ClassMethodNotImplementedException("Method HIDE is not implemented yet");
+				isVisible = false;
+                return null;
 			}
 		});
 		this.setMethod("ISPLAYING", new Method(
@@ -50,6 +51,7 @@ public class SequenceVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				isPlaying = false;
+                getCurrentAnimo().setPlaying(false);
 				return null;
 			}
 		});
@@ -120,6 +122,14 @@ public class SequenceVariable extends Variable {
 	@Override
 	public String getType() {
 		return "SEQUENCE";
+	}
+    
+    public boolean isVisible() {
+		return isVisible;
+	}
+
+	public void setVisible(boolean visible) {
+		isVisible = visible;
 	}
 
 	@Override
@@ -231,10 +241,18 @@ public class SequenceVariable extends Variable {
 		public void play(SequenceVariable parent) {
 			Gdx.app.log("SimpleEvent", "Playing event " + parent.currentEventName);
 			this.animoVariable.getMethod("PLAY", Collections.singletonList("STRING")).execute(List.of(event));
+			Signal oldGenericSignal = this.animoVariable.getSignal("ONFINISHED");
+			Signal oldSignal = this.animoVariable.getSignal("ONFINISHED^"+parent.currentEventName);
+
 			this.animoVariable.setSignal("ONFINISHED^" + event, new Signal() {
 				@Override
 				public void execute(Object argument) {
 					emitSignal("ONFINISHED", SimpleEvent.this.getName());
+                    if(oldSignal != null) oldSignal.execute(argument);
+					else if(oldGenericSignal != null) oldGenericSignal.execute(argument);
+                        
+                    SimpleEvent.this.animoVariable.removeSignal("ONFINISHED^" + event);
+                    if(oldSignal != null) SimpleEvent.this.animoVariable.setSignal("ONFINISHED^" + event, oldSignal);
 				}
 			});
 			parent.setPlaying(true);
@@ -284,6 +302,8 @@ public class SequenceVariable extends Variable {
 
 			Integer counter = parent.animosCounters.get(animoFileName);
 
+            // TODO: preserve and restore on end ONFINISHED events in ANIMO
+            
 			Signal onMainFinished = new Signal() {
 				@Override
 				public void execute(Object argument) {
