@@ -99,6 +99,11 @@ public class BlooMooEmulator extends ApplicationAdapter {
 
         List<Variable> drawList = getGraphicsVariables();
 
+        MouseVariable mouseVariable = context.getMouseVariable();
+        /*if(mouseVariable != null) { // to w przyszłości
+            drawList.add(mouseVariable);
+        }*/
+
         batch.begin();
         batch.setBlendFunction(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
 
@@ -219,35 +224,37 @@ public class BlooMooEmulator extends ApplicationAdapter {
         // Handle mouse events
         int x = Gdx.input.getX();
         int y = Gdx.input.getY();
-        boolean isPressed = Gdx.input.isButtonPressed(Input.Buttons.LEFT);
-        boolean justPressed = !prevPressed && isPressed;
-        boolean justReleased = prevPressed && !isPressed;
-        
-        //Gdx.app.log("MouseData", "Mouse coords: ("+x+", "+y+")");
-        
-        // correct coordinates according to window size
-        Vector2 correctedVector = getCorrectedMouseCoords(x, y, Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), (int) VIRTUAL_WIDTH, (int) VIRTUAL_HEIGHT);
-        x = (int) correctedVector.x;
-        y = (int) correctedVector.y;
-        
-        //Gdx.app.log("MouseData", "Corrected mouse coords: ("+x+", "+y+")");
 
-        // TODO: implement
-        //MouseVariable mouse = context.getMouseVariable();
-        //mouse.update(x, y, isPressed);
+        if(x > 0 && y > 0 && x < Gdx.graphics.getWidth() && y < Gdx.graphics.getHeight()) {
+            boolean isPressed = Gdx.input.isButtonPressed(Input.Buttons.LEFT);
+            boolean justPressed = !prevPressed && isPressed;
+            boolean justReleased = prevPressed && !isPressed;
 
-        handleMouseInput(x, y, isPressed, justPressed, justReleased);
+            //Gdx.app.log("MouseData", "Mouse coords: ("+x+", "+y+")");
 
-        prevPressed = isPressed;
-        
-        //batch.draw(cursorTexture, x - 25, VIRTUAL_HEIGHT - y - 25, 50, 50);
+            // correct coordinates according to window size
+            Vector2 correctedVector = getCorrectedMouseCoords(x, y, Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), (int) VIRTUAL_WIDTH, (int) VIRTUAL_HEIGHT);
+            x = (int) correctedVector.x;
+            y = (int) correctedVector.y;
+
+            //Gdx.app.log("MouseData", "Corrected mouse coords: ("+x+", "+y+")");
+
+            if (mouseVariable != null)
+                mouseVariable.update(x, y);
+
+            handleMouseInput(x, y, isPressed, justPressed, justReleased, mouseVariable);
+
+            prevPressed = isPressed;
+
+            //batch.draw(cursorTexture, x - 25, VIRTUAL_HEIGHT - y - 25, 50, 50);
+        }
         
         batch.end();
 
         game.takeScreenshot();
     }
 
-    public void handleMouseInput(int x, int y, boolean isPressed, boolean justPressed, boolean justReleased) {
+    public void handleMouseInput(int x, int y, boolean isPressed, boolean justPressed, boolean justReleased, MouseVariable mouseVariable) {
         for (Variable variable : new ArrayList<>(context.getButtonsVariables().values())) {
             ButtonVariable button = (ButtonVariable) variable;
 
@@ -301,6 +308,10 @@ public class BlooMooEmulator extends ApplicationAdapter {
         if (justReleased && activeButton != null) {
             triggerSignal(activeButton, "ONRELEASED");
             activeButton = null;
+        }
+
+        if(mouseVariable != null && isPressed) {
+            mouseVariable.emitSignal("ONCLICK", "LEFT"); // right is not used at all
         }
     }
 

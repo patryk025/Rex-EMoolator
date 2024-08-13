@@ -20,12 +20,10 @@ public class Context {
     private Map<String, Variable> graphicsVariables; // cache for faster drawing
     private Map<String, Variable> buttonsVariables;
     private Map<String, Variable> timerVariables;
+    private MouseVariable mouseVariable;
+    private KeyboardVariable keyboardVariable;
 
     Variable thisVariable = null;
-
-    // TODO: implement
-    //private MouseVariable mouseVariable;
-    //private KeyboardVariable keyboardVariable;
 
     public Context() {
         this.parentContext = null;
@@ -33,6 +31,8 @@ public class Context {
         this.graphicsVariables = new HashMap<>();
         this.buttonsVariables = new HashMap<>();
         this.timerVariables = new HashMap<>();
+        this.mouseVariable = null;
+        this.keyboardVariable = null;
     }
 
     public Context(Context parentContext, Game game) {
@@ -41,6 +41,8 @@ public class Context {
         this.graphicsVariables = new HashMap<>();
         this.buttonsVariables = new HashMap<>();
         this.timerVariables = new HashMap<>();
+        this.mouseVariable = null;
+        this.keyboardVariable = null;
     }
 
     public Variable getVariable(String name) {
@@ -90,13 +92,17 @@ public class Context {
         if(variable.getType().equals("ANIMO") || variable.getType().equals("IMAGE") || variable.getType().equals("SEQUENCE")) {
             graphicsVariables.put(name, variable);
         }
-
-        if(variable.getType().equals("BUTTON")) {
+        else if(variable.getType().equals("BUTTON")) {
             buttonsVariables.put(name, variable);
         }
-
-        if(variable.getType().equals("TIMER")) {
+        else if(variable.getType().equals("TIMER")) {
             timerVariables.put(name, variable);
+        }
+        else if(variable.getType().equals("MOUSE")) {
+            mouseVariable = (MouseVariable) variable;
+        }
+        else if(variable.getType().equals("KEYBOARD")) {
+            keyboardVariable = (KeyboardVariable) variable;
         }
     }
 
@@ -171,5 +177,19 @@ public class Context {
             this.thisVariable = thisVariable;
     }
 
+    public MouseVariable getMouseVariable() {
+        return mouseVariable;
+    }
 
+    public void setMouseVariable(MouseVariable mouseVariable) {
+        this.mouseVariable = mouseVariable;
+    }
+
+    public KeyboardVariable getKeyboardVariable() {
+        return keyboardVariable;
+    }
+
+    public void setKeyboardVariable(KeyboardVariable keyboardVariable) {
+        this.keyboardVariable = keyboardVariable;
+    }
 }

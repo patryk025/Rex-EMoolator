@@ -3,16 +3,22 @@ package pl.genschu.bloomooemulator.interpreter.variable.types;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Pixmap;
+import com.badlogic.gdx.graphics.TextureData;
 import pl.genschu.bloomooemulator.interpreter.exceptions.ClassMethodNotImplementedException;
 import pl.genschu.bloomooemulator.interpreter.Context;
 import pl.genschu.bloomooemulator.interpreter.variable.Attribute;
 import pl.genschu.bloomooemulator.interpreter.variable.Method;
 import pl.genschu.bloomooemulator.interpreter.variable.Parameter;
 import pl.genschu.bloomooemulator.interpreter.variable.Variable;
+import pl.genschu.bloomooemulator.objects.Image;
+import pl.genschu.bloomooemulator.objects.Rectangle;
 import pl.genschu.bloomooemulator.saver.ImageSaver;
 import pl.genschu.bloomooemulator.utils.ArgumentsHelper;
 
 import java.nio.ByteBuffer;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 public class CanvasObserverVariable extends Variable {
@@ -51,31 +57,64 @@ public class CanvasObserverVariable extends Variable {
 				new Parameter("INTEGER", "posY", true),
 				new Parameter("BOOL", "unknown", true),
 				new Parameter("INTEGER", "minZ", true),
-				new Parameter("INTEGER", "maxZ", true)
-			),
-			"STRING"
-		) {
-			@Override
-			public Variable execute(List<Object> arguments) {
-				// TODO: implement this method
-				throw new ClassMethodNotImplementedException("Method GETGRAPHICSAT is not implemented yet");
-			}
-		});
-		this.setMethod("GETGRAPHICSAT", new Method(
-			List.of(
-				new Parameter("INTEGER", "posX", true),
-				new Parameter("INTEGER", "posY", true),
-				new Parameter("BOOL", "unknown", true),
-				new Parameter("INTEGER", "minZ", true),
 				new Parameter("INTEGER", "maxZ", true),
-				new Parameter("BOOL", "useAlpha", true)
+				new Parameter("BOOL", "useAlpha", false)
 			),
 			"STRING"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				// TODO: implement this method
-				throw new ClassMethodNotImplementedException("Method GETGRAPHICSAT is not implemented yet");
+				int posX = ArgumentsHelper.getInteger(arguments.get(0));
+				int posY = ArgumentsHelper.getInteger(arguments.get(1));
+				boolean unknown = ArgumentsHelper.getBoolean(arguments.get(2));
+				int minZ = ArgumentsHelper.getInteger(arguments.get(3));
+				int maxZ = ArgumentsHelper.getInteger(arguments.get(4));
+				boolean useAlpha = arguments.size() > 5 && ArgumentsHelper.getBoolean(arguments.get(5));
+
+				List<Variable> drawList = new ArrayList<>(context.getGraphicsVariables().values());
+
+				Comparator<Variable> comparator = (o1, o2) -> {
+					Attribute priorityAttr1 = o1.getAttribute("PRIORITY");
+					Attribute priorityAttr2 = o2.getAttribute("PRIORITY");
+					int priority1 = priorityAttr1 != null ? Integer.parseInt(priorityAttr1.getValue().toString()) : 0;
+					int priority2 = priorityAttr2 != null ? Integer.parseInt(priorityAttr2.getValue().toString()) : 0;
+					return Integer.compare(priority1, priority2);
+				};
+				Collections.sort(drawList, comparator);
+
+				for (Variable variable : drawList) {
+					int z = variable.getAttribute("PRIORITY") != null ? Integer.parseInt(variable.getAttribute("PRIORITY").getValue().toString()) : 0;
+
+					if (z >= minZ && z <= maxZ) {
+						Rectangle rect = getRect(variable);
+						if (rect.contains(posX, posY)) {
+							if (useAlpha) {
+								Image image = getImage(variable);
+								int relativeX = posX - rect.getXLeft();
+								int relativeY = posY - rect.getYTop();
+								int alpha = 255;
+
+								if(image.getImageTexture() != null) {
+									TextureData textureData = image.getImageTexture().getTextureData();
+									if (!textureData.isPrepared()) {
+										textureData.prepare();
+									}
+									Pixmap pixmap = textureData.consumePixmap();
+									int pixel = pixmap.getPixel(relativeX, relativeY);
+									alpha = (pixel >> 24) & 0xff;
+								}
+
+								if (alpha > 0) {
+									return new StringVariable("", variable.getName(), context);
+								}
+							} else {
+								return new StringVariable("", variable.getName(), context);
+							}
+						}
+					}
+				}
+
+				return new StringVariable("", "", context);
 			}
 		});
 		this.setMethod("MOVEBKG", new Method(
@@ -239,5 +278,31 @@ public class CanvasObserverVariable extends Variable {
 		}
 
 		p.setBlending(Pixmap.Blending.SourceOver);
+	}
+
+	private Rectangle getRect(Variable variable) {
+		if(variable instanceof ImageVariable) {
+			return ((ImageVariable) variable).getRect();
+		}
+		if(variable instanceof AnimoVariable) {
+			return ((AnimoVariable) variable).getRect();
+		}
+		if(variable instanceof SequenceVariable) {
+			return ((SequenceVariable) variable).getCurrentAnimo().getRect();
+		}
+		return null;
+	}
+
+	private Image getImage(Variable variable) {
+		if(variable instanceof ImageVariable) {
+			return ((ImageVariable) variable).getImage();
+		}
+		if(variable instanceof AnimoVariable) {
+			return ((AnimoVariable) variable).getCurrentImage();
+		}
+		if(variable instanceof SequenceVariable) {
+			return ((SequenceVariable) variable).getCurrentAnimo().getCurrentImage();
+		}
+		return null;
 	}
 }
