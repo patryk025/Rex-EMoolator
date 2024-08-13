@@ -95,7 +95,8 @@ public class ASTBuilderVisitor extends AidemMediaBaseVisitor<Node> {
     @Override
     public Node visitString(AidemMediaParser.StringContext ctx) {
         if(ctx.string() != null) {
-            return new ConstantExpression(ctx.string().getText());
+            String text = ctx.string().getText();
+            return new StringExpression(text.substring(1, text.length()-1));
         }
         else if(ctx.struct(0) != null) {
             AidemMediaParser.StructContext structContext = ctx.struct(0);
@@ -106,7 +107,7 @@ public class ASTBuilderVisitor extends AidemMediaBaseVisitor<Node> {
         }
         else {
 			String text = ctx.getText();
-            return new ConstantExpression(text.substring(1, text.length()-1));
+            return new StringExpression(text.substring(1, text.length()-1));
         }
     }
 
