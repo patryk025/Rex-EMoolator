@@ -4,6 +4,9 @@ import pl.genschu.bloomooemulator.interpreter.Context;
 import pl.genschu.bloomooemulator.interpreter.variable.Variable;
 import pl.genschu.bloomooemulator.interpreter.factories.VariableFactory;
 import pl.genschu.bloomooemulator.interpreter.ast.expressions.*;
+import pl.genschu.bloomooemulator.interpreter.variable.types.ApplicationVariable;
+import pl.genschu.bloomooemulator.interpreter.variable.types.EpisodeVariable;
+import pl.genschu.bloomooemulator.interpreter.variable.types.SceneVariable;
 import pl.genschu.bloomooemulator.interpreter.variable.types.StringVariable;
 
 public class VariableHelper {
@@ -24,6 +27,12 @@ public class VariableHelper {
             if(resolveString) {
                 if(!context.hasVariable(valueString.toString())) {
                     return VariableFactory.createVariableWithAutoType("", valueString, context);
+                }
+
+                Variable variable = context.getVariable(valueString.toString());
+
+                if(variable instanceof ApplicationVariable || variable instanceof EpisodeVariable || variable instanceof SceneVariable) { // it should not be returned
+                    return VariableFactory.createVariableWithAutoType("", valueString.toString(), context);
                 }
 
                 return context.getVariable(valueString.toString());

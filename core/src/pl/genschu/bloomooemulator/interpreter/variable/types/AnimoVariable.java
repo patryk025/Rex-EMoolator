@@ -248,6 +248,15 @@ public class AnimoVariable extends Variable {
 				}
 			}
 		});
+		this.setMethod("GETPRIORITY", new Method(
+				List.of(),
+				"INTEGER"
+		) {
+			@Override
+			public Variable execute(List<Object> arguments) {
+				return new IntegerVariable("", priority, context);
+			}
+		});
 		this.setMethod("GETWIDTH", new Method(
 			"INTEGER"
 		) {
@@ -631,6 +640,7 @@ public class AnimoVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				priority = ArgumentsHelper.getInteger(arguments.get(0));
+				setAttribute("PRIORITY", new Attribute("INTEGER", priority));
 				return null;
 			}
 		});
@@ -695,23 +705,27 @@ public class AnimoVariable extends Variable {
 		List<String> knownAttributes = List.of("ASBUTTON", "FILENAME", "FLUSHAFTERPLAYED", "FPS", "MONITORCOLLISION", "MONITORCOLLISIONALPHA", "PRELOAD", "PRIORITY", "RELEASE", "TOCANVAS", "VISIBLE");
 		if(knownAttributes.contains(name)) {
 			super.setAttribute(name, attribute);
-			if(name.equals("FPS")) {
-				setFps(Integer.parseInt(getAttribute("FPS").getValue().toString()));
-			}
-			else if(name.equals("FILENAME")) {
-				AnimoLoader.loadAnimo(this);
-				currentEvent = events.get(0);
-				currentFrameNumber = 0;
-				if(!currentEvent.getFrames().isEmpty()) {
-					currentImageNumber = currentEvent.getFramesNumbers().get(currentFrameNumber);
-					currentImage = currentEvent.getFrames().get(currentImageNumber);
-					updateRect();
-				}
-				else {
-					currentImageNumber = 0;
-					currentImage = null;
-				}
-			}
+            switch (name) {
+                case "FPS":
+                    setFps(Integer.parseInt(getAttribute("FPS").getValue().toString()));
+                    break;
+                case "FILENAME":
+                    AnimoLoader.loadAnimo(this);
+                    currentEvent = events.get(0);
+                    currentFrameNumber = 0;
+                    if (!currentEvent.getFrames().isEmpty()) {
+                        currentImageNumber = currentEvent.getFramesNumbers().get(currentFrameNumber);
+                        currentImage = currentEvent.getFrames().get(currentImageNumber);
+                        updateRect();
+                    } else {
+                        currentImageNumber = 0;
+                        currentImage = null;
+                    }
+                    break;
+                case "PRIORITY":
+                    priority = Integer.parseInt(getAttribute("PRIORITY").getValue().toString());
+                    break;
+            }
 		}
 	}
 

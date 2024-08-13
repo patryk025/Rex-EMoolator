@@ -6,6 +6,7 @@ import pl.genschu.bloomooemulator.interpreter.variable.Attribute;
 import pl.genschu.bloomooemulator.interpreter.variable.Method;
 import pl.genschu.bloomooemulator.interpreter.variable.Parameter;
 import pl.genschu.bloomooemulator.interpreter.variable.Variable;
+import pl.genschu.bloomooemulator.utils.ArgumentsHelper;
 
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
@@ -30,14 +31,15 @@ public class DoubleVariable extends Variable {
 		});
 		this.setMethod("ADD", new Method(
 			List.of(
-				new Parameter("INTEGER|DOUBLE", "doubleValue", true)
+				new Parameter("DOUBLE", "doubleValue", true)
 			),
 			"DOUBLE"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				// TODO: implement this method
-				throw new ClassMethodNotImplementedException("Method ADD is not implemented yet");
+				double value = ArgumentsHelper.getDouble(arguments.get(0));
+				set(GET()+value);
+				return null;
 			}
 		});
 		this.setMethod("ARCTAN", new Method(

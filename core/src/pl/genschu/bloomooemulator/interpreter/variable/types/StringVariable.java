@@ -7,6 +7,7 @@ import pl.genschu.bloomooemulator.interpreter.variable.Attribute;
 import pl.genschu.bloomooemulator.interpreter.variable.Method;
 import pl.genschu.bloomooemulator.interpreter.variable.Parameter;
 import pl.genschu.bloomooemulator.interpreter.variable.Variable;
+import pl.genschu.bloomooemulator.utils.ArgumentsHelper;
 
 import java.util.List;
 
@@ -23,8 +24,8 @@ public class StringVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				String value = getAttribute("VALUE").getValue().toString();
-				set(value + arguments.get(0));
+				String value = GET();
+				set(value + ArgumentsHelper.getString(arguments.get(0)));
 				return StringVariable.this;
 			}
 		});
@@ -38,9 +39,9 @@ public class StringVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				//TODO: do sprawdzenia
-				String value = getAttribute("VALUE").getValue().toString();
-				int index = (int) arguments.get(0);
-				value = value.substring(0, index) + arguments.get(1) + value.substring(index + 1);
+				String value = GET();
+				int index = ArgumentsHelper.getInteger(arguments.get(0));
+				value = value.substring(0, index) + ArgumentsHelper.getString(arguments.get(1)) + value.substring(index + 1);
 				set(value);
 				return null;
 			}
@@ -67,9 +68,9 @@ public class StringVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				String value = getAttribute("VALUE").getValue().toString();
-				int index = (int) arguments.get(0);
-				int length = (int) arguments.get(1);
+				String value = GET();
+				int index = ArgumentsHelper.getInteger(arguments.get(0));
+				int length = ArgumentsHelper.getInteger(arguments.get(1));
 				value = value.substring(index, index + length);
 				set(value);
 				return null;
@@ -84,15 +85,14 @@ public class StringVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				String value = getAttribute("VALUE").getValue().toString();
-				Variable needle = (Variable) arguments.get(0);
-				Variable offset = VariableFactory.createVariable("INTEGER", "0", context);
+				String value = GET();
+				String needle = ArgumentsHelper.getString(arguments.get(0));
+				int offset = 0;
 				if (arguments.size() > 1 && arguments.get(1) != null) {
-					offset = (Variable) arguments.get(1);
+					offset = ArgumentsHelper.getInteger(arguments.get(1));
 				}
-				int offsetValue = (int) offset.getValue();
-				int index = value.indexOf(needle.getValue().toString(), offsetValue);
-				return VariableFactory.createVariable("INTEGER", String.valueOf(index), context);
+				int index = value.indexOf(needle, offset);
+				return VariableFactory.createVariable("INTEGER", "", String.valueOf(index), context);
 			}
 		});
 		this.setMethod("GET", new Method(
@@ -104,15 +104,14 @@ public class StringVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				String value = getAttribute("VALUE").getValue().toString();
-				Variable index = (Variable) arguments.get(0);
-				Variable length = VariableFactory.createVariable("INTEGER", String.valueOf(value.length()), context);
+				String value = GET();
+				int index = ArgumentsHelper.getInteger(arguments.get(0));
+				int length = 1;
 				if (arguments.size() > 1 && arguments.get(1) != null) {
-					length = (Variable) arguments.get(1);
+					length = ArgumentsHelper.getInteger(arguments.get(1));
 				}
-				int startIndex = (int) index.getValue();
-				int endIndex = Math.min(startIndex + (int) length.getValue(), value.length());
-				return VariableFactory.createVariable("STRING", value.substring(startIndex, endIndex), context);
+                int endIndex = Math.min(index + length, value.length());
+				return VariableFactory.createVariable("STRING", "", value.substring(index, endIndex), context);
 			}
 		});
 		this.setMethod("LENGTH", new Method(
@@ -120,8 +119,8 @@ public class StringVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				String value = getAttribute("VALUE").getValue().toString();
-				return VariableFactory.createVariable("INTEGER", String.valueOf(value.length()), context);
+				String value = GET();
+				return VariableFactory.createVariable("INTEGER", "", String.valueOf(value.length()), context);
 			}
 		});
 		this.setMethod("REPLACEAT", new Method(
@@ -133,13 +132,10 @@ public class StringVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				String value = getAttribute("VALUE").getValue().toString();
+				String value = GET();
 
-				Variable indexVar = (Variable) arguments.get(0);
-				Variable stringVar = (Variable) arguments.get(1);
-
-				int index = (int) indexVar.getValue();
-				String stringValue = stringVar.toString();
+				int index = ArgumentsHelper.getInteger(arguments.get(0));
+				String stringValue = ArgumentsHelper.getString(arguments.get(1));
 
 				String newValue;
 				if (index < 0 || index > value.length()) {
@@ -164,8 +160,8 @@ public class StringVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				Variable value = (Variable) arguments.get(0);
-				set(value.getValue());
+				String value = ArgumentsHelper.getString(arguments.get(0));
+				set(value);
 				return null;
 			}
 		});
@@ -178,9 +174,9 @@ public class StringVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				String value = getAttribute("VALUE").getValue().toString();
-				int index = (int) arguments.get(0);
-				int length = (int) arguments.get(1);
+				String value = GET();
+				int index = ArgumentsHelper.getInteger(arguments.get(0));
+				int length = ArgumentsHelper.getInteger(arguments.get(1));
 
 				String newValue = value.substring(0, index) + value.substring(index + length);
 				set(newValue);
@@ -192,7 +188,7 @@ public class StringVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				String value = getAttribute("VALUE").getValue().toString();
+				String value = GET();
 				set(value.toUpperCase());
 				return null;
 			}

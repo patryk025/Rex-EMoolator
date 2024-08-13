@@ -39,7 +39,7 @@ public class IntegerVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				int result = GET() + getValueFromString((Variable) arguments.get(0));
+				int result = GET() + ArgumentsHelper.getInteger(arguments.get(0));
 				set(result);
 				return IntegerVariable.this;
 			}
@@ -66,8 +66,8 @@ public class IntegerVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				int currentValue = GET();
-				int rangeMin = getValueFromString((Variable) arguments.get(0));
-				int rangeMax = getValueFromString((Variable) arguments.get(1));
+				int rangeMin = ArgumentsHelper.getInteger(arguments.get(0));
+				int rangeMax = ArgumentsHelper.getInteger(arguments.get(1));
 
 				if (currentValue < rangeMin) {
 					currentValue = rangeMin;
@@ -97,7 +97,7 @@ public class IntegerVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				int result = GET() / getValueFromString((Variable) arguments.get(0));
+				int result = GET() / ArgumentsHelper.getInteger(arguments.get(0));
 				set(result);
 				return IntegerVariable.this;
 			}
@@ -133,7 +133,7 @@ public class IntegerVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				int result = GET() % ((int) ((Variable) arguments.get(0)).getValue());
+				int result = GET() % (ArgumentsHelper.getInteger(arguments.get(0)));
 				set(result);
 				return IntegerVariable.this;
 			}
@@ -146,7 +146,7 @@ public class IntegerVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				int result = GET() * getValueFromString((Variable) arguments.get(0));
+				int result = GET() * ArgumentsHelper.getInteger(arguments.get(0));
 				set(result);
 				return IntegerVariable.this;
 			}
@@ -184,7 +184,7 @@ public class IntegerVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				Object value = ((Variable) arguments.get(0)).getValue();
+				int value = ArgumentsHelper.getInteger(arguments.get(0));
 				set(value);
 				return null;
 			}
@@ -257,7 +257,11 @@ public class IntegerVariable extends Variable {
 		try {
 			return (int) this.getValue();
 		} catch (ClassCastException e) {
-			return Integer.parseInt(String.valueOf(this.getValue()));
+			try {
+				return Integer.parseInt(String.valueOf(this.getValue()));
+			} catch (NumberFormatException e2) {
+				return 0;
+			}
 		}
 	}
 

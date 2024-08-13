@@ -188,9 +188,17 @@ public class SequenceVariable extends Variable {
 		}
 
 		public void play(SequenceVariable parent) {
-			if (this.mode != null && this.mode.equals("SEQUENCE")) {
-				eventQueue.addAll(this.getEventMap().values());
-				playNextEvent(parent);
+			if (this.mode != null) {
+				if(this.mode.equals("SEQUENCE")) {
+					eventQueue.addAll(this.getEventMap().values());
+					playNextEvent(parent);
+				}
+				else if(this.mode.equals("RANDOM")) {
+					List<SequenceEvent> events = new ArrayList<>(this.eventMap.values());
+					Collections.shuffle(events);
+					eventQueue.add(events.get(0));
+					playNextEvent(parent);
+				}
 			}
 		}
 
