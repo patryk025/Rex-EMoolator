@@ -130,10 +130,6 @@ public class CNVParser {
                 }
             }
 
-            if(type.equals("SEQUENCE")) {
-                ((SequenceVariable) variable).loadSequence();
-            }
-
             context.setVariable(objectName, variable);
         } catch (IllegalArgumentException e) {
             Gdx.app.error("CNVParser", "Failed to create variable " + objectName + ": " + e.getMessage());

@@ -51,7 +51,7 @@ public class SequenceVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				isPlaying = false;
-                getCurrentAnimo().setPlaying(false);
+				getCurrentAnimo().setPlaying(false);
 				return null;
 			}
 		});
@@ -63,6 +63,10 @@ public class SequenceVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
+				if(eventMap.isEmpty()) {
+					loadSequence();
+				}
+
 				String eventName = ((StringVariable) arguments.get(0)).GET();
 				animosCounters.clear();
 				playEvent(eventName);
@@ -137,7 +141,6 @@ public class SequenceVariable extends Variable {
 		List<String> knownAttributes = List.of("FILENAME");
 		if (knownAttributes.contains(name)) {
 			super.setAttribute(name, attribute);
-			loadSequence();
 		}
 	}
 
@@ -381,17 +384,20 @@ public class SequenceVariable extends Variable {
 	}
 
 	private AnimoVariable findAnimoWithFileName(String filename, SequenceVariable parent) {
+		Gdx.app.log("SequenceVariable", "Looking for ANIMO variable with filename: " + filename);
 		List<Variable> graphicsVariables = new ArrayList<>(parent.getContext().getGraphicsVariables().values());
 
 		for(Variable variable : graphicsVariables) {
 			if(variable instanceof AnimoVariable) {
 				AnimoVariable animoVar = (AnimoVariable) variable;
 				if(animoVar.getAttribute("FILENAME").getValue().equals(filename)) {
+					Gdx.app.log("SequenceVariable", "Found ANIMO variable with filename: " + filename);
 					return animoVar;
 				}
 			}
 		}
 
+		Gdx.app.log("SequenceVariable", "Could not find ANIMO variable with filename: " + filename);
 		return null;
 	}
 }
