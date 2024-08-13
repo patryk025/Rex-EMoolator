@@ -22,47 +22,47 @@ Aktualny status gier opartych na silniku Piklib/BlooMoo:
 <tr>
 <td>Reksio i Ufo</td>
 <td><img alt="Niegrywalne" src="https://img.shields.io/badge/Niegrywalne-red"/></td>
-<td>Działa cała sekwencja intra, coś chyba jeszcze jest nie tak z muzyką w tle, są problemy z animacjami Koguta, nie działa myszka</td>
+<td>Działa cała sekwencja intra, coś chyba jeszcze jest nie tak z muzyką w tle, minimalne problemy z animacjami (Kogut powinien biec przed Reksiem), nie działa myszka</td>
 </tr>
 <tr>
 <td>Reksio i Czarodzieje</td>
 <td><img alt="Niegrywalne" src="https://img.shields.io/badge/Niegrywalne-red"/></td>
-<td>Działa część sekwencji intra z przerzucaniem kartek i streszczeniem poprzednich części, jednak bez animacji przekładania kartek. Na Androidzie dodatkowo ten segment się nieco przymula przez częstą zmianę plików audio i grafik. Gra zawiesza się na widoku kogutów, nie załączają się animacje</td>
+<td>Działa cała sekwencji intra z przerzucaniem kartek i streszczeniem poprzednich części. Na Androidzie ten segment się nieco przymula przez częstą zmianę plików audio i grafik. Po zakończeniu intra gra się crashuje. Nie działa myszka.</td>
 </tr>
 <tr>
 <td>Reksio i Wehikuł Czasu</td>
 <td><img alt="Niegrywalne" src="https://img.shields.io/badge/Niegrywalne-red"/></td>
-<td>Czarny ekran, są pewne problemy z przejściem dalej</td>
+<td>Odpala się sekwencja z panoramą, ale nie odpala się jeden plik audio, przez co gra staje w miejscu</td>
 </tr>
 <tr>
 <td>Reksio i Kapitan Nemo</td>
 <td><img alt="Niegrywalne" src="https://img.shields.io/badge/Niegrywalne-red"/></td>
-<td>Czarny ekran, występują błędy z analizą skryptów</td>
+<td>(Do aktualizacji) Czarny ekran, występują błędy z analizą skryptów</td>
 </tr>
 <tr>
 <td>Reksio i Kretes w Akcji!</td>
 <td><img alt="Niegrywalne" src="https://img.shields.io/badge/Niegrywalne-red"/></td>
-<td>Czarny ekran, występują pewne problemy z ładowaniem skryptów</td>
+<td>(Do aktualizacji) Czarny ekran, występują pewne problemy z ładowaniem skryptów</td>
 </tr>
 <tr>
 <td>Poznaj Mity: Wyprawa po Złote Runo</td>
 <td><img alt="Niegrywalne" src="https://img.shields.io/badge/Niegrywalne-red"/></td>
-<td>Pojawia się plansza startowa, nie przechodzi dalej</td>
+<td>(Do aktualizacji) Pojawia się plansza startowa, nie przechodzi dalej</td>
 </tr>
 <tr>
 <td>Poznaj Mity: Wojna Trojańska</td>
 <td><img alt="Niegrywalne" src="https://img.shields.io/badge/Niegrywalne-red"/></td>
-<td>Pojawia się plansza startowa, nie przechodzi dalej</td>
+<td>(Do aktualizacji) Pojawia się plansza startowa, nie przechodzi dalej</td>
 </tr>
 <tr>
 <td>Poznaj Mity: Przygody Odyseusza</td>
 <td><img alt="Niegrywalne" src="https://img.shields.io/badge/Niegrywalne-red"/></td>
-<td>Pojawia się plansza startowa, nie przechodzi dalej</td>
+<td>(Do aktualizacji) Pojawia się plansza startowa, nie przechodzi dalej</td>
 </tr>
 <tr>
 <td>Poznaj Mity: Herkules</td>
 <td><img alt="Niegrywalne" src="https://img.shields.io/badge/Niegrywalne-red"/></td>
-<td>Pojawia się plansza startowa i wchodzi do menu, buguje się</td>
+<td>(Do aktualizacji) Pojawia się plansza startowa i wchodzi do menu, buguje się</td>
 </tr>
 </tbody>
 </table>
@@ -76,3 +76,6 @@ Aktualny status gier opartych na silniku Piklib/BlooMoo:
 
 ![Screen z próby uruchomienia Reksio i Czarodzieje](images/ric.jpg)
 *Screen z próby uruchomienia Reksio i Czarodzieje*
+
+![Screen z próby uruchomienia Reksio i Wehikuł Czasu](images/riwc.jpg)
+*Screen z próby uruchomienia Reksio i Wehikuł Czasu*

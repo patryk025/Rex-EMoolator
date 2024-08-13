@@ -251,6 +251,7 @@ public class SequenceVariable extends Variable {
 				if(animoVar == null) {
 					animoVar = new AnimoVariable(filename.replace(".ANN", ""), parent.getContext());
 					animoVar.setAttribute("FILENAME", filename);
+					animoVar.setAttribute("TOCANVAS", new Attribute("BOOL", "TRUE"));
 				}
 				parent.animoCache.put(filename, animoVar);
 			}
@@ -306,6 +307,7 @@ public class SequenceVariable extends Variable {
 				if(animoVar == null) {
 					animoVar = new AnimoVariable(filename.replace(".ANN", ""), parent.getContext());
 					animoVar.setAttribute("FILENAME", filename);
+					animoVar.setAttribute("TOCANVAS", new Attribute("BOOL", "TRUE"));
 				}
 				parent.animoCache.put(filename, animoVar);
 			}
@@ -314,8 +316,6 @@ public class SequenceVariable extends Variable {
 
 		@Override
 		public void play(SequenceVariable parent) {
-			String animoFileName = (String) animoVariable.getAttribute("FILENAME").getValue();
-
             // TODO: preserve and restore on end ONFINISHED events in ANIMO
 
 			final int[] animoNumber = {1};

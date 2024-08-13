@@ -131,8 +131,15 @@ public class CanvasObserverVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				// TODO: implement this method
-				throw new ClassMethodNotImplementedException("Method REMOVE is not implemented yet");
+				for(int i = 0; i < arguments.size(); i++) {
+					String name = ArgumentsHelper.getString(arguments.get(i));
+					Variable var = getContext().getVariable(name);
+
+					// I will simply hide it instead of removing it
+					var.setAttribute("VISIBLE", new Attribute("BOOL", "FALSE"));
+					var.setAttribute("TOCANVAS", new Attribute("BOOL", "FALSE"));
+				}
+				return null;
 			}
 		});
 		this.setMethod("SAVE", new Method(

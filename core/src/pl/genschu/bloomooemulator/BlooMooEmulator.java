@@ -24,6 +24,7 @@ import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.tree.ParseTree;
 import pl.genschu.bloomooemulator.interpreter.ast.ASTBuilderVisitor;
 import pl.genschu.bloomooemulator.interpreter.ast.Node;
+import pl.genschu.bloomooemulator.interpreter.exceptions.BreakException;
 import pl.genschu.bloomooemulator.interpreter.util.Point;
 import pl.genschu.bloomooemulator.interpreter.variable.Attribute;
 import pl.genschu.bloomooemulator.interpreter.variable.Signal;
@@ -207,7 +208,11 @@ public class BlooMooEmulator extends ApplicationAdapter {
         // update timers
         for (Variable variable : new ArrayList<>(context.getTimerVariables().values())) {
             TimerVariable timer = (TimerVariable) variable;
-            timer.update();
+            try {
+                timer.update();
+            } catch (BreakException ignored) {
+                // simple break, nothing special here
+            }
         }
 
         // Handle mouse events
