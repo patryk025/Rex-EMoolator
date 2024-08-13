@@ -1,6 +1,8 @@
 package pl.genschu.bloomooemulator.objects;
 
 import com.badlogic.gdx.audio.Music;
+import com.badlogic.gdx.graphics.GL20;
+import com.badlogic.gdx.graphics.Pixmap;
 import pl.genschu.bloomooemulator.interpreter.Context;
 import pl.genschu.bloomooemulator.interpreter.variable.Variable;
 import pl.genschu.bloomooemulator.interpreter.variable.types.AnimoVariable;
@@ -40,6 +42,8 @@ public class Game {
     private Context currentApplicationContext;
     private Context currentEpisodeContext;
     private Context currentSceneContext;
+
+    private Pixmap lastFrame;
 
     public Game(GameEntry game) {
         this.definitionContext = new Context();
@@ -303,6 +307,14 @@ public class Game {
         }
     }
 
+    public void takeScreenshot() {
+        // save frame for CanvasObserver
+        if(lastFrame != null && !lastFrame.isDisposed())
+            lastFrame.dispose();
+        lastFrame = new Pixmap(Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), Pixmap.Format.RGB565);
+        Gdx.gl.glReadPixels(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), GL20.GL_RGB, GL20.GL_UNSIGNED_SHORT_5_6_5, lastFrame.getPixels());
+    }
+
     public SceneVariable getCurrentSceneVariable() {
         return currentSceneVariable;
     }
@@ -373,5 +385,13 @@ public class Game {
 
     public void setCurrentSceneFile(File currentSceneFile) {
         this.currentSceneFile = currentSceneFile;
+    }
+
+    public Pixmap getLastFrame() {
+        return lastFrame;
+    }
+
+    public void setLastFrame(Pixmap lastFrame) {
+        this.lastFrame = lastFrame;
     }
 }

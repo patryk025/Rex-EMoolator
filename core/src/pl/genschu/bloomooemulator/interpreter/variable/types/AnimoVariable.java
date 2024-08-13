@@ -966,7 +966,11 @@ private int getRandomIndex(List<Music> musicList) {
 	}
 
 	public boolean isVisible() {
-		return this.getAttribute("VISIBLE").getValue().toString().equals("TRUE")
-				&&  this.getAttribute("TOCANVAS").getValue().toString().equals("TRUE");
+		try {
+			return this.getAttribute("VISIBLE").getValue().toString().equals("TRUE")
+					&& this.getAttribute("TOCANVAS").getValue().toString().equals("TRUE");
+		} catch (NullPointerException e) {
+			return false;
+		}
 	}
 }

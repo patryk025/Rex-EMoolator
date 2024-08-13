@@ -146,9 +146,14 @@ public class CanvasObserverVariable extends Variable {
 			public Variable execute(List<Object> arguments) {
 				String imgFileName = ArgumentsHelper.getString(arguments.get(0));
 
-				Pixmap pixmap = new Pixmap(Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), Pixmap.Format.RGB565);
+				Pixmap pixmap = getContext().getGame().getLastFrame();
 
-				Gdx.gl.glReadPixels(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), GL20.GL_RGB, GL20.GL_UNSIGNED_SHORT_5_6_5, pixmap.getPixels());
+				if(pixmap == null) {
+					Gdx.app.error("CanvasObserverVariable", "Pixmap is null, screenshots may be not captured correctly");
+					pixmap = new Pixmap(Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), Pixmap.Format.RGB565);
+
+					Gdx.gl.glReadPixels(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), GL20.GL_RGB, GL20.GL_UNSIGNED_SHORT_5_6_5, pixmap.getPixels());
+				}
 
 				flipPixmapVertically(pixmap);
 

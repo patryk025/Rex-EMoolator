@@ -182,6 +182,8 @@ public class BlooMooEmulator extends ApplicationAdapter {
                 
                 if(drawList.contains(sequenceVariable.getCurrentAnimo())) continue;
 
+                if(!sequenceVariable.getCurrentAnimo().isVisible()) continue;
+
                 try {
                     Image image = sequenceVariable.getCurrentAnimo().getCurrentImage();
                     Event event = sequenceVariable.getCurrentAnimo().getCurrentEvent();
@@ -235,6 +237,8 @@ public class BlooMooEmulator extends ApplicationAdapter {
         // batch.draw(cursorTexture, x - 25, VIRTUAL_HEIGHT - y - 25, 50, 50);
         
         batch.end();
+
+        game.takeScreenshot();
     }
 
     public void handleMouseInput(int x, int y, boolean isPressed, boolean justPressed, boolean justReleased) {
