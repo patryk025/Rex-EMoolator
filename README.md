@@ -37,32 +37,32 @@ Aktualny status gier opartych na silniku Piklib/BlooMoo:
 <tr>
 <td>Reksio i Kapitan Nemo</td>
 <td><img alt="Niegrywalne" src="https://img.shields.io/badge/Niegrywalne-red"/></td>
-<td>(Do aktualizacji) Czarny ekran, występują błędy z analizą skryptów</td>
+<td>Czarny ekran, występują błędy z analizą skryptów</td>
 </tr>
 <tr>
 <td>Reksio i Kretes w Akcji!</td>
 <td><img alt="Niegrywalne" src="https://img.shields.io/badge/Niegrywalne-red"/></td>
-<td>(Do aktualizacji) Czarny ekran, występują pewne problemy z ładowaniem skryptów</td>
+<td>Czarny ekran, występują pewne problemy z ładowaniem skryptów</td>
 </tr>
 <tr>
 <td>Poznaj Mity: Wyprawa po Złote Runo</td>
 <td><img alt="Niegrywalne" src="https://img.shields.io/badge/Niegrywalne-red"/></td>
-<td>(Do aktualizacji) Pojawia się plansza startowa, nie przechodzi dalej</td>
+<td>Pojawia się plansza startowa, nie przechodzi dalej</td>
 </tr>
 <tr>
 <td>Poznaj Mity: Wojna Trojańska</td>
 <td><img alt="Niegrywalne" src="https://img.shields.io/badge/Niegrywalne-red"/></td>
-<td>(Do aktualizacji) Pojawia się plansza startowa, nie przechodzi dalej</td>
+<td>Pojawia się plansza startowa, ruszając myszką, są reakcje na guziki, których nie widać. Udaje się przejść do menu wyboru minigier.</td>
 </tr>
 <tr>
 <td>Poznaj Mity: Przygody Odyseusza</td>
 <td><img alt="Niegrywalne" src="https://img.shields.io/badge/Niegrywalne-red"/></td>
-<td>(Do aktualizacji) Pojawia się plansza startowa, nie przechodzi dalej</td>
+<td>Pojawia się plansza startowa, ruszając myszką, są reakcje na guziki, których nie widać. Udaje się przejść do menu wyboru minigier, a nawet włączyć minigierkę, jednak przez zbugowany interfejs nie daje się nic zrobić.</td>
 </tr>
 <tr>
 <td>Poznaj Mity: Herkules</td>
 <td><img alt="Niegrywalne" src="https://img.shields.io/badge/Niegrywalne-red"/></td>
-<td>(Do aktualizacji) Pojawia się plansza startowa i wchodzi do menu, buguje się</td>
+<td>Pojawia się plansza startowa i wchodzi do menu, buguje się, jednak przyciski działają i udaje się przejść do minigierek, ale nie da się jeszcze grać.</td>
 </tr>
 </tbody>
 </table>

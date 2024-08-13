@@ -183,6 +183,7 @@ public class BlooMooEmulator extends ApplicationAdapter {
                 
                 if(drawList.contains(sequenceVariable.getCurrentAnimo())) continue;
 
+                if(sequenceVariable.getCurrentAnimo() == null) continue;
                 if(!sequenceVariable.getCurrentAnimo().isVisible()) continue;
 
                 try {
