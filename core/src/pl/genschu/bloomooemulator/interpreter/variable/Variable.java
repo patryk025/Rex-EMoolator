@@ -2,6 +2,7 @@ package pl.genschu.bloomooemulator.interpreter.variable;
 
 import com.badlogic.gdx.Gdx;
 import pl.genschu.bloomooemulator.interpreter.Context;
+import pl.genschu.bloomooemulator.interpreter.exceptions.BreakException;
 import pl.genschu.bloomooemulator.interpreter.exceptions.ClassMethodNotFoundException;
 import pl.genschu.bloomooemulator.interpreter.exceptions.ClassMethodNotImplementedException;
 import pl.genschu.bloomooemulator.interpreter.exceptions.VariableUnsupportedOperationException;
@@ -267,26 +268,27 @@ public abstract class Variable {
 		// Gdx.app.log("Variable", "Setting THIS variable to " + this.getName());
 		context.setThisVariable(this);
 
-		String signalName = name;
-		if(argument != null) {
-			signalName += "^" + argument;
-		}
-		Signal signal = this.getSignal(signalName);
-		if (signal != null) {
-			Gdx.app.log(this.getClass().getSimpleName(), "Executing signal "+signalName+"...");
-			signal.execute(argument);
-		}
-		else {
-			//Gdx.app.log(this.getClass().getSimpleName(), "Signal "+signalName+" not found. Looking for generic "+name+"...");
-			signal = this.getSignal(name);
-			if (signal != null) {
-				Gdx.app.log(this.getClass().getSimpleName(), "Executing signal "+name+"...");
-				signal.execute(null);
+		try {
+			String signalName = name;
+			if (argument != null) {
+				signalName += "^" + argument;
 			}
-            /*else {
-                Gdx.app.log(this.getClass().getSimpleName(), "Signal "+name+" not found. Omitting...");
-            }*/
-		}
+			Signal signal = this.getSignal(signalName);
+			if (signal != null) {
+				Gdx.app.log(this.getClass().getSimpleName(), "Executing signal " + signalName + "...");
+				signal.execute(argument);
+			} else {
+				//Gdx.app.log(this.getClass().getSimpleName(), "Signal "+signalName+" not found. Looking for generic "+name+"...");
+				signal = this.getSignal(name);
+				if (signal != null) {
+					Gdx.app.log(this.getClass().getSimpleName(), "Executing signal " + name + "...");
+					signal.execute(null);
+				}
+				/*else {
+					Gdx.app.log(this.getClass().getSimpleName(), "Signal "+name+" not found. Omitting...");
+				}*/
+			}
+		} catch (BreakException ignored) {} // simple break
 
 		// Gdx.app.log("Variable", "Setting THIS variable to null");
 		context.setThisVariable(null);

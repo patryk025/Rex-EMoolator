@@ -156,6 +156,10 @@ public class ButtonVariable extends Variable {
 		isPressed = pressed;
 	}
 
+	public boolean isEnabled() {
+		return getAttribute("ENABLE").getValue().toString().equals("TRUE");
+	}
+
 	public Rectangle getRect() {
 		if(rect == null) {
 			if (getAttribute("GFXSTANDARD") != null) {

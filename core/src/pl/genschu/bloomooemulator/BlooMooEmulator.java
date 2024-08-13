@@ -240,7 +240,7 @@ public class BlooMooEmulator extends ApplicationAdapter {
 
         prevPressed = isPressed;
         
-        // batch.draw(cursorTexture, x - 25, VIRTUAL_HEIGHT - y - 25, 50, 50);
+        //batch.draw(cursorTexture, x - 25, VIRTUAL_HEIGHT - y - 25, 50, 50);
         
         batch.end();
 
@@ -250,6 +250,9 @@ public class BlooMooEmulator extends ApplicationAdapter {
     public void handleMouseInput(int x, int y, boolean isPressed, boolean justPressed, boolean justReleased) {
         for (Variable variable : new ArrayList<>(context.getButtonsVariables().values())) {
             ButtonVariable button = (ButtonVariable) variable;
+
+            if(!button.isEnabled()) continue;
+
             if (button.getRect() != null && button.getRect().contains(x, y)) {
                 if(debugButtons) {
                     // draw rect
@@ -259,6 +262,7 @@ public class BlooMooEmulator extends ApplicationAdapter {
                     if (activeButton == null) {
                         activeButton = button;
                         triggerSignal(button, "ONCLICKED");
+                        triggerSignal(button, "ONACTION");
                     }
                 }
                 if (button == activeButton) {
