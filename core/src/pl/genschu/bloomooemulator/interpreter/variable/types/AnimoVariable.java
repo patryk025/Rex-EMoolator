@@ -973,4 +973,13 @@ private int getRandomIndex(List<Music> musicList) {
 			return false;
 		}
 	}
+
+	public boolean hasEvent(String eventName) {
+		for(Event event : events) {
+			if(event.getName().equals(eventName)) {
+				return true;
+			}
+		}
+		return false;
+	}
 }

@@ -14,7 +14,6 @@ public class SequenceVariable extends Variable {
 	private String currentEventName;
 	private AnimoVariable currentAnimo;
 	private boolean isPlaying;
-	private Map<String, Integer> animosCounters = new HashMap<>();
     private boolean isVisible = true;
 
 	public SequenceVariable(String name, Context context) {
@@ -77,7 +76,6 @@ public class SequenceVariable extends Variable {
 				}
 
 				String eventName = ((StringVariable) arguments.get(0)).GET();
-				animosCounters.clear();
 				playEvent(eventName);
 				return null;
 			}
@@ -108,6 +106,14 @@ public class SequenceVariable extends Variable {
 			if (!currentAnimo.isPlaying()) {
 				isPlaying = false;
 				emitSignal("ONFINISHED", currentEventName);
+				for(AnimoVariable animoCache : animoCache.values()) {
+					animoCache.setPlaying(false);
+					try {
+						getAttribute("VISIBLE").setValue("FALSE");
+					} catch (NullPointerException e) {
+						setAttribute("VISIBLE", new Attribute("BOOL", "FALSE"));
+					}
+				}
 			}
 		}
 	}
@@ -309,17 +315,10 @@ public class SequenceVariable extends Variable {
 		@Override
 		public void play(SequenceVariable parent) {
 			String animoFileName = (String) animoVariable.getAttribute("FILENAME").getValue();
-			if(parent.animosCounters.containsKey(animoFileName)) {
-				parent.animosCounters.put(animoFileName, parent.animosCounters.get(animoFileName) + 1);
-			} else {
-				parent.animosCounters.put(animoFileName, 1);
-			}
-
-			Integer counter = parent.animosCounters.get(animoFileName);
-
-			Gdx.app.log("SpeakingEvent", "Playing event " + prefix + "_" + counter + " in Animo " + animoVariable.getName());
 
             // TODO: preserve and restore on end ONFINISHED events in ANIMO
+
+			final int[] animoNumber = {1};
             
 			Signal onMainFinished = new Signal() {
 				@Override
@@ -344,10 +343,16 @@ public class SequenceVariable extends Variable {
 			Signal onStartFinished = new Signal() {
 				@Override
 				public void execute(Object argument) {
-					playAnimation(parent, prefix + "_" + counter, new Signal() {
+					playAnimation(parent, prefix + "_" + animoNumber[0], new Signal() {
 						@Override
 						public void execute(Object argument) {
-							playAnimation(parent, prefix + "_" + counter, this);
+							if(currentAnimo.hasEvent(prefix + "_" + (animoNumber[0]+1))) {
+								animoNumber[0] += 1;
+							}
+							else {
+								animoNumber[0] = 1;
+							}
+							playAnimation(parent, prefix + "_" + animoNumber[0], this);
 						}
 					});
                     try {
@@ -362,9 +367,13 @@ public class SequenceVariable extends Variable {
 			if (starting) {
 				playAnimation(parent, prefix + "_START", onStartFinished);
 			} else {
-				playAnimation(parent, prefix + "_" + counter, new Signal() {
+				playAnimation(parent, prefix + "_" + animoNumber[0], new Signal() {
                     @Override
 				    public void execute(Object argument) {
+						if(currentAnimo.hasEvent(prefix + "_" + (++animoNumber[0]))) {
+							animoNumber[0] = 1;
+						}
+						playAnimation(parent, prefix + "_" + animoNumber[0], this);
 					}
                 });
                 try {
