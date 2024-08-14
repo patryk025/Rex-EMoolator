@@ -25,8 +25,9 @@ public class DoubleVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				// TODO: implement this method
-				throw new ClassMethodNotImplementedException("Method ABS is not implemented yet");
+				double value = ArgumentsHelper.getDouble(arguments.get(0));
+				set(Math.abs(value));
+				return DoubleVariable.this;
 			}
 		});
 		this.setMethod("ADD", new Method(
@@ -39,120 +40,169 @@ public class DoubleVariable extends Variable {
 			public Variable execute(List<Object> arguments) {
 				double value = ArgumentsHelper.getDouble(arguments.get(0));
 				set(GET()+value);
-				return null;
+				return DoubleVariable.this;
 			}
 		});
 		this.setMethod("ARCTAN", new Method(
 			List.of(
-				new Parameter("INTEGER|DOUBLE", "doubleValue", true)
+				new Parameter("DOUBLE", "doubleValue", true)
 			),
 			"DOUBLE"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				// TODO: implement this method
-				throw new ClassMethodNotImplementedException("Method ARCTAN is not implemented yet");
+				double value = ArgumentsHelper.getDouble(arguments.get(0));
+
+				double atanRadians = Math.atan(value);
+				double atanDegrees = Math.toDegrees(atanRadians);
+
+				set(atanDegrees);
+				return DoubleVariable.this;
 			}
 		});
 		this.setMethod("ARCTANEX", new Method(
 			List.of(
-				new Parameter("INTEGER|DOUBLE", "y", true),
-				new Parameter("INTEGER|DOUBLE", "x", true)
+				new Parameter("DOUBLE", "y", true),
+				new Parameter("DOUBLE", "x", true)
 			),
 			"DOUBLE"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				// TODO: implement this method
-				throw new ClassMethodNotImplementedException("Method ARCTANEX is not implemented yet");
+				double y = ArgumentsHelper.getDouble(arguments.get(0));
+				double x = ArgumentsHelper.getDouble(arguments.get(1));
+
+				double atanRadians = Math.atan2(y, x);
+				double atanDegrees = Math.toDegrees(atanRadians);
+
+				set(atanDegrees);
+				return DoubleVariable.this;
 			}
 		});
 		this.setMethod("CLAMP", new Method(
 			List.of(
-				new Parameter("INTEGER|DOUBLE", "rangeMin", true),
-				new Parameter("INTEGER|DOUBLE", "rangeMax", true)
+				new Parameter("DOUBLE", "rangeMin", true),
+				new Parameter("DOUBLE", "rangeMax", true)
 			),
 			"DOUBLE"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				// TODO: implement this method
-				throw new ClassMethodNotImplementedException("Method CLAMP is not implemented yet");
+				double rangeMin = ArgumentsHelper.getDouble(arguments.get(0));
+				double rangeMax = ArgumentsHelper.getDouble(arguments.get(1));
+
+				double value = GET();
+
+				if(value < rangeMin) {
+					value = rangeMin;
+				} else if(value > rangeMax) {
+					value = rangeMax;
+				}
+
+				set(value);
+				return DoubleVariable.this;
 			}
 		});
 		this.setMethod("COSINUS", new Method(
 			List.of(
-				new Parameter("INTEGER|DOUBLE", "doubleValue", true)
+				new Parameter("DOUBLE", "doubleValue", true)
 			),
 			"DOUBLE"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				// TODO: implement this method
-				throw new ClassMethodNotImplementedException("Method COSINUS is not implemented yet");
+				double value = ArgumentsHelper.getDouble(arguments.get(0));
+
+				double cosRadians = Math.cos(value);
+				double cosDegrees = Math.toDegrees(cosRadians);
+
+				set(cosDegrees);
+				return DoubleVariable.this;
 			}
 		});
 		this.setMethod("DIV", new Method(
 			List.of(
-				new Parameter("INTEGER|DOUBLE", "divisor", true)
+				new Parameter("DOUBLE", "divisor", true)
 			),
 			"DOUBLE"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				// TODO: implement this method
-				throw new ClassMethodNotImplementedException("Method DIV is not implemented yet");
+				double divisor = ArgumentsHelper.getDouble(arguments.get(0));
+				try {
+					set(GET() / divisor);
+				} catch(ArithmeticException e) {
+					set(0.0); // divide by zero normally crashes engine
+				}
+				return DoubleVariable.this;
 			}
 		});
 		this.setMethod("LENGTH", new Method(
 			List.of(
-				new Parameter("INTEGER|DOUBLE", "x", true),
-				new Parameter("INTEGER|DOUBLE", "y", true)
+				new Parameter("DOUBLE", "x", true),
+				new Parameter("DOUBLE", "y", true)
 			),
 			"DOUBLE"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				// TODO: implement this method
-				throw new ClassMethodNotImplementedException("Method LENGTH is not implemented yet");
+				double x = ArgumentsHelper.getDouble(arguments.get(0));
+				double y = ArgumentsHelper.getDouble(arguments.get(1));
+				set(Math.sqrt(x * x + y * y));
+				return DoubleVariable.this;
 			}
 		});
 		this.setMethod("MAXA", new Method(
 			List.of(
-				new Parameter("INTEGER|DOUBLE", "value1", true),
-				new Parameter("INTEGER|DOUBLE", "value2...valueN", false)
+				new Parameter("DOUBLE", "value1...valueN", true)
 			),
 			"DOUBLE"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				// TODO: implement this method
-				throw new ClassMethodNotImplementedException("Method MAXA is not implemented yet");
+				double max = 0;
+				for(Object argument : arguments) {
+					double value = ArgumentsHelper.getDouble(argument);
+					if(value > max) {
+						max = value;
+					}
+				}
+
+				set(max);
+				return DoubleVariable.this;
 			}
 		});
 		this.setMethod("MINA", new Method(
 			List.of(
-				new Parameter("INTEGER|DOUBLE", "value1", true),
-				new Parameter("INTEGER|DOUBLE", "value2...valueN", false)
+				new Parameter("DOUBLE", "value1...valueN", true)
 			),
 			"DOUBLE"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				// TODO: implement this method
-				throw new ClassMethodNotImplementedException("Method MINA is not implemented yet");
+				double min = 0;
+				for(Object argument : arguments) {
+					double value = ArgumentsHelper.getDouble(argument);
+					if(value < min) {
+						min = value;
+					}
+				}
+
+				set(min);
+				return DoubleVariable.this;
 			}
 		});
 		this.setMethod("MUL", new Method(
 			List.of(
-				new Parameter("INTEGER|DOUBLE", "multiplier", true)
+				new Parameter("DOUBLE", "multiplier", true)
 			),
 			"DOUBLE"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				// TODO: implement this method
-				throw new ClassMethodNotImplementedException("Method MUL is not implemented yet");
+				double multiplier = ArgumentsHelper.getDouble(arguments.get(0));
+				set(GET() * multiplier);
+				return DoubleVariable.this;
 			}
 		});
 		this.setMethod("SET", new Method(
@@ -163,20 +213,25 @@ public class DoubleVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				// TODO: implement this method
-				throw new ClassMethodNotImplementedException("Method SET is not implemented yet");
+				set(ArgumentsHelper.getDouble(arguments.get(0)));
+				return DoubleVariable.this;
 			}
 		});
 		this.setMethod("SINUS", new Method(
 			List.of(
-				new Parameter("INTEGER|DOUBLE", "doubleValue", true)
+				new Parameter("DOUBLE", "doubleValue", true)
 			),
 			"DOUBLE"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				// TODO: implement this method
-				throw new ClassMethodNotImplementedException("Method SINUS is not implemented yet");
+				double value = ArgumentsHelper.getDouble(arguments.get(0));
+
+				double sinRadians = Math.sin(value);
+				double sinDegrees = Math.toDegrees(sinRadians);
+
+				set(sinDegrees);
+				return DoubleVariable.this;
 			}
 		});
 		this.setMethod("SQRT", new Method(
@@ -187,8 +242,9 @@ public class DoubleVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				// TODO: implement this method
-				throw new ClassMethodNotImplementedException("Method SQRT is not implemented yet");
+				double value = ArgumentsHelper.getDouble(arguments.get(0));
+				set(Math.sqrt(value));
+				return DoubleVariable.this;
 			}
 		});
 		this.setMethod("SUB", new Method(
@@ -199,8 +255,9 @@ public class DoubleVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				// TODO: implement this method
-				throw new ClassMethodNotImplementedException("Method SUB is not implemented yet");
+				double value = ArgumentsHelper.getDouble(arguments.get(0));
+				set(GET() - value);
+				return DoubleVariable.this;
 			}
 		});
 	}

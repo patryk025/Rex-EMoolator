@@ -26,7 +26,8 @@ public class IntegerVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				int result = Math.abs(GET());
+				int value = ArgumentsHelper.getInteger(arguments.get(0));
+				int result = Math.abs(value);
 				set(result);
 				return IntegerVariable.this;
 			}
@@ -52,8 +53,9 @@ public class IntegerVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				// TODO: implement this method
-				throw new ClassMethodNotImplementedException("Method AND is not implemented yet");
+				int result = GET() & ArgumentsHelper.getInteger(arguments.get(0));
+				set(result);
+				return IntegerVariable.this;
 			}
 		});
 		this.setMethod("CLAMP", new Method(
@@ -97,8 +99,12 @@ public class IntegerVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				int result = GET() / ArgumentsHelper.getInteger(arguments.get(0));
-				set(result);
+				try {
+					int result = GET() / ArgumentsHelper.getInteger(arguments.get(0));
+					set(result);
+				} catch (ArithmeticException e) {
+					set(0); // division by zero normally crashes engine
+				}
 				return IntegerVariable.this;
 			}
 		});
@@ -114,15 +120,19 @@ public class IntegerVariable extends Variable {
 		});
 		this.setMethod("LENGTH", new Method(
 			List.of(
-				new Parameter("INTEGER", "value1", true),
-				new Parameter("INTEGER", "value2", true)
+				new Parameter("INTEGER", "x", true),
+				new Parameter("INTEGER", "y", true)
 			),
 			"INTEGER"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				// TODO: implement this method
-				throw new ClassMethodNotImplementedException("Method LENGTH is not implemented yet");
+				int x = ArgumentsHelper.getInteger(arguments.get(0));
+				int y = ArgumentsHelper.getInteger(arguments.get(1));
+
+				int result = (int) Math.sqrt(x * x + y * y);
+				set(result);
+				return IntegerVariable.this;
 			}
 		});
 		this.setMethod("MOD", new Method(
@@ -171,7 +181,7 @@ public class IntegerVariable extends Variable {
                     int max = ArgumentsHelper.getInteger(arguments.get(1));
                     Random random = new Random();
                     int result = min + random.nextInt(max - min + 1);
-                    set(result);
+					set(result);
 					return IntegerVariable.this;
 				}
 			}
@@ -199,6 +209,26 @@ public class IntegerVariable extends Variable {
 			public Variable execute(List<Object> arguments) {
 				int result = GET() - getValueFromString((Variable) arguments.get(0));
 				set(result);
+				return IntegerVariable.this;
+			}
+		});
+		this.setMethod("SWITCH", new Method(
+			List.of(
+				new Parameter("INTEGER", "val1", true),
+				new Parameter("INTEGER", "val1", true)
+			),
+			"INTEGER"
+		) {
+			@Override
+			public Variable execute(List<Object> arguments) {
+				int val1 = ArgumentsHelper.getInteger(arguments.get(0));
+				int val2 = ArgumentsHelper.getInteger(arguments.get(1));
+
+				if(GET() == val1) {
+					set(val2);
+				} else {
+					set(val1);
+				}
 				return IntegerVariable.this;
 			}
 		});
