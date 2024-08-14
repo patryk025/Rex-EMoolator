@@ -585,6 +585,10 @@ public class AnimoVariable extends Variable {
 				else {
 					currentImageNumber = 0;
 					currentImage = null;
+					rect.setXLeft(0);
+					rect.setYTop(0);
+					rect.setXRight(1);
+					rect.setYBottom(1);
 				}
 				emitSignal("ONFRAMECHANGED", currentEvent.getName());
 				return null;
@@ -769,21 +773,21 @@ public class AnimoVariable extends Variable {
 		}
 	}
 
-private void playSfx() {
-    if (!currentEvent.getFrameData().get(currentFrameNumber).getSfxAudio().isEmpty()) {
-        Gdx.app.log("AnimoVariable", "Playing sfx in animo " + currentEvent.getName());
-        int randomIndex = getRandomIndex(currentEvent.getFrameData().get(currentFrameNumber).getSfxAudio());
-        Music music = currentEvent.getFrameData().get(currentFrameNumber).getSfxAudio().get(randomIndex);
+	private void playSfx() {
+		if (!currentEvent.getFrameData().get(currentFrameNumber).getSfxAudio().isEmpty()) {
+			Gdx.app.log("AnimoVariable", "Playing sfx in animo " + currentEvent.getName());
+			int randomIndex = getRandomIndex(currentEvent.getFrameData().get(currentFrameNumber).getSfxAudio());
+			Music music = currentEvent.getFrameData().get(currentFrameNumber).getSfxAudio().get(randomIndex);
 
-		if(currentSfx != null) currentSfx.stop();
-		currentSfx = music;
-		currentSfx.play();
-    }
-}
+			if(currentSfx != null) currentSfx.stop();
+			currentSfx = music;
+			currentSfx.play();
+		}
+	}
 
-private int getRandomIndex(List<Music> musicList) {
-    return new Random().nextInt(musicList.size());
-}
+	private int getRandomIndex(List<Music> musicList) {
+		return new Random().nextInt(musicList.size());
+	}
 
 
 	public Rectangle getRect() {
@@ -814,8 +818,8 @@ private int getRandomIndex(List<Music> musicList) {
 	private void updateRect(Image image) {
 		rect.setXLeft(image.offsetX - posX);
 		rect.setYTop(image.offsetY - posY);
-		rect.setXRight(image.width);
-		rect.setYBottom(image.height);
+		rect.setXRight(rect.getXLeft() + image.width);
+		rect.setYBottom(rect.getYTop() - image.height);
 	}
 
 	@Override

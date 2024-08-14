@@ -261,6 +261,7 @@ public class BlooMooEmulator extends ApplicationAdapter {
             if(!button.isEnabled()) continue;
 
             if (button.getRect() != null && button.getRect().contains(x, y)) {
+                triggerSignal(button, "GFXONMOVE");
                 if(debugButtons) {
                     // draw rect
                     drawRectangle(button.getRect(), Color.GREEN );
@@ -274,7 +275,7 @@ public class BlooMooEmulator extends ApplicationAdapter {
                 }
                 if (button == activeButton) {
                     if (isPressed) {
-                        // Dragging goes here
+                        triggerSignal(button, "GFXONCLICK");
                     } else if (justReleased) {
                         triggerSignal(button, "ONRELEASED");
                         activeButton = null;

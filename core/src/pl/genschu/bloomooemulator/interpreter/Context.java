@@ -17,9 +17,9 @@ public class Context {
     private Object returnValue;
     private Game game;
 
-    private Map<String, Variable> graphicsVariables; // cache for faster drawing
-    private Map<String, Variable> buttonsVariables;
-    private Map<String, Variable> timerVariables;
+    private final Map<String, Variable> graphicsVariables; // cache for faster drawing
+    private final Map<String, Variable> buttonsVariables;
+    private final Map<String, Variable> timerVariables;
     private MouseVariable mouseVariable;
     private KeyboardVariable keyboardVariable;
 
@@ -94,6 +94,7 @@ public class Context {
         }
         else if(variable.getType().equals("BUTTON")) {
             buttonsVariables.put(name, variable);
+            variable.emitSignal("ONFOCUSOFF");
         }
         else if(variable.getType().equals("TIMER")) {
             timerVariables.put(name, variable);
@@ -117,6 +118,8 @@ public class Context {
         variables.remove(name);
 
         graphicsVariables.remove(name);
+        buttonsVariables.remove(name);
+        timerVariables.remove(name);
     }
 
     public void setReturnValue(Object returnValue) {
