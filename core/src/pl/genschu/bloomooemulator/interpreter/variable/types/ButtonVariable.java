@@ -19,6 +19,8 @@ public class ButtonVariable extends Variable {
 	private boolean isPressed = false;
 	private boolean wasPressed = false;
 
+	private Variable gfxOnMove;
+
 	public ButtonVariable(String name, Context context) {
 		super(name, context);
 
@@ -138,6 +140,13 @@ public class ButtonVariable extends Variable {
 
 	public void setFocused(boolean focused) {
 		isFocused = focused;
+		if(getAttribute("GFXONMOVE") == null) {
+			return;
+		}
+		if(gfxOnMove == null) {
+			gfxOnMove = getContext().getVariable(getAttribute("GFXONMOVE").getValue().toString());
+		}
+		gfxOnMove.setAttribute("VISIBLE", new Attribute("BOOL", focused ? "TRUE" : "FALSE"));
 	}
 
 	public boolean isPressed() {
@@ -206,6 +215,30 @@ public class ButtonVariable extends Variable {
 		List<String> knownAttributes = List.of("DRAGGABLE", "ENABLE", "GFXONCLICK", "GFXONMOVE", "GFXSTANDARD", "RECT", "SNDONMOVE", "VISIBLE");
 		if (knownAttributes.contains(name)) {
 			super.setAttribute(name, attribute);
+			if(name.equals("RECT")) {
+				String rectRaw = getAttribute("RECT").getValue().toString();
+				if(rectRaw.contains(",")) {
+					String[] rectSplit = rectRaw.split(",");
+					int xLeft = Integer.parseInt(rectSplit[0]);
+					int yBottom = Integer.parseInt(rectSplit[1]);
+					int xRight = Integer.parseInt(rectSplit[2]);
+					int yTop = Integer.parseInt(rectSplit[3]);
+					int height = yTop - yBottom;
+					rect = new Rectangle(xLeft, yBottom-height, xRight, yTop-height);
+				}
+				else {
+					Variable rectVariable = context.getVariable(rectRaw);
+					if(rectVariable != null) {
+						if (rectVariable instanceof ImageVariable) {
+							ImageVariable imageVariable = (ImageVariable) rectVariable;
+							rect = imageVariable.getRect();
+						} else if (rectVariable instanceof AnimoVariable) {
+							AnimoVariable animoVariable = (AnimoVariable) rectVariable;
+							rect = animoVariable.getRect();
+						}
+					}
+				}
+			}
 		}
 	}
 }

@@ -5,10 +5,10 @@ Emulator silnika graficznego Piklib/BlooMoo autorstwa firmy Aidem Media oraz int
 > Na ten moment działa ładowanie plików graficznych, animacji oraz są postępu w odtwarzaniu intra w kilku grach, ale prace nad interpreterem oraz ładowaniem skryptów są w toku.
 
 Dla tabeli niżej zastosowano następujący podział grywalności:
-- ![Grywalne](https://img.shields.io/badge/Grywalne-green): grę daje się ukończyć od początku do końca, bez błędów, które mogą ją zablokować.
-- ![W grze](https://img.shields.io/badge/W%20grze-yellow): gra działa, jednak przez różne błędy i niedoróbki nie jest możliwa do ukończenia.
-- ![W intrze](https://img.shields.io/badge/W%20intrze-orange): gra ładuje się, jednak nie przechodzi poza intro.
-- ![Niegrywalne](https://img.shields.io/badge/Niegrywalne-red): gra nie inicjalizuje się poprawnie, ładuje się z błędem, wywołuje crash emulatora lub daje czarny obraz.
+- ![Grywalne](https://img.shields.io/badge/Grywalne-green) grę daje się ukończyć od początku do końca, bez błędów, które mogą ją zablokować.
+- ![W grze](https://img.shields.io/badge/W%20grze-yellow) gra działa, jednak przez różne błędy i niedoróbki nie jest możliwa do ukończenia.
+- ![W intrze](https://img.shields.io/badge/W%20intrze-orange) gra ładuje się, jednak nie przechodzi poza intro.
+- ![Niegrywalne](https://img.shields.io/badge/Niegrywalne-red) gra nie inicjalizuje się poprawnie, ładuje się z błędem, wywołuje crash emulatora lub daje czarny obraz.
 
 Aktualne statusy gier opartych na silniku Piklib/BlooMoo:
 <table>

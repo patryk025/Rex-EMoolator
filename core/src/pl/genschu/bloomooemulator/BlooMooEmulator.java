@@ -255,13 +255,16 @@ public class BlooMooEmulator extends ApplicationAdapter {
     }
 
     public void handleMouseInput(int x, int y, boolean isPressed, boolean justPressed, boolean justReleased, MouseVariable mouseVariable) {
+        //Gdx.app.log("Mouse", "x: " + x + " y: " + y);
         for (Variable variable : new ArrayList<>(context.getButtonsVariables().values())) {
             ButtonVariable button = (ButtonVariable) variable;
 
             if(!button.isEnabled()) continue;
 
+            //Gdx.app.log(button.getName(), button.getRect().toString());
+            //Gdx.app.log(button.getName(), "Contains: " + (button.getRect().contains(x, y) ? "true" : "false"));
+
             if (button.getRect() != null && button.getRect().contains(x, y)) {
-                triggerSignal(button, "GFXONMOVE");
                 if(debugButtons) {
                     // draw rect
                     drawRectangle(button.getRect(), Color.GREEN );
@@ -302,6 +305,8 @@ public class BlooMooEmulator extends ApplicationAdapter {
                     if (onFocusLossSignal != null) {
                         onFocusLossSignal.execute(null);
                     }
+                } else {
+                    button.setFocused(false);
                 }
             }
         }
