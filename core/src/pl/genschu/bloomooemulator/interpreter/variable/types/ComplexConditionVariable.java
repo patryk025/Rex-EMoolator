@@ -9,22 +9,13 @@ import pl.genschu.bloomooemulator.interpreter.variable.Variable;
 
 import java.util.List;
 
-public class ComplexConditionVariable extends Variable {
+public class ComplexConditionVariable extends ConditionVariable {
+	private ConditionVariable condition1;
+	private ConditionVariable condition2;
+	private String operator;
+
 	public ComplexConditionVariable(String name, Context context) {
 		super(name, context);
-
-		this.setMethod("BREAK", new Method(
-			List.of(
-				new Parameter("BOOL", "haveToBreak", true)
-			),
-			"void"
-		) {
-			@Override
-			public Variable execute(List<Object> arguments) {
-				// TODO: implement this method
-				throw new ClassMethodNotImplementedException("Method BREAK is not implemented yet");
-			}
-		});
 	}
 
 	@Override
@@ -37,7 +28,50 @@ public class ComplexConditionVariable extends Variable {
 		List<String> knownAttributes = List.of("CONDITION1", "CONDITION2", "OPERATOR");
 		if(knownAttributes.contains(name)) {
 			super.setAttribute(name, attribute);
+            switch (name) {
+                case "CONDITION1": {
+                    Variable tmp = context.getVariable(attribute.getValue().toString());
+                    if (tmp instanceof ConditionVariable) {
+                        condition1 = (ConditionVariable) tmp;
+                    }
+                    break;
+                }
+                case "CONDITION2": {
+                    Variable tmp = context.getVariable(attribute.getValue().toString());
+                    if (tmp instanceof ConditionVariable) {
+                        condition2 = (ConditionVariable) tmp;
+                    }
+                    break;
+                }
+                case "OPERATOR":
+                    operator = (String) attribute.getValue();
+                    break;
+            }
 		}
 	}
 
+	@Override
+	protected boolean check() {
+		if(condition1 == null) {
+			Variable tmp = context.getVariable(getAttribute("CONDITION1").getValue().toString());
+			if (tmp instanceof ConditionVariable) {
+				condition1 = (ConditionVariable) tmp;
+			}
+		}
+		if(condition2 == null) {
+			Variable tmp = context.getVariable(getAttribute("CONDITION2").getValue().toString());
+			if (tmp instanceof ConditionVariable) {
+				condition2 = (ConditionVariable) tmp;
+			}
+		}
+		if(condition1 == null && condition2 == null) {
+			return false;
+		}
+		if(operator.equals("AND")) {
+			return condition1.check() && condition2.check();
+		} else if(operator.equals("OR")) {
+			return condition1.check() || condition2.check();
+		}
+		return false;
+	}
 }

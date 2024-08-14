@@ -23,7 +23,7 @@ Aktualne statusy gier opartych na silniku Piklib/BlooMoo:
 <tr>
 <td>Reksio i Skarb Piratów</td>
 <td><img alt="W grze" src="https://img.shields.io/badge/W grze-yellow"/></td>
-<td>W pełni działająca sekwencja intra, przenosi poprawnie do wraku, działa myszka, ale są problemy przy składaniu latawca (jest od razu złożony, przez co nie przechodzi dalej).</td>
+<td>Gra działa bez błędów do momentu dotarcia na plażę.</td>
 </tr>
 <tr>
 <td>Reksio i Ufo</td>

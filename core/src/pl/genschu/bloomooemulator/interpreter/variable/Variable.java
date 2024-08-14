@@ -266,6 +266,7 @@ public abstract class Variable {
 	public void emitSignal(String name, Object argument) {
 		Gdx.app.log("Variable", "Emitting signal " + name + " for variable " + this.getName() + " with argument " + argument);
 		// Gdx.app.log("Variable", "Setting THIS variable to " + this.getName());
+		Variable oldThis = context.getThisVariable();
 		context.setThisVariable(this);
 
 		try {
@@ -290,8 +291,7 @@ public abstract class Variable {
 			}
 		} catch (BreakException ignored) {} // simple break
 
-		// Gdx.app.log("Variable", "Setting THIS variable to null");
-		context.setThisVariable(null);
+		context.setThisVariable(oldThis);
 	}
 
 	protected void set(Object value) {

@@ -76,7 +76,7 @@ public class ConditionVariable extends Variable {
 		});
 	}
 
-	private boolean check() {
+	protected boolean check() {
 		behaviourVariable.getMethod("RUN", Collections.singletonList("mixed"))
 				.execute(null);
 		Object checkResult = behaviourVariable.getContext().getReturnValue();
@@ -112,7 +112,8 @@ public class ConditionVariable extends Variable {
 	@Override
 	public void setAttribute(String name, Attribute attribute) {
 		List<String> knownAttributes = List.of("OPERAND1", "OPERAND2", "OPERATOR");
-		if(knownAttributes.contains(name)) {
+		List<String> knownAttributesComplex = List.of("CONDITION1", "CONDITION2");
+		if(knownAttributes.contains(name) || knownAttributesComplex.contains(name)) {
 			super.setAttribute(name, attribute);
 
 			if(getAttribute("OPERAND1") != null && getAttribute("OPERAND2") != null && getAttribute("OPERATOR") != null) {
