@@ -9,6 +9,7 @@ import pl.genschu.bloomooemulator.interpreter.exceptions.BreakException;
 import pl.genschu.bloomooemulator.interpreter.factories.VariableFactory;
 import pl.genschu.bloomooemulator.interpreter.variable.Variable;
 import pl.genschu.bloomooemulator.interpreter.variable.types.BehaviourVariable;
+import pl.genschu.bloomooemulator.interpreter.variable.types.BoolVariable;
 
 import java.util.Collections;
 
@@ -28,7 +29,8 @@ public class IfStatement extends Statement {
     @Override
     public void execute(Context context) {
         Object result;
-        if ((Boolean) (((ConstantExpression) condition.evaluate(context)).evaluate(context))) {
+        BoolVariable compareResult = (BoolVariable) ((ConstantExpression) condition.evaluate(context)).evaluate(context);
+        if (compareResult.GET()) {
             result = trueBranch.evaluate(context);
         } else if (falseBranch != null) {
             result = falseBranch.evaluate(context);

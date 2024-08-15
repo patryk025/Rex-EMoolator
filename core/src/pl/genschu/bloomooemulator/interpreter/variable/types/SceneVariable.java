@@ -56,8 +56,10 @@ public class SceneVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				// TODO: implement this method
-				throw new ClassMethodNotImplementedException("Method RESUME is not implemented yet");
+				if(music != null) {
+					music.play();
+				}
+				return null;
 			}
 		});
 		this.setMethod("RUN", new Method(

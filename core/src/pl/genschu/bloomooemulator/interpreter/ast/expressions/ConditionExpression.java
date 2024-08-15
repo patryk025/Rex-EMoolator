@@ -35,11 +35,11 @@ public class ConditionExpression extends Expression {
             }
         }
 
-        Object result = performOperation(leftValue, rightValue, operator).getValue();
+        Variable result = performOperation(leftValue, rightValue, operator);
 
         assert leftValue != null;
         assert rightValue != null;
-        Gdx.app.log("ConditionExpression", "DEBUG: " + leftValue.getValue() + " " + operator + " " + rightValue.getValue() + " = " + result);
+        Gdx.app.log("ConditionExpression", "DEBUG: " + leftValue.getValue() + " " + operator + " " + rightValue.getValue() + " = " + result.getValue());
         return new ConstantExpression(result);
     }
 

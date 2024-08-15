@@ -52,6 +52,9 @@ public class VariableHelper {
         else if(value instanceof StructExpression) {
             return (Variable) ((StructExpression) value).evaluate(context);
         }
+        else if(value instanceof ConditionExpression) {
+            return (Variable) ((ConstantExpression) ((ConditionExpression) value).evaluate(context)).evaluate(context);
+        }
         if (value instanceof String) {
             if(resolveString) {
                 return context.getVariable((String) value);
