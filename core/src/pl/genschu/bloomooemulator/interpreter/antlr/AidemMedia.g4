@@ -231,8 +231,8 @@ BOOLEAN
 	;
 
 LITERAL: {!(getText().toUpperCase().startsWith("TRUE") || getText().toUpperCase().startsWith("FALSE"))}?
-		((('_' | DOT | SLASH)* (LETTER | DIGIT | '_')) ('_' | LETTER | DIGIT | DOT | SLASH | '!' | '?')*)
-		| ('_'* DOT DIGIT+ ('.' DIGIT+)? (LETTER ('_' | DIGIT | SLASH | '!' | '?')* | '_'*))
+		((('_' | DOT | SLASH)* (LETTER | DIGIT | '_')) ('_' | LETTER | DIGIT | DOT | SLASH | '?')*)
+		| ('_'* DOT DIGIT+ ('.' DIGIT+)? (LETTER ('_' | DIGIT | SLASH | '?')* | '_'*))
 		((ADD | SUBTRACT | MULT | DIV | MOD) | NUMBER | VARREF)?
 		;
 

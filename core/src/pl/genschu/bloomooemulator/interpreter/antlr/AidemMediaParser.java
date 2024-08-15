@@ -144,14 +144,6 @@ public class AidemMediaParser extends Parser {
 		}
 		@Override public int getRuleIndex() { return RULE_ifInstr; }
 		@Override
-		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof AidemMediaListener ) ((AidemMediaListener)listener).enterIfInstr(this);
-		}
-		@Override
-		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof AidemMediaListener ) ((AidemMediaListener)listener).exitIfInstr(this);
-		}
-		@Override
 		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
 			if ( visitor instanceof AidemMediaVisitor ) return ((AidemMediaVisitor<? extends T>)visitor).visitIfInstr(this);
 			else return visitor.visitChildren(this);
@@ -255,14 +247,6 @@ public class AidemMediaParser extends Parser {
 		}
 		@Override public int getRuleIndex() { return RULE_loopInstr; }
 		@Override
-		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof AidemMediaListener ) ((AidemMediaListener)listener).enterLoopInstr(this);
-		}
-		@Override
-		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof AidemMediaListener ) ((AidemMediaListener)listener).exitLoopInstr(this);
-		}
-		@Override
 		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
 			if ( visitor instanceof AidemMediaVisitor ) return ((AidemMediaVisitor<? extends T>)visitor).visitLoopInstr(this);
 			else return visitor.visitChildren(this);
@@ -359,14 +343,6 @@ public class AidemMediaParser extends Parser {
 			super(parent, invokingState);
 		}
 		@Override public int getRuleIndex() { return RULE_whileInstr; }
-		@Override
-		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof AidemMediaListener ) ((AidemMediaListener)listener).enterWhileInstr(this);
-		}
-		@Override
-		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof AidemMediaListener ) ((AidemMediaListener)listener).exitWhileInstr(this);
-		}
 		@Override
 		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
 			if ( visitor instanceof AidemMediaVisitor ) return ((AidemMediaVisitor<? extends T>)visitor).visitWhileInstr(this);
@@ -493,14 +469,6 @@ public class AidemMediaParser extends Parser {
 			super(parent, invokingState);
 		}
 		@Override public int getRuleIndex() { return RULE_functionFire; }
-		@Override
-		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof AidemMediaListener ) ((AidemMediaListener)listener).enterFunctionFire(this);
-		}
-		@Override
-		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof AidemMediaListener ) ((AidemMediaListener)listener).exitFunctionFire(this);
-		}
 		@Override
 		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
 			if ( visitor instanceof AidemMediaVisitor ) return ((AidemMediaVisitor<? extends T>)visitor).visitFunctionFire(this);
@@ -703,14 +671,6 @@ public class AidemMediaParser extends Parser {
 		}
 		@Override public int getRuleIndex() { return RULE_codeBlock; }
 		@Override
-		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof AidemMediaListener ) ((AidemMediaListener)listener).enterCodeBlock(this);
-		}
-		@Override
-		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof AidemMediaListener ) ((AidemMediaListener)listener).exitCodeBlock(this);
-		}
-		@Override
 		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
 			if ( visitor instanceof AidemMediaVisitor ) return ((AidemMediaVisitor<? extends T>)visitor).visitCodeBlock(this);
 			else return visitor.visitChildren(this);
@@ -883,14 +843,6 @@ public class AidemMediaParser extends Parser {
 		}
 		@Override public int getRuleIndex() { return RULE_varWithNumber; }
 		@Override
-		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof AidemMediaListener ) ((AidemMediaListener)listener).enterVarWithNumber(this);
-		}
-		@Override
-		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof AidemMediaListener ) ((AidemMediaListener)listener).exitVarWithNumber(this);
-		}
-		@Override
 		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
 			if ( visitor instanceof AidemMediaVisitor ) return ((AidemMediaVisitor<? extends T>)visitor).visitVarWithNumber(this);
 			else return visitor.visitChildren(this);
@@ -936,14 +888,6 @@ public class AidemMediaParser extends Parser {
 			super(parent, invokingState);
 		}
 		@Override public int getRuleIndex() { return RULE_loopCodeParam; }
-		@Override
-		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof AidemMediaListener ) ((AidemMediaListener)listener).enterLoopCodeParam(this);
-		}
-		@Override
-		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof AidemMediaListener ) ((AidemMediaListener)listener).exitLoopCodeParam(this);
-		}
 		@Override
 		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
 			if ( visitor instanceof AidemMediaVisitor ) return ((AidemMediaVisitor<? extends T>)visitor).visitLoopCodeParam(this);
@@ -1017,14 +961,6 @@ public class AidemMediaParser extends Parser {
 		}
 		@Override public int getRuleIndex() { return RULE_conditionSimple; }
 		@Override
-		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof AidemMediaListener ) ((AidemMediaListener)listener).enterConditionSimple(this);
-		}
-		@Override
-		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof AidemMediaListener ) ((AidemMediaListener)listener).exitConditionSimple(this);
-		}
-		@Override
 		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
 			if ( visitor instanceof AidemMediaVisitor ) return ((AidemMediaVisitor<? extends T>)visitor).visitConditionSimple(this);
 			else return visitor.visitChildren(this);
@@ -1075,14 +1011,6 @@ public class AidemMediaParser extends Parser {
 			super(parent, invokingState);
 		}
 		@Override public int getRuleIndex() { return RULE_ifTrue; }
-		@Override
-		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof AidemMediaListener ) ((AidemMediaListener)listener).enterIfTrue(this);
-		}
-		@Override
-		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof AidemMediaListener ) ((AidemMediaListener)listener).exitIfTrue(this);
-		}
 		@Override
 		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
 			if ( visitor instanceof AidemMediaVisitor ) return ((AidemMediaVisitor<? extends T>)visitor).visitIfTrue(this);
@@ -1139,14 +1067,6 @@ public class AidemMediaParser extends Parser {
 		}
 		@Override public int getRuleIndex() { return RULE_ifFalse; }
 		@Override
-		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof AidemMediaListener ) ((AidemMediaListener)listener).enterIfFalse(this);
-		}
-		@Override
-		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof AidemMediaListener ) ((AidemMediaListener)listener).exitIfFalse(this);
-		}
-		@Override
 		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
 			if ( visitor instanceof AidemMediaVisitor ) return ((AidemMediaVisitor<? extends T>)visitor).visitIfFalse(this);
 			else return visitor.visitChildren(this);
@@ -1196,14 +1116,6 @@ public class AidemMediaParser extends Parser {
 			super(parent, invokingState);
 		}
 		@Override public int getRuleIndex() { return RULE_comment; }
-		@Override
-		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof AidemMediaListener ) ((AidemMediaListener)listener).enterComment(this);
-		}
-		@Override
-		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof AidemMediaListener ) ((AidemMediaListener)listener).exitComment(this);
-		}
 		@Override
 		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
 			if ( visitor instanceof AidemMediaVisitor ) return ((AidemMediaVisitor<? extends T>)visitor).visitComment(this);
@@ -1319,14 +1231,6 @@ public class AidemMediaParser extends Parser {
 			super(parent, invokingState);
 		}
 		@Override public int getRuleIndex() { return RULE_expression; }
-		@Override
-		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof AidemMediaListener ) ((AidemMediaListener)listener).enterExpression(this);
-		}
-		@Override
-		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof AidemMediaListener ) ((AidemMediaListener)listener).exitExpression(this);
-		}
 		@Override
 		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
 			if ( visitor instanceof AidemMediaVisitor ) return ((AidemMediaVisitor<? extends T>)visitor).visitExpression(this);
@@ -1545,14 +1449,6 @@ public class AidemMediaParser extends Parser {
 		}
 		@Override public int getRuleIndex() { return RULE_script; }
 		@Override
-		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof AidemMediaListener ) ((AidemMediaListener)listener).enterScript(this);
-		}
-		@Override
-		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof AidemMediaListener ) ((AidemMediaListener)listener).exitScript(this);
-		}
-		@Override
 		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
 			if ( visitor instanceof AidemMediaVisitor ) return ((AidemMediaVisitor<? extends T>)visitor).visitScript(this);
 			else return visitor.visitChildren(this);
@@ -1676,14 +1572,6 @@ public class AidemMediaParser extends Parser {
 			super(parent, invokingState);
 		}
 		@Override public int getRuleIndex() { return RULE_param; }
-		@Override
-		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof AidemMediaListener ) ((AidemMediaListener)listener).enterParam(this);
-		}
-		@Override
-		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof AidemMediaListener ) ((AidemMediaListener)listener).exitParam(this);
-		}
 		@Override
 		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
 			if ( visitor instanceof AidemMediaVisitor ) return ((AidemMediaVisitor<? extends T>)visitor).visitParam(this);
@@ -1827,14 +1715,6 @@ public class AidemMediaParser extends Parser {
 		}
 		@Override public int getRuleIndex() { return RULE_condition; }
 		@Override
-		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof AidemMediaListener ) ((AidemMediaListener)listener).enterCondition(this);
-		}
-		@Override
-		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof AidemMediaListener ) ((AidemMediaListener)listener).exitCondition(this);
-		}
-		@Override
 		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
 			if ( visitor instanceof AidemMediaVisitor ) return ((AidemMediaVisitor<? extends T>)visitor).visitCondition(this);
 			else return visitor.visitChildren(this);
@@ -1912,14 +1792,6 @@ public class AidemMediaParser extends Parser {
 		}
 		@Override public int getRuleIndex() { return RULE_conditionPart; }
 		@Override
-		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof AidemMediaListener ) ((AidemMediaListener)listener).enterConditionPart(this);
-		}
-		@Override
-		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof AidemMediaListener ) ((AidemMediaListener)listener).exitConditionPart(this);
-		}
-		@Override
 		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
 			if ( visitor instanceof AidemMediaVisitor ) return ((AidemMediaVisitor<? extends T>)visitor).visitConditionPart(this);
 			else return visitor.visitChildren(this);
@@ -1992,14 +1864,6 @@ public class AidemMediaParser extends Parser {
 			super(parent, invokingState);
 		}
 		@Override public int getRuleIndex() { return RULE_behFire; }
-		@Override
-		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof AidemMediaListener ) ((AidemMediaListener)listener).enterBehFire(this);
-		}
-		@Override
-		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof AidemMediaListener ) ((AidemMediaListener)listener).exitBehFire(this);
-		}
 		@Override
 		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
 			if ( visitor instanceof AidemMediaVisitor ) return ((AidemMediaVisitor<? extends T>)visitor).visitBehFire(this);
@@ -2081,14 +1945,6 @@ public class AidemMediaParser extends Parser {
 			super(parent, invokingState);
 		}
 		@Override public int getRuleIndex() { return RULE_modulo; }
-		@Override
-		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof AidemMediaListener ) ((AidemMediaListener)listener).enterModulo(this);
-		}
-		@Override
-		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof AidemMediaListener ) ((AidemMediaListener)listener).exitModulo(this);
-		}
 		@Override
 		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
 			if ( visitor instanceof AidemMediaVisitor ) return ((AidemMediaVisitor<? extends T>)visitor).visitModulo(this);
@@ -2251,14 +2107,6 @@ public class AidemMediaParser extends Parser {
 		}
 		@Override public int getRuleIndex() { return RULE_iterator; }
 		@Override
-		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof AidemMediaListener ) ((AidemMediaListener)listener).enterIterator(this);
-		}
-		@Override
-		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof AidemMediaListener ) ((AidemMediaListener)listener).exitIterator(this);
-		}
-		@Override
 		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
 			if ( visitor instanceof AidemMediaVisitor ) return ((AidemMediaVisitor<? extends T>)visitor).visitIterator(this);
 			else return visitor.visitChildren(this);
@@ -2378,14 +2226,6 @@ public class AidemMediaParser extends Parser {
 			super(parent, invokingState);
 		}
 		@Override public int getRuleIndex() { return RULE_string; }
-		@Override
-		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof AidemMediaListener ) ((AidemMediaListener)listener).enterString(this);
-		}
-		@Override
-		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof AidemMediaListener ) ((AidemMediaListener)listener).exitString(this);
-		}
 		@Override
 		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
 			if ( visitor instanceof AidemMediaVisitor ) return ((AidemMediaVisitor<? extends T>)visitor).visitString(this);
@@ -2603,14 +2443,6 @@ public class AidemMediaParser extends Parser {
 		}
 		@Override public int getRuleIndex() { return RULE_instr; }
 		@Override
-		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof AidemMediaListener ) ((AidemMediaListener)listener).enterInstr(this);
-		}
-		@Override
-		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof AidemMediaListener ) ((AidemMediaListener)listener).exitInstr(this);
-		}
-		@Override
 		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
 			if ( visitor instanceof AidemMediaVisitor ) return ((AidemMediaVisitor<? extends T>)visitor).visitInstr(this);
 			else return visitor.visitChildren(this);
@@ -2682,14 +2514,6 @@ public class AidemMediaParser extends Parser {
 		}
 		@Override public int getRuleIndex() { return RULE_stringRef; }
 		@Override
-		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof AidemMediaListener ) ((AidemMediaListener)listener).enterStringRef(this);
-		}
-		@Override
-		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof AidemMediaListener ) ((AidemMediaListener)listener).exitStringRef(this);
-		}
-		@Override
 		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
 			if ( visitor instanceof AidemMediaVisitor ) return ((AidemMediaVisitor<? extends T>)visitor).visitStringRef(this);
 			else return visitor.visitChildren(this);
@@ -2748,14 +2572,6 @@ public class AidemMediaParser extends Parser {
 		}
 		@Override public int getRuleIndex() { return RULE_struct; }
 		@Override
-		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof AidemMediaListener ) ((AidemMediaListener)listener).enterStruct(this);
-		}
-		@Override
-		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof AidemMediaListener ) ((AidemMediaListener)listener).exitStruct(this);
-		}
-		@Override
 		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
 			if ( visitor instanceof AidemMediaVisitor ) return ((AidemMediaVisitor<? extends T>)visitor).visitStruct(this);
 			else return visitor.visitChildren(this);
@@ -2799,14 +2615,6 @@ public class AidemMediaParser extends Parser {
 			super(parent, invokingState);
 		}
 		@Override public int getRuleIndex() { return RULE_variable; }
-		@Override
-		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof AidemMediaListener ) ((AidemMediaListener)listener).enterVariable(this);
-		}
-		@Override
-		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof AidemMediaListener ) ((AidemMediaListener)listener).exitVariable(this);
-		}
 		@Override
 		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
 			if ( visitor instanceof AidemMediaVisitor ) return ((AidemMediaVisitor<? extends T>)visitor).visitVariable(this);
@@ -2860,14 +2668,6 @@ public class AidemMediaParser extends Parser {
 		}
 		@Override public int getRuleIndex() { return RULE_number; }
 		@Override
-		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof AidemMediaListener ) ((AidemMediaListener)listener).enterNumber(this);
-		}
-		@Override
-		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof AidemMediaListener ) ((AidemMediaListener)listener).exitNumber(this);
-		}
-		@Override
 		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
 			if ( visitor instanceof AidemMediaVisitor ) return ((AidemMediaVisitor<? extends T>)visitor).visitNumber(this);
 			else return visitor.visitChildren(this);
@@ -2902,14 +2702,6 @@ public class AidemMediaParser extends Parser {
 		}
 		@Override public int getRuleIndex() { return RULE_floatNumber; }
 		@Override
-		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof AidemMediaListener ) ((AidemMediaListener)listener).enterFloatNumber(this);
-		}
-		@Override
-		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof AidemMediaListener ) ((AidemMediaListener)listener).exitFloatNumber(this);
-		}
-		@Override
 		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
 			if ( visitor instanceof AidemMediaVisitor ) return ((AidemMediaVisitor<? extends T>)visitor).visitFloatNumber(this);
 			else return visitor.visitChildren(this);
@@ -2943,14 +2735,6 @@ public class AidemMediaParser extends Parser {
 			super(parent, invokingState);
 		}
 		@Override public int getRuleIndex() { return RULE_literal; }
-		@Override
-		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof AidemMediaListener ) ((AidemMediaListener)listener).enterLiteral(this);
-		}
-		@Override
-		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof AidemMediaListener ) ((AidemMediaListener)listener).exitLiteral(this);
-		}
 		@Override
 		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
 			if ( visitor instanceof AidemMediaVisitor ) return ((AidemMediaVisitor<? extends T>)visitor).visitLiteral(this);
@@ -2991,14 +2775,6 @@ public class AidemMediaParser extends Parser {
 			super(parent, invokingState);
 		}
 		@Override public int getRuleIndex() { return RULE_arithmetic; }
-		@Override
-		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof AidemMediaListener ) ((AidemMediaListener)listener).enterArithmetic(this);
-		}
-		@Override
-		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof AidemMediaListener ) ((AidemMediaListener)listener).exitArithmetic(this);
-		}
 		@Override
 		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
 			if ( visitor instanceof AidemMediaVisitor ) return ((AidemMediaVisitor<? extends T>)visitor).visitArithmetic(this);
@@ -3043,14 +2819,6 @@ public class AidemMediaParser extends Parser {
 		}
 		@Override public int getRuleIndex() { return RULE_logic; }
 		@Override
-		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof AidemMediaListener ) ((AidemMediaListener)listener).enterLogic(this);
-		}
-		@Override
-		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof AidemMediaListener ) ((AidemMediaListener)listener).exitLogic(this);
-		}
-		@Override
 		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
 			if ( visitor instanceof AidemMediaVisitor ) return ((AidemMediaVisitor<? extends T>)visitor).visitLogic(this);
 			else return visitor.visitChildren(this);
@@ -3089,14 +2857,6 @@ public class AidemMediaParser extends Parser {
 			super(parent, invokingState);
 		}
 		@Override public int getRuleIndex() { return RULE_compare; }
-		@Override
-		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof AidemMediaListener ) ((AidemMediaListener)listener).enterCompare(this);
-		}
-		@Override
-		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof AidemMediaListener ) ((AidemMediaListener)listener).exitCompare(this);
-		}
 		@Override
 		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
 			if ( visitor instanceof AidemMediaVisitor ) return ((AidemMediaVisitor<? extends T>)visitor).visitCompare(this);
@@ -3140,14 +2900,6 @@ public class AidemMediaParser extends Parser {
 			super(parent, invokingState);
 		}
 		@Override public int getRuleIndex() { return RULE_bool; }
-		@Override
-		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof AidemMediaListener ) ((AidemMediaListener)listener).enterBool(this);
-		}
-		@Override
-		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof AidemMediaListener ) ((AidemMediaListener)listener).exitBool(this);
-		}
 		@Override
 		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
 			if ( visitor instanceof AidemMediaVisitor ) return ((AidemMediaVisitor<? extends T>)visitor).visitBool(this);
