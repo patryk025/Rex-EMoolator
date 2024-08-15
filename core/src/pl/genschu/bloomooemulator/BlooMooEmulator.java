@@ -33,6 +33,7 @@ import pl.genschu.bloomooemulator.interpreter.variable.types.*;
 import pl.genschu.bloomooemulator.loader.ImageLoader;
 import pl.genschu.bloomooemulator.logic.GameEntry;
 import pl.genschu.bloomooemulator.objects.*;
+import pl.genschu.bloomooemulator.utils.ArgumentsHelper;
 import pl.genschu.bloomooemulator.utils.CoordinatesHelper;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
@@ -244,6 +245,33 @@ public class BlooMooEmulator extends ApplicationAdapter {
 
             handleMouseInput(x, y, isPressed, justPressed, justReleased, mouseVariable);
 
+            try {
+                for (Variable variable : drawList) {
+                    Rectangle rect = getRect(variable);
+                    if (rect.contains(x, y)) {
+                        Image image = getImage(variable);
+                        int relativeX = x - rect.getXLeft();
+                        int relativeY = y - rect.getYTop();
+                        int alpha = 255;
+
+                        if (image.getImageTexture() != null) {
+                            TextureData textureData = image.getImageTexture().getTextureData();
+                            if (!textureData.isPrepared()) {
+                                textureData.prepare();
+                            }
+                            Pixmap pixmap = textureData.consumePixmap();
+                            int pixel = pixmap.getPixel(relativeX, relativeY);
+                            alpha = (pixel >> 24) & 0xff;
+                        }
+
+                        if (alpha > 0) {
+                            Gdx.app.log("GraphicsAt", variable.getName() + " at " + x + "," + y + " alpha: " + alpha);
+                            break;
+                        }
+                    }
+                }
+            } catch (NullPointerException ignored) {}
+
             prevPressed = isPressed;
 
             //batch.draw(cursorTexture, x - 25, VIRTUAL_HEIGHT - y - 25, 50, 50);
@@ -252,6 +280,32 @@ public class BlooMooEmulator extends ApplicationAdapter {
         batch.end();
 
         game.takeScreenshot();
+    }
+
+    private Rectangle getRect(Variable variable) {
+        if(variable instanceof ImageVariable) {
+            return ((ImageVariable) variable).getRect();
+        }
+        if(variable instanceof AnimoVariable) {
+            return ((AnimoVariable) variable).getRect();
+        }
+        if(variable instanceof SequenceVariable) {
+            return ((SequenceVariable) variable).getCurrentAnimo().getRect();
+        }
+        return null;
+    }
+
+    private Image getImage(Variable variable) {
+        if(variable instanceof ImageVariable) {
+            return ((ImageVariable) variable).getImage();
+        }
+        if(variable instanceof AnimoVariable) {
+            return ((AnimoVariable) variable).getCurrentImage();
+        }
+        if(variable instanceof SequenceVariable) {
+            return ((SequenceVariable) variable).getCurrentAnimo().getCurrentImage();
+        }
+        return null;
     }
 
     public void handleMouseInput(int x, int y, boolean isPressed, boolean justPressed, boolean justReleased, MouseVariable mouseVariable) {
@@ -340,6 +394,7 @@ public class BlooMooEmulator extends ApplicationAdapter {
 
     private List<Variable> getGraphicsVariables() {
         List<Variable> drawList = new ArrayList<>(context.getGraphicsVariables().values());
+        Gdx.app.log("Draw list before sort", getDrawListAsString(drawList));
         Comparator<Variable> comparator = (o1, o2) -> {
             Attribute priorityAttr1 = o1.getAttribute("PRIORITY");
             Attribute priorityAttr2 = o2.getAttribute("PRIORITY");
@@ -348,8 +403,44 @@ public class BlooMooEmulator extends ApplicationAdapter {
             return Integer.compare(priority1, priority2);
         };
         Collections.sort(drawList, comparator);
+        Gdx.app.log("Draw list after sort", getDrawListAsString(drawList));
         return drawList;
     }
+
+private String getDrawListAsString(List<Variable> drawList) {
+    StringBuilder sb = new StringBuilder();
+    for (Variable variable : drawList) {
+        boolean visible = false;
+        if (variable instanceof ImageVariable) {
+            visible = ((ImageVariable) variable).isVisible();
+        }
+        if (variable instanceof AnimoVariable) {
+            visible = ((AnimoVariable) variable).isVisible();
+        }
+        if (variable instanceof SequenceVariable) {
+            visible = ((SequenceVariable) variable).isVisible();
+        }
+        if (!visible) {
+            continue;
+        }
+
+        if (variable instanceof SequenceVariable) {
+            /*SequenceVariable seqVar = (SequenceVariable) variable;
+            if(seqVar.getCurrentEventName() != null) {
+                if (seqVar.getCurrentEventName().isEmpty()) {
+                    sb.append("__").append(seqVar.getName()).append("_ANIMO_");
+                }
+            }*/
+        } else {
+            sb.append(variable.getName());
+            sb.append(", ");
+        }
+    }
+    if (sb.length() > 2) {
+        sb.setLength(sb.length() - 2);
+    }
+    return sb.toString();
+}
 
 
     @Override

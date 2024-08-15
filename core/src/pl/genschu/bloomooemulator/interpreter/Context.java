@@ -6,10 +6,7 @@ import pl.genschu.bloomooemulator.interpreter.variable.types.KeyboardVariable;
 import pl.genschu.bloomooemulator.interpreter.variable.types.MouseVariable;
 import pl.genschu.bloomooemulator.objects.Game;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class Context {
     private Map<String, Variable> variables = new HashMap<>();
@@ -28,9 +25,9 @@ public class Context {
     public Context() {
         this.parentContext = null;
         this.game = null;
-        this.graphicsVariables = new HashMap<>();
-        this.buttonsVariables = new HashMap<>();
-        this.timerVariables = new HashMap<>();
+        this.graphicsVariables = new LinkedHashMap<>();
+        this.buttonsVariables = new LinkedHashMap<>();
+        this.timerVariables = new LinkedHashMap<>();
         this.mouseVariable = null;
         this.keyboardVariable = null;
     }
@@ -38,9 +35,9 @@ public class Context {
     public Context(Context parentContext, Game game) {
         this.parentContext = parentContext;
         this.game = game;
-        this.graphicsVariables = new HashMap<>();
-        this.buttonsVariables = new HashMap<>();
-        this.timerVariables = new HashMap<>();
+        this.graphicsVariables = new LinkedHashMap<>();
+        this.buttonsVariables = new LinkedHashMap<>();
+        this.timerVariables = new LinkedHashMap<>();
         this.mouseVariable = null;
         this.keyboardVariable = null;
     }
@@ -63,7 +60,7 @@ public class Context {
     }
 
     public Map<String, Variable> getGraphicsVariables() {
-        Map<String, Variable> result = new HashMap<>(graphicsVariables);
+        Map<String, Variable> result = new LinkedHashMap<>(graphicsVariables);
         if (parentContext != null) {
             result.putAll(parentContext.getGraphicsVariables());
         }
