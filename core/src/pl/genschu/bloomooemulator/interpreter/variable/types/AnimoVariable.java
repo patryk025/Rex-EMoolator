@@ -745,6 +745,11 @@ public class AnimoVariable extends Variable {
 		elapsedTime += deltaTime;
 		if (elapsedTime >= frameDuration) {
 			elapsedTime -= frameDuration;
+            
+            if(elapsedTime >= frameDuration) {
+                elapsedTime = 0; // only when engine is lagging, set elapsedTime to zero to eliminate animation fast forward
+            }
+            
 			currentFrameNumber += direction;
 
 			if (currentFrameNumber >= currentEvent.getFrames().size()) {
