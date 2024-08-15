@@ -82,13 +82,32 @@ public class CanvasObserverVariable extends Variable {
 				};
 				Collections.sort(drawList, comparator);
 
+				Collections.reverse(drawList);
+
 				for (Variable variable : drawList) {
+					boolean visible = false;
+					if (variable instanceof ImageVariable) {
+						visible = ((ImageVariable) variable).isVisible();
+					}
+					if (variable instanceof AnimoVariable) {
+						visible = ((AnimoVariable) variable).isVisible();
+					}
+					if (variable instanceof SequenceVariable) {
+						visible = ((SequenceVariable) variable).isVisible();
+					}
+					if (!visible) {
+						continue;
+					}
+
 					int z = variable.getAttribute("PRIORITY") != null ? Integer.parseInt(variable.getAttribute("PRIORITY").getValue().toString()) : 0;
 
 					if (z >= minZ && z <= maxZ) {
 						Rectangle rect = getRect(variable);
 						if (rect.contains(posX, posY)) {
 							if (useAlpha) {
+                                Gdx.app.log("CanvasObserver", "Debug - " + variable.getName() + " at (" + posX + "," + posY + ")");
+                                return new StringVariable("", variable.getName(), context);
+                            } else {
 								Image image = getImage(variable);
 								int relativeX = posX - rect.getXLeft();
 								int relativeY = posY - rect.getYTop();
@@ -105,16 +124,15 @@ public class CanvasObserverVariable extends Variable {
 								}
 
 								if (alpha > 0) {
+									Gdx.app.log("CanvasObserver", "Debug - "+variable.getName()+" at ("+posX+","+posY+")");
 									return new StringVariable("", variable.getName(), context);
 								}
-							} else {
-								return new StringVariable("", variable.getName(), context);
 							}
 						}
 					}
 				}
 
-				return new StringVariable("", "", context);
+				return new StringVariable("", "NULL", context);
 			}
 		});
 		this.setMethod("MOVEBKG", new Method(

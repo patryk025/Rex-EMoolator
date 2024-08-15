@@ -9,7 +9,7 @@ import pl.genschu.bloomooemulator.objects.Game;
 import java.util.*;
 
 public class Context {
-    private Map<String, Variable> variables = new HashMap<>();
+    private Map<String, Variable> variables = new LinkedHashMap<>();
     private Context parentContext;
     private Object returnValue;
     private Game game;

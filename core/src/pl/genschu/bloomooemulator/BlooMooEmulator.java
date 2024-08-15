@@ -3,6 +3,7 @@ import com.badlogic.gdx.Application;
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
+import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.*;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
@@ -246,7 +247,22 @@ public class BlooMooEmulator extends ApplicationAdapter {
             handleMouseInput(x, y, isPressed, justPressed, justReleased, mouseVariable);
 
             try {
+                Collections.reverse(drawList);
                 for (Variable variable : drawList) {
+                    boolean visible = false;
+                    if (variable instanceof ImageVariable) {
+                        visible = ((ImageVariable) variable).isVisible();
+                    }
+                    if (variable instanceof AnimoVariable) {
+                        visible = ((AnimoVariable) variable).isVisible();
+                    }
+                    if (variable instanceof SequenceVariable) {
+                        visible = ((SequenceVariable) variable).isVisible();
+                    }
+                    if (!visible) {
+                        continue;
+                    }
+
                     Rectangle rect = getRect(variable);
                     if (rect.contains(x, y)) {
                         Image image = getImage(variable);
@@ -280,6 +296,7 @@ public class BlooMooEmulator extends ApplicationAdapter {
         batch.end();
 
         game.takeScreenshot();
+        //dumpVariablesToLog();
     }
 
     private Rectangle getRect(Variable variable) {
@@ -456,6 +473,18 @@ private String getDrawListAsString(List<Variable> drawList) {
     public void dispose () {
         batch.dispose();
         game.dispose();
+    }
+
+    private void dumpVariablesToLog() {
+        FileHandle file = Gdx.files.local("log.txt");
+        List<Variable> variables = new ArrayList<>(context.getVariables().values());
+        //clear file
+        file.writeString("", false);
+        for (Variable variable : variables) {
+            if(variable instanceof StringVariable || variable instanceof DoubleVariable || variable instanceof IntegerVariable || variable instanceof BoolVariable) {
+                file.writeString(variable.getName() + "=" + variable.getValue() + "\n", true);
+            }
+        }
     }
     
     public Vector2 getCorrectedMouseCoords(int screenX, int screenY, int windowWidth, int windowHeight, int virtualWidth, int virtualHeight) {
