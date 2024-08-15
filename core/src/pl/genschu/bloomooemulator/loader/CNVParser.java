@@ -61,7 +61,7 @@ public class CNVParser {
     public void parseString(String string, Context context) throws IOException {
         BufferedReader reader = new BufferedReader(new StringReader(string));
         String line;
-        Map<String, Map<String, String>> objects = new HashMap<>();
+        Map<String, Map<String, String>> objects = new LinkedHashMap<>();
         String currentObjectName = null;
         Map<String, String> currentObject = null;
         

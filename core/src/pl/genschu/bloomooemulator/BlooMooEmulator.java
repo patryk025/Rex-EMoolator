@@ -433,6 +433,10 @@ private String getDrawListAsString(List<Variable> drawList) {
             }*/
         } else {
             sb.append(variable.getName());
+            Attribute priority = variable.getAttribute("PRIORITY");
+            if (priority != null) {
+                sb.append(" (").append(priority.getValue()).append(")");
+            }
             sb.append(", ");
         }
     }
