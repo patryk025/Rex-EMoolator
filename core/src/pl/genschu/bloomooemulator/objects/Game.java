@@ -213,7 +213,7 @@ public class Game {
 
                 runInit(currentEpisodeContext);
 
-                loadScene(episode.getFirstScene());
+                //loadScene(episode.getFirstScene());
 
             } catch (IOException e) {
                 throw new RuntimeException(e);
