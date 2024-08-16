@@ -174,11 +174,10 @@ public class Game {
                     }
                 }
             }
+            loadScene((SceneVariable) variable);
             if(variable.getName().equals(currentScene) && !firstLoading) {
                 runInit(currentSceneContext);
-                return;
             }
-            loadScene((SceneVariable) variable);
         }
     }
 
@@ -188,7 +187,7 @@ public class Game {
                 currentEpisodeContext = new Context();
                 currentEpisodeContext.setParentContext(currentApplicationContext);
                 Gdx.app.log("Game", "Episode " + episode.getName() + " doesn't have PATH attribute. Skipping...");
-                loadScene(episode.getFirstScene());
+                //loadScene(episode.getFirstScene());
                 return;
             }
             Gdx.app.log("Game", "Loading episode " + episode.getName());

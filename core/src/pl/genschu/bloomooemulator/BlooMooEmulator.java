@@ -165,6 +165,8 @@ public class BlooMooEmulator extends ApplicationAdapter {
                 }
             } else if(variable instanceof AnimoVariable) {
                 AnimoVariable animoVariable = (AnimoVariable) variable;
+                if(animoVariable.getName().equals("BUTELKA"))
+                    Gdx.app.log("DEBUG BUTELKA", "Current event: "+animoVariable.getCurrentEvent().getName() + ", isVisible: "+animoVariable.isVisible() + ", has image: "+(animoVariable.getCurrentImage()!=null));
                 if(animoVariable.isVisible()) {
                     try {
                         Image image = animoVariable.getCurrentImage();

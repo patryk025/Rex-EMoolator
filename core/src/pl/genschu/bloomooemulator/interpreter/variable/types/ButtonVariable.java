@@ -177,7 +177,7 @@ public class ButtonVariable extends Variable {
 	public Rectangle getRect() {
 		if(rect == null) {
 			if (getAttribute("GFXSTANDARD") != null) {
-				Gdx.app.log("ButtonVariable", "RECT is missing, but GFXSTANDARD is present: " + getAttribute("GFXSTANDARD").getValue());
+				Gdx.app.log("ButtonVariable", "Using GFXSTANDARD as RECT: " + getAttribute("GFXSTANDARD").getValue());
 				String gfx = getAttribute("GFXSTANDARD").getValue().toString();
 
 				gfxVariable = context.getVariable(gfx);
@@ -189,13 +189,13 @@ public class ButtonVariable extends Variable {
 				if (gfxVariable instanceof ImageVariable) {
 					ImageVariable imageVariable = (ImageVariable) gfxVariable;
 					rect = imageVariable.getRect();
-					imageVariable.getAttribute("VISIBLE").setValue(new Attribute("BOOL", "TRUE"));
-					imageVariable.getAttribute("TOCANVAS").setValue(new Attribute("BOOL", "TRUE"));
+					imageVariable.getAttribute("VISIBLE").setValue("TRUE");
+					imageVariable.getAttribute("TOCANVAS").setValue("TRUE");
 				} else if (gfxVariable instanceof AnimoVariable) {
 					AnimoVariable animoVariable = (AnimoVariable) gfxVariable;
 					rect = animoVariable.getRect();
-					animoVariable.getAttribute("VISIBLE").setValue(new Attribute("BOOL", "TRUE"));
-					animoVariable.getAttribute("TOCANVAS").setValue(new Attribute("BOOL", "TRUE"));
+					animoVariable.getAttribute("VISIBLE").setValue("TRUE");
+					animoVariable.getAttribute("TOCANVAS").setValue("TRUE");
 				}
 			}
 			else if(getAttribute("RECT") != null) {
