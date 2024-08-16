@@ -246,7 +246,7 @@ public class BlooMooEmulator extends ApplicationAdapter {
 
             handleMouseInput(x, y, isPressed, justPressed, justReleased, mouseVariable);
 
-            try {
+            /*try {
                 Collections.reverse(drawList);
                 for (Variable variable : drawList) {
                     boolean visible = false;
@@ -286,7 +286,7 @@ public class BlooMooEmulator extends ApplicationAdapter {
                         }
                     }
                 }
-            } catch (NullPointerException ignored) {}
+            } catch (NullPointerException ignored) {}*/
 
             prevPressed = isPressed;
 

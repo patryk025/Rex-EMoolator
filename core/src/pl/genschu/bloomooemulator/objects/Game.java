@@ -164,6 +164,7 @@ public class Game {
         if (variable instanceof EpisodeVariable) {
             loadEpisode((EpisodeVariable) variable);
         } else if (variable instanceof SceneVariable) {
+            boolean firstLoading = !currentScene.equals(name);
             if(currentEpisodeContext == null) {
                 // find episode name containing this scene
                 for(EpisodeVariable episode : applicationVariable.getEpisodes()) {
@@ -173,7 +174,8 @@ public class Game {
                     }
                 }
             }
-            if(variable.getName().equals(currentScene)) {
+            if(variable.getName().equals(currentScene) && !firstLoading) {
+                runInit(currentSceneContext);
                 return;
             }
             loadScene((SceneVariable) variable);

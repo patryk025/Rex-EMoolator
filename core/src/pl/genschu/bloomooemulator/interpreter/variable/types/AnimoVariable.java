@@ -678,6 +678,7 @@ public class AnimoVariable extends Variable {
 				currentImageNumber = currentEvent.getFramesNumbers().get(currentFrameNumber);
 				currentImage = currentEvent.getFrames().get(currentImageNumber);
 				updateRect();
+				isPlaying = false;
 
 				if(emitSignal) {
 					emitSignal("ONFINISHED", currentEvent.getName());
