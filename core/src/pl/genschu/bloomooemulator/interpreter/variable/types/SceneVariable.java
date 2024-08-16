@@ -209,12 +209,20 @@ public class SceneVariable extends Variable {
 				filePath = "$\\"+ filePath;
 			}
 			filePath = FileUtils.resolveRelativePath(this, filePath);
+
+			music = getContext().getGame().getMusicCache().get(filePath);
+			if(music != null) {
+				return music;
+			}
+
 			FileHandle soundFileHandle = Gdx.files.absolute(filePath);
 
 			music = Gdx.audio.newMusic(soundFileHandle);
 			if(music != null) {
 				music.setLooping(true);
 			}
+
+			getContext().getGame().getMusicCache().put(filePath, music);
 		}
 		return music;
 	}

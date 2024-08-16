@@ -16,10 +16,7 @@ import pl.genschu.bloomooemulator.logic.GameEntry;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
 import com.badlogic.gdx.Gdx;
 import pl.genschu.bloomooemulator.utils.FileUtils;
@@ -43,11 +40,15 @@ public class Game {
     private Context currentEpisodeContext;
     private Context currentSceneContext;
 
+    private Map<String, Music> musicCache;
+
     private Pixmap lastFrame;
 
     public Game(GameEntry game) {
         this.definitionContext = new Context();
         this.game = game;
+
+        musicCache = Collections.synchronizedMap(new HashMap<>());
 
         definitionContext.setGame(this);
 
@@ -230,7 +231,7 @@ public class Game {
 
             if(currentSceneVariable != null) {
                 Music music = currentSceneVariable.getMusic();
-                if(music != null && music.isPlaying()) {
+                if(music != null && music.isPlaying() && music != scene.getMusic()) {
                     music.stop();
                 }
             }
@@ -239,7 +240,7 @@ public class Game {
 
             cnvParser.parseFile(sceneFile, currentSceneContext);
 
-            if(scene.getMusic() != null) {
+            if(scene.getMusic() != null && !scene.getMusic().isPlaying()) {
                 scene.getMusic().play();
             }
 
@@ -393,5 +394,13 @@ public class Game {
 
     public void setLastFrame(Pixmap lastFrame) {
         this.lastFrame = lastFrame;
+    }
+
+    public Map<String, Music> getMusicCache() {
+        return musicCache;
+    }
+
+    public void setMusicCache(Map<String, Music> musicCache) {
+        this.musicCache = musicCache;
     }
 }
