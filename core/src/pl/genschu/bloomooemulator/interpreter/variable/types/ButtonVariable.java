@@ -20,6 +20,7 @@ public class ButtonVariable extends Variable {
 	private boolean wasPressed = false;
 
 	private Variable gfxOnMove;
+	private Variable gfxVariable;
 
 	public ButtonVariable(String name, Context context) {
 		super(name, context);
@@ -140,13 +141,17 @@ public class ButtonVariable extends Variable {
 
 	public void setFocused(boolean focused) {
 		isFocused = focused;
-		if(getAttribute("GFXONMOVE") == null) {
+		if(getAttribute("GFXONMOVE") == null || getAttribute("GFXSTANDARD") == null) {
 			return;
 		}
 		if(gfxOnMove == null) {
 			gfxOnMove = getContext().getVariable(getAttribute("GFXONMOVE").getValue().toString());
 		}
+		if(gfxVariable == null) {
+			gfxVariable = getContext().getVariable(getAttribute("GFXSTANDARD").getValue().toString());
+		}
 		gfxOnMove.setAttribute("VISIBLE", new Attribute("BOOL", focused ? "TRUE" : "FALSE"));
+		gfxVariable.setAttribute("VISIBLE", new Attribute("BOOL", !focused ? "TRUE" : "FALSE"));
 	}
 
 	public boolean isPressed() {
@@ -175,7 +180,7 @@ public class ButtonVariable extends Variable {
 				Gdx.app.log("ButtonVariable", "RECT is missing, but GFXSTANDARD is present: " + getAttribute("GFXSTANDARD").getValue());
 				String gfx = getAttribute("GFXSTANDARD").getValue().toString();
 
-				Variable gfxVariable = context.getVariable(gfx);
+				gfxVariable = context.getVariable(gfx);
 
 				if (gfxVariable == null) {
 					return null;
@@ -184,9 +189,13 @@ public class ButtonVariable extends Variable {
 				if (gfxVariable instanceof ImageVariable) {
 					ImageVariable imageVariable = (ImageVariable) gfxVariable;
 					rect = imageVariable.getRect();
+					imageVariable.getAttribute("VISIBLE").setValue(new Attribute("BOOL", "TRUE"));
+					imageVariable.getAttribute("TOCANVAS").setValue(new Attribute("BOOL", "TRUE"));
 				} else if (gfxVariable instanceof AnimoVariable) {
 					AnimoVariable animoVariable = (AnimoVariable) gfxVariable;
 					rect = animoVariable.getRect();
+					animoVariable.getAttribute("VISIBLE").setValue(new Attribute("BOOL", "TRUE"));
+					animoVariable.getAttribute("TOCANVAS").setValue(new Attribute("BOOL", "TRUE"));
 				}
 			}
 			else if(getAttribute("RECT") != null) {
