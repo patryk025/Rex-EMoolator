@@ -52,12 +52,19 @@ public class SEQParser {
         String currentObjectName = null;
         Map<String, String> properties = new HashMap<>();
 
+        String separator;
+
         while ((line = reader.readLine()) != null) {
-            if (line.startsWith("NAME =")) {
+            if(line.startsWith("#")) continue;
+
+            if(line.contains(" = ")) separator = " = ";
+            else separator = "=";
+
+            if (line.startsWith("NAME" + separator)) {
                 if (currentObjectName != null) {
                     createSequenceVariable(currentObjectName, properties, sequenceVariable);
                 }
-                currentObjectName = line.split("=")[1].trim();
+                currentObjectName = line.split(separator)[1].trim();
                 properties = new HashMap<>();
             } else {
                 String[] parts;

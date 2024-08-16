@@ -21,6 +21,9 @@ public class ButtonVariable extends Variable {
 
 	private Variable gfxOnMove;
 	private Variable gfxVariable;
+	private Variable gfxOnClick;
+
+	private Variable currentGfx;
 
 	public ButtonVariable(String name, Context context) {
 		super(name, context);
@@ -141,17 +144,44 @@ public class ButtonVariable extends Variable {
 
 	public void setFocused(boolean focused) {
 		isFocused = focused;
-		if(getAttribute("GFXONMOVE") == null || getAttribute("GFXSTANDARD") == null) {
-			return;
+
+		loadGfx();
+
+		if (focused) {
+			if (gfxOnMove != null) {
+				gfxOnMove.setAttribute("VISIBLE", new Attribute("BOOL", "TRUE"));
+				if (gfxVariable != null) {
+					gfxVariable.setAttribute("VISIBLE", new Attribute("BOOL", "FALSE"));
+				}
+				currentGfx = gfxOnMove;
+			}
+		} else {
+			if (gfxOnMove != null) {
+				gfxOnMove.setAttribute("VISIBLE", new Attribute("BOOL", "FALSE"));
+			}
+			if (gfxVariable != null) {
+				gfxVariable.setAttribute("VISIBLE", new Attribute("BOOL", "TRUE"));
+			}
+			currentGfx = gfxVariable;
 		}
-		if(gfxOnMove == null) {
-			gfxOnMove = getContext().getVariable(getAttribute("GFXONMOVE").getValue().toString());
+
+		if (gfxOnClick != null) {
+			gfxOnClick.setAttribute("VISIBLE", new Attribute("BOOL", "FALSE"));
 		}
-		if(gfxVariable == null) {
-			gfxVariable = getContext().getVariable(getAttribute("GFXSTANDARD").getValue().toString());
+	}
+
+	private void loadGfx() {
+		if(getAttribute("GFXSTANDARD") != null && gfxVariable == null) {
+			gfxVariable = context.getVariable(getAttribute("GFXSTANDARD").getValue().toString());
 		}
-		gfxOnMove.setAttribute("VISIBLE", new Attribute("BOOL", focused ? "TRUE" : "FALSE"));
-		gfxVariable.setAttribute("VISIBLE", new Attribute("BOOL", !focused ? "TRUE" : "FALSE"));
+
+		if(getAttribute("GFXONMOVE") != null && gfxOnMove == null) {
+			gfxOnMove = context.getVariable(getAttribute("GFXONMOVE").getValue().toString());
+		}
+
+		if(getAttribute("GFXONCLICK") != null && gfxOnClick == null) {
+			gfxOnClick = context.getVariable(getAttribute("GFXONCLICK").getValue().toString());
+		}
 	}
 
 	public boolean isPressed() {
@@ -168,7 +198,24 @@ public class ButtonVariable extends Variable {
 
 	public void setPressed(boolean pressed) {
 		isPressed = pressed;
+
+		loadGfx();
+
+		if (pressed && gfxOnClick != null) {
+			gfxOnClick.setAttribute("VISIBLE", new Attribute("BOOL", "TRUE"));
+			if (gfxVariable != null) {
+				gfxVariable.setAttribute("VISIBLE", new Attribute("BOOL", "FALSE"));
+			}
+			if (gfxOnMove != null) {
+				gfxOnMove.setAttribute("VISIBLE", new Attribute("BOOL", "FALSE"));
+			}
+
+			currentGfx = gfxOnClick;
+		} else {
+			setFocused(isFocused);
+		}
 	}
+
 
 	public boolean isEnabled() {
 		return getAttribute("ENABLE").getValue().toString().equals("TRUE");
@@ -178,9 +225,8 @@ public class ButtonVariable extends Variable {
 		if(rect == null) {
 			if (getAttribute("GFXSTANDARD") != null) {
 				Gdx.app.log("ButtonVariable", "Using GFXSTANDARD as RECT: " + getAttribute("GFXSTANDARD").getValue());
-				String gfx = getAttribute("GFXSTANDARD").getValue().toString();
 
-				gfxVariable = context.getVariable(gfx);
+				loadGfx();
 
 				if (gfxVariable == null) {
 					return null;
@@ -189,13 +235,9 @@ public class ButtonVariable extends Variable {
 				if (gfxVariable instanceof ImageVariable) {
 					ImageVariable imageVariable = (ImageVariable) gfxVariable;
 					rect = imageVariable.getRect();
-					imageVariable.getAttribute("VISIBLE").setValue("TRUE");
-					imageVariable.getAttribute("TOCANVAS").setValue("TRUE");
 				} else if (gfxVariable instanceof AnimoVariable) {
 					AnimoVariable animoVariable = (AnimoVariable) gfxVariable;
 					rect = animoVariable.getRect();
-					animoVariable.getAttribute("VISIBLE").setValue("TRUE");
-					animoVariable.getAttribute("TOCANVAS").setValue("TRUE");
 				}
 			}
 			else if(getAttribute("RECT") != null) {

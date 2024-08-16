@@ -120,6 +120,9 @@ public class BlooMooEmulator extends ApplicationAdapter {
             if(variable instanceof ImageVariable) {
                 ImageVariable imageVariable = (ImageVariable) variable;
                 Image image = imageVariable.getImage();
+                if(imageVariable.getName().equals("STRZALADO5"))
+                    Gdx.app.log("DEBUG STRZALADO5", "isVisible: "+imageVariable.isVisible() + ", has image: "+(image!=null));
+
                 if(imageVariable.isVisible()) {
 
                     batch.setColor(1, 1, 1, imageVariable.getOpacity());
@@ -165,8 +168,8 @@ public class BlooMooEmulator extends ApplicationAdapter {
                 }
             } else if(variable instanceof AnimoVariable) {
                 AnimoVariable animoVariable = (AnimoVariable) variable;
-                if(animoVariable.getName().equals("BUTELKA"))
-                    Gdx.app.log("DEBUG BUTELKA", "Current event: "+animoVariable.getCurrentEvent().getName() + ", isVisible: "+animoVariable.isVisible() + ", has image: "+(animoVariable.getCurrentImage()!=null));
+                //if(animoVariable.getName().equals("BUTELKA"))
+                //    Gdx.app.log("DEBUG BUTELKA", "Current event: "+animoVariable.getCurrentEvent().getName() + ", isVisible: "+animoVariable.isVisible() + ", has image: "+(animoVariable.getCurrentImage()!=null));
                 if(animoVariable.isVisible()) {
                     try {
                         Image image = animoVariable.getCurrentImage();
@@ -351,9 +354,11 @@ public class BlooMooEmulator extends ApplicationAdapter {
                 }
                 if (button == activeButton) {
                     if (isPressed) {
-                        triggerSignal(button, "GFXONCLICK");
+                        button.setPressed(true);
                     } else if (justReleased) {
                         triggerSignal(button, "ONRELEASED");
+                        button.setPressed(false);
+                        triggerSignal(button, "GFXONCLICK");
                         activeButton = null;
                     }
                 }
@@ -386,6 +391,8 @@ public class BlooMooEmulator extends ApplicationAdapter {
 
         if (justReleased && activeButton != null) {
             triggerSignal(activeButton, "ONRELEASED");
+            activeButton.setPressed(false);
+            triggerSignal(activeButton, "GFXONCLICK");
             activeButton = null;
         }
 
@@ -422,7 +429,7 @@ public class BlooMooEmulator extends ApplicationAdapter {
             return Integer.compare(priority1, priority2);
         };
         Collections.sort(drawList, comparator);
-        //Gdx.app.log("Draw list after sort", getDrawListAsString(drawList));
+        Gdx.app.log("Draw list after sort", getDrawListAsString(drawList));
         return drawList;
     }
 
