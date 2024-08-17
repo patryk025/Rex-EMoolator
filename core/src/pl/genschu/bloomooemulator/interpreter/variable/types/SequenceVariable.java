@@ -2,7 +2,6 @@ package pl.genschu.bloomooemulator.interpreter.variable.types;
 
 import com.badlogic.gdx.Gdx;
 import pl.genschu.bloomooemulator.interpreter.Context;
-import pl.genschu.bloomooemulator.interpreter.exceptions.ClassMethodNotImplementedException;
 import pl.genschu.bloomooemulator.interpreter.variable.*;
 import pl.genschu.bloomooemulator.loader.SEQParser;
 
@@ -109,14 +108,6 @@ public class SequenceVariable extends Variable {
 		}
 	}
 
-	public String getCurrentEventName() {
-		return currentEventName;
-	}
-
-	public void setCurrentEventName(String currentEventName) {
-		this.currentEventName = currentEventName;
-	}
-
 	public void setCurrentAnimo(AnimoVariable currentAnimo) {
 		this.currentAnimo = currentAnimo;
 	}
@@ -138,10 +129,6 @@ public class SequenceVariable extends Variable {
 		return isVisible;
 	}
 
-	public void setVisible(boolean visible) {
-		isVisible = visible;
-	}
-
 	@Override
 	public void setAttribute(String name, Attribute attribute) {
 		List<String> knownAttributes = List.of("FILENAME");
@@ -158,18 +145,14 @@ public class SequenceVariable extends Variable {
 		return eventMap;
 	}
 
-	public void setEventMap(Map<String, SequenceEvent> eventMap) {
-		this.eventMap = eventMap;
-	}
-
 	public Map<String, AnimoVariable> getAnimoCache() {
 		return animoCache;
 	}
 
-	public class SequenceEvent extends SequenceVariable{
+	public static class SequenceEvent extends SequenceVariable{
 		protected final SequenceVariable parent;
-		private String mode;
-		private Queue<SequenceEvent> eventQueue;
+		private final String mode;
+		private final Queue<SequenceEvent> eventQueue;
 
 		public SequenceEvent(String name, SequenceVariable parent, String mode) {
 			super(name, parent.getContext());
@@ -355,7 +338,7 @@ public class SequenceVariable extends Variable {
 						}
 					});
                     try {
-					    playSound(parent, onMainFinished);
+					    playSound(onMainFinished);
                     } catch(Exception e) {
                         Gdx.app.error("SpeakingEvent", "Error on sound playing: "+e.getMessage(), e);
                         onMainFinished.execute(null);
@@ -376,7 +359,7 @@ public class SequenceVariable extends Variable {
 					}
                 });
                 try {
-					playSound(parent, onMainFinished);
+					playSound(onMainFinished);
                 } catch(Exception e) {
                     Gdx.app.error("SpeakingEvent", "Error on sound playing: "+e.getMessage(), e);
                     onMainFinished.execute(null);
@@ -394,7 +377,7 @@ public class SequenceVariable extends Variable {
 			parent.setCurrentAnimo(animoVariable);
 		}
 
-		private void playSound(SequenceVariable parent, Signal onFinished) {
+		private void playSound(Signal onFinished) {
 			this.soundVariable.getMethod("PLAY", Collections.emptyList()).execute(Collections.emptyList());
 			this.soundVariable.setSignal("ONFINISHED", onFinished);
 		}

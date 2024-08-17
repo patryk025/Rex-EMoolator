@@ -2,9 +2,6 @@ package pl.genschu.bloomooemulator.loader;
 
 import com.badlogic.gdx.Gdx;
 import pl.genschu.bloomooemulator.encoding.ScriptDecypher;
-import pl.genschu.bloomooemulator.interpreter.Context;
-import pl.genschu.bloomooemulator.interpreter.variable.Signal;
-import pl.genschu.bloomooemulator.interpreter.variable.Variable;
 import pl.genschu.bloomooemulator.interpreter.variable.types.SequenceVariable;
 import pl.genschu.bloomooemulator.utils.FileUtils;
 
@@ -92,7 +89,7 @@ public class SEQParser {
 
         switch (type) {
             case "SEQUENCE":
-                event = sequenceVariable.new SequenceEvent(objectName, sequenceVariable, properties.get(objectName + ":MODE"));
+                event = new SequenceVariable.SequenceEvent(objectName, sequenceVariable, properties.get(objectName + ":MODE"));
                 break;
             case "SPEAKING":
                 animoFile = properties.get(objectName + ":ANIMOFN");
