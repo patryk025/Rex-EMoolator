@@ -105,15 +105,6 @@ public class SequenceVariable extends Variable {
 			currentAnimo.updateAnimation(deltaTime);
 			if (!currentAnimo.isPlaying()) {
 				isPlaying = false;
-				emitSignal("ONFINISHED", currentEventName);
-				for(AnimoVariable animoCache : animoCache.values()) {
-					animoCache.setPlaying(false);
-					try {
-						getAttribute("VISIBLE").setValue("FALSE");
-					} catch (NullPointerException e) {
-						setAttribute("VISIBLE", new Attribute("BOOL", "FALSE"));
-					}
-				}
 			}
 		}
 	}

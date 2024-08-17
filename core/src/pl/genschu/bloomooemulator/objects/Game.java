@@ -164,22 +164,26 @@ public class Game {
         if (variable instanceof EpisodeVariable) {
             loadEpisode((EpisodeVariable) variable);
         } else if (variable instanceof SceneVariable) {
-            boolean firstLoading = !currentScene.equals(name);
-            if(currentEpisodeContext == null) {
-                // find episode name containing this scene
-                for(EpisodeVariable episode : applicationVariable.getEpisodes()) {
-                    if(episode.getScenes().contains((SceneVariable) variable)) {
+            boolean isNewScene = !currentScene.equals(name);
+
+            if (currentEpisodeContext == null) {
+                for (EpisodeVariable episode : applicationVariable.getEpisodes()) {
+                    if (episode.getScenes().contains((SceneVariable) variable)) {
                         loadEpisode(episode);
                         break;
                     }
                 }
             }
-            loadScene((SceneVariable) variable);
-            if(variable.getName().equals(currentScene) && !firstLoading) {
+
+            if (isNewScene) {
+                loadScene((SceneVariable) variable);
+            } else {
+                Gdx.app.log("Game", "Scene " + name + " already loaded. Skipping...");
                 runInit(currentSceneContext);
             }
         }
     }
+
 
     private void loadEpisode(EpisodeVariable episode) {
         if (!Objects.equals(currentEpisode, episode.getName())) {
