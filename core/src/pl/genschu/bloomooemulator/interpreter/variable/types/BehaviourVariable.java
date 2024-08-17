@@ -91,7 +91,7 @@ public class BehaviourVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				Variable conditionResult = new BoolVariable("", false, context);
+				Variable conditionResult = new BoolVariable("", true, context);
 
 				if(condition != null) {
 					conditionResult = condition.fireMethod("CHECK", new BoolVariable("", true, context));
@@ -115,7 +115,7 @@ public class BehaviourVariable extends Variable {
 						}
 					}
 					else {
-						Gdx.app.error("BehaviourVariable", "Condition variable not set in behaviour " + getName() + ". Assume false?");
+						Gdx.app.error("BehaviourVariable", "Condition variable not set in behaviour " + getName() + ". Assume true?");
 					}
 				}
 

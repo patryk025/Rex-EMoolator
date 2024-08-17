@@ -56,6 +56,7 @@ public class CNVParser {
             Gdx.app.error("CNVParser", "File not found: " + plik.getName());
         }
         assignSignals(context);
+        runOnInitOnVariables(context);
     }
 
     public void parseString(String string, Context context) throws IOException {
@@ -164,6 +165,11 @@ public class CNVParser {
                     }
                 });
             }
+        }
+    }
+
+    private void runOnInitOnVariables(Context context) {
+        for(Variable variable : context.getVariables().values()) {
             variable.emitSignal("ONINIT");
         }
     }

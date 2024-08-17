@@ -8,6 +8,7 @@ import pl.genschu.bloomooemulator.interpreter.variable.Attribute;
 import pl.genschu.bloomooemulator.interpreter.variable.Method;
 import pl.genschu.bloomooemulator.interpreter.variable.Parameter;
 import pl.genschu.bloomooemulator.interpreter.variable.Variable;
+import pl.genschu.bloomooemulator.utils.ArgumentsHelper;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -83,8 +84,15 @@ public class GroupVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				// TODO: implement this method
-				throw new ClassMethodNotImplementedException("Method REMOVE is not implemented yet");
+				String varName = ArgumentsHelper.getString(arguments.get(0));
+
+				for(Variable variable : variables) {
+					if(variable.getName().equals(varName)) {
+						variables.remove(variable);
+						return null;
+					}
+				}
+				return null;
 			}
 		});
 		this.setMethod("REMOVEALL", new Method(
@@ -92,8 +100,8 @@ public class GroupVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				// TODO: implement this method
-				throw new ClassMethodNotImplementedException("Method REMOVEALL is not implemented yet");
+				variables.clear();
+				return null;
 			}
 		});
 		this.setMethod("RESETMARKER", new Method(

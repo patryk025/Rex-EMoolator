@@ -7,7 +7,6 @@ import pl.genschu.bloomooemulator.interpreter.variable.Attribute;
 import pl.genschu.bloomooemulator.interpreter.variable.Method;
 import pl.genschu.bloomooemulator.interpreter.variable.Parameter;
 import pl.genschu.bloomooemulator.interpreter.variable.Variable;
-import pl.genschu.bloomooemulator.objects.Image;
 import pl.genschu.bloomooemulator.objects.Rectangle;
 import pl.genschu.bloomooemulator.utils.ArgumentsHelper;
 
@@ -18,6 +17,8 @@ public class ButtonVariable extends Variable {
 	private boolean isFocused = false;
 	private boolean isPressed = false;
 	private boolean wasPressed = false;
+
+	private Variable rectVariable;
 
 	private Variable gfxOnMove;
 	private Variable gfxVariable;
@@ -94,6 +95,7 @@ public class ButtonVariable extends Variable {
 					else {
 						rect = ((ImageVariable) variable).getRect();
 					}
+					rectVariable = variable;
 					return null;
 				}
 
@@ -116,6 +118,7 @@ public class ButtonVariable extends Variable {
 				int xRight = ((IntegerVariable) arguments.get(2)).GET();
 				int yTop = ((IntegerVariable) arguments.get(3)).GET();
 				rect = new Rectangle(xLeft, yBottom, xRight, yTop);
+				rectVariable = null;
 				return null;
 			}
 		});
@@ -145,7 +148,7 @@ public class ButtonVariable extends Variable {
 	public void setFocused(boolean focused) {
 		isFocused = focused;
 
-		loadGfx();
+		loadImages();
 
 		if (focused) {
 			if (gfxOnMove != null) {
@@ -170,7 +173,12 @@ public class ButtonVariable extends Variable {
 		}
 	}
 
-	private void loadGfx() {
+	private void loadImages() {
+		if(getAttribute("RECT") != null && rectVariable == null) {
+			if(!getAttribute("RECT").toString().contains(",")) {
+				rectVariable = context.getVariable(getAttribute("RECT").getValue().toString());
+			}
+		}
 		if(getAttribute("GFXSTANDARD") != null && gfxVariable == null) {
 			gfxVariable = context.getVariable(getAttribute("GFXSTANDARD").getValue().toString());
 		}
@@ -199,7 +207,7 @@ public class ButtonVariable extends Variable {
 	public void setPressed(boolean pressed) {
 		isPressed = pressed;
 
-		loadGfx();
+		loadImages();
 
 		if (pressed && gfxOnClick != null) {
 			gfxOnClick.setAttribute("VISIBLE", new Attribute("BOOL", "TRUE"));
@@ -226,7 +234,7 @@ public class ButtonVariable extends Variable {
 			if (getAttribute("GFXSTANDARD") != null) {
 				Gdx.app.log("ButtonVariable", "Using GFXSTANDARD as RECT: " + getAttribute("GFXSTANDARD").getValue());
 
-				loadGfx();
+				loadImages();
 
 				if (gfxVariable == null) {
 					return null;

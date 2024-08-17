@@ -120,8 +120,6 @@ public class BlooMooEmulator extends ApplicationAdapter {
             if(variable instanceof ImageVariable) {
                 ImageVariable imageVariable = (ImageVariable) variable;
                 Image image = imageVariable.getImage();
-                if(imageVariable.getName().equals("STRZALADO5"))
-                    Gdx.app.log("DEBUG STRZALADO5", "isVisible: "+imageVariable.isVisible() + ", has image: "+(image!=null));
 
                 if(imageVariable.isVisible()) {
 
@@ -332,7 +330,8 @@ public class BlooMooEmulator extends ApplicationAdapter {
 
     public void handleMouseInput(int x, int y, boolean isPressed, boolean justPressed, boolean justReleased, MouseVariable mouseVariable) {
         //Gdx.app.log("Mouse", "x: " + x + " y: " + y);
-        for (Variable variable : new ArrayList<>(context.getButtonsVariables().values())) {
+        List<Variable> buttons = new ArrayList<>(context.getButtonsVariables().values());
+        for (Variable variable : buttons) {
             ButtonVariable button = (ButtonVariable) variable;
 
             if(!button.isEnabled()) continue;
