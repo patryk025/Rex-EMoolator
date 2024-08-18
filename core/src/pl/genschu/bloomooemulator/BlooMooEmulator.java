@@ -295,7 +295,7 @@ public class BlooMooEmulator extends ApplicationAdapter {
 
             //batch.draw(cursorTexture, x - 25, VIRTUAL_HEIGHT - y - 25, 50, 50);
         }
-        
+
         batch.end();
 
         game.takeScreenshot();
@@ -333,6 +333,11 @@ public class BlooMooEmulator extends ApplicationAdapter {
         List<Variable> buttons = new ArrayList<>(context.getButtonsVariables().values());
         for (Variable variable : buttons) {
             ButtonVariable button = (ButtonVariable) variable;
+
+            if(!button.isVisible()) {
+                Gdx.app.log("BlooMooEmulator", button.getName() + " is not visible, hiding images");
+                button.hideImages();
+            }
 
             if(!button.isEnabled()) continue;
 
@@ -428,7 +433,7 @@ public class BlooMooEmulator extends ApplicationAdapter {
             return Integer.compare(priority1, priority2);
         };
         Collections.sort(drawList, comparator);
-        //Gdx.app.log("Draw list after sort", getDrawListAsString(drawList));
+        Gdx.app.log("Draw list after sort", getDrawListAsString(drawList));
         return drawList;
     }
 

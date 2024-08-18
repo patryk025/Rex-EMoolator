@@ -17,6 +17,8 @@ public class ButtonVariable extends Variable {
 	private boolean isFocused = false;
 	private boolean isPressed = false;
 	private boolean wasPressed = false;
+	private boolean isVisible = true;
+	private boolean isEnabled = true;
 
 	private Variable rectVariable;
 
@@ -36,6 +38,8 @@ public class ButtonVariable extends Variable {
 			public Variable execute(List<Object> arguments) {
 				setAttribute("ENABLE", new Attribute("BOOL", "FALSE"));
 				setAttribute("VISIBLE", new Attribute("BOOL", "FALSE"));
+				isEnabled = false;
+				isVisible = false;
 				return null;
 			}
 		});
@@ -46,6 +50,8 @@ public class ButtonVariable extends Variable {
 			public Variable execute(List<Object> arguments) {
 				setAttribute("ENABLE", new Attribute("BOOL", "FALSE"));
 				setAttribute("VISIBLE", new Attribute("BOOL", "TRUE"));
+				isEnabled = false;
+				isVisible = true;
 				return null;
 			}
 		});
@@ -56,6 +62,8 @@ public class ButtonVariable extends Variable {
 			public Variable execute(List<Object> arguments) {
 				setAttribute("ENABLE", new Attribute("BOOL", "TRUE"));
 				setAttribute("VISIBLE", new Attribute("BOOL", "TRUE"));
+				isEnabled = true;
+				isVisible = true;
 				return null;
 			}
 		});
@@ -150,26 +158,28 @@ public class ButtonVariable extends Variable {
 
 		loadImages();
 
-		if (focused) {
-			if (gfxOnMove != null) {
-				gfxOnMove.setAttribute("VISIBLE", new Attribute("BOOL", "TRUE"));
-				if (gfxVariable != null) {
-					gfxVariable.setAttribute("VISIBLE", new Attribute("BOOL", "FALSE"));
+		if(isVisible) {
+			if (focused) {
+				if (gfxOnMove != null) {
+					gfxOnMove.setAttribute("VISIBLE", new Attribute("BOOL", "TRUE"));
+					if (gfxVariable != null) {
+						gfxVariable.setAttribute("VISIBLE", new Attribute("BOOL", "FALSE"));
+					}
+					currentGfx = gfxOnMove;
 				}
-				currentGfx = gfxOnMove;
+			} else {
+				if (gfxOnMove != null) {
+					gfxOnMove.setAttribute("VISIBLE", new Attribute("BOOL", "FALSE"));
+				}
+				if (gfxVariable != null) {
+					gfxVariable.setAttribute("VISIBLE", new Attribute("BOOL", "TRUE"));
+				}
+				currentGfx = gfxVariable;
 			}
-		} else {
-			if (gfxOnMove != null) {
-				gfxOnMove.setAttribute("VISIBLE", new Attribute("BOOL", "FALSE"));
-			}
-			if (gfxVariable != null) {
-				gfxVariable.setAttribute("VISIBLE", new Attribute("BOOL", "TRUE"));
-			}
-			currentGfx = gfxVariable;
-		}
 
-		if (gfxOnClick != null) {
-			gfxOnClick.setAttribute("VISIBLE", new Attribute("BOOL", "FALSE"));
+			if (gfxOnClick != null) {
+				gfxOnClick.setAttribute("VISIBLE", new Attribute("BOOL", "FALSE"));
+			}
 		}
 	}
 
@@ -209,24 +219,47 @@ public class ButtonVariable extends Variable {
 
 		loadImages();
 
-		if (pressed && gfxOnClick != null) {
-			gfxOnClick.setAttribute("VISIBLE", new Attribute("BOOL", "TRUE"));
-			if (gfxVariable != null) {
-				gfxVariable.setAttribute("VISIBLE", new Attribute("BOOL", "FALSE"));
-			}
-			if (gfxOnMove != null) {
-				gfxOnMove.setAttribute("VISIBLE", new Attribute("BOOL", "FALSE"));
-			}
+		if(isVisible) {
+			if (pressed && gfxOnClick != null) {
+				gfxOnClick.setAttribute("VISIBLE", new Attribute("BOOL", "TRUE"));
+				if (gfxVariable != null) {
+					gfxVariable.setAttribute("VISIBLE", new Attribute("BOOL", "FALSE"));
+				}
+				if (gfxOnMove != null) {
+					gfxOnMove.setAttribute("VISIBLE", new Attribute("BOOL", "FALSE"));
+				}
 
-			currentGfx = gfxOnClick;
-		} else {
-			setFocused(isFocused);
+				currentGfx = gfxOnClick;
+			} else {
+				setFocused(isFocused);
+			}
 		}
 	}
 
 
 	public boolean isEnabled() {
-		return getAttribute("ENABLE").getValue().toString().equals("TRUE");
+		return isEnabled;
+	}
+
+	public boolean isVisible() {
+		return isVisible;
+	}
+
+	public void hideImages() {
+		loadImages();
+
+		if(gfxVariable != null) {
+			gfxVariable.setAttribute("VISIBLE", new Attribute("BOOL", "FALSE"));
+		}
+		if(gfxOnMove != null) {
+			gfxOnMove.setAttribute("VISIBLE", new Attribute("BOOL", "FALSE"));
+		}
+		if(gfxOnClick != null) {
+			gfxOnClick.setAttribute("VISIBLE", new Attribute("BOOL", "FALSE"));
+		}
+		if(rectVariable != null) {
+			rectVariable.setAttribute("VISIBLE", new Attribute("BOOL", "FALSE"));
+		}
 	}
 
 	public Rectangle getRect() {
@@ -274,7 +307,13 @@ public class ButtonVariable extends Variable {
 		List<String> knownAttributes = List.of("DRAGGABLE", "ENABLE", "GFXONCLICK", "GFXONMOVE", "GFXSTANDARD", "RECT", "SNDONMOVE", "VISIBLE");
 		if (knownAttributes.contains(name)) {
 			super.setAttribute(name, attribute);
-			if(name.equals("RECT")) {
+			if(name.equals("ENABLE")) {
+				isEnabled = attribute.getValue().toString().equals("TRUE");
+			}
+			else if(name.equals("VISIBLE")) {
+				isVisible = attribute.getValue().toString().equals("TRUE");
+			}
+			else if(name.equals("RECT")) {
 				String rectRaw = getAttribute("RECT").getValue().toString();
 				if(rectRaw.contains(",")) {
 					String[] rectSplit = rectRaw.split(",");
