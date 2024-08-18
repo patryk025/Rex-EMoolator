@@ -244,19 +244,12 @@ public class SequenceVariable extends Variable {
 		public void play(SequenceVariable parent) {
 			Gdx.app.log("SimpleEvent", "Playing event " + event);
 			this.animoVariable.getMethod("PLAY", Collections.singletonList("STRING")).execute(List.of(event));
-			Signal oldGenericSignal = this.animoVariable.getSignal("ONFINISHED");
-			Signal oldSignal = this.animoVariable.getSignal("ONFINISHED^"+event);
 
-			this.animoVariable.setSignal("ONFINISHED^" + event, new Signal() {
+			this.animoVariable.setSignal("ONFINISHED__SEQ^" + event, new Signal() { // setting generic event (non existent in original engine)
 				@Override
 				public void execute(Object argument) {
 					emitSignal("ONFINISHED", SimpleEvent.this.getName());
 					parent.emitSignal("ONFINISHED", SimpleEvent.this.getName());
-                    if(oldSignal != null) oldSignal.execute(argument);
-					else if(oldGenericSignal != null) oldGenericSignal.execute(argument);
-                        
-                    SimpleEvent.this.animoVariable.removeSignal("ONFINISHED^" + event);
-                    if(oldSignal != null) SimpleEvent.this.animoVariable.setSignal("ONFINISHED^" + event, oldSignal);
 				}
 			});
 			parent.setPlaying(true);
@@ -298,8 +291,6 @@ public class SequenceVariable extends Variable {
 
 		@Override
 		public void play(SequenceVariable parent) {
-            // TODO: preserve and restore on end ONFINISHED events in ANIMO
-
 			final int[] animoNumber = {1};
             
 			Signal onMainFinished = new Signal() {
@@ -352,7 +343,7 @@ public class SequenceVariable extends Variable {
 				playAnimation(parent, prefix + "_" + animoNumber[0], new Signal() {
                     @Override
 				    public void execute(Object argument) {
-						if(currentAnimo.hasEvent(prefix + "_" + (++animoNumber[0]))) {
+						if(!currentAnimo.hasEvent(prefix + "_" + (++animoNumber[0]))) {
 							animoNumber[0] = 1;
 						}
 						playAnimation(parent, prefix + "_" + animoNumber[0], this);
@@ -372,7 +363,7 @@ public class SequenceVariable extends Variable {
 			Gdx.app.log("SpeakingEvent", "Playing animation " + event);
 			StringVariable prefixVar = new StringVariable("", event, parent.getContext());
 			this.animoVariable.getMethod("PLAY", Collections.singletonList("STRING")).execute(List.of(prefixVar));
-			this.animoVariable.setSignal("ONFINISHED^" + event, onFinished);
+			this.animoVariable.setSignal("ONFINISHED__SEQ^" + event, onFinished);
 			parent.setPlaying(true);
 			parent.setCurrentAnimo(animoVariable);
 		}

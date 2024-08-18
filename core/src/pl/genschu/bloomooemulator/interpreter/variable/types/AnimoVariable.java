@@ -682,6 +682,7 @@ public class AnimoVariable extends Variable {
 
 				if(emitSignal) {
 					emitSignal("ONFINISHED", currentEvent.getName());
+					emitSignal("ONFINISHED__SEQ^" + currentEvent.getName()); // emit generic signal for sequence
 				}
 				return null;
 			}
@@ -761,6 +762,7 @@ public class AnimoVariable extends Variable {
 				if(currentEvent.getLoopBy() == 0) { // TODO: check, how this value works
 					isPlaying = false;
 					emitSignal("ONFINISHED", currentEvent.getName());
+					emitSignal("ONFINISHED__SEQ^" + currentEvent.getName()); // emit generic signal for sequence
 				}
 				else {
 					currentFrameNumber = 0;
