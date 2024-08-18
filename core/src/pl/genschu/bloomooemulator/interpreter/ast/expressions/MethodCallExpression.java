@@ -21,7 +21,7 @@ public class MethodCallExpression extends Expression {
 
     @Override
     public Object evaluate(Context context) {
-        Variable targetVariable = getVariableFromObject(this.targetVariable, context);
+        Variable targetVariable = getVariableFromObject(this.targetVariable, context, true);
         if (targetVariable == null) {
             throw new RuntimeException("Method call target must be a variable");
         }

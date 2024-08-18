@@ -21,12 +21,16 @@ public class PointerExpression extends Expression {
             throw new RuntimeException("Dereferenced value must be a string: " + result);
         }
         Variable targetVariableNameValue = context.getVariable((String) result);
-        String targetVariableName = targetVariableNameValue.getValue().toString();
-        Variable targetVariable = context.getVariable(targetVariableName);
-        if (targetVariable == null) {
-            throw new RuntimeException("Variable not defined: " + targetVariableName);
+        try {
+            String targetVariableName = targetVariableNameValue.getValue().toString();
+            Variable targetVariable = context.getVariable(targetVariableName);
+            if (targetVariable == null) {
+                throw new RuntimeException("Variable not defined: " + targetVariableName);
+            }
+            return targetVariableName;
+        } catch (NullPointerException e) {
+            return result;
         }
-        return targetVariableName;
     }
 }
 

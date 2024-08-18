@@ -46,7 +46,7 @@ public class ASTBuilderVisitor extends AidemMediaBaseVisitor<Node> {
 
         Expression targetExpression;
         if (ctx.literal() != null && ctx.literal().size() == 2) {
-            targetExpression = new VariableExpression(ctx.literal(0).getText());
+            targetExpression = (Expression) visitLiteral(ctx.literal(0));
         } else if (ctx.iterator() != null) {
             targetExpression = new VariableExpression("_I_");
         } else if (ctx.stringRef() != null) {
@@ -88,7 +88,7 @@ public class ASTBuilderVisitor extends AidemMediaBaseVisitor<Node> {
     public Node visitLiteral(AidemMediaParser.LiteralContext ctx) {
         if(!ctx.variable().isEmpty()) {
             List<Expression> operands = new ArrayList<>();
-            for (int i = 1; i < ctx.getChildCount()-1; i++) {
+            for (int i = 0; i < ctx.getChildCount(); i++) {
                 ParseTree child = ctx.getChild(i);
 
                 if(child instanceof AidemMediaParser.VariableContext) {
@@ -98,7 +98,7 @@ public class ASTBuilderVisitor extends AidemMediaBaseVisitor<Node> {
                     operands.add(new ConstantExpression(child.getText()));
                 }
 
-                if(i < ctx.getChildCount()-2) {
+                if(i < ctx.getChildCount()-1) {
                     operands.add(new OperatorExpression("+"));
                 }
             }
