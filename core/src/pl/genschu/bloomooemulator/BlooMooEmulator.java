@@ -6,36 +6,20 @@ import com.badlogic.gdx.Input;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.*;
 import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.utils.Logger;
 import com.badlogic.gdx.utils.ScreenUtils;
-import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
-import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator.FreeTypeFontParameter;
 import com.badlogic.gdx.utils.viewport.StretchViewport;
 import pl.genschu.bloomooemulator.interpreter.Context;
-import pl.genschu.bloomooemulator.interpreter.Interpreter;
-import pl.genschu.bloomooemulator.interpreter.antlr.AidemMediaLexer;
-import org.antlr.v4.runtime.CharStreams;
-import pl.genschu.bloomooemulator.interpreter.antlr.AidemMediaParser;
-import org.antlr.v4.runtime.CommonTokenStream;
-import org.antlr.v4.runtime.tree.ParseTree;
-import pl.genschu.bloomooemulator.interpreter.ast.ASTBuilderVisitor;
-import pl.genschu.bloomooemulator.interpreter.ast.Node;
 import pl.genschu.bloomooemulator.interpreter.exceptions.BreakException;
-import pl.genschu.bloomooemulator.interpreter.util.Point;
 import pl.genschu.bloomooemulator.interpreter.variable.Attribute;
 import pl.genschu.bloomooemulator.interpreter.variable.Signal;
 import pl.genschu.bloomooemulator.interpreter.variable.Variable;
 import pl.genschu.bloomooemulator.interpreter.variable.types.*;
-import pl.genschu.bloomooemulator.loader.ImageLoader;
 import pl.genschu.bloomooemulator.logic.GameEntry;
 import pl.genschu.bloomooemulator.objects.*;
-import pl.genschu.bloomooemulator.utils.ArgumentsHelper;
-import pl.genschu.bloomooemulator.utils.CoordinatesHelper;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 
@@ -346,6 +330,7 @@ public class BlooMooEmulator extends ApplicationAdapter {
             if(!button.isEnabled()) continue;
 
             if (button.getRect() != null && button.getRect().contains(x, y)) {
+                Gdx.graphics.setSystemCursor(Cursor.SystemCursor.Hand);
                 if (justPressed) {
                     if (activeButton == null) {
                         activeButton = button;
@@ -366,6 +351,7 @@ public class BlooMooEmulator extends ApplicationAdapter {
 
                 if (!button.isFocused() && !isPressed) {
                     button.setFocused(true);
+                    Gdx.graphics.setSystemCursor(Cursor.SystemCursor.Hand);
                     Signal onFocusSignal = button.getSignal("ONFOCUSON");
                     if (onFocusSignal != null) {
                         onFocusSignal.execute(null);
@@ -375,6 +361,7 @@ public class BlooMooEmulator extends ApplicationAdapter {
             else {
                 if (button.isFocused() && !isPressed) {
                     button.setFocused(false);
+                    Gdx.graphics.setSystemCursor(Cursor.SystemCursor.Arrow);
                     Signal onFocusLossSignal = button.getSignal("ONFOCUSOFF");
                     if (onFocusLossSignal != null) {
                         onFocusLossSignal.execute(null);
@@ -392,7 +379,7 @@ public class BlooMooEmulator extends ApplicationAdapter {
             activeButton = null;
         }
 
-        if(mouseVariable != null && isPressed) {
+        if(mouseVariable != null && isPressed && mouseVariable.isEnabled()) {
             mouseVariable.emitSignal("ONCLICK", "LEFT"); // right is not used at all
         }
     }

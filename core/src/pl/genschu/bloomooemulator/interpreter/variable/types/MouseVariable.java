@@ -1,6 +1,7 @@
 package pl.genschu.bloomooemulator.interpreter.variable.types;
 
-import pl.genschu.bloomooemulator.interpreter.exceptions.ClassMethodNotImplementedException;
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.Cursor.SystemCursor;
 import pl.genschu.bloomooemulator.interpreter.Context;
 import pl.genschu.bloomooemulator.interpreter.variable.Attribute;
 import pl.genschu.bloomooemulator.interpreter.variable.Method;
@@ -50,6 +51,24 @@ public class MouseVariable extends Variable {
 				return new IntegerVariable("", posY, context);
 			}
 		});
+		this.setMethod("SHOW", new Method(
+				"void"
+		) {
+			@Override
+			public Variable execute(List<Object> arguments) {
+				Gdx.graphics.setSystemCursor(SystemCursor.Arrow);
+				return null;
+			}
+		});
+		this.setMethod("HIDE", new Method(
+				"void"
+		) {
+			@Override
+			public Variable execute(List<Object> arguments) {
+				Gdx.graphics.setSystemCursor(SystemCursor.None);
+				return null;
+			}
+		});
 	}
 
 	@Override
@@ -63,6 +82,14 @@ public class MouseVariable extends Variable {
 		if(knownAttributes.contains(name)) {
 			super.setAttribute(name, attribute);
 		}
+	}
+
+	public boolean isEnabled() {
+		return isEnabled;
+	}
+
+	public void setEnabled(boolean enabled) {
+		isEnabled = enabled;
 	}
 
 	public void update(int x, int y) {
