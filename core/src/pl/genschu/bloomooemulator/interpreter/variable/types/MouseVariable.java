@@ -10,7 +10,7 @@ import pl.genschu.bloomooemulator.interpreter.variable.Variable;
 import java.util.List;
 
 public class MouseVariable extends Variable {
-	private boolean isEnabled = false;
+	private boolean isEnabled = true;
 	private int posX;
 	private int posY;
 

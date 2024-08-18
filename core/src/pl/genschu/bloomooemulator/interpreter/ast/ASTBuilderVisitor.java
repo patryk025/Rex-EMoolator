@@ -1,7 +1,10 @@
 package pl.genschu.bloomooemulator.interpreter.ast;
 
 import java.util.*;
+
+import org.antlr.v4.runtime.tree.ParseTree;
 import pl.genschu.bloomooemulator.interpreter.Context;
+import pl.genschu.bloomooemulator.interpreter.antlr.AidemMediaLexer;
 import pl.genschu.bloomooemulator.interpreter.arithmetic.utils.InfixToPostfix;
 import pl.genschu.bloomooemulator.interpreter.ast.expressions.*;
 import pl.genschu.bloomooemulator.interpreter.ast.statements.*;
@@ -83,6 +86,26 @@ public class ASTBuilderVisitor extends AidemMediaBaseVisitor<Node> {
 
     @Override
     public Node visitLiteral(AidemMediaParser.LiteralContext ctx) {
+        if(!ctx.variable().isEmpty()) {
+            List<Expression> operands = new ArrayList<>();
+            for (int i = 1; i < ctx.getChildCount()-1; i++) {
+                ParseTree child = ctx.getChild(i);
+
+                if(child instanceof AidemMediaParser.VariableContext) {
+                    operands.add((Expression) visit(child));
+                }
+                else {
+                    operands.add(new ConstantExpression(child.getText()));
+                }
+
+                if(i < ctx.getChildCount()-2) {
+                    operands.add(new OperatorExpression("+"));
+                }
+            }
+
+            Expression expression = createExpressionTree(InfixToPostfix.convertToPostfix(operands));
+            return new PointerExpression(expression);
+        }
         return new ConstantExpression(ctx.getText());
     }
 

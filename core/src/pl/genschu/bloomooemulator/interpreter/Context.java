@@ -17,6 +17,7 @@ public class Context {
     private final Map<String, Variable> graphicsVariables; // cache for faster drawing
     private final Map<String, Variable> buttonsVariables;
     private final Map<String, Variable> timerVariables;
+    private final Map<String, Variable> soundVariables;
     private MouseVariable mouseVariable;
     private KeyboardVariable keyboardVariable;
 
@@ -28,6 +29,7 @@ public class Context {
         this.graphicsVariables = new LinkedHashMap<>();
         this.buttonsVariables = new LinkedHashMap<>();
         this.timerVariables = new LinkedHashMap<>();
+        this.soundVariables = new LinkedHashMap<>();
         this.mouseVariable = null;
         this.keyboardVariable = null;
     }
@@ -38,6 +40,7 @@ public class Context {
         this.graphicsVariables = new LinkedHashMap<>();
         this.buttonsVariables = new LinkedHashMap<>();
         this.timerVariables = new LinkedHashMap<>();
+        this.soundVariables = new LinkedHashMap<>();
         this.mouseVariable = null;
         this.keyboardVariable = null;
     }
@@ -95,6 +98,9 @@ public class Context {
         }
         else if(variable.getType().equals("TIMER")) {
             timerVariables.put(name, variable);
+        }
+        else if(variable.getType().equals("SOUND")) {
+            soundVariables.put(name, variable);
         }
         else if(variable.getType().equals("MOUSE")) {
             mouseVariable = (MouseVariable) variable;
@@ -175,6 +181,10 @@ public class Context {
             parentContext.setThisVariable(thisVariable);
         else
             this.thisVariable = thisVariable;
+    }
+
+    public Map<String, Variable> getSoundVariables() {
+        return soundVariables;
     }
 
     public MouseVariable getMouseVariable() {

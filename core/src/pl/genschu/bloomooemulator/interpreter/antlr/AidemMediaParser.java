@@ -144,6 +144,14 @@ public class AidemMediaParser extends Parser {
 		}
 		@Override public int getRuleIndex() { return RULE_ifInstr; }
 		@Override
+		public void enterRule(ParseTreeListener listener) {
+			if ( listener instanceof AidemMediaListener ) ((AidemMediaListener)listener).enterIfInstr(this);
+		}
+		@Override
+		public void exitRule(ParseTreeListener listener) {
+			if ( listener instanceof AidemMediaListener ) ((AidemMediaListener)listener).exitIfInstr(this);
+		}
+		@Override
 		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
 			if ( visitor instanceof AidemMediaVisitor ) return ((AidemMediaVisitor<? extends T>)visitor).visitIfInstr(this);
 			else return visitor.visitChildren(this);
@@ -247,6 +255,14 @@ public class AidemMediaParser extends Parser {
 		}
 		@Override public int getRuleIndex() { return RULE_loopInstr; }
 		@Override
+		public void enterRule(ParseTreeListener listener) {
+			if ( listener instanceof AidemMediaListener ) ((AidemMediaListener)listener).enterLoopInstr(this);
+		}
+		@Override
+		public void exitRule(ParseTreeListener listener) {
+			if ( listener instanceof AidemMediaListener ) ((AidemMediaListener)listener).exitLoopInstr(this);
+		}
+		@Override
 		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
 			if ( visitor instanceof AidemMediaVisitor ) return ((AidemMediaVisitor<? extends T>)visitor).visitLoopInstr(this);
 			else return visitor.visitChildren(this);
@@ -343,6 +359,14 @@ public class AidemMediaParser extends Parser {
 			super(parent, invokingState);
 		}
 		@Override public int getRuleIndex() { return RULE_whileInstr; }
+		@Override
+		public void enterRule(ParseTreeListener listener) {
+			if ( listener instanceof AidemMediaListener ) ((AidemMediaListener)listener).enterWhileInstr(this);
+		}
+		@Override
+		public void exitRule(ParseTreeListener listener) {
+			if ( listener instanceof AidemMediaListener ) ((AidemMediaListener)listener).exitWhileInstr(this);
+		}
 		@Override
 		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
 			if ( visitor instanceof AidemMediaVisitor ) return ((AidemMediaVisitor<? extends T>)visitor).visitWhileInstr(this);
@@ -469,6 +493,14 @@ public class AidemMediaParser extends Parser {
 			super(parent, invokingState);
 		}
 		@Override public int getRuleIndex() { return RULE_functionFire; }
+		@Override
+		public void enterRule(ParseTreeListener listener) {
+			if ( listener instanceof AidemMediaListener ) ((AidemMediaListener)listener).enterFunctionFire(this);
+		}
+		@Override
+		public void exitRule(ParseTreeListener listener) {
+			if ( listener instanceof AidemMediaListener ) ((AidemMediaListener)listener).exitFunctionFire(this);
+		}
 		@Override
 		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
 			if ( visitor instanceof AidemMediaVisitor ) return ((AidemMediaVisitor<? extends T>)visitor).visitFunctionFire(this);
@@ -671,6 +703,14 @@ public class AidemMediaParser extends Parser {
 		}
 		@Override public int getRuleIndex() { return RULE_codeBlock; }
 		@Override
+		public void enterRule(ParseTreeListener listener) {
+			if ( listener instanceof AidemMediaListener ) ((AidemMediaListener)listener).enterCodeBlock(this);
+		}
+		@Override
+		public void exitRule(ParseTreeListener listener) {
+			if ( listener instanceof AidemMediaListener ) ((AidemMediaListener)listener).exitCodeBlock(this);
+		}
+		@Override
 		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
 			if ( visitor instanceof AidemMediaVisitor ) return ((AidemMediaVisitor<? extends T>)visitor).visitCodeBlock(this);
 			else return visitor.visitChildren(this);
@@ -748,6 +788,7 @@ public class AidemMediaParser extends Parser {
 					setState(160);
 					_errHandler.sync(this);
 					switch (_input.LA(1)) {
+					case VARREF:
 					case LITERAL:
 						{
 						setState(157);
@@ -843,6 +884,14 @@ public class AidemMediaParser extends Parser {
 		}
 		@Override public int getRuleIndex() { return RULE_varWithNumber; }
 		@Override
+		public void enterRule(ParseTreeListener listener) {
+			if ( listener instanceof AidemMediaListener ) ((AidemMediaListener)listener).enterVarWithNumber(this);
+		}
+		@Override
+		public void exitRule(ParseTreeListener listener) {
+			if ( listener instanceof AidemMediaListener ) ((AidemMediaListener)listener).exitVarWithNumber(this);
+		}
+		@Override
 		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
 			if ( visitor instanceof AidemMediaVisitor ) return ((AidemMediaVisitor<? extends T>)visitor).visitVarWithNumber(this);
 			else return visitor.visitChildren(this);
@@ -889,6 +938,14 @@ public class AidemMediaParser extends Parser {
 		}
 		@Override public int getRuleIndex() { return RULE_loopCodeParam; }
 		@Override
+		public void enterRule(ParseTreeListener listener) {
+			if ( listener instanceof AidemMediaListener ) ((AidemMediaListener)listener).enterLoopCodeParam(this);
+		}
+		@Override
+		public void exitRule(ParseTreeListener listener) {
+			if ( listener instanceof AidemMediaListener ) ((AidemMediaListener)listener).exitLoopCodeParam(this);
+		}
+		@Override
 		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
 			if ( visitor instanceof AidemMediaVisitor ) return ((AidemMediaVisitor<? extends T>)visitor).visitLoopCodeParam(this);
 			else return visitor.visitChildren(this);
@@ -916,6 +973,7 @@ public class AidemMediaParser extends Parser {
 				string();
 				}
 				break;
+			case VARREF:
 			case LITERAL:
 				{
 				setState(188);
@@ -960,6 +1018,14 @@ public class AidemMediaParser extends Parser {
 			super(parent, invokingState);
 		}
 		@Override public int getRuleIndex() { return RULE_conditionSimple; }
+		@Override
+		public void enterRule(ParseTreeListener listener) {
+			if ( listener instanceof AidemMediaListener ) ((AidemMediaListener)listener).enterConditionSimple(this);
+		}
+		@Override
+		public void exitRule(ParseTreeListener listener) {
+			if ( listener instanceof AidemMediaListener ) ((AidemMediaListener)listener).exitConditionSimple(this);
+		}
 		@Override
 		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
 			if ( visitor instanceof AidemMediaVisitor ) return ((AidemMediaVisitor<? extends T>)visitor).visitConditionSimple(this);
@@ -1011,6 +1077,14 @@ public class AidemMediaParser extends Parser {
 			super(parent, invokingState);
 		}
 		@Override public int getRuleIndex() { return RULE_ifTrue; }
+		@Override
+		public void enterRule(ParseTreeListener listener) {
+			if ( listener instanceof AidemMediaListener ) ((AidemMediaListener)listener).enterIfTrue(this);
+		}
+		@Override
+		public void exitRule(ParseTreeListener listener) {
+			if ( listener instanceof AidemMediaListener ) ((AidemMediaListener)listener).exitIfTrue(this);
+		}
 		@Override
 		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
 			if ( visitor instanceof AidemMediaVisitor ) return ((AidemMediaVisitor<? extends T>)visitor).visitIfTrue(this);
@@ -1067,6 +1141,14 @@ public class AidemMediaParser extends Parser {
 		}
 		@Override public int getRuleIndex() { return RULE_ifFalse; }
 		@Override
+		public void enterRule(ParseTreeListener listener) {
+			if ( listener instanceof AidemMediaListener ) ((AidemMediaListener)listener).enterIfFalse(this);
+		}
+		@Override
+		public void exitRule(ParseTreeListener listener) {
+			if ( listener instanceof AidemMediaListener ) ((AidemMediaListener)listener).exitIfFalse(this);
+		}
+		@Override
 		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
 			if ( visitor instanceof AidemMediaVisitor ) return ((AidemMediaVisitor<? extends T>)visitor).visitIfFalse(this);
 			else return visitor.visitChildren(this);
@@ -1116,6 +1198,14 @@ public class AidemMediaParser extends Parser {
 			super(parent, invokingState);
 		}
 		@Override public int getRuleIndex() { return RULE_comment; }
+		@Override
+		public void enterRule(ParseTreeListener listener) {
+			if ( listener instanceof AidemMediaListener ) ((AidemMediaListener)listener).enterComment(this);
+		}
+		@Override
+		public void exitRule(ParseTreeListener listener) {
+			if ( listener instanceof AidemMediaListener ) ((AidemMediaListener)listener).exitComment(this);
+		}
 		@Override
 		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
 			if ( visitor instanceof AidemMediaVisitor ) return ((AidemMediaVisitor<? extends T>)visitor).visitComment(this);
@@ -1231,6 +1321,14 @@ public class AidemMediaParser extends Parser {
 			super(parent, invokingState);
 		}
 		@Override public int getRuleIndex() { return RULE_expression; }
+		@Override
+		public void enterRule(ParseTreeListener listener) {
+			if ( listener instanceof AidemMediaListener ) ((AidemMediaListener)listener).enterExpression(this);
+		}
+		@Override
+		public void exitRule(ParseTreeListener listener) {
+			if ( listener instanceof AidemMediaListener ) ((AidemMediaListener)listener).exitExpression(this);
+		}
 		@Override
 		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
 			if ( visitor instanceof AidemMediaVisitor ) return ((AidemMediaVisitor<? extends T>)visitor).visitExpression(this);
@@ -1449,6 +1547,14 @@ public class AidemMediaParser extends Parser {
 		}
 		@Override public int getRuleIndex() { return RULE_script; }
 		@Override
+		public void enterRule(ParseTreeListener listener) {
+			if ( listener instanceof AidemMediaListener ) ((AidemMediaListener)listener).enterScript(this);
+		}
+		@Override
+		public void exitRule(ParseTreeListener listener) {
+			if ( listener instanceof AidemMediaListener ) ((AidemMediaListener)listener).exitScript(this);
+		}
+		@Override
 		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
 			if ( visitor instanceof AidemMediaVisitor ) return ((AidemMediaVisitor<? extends T>)visitor).visitScript(this);
 			else return visitor.visitChildren(this);
@@ -1572,6 +1678,14 @@ public class AidemMediaParser extends Parser {
 			super(parent, invokingState);
 		}
 		@Override public int getRuleIndex() { return RULE_param; }
+		@Override
+		public void enterRule(ParseTreeListener listener) {
+			if ( listener instanceof AidemMediaListener ) ((AidemMediaListener)listener).enterParam(this);
+		}
+		@Override
+		public void exitRule(ParseTreeListener listener) {
+			if ( listener instanceof AidemMediaListener ) ((AidemMediaListener)listener).exitParam(this);
+		}
 		@Override
 		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
 			if ( visitor instanceof AidemMediaVisitor ) return ((AidemMediaVisitor<? extends T>)visitor).visitParam(this);
@@ -1715,6 +1829,14 @@ public class AidemMediaParser extends Parser {
 		}
 		@Override public int getRuleIndex() { return RULE_condition; }
 		@Override
+		public void enterRule(ParseTreeListener listener) {
+			if ( listener instanceof AidemMediaListener ) ((AidemMediaListener)listener).enterCondition(this);
+		}
+		@Override
+		public void exitRule(ParseTreeListener listener) {
+			if ( listener instanceof AidemMediaListener ) ((AidemMediaListener)listener).exitCondition(this);
+		}
+		@Override
 		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
 			if ( visitor instanceof AidemMediaVisitor ) return ((AidemMediaVisitor<? extends T>)visitor).visitCondition(this);
 			else return visitor.visitChildren(this);
@@ -1792,6 +1914,14 @@ public class AidemMediaParser extends Parser {
 		}
 		@Override public int getRuleIndex() { return RULE_conditionPart; }
 		@Override
+		public void enterRule(ParseTreeListener listener) {
+			if ( listener instanceof AidemMediaListener ) ((AidemMediaListener)listener).enterConditionPart(this);
+		}
+		@Override
+		public void exitRule(ParseTreeListener listener) {
+			if ( listener instanceof AidemMediaListener ) ((AidemMediaListener)listener).exitConditionPart(this);
+		}
+		@Override
 		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
 			if ( visitor instanceof AidemMediaVisitor ) return ((AidemMediaVisitor<? extends T>)visitor).visitConditionPart(this);
 			else return visitor.visitChildren(this);
@@ -1864,6 +1994,14 @@ public class AidemMediaParser extends Parser {
 			super(parent, invokingState);
 		}
 		@Override public int getRuleIndex() { return RULE_behFire; }
+		@Override
+		public void enterRule(ParseTreeListener listener) {
+			if ( listener instanceof AidemMediaListener ) ((AidemMediaListener)listener).enterBehFire(this);
+		}
+		@Override
+		public void exitRule(ParseTreeListener listener) {
+			if ( listener instanceof AidemMediaListener ) ((AidemMediaListener)listener).exitBehFire(this);
+		}
 		@Override
 		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
 			if ( visitor instanceof AidemMediaVisitor ) return ((AidemMediaVisitor<? extends T>)visitor).visitBehFire(this);
@@ -1945,6 +2083,14 @@ public class AidemMediaParser extends Parser {
 			super(parent, invokingState);
 		}
 		@Override public int getRuleIndex() { return RULE_modulo; }
+		@Override
+		public void enterRule(ParseTreeListener listener) {
+			if ( listener instanceof AidemMediaListener ) ((AidemMediaListener)listener).enterModulo(this);
+		}
+		@Override
+		public void exitRule(ParseTreeListener listener) {
+			if ( listener instanceof AidemMediaListener ) ((AidemMediaListener)listener).exitModulo(this);
+		}
 		@Override
 		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
 			if ( visitor instanceof AidemMediaVisitor ) return ((AidemMediaVisitor<? extends T>)visitor).visitModulo(this);
@@ -2107,6 +2253,14 @@ public class AidemMediaParser extends Parser {
 		}
 		@Override public int getRuleIndex() { return RULE_iterator; }
 		@Override
+		public void enterRule(ParseTreeListener listener) {
+			if ( listener instanceof AidemMediaListener ) ((AidemMediaListener)listener).enterIterator(this);
+		}
+		@Override
+		public void exitRule(ParseTreeListener listener) {
+			if ( listener instanceof AidemMediaListener ) ((AidemMediaListener)listener).exitIterator(this);
+		}
+		@Override
 		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
 			if ( visitor instanceof AidemMediaVisitor ) return ((AidemMediaVisitor<? extends T>)visitor).visitIterator(this);
 			else return visitor.visitChildren(this);
@@ -2226,6 +2380,14 @@ public class AidemMediaParser extends Parser {
 			super(parent, invokingState);
 		}
 		@Override public int getRuleIndex() { return RULE_string; }
+		@Override
+		public void enterRule(ParseTreeListener listener) {
+			if ( listener instanceof AidemMediaListener ) ((AidemMediaListener)listener).enterString(this);
+		}
+		@Override
+		public void exitRule(ParseTreeListener listener) {
+			if ( listener instanceof AidemMediaListener ) ((AidemMediaListener)listener).exitString(this);
+		}
 		@Override
 		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
 			if ( visitor instanceof AidemMediaVisitor ) return ((AidemMediaVisitor<? extends T>)visitor).visitString(this);
@@ -2382,7 +2544,7 @@ public class AidemMediaParser extends Parser {
 					setState(360);
 					_errHandler.sync(this);
 					_la = _input.LA(1);
-					if (_la==LITERAL) {
+					if (_la==VARREF || _la==LITERAL) {
 						{
 						setState(359);
 						literal();
@@ -2442,6 +2604,14 @@ public class AidemMediaParser extends Parser {
 			super(parent, invokingState);
 		}
 		@Override public int getRuleIndex() { return RULE_instr; }
+		@Override
+		public void enterRule(ParseTreeListener listener) {
+			if ( listener instanceof AidemMediaListener ) ((AidemMediaListener)listener).enterInstr(this);
+		}
+		@Override
+		public void exitRule(ParseTreeListener listener) {
+			if ( listener instanceof AidemMediaListener ) ((AidemMediaListener)listener).exitInstr(this);
+		}
 		@Override
 		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
 			if ( visitor instanceof AidemMediaVisitor ) return ((AidemMediaVisitor<? extends T>)visitor).visitInstr(this);
@@ -2514,6 +2684,14 @@ public class AidemMediaParser extends Parser {
 		}
 		@Override public int getRuleIndex() { return RULE_stringRef; }
 		@Override
+		public void enterRule(ParseTreeListener listener) {
+			if ( listener instanceof AidemMediaListener ) ((AidemMediaListener)listener).enterStringRef(this);
+		}
+		@Override
+		public void exitRule(ParseTreeListener listener) {
+			if ( listener instanceof AidemMediaListener ) ((AidemMediaListener)listener).exitStringRef(this);
+		}
+		@Override
 		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
 			if ( visitor instanceof AidemMediaVisitor ) return ((AidemMediaVisitor<? extends T>)visitor).visitStringRef(this);
 			else return visitor.visitChildren(this);
@@ -2537,6 +2715,7 @@ public class AidemMediaParser extends Parser {
 				expression();
 				}
 				break;
+			case VARREF:
 			case LITERAL:
 				{
 				setState(385);
@@ -2571,6 +2750,14 @@ public class AidemMediaParser extends Parser {
 			super(parent, invokingState);
 		}
 		@Override public int getRuleIndex() { return RULE_struct; }
+		@Override
+		public void enterRule(ParseTreeListener listener) {
+			if ( listener instanceof AidemMediaListener ) ((AidemMediaListener)listener).enterStruct(this);
+		}
+		@Override
+		public void exitRule(ParseTreeListener listener) {
+			if ( listener instanceof AidemMediaListener ) ((AidemMediaListener)listener).exitStruct(this);
+		}
 		@Override
 		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
 			if ( visitor instanceof AidemMediaVisitor ) return ((AidemMediaVisitor<? extends T>)visitor).visitStruct(this);
@@ -2616,6 +2803,14 @@ public class AidemMediaParser extends Parser {
 		}
 		@Override public int getRuleIndex() { return RULE_variable; }
 		@Override
+		public void enterRule(ParseTreeListener listener) {
+			if ( listener instanceof AidemMediaListener ) ((AidemMediaListener)listener).enterVariable(this);
+		}
+		@Override
+		public void exitRule(ParseTreeListener listener) {
+			if ( listener instanceof AidemMediaListener ) ((AidemMediaListener)listener).exitVariable(this);
+		}
+		@Override
 		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
 			if ( visitor instanceof AidemMediaVisitor ) return ((AidemMediaVisitor<? extends T>)visitor).visitVariable(this);
 			else return visitor.visitChildren(this);
@@ -2633,6 +2828,7 @@ public class AidemMediaParser extends Parser {
 			setState(395);
 			_errHandler.sync(this);
 			switch (_input.LA(1)) {
+			case VARREF:
 			case LITERAL:
 				{
 				setState(393);
@@ -2668,6 +2864,14 @@ public class AidemMediaParser extends Parser {
 		}
 		@Override public int getRuleIndex() { return RULE_number; }
 		@Override
+		public void enterRule(ParseTreeListener listener) {
+			if ( listener instanceof AidemMediaListener ) ((AidemMediaListener)listener).enterNumber(this);
+		}
+		@Override
+		public void exitRule(ParseTreeListener listener) {
+			if ( listener instanceof AidemMediaListener ) ((AidemMediaListener)listener).exitNumber(this);
+		}
+		@Override
 		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
 			if ( visitor instanceof AidemMediaVisitor ) return ((AidemMediaVisitor<? extends T>)visitor).visitNumber(this);
 			else return visitor.visitChildren(this);
@@ -2702,6 +2906,14 @@ public class AidemMediaParser extends Parser {
 		}
 		@Override public int getRuleIndex() { return RULE_floatNumber; }
 		@Override
+		public void enterRule(ParseTreeListener listener) {
+			if ( listener instanceof AidemMediaListener ) ((AidemMediaListener)listener).enterFloatNumber(this);
+		}
+		@Override
+		public void exitRule(ParseTreeListener listener) {
+			if ( listener instanceof AidemMediaListener ) ((AidemMediaListener)listener).exitFloatNumber(this);
+		}
+		@Override
 		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
 			if ( visitor instanceof AidemMediaVisitor ) return ((AidemMediaVisitor<? extends T>)visitor).visitFloatNumber(this);
 			else return visitor.visitChildren(this);
@@ -2731,10 +2943,24 @@ public class AidemMediaParser extends Parser {
 
 	public static class LiteralContext extends ParserRuleContext {
 		public TerminalNode LITERAL() { return getToken(AidemMediaParser.LITERAL, 0); }
+		public List<VariableContext> variable() {
+			return getRuleContexts(VariableContext.class);
+		}
+		public VariableContext variable(int i) {
+			return getRuleContext(VariableContext.class,i);
+		}
 		public LiteralContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
 		}
 		@Override public int getRuleIndex() { return RULE_literal; }
+		@Override
+		public void enterRule(ParseTreeListener listener) {
+			if ( listener instanceof AidemMediaListener ) ((AidemMediaListener)listener).enterLiteral(this);
+		}
+		@Override
+		public void exitRule(ParseTreeListener listener) {
+			if ( listener instanceof AidemMediaListener ) ((AidemMediaListener)listener).exitLiteral(this);
+		}
 		@Override
 		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
 			if ( visitor instanceof AidemMediaVisitor ) return ((AidemMediaVisitor<? extends T>)visitor).visitLiteral(this);
@@ -2745,11 +2971,32 @@ public class AidemMediaParser extends Parser {
 	public final LiteralContext literal() throws RecognitionException {
 		LiteralContext _localctx = new LiteralContext(_ctx, getState());
 		enterRule(_localctx, 52, RULE_literal);
+		int _la;
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(401);
+			setState(402);
+			_errHandler.sync(this);
+			_la = _input.LA(1);
+			if (_la==VARREF) {
+				{
+				setState(401);
+				variable();
+				}
+			}
+
+			setState(404);
 			match(LITERAL);
+			setState(406);
+			_errHandler.sync(this);
+			switch ( getInterpreter().adaptivePredict(_input,50,_ctx) ) {
+			case 1:
+				{
+				setState(405);
+				variable();
+				}
+				break;
+			}
 			}
 		}
 		catch (RecognitionException re) {
@@ -2776,6 +3023,14 @@ public class AidemMediaParser extends Parser {
 		}
 		@Override public int getRuleIndex() { return RULE_arithmetic; }
 		@Override
+		public void enterRule(ParseTreeListener listener) {
+			if ( listener instanceof AidemMediaListener ) ((AidemMediaListener)listener).enterArithmetic(this);
+		}
+		@Override
+		public void exitRule(ParseTreeListener listener) {
+			if ( listener instanceof AidemMediaListener ) ((AidemMediaListener)listener).exitArithmetic(this);
+		}
+		@Override
 		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
 			if ( visitor instanceof AidemMediaVisitor ) return ((AidemMediaVisitor<? extends T>)visitor).visitArithmetic(this);
 			else return visitor.visitChildren(this);
@@ -2789,7 +3044,7 @@ public class AidemMediaParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(403);
+			setState(408);
 			_la = _input.LA(1);
 			if ( !((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << LPAREN) | (1L << RPAREN) | (1L << ADD) | (1L << SUBTRACT) | (1L << MULT) | (1L << DIV) | (1L << MOD))) != 0)) ) {
 			_errHandler.recoverInline(this);
@@ -2819,6 +3074,14 @@ public class AidemMediaParser extends Parser {
 		}
 		@Override public int getRuleIndex() { return RULE_logic; }
 		@Override
+		public void enterRule(ParseTreeListener listener) {
+			if ( listener instanceof AidemMediaListener ) ((AidemMediaListener)listener).enterLogic(this);
+		}
+		@Override
+		public void exitRule(ParseTreeListener listener) {
+			if ( listener instanceof AidemMediaListener ) ((AidemMediaListener)listener).exitLogic(this);
+		}
+		@Override
 		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
 			if ( visitor instanceof AidemMediaVisitor ) return ((AidemMediaVisitor<? extends T>)visitor).visitLogic(this);
 			else return visitor.visitChildren(this);
@@ -2831,7 +3094,7 @@ public class AidemMediaParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(405);
+			setState(410);
 			match(LOGIC);
 			}
 		}
@@ -2858,6 +3121,14 @@ public class AidemMediaParser extends Parser {
 		}
 		@Override public int getRuleIndex() { return RULE_compare; }
 		@Override
+		public void enterRule(ParseTreeListener listener) {
+			if ( listener instanceof AidemMediaListener ) ((AidemMediaListener)listener).enterCompare(this);
+		}
+		@Override
+		public void exitRule(ParseTreeListener listener) {
+			if ( listener instanceof AidemMediaListener ) ((AidemMediaListener)listener).exitCompare(this);
+		}
+		@Override
 		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
 			if ( visitor instanceof AidemMediaVisitor ) return ((AidemMediaVisitor<? extends T>)visitor).visitCompare(this);
 			else return visitor.visitChildren(this);
@@ -2871,7 +3142,7 @@ public class AidemMediaParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(407);
+			setState(412);
 			_la = _input.LA(1);
 			if ( !((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << LSS) | (1L << LEQ) | (1L << GEQ) | (1L << GTR) | (1L << EQU) | (1L << NEQ))) != 0)) ) {
 			_errHandler.recoverInline(this);
@@ -2901,6 +3172,14 @@ public class AidemMediaParser extends Parser {
 		}
 		@Override public int getRuleIndex() { return RULE_bool; }
 		@Override
+		public void enterRule(ParseTreeListener listener) {
+			if ( listener instanceof AidemMediaListener ) ((AidemMediaListener)listener).enterBool(this);
+		}
+		@Override
+		public void exitRule(ParseTreeListener listener) {
+			if ( listener instanceof AidemMediaListener ) ((AidemMediaListener)listener).exitBool(this);
+		}
+		@Override
 		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
 			if ( visitor instanceof AidemMediaVisitor ) return ((AidemMediaVisitor<? extends T>)visitor).visitBool(this);
 			else return visitor.visitChildren(this);
@@ -2913,7 +3192,7 @@ public class AidemMediaParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(409);
+			setState(414);
 			match(BOOLEAN);
 			}
 		}
@@ -2929,7 +3208,7 @@ public class AidemMediaParser extends Parser {
 	}
 
 	public static final String _serializedATN =
-		"\3\u608b\ua72a\u8133\ub9ed\u417c\u3be7\u7786\u5964\3\'\u019e\4\2\t\2\4"+
+		"\3\u608b\ua72a\u8133\ub9ed\u417c\u3be7\u7786\u5964\3\'\u01a3\4\2\t\2\4"+
 		"\3\t\3\4\4\t\4\4\5\t\5\4\6\t\6\4\7\t\7\4\b\t\b\4\t\t\t\4\n\t\n\4\13\t"+
 		"\13\4\f\t\f\4\r\t\r\4\16\t\16\4\17\t\17\4\20\t\20\4\21\t\21\4\22\t\22"+
 		"\4\23\t\23\4\24\t\24\4\25\t\25\4\26\t\26\4\27\t\27\4\30\t\30\4\31\t\31"+
@@ -2960,140 +3239,143 @@ public class AidemMediaParser extends Parser {
 		"\5\25\u016d\n\25\3\25\3\25\5\25\u0171\n\25\3\25\3\25\3\26\3\26\3\26\3"+
 		"\26\3\26\3\26\5\26\u017b\n\26\5\26\u017d\n\26\3\26\3\26\3\26\3\27\3\27"+
 		"\3\27\5\27\u0185\n\27\3\30\3\30\3\30\3\30\3\31\3\31\3\31\5\31\u018e\n"+
-		"\31\3\32\3\32\3\33\3\33\3\34\3\34\3\35\3\35\3\36\3\36\3\37\3\37\3 \3 "+
-		"\3 \2\2!\2\4\6\b\n\f\16\20\22\24\26\30\32\34\36 \"$&(*,.\60\62\64\668"+
-		":<>\2\4\4\2\7\b\27\33\3\2\17\24\2\u01ef\2@\3\2\2\2\4V\3\2\2\2\6f\3\2\2"+
-		"\2\b\u0081\3\2\2\2\n\u0096\3\2\2\2\f\u00b8\3\2\2\2\16\u00bf\3\2\2\2\20"+
-		"\u00c1\3\2\2\2\22\u00cb\3\2\2\2\24\u00cf\3\2\2\2\26\u00d1\3\2\2\2\30\u00d3"+
-		"\3\2\2\2\32\u0103\3\2\2\2\34\u0117\3\2\2\2\36\u011f\3\2\2\2 \u0127\3\2"+
-		"\2\2\"\u012c\3\2\2\2$\u013c\3\2\2\2&\u014d\3\2\2\2(\u014f\3\2\2\2*\u0174"+
-		"\3\2\2\2,\u0181\3\2\2\2.\u0186\3\2\2\2\60\u018a\3\2\2\2\62\u018f\3\2\2"+
-		"\2\64\u0191\3\2\2\2\66\u0193\3\2\2\28\u0195\3\2\2\2:\u0197\3\2\2\2<\u0199"+
-		"\3\2\2\2>\u019b\3\2\2\2@A\7\3\2\2AJ\7\7\2\2BC\7%\2\2CD\5\36\20\2DE\7%"+
-		"\2\2EF\7#\2\2FK\3\2\2\2GH\5\20\t\2HI\7#\2\2IK\3\2\2\2JB\3\2\2\2JG\3\2"+
-		"\2\2KL\3\2\2\2LM\5\22\n\2MN\7#\2\2NO\5\24\13\2OS\7\b\2\2PR\7\25\2\2QP"+
-		"\3\2\2\2RU\3\2\2\2SQ\3\2\2\2ST\3\2\2\2T\3\3\2\2\2US\3\2\2\2VW\7\4\2\2"+
-		"WX\7\7\2\2XY\5\16\b\2YZ\7#\2\2Z[\5\34\17\2[\\\7#\2\2\\]\5\34\17\2]^\7"+
-		"#\2\2^_\5\34\17\2_c\7\b\2\2`b\7\25\2\2a`\3\2\2\2be\3\2\2\2ca\3\2\2\2c"+
-		"d\3\2\2\2d\5\3\2\2\2ec\3\2\2\2fg\7\5\2\2gh\7\7\2\2hi\5\34\17\2ij\7#\2"+
-		"\2jk\7%\2\2kl\5<\37\2lm\7%\2\2mn\7#\2\2no\5\34\17\2or\7#\2\2ps\5\n\6\2"+
-		"qs\5(\25\2rp\3\2\2\2rq\3\2\2\2st\3\2\2\2tx\7\b\2\2uw\7\25\2\2vu\3\2\2"+
-		"\2wz\3\2\2\2xv\3\2\2\2xy\3\2\2\2y\7\3\2\2\2zx\3\2\2\2{\u0082\5\66\34\2"+
-		"|\u0082\5&\24\2}\u0082\5,\27\2~\u0082\5.\30\2\177\u0082\5\60\31\2\u0080"+
-		"\u0082\5\f\7\2\u0081{\3\2\2\2\u0081|\3\2\2\2\u0081}\3\2\2\2\u0081~\3\2"+
-		"\2\2\u0081\177\3\2\2\2\u0081\u0080\3\2\2\2\u0082\u0083\3\2\2\2\u0083\u0084"+
-		"\7\26\2\2\u0084\u0085\5\66\34\2\u0085\u008c\7\7\2\2\u0086\u0088\7#\2\2"+
-		"\u0087\u0086\3\2\2\2\u0087\u0088\3\2\2\2\u0088\u0089\3\2\2\2\u0089\u008b"+
-		"\5\34\17\2\u008a\u0087\3\2\2\2\u008b\u008e\3\2\2\2\u008c\u008a\3\2\2\2"+
-		"\u008c\u008d\3\2\2\2\u008d\u008f\3\2\2\2\u008e\u008c\3\2\2\2\u008f\u0093"+
-		"\7\b\2\2\u0090\u0092\7\25\2\2\u0091\u0090\3\2\2\2\u0092\u0095\3\2\2\2"+
-		"\u0093\u0091\3\2\2\2\u0093\u0094\3\2\2\2\u0094\t\3\2\2\2\u0095\u0093\3"+
-		"\2\2\2\u0096\u00ad\7\n\2\2\u0097\u00ac\5\b\5\2\u0098\u00ac\5\2\2\2\u0099"+
-		"\u00ac\5\4\3\2\u009a\u00ac\5\6\4\2\u009b\u00ac\5*\26\2\u009c\u00ac\5\""+
-		"\22\2\u009d\u00ac\5\30\r\2\u009e\u00ac\5\n\6\2\u009f\u00a3\5\66\34\2\u00a0"+
-		"\u00a3\5\64\33\2\u00a1\u00a3\5\62\32\2\u00a2\u009f\3\2\2\2\u00a2\u00a0"+
-		"\3\2\2\2\u00a2\u00a1\3\2\2\2\u00a3\u00ac\3\2\2\2\u00a4\u00a8\5\26\f\2"+
-		"\u00a5\u00a7\7\25\2\2\u00a6\u00a5\3\2\2\2\u00a7\u00aa\3\2\2\2\u00a8\u00a6"+
-		"\3\2\2\2\u00a8\u00a9\3\2\2\2\u00a9\u00ac\3\2\2\2\u00aa\u00a8\3\2\2\2\u00ab"+
-		"\u0097\3\2\2\2\u00ab\u0098\3\2\2\2\u00ab\u0099\3\2\2\2\u00ab\u009a\3\2"+
-		"\2\2\u00ab\u009b\3\2\2\2\u00ab\u009c\3\2\2\2\u00ab\u009d\3\2\2\2\u00ab"+
-		"\u009e\3\2\2\2\u00ab\u00a2\3\2\2\2\u00ab\u00a4\3\2\2\2\u00ac\u00af\3\2"+
-		"\2\2\u00ad\u00ab\3\2\2\2\u00ad\u00ae\3\2\2\2\u00ae\u00b3\3\2\2\2\u00af"+
-		"\u00ad\3\2\2\2\u00b0\u00b2\7\25\2\2\u00b1\u00b0\3\2\2\2\u00b2\u00b5\3"+
-		"\2\2\2\u00b3\u00b1\3\2\2\2\u00b3\u00b4\3\2\2\2\u00b4\u00b6\3\2\2\2\u00b5"+
-		"\u00b3\3\2\2\2\u00b6\u00b7\7\13\2\2\u00b7\13\3\2\2\2\u00b8\u00b9\5\66"+
-		"\34\2\u00b9\u00ba\58\35\2\u00ba\u00bb\5\62\32\2\u00bb\r\3\2\2\2\u00bc"+
-		"\u00c0\5\n\6\2\u00bd\u00c0\5(\25\2\u00be\u00c0\5\66\34\2\u00bf\u00bc\3"+
-		"\2\2\2\u00bf\u00bd\3\2\2\2\u00bf\u00be\3\2\2\2\u00c0\17\3\2\2\2\u00c1"+
-		"\u00c2\5\34\17\2\u00c2\u00c3\7#\2\2\u00c3\u00c4\7%\2\2\u00c4\u00c5\5<"+
-		"\37\2\u00c5\u00c6\7%\2\2\u00c6\u00c7\7#\2\2\u00c7\u00c8\5\34\17\2\u00c8"+
-		"\21\3\2\2\2\u00c9\u00cc\5\n\6\2\u00ca\u00cc\5(\25\2\u00cb\u00c9\3\2\2"+
-		"\2\u00cb\u00ca\3\2\2\2\u00cc\23\3\2\2\2\u00cd\u00d0\5\n\6\2\u00ce\u00d0"+
-		"\5(\25\2\u00cf\u00cd\3\2\2\2\u00cf\u00ce\3\2\2\2\u00d0\25\3\2\2\2\u00d1"+
-		"\u00d2\7\6\2\2\u00d2\27\3\2\2\2\u00d3\u00f0\7\f\2\2\u00d4\u00d6\58\35"+
-		"\2\u00d5\u00d4\3\2\2\2\u00d5\u00d6\3\2\2\2\u00d6\u00e8\3\2\2\2\u00d7\u00e9"+
-		"\5\66\34\2\u00d8\u00e9\5(\25\2\u00d9\u00db\58\35\2\u00da\u00d9\3\2\2\2"+
-		"\u00da\u00db\3\2\2\2\u00db\u00dc\3\2\2\2\u00dc\u00e9\5\62\32\2\u00dd\u00df"+
-		"\58\35\2\u00de\u00dd\3\2\2\2\u00de\u00df\3\2\2\2\u00df\u00e0\3\2\2\2\u00e0"+
-		"\u00e9\5\64\33\2\u00e1\u00e9\5$\23\2\u00e2\u00e9\5&\24\2\u00e3\u00e9\5"+
-		"\b\5\2\u00e4\u00e9\5\30\r\2\u00e5\u00e9\5.\30\2\u00e6\u00e9\5,\27\2\u00e7"+
-		"\u00e9\5\60\31\2\u00e8\u00d7\3\2\2\2\u00e8\u00d8\3\2\2\2\u00e8\u00da\3"+
-		"\2\2\2\u00e8\u00de\3\2\2\2\u00e8\u00e1\3\2\2\2\u00e8\u00e2\3\2\2\2\u00e8"+
-		"\u00e3\3\2\2\2\u00e8\u00e4\3\2\2\2\u00e8\u00e5\3\2\2\2\u00e8\u00e6\3\2"+
-		"\2\2\u00e8\u00e7\3\2\2\2\u00e9\u00ec\3\2\2\2\u00ea\u00ed\58\35\2\u00eb"+
-		"\u00ed\7&\2\2\u00ec\u00ea\3\2\2\2\u00ec\u00eb\3\2\2\2\u00ec\u00ed\3\2"+
-		"\2\2\u00ed\u00ef\3\2\2\2\u00ee\u00d5\3\2\2\2\u00ef\u00f2\3\2\2\2\u00f0"+
-		"\u00ee\3\2\2\2\u00f0\u00f1\3\2\2\2\u00f1\u00f3\3\2\2\2\u00f2\u00f0\3\2"+
-		"\2\2\u00f3\u00f7\7\r\2\2\u00f4\u00f6\7\25\2\2\u00f5\u00f4\3\2\2\2\u00f6"+
-		"\u00f9\3\2\2\2\u00f7\u00f5\3\2\2\2\u00f7\u00f8\3\2\2\2\u00f8\31\3\2\2"+
-		"\2\u00f9\u00f7\3\2\2\2\u00fa\u0102\5\n\6\2\u00fb\u0102\5\30\r\2\u00fc"+
-		"\u0102\5(\25\2\u00fd\u0102\5\2\2\2\u00fe\u0102\5\4\3\2\u00ff\u0102\5\6"+
-		"\4\2\u0100\u0102\5(\25\2\u0101\u00fa\3\2\2\2\u0101\u00fb\3\2\2\2\u0101"+
-		"\u00fc\3\2\2\2\u0101\u00fd\3\2\2\2\u0101\u00fe\3\2\2\2\u0101\u00ff\3\2"+
-		"\2\2\u0101\u0100\3\2\2\2\u0102\u0105\3\2\2\2\u0103\u0101\3\2\2\2\u0103"+
-		"\u0104\3\2\2\2\u0104\33\3\2\2\2\u0105\u0103\3\2\2\2\u0106\u0118\5\b\5"+
-		"\2\u0107\u0118\5> \2\u0108\u0118\5\60\31\2\u0109\u0118\5(\25\2\u010a\u0118"+
-		"\5\66\34\2\u010b\u010d\58\35\2\u010c\u010b\3\2\2\2\u010c\u010d\3\2\2\2"+
-		"\u010d\u010e\3\2\2\2\u010e\u0118\5\62\32\2\u010f\u0111\58\35\2\u0110\u010f"+
-		"\3\2\2\2\u0110\u0111\3\2\2\2\u0111\u0112\3\2\2\2\u0112\u0118\5\64\33\2"+
-		"\u0113\u0118\5\30\r\2\u0114\u0118\5&\24\2\u0115\u0118\5.\30\2\u0116\u0118"+
-		"\5,\27\2\u0117\u0106\3\2\2\2\u0117\u0107\3\2\2\2\u0117\u0108\3\2\2\2\u0117"+
-		"\u0109\3\2\2\2\u0117\u010a\3\2\2\2\u0117\u010c\3\2\2\2\u0117\u0110\3\2"+
-		"\2\2\u0117\u0113\3\2\2\2\u0117\u0114\3\2\2\2\u0117\u0115\3\2\2\2\u0117"+
-		"\u0116\3\2\2\2\u0118\35\3\2\2\2\u0119\u011b\5:\36\2\u011a\u0119\3\2\2"+
-		"\2\u011a\u011b\3\2\2\2\u011b\u011c\3\2\2\2\u011c\u011e\5 \21\2\u011d\u011a"+
-		"\3\2\2\2\u011e\u0121\3\2\2\2\u011f\u011d\3\2\2\2\u011f\u0120\3\2\2\2\u0120"+
-		"\37\3\2\2\2\u0121\u011f\3\2\2\2\u0122\u0128\5\66\34\2\u0123\u0128\5\b"+
-		"\5\2\u0124\u0128\5.\30\2\u0125\u0128\5\30\r\2\u0126\u0128\5&\24\2\u0127"+
-		"\u0122\3\2\2\2\u0127\u0123\3\2\2\2\u0127\u0124\3\2\2\2\u0127\u0125\3\2"+
-		"\2\2\u0127\u0126\3\2\2\2\u0128\u0129\3\2\2\2\u0129\u012a\5<\37\2\u012a"+
-		"\u012b\5\34\17\2\u012b!\3\2\2\2\u012c\u012d\5\66\34\2\u012d\u012e\7\25"+
-		"\2\2\u012e#\3\2\2\2\u012f\u013d\5\66\34\2\u0130\u013d\5&\24\2\u0131\u0133"+
-		"\58\35\2\u0132\u0131\3\2\2\2\u0132\u0133\3\2\2\2\u0133\u0134\3\2\2\2\u0134"+
-		"\u013d\5\62\32\2\u0135\u0137\58\35\2\u0136\u0135\3\2\2\2\u0136\u0137\3"+
-		"\2\2\2\u0137\u0138\3\2\2\2\u0138\u013d\5\64\33\2\u0139\u013d\5\b\5\2\u013a"+
-		"\u013d\5.\30\2\u013b\u013d\5\30\r\2\u013c\u012f\3\2\2\2\u013c\u0130\3"+
-		"\2\2\2\u013c\u0132\3\2\2\2\u013c\u0136\3\2\2\2\u013c\u0139\3\2\2\2\u013c"+
-		"\u013a\3\2\2\2\u013c\u013b\3\2\2\2\u013d\u013e\3\2\2\2\u013e\u014b\7\33"+
-		"\2\2\u013f\u014c\5\66\34\2\u0140\u0142\58\35\2\u0141\u0140\3\2\2\2\u0141"+
-		"\u0142\3\2\2\2\u0142\u0143\3\2\2\2\u0143\u014c\5\62\32\2\u0144\u0146\5"+
-		"8\35\2\u0145\u0144\3\2\2\2\u0145\u0146\3\2\2\2\u0146\u0147\3\2\2\2\u0147"+
-		"\u014c\5\64\33\2\u0148\u014c\5\b\5\2\u0149\u014c\5.\30\2\u014a\u014c\5"+
-		"\30\r\2\u014b\u013f\3\2\2\2\u014b\u0141\3\2\2\2\u014b\u0145\3\2\2\2\u014b"+
-		"\u0148\3\2\2\2\u014b\u0149\3\2\2\2\u014b\u014a\3\2\2\2\u014c%\3\2\2\2"+
-		"\u014d\u014e\7\37\2\2\u014e\'\3\2\2\2\u014f\u0170\7%\2\2\u0150\u0164\5"+
-		"\66\34\2\u0151\u0153\58\35\2\u0152\u0151\3\2\2\2\u0152\u0153\3\2\2\2\u0153"+
-		"\u0156\3\2\2\2\u0154\u0157\5\62\32\2\u0155\u0157\5\64\33\2\u0156\u0154"+
-		"\3\2\2\2\u0156\u0155\3\2\2\2\u0157\u0164\3\2\2\2\u0158\u0164\5<\37\2\u0159"+
-		"\u0164\7\16\2\2\u015a\u0164\5.\30\2\u015b\u0164\7\7\2\2\u015c\u0164\7"+
-		"\b\2\2\u015d\u0164\7#\2\2\u015e\u0164\58\35\2\u015f\u0164\7\t\2\2\u0160"+
-		"\u0164\5&\24\2\u0161\u0164\5\30\r\2\u0162\u0164\5\b\5\2\u0163\u0150\3"+
-		"\2\2\2\u0163\u0152\3\2\2\2\u0163\u0158\3\2\2\2\u0163\u0159\3\2\2\2\u0163"+
-		"\u015a\3\2\2\2\u0163\u015b\3\2\2\2\u0163\u015c\3\2\2\2\u0163\u015d\3\2"+
-		"\2\2\u0163\u015e\3\2\2\2\u0163\u015f\3\2\2\2\u0163\u0160\3\2\2\2\u0163"+
-		"\u0161\3\2\2\2\u0163\u0162\3\2\2\2\u0164\u0165\3\2\2\2\u0165\u0163\3\2"+
-		"\2\2\u0165\u0166\3\2\2\2\u0166\u0171\3\2\2\2\u0167\u016c\5\60\31\2\u0168"+
-		"\u016a\7\16\2\2\u0169\u016b\5\66\34\2\u016a\u0169\3\2\2\2\u016a\u016b"+
-		"\3\2\2\2\u016b\u016d\3\2\2\2\u016c\u0168\3\2\2\2\u016c\u016d\3\2\2\2\u016d"+
-		"\u0171\3\2\2\2\u016e\u0171\5(\25\2\u016f\u0171\5> \2\u0170\u0163\3\2\2"+
-		"\2\u0170\u0167\3\2\2\2\u0170\u016e\3\2\2\2\u0170\u016f\3\2\2\2\u0170\u0171"+
-		"\3\2\2\2\u0171\u0172\3\2\2\2\u0172\u0173\7%\2\2\u0173)\3\2\2\2\u0174\u0175"+
-		"\7\32\2\2\u0175\u0176\5\66\34\2\u0176\u017c\7\7\2\2\u0177\u017a\5\34\17"+
-		"\2\u0178\u0179\7#\2\2\u0179\u017b\5\34\17\2\u017a\u0178\3\2\2\2\u017a"+
-		"\u017b\3\2\2\2\u017b\u017d\3\2\2\2\u017c\u0177\3\2\2\2\u017c\u017d\3\2"+
-		"\2\2\u017d\u017e\3\2\2\2\u017e\u017f\7\b\2\2\u017f\u0180\7\25\2\2\u0180"+
-		"+\3\2\2\2\u0181\u0184\7&\2\2\u0182\u0185\5\30\r\2\u0183\u0185\5\66\34"+
-		"\2\u0184\u0182\3\2\2\2\u0184\u0183\3\2\2\2\u0185-\3\2\2\2\u0186\u0187"+
-		"\5\66\34\2\u0187\u0188\7$\2\2\u0188\u0189\5\66\34\2\u0189/\3\2\2\2\u018a"+
-		"\u018d\7\t\2\2\u018b\u018e\5\66\34\2\u018c\u018e\5\62\32\2\u018d\u018b"+
-		"\3\2\2\2\u018d\u018c\3\2\2\2\u018e\61\3\2\2\2\u018f\u0190\7\34\2\2\u0190"+
-		"\63\3\2\2\2\u0191\u0192\7\35\2\2\u0192\65\3\2\2\2\u0193\u0194\7!\2\2\u0194"+
-		"\67\3\2\2\2\u0195\u0196\t\2\2\2\u01969\3\2\2\2\u0197\u0198\7\"\2\2\u0198"+
-		";\3\2\2\2\u0199\u019a\t\3\2\2\u019a=\3\2\2\2\u019b\u019c\7 \2\2\u019c"+
-		"?\3\2\2\2\63JScrx\u0081\u0087\u008c\u0093\u00a2\u00a8\u00ab\u00ad\u00b3"+
-		"\u00bf\u00cb\u00cf\u00d5\u00da\u00de\u00e8\u00ec\u00f0\u00f7\u0101\u0103"+
-		"\u010c\u0110\u0117\u011a\u011f\u0127\u0132\u0136\u013c\u0141\u0145\u014b"+
-		"\u0152\u0156\u0163\u0165\u016a\u016c\u0170\u017a\u017c\u0184\u018d";
+		"\31\3\32\3\32\3\33\3\33\3\34\5\34\u0195\n\34\3\34\3\34\5\34\u0199\n\34"+
+		"\3\35\3\35\3\36\3\36\3\37\3\37\3 \3 \3 \2\2!\2\4\6\b\n\f\16\20\22\24\26"+
+		"\30\32\34\36 \"$&(*,.\60\62\64\668:<>\2\4\4\2\7\b\27\33\3\2\17\24\2\u01f6"+
+		"\2@\3\2\2\2\4V\3\2\2\2\6f\3\2\2\2\b\u0081\3\2\2\2\n\u0096\3\2\2\2\f\u00b8"+
+		"\3\2\2\2\16\u00bf\3\2\2\2\20\u00c1\3\2\2\2\22\u00cb\3\2\2\2\24\u00cf\3"+
+		"\2\2\2\26\u00d1\3\2\2\2\30\u00d3\3\2\2\2\32\u0103\3\2\2\2\34\u0117\3\2"+
+		"\2\2\36\u011f\3\2\2\2 \u0127\3\2\2\2\"\u012c\3\2\2\2$\u013c\3\2\2\2&\u014d"+
+		"\3\2\2\2(\u014f\3\2\2\2*\u0174\3\2\2\2,\u0181\3\2\2\2.\u0186\3\2\2\2\60"+
+		"\u018a\3\2\2\2\62\u018f\3\2\2\2\64\u0191\3\2\2\2\66\u0194\3\2\2\28\u019a"+
+		"\3\2\2\2:\u019c\3\2\2\2<\u019e\3\2\2\2>\u01a0\3\2\2\2@A\7\3\2\2AJ\7\7"+
+		"\2\2BC\7%\2\2CD\5\36\20\2DE\7%\2\2EF\7#\2\2FK\3\2\2\2GH\5\20\t\2HI\7#"+
+		"\2\2IK\3\2\2\2JB\3\2\2\2JG\3\2\2\2KL\3\2\2\2LM\5\22\n\2MN\7#\2\2NO\5\24"+
+		"\13\2OS\7\b\2\2PR\7\25\2\2QP\3\2\2\2RU\3\2\2\2SQ\3\2\2\2ST\3\2\2\2T\3"+
+		"\3\2\2\2US\3\2\2\2VW\7\4\2\2WX\7\7\2\2XY\5\16\b\2YZ\7#\2\2Z[\5\34\17\2"+
+		"[\\\7#\2\2\\]\5\34\17\2]^\7#\2\2^_\5\34\17\2_c\7\b\2\2`b\7\25\2\2a`\3"+
+		"\2\2\2be\3\2\2\2ca\3\2\2\2cd\3\2\2\2d\5\3\2\2\2ec\3\2\2\2fg\7\5\2\2gh"+
+		"\7\7\2\2hi\5\34\17\2ij\7#\2\2jk\7%\2\2kl\5<\37\2lm\7%\2\2mn\7#\2\2no\5"+
+		"\34\17\2or\7#\2\2ps\5\n\6\2qs\5(\25\2rp\3\2\2\2rq\3\2\2\2st\3\2\2\2tx"+
+		"\7\b\2\2uw\7\25\2\2vu\3\2\2\2wz\3\2\2\2xv\3\2\2\2xy\3\2\2\2y\7\3\2\2\2"+
+		"zx\3\2\2\2{\u0082\5\66\34\2|\u0082\5&\24\2}\u0082\5,\27\2~\u0082\5.\30"+
+		"\2\177\u0082\5\60\31\2\u0080\u0082\5\f\7\2\u0081{\3\2\2\2\u0081|\3\2\2"+
+		"\2\u0081}\3\2\2\2\u0081~\3\2\2\2\u0081\177\3\2\2\2\u0081\u0080\3\2\2\2"+
+		"\u0082\u0083\3\2\2\2\u0083\u0084\7\26\2\2\u0084\u0085\5\66\34\2\u0085"+
+		"\u008c\7\7\2\2\u0086\u0088\7#\2\2\u0087\u0086\3\2\2\2\u0087\u0088\3\2"+
+		"\2\2\u0088\u0089\3\2\2\2\u0089\u008b\5\34\17\2\u008a\u0087\3\2\2\2\u008b"+
+		"\u008e\3\2\2\2\u008c\u008a\3\2\2\2\u008c\u008d\3\2\2\2\u008d\u008f\3\2"+
+		"\2\2\u008e\u008c\3\2\2\2\u008f\u0093\7\b\2\2\u0090\u0092\7\25\2\2\u0091"+
+		"\u0090\3\2\2\2\u0092\u0095\3\2\2\2\u0093\u0091\3\2\2\2\u0093\u0094\3\2"+
+		"\2\2\u0094\t\3\2\2\2\u0095\u0093\3\2\2\2\u0096\u00ad\7\n\2\2\u0097\u00ac"+
+		"\5\b\5\2\u0098\u00ac\5\2\2\2\u0099\u00ac\5\4\3\2\u009a\u00ac\5\6\4\2\u009b"+
+		"\u00ac\5*\26\2\u009c\u00ac\5\"\22\2\u009d\u00ac\5\30\r\2\u009e\u00ac\5"+
+		"\n\6\2\u009f\u00a3\5\66\34\2\u00a0\u00a3\5\64\33\2\u00a1\u00a3\5\62\32"+
+		"\2\u00a2\u009f\3\2\2\2\u00a2\u00a0\3\2\2\2\u00a2\u00a1\3\2\2\2\u00a3\u00ac"+
+		"\3\2\2\2\u00a4\u00a8\5\26\f\2\u00a5\u00a7\7\25\2\2\u00a6\u00a5\3\2\2\2"+
+		"\u00a7\u00aa\3\2\2\2\u00a8\u00a6\3\2\2\2\u00a8\u00a9\3\2\2\2\u00a9\u00ac"+
+		"\3\2\2\2\u00aa\u00a8\3\2\2\2\u00ab\u0097\3\2\2\2\u00ab\u0098\3\2\2\2\u00ab"+
+		"\u0099\3\2\2\2\u00ab\u009a\3\2\2\2\u00ab\u009b\3\2\2\2\u00ab\u009c\3\2"+
+		"\2\2\u00ab\u009d\3\2\2\2\u00ab\u009e\3\2\2\2\u00ab\u00a2\3\2\2\2\u00ab"+
+		"\u00a4\3\2\2\2\u00ac\u00af\3\2\2\2\u00ad\u00ab\3\2\2\2\u00ad\u00ae\3\2"+
+		"\2\2\u00ae\u00b3\3\2\2\2\u00af\u00ad\3\2\2\2\u00b0\u00b2\7\25\2\2\u00b1"+
+		"\u00b0\3\2\2\2\u00b2\u00b5\3\2\2\2\u00b3\u00b1\3\2\2\2\u00b3\u00b4\3\2"+
+		"\2\2\u00b4\u00b6\3\2\2\2\u00b5\u00b3\3\2\2\2\u00b6\u00b7\7\13\2\2\u00b7"+
+		"\13\3\2\2\2\u00b8\u00b9\5\66\34\2\u00b9\u00ba\58\35\2\u00ba\u00bb\5\62"+
+		"\32\2\u00bb\r\3\2\2\2\u00bc\u00c0\5\n\6\2\u00bd\u00c0\5(\25\2\u00be\u00c0"+
+		"\5\66\34\2\u00bf\u00bc\3\2\2\2\u00bf\u00bd\3\2\2\2\u00bf\u00be\3\2\2\2"+
+		"\u00c0\17\3\2\2\2\u00c1\u00c2\5\34\17\2\u00c2\u00c3\7#\2\2\u00c3\u00c4"+
+		"\7%\2\2\u00c4\u00c5\5<\37\2\u00c5\u00c6\7%\2\2\u00c6\u00c7\7#\2\2\u00c7"+
+		"\u00c8\5\34\17\2\u00c8\21\3\2\2\2\u00c9\u00cc\5\n\6\2\u00ca\u00cc\5(\25"+
+		"\2\u00cb\u00c9\3\2\2\2\u00cb\u00ca\3\2\2\2\u00cc\23\3\2\2\2\u00cd\u00d0"+
+		"\5\n\6\2\u00ce\u00d0\5(\25\2\u00cf\u00cd\3\2\2\2\u00cf\u00ce\3\2\2\2\u00d0"+
+		"\25\3\2\2\2\u00d1\u00d2\7\6\2\2\u00d2\27\3\2\2\2\u00d3\u00f0\7\f\2\2\u00d4"+
+		"\u00d6\58\35\2\u00d5\u00d4\3\2\2\2\u00d5\u00d6\3\2\2\2\u00d6\u00e8\3\2"+
+		"\2\2\u00d7\u00e9\5\66\34\2\u00d8\u00e9\5(\25\2\u00d9\u00db\58\35\2\u00da"+
+		"\u00d9\3\2\2\2\u00da\u00db\3\2\2\2\u00db\u00dc\3\2\2\2\u00dc\u00e9\5\62"+
+		"\32\2\u00dd\u00df\58\35\2\u00de\u00dd\3\2\2\2\u00de\u00df\3\2\2\2\u00df"+
+		"\u00e0\3\2\2\2\u00e0\u00e9\5\64\33\2\u00e1\u00e9\5$\23\2\u00e2\u00e9\5"+
+		"&\24\2\u00e3\u00e9\5\b\5\2\u00e4\u00e9\5\30\r\2\u00e5\u00e9\5.\30\2\u00e6"+
+		"\u00e9\5,\27\2\u00e7\u00e9\5\60\31\2\u00e8\u00d7\3\2\2\2\u00e8\u00d8\3"+
+		"\2\2\2\u00e8\u00da\3\2\2\2\u00e8\u00de\3\2\2\2\u00e8\u00e1\3\2\2\2\u00e8"+
+		"\u00e2\3\2\2\2\u00e8\u00e3\3\2\2\2\u00e8\u00e4\3\2\2\2\u00e8\u00e5\3\2"+
+		"\2\2\u00e8\u00e6\3\2\2\2\u00e8\u00e7\3\2\2\2\u00e9\u00ec\3\2\2\2\u00ea"+
+		"\u00ed\58\35\2\u00eb\u00ed\7&\2\2\u00ec\u00ea\3\2\2\2\u00ec\u00eb\3\2"+
+		"\2\2\u00ec\u00ed\3\2\2\2\u00ed\u00ef\3\2\2\2\u00ee\u00d5\3\2\2\2\u00ef"+
+		"\u00f2\3\2\2\2\u00f0\u00ee\3\2\2\2\u00f0\u00f1\3\2\2\2\u00f1\u00f3\3\2"+
+		"\2\2\u00f2\u00f0\3\2\2\2\u00f3\u00f7\7\r\2\2\u00f4\u00f6\7\25\2\2\u00f5"+
+		"\u00f4\3\2\2\2\u00f6\u00f9\3\2\2\2\u00f7\u00f5\3\2\2\2\u00f7\u00f8\3\2"+
+		"\2\2\u00f8\31\3\2\2\2\u00f9\u00f7\3\2\2\2\u00fa\u0102\5\n\6\2\u00fb\u0102"+
+		"\5\30\r\2\u00fc\u0102\5(\25\2\u00fd\u0102\5\2\2\2\u00fe\u0102\5\4\3\2"+
+		"\u00ff\u0102\5\6\4\2\u0100\u0102\5(\25\2\u0101\u00fa\3\2\2\2\u0101\u00fb"+
+		"\3\2\2\2\u0101\u00fc\3\2\2\2\u0101\u00fd\3\2\2\2\u0101\u00fe\3\2\2\2\u0101"+
+		"\u00ff\3\2\2\2\u0101\u0100\3\2\2\2\u0102\u0105\3\2\2\2\u0103\u0101\3\2"+
+		"\2\2\u0103\u0104\3\2\2\2\u0104\33\3\2\2\2\u0105\u0103\3\2\2\2\u0106\u0118"+
+		"\5\b\5\2\u0107\u0118\5> \2\u0108\u0118\5\60\31\2\u0109\u0118\5(\25\2\u010a"+
+		"\u0118\5\66\34\2\u010b\u010d\58\35\2\u010c\u010b\3\2\2\2\u010c\u010d\3"+
+		"\2\2\2\u010d\u010e\3\2\2\2\u010e\u0118\5\62\32\2\u010f\u0111\58\35\2\u0110"+
+		"\u010f\3\2\2\2\u0110\u0111\3\2\2\2\u0111\u0112\3\2\2\2\u0112\u0118\5\64"+
+		"\33\2\u0113\u0118\5\30\r\2\u0114\u0118\5&\24\2\u0115\u0118\5.\30\2\u0116"+
+		"\u0118\5,\27\2\u0117\u0106\3\2\2\2\u0117\u0107\3\2\2\2\u0117\u0108\3\2"+
+		"\2\2\u0117\u0109\3\2\2\2\u0117\u010a\3\2\2\2\u0117\u010c\3\2\2\2\u0117"+
+		"\u0110\3\2\2\2\u0117\u0113\3\2\2\2\u0117\u0114\3\2\2\2\u0117\u0115\3\2"+
+		"\2\2\u0117\u0116\3\2\2\2\u0118\35\3\2\2\2\u0119\u011b\5:\36\2\u011a\u0119"+
+		"\3\2\2\2\u011a\u011b\3\2\2\2\u011b\u011c\3\2\2\2\u011c\u011e\5 \21\2\u011d"+
+		"\u011a\3\2\2\2\u011e\u0121\3\2\2\2\u011f\u011d\3\2\2\2\u011f\u0120\3\2"+
+		"\2\2\u0120\37\3\2\2\2\u0121\u011f\3\2\2\2\u0122\u0128\5\66\34\2\u0123"+
+		"\u0128\5\b\5\2\u0124\u0128\5.\30\2\u0125\u0128\5\30\r\2\u0126\u0128\5"+
+		"&\24\2\u0127\u0122\3\2\2\2\u0127\u0123\3\2\2\2\u0127\u0124\3\2\2\2\u0127"+
+		"\u0125\3\2\2\2\u0127\u0126\3\2\2\2\u0128\u0129\3\2\2\2\u0129\u012a\5<"+
+		"\37\2\u012a\u012b\5\34\17\2\u012b!\3\2\2\2\u012c\u012d\5\66\34\2\u012d"+
+		"\u012e\7\25\2\2\u012e#\3\2\2\2\u012f\u013d\5\66\34\2\u0130\u013d\5&\24"+
+		"\2\u0131\u0133\58\35\2\u0132\u0131\3\2\2\2\u0132\u0133\3\2\2\2\u0133\u0134"+
+		"\3\2\2\2\u0134\u013d\5\62\32\2\u0135\u0137\58\35\2\u0136\u0135\3\2\2\2"+
+		"\u0136\u0137\3\2\2\2\u0137\u0138\3\2\2\2\u0138\u013d\5\64\33\2\u0139\u013d"+
+		"\5\b\5\2\u013a\u013d\5.\30\2\u013b\u013d\5\30\r\2\u013c\u012f\3\2\2\2"+
+		"\u013c\u0130\3\2\2\2\u013c\u0132\3\2\2\2\u013c\u0136\3\2\2\2\u013c\u0139"+
+		"\3\2\2\2\u013c\u013a\3\2\2\2\u013c\u013b\3\2\2\2\u013d\u013e\3\2\2\2\u013e"+
+		"\u014b\7\33\2\2\u013f\u014c\5\66\34\2\u0140\u0142\58\35\2\u0141\u0140"+
+		"\3\2\2\2\u0141\u0142\3\2\2\2\u0142\u0143\3\2\2\2\u0143\u014c\5\62\32\2"+
+		"\u0144\u0146\58\35\2\u0145\u0144\3\2\2\2\u0145\u0146\3\2\2\2\u0146\u0147"+
+		"\3\2\2\2\u0147\u014c\5\64\33\2\u0148\u014c\5\b\5\2\u0149\u014c\5.\30\2"+
+		"\u014a\u014c\5\30\r\2\u014b\u013f\3\2\2\2\u014b\u0141\3\2\2\2\u014b\u0145"+
+		"\3\2\2\2\u014b\u0148\3\2\2\2\u014b\u0149\3\2\2\2\u014b\u014a\3\2\2\2\u014c"+
+		"%\3\2\2\2\u014d\u014e\7\37\2\2\u014e\'\3\2\2\2\u014f\u0170\7%\2\2\u0150"+
+		"\u0164\5\66\34\2\u0151\u0153\58\35\2\u0152\u0151\3\2\2\2\u0152\u0153\3"+
+		"\2\2\2\u0153\u0156\3\2\2\2\u0154\u0157\5\62\32\2\u0155\u0157\5\64\33\2"+
+		"\u0156\u0154\3\2\2\2\u0156\u0155\3\2\2\2\u0157\u0164\3\2\2\2\u0158\u0164"+
+		"\5<\37\2\u0159\u0164\7\16\2\2\u015a\u0164\5.\30\2\u015b\u0164\7\7\2\2"+
+		"\u015c\u0164\7\b\2\2\u015d\u0164\7#\2\2\u015e\u0164\58\35\2\u015f\u0164"+
+		"\7\t\2\2\u0160\u0164\5&\24\2\u0161\u0164\5\30\r\2\u0162\u0164\5\b\5\2"+
+		"\u0163\u0150\3\2\2\2\u0163\u0152\3\2\2\2\u0163\u0158\3\2\2\2\u0163\u0159"+
+		"\3\2\2\2\u0163\u015a\3\2\2\2\u0163\u015b\3\2\2\2\u0163\u015c\3\2\2\2\u0163"+
+		"\u015d\3\2\2\2\u0163\u015e\3\2\2\2\u0163\u015f\3\2\2\2\u0163\u0160\3\2"+
+		"\2\2\u0163\u0161\3\2\2\2\u0163\u0162\3\2\2\2\u0164\u0165\3\2\2\2\u0165"+
+		"\u0163\3\2\2\2\u0165\u0166\3\2\2\2\u0166\u0171\3\2\2\2\u0167\u016c\5\60"+
+		"\31\2\u0168\u016a\7\16\2\2\u0169\u016b\5\66\34\2\u016a\u0169\3\2\2\2\u016a"+
+		"\u016b\3\2\2\2\u016b\u016d\3\2\2\2\u016c\u0168\3\2\2\2\u016c\u016d\3\2"+
+		"\2\2\u016d\u0171\3\2\2\2\u016e\u0171\5(\25\2\u016f\u0171\5> \2\u0170\u0163"+
+		"\3\2\2\2\u0170\u0167\3\2\2\2\u0170\u016e\3\2\2\2\u0170\u016f\3\2\2\2\u0170"+
+		"\u0171\3\2\2\2\u0171\u0172\3\2\2\2\u0172\u0173\7%\2\2\u0173)\3\2\2\2\u0174"+
+		"\u0175\7\32\2\2\u0175\u0176\5\66\34\2\u0176\u017c\7\7\2\2\u0177\u017a"+
+		"\5\34\17\2\u0178\u0179\7#\2\2\u0179\u017b\5\34\17\2\u017a\u0178\3\2\2"+
+		"\2\u017a\u017b\3\2\2\2\u017b\u017d\3\2\2\2\u017c\u0177\3\2\2\2\u017c\u017d"+
+		"\3\2\2\2\u017d\u017e\3\2\2\2\u017e\u017f\7\b\2\2\u017f\u0180\7\25\2\2"+
+		"\u0180+\3\2\2\2\u0181\u0184\7&\2\2\u0182\u0185\5\30\r\2\u0183\u0185\5"+
+		"\66\34\2\u0184\u0182\3\2\2\2\u0184\u0183\3\2\2\2\u0185-\3\2\2\2\u0186"+
+		"\u0187\5\66\34\2\u0187\u0188\7$\2\2\u0188\u0189\5\66\34\2\u0189/\3\2\2"+
+		"\2\u018a\u018d\7\t\2\2\u018b\u018e\5\66\34\2\u018c\u018e\5\62\32\2\u018d"+
+		"\u018b\3\2\2\2\u018d\u018c\3\2\2\2\u018e\61\3\2\2\2\u018f\u0190\7\34\2"+
+		"\2\u0190\63\3\2\2\2\u0191\u0192\7\35\2\2\u0192\65\3\2\2\2\u0193\u0195"+
+		"\5\60\31\2\u0194\u0193\3\2\2\2\u0194\u0195\3\2\2\2\u0195\u0196\3\2\2\2"+
+		"\u0196\u0198\7!\2\2\u0197\u0199\5\60\31\2\u0198\u0197\3\2\2\2\u0198\u0199"+
+		"\3\2\2\2\u0199\67\3\2\2\2\u019a\u019b\t\2\2\2\u019b9\3\2\2\2\u019c\u019d"+
+		"\7\"\2\2\u019d;\3\2\2\2\u019e\u019f\t\3\2\2\u019f=\3\2\2\2\u01a0\u01a1"+
+		"\7 \2\2\u01a1?\3\2\2\2\65JScrx\u0081\u0087\u008c\u0093\u00a2\u00a8\u00ab"+
+		"\u00ad\u00b3\u00bf\u00cb\u00cf\u00d5\u00da\u00de\u00e8\u00ec\u00f0\u00f7"+
+		"\u0101\u0103\u010c\u0110\u0117\u011a\u011f\u0127\u0132\u0136\u013c\u0141"+
+		"\u0145\u014b\u0152\u0156\u0163\u0165\u016a\u016c\u0170\u017a\u017c\u0184"+
+		"\u018d\u0194\u0198";
 	public static final ATN _ATN =
 		new ATNDeserializer().deserialize(_serializedATN.toCharArray());
 	static {

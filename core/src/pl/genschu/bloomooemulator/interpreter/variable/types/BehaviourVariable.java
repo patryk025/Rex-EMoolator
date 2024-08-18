@@ -156,17 +156,50 @@ public class BehaviourVariable extends Variable {
 		});
 		this.setMethod("RUNLOOPED", new Method(
 			List.of(
-				new Parameter("INTEGER|DOUBLE", "startVal", true),
-				new Parameter("INTEGER|DOUBLE", "endDiff", true),
-				new Parameter("INTEGER|DOUBLE", "incrementBy", false),
+				new Parameter("INTEGER", "startVal", true),
+				new Parameter("INTEGER", "endDiff", true),
+				new Parameter("INTEGER", "incrementBy", false),
 				new Parameter("mixed", "param1...paramN", false)
 			),
 			"mixed"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				// TODO: implement this method
-				throw new ClassMethodNotImplementedException("Method RUNLOOPED is not implemented yet");
+				int startVal = ArgumentsHelper.getInteger(arguments.get(0));
+				int endDiff = ArgumentsHelper.getInteger(arguments.get(1));
+				int incrementBy = 1;
+				if(arguments.size() > 2) {
+					incrementBy = ArgumentsHelper.getInteger(arguments.get(2));
+				}
+
+				if(interpreter == null) {
+					Gdx.app.error("BehaviourVariable", "Interpreter is null");
+					return null;
+				}
+
+				if(arguments.size() > 3) {
+					for(int i = 3; i < arguments.size(); i++) {
+						context.setVariable("$"+(i-1), (Variable) arguments.get(i));
+					}
+				}
+
+				Gdx.app.log("BehaviourVariable", "Running looped behaviour " + getName() + " with " + (arguments.size() - 2) + " arguments");
+
+				Gdx.app.log("BehaviourVariable", "Argument 1: "+startVal);
+				for(int i = 3; i < arguments.size(); i++) {
+					Gdx.app.log("BehaviourVariable", "Argument " + (i-1) + ": " + arguments.get(i));
+				}
+
+				for(int i = startVal; i < endDiff; i+=incrementBy) {
+					context.setVariable("$1", new IntegerVariable("_I_", i, context));
+					interpreter.interpret();
+				}
+
+				for(int i = 1; i < arguments.size() - 1; i++) {
+					context.removeVariable("$"+i);
+				}
+
+				return null;
 			}
 		});
 	}

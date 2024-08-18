@@ -5,12 +5,7 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Pixmap;
 import pl.genschu.bloomooemulator.interpreter.Context;
 import pl.genschu.bloomooemulator.interpreter.variable.Variable;
-import pl.genschu.bloomooemulator.interpreter.variable.types.AnimoVariable;
-import pl.genschu.bloomooemulator.interpreter.variable.types.ApplicationVariable;
-import pl.genschu.bloomooemulator.interpreter.variable.types.EpisodeVariable;
-import pl.genschu.bloomooemulator.interpreter.variable.types.ImageVariable;
-import pl.genschu.bloomooemulator.interpreter.variable.types.SceneVariable;
-import pl.genschu.bloomooemulator.interpreter.variable.types.SequenceVariable;
+import pl.genschu.bloomooemulator.interpreter.variable.types.*;
 import pl.genschu.bloomooemulator.loader.CNVParser;
 import pl.genschu.bloomooemulator.logic.GameEntry;
 

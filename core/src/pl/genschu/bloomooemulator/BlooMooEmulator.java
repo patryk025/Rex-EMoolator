@@ -110,7 +110,7 @@ public class BlooMooEmulator extends ApplicationAdapter {
             if (mouseVariable != null)
                 mouseVariable.update(x, y);
 
-            handleMouseInput(x, y, isPressed, justPressed, justReleased, mouseVariable);
+            handleMouseInput(x, y, isPressed, justPressed, justReleased, mouseVariable, drawList);
 
             prevPressed = isPressed;
         }
@@ -298,7 +298,7 @@ public class BlooMooEmulator extends ApplicationAdapter {
         return null;
     }
 
-    public void handleMouseInput(int x, int y, boolean isPressed, boolean justPressed, boolean justReleased, MouseVariable mouseVariable) {
+    public void handleMouseInput(int x, int y, boolean isPressed, boolean justPressed, boolean justReleased, MouseVariable mouseVariable, List<Variable> drawList) {
         //Gdx.app.log("Mouse", "x: " + x + " y: " + y);
         List<Variable> buttons = new ArrayList<>(context.getButtonsVariables().values());
 
@@ -379,9 +379,43 @@ public class BlooMooEmulator extends ApplicationAdapter {
             activeButton = null;
         }
 
+        Gdx.app.log("Mouse", "mouseVariable != null: " + (mouseVariable != null) + " isPressed: " + isPressed + " mouseVariable.isEnabled(): " + (mouseVariable != null && mouseVariable.isEnabled()));
         if(mouseVariable != null && isPressed && mouseVariable.isEnabled()) {
             mouseVariable.emitSignal("ONCLICK", "LEFT"); // right is not used at all
+
+            Variable graphics = getGraphicsAt(x, y, drawList);
+            if(graphics != null) {
+                graphics.emitSignal("ONCLICK", "LEFT");
+            }
         }
+    }
+
+    private Variable getGraphicsAt(int x, int y, List<Variable> drawList) {
+        try {
+            Collections.reverse(drawList);
+            for (Variable variable : drawList) {
+                boolean visible = false;
+                if (variable instanceof ImageVariable) {
+                    visible = ((ImageVariable) variable).isVisible();
+                }
+                if (variable instanceof AnimoVariable) {
+                    visible = ((AnimoVariable) variable).isVisible();
+                }
+                if (variable instanceof SequenceVariable) {
+                    visible = ((SequenceVariable) variable).isVisible();
+                }
+                if (!visible) {
+                    continue;
+                }
+
+                Rectangle rect = getRect(variable);
+                if (rect.contains(x, y)) {
+                    return variable;
+                }
+            }
+        } catch (NullPointerException ignored) {}
+
+        return null;
     }
 
     private void drawRectangle(Rectangle rect, Color color) {
