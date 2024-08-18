@@ -30,7 +30,7 @@ public class GroupVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				for(Object argument : arguments) {
-					Variable variable = (Variable) argument;
+					Variable variable = context.getVariable(ArgumentsHelper.getString(argument));
 					variables.add(variable);
 				}
 				return null;
@@ -127,9 +127,11 @@ public class GroupVariable extends Variable {
 				public Variable execute(List<Object> arguments) {
 					for(Variable variable : variables) {
 						try {
+							Gdx.app.log("GroupVariable", "Firing method " + name + " on variable " + variable.getName());
 							variable.getMethod(name, paramTypes).execute(arguments);
 						} catch (ClassMethodNotFoundException | ClassMethodNotImplementedException ignored) {
 							// nothing to do
+							Gdx.app.log("GroupVariable", "Method " + name + " not found on variable " + variable.getName()+". Ignoring it.");
 						}
 					}
 

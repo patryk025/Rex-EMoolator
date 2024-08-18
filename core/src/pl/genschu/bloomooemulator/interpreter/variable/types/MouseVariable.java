@@ -66,6 +66,9 @@ public class MouseVariable extends Variable {
 	}
 
 	public void update(int x, int y) {
+		if(x != posX || y != posY) {
+			emitSignal("ONMOVE");
+		}
 		this.posX = x;
 		this.posY = y;
 	}

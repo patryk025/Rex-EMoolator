@@ -34,7 +34,10 @@ public class MethodCallExpression extends Expression {
         Variable[] arguments = new Variable[argumentsLength];
         Gdx.app.log("MethodCallExpression", methodName + " - arguments: ");
         for (int i = 0; i < argumentsLength; i++) {
-            arguments[i] = getVariableFromObject(this.arguments[i], context);
+            arguments[i] = getVariableFromObject(this.arguments[i], context, true);
+            if(arguments[i].getValue() == null) { // if resolved argument is not primitive type
+                arguments[i] = getVariableFromObject(this.arguments[i], context);
+            }
             Gdx.app.log("MethodCallExpression", methodName + " - argument " + i + ": " + arguments[i].getValue().toString());
         }
         try {

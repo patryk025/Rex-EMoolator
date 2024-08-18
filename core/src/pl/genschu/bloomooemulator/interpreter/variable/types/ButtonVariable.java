@@ -245,6 +245,18 @@ public class ButtonVariable extends Variable {
 		return isVisible;
 	}
 
+	public Variable getCurrentImage() {
+		if(currentGfx != null) {
+			return currentGfx;
+		}
+		else if(rectVariable != null) {
+			return rectVariable;
+		}
+		else {
+			return null;
+		}
+	}
+
 	public void hideImages() {
 		loadImages();
 

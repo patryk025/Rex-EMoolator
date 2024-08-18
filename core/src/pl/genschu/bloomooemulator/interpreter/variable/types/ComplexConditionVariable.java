@@ -67,10 +67,12 @@ public class ComplexConditionVariable extends ConditionVariable {
 		if(condition1 == null && condition2 == null) {
 			return false;
 		}
+		boolean result1 = ((BoolVariable) condition1.fireMethod("CHECK", new BoolVariable("", true, context))).GET();
+		boolean result2 = ((BoolVariable) condition2.fireMethod("CHECK", new BoolVariable("", true, context))).GET();
 		if(operator.equals("AND")) {
-			return condition1.check() && condition2.check();
+			return result1 && result2;
 		} else if(operator.equals("OR")) {
-			return condition1.check() || condition2.check();
+			return result1 || result2;
 		}
 		return false;
 	}

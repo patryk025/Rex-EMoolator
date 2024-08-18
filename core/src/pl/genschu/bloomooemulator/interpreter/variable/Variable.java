@@ -6,10 +6,7 @@ import pl.genschu.bloomooemulator.interpreter.exceptions.BreakException;
 import pl.genschu.bloomooemulator.interpreter.exceptions.ClassMethodNotFoundException;
 import pl.genschu.bloomooemulator.interpreter.exceptions.ClassMethodNotImplementedException;
 import pl.genschu.bloomooemulator.interpreter.exceptions.VariableUnsupportedOperationException;
-import pl.genschu.bloomooemulator.interpreter.variable.types.BoolVariable;
-import pl.genschu.bloomooemulator.interpreter.variable.types.DoubleVariable;
-import pl.genschu.bloomooemulator.interpreter.variable.types.IntegerVariable;
-import pl.genschu.bloomooemulator.interpreter.variable.types.StringVariable;
+import pl.genschu.bloomooemulator.interpreter.variable.types.*;
 
 import java.util.*;
 
@@ -267,7 +264,9 @@ public abstract class Variable {
 		Gdx.app.log("Variable", "Emitting signal " + name + " for variable " + this.getName() + " with argument " + argument);
 		// Gdx.app.log("Variable", "Setting THIS variable to " + this.getName());
 		Variable oldThis = context.getThisVariable();
-		context.setThisVariable(this);
+		if(!(this instanceof ConditionVariable) && !(this instanceof BehaviourVariable)) {
+			context.setThisVariable(this);
+		}
 
 		try {
 			String signalName = name;

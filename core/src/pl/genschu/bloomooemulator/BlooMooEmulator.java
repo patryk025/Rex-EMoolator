@@ -109,6 +109,28 @@ public class BlooMooEmulator extends ApplicationAdapter {
         batch.begin();
         batch.setBlendFunction(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
 
+        // Handle mouse events
+        int x = Gdx.input.getX();
+        int y = Gdx.input.getY();
+
+        if(x > 0 && y > 0 && x < Gdx.graphics.getWidth() && y < Gdx.graphics.getHeight()) {
+            boolean isPressed = Gdx.input.isButtonPressed(Input.Buttons.LEFT);
+            boolean justPressed = !prevPressed && isPressed;
+            boolean justReleased = prevPressed && !isPressed;
+
+            // correct coordinates according to window size
+            Vector2 correctedVector = getCorrectedMouseCoords(x, y, Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), (int) VIRTUAL_WIDTH, (int) VIRTUAL_HEIGHT);
+            x = (int) correctedVector.x;
+            y = (int) correctedVector.y;
+
+            if (mouseVariable != null)
+                mouseVariable.update(x, y);
+
+            handleMouseInput(x, y, isPressed, justPressed, justReleased, mouseVariable);
+
+            prevPressed = isPressed;
+        }
+
         ImageVariable background = game.getCurrentSceneVariable().getBackground();
         if(background != null) {
             Image image = background.getImage();
@@ -166,8 +188,6 @@ public class BlooMooEmulator extends ApplicationAdapter {
                 }
             } else if(variable instanceof AnimoVariable) {
                 AnimoVariable animoVariable = (AnimoVariable) variable;
-                //if(animoVariable.getName().equals("BUTELKA"))
-                //    Gdx.app.log("DEBUG BUTELKA", "Current event: "+animoVariable.getCurrentEvent().getName() + ", isVisible: "+animoVariable.isVisible() + ", has image: "+(animoVariable.getCurrentImage()!=null));
                 if(animoVariable.isVisible()) {
                     try {
                         Image image = animoVariable.getCurrentImage();
@@ -226,74 +246,40 @@ public class BlooMooEmulator extends ApplicationAdapter {
             }
         }
 
-        // Handle mouse events
-        int x = Gdx.input.getX();
-        int y = Gdx.input.getY();
+        if(debugButtons) {
+            List<Variable> buttons = new ArrayList<>(context.getButtonsVariables().values());
 
-        if(x > 0 && y > 0 && x < Gdx.graphics.getWidth() && y < Gdx.graphics.getHeight()) {
-            boolean isPressed = Gdx.input.isButtonPressed(Input.Buttons.LEFT);
-            boolean justPressed = !prevPressed && isPressed;
-            boolean justReleased = prevPressed && !isPressed;
+            Collections.sort(buttons, (o1, o2) -> {
+                Variable image1 = ((ButtonVariable) o1).getCurrentImage();
+                Variable image2 = ((ButtonVariable) o2).getCurrentImage();
 
-            //Gdx.app.log("MouseData", "Mouse coords: ("+x+", "+y+")");
+                int priority1 = 0;
+                int priority2 = 0;
 
-            // correct coordinates according to window size
-            Vector2 correctedVector = getCorrectedMouseCoords(x, y, Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), (int) VIRTUAL_WIDTH, (int) VIRTUAL_HEIGHT);
-            x = (int) correctedVector.x;
-            y = (int) correctedVector.y;
-
-            //Gdx.app.log("MouseData", "Corrected mouse coords: ("+x+", "+y+")");
-
-            if (mouseVariable != null)
-                mouseVariable.update(x, y);
-
-            handleMouseInput(x, y, isPressed, justPressed, justReleased, mouseVariable);
-
-            /*try {
-                Collections.reverse(drawList);
-                for (Variable variable : drawList) {
-                    boolean visible = false;
-                    if (variable instanceof ImageVariable) {
-                        visible = ((ImageVariable) variable).isVisible();
-                    }
-                    if (variable instanceof AnimoVariable) {
-                        visible = ((AnimoVariable) variable).isVisible();
-                    }
-                    if (variable instanceof SequenceVariable) {
-                        visible = ((SequenceVariable) variable).isVisible();
-                    }
-                    if (!visible) {
-                        continue;
-                    }
-
-                    Rectangle rect = getRect(variable);
-                    if (rect.contains(x, y)) {
-                        Image image = getImage(variable);
-                        int relativeX = x - rect.getXLeft();
-                        int relativeY = y - rect.getYTop();
-                        int alpha = 255;
-
-                        if (image.getImageTexture() != null) {
-                            TextureData textureData = image.getImageTexture().getTextureData();
-                            if (!textureData.isPrepared()) {
-                                textureData.prepare();
-                            }
-                            Pixmap pixmap = textureData.consumePixmap();
-                            int pixel = pixmap.getPixel(relativeX, relativeY);
-                            alpha = (pixel >> 24) & 0xff;
-                        }
-
-                        if (alpha > 0) {
-                            Gdx.app.log("GraphicsAt", variable.getName() + " at " + x + "," + y + " alpha: " + alpha);
-                            break;
-                        }
-                    }
+                if(image1 != null) {
+                    priority1 = image1.getAttribute("PRIORITY") != null ? Integer.parseInt(image1.getAttribute("PRIORITY").getValue().toString()) : 0;
                 }
-            } catch (NullPointerException ignored) {}*/
+                if(image2 != null) {
+                    priority2 = image2.getAttribute("PRIORITY") != null ? Integer.parseInt(image2.getAttribute("PRIORITY").getValue().toString()) : 0;
+                }
 
-            prevPressed = isPressed;
+                return Integer.compare(priority2, priority1);
+            });
 
-            //batch.draw(cursorTexture, x - 25, VIRTUAL_HEIGHT - y - 25, 50, 50);
+            for (Variable variable : buttons) {
+                ButtonVariable button = (ButtonVariable) variable;
+
+                if (!button.isVisible()) continue;
+
+                if (!button.isEnabled()) continue;
+
+                if (button.getRect() != null && button.getRect().contains(x, y)) {
+                    drawRectangle(button.getRect(), Color.GREEN);
+                }
+                else if(button.getRect() != null) {
+                    drawRectangle(button.getRect(), Color.RED);
+                }
+            }
         }
 
         batch.end();
@@ -331,6 +317,24 @@ public class BlooMooEmulator extends ApplicationAdapter {
     public void handleMouseInput(int x, int y, boolean isPressed, boolean justPressed, boolean justReleased, MouseVariable mouseVariable) {
         //Gdx.app.log("Mouse", "x: " + x + " y: " + y);
         List<Variable> buttons = new ArrayList<>(context.getButtonsVariables().values());
+
+        Collections.sort(buttons, (o1, o2) -> {
+            Variable image1 = ((ButtonVariable) o1).getCurrentImage();
+            Variable image2 = ((ButtonVariable) o2).getCurrentImage();
+
+            int priority1 = 0;
+            int priority2 = 0;
+
+            if(image1 != null) {
+                priority1 = image1.getAttribute("PRIORITY") != null ? Integer.parseInt(image1.getAttribute("PRIORITY").getValue().toString()) : 0;
+            }
+            if(image2 != null) {
+                priority2 = image2.getAttribute("PRIORITY") != null ? Integer.parseInt(image2.getAttribute("PRIORITY").getValue().toString()) : 0;
+            }
+
+            return Integer.compare(priority2, priority1);
+        });
+
         for (Variable variable : buttons) {
             ButtonVariable button = (ButtonVariable) variable;
 
@@ -341,14 +345,7 @@ public class BlooMooEmulator extends ApplicationAdapter {
 
             if(!button.isEnabled()) continue;
 
-            //Gdx.app.log(button.getName(), button.getRect().toString());
-            //Gdx.app.log(button.getName(), "Contains: " + (button.getRect().contains(x, y) ? "true" : "false"));
-
             if (button.getRect() != null && button.getRect().contains(x, y)) {
-                if(debugButtons) {
-                    // draw rect
-                    drawRectangle(button.getRect(), Color.GREEN );
-                }
                 if (justPressed) {
                     if (activeButton == null) {
                         activeButton = button;
@@ -376,11 +373,6 @@ public class BlooMooEmulator extends ApplicationAdapter {
                 }
             }
             else {
-                if(debugButtons && button.getRect() != null) {
-                    // draw rect
-                    drawRectangle(button.getRect(), Color.RED);
-                }
-
                 if (button.isFocused() && !isPressed) {
                     button.setFocused(false);
                     Signal onFocusLossSignal = button.getSignal("ONFOCUSOFF");
