@@ -44,7 +44,7 @@ public class MethodCallExpression extends Expression {
         try {
             return variable.fireMethod(methodName, (Object[]) arguments);
         } catch (ClassMethodNotFoundException | NullPointerException e) {
-            Gdx.app.error("MethodCallExpression", "Method call error in class " + variable.getType() + ": " + e.getMessage());
+            Gdx.app.error("MethodCallExpression", "Method call error in class " + variable.getType() + ": " + e.getMessage(), e);
             return null;
         }
     }

@@ -59,14 +59,14 @@ public class ArrayLoader {
             int dataType = readInt(f);
 
             if (dataType == 1) {
-                array.add(new IntegerVariable("", readInt(f), null));
+                array.add(new IntegerVariable("", readInt(f), variable.getContext()));
             } else if (dataType == 4) {
-                array.add(new DoubleVariable("", readDouble(f), null));
+                array.add(new DoubleVariable("", readDouble(f), variable.getContext()));
             } else if (dataType == 2) {
                 String string = readString(f);
-                array.add(new StringVariable("", string, null));
+                array.add(new StringVariable("", string, variable.getContext()));
             } else if (dataType == 3) {
-                array.add(new BoolVariable("", readBoolean(f), null));
+                array.add(new BoolVariable("", readBoolean(f), variable.getContext()));
             } else {
                 throw new IllegalArgumentException("Unknown data type");
             }

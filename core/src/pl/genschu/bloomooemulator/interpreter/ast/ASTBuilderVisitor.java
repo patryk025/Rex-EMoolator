@@ -37,7 +37,7 @@ public class ASTBuilderVisitor extends AidemMediaBaseVisitor<Node> {
     @Override
     public Node visitFunctionFire(AidemMediaParser.FunctionFireContext ctx) {
         String methodName = "";
-        if(ctx.stringRef() != null) {
+        if(ctx.stringRef() != null || ctx.iterator() != null || ctx.struct() != null || ctx.variable() != null || ctx.varWithNumber() != null) {
             methodName = ctx.literal(0).getText();
         }
         else {

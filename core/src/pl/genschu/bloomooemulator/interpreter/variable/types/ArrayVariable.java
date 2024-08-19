@@ -1,5 +1,6 @@
 package pl.genschu.bloomooemulator.interpreter.variable.types;
 
+import com.badlogic.gdx.Gdx;
 import pl.genschu.bloomooemulator.interpreter.arithmetic.ArithmeticOperation;
 import pl.genschu.bloomooemulator.interpreter.arithmetic.operations.AddOperation;
 import pl.genschu.bloomooemulator.interpreter.exceptions.ClassMethodNotImplementedException;
@@ -33,6 +34,7 @@ public class ArrayVariable extends Variable {
 				for(Object argument : arguments) {
 					elements.add((Variable) argument);
 				}
+				//debugArray();
 				return null;
 			}
 		});
@@ -48,6 +50,7 @@ public class ArrayVariable extends Variable {
 				int index = ArgumentsHelper.getInteger(arguments.get(0));
 				AddOperation operation = new AddOperation();
 				elements.set(index, operation.performOperation(elements.get(index), (Variable) arguments.get(1)));
+				//debugArray();
 				return null;
 			}
 		});
@@ -62,6 +65,7 @@ public class ArrayVariable extends Variable {
 			public Variable execute(List<Object> arguments) {
 				int index = ArgumentsHelper.getInteger(arguments.get(0));
 				elements.set(index, (Variable) arguments.get(1));
+				//debugArray();
 				return null;
 			}
 		});
@@ -177,6 +181,7 @@ public class ArrayVariable extends Variable {
 			public Variable execute(List<Object> arguments) {
 				int index = ArgumentsHelper.getInteger(arguments.get(0));
 				elements.add(index, (Variable) arguments.get(1));
+				//debugArray();
 				return null;
 			}
 		});
@@ -191,6 +196,7 @@ public class ArrayVariable extends Variable {
 				elements.clear();
 				String path = ArgumentsHelper.getString(arguments.get(0));
 				ArrayLoader.loadArray(ArrayVariable.this, path);
+				//debugArray();
 				return null;
 			}
 		});
@@ -247,6 +253,7 @@ public class ArrayVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				elements.clear();
+				//debugArray();
 				return null;
 			}
 		});
@@ -260,6 +267,7 @@ public class ArrayVariable extends Variable {
 			public Variable execute(List<Object> arguments) {
 				int index = ArgumentsHelper.getInteger(arguments.get(0));
 				elements.remove(index);
+				//debugArray();
 				return null;
 			}
 		});
@@ -333,6 +341,13 @@ public class ArrayVariable extends Variable {
 				throw new ClassMethodNotImplementedException("Method SUM is not implemented yet");
 			}
 		});
+	}
+
+	private void debugArray() {
+		Gdx.app.log("ArrayVariable", "DEBUG "+getName()+" ("+elements.size()+" elements):");
+		for(Variable element : elements) {
+			Gdx.app.log("ArrayVariable <"+getName()+">", "\t"+element.getName()+" = "+element);
+		}
 	}
 
 	@Override

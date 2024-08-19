@@ -103,6 +103,7 @@ public class CanvasObserverVariable extends Variable {
 
 					if (z >= minZ && z <= maxZ) {
 						Rectangle rect = getRect(variable);
+						if(rect ==  null) continue;
 						if (rect.contains(posX, posY)) {
 							if (useAlpha) {
                                 Gdx.app.log("CanvasObserver", "Debug - " + variable.getName() + " at (" + posX + "," + posY + ")");

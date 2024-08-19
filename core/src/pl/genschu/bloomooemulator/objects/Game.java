@@ -159,8 +159,6 @@ public class Game {
         if (variable instanceof EpisodeVariable) {
             loadEpisode((EpisodeVariable) variable);
         } else if (variable instanceof SceneVariable) {
-            boolean isNewScene = !currentScene.equals(name);
-
             if (currentEpisodeContext == null) {
                 for (EpisodeVariable episode : applicationVariable.getEpisodes()) {
                     if (episode.getScenes().contains((SceneVariable) variable)) {
@@ -170,12 +168,7 @@ public class Game {
                 }
             }
 
-            if (isNewScene) {
-                loadScene((SceneVariable) variable);
-            } else {
-                Gdx.app.log("Game", "Scene " + name + " already loaded. Skipping...");
-                runInit(currentSceneContext);
-            }
+            loadScene((SceneVariable) variable);
         }
     }
 
