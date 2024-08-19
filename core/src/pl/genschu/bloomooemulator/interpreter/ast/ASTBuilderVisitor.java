@@ -179,6 +179,9 @@ public class ASTBuilderVisitor extends AidemMediaBaseVisitor<Node> {
             }
             return new ConstantExpression(Double.parseDouble(ctx.getText()));
         }
+        else if(ctx.literal() != null) {
+            return new VariableExpression((Expression) visit(ctx.literal()));
+        }
         return super.visitParam(ctx);
     }
 
@@ -193,7 +196,14 @@ public class ASTBuilderVisitor extends AidemMediaBaseVisitor<Node> {
 				operands.add(new OperatorExpression(ctx.getChild(i).getText().trim()));
 			}
 			else {
-                Expression operand = (Expression) visit(ctx.getChild(i));
+                Expression operand;
+                if(ctx.getChild(i) instanceof AidemMediaParser.LiteralContext) {
+                    operand = new VariableExpression((Expression) visit(ctx.getChild(i)));
+                }
+                else {
+                    operand = (Expression) visit(ctx.getChild(i));
+                }
+
                 if(operand != null)
 				    operands.add(operand);
 			}
@@ -221,9 +231,21 @@ public class ASTBuilderVisitor extends AidemMediaBaseVisitor<Node> {
 
     @Override
     public Node visitConditionPart(AidemMediaParser.ConditionPartContext ctx) {
-        Expression left = (Expression) visit(ctx.getChild(0));
+        Expression left;
+        if(ctx.param().string() == null && ctx.param().literal() != null) {
+            left = new VariableExpression((Expression) ctx.getChild(0));
+        }
+        else {
+            left = (Expression) visit(ctx.getChild(0));
+        }
         String operator = ctx.getChild(1).getText();
-        Expression right = (Expression) visit(ctx.getChild(2));
+        Expression right;
+        if(ctx.param().string() == null && ctx.param().literal() != null) {
+            right = new VariableExpression((Expression) ctx.getChild(2));
+        }
+        else {
+            right = (Expression) visit(ctx.getChild(2));
+        }
         return new ConditionExpression(left, right, operator);
     }
 
@@ -321,7 +343,18 @@ public class ASTBuilderVisitor extends AidemMediaBaseVisitor<Node> {
             condition = (ConditionExpression) buildConditionExpression(ctx.condition());
         }
 
-        return new IfStatement(condition, (Expression) visit(ctx.ifTrue()), (Expression) visit(ctx.ifFalse()));
+        Node trueBranch = visit(ctx.ifTrue());
+        Node falseBranch = visit(ctx.ifFalse());
+
+        if(trueBranch instanceof ConstantExpression) {
+            trueBranch = new VariableExpression((Expression) trueBranch);
+        }
+
+        if(falseBranch instanceof ConstantExpression) {
+            falseBranch = new VariableExpression((Expression) falseBranch);
+        }
+
+        return new IfStatement(condition, (Expression) trueBranch, (Expression) falseBranch);
     }
 
 	@Override

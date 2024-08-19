@@ -39,10 +39,9 @@ public class IfStatement extends Statement {
             result = null;
         }
 
-        Variable variable = getVariableFromObject(result, context);
-
-        if(variable != null) {
-            if(variable instanceof BehaviourVariable) {
+        if(result != null) {
+            if(result instanceof BehaviourVariable) {
+                BehaviourVariable variable = (BehaviourVariable) result;
                 try {
                     variable.getMethod("RUN", Collections.singletonList("mixed")).execute(null);
                 } catch(BreakException e) {

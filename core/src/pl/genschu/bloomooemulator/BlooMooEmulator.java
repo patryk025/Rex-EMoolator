@@ -110,7 +110,7 @@ public class BlooMooEmulator extends ApplicationAdapter {
             if (mouseVariable != null)
                 mouseVariable.update(x, y);
 
-            handleMouseInput(x, y, isPressed, justPressed, justReleased, mouseVariable, drawList);
+            handleMouseInput(x, y, isPressed, justPressed, justReleased, mouseVariable, new ArrayList<>(drawList));
 
             prevPressed = isPressed;
         }
