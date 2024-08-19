@@ -39,7 +39,7 @@ public class IfStatement extends Statement {
             result = null;
         }
 
-        Variable variable = getVariableFromObject(result, context, true);
+        Variable variable = getVariableFromObject(result, context);
 
         if(variable != null) {
             if(variable instanceof BehaviourVariable) {

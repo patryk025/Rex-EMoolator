@@ -5,6 +5,7 @@ import pl.genschu.bloomooemulator.interpreter.Context;
 import pl.genschu.bloomooemulator.interpreter.variable.Variable;
 import pl.genschu.bloomooemulator.interpreter.ast.Expression;
 import pl.genschu.bloomooemulator.interpreter.exceptions.ClassMethodNotFoundException;
+import pl.genschu.bloomooemulator.interpreter.variable.types.StringVariable;
 
 import static pl.genschu.bloomooemulator.interpreter.util.VariableHelper.getVariableFromObject;
 
@@ -21,7 +22,7 @@ public class MethodCallExpression extends Expression {
 
     @Override
     public Object evaluate(Context context) {
-        Variable targetVariable = getVariableFromObject(this.targetVariable, context, true);
+        Variable targetVariable = getVariableFromObject(this.targetVariable, context);
         if (targetVariable == null) {
             throw new RuntimeException("Method call target must be a variable");
         }
@@ -34,7 +35,7 @@ public class MethodCallExpression extends Expression {
         Variable[] arguments = new Variable[argumentsLength];
         Gdx.app.log("MethodCallExpression", methodName + " - arguments: ");
         for (int i = 0; i < argumentsLength; i++) {
-            arguments[i] = getVariableFromObject(this.arguments[i], context, true);
+            arguments[i] = getVariableFromObject(this.arguments[i], context);
             if(arguments[i].getValue() == null) { // if resolved argument is not primitive type
                 arguments[i] = getVariableFromObject(this.arguments[i], context);
             }

@@ -11,10 +11,6 @@ import pl.genschu.bloomooemulator.interpreter.variable.types.StringVariable;
 
 public class VariableHelper {
     public static Variable getVariableFromObject(Object value, Context context) {
-        return getVariableFromObject(value, context, false);
-    }
-
-    public static Variable getVariableFromObject(Object value, Context context, boolean resolveString) {
         if (value instanceof MethodCallExpression) {
             return (Variable) ((MethodCallExpression) value).evaluate(context);
         }
@@ -23,20 +19,6 @@ public class VariableHelper {
         }
         else if(value instanceof ConstantExpression) {
             Object valueString = ((ConstantExpression) value).evaluate(context);
-
-            if(resolveString) {
-                if(!context.hasVariable(valueString.toString())) {
-                    return VariableFactory.createVariableWithAutoType("", valueString, context);
-                }
-
-                Variable variable = context.getVariable(valueString.toString());
-
-                if(variable instanceof ApplicationVariable || variable instanceof EpisodeVariable || variable instanceof SceneVariable) { // it should not be returned
-                    return VariableFactory.createVariableWithAutoType("", valueString.toString(), context);
-                }
-
-                return context.getVariable(valueString.toString());
-            }
 
             if(valueString.toString().equals("_I_")) {
                 return context.getVariable(valueString.toString());
@@ -56,9 +38,6 @@ public class VariableHelper {
             return (Variable) ((ConstantExpression) ((ConditionExpression) value).evaluate(context)).evaluate(context);
         }
         if (value instanceof String) {
-            if(resolveString) {
-                return context.getVariable((String) value);
-            }
             return new StringVariable("", (String) value, context);
         }
 

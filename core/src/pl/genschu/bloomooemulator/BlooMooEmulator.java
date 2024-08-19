@@ -379,7 +379,7 @@ public class BlooMooEmulator extends ApplicationAdapter {
             activeButton = null;
         }
 
-        Gdx.app.log("Mouse", "mouseVariable != null: " + (mouseVariable != null) + " isPressed: " + isPressed + " mouseVariable.isEnabled(): " + (mouseVariable != null && mouseVariable.isEnabled()));
+        //Gdx.app.log("Mouse", "mouseVariable != null: " + (mouseVariable != null) + " isPressed: " + isPressed + " mouseVariable.isEnabled(): " + (mouseVariable != null && mouseVariable.isEnabled()));
         if(mouseVariable != null && isPressed && mouseVariable.isEnabled()) {
             mouseVariable.emitSignal("ONCLICK", "LEFT"); // right is not used at all
 
@@ -446,7 +446,7 @@ public class BlooMooEmulator extends ApplicationAdapter {
             return Integer.compare(priority1, priority2);
         };
         Collections.sort(drawList, comparator);
-        Gdx.app.log("Draw list after sort", getDrawListAsString(drawList));
+        //Gdx.app.log("Draw list after sort", getDrawListAsString(drawList));
         return drawList;
     }
 
