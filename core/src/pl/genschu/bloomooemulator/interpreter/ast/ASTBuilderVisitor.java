@@ -232,16 +232,16 @@ public class ASTBuilderVisitor extends AidemMediaBaseVisitor<Node> {
     @Override
     public Node visitConditionPart(AidemMediaParser.ConditionPartContext ctx) {
         Expression left;
-        if(ctx.param().string() == null && ctx.param().literal() != null) {
-            left = new VariableExpression((Expression) ctx.getChild(0));
+        if(ctx.getChild(0) instanceof AidemMediaParser.LiteralContext) {
+            left = new VariableExpression((Expression) visit(ctx.getChild(0)));
         }
         else {
             left = (Expression) visit(ctx.getChild(0));
         }
         String operator = ctx.getChild(1).getText();
         Expression right;
-        if(ctx.param().string() == null && ctx.param().literal() != null) {
-            right = new VariableExpression((Expression) ctx.getChild(2));
+        if(ctx.getChild(2) instanceof AidemMediaParser.LiteralContext) {
+            right = new VariableExpression((Expression) visit(ctx.getChild(2)));
         }
         else {
             right = (Expression) visit(ctx.getChild(2));
