@@ -8,6 +8,7 @@ import pl.genschu.bloomooemulator.objects.Event;
 import pl.genschu.bloomooemulator.objects.FrameData;
 import pl.genschu.bloomooemulator.objects.Image;
 import pl.genschu.bloomooemulator.utils.FileUtils;
+import pl.genschu.bloomooemulator.utils.StringUtils;
 
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -51,11 +52,7 @@ public class AnimoLoader {
         byte[] descriptionBytes = new byte[13];
         buffer.get(descriptionBytes);
 
-        String description = "";
-        try {
-            description = new String(descriptionBytes, StandardCharsets.UTF_8).split("\0")[0];
-        } catch (ArrayIndexOutOfBoundsException ignored) {
-        }
+        String description = StringUtils.convertNullTerminatedText(descriptionBytes, StandardCharsets.UTF_8);
 
         variable.setDescription(description);
 
@@ -86,7 +83,7 @@ public class AnimoLoader {
 
             byte[] eventNameBytes = new byte[32];
             buffer.get(eventNameBytes);
-            String eventName = new String(eventNameBytes, StandardCharsets.ISO_8859_1).split("\0")[0];
+            String eventName = StringUtils.convertNullTerminatedText(eventNameBytes, StandardCharsets.ISO_8859_1);
             event.setName(eventName);
 
             event.setFramesCount(buffer.getShort() & 0xFFFF);
@@ -131,7 +128,7 @@ public class AnimoLoader {
 
                 byte[] nameBytes = new byte[nameLength];
                 f.read(nameBytes);
-                frame.setName(new String(nameBytes, StandardCharsets.UTF_8).split("\0")[0]);
+                frame.setName(StringUtils.convertNullTerminatedText(nameBytes, StandardCharsets.UTF_8));
 
                 if (frame.getSfxRandomSeed() > 0) {
                     byte[] sfxDescriptionLengthBytes = new byte[4];
@@ -139,18 +136,18 @@ public class AnimoLoader {
                     int sfxDescriptionLength = ByteBuffer.wrap(sfxDescriptionLengthBytes).order(ByteOrder.LITTLE_ENDIAN).getInt();
                     byte[] sfxDescriptionBytes = new byte[sfxDescriptionLength];
                     f.read(sfxDescriptionBytes);
-                    String sfxDescription = new String(sfxDescriptionBytes, StandardCharsets.UTF_8).split("\0")[0];
+                    String sfxDescription = StringUtils.convertNullTerminatedText(sfxDescriptionBytes, StandardCharsets.UTF_8);
                     String[] sfxFiles = sfxDescription.split(";");
                     List<Music> sfxAudioList = new ArrayList<>();
                     for(String sfxFile : sfxFiles) {
+                        if(sfxFile.isEmpty()) {
+                            continue;
+                        }
                         if(!sfxFile.toLowerCase().startsWith("sfx\\")) {
                             sfxFile = "sfx\\"+ sfxFile;
                         }
                         if(!sfxFile.startsWith("$")) {
                             sfxFile = "$WAVS\\"+ sfxFile;
-                        }
-                        if(sfxFile.endsWith("\0")) {
-                            sfxFile = sfxFile.substring(0, sfxFile.length() - 1);
                         }
                         sfxFile = FileUtils.resolveRelativePath(variable, sfxFile);
                         FileHandle soundFileHandle = Gdx.files.absolute(sfxFile);
@@ -191,7 +188,7 @@ public class AnimoLoader {
 
             byte[] nameBytes = new byte[20];
             buffer.get(nameBytes);
-            metadata.put("name", new String(nameBytes, StandardCharsets.ISO_8859_1).split("\0")[0]);
+            metadata.put("name", StringUtils.convertNullTerminatedText(nameBytes, StandardCharsets.ISO_8859_1));
 
             imagesMetadata.add(metadata);
         }

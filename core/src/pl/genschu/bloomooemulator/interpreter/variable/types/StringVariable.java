@@ -111,7 +111,11 @@ public class StringVariable extends Variable {
 					length = ArgumentsHelper.getInteger(arguments.get(1));
 				}
                 int endIndex = Math.min(index + length, value.length());
-				return VariableFactory.createVariable("STRING", "", value.substring(index, endIndex), context);
+				try {
+					return VariableFactory.createVariable("STRING", "", value.substring(index, endIndex), context);
+				} catch (StringIndexOutOfBoundsException e) {
+					return VariableFactory.createVariable("STRING", "", "", context);
+				}
 			}
 		});
 		this.setMethod("LENGTH", new Method(
