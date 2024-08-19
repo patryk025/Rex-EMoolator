@@ -230,7 +230,13 @@ public class ASTBuilderVisitor extends AidemMediaBaseVisitor<Node> {
     private Expression buildConditionExpression(AidemMediaParser.ConditionContext ctx) {
         List<Expression> operands = new ArrayList<>();
         for (int i = 0; i < ctx.getChildCount(); i++) {
-            operands.add((Expression) visit(ctx.getChild(i)));
+            Node operand = visit(ctx.getChild(i));
+
+            if(operand instanceof ConstantExpression) {
+                operand = new VariableExpression((Expression) operand);
+            }
+
+            operands.add((Expression) operand);
         }
 
         return createConditionExpressionTree(InfixToPostfix.convertToPostfix(operands));
@@ -299,7 +305,17 @@ public class ASTBuilderVisitor extends AidemMediaBaseVisitor<Node> {
         AidemMediaParser.ConditionContext conditions = ctx.condition();
 
         if(conditionsSimple != null && conditions == null) {
-            condition = new ConditionExpression((Expression) visit(conditionsSimple.param(0)), (Expression) visit(conditionsSimple.param(1)), conditionsSimple.compare().getText());
+            Node left = visit(conditionsSimple.param(0));
+            Node right = visit(conditionsSimple.param(1));
+
+            if(left instanceof ConstantExpression) {
+                left = new VariableExpression((Expression) left);
+            }
+
+            if(right instanceof ConstantExpression) {
+                right = new VariableExpression((Expression) right);
+            }
+            condition = new ConditionExpression((Expression) left, (Expression) right, conditionsSimple.compare().getText());
         }
         else {
             condition = (ConditionExpression) buildConditionExpression(ctx.condition());
