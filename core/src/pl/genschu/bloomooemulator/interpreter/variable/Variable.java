@@ -6,16 +6,19 @@ import pl.genschu.bloomooemulator.interpreter.exceptions.BreakException;
 import pl.genschu.bloomooemulator.interpreter.exceptions.ClassMethodNotFoundException;
 import pl.genschu.bloomooemulator.interpreter.exceptions.ClassMethodNotImplementedException;
 import pl.genschu.bloomooemulator.interpreter.exceptions.VariableUnsupportedOperationException;
+import pl.genschu.bloomooemulator.interpreter.factories.VariableFactory;
 import pl.genschu.bloomooemulator.interpreter.variable.types.*;
+import pl.genschu.bloomooemulator.utils.ArgumentsHelper;
 
 import java.util.*;
 
-public abstract class Variable {
+public abstract class Variable implements Cloneable {
 	protected String name;
 	protected Map<String, Attribute> attributes;
 	protected Map<String, List<Method>> methods;
 	protected Map<String, Signal> signals;
 	protected Context context;
+	protected List<Variable> clones;
 
 	private Map<String, String> pendingSignals = new HashMap<>(); // unprocessed signals
 
@@ -24,39 +27,47 @@ public abstract class Variable {
 		this.attributes = new HashMap<>();
 		this.methods = new HashMap<>();
 		this.signals = new HashMap<>();
+		this.clones = new ArrayList<>();
 		this.context = context;
 
 		this.setMethod("ADDBEHAVIOUR", new Method(
 				List.of(
-						new Parameter("STRING", "behaviourName", true),
-						new Parameter("STRING", "behaviourVariable", true)
+						new Parameter("STRING", "signalName", true),
+						new Parameter("STRING", "behaviourName", true)
 				),
 				"void"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				// TODO: implement this method
-				return null;
-			}
-		});
-		this.setMethod("CLONE", new Method(
-				"void?"
-		) {
-			@Override
-			public Variable execute(List<Object> arguments) {
-				// TODO: implement this method
-				return null;
+				String signalName = ArgumentsHelper.getString(arguments.get(0));
+				String behaviourName = ArgumentsHelper.getString(arguments.get(1));
+
+				if(signalName.contains("$")) {
+					signalName = signalName.replace("$", "^");
+				}
+
+
 			}
 		});
 		this.setMethod("CLONE", new Method(
 				List.of(
-						new Parameter("INTEGER", "amount", true)
+						new Parameter("INTEGER", "amount", false)
 				),
-				"void?"
+				"void"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				// TODO: implement this method
+				int amount = 1;
+				if(!arguments.isEmpty()) {
+					amount = ArgumentsHelper.getInteger(arguments.get(0));
+				}
+
+				for(int i = 0; i < amount; i++) {
+					Variable cloneVar = Variable.this.clone();
+					cloneVar.setName(cloneVar.getName()+"_CLONE_"+getClones().size()); // my little "creative" way to save index of clone
+					clones.add(cloneVar);
+                }
+
 				return null;
 			}
 		});
@@ -65,8 +76,9 @@ public abstract class Variable {
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				// TODO: implement this method
-				return null;
+				if(getName().contains("_CLONE_"))
+					return new IntegerVariable("", Integer.parseInt(getName().split("_CLONE_")[1]), context);
+				return new IntegerVariable("", -1, context);
 			}
 		});
 		this.setMethod("MSGBOX", new Method(
@@ -75,7 +87,7 @@ public abstract class Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
-				return null;
+				throw new ClassMethodNotImplementedException("Method MSGBOX is not implemented yet");
 			}
 		});
 		this.setMethod("REMOVEBEHAVIOUR", new Method(
@@ -86,7 +98,9 @@ public abstract class Variable {
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				// TODO: implement this method
+				String behaviourName = ArgumentsHelper.getString(arguments.get(0));
+
+				removeSignal(behaviourName);
 				return null;
 			}
 		});
@@ -94,6 +108,10 @@ public abstract class Variable {
 
 	public String getName() {
 		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
 	}
 
 	public Variable convertTo(String type) {
@@ -129,6 +147,27 @@ public abstract class Variable {
 	public Object getValue() {
 		return null;
 	}
+
+	@Override
+	public Variable clone() {
+        try {
+            Variable cloneVar = (Variable) super.clone();
+
+			cloneVar.attributes = new HashMap<>();
+			for(Map.Entry<String, Attribute> entry : this.attributes.entrySet()) {
+				Attribute currentAttr = entry.getValue();
+				cloneVar.attributes.put(entry.getKey(), new Attribute(currentAttr.getType(), currentAttr.getValue().toString()));
+			}
+			cloneVar.methods = this.methods;
+			cloneVar.signals = this.signals;
+			cloneVar.context = this.context;
+			cloneVar.clones = new ArrayList<>();
+
+			return cloneVar;
+        } catch (CloneNotSupportedException e) {
+            throw new RuntimeException(e); // it should not be thrown
+        }
+    }
 
 	public Variable fireMethod(String methodName, Object... params) {
 		List<String> paramsTypes = new ArrayList<>();
@@ -325,5 +364,13 @@ public abstract class Variable {
 
 	public Map<String, String> getPendingSignals() {
 		return pendingSignals;
+	}
+
+	public List<Variable> getClones() {
+		return clones;
+	}
+
+	public void setClones(List<Variable> clones) {
+		this.clones = clones;
 	}
 }

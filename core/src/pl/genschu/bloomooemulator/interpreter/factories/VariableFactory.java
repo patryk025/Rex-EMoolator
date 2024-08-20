@@ -120,6 +120,8 @@ public class VariableFactory
                 return new MultiArrayVariable(name, context);
             case "PATTERN":
                 return new PatternVariable(name, context);
+            case "RAND":
+                return new RandVariable(name, context);
             case "SCENE":
                 return new SceneVariable(name, context);
             case "SEQUENCE":

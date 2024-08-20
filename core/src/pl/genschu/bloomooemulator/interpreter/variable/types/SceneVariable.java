@@ -101,16 +101,22 @@ public class SceneVariable extends Variable {
 		this.setMethod("RUNCLONES", new Method(
 			List.of(
 				new Parameter("STRING", "varName", true),
-				new Parameter("INTEGER", "unknown", true),
-				new Parameter("INTEGER", "unknown", true),
+				new Parameter("INTEGER", "firstCloneIndex?", true),
+				new Parameter("INTEGER", "lastCloneIndex?", true),
 				new Parameter("STRING", "behaviourName", true)
 			),
 			"void"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				// TODO: implement this method
-				throw new ClassMethodNotImplementedException("Method RUNCLONES is not implemented yet");
+				String varName = ArgumentsHelper.getString(arguments.get(0));
+				int firstIndex = ArgumentsHelper.getInteger(arguments.get(1));
+				int lastIndex = ArgumentsHelper.getInteger(arguments.get(2));
+				String behaviourName = ArgumentsHelper.getString(arguments.get(3));
+
+				Variable targetVariable = context.getVariable(varName);
+
+				return null;
 			}
 		});
 		this.setMethod("SETMINHSPRIORITY", new Method(

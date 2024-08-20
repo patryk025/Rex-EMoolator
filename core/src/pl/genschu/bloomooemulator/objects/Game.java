@@ -147,6 +147,9 @@ public class Game {
 
             runInit(currentApplicationContext);
 
+            // FIXME: I still don't know, why RANDOM is working without defining it in scripts
+            currentApplicationContext.setVariable("RANDOM", new RandVariable("RANDOM", currentApplicationContext));
+
             goTo(applicationVariable.getFirstEpisode().getFirstScene().getName());
         } catch (IOException e) {
             throw new RuntimeException(e);
