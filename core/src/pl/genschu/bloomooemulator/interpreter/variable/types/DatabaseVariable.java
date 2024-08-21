@@ -30,7 +30,7 @@ public class DatabaseVariable extends Variable {
 				"INTEGER"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
+			public Variable execute(List<Object> arguments, Variable variable) {
 				String columnName = ArgumentsHelper.getString(arguments.get(0));
 				String columnValue = ArgumentsHelper.getString(arguments.get(1));
 				int defaultIndex = ArgumentsHelper.getInteger(arguments.get(2));
@@ -55,7 +55,7 @@ public class DatabaseVariable extends Variable {
 				"INTEGER"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
+			public Variable execute(List<Object> arguments, Variable variable) {
 				return new IntegerVariable("", getRowsNo(), context);
 			}
 		});
@@ -66,7 +66,7 @@ public class DatabaseVariable extends Variable {
 				"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
+			public Variable execute(List<Object> arguments, Variable variable) {
 				String dtaName = ArgumentsHelper.getString(arguments.get(0));
 				DBLoader.loadDatabase(DatabaseVariable.this, dtaName);
 				return null;
@@ -76,7 +76,7 @@ public class DatabaseVariable extends Variable {
 				"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
+			public Variable execute(List<Object> arguments, Variable variable) {
 				next();
 				return null;
 			}
@@ -85,7 +85,7 @@ public class DatabaseVariable extends Variable {
 				"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
+			public Variable execute(List<Object> arguments, Variable variable) {
 				removeAll();
 				return null;
 			}
@@ -97,7 +97,7 @@ public class DatabaseVariable extends Variable {
 				"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
+			public Variable execute(List<Object> arguments, Variable variable) {
 				// TODO: implement this method
 				throw new ClassMethodNotImplementedException("Method SAVE is not implemented yet");
 			}
@@ -109,7 +109,7 @@ public class DatabaseVariable extends Variable {
 				"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
+			public Variable execute(List<Object> arguments, Variable variable) {
 				Variable rowIndex = context.getVariable(ArgumentsHelper.getString(arguments.get(0)));
 				if(rowIndex == null) {
 					select(0);

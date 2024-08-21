@@ -25,7 +25,7 @@ public class IntegerVariable extends Variable {
 			"INTEGER"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
+			public Variable execute(List<Object> arguments, Variable variable) {
 				int value = ArgumentsHelper.getInteger(arguments.get(0));
 				int result = Math.abs(value);
 				set(result);
@@ -39,7 +39,7 @@ public class IntegerVariable extends Variable {
 			"INTEGER"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
+			public Variable execute(List<Object> arguments, Variable variable) {
 				int result = GET() + ArgumentsHelper.getInteger(arguments.get(0));
 				set(result);
 				return IntegerVariable.this;
@@ -52,7 +52,7 @@ public class IntegerVariable extends Variable {
 			"INTEGER"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
+			public Variable execute(List<Object> arguments, Variable variable) {
 				int result = GET() & ArgumentsHelper.getInteger(arguments.get(0));
 				set(result);
 				return IntegerVariable.this;
@@ -66,7 +66,7 @@ public class IntegerVariable extends Variable {
 			"INTEGER"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
+			public Variable execute(List<Object> arguments, Variable variable) {
 				int currentValue = GET();
 				int rangeMin = ArgumentsHelper.getInteger(arguments.get(0));
 				int rangeMax = ArgumentsHelper.getInteger(arguments.get(1));
@@ -85,7 +85,7 @@ public class IntegerVariable extends Variable {
 			"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
+			public Variable execute(List<Object> arguments, Variable variable) {
 				int result = GET() - 1;
 				set(result);
 				return IntegerVariable.this;
@@ -98,7 +98,7 @@ public class IntegerVariable extends Variable {
 			"INTEGER"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
+			public Variable execute(List<Object> arguments, Variable variable) {
 				try {
 					int result = GET() / ArgumentsHelper.getInteger(arguments.get(0));
 					set(result);
@@ -112,7 +112,7 @@ public class IntegerVariable extends Variable {
 			"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
+			public Variable execute(List<Object> arguments, Variable variable) {
 				int result = GET() + 1;
 				set(result);
 				return IntegerVariable.this;
@@ -126,7 +126,7 @@ public class IntegerVariable extends Variable {
 			"INTEGER"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
+			public Variable execute(List<Object> arguments, Variable variable) {
 				int x = ArgumentsHelper.getInteger(arguments.get(0));
 				int y = ArgumentsHelper.getInteger(arguments.get(1));
 
@@ -142,7 +142,7 @@ public class IntegerVariable extends Variable {
 			"INTEGER"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
+			public Variable execute(List<Object> arguments, Variable variable) {
 				int result = GET() % (ArgumentsHelper.getInteger(arguments.get(0)));
 				set(result);
 				return IntegerVariable.this;
@@ -155,7 +155,7 @@ public class IntegerVariable extends Variable {
 			"INTEGER"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
+			public Variable execute(List<Object> arguments, Variable variable) {
 				int result = GET() * ArgumentsHelper.getInteger(arguments.get(0));
 				set(result);
 				return IntegerVariable.this;
@@ -169,7 +169,7 @@ public class IntegerVariable extends Variable {
 			"INTEGER"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
+			public Variable execute(List<Object> arguments, Variable variable) {
 				if(arguments.size() == 1) {
                     Random random = new Random();
                     int bound = ArgumentsHelper.getInteger(arguments.get(0));
@@ -193,7 +193,7 @@ public class IntegerVariable extends Variable {
 			"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
+			public Variable execute(List<Object> arguments, Variable variable) {
 				int value = ArgumentsHelper.getInteger(arguments.get(0));
 				set(value);
 				return null;
@@ -206,7 +206,7 @@ public class IntegerVariable extends Variable {
 			"INTEGER"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
+			public Variable execute(List<Object> arguments, Variable variable) {
 				int result = GET() - getValueFromString((Variable) arguments.get(0));
 				set(result);
 				return IntegerVariable.this;
@@ -220,7 +220,7 @@ public class IntegerVariable extends Variable {
 			"INTEGER"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
+			public Variable execute(List<Object> arguments, Variable variable) {
 				int val1 = ArgumentsHelper.getInteger(arguments.get(0));
 				int val2 = ArgumentsHelper.getInteger(arguments.get(1));
 

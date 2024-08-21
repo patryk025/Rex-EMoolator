@@ -43,7 +43,7 @@ public class IfStatement extends Statement {
             if(result instanceof BehaviourVariable) {
                 BehaviourVariable variable = (BehaviourVariable) result;
                 try {
-                    variable.getMethod("RUN", Collections.singletonList("mixed")).execute(null);
+                    variable.getMethod("RUN", Collections.singletonList("mixed")).execute(null, variable);
                 } catch(BreakException e) {
                     Gdx.app.log("IfStatement", "BREAK instruction in "+variable.getName()+" BEHAVIOUR");
                     throw e;

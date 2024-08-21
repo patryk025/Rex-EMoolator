@@ -21,7 +21,7 @@ public class MouseVariable extends Variable {
 			"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
+			public Variable execute(List<Object> arguments, Variable variable) {
 				isEnabled = false;
 				return null;
 			}
@@ -30,7 +30,7 @@ public class MouseVariable extends Variable {
 				"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
+			public Variable execute(List<Object> arguments, Variable variable) {
 				isEnabled = true;
 				return null;
 			}
@@ -39,7 +39,7 @@ public class MouseVariable extends Variable {
 				"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
+			public Variable execute(List<Object> arguments, Variable variable) {
 				return new IntegerVariable("", posX, context);
 			}
 		});
@@ -47,7 +47,7 @@ public class MouseVariable extends Variable {
 				"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
+			public Variable execute(List<Object> arguments, Variable variable) {
 				return new IntegerVariable("", posY, context);
 			}
 		});
@@ -55,7 +55,7 @@ public class MouseVariable extends Variable {
 				"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
+			public Variable execute(List<Object> arguments, Variable variable) {
 				Gdx.graphics.setSystemCursor(SystemCursor.Arrow);
 				return null;
 			}
@@ -64,7 +64,7 @@ public class MouseVariable extends Variable {
 				"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
+			public Variable execute(List<Object> arguments, Variable variable) {
 				Gdx.graphics.setSystemCursor(SystemCursor.None);
 				return null;
 			}

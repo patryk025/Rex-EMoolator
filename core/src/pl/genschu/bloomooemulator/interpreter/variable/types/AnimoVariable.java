@@ -62,8 +62,8 @@ public class AnimoVariable extends Variable {
 			"INTEGER"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
-				return new IntegerVariable("", centerX, context);
+			public Variable execute(List<Object> arguments, Variable variable) {
+				return new IntegerVariable("", ((AnimoVariable) variable).centerX, context);
 			}
 		});
 		this.setMethod("GETCENTERY", new Method(
@@ -73,112 +73,112 @@ public class AnimoVariable extends Variable {
 			"INTEGER"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
-				return new IntegerVariable("", centerY, context);
+			public Variable execute(List<Object> arguments, Variable variable) {
+				return new IntegerVariable("", ((AnimoVariable) variable).centerY, context);
 			}
 		});
 		this.setMethod("GETCFRAMEINEVENT", new Method(
 			"INTEGER"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
-				return new IntegerVariable("", currentFrameNumber, context);
+			public Variable execute(List<Object> arguments, Variable variable) {
+				return new IntegerVariable("", ((AnimoVariable) variable).currentFrameNumber, context);
 			}
 		});
 		this.setMethod("GETCURRFRAMEPOSX", new Method(
 			"INTEGER"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
-				return new IntegerVariable("", currentEvent.getFrameData().get(currentFrameNumber).getOffsetX(), context);
+			public Variable execute(List<Object> arguments, Variable variable) {
+				return new IntegerVariable("", ((AnimoVariable) variable).currentEvent.getFrameData().get(currentFrameNumber).getOffsetX(), context);
 			}
 		});
 		this.setMethod("GETCURRFRAMEPOSY", new Method(
 			"INTEGER"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
-				return new IntegerVariable("", currentEvent.getFrameData().get(currentFrameNumber).getOffsetY(), context);
+			public Variable execute(List<Object> arguments, Variable variable) {
+				return new IntegerVariable("", ((AnimoVariable) variable).currentEvent.getFrameData().get(currentFrameNumber).getOffsetY(), context);
 			}
 		});
 		this.setMethod("GETENDX", new Method(
 			"INTEGER"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
-				return new IntegerVariable("", endPosX, context);
+			public Variable execute(List<Object> arguments, Variable variable) {
+				return new IntegerVariable("", ((AnimoVariable) variable).endPosX, context);
 			}
 		});
 		this.setMethod("GETENDY", new Method(
 			"INTEGER"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
-				return new IntegerVariable("", endPosY, context);
+			public Variable execute(List<Object> arguments, Variable variable) {
+				return new IntegerVariable("", ((AnimoVariable) variable).endPosY, context);
 			}
 		});
 		this.setMethod("GETEVENTNAME", new Method(
 			"STRING"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
-				return new StringVariable("", currentEvent.getName(), context);
+			public Variable execute(List<Object> arguments, Variable variable) {
+				return new StringVariable("", ((AnimoVariable) variable).currentEvent.getName(), context);
 			}
 		});
 		this.setMethod("GETFRAME", new Method(
 			"INTEGER"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
-				return new IntegerVariable("", currentImageNumber, context);
+			public Variable execute(List<Object> arguments, Variable variable) {
+				return new IntegerVariable("", ((AnimoVariable) variable).currentImageNumber, context);
 			}
 		});
 		this.setMethod("GETFRAMENAME", new Method(
 			"STRING"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
-				return new StringVariable("", currentEvent.getFrameData().get(currentFrameNumber).getName(), context);
+			public Variable execute(List<Object> arguments, Variable variable) {
+				return new StringVariable("", ((AnimoVariable) variable).currentEvent.getFrameData().get(currentFrameNumber).getName(), context);
 			}
 		});
 		this.setMethod("GETHEIGHT", new Method(
 			"INTEGER"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
-				return new IntegerVariable("", currentImage.height, context);
+			public Variable execute(List<Object> arguments, Variable variable) {
+				return new IntegerVariable("", ((AnimoVariable) variable).currentImage.height, context);
 			}
 		});
 		this.setMethod("GETMAXWIDTH", new Method(
 			"INTEGER"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
-				return new IntegerVariable("", maxWidth, context);
+			public Variable execute(List<Object> arguments, Variable variable) {
+				return new IntegerVariable("", ((AnimoVariable) variable).maxWidth, context);
 			}
 		});
 		this.setMethod("GETMAXHEIGHT", new Method(
 				"INTEGER"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
-				return new IntegerVariable("", maxHeight, context);
+			public Variable execute(List<Object> arguments, Variable variable) {
+				return new IntegerVariable("", ((AnimoVariable) variable).maxHeight, context);
 			}
 		});
 		this.setMethod("GETNOE", new Method(
 			"INTEGER"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
-				return new IntegerVariable("", eventsCount, context);
+			public Variable execute(List<Object> arguments, Variable variable) {
+				return new IntegerVariable("", ((AnimoVariable) variable).eventsCount, context);
 			}
 		});
 		this.setMethod("GETNOF", new Method(
 				"INTEGER"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
-				return new IntegerVariable("", imagesCount, context);
+			public Variable execute(List<Object> arguments, Variable variable) {
+				return new IntegerVariable("", ((AnimoVariable) variable).imagesCount, context);
 			}
 		});
 		this.setMethod("GETNOFINEVENT", new Method(
@@ -188,15 +188,15 @@ public class AnimoVariable extends Variable {
 			"INTEGER"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
+			public Variable execute(List<Object> arguments, Variable variable) {
 				String eventName = ArgumentsHelper.getString(arguments.get(0));
 
 				try {
 					int eventNumber = Integer.parseInt(eventName);
-					return new IntegerVariable("", events.get(eventNumber).getFramesCount(), context);
+					return new IntegerVariable("", ((AnimoVariable) variable).events.get(eventNumber).getFramesCount(), context);
 				} catch (NumberFormatException e) {
 					int framesNumber = 0;
-					for (Event event : events) {
+					for (Event event : ((AnimoVariable) variable).events) {
 						if (event.getName().equals(eventName)) {
 							framesNumber = event.getFramesCount();
 							break;
@@ -213,16 +213,17 @@ public class AnimoVariable extends Variable {
 			"INTEGER"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
+			public Variable execute(List<Object> arguments, Variable variable) {
 				boolean absolute = !arguments.isEmpty(); // it seems like it must be any argument
+				AnimoVariable var = (AnimoVariable) variable;
 
 				if(absolute) {
-					return new IntegerVariable("", posX, context);
+					return new IntegerVariable("", var.posX, context);
 				} else {
 					try {
-						return new IntegerVariable("", posX + currentEvent.getFrameData().get(currentFrameNumber).getOffsetX() + currentImage.offsetX, context);
+						return new IntegerVariable("", var.posX + var.currentEvent.getFrameData().get(var.currentFrameNumber).getOffsetX() + var.currentImage.offsetX, context);
 					} catch (IndexOutOfBoundsException e) {
-						return new IntegerVariable("", posX, context);
+						return new IntegerVariable("", var.posX, context);
 					}
 				}
 			}
@@ -234,16 +235,17 @@ public class AnimoVariable extends Variable {
 			"INTEGER"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
+			public Variable execute(List<Object> arguments, Variable variable) {
 				boolean absolute = !arguments.isEmpty(); // it seems like it must be any argument
+				AnimoVariable var = (AnimoVariable) variable;
 
 				if(absolute) {
-					return new IntegerVariable("", posY, context);
+					return new IntegerVariable("", var.posY, context);
 				} else {
 					try {
-						return new IntegerVariable("", posY + currentEvent.getFrameData().get(currentFrameNumber).getOffsetY() + currentImage.offsetY, context);
+						return new IntegerVariable("", var.posY + var.currentEvent.getFrameData().get(var.currentFrameNumber).getOffsetY() + var.currentImage.offsetY, context);
 					} catch (IndexOutOfBoundsException e) {
-						return new IntegerVariable("", posY, context);
+						return new IntegerVariable("", var.posY, context);
 					}
 				}
 			}
@@ -253,24 +255,24 @@ public class AnimoVariable extends Variable {
 				"INTEGER"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
-				return new IntegerVariable("", priority, context);
+			public Variable execute(List<Object> arguments, Variable variable) {
+				return new IntegerVariable("", ((AnimoVariable) variable).priority, context);
 			}
 		});
 		this.setMethod("GETWIDTH", new Method(
 			"INTEGER"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
-				return new IntegerVariable("", currentImage.width, context);
+			public Variable execute(List<Object> arguments, Variable variable) {
+				return new IntegerVariable("", ((AnimoVariable) variable).currentImage.width, context);
 			}
 		});
 		this.setMethod("HIDE", new Method(
 			"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
-				getAttribute("VISIBLE").setValue("FALSE");
+			public Variable execute(List<Object> arguments, Variable variable) {
+				variable.getAttribute("VISIBLE").setValue("FALSE");
 				return null;
 			}
 		});
@@ -282,7 +284,7 @@ public class AnimoVariable extends Variable {
 			"BOOL"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
+			public Variable execute(List<Object> arguments, Variable variable) {
 				// TODO: implement this method (I'm checking how it works)
 				throw new ClassMethodNotImplementedException("Method ISNEAR is not implemented yet");
 			}
@@ -294,21 +296,21 @@ public class AnimoVariable extends Variable {
 			"BOOL"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
+			public Variable execute(List<Object> arguments, Variable variable) {
 				// TODO: check if it works correct
 				String eventName = arguments.isEmpty() ? null : ArgumentsHelper.getString(arguments.get(0));
 				if(eventName == null) {
-					return new BoolVariable("", isPlaying, context);
+					return new BoolVariable("", ((AnimoVariable) variable).isPlaying, context);
 				}
-				return new BoolVariable("", currentEvent.getName().equals(eventName) && isPlaying, context);
+				return new BoolVariable("", ((AnimoVariable) variable).currentEvent.getName().equals(eventName) && ((AnimoVariable) variable).isPlaying, context);
 			}
 		});
 		this.setMethod("ISVISIBLE", new Method(
 			"BOOL"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
-				return new BoolVariable("", getAttribute("VISIBLE").getValue().equals("TRUE"), context);
+			public Variable execute(List<Object> arguments, Variable variable) {
+				return new BoolVariable("", variable.getAttribute("VISIBLE").getValue().equals("TRUE"), context);
 			}
 		});
 		this.setMethod("LOAD", new Method(
@@ -318,9 +320,9 @@ public class AnimoVariable extends Variable {
 			"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
+			public Variable execute(List<Object> arguments, Variable variable) {
 				String path = ArgumentsHelper.getString(arguments.get(0));
-				setAttribute("FILENAME", path);
+				variable.setAttribute("FILENAME", path);
 				return null;
 			}
 		});
@@ -332,13 +334,13 @@ public class AnimoVariable extends Variable {
 			"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
+			public Variable execute(List<Object> arguments, Variable variable) {
 				int offsetX = ArgumentsHelper.getInteger(arguments.get(0));
 				int offsetY = ArgumentsHelper.getInteger(arguments.get(1));
 
-				posX += offsetX;
-				posY += offsetY;
-				updateRect();
+				((AnimoVariable) variable).posX += offsetX;
+				((AnimoVariable) variable).posY += offsetY;
+				((AnimoVariable) variable).updateRect();
 
 				return null;
 			}
@@ -347,17 +349,18 @@ public class AnimoVariable extends Variable {
 			"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
-				currentFrameNumber++;
+			public Variable execute(List<Object> arguments, Variable variable) {
+				AnimoVariable var = (AnimoVariable) variable;
+				var.currentFrameNumber++;
 
-				if(currentFrameNumber >= currentEvent.getFramesNumbers().size()) {
-					currentFrameNumber = 0;
+				if(var.currentFrameNumber >= var.currentEvent.getFramesNumbers().size()) {
+					var.currentFrameNumber = 0;
 				}
 
-				currentImageNumber = currentEvent.getFramesNumbers().get(currentFrameNumber);
-				currentImage = currentEvent.getFrames().get(currentImageNumber);
-				updateRect();
-				emitSignal("ONFRAMECHANGED", currentEvent.getName());
+				var.currentImageNumber = var.currentEvent.getFramesNumbers().get(var.currentFrameNumber);
+				var.currentImage = var.currentEvent.getFrames().get(var.currentImageNumber);
+				var.updateRect();
+				var.emitSignal("ONFRAMECHANGED", var.currentEvent.getName());
 				return null;
 			}
 		});
@@ -368,16 +371,18 @@ public class AnimoVariable extends Variable {
 			"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
+			public Variable execute(List<Object> arguments, Variable variable) {
+				AnimoVariable var = (AnimoVariable) variable;
+
 				int eventId = ArgumentsHelper.getInteger(arguments.get(0));
-				currentEvent = events.get(eventId);
-				currentFrameNumber = 0;
-				isPlaying = true;
-				updateRect();
-				getAttribute("VISIBLE").setValue("TRUE");
-				playSfx();
-				emitSignal("ONSTARTED", currentEvent.getName());
-				emitSignal("ONFRAMECHANGED", currentEvent.getName());
+				var.currentEvent = var.events.get(eventId);
+				var.currentFrameNumber = 0;
+				var.isPlaying = true;
+				var.updateRect();
+				var.getAttribute("VISIBLE").setValue("TRUE");
+				var.playSfx();
+				var.emitSignal("ONSTARTED", var.currentEvent.getName());
+				var.emitSignal("ONFRAMECHANGED", var.currentEvent.getName());
 				return null;
 			}
 		});
@@ -385,8 +390,8 @@ public class AnimoVariable extends Variable {
 			"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
-				isPlaying = false;
+			public Variable execute(List<Object> arguments, Variable variable) {
+				((AnimoVariable) variable).isPlaying = false;
 				return null;
 			}
 		});
@@ -397,23 +402,25 @@ public class AnimoVariable extends Variable {
 			"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
+			public Variable execute(List<Object> arguments, Variable variable) {
+				AnimoVariable var = (AnimoVariable) variable;
+
 				String eventName = ArgumentsHelper.getString(arguments.get(0));
-				for(Event event : events) {
+				for(Event event : var.events) {
 					if(event.getName().equals(eventName)) {
-						currentEvent = event;
-						currentFrameNumber = 0;
-						currentImage = currentEvent.getFrames().get(currentFrameNumber);
-						isPlaying = true;
-						updateRect();
+						var.currentEvent = event;
+						var.currentFrameNumber = 0;
+						var.currentImage = var.currentEvent.getFrames().get(var.currentFrameNumber);
+						var.isPlaying = true;
+						var.updateRect();
 						try {
-							getAttribute("VISIBLE").setValue("TRUE");
+							var.getAttribute("VISIBLE").setValue("TRUE");
 						} catch (NullPointerException e) {
-							setAttribute("VISIBLE", new Attribute("BOOL", "TRUE"));
+							var.setAttribute("VISIBLE", new Attribute("BOOL", "TRUE"));
 						}
-						playSfx();
-						emitSignal("ONSTARTED", currentEvent.getName());
-						emitSignal("ONFRAMECHANGED", currentEvent.getName());
+						var.playSfx();
+						var.emitSignal("ONSTARTED", var.currentEvent.getName());
+						var.emitSignal("ONFRAMECHANGED", var.currentEvent.getName());
 						break;
 					}
 				}
@@ -424,15 +431,17 @@ public class AnimoVariable extends Variable {
 			"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
-				currentFrameNumber--;
-				if(currentFrameNumber < 0) {
-					currentFrameNumber = currentEvent.getFramesNumbers().size() - 1;
+			public Variable execute(List<Object> arguments, Variable variable) {
+				AnimoVariable var = (AnimoVariable) variable;
+
+				var.currentFrameNumber--;
+				if(var.currentFrameNumber < 0) {
+					var.currentFrameNumber = var.currentEvent.getFramesNumbers().size() - 1;
 				}
-				currentImageNumber = currentEvent.getFramesNumbers().get(currentFrameNumber);
-				currentImage = currentEvent.getFrames().get(currentImageNumber);
-				updateRect();
-				emitSignal("ONFRAMECHANGED", currentEvent.getName());
+				var.currentImageNumber = var.currentEvent.getFramesNumbers().get(var.currentFrameNumber);
+				var.currentImage = var.currentEvent.getFrames().get(var.currentImageNumber);
+				var.updateRect();
+				var.emitSignal("ONFRAMECHANGED", var.currentEvent.getName());
 				return null;
 			}
 		});
@@ -440,8 +449,8 @@ public class AnimoVariable extends Variable {
 			"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
-				isPlaying = true;
+			public Variable execute(List<Object> arguments, Variable variable) {
+				((AnimoVariable) variable).isPlaying = true;
 				return null;
 			}
 		});
@@ -452,7 +461,7 @@ public class AnimoVariable extends Variable {
 			"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
+			public Variable execute(List<Object> arguments, Variable variable) {
 				// TODO: implement this method
 				throw new ClassMethodNotImplementedException("Method SETANCHOR is not implemented yet");
 			}
@@ -465,7 +474,7 @@ public class AnimoVariable extends Variable {
 			"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
+			public Variable execute(List<Object> arguments, Variable variable) {
 				// TODO: implement this method
 				throw new ClassMethodNotImplementedException("Method SETANCHOR is not implemented yet");
 			}
@@ -478,7 +487,7 @@ public class AnimoVariable extends Variable {
 			"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
+			public Variable execute(List<Object> arguments, Variable variable) {
 				// TODO: implement this method
 				throw new ClassMethodNotImplementedException("Method SETASBUTTON is not implemented yet");
 			}
@@ -487,8 +496,8 @@ public class AnimoVariable extends Variable {
 			"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
-				direction = -1;
+			public Variable execute(List<Object> arguments, Variable variable) {
+				((AnimoVariable) variable).direction = -1;
 				return null;
 			}
 		});
@@ -496,8 +505,8 @@ public class AnimoVariable extends Variable {
 			"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
-				direction = 1;
+			public Variable execute(List<Object> arguments, Variable variable) {
+				((AnimoVariable) variable).direction = 1;
 				return null;
 			}
 		});
@@ -508,9 +517,9 @@ public class AnimoVariable extends Variable {
 			"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
+			public Variable execute(List<Object> arguments, Variable variable) {
 				int fps = ArgumentsHelper.getInteger(arguments.get(0));
-				setFps(fps);
+				((AnimoVariable) variable).setFps(fps);
 				return null;
 			}
 		});
@@ -521,15 +530,17 @@ public class AnimoVariable extends Variable {
 				"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
-				int frameNumber = ArgumentsHelper.getInteger(arguments.get(0));
-				currentEvent = events.get(0);
-				currentFrameNumber = 0;
+			public Variable execute(List<Object> arguments, Variable variable) {
+				AnimoVariable var = (AnimoVariable) variable;
 
-				currentImageNumber = frameNumber;
-				currentImage = getImages().get(currentImageNumber);
-				emitSignal("ONFRAMECHANGED");
-				updateRect(currentImage);
+				int frameNumber = ArgumentsHelper.getInteger(arguments.get(0));
+				var.currentEvent = var.events.get(0);
+				var.currentFrameNumber = 0;
+
+				var.currentImageNumber = frameNumber;
+				var.currentImage = var.getImages().get(var.currentImageNumber);
+				var.emitSignal("ONFRAMECHANGED");
+				var.updateRect(var.currentImage);
 				return null;
 			}
 		});
@@ -541,19 +552,21 @@ public class AnimoVariable extends Variable {
 			"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
+			public Variable execute(List<Object> arguments, Variable variable) {
+				AnimoVariable annVar = (AnimoVariable) variable;
+
 				String eventName = ArgumentsHelper.getString(arguments.get(0));
-				Variable variable = getContext().getVariable(eventName);
-				if(variable != null) {
-					eventName = variable.getValue().toString();
+				Variable var = getContext().getVariable(eventName);
+				if(var != null) {
+					eventName = var.getValue().toString();
 				}
 				try {
 					int eventNumber = Integer.parseInt(eventName);
-					currentEvent = events.get(eventNumber);
+					annVar.currentEvent = annVar.events.get(eventNumber);
 				} catch (NumberFormatException e) {
-					for (Event event : events) {
+					for (Event event : annVar.events) {
 						if (event.getName().equals(eventName)) {
-							currentEvent = event;
+							annVar.currentEvent = event;
 							break;
 						}
 					}
@@ -562,35 +575,35 @@ public class AnimoVariable extends Variable {
 					String frameName = ArgumentsHelper.getString(arguments.get(1));
 					int tmpIndex = 0;
 					boolean found = false;
-					for(FrameData frameData : currentEvent.getFrameData()) {
+					for(FrameData frameData : annVar.currentEvent.getFrameData()) {
 						if(frameData.getName().equals(frameName)) {
-							currentFrameNumber = tmpIndex;
+							annVar.currentFrameNumber = tmpIndex;
 							found = true;
 							break;
 						}
 						tmpIndex++;
 					}
 					if(!found) {
-						currentFrameNumber = 0;
+						annVar.currentFrameNumber = 0;
 					}
 				}
 				else {
-					currentFrameNumber = 0;
+					annVar.currentFrameNumber = 0;
 				}
-				if(!currentEvent.getFrames().isEmpty()) {
-					currentImageNumber = currentEvent.getFramesNumbers().get(currentFrameNumber);
-					currentImage = currentEvent.getFrames().get(currentFrameNumber);
-					updateRect();
+				if(!annVar.currentEvent.getFrames().isEmpty()) {
+					annVar.currentImageNumber = annVar.currentEvent.getFramesNumbers().get(annVar.currentFrameNumber);
+					annVar.currentImage = annVar.currentEvent.getFrames().get(annVar.currentFrameNumber);
+					annVar.updateRect();
 				}
 				else {
-					currentImageNumber = 0;
-					currentImage = null;
-					rect.setXLeft(0);
-					rect.setYTop(0);
-					rect.setXRight(1);
-					rect.setYBottom(1);
+					annVar.currentImageNumber = 0;
+					annVar.currentImage = null;
+					annVar.rect.setXLeft(0);
+					annVar.rect.setYTop(0);
+					annVar.rect.setXRight(1);
+					annVar.rect.setYBottom(1);
 				}
-				emitSignal("ONFRAMECHANGED", currentEvent.getName());
+				annVar.emitSignal("ONFRAMECHANGED", annVar.currentEvent.getName());
 				return null;
 			}
 		});
@@ -603,7 +616,7 @@ public class AnimoVariable extends Variable {
 			"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
+			public Variable execute(List<Object> arguments, Variable variable) {
 				// TODO: implement this method
 				throw new ClassMethodNotImplementedException("Method SETFRAMENAME is not implemented yet");
 			}
@@ -615,7 +628,7 @@ public class AnimoVariable extends Variable {
 			"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
+			public Variable execute(List<Object> arguments, Variable variable) {
 				// TODO: implement this method
 				throw new ClassMethodNotImplementedException("Method SETOPACITY is not implemented yet");
 			}
@@ -628,10 +641,10 @@ public class AnimoVariable extends Variable {
 			"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
-				posX = ArgumentsHelper.getInteger(arguments.get(0));
-				posY = ArgumentsHelper.getInteger(arguments.get(1)); //TODO: somehow it is working with no minus in BlooMoo (to check)
-				updateRect();
+			public Variable execute(List<Object> arguments, Variable variable) {
+				((AnimoVariable) variable).posX = ArgumentsHelper.getInteger(arguments.get(0));
+				((AnimoVariable) variable).posY = ArgumentsHelper.getInteger(arguments.get(1));
+				((AnimoVariable) variable).updateRect();
 				return null;
 			}
 		});
@@ -642,9 +655,9 @@ public class AnimoVariable extends Variable {
 			"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
-				priority = ArgumentsHelper.getInteger(arguments.get(0));
-				setAttribute("PRIORITY", new Attribute("INTEGER", priority));
+			public Variable execute(List<Object> arguments, Variable variable) {
+				((AnimoVariable) variable).priority = ArgumentsHelper.getInteger(arguments.get(0));
+				variable.setAttribute("PRIORITY", new Attribute("INTEGER", priority));
 				return null;
 			}
 		});
@@ -655,8 +668,8 @@ public class AnimoVariable extends Variable {
 			"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
-				getAttribute("VISIBLE").setValue("TRUE");
+			public Variable execute(List<Object> arguments, Variable variable) {
+				variable.getAttribute("VISIBLE").setValue("TRUE");
 				return null;
 			}
 		});
@@ -667,22 +680,24 @@ public class AnimoVariable extends Variable {
 			"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
+			public Variable execute(List<Object> arguments, Variable variable) {
+				AnimoVariable var = (AnimoVariable) variable;
+
 				boolean emitSignal = arguments.isEmpty();
 
 				if(!emitSignal) {
 					emitSignal = ArgumentsHelper.getBoolean(arguments.get(0));
 				}
 
-				currentFrameNumber = 0;
-				currentImageNumber = currentEvent.getFramesNumbers().get(currentFrameNumber);
-				currentImage = currentEvent.getFrames().get(currentImageNumber);
-				updateRect();
-				isPlaying = false;
+				var.currentFrameNumber = 0;
+				var.currentImageNumber = var.currentEvent.getFramesNumbers().get(var.currentFrameNumber);
+				var.currentImage = var.currentEvent.getFrames().get(var.currentImageNumber);
+				var.updateRect();
+				var.isPlaying = false;
 
 				if(emitSignal) {
-					emitSignal("ONFINISHED", currentEvent.getName());
-					emitSignal("ONFINISHED__SEQ^" + currentEvent.getName()); // emit generic signal for sequence
+					var.emitSignal("ONFINISHED", var.currentEvent.getName());
+					var.emitSignal("ONFINISHED__SEQ^" + var.currentEvent.getName()); // emit generic signal for sequence
 				}
 				return null;
 			}
@@ -694,7 +709,7 @@ public class AnimoVariable extends Variable {
 			"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
+			public Variable execute(List<Object> arguments, Variable variable) {
 				// TODO: implement this method
 				throw new ClassMethodNotImplementedException("Method TOP is not implemented yet");
 			}
@@ -744,11 +759,16 @@ public class AnimoVariable extends Variable {
 			return;
 		}
 
+		if(currentEvent.getFrames().isEmpty()) {
+			isPlaying = false;
+			return;
+		}
+
 		elapsedTime += deltaTime;
 		if (elapsedTime >= frameDuration) {
 			elapsedTime -= frameDuration;
             
-            if(elapsedTime >= frameDuration) {
+			if(elapsedTime >= frameDuration) {
                 elapsedTime = 0; // only when engine is lagging, set elapsedTime to zero to eliminate animation fast forward
             }
             

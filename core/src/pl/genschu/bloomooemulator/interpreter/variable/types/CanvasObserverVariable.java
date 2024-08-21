@@ -34,7 +34,7 @@ public class CanvasObserverVariable extends Variable {
 			"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
+			public Variable execute(List<Object> arguments, Variable variable) {
 				// TODO: implement this method
 				throw new ClassMethodNotImplementedException("Method ADD is not implemented yet");
 			}
@@ -46,7 +46,7 @@ public class CanvasObserverVariable extends Variable {
 			"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
+			public Variable execute(List<Object> arguments, Variable variable) {
 				// TODO: implement this method
 				throw new ClassMethodNotImplementedException("Method ENABLENOTIFY is not implemented yet");
 			}
@@ -63,7 +63,7 @@ public class CanvasObserverVariable extends Variable {
 			"STRING"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
+			public Variable execute(List<Object> arguments, Variable variable) {
 				int posX = ArgumentsHelper.getInteger(arguments.get(0));
 				int posY = ArgumentsHelper.getInteger(arguments.get(1));
 				boolean unknown = ArgumentsHelper.getBoolean(arguments.get(2));
@@ -84,16 +84,16 @@ public class CanvasObserverVariable extends Variable {
 
 				Collections.reverse(drawList);
 
-				for (Variable variable : drawList) {
+				for (Variable var : drawList) {
 					boolean visible = false;
-					if (variable instanceof ImageVariable) {
-						visible = ((ImageVariable) variable).isVisible();
+					if (var instanceof ImageVariable) {
+						visible = ((ImageVariable) var).isVisible();
 					}
-					if (variable instanceof AnimoVariable) {
-						visible = ((AnimoVariable) variable).isVisible();
+					if (var instanceof AnimoVariable) {
+						visible = ((AnimoVariable) var).isVisible();
 					}
-					if (variable instanceof SequenceVariable) {
-						visible = ((SequenceVariable) variable).isVisible();
+					if (var instanceof SequenceVariable) {
+						visible = ((SequenceVariable) var).isVisible();
 					}
 					if (!visible) {
 						continue;
@@ -106,10 +106,10 @@ public class CanvasObserverVariable extends Variable {
 						if(rect ==  null) continue;
 						if (rect.contains(posX, posY)) {
 							if (useAlpha) {
-                                Gdx.app.log("CanvasObserver", "Debug - " + variable.getName() + " at (" + posX + "," + posY + ")");
-                                return new StringVariable("", variable.getName(), context);
+                                Gdx.app.log("CanvasObserver", "Debug - " + var.getName() + " at (" + posX + "," + posY + ")");
+                                return new StringVariable("", var.getName(), context);
                             } else {
-								Image image = getImage(variable);
+								Image image = getImage(var);
 								int relativeX = posX - rect.getXLeft();
 								int relativeY = posY - rect.getYTop();
 								int alpha = 255;
@@ -125,8 +125,8 @@ public class CanvasObserverVariable extends Variable {
 								}
 
 								if (alpha > 0) {
-									Gdx.app.log("CanvasObserver", "Debug - "+variable.getName()+" at ("+posX+","+posY+")");
-									return new StringVariable("", variable.getName(), context);
+									Gdx.app.log("CanvasObserver", "Debug - "+var.getName()+" at ("+posX+","+posY+")");
+									return new StringVariable("", var.getName(), context);
 								}
 							}
 						}
@@ -144,7 +144,7 @@ public class CanvasObserverVariable extends Variable {
 			"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
+			public Variable execute(List<Object> arguments, Variable variable) {
 				// TODO: implement this method
 				throw new ClassMethodNotImplementedException("Method MOVEBKG is not implemented yet");
 			}
@@ -158,7 +158,7 @@ public class CanvasObserverVariable extends Variable {
 			"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
+			public Variable execute(List<Object> arguments, Variable variable) {
 				// TODO: implement this method
 				throw new ClassMethodNotImplementedException("Method PASTE is not implemented yet");
 			}
@@ -167,7 +167,7 @@ public class CanvasObserverVariable extends Variable {
 			"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
+			public Variable execute(List<Object> arguments, Variable variable) {
 				// TODO: implement this method
 				throw new ClassMethodNotImplementedException("Method REDRAW is not implemented yet");
 			}
@@ -176,7 +176,7 @@ public class CanvasObserverVariable extends Variable {
 			"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
+			public Variable execute(List<Object> arguments, Variable variable) {
 				Gdx.app.error("CanvasObserverVariable", "Currently refresh is not supported"); // It's just for make less log spam
 				return null;
 			}
@@ -188,7 +188,7 @@ public class CanvasObserverVariable extends Variable {
 			"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
+			public Variable execute(List<Object> arguments, Variable variable) {
 				for(int i = 0; i < arguments.size(); i++) {
 					String name = ArgumentsHelper.getString(arguments.get(i));
 					Variable var = getContext().getVariable(name);
@@ -208,7 +208,7 @@ public class CanvasObserverVariable extends Variable {
 			"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
+			public Variable execute(List<Object> arguments, Variable variable) {
 				String imgFileName = ArgumentsHelper.getString(arguments.get(0));
 
 				Pixmap pixmap = getContext().getGame().getLastFrame();
@@ -239,7 +239,7 @@ public class CanvasObserverVariable extends Variable {
 			"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
+			public Variable execute(List<Object> arguments, Variable variable) {
 				// hacky way for now
 				String imageName = ArgumentsHelper.getString(arguments.get(0));
 				// check if it is not a variable
@@ -262,7 +262,7 @@ public class CanvasObserverVariable extends Variable {
 			"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
+			public Variable execute(List<Object> arguments, Variable variable) {
 				// TODO: implement this method
 				throw new ClassMethodNotImplementedException("Method SETBKGPOS is not implemented yet");
 			}

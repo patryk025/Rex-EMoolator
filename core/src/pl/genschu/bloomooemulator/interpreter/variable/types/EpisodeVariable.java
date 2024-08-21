@@ -26,7 +26,7 @@ public class EpisodeVariable extends Variable {
 			"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
+			public Variable execute(List<Object> arguments, Variable variable) {
 				// TODO: implement this method
 				throw new ClassMethodNotImplementedException("Method BACK is not implemented yet");
 			}
@@ -35,7 +35,7 @@ public class EpisodeVariable extends Variable {
 			"STRING"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
+			public Variable execute(List<Object> arguments, Variable variable) {
 				String currentScene = context.getGame().getCurrentScene();
 				return VariableFactory.createVariable("STRING", null, currentScene, getContext());
 			}
@@ -47,7 +47,7 @@ public class EpisodeVariable extends Variable {
 			"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
+			public Variable execute(List<Object> arguments, Variable variable) {
 				String sceneName = ArgumentsHelper.getString(arguments.get(0));
 				Gdx.app.log("EpisodeVariable", "Goto " + sceneName);
 				context.getGame().goTo(sceneName);

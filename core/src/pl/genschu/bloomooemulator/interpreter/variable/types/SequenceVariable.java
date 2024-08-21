@@ -23,7 +23,7 @@ public class SequenceVariable extends Variable {
 				"STRING"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
+			public Variable execute(List<Object> arguments, Variable variable) {
 				return new StringVariable("", currentEventName, getContext());
 			}
 		});
@@ -31,7 +31,7 @@ public class SequenceVariable extends Variable {
 				"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
+			public Variable execute(List<Object> arguments, Variable variable) {
 				isVisible = false;
                 return null;
 			}
@@ -40,7 +40,7 @@ public class SequenceVariable extends Variable {
 				"BOOL"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
+			public Variable execute(List<Object> arguments, Variable variable) {
 				return new BoolVariable("", isPlaying, getContext());
 			}
 		});
@@ -48,7 +48,7 @@ public class SequenceVariable extends Variable {
 				"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
+			public Variable execute(List<Object> arguments, Variable variable) {
 				isPlaying = false;
 				getCurrentAnimo().setPlaying(false);
 				return null;
@@ -61,7 +61,7 @@ public class SequenceVariable extends Variable {
 				"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
+			public Variable execute(List<Object> arguments, Variable variable) {
 				if(eventMap.isEmpty()) {
 					loadSequence();
 				}
@@ -244,7 +244,7 @@ public class SequenceVariable extends Variable {
 		@Override
 		public void play(SequenceVariable parent) {
 			Gdx.app.log("SimpleEvent", "Playing event " + event);
-			this.animoVariable.getMethod("PLAY", Collections.singletonList("STRING")).execute(List.of(event));
+			this.animoVariable.getMethod("PLAY", Collections.singletonList("STRING")).execute(List.of(event), this.animoVariable);
 
 			this.animoVariable.setSignal("ONFINISHED__SEQ^" + event, new Signal() { // setting generic event (non existent in original engine)
 				@Override
@@ -363,14 +363,14 @@ public class SequenceVariable extends Variable {
 		private void playAnimation(SequenceVariable parent, String event, Signal onFinished) {
 			Gdx.app.log("SpeakingEvent", "Playing animation " + event);
 			StringVariable prefixVar = new StringVariable("", event, parent.getContext());
-			this.animoVariable.getMethod("PLAY", Collections.singletonList("STRING")).execute(List.of(prefixVar));
+			this.animoVariable.getMethod("PLAY", Collections.singletonList("STRING")).execute(List.of(prefixVar), this.animoVariable);
 			this.animoVariable.setSignal("ONFINISHED__SEQ^" + event, onFinished);
 			parent.setPlaying(true);
 			parent.setCurrentAnimo(animoVariable);
 		}
 
 		private void playSound(Signal onFinished) {
-			this.soundVariable.getMethod("PLAY", Collections.emptyList()).execute(Collections.emptyList());
+			this.soundVariable.getMethod("PLAY", Collections.emptyList()).execute(Collections.emptyList(), this.soundVariable);
 			this.soundVariable.setSignal("ONFINISHED", onFinished);
 		}
 

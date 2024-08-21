@@ -29,7 +29,7 @@ public class SceneVariable extends Variable {
 			"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
+			public Variable execute(List<Object> arguments, Variable variable) {
 				// TODO: check how it should work
 				if(music != null) {
 					music.pause();
@@ -46,7 +46,7 @@ public class SceneVariable extends Variable {
 			"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
+			public Variable execute(List<Object> arguments, Variable variable) {
 				// TODO: implement this method
 				throw new ClassMethodNotImplementedException("Method REMOVECLONES is not implemented yet");
 			}
@@ -55,7 +55,7 @@ public class SceneVariable extends Variable {
 			"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
+			public Variable execute(List<Object> arguments, Variable variable) {
 				if(music != null) {
 					music.play();
 				}
@@ -71,7 +71,7 @@ public class SceneVariable extends Variable {
 			"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
+			public Variable execute(List<Object> arguments, Variable variable) {
 				String varName = ArgumentsHelper.getString(arguments.get(0));
 				String methodName = ArgumentsHelper.getString(arguments.get(1));
 				Object[] params = new Object[arguments.size() - 2];
@@ -93,9 +93,9 @@ public class SceneVariable extends Variable {
 				if(var instanceof StringVariable) {
 					var = variableContext.getVariable(((StringVariable) var).GET());
 				}
-				var.fireMethod(methodName, params);
+				Variable result = var.fireMethod(methodName, params);
 				variableContext.setThisVariable(currentThis);
-				return null;
+				return result;
 			}
 		});
 		this.setMethod("RUNCLONES", new Method(
@@ -108,7 +108,7 @@ public class SceneVariable extends Variable {
 			"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
+			public Variable execute(List<Object> arguments, Variable variable) {
 				String varName = ArgumentsHelper.getString(arguments.get(0));
 				int firstIndex = ArgumentsHelper.getInteger(arguments.get(1));
 				int lastIndex = ArgumentsHelper.getInteger(arguments.get(2));
@@ -158,7 +158,7 @@ public class SceneVariable extends Variable {
 			"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
+			public Variable execute(List<Object> arguments, Variable variable) {
 				// TODO: implement this method
 				throw new ClassMethodNotImplementedException("Method SETMINHSPRIORITY is not implemented yet");
 			}
@@ -170,7 +170,7 @@ public class SceneVariable extends Variable {
 			"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
+			public Variable execute(List<Object> arguments, Variable variable) {
 				int volume = ArgumentsHelper.getInteger(arguments.get(0));
 				if(music != null) {
 					music.setVolume(volume / 1024.0f);
@@ -185,7 +185,7 @@ public class SceneVariable extends Variable {
 			"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
+			public Variable execute(List<Object> arguments, Variable variable) {
 				if(music != null) {
 					if(music.isPlaying()) {
 						music.stop();

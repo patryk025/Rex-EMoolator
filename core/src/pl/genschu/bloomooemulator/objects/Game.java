@@ -253,7 +253,8 @@ public class Game {
         }
 
         try {
-            context.getVariable("__INIT__").getMethod("RUN", Collections.singletonList("mixed")).execute(null);
+            Variable initBehaviour = context.getVariable("__INIT__");
+            initBehaviour.getMethod("RUN", Collections.singletonList("mixed")).execute(null, initBehaviour);
         } catch (Exception e) {
             Gdx.app.error("Game", "Error while running __INIT__ BEHAVIOUR: " + e.getMessage(), e);
         }

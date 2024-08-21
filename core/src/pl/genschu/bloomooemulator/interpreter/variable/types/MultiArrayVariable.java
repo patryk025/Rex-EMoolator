@@ -22,7 +22,7 @@ public class MultiArrayVariable extends Variable {
 			"mixed"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
+			public Variable execute(List<Object> arguments, Variable variable) {
 				// TODO: implement this method
 				throw new ClassMethodNotImplementedException("Method GET is not implemented yet");
 			}
@@ -37,7 +37,7 @@ public class MultiArrayVariable extends Variable {
 			"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
+			public Variable execute(List<Object> arguments, Variable variable) {
 				// TODO: implement this method
 				throw new ClassMethodNotImplementedException("Method SET is not implemented yet");
 			}

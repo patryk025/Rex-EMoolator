@@ -43,7 +43,7 @@ public class BehaviourVariable extends Variable {
 			"mixed"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
+			public Variable execute(List<Object> arguments, Variable variable) {
 				// TODO: implement this method
 				throw new ClassMethodNotImplementedException("Method PLAY is not implemented yet");
 			}
@@ -55,7 +55,7 @@ public class BehaviourVariable extends Variable {
 			"mixed"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
+			public Variable execute(List<Object> arguments, Variable variable) {
 				if(arguments == null) {
 					arguments = List.of();
 				}
@@ -90,7 +90,7 @@ public class BehaviourVariable extends Variable {
 			"mixed"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
+			public Variable execute(List<Object> arguments, Variable variable) {
 				Variable conditionResult = new BoolVariable("", true, context);
 
 				if(condition != null) {
@@ -99,10 +99,10 @@ public class BehaviourVariable extends Variable {
 				else {
 					if(getAttribute("CONDITION") != null) {
 						Attribute attribute = getAttribute("CONDITION");
-						Variable variable = context.getVariable(attribute.getValue().toString());
-						if(variable != null) {
-							if(variable instanceof ConditionVariable) {
-								condition = (ConditionVariable) variable;
+						Variable var = context.getVariable(attribute.getValue().toString());
+						if(var != null) {
+							if(var instanceof ConditionVariable) {
+								condition = (ConditionVariable) var;
 
 								conditionResult = condition.fireMethod("CHECK", new BoolVariable("", true, context));
 							}
@@ -164,7 +164,7 @@ public class BehaviourVariable extends Variable {
 			"mixed"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
+			public Variable execute(List<Object> arguments, Variable variable) {
 				int startVal = ArgumentsHelper.getInteger(arguments.get(0));
 				int endDiff = ArgumentsHelper.getInteger(arguments.get(1));
 				int incrementBy = 1;
