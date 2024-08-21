@@ -30,9 +30,14 @@ public class ButtonVariable extends Variable {
 
 	public ButtonVariable(String name, Context context) {
 		super(name, context);
+	}
+
+	@Override
+	protected void setMethods() {
+		super.setMethods();
 
 		this.setMethod("DISABLE", new Method(
-			"void"
+				"void"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
@@ -44,7 +49,7 @@ public class ButtonVariable extends Variable {
 			}
 		});
 		this.setMethod("DISABLEBUTVISIBLE", new Method(
-			"void"
+				"void"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
@@ -56,7 +61,7 @@ public class ButtonVariable extends Variable {
 			}
 		});
 		this.setMethod("ENABLE", new Method(
-			"void"
+				"void"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
@@ -68,10 +73,10 @@ public class ButtonVariable extends Variable {
 			}
 		});
 		this.setMethod("SETPRIORITY", new Method(
-			List.of(
-				new Parameter("INTEGER", "posZ", true)
-			),
-			"void"
+				List.of(
+						new Parameter("INTEGER", "posZ", true)
+				),
+				"void"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
@@ -80,10 +85,10 @@ public class ButtonVariable extends Variable {
 			}
 		});
 		this.setMethod("SETRECT", new Method(
-			List.of(
-				new Parameter("STRING", "varName", true)
-			),
-			"void"
+				List.of(
+						new Parameter("STRING", "varName", true)
+				),
+				"void"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
@@ -111,13 +116,13 @@ public class ButtonVariable extends Variable {
 			}
 		});
 		this.setMethod("SETRECT", new Method(
-			List.of(
-				new Parameter("INTEGER", "xLeft", true),
-				new Parameter("INTEGER", "yBottom", true),
-				new Parameter("INTEGER", "xRight", true),
-				new Parameter("INTEGER", "yTop", true)
-			),
-			"void"
+				List.of(
+						new Parameter("INTEGER", "xLeft", true),
+						new Parameter("INTEGER", "yBottom", true),
+						new Parameter("INTEGER", "xRight", true),
+						new Parameter("INTEGER", "yTop", true)
+				),
+				"void"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
@@ -131,11 +136,11 @@ public class ButtonVariable extends Variable {
 			}
 		});
 		this.setMethod("SETSTD", new Method(
-			List.of(
-				new Parameter("STRING", "varName", true),
-				new Parameter("BOOLEAN", "unknown", false)
-			),
-			"void"
+				List.of(
+						new Parameter("STRING", "varName", true),
+						new Parameter("BOOLEAN", "unknown", false)
+				),
+				"void"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {

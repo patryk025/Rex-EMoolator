@@ -54,12 +54,22 @@ public class AnimoVariable extends Variable {
 		super(name, context);
 
 		rect = new Rectangle(0, 0, 0, 0);
+	}
+
+	@Override
+	public String getType() {
+		return "ANIMO";
+	}
+
+	@Override
+	protected void setMethods() {
+		super.setMethods();
 
 		this.setMethod("GETCENTERX", new Method(
-			List.of(
-				new Parameter("BOOL", "unknown", false)
-			),
-			"INTEGER"
+				List.of(
+						new Parameter("BOOL", "unknown", false)
+				),
+				"INTEGER"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
@@ -67,10 +77,10 @@ public class AnimoVariable extends Variable {
 			}
 		});
 		this.setMethod("GETCENTERY", new Method(
-			List.of(
-				new Parameter("BOOL", "unknown", false)
-			),
-			"INTEGER"
+				List.of(
+						new Parameter("BOOL", "unknown", false)
+				),
+				"INTEGER"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
@@ -78,7 +88,7 @@ public class AnimoVariable extends Variable {
 			}
 		});
 		this.setMethod("GETCFRAMEINEVENT", new Method(
-			"INTEGER"
+				"INTEGER"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
@@ -86,7 +96,7 @@ public class AnimoVariable extends Variable {
 			}
 		});
 		this.setMethod("GETCURRFRAMEPOSX", new Method(
-			"INTEGER"
+				"INTEGER"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
@@ -94,7 +104,7 @@ public class AnimoVariable extends Variable {
 			}
 		});
 		this.setMethod("GETCURRFRAMEPOSY", new Method(
-			"INTEGER"
+				"INTEGER"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
@@ -102,7 +112,7 @@ public class AnimoVariable extends Variable {
 			}
 		});
 		this.setMethod("GETENDX", new Method(
-			"INTEGER"
+				"INTEGER"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
@@ -110,7 +120,7 @@ public class AnimoVariable extends Variable {
 			}
 		});
 		this.setMethod("GETENDY", new Method(
-			"INTEGER"
+				"INTEGER"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
@@ -118,7 +128,7 @@ public class AnimoVariable extends Variable {
 			}
 		});
 		this.setMethod("GETEVENTNAME", new Method(
-			"STRING"
+				"STRING"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
@@ -126,7 +136,7 @@ public class AnimoVariable extends Variable {
 			}
 		});
 		this.setMethod("GETFRAME", new Method(
-			"INTEGER"
+				"INTEGER"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
@@ -134,7 +144,7 @@ public class AnimoVariable extends Variable {
 			}
 		});
 		this.setMethod("GETFRAMENAME", new Method(
-			"STRING"
+				"STRING"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
@@ -142,7 +152,7 @@ public class AnimoVariable extends Variable {
 			}
 		});
 		this.setMethod("GETHEIGHT", new Method(
-			"INTEGER"
+				"INTEGER"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
@@ -150,7 +160,7 @@ public class AnimoVariable extends Variable {
 			}
 		});
 		this.setMethod("GETMAXWIDTH", new Method(
-			"INTEGER"
+				"INTEGER"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
@@ -166,7 +176,7 @@ public class AnimoVariable extends Variable {
 			}
 		});
 		this.setMethod("GETNOE", new Method(
-			"INTEGER"
+				"INTEGER"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
@@ -182,10 +192,10 @@ public class AnimoVariable extends Variable {
 			}
 		});
 		this.setMethod("GETNOFINEVENT", new Method(
-			List.of(
-				new Parameter("String", "event", true)
-			),
-			"INTEGER"
+				List.of(
+						new Parameter("String", "event", true)
+				),
+				"INTEGER"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
@@ -207,10 +217,10 @@ public class AnimoVariable extends Variable {
 			}
 		});
 		this.setMethod("GETPOSITIONX", new Method(
-			List.of(
-				new Parameter("BOOL", "absolute", false)
-			),
-			"INTEGER"
+				List.of(
+						new Parameter("BOOL", "absolute", false)
+				),
+				"INTEGER"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
@@ -228,10 +238,10 @@ public class AnimoVariable extends Variable {
 			}
 		});
 		this.setMethod("GETPOSITIONY", new Method(
-			List.of(
-				new Parameter("BOOL", "absolute", false)
-			),
-			"INTEGER"
+				List.of(
+						new Parameter("BOOL", "absolute", false)
+				),
+				"INTEGER"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
@@ -258,7 +268,7 @@ public class AnimoVariable extends Variable {
 			}
 		});
 		this.setMethod("GETWIDTH", new Method(
-			"INTEGER"
+				"INTEGER"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
@@ -266,7 +276,7 @@ public class AnimoVariable extends Variable {
 			}
 		});
 		this.setMethod("HIDE", new Method(
-			"void"
+				"void"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
@@ -275,11 +285,11 @@ public class AnimoVariable extends Variable {
 			}
 		});
 		this.setMethod("ISNEAR", new Method(
-			List.of(
-				new Parameter("STRING", "varAnimo", true),
-				new Parameter("INTEGER", "distance", true)
-			),
-			"BOOL"
+				List.of(
+						new Parameter("STRING", "varAnimo", true),
+						new Parameter("INTEGER", "distance", true)
+				),
+				"BOOL"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
@@ -288,10 +298,10 @@ public class AnimoVariable extends Variable {
 			}
 		});
 		this.setMethod("ISPLAYING", new Method(
-			List.of(
-				new Parameter("STRING", "event", false)
-			),
-			"BOOL"
+				List.of(
+						new Parameter("STRING", "event", false)
+				),
+				"BOOL"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
@@ -304,7 +314,7 @@ public class AnimoVariable extends Variable {
 			}
 		});
 		this.setMethod("ISVISIBLE", new Method(
-			"BOOL"
+				"BOOL"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
@@ -312,10 +322,10 @@ public class AnimoVariable extends Variable {
 			}
 		});
 		this.setMethod("LOAD", new Method(
-			List.of(
-				new Parameter("STRING", "path", true)
-			),
-			"void"
+				List.of(
+						new Parameter("STRING", "path", true)
+				),
+				"void"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
@@ -325,11 +335,11 @@ public class AnimoVariable extends Variable {
 			}
 		});
 		this.setMethod("MOVE", new Method(
-			List.of(
-				new Parameter("INTEGER", "offsetX", true),
-				new Parameter("INTEGER", "offsetY", true)
-			),
-			"void"
+				List.of(
+						new Parameter("INTEGER", "offsetX", true),
+						new Parameter("INTEGER", "offsetY", true)
+				),
+				"void"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
@@ -344,7 +354,7 @@ public class AnimoVariable extends Variable {
 			}
 		});
 		this.setMethod("NEXTFRAME", new Method(
-			"void"
+				"void"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
@@ -362,10 +372,10 @@ public class AnimoVariable extends Variable {
 			}
 		});
 		this.setMethod("NPLAY", new Method(
-			List.of(
-				new Parameter("INTEGER", "eventId", true)
-			),
-			"void"
+				List.of(
+						new Parameter("INTEGER", "eventId", true)
+				),
+				"void"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
@@ -382,7 +392,7 @@ public class AnimoVariable extends Variable {
 			}
 		});
 		this.setMethod("PAUSE", new Method(
-			"void"
+				"void"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
@@ -391,10 +401,10 @@ public class AnimoVariable extends Variable {
 			}
 		});
 		this.setMethod("PLAY", new Method(
-			List.of(
-				new Parameter("STRING", "anim", true)
-			),
-			"void"
+				List.of(
+						new Parameter("STRING", "anim", true)
+				),
+				"void"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
@@ -421,7 +431,7 @@ public class AnimoVariable extends Variable {
 			}
 		});
 		this.setMethod("PREVFRAME", new Method(
-			"void"
+				"void"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
@@ -437,7 +447,7 @@ public class AnimoVariable extends Variable {
 			}
 		});
 		this.setMethod("RESUME", new Method(
-			"void"
+				"void"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
@@ -446,10 +456,10 @@ public class AnimoVariable extends Variable {
 			}
 		});
 		this.setMethod("SETANCHOR", new Method(
-			List.of(
-				new Parameter("STRING", "anchor", true)
-			),
-			"void"
+				List.of(
+						new Parameter("STRING", "anchor", true)
+				),
+				"void"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
@@ -458,11 +468,11 @@ public class AnimoVariable extends Variable {
 			}
 		});
 		this.setMethod("SETANCHOR", new Method(
-			List.of(
-				new Parameter("INTEGER", "offsetX", true),
-				new Parameter("INTEGER", "offsetY", true)
-			),
-			"void"
+				List.of(
+						new Parameter("INTEGER", "offsetX", true),
+						new Parameter("INTEGER", "offsetY", true)
+				),
+				"void"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
@@ -471,11 +481,11 @@ public class AnimoVariable extends Variable {
 			}
 		});
 		this.setMethod("SETASBUTTON", new Method(
-			List.of(
-				new Parameter("BOOL", "enabled", true),
-				new Parameter("BOOL", "unknown", true)
-			),
-			"void"
+				List.of(
+						new Parameter("BOOL", "enabled", true),
+						new Parameter("BOOL", "unknown", true)
+				),
+				"void"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
@@ -484,7 +494,7 @@ public class AnimoVariable extends Variable {
 			}
 		});
 		this.setMethod("SETBACKWARD", new Method(
-			"void"
+				"void"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
@@ -493,7 +503,7 @@ public class AnimoVariable extends Variable {
 			}
 		});
 		this.setMethod("SETFORWARD", new Method(
-			"void"
+				"void"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
@@ -502,10 +512,10 @@ public class AnimoVariable extends Variable {
 			}
 		});
 		this.setMethod("SETFPS", new Method(
-			List.of(
-				new Parameter("INTEGER", "fps", true)
-			),
-			"void"
+				List.of(
+						new Parameter("INTEGER", "fps", true)
+				),
+				"void"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
@@ -534,11 +544,11 @@ public class AnimoVariable extends Variable {
 			}
 		});
 		this.setMethod("SETFRAME", new Method(
-			List.of(
-				new Parameter("STRING", "event", true),
-				new Parameter("STRING", "frameName", true)
-			),
-			"void"
+				List.of(
+						new Parameter("STRING", "event", true),
+						new Parameter("STRING", "frameName", true)
+				),
+				"void"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
@@ -595,12 +605,12 @@ public class AnimoVariable extends Variable {
 			}
 		});
 		this.setMethod("SETFRAMENAME", new Method(
-			List.of(
-				new Parameter("INTEGER", "eventNumber?", true),
-				new Parameter("INTEGER", "frameNumber?", true),
-				new Parameter("STRING", "name", true)
-			),
-			"void"
+				List.of(
+						new Parameter("INTEGER", "eventNumber?", true),
+						new Parameter("INTEGER", "frameNumber?", true),
+						new Parameter("STRING", "name", true)
+				),
+				"void"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
@@ -609,10 +619,10 @@ public class AnimoVariable extends Variable {
 			}
 		});
 		this.setMethod("SETOPACITY", new Method(
-			List.of(
-				new Parameter("INTEGER", "opacity", true)
-			),
-			"void"
+				List.of(
+						new Parameter("INTEGER", "opacity", true)
+				),
+				"void"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
@@ -621,11 +631,11 @@ public class AnimoVariable extends Variable {
 			}
 		});
 		this.setMethod("SETPOSITION", new Method(
-			List.of(
-				new Parameter("INTEGER", "posX", true),
-				new Parameter("INTEGER", "posY", true)
-			),
-			"void"
+				List.of(
+						new Parameter("INTEGER", "posX", true),
+						new Parameter("INTEGER", "posY", true)
+				),
+				"void"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
@@ -636,10 +646,10 @@ public class AnimoVariable extends Variable {
 			}
 		});
 		this.setMethod("SETPRIORITY", new Method(
-			List.of(
-				new Parameter("INTEGER", "posZ", true)
-			),
-			"void"
+				List.of(
+						new Parameter("INTEGER", "posZ", true)
+				),
+				"void"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
@@ -649,10 +659,10 @@ public class AnimoVariable extends Variable {
 			}
 		});
 		this.setMethod("SHOW", new Method(
-			List.of(
-				new Parameter("BOOL", "unknown", false)
-			),
-			"void"
+				List.of(
+						new Parameter("BOOL", "unknown", false)
+				),
+				"void"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
@@ -661,10 +671,10 @@ public class AnimoVariable extends Variable {
 			}
 		});
 		this.setMethod("STOP", new Method(
-			List.of(
-				new Parameter("BOOL", "emitSignal", false)
-			),
-			"void"
+				List.of(
+						new Parameter("BOOL", "emitSignal", false)
+				),
+				"void"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
@@ -688,10 +698,10 @@ public class AnimoVariable extends Variable {
 			}
 		});
 		this.setMethod("TOP", new Method(
-			List.of(
-				new Parameter("BOOL", "unknown", false)
-			),
-			"void"
+				List.of(
+						new Parameter("BOOL", "unknown", false)
+				),
+				"void"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
@@ -699,11 +709,6 @@ public class AnimoVariable extends Variable {
 				throw new ClassMethodNotImplementedException("Method TOP is not implemented yet");
 			}
 		});
-	}
-
-	@Override
-	public String getType() {
-		return "ANIMO";
 	}
 
 	@Override
@@ -741,6 +746,11 @@ public class AnimoVariable extends Variable {
 		}
 
 		if (!isPlaying) {
+			return;
+		}
+
+		if(currentEvent.getFramesCount() == 0) {
+			isPlaying = false;
 			return;
 		}
 

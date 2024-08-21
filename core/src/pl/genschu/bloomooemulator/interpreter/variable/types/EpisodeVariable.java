@@ -21,9 +21,19 @@ public class EpisodeVariable extends Variable {
 
 	public EpisodeVariable(String name, Context context) {
 		super(name, context);
+	}
+
+	@Override
+	public String getType() {
+		return "EPISODE";
+	}
+
+	@Override
+	protected void setMethods() {
+		super.setMethods();
 
 		this.setMethod("BACK", new Method(
-			"void"
+				"void"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
@@ -32,7 +42,7 @@ public class EpisodeVariable extends Variable {
 			}
 		});
 		this.setMethod("GETCURRENTSCENE", new Method(
-			"STRING"
+				"STRING"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
@@ -41,10 +51,10 @@ public class EpisodeVariable extends Variable {
 			}
 		});
 		this.setMethod("GOTO", new Method(
-			List.of(
-				new Parameter("STRING", "sceneName", true)
-			),
-			"void"
+				List.of(
+						new Parameter("STRING", "sceneName", true)
+				),
+				"void"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
@@ -54,11 +64,6 @@ public class EpisodeVariable extends Variable {
 				return null;
 			}
 		});
-	}
-
-	@Override
-	public String getType() {
-		return "EPISODE";
 	}
 
 	@Override

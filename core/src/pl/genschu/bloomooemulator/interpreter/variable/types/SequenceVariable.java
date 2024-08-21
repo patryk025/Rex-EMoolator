@@ -18,6 +18,11 @@ public class SequenceVariable extends Variable {
 
 	public SequenceVariable(String name, Context context) {
 		super(name, context);
+	}
+
+	@Override
+	protected void setMethods() {
+		super.setMethods();
 
 		this.setMethod("GETEVENTNAME", new Method(
 				"STRING"
@@ -33,7 +38,7 @@ public class SequenceVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				isVisible = false;
-                return null;
+				return null;
 			}
 		});
 		this.setMethod("ISPLAYING", new Method(

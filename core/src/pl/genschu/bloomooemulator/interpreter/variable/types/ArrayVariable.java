@@ -22,12 +22,29 @@ public class ArrayVariable extends Variable {
 		super(name, context);
 
 		this.elements = new ArrayList<>();
+	}
+
+	private void debugArray() {
+		Gdx.app.log("ArrayVariable", "DEBUG "+getName()+" ("+elements.size()+" elements):");
+		for(Variable element : elements) {
+			Gdx.app.log("ArrayVariable <"+getName()+">", "\t"+element.getName()+" = "+element);
+		}
+	}
+
+	@Override
+	public String getType() {
+		return "ARRAY";
+	}
+
+	@Override
+	protected void setMethods() {
+		super.setMethods();
 
 		this.setMethod("ADD", new Method(
-			List.of(
-				new Parameter("mixed", "param1...paramN", true)
-			),
-			"void"
+				List.of(
+						new Parameter("mixed", "param1...paramN", true)
+				),
+				"void"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
@@ -39,11 +56,11 @@ public class ArrayVariable extends Variable {
 			}
 		});
 		this.setMethod("ADDAT", new Method(
-			List.of(
-				new Parameter("INTEGER", "index", true),
-				new Parameter("mixed", "value", true)
-			),
-			"void"
+				List.of(
+						new Parameter("INTEGER", "index", true),
+						new Parameter("mixed", "value", true)
+				),
+				"void"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
@@ -55,11 +72,11 @@ public class ArrayVariable extends Variable {
 			}
 		});
 		this.setMethod("CHANGEAT", new Method(
-			List.of(
-				new Parameter("INTEGER", "index", true),
-				new Parameter("mixed", "value", true)
-			),
-			"void"
+				List.of(
+						new Parameter("INTEGER", "index", true),
+						new Parameter("mixed", "value", true)
+				),
+				"void"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
@@ -70,12 +87,12 @@ public class ArrayVariable extends Variable {
 			}
 		});
 		this.setMethod("CLAMPAT", new Method(
-			List.of(
-				new Parameter("INTEGER", "index", true),
-				new Parameter("INTEGER|DOUBLE", "rangeMin", true),
-				new Parameter("INTEGER|DOUBLE", "rangeMax", true)
-			),
-			"void"
+				List.of(
+						new Parameter("INTEGER", "index", true),
+						new Parameter("INTEGER|DOUBLE", "rangeMin", true),
+						new Parameter("INTEGER|DOUBLE", "rangeMax", true)
+				),
+				"void"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
@@ -88,10 +105,10 @@ public class ArrayVariable extends Variable {
 			}
 		});
 		this.setMethod("CONTAINS", new Method(
-			List.of(
-				new Parameter("mixed", "needle", true)
-			),
-			"BOOL"
+				List.of(
+						new Parameter("mixed", "needle", true)
+				),
+				"BOOL"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
@@ -100,10 +117,10 @@ public class ArrayVariable extends Variable {
 			}
 		});
 		this.setMethod("COPYTO", new Method(
-			List.of(
-				new Parameter("STRING", "arrayVarName", true)
-			),
-			"void"
+				List.of(
+						new Parameter("STRING", "arrayVarName", true)
+				),
+				"void"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
@@ -112,10 +129,10 @@ public class ArrayVariable extends Variable {
 			}
 		});
 		this.setMethod("FIND", new Method(
-			List.of(
-				new Parameter("mixed", "needle", true)
-			),
-			"INTEGER"
+				List.of(
+						new Parameter("mixed", "needle", true)
+				),
+				"INTEGER"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
@@ -134,11 +151,11 @@ public class ArrayVariable extends Variable {
 			}
 		});
 		this.setMethod("GET", new Method(
-			List.of(
-				new Parameter("INTEGER", "index", true),
-				new Parameter("mixed", "default", false)
-			),
-			"mixed"
+				List.of(
+						new Parameter("INTEGER", "index", true),
+						new Parameter("mixed", "default", false)
+				),
+				"mixed"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
@@ -150,7 +167,7 @@ public class ArrayVariable extends Variable {
 			}
 		});
 		this.setMethod("GETSIZE", new Method(
-			"INTEGER"
+				"INTEGER"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
@@ -158,7 +175,7 @@ public class ArrayVariable extends Variable {
 			}
 		});
 		this.setMethod("GETSUMVALUE", new Method(
-			"INTEGER|DOUBLE"
+				"INTEGER|DOUBLE"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
@@ -171,11 +188,11 @@ public class ArrayVariable extends Variable {
 			}
 		});
 		this.setMethod("INSERTAT", new Method(
-			List.of(
-				new Parameter("INTEGER", "index", true),
-				new Parameter("mixed", "value", true)
-			),
-			"void"
+				List.of(
+						new Parameter("INTEGER", "index", true),
+						new Parameter("mixed", "value", true)
+				),
+				"void"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
@@ -186,10 +203,10 @@ public class ArrayVariable extends Variable {
 			}
 		});
 		this.setMethod("LOAD", new Method(
-			List.of(
-				new Parameter("mixed", "value", true)
-			),
-			"void"
+				List.of(
+						new Parameter("mixed", "value", true)
+				),
+				"void"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
@@ -201,7 +218,7 @@ public class ArrayVariable extends Variable {
 			}
 		});
 		this.setMethod("LOADINI", new Method(
-			"void"
+				"void"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
@@ -210,11 +227,11 @@ public class ArrayVariable extends Variable {
 			}
 		});
 		this.setMethod("MODAT", new Method(
-			List.of(
-				new Parameter("INTEGER", "index", true),
-				new Parameter("INTEGER|DOUBLE", "divisor", true)
-			),
-			"void"
+				List.of(
+						new Parameter("INTEGER", "index", true),
+						new Parameter("INTEGER|DOUBLE", "divisor", true)
+				),
+				"void"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
@@ -223,11 +240,11 @@ public class ArrayVariable extends Variable {
 			}
 		});
 		this.setMethod("MULAT", new Method(
-			List.of(
-				new Parameter("INTEGER", "index", true),
-				new Parameter("INTEGER|DOUBLE", "multiplier", true)
-			),
-			"void"
+				List.of(
+						new Parameter("INTEGER", "index", true),
+						new Parameter("INTEGER|DOUBLE", "multiplier", true)
+				),
+				"void"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
@@ -236,10 +253,10 @@ public class ArrayVariable extends Variable {
 			}
 		});
 		this.setMethod("REMOVE", new Method(
-			List.of(
-				new Parameter("mixed", "element", true)
-			),
-			"void"
+				List.of(
+						new Parameter("mixed", "element", true)
+				),
+				"void"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
@@ -248,7 +265,7 @@ public class ArrayVariable extends Variable {
 			}
 		});
 		this.setMethod("REMOVEALL", new Method(
-			"void"
+				"void"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
@@ -258,10 +275,10 @@ public class ArrayVariable extends Variable {
 			}
 		});
 		this.setMethod("REMOVEAT", new Method(
-			List.of(
-				new Parameter("INTEGER", "index", true)
-			),
-			"void"
+				List.of(
+						new Parameter("INTEGER", "index", true)
+				),
+				"void"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
@@ -272,10 +289,10 @@ public class ArrayVariable extends Variable {
 			}
 		});
 		this.setMethod("REVERSEFIND", new Method(
-			List.of(
-				new Parameter("mixed", "needle", true)
-			),
-			"INTEGER"
+				List.of(
+						new Parameter("mixed", "needle", true)
+				),
+				"INTEGER"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
@@ -284,10 +301,10 @@ public class ArrayVariable extends Variable {
 			}
 		});
 		this.setMethod("SAVE", new Method(
-			List.of(
-				new Parameter("STRING", "path", true)
-			),
-			"void"
+				List.of(
+						new Parameter("STRING", "path", true)
+				),
+				"void"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
@@ -296,7 +313,7 @@ public class ArrayVariable extends Variable {
 			}
 		});
 		this.setMethod("SAVEINI", new Method(
-			"void"
+				"void"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
@@ -305,10 +322,10 @@ public class ArrayVariable extends Variable {
 			}
 		});
 		this.setMethod("SUB", new Method(
-			List.of(
-				new Parameter("INTEGER|DOUBLE", "value", true)
-			),
-			"void"
+				List.of(
+						new Parameter("INTEGER|DOUBLE", "value", true)
+				),
+				"void"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
@@ -317,11 +334,11 @@ public class ArrayVariable extends Variable {
 			}
 		});
 		this.setMethod("SUBAT", new Method(
-			List.of(
-				new Parameter("INTEGER", "index", true),
-				new Parameter("INTEGER|DOUBLE", "value", true)
-			),
-			"void"
+				List.of(
+						new Parameter("INTEGER", "index", true),
+						new Parameter("INTEGER|DOUBLE", "value", true)
+				),
+				"void"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
@@ -330,10 +347,10 @@ public class ArrayVariable extends Variable {
 			}
 		});
 		this.setMethod("SUM", new Method(
-			List.of(
-				new Parameter("INTEGER|DOUBLE", "value", true)
-			),
-			"void"
+				List.of(
+						new Parameter("INTEGER|DOUBLE", "value", true)
+				),
+				"void"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
@@ -341,18 +358,6 @@ public class ArrayVariable extends Variable {
 				throw new ClassMethodNotImplementedException("Method SUM is not implemented yet");
 			}
 		});
-	}
-
-	private void debugArray() {
-		Gdx.app.log("ArrayVariable", "DEBUG "+getName()+" ("+elements.size()+" elements):");
-		for(Variable element : elements) {
-			Gdx.app.log("ArrayVariable <"+getName()+">", "\t"+element.getName()+" = "+element);
-		}
-	}
-
-	@Override
-	public String getType() {
-		return "ARRAY";
 	}
 
 	@Override

@@ -23,6 +23,16 @@ public class ClassVariable extends Variable {
 
 	public ClassVariable(String name, Context context) {
 		super(name, context);
+	}
+
+	@Override
+	public String getType() {
+		return "CLASS";
+	}
+
+	@Override
+	protected void setMethods() {
+		super.setMethods();
 
 		this.setMethod("NEW", new Method(
 				List.of(
@@ -102,11 +112,6 @@ public class ClassVariable extends Variable {
 				return null;
 			}
 		});
-	}
-
-	@Override
-	public String getType() {
-		return "CLASS";
 	}
 
 	@Override

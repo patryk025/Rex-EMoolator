@@ -20,6 +20,11 @@ public class DatabaseVariable extends Variable {
 
 	public DatabaseVariable(String name, Context context) {
 		super(name, context);
+	}
+
+	@Override
+	protected void setMethods() {
+		super.setMethods();
 
 		this.setMethod("FIND", new Method(
 				List.of(

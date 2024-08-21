@@ -12,9 +12,19 @@ import java.util.List;
 public class VirtualGraphicsObjectVariable extends Variable {
 	public VirtualGraphicsObjectVariable(String name, Context context) {
 		super(name, context);
+	}
+
+	@Override
+	public String getType() {
+		return "VIRTUALGRAPHICSOBJECT";
+	}
+
+	@Override
+	protected void setMethods() {
+		super.setMethods();
 
 		this.setMethod("GETHEIGHT", new Method(
-			"INTEGER"
+				"INTEGER"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
@@ -23,7 +33,7 @@ public class VirtualGraphicsObjectVariable extends Variable {
 			}
 		});
 		this.setMethod("GETPOSITIONX", new Method(
-			"INTEGER"
+				"INTEGER"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
@@ -32,7 +42,7 @@ public class VirtualGraphicsObjectVariable extends Variable {
 			}
 		});
 		this.setMethod("GETPOSITIONY", new Method(
-			"INTEGER"
+				"INTEGER"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
@@ -41,7 +51,7 @@ public class VirtualGraphicsObjectVariable extends Variable {
 			}
 		});
 		this.setMethod("GETWIDTH", new Method(
-			"INTEGER"
+				"INTEGER"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
@@ -50,11 +60,11 @@ public class VirtualGraphicsObjectVariable extends Variable {
 			}
 		});
 		this.setMethod("MOVE", new Method(
-			List.of(
-				new Parameter("INTEGER", "offsetX", true),
-				new Parameter("INTEGER", "offsetY", true)
-			),
-			"void"
+				List.of(
+						new Parameter("INTEGER", "offsetX", true),
+						new Parameter("INTEGER", "offsetY", true)
+				),
+				"void"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
@@ -63,10 +73,10 @@ public class VirtualGraphicsObjectVariable extends Variable {
 			}
 		});
 		this.setMethod("SETMASK", new Method(
-			List.of(
-				new Parameter("STRING", "mask", true)
-			),
-			"void"
+				List.of(
+						new Parameter("STRING", "mask", true)
+				),
+				"void"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
@@ -75,11 +85,11 @@ public class VirtualGraphicsObjectVariable extends Variable {
 			}
 		});
 		this.setMethod("SETPOSITION", new Method(
-			List.of(
-				new Parameter("INTEGER", "x", true),
-				new Parameter("INTEGER", "y", true)
-			),
-			"void"
+				List.of(
+						new Parameter("INTEGER", "x", true),
+						new Parameter("INTEGER", "y", true)
+				),
+				"void"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
@@ -88,10 +98,10 @@ public class VirtualGraphicsObjectVariable extends Variable {
 			}
 		});
 		this.setMethod("SETPRIORITY", new Method(
-			List.of(
-				new Parameter("INTEGER", "priority", true)
-			),
-			"void"
+				List.of(
+						new Parameter("INTEGER", "priority", true)
+				),
+				"void"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
@@ -100,10 +110,10 @@ public class VirtualGraphicsObjectVariable extends Variable {
 			}
 		});
 		this.setMethod("SETSOURCE", new Method(
-			List.of(
-				new Parameter("STRING", "source", true)
-			),
-			"void"
+				List.of(
+						new Parameter("STRING", "source", true)
+				),
+				"void"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
@@ -111,11 +121,6 @@ public class VirtualGraphicsObjectVariable extends Variable {
 				throw new ClassMethodNotImplementedException("Method SETSOURCE is not implemented yet");
 			}
 		});
-	}
-
-	@Override
-	public String getType() {
-		return "VIRTUALGRAPHICSOBJECT";
 	}
 
 	@Override

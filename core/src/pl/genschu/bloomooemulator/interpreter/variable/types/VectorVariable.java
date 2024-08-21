@@ -12,12 +12,22 @@ import java.util.List;
 public class VectorVariable extends Variable {
 	public VectorVariable(String name, Context context) {
 		super(name, context);
+	}
+
+	@Override
+	public String getType() {
+		return "VECTOR";
+	}
+
+	@Override
+	protected void setMethods() {
+		super.setMethods();
 
 		this.setMethod("ADD", new Method(
-			List.of(
-				new Parameter("STRING|VECTOR", "vectorName", true)
-			),
-			"void"
+				List.of(
+						new Parameter("STRING|VECTOR", "vectorName", true)
+				),
+				"void"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
@@ -26,11 +36,11 @@ public class VectorVariable extends Variable {
 			}
 		});
 		this.setMethod("ASSIGN", new Method(
-			List.of(
-				new Parameter("INTEGER", "x", true),
-				new Parameter("INTEGER", "y", true)
-			),
-			"void"
+				List.of(
+						new Parameter("INTEGER", "x", true),
+						new Parameter("INTEGER", "y", true)
+				),
+				"void"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
@@ -39,10 +49,10 @@ public class VectorVariable extends Variable {
 			}
 		});
 		this.setMethod("GET", new Method(
-			List.of(
-				new Parameter("INTEGER", "n", true)
-			),
-			"INTEGER"
+				List.of(
+						new Parameter("INTEGER", "n", true)
+				),
+				"INTEGER"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
@@ -51,10 +61,10 @@ public class VectorVariable extends Variable {
 			}
 		});
 		this.setMethod("MUL", new Method(
-			List.of(
-				new Parameter("INTEGER", "scalar", true)
-			),
-			"void"
+				List.of(
+						new Parameter("INTEGER", "scalar", true)
+				),
+				"void"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
@@ -63,7 +73,7 @@ public class VectorVariable extends Variable {
 			}
 		});
 		this.setMethod("NORMALIZE", new Method(
-			"void"
+				"void"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
@@ -72,11 +82,11 @@ public class VectorVariable extends Variable {
 			}
 		});
 		this.setMethod("REFLECT", new Method(
-			List.of(
-				new Parameter("STRING", "vectorName", true),
-				new Parameter("STRING", "normalVectorName", true)
-			),
-			"void"
+				List.of(
+						new Parameter("STRING", "vectorName", true),
+						new Parameter("STRING", "normalVectorName", true)
+				),
+				"void"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
@@ -87,13 +97,8 @@ public class VectorVariable extends Variable {
 	}
 
 	@Override
-	public String getType() {
-		return "VECTOR";
-	}
-
-	@Override
 	public void setAttribute(String name, Attribute attribute) {
-		List<String> knownAttributes = List.of("SIZE", "INTEGER, INTEGER, [INTEGER...] VALUE");
+		List<String> knownAttributes = List.of("SIZE", "VALUE");
 		if(knownAttributes.contains(name)) {
 			super.setAttribute(name, attribute);
 		}

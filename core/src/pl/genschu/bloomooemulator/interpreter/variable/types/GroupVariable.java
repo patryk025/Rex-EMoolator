@@ -20,12 +20,17 @@ public class GroupVariable extends Variable {
 		super(name, context);
 
 		this.variables = new ArrayList<>();
+	}
+
+	@Override
+	protected void setMethods() {
+		super.setMethods();
 
 		this.setMethod("ADD", new Method(
-			List.of(
-				new Parameter("mixed", "varName1...varNameN", true)
-			),
-			"void"
+				List.of(
+						new Parameter("mixed", "varName1...varNameN", true)
+				),
+				"void"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
@@ -37,12 +42,12 @@ public class GroupVariable extends Variable {
 			}
 		});
 		this.setMethod("ADDCLONES", new Method(
-			List.of(
-				new Parameter("STRING", "varName", true),
-				new Parameter("INTEGER", "firstCloneIndex?", true),
-				new Parameter("INTEGER", "numberOfClones", true)
-			),
-			"void"
+				List.of(
+						new Parameter("STRING", "varName", true),
+						new Parameter("INTEGER", "firstCloneIndex?", true),
+						new Parameter("INTEGER", "numberOfClones", true)
+				),
+				"void"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
@@ -51,7 +56,7 @@ public class GroupVariable extends Variable {
 			}
 		});
 		this.setMethod("GETSIZE", new Method(
-			"INTEGER"
+				"INTEGER"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
@@ -59,7 +64,7 @@ public class GroupVariable extends Variable {
 			}
 		});
 		this.setMethod("NEXT", new Method(
-			"mixed"
+				"mixed"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
@@ -68,7 +73,7 @@ public class GroupVariable extends Variable {
 			}
 		});
 		this.setMethod("PREV", new Method(
-			"mixed"
+				"mixed"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
@@ -77,10 +82,10 @@ public class GroupVariable extends Variable {
 			}
 		});
 		this.setMethod("REMOVE", new Method(
-			List.of(
-				new Parameter("STRING", "varName", true)
-			),
-			"void"
+				List.of(
+						new Parameter("STRING", "varName", true)
+				),
+				"void"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
@@ -96,7 +101,7 @@ public class GroupVariable extends Variable {
 			}
 		});
 		this.setMethod("REMOVEALL", new Method(
-			"void"
+				"void"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
@@ -105,7 +110,7 @@ public class GroupVariable extends Variable {
 			}
 		});
 		this.setMethod("RESETMARKER", new Method(
-			"void"
+				"void"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {

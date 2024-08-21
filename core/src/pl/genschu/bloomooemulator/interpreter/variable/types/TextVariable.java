@@ -12,12 +12,17 @@ import java.util.List;
 public class TextVariable extends Variable {
 	public TextVariable(String name, Context context) {
 		super(name, context);
+	}
+
+	@Override
+	protected void setMethods() {
+		super.setMethods();
 
 		this.setMethod("SETTEXT", new Method(
-			List.of(
-				new Parameter("STRING", "text", true)
-			),
-			"void"
+				List.of(
+						new Parameter("STRING", "text", true)
+				),
+				"void"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
@@ -26,7 +31,7 @@ public class TextVariable extends Variable {
 			}
 		});
 		this.setMethod("SHOW", new Method(
-			"void"
+				"void"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
@@ -35,7 +40,7 @@ public class TextVariable extends Variable {
 			}
 		});
 		this.setMethod("HIDE", new Method(
-			"void"
+				"void"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {

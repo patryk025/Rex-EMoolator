@@ -12,12 +12,22 @@ import java.util.List;
 public class CNVLoaderVariable extends Variable {
 	public CNVLoaderVariable(String name, Context context) {
 		super(name, context);
+	}
+
+	@Override
+	public String getType() {
+		return "CNVLOADER";
+	}
+
+	@Override
+	protected void setMethods() {
+		super.setMethods();
 
 		this.setMethod("LOAD", new Method(
-			List.of(
-				new Parameter("STRING", "cnvFile", true)
-			),
-			"void"
+				List.of(
+						new Parameter("STRING", "cnvFile", true)
+				),
+				"void"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
@@ -26,10 +36,10 @@ public class CNVLoaderVariable extends Variable {
 			}
 		});
 		this.setMethod("RELEASE", new Method(
-			List.of(
-				new Parameter("STRING", "cnvFile", true)
-			),
-			"void"
+				List.of(
+						new Parameter("STRING", "cnvFile", true)
+				),
+				"void"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
@@ -37,11 +47,6 @@ public class CNVLoaderVariable extends Variable {
 				throw new ClassMethodNotImplementedException("Method RELEASE is not implemented yet");
 			}
 		});
-	}
-
-	@Override
-	public String getType() {
-		return "CNVLOADER";
 	}
 
 	@Override

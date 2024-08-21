@@ -17,33 +17,6 @@ public class BoolVariable extends Variable {
 	public BoolVariable(String name, boolean value, Context context) {
 		super(name, context);
 		this.setAttribute("VALUE", new Attribute("BOOL", value));
-
-		this.setMethod("SET", new Method(
-			List.of(
-				new Parameter("BOOL", "value", true)
-			),
-			"void"
-		) {
-			@Override
-			public Variable execute(List<Object> arguments) {
-				Object value = ((Variable) arguments.get(0)).getValue();
-				set(value);
-				return null;
-			}
-		});
-		this.setMethod("SWITCH", new Method(
-			List.of(
-				new Parameter("BOOL", "value1", true),
-				new Parameter("BOOL", "value2", true)
-			),
-			"void"
-		) {
-			@Override
-			public Variable execute(List<Object> arguments) {
-				// TODO: implement this method
-				throw new ClassMethodNotImplementedException("Method SWITCH is not implemented yet");
-			}
-		});
 	}
 
 	@Override
@@ -54,6 +27,38 @@ public class BoolVariable extends Variable {
 	@Override
 	public Object getValue() {
 		return this.getAttribute("VALUE").getValue();
+	}
+
+	@Override
+	protected void setMethods() {
+		super.setMethods();
+
+		this.setMethod("SET", new Method(
+				List.of(
+						new Parameter("BOOL", "value", true)
+				),
+				"void"
+		) {
+			@Override
+			public Variable execute(List<Object> arguments) {
+				Object value = ((Variable) arguments.get(0)).getValue();
+				set(value);
+				return null;
+			}
+		});
+		this.setMethod("SWITCH", new Method(
+				List.of(
+						new Parameter("BOOL", "value1", true),
+						new Parameter("BOOL", "value2", true)
+				),
+				"void"
+		) {
+			@Override
+			public Variable execute(List<Object> arguments) {
+				// TODO: implement this method
+				throw new ClassMethodNotImplementedException("Method SWITCH is not implemented yet");
+			}
+		});
 	}
 
 	@Override

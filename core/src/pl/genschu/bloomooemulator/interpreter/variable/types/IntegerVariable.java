@@ -17,12 +17,22 @@ public class IntegerVariable extends Variable {
 	public IntegerVariable(String name, int value, Context context) {
 		super(name, context);
 		this.setAttribute("VALUE", new Attribute("INTEGER", value));
+	}
+
+	@Override
+	public String getType() {
+		return "INTEGER";
+	}
+
+	@Override
+	protected void setMethods() {
+		super.setMethods();
 
 		this.setMethod("ABS", new Method(
-			List.of(
-				new Parameter("INTEGER", "value", true)
-			),
-			"INTEGER"
+				List.of(
+						new Parameter("INTEGER", "value", true)
+				),
+				"INTEGER"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
@@ -33,10 +43,10 @@ public class IntegerVariable extends Variable {
 			}
 		});
 		this.setMethod("ADD", new Method(
-			List.of(
-				new Parameter("INTEGER", "addend", true)
-			),
-			"INTEGER"
+				List.of(
+						new Parameter("INTEGER", "addend", true)
+				),
+				"INTEGER"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
@@ -46,10 +56,10 @@ public class IntegerVariable extends Variable {
 			}
 		});
 		this.setMethod("AND", new Method(
-			List.of(
-				new Parameter("INTEGER", "value", true)
-			),
-			"INTEGER"
+				List.of(
+						new Parameter("INTEGER", "value", true)
+				),
+				"INTEGER"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
@@ -59,11 +69,11 @@ public class IntegerVariable extends Variable {
 			}
 		});
 		this.setMethod("CLAMP", new Method(
-			List.of(
-				new Parameter("INTEGER", "rangeMin", true),
-				new Parameter("INTEGER", "rangeMax", true)
-			),
-			"INTEGER"
+				List.of(
+						new Parameter("INTEGER", "rangeMin", true),
+						new Parameter("INTEGER", "rangeMax", true)
+				),
+				"INTEGER"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
@@ -82,7 +92,7 @@ public class IntegerVariable extends Variable {
 			}
 		});
 		this.setMethod("DEC", new Method(
-			"void"
+				"void"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
@@ -92,10 +102,10 @@ public class IntegerVariable extends Variable {
 			}
 		});
 		this.setMethod("DIV", new Method(
-			List.of(
-				new Parameter("INTEGER", "divisor", true)
-			),
-			"INTEGER"
+				List.of(
+						new Parameter("INTEGER", "divisor", true)
+				),
+				"INTEGER"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
@@ -109,7 +119,7 @@ public class IntegerVariable extends Variable {
 			}
 		});
 		this.setMethod("INC", new Method(
-			"void"
+				"void"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
@@ -119,11 +129,11 @@ public class IntegerVariable extends Variable {
 			}
 		});
 		this.setMethod("LENGTH", new Method(
-			List.of(
-				new Parameter("INTEGER", "x", true),
-				new Parameter("INTEGER", "y", true)
-			),
-			"INTEGER"
+				List.of(
+						new Parameter("INTEGER", "x", true),
+						new Parameter("INTEGER", "y", true)
+				),
+				"INTEGER"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
@@ -136,10 +146,10 @@ public class IntegerVariable extends Variable {
 			}
 		});
 		this.setMethod("MOD", new Method(
-			List.of(
-				new Parameter("INTEGER", "divisor", true)
-			),
-			"INTEGER"
+				List.of(
+						new Parameter("INTEGER", "divisor", true)
+				),
+				"INTEGER"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
@@ -149,10 +159,10 @@ public class IntegerVariable extends Variable {
 			}
 		});
 		this.setMethod("MUL", new Method(
-			List.of(
-				new Parameter("INTEGER", "multiplier", true)
-			),
-			"INTEGER"
+				List.of(
+						new Parameter("INTEGER", "multiplier", true)
+				),
+				"INTEGER"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
@@ -162,35 +172,35 @@ public class IntegerVariable extends Variable {
 			}
 		});
 		this.setMethod("RANDOM", new Method(
-			List.of(
-				new Parameter("INTEGER", "param1", true),
-				new Parameter("INTEGER", "param2", false)
-			),
-			"INTEGER"
+				List.of(
+						new Parameter("INTEGER", "param1", true),
+						new Parameter("INTEGER", "param2", false)
+				),
+				"INTEGER"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				if(arguments.size() == 1) {
-                    Random random = new Random();
-                    int bound = ArgumentsHelper.getInteger(arguments.get(0));
-                    int result = random.nextInt(bound);
+					Random random = new Random();
+					int bound = ArgumentsHelper.getInteger(arguments.get(0));
+					int result = random.nextInt(bound);
 					set(result);
 					return IntegerVariable.this;
 				} else {
 					int min = ArgumentsHelper.getInteger(arguments.get(0));
-                    int max = ArgumentsHelper.getInteger(arguments.get(1));
-                    Random random = new Random();
-                    int result = min + random.nextInt(max - min + 1);
+					int max = ArgumentsHelper.getInteger(arguments.get(1));
+					Random random = new Random();
+					int result = min + random.nextInt(max - min + 1);
 					set(result);
 					return IntegerVariable.this;
 				}
 			}
 		});
 		this.setMethod("SET", new Method(
-			List.of(
-				new Parameter("INTEGER", "value", true)
-			),
-			"void"
+				List.of(
+						new Parameter("INTEGER", "value", true)
+				),
+				"void"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
@@ -200,10 +210,10 @@ public class IntegerVariable extends Variable {
 			}
 		});
 		this.setMethod("SUB", new Method(
-			List.of(
-				new Parameter("INTEGER", "subtrahend", true)
-			),
-			"INTEGER"
+				List.of(
+						new Parameter("INTEGER", "subtrahend", true)
+				),
+				"INTEGER"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
@@ -213,11 +223,11 @@ public class IntegerVariable extends Variable {
 			}
 		});
 		this.setMethod("SWITCH", new Method(
-			List.of(
-				new Parameter("INTEGER", "val1", true),
-				new Parameter("INTEGER", "val1", true)
-			),
-			"INTEGER"
+				List.of(
+						new Parameter("INTEGER", "val1", true),
+						new Parameter("INTEGER", "val1", true)
+				),
+				"INTEGER"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
@@ -232,11 +242,6 @@ public class IntegerVariable extends Variable {
 				return IntegerVariable.this;
 			}
 		});
-	}
-
-	@Override
-	public String getType() {
-		return "INTEGER";
 	}
 
 	@Override

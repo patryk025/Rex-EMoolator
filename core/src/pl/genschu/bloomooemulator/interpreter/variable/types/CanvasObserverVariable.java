@@ -26,12 +26,22 @@ public class CanvasObserverVariable extends Variable {
 
 	public CanvasObserverVariable(String name, Context context) {
 		super(name, context);
+	}
+
+	@Override
+	public String getType() {
+		return "CANVAS_OBSERVER";
+	}
+
+	@Override
+	protected void setMethods() {
+		super.setMethods();
 
 		this.setMethod("ADD", new Method(
-			List.of(
-				new Parameter("STRING", "animoVar", true)
-			),
-			"void"
+				List.of(
+						new Parameter("STRING", "animoVar", true)
+				),
+				"void"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
@@ -40,10 +50,10 @@ public class CanvasObserverVariable extends Variable {
 			}
 		});
 		this.setMethod("ENABLENOTIFY", new Method(
-			List.of(
-				new Parameter("BOOL", "enable", true)
-			),
-			"void"
+				List.of(
+						new Parameter("BOOL", "enable", true)
+				),
+				"void"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
@@ -52,15 +62,15 @@ public class CanvasObserverVariable extends Variable {
 			}
 		});
 		this.setMethod("GETGRAPHICSAT", new Method(
-			List.of(
-				new Parameter("INTEGER", "posX", true),
-				new Parameter("INTEGER", "posY", true),
-				new Parameter("BOOL", "unknown", true),
-				new Parameter("INTEGER", "minZ", true),
-				new Parameter("INTEGER", "maxZ", true),
-				new Parameter("BOOL", "useAlpha", false)
-			),
-			"STRING"
+				List.of(
+						new Parameter("INTEGER", "posX", true),
+						new Parameter("INTEGER", "posY", true),
+						new Parameter("BOOL", "unknown", true),
+						new Parameter("INTEGER", "minZ", true),
+						new Parameter("INTEGER", "maxZ", true),
+						new Parameter("BOOL", "useAlpha", false)
+				),
+				"STRING"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
@@ -106,9 +116,9 @@ public class CanvasObserverVariable extends Variable {
 						if(rect ==  null) continue;
 						if (rect.contains(posX, posY)) {
 							if (useAlpha) {
-                                Gdx.app.log("CanvasObserver", "Debug - " + variable.getName() + " at (" + posX + "," + posY + ")");
-                                return new StringVariable("", variable.getName(), context);
-                            } else {
+								Gdx.app.log("CanvasObserver", "Debug - " + variable.getName() + " at (" + posX + "," + posY + ")");
+								return new StringVariable("", variable.getName(), context);
+							} else {
 								Image image = getImage(variable);
 								int relativeX = posX - rect.getXLeft();
 								int relativeY = posY - rect.getYTop();
@@ -137,11 +147,11 @@ public class CanvasObserverVariable extends Variable {
 			}
 		});
 		this.setMethod("MOVEBKG", new Method(
-			List.of(
-				new Parameter("INTEGER", "deltaX", true),
-				new Parameter("INTEGER", "deltaY", true)
-			),
-			"void"
+				List.of(
+						new Parameter("INTEGER", "deltaX", true),
+						new Parameter("INTEGER", "deltaY", true)
+				),
+				"void"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
@@ -150,12 +160,12 @@ public class CanvasObserverVariable extends Variable {
 			}
 		});
 		this.setMethod("PASTE", new Method(
-			List.of(
-				new Parameter("STRING", "varName", true),
-				new Parameter("INTEGER", "posX", true),
-				new Parameter("INTEGER", "posY", true)
-			),
-			"void"
+				List.of(
+						new Parameter("STRING", "varName", true),
+						new Parameter("INTEGER", "posX", true),
+						new Parameter("INTEGER", "posY", true)
+				),
+				"void"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
@@ -164,7 +174,7 @@ public class CanvasObserverVariable extends Variable {
 			}
 		});
 		this.setMethod("REDRAW", new Method(
-			"void"
+				"void"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
@@ -173,7 +183,7 @@ public class CanvasObserverVariable extends Variable {
 			}
 		});
 		this.setMethod("REFRESH", new Method(
-			"void"
+				"void"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
@@ -182,10 +192,10 @@ public class CanvasObserverVariable extends Variable {
 			}
 		});
 		this.setMethod("REMOVE", new Method(
-			List.of(
-				new Parameter("STRING", "varName1...varNameN", true)
-			),
-			"void"
+				List.of(
+						new Parameter("STRING", "varName1...varNameN", true)
+				),
+				"void"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
@@ -201,11 +211,11 @@ public class CanvasObserverVariable extends Variable {
 			}
 		});
 		this.setMethod("SAVE", new Method(
-			List.of(
-				new Parameter("STRING", "imgFileName", true),
-				new Parameter("mixed", "unknownParam1...unknownParamN", true)
-			),
-			"void"
+				List.of(
+						new Parameter("STRING", "imgFileName", true),
+						new Parameter("mixed", "unknownParam1...unknownParamN", true)
+				),
+				"void"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
@@ -233,10 +243,10 @@ public class CanvasObserverVariable extends Variable {
 			}
 		});
 		this.setMethod("SETBACKGROUND", new Method(
-			List.of(
-				new Parameter("STRING", "imageName", true)
-			),
-			"void"
+				List.of(
+						new Parameter("STRING", "imageName", true)
+				),
+				"void"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
@@ -255,11 +265,11 @@ public class CanvasObserverVariable extends Variable {
 			}
 		});
 		this.setMethod("SETBKGPOS", new Method(
-			List.of(
-				new Parameter("INTEGER", "posX", true),
-				new Parameter("INTEGER", "posY", true)
-			),
-			"void"
+				List.of(
+						new Parameter("INTEGER", "posX", true),
+						new Parameter("INTEGER", "posY", true)
+				),
+				"void"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
@@ -267,11 +277,6 @@ public class CanvasObserverVariable extends Variable {
 				throw new ClassMethodNotImplementedException("Method SETBKGPOS is not implemented yet");
 			}
 		});
-	}
-
-	@Override
-	public String getType() {
-		return "CANVAS_OBSERVER";
 	}
 
 	@Override

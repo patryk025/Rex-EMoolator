@@ -38,9 +38,19 @@ public class BehaviourVariable extends Variable {
 		} catch (Exception e) {
 			Gdx.app.error("BehaviourVariable", "Failed to parse code: " + code, e);
 		}
+	}
+
+	@Override
+	public String getType() {
+		return "BEHAVIOUR";
+	}
+
+	@Override
+	protected void setMethods() {
+		super.setMethods();
 
 		this.setMethod("PLAY", new Method(
-			"mixed"
+				"mixed"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
@@ -49,10 +59,10 @@ public class BehaviourVariable extends Variable {
 			}
 		});
 		this.setMethod("RUN", new Method(
-			List.of(
-				new Parameter("mixed", "param1...paramN", false)
-			),
-			"mixed"
+				List.of(
+						new Parameter("mixed", "param1...paramN", false)
+				),
+				"mixed"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
@@ -84,10 +94,10 @@ public class BehaviourVariable extends Variable {
 			}
 		});
 		this.setMethod("RUNC", new Method(
-			List.of(
-				new Parameter("mixed", "param1...paramN", true)
-			),
-			"mixed"
+				List.of(
+						new Parameter("mixed", "param1...paramN", true)
+				),
+				"mixed"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
@@ -155,13 +165,13 @@ public class BehaviourVariable extends Variable {
 			}
 		});
 		this.setMethod("RUNLOOPED", new Method(
-			List.of(
-				new Parameter("INTEGER", "startVal", true),
-				new Parameter("INTEGER", "endDiff", true),
-				new Parameter("INTEGER", "incrementBy", false),
-				new Parameter("mixed", "param1...paramN", false)
-			),
-			"mixed"
+				List.of(
+						new Parameter("INTEGER", "startVal", true),
+						new Parameter("INTEGER", "endDiff", true),
+						new Parameter("INTEGER", "incrementBy", false),
+						new Parameter("mixed", "param1...paramN", false)
+				),
+				"mixed"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
@@ -202,11 +212,6 @@ public class BehaviourVariable extends Variable {
 				return null;
 			}
 		});
-	}
-
-	@Override
-	public String getType() {
-		return "BEHAVIOUR";
 	}
 
 	@Override

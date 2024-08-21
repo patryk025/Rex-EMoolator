@@ -33,13 +33,23 @@ public class ImageVariable extends Variable {
 		rect = new Rectangle(0, 0, 0, 0);
 		clippingRect = null;
 		opacity = 255;
+	}
+
+	@Override
+	public String getType() {
+		return "IMAGE";
+	}
+
+	@Override
+	protected void setMethods() {
+		super.setMethods();
 
 		this.setMethod("GETALPHA", new Method(
-			List.of(
-				new Parameter("INTEGER", "posX", true),
-				new Parameter("INTEGER", "posY", true)
-			),
-			"INTEGER"
+				List.of(
+						new Parameter("INTEGER", "posX", true),
+						new Parameter("INTEGER", "posY", true)
+				),
+				"INTEGER"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
@@ -56,7 +66,7 @@ public class ImageVariable extends Variable {
 			}
 		});
 		this.setMethod("GETHEIGHT", new Method(
-			"INTEGER"
+				"INTEGER"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
@@ -64,11 +74,11 @@ public class ImageVariable extends Variable {
 			}
 		});
 		this.setMethod("GETPIXEL", new Method(
-			List.of(
-				new Parameter("INTEGER", "posX", true),
-				new Parameter("INTEGER", "posY", true)
-			),
-			"INTEGER"
+				List.of(
+						new Parameter("INTEGER", "posX", true),
+						new Parameter("INTEGER", "posY", true)
+				),
+				"INTEGER"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
@@ -100,7 +110,7 @@ public class ImageVariable extends Variable {
 			}
 		});
 		this.setMethod("GETPOSITIONX", new Method(
-			"INTEGER"
+				"INTEGER"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
@@ -108,7 +118,7 @@ public class ImageVariable extends Variable {
 			}
 		});
 		this.setMethod("GETPOSITIONY", new Method(
-			"INTEGER"
+				"INTEGER"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
@@ -116,7 +126,7 @@ public class ImageVariable extends Variable {
 			}
 		});
 		this.setMethod("GETWIDTH", new Method(
-			"INTEGER"
+				"INTEGER"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
@@ -124,7 +134,7 @@ public class ImageVariable extends Variable {
 			}
 		});
 		this.setMethod("HIDE", new Method(
-			"void"
+				"void"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
@@ -133,7 +143,7 @@ public class ImageVariable extends Variable {
 			}
 		});
 		this.setMethod("INVALIDATE", new Method(
-			"void"
+				"void"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
@@ -142,10 +152,10 @@ public class ImageVariable extends Variable {
 			}
 		});
 		this.setMethod("LOAD", new Method(
-			List.of(
-				new Parameter("STRING", "path", true)
-			),
-			"void"
+				List.of(
+						new Parameter("STRING", "path", true)
+				),
+				"void"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
@@ -156,12 +166,12 @@ public class ImageVariable extends Variable {
 			}
 		});
 		this.setMethod("MERGEALPHA", new Method(
-			List.of(
-				new Parameter("INTEGER", "posX", true),
-				new Parameter("INTEGER", "posY", true),
-				new Parameter("STRING", "mask", true)
-			),
-			"void"
+				List.of(
+						new Parameter("INTEGER", "posX", true),
+						new Parameter("INTEGER", "posY", true),
+						new Parameter("STRING", "mask", true)
+				),
+				"void"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
@@ -170,11 +180,11 @@ public class ImageVariable extends Variable {
 			}
 		});
 		this.setMethod("MOVE", new Method(
-			List.of(
-				new Parameter("INTEGER", "offsetX", true),
-				new Parameter("INTEGER", "offsetY", true)
-			),
-			"void"
+				List.of(
+						new Parameter("INTEGER", "offsetX", true),
+						new Parameter("INTEGER", "offsetY", true)
+				),
+				"void"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
@@ -187,13 +197,13 @@ public class ImageVariable extends Variable {
 			}
 		});
 		this.setMethod("SETCLIPPING", new Method(
-			List.of(
-				new Parameter("INTEGER", "xLeft", true),
-				new Parameter("INTEGER", "yBottom", true),
-				new Parameter("INTEGER", "xRight", true),
-				new Parameter("INTEGER", "yTop", true)
-			),
-			"void"
+				List.of(
+						new Parameter("INTEGER", "xLeft", true),
+						new Parameter("INTEGER", "yBottom", true),
+						new Parameter("INTEGER", "xRight", true),
+						new Parameter("INTEGER", "yTop", true)
+				),
+				"void"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
@@ -207,10 +217,10 @@ public class ImageVariable extends Variable {
 			}
 		});
 		this.setMethod("SETOPACITY", new Method(
-			List.of(
-				new Parameter("INTEGER", "opacity", true)
-			),
-			"void"
+				List.of(
+						new Parameter("INTEGER", "opacity", true)
+				),
+				"void"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
@@ -219,11 +229,11 @@ public class ImageVariable extends Variable {
 			}
 		});
 		this.setMethod("SETPOSITION", new Method(
-			List.of(
-				new Parameter("INTEGER", "posX", true),
-				new Parameter("INTEGER", "posY", true)
-			),
-			"void"
+				List.of(
+						new Parameter("INTEGER", "posX", true),
+						new Parameter("INTEGER", "posY", true)
+				),
+				"void"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
@@ -234,10 +244,10 @@ public class ImageVariable extends Variable {
 			}
 		});
 		this.setMethod("SETPRIORITY", new Method(
-			List.of(
-				new Parameter("INTEGER", "priority", true)
-			),
-			"void"
+				List.of(
+						new Parameter("INTEGER", "priority", true)
+				),
+				"void"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
@@ -246,7 +256,7 @@ public class ImageVariable extends Variable {
 			}
 		});
 		this.setMethod("SHOW", new Method(
-			"void"
+				"void"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
@@ -254,11 +264,6 @@ public class ImageVariable extends Variable {
 				return null;
 			}
 		});
-	}
-
-	@Override
-	public String getType() {
-		return "IMAGE";
 	}
 
 	@Override

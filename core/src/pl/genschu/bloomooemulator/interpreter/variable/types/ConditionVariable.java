@@ -22,6 +22,11 @@ public class ConditionVariable extends Variable {
 
 	public ConditionVariable(String name, Context context) {
 		super(name, context);
+	}
+
+	@Override
+	protected void setMethods() {
+		super.setMethods();
 
 		this.setMethod("BREAK", new Method(
 				List.of(
@@ -34,7 +39,11 @@ public class ConditionVariable extends Variable {
 				boolean result = check();
 				boolean expectedResult = ArgumentsHelper.getBoolean(arguments.get(0));
 				if(result == expectedResult) {
+					emitSignal("ONRUNTIMESUCCESS");
 					throw new BreakException("Break statement encountered");
+				}
+				else {
+					emitSignal("ONRUNTIMEFAILED");
 				}
 				return null;
 			}
@@ -69,7 +78,11 @@ public class ConditionVariable extends Variable {
 				boolean result = check();
 				boolean expectedResult = ArgumentsHelper.getBoolean(arguments.get(0));
 				if(result == expectedResult) {
+					emitSignal("ONRUNTIMESUCCESS");
 					throw new OneBreakException("OneBreak statement encountered");
+				}
+				else {
+					emitSignal("ONRUNTIMEFAILED");
 				}
 				return null;
 			}

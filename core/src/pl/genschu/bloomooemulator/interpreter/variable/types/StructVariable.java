@@ -20,6 +20,11 @@ public class StructVariable extends Variable {
 
 	public StructVariable(String name, Context context) {
 		super(name, context);
+	}
+
+	@Override
+	protected void setMethods() {
+		super.setMethods();
 
 		this.setMethod("GETFIELD", new Method(
 				List.of(

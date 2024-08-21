@@ -12,12 +12,17 @@ import java.util.List;
 public class StaticFilterVariable extends Variable {
 	public StaticFilterVariable(String name, Context context) {
 		super(name, context);
+	}
+
+	@Override
+	protected void setMethods() {
+		super.setMethods();
 
 		this.setMethod("LINK", new Method(
-			List.of(
-				new Parameter("STRING", "imageName", true)
-			),
-			"void"
+				List.of(
+						new Parameter("STRING", "imageName", true)
+				),
+				"void"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
@@ -26,11 +31,11 @@ public class StaticFilterVariable extends Variable {
 			}
 		});
 		this.setMethod("SETPROPERTY", new Method(
-			List.of(
-				new Parameter("STRING", "filterName", true),
-				new Parameter("STRING|INTEGER", "value", true)
-			),
-			"void"
+				List.of(
+						new Parameter("STRING", "filterName", true),
+						new Parameter("STRING|INTEGER", "value", true)
+				),
+				"void"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
@@ -39,10 +44,10 @@ public class StaticFilterVariable extends Variable {
 			}
 		});
 		this.setMethod("UNLINK", new Method(
-			List.of(
-				new Parameter("STRING", "imageName", true)
-			),
-			"void"
+				List.of(
+						new Parameter("STRING", "imageName", true)
+				),
+				"void"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {

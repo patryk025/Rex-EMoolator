@@ -12,9 +12,19 @@ import java.util.List;
 public class KeyboardVariable extends Variable {
 	public KeyboardVariable(String name, Context context) {
 		super(name, context);
+	}
+
+	@Override
+	public String getType() {
+		return "KEYBOARD";
+	}
+
+	@Override
+	protected void setMethods() {
+		super.setMethods();
 
 		this.setMethod("DISABLE", new Method(
-			"void"
+				"void"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
@@ -23,7 +33,7 @@ public class KeyboardVariable extends Variable {
 			}
 		});
 		this.setMethod("ENABLE", new Method(
-			"void"
+				"void"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
@@ -32,7 +42,7 @@ public class KeyboardVariable extends Variable {
 			}
 		});
 		this.setMethod("GETLATESTKEY", new Method(
-			"STRING"
+				"STRING"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
@@ -41,7 +51,7 @@ public class KeyboardVariable extends Variable {
 			}
 		});
 		this.setMethod("ISENABLED", new Method(
-			"BOOL"
+				"BOOL"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
@@ -50,10 +60,10 @@ public class KeyboardVariable extends Variable {
 			}
 		});
 		this.setMethod("ISKEYDOWN", new Method(
-			List.of(
-				new Parameter("STRING", "keyName", true)
-			),
-			"BOOL"
+				List.of(
+						new Parameter("STRING", "keyName", true)
+				),
+				"BOOL"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
@@ -62,10 +72,10 @@ public class KeyboardVariable extends Variable {
 			}
 		});
 		this.setMethod("SETAUTOREPEAT", new Method(
-			List.of(
-				new Parameter("BOOL", "autorepeat", true)
-			),
-			"void"
+				List.of(
+						new Parameter("BOOL", "autorepeat", true)
+				),
+				"void"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
@@ -73,11 +83,6 @@ public class KeyboardVariable extends Variable {
 				throw new ClassMethodNotImplementedException("Method SETAUTOREPEAT is not implemented yet");
 			}
 		});
-	}
-
-	@Override
-	public String getType() {
-		return "KEYBOARD";
 	}
 
 	@Override

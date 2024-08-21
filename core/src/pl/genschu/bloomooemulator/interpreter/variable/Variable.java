@@ -34,6 +34,44 @@ public abstract class Variable implements Cloneable {
 		this.clones = new ArrayList<>();
 		this.context = context;
 
+		this.setMethods();
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	public Variable convertTo(String type) {
+		if(this.getType().equals(type)) // typ jest ten sam i nie ma po co konwertować
+			return this;
+
+		if(!(this.getType().equals("STRING") || this.getType().equals("BOOL") || this.getType().equals("INTEGER") || this.getType().equals("DOUBLE"))) {
+			throw new VariableUnsupportedOperationException(this, "CONV");
+		}
+
+		if(!(type.equals("STRING") || type.equals("BOOL") || type.equals("INTEGER") || type.equals("DOUBLE"))) {
+			throw new VariableUnsupportedOperationException(this, type, "CONV");
+		}
+
+		switch(this.getType()) {
+			case "INTEGER":
+				return ((IntegerVariable) this).convert(type);
+			case "DOUBLE":
+				return ((DoubleVariable) this).convert(type);
+			case "BOOL":
+				return ((BoolVariable) this).convert(type);
+			case "STRING":
+				return ((StringVariable) this).convert(type);
+			default:
+				return this;
+		}
+	}
+
+	protected void setMethods() {
 		this.setMethod("ADDBEHAVIOUR", new Method(
 				List.of(
 						new Parameter("STRING", "signalName", true),
@@ -89,9 +127,11 @@ public abstract class Variable implements Cloneable {
 
 				for(int i = 0; i < amount; i++) {
 					Variable cloneVar = Variable.this.clone();
-					cloneVar.setName(cloneVar.getName()+"_CLONE_"+getClones().size()); // my little "creative" way to save index of clone
+					String newName = cloneVar.getName()+"_"+(getClones().size()+1);
+					cloneVar.setName(newName);
+					context.setVariable(newName, cloneVar);
 					clones.add(cloneVar);
-                }
+				}
 
 				return null;
 			}
@@ -101,8 +141,8 @@ public abstract class Variable implements Cloneable {
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				if(getName().contains("_CLONE_"))
-					return new IntegerVariable("", Integer.parseInt(getName().split("_CLONE_")[1]), context);
+				if(getName().contains("_"))
+					return new IntegerVariable("", Integer.parseInt(getName().split("_")[1]), context);
 				return new IntegerVariable("", -1, context);
 			}
 		});
@@ -131,40 +171,6 @@ public abstract class Variable implements Cloneable {
 		});
 	}
 
-	public String getName() {
-		return name;
-	}
-
-	public void setName(String name) {
-		this.name = name;
-	}
-
-	public Variable convertTo(String type) {
-		if(this.getType().equals(type)) // typ jest ten sam i nie ma po co konwertować
-			return this;
-
-		if(!(this.getType().equals("STRING") || this.getType().equals("BOOL") || this.getType().equals("INTEGER") || this.getType().equals("DOUBLE"))) {
-			throw new VariableUnsupportedOperationException(this, "CONV");
-		}
-
-		if(!(type.equals("STRING") || type.equals("BOOL") || type.equals("INTEGER") || type.equals("DOUBLE"))) {
-			throw new VariableUnsupportedOperationException(this, type, "CONV");
-		}
-
-		switch(this.getType()) {
-			case "INTEGER":
-				return ((IntegerVariable) this).convert(type);
-			case "DOUBLE":
-				return ((DoubleVariable) this).convert(type);
-			case "BOOL":
-				return ((BoolVariable) this).convert(type);
-			case "STRING":
-				return ((StringVariable) this).convert(type);
-			default:
-				return this;
-		}
-	}
-
 	public String getType() {
 		return "VOID";
 	}
@@ -183,7 +189,8 @@ public abstract class Variable implements Cloneable {
 				Attribute currentAttr = entry.getValue();
 				cloneVar.attributes.put(entry.getKey(), new Attribute(currentAttr.getType(), currentAttr.getValue().toString()));
 			}
-			cloneVar.methods = this.methods;
+			cloneVar.methods = new HashMap<>();
+			cloneVar.setMethods();
 			cloneVar.signals = this.signals;
 			cloneVar.context = this.context;
 			cloneVar.clones = new ArrayList<>();

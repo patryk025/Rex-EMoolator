@@ -16,12 +16,17 @@ public class DoubleVariable extends Variable {
 	public DoubleVariable(String name, double value, Context context) {
 		super(name, context);
 		this.setAttribute("VALUE", new Attribute("DOUBLE", value));
+	}
+
+	@Override
+	protected void setMethods() {
+		super.setMethods();
 
 		this.setMethod("ABS", new Method(
-			List.of(
-				new Parameter("DOUBLE", "doubleValue", true)
-			),
-			"DOUBLE"
+				List.of(
+						new Parameter("DOUBLE", "doubleValue", true)
+				),
+				"DOUBLE"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
@@ -31,10 +36,10 @@ public class DoubleVariable extends Variable {
 			}
 		});
 		this.setMethod("ADD", new Method(
-			List.of(
-				new Parameter("DOUBLE", "doubleValue", true)
-			),
-			"DOUBLE"
+				List.of(
+						new Parameter("DOUBLE", "doubleValue", true)
+				),
+				"DOUBLE"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
@@ -44,10 +49,10 @@ public class DoubleVariable extends Variable {
 			}
 		});
 		this.setMethod("ARCTAN", new Method(
-			List.of(
-				new Parameter("DOUBLE", "doubleValue", true)
-			),
-			"DOUBLE"
+				List.of(
+						new Parameter("DOUBLE", "doubleValue", true)
+				),
+				"DOUBLE"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
@@ -61,11 +66,11 @@ public class DoubleVariable extends Variable {
 			}
 		});
 		this.setMethod("ARCTANEX", new Method(
-			List.of(
-				new Parameter("DOUBLE", "y", true),
-				new Parameter("DOUBLE", "x", true)
-			),
-			"DOUBLE"
+				List.of(
+						new Parameter("DOUBLE", "y", true),
+						new Parameter("DOUBLE", "x", true)
+				),
+				"DOUBLE"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
@@ -80,11 +85,11 @@ public class DoubleVariable extends Variable {
 			}
 		});
 		this.setMethod("CLAMP", new Method(
-			List.of(
-				new Parameter("DOUBLE", "rangeMin", true),
-				new Parameter("DOUBLE", "rangeMax", true)
-			),
-			"DOUBLE"
+				List.of(
+						new Parameter("DOUBLE", "rangeMin", true),
+						new Parameter("DOUBLE", "rangeMax", true)
+				),
+				"DOUBLE"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
@@ -104,10 +109,10 @@ public class DoubleVariable extends Variable {
 			}
 		});
 		this.setMethod("COSINUS", new Method(
-			List.of(
-				new Parameter("DOUBLE", "doubleValue", true)
-			),
-			"DOUBLE"
+				List.of(
+						new Parameter("DOUBLE", "doubleValue", true)
+				),
+				"DOUBLE"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
@@ -121,10 +126,10 @@ public class DoubleVariable extends Variable {
 			}
 		});
 		this.setMethod("DIV", new Method(
-			List.of(
-				new Parameter("DOUBLE", "divisor", true)
-			),
-			"DOUBLE"
+				List.of(
+						new Parameter("DOUBLE", "divisor", true)
+				),
+				"DOUBLE"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
@@ -138,11 +143,11 @@ public class DoubleVariable extends Variable {
 			}
 		});
 		this.setMethod("LENGTH", new Method(
-			List.of(
-				new Parameter("DOUBLE", "x", true),
-				new Parameter("DOUBLE", "y", true)
-			),
-			"DOUBLE"
+				List.of(
+						new Parameter("DOUBLE", "x", true),
+						new Parameter("DOUBLE", "y", true)
+				),
+				"DOUBLE"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
@@ -153,10 +158,10 @@ public class DoubleVariable extends Variable {
 			}
 		});
 		this.setMethod("MAXA", new Method(
-			List.of(
-				new Parameter("DOUBLE", "value1...valueN", true)
-			),
-			"DOUBLE"
+				List.of(
+						new Parameter("DOUBLE", "value1...valueN", true)
+				),
+				"DOUBLE"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
@@ -173,10 +178,10 @@ public class DoubleVariable extends Variable {
 			}
 		});
 		this.setMethod("MINA", new Method(
-			List.of(
-				new Parameter("DOUBLE", "value1...valueN", true)
-			),
-			"DOUBLE"
+				List.of(
+						new Parameter("DOUBLE", "value1...valueN", true)
+				),
+				"DOUBLE"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
@@ -193,10 +198,10 @@ public class DoubleVariable extends Variable {
 			}
 		});
 		this.setMethod("MUL", new Method(
-			List.of(
-				new Parameter("DOUBLE", "multiplier", true)
-			),
-			"DOUBLE"
+				List.of(
+						new Parameter("DOUBLE", "multiplier", true)
+				),
+				"DOUBLE"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
@@ -206,10 +211,10 @@ public class DoubleVariable extends Variable {
 			}
 		});
 		this.setMethod("SET", new Method(
-			List.of(
-				new Parameter("DOUBLE", "value", true)
-			),
-			"DOUBLE"
+				List.of(
+						new Parameter("DOUBLE", "value", true)
+				),
+				"DOUBLE"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
@@ -218,10 +223,10 @@ public class DoubleVariable extends Variable {
 			}
 		});
 		this.setMethod("SINUS", new Method(
-			List.of(
-				new Parameter("DOUBLE", "doubleValue", true)
-			),
-			"DOUBLE"
+				List.of(
+						new Parameter("DOUBLE", "doubleValue", true)
+				),
+				"DOUBLE"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
@@ -235,10 +240,10 @@ public class DoubleVariable extends Variable {
 			}
 		});
 		this.setMethod("SQRT", new Method(
-			List.of(
-				new Parameter("DOUBLE", "doubleValue", true)
-			),
-			"DOUBLE"
+				List.of(
+						new Parameter("DOUBLE", "doubleValue", true)
+				),
+				"DOUBLE"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
@@ -248,10 +253,10 @@ public class DoubleVariable extends Variable {
 			}
 		});
 		this.setMethod("SUB", new Method(
-			List.of(
-				new Parameter("INTEGER|DOUBLE", "doubleValue", true)
-			),
-			"DOUBLE"
+				List.of(
+						new Parameter("INTEGER|DOUBLE", "doubleValue", true)
+				),
+				"DOUBLE"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {

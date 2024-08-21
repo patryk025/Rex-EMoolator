@@ -12,14 +12,24 @@ import java.util.List;
 public class MultiArrayVariable extends Variable {
 	public MultiArrayVariable(String name, Context context) {
 		super(name, context);
+	}
+
+	@Override
+	public String getType() {
+		return "MULTIARRAY";
+	}
+
+	@Override
+	protected void setMethods() {
+		super.setMethods();
 
 		this.setMethod("GET", new Method(
-			List.of(
-				new Parameter("INTEGER", "x", true),
-				new Parameter("INTEGER", "y", false),
-				new Parameter("INTEGER", "z...", false)
-			),
-			"mixed"
+				List.of(
+						new Parameter("INTEGER", "x", true),
+						new Parameter("INTEGER", "y", false),
+						new Parameter("INTEGER", "z...", false)
+				),
+				"mixed"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
@@ -28,13 +38,13 @@ public class MultiArrayVariable extends Variable {
 			}
 		});
 		this.setMethod("SET", new Method(
-			List.of(
-				new Parameter("INTEGER", "x", true),
-				new Parameter("INTEGER", "y", false),
-				new Parameter("INTEGER", "z...", false),
-				new Parameter("mixed", "value", false)
-			),
-			"void"
+				List.of(
+						new Parameter("INTEGER", "x", true),
+						new Parameter("INTEGER", "y", false),
+						new Parameter("INTEGER", "z...", false),
+						new Parameter("mixed", "value", false)
+				),
+				"void"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
@@ -42,11 +52,6 @@ public class MultiArrayVariable extends Variable {
 				throw new ClassMethodNotImplementedException("Method SET is not implemented yet");
 			}
 		});
-	}
-
-	@Override
-	public String getType() {
-		return "MULTIARRAY";
 	}
 
 	@Override

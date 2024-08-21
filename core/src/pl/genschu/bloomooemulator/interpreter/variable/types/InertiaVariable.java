@@ -12,14 +12,19 @@ import java.util.List;
 public class InertiaVariable extends Variable {
 	public InertiaVariable(String name, Context context) {
 		super(name, context);
+	}
+
+	@Override
+	protected void setMethods() {
+		super.setMethods();
 
 		this.setMethod("ADDFORCE", new Method(
-			List.of(
-				new Parameter("INTEGER", "objectId", true),
-				new Parameter("INTEGER", "forceX", true),
-				new Parameter("INTEGER", "forceY", true)
-			),
-			"void"
+				List.of(
+						new Parameter("INTEGER", "objectId", true),
+						new Parameter("INTEGER", "forceX", true),
+						new Parameter("INTEGER", "forceY", true)
+				),
+				"void"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
@@ -28,13 +33,13 @@ public class InertiaVariable extends Variable {
 			}
 		});
 		this.setMethod("CREATESPHERE", new Method(
-			List.of(
-				new Parameter("INTEGER", "objectId", true),
-				new Parameter("INTEGER", "posX", true),
-				new Parameter("INTEGER", "posY", true),
-				new Parameter("INTEGER", "radius", true)
-			),
-			"void"
+				List.of(
+						new Parameter("INTEGER", "objectId", true),
+						new Parameter("INTEGER", "posX", true),
+						new Parameter("INTEGER", "posY", true),
+						new Parameter("INTEGER", "radius", true)
+				),
+				"void"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
@@ -43,10 +48,10 @@ public class InertiaVariable extends Variable {
 			}
 		});
 		this.setMethod("DELETEBODY", new Method(
-			List.of(
-				new Parameter("INTEGER", "objectId", true)
-			),
-			"void"
+				List.of(
+						new Parameter("INTEGER", "objectId", true)
+				),
+				"void"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
@@ -55,10 +60,10 @@ public class InertiaVariable extends Variable {
 			}
 		});
 		this.setMethod("GETPOSITIONX", new Method(
-			List.of(
-				new Parameter("INTEGER", "objectId", true)
-			),
-			"INTEGER"
+				List.of(
+						new Parameter("INTEGER", "objectId", true)
+				),
+				"INTEGER"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
@@ -67,10 +72,10 @@ public class InertiaVariable extends Variable {
 			}
 		});
 		this.setMethod("GETPOSITIONY", new Method(
-			List.of(
-				new Parameter("INTEGER", "objectId", true)
-			),
-			"INTEGER"
+				List.of(
+						new Parameter("INTEGER", "objectId", true)
+				),
+				"INTEGER"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
@@ -79,10 +84,10 @@ public class InertiaVariable extends Variable {
 			}
 		});
 		this.setMethod("GETSPEED", new Method(
-			List.of(
-				new Parameter("INTEGER", "objectId", true)
-			),
-			"INTEGER|DOUBLE?"
+				List.of(
+						new Parameter("INTEGER", "objectId", true)
+				),
+				"INTEGER|DOUBLE?"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
@@ -91,13 +96,13 @@ public class InertiaVariable extends Variable {
 			}
 		});
 		this.setMethod("LINK", new Method(
-			List.of(
-				new Parameter("INTEGER", "objectId", true),
-				new Parameter("STRING", "objectName", true),
-				new Parameter("BOOL", "unknown", true),
-				new Parameter("BOOL", "unknown", true)
-			),
-			"void"
+				List.of(
+						new Parameter("INTEGER", "objectId", true),
+						new Parameter("STRING", "objectName", true),
+						new Parameter("BOOL", "unknown", true),
+						new Parameter("BOOL", "unknown", true)
+				),
+				"void"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
@@ -106,10 +111,10 @@ public class InertiaVariable extends Variable {
 			}
 		});
 		this.setMethod("LOAD", new Method(
-			List.of(
-				new Parameter("STRING", "path", true)
-			),
-			"void"
+				List.of(
+						new Parameter("STRING", "path", true)
+				),
+				"void"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
@@ -118,7 +123,7 @@ public class InertiaVariable extends Variable {
 			}
 		});
 		this.setMethod("RESETTIMER", new Method(
-			"void"
+				"void"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
@@ -127,11 +132,11 @@ public class InertiaVariable extends Variable {
 			}
 		});
 		this.setMethod("SETGRAVITY", new Method(
-			List.of(
-				new Parameter("INTEGER|DOUBLE", "gravityX", true),
-				new Parameter("INTEGER|DOUBLE", "gravityY", true)
-			),
-			"void"
+				List.of(
+						new Parameter("INTEGER|DOUBLE", "gravityX", true),
+						new Parameter("INTEGER|DOUBLE", "gravityY", true)
+				),
+				"void"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
@@ -140,11 +145,11 @@ public class InertiaVariable extends Variable {
 			}
 		});
 		this.setMethod("SETLINEARDAMPING", new Method(
-			List.of(
-				new Parameter("INTEGER", "objectId", true),
-				new Parameter("INTEGER", "linearDamping", true)
-			),
-			"void"
+				List.of(
+						new Parameter("INTEGER", "objectId", true),
+						new Parameter("INTEGER", "linearDamping", true)
+				),
+				"void"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
@@ -153,11 +158,11 @@ public class InertiaVariable extends Variable {
 			}
 		});
 		this.setMethod("SETMATERIAL", new Method(
-			List.of(
-				new Parameter("INTEGER", "objectId", true),
-				new Parameter("STRING", "material", true)
-			),
-			"void"
+				List.of(
+						new Parameter("INTEGER", "objectId", true),
+						new Parameter("STRING", "material", true)
+				),
+				"void"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
@@ -166,12 +171,12 @@ public class InertiaVariable extends Variable {
 			}
 		});
 		this.setMethod("SETPOSITION", new Method(
-			List.of(
-				new Parameter("INTEGER", "objectId", true),
-				new Parameter("INTEGER", "posX", true),
-				new Parameter("INTEGER", "posY", true)
-			),
-			"void"
+				List.of(
+						new Parameter("INTEGER", "objectId", true),
+						new Parameter("INTEGER", "posX", true),
+						new Parameter("INTEGER", "posY", true)
+				),
+				"void"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
@@ -180,12 +185,12 @@ public class InertiaVariable extends Variable {
 			}
 		});
 		this.setMethod("SETVELOCITY", new Method(
-			List.of(
-				new Parameter("INTEGER", "objectId", true),
-				new Parameter("INTEGER", "speedX", true),
-				new Parameter("INTEGER", "speedY", true)
-			),
-			"void"
+				List.of(
+						new Parameter("INTEGER", "objectId", true),
+						new Parameter("INTEGER", "speedX", true),
+						new Parameter("INTEGER", "speedY", true)
+				),
+				"void"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
@@ -194,7 +199,7 @@ public class InertiaVariable extends Variable {
 			}
 		});
 		this.setMethod("TICK", new Method(
-			"void"
+				"void"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
@@ -203,10 +208,10 @@ public class InertiaVariable extends Variable {
 			}
 		});
 		this.setMethod("UNLINK", new Method(
-			List.of(
-				new Parameter("INTEGER", "objectId", true)
-			),
-			"void"
+				List.of(
+						new Parameter("INTEGER", "objectId", true)
+				),
+				"void"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {

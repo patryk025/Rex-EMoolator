@@ -12,13 +12,23 @@ import java.util.List;
 public class MatrixVariable extends Variable {
 	public MatrixVariable(String name, Context context) {
 		super(name, context);
+	}
+
+	@Override
+	public String getType() {
+		return "MATRIX";
+	}
+
+	@Override
+	protected void setMethods() {
+		super.setMethods();
 
 		this.setMethod("CALCENEMYMOVEDEST", new Method(
-			List.of(
-				new Parameter("INTEGER", "oldCell", true),
-				new Parameter("INTEGER", "directory?", true)
-			),
-			"INTEGER"
+				List.of(
+						new Parameter("INTEGER", "oldCell", true),
+						new Parameter("INTEGER", "directory?", true)
+				),
+				"INTEGER"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
@@ -27,11 +37,11 @@ public class MatrixVariable extends Variable {
 			}
 		});
 		this.setMethod("CALCENEMYMOVEDIR", new Method(
-			List.of(
-				new Parameter("INTEGER", "oldCell", true),
-				new Parameter("INTEGER", "oldDir?", true)
-			),
-			"INTEGER"
+				List.of(
+						new Parameter("INTEGER", "oldCell", true),
+						new Parameter("INTEGER", "oldDir?", true)
+				),
+				"INTEGER"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
@@ -40,10 +50,10 @@ public class MatrixVariable extends Variable {
 			}
 		});
 		this.setMethod("CANHEROGOTO", new Method(
-			List.of(
-				new Parameter("INTEGER", "cellNo", true)
-			),
-			"BOOL"
+				List.of(
+						new Parameter("INTEGER", "cellNo", true)
+				),
+				"BOOL"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
@@ -52,10 +62,10 @@ public class MatrixVariable extends Variable {
 			}
 		});
 		this.setMethod("GET", new Method(
-			List.of(
-				new Parameter("INTEGER", "cellNo", true)
-			),
-			"INTEGER"
+				List.of(
+						new Parameter("INTEGER", "cellNo", true)
+				),
+				"INTEGER"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
@@ -64,11 +74,11 @@ public class MatrixVariable extends Variable {
 			}
 		});
 		this.setMethod("GETCELLOFFSET", new Method(
-			List.of(
-				new Parameter("INTEGER", "x", true),
-				new Parameter("INTEGER", "y", true)
-			),
-			"INTEGER"
+				List.of(
+						new Parameter("INTEGER", "x", true),
+						new Parameter("INTEGER", "y", true)
+				),
+				"INTEGER"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
@@ -77,10 +87,10 @@ public class MatrixVariable extends Variable {
 			}
 		});
 		this.setMethod("GETCELLPOSX", new Method(
-			List.of(
-				new Parameter("INTEGER", "cellNo", true)
-			),
-			"INTEGER"
+				List.of(
+						new Parameter("INTEGER", "cellNo", true)
+				),
+				"INTEGER"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
@@ -89,10 +99,10 @@ public class MatrixVariable extends Variable {
 			}
 		});
 		this.setMethod("GETCELLPOSY", new Method(
-			List.of(
-				new Parameter("INTEGER", "cellNo", true)
-			),
-			"INTEGER"
+				List.of(
+						new Parameter("INTEGER", "cellNo", true)
+				),
+				"INTEGER"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
@@ -101,10 +111,10 @@ public class MatrixVariable extends Variable {
 			}
 		});
 		this.setMethod("GETCELLSNO", new Method(
-			List.of(
-				new Parameter("INTEGER", "cellCode", true)
-			),
-			"INTEGER"
+				List.of(
+						new Parameter("INTEGER", "cellCode", true)
+				),
+				"INTEGER"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
@@ -113,10 +123,10 @@ public class MatrixVariable extends Variable {
 			}
 		});
 		this.setMethod("GETFIELDPOSX", new Method(
-			List.of(
-				new Parameter("INTEGER", "cellNo", true)
-			),
-			"INTEGER"
+				List.of(
+						new Parameter("INTEGER", "cellNo", true)
+				),
+				"INTEGER"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
@@ -125,10 +135,10 @@ public class MatrixVariable extends Variable {
 			}
 		});
 		this.setMethod("GETFIELDPOSY", new Method(
-			List.of(
-				new Parameter("INTEGER", "cellNo", true)
-			),
-			"INTEGER"
+				List.of(
+						new Parameter("INTEGER", "cellNo", true)
+				),
+				"INTEGER"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
@@ -137,11 +147,11 @@ public class MatrixVariable extends Variable {
 			}
 		});
 		this.setMethod("GETOFFSET", new Method(
-			List.of(
-				new Parameter("INTEGER", "x", true),
-				new Parameter("INTEGER", "y", true)
-			),
-			"INTEGER"
+				List.of(
+						new Parameter("INTEGER", "x", true),
+						new Parameter("INTEGER", "y", true)
+				),
+				"INTEGER"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
@@ -150,7 +160,7 @@ public class MatrixVariable extends Variable {
 			}
 		});
 		this.setMethod("ISGATEEMPTY", new Method(
-			"BOOL"
+				"BOOL"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
@@ -159,10 +169,10 @@ public class MatrixVariable extends Variable {
 			}
 		});
 		this.setMethod("ISINGATE", new Method(
-			List.of(
-				new Parameter("INTEGER", "cellNo", true)
-			),
-			"BOOL"
+				List.of(
+						new Parameter("INTEGER", "cellNo", true)
+				),
+				"BOOL"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
@@ -171,11 +181,11 @@ public class MatrixVariable extends Variable {
 			}
 		});
 		this.setMethod("MOVE", new Method(
-			List.of(
-				new Parameter("INTEGER", "oldCell", true),
-				new Parameter("INTEGER", "newCell", true)
-			),
-			"void"
+				List.of(
+						new Parameter("INTEGER", "oldCell", true),
+						new Parameter("INTEGER", "newCell", true)
+				),
+				"void"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
@@ -184,7 +194,7 @@ public class MatrixVariable extends Variable {
 			}
 		});
 		this.setMethod("NEXT", new Method(
-			"void"
+				"void"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
@@ -193,11 +203,11 @@ public class MatrixVariable extends Variable {
 			}
 		});
 		this.setMethod("SET", new Method(
-			List.of(
-				new Parameter("INTEGER", "cellNo", true),
-				new Parameter("INTEGER", "cellCode", true)
-			),
-			"void"
+				List.of(
+						new Parameter("INTEGER", "cellNo", true),
+						new Parameter("INTEGER", "cellCode", true)
+				),
+				"void"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
@@ -206,13 +216,13 @@ public class MatrixVariable extends Variable {
 			}
 		});
 		this.setMethod("SETGATE", new Method(
-			List.of(
-				new Parameter("INTEGER", "row", true),
-				new Parameter("INTEGER", "col", true),
-				new Parameter("INTEGER", "unknown", true),
-				new Parameter("INTEGER", "unknown", true)
-			),
-			"void"
+				List.of(
+						new Parameter("INTEGER", "row", true),
+						new Parameter("INTEGER", "col", true),
+						new Parameter("INTEGER", "unknown", true),
+						new Parameter("INTEGER", "unknown", true)
+				),
+				"void"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
@@ -221,11 +231,11 @@ public class MatrixVariable extends Variable {
 			}
 		});
 		this.setMethod("SETROW", new Method(
-			List.of(
-				new Parameter("INTEGER", "row", true),
-				new Parameter("INTEGER", "cellCode1...cellCodeN", true)
-			),
-			"void"
+				List.of(
+						new Parameter("INTEGER", "row", true),
+						new Parameter("INTEGER", "cellCode1...cellCodeN", true)
+				),
+				"void"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
@@ -234,7 +244,7 @@ public class MatrixVariable extends Variable {
 			}
 		});
 		this.setMethod("TICK", new Method(
-			"void"
+				"void"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
@@ -242,11 +252,6 @@ public class MatrixVariable extends Variable {
 				throw new ClassMethodNotImplementedException("Method TICK is not implemented yet");
 			}
 		});
-	}
-
-	@Override
-	public String getType() {
-		return "MATRIX";
 	}
 
 	@Override

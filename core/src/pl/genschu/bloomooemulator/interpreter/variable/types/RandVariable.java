@@ -14,13 +14,18 @@ import java.util.Random;
 public class RandVariable extends Variable {
 	public RandVariable(String name, Context context) {
 		super(name, context);
+	}
+
+	@Override
+	protected void setMethods() {
+		super.setMethods();
 
 		this.setMethod("GET", new Method(
-			List.of(
-				new Parameter("INTEGER", "param1", true), // [offset] or range
-				new Parameter("INTEGER", "param2", false) // range if [offset] is present
-			),
-			"void"
+				List.of(
+						new Parameter("INTEGER", "param1", true), // [offset] or range
+						new Parameter("INTEGER", "param2", false) // range if [offset] is present
+				),
+				"void"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {

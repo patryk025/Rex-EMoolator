@@ -20,9 +20,19 @@ public class ApplicationVariable extends Variable {
 
 	public ApplicationVariable(String name, Context context) {
 		super(name, context);
+	}
+
+	@Override
+	public String getType() {
+		return "APPLICATION";
+	}
+
+	@Override
+	protected void setMethods() {
+		super.setMethods();
 
 		this.setMethod("EXIT", new Method(
-			"void"
+				"void"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
@@ -31,7 +41,7 @@ public class ApplicationVariable extends Variable {
 			}
 		});
 		this.setMethod("GETLANGUAGE", new Method(
-			"STRING"
+				"STRING"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
@@ -40,12 +50,12 @@ public class ApplicationVariable extends Variable {
 			}
 		});
 		this.setMethod("RUN", new Method(
-			List.of(
-				new Parameter("STRING", "varName", true),
-				new Parameter("STRING", "methodName", true),
-				new Parameter("mixed", "param1...paramN", true)
-			),
-			"mixed?"
+				List.of(
+						new Parameter("STRING", "varName", true),
+						new Parameter("STRING", "methodName", true),
+						new Parameter("mixed", "param1...paramN", true)
+				),
+				"mixed?"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
@@ -54,11 +64,11 @@ public class ApplicationVariable extends Variable {
 			}
 		});
 		this.setMethod("RUNENV", new Method(
-			List.of(
-				new Parameter("STRING", "sceneName", true),
-				new Parameter("STRING", "behaviourName", true)
-			),
-			"void"
+				List.of(
+						new Parameter("STRING", "sceneName", true),
+						new Parameter("STRING", "behaviourName", true)
+				),
+				"void"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
@@ -67,10 +77,10 @@ public class ApplicationVariable extends Variable {
 			}
 		});
 		this.setMethod("SETLANGUAGE", new Method(
-			List.of(
-				new Parameter("STRING", "languageCode", true)
-			),
-			"void"
+				List.of(
+						new Parameter("STRING", "languageCode", true)
+				),
+				"void"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
@@ -78,11 +88,6 @@ public class ApplicationVariable extends Variable {
 				throw new ClassMethodNotImplementedException("Method SETLANGUAGE is not implemented yet");
 			}
 		});
-	}
-
-	@Override
-	public String getType() {
-		return "APPLICATION";
 	}
 
 	@Override

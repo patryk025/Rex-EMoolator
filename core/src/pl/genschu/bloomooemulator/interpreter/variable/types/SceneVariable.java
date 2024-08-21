@@ -24,9 +24,14 @@ public class SceneVariable extends Variable {
 
 	public SceneVariable(String name, Context context) {
 		super(name, context);
+	}
+
+	@Override
+	protected void setMethods() {
+		super.setMethods();
 
 		this.setMethod("PAUSE", new Method(
-			"void"
+				"void"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
@@ -38,12 +43,12 @@ public class SceneVariable extends Variable {
 			}
 		});
 		this.setMethod("REMOVECLONES", new Method(
-			List.of(
-				new Parameter("STRING", "varName", true),
-				new Parameter("INTEGER", "unknown", true),
-				new Parameter("INTEGER", "unknown", true)
-			),
-			"void"
+				List.of(
+						new Parameter("STRING", "varName", true),
+						new Parameter("INTEGER", "unknown", true),
+						new Parameter("INTEGER", "unknown", true)
+				),
+				"void"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
@@ -52,7 +57,7 @@ public class SceneVariable extends Variable {
 			}
 		});
 		this.setMethod("RESUME", new Method(
-			"void"
+				"void"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
@@ -63,12 +68,12 @@ public class SceneVariable extends Variable {
 			}
 		});
 		this.setMethod("RUN", new Method(
-			List.of(
-				new Parameter("STRING", "varName", true),
-				new Parameter("STRING", "methodName", true),
-				new Parameter("mixed", "param1...paramN", false)
-			),
-			"void"
+				List.of(
+						new Parameter("STRING", "varName", true),
+						new Parameter("STRING", "methodName", true),
+						new Parameter("mixed", "param1...paramN", false)
+				),
+				"void"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
@@ -93,19 +98,19 @@ public class SceneVariable extends Variable {
 				if(var instanceof StringVariable) {
 					var = variableContext.getVariable(((StringVariable) var).GET());
 				}
-				var.fireMethod(methodName, params);
+				Variable result = var.fireMethod(methodName, params);
 				variableContext.setThisVariable(currentThis);
-				return null;
+				return result;
 			}
 		});
 		this.setMethod("RUNCLONES", new Method(
-			List.of(
-				new Parameter("STRING", "varName", true),
-				new Parameter("INTEGER", "firstCloneIndex?", true),
-				new Parameter("INTEGER", "lastCloneIndex?", true),
-				new Parameter("STRING", "behaviourName", true)
-			),
-			"void"
+				List.of(
+						new Parameter("STRING", "varName", true),
+						new Parameter("INTEGER", "firstCloneIndex?", true),
+						new Parameter("INTEGER", "lastCloneIndex?", true),
+						new Parameter("STRING", "behaviourName", true)
+				),
+				"void"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
@@ -152,10 +157,10 @@ public class SceneVariable extends Variable {
 			}
 		});
 		this.setMethod("SETMINHSPRIORITY", new Method(
-			List.of(
-				new Parameter("INTEGER", "minHSPriority", true)
-			),
-			"void"
+				List.of(
+						new Parameter("INTEGER", "minHSPriority", true)
+				),
+				"void"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
@@ -164,10 +169,10 @@ public class SceneVariable extends Variable {
 			}
 		});
 		this.setMethod("SETMUSICVOLUME", new Method(
-			List.of(
-				new Parameter("INTEGER", "volume", true)
-			),
-			"void"
+				List.of(
+						new Parameter("INTEGER", "volume", true)
+				),
+				"void"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
@@ -179,10 +184,10 @@ public class SceneVariable extends Variable {
 			}
 		});
 		this.setMethod("STARTMUSIC", new Method(
-			List.of(
-				new Parameter("STRING", "filename", true)
-			),
-			"void"
+				List.of(
+						new Parameter("STRING", "filename", true)
+				),
+				"void"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {

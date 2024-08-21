@@ -20,9 +20,14 @@ public class SoundVariable extends Variable {
 
 	public SoundVariable(String name, Context context) {
 		super(name, context);
+	}
+
+	@Override
+	protected void setMethods() {
+		super.setMethods();
 
 		this.setMethod("ISPLAYING", new Method(
-			"BOOL"
+				"BOOL"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
@@ -30,10 +35,10 @@ public class SoundVariable extends Variable {
 			}
 		});
 		this.setMethod("LOAD", new Method(
-			List.of(
-				new Parameter("STRING", "path", true)
-			),
-			"void"
+				List.of(
+						new Parameter("STRING", "path", true)
+				),
+				"void"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
@@ -48,7 +53,7 @@ public class SoundVariable extends Variable {
 			}
 		});
 		this.setMethod("PAUSE", new Method(
-			"void"
+				"void"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
@@ -58,28 +63,28 @@ public class SoundVariable extends Variable {
 			}
 		});
 		this.setMethod("PLAY", new Method(
-			List.of(
-				new Parameter("STRING", "unknown", false)
-			),
-			"void"
+				List.of(
+						new Parameter("STRING", "unknown", false)
+				),
+				"void"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				if(sound == null) {
 					loadSound();
 				}
-                try {
-				    sound.play();
-				    isPlaying = true;
-				    sound.setVolume(1.0f);
-                } catch(Exception e) {
-                    Gdx.app.log("SoundVariable", "Error on playing sound: "+e.getMessage(), e);
-                }
+				try {
+					sound.play();
+					isPlaying = true;
+					sound.setVolume(1.0f);
+				} catch(Exception e) {
+					Gdx.app.log("SoundVariable", "Error on playing sound: "+e.getMessage(), e);
+				}
 				return null;
 			}
 		});
 		this.setMethod("RESUME", new Method(
-			"void"
+				"void"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
@@ -89,10 +94,10 @@ public class SoundVariable extends Variable {
 			}
 		});
 		this.setMethod("STOP", new Method(
-			List.of(
-				new Parameter("BOOL", "emitSignal", false)
-			),
-			"void"
+				List.of(
+						new Parameter("BOOL", "emitSignal", false)
+				),
+				"void"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {

@@ -16,9 +16,19 @@ public class MouseVariable extends Variable {
 
 	public MouseVariable(String name, Context context) {
 		super(name, context);
+	}
+
+	@Override
+	public String getType() {
+		return "MOUSE";
+	}
+
+	@Override
+	protected void setMethods() {
+		super.setMethods();
 
 		this.setMethod("DISABLE", new Method(
-			"void"
+				"void"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
@@ -69,11 +79,6 @@ public class MouseVariable extends Variable {
 				return null;
 			}
 		});
-	}
-
-	@Override
-	public String getType() {
-		return "MOUSE";
 	}
 
 	@Override

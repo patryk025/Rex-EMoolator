@@ -12,16 +12,26 @@ import java.util.List;
 public class PatternVariable extends Variable {
 	public PatternVariable(String name, Context context) {
 		super(name, context);
+	}
+
+	@Override
+	public String getType() {
+		return "PATTERN";
+	}
+
+	@Override
+	protected void setMethods() {
+		super.setMethods();
 
 		this.setMethod("ADD", new Method(
-			List.of(
-				new Parameter("STRING", "unknown", true),
-				new Parameter("INTEGER", "posX", true),
-				new Parameter("INTEGER", "posY", true),
-				new Parameter("STRING", "animoName", true),
-				new Parameter("INTEGER", "layer?", true)
-			),
-			"void"
+				List.of(
+						new Parameter("STRING", "unknown", true),
+						new Parameter("INTEGER", "posX", true),
+						new Parameter("INTEGER", "posY", true),
+						new Parameter("STRING", "animoName", true),
+						new Parameter("INTEGER", "layer?", true)
+				),
+				"void"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
@@ -29,11 +39,6 @@ public class PatternVariable extends Variable {
 				throw new ClassMethodNotImplementedException("Method ADD is not implemented yet");
 			}
 		});
-	}
-
-	@Override
-	public String getType() {
-		return "PATTERN";
 	}
 
 	@Override

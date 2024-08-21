@@ -15,12 +15,27 @@ public class StringVariable extends Variable {
 	public StringVariable(String name, String value, final Context context) {
 		super(name, context);
 		setAttribute("VALUE", new Attribute("STRING", value));
+	}
+
+	@Override
+	public String getType() {
+		return "STRING";
+	}
+
+	@Override
+	public Object getValue() {
+		return this.getAttribute("VALUE").getValue();
+	}
+
+	@Override
+	protected void setMethods() {
+		super.setMethods();
 
 		this.setMethod("ADD", new Method(
-			List.of(
-				new Parameter("STRING", "stringValue", true)
-			),
-			"STRING"
+				List.of(
+						new Parameter("STRING", "stringValue", true)
+				),
+				"STRING"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
@@ -30,11 +45,11 @@ public class StringVariable extends Variable {
 			}
 		});
 		this.setMethod("CHANGEAT", new Method(
-			List.of(
-				new Parameter("INTEGER", "index", true),
-				new Parameter("STRING", "stringValue", true)
-			),
-			"void"
+				List.of(
+						new Parameter("INTEGER", "index", true),
+						new Parameter("STRING", "stringValue", true)
+				),
+				"void"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
@@ -47,11 +62,11 @@ public class StringVariable extends Variable {
 			}
 		});
 		this.setMethod("COPYFILE", new Method(
-			List.of(
-				new Parameter("STRING", "source", true),
-				new Parameter("STRING", "destination", true)
-			),
-			"BOOL"
+				List.of(
+						new Parameter("STRING", "source", true),
+						new Parameter("STRING", "destination", true)
+				),
+				"BOOL"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
@@ -60,11 +75,11 @@ public class StringVariable extends Variable {
 			}
 		});
 		this.setMethod("CUT", new Method(
-			List.of(
-				new Parameter("INTEGER", "index", true),
-				new Parameter("INTEGER", "length", true)
-			),
-			"void"
+				List.of(
+						new Parameter("INTEGER", "index", true),
+						new Parameter("INTEGER", "length", true)
+				),
+				"void"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
@@ -77,11 +92,11 @@ public class StringVariable extends Variable {
 			}
 		});
 		this.setMethod("FIND", new Method(
-			List.of(
-				new Parameter("STRING", "needle", true),
-				new Parameter("INTEGER", "offset", false)
-			),
-			"INTEGER"
+				List.of(
+						new Parameter("STRING", "needle", true),
+						new Parameter("INTEGER", "offset", false)
+				),
+				"INTEGER"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
@@ -96,11 +111,11 @@ public class StringVariable extends Variable {
 			}
 		});
 		this.setMethod("GET", new Method(
-			List.of(
-				new Parameter("INTEGER", "index", true),
-				new Parameter("INTEGER", "length", false)
-			),
-			"STRING"
+				List.of(
+						new Parameter("INTEGER", "index", true),
+						new Parameter("INTEGER", "length", false)
+				),
+				"STRING"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
@@ -110,7 +125,7 @@ public class StringVariable extends Variable {
 				if (arguments.size() > 1 && arguments.get(1) != null) {
 					length = ArgumentsHelper.getInteger(arguments.get(1));
 				}
-                int endIndex = Math.min(index + length, value.length());
+				int endIndex = Math.min(index + length, value.length());
 				try {
 					return VariableFactory.createVariable("STRING", "", value.substring(index, endIndex), context);
 				} catch (StringIndexOutOfBoundsException e) {
@@ -119,7 +134,7 @@ public class StringVariable extends Variable {
 			}
 		});
 		this.setMethod("LENGTH", new Method(
-			"INTEGER"
+				"INTEGER"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
@@ -128,11 +143,11 @@ public class StringVariable extends Variable {
 			}
 		});
 		this.setMethod("REPLACEAT", new Method(
-			List.of(
-				new Parameter("INTEGER", "index", true),
-				new Parameter("STRING", "stringValue", true)
-			),
-			"void"
+				List.of(
+						new Parameter("INTEGER", "index", true),
+						new Parameter("STRING", "stringValue", true)
+				),
+				"void"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
@@ -157,10 +172,10 @@ public class StringVariable extends Variable {
 			}
 		});
 		this.setMethod("SET", new Method(
-			List.of(
-				new Parameter("STRING", "value", true)
-			),
-			"void"
+				List.of(
+						new Parameter("STRING", "value", true)
+				),
+				"void"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
@@ -170,11 +185,11 @@ public class StringVariable extends Variable {
 			}
 		});
 		this.setMethod("SUB", new Method(
-			List.of(
-				new Parameter("INTEGER", "index", true),
-				new Parameter("INTEGER", "length", true)
-			),
-			"void"
+				List.of(
+						new Parameter("INTEGER", "index", true),
+						new Parameter("INTEGER", "length", true)
+				),
+				"void"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
@@ -188,7 +203,7 @@ public class StringVariable extends Variable {
 			}
 		});
 		this.setMethod("UPPER", new Method(
-			"void"
+				"void"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
@@ -197,16 +212,6 @@ public class StringVariable extends Variable {
 				return null;
 			}
 		});
-	}
-
-	@Override
-	public String getType() {
-		return "STRING";
-	}
-
-	@Override
-	public Object getValue() {
-		return this.getAttribute("VALUE").getValue();
 	}
 
 	@Override

@@ -21,6 +21,16 @@ public class TimerVariable extends Variable {
 		super(name, context);
 
 		this.enabled = true;
+	}
+
+	@Override
+	public String getType() {
+		return "TIMER";
+	}
+
+	@Override
+	protected void setMethods() {
+		super.setMethods();
 
 		this.setMethod("DISABLE", new Method(
 				"void"
@@ -71,11 +81,6 @@ public class TimerVariable extends Variable {
 				return null;
 			}
 		});
-	}
-
-	@Override
-	public String getType() {
-		return "TIMER";
 	}
 
 	@Override
