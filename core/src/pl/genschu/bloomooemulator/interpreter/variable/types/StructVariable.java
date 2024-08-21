@@ -28,7 +28,7 @@ public class StructVariable extends Variable {
 				"STRING"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments, Variable variable) {
+			public Variable execute(List<Object> arguments) {
 				setAttributes();
 				return getField((Integer) arguments.get(0));
 			}
@@ -40,7 +40,7 @@ public class StructVariable extends Variable {
 				"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments, Variable variable) {
+			public Variable execute(List<Object> arguments) {
 				setAttributes();
 				String varName = arguments.get(0).toString();
 				set(varName);

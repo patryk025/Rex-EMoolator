@@ -42,7 +42,7 @@ public abstract class Variable implements Cloneable {
 				"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments, Variable variable) {
+			public Variable execute(List<Object> arguments) {
 				String signalName = ArgumentsHelper.getString(arguments.get(0));
 				String behaviourName = ArgumentsHelper.getString(arguments.get(1));
 
@@ -67,7 +67,7 @@ public abstract class Variable implements Cloneable {
 								arguments.add(getVariableFromObject(param, context));
 							}
 						signalAndParams.behaviourVariable.getMethod(signalAndParams.behaviourVariable.getAttribute("CONDITION") != null ? "RUNC" : "RUN", Collections.singletonList("mixed"))
-								.execute(!arguments.isEmpty() ? arguments : null, signalAndParams.behaviourVariable);
+								.execute(!arguments.isEmpty() ? arguments : null);
 						Gdx.app.log("Signal", "Signal " + finalSignalName + " done");
 					}
 				});
@@ -81,19 +81,17 @@ public abstract class Variable implements Cloneable {
 				"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments, Variable variable) {
+			public Variable execute(List<Object> arguments) {
 				int amount = 1;
 				if(!arguments.isEmpty()) {
 					amount = ArgumentsHelper.getInteger(arguments.get(0));
 				}
 
 				for(int i = 0; i < amount; i++) {
-					Variable cloneVar = variable.clone();
-					String newName = cloneVar.getName()+"_"+(getClones().size()+1);
-					cloneVar.setName(newName);
-					context.setVariable(newName, cloneVar);
+					Variable cloneVar = Variable.this.clone();
+					cloneVar.setName(cloneVar.getName()+"_CLONE_"+getClones().size()); // my little "creative" way to save index of clone
 					clones.add(cloneVar);
-				}
+                }
 
 				return null;
 			}
@@ -102,9 +100,9 @@ public abstract class Variable implements Cloneable {
 				"INTEGER"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments, Variable variable) {
-				if(getName().contains("_"))
-					return new IntegerVariable("", Integer.parseInt(variable.getName().split("_")[1]), context);
+			public Variable execute(List<Object> arguments) {
+				if(getName().contains("_CLONE_"))
+					return new IntegerVariable("", Integer.parseInt(getName().split("_CLONE_")[1]), context);
 				return new IntegerVariable("", -1, context);
 			}
 		});
@@ -112,7 +110,7 @@ public abstract class Variable implements Cloneable {
 				"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments, Variable variable) {
+			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
 				throw new ClassMethodNotImplementedException("Method MSGBOX is not implemented yet");
 			}
@@ -124,10 +122,10 @@ public abstract class Variable implements Cloneable {
 				"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments, Variable variable) {
+			public Variable execute(List<Object> arguments) {
 				String behaviourName = ArgumentsHelper.getString(arguments.get(0));
 
-				variable.removeSignal(behaviourName);
+				removeSignal(behaviourName);
 				return null;
 			}
 		});
@@ -203,7 +201,7 @@ public abstract class Variable implements Cloneable {
 		}
 		Method method = this.getMethod(methodName, paramsTypes);
 		try {
-			return method.execute(List.of(params), this);
+			return method.execute(List.of(params));
 		} catch (ClassMethodNotFoundException | ClassMethodNotImplementedException | ClassCastException e) {
 			Gdx.app.error("Variable", "Method call error in class " + this.getType() + ": " + e.getMessage(), e);
 			return null;
@@ -317,7 +315,7 @@ public abstract class Variable implements Cloneable {
 	public Signal getSignal(String name) {
 		return signals.get(name);
 	}
-
+    
     public void removeSignal(String name) {
         signals.remove(name);
     }

@@ -28,10 +28,10 @@ public class GroupVariable extends Variable {
 			"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments, Variable variable) {
+			public Variable execute(List<Object> arguments) {
 				for(Object argument : arguments) {
-					Variable var = context.getVariable(ArgumentsHelper.getString(argument));
-					variables.add(var);
+					Variable variable = context.getVariable(ArgumentsHelper.getString(argument));
+					variables.add(variable);
 				}
 				return null;
 			}
@@ -45,7 +45,7 @@ public class GroupVariable extends Variable {
 			"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments, Variable variable) {
+			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
 				throw new ClassMethodNotImplementedException("Method ADDCLONES is not implemented yet");
 			}
@@ -54,7 +54,7 @@ public class GroupVariable extends Variable {
 			"INTEGER"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments, Variable variable) {
+			public Variable execute(List<Object> arguments) {
 				return new IntegerVariable("", variables.size(), context);
 			}
 		});
@@ -62,7 +62,7 @@ public class GroupVariable extends Variable {
 			"mixed"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments, Variable variable) {
+			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
 				throw new ClassMethodNotImplementedException("Method NEXT is not implemented yet");
 			}
@@ -71,7 +71,7 @@ public class GroupVariable extends Variable {
 			"mixed"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments, Variable variable) {
+			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
 				throw new ClassMethodNotImplementedException("Method PREV is not implemented yet");
 			}
@@ -83,12 +83,12 @@ public class GroupVariable extends Variable {
 			"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments, Variable variable) {
+			public Variable execute(List<Object> arguments) {
 				String varName = ArgumentsHelper.getString(arguments.get(0));
 
-				for(Variable var : variables) {
-					if(var.getName().equals(varName)) {
-						variables.remove(var);
+				for(Variable variable : variables) {
+					if(variable.getName().equals(varName)) {
+						variables.remove(variable);
 						return null;
 					}
 				}
@@ -99,7 +99,7 @@ public class GroupVariable extends Variable {
 			"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments, Variable variable) {
+			public Variable execute(List<Object> arguments) {
 				variables.clear();
 				return null;
 			}
@@ -108,7 +108,7 @@ public class GroupVariable extends Variable {
 			"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments, Variable variable) {
+			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
 				throw new ClassMethodNotImplementedException("Method RESETMARKER is not implemented yet");
 			}
@@ -124,11 +124,11 @@ public class GroupVariable extends Variable {
 			return new Method("void") {
 
 				@Override
-				public Variable execute(List<Object> arguments, Variable variable) {
-					for(Variable var : variables) {
+				public Variable execute(List<Object> arguments) {
+					for(Variable variable : variables) {
 						try {
 							Gdx.app.log("GroupVariable", "Firing method " + name + " on variable " + variable.getName());
-							var.getMethod(name, paramTypes).execute(arguments, var);
+							variable.getMethod(name, paramTypes).execute(arguments);
 						} catch (ClassMethodNotFoundException | ClassMethodNotImplementedException ignored) {
 							// nothing to do
 							Gdx.app.log("GroupVariable", "Method " + name + " not found on variable " + variable.getName()+". Ignoring it.");

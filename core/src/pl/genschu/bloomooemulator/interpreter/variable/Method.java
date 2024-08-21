@@ -42,5 +42,5 @@ public abstract class Method {
         return returnType;
     }
 
-    public abstract Variable execute(List<Object> arguments, Variable var);
+    public abstract Variable execute(List<Object> arguments);
 }

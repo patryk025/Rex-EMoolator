@@ -21,7 +21,7 @@ public class MatrixVariable extends Variable {
 			"INTEGER"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments, Variable variable) {
+			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
 				throw new ClassMethodNotImplementedException("Method CALCENEMYMOVEDEST is not implemented yet");
 			}
@@ -34,7 +34,7 @@ public class MatrixVariable extends Variable {
 			"INTEGER"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments, Variable variable) {
+			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
 				throw new ClassMethodNotImplementedException("Method CALCENEMYMOVEDIR is not implemented yet");
 			}
@@ -46,7 +46,7 @@ public class MatrixVariable extends Variable {
 			"BOOL"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments, Variable variable) {
+			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
 				throw new ClassMethodNotImplementedException("Method CANHEROGOTO is not implemented yet");
 			}
@@ -58,7 +58,7 @@ public class MatrixVariable extends Variable {
 			"INTEGER"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments, Variable variable) {
+			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
 				throw new ClassMethodNotImplementedException("Method GET is not implemented yet");
 			}
@@ -71,7 +71,7 @@ public class MatrixVariable extends Variable {
 			"INTEGER"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments, Variable variable) {
+			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
 				throw new ClassMethodNotImplementedException("Method GETCELLOFFSET is not implemented yet");
 			}
@@ -83,7 +83,7 @@ public class MatrixVariable extends Variable {
 			"INTEGER"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments, Variable variable) {
+			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
 				throw new ClassMethodNotImplementedException("Method GETCELLPOSX is not implemented yet");
 			}
@@ -95,7 +95,7 @@ public class MatrixVariable extends Variable {
 			"INTEGER"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments, Variable variable) {
+			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
 				throw new ClassMethodNotImplementedException("Method GETCELLPOSY is not implemented yet");
 			}
@@ -107,7 +107,7 @@ public class MatrixVariable extends Variable {
 			"INTEGER"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments, Variable variable) {
+			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
 				throw new ClassMethodNotImplementedException("Method GETCELLSNO is not implemented yet");
 			}
@@ -119,7 +119,7 @@ public class MatrixVariable extends Variable {
 			"INTEGER"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments, Variable variable) {
+			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
 				throw new ClassMethodNotImplementedException("Method GETFIELDPOSX is not implemented yet");
 			}
@@ -131,7 +131,7 @@ public class MatrixVariable extends Variable {
 			"INTEGER"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments, Variable variable) {
+			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
 				throw new ClassMethodNotImplementedException("Method GETFIELDPOSY is not implemented yet");
 			}
@@ -144,7 +144,7 @@ public class MatrixVariable extends Variable {
 			"INTEGER"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments, Variable variable) {
+			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
 				throw new ClassMethodNotImplementedException("Method GETOFFSET is not implemented yet");
 			}
@@ -153,7 +153,7 @@ public class MatrixVariable extends Variable {
 			"BOOL"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments, Variable variable) {
+			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
 				throw new ClassMethodNotImplementedException("Method ISGATEEMPTY is not implemented yet");
 			}
@@ -165,7 +165,7 @@ public class MatrixVariable extends Variable {
 			"BOOL"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments, Variable variable) {
+			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
 				throw new ClassMethodNotImplementedException("Method ISINGATE is not implemented yet");
 			}
@@ -178,7 +178,7 @@ public class MatrixVariable extends Variable {
 			"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments, Variable variable) {
+			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
 				throw new ClassMethodNotImplementedException("Method MOVE is not implemented yet");
 			}
@@ -187,7 +187,7 @@ public class MatrixVariable extends Variable {
 			"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments, Variable variable) {
+			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
 				throw new ClassMethodNotImplementedException("Method NEXT is not implemented yet");
 			}
@@ -200,7 +200,7 @@ public class MatrixVariable extends Variable {
 			"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments, Variable variable) {
+			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
 				throw new ClassMethodNotImplementedException("Method SET is not implemented yet");
 			}
@@ -215,7 +215,7 @@ public class MatrixVariable extends Variable {
 			"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments, Variable variable) {
+			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
 				throw new ClassMethodNotImplementedException("Method SETGATE is not implemented yet");
 			}
@@ -228,7 +228,7 @@ public class MatrixVariable extends Variable {
 			"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments, Variable variable) {
+			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
 				throw new ClassMethodNotImplementedException("Method SETROW is not implemented yet");
 			}
@@ -237,7 +237,7 @@ public class MatrixVariable extends Variable {
 			"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments, Variable variable) {
+			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
 				throw new ClassMethodNotImplementedException("Method TICK is not implemented yet");
 			}

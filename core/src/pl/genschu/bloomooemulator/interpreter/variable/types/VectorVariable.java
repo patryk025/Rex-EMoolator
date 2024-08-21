@@ -20,7 +20,7 @@ public class VectorVariable extends Variable {
 			"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments, Variable variable) {
+			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
 				throw new ClassMethodNotImplementedException("Method ADD is not implemented yet");
 			}
@@ -33,7 +33,7 @@ public class VectorVariable extends Variable {
 			"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments, Variable variable) {
+			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
 				throw new ClassMethodNotImplementedException("Method ASSIGN is not implemented yet");
 			}
@@ -45,7 +45,7 @@ public class VectorVariable extends Variable {
 			"INTEGER"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments, Variable variable) {
+			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
 				throw new ClassMethodNotImplementedException("Method GET is not implemented yet");
 			}
@@ -57,7 +57,7 @@ public class VectorVariable extends Variable {
 			"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments, Variable variable) {
+			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
 				throw new ClassMethodNotImplementedException("Method MUL is not implemented yet");
 			}
@@ -66,7 +66,7 @@ public class VectorVariable extends Variable {
 			"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments, Variable variable) {
+			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
 				throw new ClassMethodNotImplementedException("Method NORMALIZE is not implemented yet");
 			}
@@ -79,7 +79,7 @@ public class VectorVariable extends Variable {
 			"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments, Variable variable) {
+			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
 				throw new ClassMethodNotImplementedException("Method REFLECT is not implemented yet");
 			}

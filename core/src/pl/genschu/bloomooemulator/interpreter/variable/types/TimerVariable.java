@@ -26,7 +26,7 @@ public class TimerVariable extends Variable {
 				"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments, Variable variable) {
+			public Variable execute(List<Object> arguments) {
 				enabled = false;
 				return null;
 			}
@@ -35,7 +35,7 @@ public class TimerVariable extends Variable {
 				"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments, Variable variable) {
+			public Variable execute(List<Object> arguments) {
 				enabled = true;
 				lastTickTime = System.currentTimeMillis();
 				return null;
@@ -45,7 +45,7 @@ public class TimerVariable extends Variable {
 				"INTEGER"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments, Variable variable) {
+			public Variable execute(List<Object> arguments) {
 				return new IntegerVariable("", currentTickCount, getContext());
 			}
 		});
@@ -53,7 +53,7 @@ public class TimerVariable extends Variable {
 				"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments, Variable variable) {
+			public Variable execute(List<Object> arguments) {
 				currentTickCount = 0;
 				lastTickTime = System.currentTimeMillis();
 				return null;
@@ -66,7 +66,7 @@ public class TimerVariable extends Variable {
 				"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments, Variable variable) {
+			public Variable execute(List<Object> arguments) {
 				elapse = ArgumentsHelper.getInteger(arguments.get(0));
 				return null;
 			}

@@ -23,7 +23,7 @@ public class StringVariable extends Variable {
 			"STRING"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments, Variable variable) {
+			public Variable execute(List<Object> arguments) {
 				String value = GET();
 				set(value + ArgumentsHelper.getString(arguments.get(0)));
 				return StringVariable.this;
@@ -37,7 +37,7 @@ public class StringVariable extends Variable {
 			"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments, Variable variable) {
+			public Variable execute(List<Object> arguments) {
 				//TODO: do sprawdzenia
 				String value = GET();
 				int index = ArgumentsHelper.getInteger(arguments.get(0));
@@ -54,7 +54,7 @@ public class StringVariable extends Variable {
 			"BOOL"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments, Variable variable) {
+			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
 				throw new ClassMethodNotImplementedException("Method COPYFILE is not implemented yet");
 			}
@@ -67,7 +67,7 @@ public class StringVariable extends Variable {
 			"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments, Variable variable) {
+			public Variable execute(List<Object> arguments) {
 				String value = GET();
 				int index = ArgumentsHelper.getInteger(arguments.get(0));
 				int length = ArgumentsHelper.getInteger(arguments.get(1));
@@ -84,7 +84,7 @@ public class StringVariable extends Variable {
 			"INTEGER"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments, Variable variable) {
+			public Variable execute(List<Object> arguments) {
 				String value = GET();
 				String needle = ArgumentsHelper.getString(arguments.get(0));
 				int offset = 0;
@@ -103,7 +103,7 @@ public class StringVariable extends Variable {
 			"STRING"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments, Variable variable) {
+			public Variable execute(List<Object> arguments) {
 				String value = GET();
 				int index = ArgumentsHelper.getInteger(arguments.get(0));
 				int length = 1;
@@ -122,7 +122,7 @@ public class StringVariable extends Variable {
 			"INTEGER"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments, Variable variable) {
+			public Variable execute(List<Object> arguments) {
 				String value = GET();
 				return VariableFactory.createVariable("INTEGER", "", String.valueOf(value.length()), context);
 			}
@@ -135,7 +135,7 @@ public class StringVariable extends Variable {
 			"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments, Variable variable) {
+			public Variable execute(List<Object> arguments) {
 				String value = GET();
 
 				int index = ArgumentsHelper.getInteger(arguments.get(0));
@@ -163,7 +163,7 @@ public class StringVariable extends Variable {
 			"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments, Variable variable) {
+			public Variable execute(List<Object> arguments) {
 				String value = ArgumentsHelper.getString(arguments.get(0));
 				set(value);
 				return null;
@@ -177,7 +177,7 @@ public class StringVariable extends Variable {
 			"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments, Variable variable) {
+			public Variable execute(List<Object> arguments) {
 				String value = GET();
 				int index = ArgumentsHelper.getInteger(arguments.get(0));
 				int length = ArgumentsHelper.getInteger(arguments.get(1));
@@ -191,7 +191,7 @@ public class StringVariable extends Variable {
 			"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments, Variable variable) {
+			public Variable execute(List<Object> arguments) {
 				String value = GET();
 				set(value.toUpperCase());
 				return null;

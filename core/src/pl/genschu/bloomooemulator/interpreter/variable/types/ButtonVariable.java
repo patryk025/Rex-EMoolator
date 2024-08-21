@@ -35,7 +35,7 @@ public class ButtonVariable extends Variable {
 			"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments, Variable variable) {
+			public Variable execute(List<Object> arguments) {
 				setAttribute("ENABLE", new Attribute("BOOL", "FALSE"));
 				setAttribute("VISIBLE", new Attribute("BOOL", "FALSE"));
 				isEnabled = false;
@@ -47,7 +47,7 @@ public class ButtonVariable extends Variable {
 			"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments, Variable variable) {
+			public Variable execute(List<Object> arguments) {
 				setAttribute("ENABLE", new Attribute("BOOL", "FALSE"));
 				setAttribute("VISIBLE", new Attribute("BOOL", "TRUE"));
 				isEnabled = false;
@@ -59,7 +59,7 @@ public class ButtonVariable extends Variable {
 			"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments, Variable variable) {
+			public Variable execute(List<Object> arguments) {
 				setAttribute("ENABLE", new Attribute("BOOL", "TRUE"));
 				setAttribute("VISIBLE", new Attribute("BOOL", "TRUE"));
 				isEnabled = true;
@@ -74,7 +74,7 @@ public class ButtonVariable extends Variable {
 			"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments, Variable variable) {
+			public Variable execute(List<Object> arguments) {
 				setAttribute("PRIORITY", new Attribute("PRIORITY", arguments.get(0).toString()));
 				return null;
 			}
@@ -86,24 +86,24 @@ public class ButtonVariable extends Variable {
 			"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments, Variable variable) {
+			public Variable execute(List<Object> arguments) {
 				String varName = ArgumentsHelper.getString(arguments.get(0));
 
-				Variable var = context.getVariable(varName);
+				Variable variable = context.getVariable(varName);
 
-				if (var == null) {
+				if (variable == null) {
 					Gdx.app.log("ButtonVariable", "Variable " + varName + " not found, RECT is not changed");
 					return null;
 				}
 
-				if(var instanceof AnimoVariable || var instanceof ImageVariable) {
-					if(var instanceof AnimoVariable) {
-						rect = ((AnimoVariable) var).getRect();
+				if(variable instanceof AnimoVariable || variable instanceof ImageVariable) {
+					if(variable instanceof AnimoVariable) {
+						rect = ((AnimoVariable) variable).getRect();
 					}
 					else {
-						rect = ((ImageVariable) var).getRect();
+						rect = ((ImageVariable) variable).getRect();
 					}
-					rectVariable = var;
+					rectVariable = variable;
 					return null;
 				}
 
@@ -120,7 +120,7 @@ public class ButtonVariable extends Variable {
 			"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments, Variable variable) {
+			public Variable execute(List<Object> arguments) {
 				int xLeft = ((IntegerVariable) arguments.get(0)).GET();
 				int yBottom = ((IntegerVariable) arguments.get(1)).GET();
 				int xRight = ((IntegerVariable) arguments.get(2)).GET();
@@ -138,7 +138,7 @@ public class ButtonVariable extends Variable {
 			"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments, Variable variable) {
+			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
 				throw new ClassMethodNotImplementedException("Method SETSTD is not implemented yet");
 			}

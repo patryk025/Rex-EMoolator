@@ -25,7 +25,7 @@ public class ApplicationVariable extends Variable {
 			"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments, Variable variable) {
+			public Variable execute(List<Object> arguments) {
 				Gdx.app.exit();
 				return null;
 			}
@@ -34,7 +34,7 @@ public class ApplicationVariable extends Variable {
 			"STRING"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments, Variable variable) {
+			public Variable execute(List<Object> arguments) {
 				// TODO: check if is get from system
 				return VariableFactory.createVariable("STRING", null, "POL", getContext()); // default
 			}
@@ -48,7 +48,7 @@ public class ApplicationVariable extends Variable {
 			"mixed?"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments, Variable variable) {
+			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
 				throw new ClassMethodNotImplementedException("Method RUN is not implemented yet");
 			}
@@ -61,7 +61,7 @@ public class ApplicationVariable extends Variable {
 			"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments, Variable variable) {
+			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
 				throw new ClassMethodNotImplementedException("Method RUNENV is not implemented yet");
 			}
@@ -73,7 +73,7 @@ public class ApplicationVariable extends Variable {
 			"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments, Variable variable) {
+			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
 				throw new ClassMethodNotImplementedException("Method SETLANGUAGE is not implemented yet");
 			}

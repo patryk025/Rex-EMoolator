@@ -31,7 +31,7 @@ public class WorldVariable extends Variable {
 			"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments, Variable variable) {
+			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
 				throw new ClassMethodNotImplementedException("Method ADDBODY is not implemented yet");
 			}
@@ -46,7 +46,7 @@ public class WorldVariable extends Variable {
 			"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments, Variable variable) {
+			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
 				throw new ClassMethodNotImplementedException("Method ADDFORCE is not implemented yet");
 			}
@@ -60,7 +60,7 @@ public class WorldVariable extends Variable {
 			"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments, Variable variable) {
+			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
 				throw new ClassMethodNotImplementedException("Method ADDGRAVITYEX is not implemented yet");
 			}
@@ -78,7 +78,7 @@ public class WorldVariable extends Variable {
 			"void?"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments, Variable variable) {
+			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
 				throw new ClassMethodNotImplementedException("Method FINDPATH is not implemented yet");
 			}
@@ -93,7 +93,7 @@ public class WorldVariable extends Variable {
 			"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments, Variable variable) {
+			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
 				throw new ClassMethodNotImplementedException("Method FOLLOWPATH is not implemented yet");
 			}
@@ -105,7 +105,7 @@ public class WorldVariable extends Variable {
 			"DOUBLE"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments, Variable variable) {
+			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
 				throw new ClassMethodNotImplementedException("Method GETANGLE is not implemented yet");
 			}
@@ -114,7 +114,7 @@ public class WorldVariable extends Variable {
 			"INTEGER"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments, Variable variable) {
+			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
 				throw new ClassMethodNotImplementedException("Method GETBKGPOSX is not implemented yet");
 			}
@@ -123,7 +123,7 @@ public class WorldVariable extends Variable {
 			"INTEGER"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments, Variable variable) {
+			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
 				throw new ClassMethodNotImplementedException("Method GETBKGPOSY is not implemented yet");
 			}
@@ -135,7 +135,7 @@ public class WorldVariable extends Variable {
 			"DOUBLE"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments, Variable variable) {
+			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
 				throw new ClassMethodNotImplementedException("Method GETMOVEDISTANCE is not implemented yet");
 			}
@@ -147,7 +147,7 @@ public class WorldVariable extends Variable {
 			"INTEGER"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments, Variable variable) {
+			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
 				throw new ClassMethodNotImplementedException("Method GETPOSITIONX is not implemented yet");
 			}
@@ -159,7 +159,7 @@ public class WorldVariable extends Variable {
 			"INTEGER"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments, Variable variable) {
+			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
 				throw new ClassMethodNotImplementedException("Method GETPOSITIONY is not implemented yet");
 			}
@@ -171,7 +171,7 @@ public class WorldVariable extends Variable {
 			"INTEGER"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments, Variable variable) {
+			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
 				throw new ClassMethodNotImplementedException("Method GETPOSITIONZ is not implemented yet");
 			}
@@ -183,7 +183,7 @@ public class WorldVariable extends Variable {
 			"DOUBLE"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments, Variable variable) {
+			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
 				throw new ClassMethodNotImplementedException("Method GETROTATIONZ is not implemented yet");
 			}
@@ -195,7 +195,7 @@ public class WorldVariable extends Variable {
 			"DOUBLE"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments, Variable variable) {
+			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
 				throw new ClassMethodNotImplementedException("Method GETSPEED is not implemented yet");
 			}
@@ -217,7 +217,7 @@ public class WorldVariable extends Variable {
 			"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments, Variable variable) {
+			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
 				throw new ClassMethodNotImplementedException("Method JOIN is not implemented yet");
 			}
@@ -231,7 +231,7 @@ public class WorldVariable extends Variable {
 			"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments, Variable variable) {
+			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
 				throw new ClassMethodNotImplementedException("Method LINK is not implemented yet");
 			}
@@ -243,7 +243,7 @@ public class WorldVariable extends Variable {
 			"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments, Variable variable) {
+			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
 				throw new ClassMethodNotImplementedException("Method LOAD is not implemented yet");
 			}
@@ -252,7 +252,7 @@ public class WorldVariable extends Variable {
 			"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments, Variable variable) {
+			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
 				throw new ClassMethodNotImplementedException("Method MOVEOBJECTS is not implemented yet");
 			}
@@ -264,7 +264,7 @@ public class WorldVariable extends Variable {
 			"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments, Variable variable) {
+			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
 				throw new ClassMethodNotImplementedException("Method REMOVEOBJECT is not implemented yet");
 			}
@@ -277,7 +277,7 @@ public class WorldVariable extends Variable {
 			"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments, Variable variable) {
+			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
 				throw new ClassMethodNotImplementedException("Method SETACTIVE is not implemented yet");
 			}
@@ -291,7 +291,7 @@ public class WorldVariable extends Variable {
 			"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments, Variable variable) {
+			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
 				throw new ClassMethodNotImplementedException("Method SETACTIVE is not implemented yet");
 			}
@@ -306,7 +306,7 @@ public class WorldVariable extends Variable {
 			"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments, Variable variable) {
+			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
 				throw new ClassMethodNotImplementedException("Method SETBKGSIZE is not implemented yet");
 			}
@@ -319,7 +319,7 @@ public class WorldVariable extends Variable {
 			"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments, Variable variable) {
+			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
 				throw new ClassMethodNotImplementedException("Method SETG is not implemented yet");
 			}
@@ -333,7 +333,7 @@ public class WorldVariable extends Variable {
 			"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments, Variable variable) {
+			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
 				throw new ClassMethodNotImplementedException("Method SETGRAVITY is not implemented yet");
 			}
@@ -346,7 +346,7 @@ public class WorldVariable extends Variable {
 			"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments, Variable variable) {
+			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
 				throw new ClassMethodNotImplementedException("Method SETGRAVITYCENTER is not implemented yet");
 			}
@@ -364,7 +364,7 @@ public class WorldVariable extends Variable {
 			"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments, Variable variable) {
+			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
 				throw new ClassMethodNotImplementedException("Method SETLIMIT is not implemented yet");
 			}
@@ -377,7 +377,7 @@ public class WorldVariable extends Variable {
 			"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments, Variable variable) {
+			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
 				throw new ClassMethodNotImplementedException("Method SETMAXSPEED is not implemented yet");
 			}
@@ -390,7 +390,7 @@ public class WorldVariable extends Variable {
 			"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments, Variable variable) {
+			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
 				throw new ClassMethodNotImplementedException("Method SETMOVEFLAGS is not implemented yet");
 			}
@@ -405,7 +405,7 @@ public class WorldVariable extends Variable {
 			"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments, Variable variable) {
+			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
 				throw new ClassMethodNotImplementedException("Method SETPOSITION is not implemented yet");
 			}
@@ -417,7 +417,7 @@ public class WorldVariable extends Variable {
 			"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments, Variable variable) {
+			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
 				throw new ClassMethodNotImplementedException("Method SETREFOBJECT is not implemented yet");
 			}
@@ -432,7 +432,7 @@ public class WorldVariable extends Variable {
 			"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments, Variable variable) {
+			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
 				throw new ClassMethodNotImplementedException("Method SETVELOCITY is not implemented yet");
 			}
@@ -441,7 +441,7 @@ public class WorldVariable extends Variable {
 			"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments, Variable variable) {
+			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
 				throw new ClassMethodNotImplementedException("Method START is not implemented yet");
 			}
@@ -450,7 +450,7 @@ public class WorldVariable extends Variable {
 			"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments, Variable variable) {
+			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
 				throw new ClassMethodNotImplementedException("Method STOP is not implemented yet");
 			}
@@ -462,7 +462,7 @@ public class WorldVariable extends Variable {
 			"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments, Variable variable) {
+			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
 				throw new ClassMethodNotImplementedException("Method UNLINK is not implemented yet");
 			}

@@ -25,7 +25,7 @@ public class BoolVariable extends Variable {
 			"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments, Variable variable) {
+			public Variable execute(List<Object> arguments) {
 				Object value = ((Variable) arguments.get(0)).getValue();
 				set(value);
 				return null;
@@ -39,7 +39,7 @@ public class BoolVariable extends Variable {
 			"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments, Variable variable) {
+			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
 				throw new ClassMethodNotImplementedException("Method SWITCH is not implemented yet");
 			}

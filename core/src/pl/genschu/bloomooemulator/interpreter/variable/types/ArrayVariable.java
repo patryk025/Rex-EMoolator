@@ -30,7 +30,7 @@ public class ArrayVariable extends Variable {
 			"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments, Variable variable) {
+			public Variable execute(List<Object> arguments) {
 				for(Object argument : arguments) {
 					elements.add((Variable) argument);
 				}
@@ -46,7 +46,7 @@ public class ArrayVariable extends Variable {
 			"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments, Variable variable) {
+			public Variable execute(List<Object> arguments) {
 				int index = ArgumentsHelper.getInteger(arguments.get(0));
 				AddOperation operation = new AddOperation();
 				elements.set(index, operation.performOperation(elements.get(index), (Variable) arguments.get(1)));
@@ -62,7 +62,7 @@ public class ArrayVariable extends Variable {
 			"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments, Variable variable) {
+			public Variable execute(List<Object> arguments) {
 				int index = ArgumentsHelper.getInteger(arguments.get(0));
 				elements.set(index, (Variable) arguments.get(1));
 				//debugArray();
@@ -78,7 +78,7 @@ public class ArrayVariable extends Variable {
 			"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments, Variable variable) {
+			public Variable execute(List<Object> arguments) {
 				int index = ArgumentsHelper.getInteger(arguments.get(0));
 				double rangeMin = ArgumentsHelper.getDouble(arguments.get(1));
 				double rangeMax = ArgumentsHelper.getDouble(arguments.get(2));
@@ -94,7 +94,7 @@ public class ArrayVariable extends Variable {
 			"BOOL"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments, Variable variable) {
+			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
 				throw new ClassMethodNotImplementedException("Method CONTAINS is not implemented yet");
 			}
@@ -106,7 +106,7 @@ public class ArrayVariable extends Variable {
 			"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments, Variable variable) {
+			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
 				throw new ClassMethodNotImplementedException("Method COPYTO is not implemented yet");
 			}
@@ -118,7 +118,7 @@ public class ArrayVariable extends Variable {
 			"INTEGER"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments, Variable variable) {
+			public Variable execute(List<Object> arguments) {
 				Variable needle = (Variable) arguments.get(0);
 
 				if(context.hasVariable(needle.getValue().toString())) {
@@ -141,7 +141,7 @@ public class ArrayVariable extends Variable {
 			"mixed"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments, Variable variable) {
+			public Variable execute(List<Object> arguments) {
 				try {
 					return elements.get(ArgumentsHelper.getInteger(arguments.get(0)));
 				} catch (IndexOutOfBoundsException e) {
@@ -153,7 +153,7 @@ public class ArrayVariable extends Variable {
 			"INTEGER"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments, Variable variable) {
+			public Variable execute(List<Object> arguments) {
 				return new IntegerVariable("", elements.size(), context);
 			}
 		});
@@ -161,7 +161,7 @@ public class ArrayVariable extends Variable {
 			"INTEGER|DOUBLE"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments, Variable variable) {
+			public Variable execute(List<Object> arguments) {
 				DoubleVariable sum = new DoubleVariable("", 0.0, context);
 				AddOperation operation = new AddOperation();
 				for(Variable element : elements) {
@@ -178,7 +178,7 @@ public class ArrayVariable extends Variable {
 			"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments, Variable variable) {
+			public Variable execute(List<Object> arguments) {
 				int index = ArgumentsHelper.getInteger(arguments.get(0));
 				elements.add(index, (Variable) arguments.get(1));
 				//debugArray();
@@ -192,7 +192,7 @@ public class ArrayVariable extends Variable {
 			"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments, Variable variable) {
+			public Variable execute(List<Object> arguments) {
 				elements.clear();
 				String path = ArgumentsHelper.getString(arguments.get(0));
 				ArrayLoader.loadArray(ArrayVariable.this, path);
@@ -204,7 +204,7 @@ public class ArrayVariable extends Variable {
 			"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments, Variable variable) {
+			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
 				throw new ClassMethodNotImplementedException("Method LOADINI is not implemented yet");
 			}
@@ -217,7 +217,7 @@ public class ArrayVariable extends Variable {
 			"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments, Variable variable) {
+			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
 				throw new ClassMethodNotImplementedException("Method MODAT is not implemented yet");
 			}
@@ -230,7 +230,7 @@ public class ArrayVariable extends Variable {
 			"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments, Variable variable) {
+			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
 				throw new ClassMethodNotImplementedException("Method MULAT is not implemented yet");
 			}
@@ -242,7 +242,7 @@ public class ArrayVariable extends Variable {
 			"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments, Variable variable) {
+			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
 				throw new ClassMethodNotImplementedException("Method REMOVE is not implemented yet");
 			}
@@ -251,7 +251,7 @@ public class ArrayVariable extends Variable {
 			"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments, Variable variable) {
+			public Variable execute(List<Object> arguments) {
 				elements.clear();
 				//debugArray();
 				return null;
@@ -264,7 +264,7 @@ public class ArrayVariable extends Variable {
 			"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments, Variable variable) {
+			public Variable execute(List<Object> arguments) {
 				int index = ArgumentsHelper.getInteger(arguments.get(0));
 				elements.remove(index);
 				//debugArray();
@@ -278,7 +278,7 @@ public class ArrayVariable extends Variable {
 			"INTEGER"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments, Variable variable) {
+			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
 				throw new ClassMethodNotImplementedException("Method REVERSEFIND is not implemented yet");
 			}
@@ -290,7 +290,7 @@ public class ArrayVariable extends Variable {
 			"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments, Variable variable) {
+			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
 				throw new ClassMethodNotImplementedException("Method SAVE is not implemented yet");
 			}
@@ -299,7 +299,7 @@ public class ArrayVariable extends Variable {
 			"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments, Variable variable) {
+			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
 				throw new ClassMethodNotImplementedException("Method SAVEINI is not implemented yet");
 			}
@@ -311,7 +311,7 @@ public class ArrayVariable extends Variable {
 			"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments, Variable variable) {
+			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
 				throw new ClassMethodNotImplementedException("Method SUB is not implemented yet");
 			}
@@ -324,7 +324,7 @@ public class ArrayVariable extends Variable {
 			"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments, Variable variable) {
+			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
 				throw new ClassMethodNotImplementedException("Method SUBAT is not implemented yet");
 			}
@@ -336,7 +336,7 @@ public class ArrayVariable extends Variable {
 			"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments, Variable variable) {
+			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
 				throw new ClassMethodNotImplementedException("Method SUM is not implemented yet");
 			}

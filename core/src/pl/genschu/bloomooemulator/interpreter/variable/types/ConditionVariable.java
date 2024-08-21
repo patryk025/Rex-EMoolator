@@ -30,15 +30,11 @@ public class ConditionVariable extends Variable {
 				"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments, Variable variable) {
+			public Variable execute(List<Object> arguments) {
 				boolean result = check();
 				boolean expectedResult = ArgumentsHelper.getBoolean(arguments.get(0));
 				if(result == expectedResult) {
-					emitSignal("ONRUNTIMESUCCESS");
 					throw new BreakException("Break statement encountered");
-				}
-				else {
-					emitSignal("ONRUNTIMEFAILED");
 				}
 				return null;
 			}
@@ -50,7 +46,7 @@ public class ConditionVariable extends Variable {
 				"BOOL"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments, Variable variable) {
+			public Variable execute(List<Object> arguments) {
 				boolean result = check();
 				boolean expectedResult = ArgumentsHelper.getBoolean(arguments.get(0));
 				if(result == expectedResult) {
@@ -69,15 +65,11 @@ public class ConditionVariable extends Variable {
 				"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments, Variable variable) {
+			public Variable execute(List<Object> arguments) {
 				boolean result = check();
 				boolean expectedResult = ArgumentsHelper.getBoolean(arguments.get(0));
 				if(result == expectedResult) {
-					emitSignal("ONRUNTIMESUCCESS");
 					throw new OneBreakException("OneBreak statement encountered");
-				}
-				else {
-					emitSignal("ONRUNTIMEFAILED");
 				}
 				return null;
 			}
@@ -86,7 +78,7 @@ public class ConditionVariable extends Variable {
 
 	protected boolean check() {
 		behaviourVariable.getMethod("RUN", Collections.singletonList("mixed"))
-				.execute(null, behaviourVariable);
+				.execute(null);
 		Object checkResult = behaviourVariable.getContext().getReturnValue();
 		return ArgumentsHelper.getBoolean(checkResult);
 	}

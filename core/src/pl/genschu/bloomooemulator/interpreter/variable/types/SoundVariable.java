@@ -25,7 +25,7 @@ public class SoundVariable extends Variable {
 			"BOOL"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments, Variable variable) {
+			public Variable execute(List<Object> arguments) {
 				return new BoolVariable("", isPlaying, getContext());
 			}
 		});
@@ -36,7 +36,7 @@ public class SoundVariable extends Variable {
 			"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments, Variable variable) {
+			public Variable execute(List<Object> arguments) {
 				if(sound != null) {
 					sound.stop();
 					sound.dispose();
@@ -51,7 +51,7 @@ public class SoundVariable extends Variable {
 			"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments, Variable variable) {
+			public Variable execute(List<Object> arguments) {
 				sound.pause();
 				isPlaying = false;
 				return null;
@@ -64,7 +64,7 @@ public class SoundVariable extends Variable {
 			"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments, Variable variable) {
+			public Variable execute(List<Object> arguments) {
 				if(sound == null) {
 					loadSound();
 				}
@@ -82,7 +82,7 @@ public class SoundVariable extends Variable {
 			"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments, Variable variable) {
+			public Variable execute(List<Object> arguments) {
 				sound.play();
 				isPlaying = true;
 				return null;
@@ -95,7 +95,7 @@ public class SoundVariable extends Variable {
 			"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments, Variable variable) {
+			public Variable execute(List<Object> arguments) {
 				sound.stop();
 				isPlaying = false;
 				return null;

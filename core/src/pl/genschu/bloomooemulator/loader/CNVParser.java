@@ -161,7 +161,7 @@ public class CNVParser {
                                 arguments.add(getVariableFromObject(param, context));
                             }
                         signalAndParams.behaviourVariable.getMethod(signalAndParams.behaviourVariable.getAttribute("CONDITION") != null ? "RUNC" : "RUN", Collections.singletonList("mixed"))
-                                .execute(!arguments.isEmpty() ? arguments : null, signalAndParams.behaviourVariable);
+                                .execute(!arguments.isEmpty() ? arguments : null);
                         Gdx.app.log("Signal", "Signal " + signalName + " done");
                     }
                 });

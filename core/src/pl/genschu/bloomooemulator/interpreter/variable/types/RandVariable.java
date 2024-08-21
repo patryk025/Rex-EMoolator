@@ -23,7 +23,7 @@ public class RandVariable extends Variable {
 			"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments, Variable variable) {
+			public Variable execute(List<Object> arguments) {
 				int offset = 0;
 				int range = 1;
 				if(arguments.size() >= 2) {

@@ -42,7 +42,7 @@ public class ImageVariable extends Variable {
 			"INTEGER"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments, Variable variable) {
+			public Variable execute(List<Object> arguments) {
 				if(image == null) return new IntegerVariable("", 0, context);
 				else {
 					if(image.getImageTexture() == null) return new IntegerVariable("", 0, context);
@@ -59,7 +59,7 @@ public class ImageVariable extends Variable {
 			"INTEGER"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments, Variable variable) {
+			public Variable execute(List<Object> arguments) {
 				return new IntegerVariable("", image.height, context);
 			}
 		});
@@ -71,7 +71,7 @@ public class ImageVariable extends Variable {
 			"INTEGER"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments, Variable variable) {
+			public Variable execute(List<Object> arguments) {
 				if(image == null) return new IntegerVariable("", 0, context);
 				else {
 					if(image.getImageTexture() == null) return new IntegerVariable("", 0, context);
@@ -103,7 +103,7 @@ public class ImageVariable extends Variable {
 			"INTEGER"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments, Variable variable) {
+			public Variable execute(List<Object> arguments) {
 				return new IntegerVariable("", posX+image.offsetX, context);
 			}
 		});
@@ -111,7 +111,7 @@ public class ImageVariable extends Variable {
 			"INTEGER"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments, Variable variable) {
+			public Variable execute(List<Object> arguments) {
 				return new IntegerVariable("", posY+image.offsetY, context);
 			}
 		});
@@ -119,7 +119,7 @@ public class ImageVariable extends Variable {
 			"INTEGER"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments, Variable variable) {
+			public Variable execute(List<Object> arguments) {
 				return new IntegerVariable("", image.width, context);
 			}
 		});
@@ -127,7 +127,7 @@ public class ImageVariable extends Variable {
 			"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments, Variable variable) {
+			public Variable execute(List<Object> arguments) {
 				setAttribute("VISIBLE", "FALSE");
 				return null;
 			}
@@ -136,7 +136,7 @@ public class ImageVariable extends Variable {
 			"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments, Variable variable) {
+			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
 				throw new ClassMethodNotImplementedException("Method INVALIDATE is not implemented yet");
 			}
@@ -148,7 +148,7 @@ public class ImageVariable extends Variable {
 			"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments, Variable variable) {
+			public Variable execute(List<Object> arguments) {
 				String path = ArgumentsHelper.getString(arguments.get(0));
 				setAttribute("FILENAME", path);
 				ImageLoader.loadImage(ImageVariable.this);
@@ -164,7 +164,7 @@ public class ImageVariable extends Variable {
 			"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments, Variable variable) {
+			public Variable execute(List<Object> arguments) {
 				// TODO: implement this method
 				throw new ClassMethodNotImplementedException("Method MERGEALPHA is not implemented yet");
 			}
@@ -177,7 +177,7 @@ public class ImageVariable extends Variable {
 			"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments, Variable variable) {
+			public Variable execute(List<Object> arguments) {
 				int offsetX = ArgumentsHelper.getInteger(arguments.get(0));
 				int offsetY = ArgumentsHelper.getInteger(arguments.get(1));
 				posX += offsetX;
@@ -196,7 +196,7 @@ public class ImageVariable extends Variable {
 			"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments, Variable variable) {
+			public Variable execute(List<Object> arguments) {
 				int xLeft = ArgumentsHelper.getInteger(arguments.get(0));
 				int yBottom = ArgumentsHelper.getInteger(arguments.get(1));
 				int xRight = ArgumentsHelper.getInteger(arguments.get(2));
@@ -213,7 +213,7 @@ public class ImageVariable extends Variable {
 			"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments, Variable variable) {
+			public Variable execute(List<Object> arguments) {
 				opacity = ArgumentsHelper.getInteger(arguments.get(0)) / 255.0f;
 				return null;
 			}
@@ -226,7 +226,7 @@ public class ImageVariable extends Variable {
 			"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments, Variable variable) {
+			public Variable execute(List<Object> arguments) {
 				posX = ArgumentsHelper.getInteger(arguments.get(0));
 				posY = ArgumentsHelper.getInteger(arguments.get(1));
 				updateRect();
@@ -240,7 +240,7 @@ public class ImageVariable extends Variable {
 			"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments, Variable variable) {
+			public Variable execute(List<Object> arguments) {
 				setAttribute("PRIORITY", ""+ArgumentsHelper.getInteger(arguments.get(0)));
 				return null;
 			}
@@ -249,7 +249,7 @@ public class ImageVariable extends Variable {
 			"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments, Variable variable) {
+			public Variable execute(List<Object> arguments) {
 				setAttribute("VISIBLE", "TRUE");
 				return null;
 			}

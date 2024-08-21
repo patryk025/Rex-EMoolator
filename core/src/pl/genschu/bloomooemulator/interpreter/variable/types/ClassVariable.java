@@ -32,7 +32,7 @@ public class ClassVariable extends Variable {
 				"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments, Variable variable) {
+			public Variable execute(List<Object> arguments) {
 				String className = getAttribute("DEF").getValue().toString();
 				// classes are in common/classes/ directory
 				className = "$COMMON/classes/" + className;
@@ -67,7 +67,7 @@ public class ClassVariable extends Variable {
 					return null;
 				}
 
-				constructorBehaviour.getMethod("RUN", List.of("mixed")).execute(arguments.subList(1, arguments.size()), constructorBehaviour);
+				constructorBehaviour.getMethod("RUN", List.of("mixed")).execute(arguments.subList(1, arguments.size()));
 
 				return null;
 			}
@@ -80,7 +80,7 @@ public class ClassVariable extends Variable {
 				"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments, Variable variable) {
+			public Variable execute(List<Object> arguments) {
 				String varName = ArgumentsHelper.getString(arguments.get(0));
 				InstanceVariable var = (InstanceVariable) context.getVariable(varName);
 
@@ -92,7 +92,7 @@ public class ClassVariable extends Variable {
 				BehaviourVariable destructor = (BehaviourVariable) var.getContext().getVariable("DESTRUCTOR");
 
 				if (destructor != null) {
-					destructor.getMethod("RUN", List.of("mixed")).execute(arguments.subList(1, arguments.size()), destructor);
+					destructor.getMethod("RUN", List.of("mixed")).execute(arguments.subList(1, arguments.size()));
 				}
 				else {
 					Gdx.app.error("ClassVariable", "DESTRUCTOR BEHAVIOUR not found. Continue without it...");
