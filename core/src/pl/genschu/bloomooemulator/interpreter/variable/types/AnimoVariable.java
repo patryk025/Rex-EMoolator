@@ -810,6 +810,11 @@ public class AnimoVariable extends Variable {
 			rect.setYTop(posY + frameData.getOffsetY() + currentImage.offsetY);
 			rect.setXRight(rect.getXLeft() + currentImage.width);
 			rect.setYBottom(rect.getYTop() - currentImage.height);
+
+			endPosX = rect.getXRight();
+			endPosY = rect.getYBottom();
+			centerX = rect.getXLeft() + currentImage.width / 2;
+			centerY = rect.getYTop() - currentImage.height / 2;
 		} catch (IndexOutOfBoundsException e) {
 			if(currentImage != null)
 				updateRect(currentImage);
@@ -819,6 +824,11 @@ public class AnimoVariable extends Variable {
 				rect.setYTop(posY);
 				rect.setXRight(rect.getXLeft() + 1);
 				rect.setYBottom(rect.getYTop() - 1);
+
+				endPosX = rect.getXRight();
+				endPosY = rect.getYBottom();
+				centerX = endPosX;
+				centerY = endPosY;
 			}
 		}
 	}
@@ -828,6 +838,11 @@ public class AnimoVariable extends Variable {
 		rect.setYTop(image.offsetY - posY);
 		rect.setXRight(rect.getXLeft() + image.width);
 		rect.setYBottom(rect.getYTop() - image.height);
+
+		endPosX = rect.getXRight();
+		endPosY = rect.getYBottom();
+		centerX = rect.getXLeft() + image.width / 2;
+		centerY = rect.getYTop() - image.height / 2;
 	}
 
 	@Override

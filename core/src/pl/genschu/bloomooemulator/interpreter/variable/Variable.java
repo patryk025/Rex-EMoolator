@@ -8,9 +8,13 @@ import pl.genschu.bloomooemulator.interpreter.exceptions.ClassMethodNotImplement
 import pl.genschu.bloomooemulator.interpreter.exceptions.VariableUnsupportedOperationException;
 import pl.genschu.bloomooemulator.interpreter.factories.VariableFactory;
 import pl.genschu.bloomooemulator.interpreter.variable.types.*;
+import pl.genschu.bloomooemulator.loader.CNVParser;
 import pl.genschu.bloomooemulator.utils.ArgumentsHelper;
+import pl.genschu.bloomooemulator.utils.SignalAndParams;
 
 import java.util.*;
+
+import static pl.genschu.bloomooemulator.interpreter.util.VariableHelper.getVariableFromObject;
 
 public abstract class Variable implements Cloneable {
 	protected String name;
@@ -46,7 +50,28 @@ public abstract class Variable implements Cloneable {
 					signalName = signalName.replace("$", "^");
 				}
 
+				SignalAndParams signalAndParams = new CNVParser().processEventCode(behaviourName, context);
 
+				if (signalAndParams == null || signalAndParams.behaviourVariable == null) {
+					Gdx.app.error("VARIABLE", "Error in ADDBEHAVIOUR: Failed to get behaviour variable for signal " + signalName);
+					return null;
+				}
+
+				String finalSignalName = signalName;
+				setSignal(signalName, new Signal() {
+					@Override
+					public void execute(Object argument) {
+						List<Object> arguments = new ArrayList<>();
+						if(signalAndParams.params != null)
+							for(String param : signalAndParams.params) {
+								arguments.add(getVariableFromObject(param, context));
+							}
+						signalAndParams.behaviourVariable.getMethod(signalAndParams.behaviourVariable.getAttribute("CONDITION") != null ? "RUNC" : "RUN", Collections.singletonList("mixed"))
+								.execute(!arguments.isEmpty() ? arguments : null);
+						Gdx.app.log("Signal", "Signal " + finalSignalName + " done");
+					}
+				});
+				return null;
 			}
 		});
 		this.setMethod("CLONE", new Method(

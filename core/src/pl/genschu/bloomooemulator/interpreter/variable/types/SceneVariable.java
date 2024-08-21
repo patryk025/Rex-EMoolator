@@ -116,6 +116,38 @@ public class SceneVariable extends Variable {
 
 				Variable targetVariable = context.getVariable(varName);
 
+				if(targetVariable == null) {
+					Gdx.app.error("SceneVariable", "RUNCLONES: Variable not found: " + varName);
+					return null;
+				}
+
+				Variable behaviour = targetVariable.getContext().getVariable(behaviourName);
+
+				if(behaviour == null) {
+					Gdx.app.error("SceneVariable", "RUNCLONES: Behaviour not found: " + behaviourName);
+					return null;
+				}
+
+				List<Variable> clones = targetVariable.getClones();
+
+				if(firstIndex < 0) {
+					firstIndex = 0;
+				}
+				if(lastIndex < 0 || lastIndex >= clones.size()) {
+					lastIndex = clones.size() - 1;
+				}
+
+				for(int i = firstIndex; i <= lastIndex; i++) {
+					Variable clone = clones.get(i);
+
+					Variable oldThis = clone.getContext().getThisVariable();
+					clone.getContext().setThisVariable(clone);
+
+					behaviour.fireMethod(behaviour.getAttribute("CONDITION") != null ? "RUNC" : "RUN", clone);
+
+					clone.getContext().setThisVariable(oldThis);
+				}
+
 				return null;
 			}
 		});

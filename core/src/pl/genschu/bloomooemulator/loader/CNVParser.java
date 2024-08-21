@@ -17,6 +17,7 @@ import com.badlogic.gdx.Gdx;
 import pl.genschu.bloomooemulator.interpreter.variable.types.BehaviourVariable;
 import pl.genschu.bloomooemulator.interpreter.variable.types.SequenceVariable;
 import pl.genschu.bloomooemulator.interpreter.variable.types.SoundVariable;
+import pl.genschu.bloomooemulator.utils.SignalAndParams;
 
 import java.io.*;
 import java.util.*;
@@ -174,7 +175,7 @@ public class CNVParser {
         }
     }
 
-    private SignalAndParams processEventCode(String code, Context context) {
+    public SignalAndParams processEventCode(String code, Context context) {
         // First, check if it's a code block
         if (code.startsWith("{") && code.endsWith("}")) {
             if (code.endsWith(":}")) {
@@ -198,17 +199,6 @@ public class CNVParser {
         } else {
             Gdx.app.error("CNVParser", "Variable " + code + " is not a BEHAVIOUR variable");
             return null;
-        }
-    }
-
-    // Helper class to store the behaviour variable and its parameters
-    private static class SignalAndParams {
-        BehaviourVariable behaviourVariable;
-        String[] params;
-
-        SignalAndParams(BehaviourVariable behaviourVariable, String[] params) {
-            this.behaviourVariable = behaviourVariable;
-            this.params = params;
         }
     }
 }
