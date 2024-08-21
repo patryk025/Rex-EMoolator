@@ -128,6 +128,7 @@ public class BlooMooEmulator extends ApplicationAdapter {
                 Image image = imageVariable.getImage();
 
                 if(imageVariable.isVisible()) {
+                    Gdx.app.log(variable.getName(), ((ImageVariable) variable).getRect().toString());
 
                     batch.setColor(1, 1, 1, imageVariable.getOpacity());
 
@@ -173,6 +174,7 @@ public class BlooMooEmulator extends ApplicationAdapter {
             } else if(variable instanceof AnimoVariable) {
                 AnimoVariable animoVariable = (AnimoVariable) variable;
                 if(animoVariable.isVisible()) {
+                    Gdx.app.log(variable.getName(), ((AnimoVariable) variable).getRect().toString());
                     try {
                         Image image = animoVariable.getCurrentImage();
                         if(image == null) continue;
@@ -200,6 +202,7 @@ public class BlooMooEmulator extends ApplicationAdapter {
                 if(sequenceVariable.getCurrentAnimo() == null) continue;
                 if(!sequenceVariable.getCurrentAnimo().isVisible()) continue;
 
+                Gdx.app.log(variable.getName(), ((SequenceVariable) variable).getCurrentAnimo().getRect().toString());
                 try {
                     Image image = sequenceVariable.getCurrentAnimo().getCurrentImage();
                     Event event = sequenceVariable.getCurrentAnimo().getCurrentEvent();

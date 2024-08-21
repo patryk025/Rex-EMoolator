@@ -112,8 +112,15 @@ public class ArrayVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				// TODO: implement this method
-				throw new ClassMethodNotImplementedException("Method CONTAINS is not implemented yet");
+				String needle = ArgumentsHelper.getString(arguments.get(0));
+
+				for(Variable element : elements) {
+					if(element.toString().equals(needle)) {
+						return new BoolVariable("", true, context);
+					}
+				}
+
+				return new BoolVariable("", false, context);
 			}
 		});
 		this.setMethod("COPYTO", new Method(
