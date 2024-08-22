@@ -739,6 +739,11 @@ public class AnimoVariable extends Variable implements Cloneable{
                     setFps(Integer.parseInt(getAttribute("FPS").getValue().toString()));
                     break;
                 case "FILENAME":
+					String filename = getAttribute("FILENAME").getValue().toString();
+					if(!filename.endsWith(".ANN")) {
+						filename = filename + ".ANN";
+					}
+					getAttribute("FILENAME").setValue(filename);
                     AnimoLoader.loadAnimo(this);
                     currentEvent = events.get(0);
                     currentFrameNumber = 0;

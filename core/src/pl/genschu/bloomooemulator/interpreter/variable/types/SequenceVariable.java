@@ -85,6 +85,22 @@ public class SequenceVariable extends Variable {
 				return null;
 			}
 		});
+		this.setMethod("STOP", new Method(
+				List.of(
+						new Parameter("STRING", "eventName", true)
+				),
+				"void"
+		) {
+			@Override
+			public Variable execute(List<Object> arguments) {
+				String eventName = ArgumentsHelper.getString(arguments.get(0));
+				if(currentEventName.equals(eventName)) {
+					isPlaying = false;
+					getCurrentAnimo().setPlaying(false);
+				}
+				return null;
+			}
+		});
 	}
 
 	public void loadSequence() {
