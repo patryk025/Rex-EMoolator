@@ -18,7 +18,7 @@ import pl.genschu.bloomooemulator.utils.ArgumentsHelper;
 import java.util.List;
 import java.util.Random;
 
-public class AnimoVariable extends Variable {
+public class AnimoVariable extends Variable implements Cloneable{
 	private int imagesCount = 0;
 	private int colorDepth;
 	private int eventsCount = 0;
@@ -173,6 +173,14 @@ public class AnimoVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				return new IntegerVariable("", maxHeight, context);
+			}
+		});
+		this.setMethod("GETNAME", new Method(
+				"STRING"
+		) {
+			@Override
+			public Variable execute(List<Object> arguments) {
+				return new StringVariable("", getName(), context);
 			}
 		});
 		this.setMethod("GETNOE", new Method(
@@ -348,6 +356,7 @@ public class AnimoVariable extends Variable {
 
 				posX += offsetX;
 				posY += offsetY;
+				//Gdx.app.log("updateRect()", "MOVE");
 				updateRect();
 
 				return null;
@@ -366,6 +375,7 @@ public class AnimoVariable extends Variable {
 
 				currentImageNumber = currentEvent.getFramesNumbers().get(currentFrameNumber);
 				currentImage = currentEvent.getFrames().get(currentImageNumber);
+				//Gdx.app.log("updateRect()", "NEXTFRAME");
 				updateRect();
 				emitSignal("ONFRAMECHANGED", currentEvent.getName());
 				return null;
@@ -383,6 +393,7 @@ public class AnimoVariable extends Variable {
 				currentEvent = events.get(eventId);
 				currentFrameNumber = 0;
 				isPlaying = true;
+				//Gdx.app.log("updateRect()", "NPLAY");
 				updateRect();
 				getAttribute("VISIBLE").setValue("TRUE");
 				playSfx();
@@ -415,6 +426,7 @@ public class AnimoVariable extends Variable {
 						currentFrameNumber = 0;
 						currentImage = currentEvent.getFrames().get(currentFrameNumber);
 						isPlaying = true;
+						//Gdx.app.log("updateRect()", "PLAY");
 						updateRect();
 						try {
 							getAttribute("VISIBLE").setValue("TRUE");
@@ -441,6 +453,7 @@ public class AnimoVariable extends Variable {
 				}
 				currentImageNumber = currentEvent.getFramesNumbers().get(currentFrameNumber);
 				currentImage = currentEvent.getFrames().get(currentImageNumber);
+				//Gdx.app.log("updateRect()", "PREVFRAME");
 				updateRect();
 				emitSignal("ONFRAMECHANGED", currentEvent.getName());
 				return null;
@@ -539,6 +552,7 @@ public class AnimoVariable extends Variable {
 				currentImageNumber = frameNumber;
 				currentImage = getImages().get(currentImageNumber);
 				emitSignal("ONFRAMECHANGED");
+				//Gdx.app.log("updateRect()", "SETFRAME");
 				updateRect(currentImage);
 				return null;
 			}
@@ -590,11 +604,13 @@ public class AnimoVariable extends Variable {
 				if(!currentEvent.getFrames().isEmpty()) {
 					currentImageNumber = currentEvent.getFramesNumbers().get(currentFrameNumber);
 					currentImage = currentEvent.getFrames().get(currentFrameNumber);
+					//Gdx.app.log("updateRect()", "SETFRAME");
 					updateRect();
 				}
 				else {
 					currentImageNumber = 0;
 					currentImage = null;
+					//Gdx.app.log("updateRect()", "SETFRAME (empty)");
 					rect.setXLeft(0);
 					rect.setYTop(0);
 					rect.setXRight(1);
@@ -640,7 +656,8 @@ public class AnimoVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				posX = ArgumentsHelper.getInteger(arguments.get(0));
-				posY = ArgumentsHelper.getInteger(arguments.get(1)); //TODO: somehow it is working with no minus in BlooMoo (to check)
+				posY = ArgumentsHelper.getInteger(arguments.get(1));
+				//Gdx.app.log("updateRect()", "SETPOSITION");
 				updateRect();
 				return null;
 			}
@@ -687,6 +704,7 @@ public class AnimoVariable extends Variable {
 				currentFrameNumber = 0;
 				currentImageNumber = currentEvent.getFramesNumbers().get(currentFrameNumber);
 				currentImage = currentEvent.getFrames().get(currentImageNumber);
+				//Gdx.app.log("updateRect()", "STOP");
 				updateRect();
 				isPlaying = false;
 
@@ -786,6 +804,7 @@ public class AnimoVariable extends Variable {
 				currentImage = currentEvent.getFrames().get(currentFrameNumber);
 			}
 
+			//Gdx.app.log("updateRect()", "updateAnimation");
 			updateRect();
 			emitSignal("ONFRAMECHANGED", currentEvent.getName());
 		}
@@ -813,6 +832,23 @@ public class AnimoVariable extends Variable {
 	}
 
 	private void updateRect() {
+		/*Gdx.app.error("DEBUG ANIMO "+getName(),
+				"currentFrameNumber: " + currentFrameNumber +
+						", currentEvent.getName(): " + currentEvent.getName() +
+						", currentEvent.getFramesCount(): " + currentEvent.getFramesCount() +
+						", currentImageNumber: " + currentImageNumber +
+						", posX: " + posX +
+						", posY: " + posY +
+						", currentImage.offsetX: " + currentImage.offsetX +
+						", currentImage.offsetY: " + currentImage.offsetY +
+						", currentImage.width: " + currentImage.width +
+						", currentImage.height: " + currentImage.height +
+						", frameData.getOffsetX(): " + (!currentEvent.getFrameData().isEmpty() ? currentEvent.getFrameData().get(currentFrameNumber).getOffsetX() : null) +
+						", frameData.getOffsetY(): " + (!currentEvent.getFrameData().isEmpty() ? currentEvent.getFrameData().get(currentFrameNumber).getOffsetY() : null) +
+						", frameData.getOpacity(): " + (!currentEvent.getFrameData().isEmpty() ? currentEvent.getFrameData().get(currentFrameNumber).getOpacity() : null));*/
+
+		//Gdx.app.log("DEBUG ANIMO "+getName(), "Rect before: " + getRect().toString());
+
 		try {
 			FrameData frameData = currentEvent.getFrameData().get(currentFrameNumber);
 
@@ -841,6 +877,8 @@ public class AnimoVariable extends Variable {
 				centerY = endPosY;
 			}
 		}
+
+		//Gdx.app.log("DEBUG ANIMO "+getName(), "Rect after: " + getRect().toString());
 	}
 
 	private void updateRect(Image image) {
@@ -1033,4 +1071,27 @@ public class AnimoVariable extends Variable {
 		}
 		return false;
 	}
+
+	public int getMaxWidth() {
+		return maxWidth;
+	}
+
+	public void setMaxWidth(int maxWidth) {
+		this.maxWidth = maxWidth;
+	}
+
+	public int getMaxHeight() {
+		return maxHeight;
+	}
+
+	public void setMaxHeight(int maxHeight) {
+		this.maxHeight = maxHeight;
+	}
+
+	@Override
+    public AnimoVariable clone() {
+        AnimoVariable clone = (AnimoVariable) super.clone();
+        this.rect = new Rectangle(rect.getXLeft(), rect.getYBottom(), rect.getXRight(), rect.getYTop());
+        return clone;
+    }
 }

@@ -119,16 +119,18 @@ public class SceneVariable extends Variable {
 				int lastIndex = ArgumentsHelper.getInteger(arguments.get(2));
 				String behaviourName = ArgumentsHelper.getString(arguments.get(3));
 
-				Variable targetVariable = context.getVariable(varName);
+				Context variableContext = ((Variable) arguments.get(0)).getContext(); // we need to get context from argument, as Scene has only context from Application.def
+
+				Variable targetVariable = variableContext.getVariable(varName);
 
 				if(targetVariable == null) {
 					Gdx.app.error("SceneVariable", "RUNCLONES: Variable not found: " + varName);
 					return null;
 				}
 
-				Variable behaviour = targetVariable.getContext().getVariable(behaviourName);
+				Variable behaviour = variableContext.getVariable(behaviourName);
 
-				if(behaviour == null) {
+				if(!(behaviour instanceof BehaviourVariable)) {
 					Gdx.app.error("SceneVariable", "RUNCLONES: Behaviour not found: " + behaviourName);
 					return null;
 				}

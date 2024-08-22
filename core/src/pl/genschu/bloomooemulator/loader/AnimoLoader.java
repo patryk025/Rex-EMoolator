@@ -199,6 +199,9 @@ public class AnimoLoader {
     private static void readImages(List<Map<String, Object>> imagesMetadata, AnimoVariable variable, InputStream f) throws IOException {
         List<Image> images = new ArrayList<>();
 
+        int maxWidth = 0;
+        int maxHeight = 0;
+
         for (Map<String, Object> imageMetadata : imagesMetadata) {
             byte[] imageData = new byte[(int) imageMetadata.get("image_size")];
             f.read(imageData);
@@ -216,9 +219,15 @@ public class AnimoLoader {
                     ((Integer) imageMetadata.get("compression_type")).intValue()
             );
             images.add(image);
+
+            maxWidth = Math.max(maxWidth, image.width);
+            maxHeight = Math.max(maxHeight, image.height);
         }
 
         variable.setImages(images);
+
+        variable.setMaxWidth(maxWidth);
+        variable.setMaxHeight(maxHeight);
 
         // TODO: check default behaviour
         variable.setImagesCount(images.size());

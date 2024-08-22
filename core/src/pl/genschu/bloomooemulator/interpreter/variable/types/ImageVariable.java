@@ -19,7 +19,7 @@ import java.util.List;
 
 import static pl.genschu.bloomooemulator.interpreter.util.VariableHelper.getValueFromString;
 
-public class ImageVariable extends Variable {
+public class ImageVariable extends Variable implements Cloneable {
 	Image image;
 	private int posX;
 	private int posY;
@@ -334,4 +334,11 @@ public class ImageVariable extends Variable {
 		return this.getAttribute("VISIBLE").getValue().toString().equals("TRUE")
 				&&  this.getAttribute("TOCANVAS").getValue().toString().equals("TRUE");
 	}
+
+    @Override
+    public ImageVariable clone() {
+        ImageVariable clone = (ImageVariable) super.clone();
+		this.rect = new Rectangle(rect.getXLeft(), rect.getYBottom(), rect.getXRight(), rect.getYTop());
+        return clone;
+    }
 }
