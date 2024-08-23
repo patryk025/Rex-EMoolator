@@ -148,7 +148,7 @@ public class AnimoVariable extends Variable implements Cloneable{
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				return new StringVariable("", currentEvent.getFrameData().get(currentFrameNumber).getName(), context);
+				return new StringVariable("", !currentEvent.getFrameData().isEmpty() ? currentEvent.getFrameData().get(currentFrameNumber).getName() : "NULL", context);
 			}
 		});
 		this.setMethod("GETHEIGHT", new Method(

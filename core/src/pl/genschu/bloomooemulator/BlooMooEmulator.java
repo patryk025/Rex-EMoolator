@@ -449,7 +449,7 @@ public class BlooMooEmulator extends ApplicationAdapter {
             return Integer.compare(priority1, priority2);
         };
         Collections.sort(drawList, comparator);
-        //Gdx.app.log("Draw list after sort", getDrawListAsString(drawList));
+        Gdx.app.log("Draw list after sort", getDrawListAsString(drawList));
         return drawList;
     }
 

@@ -104,8 +104,11 @@ public abstract class Variable implements Cloneable {
 							for(String param : signalAndParams.params) {
 								arguments.add(getVariableFromObject(param, context));
 							}
+						Variable oldThis = signalAndParams.behaviourVariable.getContext().getThisVariable();
+						signalAndParams.behaviourVariable.getContext().setThisVariable(Variable.this);
 						signalAndParams.behaviourVariable.getMethod(signalAndParams.behaviourVariable.getAttribute("CONDITION") != null ? "RUNC" : "RUN", Collections.singletonList("mixed"))
 								.execute(!arguments.isEmpty() ? arguments : null);
+						signalAndParams.behaviourVariable.getContext().setThisVariable(oldThis);
 						Gdx.app.log("Signal", "Signal " + finalSignalName + " done");
 					}
 				});
