@@ -546,7 +546,6 @@ public class AnimoVariable extends Variable implements Cloneable{
 			@Override
 			public Variable execute(List<Object> arguments) {
 				int frameNumber = ArgumentsHelper.getInteger(arguments.get(0));
-				currentEvent = events.get(0);
 				currentFrameNumber = 0;
 
 				currentImageNumber = frameNumber;
@@ -745,16 +744,10 @@ public class AnimoVariable extends Variable implements Cloneable{
 					}
 					getAttribute("FILENAME").setValue(filename);
                     AnimoLoader.loadAnimo(this);
-                    currentEvent = events.get(0);
                     currentFrameNumber = 0;
-                    if (!currentEvent.getFrames().isEmpty()) {
-                        currentImageNumber = currentEvent.getFramesNumbers().get(currentFrameNumber);
-                        currentImage = currentEvent.getFrames().get(currentImageNumber);
-                        updateRect();
-                    } else {
-                        currentImageNumber = 0;
-                        currentImage = null;
-                    }
+					currentImageNumber = currentEvent.getFramesNumbers().get(currentFrameNumber);
+					currentImage = currentEvent.getFrames().get(currentImageNumber);
+					updateRect();
                     break;
                 case "PRIORITY":
                     priority = Integer.parseInt(getAttribute("PRIORITY").getValue().toString());

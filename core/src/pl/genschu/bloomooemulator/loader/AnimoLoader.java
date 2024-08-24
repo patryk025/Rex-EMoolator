@@ -3,6 +3,7 @@ package pl.genschu.bloomooemulator.loader;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.files.FileHandle;
+import pl.genschu.bloomooemulator.interpreter.variable.Attribute;
 import pl.genschu.bloomooemulator.interpreter.variable.types.AnimoVariable;
 import pl.genschu.bloomooemulator.objects.Event;
 import pl.genschu.bloomooemulator.objects.FrameData;
@@ -28,6 +29,15 @@ public class AnimoLoader {
             readEvents(variable, f);
             readImagesMetadata(variable, f);
             Gdx.app.log("AnimoLoader", "Loaded ANIMO: " + variable.getName());
+
+            for(Event event : variable.getEvents()) {
+                if(!event.getFrames().isEmpty()) {
+                    variable.setCurrentEvent(event);
+                    break;
+                }
+            }
+            variable.setPlaying(false);
+            variable.setAttribute("VISIBLE", new Attribute("BOOL", "FALSE"));
         } catch (Exception e) {
             Gdx.app.error("AnimoLoader", "Error while loading ANIMO: " + e.getMessage(), e);
         }
