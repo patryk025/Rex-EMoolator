@@ -420,4 +420,12 @@ public class SequenceVariable extends Variable {
 		Gdx.app.log("SequenceVariable", "Could not find ANIMO variable with filename: " + filename);
 		return null;
 	}
+
+	public String getCurrentEventName() {
+		return currentEventName;
+	}
+
+	public void setCurrentEventName(String currentEventName) {
+		this.currentEventName = currentEventName;
+	}
 }

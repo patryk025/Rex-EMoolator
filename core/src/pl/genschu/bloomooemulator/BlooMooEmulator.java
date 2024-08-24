@@ -6,6 +6,8 @@ import com.badlogic.gdx.Input;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.*;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Vector3;
@@ -48,6 +50,13 @@ public class BlooMooEmulator extends ApplicationAdapter {
     private boolean prevPressed = false;
     private ShapeRenderer shape;
 
+    private boolean debugGraphics = true;
+
+    private String tooltipText = "";
+    private Vector2 tooltipPosition = new Vector2();
+    private boolean showTooltip = false;
+    private BitmapFont font;
+
     public BlooMooEmulator(GameEntry gameEntry) {
         this.gameEntry = gameEntry;
     }
@@ -55,6 +64,7 @@ public class BlooMooEmulator extends ApplicationAdapter {
     @Override
     public void create () {
         batch = new SpriteBatch();
+        font = new BitmapFont();
 
         this.game = new Game(this.gameEntry);
 
@@ -273,6 +283,8 @@ public class BlooMooEmulator extends ApplicationAdapter {
 
         game.takeScreenshot();
         //dumpVariablesToLog();
+
+        renderTooltip();
     }
 
     private Rectangle getRect(Variable variable) {
@@ -390,6 +402,53 @@ public class BlooMooEmulator extends ApplicationAdapter {
             if(graphics != null) {
                 graphics.emitSignal("ONCLICK", "LEFT");
             }
+        }
+
+        if(debugGraphics) {
+            Variable hoveredVariable = getGraphicsAt(x, y, drawList);
+            if (hoveredVariable != null) {
+                tooltipText = hoveredVariable.getName() + " (" + hoveredVariable.getType() + ")\nPriority: " + hoveredVariable.getAttribute("PRIORITY").getValue();
+                if(hoveredVariable instanceof AnimoVariable) {
+                    tooltipText += "\nCurrent event: " + ((AnimoVariable) hoveredVariable).getCurrentEvent().getName();
+                    tooltipText += "\nIs playing: " + ((AnimoVariable) hoveredVariable).isPlaying();
+                }
+                else if(hoveredVariable instanceof SequenceVariable) {
+                    tooltipText += "\nCurrent event: " + ((SequenceVariable) hoveredVariable).getCurrentEventName();
+                    tooltipText += "\nCurrent animo event: " + ((SequenceVariable) hoveredVariable).getCurrentAnimo().getCurrentEvent().getName();
+                    tooltipText += "\nIs playing: " + ((SequenceVariable) hoveredVariable).getCurrentAnimo().isPlaying();
+                }
+                tooltipPosition.set(x + 20, VIRTUAL_HEIGHT - y - 20);
+                showTooltip = true;
+            } else {
+                showTooltip = false;
+            }
+        }
+    }
+
+    private void renderTooltip() {
+        if (showTooltip && !tooltipText.isEmpty()) {
+            GlyphLayout layout = new GlyphLayout(font, tooltipText);
+            float width = layout.width + 10;
+            float height = layout.height + 10;
+
+            float x = tooltipPosition.x;
+            float y = tooltipPosition.y;
+
+            // Rysowanie tła i obramowania
+            shape.begin(ShapeRenderer.ShapeType.Filled);
+            shape.setColor(new Color(0, 0, 0, 0.75f));
+            shape.rect(x, y - height, width, height);
+            shape.end();
+
+            shape.begin(ShapeRenderer.ShapeType.Line);
+            shape.setColor(Color.WHITE);
+            shape.rect(x, y - height, width, height);
+            shape.end();
+
+            batch.begin();
+            font.setColor(Color.WHITE);
+            font.draw(batch, tooltipText, x + 5, y - 5);
+            batch.end();
         }
     }
 
