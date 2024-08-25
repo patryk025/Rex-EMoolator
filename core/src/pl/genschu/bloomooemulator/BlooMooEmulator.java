@@ -57,6 +57,9 @@ public class BlooMooEmulator extends ApplicationAdapter {
     private boolean showTooltip = false;
     private BitmapFont font;
 
+    private boolean showDebugVariables = false;
+    private String debugVariablesValues = "";
+
     public BlooMooEmulator(GameEntry gameEntry) {
         this.gameEntry = gameEntry;
     }
@@ -123,6 +126,10 @@ public class BlooMooEmulator extends ApplicationAdapter {
             handleMouseInput(x, y, isPressed, justPressed, justReleased, mouseVariable, new ArrayList<>(drawList));
 
             prevPressed = isPressed;
+        }
+
+        if (Gdx.input.isKeyJustPressed(Input.Keys.F1)) {
+            showDebugVariables = !showDebugVariables;
         }
 
         ImageVariable background = game.getCurrentSceneVariable().getBackground();
@@ -284,6 +291,10 @@ public class BlooMooEmulator extends ApplicationAdapter {
         game.takeScreenshot();
         //dumpVariablesToLog();
 
+        if (showDebugVariables) {
+            generateDebugVariables();
+
+        }
         renderTooltip();
     }
 
@@ -436,6 +447,26 @@ public class BlooMooEmulator extends ApplicationAdapter {
                 showTooltip = false;
             }
         }
+    }
+
+    private void generateDebugVariables() {
+        StringBuilder sb = new StringBuilder();
+        for(Variable variable : game.getCurrentSceneContext().getVariables().values()) {
+            switch(variable.getType()) {
+                case "INTEGER":
+                case "DOUBLE":
+                case "BOOL":
+                case "STRING":
+                    sb.append(variable.getName()).append(" (").append(variable.getType()).append(") = ").append(variable.getValue()).append("\n");
+                    break;
+            }
+        }
+        debugVariablesValues = sb.toString();
+
+        batch.begin();
+        font.setColor(Color.WHITE);
+        font.draw(batch, debugVariablesValues, 5, VIRTUAL_HEIGHT - 5);
+        batch.end();
     }
 
     private void renderTooltip() {
