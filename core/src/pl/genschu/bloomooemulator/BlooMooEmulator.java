@@ -407,15 +407,28 @@ public class BlooMooEmulator extends ApplicationAdapter {
         if(debugGraphics) {
             Variable hoveredVariable = getGraphicsAt(x, y, drawList);
             if (hoveredVariable != null) {
-                tooltipText = hoveredVariable.getName() + " (" + hoveredVariable.getType() + ")\nPriority: " + hoveredVariable.getAttribute("PRIORITY").getValue();
+                tooltipText = hoveredVariable.getName() + " (" + hoveredVariable.getType() + ")\nPriority: " + (hoveredVariable.getAttribute("PRIORITY") != null ? hoveredVariable.getAttribute("PRIORITY").getValue() : 0);
+                Rectangle rect = getRect(hoveredVariable);
+                String rectText = "\nRect: " + (rect != null ? ("\n    left upper corner: (" + rect.getXLeft() + ", " + rect.getYTop() + ")\n    width: " + rect.getWidth() + "\n    height: " + rect.getHeight()) : "no defined");
                 if(hoveredVariable instanceof AnimoVariable) {
+                    tooltipText += "\nCurrent FPS: " + ((AnimoVariable) hoveredVariable).getFps();
                     tooltipText += "\nCurrent event: " + ((AnimoVariable) hoveredVariable).getCurrentEvent().getName();
+                    tooltipText += "\nCurrent frame number: " + ((AnimoVariable) hoveredVariable).getCurrentFrameNumber();
+                    tooltipText += "\nCurrent image number: " + ((AnimoVariable) hoveredVariable).getCurrentImageNumber();
                     tooltipText += "\nIs playing: " + ((AnimoVariable) hoveredVariable).isPlaying();
+                    tooltipText += rectText;
                 }
                 else if(hoveredVariable instanceof SequenceVariable) {
+                    tooltipText += "\nCurrent FPS: " + ((SequenceVariable) hoveredVariable).getCurrentAnimo().getFps();
                     tooltipText += "\nCurrent event: " + ((SequenceVariable) hoveredVariable).getCurrentEventName();
                     tooltipText += "\nCurrent animo event: " + ((SequenceVariable) hoveredVariable).getCurrentAnimo().getCurrentEvent().getName();
+                    tooltipText += "\nCurrent frame number: " + ((SequenceVariable) hoveredVariable).getCurrentAnimo().getCurrentFrameNumber();
+                    tooltipText += "\nCurrent image number: " + ((SequenceVariable) hoveredVariable).getCurrentAnimo().getCurrentImageNumber();
                     tooltipText += "\nIs playing: " + ((SequenceVariable) hoveredVariable).getCurrentAnimo().isPlaying();
+                    tooltipText += rectText;
+                }
+                else {
+                    tooltipText += rectText;
                 }
                 tooltipPosition.set(x + 20, VIRTUAL_HEIGHT - y - 20);
                 showTooltip = true;
