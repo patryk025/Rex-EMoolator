@@ -194,7 +194,7 @@ public abstract class Variable implements Cloneable {
 			}
 			cloneVar.methods = new HashMap<>();
 			cloneVar.setMethods();
-			cloneVar.signals = this.signals;
+			cloneVar.signals = new HashMap<>();
 			cloneVar.context = this.context;
 			cloneVar.clones = new ArrayList<>();
 
@@ -239,6 +239,7 @@ public abstract class Variable implements Cloneable {
 
 	public Method getMethod(String name, List<String> paramTypes) {
 		List<Method> methodList = methods.get(name);
+		Method toReturn = null;
 		if (methodList != null) {
 			for (Method method : methodList) {
 				List<String> methodParamTypes = method.getParameterTypes();
@@ -265,9 +266,20 @@ public abstract class Variable implements Cloneable {
 				}
 
 				if (isParameterListMatching(methodParamTypes, paramTypes)) {
-					return method;
+					if(toReturn == null) {
+						toReturn = method;
+					}
+					else {
+						if(toReturn.getParameterTypes().size() < method.getParameterTypes().size()) {
+							toReturn = method;
+						}
+					}
 				}
 			}
+		}
+
+		if(toReturn != null) {
+			return toReturn;
 		}
 		throw new ClassMethodNotFoundException(name, paramTypes);
 	}

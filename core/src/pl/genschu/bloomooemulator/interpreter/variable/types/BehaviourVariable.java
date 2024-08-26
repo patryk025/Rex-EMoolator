@@ -187,6 +187,29 @@ public class BehaviourVariable extends Variable {
 					return null;
 				}
 
+				Variable conditionResult = new BoolVariable("", true, context);
+
+				if(condition == null) {
+					if(getAttribute("CONDITION") != null) {
+						Attribute attribute = getAttribute("CONDITION");
+						Variable variable = context.getVariable(attribute.getValue().toString());
+						if(variable != null) {
+							if(variable instanceof ConditionVariable) {
+								condition = (ConditionVariable) variable;
+							}
+							else {
+								Gdx.app.error("BehaviourVariable", "Variable " + attribute.getValue().toString() + " is not a condition variable");
+							}
+						}
+						else {
+							Gdx.app.error("BehaviourVariable", "Condition variable " + attribute.getValue().toString() + " not found");
+						}
+					}
+					else {
+						Gdx.app.error("BehaviourVariable", "Condition variable not set in behaviour " + getName() + ". Assume true?");
+					}
+				}
+
 				if(arguments.size() > 3) {
 					for(int i = 3; i < arguments.size(); i++) {
 						context.setVariable("$"+(i-1), (Variable) arguments.get(i));
@@ -201,8 +224,15 @@ public class BehaviourVariable extends Variable {
 				}
 
 				for(int i = startVal; i < endDiff; i+=incrementBy) {
-					context.setVariable("$1", new IntegerVariable("_I_", i, context));
-					interpreter.interpret();
+					conditionResult = condition.fireMethod("CHECK", new BoolVariable("", true, context));
+
+					if(ArgumentsHelper.getBoolean(conditionResult)) {
+						context.setVariable("$1", new IntegerVariable("_I_", i, context));
+						interpreter.interpret();
+					}
+					else {
+						Gdx.app.log("BehaviourVariable", "Skipping looped behaviour " + getName() + " at " + i + " due to condition " + condition.getName() + " result");
+					}
 				}
 
 				for(int i = 1; i < arguments.size() - 1; i++) {
