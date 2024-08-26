@@ -12,6 +12,7 @@ import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferByte;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.nio.ByteBuffer;
 
 public class Image {
 	private class CompressionTypes {
@@ -115,23 +116,31 @@ public class Image {
         int width = dimensions[0];
         int height = dimensions[1];
         Pixmap pixmap = new Pixmap(width, height, Pixmap.Format.RGBA8888);
+        ByteBuffer pixelBuffer = pixmap.getPixels();
 
         int counter = 0;
         for (int i = 0; i < imageData.length; i += (isJPEG ? 3 : 2)) {
             int[] rgb888;
-            if(isJPEG) {
-                rgb888 = new int[] {imageData[i + 2] & 0xFF, imageData[i + 1] & 0xFF, imageData[i] & 0xFF};
-            }
-            else {
+            if (isJPEG) {
+                rgb888 =
+                        new int[] {
+                                imageData[i + 2] & 0xFF, imageData[i + 1] & 0xFF, imageData[i] & 0xFF
+                        };
+            } else {
                 int rgb565 = (imageData[i] & 0xFF) + ((imageData[i + 1] & 0xFF) << 8);
                 rgb888 = this.convertRgbToRgb888(rgb565, colorDepth);
             }
-            int alpha = alphaData != null && alphaData.length > 0 ? alphaData[counter] & 0xFF : 255;
+            int alpha = alphaData != null ? alphaData[counter] & 0xFF : 255;
 
-            pixmap.drawPixel(counter % width, counter / width, Color.rgba8888(rgb888[0] / 255f, rgb888[1] / 255f, rgb888[2] / 255f, alpha / 255f));
+            pixelBuffer.put(counter * 4, (byte) rgb888[0]);
+            pixelBuffer.put(counter * 4 + 1, (byte) rgb888[1]);
+            pixelBuffer.put(counter * 4 + 2, (byte) rgb888[2]);
+            pixelBuffer.put(counter * 4 + 3, (byte) alpha);
+
             counter++;
         }
 
+        pixelBuffer.rewind();
         return new Texture(pixmap);
     }
 
