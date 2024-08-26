@@ -132,10 +132,15 @@ public class Image {
             }
             int alpha = alphaData != null ? alphaData[counter] & 0xFF : 255;
 
-            pixelBuffer.put(counter * 4, (byte) rgb888[0]);
-            pixelBuffer.put(counter * 4 + 1, (byte) rgb888[1]);
-            pixelBuffer.put(counter * 4 + 2, (byte) rgb888[2]);
-            pixelBuffer.put(counter * 4 + 3, (byte) alpha);
+            try {
+                pixelBuffer.put(counter * 4, (byte) rgb888[0]);
+                pixelBuffer.put(counter * 4 + 1, (byte) rgb888[1]);
+                pixelBuffer.put(counter * 4 + 2, (byte) rgb888[2]);
+                pixelBuffer.put(counter * 4 + 3, (byte) alpha);
+            } catch (IndexOutOfBoundsException e) {
+                Gdx.app.error("Image", "During writing to pixel buffer something went wrong at offset " + (counter * 4) + "-" + (counter * 4 + 3));
+                break;
+            }
 
             counter++;
         }
