@@ -81,7 +81,7 @@ public class Image {
             }
         }
 
-        imageTexture = combineImageDataWithAlpha(new int[]{width, height}, imageData, alphaData, colorDepth, isJPEG);
+        imageTexture = combineImageDataWithAlpha(width, height, imageData, alphaData, colorDepth, isJPEG);
 
         isLoaded = true;
     }
@@ -112,9 +112,7 @@ public class Image {
         return new int[]{r, g, b};
     }
 
-    private Texture combineImageDataWithAlpha(int[] dimensions, byte[] imageData, byte[] alphaData, int colorDepth, boolean isJPEG) {
-        int width = dimensions[0];
-        int height = dimensions[1];
+    private Texture combineImageDataWithAlpha(int width, int height, byte[] imageData, byte[] alphaData, int colorDepth, boolean isJPEG) {
         Pixmap pixmap = new Pixmap(width, height, Pixmap.Format.RGBA8888);
         ByteBuffer pixelBuffer = pixmap.getPixels();
 
