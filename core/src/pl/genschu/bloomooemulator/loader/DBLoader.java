@@ -20,7 +20,18 @@ public class DBLoader {
             BufferedReader reader = new BufferedReader(new FileReader(filePath));
             String line;
             while ((line = reader.readLine()) != null) {
+                if(line.startsWith("#")) continue;
+
                 String[] values = line.split("\\|");
+
+                // make sure that values size matches column size
+                if(values.length < 1) {
+                    Gdx.app.log("DBLoader", "Skipping line: " + line + " (missing values)");
+                }
+                if(variable.getColumns().getFields().size() != values.length) {
+                    Gdx.app.log("DBLoader", "Skipping line: " + line + " (wrong number of columns)");
+                }
+
                 List<String> row = new ArrayList<>(Arrays.asList(values));
                 data.add(row);
             }

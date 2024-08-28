@@ -412,6 +412,8 @@ public class SequenceVariable extends Variable {
 				AnimoVariable animoVar = (AnimoVariable) variable;
 				if(animoVar.getAttribute("FILENAME").getValue().equals(filename)) {
 					Gdx.app.log("SequenceVariable", "Found ANIMO variable with filename: " + filename);
+					animoVar.setAttribute("TOCANVAS", new Attribute("BOOL", "TRUE"));
+					animoVar.setAttribute("VISIBLE", new Attribute("BOOL", "TRUE"));
 					return animoVar;
 				}
 			}
