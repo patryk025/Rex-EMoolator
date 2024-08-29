@@ -250,6 +250,10 @@ public class ButtonVariable extends Variable {
 		return isVisible;
 	}
 
+	public void setEnabled(boolean enabled) {
+		isEnabled = enabled;
+	}
+
 	public Variable getCurrentImage() {
 		if(currentGfx != null) {
 			return currentGfx;

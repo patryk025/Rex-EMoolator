@@ -35,6 +35,7 @@ public class AnimoVariable extends Variable implements Cloneable{
 	private int currentImageNumber = 0;
 	private Image currentImage;
 	private boolean isPlaying = false;
+	private boolean isVisible = true;
 	private int posX = 0;
 	private int posY = 0;
 	private int endPosX = 0;
@@ -49,6 +50,12 @@ public class AnimoVariable extends Variable implements Cloneable{
 
 	private Rectangle rect;
 	private Music currentSfx;
+
+	private boolean asButton;
+	private boolean changeCursor;
+	private boolean isFocused = false;
+	private boolean isPressed = false;
+	private boolean wasPressed = false;
 
 	public AnimoVariable(String name, Context context) {
 		super(name, context);
@@ -289,6 +296,7 @@ public class AnimoVariable extends Variable implements Cloneable{
 			@Override
 			public Variable execute(List<Object> arguments) {
 				getAttribute("VISIBLE").setValue("FALSE");
+				isVisible = false;
 				return null;
 			}
 		});
@@ -496,14 +504,24 @@ public class AnimoVariable extends Variable implements Cloneable{
 		this.setMethod("SETASBUTTON", new Method(
 				List.of(
 						new Parameter("BOOL", "enabled", true),
-						new Parameter("BOOL", "unknown", true)
+						new Parameter("BOOL", "changeCursor", true)
 				),
 				"void"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				// TODO: implement this method
-				throw new ClassMethodNotImplementedException("Method SETASBUTTON is not implemented yet");
+				boolean enabled = ArgumentsHelper.getBoolean(arguments.get(0));
+				boolean changeCursor = ArgumentsHelper.getBoolean(arguments.get(1)); // TODO: make this working
+
+				if(enabled) {
+					getContext().addButtonVariable(AnimoVariable.this);
+				}
+				else {
+					getContext().getButtonsVariables().remove(getName());
+				}
+				setChangeCursor(changeCursor);
+
+				return null;
 			}
 		});
 		this.setMethod("SETBACKWARD", new Method(
@@ -641,8 +659,9 @@ public class AnimoVariable extends Variable implements Cloneable{
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				// TODO: implement this method
-				throw new ClassMethodNotImplementedException("Method SETOPACITY is not implemented yet");
+				opacity = ArgumentsHelper.getInteger(arguments.get(0));
+				setAttribute("OPACITY", new Attribute("INTEGER", opacity));
+				return null;
 			}
 		});
 		this.setMethod("SETPOSITION", new Method(
@@ -743,15 +762,23 @@ public class AnimoVariable extends Variable implements Cloneable{
 						filename = filename + ".ANN";
 					}
 					getAttribute("FILENAME").setValue(filename);
-                    AnimoLoader.loadAnimo(this);
-                    currentFrameNumber = 0;
-					currentImageNumber = currentEvent.getFramesNumbers().get(currentFrameNumber);
-					currentImage = currentEvent.getFrames().get(currentImageNumber);
-					updateRect();
+					try {
+						AnimoLoader.loadAnimo(this);
+						currentFrameNumber = 0;
+						currentImageNumber = currentEvent.getFramesNumbers().get(currentFrameNumber);
+						currentImage = currentEvent.getFrames().get(currentImageNumber);
+						updateRect();
+					} catch (Exception e) {
+						Gdx.app.error("AnimoVariable", "Error loading ANIMO variable: " + filename);
+					}
                     break;
                 case "PRIORITY":
                     priority = Integer.parseInt(getAttribute("PRIORITY").getValue().toString());
                     break;
+				case "ASBUTTON":
+					setAsButton(ArgumentsHelper.getBoolean(attribute.getValue()));
+					changeCursor = true;
+					break;
             }
 		}
 	}
@@ -1054,7 +1081,7 @@ public class AnimoVariable extends Variable implements Cloneable{
 
 	public boolean isVisible() {
 		try {
-			return this.getAttribute("VISIBLE").getValue().toString().equals("TRUE")
+			return isVisible // setting VISIBLE in object definition seems not working in original engine
 					&& this.getAttribute("TOCANVAS").getValue().toString().equals("TRUE");
 		} catch (NullPointerException e) {
 			return false;
@@ -1084,6 +1111,46 @@ public class AnimoVariable extends Variable implements Cloneable{
 
 	public void setMaxHeight(int maxHeight) {
 		this.maxHeight = maxHeight;
+	}
+
+	public boolean isAsButton() {
+		return asButton;
+	}
+
+	public void setAsButton(boolean asButton) {
+		this.asButton = asButton;
+	}
+
+	public boolean isChangeCursor() {
+		return changeCursor;
+	}
+
+	public void setChangeCursor(boolean changeCursor) {
+		this.changeCursor = changeCursor;
+	}
+
+	public boolean isFocused() {
+		return isFocused;
+	}
+
+	public void setFocused(boolean focused) {
+		isFocused = focused;
+	}
+
+	public boolean isPressed() {
+		return isPressed;
+	}
+
+	public void setPressed(boolean pressed) {
+		isPressed = pressed;
+	}
+
+	public boolean isWasPressed() {
+		return wasPressed;
+	}
+
+	public void setWasPressed(boolean wasPressed) {
+		this.wasPressed = wasPressed;
 	}
 
 	@Override

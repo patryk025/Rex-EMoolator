@@ -15,7 +15,7 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 
 public class Image {
-	private class CompressionTypes {
+	private static class CompressionTypes {
         public static final int None = 0;
         public static final int CLZW = 2;
         public static final int CRLEinCLZW = 3;

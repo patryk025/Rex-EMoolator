@@ -46,7 +46,7 @@ public class BlooMooEmulator extends ApplicationAdapter {
 
     private Texture cursorTexture;
 
-    private ButtonVariable activeButton = null;
+    private Variable activeButton = null;
     private boolean prevPressed = false;
     private ShapeRenderer shape;
 
@@ -254,8 +254,20 @@ public class BlooMooEmulator extends ApplicationAdapter {
             List<Variable> buttons = new ArrayList<>(context.getButtonsVariables().values());
 
             Collections.sort(buttons, (o1, o2) -> {
-                Variable image1 = ((ButtonVariable) o1).getCurrentImage();
-                Variable image2 = ((ButtonVariable) o2).getCurrentImage();
+                Variable image1 = null;
+                if(o1 instanceof ButtonVariable) {
+                    image1 = ((ButtonVariable) o1).getCurrentImage();
+                }
+                else if(o1 instanceof AnimoVariable) {
+                    image1 = o1;
+                }
+                Variable image2 = null;
+                if(o2 instanceof ButtonVariable) {
+                    image2 = ((ButtonVariable) o2).getCurrentImage();
+                }
+                else if(o2 instanceof AnimoVariable) {
+                    image2 = o2;
+                }
 
                 int priority1 = 0;
                 int priority2 = 0;
@@ -271,17 +283,26 @@ public class BlooMooEmulator extends ApplicationAdapter {
             });
 
             for (Variable variable : buttons) {
-                ButtonVariable button = (ButtonVariable) variable;
+                if(variable instanceof ButtonVariable) {
+                    ButtonVariable button = (ButtonVariable) variable;
 
-                if (!button.isVisible()) continue;
+                    if (!button.isVisible()) continue;
 
-                if (!button.isEnabled()) continue;
+                    if (!button.isEnabled()) continue;
 
-                if (button.getRect() != null && button.getRect().contains(x, y)) {
-                    drawRectangle(button.getRect(), Color.GREEN);
+                    if (button.getRect() != null && button.getRect().contains(x, y)) {
+                        drawRectangle(button.getRect(), Color.GREEN);
+                    } else if (button.getRect() != null) {
+                        drawRectangle(button.getRect(), Color.RED);
+                    }
                 }
-                else if(button.getRect() != null) {
-                    drawRectangle(button.getRect(), Color.RED);
+                else if(variable instanceof AnimoVariable) {
+                    AnimoVariable animoVariable = (AnimoVariable) variable;
+                    if (animoVariable.getRect() != null && animoVariable.getRect().contains(x, y)) {
+                        drawRectangle(animoVariable.getRect(), Color.GREEN);
+                    } else if (animoVariable.getRect() != null) {
+                        drawRectangle(animoVariable.getRect(), Color.RED);
+                    }
                 }
             }
         }
@@ -329,8 +350,20 @@ public class BlooMooEmulator extends ApplicationAdapter {
         List<Variable> buttons = new ArrayList<>(context.getButtonsVariables().values());
 
         Collections.sort(buttons, (o1, o2) -> {
-            Variable image1 = ((ButtonVariable) o1).getCurrentImage();
-            Variable image2 = ((ButtonVariable) o2).getCurrentImage();
+            Variable image1 = null;
+            if(o1 instanceof ButtonVariable) {
+                image1 = ((ButtonVariable) o1).getCurrentImage();
+            }
+            else if(o1 instanceof AnimoVariable) {
+                image1 = o1;
+            }
+            Variable image2 = null;
+            if(o2 instanceof ButtonVariable) {
+                image2 = ((ButtonVariable) o2).getCurrentImage();
+            }
+            else if(o2 instanceof AnimoVariable) {
+                image2 = o2;
+            }
 
             int priority1 = 0;
             int priority2 = 0;
@@ -346,62 +379,112 @@ public class BlooMooEmulator extends ApplicationAdapter {
         });
 
         for (Variable variable : buttons) {
-            ButtonVariable button = (ButtonVariable) variable;
+            if(variable instanceof ButtonVariable) {
+                ButtonVariable button = (ButtonVariable) variable;
 
-            if(!button.isVisible()) {
-                Gdx.app.log("BlooMooEmulator", button.getName() + " is not visible, hiding images");
-                button.hideImages();
-            }
-
-            if(!button.isEnabled()) continue;
-
-            if (button.getRect() != null && button.getRect().contains(x, y)) {
-                Gdx.graphics.setSystemCursor(Cursor.SystemCursor.Hand);
-                if (justPressed) {
-                    if (activeButton == null) {
-                        activeButton = button;
-                        triggerSignal(button, "ONCLICKED");
-                        triggerSignal(button, "ONACTION");
-                    }
-                }
-                if (button == activeButton) {
-                    if (isPressed) {
-                        button.setPressed(true);
-                    } else if (justReleased) {
-                        triggerSignal(button, "ONRELEASED");
-                        button.setPressed(false);
-                        triggerSignal(button, "GFXONCLICK");
-                        activeButton = null;
-                    }
+                if(!button.isVisible()) {
+                    Gdx.app.log("BlooMooEmulator", button.getName() + " is not visible, hiding images");
+                    button.hideImages();
                 }
 
-                if (!button.isFocused() && !isPressed) {
-                    button.setFocused(true);
+                if(!button.isEnabled()) continue;
+
+                if (button.getRect() != null && button.getRect().contains(x, y)) {
                     Gdx.graphics.setSystemCursor(Cursor.SystemCursor.Hand);
-                    Signal onFocusSignal = button.getSignal("ONFOCUSON");
-                    if (onFocusSignal != null) {
-                        onFocusSignal.execute(null);
+                    if (justPressed) {
+                        if (activeButton == null) {
+                            activeButton = button;
+                            triggerSignal(button, "ONCLICKED");
+                            triggerSignal(button, "ONACTION");
+                        }
+                    }
+                    if (button == activeButton) {
+                        if (isPressed) {
+                            button.setPressed(true);
+                        } else if (justReleased) {
+                            triggerSignal(button, "ONRELEASED");
+                            button.setPressed(false);
+                            triggerSignal(button, "GFXONCLICK");
+                            activeButton = null;
+                        }
+                    }
+
+                    if (!button.isFocused() && !isPressed) {
+                        button.setFocused(true);
+                        Gdx.graphics.setSystemCursor(Cursor.SystemCursor.Hand);
+                        Signal onFocusSignal = button.getSignal("ONFOCUSON");
+                        if (onFocusSignal != null) {
+                            onFocusSignal.execute(null);
+                        }
                     }
                 }
-            }
-            else {
-                if (button.isFocused() && !isPressed) {
-                    button.setFocused(false);
-                    Gdx.graphics.setSystemCursor(Cursor.SystemCursor.Arrow);
-                    Signal onFocusLossSignal = button.getSignal("ONFOCUSOFF");
-                    if (onFocusLossSignal != null) {
-                        onFocusLossSignal.execute(null);
+                else {
+                    if (button.isFocused() && !isPressed) {
+                        button.setFocused(false);
+                        Gdx.graphics.setSystemCursor(Cursor.SystemCursor.Arrow);
+                        Signal onFocusLossSignal = button.getSignal("ONFOCUSOFF");
+                        if (onFocusLossSignal != null) {
+                            onFocusLossSignal.execute(null);
+                        }
+                    } else {
+                        button.setFocused(false);
                     }
-                } else {
-                    button.setFocused(false);
+                }
+            } else if(variable instanceof AnimoVariable) {
+                AnimoVariable animo = (AnimoVariable) variable;
+
+                if (animo.getRect() != null && animo.getRect().contains(x, y)) {
+                    if(animo.isChangeCursor())
+                        Gdx.graphics.setSystemCursor(Cursor.SystemCursor.Hand);
+                    if (justPressed) {
+                        if (activeButton == null) {
+                            activeButton = animo;
+                            triggerSignal(animo, "ONCLICK");
+                        }
+                    }
+                    if (animo == activeButton) {
+                        if (isPressed) {
+                            animo.setPressed(true);
+                        } else if (justReleased) {
+                            animo.setPressed(false);
+                            activeButton = null;
+                        }
+                    }
+
+                    if (!animo.isFocused() && !isPressed) {
+                        animo.setFocused(true);
+                        if(animo.isChangeCursor())
+                            Gdx.graphics.setSystemCursor(Cursor.SystemCursor.Hand);
+                        Signal onFocusSignal = animo.getSignal("ONFOCUSON");
+                        if (onFocusSignal != null) {
+                            onFocusSignal.execute(null);
+                        }
+                    }
+                }
+                else {
+                    if (animo.isFocused() && !isPressed) {
+                        animo.setFocused(false);
+                        Gdx.graphics.setSystemCursor(Cursor.SystemCursor.Arrow);
+                        Signal onFocusLossSignal = animo.getSignal("ONFOCUSOFF");
+                        if (onFocusLossSignal != null) {
+                            onFocusLossSignal.execute(null);
+                        }
+                    } else {
+                        animo.setFocused(false);
+                    }
                 }
             }
         }
 
         if (justReleased && activeButton != null) {
-            triggerSignal(activeButton, "ONRELEASED");
-            activeButton.setPressed(false);
-            triggerSignal(activeButton, "GFXONCLICK");
+            if(activeButton instanceof ButtonVariable) {
+                triggerSignal(activeButton, "ONRELEASED");
+                ((ButtonVariable) activeButton).setPressed(false);
+                triggerSignal(activeButton, "GFXONCLICK");
+            }
+            else if(activeButton instanceof AnimoVariable) {
+                ((AnimoVariable) activeButton).setPressed(false);
+            }
             activeButton = null;
         }
 
@@ -534,8 +617,8 @@ public class BlooMooEmulator extends ApplicationAdapter {
         shape.end();
     }
 
-    private void triggerSignal(ButtonVariable button, String signalName) {
-        Signal signal = button.getSignal(signalName);
+    private void triggerSignal(Variable variable, String signalName) {
+        Signal signal = variable.getSignal(signalName);
         if (signal != null) {
             signal.execute(null);
         }

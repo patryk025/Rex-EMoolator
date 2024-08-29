@@ -419,6 +419,13 @@ public class SequenceVariable extends Variable {
 			}
 		}
 
+		Gdx.app.log("SequenceVariable", "Could not find ANIMO variable with filename: " + filename + ". Looking for variable with name: " + filename);
+		Variable animoVar = getContext().getVariable(filename);
+		if(animoVar instanceof AnimoVariable) {
+			Gdx.app.log("SequenceVariable", "Found ANIMO variable with name: " + filename);
+			return (AnimoVariable) animoVar;
+		}
+
 		Gdx.app.log("SequenceVariable", "Could not find ANIMO variable with filename: " + filename);
 		return null;
 	}

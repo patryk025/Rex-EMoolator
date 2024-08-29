@@ -145,10 +145,6 @@ public class ArrayVariable extends Variable {
 			public Variable execute(List<Object> arguments) {
 				Variable needle = (Variable) arguments.get(0);
 
-				if(context.hasVariable(needle.getValue().toString())) {
-					needle = context.getVariable(needle.getValue().toString());
-				}
-
 				for(int i = 0; i < elements.size(); i++) {
 					if(elements.get(i).toString().equals(needle.toString())) {
 						return new IntegerVariable("", i, context);
@@ -303,8 +299,14 @@ public class ArrayVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				// TODO: implement this method
-				throw new ClassMethodNotImplementedException("Method REVERSEFIND is not implemented yet");
+				Variable needle = (Variable) arguments.get(0);
+
+				for(int i = elements.size() - 1; i >= 0 ; i--) {
+					if(elements.get(i).toString().equals(needle.toString())) {
+						return new IntegerVariable("", i, context);
+					}
+				}
+				return new IntegerVariable("", -1, context);
 			}
 		});
 		this.setMethod("SAVE", new Method(

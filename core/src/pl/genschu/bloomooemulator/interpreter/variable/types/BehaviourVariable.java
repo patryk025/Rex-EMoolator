@@ -187,7 +187,7 @@ public class BehaviourVariable extends Variable {
 					return null;
 				}
 
-				Variable conditionResult = new BoolVariable("", true, context);
+				Variable conditionResult;
 
 				if(condition == null) {
 					if(getAttribute("CONDITION") != null) {
@@ -205,9 +205,6 @@ public class BehaviourVariable extends Variable {
 							Gdx.app.error("BehaviourVariable", "Condition variable " + attribute.getValue().toString() + " not found");
 						}
 					}
-					else {
-						Gdx.app.error("BehaviourVariable", "Condition variable not set in behaviour " + getName() + ". Assume true?");
-					}
 				}
 
 				if(arguments.size() > 3) {
@@ -224,8 +221,12 @@ public class BehaviourVariable extends Variable {
 				}
 
 				for(int i = startVal; i < endDiff; i+=incrementBy) {
-					conditionResult = condition.fireMethod("CHECK", new BoolVariable("", true, context));
-
+					if(condition != null) {
+						conditionResult = condition.fireMethod("CHECK", new BoolVariable("", true, context));
+					}
+					else {
+						conditionResult = new BoolVariable("", true, context);
+					}
 					if(ArgumentsHelper.getBoolean(conditionResult)) {
 						context.setVariable("$1", new IntegerVariable("_I_", i, context));
 						interpreter.interpret();

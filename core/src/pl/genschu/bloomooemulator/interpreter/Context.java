@@ -125,6 +125,14 @@ public class Context {
         timerVariables.remove(name);
     }
 
+    public void addButtonVariable(Variable variable) {
+        buttonsVariables.put(variable.getName(), variable);
+    }
+
+    public void removeButtonVariable(Variable variable) {
+        buttonsVariables.remove(variable.getName());
+    }
+
     public void setReturnValue(Object returnValue) {
         this.returnValue = returnValue;
     }
