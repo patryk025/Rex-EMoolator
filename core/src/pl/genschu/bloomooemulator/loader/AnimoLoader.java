@@ -48,11 +48,7 @@ public class AnimoLoader {
         f.read(magicIdBytes);
         String magicId = new String(magicIdBytes, StandardCharsets.UTF_8);
         if (!magicId.equals("NVP\0")) {
-            Gdx.app.log("AnimoLoader", "Magic bytes not found. Maybe is some junk before, running workaround.");
-            if(!lookupForMagicId(magicId, f))
-                throw new IllegalArgumentException("To nie jest poprawny plik animacji. Oczekiwano: NVP\\0, otrzymano: " + magicId);
-            else
-                Gdx.app.log("AnimoLoader", "Magic bytes found. Running further as usual.");
+            throw new IllegalArgumentException("To nie jest poprawny plik animacji. Oczekiwano: NVP\\0, otrzymano: " + magicId);
         }
 
         byte[] headerBytes = new byte[44];
@@ -256,16 +252,5 @@ public class AnimoLoader {
 
             event.setFrames(eventFrames);
         }
-    }
-
-    private static boolean lookupForMagicId(String magicId, InputStream f) throws IOException {
-        // search file until magic id is found
-        byte[] buffer = new byte[4];
-        while (f.read(buffer, 0, 4) != -1) {
-            if (magicId.equals(new String(buffer, StandardCharsets.UTF_8))) {
-                return true;
-            }
-        }
-        return false;
     }
 }
