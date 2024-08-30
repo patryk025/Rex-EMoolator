@@ -182,6 +182,11 @@ public class ASTBuilderVisitor extends AidemMediaBaseVisitor<Node> {
         else if(ctx.literal() != null) {
             return new VariableExpression((Expression) visit(ctx.literal()));
         }
+        else if(ctx.string() != null) {
+            if(!ctx.string().expression().isEmpty()) {
+                return visitExpression(ctx.string().expression().get(0));
+            }
+        }
         return super.visitParam(ctx);
     }
 

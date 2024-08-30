@@ -286,8 +286,13 @@ public class ArrayVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				int index = ArgumentsHelper.getInteger(arguments.get(0));
-				elements.remove(index);
-				//debugArray();
+				try {
+					elements.remove(index);
+					//debugArray();
+				} catch (IndexOutOfBoundsException e) {
+					Gdx.app.log("ArrayVariable", "IndexOutOfBoundsException: "+index);
+					// do nothing
+				}
 				return null;
 			}
 		});
