@@ -3,6 +3,7 @@ package pl.genschu.bloomooemulator.objects;
 import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Pixmap;
+import com.badlogic.gdx.graphics.Texture;
 import pl.genschu.bloomooemulator.interpreter.Context;
 import pl.genschu.bloomooemulator.interpreter.variable.Variable;
 import pl.genschu.bloomooemulator.interpreter.variable.types.*;
@@ -266,7 +267,10 @@ public class Game {
             if(variable instanceof SceneVariable) {
                 SceneVariable scene = (SceneVariable) variable;
                 if(scene.isBackgroundLoaded()) {
-                    scene.getBackground().getImage().getImageTexture().dispose();
+                    Texture background = scene.getBackground().getImage().getImageTexture();
+                    if(background != null) {
+                        background.dispose();
+                    }
                 }
                 for(String varKey : scene.getContext().getGraphicsVariables().keySet()) {
                     Variable graphic = scene.getContext().getVariable(varKey);

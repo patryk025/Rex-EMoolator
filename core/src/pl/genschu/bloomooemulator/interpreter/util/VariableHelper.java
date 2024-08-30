@@ -38,6 +38,10 @@ public class VariableHelper {
             return (Variable) ((ConstantExpression) ((ConditionExpression) value).evaluate(context)).evaluate(context);
         }
         if (value instanceof String) {
+            String tmp  = value.toString();
+            if(tmp.startsWith("\"") && tmp.endsWith("\"")) {
+                return new StringVariable("", tmp.substring(1, tmp.length() - 1), context);
+            }
             return new StringVariable("", (String) value, context);
         }
 

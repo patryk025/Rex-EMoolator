@@ -8,6 +8,7 @@ import pl.genschu.bloomooemulator.interpreter.variable.Attribute;
 import pl.genschu.bloomooemulator.interpreter.variable.Method;
 import pl.genschu.bloomooemulator.interpreter.variable.Parameter;
 import pl.genschu.bloomooemulator.interpreter.variable.Variable;
+import pl.genschu.bloomooemulator.utils.ArgumentsHelper;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -59,8 +60,30 @@ public class ApplicationVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				// TODO: implement this method
-				throw new ClassMethodNotImplementedException("Method RUN is not implemented yet");
+				String varName = ArgumentsHelper.getString(arguments.get(0));
+				String methodName = ArgumentsHelper.getString(arguments.get(1));
+				Object[] params = new Object[arguments.size() - 2];
+				for(int i = 2; i < arguments.size(); i++) {
+					params[i - 2] = arguments.get(i);
+				}
+				Context variableContext = getContext().getGame().getCurrentSceneContext(); // we need to get current scene context
+
+				Variable var = variableContext.getVariable(varName);
+				Variable currentThis = variableContext.getThisVariable();
+				variableContext.setThisVariable(var);
+				if(var == null) {
+					Gdx.app.error("SceneVariable", "Variable not found: " + varName);
+					return null;
+				}
+				if(var instanceof ExpressionVariable) {
+					var = (Variable) var.getValue();
+				}
+				if(var instanceof StringVariable) {
+					var = variableContext.getVariable(((StringVariable) var).GET());
+				}
+				Variable result = var.fireMethod(methodName, params);
+				variableContext.setThisVariable(currentThis);
+				return result;
 			}
 		});
 		this.setMethod("RUNENV", new Method(
