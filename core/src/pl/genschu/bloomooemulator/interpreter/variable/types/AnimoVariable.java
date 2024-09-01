@@ -567,10 +567,14 @@ public class AnimoVariable extends Variable implements Cloneable{
 				currentFrameNumber = 0;
 
 				currentImageNumber = frameNumber;
-				currentImage = getImages().get(currentImageNumber);
-				emitSignal("ONFRAMECHANGED");
-				//Gdx.app.log("updateRect()", "SETFRAME");
-				updateRect(currentImage);
+				try {
+					currentImage = getImages().get(currentImageNumber);
+					emitSignal("ONFRAMECHANGED");
+					//Gdx.app.log("updateRect()", "SETFRAME");
+					updateRect(currentImage);
+				} catch (IndexOutOfBoundsException ignored) {}
+				isVisible = true;
+				setAttribute("VISIBLE", new Attribute("BOOL", "TRUE"));
 				return null;
 			}
 		});
@@ -634,6 +638,8 @@ public class AnimoVariable extends Variable implements Cloneable{
 					rect.setYBottom(1);
 				}
 				emitSignal("ONFRAMECHANGED", currentEvent.getName());
+				isVisible = true;
+				setAttribute("VISIBLE", new Attribute("BOOL", "TRUE"));
 				return null;
 			}
 		});

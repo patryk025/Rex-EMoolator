@@ -4,6 +4,7 @@ import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
+import org.ini4j.Ini;
 import pl.genschu.bloomooemulator.interpreter.Context;
 import pl.genschu.bloomooemulator.interpreter.variable.Variable;
 import pl.genschu.bloomooemulator.interpreter.variable.types.*;
@@ -11,7 +12,10 @@ import pl.genschu.bloomooemulator.loader.CNVParser;
 import pl.genschu.bloomooemulator.logic.GameEntry;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.util.*;
 
 import com.badlogic.gdx.Gdx;
@@ -23,8 +27,13 @@ public class Game {
     private String currentEpisode = "BRAKEPIZODU";
     private String currentScene = "BRAKSCENY";
     private File currentSceneFile = null;
+    private File previousSceneFile = null;
+
+    private INIManager gameINI = null;
+    private String iniPath = null;
 
     private SceneVariable currentSceneVariable;
+    private SceneVariable previousSceneVariable;
 
     private ApplicationVariable applicationVariable;
 
@@ -81,6 +90,19 @@ public class Game {
             return;
         }
         files = daneFolder.listFiles();
+
+        iniPath = findGameINI();
+        if(iniPath == null) {
+            gameINI = null;
+        }
+        else {
+            gameINI = new INIManager();
+            try {
+                gameINI.loadFile(iniPath);
+            } catch (IOException e) {
+                Gdx.app.error("Game loader", "This should not happen but somehow file doesn't load");
+            }
+        }
 
         // find application.def
         boolean applicationDefFound = false;
@@ -157,6 +179,105 @@ public class Game {
         }
     }
 
+    public String findIniInExe(File exeFile) {
+        try {
+            byte[] exeBytes = new byte[(int) exeFile.length()];
+            FileInputStream fis = new FileInputStream(exeFile);
+            fis.read(exeBytes);
+            fis.close();
+
+            String exeContent = new String(exeBytes, StandardCharsets.UTF_8);
+
+            // Poszukaj ".ini" i weź kilka znaków wcześniej
+            int iniIndex = exeContent.indexOf(".ini");
+            if (iniIndex > 0) {
+                int startIndex = exeContent.lastIndexOf("\0", iniIndex) + 1;
+                return exeContent.substring(startIndex, iniIndex + 4);
+            }
+        } catch (IOException e) {
+            Gdx.app.error("findIniInExe", "Error reading exe file: " + e.getMessage());
+        }
+        return null;
+    }
+
+
+    public String findGameINI() {
+        File parentFolder = daneFolder.getParentFile();
+        if (parentFolder == null || !parentFolder.exists()) {
+            Gdx.app.error("findGameINI", "Parent folder is null or does not exist");
+            return null;
+        }
+
+        // find bloomoo.ini
+        File bloomooIni = new File(parentFolder, "bloomoo.ini");
+        if (bloomooIni.exists()) {
+            Gdx.app.log("findGameINI", "Found bloomoo.ini in the parent folder, looking for INI with variables...");
+            try {
+                Ini bloomooIniFile = new Ini();
+                bloomooIniFile.load(bloomooIni);
+
+                // read INI field
+                String iniPath = bloomooIniFile.get("MAIN", "INI");
+
+                if(iniPath != null) {
+                    File iniFile = new File(parentFolder, iniPath);
+                    Gdx.app.log("findGameINI", "Found INI: " + iniFile.getAbsolutePath());
+                    return iniFile.getAbsolutePath();
+                }
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
+
+        File[] files = parentFolder.listFiles((dir, name) -> name.toLowerCase().endsWith(".exe") && !name.equalsIgnoreCase("setup") && !name.equalsIgnoreCase("uninstall"));
+        if (files == null || files.length == 0) {
+            Gdx.app.error("findGameINI", "No .exe file found in the parent folder. Switching to fallback method...");
+
+            File[] iniFiles = parentFolder.listFiles((dir, name) -> name.toLowerCase().endsWith(".ini") && !name.equalsIgnoreCase("setup") && !name.equalsIgnoreCase("uninstall"));
+
+            if (iniFiles == null || iniFiles.length == 0) {
+                Gdx.app.error("findGame", "No .ini files found in the parent folder");
+                return null;
+            }
+
+            Gdx.app.log("findGameIni", "Using first found file: " + iniFiles[0].getAbsolutePath());
+            return iniFiles[0].getAbsolutePath();
+        }
+
+        for(File file : files) {
+            Gdx.app.log("findGameINI", "Searching for ini file associated with executable: " + file.getName());
+
+            // let's try to use ini file with the same name as exe
+            String exeFileName = files[0].getName();
+            String baseName = exeFileName.substring(0, exeFileName.lastIndexOf('.'));
+
+            String iniFileName = baseName + ".ini";
+
+            File iniFile = new File(parentFolder, iniFileName);
+
+            if(iniFile.exists()) {
+                Gdx.app.log("findGameINI", "Found ini file: " + iniFile.getAbsolutePath());
+                return iniFile.getAbsolutePath();
+            }
+            else {
+                iniFileName = findIniInExe(file);
+
+                if (iniFileName == null) {
+                    continue;
+                }
+
+                iniFile = new File(parentFolder, iniFileName);
+                if (iniFile.exists()) {
+                    Gdx.app.log("findGameINI", "Found ini file: " + iniFile.getAbsolutePath());
+                    return iniFile.getAbsolutePath();
+                }
+            }
+        }
+
+        Gdx.app.error("findGameINI", "No .ini file found in the parent folder");
+        return null;
+    }
+
     public void goTo(String name) {
         Variable variable = definitionContext.getVariable(name);
 
@@ -172,10 +293,18 @@ public class Game {
                 }
             }
 
+            previousSceneVariable = currentSceneVariable;
+            previousSceneFile = currentSceneFile;
             loadScene((SceneVariable) variable);
         }
     }
 
+    public void goToPreviousScene() {
+        currentSceneVariable = previousSceneVariable;
+        currentSceneContext = currentSceneVariable.getContext();
+        currentSceneFile = previousSceneFile;
+        currentScene = currentSceneVariable.getName();
+    }
 
     private void loadEpisode(EpisodeVariable episode) {
         if (!Objects.equals(currentEpisode, episode.getName())) {

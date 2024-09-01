@@ -37,8 +37,8 @@ public class EpisodeVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				// TODO: implement this method
-				throw new ClassMethodNotImplementedException("Method BACK is not implemented yet");
+				context.getGame().goToPreviousScene();
+				return null;
 			}
 		});
 		this.setMethod("GETCURRENTSCENE", new Method(
