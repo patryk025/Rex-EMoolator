@@ -390,6 +390,12 @@ public abstract class Variable implements Cloneable {
 			Gdx.app.log("Variable", "Emitting signal ONCHANGED for variable " + this.getName() + ", class type " + this.getType());
 			emitSignal("ONCHANGED", value.toString());
 		}
+		if(getAttribute("TOINI") != null) {
+			if(getAttribute("TOINI").getValue().toString().equals("TRUE")) {
+				// FIXME: make it shorter and check, how engine creates sections
+				context.getGame().getGameINI().put(context.getGame().getApplicationVariable().getName().toUpperCase(), this.getName().toUpperCase(), value.toString());
+			}
+		}
 	}
 
 	public Context getContext() {

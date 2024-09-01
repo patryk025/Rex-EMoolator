@@ -441,6 +441,7 @@ public class AnimoVariable extends Variable implements Cloneable{
 						} catch (NullPointerException e) {
 							setAttribute("VISIBLE", new Attribute("BOOL", "TRUE"));
 						}
+						isVisible = true;
 						playSfx();
 						emitSignal("ONSTARTED", currentEvent.getName());
 						emitSignal("ONFRAMECHANGED", currentEvent.getName());
@@ -708,6 +709,7 @@ public class AnimoVariable extends Variable implements Cloneable{
 			@Override
 			public Variable execute(List<Object> arguments) {
 				getAttribute("VISIBLE").setValue("TRUE");
+				isVisible = true;
 				return null;
 			}
 		});

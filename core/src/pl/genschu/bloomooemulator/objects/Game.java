@@ -91,19 +91,6 @@ public class Game {
         }
         files = daneFolder.listFiles();
 
-        iniPath = findGameINI();
-        if(iniPath == null) {
-            gameINI = null;
-        }
-        else {
-            gameINI = new INIManager();
-            try {
-                gameINI.loadFile(iniPath);
-            } catch (IOException e) {
-                Gdx.app.error("Game loader", "This should not happen but somehow file doesn't load");
-            }
-        }
-
         // find application.def
         boolean applicationDefFound = false;
         if (files != null) {
@@ -138,6 +125,19 @@ public class Game {
         if(applicationVariable == null) {
             Gdx.app.error("Game loader", "APPLICATION variable not found");
             return;
+        }
+
+        iniPath = findGameINI();
+        if(iniPath == null) {
+            gameINI = null;
+        }
+        else {
+            gameINI = new INIManager();
+            try {
+                gameINI.loadFile(iniPath);
+            } catch (IOException e) {
+                Gdx.app.error("Game loader", "This should not happen but somehow file doesn't load");
+            }
         }
 
         applicationVariable.reloadEpisodes();
@@ -229,11 +229,11 @@ public class Game {
             }
         }
 
-        File[] files = parentFolder.listFiles((dir, name) -> name.toLowerCase().endsWith(".exe") && !name.equalsIgnoreCase("setup") && !name.equalsIgnoreCase("uninstall"));
+        File[] files = parentFolder.listFiles((dir, name) -> name.toLowerCase().endsWith(".exe") && !name.equalsIgnoreCase("setup") && !name.equalsIgnoreCase("uninstall") && !name.equalsIgnoreCase("install"));
         if (files == null || files.length == 0) {
             Gdx.app.error("findGameINI", "No .exe file found in the parent folder. Switching to fallback method...");
 
-            File[] iniFiles = parentFolder.listFiles((dir, name) -> name.toLowerCase().endsWith(".ini") && !name.equalsIgnoreCase("setup") && !name.equalsIgnoreCase("uninstall"));
+            File[] iniFiles = parentFolder.listFiles((dir, name) -> name.toLowerCase().endsWith(".ini") && !name.equalsIgnoreCase("setup") && !name.equalsIgnoreCase("uninstall") && !name.equalsIgnoreCase("install"));
 
             if (iniFiles == null || iniFiles.length == 0) {
                 Gdx.app.error("findGame", "No .ini files found in the parent folder");
@@ -279,6 +279,12 @@ public class Game {
     }
 
     public void goTo(String name) {
+        try {
+            gameINI.saveFile(iniPath);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
         Variable variable = definitionContext.getVariable(name);
 
         if (variable instanceof EpisodeVariable) {
@@ -300,6 +306,12 @@ public class Game {
     }
 
     public void goToPreviousScene() {
+        try {
+            gameINI.saveFile(iniPath);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
         currentSceneVariable = previousSceneVariable;
         currentSceneContext = currentSceneVariable.getContext();
         currentSceneFile = previousSceneFile;
@@ -391,6 +403,12 @@ public class Game {
 
     // method for release data from memory
     public void dispose() {
+        try {
+            gameINI.saveFile(iniPath);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
         for(String key : definitionContext.getVariables().keySet()) {
             Variable variable = definitionContext.getVariable(key);
             if(variable instanceof SceneVariable) {
@@ -531,5 +549,17 @@ public class Game {
 
     public void setMusicCache(Map<String, Music> musicCache) {
         this.musicCache = musicCache;
+    }
+
+    public INIManager getGameINI() {
+        return gameINI;
+    }
+
+    public void setGameINI(INIManager gameINI) {
+        this.gameINI = gameINI;
+    }
+
+    public ApplicationVariable getApplicationVariable() {
+        return applicationVariable;
     }
 }

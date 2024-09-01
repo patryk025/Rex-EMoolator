@@ -392,7 +392,8 @@ public class BlooMooEmulator extends ApplicationAdapter {
                 if(!button.isEnabled()) continue;
 
                 if (button.getRect() != null && button.getRect().contains(x, y)) {
-                    Gdx.graphics.setSystemCursor(Cursor.SystemCursor.Hand);
+                    if(mouseVariable == null || mouseVariable.isVisible())
+                        Gdx.graphics.setSystemCursor(Cursor.SystemCursor.Hand);
                     if (justPressed) {
                         if (activeButton == null) {
                             activeButton = button;
@@ -413,7 +414,8 @@ public class BlooMooEmulator extends ApplicationAdapter {
 
                     if (!button.isFocused() && !isPressed) {
                         button.setFocused(true);
-                        Gdx.graphics.setSystemCursor(Cursor.SystemCursor.Hand);
+                        if(mouseVariable == null || mouseVariable.isVisible())
+                            Gdx.graphics.setSystemCursor(Cursor.SystemCursor.Hand);
                         Signal onFocusSignal = button.getSignal("ONFOCUSON");
                         if (onFocusSignal != null) {
                             onFocusSignal.execute(null);
@@ -423,7 +425,8 @@ public class BlooMooEmulator extends ApplicationAdapter {
                 else {
                     if (button.isFocused() && !isPressed) {
                         button.setFocused(false);
-                        Gdx.graphics.setSystemCursor(Cursor.SystemCursor.Arrow);
+                        if(mouseVariable == null || mouseVariable.isVisible())
+                            Gdx.graphics.setSystemCursor(Cursor.SystemCursor.Arrow);
                         Signal onFocusLossSignal = button.getSignal("ONFOCUSOFF");
                         if (onFocusLossSignal != null) {
                             onFocusLossSignal.execute(null);
@@ -436,7 +439,7 @@ public class BlooMooEmulator extends ApplicationAdapter {
                 AnimoVariable animo = (AnimoVariable) variable;
 
                 if (animo.getRect() != null && animo.getRect().contains(x, y)) {
-                    if(animo.isChangeCursor())
+                    if(animo.isChangeCursor() && (mouseVariable == null || mouseVariable.isVisible()))
                         Gdx.graphics.setSystemCursor(Cursor.SystemCursor.Hand);
                     if (justPressed) {
                         if (activeButton == null) {
@@ -455,7 +458,7 @@ public class BlooMooEmulator extends ApplicationAdapter {
 
                     if (!animo.isFocused() && !isPressed) {
                         animo.setFocused(true);
-                        if(animo.isChangeCursor())
+                        if(animo.isChangeCursor() && (mouseVariable == null || mouseVariable.isVisible()))
                             Gdx.graphics.setSystemCursor(Cursor.SystemCursor.Hand);
                         Signal onFocusSignal = animo.getSignal("ONFOCUSON");
                         if (onFocusSignal != null) {
@@ -466,7 +469,8 @@ public class BlooMooEmulator extends ApplicationAdapter {
                 else {
                     if (animo.isFocused() && !isPressed) {
                         animo.setFocused(false);
-                        Gdx.graphics.setSystemCursor(Cursor.SystemCursor.Arrow);
+                        if(mouseVariable == null || mouseVariable.isVisible())
+                            Gdx.graphics.setSystemCursor(Cursor.SystemCursor.Arrow);
                         Signal onFocusLossSignal = animo.getSignal("ONFOCUSOFF");
                         if (onFocusLossSignal != null) {
                             onFocusLossSignal.execute(null);
@@ -491,12 +495,22 @@ public class BlooMooEmulator extends ApplicationAdapter {
         }
 
         //Gdx.app.log("Mouse", "mouseVariable != null: " + (mouseVariable != null) + " isPressed: " + isPressed + " mouseVariable.isEnabled(): " + (mouseVariable != null && mouseVariable.isEnabled()));
-        if(mouseVariable != null && isPressed && mouseVariable.isEnabled()) {
-            mouseVariable.emitSignal("ONCLICK", "LEFT"); // right is not used at all
+        if(mouseVariable != null && mouseVariable.isEnabled()) {
+            if(justPressed) {
+                mouseVariable.emitSignal("ONCLICK", "LEFT"); // right is not used at all
 
-            Variable graphics = getGraphicsAt(x, y, drawList);
-            if(graphics != null) {
-                graphics.emitSignal("ONCLICK", "LEFT");
+                Variable graphics = getGraphicsAt(x, y, drawList);
+                if (graphics != null) {
+                    graphics.emitSignal("ONCLICK", "LEFT");
+                }
+            }
+            else if(justReleased) {
+                mouseVariable.emitSignal("ONRELEASE", "LEFT"); // right is not used at all
+
+                Variable graphics = getGraphicsAt(x, y, drawList);
+                if (graphics != null) {
+                    graphics.emitSignal("ONRELEASE", "LEFT");
+                }
             }
         }
 

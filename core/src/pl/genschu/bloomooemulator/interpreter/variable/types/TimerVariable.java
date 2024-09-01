@@ -69,6 +69,18 @@ public class TimerVariable extends Variable {
 				return null;
 			}
 		});
+		this.setMethod("SET", new Method(
+				List.of(
+						new Parameter("INTEGER", "timeMs", true)
+				),
+				"void"
+		) {
+			@Override
+			public Variable execute(List<Object> arguments) {
+				ticks = ArgumentsHelper.getInteger(arguments.get(0));
+				return null;
+			}
+		});
 		this.setMethod("SETELAPSE", new Method(
 				List.of(
 						new Parameter("INTEGER", "timeMs", true)

@@ -5,6 +5,7 @@ import pl.genschu.bloomooemulator.interpreter.arithmetic.ArithmeticOperation;
 import pl.genschu.bloomooemulator.interpreter.arithmetic.operations.AddOperation;
 import pl.genschu.bloomooemulator.interpreter.exceptions.ClassMethodNotImplementedException;
 import pl.genschu.bloomooemulator.interpreter.Context;
+import pl.genschu.bloomooemulator.interpreter.factories.VariableFactory;
 import pl.genschu.bloomooemulator.interpreter.variable.Attribute;
 import pl.genschu.bloomooemulator.interpreter.variable.Method;
 import pl.genschu.bloomooemulator.interpreter.variable.Parameter;
@@ -225,8 +226,21 @@ public class ArrayVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				// TODO: implement this method
-				throw new ClassMethodNotImplementedException("Method LOADINI is not implemented yet");
+				String serialized = context.getGame().getGameINI().get(context.getGame().getApplicationVariable().getName().toUpperCase(), getName().toUpperCase());
+
+				if(serialized != null) {
+					elements.clear();
+					String[] elems = serialized.split(",");
+					for(String element : elems) {
+						elements.add(VariableFactory.createVariableWithAutoType("", element, context));
+					}
+				}
+				else {
+					elements.clear();
+					Gdx.app.log("ARRAY", "No value in INI for " + getName());
+				}
+
+				return null;
 			}
 		});
 		this.setMethod("MODAT", new Method(
@@ -331,8 +345,20 @@ public class ArrayVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				// TODO: implement this method
-				throw new ClassMethodNotImplementedException("Method SAVEINI is not implemented yet");
+				StringBuilder sb = new StringBuilder();
+
+				for(int i = 0; i < elements.size(); i++) {
+					Variable element = elements.get(i);
+					sb.append(element.toString());
+
+					if(i < elements.size() - 1) {
+						sb.append(",");
+					}
+				}
+
+				context.getGame().getGameINI().put(context.getGame().getApplicationVariable().getName().toUpperCase(), getName().toUpperCase(), sb.toString());
+
+				return null;
 			}
 		});
 		this.setMethod("SUB", new Method(

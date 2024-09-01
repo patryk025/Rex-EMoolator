@@ -60,7 +60,7 @@ public class Image {
                     if(alphaData != null)
                         alphaData = CRLECompression.decodeCRLE(alphaData);
                 }
-            } catch (IllegalArgumentException e) {
+            } catch (Exception e) {
                 Gdx.app.error("ImageDecompression", "Wystąpił problem z CLZW, przerywam ładowanie");
                 return;
             }
@@ -73,11 +73,9 @@ public class Image {
 
                 if(alphaData != null)
                     alphaData = CLZW2Compression.decompress(alphaData);
-            } catch (IllegalArgumentException e) {
+            } catch (Exception e) {
                 Gdx.app.error("ImageDecompression", "Wystąpił problem z CLZW, przerywam ładowanie");
                 return;
-            } catch (IOException e) {
-                throw new RuntimeException(e);
             }
         }
 

@@ -13,6 +13,7 @@ public class MouseVariable extends Variable {
 	private boolean isEnabled = true;
 	private int posX;
 	private int posY;
+	private boolean isVisible = true;
 
 	public MouseVariable(String name, Context context) {
 		super(name, context);
@@ -67,6 +68,7 @@ public class MouseVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				Gdx.graphics.setSystemCursor(SystemCursor.Arrow);
+				isVisible = true;
 				return null;
 			}
 		});
@@ -76,6 +78,7 @@ public class MouseVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				Gdx.graphics.setSystemCursor(SystemCursor.None);
+				isVisible = false;
 				return null;
 			}
 		});
@@ -103,5 +106,13 @@ public class MouseVariable extends Variable {
 		}
 		this.posX = x;
 		this.posY = y;
+	}
+
+	public boolean isVisible() {
+		return isVisible;
+	}
+
+	public void setVisible(boolean visible) {
+		isVisible = visible;
 	}
 }

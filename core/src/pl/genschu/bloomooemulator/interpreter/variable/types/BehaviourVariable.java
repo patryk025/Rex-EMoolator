@@ -1,9 +1,9 @@
 package pl.genschu.bloomooemulator.interpreter.variable.types;
 
+import org.antlr.v4.runtime.*;
+import org.antlr.v4.runtime.misc.ParseCancellationException;
 import pl.genschu.bloomooemulator.interpreter.exceptions.ClassMethodNotImplementedException;
 import com.badlogic.gdx.Gdx;
-import org.antlr.v4.runtime.CharStreams;
-import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.tree.ParseTree;
 import pl.genschu.bloomooemulator.interpreter.Context;
 import pl.genschu.bloomooemulator.interpreter.Interpreter;
@@ -29,6 +29,13 @@ public class BehaviourVariable extends Variable {
 		try {
 			AidemMediaLexer lexer = new AidemMediaLexer(CharStreams.fromString(code));
 			AidemMediaParser parser = new AidemMediaParser(new CommonTokenStream(lexer));
+
+			//lexer.removeErrorListeners();
+			//lexer.addErrorListener(ThrowingErrorListener.INSTANCE);
+
+			//parser.removeErrorListeners();
+			//parser.addErrorListener(ThrowingErrorListener.INSTANCE);
+
 			ParseTree tree = parser.script();
 
 			ASTBuilderVisitor astBuilder = new ASTBuilderVisitor(context);
@@ -253,4 +260,15 @@ public class BehaviourVariable extends Variable {
 		}
 	}
 
+	// class just for debugging
+	private static class ThrowingErrorListener extends BaseErrorListener {
+
+		public static final ThrowingErrorListener INSTANCE = new ThrowingErrorListener();
+
+		@Override
+		public void syntaxError(Recognizer<?, ?> recognizer, Object offendingSymbol, int line, int charPositionInLine, String msg, RecognitionException e)
+				throws ParseCancellationException {
+			throw new ParseCancellationException("line " + line + ":" + charPositionInLine + " " + msg);
+		}
+	}
 }

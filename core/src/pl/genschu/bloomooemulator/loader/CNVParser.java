@@ -15,6 +15,7 @@ import pl.genschu.bloomooemulator.interpreter.factories.VariableFactory;
 import pl.genschu.bloomooemulator.encoding.ScriptDecypher;
 import com.badlogic.gdx.Gdx;
 import pl.genschu.bloomooemulator.interpreter.variable.types.BehaviourVariable;
+import pl.genschu.bloomooemulator.interpreter.variable.types.ConditionVariable;
 import pl.genschu.bloomooemulator.interpreter.variable.types.SequenceVariable;
 import pl.genschu.bloomooemulator.interpreter.variable.types.SoundVariable;
 import pl.genschu.bloomooemulator.utils.SignalAndParams;
@@ -111,8 +112,19 @@ public class CNVParser {
 
         if(type.equals("BEHAVIOUR"))
             value = properties.get(objectName + ":CODE");
-        else
-            value = properties.get(objectName + ":VALUE");
+        else {
+            try {
+                String valueFromIni = context.getGame().getGameINI().get(context.getGame().getApplicationVariable().getName().toUpperCase(), objectName.toUpperCase());
+                if (valueFromIni != null) {
+                    value = valueFromIni;
+                    properties.put(objectName + ":VALUE", valueFromIni);
+                } else {
+                    value = properties.get(objectName + ":VALUE");
+                }
+            } catch (NullPointerException e) {
+                value = properties.get(objectName + ":VALUE");
+            }
+        }
 
         try {
             Variable variable = VariableFactory.createVariable(type, objectName, value, context);
@@ -158,7 +170,9 @@ public class CNVParser {
                         List<Object> arguments = new ArrayList<>();
 
                         Variable oldThis = signalAndParams.behaviourVariable.getContext().getThisVariable();
-                        signalAndParams.behaviourVariable.getContext().setThisVariable(variable);
+                        if(!(variable instanceof ConditionVariable)) { // little hack to not making conditions as true
+                            signalAndParams.behaviourVariable.getContext().setThisVariable(variable);
+                        }
 
                         if(signalAndParams.params != null)
                             for(String param : signalAndParams.params) {
