@@ -17,6 +17,8 @@ import pl.genschu.bloomooemulator.interpreter.variable.Parameter;
 import pl.genschu.bloomooemulator.interpreter.variable.Variable;
 import pl.genschu.bloomooemulator.utils.ArgumentsHelper;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 public class BehaviourVariable extends Variable {
@@ -82,6 +84,14 @@ public class BehaviourVariable extends Variable {
 					return null;
 				}
 
+				// let's backup old arguments
+				HashMap<String, Variable> backupVariables = new HashMap<>();
+				for(String key : context.getVariables().keySet()) {
+					if(key.startsWith("$")) {
+						backupVariables.put(key, context.getVariable(key));
+					}
+				}
+
 				for(int i = 0; i < arguments.size(); i++) {
 					context.setVariable("$"+(i+1), (Variable) arguments.get(i));
 				}
@@ -97,6 +107,12 @@ public class BehaviourVariable extends Variable {
 				for(int i = 0; i < arguments.size(); i++) {
 					context.removeVariable("$"+(i+1));
 				}
+
+				// restore old arguments
+				for(String key : backupVariables.keySet()) {
+					context.setVariable(key, backupVariables.get(key));
+				}
+
 				return (Variable) interpreter.getReturnValue();
 			}
 		});
@@ -153,6 +169,14 @@ public class BehaviourVariable extends Variable {
 					return null;
 				}
 
+				// let's backup old arguments
+				HashMap<String, Variable> backupVariables = new HashMap<>();
+				for(String key : context.getVariables().keySet()) {
+					if(key.startsWith("$")) {
+						backupVariables.put(key, context.getVariable(key));
+					}
+				}
+
 				for(int i = 0; i < arguments.size(); i++) {
 					context.setVariable("$"+(i+1), (Variable) arguments.get(i));
 				}
@@ -168,6 +192,12 @@ public class BehaviourVariable extends Variable {
 				for(int i = 0; i < arguments.size(); i++) {
 					context.removeVariable("$"+(i+1));
 				}
+
+				// restore old arguments
+				for(String key : backupVariables.keySet()) {
+					context.setVariable(key, backupVariables.get(key));
+				}
+
 				return (Variable) interpreter.getReturnValue();
 			}
 		});
@@ -214,6 +244,14 @@ public class BehaviourVariable extends Variable {
 					}
 				}
 
+				// let's backup old arguments
+				HashMap<String, Variable> backupVariables = new HashMap<>();
+				for(String key : context.getVariables().keySet()) {
+					if(key.startsWith("$")) {
+						backupVariables.put(key, context.getVariable(key));
+					}
+				}
+
 				if(arguments.size() > 3) {
 					for(int i = 3; i < arguments.size(); i++) {
 						context.setVariable("$"+(i-1), (Variable) arguments.get(i));
@@ -245,6 +283,11 @@ public class BehaviourVariable extends Variable {
 
 				for(int i = 1; i < arguments.size() - 1; i++) {
 					context.removeVariable("$"+i);
+				}
+
+				// restore old arguments
+				for(String key : backupVariables.keySet()) {
+					context.setVariable(key, backupVariables.get(key));
 				}
 
 				return null;
