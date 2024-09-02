@@ -230,6 +230,7 @@ public class ArrayVariable extends Variable {
 
 				if(serialized != null) {
 					elements.clear();
+					if(serialized.isEmpty()) return null;
 					String[] elems = serialized.split(",");
 					for(String element : elems) {
 						elements.add(VariableFactory.createVariableWithAutoType("", element, context));

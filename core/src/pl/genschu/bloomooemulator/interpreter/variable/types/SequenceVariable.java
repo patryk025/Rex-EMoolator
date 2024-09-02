@@ -37,7 +37,7 @@ public class SequenceVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				isVisible = false;
+				hide();
 				return null;
 			}
 		});
@@ -82,6 +82,15 @@ public class SequenceVariable extends Variable {
 
 				String eventName = ArgumentsHelper.getString(arguments.get(0));
 				playEvent(eventName);
+				return null;
+			}
+		});
+		this.setMethod("SHOW", new Method(
+				"void"
+		) {
+			@Override
+			public Variable execute(List<Object> arguments) {
+				show();
 				return null;
 			}
 		});
@@ -133,6 +142,21 @@ public class SequenceVariable extends Variable {
 				isPlaying = false;
 			}
 		}
+	}
+
+	public void changeVisibility(boolean visibility) {
+		if(visibility) show();
+		else hide();
+	}
+
+	private void show() {
+		getAttribute("VISIBLE").setValue("TRUE");
+		isVisible = true;
+	}
+
+	private void hide() {
+		getAttribute("VISIBLE").setValue("FALSE");
+		isVisible = false;
 	}
 
 	public void setCurrentAnimo(AnimoVariable currentAnimo) {

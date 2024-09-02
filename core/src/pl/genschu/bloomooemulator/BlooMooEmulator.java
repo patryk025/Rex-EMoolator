@@ -620,7 +620,7 @@ public class BlooMooEmulator extends ApplicationAdapter {
                     int relativeY = y - rect.getYTop();
                     int alpha = getAlpha(image, relativeX, relativeY);
 
-                    Gdx.app.log(variable.getName(), "relativeX: " + relativeX + ", relativeY: " + relativeY + ", alpha: " + alpha);
+                    //Gdx.app.log(variable.getName(), "relativeX: " + relativeX + ", relativeY: " + relativeY + ", alpha: " + alpha);
 
                     if (alpha > 0) {
                         return variable;

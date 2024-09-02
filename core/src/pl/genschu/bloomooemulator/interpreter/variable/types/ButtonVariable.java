@@ -42,9 +42,8 @@ public class ButtonVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				setAttribute("ENABLE", new Attribute("BOOL", "FALSE"));
-				setAttribute("VISIBLE", new Attribute("BOOL", "FALSE"));
 				isEnabled = false;
-				isVisible = false;
+				changeGraphicsVisibility(false);
 				return null;
 			}
 		});
@@ -54,9 +53,8 @@ public class ButtonVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				setAttribute("ENABLE", new Attribute("BOOL", "FALSE"));
-				setAttribute("VISIBLE", new Attribute("BOOL", "TRUE"));
 				isEnabled = false;
-				isVisible = true;
+				changeGraphicsVisibility(true);
 				return null;
 			}
 		});
@@ -66,9 +64,8 @@ public class ButtonVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				setAttribute("ENABLE", new Attribute("BOOL", "TRUE"));
-				setAttribute("VISIBLE", new Attribute("BOOL", "TRUE"));
 				isEnabled = true;
-				isVisible = true;
+				changeGraphicsVisibility(true);
 				return null;
 			}
 		});
@@ -166,24 +163,24 @@ public class ButtonVariable extends Variable {
 		if(isVisible) {
 			if (focused) {
 				if (gfxOnMove != null) {
-					gfxOnMove.setAttribute("VISIBLE", new Attribute("BOOL", "TRUE"));
+					showImage(gfxOnMove, true);
 					if (gfxVariable != null) {
-						gfxVariable.setAttribute("VISIBLE", new Attribute("BOOL", "FALSE"));
+						showImage(gfxVariable, false);
 					}
 					currentGfx = gfxOnMove;
 				}
 			} else {
 				if (gfxOnMove != null) {
-					gfxOnMove.setAttribute("VISIBLE", new Attribute("BOOL", "FALSE"));
+					showImage(gfxOnMove, false);
 				}
 				if (gfxVariable != null) {
-					gfxVariable.setAttribute("VISIBLE", new Attribute("BOOL", "TRUE"));
+					showImage(gfxVariable, true);
 				}
 				currentGfx = gfxVariable;
 			}
 
 			if (gfxOnClick != null) {
-				gfxOnClick.setAttribute("VISIBLE", new Attribute("BOOL", "FALSE"));
+				showImage(gfxOnClick, false);
 			}
 		}
 	}
@@ -192,18 +189,22 @@ public class ButtonVariable extends Variable {
 		if(getAttribute("RECT") != null && rectVariable == null) {
 			if(!getAttribute("RECT").toString().contains(",")) {
 				rectVariable = context.getVariable(getAttribute("RECT").getValue().toString());
+				showImage(rectVariable, true);
 			}
 		}
 		if(getAttribute("GFXSTANDARD") != null && gfxVariable == null) {
 			gfxVariable = context.getVariable(getAttribute("GFXSTANDARD").getValue().toString());
+			showImage(gfxVariable, true);
 		}
 
 		if(getAttribute("GFXONMOVE") != null && gfxOnMove == null) {
 			gfxOnMove = context.getVariable(getAttribute("GFXONMOVE").getValue().toString());
+			showImage(gfxOnMove, false);
 		}
 
 		if(getAttribute("GFXONCLICK") != null && gfxOnClick == null) {
 			gfxOnClick = context.getVariable(getAttribute("GFXONCLICK").getValue().toString());
+			showImage(gfxOnClick, false);
 		}
 	}
 
@@ -316,6 +317,37 @@ public class ButtonVariable extends Variable {
 			}
 		}
 		return rect;
+	}
+
+	public void changeGraphicsVisibility(boolean visible) {
+		if(rectVariable != null) {
+			showImage(rectVariable, visible);
+		}
+
+		if(gfxVariable != null) {
+			showImage(gfxVariable, visible);
+		}
+
+		if(gfxOnMove != null) {
+			showImage(gfxOnMove, false);
+		}
+
+		if(gfxOnClick != null) {
+			showImage(gfxOnClick, false);
+		}
+	}
+
+	private void showImage(Variable var, boolean visible) {
+		if(var instanceof ImageVariable) {
+			ImageVariable imageVariable = (ImageVariable) var;
+			imageVariable.setAttribute("VISIBLE", new Attribute("BOOL", visible ? "TRUE" : "FALSE"));
+			imageVariable.changeVisibility(visible);
+		}
+		else if(var instanceof AnimoVariable) {
+			AnimoVariable animoVariable = (AnimoVariable) var;
+			animoVariable.setAttribute("VISIBLE", new Attribute("BOOL", visible ? "TRUE" : "FALSE"));
+			animoVariable.changeVisibility(visible);
+		}
 	}
 
 	@Override

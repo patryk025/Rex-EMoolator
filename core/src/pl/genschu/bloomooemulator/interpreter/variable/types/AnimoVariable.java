@@ -295,8 +295,7 @@ public class AnimoVariable extends Variable implements Cloneable{
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				getAttribute("VISIBLE").setValue("FALSE");
-				isVisible = false;
+				hide();
 				return null;
 			}
 		});
@@ -334,7 +333,7 @@ public class AnimoVariable extends Variable implements Cloneable{
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				return new BoolVariable("", getAttribute("VISIBLE").getValue().equals("TRUE"), context);
+				return new BoolVariable("", isVisible, context);
 			}
 		});
 		this.setMethod("LOAD", new Method(
@@ -384,6 +383,7 @@ public class AnimoVariable extends Variable implements Cloneable{
 				currentImageNumber = currentEvent.getFramesNumbers().get(currentFrameNumber);
 				currentImage = currentEvent.getFrames().get(currentImageNumber);
 				//Gdx.app.log("updateRect()", "NEXTFRAME");
+				show();
 				updateRect();
 				emitSignal("ONFRAMECHANGED", currentEvent.getName());
 				return null;
@@ -402,8 +402,8 @@ public class AnimoVariable extends Variable implements Cloneable{
 				currentFrameNumber = 0;
 				isPlaying = true;
 				//Gdx.app.log("updateRect()", "NPLAY");
+				show();
 				updateRect();
-				getAttribute("VISIBLE").setValue("TRUE");
 				playSfx();
 				emitSignal("ONSTARTED", currentEvent.getName());
 				emitSignal("ONFRAMECHANGED", currentEvent.getName());
@@ -435,13 +435,8 @@ public class AnimoVariable extends Variable implements Cloneable{
 						currentImage = currentEvent.getFrames().get(currentFrameNumber);
 						isPlaying = true;
 						//Gdx.app.log("updateRect()", "PLAY");
+						show();
 						updateRect();
-						try {
-							getAttribute("VISIBLE").setValue("TRUE");
-						} catch (NullPointerException e) {
-							setAttribute("VISIBLE", new Attribute("BOOL", "TRUE"));
-						}
-						isVisible = true;
 						playSfx();
 						emitSignal("ONSTARTED", currentEvent.getName());
 						emitSignal("ONFRAMECHANGED", currentEvent.getName());
@@ -463,6 +458,7 @@ public class AnimoVariable extends Variable implements Cloneable{
 				currentImageNumber = currentEvent.getFramesNumbers().get(currentFrameNumber);
 				currentImage = currentEvent.getFrames().get(currentImageNumber);
 				//Gdx.app.log("updateRect()", "PREVFRAME");
+				show();
 				updateRect();
 				emitSignal("ONFRAMECHANGED", currentEvent.getName());
 				return null;
@@ -521,6 +517,7 @@ public class AnimoVariable extends Variable implements Cloneable{
 					getContext().getButtonsVariables().remove(getName());
 				}
 				setChangeCursor(changeCursor);
+				show();
 
 				return null;
 			}
@@ -574,8 +571,7 @@ public class AnimoVariable extends Variable implements Cloneable{
 					//Gdx.app.log("updateRect()", "SETFRAME");
 					updateRect(currentImage);
 				} catch (IndexOutOfBoundsException ignored) {}
-				isVisible = true;
-				setAttribute("VISIBLE", new Attribute("BOOL", "TRUE"));
+				show();
 				return null;
 			}
 		});
@@ -639,8 +635,7 @@ public class AnimoVariable extends Variable implements Cloneable{
 					rect.setYBottom(1);
 				}
 				emitSignal("ONFRAMECHANGED", currentEvent.getName());
-				isVisible = true;
-				setAttribute("VISIBLE", new Attribute("BOOL", "TRUE"));
+				show();
 				return null;
 			}
 		});
@@ -708,8 +703,7 @@ public class AnimoVariable extends Variable implements Cloneable{
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				getAttribute("VISIBLE").setValue("TRUE");
-				isVisible = true;
+				show();
 				return null;
 			}
 		});
@@ -783,8 +777,11 @@ public class AnimoVariable extends Variable implements Cloneable{
                 case "PRIORITY":
                     priority = Integer.parseInt(getAttribute("PRIORITY").getValue().toString());
                     break;
+				case "VISIBLE":
+					changeVisibility(attribute.getValue().toString().equals("TRUE"));
+					break;
 				case "ASBUTTON":
-					setAsButton(ArgumentsHelper.getBoolean(attribute.getValue()));
+					setAsButton(attribute.getValue().toString().equals("TRUE"));
 					changeCursor = true;
 					break;
             }
@@ -1105,6 +1102,21 @@ public class AnimoVariable extends Variable implements Cloneable{
 		return false;
 	}
 
+	public void changeVisibility(boolean visibility) {
+		if(visibility) show();
+		else hide();
+	}
+
+	private void show() {
+		getAttribute("VISIBLE").setValue("TRUE");
+		isVisible = true;
+	}
+
+	private void hide() {
+		getAttribute("VISIBLE").setValue("FALSE");
+		isVisible = false;
+	}
+
 	public int getMaxWidth() {
 		return maxWidth;
 	}
@@ -1127,6 +1139,7 @@ public class AnimoVariable extends Variable implements Cloneable{
 
 	public void setAsButton(boolean asButton) {
 		this.asButton = asButton;
+		show();
 	}
 
 	public boolean isChangeCursor() {

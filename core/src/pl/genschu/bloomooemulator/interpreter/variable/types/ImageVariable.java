@@ -1,6 +1,5 @@
 package pl.genschu.bloomooemulator.interpreter.variable.types;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.TextureData;
@@ -17,8 +16,6 @@ import pl.genschu.bloomooemulator.utils.ArgumentsHelper;
 
 import java.util.List;
 
-import static pl.genschu.bloomooemulator.interpreter.util.VariableHelper.getValueFromString;
-
 public class ImageVariable extends Variable implements Cloneable {
 	Image image;
 	private int posX;
@@ -26,6 +23,8 @@ public class ImageVariable extends Variable implements Cloneable {
 	private float opacity;
 	private Rectangle rect;
 	private Rectangle clippingRect;
+
+	private boolean isVisible = true;
 
 	public ImageVariable(String name, Context context) {
 		super(name, context);
@@ -138,7 +137,7 @@ public class ImageVariable extends Variable implements Cloneable {
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				setAttribute("VISIBLE", "FALSE");
+				hide();
 				return null;
 			}
 		});
@@ -260,7 +259,7 @@ public class ImageVariable extends Variable implements Cloneable {
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				setAttribute("VISIBLE", "TRUE");
+				show();
 				return null;
 			}
 		});
@@ -331,11 +330,26 @@ public class ImageVariable extends Variable implements Cloneable {
 	}
 
 	public boolean isVisible() {
-		return this.getAttribute("VISIBLE").getValue().toString().equals("TRUE")
+		return isVisible
 				&&  this.getAttribute("TOCANVAS").getValue().toString().equals("TRUE");
 	}
 
-    @Override
+	public void changeVisibility(boolean visibility) {
+		if(visibility) show();
+		else hide();
+	}
+
+	private void show() {
+		getAttribute("VISIBLE").setValue("TRUE");
+		isVisible = true;
+	}
+
+	private void hide() {
+		getAttribute("VISIBLE").setValue("FALSE");
+		isVisible = false;
+	}
+
+	@Override
     public ImageVariable clone() {
         ImageVariable clone = (ImageVariable) super.clone();
 		this.rect = new Rectangle(rect.getXLeft(), rect.getYBottom(), rect.getXRight(), rect.getYTop());
