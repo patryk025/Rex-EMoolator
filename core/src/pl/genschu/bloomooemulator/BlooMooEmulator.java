@@ -494,20 +494,18 @@ public class BlooMooEmulator extends ApplicationAdapter {
             activeButton = null;
         }
 
+        Variable graphics = getGraphicsAt(x, y, drawList, false);
+
         //Gdx.app.log("Mouse", "mouseVariable != null: " + (mouseVariable != null) + " isPressed: " + isPressed + " mouseVariable.isEnabled(): " + (mouseVariable != null && mouseVariable.isEnabled()));
         if(mouseVariable != null && mouseVariable.isEnabled()) {
             if(justPressed) {
                 mouseVariable.emitSignal("ONCLICK", "LEFT"); // right is not used at all
-
-                Variable graphics = getGraphicsAt(x, y, drawList);
                 if (graphics != null) {
                     graphics.emitSignal("ONCLICK", "LEFT");
                 }
             }
             else if(justReleased) {
                 mouseVariable.emitSignal("ONRELEASE", "LEFT"); // right is not used at all
-
-                Variable graphics = getGraphicsAt(x, y, drawList);
                 if (graphics != null) {
                     graphics.emitSignal("ONRELEASE", "LEFT");
                 }
@@ -515,26 +513,25 @@ public class BlooMooEmulator extends ApplicationAdapter {
         }
 
         if(debugGraphics) {
-            Variable hoveredVariable = getGraphicsAt(x, y, drawList);
-            if (hoveredVariable != null) {
-                tooltipText = hoveredVariable.getName() + " (" + hoveredVariable.getType() + ")\nPriority: " + (hoveredVariable.getAttribute("PRIORITY") != null ? hoveredVariable.getAttribute("PRIORITY").getValue() : 0);
-                Rectangle rect = getRect(hoveredVariable);
+            if (graphics != null) {
+                tooltipText = graphics.getName() + " (" + graphics.getType() + ")\nPriority: " + (graphics.getAttribute("PRIORITY") != null ? graphics.getAttribute("PRIORITY").getValue() : 0);
+                Rectangle rect = getRect(graphics);
                 String rectText = "\nRect: " + (rect != null ? ("\n    left upper corner: (" + rect.getXLeft() + ", " + rect.getYTop() + ")\n    width: " + rect.getWidth() + "\n    height: " + rect.getHeight()) : "no defined");
-                if(hoveredVariable instanceof AnimoVariable) {
-                    tooltipText += "\nCurrent FPS: " + ((AnimoVariable) hoveredVariable).getFps();
-                    tooltipText += "\nCurrent event: " + ((AnimoVariable) hoveredVariable).getCurrentEvent().getName();
-                    tooltipText += "\nCurrent frame number: " + ((AnimoVariable) hoveredVariable).getCurrentFrameNumber();
-                    tooltipText += "\nCurrent image number: " + ((AnimoVariable) hoveredVariable).getCurrentImageNumber();
-                    tooltipText += "\nIs playing: " + ((AnimoVariable) hoveredVariable).isPlaying();
+                if(graphics instanceof AnimoVariable) {
+                    tooltipText += "\nCurrent FPS: " + ((AnimoVariable) graphics).getFps();
+                    tooltipText += "\nCurrent event: " + ((AnimoVariable) graphics).getCurrentEvent().getName();
+                    tooltipText += "\nCurrent frame number: " + ((AnimoVariable) graphics).getCurrentFrameNumber();
+                    tooltipText += "\nCurrent image number: " + ((AnimoVariable) graphics).getCurrentImageNumber();
+                    tooltipText += "\nIs playing: " + ((AnimoVariable) graphics).isPlaying();
                     tooltipText += rectText;
                 }
-                else if(hoveredVariable instanceof SequenceVariable) {
-                    tooltipText += "\nCurrent FPS: " + ((SequenceVariable) hoveredVariable).getCurrentAnimo().getFps();
-                    tooltipText += "\nCurrent event: " + ((SequenceVariable) hoveredVariable).getCurrentEventName();
-                    tooltipText += "\nCurrent animo event: " + ((SequenceVariable) hoveredVariable).getCurrentAnimo().getCurrentEvent().getName();
-                    tooltipText += "\nCurrent frame number: " + ((SequenceVariable) hoveredVariable).getCurrentAnimo().getCurrentFrameNumber();
-                    tooltipText += "\nCurrent image number: " + ((SequenceVariable) hoveredVariable).getCurrentAnimo().getCurrentImageNumber();
-                    tooltipText += "\nIs playing: " + ((SequenceVariable) hoveredVariable).getCurrentAnimo().isPlaying();
+                else if(graphics instanceof SequenceVariable) {
+                    tooltipText += "\nCurrent FPS: " + ((SequenceVariable) graphics).getCurrentAnimo().getFps();
+                    tooltipText += "\nCurrent event: " + ((SequenceVariable) graphics).getCurrentEventName();
+                    tooltipText += "\nCurrent animo event: " + ((SequenceVariable) graphics).getCurrentAnimo().getCurrentEvent().getName();
+                    tooltipText += "\nCurrent frame number: " + ((SequenceVariable) graphics).getCurrentAnimo().getCurrentFrameNumber();
+                    tooltipText += "\nCurrent image number: " + ((SequenceVariable) graphics).getCurrentAnimo().getCurrentImageNumber();
+                    tooltipText += "\nIs playing: " + ((SequenceVariable) graphics).getCurrentAnimo().isPlaying();
                     tooltipText += rectText;
                 }
                 else {
@@ -595,7 +592,7 @@ public class BlooMooEmulator extends ApplicationAdapter {
         }
     }
 
-    private Variable getGraphicsAt(int x, int y, List<Variable> drawList) {
+    private Variable getGraphicsAt(int x, int y, List<Variable> drawList, boolean useAlpha) {
         try {
             Collections.reverse(drawList);
             for (Variable variable : drawList) {
@@ -615,12 +612,39 @@ public class BlooMooEmulator extends ApplicationAdapter {
 
                 Rectangle rect = getRect(variable);
                 if (rect.contains(x, y)) {
-                    return variable;
+                    if(useAlpha) {
+                        return variable;
+                    }
+                    Image image = getImage(variable);
+                    int relativeX = x - rect.getXLeft();
+                    int relativeY = y - rect.getYTop();
+                    int alpha = getAlpha(image, relativeX, relativeY);
+
+                    Gdx.app.log(variable.getName(), "relativeX: " + relativeX + ", relativeY: " + relativeY + ", alpha: " + alpha);
+
+                    if (alpha > 0) {
+                        return variable;
+                    }
                 }
             }
         } catch (NullPointerException ignored) {}
 
         return null;
+    }
+
+    private static int getAlpha(Image image, int relativeX, int relativeY) {
+        int alpha = 255;
+
+        if(image.getImageTexture() != null) {
+            TextureData textureData = image.getImageTexture().getTextureData();
+            if (!textureData.isPrepared()) {
+                textureData.prepare();
+            }
+            Pixmap pixmap = textureData.consumePixmap();
+            int pixel = pixmap.getPixel(relativeX, relativeY);
+            alpha = (pixel & 0xFF);
+        }
+        return alpha;
     }
 
     private void drawRectangle(Rectangle rect, Color color) {

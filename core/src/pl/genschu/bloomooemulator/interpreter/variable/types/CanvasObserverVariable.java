@@ -131,7 +131,7 @@ public class CanvasObserverVariable extends Variable {
 									}
 									Pixmap pixmap = textureData.consumePixmap();
 									int pixel = pixmap.getPixel(relativeX, relativeY);
-									alpha = (pixel >> 24) & 0xff;
+									alpha = (pixel & 0xFF);
 								}
 
 								if (alpha > 0) {
