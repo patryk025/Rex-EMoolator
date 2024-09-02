@@ -4,10 +4,7 @@ import pl.genschu.bloomooemulator.interpreter.Context;
 import pl.genschu.bloomooemulator.interpreter.variable.Variable;
 import pl.genschu.bloomooemulator.interpreter.factories.VariableFactory;
 import pl.genschu.bloomooemulator.interpreter.ast.expressions.*;
-import pl.genschu.bloomooemulator.interpreter.variable.types.ApplicationVariable;
-import pl.genschu.bloomooemulator.interpreter.variable.types.EpisodeVariable;
-import pl.genschu.bloomooemulator.interpreter.variable.types.SceneVariable;
-import pl.genschu.bloomooemulator.interpreter.variable.types.StringVariable;
+import pl.genschu.bloomooemulator.interpreter.variable.types.*;
 
 public class VariableHelper {
     public static Variable getVariableFromObject(Object value, Context context) {
@@ -22,6 +19,12 @@ public class VariableHelper {
 
             if(valueString.toString().equals("_I_")) {
                 return context.getVariable(valueString.toString());
+            }
+            if(valueString instanceof Integer) {
+                return new IntegerVariable("", (Integer) valueString, context);
+            }
+            else if(valueString instanceof Double) {
+                return new DoubleVariable("", (Double) valueString, context);
             }
             return new StringVariable("", valueString.toString(), context);
         }
