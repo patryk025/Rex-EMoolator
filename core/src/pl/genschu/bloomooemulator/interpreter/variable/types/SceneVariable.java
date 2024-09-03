@@ -198,10 +198,11 @@ public class SceneVariable extends Variable {
 						music.stop();
 						music = null;
 					}
-					getAttribute("MUSIC").setValue(ArgumentsHelper.getString(arguments.get(0)));
-					getMusic();
-					music.setLooping(true);
 				}
+				setAttribute("MUSIC", new Attribute("STRING", ArgumentsHelper.getString(arguments.get(0))));
+				getMusic();
+				music.setLooping(true);
+				music.play();
 				return null;
 			}
 		});

@@ -8,6 +8,7 @@ import pl.genschu.bloomooemulator.interpreter.variable.Method;
 import pl.genschu.bloomooemulator.interpreter.variable.Parameter;
 import pl.genschu.bloomooemulator.interpreter.variable.Variable;
 import pl.genschu.bloomooemulator.loader.DBLoader;
+import pl.genschu.bloomooemulator.saver.DBSaver;
 import pl.genschu.bloomooemulator.utils.ArgumentsHelper;
 
 import java.util.ArrayList;
@@ -73,6 +74,7 @@ public class DatabaseVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				String dtaName = ArgumentsHelper.getString(arguments.get(0));
+				Gdx.app.log("DatabaseVariable", "Loading database " + dtaName);
 				DBLoader.loadDatabase(DatabaseVariable.this, dtaName);
 				return null;
 			}
@@ -103,8 +105,8 @@ public class DatabaseVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				// TODO: implement this method
-				throw new ClassMethodNotImplementedException("Method SAVE is not implemented yet");
+				DBSaver.saveDatabase(DatabaseVariable.this, ArgumentsHelper.getString(arguments.get(0)));
+				return null;
 			}
 		});
 		this.setMethod("SELECT", new Method(
@@ -137,8 +139,10 @@ public class DatabaseVariable extends Variable {
 	}
 
 	private int find(String columnName, String columnValue, int defaultIndex) {
+		int columnIndex = getColumnIndex(columnName);
+
 		for (int i = 0; i < data.size(); i++) {
-			if (data.get(i).get(columns.getFields().indexOf(columnName)).equals(columnValue)) {
+			if (data.get(i).get(columnIndex).equalsIgnoreCase(columnValue)) {
 				return i;
 			}
 		}
@@ -174,6 +178,15 @@ public class DatabaseVariable extends Variable {
 		if (knownAttributes.contains(name)) {
 			super.setAttribute(name, attribute);
 		}
+	}
+
+	private int getColumnIndex(String columnName) {
+		for(int i = 0; i < columns.getFields().size(); i++) {
+			if(columns.getFields().get(i).equalsIgnoreCase(columnName)) {
+				return i;
+			}
+		}
+		return -1;
 	}
 
 	public List<String> getCurrentRow() {

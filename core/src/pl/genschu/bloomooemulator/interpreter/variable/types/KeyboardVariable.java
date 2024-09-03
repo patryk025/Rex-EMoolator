@@ -6,10 +6,14 @@ import pl.genschu.bloomooemulator.interpreter.variable.Attribute;
 import pl.genschu.bloomooemulator.interpreter.variable.Method;
 import pl.genschu.bloomooemulator.interpreter.variable.Parameter;
 import pl.genschu.bloomooemulator.interpreter.variable.Variable;
+import pl.genschu.bloomooemulator.utils.ArgumentsHelper;
 
 import java.util.List;
 
 public class KeyboardVariable extends Variable {
+	private boolean autoRepeat = false;
+	private boolean isEnabled = true;
+
 	public KeyboardVariable(String name, Context context) {
 		super(name, context);
 	}
@@ -28,8 +32,8 @@ public class KeyboardVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				// TODO: implement this method
-				throw new ClassMethodNotImplementedException("Method DISABLE is not implemented yet");
+				setEnabled(false);
+				return null;
 			}
 		});
 		this.setMethod("ENABLE", new Method(
@@ -37,8 +41,8 @@ public class KeyboardVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				// TODO: implement this method
-				throw new ClassMethodNotImplementedException("Method ENABLE is not implemented yet");
+				setEnabled(true);
+				return null;
 			}
 		});
 		this.setMethod("GETLATESTKEY", new Method(
@@ -55,8 +59,7 @@ public class KeyboardVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				// TODO: implement this method
-				throw new ClassMethodNotImplementedException("Method ISENABLED is not implemented yet");
+				return new BoolVariable("", isEnabled, getContext());
 			}
 		});
 		this.setMethod("ISKEYDOWN", new Method(
@@ -79,8 +82,8 @@ public class KeyboardVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				// TODO: implement this method
-				throw new ClassMethodNotImplementedException("Method SETAUTOREPEAT is not implemented yet");
+				setAutoRepeat(ArgumentsHelper.getBoolean(arguments.get(0)));
+				return null;
 			}
 		});
 	}
@@ -90,4 +93,19 @@ public class KeyboardVariable extends Variable {
 		return; // no fields in this class
 	}
 
+	public boolean isAutoRepeat() {
+		return autoRepeat;
+	}
+
+	public void setAutoRepeat(boolean autoRepeat) {
+		this.autoRepeat = autoRepeat;
+	}
+
+	public boolean isEnabled() {
+		return isEnabled;
+	}
+
+	public void setEnabled(boolean enabled) {
+		isEnabled = enabled;
+	}
 }

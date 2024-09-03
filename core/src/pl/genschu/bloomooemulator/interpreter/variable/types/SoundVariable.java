@@ -79,6 +79,7 @@ public class SoundVariable extends Variable {
 					sound.setVolume(1.0f);
 				} catch(Exception e) {
 					Gdx.app.log("SoundVariable", "Error on playing sound: "+e.getMessage(), e);
+					//emitSignal("ONFINISHED");
 				}
 				return null;
 			}

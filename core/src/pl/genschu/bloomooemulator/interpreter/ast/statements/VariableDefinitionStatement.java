@@ -14,7 +14,12 @@ public class VariableDefinitionStatement extends Statement {
 
     public VariableDefinitionStatement(String type, String variableName, Expression expression) {
         this.type = type;
-        this.variableName = variableName;
+        if(variableName.startsWith("\"") && variableName.endsWith("\"")) {
+            this.variableName = variableName.substring(1, variableName.length() - 1);
+        }
+        else {
+            this.variableName = variableName;
+        }
         this.expression = expression;
     }
 
@@ -22,9 +27,12 @@ public class VariableDefinitionStatement extends Statement {
     public void execute(Context context) {
         Object value = expression.evaluate(context);
       	if(value instanceof ConstantExpression) {
-			    value = ((Expression) value).evaluate(context);
-		    }
-        Variable variable = VariableFactory.createVariable(type, variableName, value, context);
+            value = ((Expression) value).evaluate(context);
+        }
+
+        String valueString = value.toString(); // expression returns Variable, not String expected by createVariable
+
+        Variable variable = VariableFactory.createVariable(type, variableName, valueString, context);
         context.setVariable(variableName, variable);
     }
 }

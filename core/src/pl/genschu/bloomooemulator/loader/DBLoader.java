@@ -21,6 +21,7 @@ public class DBLoader {
             String line;
             while ((line = reader.readLine()) != null) {
                 if(line.startsWith("#")) continue;
+                if(line.isEmpty()) continue;
 
                 String[] values = line.split("\\|");
 
@@ -32,9 +33,9 @@ public class DBLoader {
                     Gdx.app.error("DBLoader", "Missing model in database. Aborting...");
                     return;
                 }
-                if(variable.getColumns().getFields().size() != values.length) {
+                /*if(variable.getColumns().getFields().size() != values.length) {
                     Gdx.app.log("DBLoader", "Skipping line: " + line + " (wrong number of columns)");
-                }
+                }*/
 
                 List<String> row = new ArrayList<>(Arrays.asList(values));
                 data.add(row);

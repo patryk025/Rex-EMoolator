@@ -213,7 +213,7 @@ public abstract class Variable implements Cloneable {
 		try {
 			return method.execute(List.of(params));
 		} catch (ClassMethodNotFoundException | ClassMethodNotImplementedException | ClassCastException e) {
-			Gdx.app.error("Variable", "Method call error in class " + this.getType() + ": " + e.getMessage(), e);
+			Gdx.app.error("Variable", "Method call error in variable " + this.getName() + " of class " + this.getType() + ": " + e.getMessage(), e);
 			return null;
 		}
     }
