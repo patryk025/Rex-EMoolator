@@ -84,7 +84,7 @@ iterator
 	;
 
 string
-	:	QUOTEMARK ((literal | arithmetic? (number | floatNumber) | compare | SLASH | struct | LPAREN | RPAREN | SEPARATOR | arithmetic | VARREF | iterator | expression | functionFire)+ | (variable (SLASH literal?)?) | string | bool)? QUOTEMARK
+	:	QUOTEMARK ((literal | arithmetic? (number | floatNumber) | compare | SLASH | struct | LPAREN | RPAREN | arithmetic | VARREF | iterator | expression | functionFire)+ | (variable (SLASH literal?)?) | string | bool)? QUOTEMARK
 	;
 
 instr
@@ -185,7 +185,7 @@ floatNumber
 	;
 
 literal
-	:	LITERAL
+	:	variable? LITERAL variable?
     ;
 
 arithmetic
