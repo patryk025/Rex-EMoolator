@@ -5,7 +5,9 @@ import com.badlogic.gdx.graphics.Cursor.SystemCursor;
 import pl.genschu.bloomooemulator.interpreter.Context;
 import pl.genschu.bloomooemulator.interpreter.variable.Attribute;
 import pl.genschu.bloomooemulator.interpreter.variable.Method;
+import pl.genschu.bloomooemulator.interpreter.variable.Parameter;
 import pl.genschu.bloomooemulator.interpreter.variable.Variable;
+import pl.genschu.bloomooemulator.utils.ArgumentsHelper;
 
 import java.util.List;
 
@@ -60,6 +62,25 @@ public class MouseVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				return new IntegerVariable("", posY, context);
+			}
+		});
+		this.setMethod("SETPOSITION", new Method(
+				List.of(
+						new Parameter("INTEGER", "posX", true),
+						new Parameter("INTEGER", "posY", true)
+				),
+				"void"
+		) {
+			@Override
+			public Variable execute(List<Object> arguments) {
+				int posX = ArgumentsHelper.getInteger(arguments.get(0));
+				int posY = ArgumentsHelper.getInteger(arguments.get(1));
+
+				posX = Math.max(0, Math.min(800, posX));
+				posY = Math.max(0, Math.min(600, posY));
+
+				update(posX, posY);
+				return null;
 			}
 		});
 		this.setMethod("SHOW", new Method(
