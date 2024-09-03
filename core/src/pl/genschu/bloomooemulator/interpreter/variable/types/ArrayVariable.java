@@ -11,6 +11,7 @@ import pl.genschu.bloomooemulator.interpreter.variable.Method;
 import pl.genschu.bloomooemulator.interpreter.variable.Parameter;
 import pl.genschu.bloomooemulator.interpreter.variable.Variable;
 import pl.genschu.bloomooemulator.loader.ArrayLoader;
+import pl.genschu.bloomooemulator.saver.ArraySaver;
 import pl.genschu.bloomooemulator.utils.ArgumentsHelper;
 
 import java.util.ArrayList;
@@ -337,8 +338,8 @@ public class ArrayVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				// TODO: implement this method
-				throw new ClassMethodNotImplementedException("Method SAVE is not implemented yet");
+				ArraySaver.saveArray(ArrayVariable.this, ArgumentsHelper.getString(arguments.get(0)));
+				return null;
 			}
 		});
 		this.setMethod("SAVEINI", new Method(

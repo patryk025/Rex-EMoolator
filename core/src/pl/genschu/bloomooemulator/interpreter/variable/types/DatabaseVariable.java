@@ -181,6 +181,22 @@ public class DatabaseVariable extends Variable {
 	}
 
 	public StructVariable getColumns() {
+		if(columns == null) {
+			if(getAttribute("MODEL") != null) {
+				Variable tmpColumns = context.getVariable(getAttribute("MODEL").getValue().toString());
+				if(tmpColumns == null) {
+					Gdx.app.error("DatabaseVariable", "Database doesn't have column information. Find is not possible");
+					return null;
+				}
+				else {
+					columns = (StructVariable) tmpColumns;
+				}
+			}
+			else {
+				Gdx.app.error("DatabaseVariable", "Database doesn't have column information. Find is not possible");
+				return null;
+			}
+		}
 		return columns;
 	}
 

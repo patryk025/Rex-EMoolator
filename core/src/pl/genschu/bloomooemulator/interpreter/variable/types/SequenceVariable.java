@@ -86,6 +86,16 @@ public class SequenceVariable extends Variable {
 				return null;
 			}
 		});
+		this.setMethod("RESUME", new Method(
+				"void"
+		) {
+			@Override
+			public Variable execute(List<Object> arguments) {
+				isPlaying = true;
+				getCurrentAnimo().setPlaying(true);
+				return null;
+			}
+		});
 		this.setMethod("SHOW", new Method(
 				"void"
 		) {

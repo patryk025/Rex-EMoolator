@@ -101,8 +101,16 @@ public class SoundVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				sound.stop();
+				try {
+					sound.stop();
+				} catch(NullPointerException ignored) {}
 				isPlaying = false;
+
+				if(!arguments.isEmpty()) {
+					if(ArgumentsHelper.getBoolean(arguments.get(0))) {
+						emitSignal("ONFINISHED");
+					}
+				}
 				return null;
 			}
 		});

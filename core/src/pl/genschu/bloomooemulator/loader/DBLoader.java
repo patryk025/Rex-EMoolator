@@ -28,6 +28,10 @@ public class DBLoader {
                 if(values.length < 1) {
                     Gdx.app.log("DBLoader", "Skipping line: " + line + " (missing values)");
                 }
+                if(variable.getColumns() == null) {
+                    Gdx.app.error("DBLoader", "Missing model in database. Aborting...");
+                    return;
+                }
                 if(variable.getColumns().getFields().size() != values.length) {
                     Gdx.app.log("DBLoader", "Skipping line: " + line + " (wrong number of columns)");
                 }
