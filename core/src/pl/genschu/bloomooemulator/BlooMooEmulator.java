@@ -500,15 +500,9 @@ public class BlooMooEmulator extends ApplicationAdapter {
         if(mouseVariable != null && mouseVariable.isEnabled()) {
             if(justPressed) {
                 mouseVariable.emitSignal("ONCLICK", "LEFT"); // right is not used at all
-                if (graphics != null) {
-                    graphics.emitSignal("ONCLICK", "LEFT");
-                }
             }
             else if(justReleased) {
                 mouseVariable.emitSignal("ONRELEASE", "LEFT"); // right is not used at all
-                if (graphics != null) {
-                    graphics.emitSignal("ONRELEASE", "LEFT");
-                }
             }
         }
 
