@@ -57,7 +57,14 @@ public class FileUtils {
         }
         else {
             // probably is relative path
-            filePath = variable.getContext().getGame().getCurrentSceneFile().getAbsolutePath() + "/" + filePath;
+            if(variable.getContext().getGame().getCurrentSceneFile() != null)
+                filePath = variable.getContext().getGame().getCurrentSceneFile().getAbsolutePath() + "/" + filePath;
+            else if(variable.getContext().getGame().getCurrentEpisodeFile() != null)
+                filePath = variable.getContext().getGame().getCurrentEpisodeFile().getAbsolutePath() + "/" + filePath;
+            else if(variable.getContext().getGame().getCurrentApplicationFile() != null)
+                filePath = variable.getContext().getGame().getCurrentApplicationFile().getAbsolutePath() + "/" + filePath;
+            else
+                filePath = variable.getContext().getGame().getDaneFolder().getAbsolutePath() + "/" + filePath;
         }
 
         return convertToPlatformPath(filePath);

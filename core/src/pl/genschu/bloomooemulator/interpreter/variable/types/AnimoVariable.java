@@ -723,7 +723,7 @@ public class AnimoVariable extends Variable implements Cloneable{
 
 				currentFrameNumber = 0;
 				currentImageNumber = currentEvent.getFramesNumbers().get(currentFrameNumber);
-				currentImage = currentEvent.getFrames().get(currentImageNumber);
+				currentImage = getImages().get(currentImageNumber);
 				//Gdx.app.log("updateRect()", "STOP");
 				updateRect();
 				isPlaying = false;
@@ -766,12 +766,10 @@ public class AnimoVariable extends Variable implements Cloneable{
 					getAttribute("FILENAME").setValue(filename);
 					try {
 						AnimoLoader.loadAnimo(this);
-						currentFrameNumber = 0;
-						currentImageNumber = currentEvent.getFramesNumbers().get(currentFrameNumber);
-						currentImage = currentEvent.getFrames().get(currentImageNumber);
+						setCurrentFrameNumber(0);
 						updateRect();
 					} catch (Exception e) {
-						Gdx.app.error("AnimoVariable", "Error loading ANIMO variable: " + filename);
+						Gdx.app.error("AnimoVariable", "Error loading ANIMO variable: " + filename, e);
 					}
                     break;
                 case "PRIORITY":
@@ -1041,7 +1039,12 @@ public class AnimoVariable extends Variable implements Cloneable{
 	}
 
 	public void setCurrentFrameNumber(int currentFrameNumber) {
+		if (currentFrameNumber >= currentEvent.getFrames().size()) {
+			currentFrameNumber = currentEvent.getFrames().size() - 1;
+		}
 		this.currentFrameNumber = currentFrameNumber;
+		this.currentImageNumber = currentEvent.getFramesNumbers().get(currentFrameNumber);
+		this.currentImage = currentEvent.getFrames().get(currentImageNumber);
 	}
 
 	public int getCurrentImageNumber() {

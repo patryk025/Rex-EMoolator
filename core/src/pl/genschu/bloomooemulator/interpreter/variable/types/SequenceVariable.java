@@ -4,6 +4,7 @@ import com.badlogic.gdx.Gdx;
 import pl.genschu.bloomooemulator.interpreter.Context;
 import pl.genschu.bloomooemulator.interpreter.variable.*;
 import pl.genschu.bloomooemulator.loader.SEQParser;
+import pl.genschu.bloomooemulator.objects.Event;
 import pl.genschu.bloomooemulator.utils.ArgumentsHelper;
 
 import java.util.*;
@@ -102,6 +103,10 @@ public class SequenceVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
+				if(eventMap.isEmpty()) {
+					loadSequence();
+				}
+
 				if(!arguments.isEmpty()) {
 					String eventName = ArgumentsHelper.getString(arguments.get(0));
 					if (currentEventName.equals(eventName)) {

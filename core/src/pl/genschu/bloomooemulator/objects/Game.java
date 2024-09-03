@@ -26,6 +26,8 @@ public class Game {
     private GameEntry game;
     private String currentEpisode = "BRAKEPIZODU";
     private String currentScene = "BRAKSCENY";
+    private File currentApplicationFile = null;
+    private File currentEpisodeFile = null;
     private File currentSceneFile = null;
     private File previousSceneFile = null;
 
@@ -164,7 +166,9 @@ public class Game {
             currentApplicationContext = new Context();
             currentApplicationContext.setParentContext(definitionContext);
 
-            cnvParser.parseFile(FileUtils.findRelativeFileIgnoreCase(applicationVariable.getPath(), applicationVariable.getName()+".cnv"), currentApplicationContext);
+            currentApplicationFile = FileUtils.findRelativeFileIgnoreCase(applicationVariable.getPath(), applicationVariable.getName()+".cnv");
+
+            cnvParser.parseFile(currentApplicationFile, currentApplicationContext);
 
             Gdx.app.log("Game loader", "Application variables loaded");
 
@@ -331,7 +335,8 @@ public class Game {
             try {
                 currentEpisodeContext = new Context();
                 currentEpisodeContext.setParentContext(currentApplicationContext);
-                File episodeFile = FileUtils.findRelativeFileIgnoreCase(episode.getPath(), episode.getName() + ".cnv");
+                currentEpisodeFile = episode.getPath();
+                File episodeFile = FileUtils.findRelativeFileIgnoreCase(currentEpisodeFile, episode.getName() + ".cnv");
 
                 if(episodeFile != null) {
                     try {
@@ -525,6 +530,22 @@ public class Game {
 
     public void setWavsFolder(File wavsFolder) {
         this.wavsFolder = wavsFolder;
+    }
+
+    public File getCurrentApplicationFile() {
+        return currentApplicationFile;
+    }
+
+    public void setCurrentApplicationFile(File currentApplicationFile) {
+        this.currentApplicationFile = currentApplicationFile;
+    }
+
+    public File getCurrentEpisodeFile() {
+        return currentEpisodeFile;
+    }
+
+    public void setCurrentEpisodeFile(File currentEpisodeFile) {
+        this.currentEpisodeFile = currentEpisodeFile;
     }
 
     public File getCurrentSceneFile() {

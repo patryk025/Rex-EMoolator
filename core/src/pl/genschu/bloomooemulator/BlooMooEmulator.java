@@ -445,6 +445,8 @@ public class BlooMooEmulator extends ApplicationAdapter {
                         if (activeButton == null) {
                             activeButton = animo;
                             triggerSignal(animo, "ONCLICK");
+                            animo.fireMethod("PLAY", new StringVariable("", "ONCLICK", context));
+                            animo.setPlaying(false);
                         }
                     }
                     if (animo == activeButton) {
@@ -464,6 +466,8 @@ public class BlooMooEmulator extends ApplicationAdapter {
                         if (onFocusSignal != null) {
                             onFocusSignal.execute(null);
                         }
+                        animo.fireMethod("PLAY", new StringVariable("", "ONFOCUSON", context));
+                        animo.setPlaying(false);
                     }
                 }
                 else {
@@ -475,8 +479,12 @@ public class BlooMooEmulator extends ApplicationAdapter {
                         if (onFocusLossSignal != null) {
                             onFocusLossSignal.execute(null);
                         }
+                        animo.fireMethod("PLAY", new StringVariable("", "ONFOCUSOFF", context));
+                        animo.setPlaying(false);
                     } else {
                         animo.setFocused(false);
+                        animo.fireMethod("PLAY", new StringVariable("", "ONNOEVENT", context));
+                        animo.setPlaying(false);
                     }
                 }
             }
