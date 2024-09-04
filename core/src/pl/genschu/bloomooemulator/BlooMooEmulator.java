@@ -385,7 +385,7 @@ public class BlooMooEmulator extends ApplicationAdapter {
                 ButtonVariable button = (ButtonVariable) variable;
 
                 if(!button.isVisible()) {
-                    Gdx.app.log("BlooMooEmulator", button.getName() + " is not visible, hiding images");
+                    // Gdx.app.log("BlooMooEmulator", button.getName() + " is not visible, hiding images");
                     button.hideImages();
                 }
 
