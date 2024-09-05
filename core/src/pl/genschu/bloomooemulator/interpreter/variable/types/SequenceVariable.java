@@ -14,6 +14,7 @@ public class SequenceVariable extends Variable {
 	protected Map<String, SequenceEvent> eventMap = new LinkedHashMap<>();
 	private String currentEventName;
 	private AnimoVariable currentAnimo;
+	private SoundVariable currentSound;
 	private boolean isPlaying;
     private boolean isVisible = true;
 
@@ -57,6 +58,9 @@ public class SequenceVariable extends Variable {
 			public Variable execute(List<Object> arguments) {
 				isPlaying = false;
 				getCurrentAnimo().setPlaying(false);
+				if(getCurrentSound() != null) {
+					getCurrentSound().pause();
+				}
 				return null;
 			}
 		});
@@ -93,6 +97,9 @@ public class SequenceVariable extends Variable {
 			public Variable execute(List<Object> arguments) {
 				isPlaying = true;
 				getCurrentAnimo().setPlaying(true);
+				if(getCurrentSound() != null) {
+					getCurrentSound().resume();
+				}
 				return null;
 			}
 		});
@@ -178,6 +185,10 @@ public class SequenceVariable extends Variable {
 		this.currentAnimo = currentAnimo;
 	}
 
+	public void setCurrentSound(SoundVariable currentSound) {
+		this.currentSound = currentSound;
+	}
+
 	public boolean isPlaying() {
 		return isPlaying;
 	}
@@ -205,6 +216,10 @@ public class SequenceVariable extends Variable {
 
 	public AnimoVariable getCurrentAnimo() {
 		return currentAnimo;
+	}
+
+	public SoundVariable getCurrentSound() {
+		return currentSound;
 	}
 
 	public Map<String, SequenceEvent> getEventMap() {
@@ -320,6 +335,7 @@ public class SequenceVariable extends Variable {
 			});
 			parent.setPlaying(true);
 			parent.setCurrentAnimo(animoVariable);
+			parent.setCurrentSound(null);
 		}
 	}
 
@@ -437,6 +453,7 @@ public class SequenceVariable extends Variable {
 		private void playSound(Signal onFinished) {
 			this.soundVariable.getMethod("PLAY", Collections.emptyList()).execute(Collections.emptyList());
 			this.soundVariable.setSignal("ONFINISHED", onFinished);
+			parent.setCurrentSound(this.soundVariable);
 		}
 
 		public void emitSignal(String signalName) {

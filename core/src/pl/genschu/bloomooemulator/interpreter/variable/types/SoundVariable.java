@@ -57,8 +57,7 @@ public class SoundVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				sound.pause();
-				isPlaying = false;
+				pause();
 				return null;
 			}
 		});
@@ -89,8 +88,7 @@ public class SoundVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				sound.play();
-				isPlaying = true;
+				resume();
 				return null;
 			}
 		});
@@ -143,6 +141,20 @@ public class SoundVariable extends Variable {
 				});
 			}
 		}
+	}
+
+	public void pause() {
+		if(sound != null) {
+			sound.pause();
+		}
+		isPlaying = false;
+	}
+
+	public void resume() {
+		if(sound != null) {
+			sound.play();
+		}
+		isPlaying = true;
 	}
 
 	public Music getSound() {
