@@ -38,7 +38,7 @@ Aktualne statusy gier opartych na silniku Piklib/BlooMoo:
 <tr>
 <td>Reksio i Wehikuł Czasu</td>
 <td><img alt="W intrze" src="https://img.shields.io/badge/W intrze-orange"/></td>
-<td>Odpala się sekwencja z panoramą, ale nie odpala się muzyka w tle i jeden plik audio. Niespodziewanie zoomuje się na kanapę i stoi w miejscu.</td>
+<td>Odpala się sekwencja z panoramą, odpala się muzyka w tle, ale sypie się pauzowanie i wznawianie sekwencji. Niespodziewanie zoomuje się na kanapę i stoi w miejscu.</td>
 </tr>
 <tr>
 <td>Reksio i Kapitan Nemo</td>
@@ -63,7 +63,7 @@ Aktualne statusy gier opartych na silniku Piklib/BlooMoo:
 <tr>
 <td>Poznaj Mity: Przygody Odyseusza</td>
 <td><img alt="W grze" src="https://img.shields.io/badge/W grze-yellow"/></td>
-<td>Pojawia się plansza startowa. Nic więcej nie daje się zrobić.</td>
+<td>Przechodzi do menu i przyciski działają, chociaż niektóre się nie wyświetlają. Minigierki na ten moment nie działają lub wywalają grę.</td>
 </tr>
 <tr>
 <td>Poznaj Mity: Herkules</td>
