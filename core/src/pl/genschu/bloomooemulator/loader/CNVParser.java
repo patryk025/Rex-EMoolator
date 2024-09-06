@@ -9,6 +9,8 @@ import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.tree.ParseTree;
 import pl.genschu.bloomooemulator.interpreter.ast.ASTBuilderVisitor;
 import pl.genschu.bloomooemulator.interpreter.ast.Node;
+import pl.genschu.bloomooemulator.interpreter.exceptions.BreakException;
+import pl.genschu.bloomooemulator.interpreter.exceptions.OneBreakException;
 import pl.genschu.bloomooemulator.interpreter.variable.Signal;
 import pl.genschu.bloomooemulator.interpreter.variable.Variable;
 import pl.genschu.bloomooemulator.interpreter.factories.VariableFactory;
@@ -178,8 +180,11 @@ public class CNVParser {
                             for(String param : signalAndParams.params) {
                                 arguments.add(getVariableFromObject(param, context));
                             }
-                        signalAndParams.behaviourVariable.getMethod(signalAndParams.behaviourVariable.getAttribute("CONDITION") != null ? "RUNC" : "RUN", Collections.singletonList("mixed"))
-                                .execute(!arguments.isEmpty() ? arguments : null);
+
+                        try {
+                            signalAndParams.behaviourVariable.getMethod(signalAndParams.behaviourVariable.getAttribute("CONDITION") != null ? "RUNC" : "RUN", Collections.singletonList("mixed"))
+                                    .execute(!arguments.isEmpty() ? arguments : null);
+                        } catch (BreakException | OneBreakException ignored) {}
 
                         signalAndParams.behaviourVariable.getContext().setThisVariable(oldThis);
                         Gdx.app.log("Signal", "Signal " + signalName + " done");

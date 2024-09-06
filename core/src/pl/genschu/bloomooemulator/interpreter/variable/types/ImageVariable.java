@@ -274,6 +274,9 @@ public class ImageVariable extends Variable implements Cloneable {
 				ImageLoader.loadImage(this);
 				updateRect();
 			}
+			if(name.equals("VISIBLE")) {
+				changeVisibility(attribute.getValue().toString().equals("TRUE"));
+			}
 		}
 	}
 

@@ -13,6 +13,7 @@ import pl.genschu.bloomooemulator.logic.GameEntry;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -176,6 +177,7 @@ public class Game {
 
             // FIXME: I still don't know, why RANDOM is working without defining it in scripts
             currentApplicationContext.setVariable("RANDOM", new RandVariable("RANDOM", currentApplicationContext));
+            currentApplicationContext.setVariable("SYSTEM", new SystemVariable("RANDOM", currentApplicationContext));
 
             goTo(applicationVariable.getFirstEpisode().getFirstScene().getName());
         } catch (IOException e) {
@@ -233,11 +235,11 @@ public class Game {
             }
         }
 
-        File[] files = parentFolder.listFiles((dir, name) -> name.toLowerCase().endsWith(".exe") && !name.equalsIgnoreCase("setup") && !name.equalsIgnoreCase("uninstall") && !name.equalsIgnoreCase("install"));
+        File[] files = parentFolder.listFiles((dir, name) -> name.toLowerCase().endsWith(".exe") && !name.equalsIgnoreCase("setup.exe") && !name.equalsIgnoreCase("uninstall.exe") && !name.equalsIgnoreCase("install.exe"));
         if (files == null || files.length == 0) {
             Gdx.app.error("findGameINI", "No .exe file found in the parent folder. Switching to fallback method...");
 
-            File[] iniFiles = parentFolder.listFiles((dir, name) -> name.toLowerCase().endsWith(".ini") && !name.equalsIgnoreCase("setup") && !name.equalsIgnoreCase("uninstall") && !name.equalsIgnoreCase("install"));
+            File[] iniFiles = parentFolder.listFiles((dir, name) -> name.toLowerCase().endsWith(".ini") && !name.equalsIgnoreCase("setup.ini") && !name.equalsIgnoreCase("uninstall.ini") && !name.equalsIgnoreCase("install.ini"));
 
             if (iniFiles == null || iniFiles.length == 0) {
                 Gdx.app.error("findGame", "No .ini files found in the parent folder");
@@ -287,6 +289,8 @@ public class Game {
             gameINI.saveFile(iniPath);
         } catch (IOException e) {
             throw new RuntimeException(e);
+        } catch (NullPointerException ignored) {
+            // gameINI can be null
         }
 
         Variable variable = definitionContext.getVariable(name);
@@ -412,6 +416,8 @@ public class Game {
             gameINI.saveFile(iniPath);
         } catch (IOException e) {
             throw new RuntimeException(e);
+        } catch (NullPointerException ignored) {
+            // gameINI can be null
         }
 
         for(String key : definitionContext.getVariables().keySet()) {
