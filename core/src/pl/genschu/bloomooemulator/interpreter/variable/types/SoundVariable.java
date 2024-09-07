@@ -76,6 +76,12 @@ public class SoundVariable extends Variable {
 					sound.play();
 					isPlaying = true;
 					sound.setVolume(1.0f);
+					try {
+						context.getGame().getCurrentPlayingAudio().stop();
+					} catch (NullPointerException e) {
+						Gdx.app.log("SoundVariable", "No current playing audio: "+e.getMessage(), e);
+					}
+					context.getGame().setCurrentPlayingAudio(sound);
 				} catch(Exception e) {
 					Gdx.app.log("SoundVariable", "Error on playing sound: "+e.getMessage(), e);
 					//emitSignal("ONFINISHED");
@@ -102,6 +108,7 @@ public class SoundVariable extends Variable {
 			public Variable execute(List<Object> arguments) {
 				try {
 					sound.stop();
+					context.getGame().setCurrentPlayingAudio(null);
 				} catch(NullPointerException ignored) {}
 				isPlaying = false;
 

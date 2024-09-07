@@ -48,6 +48,8 @@ public class Game {
     private Context currentEpisodeContext;
     private Context currentSceneContext;
 
+    private Music currentPlayingAudio = null; // which is not the current music
+
     private Map<String, Music> musicCache;
 
     private Pixmap lastFrame;
@@ -588,5 +590,13 @@ public class Game {
 
     public ApplicationVariable getApplicationVariable() {
         return applicationVariable;
+    }
+
+    public Music getCurrentPlayingAudio() {
+        return currentPlayingAudio;
+    }
+
+    public void setCurrentPlayingAudio(Music currentPlayingAudio) {
+        this.currentPlayingAudio = currentPlayingAudio;
     }
 }

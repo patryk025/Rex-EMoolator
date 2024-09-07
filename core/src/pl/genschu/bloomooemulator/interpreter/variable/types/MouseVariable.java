@@ -16,6 +16,7 @@ public class MouseVariable extends Variable {
 	private int posX;
 	private int posY;
 	private boolean isVisible = true;
+	private boolean emitSignals = true;
 
 	public MouseVariable(String name, Context context) {
 		super(name, context);
@@ -39,12 +40,30 @@ public class MouseVariable extends Variable {
 				return null;
 			}
 		});
+		this.setMethod("DISABLESIGNAL", new Method(
+				"void"
+		) {
+			@Override
+			public Variable execute(List<Object> arguments) {
+				emitSignals = false;
+				return null;
+			}
+		});
 		this.setMethod("ENABLE", new Method(
 				"void"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				isEnabled = true;
+				return null;
+			}
+		});
+		this.setMethod("ENABLESIGNAL", new Method(
+				"void"
+		) {
+			@Override
+			public Variable execute(List<Object> arguments) {
+				emitSignals = true;
 				return null;
 			}
 		});
@@ -123,7 +142,8 @@ public class MouseVariable extends Variable {
 
 	public void update(int x, int y) {
 		if(x != posX || y != posY) {
-			emitSignal("ONMOVE");
+			if(emitSignals)
+				emitSignal("ONMOVE");
 		}
 		this.posX = x;
 		this.posY = y;
@@ -135,5 +155,13 @@ public class MouseVariable extends Variable {
 
 	public void setVisible(boolean visible) {
 		isVisible = visible;
+	}
+
+	public boolean isEmitSignals() {
+		return emitSignals;
+	}
+
+	public void setEmitSignals(boolean emitSignals) {
+		this.emitSignals = emitSignals;
 	}
 }

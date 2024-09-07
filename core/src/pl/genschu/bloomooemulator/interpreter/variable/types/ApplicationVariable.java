@@ -18,6 +18,7 @@ public class ApplicationVariable extends Variable {
 	private List<EpisodeVariable> episodes;
 	private EpisodeVariable firstEpisode;
 	private File path;
+	private String language = "POL";  // default language is Polish
 
 	public ApplicationVariable(String name, Context context) {
 		super(name, context);
@@ -46,8 +47,7 @@ public class ApplicationVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				// TODO: check if is get from system
-				return VariableFactory.createVariable("STRING", null, "POL", getContext()); // default
+				return VariableFactory.createVariable("STRING", null, language, getContext()); // default
 			}
 		});
 		this.setMethod("RUN", new Method(
@@ -95,8 +95,17 @@ public class ApplicationVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				// TODO: implement this method
-				throw new ClassMethodNotImplementedException("Method RUNENV is not implemented yet");
+				// TODO: check what if scene is not loaded
+				String sceneName = ArgumentsHelper.getString(arguments.get(0));
+				String behaviourName = ArgumentsHelper.getString(arguments.get(1));
+
+				if(sceneName.equals(getContext().getGame().getCurrentScene())) {
+					Variable behaviour = getContext().getGame().getCurrentSceneContext().getVariable(behaviourName); // we need to get current scene context because getContext() have only definition variables
+					if(behaviour instanceof BehaviourVariable) {
+						behaviour.fireMethod(behaviour.getAttribute("CONDITION") != null ? "RUNC" : "RUN", new StringVariable("", behaviourName, context));
+					}
+				}
+				return null;
 			}
 		});
 		this.setMethod("SETLANGUAGE", new Method(
@@ -107,8 +116,8 @@ public class ApplicationVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				// TODO: implement this method
-				throw new ClassMethodNotImplementedException("Method SETLANGUAGE is not implemented yet");
+				language = ArgumentsHelper.getString(arguments.get(0));
+				return null;
 			}
 		});
 	}

@@ -1,15 +1,24 @@
 package pl.genschu.bloomooemulator.interpreter.variable.types;
 
-import pl.genschu.bloomooemulator.interpreter.exceptions.ClassMethodNotImplementedException;
+import com.badlogic.gdx.Gdx;
 import pl.genschu.bloomooemulator.interpreter.Context;
 import pl.genschu.bloomooemulator.interpreter.variable.Attribute;
 import pl.genschu.bloomooemulator.interpreter.variable.Method;
 import pl.genschu.bloomooemulator.interpreter.variable.Parameter;
 import pl.genschu.bloomooemulator.interpreter.variable.Variable;
+import pl.genschu.bloomooemulator.loader.CNVParser;
+import pl.genschu.bloomooemulator.utils.ArgumentsHelper;
+import pl.genschu.bloomooemulator.utils.FileUtils;
 
+import java.io.File;
+import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class CNVLoaderVariable extends Variable {
+	private Map<String, Context> loadedContexts = new HashMap<>();
+
 	public CNVLoaderVariable(String name, Context context) {
 		super(name, context);
 	}
@@ -31,10 +40,34 @@ public class CNVLoaderVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				// TODO: implement this method
-				throw new ClassMethodNotImplementedException("Method LOAD is not implemented yet");
+				String cnvFile = ArgumentsHelper.getString(arguments.get(0));
+				if (loadedContexts.containsKey(cnvFile)) { // TODO: check if stay intact or reload CNV
+					Gdx.app.log("CNVLoaderVariable", "CNV already loaded " + cnvFile);
+					return null;
+				}
+
+				Context cnvContext = new Context();
+				cnvContext.setGame(getContext().getGame());
+				String cnvPath = FileUtils.resolveRelativePath(CNVLoaderVariable.this, cnvFile);
+
+				CNVParser cnvParser = new CNVParser();
+                try {
+					Gdx.app.log("CNVLoaderVariable", "Loading " + cnvFile);
+                    cnvParser.parseFile(new File(cnvPath), cnvContext);
+
+					loadedContexts.put(cnvFile, cnvContext);
+
+					getContext().addContext(cnvContext);
+					Gdx.app.log("CNVLoaderVariable", "Loaded " + cnvFile);
+                } catch (IOException e) {
+					Gdx.app.error("CNVLoaderVariable", "Error loading " + cnvFile, e);
+                    throw new RuntimeException(e);
+                }
+
+				return null;
 			}
 		});
+
 		this.setMethod("RELEASE", new Method(
 				List.of(
 						new Parameter("STRING", "cnvFile", true)
@@ -43,8 +76,21 @@ public class CNVLoaderVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				// TODO: implement this method
-				throw new ClassMethodNotImplementedException("Method RELEASE is not implemented yet");
+				String cnvFile = ArgumentsHelper.getString(arguments.get(0));
+				if (!loadedContexts.containsKey(cnvFile)) {
+					Gdx.app.log("CNVLoaderVariable", "CNV not loaded " + cnvFile);
+					return null;
+				}
+
+				Context cnvContext = loadedContexts.get(cnvFile);
+
+				Gdx.app.log("CNVLoaderVariable", "Unloading " + cnvFile);
+				getContext().removeContext(cnvContext);
+
+				loadedContexts.remove(cnvFile);
+
+				Gdx.app.log("CNVLoaderVariable", "Unloaded " + cnvFile);
+				return null;
 			}
 		});
 	}
@@ -53,5 +99,4 @@ public class CNVLoaderVariable extends Variable {
 	public void setAttribute(String name, Attribute attribute) {
 		return; // no fields in this class
 	}
-
 }

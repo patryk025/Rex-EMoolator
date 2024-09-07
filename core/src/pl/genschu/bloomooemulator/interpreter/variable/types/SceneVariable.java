@@ -22,6 +22,9 @@ public class SceneVariable extends Variable {
 	private ImageVariable background;
 	private Music music;
 
+	private int minHotSpotZ = 0;
+	private int maxHotSpotZ = 10000000;
+
 	public SceneVariable(String name, Context context) {
 		super(name, context);
 	}
@@ -30,6 +33,24 @@ public class SceneVariable extends Variable {
 	protected void setMethods() {
 		super.setMethods();
 
+		this.setMethod("GETMINHSPRIORITY", new Method(
+				List.of(),
+				"void"
+		) {
+			@Override
+			public Variable execute(List<Object> arguments) {
+				return new IntegerVariable("", getMinHotSpotZ(), getContext());
+			}
+		});
+		this.setMethod("GETMAXHSPRIORITY", new Method(
+				List.of(),
+				"void"
+		) {
+			@Override
+			public Variable execute(List<Object> arguments) {
+				return new IntegerVariable("", getMaxHotSpotZ(), getContext());
+			}
+		});
 		this.setMethod("PAUSE", new Method(
 				"void"
 		) {
@@ -166,8 +187,22 @@ public class SceneVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				// TODO: implement this method
-				throw new ClassMethodNotImplementedException("Method SETMINHSPRIORITY is not implemented yet");
+				int minHSPriority = ArgumentsHelper.getInteger(arguments.get(0));
+				setMinHotSpotZ(minHSPriority);
+				return null;
+			}
+		});
+		this.setMethod("SETMAXHSPRIORITY", new Method(
+				List.of(
+						new Parameter("INTEGER", "maxHSPriority", true)
+				),
+				"void"
+		) {
+			@Override
+			public Variable execute(List<Object> arguments) {
+				int maxHSPriority = ArgumentsHelper.getInteger(arguments.get(0));
+				setMaxHotSpotZ(maxHSPriority);
+				return null;
 			}
 		});
 		this.setMethod("SETMUSICVOLUME", new Method(
@@ -275,5 +310,21 @@ public class SceneVariable extends Variable {
 
 	public void setMusic(Music music) {
 		this.music = music;
+	}
+
+	public int getMinHotSpotZ() {
+		return minHotSpotZ;
+	}
+
+	public void setMinHotSpotZ(int minHotSpotZ) {
+		this.minHotSpotZ = minHotSpotZ;
+	}
+
+	public int getMaxHotSpotZ() {
+		return maxHotSpotZ;
+	}
+
+	public void setMaxHotSpotZ(int maxHotSpotZ) {
+		this.maxHotSpotZ = maxHotSpotZ;
 	}
 }
