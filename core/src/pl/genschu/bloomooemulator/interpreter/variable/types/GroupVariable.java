@@ -11,15 +11,17 @@ import pl.genschu.bloomooemulator.interpreter.variable.Variable;
 import pl.genschu.bloomooemulator.utils.ArgumentsHelper;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class GroupVariable extends Variable {
-	List<Variable> variables;
+	Set<Variable> variables;
 
 	public GroupVariable(String name, Context context) {
 		super(name, context);
 
-		this.variables = new ArrayList<>();
+		this.variables = new HashSet<>();
 	}
 
 	@Override

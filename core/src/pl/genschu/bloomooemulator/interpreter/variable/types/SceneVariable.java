@@ -15,6 +15,7 @@ import pl.genschu.bloomooemulator.utils.ArgumentsHelper;
 import pl.genschu.bloomooemulator.utils.FileUtils;
 
 import java.io.File;
+import java.util.Collection;
 import java.util.List;
 
 public class SceneVariable extends Variable {
@@ -49,6 +50,33 @@ public class SceneVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				return new IntegerVariable("", getMaxHotSpotZ(), getContext());
+			}
+		});
+		this.setMethod("GETPLAYINGANIMO", new Method(
+				List.of(
+						new Parameter("STRING", "groupName", true)
+				),
+				"void"
+		) {
+			@Override
+			public Variable execute(List<Object> arguments) {
+				Variable groupVariable = getContext().getVariable(ArgumentsHelper.getString(arguments.get(0)));
+
+				if(groupVariable instanceof GroupVariable) {
+					GroupVariable group = (GroupVariable) groupVariable;
+					group.variables.clear();
+
+					Collection<Variable> drawList = getContext().getGraphicsVariables().values();
+					for(Variable variable : drawList) {
+						if(variable instanceof AnimoVariable) {
+							AnimoVariable animo = (AnimoVariable) variable;
+							if(animo.isPlaying()) {
+								group.variables.add(animo);
+							}
+						}
+					}
+				}
+				return null;
 			}
 		});
 		this.setMethod("PAUSE", new Method(
