@@ -29,6 +29,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class BlooMooEmulator extends ApplicationAdapter {
     private static final float VIRTUAL_WIDTH = 800;
@@ -351,6 +352,9 @@ public class BlooMooEmulator extends ApplicationAdapter {
         //Gdx.app.log("Mouse", "x: " + x + " y: " + y);
         List<Variable> buttons = new ArrayList<>(context.getButtonsVariables().values());
 
+        int minHSPriority = game.getCurrentSceneVariable().getMinHotSpotZ();
+        int maxHSPriority = game.getCurrentSceneVariable().getMaxHotSpotZ();
+
         Collections.sort(buttons, (o1, o2) -> {
             Variable image1 = null;
             if(o1 instanceof ButtonVariable) {
@@ -383,6 +387,12 @@ public class BlooMooEmulator extends ApplicationAdapter {
         for (Variable variable : buttons) {
             if(variable instanceof ButtonVariable) {
                 ButtonVariable button = (ButtonVariable) variable;
+
+                Variable image = button.getCurrentImage();
+                if(image != null) {
+                    int priority = image.getAttribute("PRIORITY") != null ? Integer.parseInt(image.getAttribute("PRIORITY").getValue().toString()) : 0;
+                    if(priority < minHSPriority || priority > maxHSPriority) continue;
+                }
 
                 if(!button.isVisible()) {
                     // Gdx.app.log("BlooMooEmulator", button.getName() + " is not visible, hiding images");
@@ -437,6 +447,9 @@ public class BlooMooEmulator extends ApplicationAdapter {
                 }
             } else if(variable instanceof AnimoVariable) {
                 AnimoVariable animo = (AnimoVariable) variable;
+
+                int priority = variable.getAttribute("PRIORITY") != null ? Integer.parseInt(variable.getAttribute("PRIORITY").getValue().toString()) : 0;
+                if(priority < minHSPriority || priority > maxHSPriority) continue;
 
                 if (animo.getRect() != null && animo.getRect().contains(x, y)) {
                     if(animo.isChangeCursor() && (mouseVariable == null || mouseVariable.isVisible()))

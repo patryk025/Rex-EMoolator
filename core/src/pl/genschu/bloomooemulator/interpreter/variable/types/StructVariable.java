@@ -66,7 +66,11 @@ public class StructVariable extends Variable {
 		if (db != null) {
 			List<String> currentRow = db.getCurrentRow();
 			for (int i = 0; i < fields.size(); i++) {
-				values.set(i, VariableFactory.createVariable(types.get(i), "", currentRow.get(i), context));
+				try {
+					values.set(i, VariableFactory.createVariable(types.get(i), "", currentRow.get(i), context));
+				} catch (IndexOutOfBoundsException e) {
+					values.set(i, new StringVariable("", "NULL", context));
+				}
 			}
 		}
 	}
@@ -117,7 +121,7 @@ public class StructVariable extends Variable {
 		types = new ArrayList<>();
 		values = new ArrayList<>();
 
-		final String regex = "([A-Z]*)<([A-Z]*)>";
+		final String regex = "([A-Z0-9]*)<([A-Z]*)>";
 
 		final Pattern pattern = Pattern.compile(regex, Pattern.MULTILINE);
 		final Matcher matcher = pattern.matcher(getAttribute("FIELDS").getValue().toString());

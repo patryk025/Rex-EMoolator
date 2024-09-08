@@ -76,6 +76,9 @@ public class SceneVariable extends Variable {
 						}
 					}
 				}
+				else {
+					Gdx.app.log("SceneVariable", "Variable " + groupVariable.getName() + " is not GROUP. Ignoring it.");
+				}
 				return null;
 			}
 		});

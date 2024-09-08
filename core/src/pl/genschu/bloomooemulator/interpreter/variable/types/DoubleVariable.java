@@ -326,7 +326,15 @@ public class DoubleVariable extends Variable {
 	}
 
 	public double GET() {
-		return (double) this.getValue();
+		try {
+			return (double) this.getValue();
+		} catch (ClassCastException e) {
+			try {
+				return Double.parseDouble(String.valueOf(this.getValue()));
+			} catch (NumberFormatException e2) {
+				return 0.0;
+			}
+		}
 	}
 
 	@Override
