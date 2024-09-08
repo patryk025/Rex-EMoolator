@@ -267,6 +267,19 @@ public class SceneVariable extends Variable {
 	public ImageVariable getBackground() {
 		if(background == null && getAttribute("BACKGROUND") != null) {
 			background = new ImageVariable(this.name + "_BACKGROUND", getContext());
+			// check if background is present in language specific location
+			File langDir = new File(getContext().getGame().getCurrentSceneFile().getAbsolutePath() + "/" + getContext().getGame().getApplicationVariable().getLanguage());
+			if(langDir.exists()) {
+				File bkgLangDir = new File(langDir.getAbsolutePath() + "/" + getAttribute("BACKGROUND").getValue().toString());
+				if(bkgLangDir.exists()) {
+					String filePath = getContext().getGame().getApplicationVariable().getLanguage()+"/"+getAttribute("BACKGROUND").getValue().toString();
+					background.setAttribute("FILENAME", new Attribute("FILENAME", filePath));
+					background.setAttribute("PRIORITY", new Attribute("PRIORITY", 0));
+					background.setAttribute("VISIBLE", new Attribute("VISIBLE", true));
+					return background;
+				}
+			}
+
 			background.setAttribute("FILENAME", new Attribute("FILENAME", getAttribute("BACKGROUND").getValue().toString()));
 			background.setAttribute("PRIORITY", new Attribute("PRIORITY", 0));
 			background.setAttribute("VISIBLE", new Attribute("VISIBLE", true));

@@ -132,6 +132,14 @@ public class ApplicationVariable extends Variable {
 		}
 	}
 
+	public String getLanguage() {
+		return language;
+	}
+
+	public void setLanguage(String language) {
+		this.language = language;
+	}
+
 	public List<EpisodeVariable> getEpisodes() {
 		return episodes;
 	}
