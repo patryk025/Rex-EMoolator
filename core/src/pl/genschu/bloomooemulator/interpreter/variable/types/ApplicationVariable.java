@@ -9,6 +9,7 @@ import pl.genschu.bloomooemulator.interpreter.variable.Method;
 import pl.genschu.bloomooemulator.interpreter.variable.Parameter;
 import pl.genschu.bloomooemulator.interpreter.variable.Variable;
 import pl.genschu.bloomooemulator.utils.ArgumentsHelper;
+import pl.genschu.bloomooemulator.utils.LangCodeConverter;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -116,7 +117,8 @@ public class ApplicationVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				language = ArgumentsHelper.getString(arguments.get(0));
+				String languageCode = ArgumentsHelper.getString(arguments.get(0));
+				language = LangCodeConverter.lcidToIsoCode(languageCode);
 				return null;
 			}
 		});
