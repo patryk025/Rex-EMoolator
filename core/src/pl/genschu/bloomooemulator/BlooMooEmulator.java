@@ -387,6 +387,9 @@ public class BlooMooEmulator extends ApplicationAdapter {
         for (Variable variable : buttons) {
             if(variable instanceof ButtonVariable) {
                 ButtonVariable button = (ButtonVariable) variable;
+                /*if(!button.isLoaded()) {
+                    button.loadImages();
+                }*/
 
                 Variable image = button.getCurrentImage();
                 if(image != null) {

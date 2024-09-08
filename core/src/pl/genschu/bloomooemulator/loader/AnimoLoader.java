@@ -37,7 +37,6 @@ public class AnimoLoader {
                 }
             }
             variable.setPlaying(false);
-            variable.setAttribute("VISIBLE", new Attribute("BOOL", "FALSE"));
         } catch (Exception e) {
             Gdx.app.error("AnimoLoader", "Error while loading ANIMO: " + e.getMessage(), e);
         }

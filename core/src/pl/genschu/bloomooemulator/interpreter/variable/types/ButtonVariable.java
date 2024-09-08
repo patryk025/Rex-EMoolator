@@ -185,7 +185,14 @@ public class ButtonVariable extends Variable {
 		}
 	}
 
-	private void loadImages() {
+	public boolean isLoaded() {
+		return (getAttribute("RECT") != null && rectVariable != null)
+			&& (getAttribute("GFXSTANDARD") != null && gfxVariable != null)
+			&& (getAttribute("GFXONMOVE") != null && gfxOnMove == null)
+			&& (getAttribute("GFXONCLICK") != null && gfxOnClick == null);
+	}
+
+	public void loadImages() {
 		if(getAttribute("RECT") != null && rectVariable == null) {
 			if(!getAttribute("RECT").toString().contains(",")) {
 				rectVariable = context.getVariable(getAttribute("RECT").getValue().toString());
@@ -195,6 +202,7 @@ public class ButtonVariable extends Variable {
 		if(getAttribute("GFXSTANDARD") != null && gfxVariable == null) {
 			gfxVariable = context.getVariable(getAttribute("GFXSTANDARD").getValue().toString());
 			showImage(gfxVariable, true);
+			currentGfx = gfxVariable;
 		}
 
 		if(getAttribute("GFXONMOVE") != null && gfxOnMove == null) {
@@ -282,6 +290,7 @@ public class ButtonVariable extends Variable {
 		if(rectVariable != null) {
 			rectVariable.setAttribute("VISIBLE", new Attribute("BOOL", "FALSE"));
 		}
+		currentGfx = gfxVariable;
 	}
 
 	public Rectangle getRect() {
