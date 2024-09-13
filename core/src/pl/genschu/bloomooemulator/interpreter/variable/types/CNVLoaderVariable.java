@@ -47,22 +47,24 @@ public class CNVLoaderVariable extends Variable {
 				}
 
 				Context cnvContext = new Context();
-				cnvContext.setGame(getContext().getGame());
+				cnvContext.setParentContext(getContext());
 				String cnvPath = FileUtils.resolveRelativePath(CNVLoaderVariable.this, cnvFile);
 
 				CNVParser cnvParser = new CNVParser();
-                try {
+				try {
 					Gdx.app.log("CNVLoaderVariable", "Loading " + cnvFile);
-                    cnvParser.parseFile(new File(cnvPath), cnvContext);
+					cnvParser.parseFile(new File(cnvPath), cnvContext);
+
+					for (Map.Entry<String, Variable> entry : cnvContext.getVariables().entrySet()) {
+						getContext().setVariable(entry.getKey(), entry.getValue());
+					}
 
 					loadedContexts.put(cnvFile, cnvContext);
-
-					getContext().addContext(cnvContext);
 					Gdx.app.log("CNVLoaderVariable", "Loaded " + cnvFile);
-                } catch (IOException e) {
+				} catch (IOException e) {
 					Gdx.app.error("CNVLoaderVariable", "Error loading " + cnvFile, e);
-                    throw new RuntimeException(e);
-                }
+					throw new RuntimeException(e);
+				}
 
 				return null;
 			}
@@ -85,10 +87,12 @@ public class CNVLoaderVariable extends Variable {
 				Context cnvContext = loadedContexts.get(cnvFile);
 
 				Gdx.app.log("CNVLoaderVariable", "Unloading " + cnvFile);
-				getContext().removeContext(cnvContext);
+
+				for (String variableName : cnvContext.getVariables().keySet()) {
+					getContext().removeVariable(variableName);
+				}
 
 				loadedContexts.remove(cnvFile);
-
 				Gdx.app.log("CNVLoaderVariable", "Unloaded " + cnvFile);
 				return null;
 			}

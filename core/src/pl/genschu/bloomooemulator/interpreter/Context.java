@@ -53,13 +53,6 @@ public class Context {
             }
         }
 
-        for(Context context : additionalContexts) { // first look in additionalContexts
-            Variable variable = context.getVariable(name);
-            if (variable != null) {
-                return variable;
-            }
-        }
-
         Variable variable = variables.get(name);
         if (variable == null) {
             if(parentContext != null)
@@ -71,11 +64,7 @@ public class Context {
     }
 
     public Map<String, Variable> getGraphicsVariables() {
-        Map<String, Variable> result = new LinkedHashMap<>();
-        for(Context context : additionalContexts) {
-            result.putAll(context.getGraphicsVariables());
-        }
-        result.putAll(graphicsVariables);
+        Map<String, Variable> result = new LinkedHashMap<>(graphicsVariables);
         if (parentContext != null) {
             result.putAll(parentContext.getGraphicsVariables());
         }
@@ -83,11 +72,7 @@ public class Context {
     }
 
     public Map<String, Variable> getButtonsVariables() {
-        Map<String, Variable> result = new LinkedHashMap<>();
-        for(Context context : additionalContexts) {
-            result.putAll(context.getButtonsVariables());
-        }
-        result.putAll(buttonsVariables);
+        Map<String, Variable> result = new LinkedHashMap<>(buttonsVariables);
         if (parentContext != null) {
             result.putAll(parentContext.getButtonsVariables());
         }
@@ -95,11 +80,7 @@ public class Context {
     }
 
     public Map<String, Variable> getTimerVariables() {
-        Map<String, Variable> result = new HashMap<>();
-        for(Context context : additionalContexts) {
-            result.putAll(context.getTimerVariables());
-        }
-        result.putAll(timerVariables);
+        Map<String, Variable> result = new HashMap<>(timerVariables);
         if (parentContext != null) {
             result.putAll(parentContext.getTimerVariables());
         }
