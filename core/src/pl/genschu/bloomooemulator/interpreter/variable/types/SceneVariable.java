@@ -119,6 +119,28 @@ public class SceneVariable extends Variable {
 				return null;
 			}
 		});
+		this.setMethod("RESUMEONLY", new Method(
+				List.of(
+						new Parameter("STRING", "groupName", true)
+				),
+				"void"
+		) {
+			@Override
+			public Variable execute(List<Object> arguments) {
+				Variable groupVariable = getContext().getVariable(ArgumentsHelper.getString(arguments.get(0)));
+
+				if(groupVariable instanceof GroupVariable) {
+					GroupVariable group = (GroupVariable) groupVariable;
+					for(Variable variable : group.variables) {
+						if(variable instanceof AnimoVariable) {
+							AnimoVariable animo = (AnimoVariable) variable;
+							animo.fireMethod("RESUME");
+						}
+					}
+				}
+				return null;
+			}
+		});
 		this.setMethod("RUN", new Method(
 				List.of(
 						new Parameter("STRING", "varName", true),

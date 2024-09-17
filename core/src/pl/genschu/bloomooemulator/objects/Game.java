@@ -48,7 +48,7 @@ public class Game {
     private Context currentEpisodeContext;
     private Context currentSceneContext;
 
-    private Music currentPlayingAudio = null; // which is not the current music
+    private List<Music> playingAudios = new ArrayList<>();
 
     private Map<String, Music> musicCache;
 
@@ -322,10 +322,7 @@ public class Game {
             throw new RuntimeException(e);
         }
 
-        currentSceneVariable = previousSceneVariable;
-        currentSceneContext = currentSceneVariable.getContext();
-        currentSceneFile = previousSceneFile;
-        currentScene = currentSceneVariable.getName();
+        loadScene(previousSceneVariable);
     }
 
     private void loadEpisode(EpisodeVariable episode) {
@@ -369,6 +366,7 @@ public class Game {
     }
 
     private void loadScene(SceneVariable scene) {
+        stopAllSounds();
         Gdx.app.log("Game", "Loading scene " + scene.getName());
         try {
             currentSceneContext = new Context();
@@ -592,11 +590,23 @@ public class Game {
         return applicationVariable;
     }
 
-    public Music getCurrentPlayingAudio() {
-        return currentPlayingAudio;
+    public List<Music> getPlayingAudios() {
+        return playingAudios;
     }
 
-    public void setCurrentPlayingAudio(Music currentPlayingAudio) {
-        this.currentPlayingAudio = currentPlayingAudio;
+    public void setPlayingAudios(List<Music> playingAudios) {
+        this.playingAudios = playingAudios;
+    }
+
+    public void stopAllSounds() {
+        stopAllSounds(true);
+    }
+
+    public void stopAllSounds(boolean stopBackground) {
+        for(Music music : playingAudios) {
+            if(stopBackground || music != currentSceneVariable.getMusic()) {
+                music.stop();
+            }
+        }
     }
 }

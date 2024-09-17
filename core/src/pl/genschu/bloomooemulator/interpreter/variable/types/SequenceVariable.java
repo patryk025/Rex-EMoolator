@@ -379,7 +379,6 @@ public class SequenceVariable extends Variable {
 				@Override
 				public void execute(Object argument) {
 					parent.getCurrentAnimo().setPlaying(false);
-					getContext().getGame().setCurrentPlayingAudio(null);
 
 					if (ending) {
 						playAnimation(parent, prefix + "_STOP", new Signal() {
