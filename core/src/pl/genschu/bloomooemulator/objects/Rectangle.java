@@ -75,4 +75,8 @@ public class Rectangle {
                 ", yTop=" + yTop +
                 '}';
     }
+
+    public int area() {
+        return width * height;
+    }
 }

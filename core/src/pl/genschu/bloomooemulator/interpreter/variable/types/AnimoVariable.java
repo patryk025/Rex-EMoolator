@@ -302,14 +302,30 @@ public class AnimoVariable extends Variable implements Cloneable{
 		this.setMethod("ISNEAR", new Method(
 				List.of(
 						new Parameter("STRING", "varAnimo", true),
-						new Parameter("INTEGER", "distance", true)
+						new Parameter("INTEGER", "iouThreshold", true)
 				),
 				"BOOL"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				// TODO: implement this method (I'm checking how it works)
-				throw new ClassMethodNotImplementedException("Method ISNEAR is not implemented yet");
+				String varAnimo = ArgumentsHelper.getString(arguments.get(0));
+				int iouThreshold = ArgumentsHelper.getInteger(arguments.get(1));
+
+				Variable var = context.getVariable(varAnimo);
+				if(!(var instanceof AnimoVariable) && !(var instanceof ImageVariable)) {
+					return new BoolVariable("", false, context);
+				}
+
+				Rectangle rect1 = getRect();
+				Rectangle rect2;
+				if(var instanceof AnimoVariable) {
+					rect2 = ((AnimoVariable) var).getRect();
+				}
+				else {
+					rect2 = ((ImageVariable) var).getRect();
+				}
+
+				return new BoolVariable("", isNear(rect1, rect2, iouThreshold), context);
 			}
 		});
 		this.setMethod("ISPLAYING", new Method(
@@ -919,6 +935,37 @@ public class AnimoVariable extends Variable implements Cloneable{
 		endPosY = rect.getYBottom();
 		centerX = rect.getXLeft() + image.width / 2;
 		centerY = rect.getYTop() - image.height / 2;
+	}
+
+	public boolean isColliding(Rectangle rect1, Rectangle rect2) {
+		return isNear(rect1, rect2, 0);
+	}
+
+	public boolean isNear(Rectangle rect1, Rectangle rect2, int iouThreshold) {
+		// get intersection area
+		int intersectionX = Math.max(rect1.getXLeft(), rect2.getXLeft());
+		int intersectionY = Math.max(rect1.getYBottom(), rect2.getYBottom());
+		int intersectionWidth = Math.min(rect1.getXRight(), rect2.getXRight()) - intersectionX;
+		int intersectionHeight = Math.min(rect1.getYTop(), rect2.getYTop()) - intersectionY;
+
+		// check for overlap
+		if (intersectionWidth <= 0 || intersectionHeight <= 0) {
+			return false;  // no overlap
+		}
+
+		// calculating area of intersection
+		int intersectionArea = intersectionWidth * intersectionHeight;
+
+		// calculating union area (sum of areas minus intersection)
+		int rect1Area = rect1.area();
+		int rect2Area = rect2.area();
+		int unionArea = rect1Area + rect2Area - intersectionArea;
+
+		// calculating iou as a percentage
+		double iou = (double) intersectionArea / unionArea * 100;
+
+		// return true if iou is greater than threshold
+		return iou >= iouThreshold;
 	}
 
 	@Override
