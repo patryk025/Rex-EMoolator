@@ -9,7 +9,7 @@ buildscript {
         google()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:8.1.2'
+        classpath 'com.android.tools.build:gradle:8.1.4'
         
 
     }
@@ -86,8 +86,8 @@ project(":android") {
 
         implementation 'androidx.appcompat:appcompat:1.7.0'
         implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
-        implementation 'androidx.navigation:navigation-fragment:2.8.0'
-        implementation 'androidx.navigation:navigation-ui:2.8.0'
+        implementation 'androidx.navigation:navigation-fragment:2.8.1'
+        implementation 'androidx.navigation:navigation-ui:2.8.1'
         implementation 'androidx.activity:activity:1.9.2'
         testImplementation 'junit:junit:4.13.2'
         androidTestImplementation 'androidx.test.ext:junit:1.2.1'
@@ -108,7 +108,7 @@ project(":android") {
 
 project(":core") {
     apply plugin: "java-library"
-
+    sourceCompatibility = 11
 
     dependencies {
         api "com.badlogicgames.gdx:gdx:$gdxVersion"
