@@ -1136,7 +1136,7 @@ public class AnimoVariable extends Variable implements Cloneable{
 
 	public boolean isVisible() {
 		try {
-			return isVisible // setting VISIBLE in object definition seems not working in original engine
+			return isVisible
 					&& this.getAttribute("TOCANVAS").getValue().toString().equals("TRUE");
 		} catch (NullPointerException e) {
 			return false;
