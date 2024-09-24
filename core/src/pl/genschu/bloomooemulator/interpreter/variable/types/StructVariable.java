@@ -69,7 +69,7 @@ public class StructVariable extends Variable {
 				try {
 					values.set(i, VariableFactory.createVariable(types.get(i), "", currentRow.get(i), context));
 				} catch (IndexOutOfBoundsException e) {
-					values.set(i, new StringVariable("", "NULL", context));
+					values.set(i, VariableFactory.createVariable(types.get(i), "", "", context));
 				}
 			}
 		}

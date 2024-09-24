@@ -208,7 +208,7 @@ public class AnimoVariable extends Variable implements Cloneable{
 		});
 		this.setMethod("GETNOFINEVENT", new Method(
 				List.of(
-						new Parameter("String", "event", true)
+						new Parameter("STRING", "event", true)
 				),
 				"INTEGER"
 		) {

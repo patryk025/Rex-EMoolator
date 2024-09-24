@@ -130,7 +130,7 @@ public abstract class Variable implements Cloneable {
 
 				for(int i = 0; i < amount; i++) {
 					Variable cloneVar = Variable.this.clone();
-					String newName = cloneVar.getName()+"_"+(getClones().size()+1);
+					String newName = cloneVar.getName()+"_"+getClones().size();
 					cloneVar.setName(newName);
 					context.setVariable(newName, cloneVar);
 					clones.add(cloneVar);
