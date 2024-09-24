@@ -382,11 +382,9 @@ public abstract class Variable implements Cloneable {
 	protected void set(Object value) {
 		Object currentValue = getAttribute("VALUE").getValue();
 		getAttribute("VALUE").setValue(value);
-		if(value.toString().equals(currentValue.toString())) {
-			Gdx.app.log("Variable", "Emitting signal ONBRUTALCHANGED for variable " + this.getName() + ", class type " + this.getType());
-			emitSignal("ONBRUTALCHANGED", value.toString());
-		}
-		else {
+		Gdx.app.log("Variable", "Emitting signal ONBRUTALCHANGED for variable " + this.getName() + ", class type " + this.getType());
+		emitSignal("ONBRUTALCHANGED", value.toString());
+		if(!value.toString().equals(currentValue.toString())) {
 			Gdx.app.log("Variable", "Emitting signal ONCHANGED for variable " + this.getName() + ", class type " + this.getType());
 			emitSignal("ONCHANGED", value.toString());
 		}
