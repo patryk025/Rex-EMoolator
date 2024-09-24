@@ -4,6 +4,7 @@ import pl.genschu.bloomooemulator.interpreter.Context;
 import pl.genschu.bloomooemulator.interpreter.ast.Expression;
 import pl.genschu.bloomooemulator.interpreter.ast.Statement;
 import pl.genschu.bloomooemulator.interpreter.ast.expressions.ConstantExpression;
+import pl.genschu.bloomooemulator.interpreter.variable.types.BoolVariable;
 
 public class WhileStatement extends Statement {
     private final Expression condition;
@@ -16,7 +17,7 @@ public class WhileStatement extends Statement {
 
     @Override
     public void execute(Context context) {
-        while ((Boolean) (((ConstantExpression) condition.evaluate(context)).evaluate(null))) {
+        while (((BoolVariable) (((ConstantExpression) condition.evaluate(context)).evaluate(null))).GET()) {
             Object result = code.evaluate(context);
             if (result instanceof OneBreakStatement) {
                 break;
