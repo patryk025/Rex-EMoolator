@@ -2,7 +2,7 @@
 Emulator silnika graficznego Piklib/BlooMoo autorstwa firmy Aidem Media oraz interpretera skryptów.
 
 > [!WARNING]
-> Na ten moment działa ładowanie plików graficznych, animacji oraz są postępu w odtwarzaniu intra w kilku grach, ale prace nad interpreterem oraz ładowaniem skryptów są w toku.
+> Na ten moment trwają prace nad poprawą interpretera oraz naprawieniem scen ARCADE i CUTSCENKI. 
 
 Dla tabeli niżej zastosowano następujący podział grywalności:
 - ![Grywalne](https://img.shields.io/badge/Grywalne-green) grę daje się ukończyć od początku do końca, bez błędów, które mogą ją zablokować.
@@ -43,32 +43,32 @@ Aktualne statusy gier opartych na silniku Piklib/BlooMoo:
 <tr>
 <td>Reksio i Kapitan Nemo</td>
 <td><img alt="Niegrywalne" src="https://img.shields.io/badge/Niegrywalne-red"/></td>
-<td>Czarny ekran, uruchamia się muzyka w tle, jednak nie przechodzi dalej.</td>
+<td>Czarny ekran i uruchamia się muzyka w tle. Nie działają cutscenki, jednak po kliknięciu myszką przechodzi do zabugowanego menu, w którym jedynym aktywnym i częściowo działającym przyciskiem jest przycisk wyjścia.</td>
 </tr>
 <tr>
 <td>Reksio i Kretes w Akcji!</td>
 <td><img alt="Niegrywalne" src="https://img.shields.io/badge/Niegrywalne-red"/></td>
-<td>Czarny ekran, uruchamia się muzyka w tle, jednak nie przechodzi dalej.</td>
+<td>Czarny ekran i uruchamia się muzyka w tle. Nie działają cutscenki, jednak po kliknięciu myszką przechodzi do zabugowanego poziomu minigierki Reksio i Skarb Piratów. Daje się wyjść z minigierki, jednak silnik crashuje się po najechaniu na wybór poziomu. Menu wyboru minigierek działa, jednak kierują w to samo miejsce, tj. Reksio i Skarb Piratów.</td>
 </tr>
 <tr>
 <td>Poznaj Mity: Wyprawa po Złote Runo</td>
 <td><img alt="W grze" src="https://img.shields.io/badge/W grze-yellow"/></td>
-<td>Nie wyświetla się nazwa gry podczas ładowania. Przechodzi do menu i przyciski działają, chociaż czasami się nie wyświetlają. Minigierki na ten moment nie działają.</td>
+<td>Przechodzi do menu i przyciski działają. Minigierki na ten moment nie działają (nie pokazują się dostępne poziomy). Bajka prawie działa (są problemy pod Androidem).</td>
 </tr>
 <tr>
 <td>Poznaj Mity: Wojna Trojańska</td>
 <td><img alt="W grze" src="https://img.shields.io/badge/W grze-yellow"/></td>
-<td>Przechodzi do menu i przyciski działają, chociaż czasami się nie wyświetlają. Minigierki na ten moment nie działają lub wywalają grę.</td>
+<td>Przechodzi do menu i przyciski działają. Minigierki na ten moment nie działają lub wywalają grę.</td>
 </tr>
 <tr>
 <td>Poznaj Mity: Przygody Odyseusza</td>
 <td><img alt="W grze" src="https://img.shields.io/badge/W grze-yellow"/></td>
-<td>Przechodzi do menu i przyciski działają, chociaż niektóre się nie wyświetlają. Minigierki na ten moment nie działają lub wywalają grę.</td>
+<td>Przechodzi do menu i przyciski działają. Statek Ozyrysa znika po najechaniu na przyciski. Odnoszę wrażenie, że bajka działa z błędami. Minigierki na ten moment nie działają lub wywalają grę.</td>
 </tr>
 <tr>
 <td>Poznaj Mity: Herkules</td>
 <td><img alt="W grze" src="https://img.shields.io/badge/W grze-yellow"/></td>
-<td>Pojawia się plansza startowa i wchodzi do menu, przyciski działają i udaje się przejść do minigierek, ale nie da się jeszcze grać.</td>
+<td>Pojawia się plansza startowa i wchodzi do menu, przyciski działają i udaje się przejść do minigierek, ale nie da się jeszcze grać. Bajka się buguje (grafiki się podmieniają jedynie podczas ręcznego przechodzenia między rozdziałami).</td>
 </tr>
 </tbody>
 </table>
@@ -85,6 +85,12 @@ Aktualne statusy gier opartych na silniku Piklib/BlooMoo:
 
 ![Screen z próby uruchomienia Reksio i Wehikuł Czasu](images/riwc.jpg)
 *Screen z próby uruchomienia Reksio i Wehikuł Czasu*
+
+![Screen z próby uruchomienia Reksio i Kapitan Nemo](images/rikn.jpg)
+*Screen z próby uruchomienia Reksio i Kapitan Nemo*
+
+![Screen z próby uruchomienia Reksio i Kretes w Akcji!](images/rikwa.jpg)
+*Screen z próby uruchomienia Reksio i Kretes w Akcji!*
 
 ![Screen z próby uruchomienia Wyprawy po Złote Runo](images/wpzr.jpg)
 *Screen z próby uruchomienia Wyprawy po Złote Runo*
