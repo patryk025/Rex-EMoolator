@@ -58,7 +58,7 @@ public class BlooMooEmulator extends ApplicationAdapter {
     private boolean showTooltip = false;
     private BitmapFont font;
 
-    private boolean showDebugVariables = false;
+    private boolean showDebugVariables = true;
     private String debugVariablesValues = "";
 
     public BlooMooEmulator(GameEntry gameEntry) {
@@ -565,6 +565,7 @@ public class BlooMooEmulator extends ApplicationAdapter {
 
     private void generateDebugVariables() {
         StringBuilder sb = new StringBuilder();
+        sb.append("Scena: ").append(game.getCurrentScene()).append("\n").append("\n");
         for(Variable variable : game.getCurrentSceneContext().getVariables().values()) {
             switch(variable.getType()) {
                 case "INTEGER":
