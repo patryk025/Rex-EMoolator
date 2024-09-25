@@ -1014,17 +1014,19 @@ public class AnimoVariable extends Variable implements Cloneable{
 		this.frameDuration = 1f / fps;
 	}
 
-	public int getOpacity() {
+	public float getOpacity() {
 		int opacity = this.opacity;
 		if(this.currentEvent != null) {
 			opacity *= this.currentEvent.getOpacity();
+			opacity /= 255;
 
 			if(currentImage != null && !currentEvent.getFrameData().isEmpty()) {
 				opacity *= currentEvent.getFrameData().get(currentFrameNumber).getOpacity();
+				opacity /= 255;
 			}
 		}
 
-		return opacity;
+ 		return opacity / 255f;
 	}
 
 	public void setOpacity(int opacity) {
