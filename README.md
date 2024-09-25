@@ -42,13 +42,13 @@ Aktualne statusy gier opartych na silniku Piklib/BlooMoo:
 </tr>
 <tr>
 <td>Reksio i Kapitan Nemo</td>
-<td><img alt="Niegrywalne" src="https://img.shields.io/badge/Niegrywalne-red"/></td>
-<td>Czarny ekran i uruchamia się muzyka w tle. Nie działają cutscenki, jednak po kliknięciu myszką przechodzi do zabugowanego menu, w którym jedynym aktywnym i częściowo działającym przyciskiem jest przycisk wyjścia.</td>
+<td><img alt="W grze" src="https://img.shields.io/badge/W grze-yellow"/></td>
+<td>Czarny ekran i uruchamia się muzyka w tle. Działa cutscenka z intro, po kliknięciu myszką lub zakończeniu intra przechodzi do zabugowanego menu, w którym jedynym aktywnym i częściowo działającym przyciskiem jest przycisk wyjścia.</td>
 </tr>
 <tr>
 <td>Reksio i Kretes w Akcji!</td>
 <td><img alt="Niegrywalne" src="https://img.shields.io/badge/Niegrywalne-red"/></td>
-<td>Czarny ekran i uruchamia się muzyka w tle. Nie działają cutscenki, jednak po kliknięciu myszką przechodzi do zabugowanego poziomu minigierki Reksio i Skarb Piratów. Daje się wyjść z minigierki, jednak silnik crashuje się po najechaniu na wybór poziomu. Menu wyboru minigierek działa, jednak kierują w to samo miejsce, tj. Reksio i Skarb Piratów.</td>
+<td>Uruchamia się cutscenka z pierwszego poziomu Reksio i Skarb Piratów, po kliknięciu myszką lub zakończeniu intra przechodzi do zabugowanego poziomu minigierki Reksio i Skarb Piratów. Daje się wyjść z minigierki, jednak silnik crashuje się po najechaniu na wybór poziomu. Menu wyboru minigierek działa, jednak kierują w to samo miejsce, tj. Reksio i Skarb Piratów.</td>
 </tr>
 <tr>
 <td>Poznaj Mity: Wyprawa po Złote Runo</td>
