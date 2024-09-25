@@ -53,6 +53,11 @@ public class Context {
             }
         }
 
+        if(name.endsWith("_0")) {
+            name = name.substring(0, name.length() - 2); // get original name
+            return getVariable(name); // find variable
+        }
+
         Variable variable = variables.get(name);
         if (variable == null) {
             if(parentContext != null)

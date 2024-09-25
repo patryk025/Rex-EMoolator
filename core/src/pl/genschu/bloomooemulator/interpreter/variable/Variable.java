@@ -130,7 +130,7 @@ public abstract class Variable implements Cloneable {
 
 				for(int i = 0; i < amount; i++) {
 					Variable cloneVar = Variable.this.clone();
-					String newName = cloneVar.getName()+"_"+getClones().size();
+					String newName = cloneVar.getName()+"_"+(getClones().size()+1);
 					cloneVar.setName(newName);
 					context.setVariable(newName, cloneVar);
 					clones.add(cloneVar);
@@ -146,7 +146,7 @@ public abstract class Variable implements Cloneable {
 			public Variable execute(List<Object> arguments) {
 				if(getName().contains("_"))
 					return new IntegerVariable("", Integer.parseInt(getName().split("_")[1]), context);
-				return new IntegerVariable("", -1, context);
+				return new IntegerVariable("", 0, context);
 			}
 		});
 		this.setMethod("MSGBOX", new Method(
