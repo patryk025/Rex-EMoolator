@@ -375,9 +375,9 @@ public class ASTBuilderVisitor extends AidemMediaBaseVisitor<Node> {
 	public Node visitLoopInstr(AidemMediaParser.LoopInstrContext ctx)
 	{
 		Expression code = (Expression) visit(ctx.loopCodeParam());
-		Expression start = (Expression) visit(ctx.param(0));
-		Expression end = (Expression) visit(ctx.param(1));
-		Expression step = (Expression) visit(ctx.param(2));
+		Expression start = new VariableExpression((Expression) visit(ctx.param(0)));
+		Expression end = new VariableExpression((Expression) visit(ctx.param(1)));
+		Expression step = new VariableExpression((Expression) visit(ctx.param(2)));
 		return new LoopStatement(start, end, step, code);
 	}
 
@@ -397,7 +397,9 @@ public class ASTBuilderVisitor extends AidemMediaBaseVisitor<Node> {
 
     @Override
     public Node visitWhileInstr(AidemMediaParser.WhileInstrContext ctx) {
-        ConditionExpression condition = new ConditionExpression((Expression) visit(ctx.param(0)), (Expression) visit(ctx.param(1)), ctx.compare().getText());
+        VariableExpression left = new VariableExpression((Expression) visit(ctx.param(0)));
+        VariableExpression right = new VariableExpression((Expression) visit(ctx.param(1)));
+        ConditionExpression condition = new ConditionExpression(left, right, ctx.compare().getText());
         Expression code = null;
         if(ctx.string() != null) {
             code = (Expression) visit(ctx.string());
