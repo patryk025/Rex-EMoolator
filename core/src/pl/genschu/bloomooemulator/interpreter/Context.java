@@ -4,6 +4,7 @@ import pl.genschu.bloomooemulator.interpreter.factories.VariableFactory;
 import pl.genschu.bloomooemulator.interpreter.variable.Variable;
 import pl.genschu.bloomooemulator.interpreter.variable.types.KeyboardVariable;
 import pl.genschu.bloomooemulator.interpreter.variable.types.MouseVariable;
+import pl.genschu.bloomooemulator.interpreter.variable.types.StringVariable;
 import pl.genschu.bloomooemulator.objects.Game;
 
 import java.util.*;
@@ -47,21 +48,39 @@ public class Context {
     }
 
     public Variable getVariable(String name) {
-        if(name.equals("THIS")) {
-            if(thisVariable != null) {
+        if (name.equals("THIS")) {
+            if (thisVariable != null) {
                 return thisVariable;
             }
         }
 
-        if(name.endsWith("_0")) {
-            name = name.substring(0, name.length() - 2); // get original name
-            return getVariable(name); // find variable
+        if (name.matches(".*_\\d+$")) {
+            String baseName = name.substring(0, name.lastIndexOf('_'));
+            int cloneNumber = Integer.parseInt(name.substring(name.lastIndexOf('_') + 1));
+
+            if (cloneNumber == 0) {
+                Variable baseVariable = getVariable(baseName);
+                if(baseVariable instanceof StringVariable) {
+                    if(!baseName.equals(((StringVariable) baseVariable).GET())) {
+                        return baseVariable;
+                    }
+                }
+                else {
+                    return baseVariable;
+                }
+            } else {
+                Variable clonedVariable = variables.get(name);
+                if (clonedVariable != null) {
+                    return clonedVariable;
+                }
+            }
         }
 
         Variable variable = variables.get(name);
         if (variable == null) {
-            if(parentContext != null)
+            if (parentContext != null) {
                 return parentContext.getVariable(name);
+            }
 
             variable = VariableFactory.createVariable("STRING", name, name, this);
         }
