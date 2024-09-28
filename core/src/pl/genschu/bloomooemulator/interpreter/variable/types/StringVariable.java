@@ -1,5 +1,6 @@
 package pl.genschu.bloomooemulator.interpreter.variable.types;
 
+import com.badlogic.gdx.Gdx;
 import pl.genschu.bloomooemulator.interpreter.exceptions.ClassMethodNotImplementedException;
 import pl.genschu.bloomooemulator.interpreter.Context;
 import pl.genschu.bloomooemulator.interpreter.factories.VariableFactory;
@@ -8,7 +9,12 @@ import pl.genschu.bloomooemulator.interpreter.variable.Method;
 import pl.genschu.bloomooemulator.interpreter.variable.Parameter;
 import pl.genschu.bloomooemulator.interpreter.variable.Variable;
 import pl.genschu.bloomooemulator.utils.ArgumentsHelper;
+import pl.genschu.bloomooemulator.utils.FileUtils;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 
 public class StringVariable extends Variable {
@@ -70,8 +76,19 @@ public class StringVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				// TODO: implement this method
-				throw new ClassMethodNotImplementedException("Method COPYFILE is not implemented yet");
+				String sourcePathString = FileUtils.resolveRelativePath(StringVariable.this, ArgumentsHelper.getString(arguments.get(0)));
+				String destinationPathString = FileUtils.resolveRelativePath(StringVariable.this, ArgumentsHelper.getString(arguments.get(1)));
+
+				Path sourcePath = Paths.get(sourcePathString);
+				Path destinationPath = Paths.get(destinationPathString);
+
+				try {
+					Files.copy(sourcePath, destinationPath);
+					return VariableFactory.createVariable("BOOL", "COPYFILE_RESULT", "TRUE", getContext());
+				} catch (IOException e) {
+					Gdx.app.error("COPYFILE", "Error copying file from " + sourcePathString + " to " + destinationPathString, e);
+					return VariableFactory.createVariable("BOOL", "COPYFILE_RESULT", "FALSE", getContext());
+				}
 			}
 		});
 		this.setMethod("CUT", new Method(

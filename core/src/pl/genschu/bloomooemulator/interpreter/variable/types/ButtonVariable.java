@@ -13,7 +13,7 @@ import pl.genschu.bloomooemulator.utils.ArgumentsHelper;
 import java.util.List;
 
 public class ButtonVariable extends Variable {
-	private Rectangle rect;
+	private Rectangle rect = null;
 	private boolean isFocused = false;
 	private boolean isPressed = false;
 	private boolean wasPressed = false;
@@ -141,8 +141,25 @@ public class ButtonVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				// TODO: implement this method
-				throw new ClassMethodNotImplementedException("Method SETSTD is not implemented yet");
+				if(rect != null) {
+					return null;
+				}
+
+				String varName = ArgumentsHelper.getString(arguments.get(0));
+
+				Variable variable = context.getVariable(varName);
+				if(variable instanceof AnimoVariable) {
+					rect = ((AnimoVariable) variable).getRect();
+				}
+				else if(variable instanceof ImageVariable) {
+					rect = ((ImageVariable) variable).getRect();
+				}
+				else {
+					Gdx.app.log("ButtonVariable", "Variable " + varName + " not found, RECT is not changed");
+				}
+
+				setAttribute("PRIORITY", new Attribute("PRIORITY", "0"));
+				return null;
 			}
 		});
 	}

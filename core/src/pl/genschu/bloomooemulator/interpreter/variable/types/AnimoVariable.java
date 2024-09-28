@@ -587,7 +587,7 @@ public class AnimoVariable extends Variable implements Cloneable{
 					//Gdx.app.log("updateRect()", "SETFRAME");
 					updateRect(currentImage);
 				} catch (IndexOutOfBoundsException ignored) {}
-				show();
+				//show();
 				return null;
 			}
 		});
@@ -651,7 +651,7 @@ public class AnimoVariable extends Variable implements Cloneable{
 					rect.setYBottom(1);
 				}
 				emitSignal("ONFRAMECHANGED", currentEvent.getName());
-				show();
+				//show();
 				return null;
 			}
 		});
