@@ -17,6 +17,7 @@ import java.util.Set;
 
 public class GroupVariable extends Variable {
 	Set<Variable> variables;
+	int marker = -1;
 
 	public GroupVariable(String name, Context context) {
 		super(name, context);
@@ -70,8 +71,10 @@ public class GroupVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				// TODO: implement this method
-				throw new ClassMethodNotImplementedException("Method NEXT is not implemented yet");
+				if(marker < variables.size()-1) {
+					return variables.toArray(new Variable[0])[++marker];
+				}
+				return variables.toArray(new Variable[0])[marker];
 			}
 		});
 		this.setMethod("PREV", new Method(
@@ -79,8 +82,10 @@ public class GroupVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				// TODO: implement this method
-				throw new ClassMethodNotImplementedException("Method PREV is not implemented yet");
+				if(marker > 0) {
+					return variables.toArray(new Variable[0])[--marker];
+				}
+				return variables.toArray(new Variable[0])[marker];
 			}
 		});
 		this.setMethod("REMOVE", new Method(
@@ -116,8 +121,14 @@ public class GroupVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				// TODO: implement this method
-				throw new ClassMethodNotImplementedException("Method RESETMARKER is not implemented yet");
+				if(!variables.isEmpty()) {
+					marker = 0;
+				}
+				else {
+					marker = -1;
+				}
+
+				return null;
 			}
 		});
 	}

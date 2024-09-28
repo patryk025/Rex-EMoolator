@@ -20,6 +20,7 @@ public class Context {
     private final Map<String, Variable> buttonsVariables;
     private final Map<String, Variable> timerVariables;
     private final Map<String, Variable> soundVariables;
+    private final Map<String, Variable> classInstances;
     private MouseVariable mouseVariable;
     private KeyboardVariable keyboardVariable;
 
@@ -32,6 +33,7 @@ public class Context {
         this.buttonsVariables = new LinkedHashMap<>();
         this.timerVariables = new LinkedHashMap<>();
         this.soundVariables = new LinkedHashMap<>();
+        this.classInstances = new LinkedHashMap<>();
         this.mouseVariable = null;
         this.keyboardVariable = null;
     }
@@ -43,6 +45,7 @@ public class Context {
         this.buttonsVariables = new LinkedHashMap<>();
         this.timerVariables = new LinkedHashMap<>();
         this.soundVariables = new LinkedHashMap<>();
+        this.classInstances = new LinkedHashMap<>();
         this.mouseVariable = null;
         this.keyboardVariable = null;
     }
@@ -133,6 +136,9 @@ public class Context {
         else if(variable.getType().equals("KEYBOARD")) {
             keyboardVariable = (KeyboardVariable) variable;
         }
+        else if(variable.getType().equals("INSTANCE")) {
+            classInstances.put(name, variable);
+        }
     }
 
     public boolean hasVariable(String name) {
@@ -157,6 +163,8 @@ public class Context {
         graphicsVariables.remove(name);
         buttonsVariables.remove(name);
         timerVariables.remove(name);
+        soundVariables.remove(name);
+        classInstances.remove(name);
     }
 
     public void addButtonVariable(Variable variable) {
@@ -254,5 +262,13 @@ public class Context {
 
     public void setKeyboardVariable(KeyboardVariable keyboardVariable) {
         this.keyboardVariable = keyboardVariable;
+    }
+
+    public Map<String, Variable> getClassInstances() {
+        Map<String, Variable> result = new LinkedHashMap<>(classInstances);
+        if (parentContext != null) {
+            result.putAll(parentContext.getClassInstances());
+        }
+        return result;
     }
 }

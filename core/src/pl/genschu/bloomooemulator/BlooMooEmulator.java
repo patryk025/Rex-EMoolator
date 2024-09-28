@@ -25,10 +25,7 @@ import pl.genschu.bloomooemulator.objects.*;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class BlooMooEmulator extends ApplicationAdapter {
@@ -685,6 +682,14 @@ public class BlooMooEmulator extends ApplicationAdapter {
 
     private List<Variable> getGraphicsVariables() {
         List<Variable> drawList = new ArrayList<>(context.getGraphicsVariables().values());
+
+        Map<String, Variable> classInstances = context.getClassInstances();
+        for (Variable variable : classInstances.values()) {
+            List<Variable> classDrawList = new ArrayList<>(variable.getContext().getGraphicsVariables().values());
+
+            drawList.addAll(classDrawList);
+        }
+
         //Gdx.app.log("Draw list before sort", getDrawListAsString(drawList));
         Comparator<Variable> comparator = (o1, o2) -> {
             Attribute priorityAttr1 = o1.getAttribute("PRIORITY");
@@ -694,7 +699,7 @@ public class BlooMooEmulator extends ApplicationAdapter {
             return Integer.compare(priority1, priority2);
         };
         Collections.sort(drawList, comparator);
-        //Gdx.app.log("Draw list after sort", getDrawListAsString(drawList));
+        Gdx.app.log("Draw list after sort", getDrawListAsString(drawList));
         return drawList;
     }
 

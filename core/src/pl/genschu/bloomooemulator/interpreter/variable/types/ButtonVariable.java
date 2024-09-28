@@ -369,36 +369,41 @@ public class ButtonVariable extends Variable {
 		List<String> knownAttributes = List.of("DRAGGABLE", "ENABLE", "GFXONCLICK", "GFXONMOVE", "GFXSTANDARD", "RECT", "SNDONMOVE", "VISIBLE");
 		if (knownAttributes.contains(name)) {
 			super.setAttribute(name, attribute);
-			if(name.equals("ENABLE")) {
-				isEnabled = attribute.getValue().toString().equals("TRUE");
-			}
-			else if(name.equals("VISIBLE")) {
-				isVisible = attribute.getValue().toString().equals("TRUE");
-			}
-			else if(name.equals("RECT")) {
-				String rectRaw = getAttribute("RECT").getValue().toString();
-				if(rectRaw.contains(",")) {
-					String[] rectSplit = rectRaw.split(",");
-					int xLeft = Integer.parseInt(rectSplit[0]);
-					int yBottom = Integer.parseInt(rectSplit[1]);
-					int xRight = Integer.parseInt(rectSplit[2]);
-					int yTop = Integer.parseInt(rectSplit[3]);
-					int height = yTop - yBottom;
-					rect = new Rectangle(xLeft, yBottom-height, xRight, yTop-height);
-				}
-				else {
-					Variable rectVariable = context.getVariable(rectRaw);
-					if(rectVariable != null) {
-						if (rectVariable instanceof ImageVariable) {
-							ImageVariable imageVariable = (ImageVariable) rectVariable;
-							rect = imageVariable.getRect();
-						} else if (rectVariable instanceof AnimoVariable) {
-							AnimoVariable animoVariable = (AnimoVariable) rectVariable;
-							rect = animoVariable.getRect();
-						}
-					}
-				}
-			}
+            switch (name) {
+                case "ENABLE":
+                    isEnabled = attribute.getValue().toString().equals("TRUE");
+                    if (!isEnabled) {
+                        Gdx.app.debug("ButtonVariable", "Disabling button and hiding images: " + getName());
+                        hideImages();
+                    }
+                    break;
+                case "VISIBLE":
+                    isVisible = attribute.getValue().toString().equals("TRUE");
+                    break;
+                case "RECT":
+                    String rectRaw = getAttribute("RECT").getValue().toString();
+                    if (rectRaw.contains(",")) {
+                        String[] rectSplit = rectRaw.split(",");
+                        int xLeft = Integer.parseInt(rectSplit[0]);
+                        int yBottom = Integer.parseInt(rectSplit[1]);
+                        int xRight = Integer.parseInt(rectSplit[2]);
+                        int yTop = Integer.parseInt(rectSplit[3]);
+                        int height = yTop - yBottom;
+                        rect = new Rectangle(xLeft, yBottom - height, xRight, yTop - height);
+                    } else {
+                        Variable rectVariable = context.getVariable(rectRaw);
+                        if (rectVariable != null) {
+                            if (rectVariable instanceof ImageVariable) {
+                                ImageVariable imageVariable = (ImageVariable) rectVariable;
+                                rect = imageVariable.getRect();
+                            } else if (rectVariable instanceof AnimoVariable) {
+                                AnimoVariable animoVariable = (AnimoVariable) rectVariable;
+                                rect = animoVariable.getRect();
+                            }
+                        }
+                    }
+                    break;
+            }
 		}
 	}
 }

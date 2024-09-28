@@ -84,7 +84,7 @@ public class BehaviourVariable extends Variable {
 					return null;
 				}
 
-				// let's backup old arguments
+				// lets backup old arguments
 				HashMap<String, Variable> backupVariables = new HashMap<>();
 				for(String key : context.getVariables().keySet()) {
 					if(key.startsWith("$")) {
