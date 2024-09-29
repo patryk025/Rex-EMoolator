@@ -108,7 +108,7 @@ public class BlooMooEmulator extends ApplicationAdapter {
         int x = Gdx.input.getX();
         int y = Gdx.input.getY();
 
-        if(x > 0 && y > 0 && x < Gdx.graphics.getWidth() && y < Gdx.graphics.getHeight()) {
+        if(x >= 0 && y >= 0 && x < Gdx.graphics.getWidth() && y < Gdx.graphics.getHeight()) {
             boolean isPressed = Gdx.input.isButtonPressed(Input.Buttons.LEFT);
             boolean justPressed = !prevPressed && isPressed;
             boolean justReleased = prevPressed && !isPressed;
@@ -348,6 +348,13 @@ public class BlooMooEmulator extends ApplicationAdapter {
     public void handleMouseInput(int x, int y, boolean isPressed, boolean justPressed, boolean justReleased, MouseVariable mouseVariable, List<Variable> drawList) {
         //Gdx.app.log("Mouse", "x: " + x + " y: " + y);
         List<Variable> buttons = new ArrayList<>(context.getButtonsVariables().values());
+
+        Map<String, Variable> classInstances = context.getClassInstances();
+        for (Variable variable : classInstances.values()) {
+            List<Variable> classButtons = new ArrayList<>(variable.getContext().getButtonsVariables(false).values());
+
+            buttons.addAll(classButtons);
+        }
 
         int minHSPriority = game.getCurrentSceneVariable().getMinHotSpotZ();
         int maxHSPriority = game.getCurrentSceneVariable().getMaxHotSpotZ();
@@ -685,7 +692,7 @@ public class BlooMooEmulator extends ApplicationAdapter {
 
         Map<String, Variable> classInstances = context.getClassInstances();
         for (Variable variable : classInstances.values()) {
-            List<Variable> classDrawList = new ArrayList<>(variable.getContext().getGraphicsVariables().values());
+            List<Variable> classDrawList = new ArrayList<>(variable.getContext().getGraphicsVariables(false).values());
 
             drawList.addAll(classDrawList);
         }

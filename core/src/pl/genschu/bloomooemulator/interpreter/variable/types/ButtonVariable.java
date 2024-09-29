@@ -281,6 +281,9 @@ public class ButtonVariable extends Variable {
 	}
 
 	public Variable getCurrentImage() {
+		setFocused(isFocused);
+		setPressed(isPressed);
+
 		if(currentGfx != null) {
 			return currentGfx;
 		}

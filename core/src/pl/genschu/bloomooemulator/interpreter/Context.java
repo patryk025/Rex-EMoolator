@@ -91,24 +91,36 @@ public class Context {
     }
 
     public Map<String, Variable> getGraphicsVariables() {
+        return getGraphicsVariables(true);
+    }
+
+    public Map<String, Variable> getGraphicsVariables(boolean includeParent) {
         Map<String, Variable> result = new LinkedHashMap<>(graphicsVariables);
-        if (parentContext != null) {
+        if (includeParent && parentContext != null) {
             result.putAll(parentContext.getGraphicsVariables());
         }
         return result;
     }
 
     public Map<String, Variable> getButtonsVariables() {
+        return getButtonsVariables(true);
+    }
+
+    public Map<String, Variable> getButtonsVariables(boolean includeParent) {
         Map<String, Variable> result = new LinkedHashMap<>(buttonsVariables);
-        if (parentContext != null) {
+        if (includeParent && parentContext != null) {
             result.putAll(parentContext.getButtonsVariables());
         }
         return result;
     }
 
     public Map<String, Variable> getTimerVariables() {
+        return getTimerVariables(true);
+    }
+
+    public Map<String, Variable> getTimerVariables(boolean includeParent) {
         Map<String, Variable> result = new HashMap<>(timerVariables);
-        if (parentContext != null) {
+        if (includeParent && parentContext != null) {
             result.putAll(parentContext.getTimerVariables());
         }
         return result;
