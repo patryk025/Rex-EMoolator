@@ -544,6 +544,10 @@ public class Game {
         return currentApplicationFile;
     }
 
+    public Context getCurrentApplicationContext() {
+        return currentApplicationContext;
+    }
+
     public void setCurrentApplicationFile(File currentApplicationFile) {
         this.currentApplicationFile = currentApplicationFile;
     }
