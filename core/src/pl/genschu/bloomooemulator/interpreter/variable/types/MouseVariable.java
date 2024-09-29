@@ -36,7 +36,9 @@ public class MouseVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				isEnabled = false;
+				for(MouseVariable mouseVariable : context.getGame().getCurrentSceneContext().getMouseVariables()) {
+					mouseVariable.setEnabled(false);
+				}
 				return null;
 			}
 		});
@@ -45,7 +47,9 @@ public class MouseVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				emitSignals = false;
+				for(MouseVariable mouseVariable : context.getGame().getCurrentSceneContext().getMouseVariables()) {
+					mouseVariable.setEmitSignals(false);
+				}
 				return null;
 			}
 		});
@@ -54,7 +58,9 @@ public class MouseVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				isEnabled = true;
+				for(MouseVariable mouseVariable : context.getGame().getCurrentSceneContext().getMouseVariables()) {
+					mouseVariable.setEnabled(true);
+				}
 				return null;
 			}
 		});
@@ -63,7 +69,9 @@ public class MouseVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				emitSignals = true;
+				for(MouseVariable mouseVariable : context.getGame().getCurrentSceneContext().getMouseVariables()) {
+					mouseVariable.setEmitSignals(true);
+				}
 				return null;
 			}
 		});
@@ -98,7 +106,9 @@ public class MouseVariable extends Variable {
 				posX = Math.max(0, Math.min(800, posX));
 				posY = Math.max(0, Math.min(600, posY));
 
-				update(posX, posY);
+				for(MouseVariable mouseVariable : context.getGame().getCurrentSceneContext().getMouseVariables()) {
+					mouseVariable.update(posX, posY);
+				}
 				return null;
 			}
 		});
@@ -108,7 +118,9 @@ public class MouseVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				Gdx.graphics.setSystemCursor(SystemCursor.Arrow);
-				isVisible = true;
+				for(MouseVariable mouseVariable : context.getGame().getCurrentSceneContext().getMouseVariables()) {
+					mouseVariable.setVisible(true);
+				}
 				return null;
 			}
 		});
@@ -118,7 +130,9 @@ public class MouseVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				Gdx.graphics.setSystemCursor(SystemCursor.None);
-				isVisible = false;
+				for(MouseVariable mouseVariable : context.getGame().getCurrentSceneContext().getMouseVariables()) {
+					mouseVariable.setVisible(false);
+				}
 				return null;
 			}
 		});
@@ -142,8 +156,7 @@ public class MouseVariable extends Variable {
 
 	public void update(int x, int y) {
 		if(x != posX || y != posY) {
-			if(emitSignals)
-				emitSignal("ONMOVE");
+			emitSignal("ONMOVE");
 		}
 		this.posX = x;
 		this.posY = y;

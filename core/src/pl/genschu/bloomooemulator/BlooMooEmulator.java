@@ -569,12 +569,6 @@ public class BlooMooEmulator extends ApplicationAdapter {
         }
     }
 
-    private void triggerMouseEvent(String event, String argument) {
-        for(MouseVariable mouse : context.getMouseVariables()) {
-
-        }
-    }
-
     private void generateDebugVariables() {
         StringBuilder sb = new StringBuilder();
         sb.append("Scena: ").append(game.getCurrentScene()).append("\n").append("\n");

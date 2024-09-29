@@ -52,7 +52,6 @@ public class ButtonVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				setAttribute("ENABLE", new Attribute("BOOL", "FALSE"));
 				isEnabled = false;
 				changeGraphicsVisibility(true);
 				return null;
@@ -63,7 +62,6 @@ public class ButtonVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				setAttribute("ENABLE", new Attribute("BOOL", "TRUE"));
 				isEnabled = true;
 				changeGraphicsVisibility(true);
 				return null;
@@ -135,7 +133,7 @@ public class ButtonVariable extends Variable {
 		this.setMethod("SETSTD", new Method(
 				List.of(
 						new Parameter("STRING", "varName", true),
-						new Parameter("BOOLEAN", "unknown", false)
+						new Parameter("BOOL", "unknown", false)
 				),
 				"void"
 		) {
@@ -368,6 +366,8 @@ public class ButtonVariable extends Variable {
 		if(gfxOnClick != null) {
 			showImage(gfxOnClick, false);
 		}
+
+		isVisible = visible;
 	}
 
 	private void showImage(Variable var, boolean visible) {
