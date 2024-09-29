@@ -97,6 +97,7 @@ public class BlooMooEmulator extends ApplicationAdapter {
         List<Variable> drawList = getGraphicsVariables();
 
         MouseVariable mouseVariable = context.getMouseVariable();
+        List<MouseVariable> mouseVariables = context.getMouseVariables();
         /*if(mouseVariable != null) { // to w przyszłości
             drawList.add(mouseVariable);
         }*/
@@ -118,8 +119,8 @@ public class BlooMooEmulator extends ApplicationAdapter {
             x = (int) correctedVector.x;
             y = (int) correctedVector.y;
 
-            if (mouseVariable != null)
-                mouseVariable.update(x, y);
+            for(MouseVariable mouse : mouseVariables)
+                mouse.update(x, y);
 
             handleMouseInput(x, y, isPressed, justPressed, justReleased, mouseVariable, new ArrayList<>(drawList));
 
@@ -525,12 +526,13 @@ public class BlooMooEmulator extends ApplicationAdapter {
         Variable graphics = getGraphicsAt(x, y, drawList, false);
 
         //Gdx.app.log("Mouse", "mouseVariable != null: " + (mouseVariable != null) + " isPressed: " + isPressed + " mouseVariable.isEnabled(): " + (mouseVariable != null && mouseVariable.isEnabled()));
-        if(mouseVariable != null && mouseVariable.isEnabled()) {
-            if(justPressed) {
-                mouseVariable.emitSignal("ONCLICK", "LEFT"); // right is not used at all
-            }
-            else if(justReleased) {
-                mouseVariable.emitSignal("ONRELEASE", "LEFT"); // right is not used at all
+        if(!context.getMouseVariables().isEmpty()) {
+            for(MouseVariable mouse : context.getMouseVariables()) {
+                if (justPressed) {
+                    mouse.emitSignal("ONCLICK", "LEFT"); // right is not used at all
+                } else if (justReleased) {
+                    mouse.emitSignal("ONRELEASE", "LEFT"); // right is not used at all
+                }
             }
         }
 
@@ -564,6 +566,12 @@ public class BlooMooEmulator extends ApplicationAdapter {
             } else {
                 showTooltip = false;
             }
+        }
+    }
+
+    private void triggerMouseEvent(String event, String argument) {
+        for(MouseVariable mouse : context.getMouseVariables()) {
+
         }
     }
 
@@ -706,49 +714,48 @@ public class BlooMooEmulator extends ApplicationAdapter {
             return Integer.compare(priority1, priority2);
         };
         Collections.sort(drawList, comparator);
-        Gdx.app.log("Draw list after sort", getDrawListAsString(drawList));
+        //Gdx.app.log("Draw list after sort", getDrawListAsString(drawList));
         return drawList;
     }
 
-private String getDrawListAsString(List<Variable> drawList) {
-    StringBuilder sb = new StringBuilder();
-    for (Variable variable : drawList) {
-        boolean visible = false;
-        if (variable instanceof ImageVariable) {
-            visible = ((ImageVariable) variable).isVisible();
-        }
-        if (variable instanceof AnimoVariable) {
-            visible = ((AnimoVariable) variable).isVisible();
-        }
-        if (variable instanceof SequenceVariable) {
-            visible = ((SequenceVariable) variable).isVisible();
-        }
-        if (!visible) {
-            continue;
-        }
-
-        if (variable instanceof SequenceVariable) {
-            /*SequenceVariable seqVar = (SequenceVariable) variable;
-            if(seqVar.getCurrentEventName() != null) {
-                if (seqVar.getCurrentEventName().isEmpty()) {
-                    sb.append("__").append(seqVar.getName()).append("_ANIMO_");
-                }
-            }*/
-        } else {
-            sb.append(variable.getName());
-            Attribute priority = variable.getAttribute("PRIORITY");
-            if (priority != null) {
-                sb.append(" (").append(priority.getValue()).append(")");
+    private String getDrawListAsString(List<Variable> drawList) {
+        StringBuilder sb = new StringBuilder();
+        for (Variable variable : drawList) {
+            boolean visible = false;
+            if (variable instanceof ImageVariable) {
+                visible = ((ImageVariable) variable).isVisible();
             }
-            sb.append(", ");
-        }
-    }
-    if (sb.length() > 2) {
-        sb.setLength(sb.length() - 2);
-    }
-    return sb.toString();
-}
+            if (variable instanceof AnimoVariable) {
+                visible = ((AnimoVariable) variable).isVisible();
+            }
+            if (variable instanceof SequenceVariable) {
+                visible = ((SequenceVariable) variable).isVisible();
+            }
+            if (!visible) {
+                continue;
+            }
 
+            if (variable instanceof SequenceVariable) {
+                /*SequenceVariable seqVar = (SequenceVariable) variable;
+                if(seqVar.getCurrentEventName() != null) {
+                    if (seqVar.getCurrentEventName().isEmpty()) {
+                        sb.append("__").append(seqVar.getName()).append("_ANIMO_");
+                    }
+                }*/
+            } else {
+                sb.append(variable.getName());
+                Attribute priority = variable.getAttribute("PRIORITY");
+                if (priority != null) {
+                    sb.append(" (").append(priority.getValue()).append(")");
+                }
+                sb.append(", ");
+            }
+        }
+        if (sb.length() > 2) {
+            sb.setLength(sb.length() - 2);
+        }
+        return sb.toString();
+    }
 
     @Override
     public void resize(int width, int height) {

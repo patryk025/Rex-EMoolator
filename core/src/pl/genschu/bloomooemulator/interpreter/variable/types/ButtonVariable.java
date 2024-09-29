@@ -276,6 +276,10 @@ public class ButtonVariable extends Variable {
 		return isVisible;
 	}
 
+	public void setVisible(boolean visible) {
+		isVisible = visible;
+	}
+
 	public void setEnabled(boolean enabled) {
 		isEnabled = enabled;
 	}
@@ -394,7 +398,8 @@ public class ButtonVariable extends Variable {
                     isEnabled = attribute.getValue().toString().equals("TRUE");
                     if (!isEnabled) {
                         Gdx.app.debug("ButtonVariable", "Disabling button and hiding images: " + getName());
-                        hideImages();
+						isVisible = false; // z testów wynika, że ENABLE = FALSE powoduje nadpisanie VISIBLE = TRUE
+						hideImages();
                     }
                     break;
                 case "VISIBLE":

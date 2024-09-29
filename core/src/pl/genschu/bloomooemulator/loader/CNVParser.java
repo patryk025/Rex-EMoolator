@@ -16,10 +16,7 @@ import pl.genschu.bloomooemulator.interpreter.variable.Variable;
 import pl.genschu.bloomooemulator.interpreter.factories.VariableFactory;
 import pl.genschu.bloomooemulator.encoding.ScriptDecypher;
 import com.badlogic.gdx.Gdx;
-import pl.genschu.bloomooemulator.interpreter.variable.types.BehaviourVariable;
-import pl.genschu.bloomooemulator.interpreter.variable.types.ConditionVariable;
-import pl.genschu.bloomooemulator.interpreter.variable.types.SequenceVariable;
-import pl.genschu.bloomooemulator.interpreter.variable.types.SoundVariable;
+import pl.genschu.bloomooemulator.interpreter.variable.types.*;
 import pl.genschu.bloomooemulator.utils.SignalAndParams;
 
 import java.io.*;
@@ -82,7 +79,7 @@ public class CNVParser {
                     objects.put(currentObjectName, currentObject);
                 }
                 currentObjectName = line.split(separator)[1];
-                currentObject = new HashMap<>();
+                currentObject = new LinkedHashMap<>();
             } else if (currentObjectName != null) {
                 String[] parts = line.split(separator, 2);
                 if (parts.length == 2) {
@@ -143,6 +140,15 @@ public class CNVParser {
                         String signalCode = property.getValue();
                         variable.addPendingSignal(signalName, signalCode);
                     }
+                }
+            }
+
+            if(type.equals("BUTTON")) {
+                ButtonVariable buttonVariable = (ButtonVariable) variable;
+                if(!buttonVariable.isEnabled()) {
+                    Gdx.app.debug("ButtonVariable", "Disabling button and hiding images: " + buttonVariable.getName());
+                    buttonVariable.setVisible(false); // z testów wynika, że ENABLE = FALSE powoduje nadpisanie VISIBLE = TRUE
+                    buttonVariable.hideImages();
                 }
             }
 

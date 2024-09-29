@@ -391,6 +391,8 @@ public class Game {
                 scene.getMusic().play();
             }
 
+            currentSceneContext.refreshDevicesVariablesList();
+
             runInit(currentSceneContext);
         } catch (IOException e) {
             throw new RuntimeException(e);
