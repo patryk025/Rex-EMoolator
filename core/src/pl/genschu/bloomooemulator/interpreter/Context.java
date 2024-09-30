@@ -1,6 +1,7 @@
 package pl.genschu.bloomooemulator.interpreter;
 
 import pl.genschu.bloomooemulator.interpreter.factories.VariableFactory;
+import pl.genschu.bloomooemulator.interpreter.util.GlobalVariables;
 import pl.genschu.bloomooemulator.interpreter.variable.Variable;
 import pl.genschu.bloomooemulator.interpreter.variable.types.KeyboardVariable;
 import pl.genschu.bloomooemulator.interpreter.variable.types.MouseVariable;
@@ -58,6 +59,12 @@ public class Context {
             if (thisVariable != null) {
                 return thisVariable;
             }
+        }
+
+        // check if it is global variable
+        Variable globalVariable = GlobalVariables.getVariable(name, this);
+        if (globalVariable != null) {
+            return globalVariable;
         }
 
         if (name.matches(".*_\\d+$")) {
@@ -130,6 +137,14 @@ public class Context {
     }
 
     public void setVariable(String name, Variable variable) {
+        Variable globalVariable = GlobalVariables.getVariable(name, this);
+        if (globalVariable != null) {
+            if(globalVariable instanceof MouseVariable) {
+
+            }
+            return;
+        }
+
         variables.put(name, variable);
 
         if(variable.getType().equals("ANIMO") || variable.getType().equals("IMAGE") || variable.getType().equals("SEQUENCE")) {
