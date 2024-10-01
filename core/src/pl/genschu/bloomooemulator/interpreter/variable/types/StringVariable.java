@@ -11,10 +11,15 @@ import pl.genschu.bloomooemulator.interpreter.variable.Variable;
 import pl.genschu.bloomooemulator.utils.ArgumentsHelper;
 import pl.genschu.bloomooemulator.utils.FileUtils;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.channels.FileChannel;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.List;
 
 public class StringVariable extends Variable {
@@ -79,15 +84,41 @@ public class StringVariable extends Variable {
 				String sourcePathString = FileUtils.resolveRelativePath(StringVariable.this, ArgumentsHelper.getString(arguments.get(0)));
 				String destinationPathString = FileUtils.resolveRelativePath(StringVariable.this, ArgumentsHelper.getString(arguments.get(1)));
 
-				Path sourcePath = Paths.get(sourcePathString);
-				Path destinationPath = Paths.get(destinationPathString);
+				File sourceFile = new File(sourcePathString);
+				File destinationFile = new File(destinationPathString);
 
+				if (!sourceFile.exists()) {
+					Gdx.app.error("COPYFILE", "Source file does not exist: " + sourcePathString);
+					return VariableFactory.createVariable("BOOL", "COPYFILE_RESULT", "FALSE", getContext());
+				}
+
+				FileInputStream inputStream = null;
+				FileOutputStream outputStream = null;
 				try {
-					Files.copy(sourcePath, destinationPath);
+					inputStream = new FileInputStream(sourceFile);
+					outputStream = new FileOutputStream(destinationFile);
+
+					byte[] buffer = new byte[1024];
+					int length;
+					while ((length = inputStream.read(buffer)) > 0) {
+						outputStream.write(buffer, 0, length);
+					}
+
 					return VariableFactory.createVariable("BOOL", "COPYFILE_RESULT", "TRUE", getContext());
 				} catch (IOException e) {
 					Gdx.app.error("COPYFILE", "Error copying file from " + sourcePathString + " to " + destinationPathString, e);
 					return VariableFactory.createVariable("BOOL", "COPYFILE_RESULT", "FALSE", getContext());
+				} finally {
+					try {
+						if (inputStream != null) {
+							inputStream.close();
+						}
+						if (outputStream != null) {
+							outputStream.close();
+						}
+					} catch (IOException e) {
+						Gdx.app.error("COPYFILE", "Error closing file streams", e);
+					}
 				}
 			}
 		});
