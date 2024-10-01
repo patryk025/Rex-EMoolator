@@ -213,12 +213,18 @@ public class CanvasObserverVariable extends Variable {
 		this.setMethod("SAVE", new Method(
 				List.of(
 						new Parameter("STRING", "imgFileName", true),
-						new Parameter("mixed", "unknownParam1...unknownParamN", true)
+						new Parameter("DOUBLE", "xScaleFactor", true),
+						new Parameter("DOUBLE", "yScaleFactor", true),
+						new Parameter("INTEGER", "xLeft", false),
+						new Parameter("INTEGER", "yTop", false),
+						new Parameter("INTEGER", "xRight", false),
+						new Parameter("INTEGER", "yBottom", false)
 				),
 				"void"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
+				// TODO: add scaling and cropping
 				String imgFileName = ArgumentsHelper.getString(arguments.get(0));
 
 				Pixmap pixmap = getContext().getGame().getLastFrame();
