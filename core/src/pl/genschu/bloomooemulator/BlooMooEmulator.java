@@ -97,10 +97,6 @@ public class BlooMooEmulator extends ApplicationAdapter {
         List<Variable> drawList = getGraphicsVariables();
 
         MouseVariable mouseVariable = context.getMouseVariable();
-        List<MouseVariable> mouseVariables = context.getMouseVariables();
-        /*if(mouseVariable != null) { // to w przyszłości
-            drawList.add(mouseVariable);
-        }*/
 
         batch.begin();
         batch.setBlendFunction(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
@@ -119,8 +115,7 @@ public class BlooMooEmulator extends ApplicationAdapter {
             x = (int) correctedVector.x;
             y = (int) correctedVector.y;
 
-            for(MouseVariable mouse : mouseVariables)
-                mouse.update(x, y);
+            mouseVariable.update(x, y);
 
             handleMouseInput(x, y, isPressed, justPressed, justReleased, mouseVariable, new ArrayList<>(drawList));
 
@@ -526,13 +521,11 @@ public class BlooMooEmulator extends ApplicationAdapter {
         Variable graphics = getGraphicsAt(x, y, drawList, false);
 
         //Gdx.app.log("Mouse", "mouseVariable != null: " + (mouseVariable != null) + " isPressed: " + isPressed + " mouseVariable.isEnabled(): " + (mouseVariable != null && mouseVariable.isEnabled()));
-        if(!context.getMouseVariables().isEmpty()) {
-            for(MouseVariable mouse : context.getMouseVariables()) {
-                if (justPressed) {
-                    mouse.emitSignal("ONCLICK", "LEFT"); // right is not used at all
-                } else if (justReleased) {
-                    mouse.emitSignal("ONRELEASE", "LEFT"); // right is not used at all
-                }
+        if(mouseVariable != null) {
+            if (justPressed) {
+                mouseVariable.emitSignal("ONCLICK", "LEFT"); // right is not used at all
+            } else if (justReleased) {
+                mouseVariable.emitSignal("ONRELEASE", "LEFT"); // right is not used at all
             }
         }
 

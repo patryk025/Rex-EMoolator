@@ -1,6 +1,7 @@
 package pl.genschu.bloomooemulator.interpreter.util;
 
 import pl.genschu.bloomooemulator.interpreter.Context;
+import pl.genschu.bloomooemulator.interpreter.variable.GlobalVariable;
 import pl.genschu.bloomooemulator.interpreter.variable.Variable;
 import pl.genschu.bloomooemulator.interpreter.variable.types.KeyboardVariable;
 import pl.genschu.bloomooemulator.interpreter.variable.types.MouseVariable;
@@ -42,7 +43,7 @@ public class GlobalVariables {
         return globalSystem;
     }
 
-    public static Variable getVariable(String name, Context context) {
+    public static GlobalVariable getVariable(String name, Context context) {
         switch (name) {
             case "MOUSE":
                 return getMouseVariable(context);
@@ -56,6 +57,13 @@ public class GlobalVariables {
             default:
                 return null;
         }
+    }
+
+    public static void reset() {
+        globalMouse = null;
+        globalKeyboard = null;
+        globalRandom = null;
+        globalSystem = null;
     }
 }
 

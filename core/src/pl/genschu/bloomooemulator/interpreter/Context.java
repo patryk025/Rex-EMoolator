@@ -2,6 +2,7 @@ package pl.genschu.bloomooemulator.interpreter;
 
 import pl.genschu.bloomooemulator.interpreter.factories.VariableFactory;
 import pl.genschu.bloomooemulator.interpreter.util.GlobalVariables;
+import pl.genschu.bloomooemulator.interpreter.variable.GlobalVariable;
 import pl.genschu.bloomooemulator.interpreter.variable.Variable;
 import pl.genschu.bloomooemulator.interpreter.variable.types.KeyboardVariable;
 import pl.genschu.bloomooemulator.interpreter.variable.types.MouseVariable;
@@ -23,7 +24,6 @@ public class Context {
     private final Map<String, Variable> soundVariables;
     private final Map<String, Variable> classInstances;
     private MouseVariable mouseVariable;
-    private List<MouseVariable> mouseVariables;
     private KeyboardVariable keyboardVariable;
 
     Variable thisVariable = null;
@@ -37,7 +37,6 @@ public class Context {
         this.soundVariables = new LinkedHashMap<>();
         this.classInstances = new LinkedHashMap<>();
         this.mouseVariable = null;
-        this.mouseVariables = new ArrayList<>();
         this.keyboardVariable = null;
     }
 
@@ -50,7 +49,6 @@ public class Context {
         this.soundVariables = new LinkedHashMap<>();
         this.classInstances = new LinkedHashMap<>();
         this.mouseVariable = null;
-        this.mouseVariables = new ArrayList<>();
         this.keyboardVariable = null;
     }
 
@@ -137,15 +135,19 @@ public class Context {
     }
 
     public void setVariable(String name, Variable variable) {
-        Variable globalVariable = GlobalVariables.getVariable(name, this);
+        variables.put(name, variable);
+
+        GlobalVariable globalVariable = GlobalVariables.getVariable(name, this);
         if (globalVariable != null) {
             if(globalVariable instanceof MouseVariable) {
-
+                mouseVariable = (MouseVariable) globalVariable;
             }
+            else if(globalVariable instanceof KeyboardVariable) {
+                keyboardVariable = (KeyboardVariable) globalVariable;
+            }
+            globalVariable.addSignalsMap(variable.getContext(), variable);
             return;
         }
-
-        variables.put(name, variable);
 
         if(variable.getType().equals("ANIMO") || variable.getType().equals("IMAGE") || variable.getType().equals("SEQUENCE")) {
             graphicsVariables.put(name, variable);
@@ -260,22 +262,6 @@ public class Context {
         return variables;
     }
 
-    public void refreshDevicesVariablesList() {
-        // Create mouse and keyboard variables hierarchy
-        mouseVariables.clear();
-        if(mouseVariable != null) {
-            mouseVariables.add(mouseVariable);
-        }
-        Context tmpContext = parentContext;
-        while(tmpContext != null) {
-            if(tmpContext.mouseVariable != null) {
-                mouseVariables.add(tmpContext.mouseVariable);
-            }
-            tmpContext = tmpContext.parentContext;
-        }
-        mouseVariables = mouseVariables.reversed();
-    }
-
     public Variable getThisVariable() {
         if(parentContext != null)
             return parentContext.getThisVariable();
@@ -300,10 +286,6 @@ public class Context {
 
     public void setMouseVariable(MouseVariable mouseVariable) {
         this.mouseVariable = mouseVariable;
-    }
-
-    public List<MouseVariable> getMouseVariables() {
-        return mouseVariables;
     }
 
     public KeyboardVariable getKeyboardVariable() {

@@ -2,15 +2,12 @@ package pl.genschu.bloomooemulator.interpreter.variable.types;
 
 import pl.genschu.bloomooemulator.interpreter.exceptions.ClassMethodNotImplementedException;
 import pl.genschu.bloomooemulator.interpreter.Context;
-import pl.genschu.bloomooemulator.interpreter.variable.Attribute;
-import pl.genschu.bloomooemulator.interpreter.variable.Method;
-import pl.genschu.bloomooemulator.interpreter.variable.Parameter;
-import pl.genschu.bloomooemulator.interpreter.variable.Variable;
+import pl.genschu.bloomooemulator.interpreter.variable.*;
 import pl.genschu.bloomooemulator.utils.ArgumentsHelper;
 
 import java.util.List;
 
-public class KeyboardVariable extends Variable {
+public class KeyboardVariable extends GlobalVariable {
 	private boolean autoRepeat = false;
 	private boolean isEnabled = true;
 

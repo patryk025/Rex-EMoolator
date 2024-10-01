@@ -6,6 +6,7 @@ import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import org.ini4j.Ini;
 import pl.genschu.bloomooemulator.interpreter.Context;
+import pl.genschu.bloomooemulator.interpreter.util.GlobalVariables;
 import pl.genschu.bloomooemulator.interpreter.variable.Variable;
 import pl.genschu.bloomooemulator.interpreter.variable.types.*;
 import pl.genschu.bloomooemulator.loader.CNVParser;
@@ -61,6 +62,8 @@ public class Game {
         musicCache = Collections.synchronizedMap(new HashMap<>());
 
         definitionContext.setGame(this);
+
+        GlobalVariables.reset();
 
         scanGameDirectory();
     }
@@ -391,8 +394,6 @@ public class Game {
                 scene.getMusic().play();
             }
 
-            currentSceneContext.refreshDevicesVariablesList();
-
             runInit(currentSceneContext);
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -550,6 +551,10 @@ public class Game {
 
     public void setCurrentApplicationFile(File currentApplicationFile) {
         this.currentApplicationFile = currentApplicationFile;
+    }
+
+    public Context getCurrentEpisodeContext() {
+        return currentEpisodeContext;
     }
 
     public File getCurrentEpisodeFile() {

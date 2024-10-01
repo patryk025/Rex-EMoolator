@@ -33,12 +33,12 @@ Aktualne statusy gier opartych na silniku Piklib/BlooMoo:
 <tr>
 <td>Reksio i Czarodzieje</td>
 <td><img alt="W grze" src="https://img.shields.io/badge/W grze-yellow"/></td>
-<td>Działa cała sekwencja intra z przerzucaniem kartek i streszczeniem poprzednich części. Na Androidzie ten segment się nieco przymula przez częstą zmianę plików audio i grafik. Działa również plansza z pagórkami, ale po trzeciej planszy zamiast do kolejnej planszy przenosi do chatki Spielmaustera.</td>
+<td>Działa cała sekwencja intra z przerzucaniem kartek i streszczeniem poprzednich części. Na Androidzie ten segment się nieco przymula przez częstą zmianę plików audio i grafik. Działa również plansza z pagórkami, ale po trzeciej planszy nie ładują się drzwi, tj. jest czarny prostokąt i dodatkowo nie działa.</td>
 </tr>
 <tr>
 <td>Reksio i Wehikuł Czasu</td>
 <td><img alt="W intrze" src="https://img.shields.io/badge/W intrze-orange"/></td>
-<td>Odpala się sekwencja z panoramą, odpala się muzyka w tle, ale sypie się pauzowanie i wznawianie sekwencji. Niespodziewanie zoomuje się na kanapę i stoi w miejscu.</td>
+<td>Odpala się sekwencja z panoramą, odpala się muzyka w tle, ale sypie się pauzowanie i wznawianie sekwencji. Sekwencja z opowieścią babcia Kretesa działa prawie dobrze, ale nie do końca wyświetla poprawnie obrazki z projektora. Dodatkowo koniec sekwencji z jakiegoś powodu się zapętla (prawdopodobnie z powodów problemów ze wznawianiem sekwencji) oraz zaczynają się przenikać wcześniejsze sekwencje z późniejszymi.</td>
 </tr>
 <tr>
 <td>Reksio i Kapitan Nemo</td>

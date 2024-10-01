@@ -424,4 +424,8 @@ public abstract class Variable implements Cloneable {
 	public void setClones(List<Variable> clones) {
 		this.clones = clones;
 	}
+
+	public Map<String, Signal> getSignals() {
+		return signals;
+	}
 }

@@ -4,16 +4,13 @@ import oshi.SystemInfo;
 import oshi.hardware.HardwareAbstractionLayer;
 import pl.genschu.bloomooemulator.interpreter.Context;
 import pl.genschu.bloomooemulator.interpreter.exceptions.ClassMethodNotImplementedException;
-import pl.genschu.bloomooemulator.interpreter.variable.Attribute;
-import pl.genschu.bloomooemulator.interpreter.variable.Method;
-import pl.genschu.bloomooemulator.interpreter.variable.Parameter;
-import pl.genschu.bloomooemulator.interpreter.variable.Variable;
+import pl.genschu.bloomooemulator.interpreter.variable.*;
 
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
-public class SystemVariable extends Variable {
+public class SystemVariable extends GlobalVariable {
     public SystemVariable(String name, Context context) {
         super(name, context);
     }

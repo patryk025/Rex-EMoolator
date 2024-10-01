@@ -3,15 +3,12 @@ package pl.genschu.bloomooemulator.interpreter.variable.types;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Cursor.SystemCursor;
 import pl.genschu.bloomooemulator.interpreter.Context;
-import pl.genschu.bloomooemulator.interpreter.variable.Attribute;
-import pl.genschu.bloomooemulator.interpreter.variable.Method;
-import pl.genschu.bloomooemulator.interpreter.variable.Parameter;
-import pl.genschu.bloomooemulator.interpreter.variable.Variable;
+import pl.genschu.bloomooemulator.interpreter.variable.*;
 import pl.genschu.bloomooemulator.utils.ArgumentsHelper;
 
 import java.util.List;
 
-public class MouseVariable extends Variable {
+public class MouseVariable extends GlobalVariable {
 	private boolean isEnabled = true;
 	private int posX;
 	private int posY;
@@ -36,9 +33,7 @@ public class MouseVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				for(MouseVariable mouseVariable : context.getGame().getCurrentSceneContext().getMouseVariables()) {
-					mouseVariable.setEnabled(false);
-				}
+				isEnabled = false;
 				return null;
 			}
 		});
@@ -47,9 +42,7 @@ public class MouseVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				for(MouseVariable mouseVariable : context.getGame().getCurrentSceneContext().getMouseVariables()) {
-					mouseVariable.setEmitSignals(false);
-				}
+				emitSignals = false;
 				return null;
 			}
 		});
@@ -58,9 +51,7 @@ public class MouseVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				for(MouseVariable mouseVariable : context.getGame().getCurrentSceneContext().getMouseVariables()) {
-					mouseVariable.setEnabled(true);
-				}
+				isEnabled = true;
 				return null;
 			}
 		});
@@ -69,9 +60,7 @@ public class MouseVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				for(MouseVariable mouseVariable : context.getGame().getCurrentSceneContext().getMouseVariables()) {
-					mouseVariable.setEmitSignals(true);
-				}
+				emitSignals = true;
 				return null;
 			}
 		});
@@ -106,9 +95,7 @@ public class MouseVariable extends Variable {
 				posX = Math.max(0, Math.min(800, posX));
 				posY = Math.max(0, Math.min(600, posY));
 
-				for(MouseVariable mouseVariable : context.getGame().getCurrentSceneContext().getMouseVariables()) {
-					mouseVariable.update(posX, posY);
-				}
+				update(posX, posY);
 				return null;
 			}
 		});
@@ -118,9 +105,7 @@ public class MouseVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				Gdx.graphics.setSystemCursor(SystemCursor.Arrow);
-				for(MouseVariable mouseVariable : context.getGame().getCurrentSceneContext().getMouseVariables()) {
-					mouseVariable.setVisible(true);
-				}
+				isVisible = true;
 				return null;
 			}
 		});
@@ -130,9 +115,7 @@ public class MouseVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				Gdx.graphics.setSystemCursor(SystemCursor.None);
-				for(MouseVariable mouseVariable : context.getGame().getCurrentSceneContext().getMouseVariables()) {
-					mouseVariable.setVisible(false);
-				}
+				isVisible = false;
 				return null;
 			}
 		});
