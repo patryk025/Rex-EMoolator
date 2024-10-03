@@ -594,43 +594,30 @@ public class AnimoVariable extends Variable implements Cloneable{
 		this.setMethod("SETFRAME", new Method(
 				List.of(
 						new Parameter("STRING", "event", true),
-						new Parameter("STRING", "frameName", true)
+						new Parameter("INTEGER", "frameNumber", true)
 				),
 				"void"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				String eventName = ArgumentsHelper.getString(arguments.get(0));
-				Variable variable = getContext().getVariable(eventName);
+				/*Variable variable = getContext().getVariable(eventName);
 				if(variable != null) {
 					eventName = variable.getValue().toString();
-				}
+				}*/
 				try {
 					int eventNumber = Integer.parseInt(eventName);
 					currentEvent = events.get(eventNumber);
 				} catch (NumberFormatException e) {
 					for (Event event : events) {
-						if (event.getName().equals(eventName)) {
+						if (event.getName().equalsIgnoreCase(eventName)) {
 							currentEvent = event;
 							break;
 						}
 					}
 				}
 				if(arguments.size() >= 2) {
-					String frameName = ArgumentsHelper.getString(arguments.get(1));
-					int tmpIndex = 0;
-					boolean found = false;
-					for(FrameData frameData : currentEvent.getFrameData()) {
-						if(frameData.getName().equals(frameName)) {
-							currentFrameNumber = tmpIndex;
-							found = true;
-							break;
-						}
-						tmpIndex++;
-					}
-					if(!found) {
-						currentFrameNumber = 0;
-					}
+                    currentFrameNumber = ArgumentsHelper.getInteger(arguments.get(1));
 				}
 				else {
 					currentFrameNumber = 0;
