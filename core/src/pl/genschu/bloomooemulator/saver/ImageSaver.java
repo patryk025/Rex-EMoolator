@@ -11,10 +11,10 @@ import java.nio.ByteOrder;
 import java.nio.charset.StandardCharsets;
 
 public class ImageSaver {
-    public static void saveScreenshot(Variable variable, String path, byte[] data) {
+    public static void saveScreenshot(Variable variable, String path, byte[] data, int width, int height) {
         String filePath = FileUtils.resolveRelativePath(variable, path);
 
-        byte[] imgData = generateData(data, 800, 600, 16, 0, null, -2, 0); // -2, temporary fix
+        byte[] imgData = generateData(data, width, height, 16, 0, null, -2, 0); // -2, temporary fix
 
         try (FileOutputStream f = new FileOutputStream(filePath)) {
             f.write(imgData);

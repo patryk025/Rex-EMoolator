@@ -226,6 +226,20 @@ public class CanvasObserverVariable extends Variable {
 			public Variable execute(List<Object> arguments) {
 				// TODO: add scaling and cropping
 				String imgFileName = ArgumentsHelper.getString(arguments.get(0));
+				double xScaleFactor = ArgumentsHelper.getDouble(arguments.get(1));
+				double yScaleFactor = ArgumentsHelper.getDouble(arguments.get(2));
+				int xLeft = 0;
+				int yTop = 0;
+				int xRight = 800;
+				int yBottom = 600;
+
+				// Sprawdzanie, czy są podane parametry przycięcia
+				if (arguments.size() == 7) {
+					xLeft = ArgumentsHelper.getInteger(arguments.get(3));
+					yTop = ArgumentsHelper.getInteger(arguments.get(4));
+					xRight = ArgumentsHelper.getInteger(arguments.get(5));
+					yBottom = ArgumentsHelper.getInteger(arguments.get(6));
+				}
 
 				Pixmap pixmap = getContext().getGame().getLastFrame();
 
@@ -238,12 +252,19 @@ public class CanvasObserverVariable extends Variable {
 
 				flipPixmapVertically(pixmap);
 
-				ByteBuffer buffer = pixmap.getPixels();
-				byte[] byteArray = new byte[buffer.remaining()];
-				buffer.get(byteArray);
+				Pixmap croppedPixmap = new Pixmap(xRight - xLeft, yBottom - yTop, pixmap.getFormat());
+				croppedPixmap.drawPixmap(pixmap, 0, 0, xLeft, yTop, xRight - xLeft, yBottom - yTop);
 				pixmap.dispose();
 
-				ImageSaver.saveScreenshot(CanvasObserverVariable.this, imgFileName, byteArray);
+				Pixmap scaledPixmap = new Pixmap((int)((xRight - xLeft) * xScaleFactor), (int)((yBottom - yTop) * yScaleFactor), croppedPixmap.getFormat());
+				scaledPixmap.drawPixmap(croppedPixmap, 0, 0, croppedPixmap.getWidth(), croppedPixmap.getHeight(), 0, 0, scaledPixmap.getWidth(), scaledPixmap.getHeight());
+				croppedPixmap.dispose();
+
+				int width = scaledPixmap.getWidth();
+				int height = scaledPixmap.getHeight();
+
+				ImageSaver.saveScreenshot(CanvasObserverVariable.this, imgFileName, pixmapToByteArray(scaledPixmap), width, height);
+				scaledPixmap.dispose();
 
 				return null;
 			}
@@ -308,6 +329,13 @@ public class CanvasObserverVariable extends Variable {
 		}
 
 		p.setBlending(Pixmap.Blending.SourceOver);
+	}
+
+	private byte[] pixmapToByteArray(Pixmap pixmap) {
+		ByteBuffer buffer = pixmap.getPixels();
+		byte[] byteArray = new byte[buffer.remaining()];
+		buffer.get(byteArray);
+		return byteArray;
 	}
 
 	private Rectangle getRect(Variable variable) {
