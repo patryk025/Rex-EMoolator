@@ -2,7 +2,6 @@ package pl.genschu.bloomooemulator.interpreter;
 
 import pl.genschu.bloomooemulator.interpreter.factories.VariableFactory;
 import pl.genschu.bloomooemulator.interpreter.util.GlobalVariables;
-import pl.genschu.bloomooemulator.interpreter.variable.Attribute;
 import pl.genschu.bloomooemulator.interpreter.variable.GlobalVariable;
 import pl.genschu.bloomooemulator.interpreter.variable.Variable;
 import pl.genschu.bloomooemulator.interpreter.variable.types.KeyboardVariable;
@@ -97,29 +96,6 @@ public class Context {
             variable = VariableFactory.createVariable("STRING", name, name, this);
         }
         return variable;
-    }
-
-    public List<Variable> getSortedGraphicsVariables() {
-        List<Variable> drawList = new ArrayList<>(this.getGraphicsVariables().values());
-
-        Map<String, Variable> classInstances = this.getClassInstances();
-        for (Variable variable : classInstances.values()) {
-            List<Variable> classDrawList = new ArrayList<>(variable.getContext().getGraphicsVariables(false).values());
-
-            drawList.addAll(classDrawList);
-        }
-
-        //Gdx.app.log("Draw list before sort", getDrawListAsString(drawList));
-        Comparator<Variable> comparator = (o1, o2) -> {
-            Attribute priorityAttr1 = o1.getAttribute("PRIORITY");
-            Attribute priorityAttr2 = o2.getAttribute("PRIORITY");
-            int priority1 = priorityAttr1 != null ? Integer.parseInt(priorityAttr1.getValue().toString()) : 0;
-            int priority2 = priorityAttr2 != null ? Integer.parseInt(priorityAttr2.getValue().toString()) : 0;
-            return Integer.compare(priority1, priority2);
-        };
-        Collections.sort(drawList, comparator);
-        //Gdx.app.log("Draw list after sort", getDrawListAsString(drawList));
-        return drawList;
     }
 
     public Map<String, Variable> getGraphicsVariables() {

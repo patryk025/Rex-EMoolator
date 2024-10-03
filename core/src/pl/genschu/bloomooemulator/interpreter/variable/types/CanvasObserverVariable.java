@@ -4,17 +4,12 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.TextureData;
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.graphics.glutils.FrameBuffer;
-import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.utils.ScreenUtils;
 import pl.genschu.bloomooemulator.interpreter.exceptions.ClassMethodNotImplementedException;
 import pl.genschu.bloomooemulator.interpreter.Context;
 import pl.genschu.bloomooemulator.interpreter.variable.Attribute;
 import pl.genschu.bloomooemulator.interpreter.variable.Method;
 import pl.genschu.bloomooemulator.interpreter.variable.Parameter;
 import pl.genschu.bloomooemulator.interpreter.variable.Variable;
-import pl.genschu.bloomooemulator.objects.Event;
 import pl.genschu.bloomooemulator.objects.Image;
 import pl.genschu.bloomooemulator.objects.Rectangle;
 import pl.genschu.bloomooemulator.saver.ImageSaver;
@@ -229,144 +224,26 @@ public class CanvasObserverVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				// Pobieranie argumentów
+				// TODO: add scaling and cropping
 				String imgFileName = ArgumentsHelper.getString(arguments.get(0));
-				double xScaleFactor = ArgumentsHelper.getDouble(arguments.get(1));
-				double yScaleFactor = ArgumentsHelper.getDouble(arguments.get(2));
-				int xLeft = 0;
-				int yTop = 0;
-				int xRight = 800;
-				int yBottom = 600;
 
-				// Sprawdzanie, czy są podane parametry przycięcia
-				if (arguments.size() == 7) {
-					xLeft = ArgumentsHelper.getInteger(arguments.get(3));
-					yTop = ArgumentsHelper.getInteger(arguments.get(4));
-					xRight = ArgumentsHelper.getInteger(arguments.get(5));
-					yBottom = ArgumentsHelper.getInteger(arguments.get(6));
+				Pixmap pixmap = getContext().getGame().getLastFrame();
+
+				if(pixmap == null) {
+					Gdx.app.error("CanvasObserverVariable", "Pixmap is null, screenshots may be not captured correctly");
+					pixmap = new Pixmap(Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), Pixmap.Format.RGB565);
+
+					Gdx.gl.glReadPixels(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), GL20.GL_RGB, GL20.GL_UNSIGNED_SHORT_5_6_5, pixmap.getPixels());
 				}
 
-				// Renderowanie sceny do framebuffer
-				FrameBuffer frameBuffer = new FrameBuffer(Pixmap.Format.RGB888, 800, 600, false);
-				frameBuffer.begin();
+				flipPixmapVertically(pixmap);
 
-				SpriteBatch batch = new SpriteBatch();
-
-				Gdx.gl.glClearColor(0, 0, 0, 1);
-				Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-
-				batch.begin();
-				List<Variable> graphicsVariables = context.getSortedGraphicsVariables();
-				ImageVariable background = context.getGame().getCurrentSceneVariable().getBackground();
-				if(background != null) {
-					Image image = background.getImage();
-					if(image.getImageTexture() != null) {
-						batch.setColor(1, 1, 1, background.getOpacity());
-						batch.draw(image.getImageTexture(), image.offsetX, 600-image.offsetY-image.height, image.width, image.height);
-					}
-				}
-
-				for (Variable variable : graphicsVariables) {
-					if(variable instanceof ImageVariable) {
-						ImageVariable imageVariable = (ImageVariable) variable;
-						Image image = imageVariable.getImage();
-
-						if(imageVariable.isVisible()) {
-							batch.setColor(1, 1, 1, imageVariable.getOpacity());
-
-							Rectangle rect = imageVariable.getRect();
-							Rectangle clippingRect = imageVariable.getClippingRect();
-							if(clippingRect != null) {
-								int scissorX = clippingRect.getXLeft();
-								int scissorY = 600 - clippingRect.getYTop();
-
-								int xRightClip = clippingRect.getXRight();
-								int yBottomClip = 600 - clippingRect.getYBottom();
-
-								int scissorWidth = xRightClip - scissorX;
-								int scissorHeight = yBottomClip - scissorY;
-
-								batch.flush();
-
-								Gdx.gl.glEnable(GL20.GL_SCISSOR_TEST);
-								Gdx.gl.glScissor(scissorX, scissorY, scissorWidth, scissorHeight);
-
-								try {
-									batch.draw(image.getImageTexture(), rect.getXLeft(), 600 - rect.getYTop() - image.height, image.width, image.height);
-								} catch(NullPointerException e) {
-									Gdx.app.error("Render", e.getMessage());
-								}
-
-								batch.flush();
-
-								Gdx.gl.glDisable(GL20.GL_SCISSOR_TEST);
-							}
-							else {
-								try {
-									batch.draw(image.getImageTexture(), rect.getXLeft(), 600 - rect.getYTop() - image.height, image.width, image.height);
-								} catch(NullPointerException ignored) {
-								}
-							}
-						}
-					} else if(variable instanceof AnimoVariable) {
-						AnimoVariable animoVariable = (AnimoVariable) variable;
-						if(animoVariable.isVisible()) {
-							try {
-								Image image = animoVariable.getCurrentImage();
-								if(image == null) continue;
-								Event event = animoVariable.getCurrentEvent();
-								if (event == null) continue;
-
-								batch.setColor(1, 1, 1, animoVariable.getOpacity());
-
-								Rectangle rect = animoVariable.getRect();
-								try {
-									batch.draw(image.getImageTexture(), rect.getXLeft(), 600 - rect.getYTop() - image.height, image.width, image.height);
-								} catch (NullPointerException ignored) {}
-							} catch(NullPointerException ignored) {
-								Gdx.app.log("AnimoVariable", "Image not found in Animo "+animoVariable.getName());
-							}
-						}
-					} else if(variable instanceof SequenceVariable) {
-						SequenceVariable sequenceVariable = (SequenceVariable) variable;
-
-						if(!sequenceVariable.isVisible()) continue;
-
-						if(graphicsVariables.contains(sequenceVariable.getCurrentAnimo())) continue;
-
-						if(sequenceVariable.getCurrentAnimo() == null) continue;
-						if(!sequenceVariable.getCurrentAnimo().isVisible()) continue;
-
-						try {
-							Image image = sequenceVariable.getCurrentAnimo().getCurrentImage();
-							Event event = sequenceVariable.getCurrentAnimo().getCurrentEvent();
-							if (event == null) continue;
-
-							batch.setColor(1, 1, 1, sequenceVariable.getCurrentAnimo().getOpacity());
-
-							Rectangle rect = sequenceVariable.getCurrentAnimo().getRect();
-							try {
-								batch.draw(image.getImageTexture(), rect.getXLeft(), 600 - rect.getYTop() - image.height, image.width, image.height);
-							} catch (NullPointerException ignored) {}
-						} catch(NullPointerException e) {
-						}
-					}
-				}
-				batch.end();
-				frameBuffer.end();
-
-				Pixmap pixmap = ScreenUtils.getFrameBufferPixmap(0, 0, 800, 600);
-
-				Pixmap croppedPixmap = new Pixmap(xRight - xLeft, yBottom - yTop, pixmap.getFormat());
-				croppedPixmap.drawPixmap(pixmap, 0, 0, xLeft, yTop, xRight - xLeft, yBottom - yTop);
+				ByteBuffer buffer = pixmap.getPixels();
+				byte[] byteArray = new byte[buffer.remaining()];
+				buffer.get(byteArray);
 				pixmap.dispose();
 
-				Pixmap scaledPixmap = new Pixmap((int)((xRight - xLeft) * xScaleFactor), (int)((yBottom - yTop) * yScaleFactor), croppedPixmap.getFormat());
-				scaledPixmap.drawPixmap(croppedPixmap, 0, 0, croppedPixmap.getWidth(), croppedPixmap.getHeight(), 0, 0, scaledPixmap.getWidth(), scaledPixmap.getHeight());
-				croppedPixmap.dispose();
-
-				ImageSaver.saveScreenshot(CanvasObserverVariable.this, imgFileName, pixmapToByteArray(scaledPixmap));
-				scaledPixmap.dispose();
+				ImageSaver.saveScreenshot(CanvasObserverVariable.this, imgFileName, byteArray);
 
 				return null;
 			}
@@ -457,12 +334,5 @@ public class CanvasObserverVariable extends Variable {
 			return ((SequenceVariable) variable).getCurrentAnimo().getCurrentImage();
 		}
 		return null;
-	}
-
-	private byte[] pixmapToByteArray(Pixmap pixmap) {
-		ByteBuffer buffer = pixmap.getPixels();
-		byte[] byteArray = new byte[buffer.remaining()];
-		buffer.get(byteArray);
-		return byteArray;
 	}
 }

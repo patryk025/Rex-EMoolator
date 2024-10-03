@@ -94,7 +94,7 @@ public class BlooMooEmulator extends ApplicationAdapter {
 
         context = this.game.getCurrentSceneContext();
 
-        List<Variable> drawList = context.getSortedGraphicsVariables();
+        List<Variable> drawList = getGraphicsVariables();
 
         MouseVariable mouseVariable = context.getMouseVariable();
 
@@ -680,6 +680,29 @@ public class BlooMooEmulator extends ApplicationAdapter {
         if (signal != null) {
             signal.execute(null);
         }
+    }
+
+    private List<Variable> getGraphicsVariables() {
+        List<Variable> drawList = new ArrayList<>(context.getGraphicsVariables().values());
+
+        Map<String, Variable> classInstances = context.getClassInstances();
+        for (Variable variable : classInstances.values()) {
+            List<Variable> classDrawList = new ArrayList<>(variable.getContext().getGraphicsVariables(false).values());
+
+            drawList.addAll(classDrawList);
+        }
+
+        //Gdx.app.log("Draw list before sort", getDrawListAsString(drawList));
+        Comparator<Variable> comparator = (o1, o2) -> {
+            Attribute priorityAttr1 = o1.getAttribute("PRIORITY");
+            Attribute priorityAttr2 = o2.getAttribute("PRIORITY");
+            int priority1 = priorityAttr1 != null ? Integer.parseInt(priorityAttr1.getValue().toString()) : 0;
+            int priority2 = priorityAttr2 != null ? Integer.parseInt(priorityAttr2.getValue().toString()) : 0;
+            return Integer.compare(priority1, priority2);
+        };
+        Collections.sort(drawList, comparator);
+        //Gdx.app.log("Draw list after sort", getDrawListAsString(drawList));
+        return drawList;
     }
 
     private String getDrawListAsString(List<Variable> drawList) {
