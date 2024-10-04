@@ -160,7 +160,7 @@ public class StringVariable extends Variable {
 		});
 		this.setMethod("GET", new Method(
 				List.of(
-						new Parameter("INTEGER", "index", true),
+						new Parameter("INTEGER", "index", false),
 						new Parameter("INTEGER", "length", false)
 				),
 				"STRING"
@@ -168,7 +168,12 @@ public class StringVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				String value = GET();
-				int index = ArgumentsHelper.getInteger(arguments.get(0));
+				int index = 0;
+				if(arguments.isEmpty()) {
+					return StringVariable.this;
+				}
+				if(arguments.get(0) != null)
+					index = ArgumentsHelper.getInteger(arguments.get(0));
 				int length = 1;
 				if (arguments.size() > 1 && arguments.get(1) != null) {
 					length = ArgumentsHelper.getInteger(arguments.get(1));

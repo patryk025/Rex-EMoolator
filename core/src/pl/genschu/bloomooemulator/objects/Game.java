@@ -40,6 +40,7 @@ public class Game {
     private SceneVariable previousSceneVariable;
 
     private ApplicationVariable applicationVariable;
+    private EpisodeVariable currentEpisodeVariable;
 
     private CNVParser cnvParser = new CNVParser();
     private File daneFolder = null; // $
@@ -333,12 +334,14 @@ public class Game {
             if(episode.getPath() == null) {
                 currentEpisodeContext = new Context();
                 currentEpisodeContext.setParentContext(currentApplicationContext);
+                currentEpisodeVariable = episode;
                 Gdx.app.log("Game", "Episode " + episode.getName() + " doesn't have PATH attribute. Skipping...");
                 //loadScene(episode.getFirstScene());
                 return;
             }
             Gdx.app.log("Game", "Loading episode " + episode.getName());
             try {
+                currentEpisode = episode.getName();
                 currentEpisodeContext = new Context();
                 currentEpisodeContext.setParentContext(currentApplicationContext);
                 currentEpisodeFile = episode.getPath();
@@ -355,7 +358,6 @@ public class Game {
                     Gdx.app.error("Game", "Episode " + episode.getName() + " doesn't have preload scripts, but it's okey. Continue without it.");
                 }
 
-                currentEpisode = episode.getName();
                 currentScene = episode.getFirstScene().getName();
 
                 runInit(currentEpisodeContext);
@@ -601,6 +603,8 @@ public class Game {
         return applicationVariable;
     }
 
+
+
     public List<Music> getPlayingAudios() {
         return playingAudios;
     }
@@ -619,5 +623,13 @@ public class Game {
                 music.stop();
             }
         }
+    }
+
+    public EpisodeVariable getCurrentEpisodeVariable() {
+        return currentEpisodeVariable;
+    }
+
+    public String getCurrentEpisode() {
+        return currentEpisode;
     }
 }

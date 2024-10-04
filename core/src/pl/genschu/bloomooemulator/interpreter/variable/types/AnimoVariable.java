@@ -299,6 +299,23 @@ public class AnimoVariable extends Variable implements Cloneable{
 				return null;
 			}
 		});
+		this.setMethod("ISAT", new Method(
+				List.of(
+					new Parameter("INTEGER", "posX", true),
+					new Parameter("INTEGER", "posY", true),
+					new Parameter("BOOL", "checkAlpha?", true)
+				),
+				"BOOL"
+		) {
+			@Override
+			public Variable execute(List<Object> arguments) {
+				int posX = ArgumentsHelper.getInteger(arguments.get(0));
+				int posY = ArgumentsHelper.getInteger(arguments.get(1));
+				boolean checkAlpha = ArgumentsHelper.getBoolean(arguments.get(2)); // TODO: check how it works
+
+				return new BoolVariable("", isAt(posX, posY), context);
+			}
+		});
 		this.setMethod("ISNEAR", new Method(
 				List.of(
 						new Parameter("STRING", "varAnimo", true),
@@ -414,15 +431,19 @@ public class AnimoVariable extends Variable implements Cloneable{
 			@Override
 			public Variable execute(List<Object> arguments) {
 				int eventId = ArgumentsHelper.getInteger(arguments.get(0));
-				currentEvent = events.get(eventId);
-				currentFrameNumber = 0;
-				isPlaying = true;
-				//Gdx.app.log("updateRect()", "NPLAY");
-				show();
-				updateRect();
-				playSfx();
-				emitSignal("ONSTARTED", currentEvent.getName());
-				emitSignal("ONFRAMECHANGED", currentEvent.getName());
+				try {
+					currentEvent = events.get(eventId);
+					currentFrameNumber = 0;
+					isPlaying = true;
+					//Gdx.app.log("updateRect()", "NPLAY");
+					show();
+					updateRect();
+					playSfx();
+					emitSignal("ONSTARTED", currentEvent.getName());
+					emitSignal("ONFRAMECHANGED", currentEvent.getName());
+				} catch (IndexOutOfBoundsException e) {
+					Gdx.app.error("AnimoVariable", "Event with id " + eventId + " not found");
+				}
 				return null;
 			}
 		});
@@ -953,6 +974,11 @@ public class AnimoVariable extends Variable implements Cloneable{
 
 		// return true if iou is greater than threshold
 		return iou >= iouThreshold;
+	}
+
+	public boolean isAt(int x, int y) {
+		// TODO: check how it works
+		return x >= rect.getXLeft() && x <= rect.getXRight() && y >= rect.getYTop() && y <= rect.getYBottom();
 	}
 
 	@Override

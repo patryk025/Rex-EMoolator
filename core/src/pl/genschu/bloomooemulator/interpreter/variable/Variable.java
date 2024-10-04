@@ -24,6 +24,8 @@ public abstract class Variable implements Cloneable {
 	protected Context context;
 	protected List<Variable> clones;
 
+	private String iniSection;
+
 	private Map<String, String> pendingSignals = new HashMap<>(); // unprocessed signals
 
 	public Variable(String name, Context context) {
@@ -35,6 +37,8 @@ public abstract class Variable implements Cloneable {
 		this.context = context;
 
 		this.setMethods();
+
+		this.iniSection = context.getGame().getCurrentScene().toUpperCase();
 	}
 
 	public String getName() {
@@ -391,7 +395,7 @@ public abstract class Variable implements Cloneable {
 		if(getAttribute("TOINI") != null) {
 			if(getAttribute("TOINI").getValue().toString().equals("TRUE")) {
 				// FIXME: make it shorter and check, how engine creates sections
-				context.getGame().getGameINI().put(context.getGame().getApplicationVariable().getName().toUpperCase(), this.getName().toUpperCase(), value.toString());
+				context.getGame().getGameINI().put(getIniSection(), this.getName().toUpperCase(), value.toString());
 			}
 		}
 	}
@@ -427,5 +431,13 @@ public abstract class Variable implements Cloneable {
 
 	public Map<String, Signal> getSignals() {
 		return signals;
+	}
+
+	public String getIniSection() {
+		return iniSection;
+	}
+
+	public void setIniSection(String iniSection) {
+		this.iniSection = iniSection;
 	}
 }

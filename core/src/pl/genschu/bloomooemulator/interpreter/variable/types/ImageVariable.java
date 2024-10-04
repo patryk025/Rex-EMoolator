@@ -150,6 +150,23 @@ public class ImageVariable extends Variable implements Cloneable {
 				throw new ClassMethodNotImplementedException("Method INVALIDATE is not implemented yet");
 			}
 		});
+		this.setMethod("ISAT", new Method(
+				List.of(
+						new Parameter("INTEGER", "posX", true),
+						new Parameter("INTEGER", "posY", true),
+						new Parameter("BOOL", "checkAlpha?", true)
+				),
+				"BOOL"
+		) {
+			@Override
+			public Variable execute(List<Object> arguments) {
+				int posX = ArgumentsHelper.getInteger(arguments.get(0));
+				int posY = ArgumentsHelper.getInteger(arguments.get(1));
+				boolean checkAlpha = ArgumentsHelper.getBoolean(arguments.get(2)); // TODO: check how it works
+
+				return new BoolVariable("", isAt(posX, posY), context);
+			}
+		});
 		this.setMethod("LOAD", new Method(
 				List.of(
 						new Parameter("STRING", "path", true)
@@ -290,6 +307,11 @@ public class ImageVariable extends Variable implements Cloneable {
 		rect.setYTop(posY + image.offsetY);
 		rect.setXRight(rect.getXLeft() + image.width);
 		rect.setYBottom(rect.getYTop() - image.height);
+	}
+
+	public boolean isAt(int x, int y) {
+		// TODO: check how it works
+		return x >= rect.getXLeft() && x <= rect.getXRight() && y >= rect.getYTop() && y <= rect.getYBottom();
 	}
 
 	public Image getImage() {

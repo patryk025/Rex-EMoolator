@@ -108,6 +108,7 @@ public class CNVParser {
         Gdx.app.log("CNVParser", "Processing object " + objectName + " of type " + type);
 
         Object value;
+        String iniSection = context.getGame().getCurrentScene().toUpperCase();
 
         if(type.equals("BEHAVIOUR"))
             value = properties.get(objectName + ":CODE");
@@ -117,8 +118,26 @@ public class CNVParser {
                 if (valueFromIni != null) {
                     value = valueFromIni;
                     properties.put(objectName + ":VALUE", valueFromIni);
+                    iniSection = context.getGame().getApplicationVariable().getName().toUpperCase();
                 } else {
-                    value = properties.get(objectName + ":VALUE");
+                    valueFromIni = context.getGame().getGameINI().get(context.getGame().getCurrentEpisode().toUpperCase(), objectName.toUpperCase());
+                    if (valueFromIni != null) {
+                        value = valueFromIni;
+                        properties.put(objectName + ":VALUE", valueFromIni);
+                        iniSection = context.getGame().getCurrentEpisode().toUpperCase();
+                    }
+                    else {
+                        // one last chance
+                        valueFromIni = context.getGame().getGameINI().get(context.getGame().getCurrentScene().toUpperCase(), objectName.toUpperCase());
+                        if (valueFromIni != null) {
+                            value = valueFromIni;
+                            properties.put(objectName + ":VALUE", valueFromIni);
+                            iniSection = context.getGame().getCurrentScene().toUpperCase();
+                        }
+                        else {
+                            value = properties.get(objectName + ":VALUE");
+                        }
+                    }
                 }
             } catch (NullPointerException e) {
                 value = properties.get(objectName + ":VALUE");
@@ -142,6 +161,8 @@ public class CNVParser {
                     }
                 }
             }
+
+            variable.setIniSection(iniSection);
 
             if(type.equals("BUTTON")) {
                 ButtonVariable buttonVariable = (ButtonVariable) variable;

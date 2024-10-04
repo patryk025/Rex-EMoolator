@@ -33,7 +33,7 @@ Aktualne statusy gier opartych na silniku Piklib/BlooMoo:
 <tr>
 <td>Reksio i Czarodzieje</td>
 <td><img alt="W grze" src="https://img.shields.io/badge/W grze-yellow"/></td>
-<td>Działa cała sekwencja intra z przerzucaniem kartek i streszczeniem poprzednich części. Na Androidzie ten segment się nieco przymula przez częstą zmianę plików audio i grafik. Działa również plansza z pagórkami, ale po trzeciej planszy nie ładują się drzwi, tj. jest czarny prostokąt i dodatkowo nie działa.</td>
+<td>Działa cała sekwencja intra z przerzucaniem kartek i streszczeniem poprzednich części. Na Androidzie ten segment się nieco przymula przez częstą zmianę plików audio i grafik. Działa również plansza z pagórkami, ale po trzeciej planszy nie ładują się drzwi, tj. jest czarny prostokąt i dodatkowo nie działa. Poprawnie działają zrzuty ekranu podczas zapisywania.</td>
 </tr>
 <tr>
 <td>Reksio i Wehikuł Czasu</td>
@@ -43,7 +43,7 @@ Aktualne statusy gier opartych na silniku Piklib/BlooMoo:
 <tr>
 <td>Reksio i Kapitan Nemo</td>
 <td><img alt="W grze" src="https://img.shields.io/badge/W grze-yellow"/></td>
-<td>Czarny ekran i uruchamia się muzyka w tle. Działa cutscenka z intro, po kliknięciu myszką lub zakończeniu intra przechodzi do zabugowanego menu, w którym jedynym aktywnym i częściowo działającym przyciskiem jest przycisk wyjścia.</td>
+<td>Czarny ekran i uruchamia się muzyka w tle. Działa cutscenka z intro, po kliknięciu myszką lub zakończeniu intra przechodzi do menu, daje się przestawić trudność, ale nie działają przyciski szuflad.</td>
 </tr>
 <tr>
 <td>Reksio i Kretes w Akcji!</td>
@@ -53,17 +53,17 @@ Aktualne statusy gier opartych na silniku Piklib/BlooMoo:
 <tr>
 <td>Poznaj Mity: Wyprawa po Złote Runo</td>
 <td><img alt="W grze" src="https://img.shields.io/badge/W grze-yellow"/></td>
-<td>Przechodzi do menu i przyciski działają. Minigierki na ten moment nie działają (nie pokazują się dostępne poziomy). Bajka prawie działa (są problemy pod Androidem).</td>
+<td>Przechodzi do menu i przyciski działają. Minigierki na ten moment nie działają (bugują się, crashują grę itp.). Bajka prawie działa (są problemy pod Androidem).</td>
 </tr>
 <tr>
 <td>Poznaj Mity: Wojna Trojańska</td>
 <td><img alt="W grze" src="https://img.shields.io/badge/W grze-yellow"/></td>
-<td>Przechodzi do menu i przyciski działają. Minigierki na ten moment nie działają lub wywalają grę.</td>
+<td>Przechodzi do menu i przyciski działają. Minigierki na ten moment nie działają (głównie się bugują), czasami guziki znikają.</td>
 </tr>
 <tr>
 <td>Poznaj Mity: Przygody Odyseusza</td>
 <td><img alt="W grze" src="https://img.shields.io/badge/W grze-yellow"/></td>
-<td>Przechodzi do menu i przyciski działają. Statek Ozyrysa znika po najechaniu na przyciski. Odnoszę wrażenie, że bajka działa z błędami. Minigierki na ten moment nie działają lub wywalają grę.</td>
+<td>Przechodzi do menu i przyciski działają. Statek Ozyrysa czasami znika. Odnoszę wrażenie, że bajka działa z błędami. Minigierki na ten moment nie działają lub wywalają grę.</td>
 </tr>
 <tr>
 <td>Poznaj Mity: Herkules</td>

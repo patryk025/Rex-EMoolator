@@ -6,6 +6,7 @@ import pl.genschu.bloomooemulator.interpreter.variable.Attribute;
 import pl.genschu.bloomooemulator.interpreter.variable.Method;
 import pl.genschu.bloomooemulator.interpreter.variable.Parameter;
 import pl.genschu.bloomooemulator.interpreter.variable.Variable;
+import pl.genschu.bloomooemulator.utils.ArgumentsHelper;
 
 import java.util.ArrayList;
 import java.util.regex.Matcher;
@@ -35,7 +36,7 @@ public class StructVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				setAttributes();
-				return getField((Integer) arguments.get(0));
+				return getField(ArgumentsHelper.getInteger(arguments.get(0)));
 			}
 		});
 		this.setMethod("SET", new Method(
@@ -47,7 +48,7 @@ public class StructVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				setAttributes();
-				String varName = arguments.get(0).toString();
+				String varName = ArgumentsHelper.getString(arguments.get(0));
 				set(varName);
 				return null;
 			}
