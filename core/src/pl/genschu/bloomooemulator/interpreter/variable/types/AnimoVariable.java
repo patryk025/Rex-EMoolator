@@ -1210,11 +1210,13 @@ public class AnimoVariable extends Variable implements Cloneable{
 
 	private void show() {
 		getAttribute("VISIBLE").setValue("TRUE");
+		context.getGame().getCollisionMonitoredVariables().add(this);
 		isVisible = true;
 	}
 
 	private void hide() {
 		getAttribute("VISIBLE").setValue("FALSE");
+		context.getGame().getCollisionMonitoredVariables().remove(this);
 		isVisible = false;
 	}
 

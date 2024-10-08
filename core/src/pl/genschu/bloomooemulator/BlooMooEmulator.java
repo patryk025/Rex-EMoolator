@@ -321,8 +321,8 @@ public class BlooMooEmulator extends ApplicationAdapter {
     }
 
     private void checkForCollisions() {
-        // FIXME: java.util.ConcurrentModificationException
-        for (Variable object : game.getCollisionMonitoredVariables()) {
+        List<Variable> objects = new ArrayList<>(game.getCollisionMonitoredVariables());
+        for (Variable object : objects) {
             List<Variable> potentialCollisions = game.getQuadTree().retrieve(new ArrayList<>(), object);
             for (Variable other : potentialCollisions) {
                 if (other != object && CollisionChecker.checkCollision(object, other)) {

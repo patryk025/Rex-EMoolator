@@ -195,6 +195,24 @@ public class ImageVariable extends Variable implements Cloneable {
 				throw new ClassMethodNotImplementedException("Method MERGEALPHA is not implemented yet");
 			}
 		});
+		this.setMethod("MONITORCOLLISION", new Method(
+				List.of(
+						new Parameter("BOOL", "monitorAlpha", true)
+				),
+				"void"
+		) {
+			@Override
+			public Variable execute(List<Object> arguments) {
+				boolean monitorAlpha = ArgumentsHelper.getBoolean(arguments.get(0));
+				setAttribute("MONITORCOLLISION", "TRUE");
+				setAttribute("MONITORCOLLISIONALPHA", monitorAlpha ? "TRUE" : "FALSE");
+
+				context.getGame().getQuadTree().insert(ImageVariable.this);
+				context.getGame().getCollisionMonitoredVariables().add(ImageVariable.this);
+
+				return null;
+			}
+		});
 		this.setMethod("MOVE", new Method(
 				List.of(
 						new Parameter("INTEGER", "offsetX", true),
@@ -209,6 +227,19 @@ public class ImageVariable extends Variable implements Cloneable {
 				posX += offsetX;
 				posY += offsetY;
 				updateRect();
+				return null;
+			}
+		});
+		this.setMethod("REMOVEMONITORCOLLISION", new Method(
+				List.of(),
+				"void"
+		) {
+			@Override
+			public Variable execute(List<Object> arguments) {
+				setAttribute("MONITORCOLLISION", "FALSE");
+				context.getGame().getQuadTree().remove(ImageVariable.this);
+				context.getGame().getCollisionMonitoredVariables().remove(ImageVariable.this);
+
 				return null;
 			}
 		});
