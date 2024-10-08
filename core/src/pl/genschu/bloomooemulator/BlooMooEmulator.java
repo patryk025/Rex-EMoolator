@@ -24,6 +24,7 @@ import pl.genschu.bloomooemulator.logic.GameEntry;
 import pl.genschu.bloomooemulator.objects.*;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
+import pl.genschu.bloomooemulator.utils.CollisionChecker;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -127,6 +128,8 @@ public class BlooMooEmulator extends ApplicationAdapter {
         if (Gdx.input.isKeyJustPressed(Input.Keys.F1)) {
             showDebugVariables = !showDebugVariables;
         }
+
+        checkForCollisions();
 
         ImageVariable background = game.getCurrentSceneVariable().getBackground();
         if(background != null) {
@@ -315,6 +318,22 @@ public class BlooMooEmulator extends ApplicationAdapter {
 
         }
         renderTooltip();
+    }
+
+    private void checkForCollisions() {
+        // FIXME: java.util.ConcurrentModificationException
+        for (Variable object : game.getCollisionMonitoredVariables()) {
+            List<Variable> potentialCollisions = game.getQuadTree().retrieve(new ArrayList<>(), object);
+            for (Variable other : potentialCollisions) {
+                if (other != object && CollisionChecker.checkCollision(object, other)) {
+                    if (!object.isColliding(other)) {
+                        object.setColliding(other);
+                    }
+                } else if (object.isColliding(other)) {
+                    object.releaseColliding(other);
+                }
+            }
+        }
     }
 
     private Rectangle getRect(Variable variable) {
@@ -542,6 +561,7 @@ public class BlooMooEmulator extends ApplicationAdapter {
                     tooltipText += "\nCurrent frame number: " + ((AnimoVariable) graphics).getCurrentFrameNumber();
                     tooltipText += "\nCurrent image number: " + ((AnimoVariable) graphics).getCurrentImageNumber();
                     tooltipText += "\nIs playing: " + ((AnimoVariable) graphics).isPlaying();
+                    tooltipText += "\nCollision monitoring: " + (graphics.getAttribute("MONITORCOLLISION") != null ? graphics.getAttribute("MONITORCOLLISION").getValue() : "FALSE");
                     tooltipText += rectText;
                 }
                 else if(graphics instanceof SequenceVariable) {
@@ -551,6 +571,10 @@ public class BlooMooEmulator extends ApplicationAdapter {
                     tooltipText += "\nCurrent frame number: " + ((SequenceVariable) graphics).getCurrentAnimo().getCurrentFrameNumber();
                     tooltipText += "\nCurrent image number: " + ((SequenceVariable) graphics).getCurrentAnimo().getCurrentImageNumber();
                     tooltipText += "\nIs playing: " + ((SequenceVariable) graphics).getCurrentAnimo().isPlaying();
+                    tooltipText += rectText;
+                }
+                else if(graphics instanceof ImageVariable) {
+                    tooltipText += "\nCollision monitoring: " + (graphics.getAttribute("MONITORCOLLISION") != null ? graphics.getAttribute("MONITORCOLLISION").getValue() : "FALSE");
                     tooltipText += rectText;
                 }
                 else {

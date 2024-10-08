@@ -303,10 +303,15 @@ public class ImageVariable extends Variable implements Cloneable {
 
 	private void updateRect() {
 		if(image == null) return;
+
+		context.getGame().getQuadTree().remove(this); // we need to remove variable from quadtree
+
 		rect.setXLeft(posX + image.offsetX);
 		rect.setYTop(posY + image.offsetY);
 		rect.setXRight(rect.getXLeft() + image.width);
 		rect.setYBottom(rect.getYTop() - image.height);
+
+		context.getGame().getQuadTree().insert(this); // and add it again
 	}
 
 	public boolean isAt(int x, int y) {

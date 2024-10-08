@@ -28,6 +28,8 @@ public abstract class Variable implements Cloneable {
 
 	private Map<String, String> pendingSignals = new HashMap<>(); // unprocessed signals
 
+	private Map<Variable, Boolean> isCollidingMap = new HashMap<>();
+
 	public Variable(String name, Context context) {
 		this.name = name;
 		this.attributes = new HashMap<>();
@@ -336,7 +338,7 @@ public abstract class Variable implements Cloneable {
 			return true;
 		}
 
-		String[] primitiveMethods = {"INTEGER", "DOUBLE", "BOOL", "STRING"};
+		String[] primitiveMethods = {"INTEGER", "DOUBLE", "BOOL", "STRING", "EXPRESSION" /* expression returns primitives */};
         return Arrays.asList(primitiveMethods).contains(methodParamType) && Arrays.asList(primitiveMethods).contains(paramType);
     }
 
@@ -404,6 +406,20 @@ public abstract class Variable implements Cloneable {
 				context.getGame().getGameINI().put(getIniSection(), this.getName().toUpperCase(), value.toString());
 			}
 		}
+	}
+
+	public boolean isColliding(Variable variable) {
+		return this.isCollidingMap.containsKey(variable);
+	}
+
+	public void setColliding(Variable variable) {
+		this.isCollidingMap.put(variable, true);
+		this.emitSignal("ONCOLLISION", variable.getName());
+	}
+
+	public void releaseColliding(Variable variable) {
+		this.isCollidingMap.remove(variable);
+		this.emitSignal("ONCOLLISIONFINISHED", variable.getName());
 	}
 
 	public Context getContext() {

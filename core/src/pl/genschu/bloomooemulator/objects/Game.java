@@ -5,8 +5,10 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import org.ini4j.Ini;
+import org.w3c.dom.Attr;
 import pl.genschu.bloomooemulator.interpreter.Context;
 import pl.genschu.bloomooemulator.interpreter.util.GlobalVariables;
+import pl.genschu.bloomooemulator.interpreter.variable.Attribute;
 import pl.genschu.bloomooemulator.interpreter.variable.Variable;
 import pl.genschu.bloomooemulator.interpreter.variable.types.*;
 import pl.genschu.bloomooemulator.loader.CNVParser;
@@ -36,6 +38,9 @@ public class Game {
     private INIManager gameINI = null;
     private String iniPath = null;
 
+    private QuadTree quadTree;
+    private List<Variable> collisionMonitoredVariables = new ArrayList<>();
+
     private SceneVariable currentSceneVariable;
     private SceneVariable previousSceneVariable;
 
@@ -59,6 +64,7 @@ public class Game {
     public Game(GameEntry game) {
         this.definitionContext = new Context();
         this.game = game;
+        this.quadTree = new QuadTree(0, new Rectangle(0, 0, 800, 600));
 
         musicCache = Collections.synchronizedMap(new HashMap<>());
 
@@ -372,6 +378,8 @@ public class Game {
 
     private void loadScene(SceneVariable scene) {
         stopAllSounds();
+        quadTree.clear();
+        collisionMonitoredVariables.clear();
         Gdx.app.log("Game", "Loading scene " + scene.getName());
         try {
             currentSceneContext = new Context();
@@ -396,9 +404,24 @@ public class Game {
                 scene.getMusic().play();
             }
 
+            populateQuadTree(currentSceneContext);
+
             runInit(currentSceneContext);
         } catch (IOException e) {
             throw new RuntimeException(e);
+        }
+    }
+
+    private void populateQuadTree(Context context) {
+        for(Variable variable : context.getGraphicsVariables(true).values()) {
+            if(variable instanceof ImageVariable || variable instanceof AnimoVariable) {
+                Attribute monitorCollision = variable.getAttribute("MONITORCOLLISION");
+
+                if(monitorCollision != null && monitorCollision.getValue().equals("TRUE")) {
+                    quadTree.insert(variable);
+                    collisionMonitoredVariables.add(variable);
+                }
+            }
         }
     }
 
@@ -603,8 +626,6 @@ public class Game {
         return applicationVariable;
     }
 
-
-
     public List<Music> getPlayingAudios() {
         return playingAudios;
     }
@@ -631,5 +652,13 @@ public class Game {
 
     public String getCurrentEpisode() {
         return currentEpisode;
+    }
+
+    public QuadTree getQuadTree() {
+        return quadTree;
+    }
+
+    public List<Variable> getCollisionMonitoredVariables() {
+        return collisionMonitoredVariables;
     }
 }

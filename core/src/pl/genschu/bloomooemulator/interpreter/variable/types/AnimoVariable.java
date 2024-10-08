@@ -382,6 +382,24 @@ public class AnimoVariable extends Variable implements Cloneable{
 				return null;
 			}
 		});
+		this.setMethod("MONITORCOLLISION", new Method(
+				List.of(
+						new Parameter("BOOL", "monitorAlpha", true)
+				),
+				"void"
+		) {
+			@Override
+			public Variable execute(List<Object> arguments) {
+				boolean monitorAlpha = ArgumentsHelper.getBoolean(arguments.get(0));
+				setAttribute("MONITORCOLLISION", "TRUE");
+				setAttribute("MONITORCOLLISIONALPHA", monitorAlpha ? "TRUE" : "FALSE");
+
+				context.getGame().getQuadTree().insert(AnimoVariable.this);
+				context.getGame().getCollisionMonitoredVariables().add(AnimoVariable.this);
+
+				return null;
+			}
+		});
 		this.setMethod("MOVE", new Method(
 				List.of(
 						new Parameter("INTEGER", "offsetX", true),
@@ -498,6 +516,19 @@ public class AnimoVariable extends Variable implements Cloneable{
 				show();
 				updateRect();
 				emitSignal("ONFRAMECHANGED", currentEvent.getName());
+				return null;
+			}
+		});
+		this.setMethod("REMOVEMONITORCOLLISION", new Method(
+				List.of(),
+				"void"
+		) {
+			@Override
+			public Variable execute(List<Object> arguments) {
+				setAttribute("MONITORCOLLISION", "FALSE");
+				context.getGame().getQuadTree().remove(AnimoVariable.this);
+				context.getGame().getCollisionMonitoredVariables().remove(AnimoVariable.this);
+
 				return null;
 			}
 		});
@@ -901,6 +932,9 @@ public class AnimoVariable extends Variable implements Cloneable{
 
 		//Gdx.app.log("DEBUG ANIMO "+getName(), "Rect before: " + getRect().toString());
 
+		context.getGame().getQuadTree().remove(this); // we need to remove variable from quadtree
+
+		// if we have no frameData, we need to use only posX and posY
 		try {
 			FrameData frameData = currentEvent.getFrameData().get(currentFrameNumber);
 
@@ -929,6 +963,8 @@ public class AnimoVariable extends Variable implements Cloneable{
 				centerY = endPosY;
 			}
 		}
+
+		context.getGame().getQuadTree().insert(this); // and add it again
 
 		//Gdx.app.log("DEBUG ANIMO "+getName(), "Rect after: " + getRect().toString());
 	}

@@ -172,12 +172,12 @@ public class SequenceVariable extends Variable {
 	}
 
 	private void show() {
-		getAttribute("VISIBLE").setValue("TRUE");
+		setAttribute("VISIBLE", "TRUE");
 		isVisible = true;
 	}
 
 	private void hide() {
-		getAttribute("VISIBLE").setValue("FALSE");
+		setAttribute("VISIBLE","FALSE");
 		isVisible = false;
 	}
 

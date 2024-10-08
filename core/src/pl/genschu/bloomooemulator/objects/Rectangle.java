@@ -58,6 +58,10 @@ public class Rectangle {
         return x >= xLeft && x <= xRight && y >= yBottom + getHeight() && y <= yTop + getHeight();
     }
 
+    public boolean intersects(Rectangle other) {
+        return xLeft < other.getXRight() && xRight > other.getXLeft() && yBottom < other.getYTop() && yTop > other.getYBottom();
+    }
+
     public int getWidth() {
         return width;
     }
