@@ -286,7 +286,7 @@ public class DoubleVariable extends Variable {
 	}
 
 	public int toInt() {
-		double value = (double) this.getValue();
+		double value = this.GET();
 		if (value > 0) {
 			return (int) Math.round(value);
 		} else {
@@ -295,11 +295,11 @@ public class DoubleVariable extends Variable {
 	}
 
 	public boolean toBool() {
-		return (double) this.getValue() != 0;
+		return this.GET() != 0;
 	}
 
 	public String toStringVariable() {
-		if((double) this.getValue() == 0) {
+		if(this.GET() == 0) {
 			return "0";
 		}
 		NumberFormat formatter = new DecimalFormat("#0.00000");
@@ -307,7 +307,7 @@ public class DoubleVariable extends Variable {
 	}
 
 	public double clipToBool() {
-		return (double) this.getValue() != 0 ? 1 : 0;
+		return this.GET() != 0 ? 1 : 0;
 	}
 
 	public Variable convert(String type) {

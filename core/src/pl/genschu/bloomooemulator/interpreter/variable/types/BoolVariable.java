@@ -70,15 +70,15 @@ public class BoolVariable extends Variable {
 	}
 
 	public int toInt() {
-		return (boolean) this.getValue() ? 1 : 0;
+		return this.GET() ? 1 : 0;
 	}
 
 	public double toDouble() {
-		return (boolean) this.getValue() ? 1.0 : 0.0;
+		return this.GET() ? 1.0 : 0.0;
 	}
 
 	public String toStringVariable() {
-		return (boolean) this.getValue() ? "TRUE" : "FALSE";
+		return this.GET() ? "TRUE" : "FALSE";
 	}
 
 	public Variable convert(String type) {

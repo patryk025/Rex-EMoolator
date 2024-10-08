@@ -262,15 +262,15 @@ public class IntegerVariable extends Variable {
 	}
 
 	public boolean toBool() {
-		return (int) this.getValue() != 0;
+		return this.GET() != 0;
 	}
 
 	public double toDouble() {
-		return (double) (Integer) this.getValue();
+		return this.GET();
 	}
 
 	public int clipToBool() {
-		return (int) this.getValue() != 0 ? 1 : 0;
+		return this.GET() != 0 ? 1 : 0;
 	}
 
 	public Variable convert(String type) {

@@ -149,7 +149,7 @@ public abstract class Variable implements Cloneable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				if(getName().contains("_"))
-					return new IntegerVariable("", Integer.parseInt(getName().split("_")[1]), context);
+					return new IntegerVariable("", Integer.parseInt(getName().substring(getName().lastIndexOf("_") + 1)), context);
 				return new IntegerVariable("", 0, context);
 			}
 		});
