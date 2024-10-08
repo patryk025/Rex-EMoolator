@@ -126,7 +126,7 @@ public class SequenceVariable extends Variable {
 
 				if(!arguments.isEmpty()) {
 					String eventName = ArgumentsHelper.getString(arguments.get(0));
-					if (currentEventName.equals(eventName)) {
+					if (currentEventName != null && currentEventName.equals(eventName)) {
 						isPlaying = false;
 						getCurrentAnimo().setPlaying(false);
 					}

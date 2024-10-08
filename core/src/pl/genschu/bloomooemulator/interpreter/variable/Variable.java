@@ -248,41 +248,47 @@ public abstract class Variable implements Cloneable {
 			for (Method method : methodList) {
 				List<String> methodParamTypes = method.getParameterTypes();
 
-				int argsCount = paramTypes.size();
+				boolean foundVarargs = false;
+				String varargsType = null;
 
-				for(int i = 0; i < methodParamTypes.size(); i++) {
-					String methodParamType = methodParamTypes.get(i);
-					if(methodParamType.endsWith("...")) {
-						if(i != methodParamTypes.size() - 1) {
-							Gdx.app.error("Variable", "VarArgs can be only the last parameter in method " + name + ". Other situations are not supported for now. Probably it's a error in method definition.");
+                for (String methodParamType : methodParamTypes) {
+                    if (methodParamType.endsWith("...")) {
+                        foundVarargs = true;
+                        varargsType = methodParamType.substring(0, methodParamType.length() - 3);
+                        break;
+                    }
+                }
+
+				if (foundVarargs) {
+					List<String> baseMethodParamTypes = new ArrayList<>(methodParamTypes);
+					Iterator<String> iterator = baseMethodParamTypes.iterator();
+					while (iterator.hasNext()) {
+						String param = iterator.next();
+						if (param.endsWith("...")) {
+							iterator.remove();
 						}
-						else {
-							String tmpMethodParamType = methodParamType.substring(0, methodParamType.length() - 3);
-							methodParamTypes = methodParamTypes.subList(0, i);
-
-							while(methodParamTypes.size() < argsCount) {
-								methodParamTypes.add(tmpMethodParamType);
-							}
-						}
-
-						break;
 					}
+
+					if (paramTypes.size() >= baseMethodParamTypes.size()) {
+						while (baseMethodParamTypes.size() < paramTypes.size()) {
+							baseMethodParamTypes.add(varargsType);
+						}
+					} else {
+						continue;
+					}
+
+					methodParamTypes = baseMethodParamTypes;
 				}
 
 				if (isParameterListMatching(methodParamTypes, paramTypes)) {
-					if(toReturn == null) {
+					if (toReturn == null || toReturn.getParameterTypes().size() < method.getParameterTypes().size()) {
 						toReturn = method;
-					}
-					else {
-						if(toReturn.getParameterTypes().size() < method.getParameterTypes().size()) {
-							toReturn = method;
-						}
 					}
 				}
 			}
 		}
 
-		if(toReturn != null) {
+		if (toReturn != null) {
 			return toReturn;
 		}
 		throw new ClassMethodNotFoundException(name, paramTypes);

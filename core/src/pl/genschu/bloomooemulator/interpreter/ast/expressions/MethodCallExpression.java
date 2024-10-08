@@ -36,7 +36,12 @@ public class MethodCallExpression extends Expression {
         Gdx.app.log("MethodCallExpression", methodName + " - arguments: ");
         for (int i = 0; i < argumentsLength; i++) {
             arguments[i] = getVariableFromObject(this.arguments[i], context);
-            Gdx.app.log("MethodCallExpression", methodName + " - argument " + i + ": " + arguments[i].getValue().toString());
+            if(arguments[i] == null) {
+                Gdx.app.error("MethodCallExpression", "Method call error in variable " + variable.getName() + " of class " + variable.getType() + ": Cannot find argument " + i + " in method call " + methodName);
+            }
+            else {
+                Gdx.app.log("MethodCallExpression", methodName + " - argument " + i + ": " + arguments[i].getValue().toString());
+            }
         }
         try {
             return variable.fireMethod(methodName, (Object[]) arguments);
