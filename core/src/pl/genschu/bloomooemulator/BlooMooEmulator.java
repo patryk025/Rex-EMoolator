@@ -322,6 +322,7 @@ public class BlooMooEmulator extends ApplicationAdapter {
 
     private void checkForCollisions() {
         List<Variable> objects = new ArrayList<>(game.getCollisionMonitoredVariables());
+        Gdx.app.log("CollisionList", getDrawListAsString(objects));
         for (Variable object : objects) {
             List<Variable> potentialCollisions = game.getQuadTree().retrieve(new ArrayList<>(), object);
             for (Variable other : potentialCollisions) {

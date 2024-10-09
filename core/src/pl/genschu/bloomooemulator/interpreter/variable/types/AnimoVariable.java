@@ -57,6 +57,8 @@ public class AnimoVariable extends Variable implements Cloneable{
 	private boolean isPressed = false;
 	private boolean wasPressed = false;
 
+	private boolean monitorCollision = false;
+
 	public AnimoVariable(String name, Context context) {
 		super(name, context);
 
@@ -397,6 +399,8 @@ public class AnimoVariable extends Variable implements Cloneable{
 				context.getGame().getQuadTree().insert(AnimoVariable.this);
 				context.getGame().getCollisionMonitoredVariables().add(AnimoVariable.this);
 
+				monitorCollision = true;
+
 				return null;
 			}
 		});
@@ -528,6 +532,8 @@ public class AnimoVariable extends Variable implements Cloneable{
 				setAttribute("MONITORCOLLISION", "FALSE");
 				context.getGame().getQuadTree().remove(AnimoVariable.this);
 				context.getGame().getCollisionMonitoredVariables().remove(AnimoVariable.this);
+
+				monitorCollision = false;
 
 				return null;
 			}
@@ -837,6 +843,9 @@ public class AnimoVariable extends Variable implements Cloneable{
 					setAsButton(attribute.getValue().toString().equals("TRUE"));
 					changeCursor = true;
 					break;
+				case "MONITORCOLLISION":
+					monitorCollision = attribute.getValue().toString().equals("TRUE");
+					break;
             }
 		}
 	}
@@ -932,7 +941,8 @@ public class AnimoVariable extends Variable implements Cloneable{
 
 		//Gdx.app.log("DEBUG ANIMO "+getName(), "Rect before: " + getRect().toString());
 
-		context.getGame().getQuadTree().remove(this); // we need to remove variable from quadtree
+		if(monitorCollision)
+			context.getGame().getQuadTree().remove(this); // we need to remove variable from quadtree
 
 		// if we have no frameData, we need to use only posX and posY
 		try {
@@ -964,7 +974,8 @@ public class AnimoVariable extends Variable implements Cloneable{
 			}
 		}
 
-		context.getGame().getQuadTree().insert(this); // and add it again
+		if(monitorCollision)
+			context.getGame().getQuadTree().insert(this); // and add it again
 
 		//Gdx.app.log("DEBUG ANIMO "+getName(), "Rect after: " + getRect().toString());
 	}
@@ -1210,13 +1221,11 @@ public class AnimoVariable extends Variable implements Cloneable{
 
 	private void show() {
 		getAttribute("VISIBLE").setValue("TRUE");
-		context.getGame().getCollisionMonitoredVariables().add(this);
 		isVisible = true;
 	}
 
 	private void hide() {
 		getAttribute("VISIBLE").setValue("FALSE");
-		context.getGame().getCollisionMonitoredVariables().remove(this);
 		isVisible = false;
 	}
 

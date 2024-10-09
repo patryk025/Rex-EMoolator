@@ -39,7 +39,7 @@ public class Game {
     private String iniPath = null;
 
     private QuadTree quadTree;
-    private List<Variable> collisionMonitoredVariables = new ArrayList<>();
+    private final Set<Variable> collisionMonitoredVariables = new HashSet<>();
 
     private SceneVariable currentSceneVariable;
     private SceneVariable previousSceneVariable;
@@ -423,6 +423,7 @@ public class Game {
                 }
             }
         }
+        Gdx.app.log("Game", "QuadTree populated, " + collisionMonitoredVariables.size() + " variables monitored");
     }
 
     private void runInit(Context context) {
@@ -658,7 +659,7 @@ public class Game {
         return quadTree;
     }
 
-    public List<Variable> getCollisionMonitoredVariables() {
+    public Set<Variable> getCollisionMonitoredVariables() {
         return collisionMonitoredVariables;
     }
 }

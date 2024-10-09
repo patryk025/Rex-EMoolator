@@ -25,6 +25,7 @@ public class ImageVariable extends Variable implements Cloneable {
 	private Rectangle clippingRect;
 
 	private boolean isVisible = true;
+	private boolean monitorCollision = false;
 
 	public ImageVariable(String name, Context context) {
 		super(name, context);
@@ -210,6 +211,8 @@ public class ImageVariable extends Variable implements Cloneable {
 				context.getGame().getQuadTree().insert(ImageVariable.this);
 				context.getGame().getCollisionMonitoredVariables().add(ImageVariable.this);
 
+				monitorCollision = true;
+
 				return null;
 			}
 		});
@@ -239,6 +242,8 @@ public class ImageVariable extends Variable implements Cloneable {
 				setAttribute("MONITORCOLLISION", "FALSE");
 				context.getGame().getQuadTree().remove(ImageVariable.this);
 				context.getGame().getCollisionMonitoredVariables().remove(ImageVariable.this);
+
+				monitorCollision = false;
 
 				return null;
 			}
@@ -325,6 +330,11 @@ public class ImageVariable extends Variable implements Cloneable {
 			if(name.equals("VISIBLE")) {
 				changeVisibility(attribute.getValue().toString().equals("TRUE"));
 			}
+			if(name.equals("MONITORCOLLISION")) {
+				if(attribute.getValue().toString().equals("TRUE")) {
+					monitorCollision = true;
+				}
+			}
 		}
 	}
 
@@ -335,14 +345,16 @@ public class ImageVariable extends Variable implements Cloneable {
 	private void updateRect() {
 		if(image == null) return;
 
-		context.getGame().getQuadTree().remove(this); // we need to remove variable from quadtree
+		if(monitorCollision)
+			context.getGame().getQuadTree().remove(this); // we need to remove variable from quadtree
 
 		rect.setXLeft(posX + image.offsetX);
 		rect.setYTop(posY + image.offsetY);
 		rect.setXRight(rect.getXLeft() + image.width);
 		rect.setYBottom(rect.getYTop() - image.height);
 
-		context.getGame().getQuadTree().insert(this); // and add it again
+		if(monitorCollision)
+			context.getGame().getQuadTree().insert(this); // and add it again
 	}
 
 	public boolean isAt(int x, int y) {

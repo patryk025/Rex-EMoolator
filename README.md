@@ -23,7 +23,7 @@ Aktualne statusy gier opartych na silniku Piklib/BlooMoo:
 <tr>
 <td>Reksio i Skarb Piratów</td>
 <td><img alt="W grze" src="https://img.shields.io/badge/W grze-yellow"/></td>
-<td>Gra działa bez poważniejszych błędów do momentu dotarcia do wioski (sekwencja z kokosami nie działa poprawnie, nie wykrywa kolizji). Buguje się menu wyboru poziomu. Nie działa powrót z mapy.</td>
+<td>Gra działa bez poważniejszych błędów do momentu dotarcia do wioski (sekwencja z kokosami nie działa poprawnie, są jeszcze problemy z systemem kolizji lub skryptami, kiedy szczur wejdzie na kładkę). Nie działa etap ze zbieraniem pereł. Są problemy ze strażnikiem do świątyni Boga Twaroga.</td>
 </tr>
 <tr>
 <td>Reksio i Ufo</td>
