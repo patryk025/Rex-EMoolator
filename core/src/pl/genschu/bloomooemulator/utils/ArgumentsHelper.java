@@ -1,10 +1,7 @@
 package pl.genschu.bloomooemulator.utils;
 
 import pl.genschu.bloomooemulator.interpreter.variable.Variable;
-import pl.genschu.bloomooemulator.interpreter.variable.types.BoolVariable;
-import pl.genschu.bloomooemulator.interpreter.variable.types.DoubleVariable;
-import pl.genschu.bloomooemulator.interpreter.variable.types.IntegerVariable;
-import pl.genschu.bloomooemulator.interpreter.variable.types.StringVariable;
+import pl.genschu.bloomooemulator.interpreter.variable.types.*;
 
 public class ArgumentsHelper {
     public static int getInteger(Object object) {
@@ -31,6 +28,9 @@ public class ArgumentsHelper {
         }
         else if(object instanceof BoolVariable) {
             return ((BoolVariable) object).toInt();
+        }
+        else if(object instanceof ExpressionVariable) {
+            return getInteger(((ExpressionVariable) object).getValue(), resolveString);
         }
         else {
             return 0;
@@ -62,6 +62,9 @@ public class ArgumentsHelper {
         else if(object instanceof BoolVariable) {
             return ((BoolVariable) object).GET();
         }
+        else if(object instanceof ExpressionVariable) {
+            return getBoolean(((ExpressionVariable) object).getValue(), resolveString);
+        }
         else {
             return false;
         }
@@ -91,6 +94,9 @@ public class ArgumentsHelper {
         }
         else if(object instanceof BoolVariable) {
             return ((BoolVariable) object).toDouble();
+        }
+        else if(object instanceof ExpressionVariable) {
+            return getDouble(((ExpressionVariable) object).getValue(), resolveString);
         }
         else {
             return 0.0;
@@ -122,12 +128,15 @@ public class ArgumentsHelper {
         else if(object instanceof BoolVariable) {
             return ((BoolVariable) object).toStringVariable();
         }
+        else if(object instanceof ExpressionVariable) {
+            return getString(((ExpressionVariable) object).getValue(), resolveString);
+        }
         else {
             return object.toString();
         }
     }
 
     private static boolean isPrimitive(Variable var) {
-        return var instanceof IntegerVariable || var instanceof StringVariable || var instanceof DoubleVariable || var instanceof BoolVariable;
+        return var instanceof IntegerVariable || var instanceof StringVariable || var instanceof DoubleVariable || var instanceof BoolVariable || var instanceof ExpressionVariable;
     }
 }
