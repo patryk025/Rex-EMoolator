@@ -5,6 +5,7 @@ import pl.genschu.bloomooemulator.interpreter.Context;
 import pl.genschu.bloomooemulator.interpreter.variable.Variable;
 import pl.genschu.bloomooemulator.interpreter.ast.Expression;
 import pl.genschu.bloomooemulator.interpreter.exceptions.ClassMethodNotFoundException;
+import pl.genschu.bloomooemulator.interpreter.variable.types.ExpressionVariable;
 import pl.genschu.bloomooemulator.interpreter.variable.types.StringVariable;
 
 import static pl.genschu.bloomooemulator.interpreter.util.VariableHelper.getVariableFromObject;
@@ -38,6 +39,9 @@ public class MethodCallExpression extends Expression {
             arguments[i] = getVariableFromObject(this.arguments[i], context);
             if(arguments[i] == null) {
                 Gdx.app.error("MethodCallExpression", "Method call error in variable " + variable.getName() + " of class " + variable.getType() + ": Cannot find argument " + i + " in method call " + methodName);
+            }
+            else if(arguments[i] instanceof ExpressionVariable) {
+                Gdx.app.log("MethodCallExpression", methodName + " - argument " + i + ": expression to calculate " + arguments[i].getName());
             }
             else {
                 Gdx.app.log("MethodCallExpression", methodName + " - argument " + i + ": " + arguments[i].getValue().toString());
