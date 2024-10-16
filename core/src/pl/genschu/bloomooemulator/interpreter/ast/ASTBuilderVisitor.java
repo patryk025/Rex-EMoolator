@@ -323,11 +323,12 @@ public class ASTBuilderVisitor extends AidemMediaBaseVisitor<Node> {
             case "ONEBREAK":
                 return new OneBreakStatement();
 			case "GETAPPLICATIONNAME":
-				// TODO: podejrzeć jak to PikLib zwraca
-				return new ConstantExpression("<no value>");
+				return new ConstantExpression(this.context.getGame().getApplicationVariable().getName());
 			case "GETCURRENTSCENE":
 				return new ConstantExpression(this.context.getGame().getCurrentScene());
-				
+            case "MSGBOX":
+                // TODO: implement message box (but it looks like doesn't work in original game)
+                return null;
 			default:
                 return null;
         }
