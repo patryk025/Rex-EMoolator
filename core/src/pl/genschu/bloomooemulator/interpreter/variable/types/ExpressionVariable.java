@@ -6,6 +6,7 @@ import pl.genschu.bloomooemulator.interpreter.arithmetic.ArithmeticSolver;
 import pl.genschu.bloomooemulator.interpreter.variable.Attribute;
 import pl.genschu.bloomooemulator.interpreter.variable.Variable;
 
+import java.util.Collections;
 import java.util.List;
 
 public class ExpressionVariable  extends Variable {
@@ -34,6 +35,13 @@ public class ExpressionVariable  extends Variable {
     private Variable parseOperand(String operand) {
         if(operand.startsWith("\"") && operand.endsWith("\"")) {
             return new StringVariable("", operand.substring(1, operand.length() - 1), context);
+        }
+
+        if(operand.contains("^")) {
+            // oh man, it's a function, let's create temporary behaviour
+            BehaviourVariable behaviourVariable = new BehaviourVariable("", "{@RETURN("+operand+");}", context);
+
+            return behaviourVariable.fireMethod("RUN");
         }
 
         return context.getVariable(operand);
