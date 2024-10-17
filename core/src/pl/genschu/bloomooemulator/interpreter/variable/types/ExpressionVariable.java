@@ -1,6 +1,8 @@
 package pl.genschu.bloomooemulator.interpreter.variable.types;
 
+import com.badlogic.gdx.Gdx;
 import pl.genschu.bloomooemulator.interpreter.Context;
+import pl.genschu.bloomooemulator.interpreter.arithmetic.ArithmeticSolver;
 import pl.genschu.bloomooemulator.interpreter.variable.Attribute;
 import pl.genschu.bloomooemulator.interpreter.variable.Variable;
 
@@ -46,6 +48,20 @@ public class ExpressionVariable  extends Variable {
     public Object getValue() {
         Variable operand1 = parseOperand(this.operand1);
         Variable operand2 = parseOperand(this.operand2);
-        return operand1.fireMethod(operator, operand2);
+        switch (operator) {
+            case "ADD":
+                return ArithmeticSolver.add(operand1, operand2);
+            case "SUB":
+                return ArithmeticSolver.subtract(operand1, operand2);
+            case "MUL":
+                return ArithmeticSolver.multiply(operand1, operand2);
+            case "DIV":
+                return ArithmeticSolver.divide(operand1, operand2);
+            case "MOD":
+                return ArithmeticSolver.modulo(operand1, operand2);
+            default:
+                Gdx.app.error("ExpressionVariable", "Unknown operator: " + operator);
+                return null;
+        }
     }
 }

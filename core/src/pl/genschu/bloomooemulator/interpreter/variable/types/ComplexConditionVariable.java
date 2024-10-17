@@ -64,7 +64,7 @@ public class ComplexConditionVariable extends ConditionVariable {
 				condition2 = (ConditionVariable) tmp;
 			}
 		}
-		if(condition1 == null && condition2 == null) {
+		if(condition1 == null || condition2 == null) {
 			return false;
 		}
 		boolean result1 = ((BoolVariable) condition1.fireMethod("CHECK", new BoolVariable("", true, context))).GET();
