@@ -56,7 +56,7 @@ public class BlooMooEmulator extends ApplicationAdapter {
     private boolean showTooltip = false;
     private BitmapFont font;
 
-    private boolean showDebugVariables = true;
+    private boolean showDebugVariables = false;
     private String debugVariablesValues = "";
 
     public BlooMooEmulator(GameEntry gameEntry) {
@@ -128,8 +128,6 @@ public class BlooMooEmulator extends ApplicationAdapter {
         if (Gdx.input.isKeyJustPressed(Input.Keys.F1)) {
             showDebugVariables = !showDebugVariables;
         }
-
-        checkForCollisions();
 
         ImageVariable background = game.getCurrentSceneVariable().getBackground();
         if(background != null) {
@@ -251,6 +249,8 @@ public class BlooMooEmulator extends ApplicationAdapter {
             }
         }
 
+        checkForCollisions();
+
         if(debugButtons) {
             List<Variable> buttons = new ArrayList<>(context.getButtonsVariables().values());
 
@@ -322,7 +322,7 @@ public class BlooMooEmulator extends ApplicationAdapter {
 
     private void checkForCollisions() {
         List<Variable> objects = new ArrayList<>(game.getCollisionMonitoredVariables());
-        Gdx.app.log("CollisionList", getDrawListAsString(objects));
+        //Gdx.app.log("CollisionList", getDrawListAsString(objects));
         for (Variable object : objects) {
             List<Variable> potentialCollisions = game.getQuadTree().retrieve(new ArrayList<>(), object);
             for (Variable other : potentialCollisions) {

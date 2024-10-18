@@ -59,7 +59,7 @@ public class Rectangle {
     }
 
     public boolean intersects(Rectangle other) {
-        return xLeft < other.getXRight() && xRight > other.getXLeft() && yBottom < other.getYTop() && yTop > other.getYBottom();
+        return xLeft < other.getXRight() && xRight > other.getXLeft() && yBottom + getHeight() < other.getYTop() + other.getHeight() && yTop + getHeight() > other.getYBottom() + other.getHeight();
     }
 
     public int getWidth() {
