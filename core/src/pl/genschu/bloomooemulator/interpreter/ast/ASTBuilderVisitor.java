@@ -19,15 +19,10 @@ public class ASTBuilderVisitor extends AidemMediaBaseVisitor<Node> {
     }
 
     @Override
-    public Node visitScript(AidemMediaParser.ScriptContext ctx) {
-        return visit(ctx.codeBlock(0));
-    }
-
-    @Override
-    public Node visitCodeBlock(AidemMediaParser.CodeBlockContext ctx) {
+    public Node visitBlock(AidemMediaParser.BlockContext ctx) {
         List<Node> nodes = new ArrayList<>();
-        for(int i = 0; i < ctx.getChildCount(); i++) {
-            Node node = visit(ctx.getChild(i));
+        for(int i = 0; i < ctx.statement().size(); i++) {
+            Node node = visit(ctx.statement(i));
             if(node != null)
                 nodes.add(node);
         }
@@ -35,136 +30,46 @@ public class ASTBuilderVisitor extends AidemMediaBaseVisitor<Node> {
     }
 
     @Override
-    public Node visitFunctionFire(AidemMediaParser.FunctionFireContext ctx) {
-        String methodName = "";
-        if(ctx.stringRef() != null || ctx.iterator() != null || ctx.struct() != null || ctx.variable() != null || ctx.varWithNumber() != null) {
-            methodName = ctx.literal(0).getText();
+    public Node visitStatement(AidemMediaParser.StatementContext ctx) {
+        if (ctx.functionCall() != null) {
+            return visit(ctx.functionCall());
+        } else if (ctx.specialFunction() != null) {
+            return visit(ctx.specialFunction());
+        } else if (ctx.loopStatement() != null) {
+            return visit(ctx.loopStatement());
+        } else if (ctx.ifStatement() != null) {
+            return visit(ctx.ifStatement());
+        } else if (ctx.expression() != null) {
+            return visit(ctx.expression());
+        } else if (ctx.inlineComment() != null) {
+            return visit(ctx.inlineComment());
         }
-        else {
-            methodName = ctx.literal(1).getText();
-        }
-
-        Expression targetExpression;
-        if (ctx.literal() != null && ctx.literal().size() == 2) {
-            targetExpression = new VariableExpression((Expression) visitLiteral(ctx.literal(0)));
-        } else if (ctx.iterator() != null) {
-            targetExpression = new VariableExpression("_I_");
-        } else if (ctx.stringRef() != null) {
-            targetExpression = (Expression) visit(ctx.stringRef());
-        } else if (ctx.struct() != null) {
-            targetExpression = (Expression) visitStruct(ctx.struct());
-        } else if (ctx.variable() != null) {
-            targetExpression = new VariableExpression(ctx.variable().getText());
-        } else if (ctx.varWithNumber() != null) {
-            targetExpression = new VariableExpression(ctx.varWithNumber().getText());
-        } else {
-            throw new RuntimeException("Unsupported function fire target: " + ctx.getText());
-        }
-
-        List<Expression> argumentExpressions = new ArrayList<>();
-        for (int i = 0; i < ctx.param().size(); i++) {
-            argumentExpressions.add((Expression) visit(ctx.param(i)));
-        }
-
-        return new MethodCallExpression(targetExpression, methodName, argumentExpressions.toArray(new Expression[0]));
+        return null;
     }
 
     @Override
-    public Node visitExpression(AidemMediaParser.ExpressionContext ctx) {
-        return buildExpression(ctx);
-    }
+    public Node visitFunctionCall(AidemMediaParser.FunctionCallContext ctx) {
+        String methodName = ctx.functionName().getText();
 
-    @Override
-    public Node visitNumber(AidemMediaParser.NumberContext ctx) {
-        return new ConstantExpression(Integer.parseInt(ctx.getText()));
-    }
-
-    @Override
-    public Node visitFloatNumber(AidemMediaParser.FloatNumberContext ctx) {
-        return new ConstantExpression(Double.parseDouble(ctx.getText()));
-    }
-
-    @Override
-    public Node visitLiteral(AidemMediaParser.LiteralContext ctx) {
-        if(!ctx.variable().isEmpty()) {
-            List<Expression> operands = new ArrayList<>();
-            for (int i = 0; i < ctx.getChildCount(); i++) {
-                ParseTree child = ctx.getChild(i);
-
-                if(child instanceof AidemMediaParser.VariableContext) {
-                    operands.add((Expression) visit(child));
-                }
-                else {
-                    operands.add(new ConstantExpression(child.getText()));
-                }
-
-                if(i < ctx.getChildCount()-1) {
-                    operands.add(new OperatorExpression("+"));
-                }
-            }
-
-            Expression expression = createExpressionTree(InfixToPostfix.convertToPostfix(operands));
-            return new PointerExpression(expression);
+        Expression targetVariable = null;
+        if(ctx.variable() != null) {
+            targetVariable = (Expression) visitVariable(ctx.variable());
         }
-        return new ConstantExpression(ctx.getText());
-    }
-
-	@Override
-	public Node visitIterator(AidemMediaParser.IteratorContext ctx)
-	{
-		return new ConstantExpression(ctx.getText());
-	}
-
-    @Override
-    public Node visitString(AidemMediaParser.StringContext ctx) {
-        if(ctx.string() != null) {
-            return new ConstantExpression(ctx.string().getText());
+        else if(ctx.structField() != null) {
+            targetVariable = (Expression) visitStructField(ctx.structField());
         }
-        else if(ctx.getText().contains("|")) {
-            String text = ctx.getText();
-            if(text.startsWith("\"") && text.endsWith("\"")) {
-                text = text.substring(1, text.length()-1);
-            }
-            String[] parts = text.split("\\|");
-            if(parts.length == 2) {
-                return new StructExpression(parts[0], parts[1]);
-            }
-            else {
-                return new ConstantExpression(ctx.getText());
+        else if(ctx.variableReference() != null) {
+            targetVariable = (Expression) visitVariableReference(ctx.variableReference());
+        }
+
+        List<Expression> arguments = new ArrayList<>();
+        if(ctx.paramList() != null) {
+            for (int i = 0; i < ctx.paramList().param().size(); i++) {
+                arguments.add((Expression) visit(ctx.paramList().param(i)));
             }
         }
-        else if(ctx.functionFire(0) != null) {
-            return visit(ctx.functionFire(0));
-        }
-        else {
-			String text = ctx.getText();
-            return new ConstantExpression(text.substring(1, text.length()-1));
-        }
-    }
 
-    @Override
-    public Node visitBool(AidemMediaParser.BoolContext ctx) {
-        return new ConstantExpression(ctx.getText());
-    }
-
-    @Override
-    public Node visitLogic(AidemMediaParser.LogicContext ctx) {
-        return new OperatorExpression(ctx.getText());
-    }
-
-    @Override
-    public Node visitStringRef(AidemMediaParser.StringRefContext ctx) {
-        if(ctx.expression() != null) {
-            return new PointerExpression((Expression) visit(ctx.expression()));
-        }
-        else {
-            return new PointerExpression((Expression) visit(ctx.literal()));
-        }
-    }
-
-    @Override
-    public Node visitStruct(AidemMediaParser.StructContext ctx) {
-        return new StructExpression(ctx.literal(0).getText(), ctx.literal(1).getText());
+        return new MethodCallExpression(targetVariable, methodName, arguments.toArray(new Expression[0]));
     }
 
     @Override
@@ -173,241 +78,229 @@ public class ASTBuilderVisitor extends AidemMediaBaseVisitor<Node> {
     }
 
     @Override
-    public Node visitParam(AidemMediaParser.ParamContext ctx) {
+    public Node visitStructField(AidemMediaParser.StructFieldContext ctx) {
+        return new StructExpression(ctx.variable().getText(), ctx.structColumn(0).getText());
+    }
+
+    @Override
+    public Node visitVariableReference(AidemMediaParser.VariableReferenceContext ctx) {
+        return super.visitVariableReference(ctx);
+    }
+
+    @Override
+    public Node visitPrimitive(AidemMediaParser.PrimitiveContext ctx) {
         if(ctx.number() != null) {
-            String number = ctx.number().getText();
-            if(ctx.arithmetic() != null && ctx.arithmetic().getText().equals("-")) {
-                return new ConstantExpression(Integer.parseInt("-" + number));
+            if(ctx.number().INTEGER() != null) {
+                return new ConstantExpression(Integer.parseInt(ctx.number().INTEGER().getText()));
             }
-            return new ConstantExpression(Integer.parseInt(ctx.getText()));
-        }
-        else if(ctx.floatNumber() != null) {
-            String number = ctx.floatNumber().getText();
-            if(ctx.arithmetic() != null && ctx.arithmetic().getText().equals("-")) {
-                return new ConstantExpression(Double.parseDouble("-" + number));
+            else {
+                return new ConstantExpression(Float.parseFloat(ctx.number().FLOAT().getText()));
             }
-            return new ConstantExpression(Double.parseDouble(ctx.getText()));
-        }
-        else if(ctx.literal() != null) {
-            return new VariableExpression((Expression) visit(ctx.literal()));
         }
         else if(ctx.string() != null) {
-            if(!ctx.string().expression().isEmpty()) {
-                return visitExpression(ctx.string().expression().get(0));
+            String tmp = ctx.string().getText();
+            if(tmp.startsWith("\"\"") && tmp.endsWith("\"\"")) {
+                return new ConstantExpression(tmp.substring(1, tmp.length() - 1));
+            }
+            else {
+                return new ConstantExpression(tmp);
             }
         }
-        return super.visitParam(ctx);
-    }
-
-    private Expression buildExpression(AidemMediaParser.ExpressionContext ctx) {
-        if (ctx.getChildCount() == 3) {
-            return (Expression) visit(ctx.getChild(1));
+        else {
+            return new ConstantExpression(ctx.BOOLEAN().getText().equals("TRUE"));
         }
-
-        List<Expression> operands = new ArrayList<>();
-		for (int i = 1; i < ctx.getChildCount()-1; i++) {
-			if(ctx.getChild(i).getText().trim().matches("[+\\-*@%()]")) {
-				operands.add(new OperatorExpression(ctx.getChild(i).getText().trim()));
-			}
-			else {
-                Expression operand;
-                if(ctx.getChild(i) instanceof AidemMediaParser.LiteralContext) {
-                    operand = new VariableExpression((Expression) visit(ctx.getChild(i)));
-                }
-                else {
-                    operand = (Expression) visit(ctx.getChild(i));
-                }
-
-                if(operand != null)
-				    operands.add(operand);
-			}
-		}
-
-        return createExpressionTree(InfixToPostfix.convertToPostfix(operands));
     }
 
-    private Expression createExpressionTree(Deque<Expression> operands) {
+    private Expression createExpressionTree(List<Expression> terms, List<String> operators) {
         Stack<Expression> stack = new Stack<>();
 
-        while (!operands.isEmpty()) {
-            Expression operand = operands.removeFirst();
-            if (operand instanceof OperatorExpression) {
-                Expression right = stack.pop();
-                Expression left = stack.pop();
-                stack.push(new ArithmeticExpression(left, right, operand.evaluate(null).toString()));
-            } else {
-                stack.push(operand);
-            }
+        stack.push(terms.get(0));
+
+        for (int i = 0; i < operators.size(); i++) {
+            Expression right = terms.get(i + 1);
+            String operator = operators.get(i);
+            Expression left = stack.pop();
+
+            stack.push(new ArithmeticExpression(left, right, operator));
         }
 
         return stack.pop();
     }
 
     @Override
-    public Node visitConditionPart(AidemMediaParser.ConditionPartContext ctx) {
-        Expression left;
-        if(ctx.getChild(0) instanceof AidemMediaParser.LiteralContext) {
-            left = new VariableExpression((Expression) visit(ctx.getChild(0)));
+    public Node visitMathFactor(AidemMediaParser.MathFactorContext ctx) {
+        if (ctx.getChildCount() == 1) {
+            return visit(ctx.getChild(0));
+        } else if (ctx.getChildCount() == 3) { // inside brackets
+            return visit(ctx.getChild(1));
         }
-        else {
-            left = (Expression) visit(ctx.getChild(0));
+
+        throw new IllegalArgumentException("Nieznana struktura wyrażenia: " + ctx.getText());
+    }
+
+    @Override
+    public Node visitMathExpression(AidemMediaParser.MathExpressionContext ctx) {
+        List<Expression> terms = new ArrayList<>();
+        List<String> operators = new ArrayList<>();
+
+        for (int i = 0; i < ctx.getChildCount(); i++) {
+            if (i % 2 == 0) {
+                terms.add((Expression) visit(ctx.getChild(i)));
+            } else {
+                operators.add(ctx.getChild(i).getText().trim());
+            }
         }
-        String operator = ctx.getChild(1).getText();
-        Expression right;
-        if(ctx.getChild(2) instanceof AidemMediaParser.LiteralContext) {
-            right = new VariableExpression((Expression) visit(ctx.getChild(2)));
+
+        return createExpressionTree(terms, operators);
+    }
+
+    @Override
+    public Node visitIfStatement(AidemMediaParser.IfStatementContext ctx) {
+        ConditionExpression condition;
+
+        if (ctx.ifCondition().conditionSimple() != null) {
+            condition = (ConditionExpression) visit(ctx.ifCondition().conditionSimple());
+        } else {
+            condition = (ConditionExpression) visit(ctx.ifCondition().conditionComplex());
         }
-        else {
-            right = (Expression) visit(ctx.getChild(2));
-        }
+
+        Expression trueBranch = (Expression) visit(ctx.trueBranch());
+        Expression falseBranch = (Expression) visit(ctx.falseBranch());
+
+        return new IfStatement(condition, trueBranch, falseBranch);
+    }
+
+    @Override
+    public Node visitConditionSimple(AidemMediaParser.ConditionSimpleContext ctx) {
+        Expression left = (Expression) visit(ctx.expression(0));
+        String operator = ctx.comparator().getText();
+        Expression right = (Expression) visit(ctx.expression(1));
+
         return new ConditionExpression(left, right, operator);
     }
 
-    private Expression buildConditionExpression(AidemMediaParser.ConditionContext ctx) {
-        List<Expression> operands = new ArrayList<>();
+    @Override
+    public Node visitConditionComplex(AidemMediaParser.ConditionComplexContext ctx) {
+        List<Expression> terms = new ArrayList<>();
+        List<String> logicOperators = new ArrayList<>();
+
         for (int i = 0; i < ctx.getChildCount(); i++) {
-            Node operand = visit(ctx.getChild(i));
-
-            if(operand instanceof ConstantExpression) {
-                operand = new VariableExpression((Expression) operand);
+            if (i % 2 == 0) {
+                terms.add((Expression) visit(ctx.getChild(i)));
+            } else {
+                logicOperators.add(ctx.getChild(i).getText());
             }
-
-            operands.add((Expression) operand);
         }
 
-        return createConditionExpressionTree(InfixToPostfix.convertToPostfix(operands));
+        return buildLogicalConditionTree(terms, logicOperators);
     }
 
-    private Expression createConditionExpressionTree(Deque<Expression> operands) {
-        if(operands.size() == 1) {
-            return operands.pop();
-        }
-
+    private Expression buildLogicalConditionTree(List<Expression> terms, List<String> operators) {
         Stack<Expression> stack = new Stack<>();
+        stack.push(terms.get(0));
 
-        while (!operands.isEmpty()) {
-            Expression operand = operands.removeFirst();
-            if (operand instanceof OperatorExpression) {
-                Expression right = stack.pop();
-                Expression left = stack.pop();
-                stack.push(new ConditionExpression(left, right, operand.evaluate(null).toString()));
-            } else {
-                stack.push(operand);
-            }
+        for (int i = 0; i < operators.size(); i++) {
+            Expression right = terms.get(i + 1);
+            String operator = operators.get(i);
+            Expression left = stack.pop();
+
+            stack.push(new ConditionExpression(left, right, operator));
         }
 
         return stack.pop();
     }
 
     @Override
-    public Node visitInstr(AidemMediaParser.InstrContext ctx) {
-        String instructionName = ctx.literal().getText();
-        List<AidemMediaParser.ParamContext> params = ctx.param();
+    public Node visitTrueBranch(AidemMediaParser.TrueBranchContext ctx) {
+        if (ctx.string() != null) {
+            return visit(ctx.string());
+        } else {
+            return visit(ctx.block());
+        }
+    }
+
+    @Override
+    public Node visitFalseBranch(AidemMediaParser.FalseBranchContext ctx) {
+        if (ctx.string() != null) {
+            return visit(ctx.string());
+        } else {
+            return visit(ctx.block());
+        }
+    }
+
+    @Override
+    public Node visitLoopStatement(AidemMediaParser.LoopStatementContext ctx) {
+        String loopType = ctx.getChild(0).getText();
+        switch (loopType) {
+            /*case "@FOR": // TODO: implement
+                return visitForLoop(ctx);*/
+            case "@WHILE":
+                return visitWhileLoop(ctx);
+            case "@LOOP":
+                return visitLoopLoop(ctx);
+        }
+
+        return super.visitLoopStatement(ctx);
+    }
+
+    public Node visitWhileLoop(AidemMediaParser.LoopStatementContext ctx) {
+        ConditionExpression condition = (ConditionExpression) visit(ctx.conditionSimple());
+        Expression code = null;
+        if(ctx.variable() != null) {
+            code = (Expression) visit(ctx.variable(0));
+        }
+        else if(ctx.block() != null) {
+            code = (Expression) visit(ctx.block());
+        }
+        return new WhileStatement(condition, code);
+    }
+
+    public Node visitLoopLoop(AidemMediaParser.LoopStatementContext ctx) {
+        Expression code = null;
+        if(ctx.variable() != null) {
+            code = (Expression) visit(ctx.variable(0));
+        }
+        else if(ctx.block() != null) {
+            code = (Expression) visit(ctx.block());
+        }
+        Expression start = new VariableExpression((Expression) visit(ctx.expression(0)));
+        Expression end = new VariableExpression((Expression) visit(ctx.expression(1)));
+        Expression step = new VariableExpression((Expression) visit(ctx.expression(2)));
+        return new LoopStatement(start, end, step, code);
+    }
+
+    @Override
+    public Node visitSpecialFunction(AidemMediaParser.SpecialFunctionContext ctx) {
+        String instructionName = ctx.functionName().getText();
+        List<AidemMediaParser.ParamContext> params = ctx.paramList().param();
 
         switch(instructionName) {
             case "BOOL":
             case "STRING":
             case "DOUBLE":
             case "INT":
-                String varName = ctx.param(0).getText();
-                AidemMediaParser.ParamContext param2 = ctx.param(1);
+                String varName = params.get(0).getText();
+                AidemMediaParser.ParamContext param2 = params.get(1);
                 return new VariableDefinitionStatement(instructionName, varName, (Expression) visit(param2));
             case "CONV":
-				Expression castedVariable = (Expression) visit(ctx.param(0));
-				String targetVariableType = (String) ((Expression) visit(ctx.param(1))).evaluate(context);
-				return new ConvStatement(castedVariable, targetVariableType);
-			case "RETURN":
-				return new ReturnExpression((Expression) visit(ctx.param(0)));
+                Expression castedVariable = (Expression) visit(params.get(0));
+                String targetVariableType = (String) ((Expression) visit(params.get(1))).evaluate(context);
+                return new ConvStatement(castedVariable, targetVariableType);
+            case "RETURN":
+                return new ReturnExpression((Expression) visit(params.get(0)));
             case "BREAK":
                 return new BreakStatement();
             case "ONEBREAK":
                 return new OneBreakStatement();
-			case "GETAPPLICATIONNAME":
-				return new ConstantExpression(this.context.getGame().getApplicationVariable().getName());
-			case "GETCURRENTSCENE":
-				return new ConstantExpression(this.context.getGame().getCurrentScene());
+            case "GETAPPLICATIONNAME":
+                return new ConstantExpression(this.context.getGame().getApplicationVariable().getName());
+            case "GETCURRENTSCENE":
+                return new ConstantExpression(this.context.getGame().getCurrentScene());
             case "MSGBOX":
                 // TODO: implement message box (but it looks like doesn't work in original game)
                 return null;
-			default:
+            default:
                 return null;
         }
-    }
-
-    @Override
-    public Node visitIfInstr(AidemMediaParser.IfInstrContext ctx) {
-        ConditionExpression condition;
-
-        AidemMediaParser.ConditionSimpleContext conditionsSimple = ctx.conditionSimple();
-        AidemMediaParser.ConditionContext conditions = ctx.condition();
-
-        if(conditionsSimple != null && conditions == null) {
-            Node left = visit(conditionsSimple.param(0));
-            Node right = visit(conditionsSimple.param(1));
-
-            if(left instanceof ConstantExpression) {
-                left = new VariableExpression((Expression) left);
-            }
-
-            if(right instanceof ConstantExpression) {
-                right = new VariableExpression((Expression) right);
-            }
-            condition = new ConditionExpression((Expression) left, (Expression) right, conditionsSimple.compare().getText());
-        }
-        else {
-            condition = (ConditionExpression) buildConditionExpression(ctx.condition());
-        }
-
-        Node trueBranch = visit(ctx.ifTrue());
-        Node falseBranch = visit(ctx.ifFalse());
-
-        if(trueBranch instanceof ConstantExpression) {
-            trueBranch = new VariableExpression((Expression) trueBranch);
-        }
-
-        if(falseBranch instanceof ConstantExpression) {
-            falseBranch = new VariableExpression((Expression) falseBranch);
-        }
-
-        return new IfStatement(condition, (Expression) trueBranch, (Expression) falseBranch);
-    }
-
-	@Override
-	public Node visitLoopInstr(AidemMediaParser.LoopInstrContext ctx)
-	{
-		Expression code = (Expression) visit(ctx.loopCodeParam());
-		Expression start = new VariableExpression((Expression) visit(ctx.param(0)));
-		Expression end = new VariableExpression((Expression) visit(ctx.param(1)));
-		Expression step = new VariableExpression((Expression) visit(ctx.param(2)));
-		return new LoopStatement(start, end, step, code);
-	}
-
-	@Override
-	public Node visitLoopCodeParam(AidemMediaParser.LoopCodeParamContext ctx)
-	{
-		if(ctx.codeBlock() != null) {
-			return visit(ctx.codeBlock());
-		}
-		else if(ctx.string() != null) {
-			return visit(ctx.string());
-		}
-		else {
-			return visit(ctx.literal());
-		}
-	}
-
-    @Override
-    public Node visitWhileInstr(AidemMediaParser.WhileInstrContext ctx) {
-        VariableExpression left = new VariableExpression((Expression) visit(ctx.param(0)));
-        VariableExpression right = new VariableExpression((Expression) visit(ctx.param(1)));
-        ConditionExpression condition = new ConditionExpression(left, right, ctx.compare().getText());
-        Expression code = null;
-        if(ctx.string() != null) {
-            code = (Expression) visit(ctx.string());
-        }
-        else if(ctx.codeBlock() != null) {
-            code = (Expression) visit(ctx.codeBlock());
-        }
-        return new WhileStatement(condition, code);
     }
 }

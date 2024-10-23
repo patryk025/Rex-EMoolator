@@ -1,4 +1,4 @@
-// Generated from AidemMedia.g4 by ANTLR 4.9.2
+// Generated from AidemMedia.g4 by ANTLR 4.13.2
 package pl.genschu.bloomooemulator.interpreter.antlr;
 import org.antlr.v4.runtime.tree.ParseTreeListener;
 
@@ -8,75 +8,85 @@ import org.antlr.v4.runtime.tree.ParseTreeListener;
  */
 public interface AidemMediaListener extends ParseTreeListener {
 	/**
-	 * Enter a parse tree produced by {@link AidemMediaParser#ifInstr}.
+	 * Enter a parse tree produced by {@link AidemMediaParser#program}.
 	 * @param ctx the parse tree
 	 */
-	void enterIfInstr(AidemMediaParser.IfInstrContext ctx);
+	void enterProgram(AidemMediaParser.ProgramContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link AidemMediaParser#ifInstr}.
+	 * Exit a parse tree produced by {@link AidemMediaParser#program}.
 	 * @param ctx the parse tree
 	 */
-	void exitIfInstr(AidemMediaParser.IfInstrContext ctx);
+	void exitProgram(AidemMediaParser.ProgramContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link AidemMediaParser#loopInstr}.
+	 * Enter a parse tree produced by {@link AidemMediaParser#block}.
 	 * @param ctx the parse tree
 	 */
-	void enterLoopInstr(AidemMediaParser.LoopInstrContext ctx);
+	void enterBlock(AidemMediaParser.BlockContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link AidemMediaParser#loopInstr}.
+	 * Exit a parse tree produced by {@link AidemMediaParser#block}.
 	 * @param ctx the parse tree
 	 */
-	void exitLoopInstr(AidemMediaParser.LoopInstrContext ctx);
+	void exitBlock(AidemMediaParser.BlockContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link AidemMediaParser#whileInstr}.
+	 * Enter a parse tree produced by {@link AidemMediaParser#statement}.
 	 * @param ctx the parse tree
 	 */
-	void enterWhileInstr(AidemMediaParser.WhileInstrContext ctx);
+	void enterStatement(AidemMediaParser.StatementContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link AidemMediaParser#whileInstr}.
+	 * Exit a parse tree produced by {@link AidemMediaParser#statement}.
 	 * @param ctx the parse tree
 	 */
-	void exitWhileInstr(AidemMediaParser.WhileInstrContext ctx);
+	void exitStatement(AidemMediaParser.StatementContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link AidemMediaParser#functionFire}.
+	 * Enter a parse tree produced by {@link AidemMediaParser#functionCall}.
 	 * @param ctx the parse tree
 	 */
-	void enterFunctionFire(AidemMediaParser.FunctionFireContext ctx);
+	void enterFunctionCall(AidemMediaParser.FunctionCallContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link AidemMediaParser#functionFire}.
+	 * Exit a parse tree produced by {@link AidemMediaParser#functionCall}.
 	 * @param ctx the parse tree
 	 */
-	void exitFunctionFire(AidemMediaParser.FunctionFireContext ctx);
+	void exitFunctionCall(AidemMediaParser.FunctionCallContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link AidemMediaParser#codeBlock}.
+	 * Enter a parse tree produced by {@link AidemMediaParser#specialFunction}.
 	 * @param ctx the parse tree
 	 */
-	void enterCodeBlock(AidemMediaParser.CodeBlockContext ctx);
+	void enterSpecialFunction(AidemMediaParser.SpecialFunctionContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link AidemMediaParser#codeBlock}.
+	 * Exit a parse tree produced by {@link AidemMediaParser#specialFunction}.
 	 * @param ctx the parse tree
 	 */
-	void exitCodeBlock(AidemMediaParser.CodeBlockContext ctx);
+	void exitSpecialFunction(AidemMediaParser.SpecialFunctionContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link AidemMediaParser#varWithNumber}.
+	 * Enter a parse tree produced by {@link AidemMediaParser#loopStatement}.
 	 * @param ctx the parse tree
 	 */
-	void enterVarWithNumber(AidemMediaParser.VarWithNumberContext ctx);
+	void enterLoopStatement(AidemMediaParser.LoopStatementContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link AidemMediaParser#varWithNumber}.
+	 * Exit a parse tree produced by {@link AidemMediaParser#loopStatement}.
 	 * @param ctx the parse tree
 	 */
-	void exitVarWithNumber(AidemMediaParser.VarWithNumberContext ctx);
+	void exitLoopStatement(AidemMediaParser.LoopStatementContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link AidemMediaParser#loopCodeParam}.
+	 * Enter a parse tree produced by {@link AidemMediaParser#ifStatement}.
 	 * @param ctx the parse tree
 	 */
-	void enterLoopCodeParam(AidemMediaParser.LoopCodeParamContext ctx);
+	void enterIfStatement(AidemMediaParser.IfStatementContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link AidemMediaParser#loopCodeParam}.
+	 * Exit a parse tree produced by {@link AidemMediaParser#ifStatement}.
 	 * @param ctx the parse tree
 	 */
-	void exitLoopCodeParam(AidemMediaParser.LoopCodeParamContext ctx);
+	void exitIfStatement(AidemMediaParser.IfStatementContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link AidemMediaParser#ifCondition}.
+	 * @param ctx the parse tree
+	 */
+	void enterIfCondition(AidemMediaParser.IfConditionContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link AidemMediaParser#ifCondition}.
+	 * @param ctx the parse tree
+	 */
+	void exitIfCondition(AidemMediaParser.IfConditionContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link AidemMediaParser#conditionSimple}.
 	 * @param ctx the parse tree
@@ -88,55 +98,55 @@ public interface AidemMediaListener extends ParseTreeListener {
 	 */
 	void exitConditionSimple(AidemMediaParser.ConditionSimpleContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link AidemMediaParser#ifTrue}.
+	 * Enter a parse tree produced by {@link AidemMediaParser#conditionComplex}.
 	 * @param ctx the parse tree
 	 */
-	void enterIfTrue(AidemMediaParser.IfTrueContext ctx);
+	void enterConditionComplex(AidemMediaParser.ConditionComplexContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link AidemMediaParser#ifTrue}.
+	 * Exit a parse tree produced by {@link AidemMediaParser#conditionComplex}.
 	 * @param ctx the parse tree
 	 */
-	void exitIfTrue(AidemMediaParser.IfTrueContext ctx);
+	void exitConditionComplex(AidemMediaParser.ConditionComplexContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link AidemMediaParser#ifFalse}.
+	 * Enter a parse tree produced by {@link AidemMediaParser#complexTerm}.
 	 * @param ctx the parse tree
 	 */
-	void enterIfFalse(AidemMediaParser.IfFalseContext ctx);
+	void enterComplexTerm(AidemMediaParser.ComplexTermContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link AidemMediaParser#ifFalse}.
+	 * Exit a parse tree produced by {@link AidemMediaParser#complexTerm}.
 	 * @param ctx the parse tree
 	 */
-	void exitIfFalse(AidemMediaParser.IfFalseContext ctx);
+	void exitComplexTerm(AidemMediaParser.ComplexTermContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link AidemMediaParser#comment}.
+	 * Enter a parse tree produced by {@link AidemMediaParser#trueBranch}.
 	 * @param ctx the parse tree
 	 */
-	void enterComment(AidemMediaParser.CommentContext ctx);
+	void enterTrueBranch(AidemMediaParser.TrueBranchContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link AidemMediaParser#comment}.
+	 * Exit a parse tree produced by {@link AidemMediaParser#trueBranch}.
 	 * @param ctx the parse tree
 	 */
-	void exitComment(AidemMediaParser.CommentContext ctx);
+	void exitTrueBranch(AidemMediaParser.TrueBranchContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link AidemMediaParser#expression}.
+	 * Enter a parse tree produced by {@link AidemMediaParser#falseBranch}.
 	 * @param ctx the parse tree
 	 */
-	void enterExpression(AidemMediaParser.ExpressionContext ctx);
+	void enterFalseBranch(AidemMediaParser.FalseBranchContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link AidemMediaParser#expression}.
+	 * Exit a parse tree produced by {@link AidemMediaParser#falseBranch}.
 	 * @param ctx the parse tree
 	 */
-	void exitExpression(AidemMediaParser.ExpressionContext ctx);
+	void exitFalseBranch(AidemMediaParser.FalseBranchContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link AidemMediaParser#script}.
+	 * Enter a parse tree produced by {@link AidemMediaParser#paramList}.
 	 * @param ctx the parse tree
 	 */
-	void enterScript(AidemMediaParser.ScriptContext ctx);
+	void enterParamList(AidemMediaParser.ParamListContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link AidemMediaParser#script}.
+	 * Exit a parse tree produced by {@link AidemMediaParser#paramList}.
 	 * @param ctx the parse tree
 	 */
-	void exitScript(AidemMediaParser.ScriptContext ctx);
+	void exitParamList(AidemMediaParser.ParamListContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link AidemMediaParser#param}.
 	 * @param ctx the parse tree
@@ -148,105 +158,75 @@ public interface AidemMediaListener extends ParseTreeListener {
 	 */
 	void exitParam(AidemMediaParser.ParamContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link AidemMediaParser#condition}.
+	 * Enter a parse tree produced by {@link AidemMediaParser#expression}.
 	 * @param ctx the parse tree
 	 */
-	void enterCondition(AidemMediaParser.ConditionContext ctx);
+	void enterExpression(AidemMediaParser.ExpressionContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link AidemMediaParser#condition}.
+	 * Exit a parse tree produced by {@link AidemMediaParser#expression}.
 	 * @param ctx the parse tree
 	 */
-	void exitCondition(AidemMediaParser.ConditionContext ctx);
+	void exitExpression(AidemMediaParser.ExpressionContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link AidemMediaParser#conditionPart}.
+	 * Enter a parse tree produced by {@link AidemMediaParser#variableReference}.
 	 * @param ctx the parse tree
 	 */
-	void enterConditionPart(AidemMediaParser.ConditionPartContext ctx);
+	void enterVariableReference(AidemMediaParser.VariableReferenceContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link AidemMediaParser#conditionPart}.
+	 * Exit a parse tree produced by {@link AidemMediaParser#variableReference}.
 	 * @param ctx the parse tree
 	 */
-	void exitConditionPart(AidemMediaParser.ConditionPartContext ctx);
+	void exitVariableReference(AidemMediaParser.VariableReferenceContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link AidemMediaParser#behFire}.
+	 * Enter a parse tree produced by {@link AidemMediaParser#structField}.
 	 * @param ctx the parse tree
 	 */
-	void enterBehFire(AidemMediaParser.BehFireContext ctx);
+	void enterStructField(AidemMediaParser.StructFieldContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link AidemMediaParser#behFire}.
+	 * Exit a parse tree produced by {@link AidemMediaParser#structField}.
 	 * @param ctx the parse tree
 	 */
-	void exitBehFire(AidemMediaParser.BehFireContext ctx);
+	void exitStructField(AidemMediaParser.StructFieldContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link AidemMediaParser#modulo}.
+	 * Enter a parse tree produced by {@link AidemMediaParser#mathExpression}.
 	 * @param ctx the parse tree
 	 */
-	void enterModulo(AidemMediaParser.ModuloContext ctx);
+	void enterMathExpression(AidemMediaParser.MathExpressionContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link AidemMediaParser#modulo}.
+	 * Exit a parse tree produced by {@link AidemMediaParser#mathExpression}.
 	 * @param ctx the parse tree
 	 */
-	void exitModulo(AidemMediaParser.ModuloContext ctx);
+	void exitMathExpression(AidemMediaParser.MathExpressionContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link AidemMediaParser#iterator}.
+	 * Enter a parse tree produced by {@link AidemMediaParser#mathOperator}.
 	 * @param ctx the parse tree
 	 */
-	void enterIterator(AidemMediaParser.IteratorContext ctx);
+	void enterMathOperator(AidemMediaParser.MathOperatorContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link AidemMediaParser#iterator}.
+	 * Exit a parse tree produced by {@link AidemMediaParser#mathOperator}.
 	 * @param ctx the parse tree
 	 */
-	void exitIterator(AidemMediaParser.IteratorContext ctx);
+	void exitMathOperator(AidemMediaParser.MathOperatorContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link AidemMediaParser#string}.
+	 * Enter a parse tree produced by {@link AidemMediaParser#mathFactor}.
 	 * @param ctx the parse tree
 	 */
-	void enterString(AidemMediaParser.StringContext ctx);
+	void enterMathFactor(AidemMediaParser.MathFactorContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link AidemMediaParser#string}.
+	 * Exit a parse tree produced by {@link AidemMediaParser#mathFactor}.
 	 * @param ctx the parse tree
 	 */
-	void exitString(AidemMediaParser.StringContext ctx);
+	void exitMathFactor(AidemMediaParser.MathFactorContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link AidemMediaParser#instr}.
+	 * Enter a parse tree produced by {@link AidemMediaParser#primitive}.
 	 * @param ctx the parse tree
 	 */
-	void enterInstr(AidemMediaParser.InstrContext ctx);
+	void enterPrimitive(AidemMediaParser.PrimitiveContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link AidemMediaParser#instr}.
+	 * Exit a parse tree produced by {@link AidemMediaParser#primitive}.
 	 * @param ctx the parse tree
 	 */
-	void exitInstr(AidemMediaParser.InstrContext ctx);
-	/**
-	 * Enter a parse tree produced by {@link AidemMediaParser#stringRef}.
-	 * @param ctx the parse tree
-	 */
-	void enterStringRef(AidemMediaParser.StringRefContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link AidemMediaParser#stringRef}.
-	 * @param ctx the parse tree
-	 */
-	void exitStringRef(AidemMediaParser.StringRefContext ctx);
-	/**
-	 * Enter a parse tree produced by {@link AidemMediaParser#struct}.
-	 * @param ctx the parse tree
-	 */
-	void enterStruct(AidemMediaParser.StructContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link AidemMediaParser#struct}.
-	 * @param ctx the parse tree
-	 */
-	void exitStruct(AidemMediaParser.StructContext ctx);
-	/**
-	 * Enter a parse tree produced by {@link AidemMediaParser#variable}.
-	 * @param ctx the parse tree
-	 */
-	void enterVariable(AidemMediaParser.VariableContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link AidemMediaParser#variable}.
-	 * @param ctx the parse tree
-	 */
-	void exitVariable(AidemMediaParser.VariableContext ctx);
+	void exitPrimitive(AidemMediaParser.PrimitiveContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link AidemMediaParser#number}.
 	 * @param ctx the parse tree
@@ -258,63 +238,73 @@ public interface AidemMediaListener extends ParseTreeListener {
 	 */
 	void exitNumber(AidemMediaParser.NumberContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link AidemMediaParser#floatNumber}.
+	 * Enter a parse tree produced by {@link AidemMediaParser#variable}.
 	 * @param ctx the parse tree
 	 */
-	void enterFloatNumber(AidemMediaParser.FloatNumberContext ctx);
+	void enterVariable(AidemMediaParser.VariableContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link AidemMediaParser#floatNumber}.
+	 * Exit a parse tree produced by {@link AidemMediaParser#variable}.
 	 * @param ctx the parse tree
 	 */
-	void exitFloatNumber(AidemMediaParser.FloatNumberContext ctx);
+	void exitVariable(AidemMediaParser.VariableContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link AidemMediaParser#literal}.
+	 * Enter a parse tree produced by {@link AidemMediaParser#functionName}.
 	 * @param ctx the parse tree
 	 */
-	void enterLiteral(AidemMediaParser.LiteralContext ctx);
+	void enterFunctionName(AidemMediaParser.FunctionNameContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link AidemMediaParser#literal}.
+	 * Exit a parse tree produced by {@link AidemMediaParser#functionName}.
 	 * @param ctx the parse tree
 	 */
-	void exitLiteral(AidemMediaParser.LiteralContext ctx);
+	void exitFunctionName(AidemMediaParser.FunctionNameContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link AidemMediaParser#arithmetic}.
+	 * Enter a parse tree produced by {@link AidemMediaParser#structColumn}.
 	 * @param ctx the parse tree
 	 */
-	void enterArithmetic(AidemMediaParser.ArithmeticContext ctx);
+	void enterStructColumn(AidemMediaParser.StructColumnContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link AidemMediaParser#arithmetic}.
+	 * Exit a parse tree produced by {@link AidemMediaParser#structColumn}.
 	 * @param ctx the parse tree
 	 */
-	void exitArithmetic(AidemMediaParser.ArithmeticContext ctx);
+	void exitStructColumn(AidemMediaParser.StructColumnContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link AidemMediaParser#logic}.
+	 * Enter a parse tree produced by {@link AidemMediaParser#inlineComment}.
 	 * @param ctx the parse tree
 	 */
-	void enterLogic(AidemMediaParser.LogicContext ctx);
+	void enterInlineComment(AidemMediaParser.InlineCommentContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link AidemMediaParser#logic}.
+	 * Exit a parse tree produced by {@link AidemMediaParser#inlineComment}.
 	 * @param ctx the parse tree
 	 */
-	void exitLogic(AidemMediaParser.LogicContext ctx);
+	void exitInlineComment(AidemMediaParser.InlineCommentContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link AidemMediaParser#compare}.
+	 * Enter a parse tree produced by {@link AidemMediaParser#comparator}.
 	 * @param ctx the parse tree
 	 */
-	void enterCompare(AidemMediaParser.CompareContext ctx);
+	void enterComparator(AidemMediaParser.ComparatorContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link AidemMediaParser#compare}.
+	 * Exit a parse tree produced by {@link AidemMediaParser#comparator}.
 	 * @param ctx the parse tree
 	 */
-	void exitCompare(AidemMediaParser.CompareContext ctx);
+	void exitComparator(AidemMediaParser.ComparatorContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link AidemMediaParser#bool}.
+	 * Enter a parse tree produced by {@link AidemMediaParser#logicOperator}.
 	 * @param ctx the parse tree
 	 */
-	void enterBool(AidemMediaParser.BoolContext ctx);
+	void enterLogicOperator(AidemMediaParser.LogicOperatorContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link AidemMediaParser#bool}.
+	 * Exit a parse tree produced by {@link AidemMediaParser#logicOperator}.
 	 * @param ctx the parse tree
 	 */
-	void exitBool(AidemMediaParser.BoolContext ctx);
+	void exitLogicOperator(AidemMediaParser.LogicOperatorContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link AidemMediaParser#string}.
+	 * @param ctx the parse tree
+	 */
+	void enterString(AidemMediaParser.StringContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link AidemMediaParser#string}.
+	 * @param ctx the parse tree
+	 */
+	void exitString(AidemMediaParser.StringContext ctx);
 }

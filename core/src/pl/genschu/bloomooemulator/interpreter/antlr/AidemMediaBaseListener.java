@@ -1,4 +1,4 @@
-// Generated from AidemMedia.g4 by ANTLR 4.9.2
+// Generated from AidemMedia.g4 by ANTLR 4.13.2
 package pl.genschu.bloomooemulator.interpreter.antlr;
 
 import org.antlr.v4.runtime.ParserRuleContext;
@@ -10,91 +10,104 @@ import org.antlr.v4.runtime.tree.TerminalNode;
  * which can be extended to create a listener which only needs to handle a subset
  * of the available methods.
  */
+@SuppressWarnings("CheckReturnValue")
 public class AidemMediaBaseListener implements AidemMediaListener {
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterIfInstr(AidemMediaParser.IfInstrContext ctx) { }
+	@Override public void enterProgram(AidemMediaParser.ProgramContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitIfInstr(AidemMediaParser.IfInstrContext ctx) { }
+	@Override public void exitProgram(AidemMediaParser.ProgramContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterLoopInstr(AidemMediaParser.LoopInstrContext ctx) { }
+	@Override public void enterBlock(AidemMediaParser.BlockContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitLoopInstr(AidemMediaParser.LoopInstrContext ctx) { }
+	@Override public void exitBlock(AidemMediaParser.BlockContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterWhileInstr(AidemMediaParser.WhileInstrContext ctx) { }
+	@Override public void enterStatement(AidemMediaParser.StatementContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitWhileInstr(AidemMediaParser.WhileInstrContext ctx) { }
+	@Override public void exitStatement(AidemMediaParser.StatementContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterFunctionFire(AidemMediaParser.FunctionFireContext ctx) { }
+	@Override public void enterFunctionCall(AidemMediaParser.FunctionCallContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitFunctionFire(AidemMediaParser.FunctionFireContext ctx) { }
+	@Override public void exitFunctionCall(AidemMediaParser.FunctionCallContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterCodeBlock(AidemMediaParser.CodeBlockContext ctx) { }
+	@Override public void enterSpecialFunction(AidemMediaParser.SpecialFunctionContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitCodeBlock(AidemMediaParser.CodeBlockContext ctx) { }
+	@Override public void exitSpecialFunction(AidemMediaParser.SpecialFunctionContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterVarWithNumber(AidemMediaParser.VarWithNumberContext ctx) { }
+	@Override public void enterLoopStatement(AidemMediaParser.LoopStatementContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitVarWithNumber(AidemMediaParser.VarWithNumberContext ctx) { }
+	@Override public void exitLoopStatement(AidemMediaParser.LoopStatementContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterLoopCodeParam(AidemMediaParser.LoopCodeParamContext ctx) { }
+	@Override public void enterIfStatement(AidemMediaParser.IfStatementContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitLoopCodeParam(AidemMediaParser.LoopCodeParamContext ctx) { }
+	@Override public void exitIfStatement(AidemMediaParser.IfStatementContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterIfCondition(AidemMediaParser.IfConditionContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitIfCondition(AidemMediaParser.IfConditionContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
@@ -112,61 +125,61 @@ public class AidemMediaBaseListener implements AidemMediaListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterIfTrue(AidemMediaParser.IfTrueContext ctx) { }
+	@Override public void enterConditionComplex(AidemMediaParser.ConditionComplexContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitIfTrue(AidemMediaParser.IfTrueContext ctx) { }
+	@Override public void exitConditionComplex(AidemMediaParser.ConditionComplexContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterIfFalse(AidemMediaParser.IfFalseContext ctx) { }
+	@Override public void enterComplexTerm(AidemMediaParser.ComplexTermContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitIfFalse(AidemMediaParser.IfFalseContext ctx) { }
+	@Override public void exitComplexTerm(AidemMediaParser.ComplexTermContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterComment(AidemMediaParser.CommentContext ctx) { }
+	@Override public void enterTrueBranch(AidemMediaParser.TrueBranchContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitComment(AidemMediaParser.CommentContext ctx) { }
+	@Override public void exitTrueBranch(AidemMediaParser.TrueBranchContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterExpression(AidemMediaParser.ExpressionContext ctx) { }
+	@Override public void enterFalseBranch(AidemMediaParser.FalseBranchContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitExpression(AidemMediaParser.ExpressionContext ctx) { }
+	@Override public void exitFalseBranch(AidemMediaParser.FalseBranchContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterScript(AidemMediaParser.ScriptContext ctx) { }
+	@Override public void enterParamList(AidemMediaParser.ParamListContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitScript(AidemMediaParser.ScriptContext ctx) { }
+	@Override public void exitParamList(AidemMediaParser.ParamListContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
@@ -184,121 +197,85 @@ public class AidemMediaBaseListener implements AidemMediaListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterCondition(AidemMediaParser.ConditionContext ctx) { }
+	@Override public void enterExpression(AidemMediaParser.ExpressionContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitCondition(AidemMediaParser.ConditionContext ctx) { }
+	@Override public void exitExpression(AidemMediaParser.ExpressionContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterConditionPart(AidemMediaParser.ConditionPartContext ctx) { }
+	@Override public void enterVariableReference(AidemMediaParser.VariableReferenceContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitConditionPart(AidemMediaParser.ConditionPartContext ctx) { }
+	@Override public void exitVariableReference(AidemMediaParser.VariableReferenceContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterBehFire(AidemMediaParser.BehFireContext ctx) { }
+	@Override public void enterStructField(AidemMediaParser.StructFieldContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitBehFire(AidemMediaParser.BehFireContext ctx) { }
+	@Override public void exitStructField(AidemMediaParser.StructFieldContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterModulo(AidemMediaParser.ModuloContext ctx) { }
+	@Override public void enterMathExpression(AidemMediaParser.MathExpressionContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitModulo(AidemMediaParser.ModuloContext ctx) { }
+	@Override public void exitMathExpression(AidemMediaParser.MathExpressionContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterIterator(AidemMediaParser.IteratorContext ctx) { }
+	@Override public void enterMathOperator(AidemMediaParser.MathOperatorContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitIterator(AidemMediaParser.IteratorContext ctx) { }
+	@Override public void exitMathOperator(AidemMediaParser.MathOperatorContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterString(AidemMediaParser.StringContext ctx) { }
+	@Override public void enterMathFactor(AidemMediaParser.MathFactorContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitString(AidemMediaParser.StringContext ctx) { }
+	@Override public void exitMathFactor(AidemMediaParser.MathFactorContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterInstr(AidemMediaParser.InstrContext ctx) { }
+	@Override public void enterPrimitive(AidemMediaParser.PrimitiveContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitInstr(AidemMediaParser.InstrContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterStringRef(AidemMediaParser.StringRefContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitStringRef(AidemMediaParser.StringRefContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterStruct(AidemMediaParser.StructContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitStruct(AidemMediaParser.StructContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterVariable(AidemMediaParser.VariableContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitVariable(AidemMediaParser.VariableContext ctx) { }
+	@Override public void exitPrimitive(AidemMediaParser.PrimitiveContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
@@ -316,73 +293,85 @@ public class AidemMediaBaseListener implements AidemMediaListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterFloatNumber(AidemMediaParser.FloatNumberContext ctx) { }
+	@Override public void enterVariable(AidemMediaParser.VariableContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitFloatNumber(AidemMediaParser.FloatNumberContext ctx) { }
+	@Override public void exitVariable(AidemMediaParser.VariableContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterLiteral(AidemMediaParser.LiteralContext ctx) { }
+	@Override public void enterFunctionName(AidemMediaParser.FunctionNameContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitLiteral(AidemMediaParser.LiteralContext ctx) { }
+	@Override public void exitFunctionName(AidemMediaParser.FunctionNameContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterArithmetic(AidemMediaParser.ArithmeticContext ctx) { }
+	@Override public void enterStructColumn(AidemMediaParser.StructColumnContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitArithmetic(AidemMediaParser.ArithmeticContext ctx) { }
+	@Override public void exitStructColumn(AidemMediaParser.StructColumnContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterLogic(AidemMediaParser.LogicContext ctx) { }
+	@Override public void enterInlineComment(AidemMediaParser.InlineCommentContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitLogic(AidemMediaParser.LogicContext ctx) { }
+	@Override public void exitInlineComment(AidemMediaParser.InlineCommentContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterCompare(AidemMediaParser.CompareContext ctx) { }
+	@Override public void enterComparator(AidemMediaParser.ComparatorContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitCompare(AidemMediaParser.CompareContext ctx) { }
+	@Override public void exitComparator(AidemMediaParser.ComparatorContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterBool(AidemMediaParser.BoolContext ctx) { }
+	@Override public void enterLogicOperator(AidemMediaParser.LogicOperatorContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitBool(AidemMediaParser.BoolContext ctx) { }
+	@Override public void exitLogicOperator(AidemMediaParser.LogicOperatorContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterString(AidemMediaParser.StringContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitString(AidemMediaParser.StringContext ctx) { }
 
 	/**
 	 * {@inheritDoc}

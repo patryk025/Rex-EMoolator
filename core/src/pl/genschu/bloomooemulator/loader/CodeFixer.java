@@ -80,7 +80,7 @@ public class CodeFixer
 
 		lexer.removeErrorListener(ConsoleErrorListener.INSTANCE);
 		parser.removeErrorListener(ConsoleErrorListener.INSTANCE);
-		parser.script();
+		parser.program();
 
 		syntaxErrors = listener.getSyntaxErrors();
 

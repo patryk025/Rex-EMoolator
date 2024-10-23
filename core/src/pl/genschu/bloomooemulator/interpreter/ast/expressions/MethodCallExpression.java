@@ -40,9 +40,6 @@ public class MethodCallExpression extends Expression {
             if(arguments[i] == null) {
                 Gdx.app.error("MethodCallExpression", "Method call error in variable " + variable.getName() + " of class " + variable.getType() + ": Cannot find argument " + i + " in method call " + methodName);
             }
-            else if(arguments[i] instanceof ExpressionVariable) {
-                Gdx.app.log("MethodCallExpression", methodName + " - argument " + i + ": expression to calculate " + arguments[i].getName());
-            }
             else {
                 Gdx.app.log("MethodCallExpression", methodName + " - argument " + i + ": " + arguments[i].getValue().toString());
             }

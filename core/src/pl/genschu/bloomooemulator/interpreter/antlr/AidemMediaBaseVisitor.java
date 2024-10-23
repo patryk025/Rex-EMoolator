@@ -1,4 +1,4 @@
-// Generated from AidemMedia.g4 by ANTLR 4.9.2
+// Generated from AidemMedia.g4 by ANTLR 4.13.2
 package pl.genschu.bloomooemulator.interpreter.antlr;
 import org.antlr.v4.runtime.tree.AbstractParseTreeVisitor;
 
@@ -10,6 +10,7 @@ import org.antlr.v4.runtime.tree.AbstractParseTreeVisitor;
  * @param <T> The return type of the visit operation. Use {@link Void} for
  * operations with no return type.
  */
+@SuppressWarnings("CheckReturnValue")
 public class AidemMediaBaseVisitor<T> extends AbstractParseTreeVisitor<T> implements AidemMediaVisitor<T> {
 	/**
 	 * {@inheritDoc}
@@ -17,49 +18,56 @@ public class AidemMediaBaseVisitor<T> extends AbstractParseTreeVisitor<T> implem
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitIfInstr(AidemMediaParser.IfInstrContext ctx) { return visitChildren(ctx); }
+	@Override public T visitProgram(AidemMediaParser.ProgramContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitLoopInstr(AidemMediaParser.LoopInstrContext ctx) { return visitChildren(ctx); }
+	@Override public T visitBlock(AidemMediaParser.BlockContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitWhileInstr(AidemMediaParser.WhileInstrContext ctx) { return visitChildren(ctx); }
+	@Override public T visitStatement(AidemMediaParser.StatementContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitFunctionFire(AidemMediaParser.FunctionFireContext ctx) { return visitChildren(ctx); }
+	@Override public T visitFunctionCall(AidemMediaParser.FunctionCallContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitCodeBlock(AidemMediaParser.CodeBlockContext ctx) { return visitChildren(ctx); }
+	@Override public T visitSpecialFunction(AidemMediaParser.SpecialFunctionContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitVarWithNumber(AidemMediaParser.VarWithNumberContext ctx) { return visitChildren(ctx); }
+	@Override public T visitLoopStatement(AidemMediaParser.LoopStatementContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitLoopCodeParam(AidemMediaParser.LoopCodeParamContext ctx) { return visitChildren(ctx); }
+	@Override public T visitIfStatement(AidemMediaParser.IfStatementContext ctx) { return visitChildren(ctx); }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation returns the result of calling
+	 * {@link #visitChildren} on {@code ctx}.</p>
+	 */
+	@Override public T visitIfCondition(AidemMediaParser.IfConditionContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
@@ -73,35 +81,35 @@ public class AidemMediaBaseVisitor<T> extends AbstractParseTreeVisitor<T> implem
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitIfTrue(AidemMediaParser.IfTrueContext ctx) { return visitChildren(ctx); }
+	@Override public T visitConditionComplex(AidemMediaParser.ConditionComplexContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitIfFalse(AidemMediaParser.IfFalseContext ctx) { return visitChildren(ctx); }
+	@Override public T visitComplexTerm(AidemMediaParser.ComplexTermContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitComment(AidemMediaParser.CommentContext ctx) { return visitChildren(ctx); }
+	@Override public T visitTrueBranch(AidemMediaParser.TrueBranchContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitExpression(AidemMediaParser.ExpressionContext ctx) { return visitChildren(ctx); }
+	@Override public T visitFalseBranch(AidemMediaParser.FalseBranchContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitScript(AidemMediaParser.ScriptContext ctx) { return visitChildren(ctx); }
+	@Override public T visitParamList(AidemMediaParser.ParamListContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
@@ -115,70 +123,49 @@ public class AidemMediaBaseVisitor<T> extends AbstractParseTreeVisitor<T> implem
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitCondition(AidemMediaParser.ConditionContext ctx) { return visitChildren(ctx); }
+	@Override public T visitExpression(AidemMediaParser.ExpressionContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitConditionPart(AidemMediaParser.ConditionPartContext ctx) { return visitChildren(ctx); }
+	@Override public T visitVariableReference(AidemMediaParser.VariableReferenceContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitBehFire(AidemMediaParser.BehFireContext ctx) { return visitChildren(ctx); }
+	@Override public T visitStructField(AidemMediaParser.StructFieldContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitModulo(AidemMediaParser.ModuloContext ctx) { return visitChildren(ctx); }
+	@Override public T visitMathExpression(AidemMediaParser.MathExpressionContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitIterator(AidemMediaParser.IteratorContext ctx) { return visitChildren(ctx); }
+	@Override public T visitMathOperator(AidemMediaParser.MathOperatorContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitString(AidemMediaParser.StringContext ctx) { return visitChildren(ctx); }
+	@Override public T visitMathFactor(AidemMediaParser.MathFactorContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitInstr(AidemMediaParser.InstrContext ctx) { return visitChildren(ctx); }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation returns the result of calling
-	 * {@link #visitChildren} on {@code ctx}.</p>
-	 */
-	@Override public T visitStringRef(AidemMediaParser.StringRefContext ctx) { return visitChildren(ctx); }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation returns the result of calling
-	 * {@link #visitChildren} on {@code ctx}.</p>
-	 */
-	@Override public T visitStruct(AidemMediaParser.StructContext ctx) { return visitChildren(ctx); }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation returns the result of calling
-	 * {@link #visitChildren} on {@code ctx}.</p>
-	 */
-	@Override public T visitVariable(AidemMediaParser.VariableContext ctx) { return visitChildren(ctx); }
+	@Override public T visitPrimitive(AidemMediaParser.PrimitiveContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
@@ -192,40 +179,47 @@ public class AidemMediaBaseVisitor<T> extends AbstractParseTreeVisitor<T> implem
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitFloatNumber(AidemMediaParser.FloatNumberContext ctx) { return visitChildren(ctx); }
+	@Override public T visitVariable(AidemMediaParser.VariableContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitLiteral(AidemMediaParser.LiteralContext ctx) { return visitChildren(ctx); }
+	@Override public T visitFunctionName(AidemMediaParser.FunctionNameContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitArithmetic(AidemMediaParser.ArithmeticContext ctx) { return visitChildren(ctx); }
+	@Override public T visitStructColumn(AidemMediaParser.StructColumnContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitLogic(AidemMediaParser.LogicContext ctx) { return visitChildren(ctx); }
+	@Override public T visitInlineComment(AidemMediaParser.InlineCommentContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitCompare(AidemMediaParser.CompareContext ctx) { return visitChildren(ctx); }
+	@Override public T visitComparator(AidemMediaParser.ComparatorContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitBool(AidemMediaParser.BoolContext ctx) { return visitChildren(ctx); }
+	@Override public T visitLogicOperator(AidemMediaParser.LogicOperatorContext ctx) { return visitChildren(ctx); }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation returns the result of calling
+	 * {@link #visitChildren} on {@code ctx}.</p>
+	 */
+	@Override public T visitString(AidemMediaParser.StringContext ctx) { return visitChildren(ctx); }
 }

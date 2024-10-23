@@ -38,7 +38,7 @@ public class BehaviourVariable extends Variable {
 			//parser.removeErrorListeners();
 			//parser.addErrorListener(ThrowingErrorListener.INSTANCE);
 
-			ParseTree tree = parser.script();
+			ParseTree tree = parser.program();
 
 			ASTBuilderVisitor astBuilder = new ASTBuilderVisitor(context);
 			Node astRoot = astBuilder.visit(tree);

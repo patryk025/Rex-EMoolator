@@ -27,7 +27,7 @@ allprojects {
         ashleyVersion = '1.7.4'
         aiVersion = '1.8.2'
         gdxControllersVersion = '2.2.1'
-        antlrVersion = '4.9.2'
+        antlrVersion = '4.13.2'
         ini4jVersion = '0.5.4'
         oshiVersion = '6.6.3'
         jnaVersion = '5.14.0'

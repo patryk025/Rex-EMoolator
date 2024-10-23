@@ -1,271 +1,131 @@
 grammar AidemMedia;
 
-ifInstr	
-	: '@IF' LPAREN (
-			QUOTEMARK condition QUOTEMARK SEPARATOR
-		|	conditionSimple SEPARATOR
-	)	ifTrue SEPARATOR ifFalse RPAREN ENDINSTR*
-	;
+// Parser rules
+program: block ;
+block: '{' statement* ';'* '}' ;
+statement
+    : ( functionCall
+    | specialFunction
+    | loopStatement
+    | ifStatement
+    | expression
+    | inlineComment ) ';'*
+    ;
 
-loopInstr
-	:	'@LOOP' LPAREN loopCodeParam SEPARATOR param SEPARATOR param SEPARATOR param RPAREN ENDINSTR*
-	;
+functionCall
+    : (variable | variableReference | structField) '^' functionName '(' paramList? ')'
+    ;
 
-whileInstr
-	:	'@WHILE' LPAREN param SEPARATOR QUOTEMARK compare QUOTEMARK SEPARATOR param SEPARATOR (codeBlock | string) RPAREN ENDINSTR*
-	;
+specialFunction
+    : '@' functionName '(' paramList? ')'
+    ;
 
-functionFire
-	:	(literal | iterator | stringRef | struct | variable | varWithNumber) FIREFUNC literal LPAREN (SEPARATOR? param)* RPAREN ENDINSTR*
-	;
+loopStatement
+    : '@LOOP' '(' QUOTE (variable | block) QUOTE ',' expression ',' expression ',' expression ')'
+    | '@FOR' '(' QUOTE variable QUOTE ',' QUOTE (variable | block) QUOTE ',' QUOTE expression QUOTE ',' QUOTE expression QUOTE ',' QUOTE expression QUOTE ')'
+    | '@WHILE' '(' conditionSimple ',' QUOTE (variable | block) QUOTE ')'
+    ;
 
-codeBlock
-	:	STARTCODE (functionFire | ifInstr | loopInstr | whileInstr | instr | behFire | expression | codeBlock | (literal | floatNumber | number) | comment ENDINSTR*)* ENDINSTR* STOPCODE
-	;
+ifStatement
+    : '@IF' '(' ifCondition ',' trueBranch ',' falseBranch ')'
+    ;
 
-varWithNumber
-	:	literal arithmetic number
-	;
-
-loopCodeParam
-	:	(codeBlock | string | literal)
-	;
+ifCondition
+    : conditionSimple
+    | conditionComplex
+    ;
 
 conditionSimple
-	:	param SEPARATOR QUOTEMARK compare QUOTEMARK SEPARATOR param
-	;
+    : QUOTE? expression QUOTE? ',' comparator ',' QUOTE? expression QUOTE?
+    ;
 
-ifTrue
-	:	(codeBlock | string)
-	;
+conditionComplex
+    : QUOTE complexTerm (logicOperator complexTerm)* QUOTE
+    ;
 
-ifFalse
-	:	(codeBlock | string)
-	;
+complexTerm
+    : expression comparator expression
+    | '(' conditionComplex ')'
+    ;
 
-COMMENT
-	:	'!' ~('_' | '\'') .*? ENDINSTR
-	;
+trueBranch
+    : string
+    | QUOTE block QUOTE
+    ;
 
-comment
-	:	COMMENT
-	;
+falseBranch
+    : string
+    | QUOTE block QUOTE
+    ;
+
+paramList: param (',' param)* ;
+param: expression ;
 
 expression
-	:	STARTEXPR (arithmetic? (literal | string | arithmetic? number | arithmetic? floatNumber | modulo | iterator | functionFire | expression | struct | stringRef | variable) (arithmetic | STRREF)?)* STOPEXPR ENDINSTR*
-	;
-
-script
-	:	(codeBlock | expression | string | ifInstr | loopInstr | whileInstr | string)*
-	;
-
-param
-	:	functionFire | bool | variable | string | literal | arithmetic? number | arithmetic? floatNumber | expression | iterator | struct | stringRef
-	;
-
-condition
-	:	(logic? conditionPart)*
-	;
-
-conditionPart
-	:	(literal | functionFire | struct | expression | iterator) compare param
-	;
-
-behFire
-	:	literal ENDINSTR
-	;
-
-modulo
-	:	(literal | iterator | arithmetic? number | arithmetic? floatNumber | functionFire | struct | expression) MOD (literal | arithmetic? number | arithmetic? floatNumber | functionFire | struct | expression)
-	;
-
-iterator
-	:	ITERATOR
-	;
-
-string
-	:	QUOTEMARK ((literal | arithmetic? (number | floatNumber) | compare | SLASH | LPAREN | RPAREN | arithmetic | VARREF | STRUCTFIELD | iterator | expression | functionFire)+ | (variable (SLASH literal?)?) | string | bool)? QUOTEMARK
-	;
-
-instr
-	:	'@' literal LPAREN (param (SEPARATOR param)?)? RPAREN ENDINSTR
-	;
-
-stringRef
-	:	STRREF (expression | literal)
-	;
-
-struct
-	:	literal STRUCTFIELD literal
-	;
-
-variable
-	:   VARREF (literal | number)
-	;
-
-LPAREN	:	'('
-	;
-
-RPAREN	:	')'
-	;
-
-VARREF
-	:	'$'
-	;
-
-STARTCODE
-	:	QUOTEMARK? '{'
-	;
-
-STOPCODE
-	:	'}' QUOTEMARK?
-	;
-
-STARTEXPR
-	:	'['
-	;
-
-STOPEXPR:	']'
-	;
-
-SLASH
-	:	'\\'
-	;
-
-LSS	:	'<'
-	;
-
-LEQ	:	'<' ( '\'' | '_' )
-	;
-
-GEQ	:	'>' ( '\'' | '_' )
-	;
-
-GTR	:	'>'
-	;
-
-EQU	:	'\'' | '_'
-	;
-
-NEQ	:	'!' ( '\'' | '_' )
-	;
-
-ENDINSTR:	';'
-	;
-
-FIREFUNC:	'^'
-	;
-
-ADD
-    :   '+'
+    : primitive
+    | variable
+    | variableReference
+    | structField
+    | '[' mathExpression ']'
+    | functionCall
     ;
 
-SUBTRACT
-    :   '-'
+variableReference
+    : '*' variable
+    | '*' '[' mathExpression ']'
     ;
 
-MULT
-    :   '*' ~('[' | 'A'..'Z' | '0'..'9' | '$' | '(')
+structField
+    : variable ('|' structColumn)+
     ;
 
-DIV
-    :   '@'
+mathExpression
+    : mathFactor (mathOperator mathFactor)*
     ;
 
-MOD
-	:	'%'
-	;
+mathOperator
+    : '+' | '-' | '*' | '@' | '%'
+    ;
+
+mathFactor
+    : (primitive | variable | variableReference | structField | functionCall)
+    | '[' mathExpression ']'
+    ;
+
+primitive
+    : string
+    | number
+    | BOOLEAN
+    ;
 
 number
-	:	NUMBER
-	;
-
-floatNumber
-	: FLOAT
-	;
-
-literal
-	:	variable? LITERAL variable?
+    : INTEGER
+    | FLOAT
     ;
 
-arithmetic
-	:	(ADD | SUBTRACT | MULT | DIV | MOD | LPAREN | RPAREN)
-	;
+variable: LITERAL ;
+functionName: LITERAL ;
+structColumn: LITERAL ;
+inlineComment: '!' statement ;
+comparator: string | QUOTE? (EQUALS | NOT_EQUALS | LESS | LESS_EQUALS | GREATER | GREATER_EQUALS) QUOTE? ;
+logicOperator: AND | OR ;
 
-logic
-	:	LOGIC
-	;
+string: STRING | ESCAPED_STRING ;
 
-compare
-	:	(LSS | LEQ | GEQ | GTR| EQU | NEQ)
-	;
-
-bool
-	:  BOOLEAN
-	;
-
-fragment DIGIT
-	:	'0'..'9'
-	;
-
-fragment LETTER
-	:	'A'..'Z' | 'a'..'z'
-	;
-
-NUMBER
-	:	DIGIT+
-	;
-
-FLOAT
-    :   NUMBER '.' NUMBER
-   	;
-
-DOT: '.';
-
-ITERATOR
-	:	'_I_'
-	;
-
-BOOLEAN
-	:	'TRUE' | 'FALSE'
-	;
-
-LITERAL: {!(getText().toUpperCase().startsWith("TRUE") || getText().toUpperCase().startsWith("FALSE"))}?
-		((('_' | DOT | SLASH)* (LETTER | DIGIT | '_')) ('_' | LETTER | DIGIT | DOT | SLASH | '?')*)
-		| ('_'* DOT DIGIT+ ('.' DIGIT+)? (LETTER ('_' | DIGIT | SLASH | '?')* | '_'*))
-		((ADD | SUBTRACT | MULT | DIV | MOD) | NUMBER | VARREF)?
-		;
-
-/*
-ARITHMETIC
-	:	ADD | SUBTRACT | MULT | DIV
-	;
-*/
-
-LOGIC
-	:	'&&' | '||'
-	;
-
-SEPARATOR
-	:	','
-	;
-
-STRUCTFIELD
-	:	'|'
-	;
-
-QUOTEMARK
-	:	'"'
-	;
-
-STRREF
-	:	'*'
-	;
-
-WS
-	:   ( ' '
-	| '\t'
-	| '\r'
-	| '\n'
-	) -> channel(HIDDEN)
-	;
+// Lexer rules
+LITERAL: [A-Z_$][A-Z0-9_.-]* ;
+INTEGER: '-'? [0-9]+ ;
+FLOAT: '-'? [0-9]+ '.' [0-9]+ ;
+BOOLEAN: 'TRUE' | 'FALSE' ;
+QUOTE: '"' ;
+STRING: '"' (~["'&|,<>{}])* '"' ;
+AND: '&&' ;
+OR: '||' ;
+ESCAPED_STRING: '""' (~["'&|,<>{}])* '""' ; // it matches strings as parameters in loops and if
+EQUALS: '\'' | '_' ;
+NOT_EQUALS: '!\'' | '!_' ;
+LESS: '<' ;
+LESS_EQUALS: '<\'' | '<_' ;
+GREATER: '>' ;
+GREATER_EQUALS: '>\'' | '>_' ;
+WS: [ \t\r\n]+ -> skip ;
