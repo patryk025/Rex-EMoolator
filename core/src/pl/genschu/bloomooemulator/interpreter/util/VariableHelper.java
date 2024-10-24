@@ -17,8 +17,8 @@ public class VariableHelper {
         else if(value instanceof ConstantExpression) {
             Object valueString = ((ConstantExpression) value).evaluate(context);
 
-            if(valueString.toString().equals("_I_")) {
-                return context.getVariable(valueString.toString());
+            if(valueString instanceof Boolean) {
+                return new BoolVariable("", (Boolean) valueString, context);
             }
             if(valueString instanceof Integer) {
                 return new IntegerVariable("", (Integer) valueString, context);
@@ -26,7 +26,7 @@ public class VariableHelper {
             else if(valueString instanceof Double) {
                 return new DoubleVariable("", (Double) valueString, context);
             }
-            return new StringVariable("", valueString.toString(), context);
+            return new StringVariable("", valueString.toString().substring(1, valueString.toString().length() - 1), context);
         }
         else if(value instanceof VariableExpression) {
             return (Variable) ((VariableExpression) value).evaluate(context);

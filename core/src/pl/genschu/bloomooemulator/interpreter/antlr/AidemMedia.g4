@@ -118,10 +118,10 @@ INTEGER: '-'? [0-9]+ ;
 FLOAT: '-'? [0-9]+ '.' [0-9]+ ;
 BOOLEAN: 'TRUE' | 'FALSE' ;
 QUOTE: '"' ;
-STRING: '"' (~["'&|,<>{}])* '"' ;
+STRING: '"' (~["'&|,<>{}()])* '"' ;
 AND: '&&' ;
 OR: '||' ;
-ESCAPED_STRING: '""' (~["'&|,<>{}])* '""' ; // it matches strings as parameters in loops and if
+ESCAPED_STRING: '""' (~["'&|,<>{}()])* '""' ; // it matches strings as parameters in loops and if
 EQUALS: '\'' | '_' ;
 NOT_EQUALS: '!\'' | '!_' ;
 LESS: '<' ;

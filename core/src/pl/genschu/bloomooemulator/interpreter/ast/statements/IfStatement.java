@@ -4,6 +4,7 @@ import com.badlogic.gdx.Gdx;
 import pl.genschu.bloomooemulator.interpreter.Context;
 import pl.genschu.bloomooemulator.interpreter.ast.Expression;
 import pl.genschu.bloomooemulator.interpreter.ast.Statement;
+import pl.genschu.bloomooemulator.interpreter.ast.expressions.BlockExpression;
 import pl.genschu.bloomooemulator.interpreter.ast.expressions.ConstantExpression;
 import pl.genschu.bloomooemulator.interpreter.exceptions.BreakException;
 import pl.genschu.bloomooemulator.interpreter.factories.VariableFactory;
@@ -22,8 +23,8 @@ public class IfStatement extends Statement {
 
     public IfStatement(Expression condition, Expression trueBranch, Expression falseBranch) {
         this.condition = condition;
-        this.trueBranch = trueBranch;
-        this.falseBranch = falseBranch;
+        this.trueBranch = (trueBranch != null ? trueBranch : new BlockExpression(Collections.emptyList()));
+        this.falseBranch = (falseBranch != null ? falseBranch : new BlockExpression(Collections.emptyList()));
     }
 
     @Override

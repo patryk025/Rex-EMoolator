@@ -48,6 +48,27 @@ public class ASTBuilderVisitor extends AidemMediaBaseVisitor<Node> {
     }
 
     @Override
+    public Node visitExpression(AidemMediaParser.ExpressionContext ctx) {
+        if (ctx.primitive() != null) {
+            return visit(ctx.primitive());
+        } else if (ctx.variable() != null) {
+            return visit(ctx.variable());
+        } else if (ctx.functionCall() != null) {
+            return visit(ctx.functionCall());
+        }
+        else if (ctx.mathExpression() != null) {
+            return visit(ctx.mathExpression());
+        }
+        else if (ctx.variableReference() != null) {
+            return visit(ctx.variableReference());
+        }
+        else if (ctx.structField() != null) {
+            return visit(ctx.structField());
+        }
+        return null;
+    }
+
+    @Override
     public Node visitFunctionCall(AidemMediaParser.FunctionCallContext ctx) {
         String methodName = ctx.functionName().getText();
 
@@ -84,7 +105,15 @@ public class ASTBuilderVisitor extends AidemMediaBaseVisitor<Node> {
 
     @Override
     public Node visitVariableReference(AidemMediaParser.VariableReferenceContext ctx) {
-        return super.visitVariableReference(ctx);
+        if(ctx.variable() != null) {
+            return new VariableExpression(ctx.variable().getText());
+        }
+        else if(ctx.mathExpression() != null) {
+            return new VariableExpression((Expression) visit(ctx.mathExpression()));
+        }
+        else {
+            return new VariableExpression(ctx.getText());
+        }
     }
 
     @Override
@@ -94,7 +123,7 @@ public class ASTBuilderVisitor extends AidemMediaBaseVisitor<Node> {
                 return new ConstantExpression(Integer.parseInt(ctx.number().INTEGER().getText()));
             }
             else {
-                return new ConstantExpression(Float.parseFloat(ctx.number().FLOAT().getText()));
+                return new ConstantExpression(Double.parseDouble(ctx.number().FLOAT().getText()));
             }
         }
         else if(ctx.string() != null) {
@@ -164,17 +193,21 @@ public class ASTBuilderVisitor extends AidemMediaBaseVisitor<Node> {
             condition = (ConditionExpression) visit(ctx.ifCondition().conditionComplex());
         }
 
-        Expression trueBranch = (Expression) visit(ctx.trueBranch());
-        Expression falseBranch = (Expression) visit(ctx.falseBranch());
+        Expression trueBranch = null;
+        if (ctx.trueBranch() != null)
+            trueBranch = (Expression) visit(ctx.trueBranch());
+        Expression falseBranch = null;
+        if (ctx.falseBranch() != null)
+            falseBranch = (Expression) visit(ctx.falseBranch());
 
         return new IfStatement(condition, trueBranch, falseBranch);
     }
 
     @Override
     public Node visitConditionSimple(AidemMediaParser.ConditionSimpleContext ctx) {
-        Expression left = (Expression) visit(ctx.expression(0));
-        String operator = ctx.comparator().getText();
-        Expression right = (Expression) visit(ctx.expression(1));
+        Expression left = (Expression) visitExpressonInParameters(ctx.expression(0));
+        String operator = ctx.comparator().getText().substring(1, ctx.comparator().getText().length() - 1);
+        Expression right = (Expression) visitExpressonInParameters(ctx.expression(1));
 
         return new ConditionExpression(left, right, operator);
     }
@@ -184,8 +217,8 @@ public class ASTBuilderVisitor extends AidemMediaBaseVisitor<Node> {
         List<Expression> terms = new ArrayList<>();
         List<String> logicOperators = new ArrayList<>();
 
-        for (int i = 0; i < ctx.getChildCount(); i++) {
-            if (i % 2 == 0) {
+        for (int i = 1; i < ctx.getChildCount() - 1; i++) {
+            if (i % 2 != 0) {
                 terms.add((Expression) visit(ctx.getChild(i)));
             } else {
                 logicOperators.add(ctx.getChild(i).getText());
@@ -193,6 +226,16 @@ public class ASTBuilderVisitor extends AidemMediaBaseVisitor<Node> {
         }
 
         return buildLogicalConditionTree(terms, logicOperators);
+    }
+
+    @Override
+    public Node visitComplexTerm(AidemMediaParser.ComplexTermContext ctx) {
+        if(!ctx.expression().isEmpty()) {
+            return new ConditionExpression((Expression) visit(ctx.expression(0)), (Expression) visit(ctx.expression(1)), ctx.comparator().getText());
+        }
+        else {
+            return visit(ctx.conditionComplex());
+        }
     }
 
     private Expression buildLogicalConditionTree(List<Expression> terms, List<String> operators) {
@@ -213,7 +256,7 @@ public class ASTBuilderVisitor extends AidemMediaBaseVisitor<Node> {
     @Override
     public Node visitTrueBranch(AidemMediaParser.TrueBranchContext ctx) {
         if (ctx.string() != null) {
-            return visit(ctx.string());
+            return new VariableExpression(ctx.string().getText().substring(1, ctx.string().getText().length() - 1));
         } else {
             return visit(ctx.block());
         }
@@ -222,7 +265,7 @@ public class ASTBuilderVisitor extends AidemMediaBaseVisitor<Node> {
     @Override
     public Node visitFalseBranch(AidemMediaParser.FalseBranchContext ctx) {
         if (ctx.string() != null) {
-            return visit(ctx.string());
+            return new VariableExpression(ctx.string().getText().substring(1, ctx.string().getText().length() - 1));
         } else {
             return visit(ctx.block());
         }
@@ -257,22 +300,25 @@ public class ASTBuilderVisitor extends AidemMediaBaseVisitor<Node> {
 
     public Node visitLoopLoop(AidemMediaParser.LoopStatementContext ctx) {
         Expression code = null;
-        if(ctx.variable() != null) {
+        if(!ctx.variable().isEmpty()) {
             code = (Expression) visit(ctx.variable(0));
         }
         else if(ctx.block() != null) {
             code = (Expression) visit(ctx.block());
         }
-        Expression start = new VariableExpression((Expression) visit(ctx.expression(0)));
-        Expression end = new VariableExpression((Expression) visit(ctx.expression(1)));
-        Expression step = new VariableExpression((Expression) visit(ctx.expression(2)));
+        Expression start = new VariableExpression((Expression) visitExpressonInParameters(ctx.expression(0)));
+        Expression end = new VariableExpression((Expression) visitExpressonInParameters(ctx.expression(1)));
+        Expression step = new VariableExpression((Expression) visitExpressonInParameters(ctx.expression(2)));
         return new LoopStatement(start, end, step, code);
     }
 
     @Override
     public Node visitSpecialFunction(AidemMediaParser.SpecialFunctionContext ctx) {
         String instructionName = ctx.functionName().getText();
-        List<AidemMediaParser.ParamContext> params = ctx.paramList().param();
+        List<AidemMediaParser.ParamContext> params = new ArrayList<>();
+        if(ctx.paramList() != null) {
+            params = ctx.paramList().param();
+        }
 
         switch(instructionName) {
             case "BOOL":
@@ -301,6 +347,34 @@ public class ASTBuilderVisitor extends AidemMediaBaseVisitor<Node> {
                 return null;
             default:
                 return null;
+        }
+    }
+
+    public Node visitExpressonInParameters(AidemMediaParser.ExpressionContext ctx) {
+        if (ctx.primitive() != null) {
+            if(ctx.primitive().string() != null) {
+                String tmp = ctx.primitive().string().getText();
+                if(ctx.primitive().string().ESCAPED_STRING() != null) {
+                    return new ConstantExpression(tmp.substring(2, tmp.length() - 2));
+                }
+                else {
+                    tmp = tmp.substring(1, tmp.length() - 1);
+
+                    // check if it's a number
+                    if (tmp.matches("\\d+")) {
+                        return new ConstantExpression(Integer.parseInt(tmp));
+                    } else if (tmp.matches("[+-]?([0-9]*[.])?[0-9]+")) {
+                        return new ConstantExpression(Double.parseDouble(tmp));
+                    } else {
+                        return new VariableExpression(tmp);
+                    }
+                }
+            }
+            else {
+                return visit(ctx.primitive());
+            }
+        } else { // if somehow it pass this condition run as usual
+            return visit(ctx);
         }
     }
 }
