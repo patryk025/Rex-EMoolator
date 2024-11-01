@@ -23,6 +23,7 @@ public class Context {
     private final Map<String, Variable> timerVariables;
     private final Map<String, Variable> soundVariables;
     private final Map<String, Variable> classInstances;
+    private final Map<String, Variable> textVariables;
     private MouseVariable mouseVariable;
     private KeyboardVariable keyboardVariable;
 
@@ -36,6 +37,7 @@ public class Context {
         this.timerVariables = new LinkedHashMap<>();
         this.soundVariables = new LinkedHashMap<>();
         this.classInstances = new LinkedHashMap<>();
+        this.textVariables = new LinkedHashMap<>();
         this.mouseVariable = null;
         this.keyboardVariable = null;
     }
@@ -48,6 +50,7 @@ public class Context {
         this.timerVariables = new LinkedHashMap<>();
         this.soundVariables = new LinkedHashMap<>();
         this.classInstances = new LinkedHashMap<>();
+        this.textVariables = new LinkedHashMap<>();
         this.mouseVariable = null;
         this.keyboardVariable = null;
     }
@@ -134,6 +137,18 @@ public class Context {
         return result;
     }
 
+    public Map<String, Variable> getTextVariables() {
+        return getTextVariables(true);
+    }
+
+    public Map<String, Variable> getTextVariables(boolean includeParent) {
+        Map<String, Variable> result = new HashMap<>(textVariables);
+        if (includeParent && parentContext != null) {
+            result.putAll(parentContext.getTextVariables());
+        }
+        return result;
+    }
+
     public void setVariable(String name, Variable variable) {
         variables.put(name, variable);
 
@@ -171,6 +186,9 @@ public class Context {
         else if(variable.getType().equals("INSTANCE")) {
             classInstances.put(name, variable);
         }
+        else if(variable.getType().equals("TEXT")) {
+            textVariables.put(name, variable);
+        }
     }
 
     public boolean hasVariable(String name) {
@@ -197,6 +215,7 @@ public class Context {
         timerVariables.remove(name);
         soundVariables.remove(name);
         classInstances.remove(name);
+        textVariables.remove(name);
     }
 
     public void addButtonVariable(Variable variable) {

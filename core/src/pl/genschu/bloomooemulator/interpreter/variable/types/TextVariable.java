@@ -1,12 +1,16 @@
 package pl.genschu.bloomooemulator.interpreter.variable.types;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.GL20;
+import com.badlogic.gdx.graphics.g2d.Batch;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import pl.genschu.bloomooemulator.interpreter.exceptions.ClassMethodNotImplementedException;
 import pl.genschu.bloomooemulator.interpreter.Context;
 import pl.genschu.bloomooemulator.interpreter.variable.Attribute;
 import pl.genschu.bloomooemulator.interpreter.variable.Method;
 import pl.genschu.bloomooemulator.interpreter.variable.Parameter;
 import pl.genschu.bloomooemulator.interpreter.variable.Variable;
+import pl.genschu.bloomooemulator.objects.FontKerning;
 import pl.genschu.bloomooemulator.objects.Rectangle;
 import pl.genschu.bloomooemulator.utils.ArgumentsHelper;
 
@@ -73,8 +77,8 @@ public class TextVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				// TODO: implement this method
-				throw new ClassMethodNotImplementedException("Method SHOW is not implemented yet");
+				isVisible = true;
+				return null;
 			}
 		});
 		this.setMethod("HIDE", new Method(
@@ -82,10 +86,57 @@ public class TextVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				// TODO: implement this method
-				throw new ClassMethodNotImplementedException("Method HIDE is not implemented yet");
+				isVisible = false;
+				return null;
 			}
 		});
+	}
+
+	public void renderText(Batch batch) {
+		renderText(batch, font, rect.getXLeft(), rect.getYTop(), 2);
+	}
+
+	public void renderText(Batch batch, FontVariable fontVariable, float startX, float startY, float lineSpacing) {
+		if(fontVariable == null) {
+			Gdx.app.error("TextVariable", "Font is not set!");
+			return;
+		}
+
+		float x = startX;
+		float y = startY;
+
+		for (int i = 0; i < text.length(); i++) {
+			char currentChar = text.charAt(i);
+
+			if (currentChar == '|') {
+				y -= fontVariable.getCharHeight() + lineSpacing;
+				x = startX;
+				continue;
+			}
+
+			TextureRegion charTexture = fontVariable.getCharTexture(currentChar);
+			if (charTexture == null) {
+				continue;
+			}
+
+			FontKerning kerning = fontVariable.getCharKerning(currentChar);
+
+			int leftKerning = kerning.getLeft();
+			float adjustedX = x + leftKerning;
+			float adjustedY = 600 - y - charTexture.getRegionHeight();
+
+			//Gdx.app.log("TextVariable", "Char: " + currentChar + " x: " + adjustedX + " y: " + y);
+
+			batch.setColor(1, 1, 1, 1);
+			batch.setBlendFunction(GL20.GL_ONE_MINUS_SRC_COLOR, GL20.GL_ONE);
+
+			batch.draw(charTexture, adjustedX, adjustedY);
+
+			batch.setBlendFunction(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
+
+			int rightKerning = kerning.getRight();
+			x += charTexture.getRegionWidth() - rightKerning;
+		}
 	}
 
 	@Override
@@ -132,6 +183,10 @@ public class TextVariable extends Variable {
 				case "TEXT":
 					text = getAttribute("TEXT").getValue().toString();
 					break;
+				case "FONT":
+					String fontName = getAttribute("FONT").getValue().toString();
+					font = context.getVariable(fontName) instanceof FontVariable ? (FontVariable) context.getVariable(fontName) : null;
+					break;
 			}
 		}
 	}
@@ -151,7 +206,6 @@ public class TextVariable extends Variable {
 
 	public void setText(String text) {
 		this.text = text;
-		// TODO: generate texture from font to draw text
 	}
 
 	public void setVisible(boolean visible) {

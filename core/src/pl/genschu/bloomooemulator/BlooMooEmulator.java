@@ -41,7 +41,7 @@ public class BlooMooEmulator extends ApplicationAdapter {
     GameEntry gameEntry;
     Game game;
 
-    private boolean debugButtons = false;
+    private final boolean debugButtons = false;
 
     private Texture cursorTexture;
 
@@ -49,10 +49,10 @@ public class BlooMooEmulator extends ApplicationAdapter {
     private boolean prevPressed = false;
     private ShapeRenderer shape;
 
-    private boolean debugGraphics = true;
+    private final boolean debugGraphics = true;
 
     private String tooltipText = "";
-    private Vector2 tooltipPosition = new Vector2();
+    private final Vector2 tooltipPosition = new Vector2();
     private boolean showTooltip = false;
     private BitmapFont font;
 
@@ -236,6 +236,16 @@ public class BlooMooEmulator extends ApplicationAdapter {
                 } catch(NullPointerException e) {
                     //Gdx.app.log("SequenceVariable", "Image not found in Sequence "+sequenceVariable.getName());
                 }
+            }
+        }
+
+        // debug font
+
+        for(Variable variable : new ArrayList<>(context.getTextVariables().values())) {
+            TextVariable textVariable = (TextVariable) variable;
+            if(textVariable.isVisible()) {
+                textVariable.renderText(batch);
+                drawRectangle(textVariable.getRect(), Color.BLUE);
             }
         }
 

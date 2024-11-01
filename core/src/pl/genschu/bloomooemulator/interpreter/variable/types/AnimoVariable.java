@@ -1166,11 +1166,15 @@ public class AnimoVariable extends Variable implements Cloneable{
 
 	public Image getCurrentImage() {
 		if(currentImage == null) {
-			if(!currentEvent.getFrames().isEmpty()) {
-				currentImage = currentEvent.getFrames().get(currentImageNumber);
+			if(currentEvent == null) {
+				currentImage = images.get(0);
 			}
 			else {
-				currentImage = null;
+				if (!currentEvent.getFrames().isEmpty()) {
+					currentImage = currentEvent.getFrames().get(currentImageNumber);
+				} else {
+					currentImage = images.get(0);
+				}
 			}
 		}
 		return currentImage;
