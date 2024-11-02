@@ -240,12 +240,10 @@ public class BlooMooEmulator extends ApplicationAdapter {
         }
 
         // debug font
-
         for(Variable variable : new ArrayList<>(context.getTextVariables().values())) {
             TextVariable textVariable = (TextVariable) variable;
             if(textVariable.isVisible()) {
                 textVariable.renderText(batch);
-                drawRectangle(textVariable.getRect(), Color.BLUE);
             }
         }
 

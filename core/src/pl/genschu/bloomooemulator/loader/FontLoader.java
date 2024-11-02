@@ -68,8 +68,18 @@ public class FontLoader {
         byte[] imageData = new byte[lineLength * charHeight * 2];
         fileInputStream.read(imageData);
 
+        // DEBUG: invert all colors
+        for (int i = 0; i < imageData.length; i += 2) {
+            imageData[i] = (byte) (0xFF - imageData[i]);
+            imageData[i + 1] = (byte) (0xFF - imageData[i + 1]);
+        }
+
         byte[] alphaData = new byte[lineLength * charHeight];
         fileInputStream.read(alphaData);
+        // DEBUG: fill alpha data with 0xFF
+        /*for (int i = 0; i < alphaData.length; i++) {
+            alphaData[i] = (byte) 0xFF;
+        }*/
 
         Image fontImage = new Image(lineLength, charHeight, 0, 0, 16, imageData, alphaData, 0);
 

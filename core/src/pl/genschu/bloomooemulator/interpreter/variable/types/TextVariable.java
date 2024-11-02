@@ -14,6 +14,7 @@ import pl.genschu.bloomooemulator.objects.FontKerning;
 import pl.genschu.bloomooemulator.objects.Rectangle;
 import pl.genschu.bloomooemulator.utils.ArgumentsHelper;
 
+import java.util.Arrays;
 import java.util.List;
 
 public class TextVariable extends Variable {
@@ -93,50 +94,105 @@ public class TextVariable extends Variable {
 	}
 
 	public void renderText(Batch batch) {
-		renderText(batch, font, rect.getXLeft(), rect.getYTop(), 2);
+		renderText(batch, font, rect.getXLeft(), rect.getYTop(), 2, hJustify, vJustify);
 	}
 
-	public void renderText(Batch batch, FontVariable fontVariable, float startX, float startY, float lineSpacing) {
-		if(fontVariable == null) {
+	public void renderText(Batch batch, FontVariable fontVariable, float startX, float startY, float lineSpacing, String hJustify, String vJustify) {
+		if (fontVariable == null) {
 			Gdx.app.error("TextVariable", "Font is not set!");
 			return;
 		}
 
+		if(text.isEmpty()) {
+			return;
+		}
+
+		float[] totalTextWidth = calculateTotalTextWidths(fontVariable);
+		float totalTextHeight = calculateTotalTextHeight(fontVariable, lineSpacing);
+
+		// Adjust horizontal justification
+		if ("CENTER".equals(hJustify)) {
+			startX += (getRect().getWidth() / 2f) - (totalTextWidth[0] / 2);
+		} else if ("RIGHT".equals(hJustify)) {
+			startX += getRect().getWidth() - totalTextWidth[0];
+		}
+
+		// Adjust vertical justification
+		if ("CENTER".equals(vJustify)) {
+			startY += totalTextHeight / 2;
+		} else if ("BOTTOM".equals(vJustify)) {
+			startY += totalTextHeight;
+		}
+
 		float x = startX;
 		float y = startY;
+		int lineNumber = 0;
 
 		for (int i = 0; i < text.length(); i++) {
 			char currentChar = text.charAt(i);
 
+			// Newline handling (using '|' as the newline character)
 			if (currentChar == '|') {
 				y -= fontVariable.getCharHeight() + lineSpacing;
+				if ("CENTER".equals(hJustify)) {
+					startX += (getRect().getWidth() / 2f) - (totalTextWidth[0] / 2);
+				} else if ("RIGHT".equals(hJustify)) {
+					startX += getRect().getWidth() - totalTextWidth[0];
+				}
 				x = startX;
 				continue;
 			}
 
 			TextureRegion charTexture = fontVariable.getCharTexture(currentChar);
 			if (charTexture == null) {
-				continue;
+				continue;  // Skip if the character texture is not found
 			}
 
 			FontKerning kerning = fontVariable.getCharKerning(currentChar);
-
 			int leftKerning = kerning.getLeft();
+			int rightKerning = kerning.getRight();
+
 			float adjustedX = x + leftKerning;
-			float adjustedY = 600 - y - charTexture.getRegionHeight();
+			float adjustedY = 600-y - charTexture.getRegionHeight();
 
-			//Gdx.app.log("TextVariable", "Char: " + currentChar + " x: " + adjustedX + " y: " + y);
-
+			// Set color and apply color inversion
 			batch.setColor(1, 1, 1, 1);
-			batch.setBlendFunction(GL20.GL_ONE_MINUS_SRC_COLOR, GL20.GL_ONE);
-
 			batch.draw(charTexture, adjustedX, adjustedY);
 
-			batch.setBlendFunction(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
-
-			int rightKerning = kerning.getRight();
+			// Move the x position for the next character
 			x += charTexture.getRegionWidth() - rightKerning;
 		}
+	}
+
+	private float[] calculateTotalTextWidths(FontVariable fontVariable) {
+		float[] widths = new float[1];
+		int lineCount = 0;
+		float currentWidth = 0;
+		for (int i = 0; i < text.length(); i++) {
+			char currentChar = text.charAt(i);
+			if (currentChar == '|') {
+				widths[lineCount] = currentWidth;
+				lineCount++;
+				widths = Arrays.copyOf(widths, lineCount + 1);
+				currentWidth = 0;
+			} else {
+				TextureRegion charTexture = fontVariable.getCharTexture(currentChar);
+				FontKerning kerning = fontVariable.getCharKerning(currentChar);
+				currentWidth += (charTexture.getRegionWidth() - kerning.getRight());
+			}
+		}
+		widths[lineCount] = currentWidth;
+		return widths;
+	}
+
+	private float calculateTotalTextHeight(FontVariable fontVariable, float lineSpacing) {
+		int lineCount = 1;
+		for (int i = 0; i < text.length(); i++) {
+			if (text.charAt(i) == '|') {
+				lineCount++;
+			}
+		}
+		return lineCount * (fontVariable.getCharHeight() + lineSpacing) - lineSpacing;
 	}
 
 	@Override
@@ -186,6 +242,12 @@ public class TextVariable extends Variable {
 				case "FONT":
 					String fontName = getAttribute("FONT").getValue().toString();
 					font = context.getVariable(fontName) instanceof FontVariable ? (FontVariable) context.getVariable(fontName) : null;
+					break;
+				case "HJUSTIFY":
+					hJustify = getAttribute("HJUSTIFY").getValue().toString();
+					break;
+				case "VJUSTIFY":
+					vJustify = getAttribute("VJUSTIFY").getValue().toString();
 					break;
 			}
 		}

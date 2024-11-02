@@ -14,12 +14,13 @@ import pl.genschu.bloomooemulator.loader.FontLoader;
 import pl.genschu.bloomooemulator.objects.FontKerning;
 
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
 public class FontVariable extends Variable {
-	private Map<Character, TextureRegion> charTextures = new HashMap<>();
-	private Map<Character, FontKerning> charKernings = new HashMap<>();
+	private Map<Character, TextureRegion> charTextures = new LinkedHashMap<>();
+	private Map<Character, FontKerning> charKernings = new LinkedHashMap<>();
 	private int charHeight;
 	private int charWidth;
 
@@ -32,7 +33,7 @@ public class FontVariable extends Variable {
 	}
 
 	public TextureRegion getCharTexture(char c) {
-		return charTextures.getOrDefault(c, null);
+		return charTextures.get(c);
 	}
 
 	public void setCharKerning(char c, FontKerning kerning) {
@@ -40,7 +41,10 @@ public class FontVariable extends Variable {
 	}
 
 	public FontKerning getCharKerning(char c) {
-		return charKernings.getOrDefault(c, new FontKerning(0, 0));
+		if(!charKernings.containsKey(c)) {
+			return new FontKerning(0, 0);
+		}
+		return charKernings.get(c);
 	}
 
 	public int getCharHeight() {
@@ -107,7 +111,7 @@ public class FontVariable extends Variable {
 					Pixmap regionPixmap = new Pixmap(region.getRegionWidth(), region.getRegionHeight(), Pixmap.Format.RGBA8888);
 					regionPixmap.drawPixmap(fullPixmap, 0, 0, region.getRegionX(), region.getRegionY(), region.getRegionWidth(), region.getRegionHeight());
 
-					PixmapIO.writePNG(Gdx.files.external(outputDirectory + "/" + ((int) character) + ".png"), regionPixmap);
+					PixmapIO.writePNG(Gdx.files.external(outputDirectory + "/" + Character.toString(character).toLowerCase() + (Character.isUpperCase(character) ? "_U" : "") + ".png"), regionPixmap);
 
 					regionPixmap.dispose();
 				} catch (GdxRuntimeException e) {
