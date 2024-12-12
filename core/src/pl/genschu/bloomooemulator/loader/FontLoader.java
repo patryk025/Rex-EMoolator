@@ -89,6 +89,6 @@ public class FontLoader {
             fontVariable.setCharTexture(character, charRegion);
         }
 
-        fontVariable.exportCharactersToFiles("Desktop\\debug_font");
+        //fontVariable.exportCharactersToFiles("Desktop\\debug_font");
     }
 }

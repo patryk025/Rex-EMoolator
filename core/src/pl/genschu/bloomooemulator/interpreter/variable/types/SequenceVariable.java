@@ -17,6 +17,7 @@ public class SequenceVariable extends Variable {
 	private SoundVariable currentSound;
 	private boolean isPlaying;
     private boolean isVisible = true;
+	private int pausedFrameNumber;
 
 	public SequenceVariable(String name, Context context) {
 		super(name, context);
@@ -56,11 +57,7 @@ public class SequenceVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				isPlaying = false;
-				getCurrentAnimo().setPlaying(false);
-				if(getCurrentSound() != null) {
-					getCurrentSound().pause();
-				}
+				pause();
 				return null;
 			}
 		});
@@ -95,11 +92,7 @@ public class SequenceVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				isPlaying = true;
-				getCurrentAnimo().setPlaying(true);
-				if(getCurrentSound() != null) {
-					getCurrentSound().resume();
-				}
+				resume();
 				return null;
 			}
 		});
@@ -155,6 +148,36 @@ public class SequenceVariable extends Variable {
 		} else {
 			Gdx.app.error("SequenceVariable", "Event not found: " + eventName);
 		}
+	}
+
+	private void pause() {
+		isPlaying = false;
+		if(getCurrentAnimo() != null) {
+			pausedFrameNumber = getCurrentAnimo().getCurrentFrameNumber();
+			getCurrentAnimo().setPlaying(false);
+		}
+		if(getCurrentSound() != null) {
+			getCurrentSound().pause();
+		}
+		Gdx.app.debug("SequenceVariable", String.format(Locale.ROOT,
+				"Pausing sequence at event: %s, frame: %d",
+				currentEventName, pausedFrameNumber
+		));
+	}
+
+	private void resume() {
+		isPlaying = true;
+		if(getCurrentAnimo() != null) {
+			getCurrentAnimo().setCurrentFrameNumber(pausedFrameNumber);
+			getCurrentAnimo().setPlaying(true);
+		}
+		if(getCurrentSound() != null) {
+			getCurrentSound().resume();
+		}
+		Gdx.app.debug("SequenceVariable", String.format(Locale.ROOT,
+				"Resuming sequence at event: %s, frame: %d",
+				currentEventName, pausedFrameNumber
+		));
 	}
 
 	public void updateAnimation(float deltaTime) {
@@ -233,7 +256,8 @@ public class SequenceVariable extends Variable {
 	public static class SequenceEvent extends SequenceVariable{
 		protected final SequenceVariable parent;
 		private final String mode;
-		private final Queue<SequenceEvent> eventQueue;
+		private Queue<SequenceEvent> eventQueue;
+		private Queue<SequenceEvent> savedEventQueue;
 
 		public SequenceEvent(String name, SequenceVariable parent, String mode) {
 			super(name, parent.getContext());
@@ -259,14 +283,16 @@ public class SequenceVariable extends Variable {
 
 		private void playNextEvent(SequenceVariable parent) {
 			if (eventQueue.isEmpty()) {
+				Gdx.app.debug("SequenceEvent", "Queue empty, sequence finished");
 				parent.emitSignal("ONFINISHED", parent.currentEventName);
 				return;
 			}
 
 			SequenceEvent nextEvent = eventQueue.poll();
-
-			Gdx.app.log("SequenceEvent", "Playing next event: " + nextEvent.getName());
-			Gdx.app.log("SequenceEvent", "Queue size: " + eventQueue.size());
+			Gdx.app.debug("SequenceEvent", String.format(Locale.ROOT,
+					"Playing next event: %s, Queue size: %d, Current playing state: %b",
+					nextEvent.getName(), eventQueue.size(), parent.isPlaying
+			));
 
 			Signal oldGenericSignal = null;
 			Signal oldSignal = null;
@@ -284,8 +310,6 @@ public class SequenceVariable extends Variable {
 			nextEvent.setSignal("ONFINISHED", new Signal() {
 				@Override
 				public void execute(Object argument) {
-					emitSignal("ONFINISHED", nextEvent.getName());
-					parent.emitSignal("ONFINISHED", nextEvent.getName());
 					playNextEvent(parent);
 					if(finalOldSignal != null) finalOldSignal.execute(argument);
 					else if(finalOldGenericSignal != null) finalOldGenericSignal.execute(argument);
