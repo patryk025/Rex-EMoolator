@@ -164,15 +164,6 @@ public class CNVParser {
 
             variable.setIniSection(iniSection);
 
-            if(type.equals("BUTTON")) {
-                ButtonVariable buttonVariable = (ButtonVariable) variable;
-                if(!buttonVariable.isEnabled()) {
-                    Gdx.app.debug("ButtonVariable", "Disabling button and hiding images: " + buttonVariable.getName());
-                    buttonVariable.setVisible(false); // z testów wynika, że ENABLE = FALSE powoduje nadpisanie VISIBLE = TRUE
-                    buttonVariable.hideImages();
-                }
-            }
-
             context.setVariable(objectName, variable);
         } catch (IllegalArgumentException e) {
             Gdx.app.error("CNVParser", "Failed to create variable " + objectName + ": " + e.getMessage());

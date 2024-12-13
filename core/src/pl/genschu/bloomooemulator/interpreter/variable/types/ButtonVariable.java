@@ -309,9 +309,6 @@ public class ButtonVariable extends Variable {
 		if(gfxOnClick != null) {
 			gfxOnClick.setAttribute("VISIBLE", new Attribute("BOOL", "FALSE"));
 		}
-		if(rectVariable != null) {
-			rectVariable.setAttribute("VISIBLE", new Attribute("BOOL", "FALSE"));
-		}
 		currentGfx = gfxVariable;
 	}
 
@@ -351,10 +348,6 @@ public class ButtonVariable extends Variable {
 	}
 
 	public void changeGraphicsVisibility(boolean visible) {
-		if(rectVariable != null) {
-			showImage(rectVariable, visible);
-		}
-
 		if(gfxVariable != null) {
 			showImage(gfxVariable, visible);
 		}
@@ -396,11 +389,6 @@ public class ButtonVariable extends Variable {
             switch (name) {
                 case "ENABLE":
                     isEnabled = attribute.getValue().toString().equals("TRUE");
-                    if (!isEnabled) {
-                        Gdx.app.debug("ButtonVariable", "Disabling button and hiding images: " + getName());
-						isVisible = false; // z testów wynika, że ENABLE = FALSE powoduje nadpisanie VISIBLE = TRUE
-						hideImages();
-                    }
                     break;
                 case "VISIBLE":
                     isVisible = attribute.getValue().toString().equals("TRUE");

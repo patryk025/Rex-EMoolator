@@ -300,7 +300,11 @@ public class Context {
     }
 
     public MouseVariable getMouseVariable() {
-        return mouseVariable;
+        if(mouseVariable != null)
+            return mouseVariable;
+        else {
+            return parentContext != null ? parentContext.getMouseVariable() : (MouseVariable) GlobalVariables.getVariable("MOUSE", this);
+        }
     }
 
     public void setMouseVariable(MouseVariable mouseVariable) {
@@ -308,7 +312,11 @@ public class Context {
     }
 
     public KeyboardVariable getKeyboardVariable() {
-        return keyboardVariable;
+        if(keyboardVariable != null)
+            return keyboardVariable;
+        else {
+            return parentContext != null ? parentContext.getKeyboardVariable() : (KeyboardVariable) GlobalVariables.getVariable("KEYBOARD", this);
+        }
     }
 
     public void setKeyboardVariable(KeyboardVariable keyboardVariable) {
