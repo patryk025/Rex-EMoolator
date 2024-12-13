@@ -220,6 +220,7 @@ public class CNVParser {
 
     public SignalAndParams processEventCode(String code, Context context) {
         // First, check if it's a code block
+        code = code.trim();
         if (code.startsWith("{") && code.endsWith("}")) {
             if (code.endsWith(":}")) {
                 code = code.substring(0, code.length() - 2) + ";}"; // Fix the code format

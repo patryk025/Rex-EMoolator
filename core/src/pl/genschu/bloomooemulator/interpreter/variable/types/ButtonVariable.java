@@ -17,15 +17,12 @@ public class ButtonVariable extends Variable {
 	private boolean isFocused = false;
 	private boolean isPressed = false;
 	private boolean wasPressed = false;
-	private boolean isVisible = true;
 	private boolean isEnabled = true;
 
 	private Variable rectVariable;
-
 	private Variable gfxOnMove;
 	private Variable gfxVariable;
 	private Variable gfxOnClick;
-
 	private Variable currentGfx;
 
 	public ButtonVariable(String name, Context context) {
@@ -36,34 +33,30 @@ public class ButtonVariable extends Variable {
 	protected void setMethods() {
 		super.setMethods();
 
-		this.setMethod("DISABLE", new Method(
-				"void"
-		) {
+		this.setMethod("DISABLE", new Method("void") {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				setAttribute("ENABLE", new Attribute("BOOL", "FALSE"));
 				isEnabled = false;
-				changeGraphicsVisibility(false);
+				hideGraphics();
 				return null;
 			}
 		});
-		this.setMethod("DISABLEBUTVISIBLE", new Method(
-				"void"
-		) {
+
+		this.setMethod("DISABLEBUTVISIBLE", new Method("void") {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				isEnabled = false;
-				changeGraphicsVisibility(true);
+				updateGraphicsVisibility();
 				return null;
 			}
 		});
-		this.setMethod("ENABLE", new Method(
-				"void"
-		) {
+
+		this.setMethod("ENABLE", new Method("void") {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				isEnabled = true;
-				changeGraphicsVisibility(true);
+				updateGraphicsVisibility();
 				return null;
 			}
 		});
@@ -166,45 +159,55 @@ public class ButtonVariable extends Variable {
 		this.rect = rect;
 	}
 
+	private void hideGraphics() {
+		loadImages();
+
+		if(gfxVariable != null) {
+			showImage(gfxVariable, false);
+		}
+		if(gfxOnMove != null) {
+			showImage(gfxOnMove, false);
+		}
+		if(gfxOnClick != null) {
+			showImage(gfxOnClick, false);
+		}
+	}
+
+	private void updateGraphicsVisibility() {
+		loadImages();
+
+		if (isPressed && gfxOnClick != null) {
+			showImage(gfxVariable, false);
+			showImage(gfxOnMove, false);
+			showImage(gfxOnClick, true);
+			currentGfx = gfxOnClick;
+		} else if (isFocused && gfxOnMove != null) {
+			showImage(gfxVariable, false);
+			showImage(gfxOnMove, true);
+			showImage(gfxOnClick, false);
+			currentGfx = gfxOnMove;
+		} else if (gfxVariable != null) {
+			showImage(gfxVariable, true);
+			showImage(gfxOnMove, false);
+			showImage(gfxOnClick, false);
+			currentGfx = gfxVariable;
+		}
+	}
+
 	public boolean isFocused() {
 		return isFocused;
 	}
 
 	public void setFocused(boolean focused) {
 		isFocused = focused;
-
 		loadImages();
-
-		if(isVisible) {
-			if (focused) {
-				if (gfxOnMove != null) {
-					showImage(gfxOnMove, true);
-					if (gfxVariable != null) {
-						showImage(gfxVariable, false);
-					}
-					currentGfx = gfxOnMove;
-				}
-			} else {
-				if (gfxOnMove != null) {
-					showImage(gfxOnMove, false);
-				}
-				if (gfxVariable != null) {
-					showImage(gfxVariable, true);
-				}
-				currentGfx = gfxVariable;
-			}
-
-			if (gfxOnClick != null) {
-				showImage(gfxOnClick, false);
-			}
-		}
+		updateGraphicsVisibility();
 	}
 
-	public boolean isLoaded() {
-		return (getAttribute("RECT") != null && rectVariable != null)
-			&& (getAttribute("GFXSTANDARD") != null && gfxVariable != null)
-			&& (getAttribute("GFXONMOVE") != null && gfxOnMove == null)
-			&& (getAttribute("GFXONCLICK") != null && gfxOnClick == null);
+	public void setPressed(boolean pressed) {
+		isPressed = pressed;
+		loadImages();
+		updateGraphicsVisibility();
 	}
 
 	public void loadImages() {
@@ -243,39 +246,8 @@ public class ButtonVariable extends Variable {
 		this.wasPressed = wasPressed;
 	}
 
-	public void setPressed(boolean pressed) {
-		isPressed = pressed;
-
-		loadImages();
-
-		if(isVisible) {
-			if (pressed && gfxOnClick != null) {
-				gfxOnClick.setAttribute("VISIBLE", new Attribute("BOOL", "TRUE"));
-				if (gfxVariable != null) {
-					gfxVariable.setAttribute("VISIBLE", new Attribute("BOOL", "FALSE"));
-				}
-				if (gfxOnMove != null) {
-					gfxOnMove.setAttribute("VISIBLE", new Attribute("BOOL", "FALSE"));
-				}
-
-				currentGfx = gfxOnClick;
-			} else {
-				setFocused(isFocused);
-			}
-		}
-	}
-
-
 	public boolean isEnabled() {
 		return isEnabled;
-	}
-
-	public boolean isVisible() {
-		return isVisible;
-	}
-
-	public void setVisible(boolean visible) {
-		isVisible = visible;
 	}
 
 	public void setEnabled(boolean enabled) {
@@ -283,33 +255,10 @@ public class ButtonVariable extends Variable {
 	}
 
 	public Variable getCurrentImage() {
-		setFocused(isFocused);
-		setPressed(isPressed);
-
 		if(currentGfx != null) {
 			return currentGfx;
 		}
-		else if(rectVariable != null) {
-			return rectVariable;
-		}
-		else {
-			return null;
-		}
-	}
-
-	public void hideImages() {
-		loadImages();
-
-		if(gfxVariable != null) {
-			gfxVariable.setAttribute("VISIBLE", new Attribute("BOOL", "FALSE"));
-		}
-		if(gfxOnMove != null) {
-			gfxOnMove.setAttribute("VISIBLE", new Attribute("BOOL", "FALSE"));
-		}
-		if(gfxOnClick != null) {
-			gfxOnClick.setAttribute("VISIBLE", new Attribute("BOOL", "FALSE"));
-		}
-		currentGfx = gfxVariable;
+		return rectVariable;
 	}
 
 	public Rectangle getRect() {
@@ -347,32 +296,18 @@ public class ButtonVariable extends Variable {
 		return rect;
 	}
 
-	public void changeGraphicsVisibility(boolean visible) {
-		if(gfxVariable != null) {
-			showImage(gfxVariable, visible);
-		}
-
-		if(gfxOnMove != null) {
-			showImage(gfxOnMove, false);
-		}
-
-		if(gfxOnClick != null) {
-			showImage(gfxOnClick, false);
-		}
-
-		isVisible = visible;
-	}
-
 	private void showImage(Variable var, boolean visible) {
-		if(var instanceof ImageVariable) {
-			ImageVariable imageVariable = (ImageVariable) var;
-			imageVariable.setAttribute("VISIBLE", new Attribute("BOOL", visible ? "TRUE" : "FALSE"));
-			imageVariable.changeVisibility(visible);
-		}
-		else if(var instanceof AnimoVariable) {
-			AnimoVariable animoVariable = (AnimoVariable) var;
-			animoVariable.setAttribute("VISIBLE", new Attribute("BOOL", visible ? "TRUE" : "FALSE"));
-			animoVariable.changeVisibility(visible);
+		if(var != null) {
+			if(var instanceof ImageVariable) {
+				ImageVariable imageVariable = (ImageVariable) var;
+				imageVariable.setAttribute("VISIBLE", new Attribute("BOOL", visible ? "TRUE" : "FALSE"));
+				imageVariable.changeVisibility(visible);
+			}
+			else if(var instanceof AnimoVariable) {
+				AnimoVariable animoVariable = (AnimoVariable) var;
+				animoVariable.setAttribute("VISIBLE", new Attribute("BOOL", visible ? "TRUE" : "FALSE"));
+				animoVariable.changeVisibility(visible);
+			}
 		}
 	}
 
@@ -383,39 +318,36 @@ public class ButtonVariable extends Variable {
 
 	@Override
 	public void setAttribute(String name, Attribute attribute) {
-		List<String> knownAttributes = List.of("DRAGGABLE", "ENABLE", "GFXONCLICK", "GFXONMOVE", "GFXSTANDARD", "RECT", "SNDONMOVE", "VISIBLE");
+		List<String> knownAttributes = List.of("DRAGGABLE", "ENABLE", "GFXONCLICK", "GFXONMOVE", "GFXSTANDARD", "RECT", "SNDONMOVE");
 		if (knownAttributes.contains(name)) {
 			super.setAttribute(name, attribute);
             switch (name) {
-                case "ENABLE":
-                    isEnabled = attribute.getValue().toString().equals("TRUE");
-                    break;
-                case "VISIBLE":
-                    isVisible = attribute.getValue().toString().equals("TRUE");
-                    break;
-                case "RECT":
-                    String rectRaw = getAttribute("RECT").getValue().toString();
-                    if (rectRaw.contains(",")) {
-                        String[] rectSplit = rectRaw.split(",");
-                        int xLeft = Integer.parseInt(rectSplit[0]);
-                        int yBottom = Integer.parseInt(rectSplit[1]);
-                        int xRight = Integer.parseInt(rectSplit[2]);
-                        int yTop = Integer.parseInt(rectSplit[3]);
-                        int height = yTop - yBottom;
-                        rect = new Rectangle(xLeft, yBottom - height, xRight, yTop - height);
-                    } else {
-                        Variable rectVariable = context.getVariable(rectRaw);
-                        if (rectVariable != null) {
-                            if (rectVariable instanceof ImageVariable) {
-                                ImageVariable imageVariable = (ImageVariable) rectVariable;
-                                rect = imageVariable.getRect();
-                            } else if (rectVariable instanceof AnimoVariable) {
-                                AnimoVariable animoVariable = (AnimoVariable) rectVariable;
-                                rect = animoVariable.getRect();
-                            }
-                        }
-                    }
-                    break;
+				case "ENABLE":
+					isEnabled = attribute.getValue().toString().equals("TRUE");
+					break;
+				case "RECT":
+					String rectRaw = getAttribute("RECT").getValue().toString();
+					if (rectRaw.contains(",")) {
+						String[] rectSplit = rectRaw.split(",");
+						int xLeft = Integer.parseInt(rectSplit[0]);
+						int yBottom = Integer.parseInt(rectSplit[1]);
+						int xRight = Integer.parseInt(rectSplit[2]);
+						int yTop = Integer.parseInt(rectSplit[3]);
+						int height = yTop - yBottom;
+						rect = new Rectangle(xLeft, yBottom - height, xRight, yTop - height);
+					} else {
+						Variable rectVariable = context.getVariable(rectRaw);
+						if (rectVariable != null) {
+							if (rectVariable instanceof ImageVariable) {
+								ImageVariable imageVariable = (ImageVariable) rectVariable;
+								rect = imageVariable.getRect();
+							} else if (rectVariable instanceof AnimoVariable) {
+								AnimoVariable animoVariable = (AnimoVariable) rectVariable;
+								rect = animoVariable.getRect();
+							}
+						}
+					}
+					break;
             }
 		}
 	}

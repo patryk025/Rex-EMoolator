@@ -295,8 +295,6 @@ public class BlooMooEmulator extends ApplicationAdapter {
                 if(variable instanceof ButtonVariable) {
                     ButtonVariable button = (ButtonVariable) variable;
 
-                    if (!button.isVisible()) continue;
-
                     if (!button.isEnabled()) continue;
 
                     if (button.getRect() != null && button.getRect().contains(x, y)) {
@@ -425,11 +423,6 @@ public class BlooMooEmulator extends ApplicationAdapter {
                 if(image != null) {
                     int priority = image.getAttribute("PRIORITY") != null ? Integer.parseInt(image.getAttribute("PRIORITY").getValue().toString()) : 0;
                     if(priority < minHSPriority || priority > maxHSPriority) continue;
-                }
-
-                if(!button.isVisible()) {
-                    // Gdx.app.log("BlooMooEmulator", button.getName() + " is not visible, hiding images");
-                    button.hideImages();
                 }
 
                 if(!button.isEnabled()) continue;
