@@ -28,6 +28,7 @@ public class TextVariable extends Variable {
 
 	public TextVariable(String name, Context context) {
 		super(name, context);
+		this.text = "";
 	}
 
 	@Override

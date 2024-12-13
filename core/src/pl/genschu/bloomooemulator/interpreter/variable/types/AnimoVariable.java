@@ -816,10 +816,10 @@ public class AnimoVariable extends Variable implements Cloneable{
 		if(knownAttributes.contains(name)) {
 			super.setAttribute(name, attribute);
             switch (name) {
-                case "FPS":
-                    setFps(Integer.parseInt(getAttribute("FPS").getValue().toString()));
-                    break;
-                case "FILENAME":
+				case "FPS":
+					setFps(Integer.parseInt(getAttribute("FPS").getValue().toString()));
+					break;
+				case "FILENAME":
 					String filename = getAttribute("FILENAME").getValue().toString();
 					if(!filename.endsWith(".ANN")) {
 						filename = filename + ".ANN";
@@ -827,12 +827,19 @@ public class AnimoVariable extends Variable implements Cloneable{
 					getAttribute("FILENAME").setValue(filename);
 					try {
 						AnimoLoader.loadAnimo(this);
-						setCurrentFrameNumber(0);
-						updateRect();
+						if (events != null && !events.isEmpty()) {
+							currentEvent = events.get(0);
+							currentFrameNumber = 0;
+							if (!currentEvent.getFrames().isEmpty()) {
+								currentImageNumber = currentEvent.getFramesNumbers().get(0);
+								currentImage = currentEvent.getFrames().get(currentImageNumber);
+								updateRect();
+							}
+						}
 					} catch (Exception e) {
 						Gdx.app.error("AnimoVariable", "Error loading ANIMO variable: " + filename, e);
 					}
-                    break;
+					break;
                 case "PRIORITY":
                     priority = Integer.parseInt(getAttribute("PRIORITY").getValue().toString());
                     break;
@@ -924,60 +931,49 @@ public class AnimoVariable extends Variable implements Cloneable{
 	}
 
 	private void updateRect() {
-		/*Gdx.app.error("DEBUG ANIMO "+getName(),
-				"currentFrameNumber: " + currentFrameNumber +
-						", currentEvent.getName(): " + currentEvent.getName() +
-						", currentEvent.getFramesCount(): " + currentEvent.getFramesCount() +
-						", currentImageNumber: " + currentImageNumber +
-						", posX: " + posX +
-						", posY: " + posY +
-						", currentImage.offsetX: " + currentImage.offsetX +
-						", currentImage.offsetY: " + currentImage.offsetY +
-						", currentImage.width: " + currentImage.width +
-						", currentImage.height: " + currentImage.height +
-						", frameData.getOffsetX(): " + (!currentEvent.getFrameData().isEmpty() ? currentEvent.getFrameData().get(currentFrameNumber).getOffsetX() : null) +
-						", frameData.getOffsetY(): " + (!currentEvent.getFrameData().isEmpty() ? currentEvent.getFrameData().get(currentFrameNumber).getOffsetY() : null) +
-						", frameData.getOpacity(): " + (!currentEvent.getFrameData().isEmpty() ? currentEvent.getFrameData().get(currentFrameNumber).getOpacity() : null));*/
+		if (monitorCollision) {
+			context.getGame().getQuadTree().remove(this);
+		}
 
-		//Gdx.app.log("DEBUG ANIMO "+getName(), "Rect before: " + getRect().toString());
-
-		if(monitorCollision)
-			context.getGame().getQuadTree().remove(this); // we need to remove variable from quadtree
-
-		// if we have no frameData, we need to use only posX and posY
-		try {
-			FrameData frameData = currentEvent.getFrameData().get(currentFrameNumber);
-
-			rect.setXLeft(posX + frameData.getOffsetX() + currentImage.offsetX);
-			rect.setYTop(posY + frameData.getOffsetY() + currentImage.offsetY);
-			rect.setXRight(rect.getXLeft() + currentImage.width);
-			rect.setYBottom(rect.getYTop() - currentImage.height);
-
+		if (currentImage == null) {
+			rect.setXLeft(posX);
+			rect.setYTop(posY);
+			rect.setXRight(posX + 1);
+			rect.setYBottom(posY - 1);
 			endPosX = rect.getXRight();
 			endPosY = rect.getYBottom();
-			centerX = rect.getXLeft() + currentImage.width / 2;
-			centerY = rect.getYTop() - currentImage.height / 2;
-		} catch (IndexOutOfBoundsException e) {
-			if(currentImage != null)
-				updateRect(currentImage);
-			else {
-				// last try, use only posX and posY
-				rect.setXLeft(posX);
-				rect.setYTop(posY);
-				rect.setXRight(rect.getXLeft() + 1);
-				rect.setYBottom(rect.getYTop() - 1);
+			centerX = posX;
+			centerY = posY;
+		} else {
+			try {
+				FrameData frameData = currentEvent != null && !currentEvent.getFrameData().isEmpty()
+						? currentEvent.getFrameData().get(currentFrameNumber)
+						: null;
+
+				int frameOffsetX = frameData != null ? frameData.getOffsetX() : 0;
+				int frameOffsetY = frameData != null ? frameData.getOffsetY() : 0;
+
+				rect.setXLeft(posX + frameOffsetX + currentImage.offsetX);
+				rect.setYTop(posY + frameOffsetY + currentImage.offsetY);
+				rect.setXRight(rect.getXLeft() + currentImage.width);
+				rect.setYBottom(rect.getYTop() - currentImage.height);
 
 				endPosX = rect.getXRight();
 				endPosY = rect.getYBottom();
-				centerX = endPosX;
-				centerY = endPosY;
+				centerX = rect.getXLeft() + currentImage.width / 2;
+				centerY = rect.getYTop() - currentImage.height / 2;
+			} catch (Exception e) {
+				Gdx.app.error("AnimoVariable", "Error updating rect: " + e.getMessage());
+				rect.setXLeft(posX);
+				rect.setYTop(posY);
+				rect.setXRight(posX + 1);
+				rect.setYBottom(posY - 1);
 			}
 		}
 
-		if(monitorCollision)
-			context.getGame().getQuadTree().insert(this); // and add it again
-
-		//Gdx.app.log("DEBUG ANIMO "+getName(), "Rect after: " + getRect().toString());
+		if (monitorCollision) {
+			context.getGame().getQuadTree().insert(this);
+		}
 	}
 
 	private void updateRect(Image image) {
@@ -1030,7 +1026,11 @@ public class AnimoVariable extends Variable implements Cloneable{
 
 	@Override
 	public Method getMethod(String name, List<String> paramTypes) {
-		return super.getMethod(name, paramTypes);
+		Method method = super.getMethod(name, paramTypes);
+		if (currentImage == null) {
+			getCurrentImage();
+		}
+		return method;
 	}
 
 	public int getImagesCount() {
@@ -1165,16 +1165,23 @@ public class AnimoVariable extends Variable implements Cloneable{
 	}
 
 	public Image getCurrentImage() {
-		if(currentImage == null) {
-			if(currentEvent == null) {
-				currentImage = images.get(0);
-			}
-			else {
-				if (!currentEvent.getFrames().isEmpty()) {
-					currentImage = currentEvent.getFrames().get(currentImageNumber);
-				} else {
+		if (currentImage == null) {
+			if (currentEvent == null) {
+				if (images != null && !images.isEmpty()) {
 					currentImage = images.get(0);
 				}
+				else {
+
+				}
+			} else {
+				if (!currentEvent.getFrames().isEmpty()) {
+					currentImage = currentEvent.getFrames().get(currentImageNumber);
+				} else if (images != null && !images.isEmpty()) {
+					currentImage = images.get(0);
+				}
+			}
+			if (currentImage != null) {
+				updateRect();
 			}
 		}
 		return currentImage;
