@@ -24,7 +24,7 @@ codeBlock
 	;
 
 varWithNumber
-	:	literal arithmetic number
+	:	literal arithmetic (number | literal)
 	;
 
 loopCodeParam

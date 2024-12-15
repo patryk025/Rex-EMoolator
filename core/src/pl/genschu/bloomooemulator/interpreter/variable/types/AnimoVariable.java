@@ -1154,6 +1154,7 @@ public class AnimoVariable extends Variable implements Cloneable{
 		this.currentFrameNumber = currentFrameNumber;
 		this.currentImageNumber = currentEvent.getFramesNumbers().get(currentFrameNumber);
 		this.currentImage = currentEvent.getFrames().get(currentImageNumber);
+		updateRect();
 	}
 
 	public int getCurrentImageNumber() {
@@ -1171,7 +1172,9 @@ public class AnimoVariable extends Variable implements Cloneable{
 					currentImage = images.get(0);
 				}
 				else {
-
+					AnimoLoader.loadAnimo(this);
+					if(!images.isEmpty())
+						return getCurrentImage();
 				}
 			} else {
 				if (!currentEvent.getFrames().isEmpty()) {
