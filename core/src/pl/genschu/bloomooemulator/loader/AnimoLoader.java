@@ -29,13 +29,6 @@ public class AnimoLoader {
             readEvents(variable, f);
             readImagesMetadata(variable, f);
             Gdx.app.log("AnimoLoader", "Loaded ANIMO: " + variable.getName());
-
-            for(Event event : variable.getEvents()) {
-                if(!event.getFrames().isEmpty()) {
-                    variable.setCurrentEvent(event);
-                    break;
-                }
-            }
             variable.setPlaying(false);
             if(variable.getAttribute("VISIBLE") == null)
                 variable.setAttribute("VISIBLE", new Attribute("BOOL", "FALSE"));

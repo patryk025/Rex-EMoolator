@@ -828,7 +828,12 @@ public class AnimoVariable extends Variable implements Cloneable{
 					try {
 						AnimoLoader.loadAnimo(this);
 						if (events != null && !events.isEmpty()) {
-							currentEvent = events.get(0);
+							for(Event event : events) {
+								if(!event.getFrames().isEmpty()) {
+									currentEvent = event;
+									break;
+								}
+							}
 							currentFrameNumber = 0;
 							if (!currentEvent.getFrames().isEmpty()) {
 								currentImageNumber = currentEvent.getFramesNumbers().get(0);
@@ -875,7 +880,7 @@ public class AnimoVariable extends Variable implements Cloneable{
 		if (elapsedTime >= frameDuration) {
 			elapsedTime -= frameDuration;
             
-            if(elapsedTime >= frameDuration) {
+			if(elapsedTime >= frameDuration) {
                 elapsedTime = 0; // only when engine is lagging, set elapsedTime to zero to eliminate animation fast forward
             }
             
@@ -931,6 +936,7 @@ public class AnimoVariable extends Variable implements Cloneable{
 	}
 
 	private void updateRect() {
+		//Gdx.app.debug("AnimoVariable ("+this.getName()+")", "Updating rect...");
 		if (monitorCollision) {
 			context.getGame().getQuadTree().remove(this);
 		}
@@ -974,9 +980,12 @@ public class AnimoVariable extends Variable implements Cloneable{
 		if (monitorCollision) {
 			context.getGame().getQuadTree().insert(this);
 		}
+
+		//Gdx.app.debug("AnimoVariable ("+this.getName()+")", "Rect: " + rect);
 	}
 
 	private void updateRect(Image image) {
+		//Gdx.app.debug("AnimoVariable ("+this.getName()+")", "Updating rect from Image...");
 		rect.setXLeft(image.offsetX - posX);
 		rect.setYTop(image.offsetY - posY);
 		rect.setXRight(rect.getXLeft() + image.width);
@@ -986,6 +995,8 @@ public class AnimoVariable extends Variable implements Cloneable{
 		endPosY = rect.getYBottom();
 		centerX = rect.getXLeft() + image.width / 2;
 		centerY = rect.getYTop() - image.height / 2;
+
+		//Gdx.app.debug("AnimoVariable ("+this.getName()+")", "Rect: " + rect);
 	}
 
 	public boolean isColliding(Rectangle rect1, Rectangle rect2) {
