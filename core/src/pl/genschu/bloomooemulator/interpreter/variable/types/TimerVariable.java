@@ -90,6 +90,8 @@ public class TimerVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				elapse = ArgumentsHelper.getInteger(arguments.get(0));
+				// reset timer
+				lastTickTime = System.currentTimeMillis();
 				return null;
 			}
 		});
