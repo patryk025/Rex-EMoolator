@@ -1,10 +1,12 @@
 package pl.genschu.bloomooemulator.interpreter.ast.expressions;
 
+import com.badlogic.gdx.Gdx;
 import pl.genschu.bloomooemulator.interpreter.Context;
 import pl.genschu.bloomooemulator.interpreter.ast.Expression;
 import pl.genschu.bloomooemulator.interpreter.ast.Node;
 import pl.genschu.bloomooemulator.interpreter.ast.Statement;
 import pl.genschu.bloomooemulator.interpreter.exceptions.BreakException;
+import pl.genschu.bloomooemulator.interpreter.exceptions.ClassMethodNotFoundException;
 import pl.genschu.bloomooemulator.interpreter.exceptions.OneBreakException;
 
 import java.util.List;
@@ -21,15 +23,20 @@ public class BlockExpression extends Expression {
     public Object evaluate(Context context) {
         try {
             for (Node node : nodes) {
-                if (node instanceof Statement) {
-                    ((Statement) node).execute(context);
-                } else {
-                    if (node instanceof ReturnExpression) {
-                        returnValue = ((ReturnExpression) node).evaluate(context);
-                        context.setReturnValue(returnValue);
+                try {
+                    if (node instanceof Statement) {
+                        ((Statement) node).execute(context);
                     } else {
-                        ((Expression) node).evaluate(context);
+                        if (node instanceof ReturnExpression) {
+                            returnValue = ((ReturnExpression) node).evaluate(context);
+                            context.setReturnValue(returnValue);
+                        } else {
+                            ((Expression) node).evaluate(context);
+                        }
                     }
+                }
+                catch(ClassMethodNotFoundException e) {
+                    Gdx.app.error("BlockExpression", "Method call error: " + e.getMessage(), e);
                 }
             }
             return returnValue;
