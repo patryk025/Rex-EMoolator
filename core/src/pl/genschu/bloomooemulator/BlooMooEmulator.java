@@ -620,6 +620,15 @@ public class BlooMooEmulator extends ApplicationAdapter {
             float x = tooltipPosition.x;
             float y = tooltipPosition.y;
 
+            // sprawdzanie, czy tooltip nie wyjeżdża z prawej strony ekranu i z dołu
+            if(x + width > VIRTUAL_WIDTH) {
+                x = VIRTUAL_WIDTH - width;
+            }
+
+            if(y - height < 0) {
+                y = height;
+            }
+
             // Rysowanie tła i obramowania
             shape.begin(ShapeRenderer.ShapeType.Filled);
             shape.setColor(new Color(0, 0, 0, 0.75f));
