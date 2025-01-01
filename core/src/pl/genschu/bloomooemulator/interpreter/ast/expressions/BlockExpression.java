@@ -35,7 +35,7 @@ public class BlockExpression extends Expression {
                         }
                     }
                 }
-                catch(ClassMethodNotFoundException e) {
+                catch(ClassMethodNotFoundException | NullPointerException e) {
                     Gdx.app.error("BlockExpression", "Method call error: " + e.getMessage(), e);
                 }
             }
