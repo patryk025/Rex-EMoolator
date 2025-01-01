@@ -214,7 +214,6 @@ public class ButtonVariable extends Variable {
 		if(getAttribute("RECT") != null && rectVariable == null) {
 			if(!getAttribute("RECT").toString().contains(",")) {
 				rectVariable = context.getVariable(getAttribute("RECT").getValue().toString());
-				showImage(rectVariable, true);
 			}
 		}
 		if(getAttribute("GFXSTANDARD") != null && gfxVariable == null) {
