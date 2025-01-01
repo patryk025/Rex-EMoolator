@@ -436,7 +436,7 @@ public class AnimoVariable extends Variable implements Cloneable{
 				}
 
 				currentImageNumber = currentEvent.getFramesNumbers().get(currentFrameNumber);
-				currentImage = currentEvent.getFrames().get(currentImageNumber);
+				currentImage = currentEvent.getFrames().get(currentFrameNumber);
 				//Gdx.app.log("updateRect()", "NEXTFRAME");
 				show();
 				updateRect();
@@ -488,7 +488,7 @@ public class AnimoVariable extends Variable implements Cloneable{
 			public Variable execute(List<Object> arguments) {
 				String eventName = ArgumentsHelper.getString(arguments.get(0));
 				for(Event event : events) {
-					if(event.getName().equals(eventName)) {
+					if(event.getName().equalsIgnoreCase(eventName)) {
 						currentEvent = event;
 						currentFrameNumber = 0;
 						currentImage = currentEvent.getFrames().get(currentFrameNumber);
@@ -515,7 +515,7 @@ public class AnimoVariable extends Variable implements Cloneable{
 					currentFrameNumber = currentEvent.getFramesNumbers().size() - 1;
 				}
 				currentImageNumber = currentEvent.getFramesNumbers().get(currentFrameNumber);
-				currentImage = currentEvent.getFrames().get(currentImageNumber);
+				currentImage = currentEvent.getFrames().get(currentFrameNumber);
 				//Gdx.app.log("updateRect()", "PREVFRAME");
 				show();
 				updateRect();

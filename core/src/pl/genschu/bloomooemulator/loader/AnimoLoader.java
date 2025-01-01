@@ -87,7 +87,7 @@ public class AnimoLoader {
 
             byte[] eventNameBytes = new byte[32];
             buffer.get(eventNameBytes);
-            String eventName = StringUtils.convertNullTerminatedText(eventNameBytes, StandardCharsets.ISO_8859_1);
+            String eventName = StringUtils.convertNullTerminatedText(eventNameBytes, StandardCharsets.ISO_8859_1).toUpperCase();
             event.setName(eventName);
 
             event.setFramesCount(buffer.getShort() & 0xFFFF);
