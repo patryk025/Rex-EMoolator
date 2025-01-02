@@ -3,10 +3,7 @@ package pl.genschu.bloomooemulator.interpreter.variable.types;
 import com.badlogic.gdx.Gdx;
 import pl.genschu.bloomooemulator.interpreter.exceptions.ClassMethodNotImplementedException;
 import pl.genschu.bloomooemulator.interpreter.Context;
-import pl.genschu.bloomooemulator.interpreter.variable.Attribute;
-import pl.genschu.bloomooemulator.interpreter.variable.Method;
-import pl.genschu.bloomooemulator.interpreter.variable.Parameter;
-import pl.genschu.bloomooemulator.interpreter.variable.Variable;
+import pl.genschu.bloomooemulator.interpreter.variable.*;
 import pl.genschu.bloomooemulator.objects.Rectangle;
 import pl.genschu.bloomooemulator.utils.ArgumentsHelper;
 
@@ -36,6 +33,13 @@ public class ButtonVariable extends Variable {
 		this.setMethod("DISABLE", new Method("void") {
 			@Override
 			public Variable execute(List<Object> arguments) {
+				if(isFocused) {
+					setFocused(false);
+					Signal onFocusLossSignal = getSignal("ONFOCUSOFF");
+					if (onFocusLossSignal != null) {
+						onFocusLossSignal.execute(null);
+					}
+				}
 				setAttribute("ENABLE", new Attribute("BOOL", "FALSE"));
 				isEnabled = false;
 				hideGraphics();
@@ -46,6 +50,13 @@ public class ButtonVariable extends Variable {
 		this.setMethod("DISABLEBUTVISIBLE", new Method("void") {
 			@Override
 			public Variable execute(List<Object> arguments) {
+				if(isFocused) {
+					setFocused(false);
+					Signal onFocusLossSignal = getSignal("ONFOCUSOFF");
+					if (onFocusLossSignal != null) {
+						onFocusLossSignal.execute(null);
+					}
+				}
 				isEnabled = false;
 				updateGraphicsVisibility();
 				return null;
