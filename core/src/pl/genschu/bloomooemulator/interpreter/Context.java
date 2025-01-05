@@ -4,6 +4,7 @@ import pl.genschu.bloomooemulator.interpreter.factories.VariableFactory;
 import pl.genschu.bloomooemulator.interpreter.util.GlobalVariables;
 import pl.genschu.bloomooemulator.interpreter.variable.GlobalVariable;
 import pl.genschu.bloomooemulator.interpreter.variable.Variable;
+import pl.genschu.bloomooemulator.interpreter.variable.types.DatabaseVariable;
 import pl.genschu.bloomooemulator.interpreter.variable.types.KeyboardVariable;
 import pl.genschu.bloomooemulator.interpreter.variable.types.MouseVariable;
 import pl.genschu.bloomooemulator.interpreter.variable.types.StringVariable;
@@ -59,6 +60,14 @@ public class Context {
         if (name.equals("THIS")) {
             if (thisVariable != null) {
                 return thisVariable;
+            }
+        }
+
+        if (name.endsWith("_CURSOR")) {
+            String baseName = name.substring(0, name.length() - 7);
+            Variable var = getVariable(baseName);
+            if (var instanceof DatabaseVariable) {
+                return ((DatabaseVariable) var).getCursor();
             }
         }
 

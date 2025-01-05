@@ -2,7 +2,6 @@ package pl.genschu.bloomooemulator.interpreter.variable.types;
 
 import com.badlogic.gdx.Gdx;
 import pl.genschu.bloomooemulator.interpreter.Context;
-import pl.genschu.bloomooemulator.interpreter.exceptions.ClassMethodNotImplementedException;
 import pl.genschu.bloomooemulator.interpreter.variable.Attribute;
 import pl.genschu.bloomooemulator.interpreter.variable.Method;
 import pl.genschu.bloomooemulator.interpreter.variable.Parameter;
@@ -18,6 +17,7 @@ public class DatabaseVariable extends Variable {
 	private StructVariable columns = null;
 	private List<List<String>> data = new ArrayList<>();
 	private int currentRow = 0;
+	private DatabaseCursorVariable cursor;
 
 	public DatabaseVariable(String name, Context context) {
 		super(name, context);
@@ -132,6 +132,22 @@ public class DatabaseVariable extends Variable {
 				return null;
 			}
 		});
+	}
+
+	public void updateCurrentRow(StructVariable struct) {
+		List<String> newValues = new ArrayList<>();
+		for (String field : struct.getFields()) {
+			Variable value = struct.getField(field);
+			newValues.add(value.toString());
+		}
+		this.data.set(currentRow, newValues);
+	}
+
+	public Variable getCursor() {
+		if (cursor == null) {
+			cursor = new DatabaseCursorVariable(this, context);
+		}
+		return cursor;
 	}
 
 	private int getRowsNo() {

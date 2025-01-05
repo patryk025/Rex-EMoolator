@@ -49,7 +49,7 @@ public class BlooMooEmulator extends ApplicationAdapter {
     private boolean prevPressed = false;
     private ShapeRenderer shape;
 
-    private final boolean debugGraphics = true;
+    private boolean debugGraphics = true;
 
     private String tooltipText = "";
     private final Vector2 tooltipPosition = new Vector2();
@@ -127,6 +127,11 @@ public class BlooMooEmulator extends ApplicationAdapter {
 
         if (Gdx.input.isKeyJustPressed(Input.Keys.F1)) {
             showDebugVariables = !showDebugVariables;
+        }
+
+        if (Gdx.input.isKeyJustPressed(Input.Keys.F2)) {
+            debugGraphics = !debugGraphics;
+            showTooltip = false;
         }
 
         ImageVariable background = game.getCurrentSceneVariable().getBackground();
