@@ -33,7 +33,7 @@ Aktualne statusy gier opartych na silniku Piklib/BlooMoo:
 <tr>
 <td>Reksio i Czarodzieje</td>
 <td><img alt="W grze" src="https://img.shields.io/badge/W grze-yellow"/></td>
-<td>Działa cała sekwencja intra z przerzucaniem kartek i streszczeniem poprzednich części. Na Androidzie ten segment się nieco przymula przez częstą zmianę plików audio i grafik. Działa również plansza z pagórkami, ale po trzeciej planszy nie ładują się drzwi, tj. jest czarny prostokąt i dodatkowo nie działa. Poprawnie działają zrzuty ekranu podczas zapisywania.</td>
+<td>Działa cała sekwencja intra z przerzucaniem kartek i streszczeniem poprzednich części. Na Androidzie ten segment się nieco przymula przez częstą zmianę plików audio i grafik. Działa również plansza z pagórkami, ale po trzeciej planszy nie ładują się drzwi, tj. jest czarny prostokąt i dodatkowo nie działa. Poprawnie działają zrzuty ekranu podczas zapisywania. Po którejś zmianie przestały się wyświetlać obrazy przy zapisach, jak i tło.</td>
 </tr>
 <tr>
 <td>Reksio i Wehikuł Czasu</td>
@@ -42,13 +42,13 @@ Aktualne statusy gier opartych na silniku Piklib/BlooMoo:
 </tr>
 <tr>
 <td>Reksio i Kapitan Nemo</td>
-<td><img alt="W grze" src="https://img.shields.io/badge/W grze-yellow"/></td>
-<td>O ile pogrzebiemy w pliku INI, to działa cutscenka z intro. W przeciwnym wypadku próbuje ładować plik GAME\PRZYGODA\CUTSCENKI\MENU_SLOTY\__SCENA.TXT, który nie istnieje, a przez to nie działa cutscenka (BlooMoo sobie z tą sytuacją radzi, więc prawdopodobnie jest gdzieś błąd w interpreterze).</td>
+<td><img alt="W intrze" src="https://img.shields.io/badge/W intrze-orange"/></td>
+<td>Działa cutscenka z intro. Menu z szufladami również, jednak utyka na intrze opowieści, jedynie widać klatkę filmową oraz animację filmowego ziarna.</td>
 </tr>
 <tr>
 <td>Reksio i Kretes w Akcji!</td>
-<td><img alt="Niegrywalne" src="https://img.shields.io/badge/Niegrywalne-red"/></td>
-<td>Uruchamia się cutscenka z pierwszego poziomu Reksio i Skarb Piratów, po kliknięciu myszką lub zakończeniu intra przechodzi do zabugowanego poziomu minigierki Reksio i Skarb Piratów. Daje się wyjść z minigierki, jednak silnik crashuje się po najechaniu na wybór poziomu. Menu wyboru minigierek działa, jednak kierują w to samo miejsce, tj. Reksio i Skarb Piratów.</td>
+<td><img alt="W intrze" src="https://img.shields.io/badge/W intrze-orange"/></td>
+<td>Częściowo działa startowe intro, jednakże utyka na momencie, w który powinna odezwać się Molly. Po kliknięciu myszą przenosi nas do menu. Wszystkie guziki działają i przenoszą od odpowiadających im minigierek. Są problemy z cutscenkami do gierek, brakuje elementów, albo Reksio szczeka, a Kogut się rusza. Po włączeniu Reksio i Skarb Piratów z powodu braku kolizji Reksio spada. Część elementów nie jest rysowana. Przy Reksio i Ufo zbugowane intro a gra rysuje tylko tło. Przy Reksio i Czarodzieje renderuje trasę, jednak całość jest jakby dopalona sterydami. Kolizje nie działają. Przy Reksio i Wehikuł czasu po zbugowanym intro gra się wywala. Przy Super Heros i Kapitan Nemo ładuje się zbugowana cutscenka, ale już nie mapa. Wejście w edytor poziomów zapętla emulator.</td>
 </tr>
 <tr>
 <td>Poznaj Mity: Wyprawa po Złote Runo</td>
@@ -74,32 +74,81 @@ Aktualne statusy gier opartych na silniku Piklib/BlooMoo:
 </table>
 
 ## Garść screenshotów
+### Reksio i Skarb Piratów
 ![Screen z próby uruchomienia Reksio i Skarb Piratów](images/risp.jpg)
 *Screen z próby uruchomienia Reksio i Skarb Piratów*
 
+### Reksio i Ufo
 ![Screen z próby uruchomienia Reksio i Ufo](images/riu.jpg)
 *Screen z próby uruchomienia Reksio i Ufo*
 
+### Reksio i Czarodzieje
 ![Screen z próby uruchomienia Reksio i Czarodzieje](images/ric.jpg)
 *Screen z próby uruchomienia Reksio i Czarodzieje*
 
+### Reksio i Wehikuł Czasu
 ![Screen z próby uruchomienia Reksio i Wehikuł Czasu](images/riwc.jpg)
 *Screen z próby uruchomienia Reksio i Wehikuł Czasu*
 
-![Screen z próby uruchomienia Reksio i Kapitan Nemo](images/rikn.jpg)
-*Screen z próby uruchomienia Reksio i Kapitan Nemo*
+### Reksio i Kapitan Nemo
+![Menu gry Reksio i Kapitan Nemo](images/rikn_menu.jpg)
+*Menu gry Reksio i Kapitan Nemo*
 
-![Screen z próby uruchomienia Reksio i Kretes w Akcji!](images/rikwa.jpg)
-*Screen z próby uruchomienia Reksio i Kretes w Akcji!*
+![Intro po kliknięciu szuflady](images/rikn_gra_intro.jpg)
+*Intro po kliknięciu szuflady*
 
+### Reksio i Kretes w Akcji
+![Intro gry Reksio i Kretes w Akcji](images/rikwa_intro.jpg)
+*Intro gry Reksio i Kretes w Akcji*
+
+![Menu gry Reksio i Kretes w Akcji](images/rikwa_menu.jpg)
+*Menu gry Reksio i Kretes w Akcji*
+
+![Intro gry Reksio i Skarb Piratów](images/rikwa_risp_intro.jpg)
+*Intro gry Reksio i Skarb Piratów*
+
+![Gra Reksio i Skarb Piratów](images/rikwa_risp_gra.jpg)
+*Gra Reksio i Skarb Piratów*
+
+![Intro gry Reksio i Ufo](images/rikwa_riu_intro.jpg)
+*Intro gry Reksio i Ufo*
+
+![Gra Reksio i Ufo](images/rikwa_riu_gra.jpg)
+*Gra Reksio i Ufo*
+
+![Intro gry Reksio i Czarodzieje](images/rikwa_ric_intro1.jpg)
+*Intro gry Reksio i Czarodzieje*
+
+![Intro gry Reksio i Czarodzieje](images/rikwa_ric_intro2.jpg)
+*Intro gry Reksio i Czarodzieje*
+
+![Gra Reksio i Czarodzieje](images/rikwa_ric_gra.jpg)
+*Gra Reksio i Czarodzieje*
+
+![Menu gry Reksio i Wehikuł Czasu](images/rikwa_riwc_menu.jpg)
+*Menu gry Reksio i Wehikuł Czasu*
+
+![Gra Reksio i Wehikuł Czasu na moment przed wywaleniem się.](images/rikwa_riwc_gra.png)
+*Gra Reksio i Wehikuł Czasu na moment przed wywaleniem się.*
+
+![Intro gry Super Heros i Kapitan Nemo](images/rikwa_shikn_intro.jpg)
+*Intro gry Super Heros i Kapitan Nemo*
+
+![Gra Super Heros i Kapitan Nemo](images/rikwa_shikn_gra.jpg)
+*Gra Super Heros i Kapitan Nemo*
+
+### Poznaj Mity: Wyprawa po Złote Runo
 ![Screen z próby uruchomienia Wyprawy po Złote Runo](images/wpzr.jpg)
 *Screen z próby uruchomienia Wyprawy po Złote Runo*
 
+### Poznaj Mity: Wojna Trojańska
 ![Screen z próby uruchomienia Wojny Trojańskiej](images/wt.jpg)
 *Screen z próby uruchomienia Wojny Trojańskiej*
 
+### Poznaj Mity: Przygody Odyseusza
 ![Screen z próby uruchomienia Przygód Odyseusza](images/po.jpg)
 *Screen z próby uruchomienia Przygód Odyseusza*
 
+### Poznaj Mity: Herkules
 ![Screen z próby uruchomienia Herkulesa](images/herc.jpg)
 *Screen z próby uruchomienia Herkulesa*
