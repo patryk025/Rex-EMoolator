@@ -275,8 +275,6 @@ public abstract class Variable implements Cloneable {
 						while (baseMethodParamTypes.size() < paramTypes.size()) {
 							baseMethodParamTypes.add(varargsType);
 						}
-					} else {
-						continue;
 					}
 
 					methodParamTypes = baseMethodParamTypes;
