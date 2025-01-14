@@ -220,7 +220,17 @@ public class ButtonVariable extends Variable {
 	public void setFocused(boolean focused) {
 		isFocused = focused;
 		loadImages();
-		updateGraphicsVisibility();
+		if (gfxOnMove != null) {
+			if (!focused) {
+				showImage(gfxOnMove, false);
+				showImage(gfxVariable, true);
+				currentGfx = gfxVariable;
+			} else {
+				updateGraphicsVisibility();
+			}
+		} else {
+			updateGraphicsVisibility();
+		}
 	}
 
 	public void setPressed(boolean pressed) {
