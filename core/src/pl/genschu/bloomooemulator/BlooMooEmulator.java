@@ -529,10 +529,6 @@ public class BlooMooEmulator extends ApplicationAdapter {
                         }
                         animo.fireMethod("PLAY", new StringVariable("", "ONFOCUSOFF", context));
                         animo.setPlaying(false);
-                    } else {
-                        animo.setFocused(false);
-                        animo.fireMethod("PLAY", new StringVariable("", "ONNOEVENT", context));
-                        animo.setPlaying(false);
                     }
                 }
             }
