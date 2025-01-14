@@ -111,8 +111,10 @@ public class MultiArrayVariable extends Variable {
 
 		Object value = array.get(index);
 
-		if (value instanceof List) {
-			return getValueAt((List<Object>) value, indices, depth + 1);
+		if (value instanceof List<?>) {
+			@SuppressWarnings("unchecked")
+			List<Object> subList = (List<Object>) value;
+			return getValueAt(subList, indices, depth + 1);
 		} else {
 			return value;
 		}
@@ -137,6 +139,7 @@ public class MultiArrayVariable extends Variable {
 			}
 		}
 
+		@SuppressWarnings("unchecked")
 		List<Object> subArray = (List<Object>) array.get(index);
 		setValueAt(subArray, indices, depth + 1, value);
 	}
