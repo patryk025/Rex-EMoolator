@@ -33,16 +33,24 @@ public class ButtonVariable extends Variable {
 		this.setMethod("DISABLE", new Method("void") {
 			@Override
 			public Variable execute(List<Object> arguments) {
+				setAttribute("ENABLE", new Attribute("BOOL", "FALSE"));
+				isEnabled = false;
+				hideGraphics();
+
 				if(isFocused) {
+					if (context.getGame().getEmulator().getActiveButton() == ButtonVariable.this) {
+						context.getGame().getEmulator().setActiveButton(null);
+					}
 					setFocused(false);
 					Signal onFocusLossSignal = getSignal("ONFOCUSOFF");
 					if (onFocusLossSignal != null) {
 						onFocusLossSignal.execute(null);
 					}
 				}
-				setAttribute("ENABLE", new Attribute("BOOL", "FALSE"));
-				isEnabled = false;
-				hideGraphics();
+				if(currentGfx != null) {
+					showImage(currentGfx, false);
+					currentGfx = null;
+				}
 				return null;
 			}
 		});
@@ -317,6 +325,9 @@ public class ButtonVariable extends Variable {
 				AnimoVariable animoVariable = (AnimoVariable) var;
 				animoVariable.setAttribute("VISIBLE", new Attribute("BOOL", visible ? "TRUE" : "FALSE"));
 				animoVariable.changeVisibility(visible);
+				if(!visible) {
+					animoVariable.setPlaying(false);
+				}
 			}
 		}
 	}

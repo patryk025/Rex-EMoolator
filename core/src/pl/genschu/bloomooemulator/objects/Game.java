@@ -6,6 +6,7 @@ import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import org.ini4j.Ini;
 import org.w3c.dom.Attr;
+import pl.genschu.bloomooemulator.BlooMooEmulator;
 import pl.genschu.bloomooemulator.interpreter.Context;
 import pl.genschu.bloomooemulator.interpreter.util.GlobalVariables;
 import pl.genschu.bloomooemulator.interpreter.variable.Attribute;
@@ -61,10 +62,13 @@ public class Game {
 
     private Pixmap lastFrame;
 
-    public Game(GameEntry game) {
+    private BlooMooEmulator emulator;
+
+    public Game(GameEntry game, BlooMooEmulator emulator) {
         this.definitionContext = new Context();
         this.game = game;
         this.quadTree = new QuadTree(0, new Rectangle(0, 0, 800, 600));
+        this.emulator = emulator;
 
         musicCache = Collections.synchronizedMap(new HashMap<>());
 
@@ -661,5 +665,9 @@ public class Game {
 
     public Set<Variable> getCollisionMonitoredVariables() {
         return collisionMonitoredVariables;
+    }
+
+    public BlooMooEmulator getEmulator() {
+        return emulator;
     }
 }

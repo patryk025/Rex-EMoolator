@@ -68,7 +68,7 @@ public class BlooMooEmulator extends ApplicationAdapter {
         batch = new SpriteBatch();
         font = new BitmapFont();
 
-        this.game = new Game(this.gameEntry);
+        this.game = new Game(this.gameEntry, this);
 
         context = this.game.getCurrentSceneContext();
 
@@ -444,16 +444,20 @@ public class BlooMooEmulator extends ApplicationAdapter {
                     }
                     if (button == activeButton) {
                         if (isPressed) {
-                            button.setPressed(true);
+                            if (button.isEnabled()) {
+                                button.setPressed(true);
+                            }
                         } else if (justReleased) {
-                            triggerSignal(button, "ONRELEASED");
-                            button.setPressed(false);
-                            triggerSignal(button, "GFXONCLICK");
+                            if (button.isEnabled()) {
+                                triggerSignal(button, "ONRELEASED");
+                                button.setPressed(false);
+                                triggerSignal(button, "GFXONCLICK");
+                            }
                             activeButton = null;
                         }
                     }
 
-                    if (!button.isFocused() && !isPressed) {
+                    if (!button.isFocused() && !isPressed && button.isEnabled()) {
                         button.setFocused(true);
                         if(mouseVariable == null || mouseVariable.isVisible())
                             Gdx.graphics.setSystemCursor(Cursor.SystemCursor.Hand);
@@ -831,5 +835,13 @@ public class BlooMooEmulator extends ApplicationAdapter {
         Vector3 windowCoordinates = camera.project(worldCoordinates);
 
         return new Vector2(windowCoordinates.x, windowCoordinates.y);
+    }
+
+    public Variable getActiveButton() {
+        return activeButton;
+    }
+
+    public void setActiveButton(Variable activeButton) {
+        this.activeButton = activeButton;
     }
 }
