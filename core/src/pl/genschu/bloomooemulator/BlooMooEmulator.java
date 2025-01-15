@@ -568,6 +568,7 @@ public class BlooMooEmulator extends ApplicationAdapter {
                     tooltipText += "\nCurrent frame number: " + ((AnimoVariable) graphics).getCurrentFrameNumber();
                     tooltipText += "\nCurrent image number: " + ((AnimoVariable) graphics).getCurrentImageNumber();
                     tooltipText += "\nIs playing: " + ((AnimoVariable) graphics).isPlaying();
+                    tooltipText += "\nIs button: " + isGraphicsButton(graphics);
                     tooltipText += "\nCollision monitoring: " + (graphics.getAttribute("MONITORCOLLISION") != null ? graphics.getAttribute("MONITORCOLLISION").getValue() : "FALSE");
                     tooltipText += rectText;
                 }
@@ -581,6 +582,7 @@ public class BlooMooEmulator extends ApplicationAdapter {
                     tooltipText += rectText;
                 }
                 else if(graphics instanceof ImageVariable) {
+                    tooltipText += "\nIs button: " + isGraphicsButton(graphics);
                     tooltipText += "\nCollision monitoring: " + (graphics.getAttribute("MONITORCOLLISION") != null ? graphics.getAttribute("MONITORCOLLISION").getValue() : "FALSE");
                     tooltipText += rectText;
                 }
@@ -593,6 +595,34 @@ public class BlooMooEmulator extends ApplicationAdapter {
                 showTooltip = false;
             }
         }
+    }
+
+    private boolean isGraphicsButton(Variable variable) {
+        // get rect (no offence)
+        Rectangle rect = getRect(variable);
+
+        // find Button with GFXSTANDARD
+        for (Variable v : game.getCurrentSceneContext().getVariables().values()) {
+            if(!v.getType().equals("BUTTON")) continue;
+
+            if (v.getAttribute("GFXSTANDARD") != null && v.getAttribute("GFXSTANDARD").getValue().equals(variable.getName())) {
+                return true;
+            }
+
+            if(rect == null) continue;
+
+            // check rect
+            ButtonVariable buttonVariable = (ButtonVariable) v;
+            if (buttonVariable.getRect() != null && buttonVariable.getRect().intersects(rect)) {
+                return true;
+            }
+        }
+
+        if(variable instanceof AnimoVariable) {
+            return ((AnimoVariable) variable).isAsButton();
+        }
+
+        return false;
     }
 
     private void generateDebugVariables() {
