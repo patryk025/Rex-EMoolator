@@ -4,6 +4,7 @@ import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.utils.GdxRuntimeException;
 import org.ini4j.Ini;
 import org.w3c.dom.Attr;
 import pl.genschu.bloomooemulator.BlooMooEmulator;
@@ -404,8 +405,12 @@ public class Game {
 
             cnvParser.parseFile(sceneFile, currentSceneContext);
 
-            if(scene.getMusic() != null && !scene.getMusic().isPlaying()) {
-                scene.getMusic().play();
+            try {
+                if(scene.getMusic() != null && !scene.getMusic().isPlaying()) {
+                    scene.getMusic().play();
+                }
+            } catch (GdxRuntimeException e) {
+                Gdx.app.error("Game", "Error while loading music for scene " + scene.getName() + ". Continue without it.");
             }
 
             populateQuadTree(currentSceneContext);
