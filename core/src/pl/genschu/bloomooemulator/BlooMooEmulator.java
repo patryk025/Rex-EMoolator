@@ -636,6 +636,9 @@ public class BlooMooEmulator extends ApplicationAdapter {
                 case "STRING":
                     sb.append(variable.getName()).append(" (").append(variable.getType()).append(") = ").append(variable.getValue()).append("\n");
                     break;
+                case "TIMER":
+                    TimerVariable timerVariable = (TimerVariable) variable;
+                    sb.append(variable.getName()).append(" (").append(variable.getType()).append(") = ").append(timerVariable.getCurrentTickCount()).append("/").append(timerVariable.getTicks()).append("(").append(timerVariable.getTimeFromLastTick()).append("/").append(timerVariable.getElapse()).append("ms)").append("\n");
             }
         }
         debugVariablesValues = sb.toString();

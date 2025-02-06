@@ -131,4 +131,20 @@ public class TimerVariable extends Variable {
 			}
 		}
 	}
+
+	public long getElapse() {
+		return elapse;
+	}
+
+	public int getTicks() {
+		return ticks;
+	}
+
+	public int getCurrentTickCount() {
+		return currentTickCount;
+	}
+
+	public int getTimeFromLastTick() {
+		return (int) (System.currentTimeMillis() - lastTickTime);
+	}
 }
