@@ -23,7 +23,7 @@ Aktualne statusy gier opartych na silniku Piklib/BlooMoo:
 <tr>
 <td>Reksio i Skarb Piratów</td>
 <td><img alt="W grze" src="https://img.shields.io/badge/W grze-yellow"/></td>
-<td>Gra działa bez poważniejszych błędów do momentu dotarcia do wioski. Cutscenka kończy się za wcześnie. Sekwencja z kokosami ma drobne różnice w detekcji kolizji w stosunku do oryginału (dodatkowo pojawia się w roku kura, nie wiem czemu). Nie działa etap ze zbieraniem pereł. Są problemy ze strażnikiem do świątyni Boga Twaroga (bugują się tam animacje, włącznie ze strzałkami).</td>
+<td>Gra działa bez poważniejszych błędów do momentu dotarcia do wioski. Sekwencja z rzeką jest dość trudna do przejścia (różnice w liczeniu czasu lub coś? do rozpatrzenia). Cutscenka nieco się buguje oraz kończy się za wcześnie. Sekwencja z kokosami ma drobne różnice w detekcji kolizji w stosunku do oryginału (dodatkowo pojawia się w roku kura lekko przesłaniająca przycisk menu, nie wiem czemu). Kury po odegraniu poprawnej sekwencji nie śpiewają same z siebie. Etap ze zbieraniem pereł działa, jednak nie pojawia się pasek z tlenem. Są problemy ze strażnikiem do świątyni Boga Twaroga (bugują się tam animacje, włącznie z momentem przejścia do posągu). Przy posągu podczas odpowiadania na pytania pojawiają się nieprawidłowe grafiki z odpowiedziami. Dodatkowo SFX w tle jest chyba za głośny.</td>
 </tr>
 <tr>
 <td>Reksio i Ufo</td>
