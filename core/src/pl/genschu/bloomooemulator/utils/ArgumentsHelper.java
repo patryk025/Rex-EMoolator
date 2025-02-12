@@ -104,7 +104,7 @@ public class ArgumentsHelper {
     }
 
     public static String getString(Object object) {
-        return getString(object, true);
+        return getString(object, false);
     }
 
     public static String getString(Object object, boolean resolveString) {
