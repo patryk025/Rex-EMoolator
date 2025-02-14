@@ -65,6 +65,28 @@ public class ImageVariable extends Variable implements Cloneable {
 				}
 			}
 		});
+		this.setMethod("GETCENTERX", new Method(
+				List.of(
+						new Parameter("BOOL", "unknown", false)
+				),
+				"INTEGER"
+		) {
+			@Override
+			public Variable execute(List<Object> arguments) {
+				return new IntegerVariable("", (rect.getXLeft() + rect.getXRight()) / 2, context);
+			}
+		});
+		this.setMethod("GETCENTERY", new Method(
+				List.of(
+						new Parameter("BOOL", "unknown", false)
+				),
+				"INTEGER"
+		) {
+			@Override
+			public Variable execute(List<Object> arguments) {
+				return new IntegerVariable("", (rect.getYTop() + rect.getYBottom()) / 2, context);
+			}
+		});
 		this.setMethod("GETHEIGHT", new Method(
 				"INTEGER"
 		) {

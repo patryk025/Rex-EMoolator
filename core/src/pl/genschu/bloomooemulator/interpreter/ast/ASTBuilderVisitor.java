@@ -126,7 +126,7 @@ public class ASTBuilderVisitor extends AidemMediaBaseVisitor<Node> {
                 text = text.substring(1, text.length()-1);
             }
             String[] parts = text.split("\\|");
-            if(parts.length == 2) {
+            if(parts.length == 2 && !parts[0].isEmpty()) {
                 return new StructExpression(parts[0], parts[1]);
             }
             else {
