@@ -16,6 +16,7 @@ import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.StretchViewport;
 import pl.genschu.bloomooemulator.interpreter.Context;
 import pl.genschu.bloomooemulator.interpreter.exceptions.BreakException;
+import pl.genschu.bloomooemulator.interpreter.util.KeyboardsKeysMapper;
 import pl.genschu.bloomooemulator.interpreter.variable.Attribute;
 import pl.genschu.bloomooemulator.interpreter.variable.Signal;
 import pl.genschu.bloomooemulator.interpreter.variable.Variable;
@@ -48,6 +49,8 @@ public class BlooMooEmulator extends ApplicationAdapter {
     private Variable activeButton = null;
     private boolean prevPressed = false;
     private ShapeRenderer shape;
+
+    private final Set<Integer> previouslyPressedKeys = new HashSet<>();
 
     private boolean debugGraphics = true;
 
@@ -98,6 +101,7 @@ public class BlooMooEmulator extends ApplicationAdapter {
         List<Variable> drawList = getGraphicsVariables();
 
         MouseVariable mouseVariable = context.getMouseVariable();
+        KeyboardVariable keyboardVariable = context.getKeyboardVariable();
 
         batch.begin();
         batch.setBlendFunction(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
@@ -133,6 +137,8 @@ public class BlooMooEmulator extends ApplicationAdapter {
             debugGraphics = !debugGraphics;
             showTooltip = false;
         }
+
+        handleKeyboard(keyboardVariable);
 
         ImageVariable background = game.getCurrentSceneVariable().getBackground();
         if(background != null) {
@@ -372,6 +378,39 @@ public class BlooMooEmulator extends ApplicationAdapter {
             return ((SequenceVariable) variable).getCurrentAnimo().getCurrentImage();
         }
         return null;
+    }
+
+    private void handleKeyboard(KeyboardVariable keyboardVariable) {
+        if(keyboardVariable == null || !keyboardVariable.isEnabled()) {
+            return;
+        }
+
+        Set<Integer> currentlyPressedKeys = new HashSet<>();
+
+        for(int keyCode : KeyboardsKeysMapper.getKeySet()) {
+            String keyName = KeyboardsKeysMapper.getMappedKey(keyCode);
+
+            boolean isPressed = Gdx.input.isKeyPressed(keyCode);
+            boolean wasPressed = previouslyPressedKeys.contains(keyCode);
+
+            if(isPressed) {
+                currentlyPressedKeys.add(keyCode);
+
+                if(!wasPressed || keyboardVariable.isAutoRepeat()) {
+                    keyboardVariable.emitSignal("ONKEYDOWN", keyName);
+                }
+
+                if(!wasPressed) {
+                    keyboardVariable.emitSignal("ONCHAR", keyName);
+                }
+            }
+            else if(wasPressed) {
+                keyboardVariable.emitSignal("ONKEYUP", keyName);
+            }
+        }
+
+        previouslyPressedKeys.clear();
+        previouslyPressedKeys.addAll(currentlyPressedKeys);
     }
 
     public void handleMouseInput(int x, int y, boolean isPressed, boolean justPressed, boolean justReleased, MouseVariable mouseVariable, List<Variable> drawList) {
