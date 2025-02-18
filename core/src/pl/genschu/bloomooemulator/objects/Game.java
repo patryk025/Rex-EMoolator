@@ -485,7 +485,8 @@ public class Game {
                     }
                     if(graphic instanceof SequenceVariable) {
                         SequenceVariable sequence = (SequenceVariable) graphic;
-                        
+
+                        /*
                         Map<String, AnimoVariable> animos = sequence.getAnimoCache();
                         
                         for(String animoName : animos.keySet()) {
@@ -497,6 +498,7 @@ public class Game {
                                 }
                             }
                         }
+                        */
                     }
                 }
             }

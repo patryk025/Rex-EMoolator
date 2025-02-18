@@ -894,7 +894,6 @@ public class AnimoVariable extends Variable implements Cloneable{
 				if(currentEvent.getLoopBy() == 0) { // TODO: check, how this value works
 					isPlaying = false;
 					emitSignal("ONFINISHED", currentEvent.getName());
-					emitSignal("ONFINISHED__SEQ^" + currentEvent.getName()); // emit generic signal for sequence
 				}
 				else {
 					currentFrameNumber = 0;

@@ -2,7 +2,11 @@ package pl.genschu.bloomooemulator.loader;
 
 import com.badlogic.gdx.Gdx;
 import pl.genschu.bloomooemulator.encoding.ScriptDecypher;
+import pl.genschu.bloomooemulator.interpreter.variable.Attribute;
+import pl.genschu.bloomooemulator.interpreter.variable.Variable;
+import pl.genschu.bloomooemulator.interpreter.variable.types.AnimoVariable;
 import pl.genschu.bloomooemulator.interpreter.variable.types.SequenceVariable;
+import pl.genschu.bloomooemulator.interpreter.variable.types.SoundVariable;
 import pl.genschu.bloomooemulator.utils.FileUtils;
 
 import java.io.*;
@@ -82,44 +86,101 @@ public class SEQParser {
 
     private static void createSequenceVariable(String objectName, Map<String, String> properties, SequenceVariable sequenceVariable) {
         String type = properties.get(objectName + ":TYPE");
+        if (type == null) {
+            Gdx.app.error("SequenceVariable", "Missing TYPE property for " + objectName);
+            return;
+        }
 
-        SequenceVariable.SequenceEvent event;
-        String animoFile;
-        String animoEvent;
-
+        SequenceVariable.SequenceEvent event = null;
         switch (type) {
             case "SEQUENCE":
-                event = new SequenceVariable.SequenceEvent(objectName, sequenceVariable, properties.get(objectName + ":MODE"));
+                String modeStr = properties.get(objectName + ":MODE");
+                if (modeStr == null) {
+                    Gdx.app.error("SequenceVariable", "Missing MODE property for SEQUENCE " + objectName);
+                    return;
+                }
+
+                event = new SequenceVariable.SequenceEvent(objectName, SequenceVariable.EventType.SEQUENCE);
+                try {
+                    event.setMode(SequenceVariable.SequenceMode.valueOf(modeStr));
+                } catch (IllegalArgumentException e) {
+                    Gdx.app.error("SequenceVariable", "Invalid mode " + modeStr + " for SEQUENCE " + objectName);
+                    return;
+                }
                 break;
+
             case "SPEAKING":
-                animoFile = properties.get(objectName + ":ANIMOFN");
-                animoEvent = properties.get(objectName + ":PREFIX");
-                String sequenceWav = properties.get(objectName + ":WAVFN");
-                boolean starting = properties.get(objectName + ":STARTING").equals("TRUE");
-                boolean ending = properties.get(objectName + ":ENDING").equals("TRUE");
-                event = sequenceVariable.new SpeakingEvent(objectName, animoFile, animoEvent, sequenceWav, starting, ending, sequenceVariable);
+                String animoFile = properties.get(objectName + ":ANIMOFN");
+                String prefix = properties.get(objectName + ":PREFIX");
+                String wavFile = properties.get(objectName + ":WAVFN");
+                boolean starting = "TRUE".equals(properties.get(objectName + ":STARTING"));
+                boolean ending = "TRUE".equals(properties.get(objectName + ":ENDING"));
+
+                if (animoFile == null || prefix == null || wavFile == null) {
+                    Gdx.app.error("SequenceVariable", "Missing required properties for SPEAKING " + objectName);
+                    return;
+                }
+
+                event = new SequenceVariable.SequenceEvent(objectName, SequenceVariable.EventType.SPEAKING);
+                event.setPrefix(prefix);
+                event.setHasStartAnimation(starting);
+                event.setHasEndAnimation(ending);
+
+                // find existing animo
+                Variable existingAnimo = sequenceVariable.getContext().getVariable(animoFile);
+                if (existingAnimo instanceof AnimoVariable) {
+                    event.setAnimation((AnimoVariable) existingAnimo);
+                } else {
+                    // create new animation
+                    event.setAnimation(new AnimoVariable(animoFile, sequenceVariable.getContext()));
+                    event.getAnimation().setAttribute("FILENAME", new Attribute("STRING", animoFile));
+                }
+
+                // create audio
+                event.setSound(new SoundVariable(wavFile, sequenceVariable.getContext()));
+                event.getSound().setAttribute("FILENAME", new Attribute("STRING", wavFile));
                 break;
+
             case "SIMPLE":
-                animoFile = properties.get(objectName + ":FILENAME");
-                animoEvent = properties.get(objectName + ":EVENT");
-                event = sequenceVariable.new SimpleEvent(objectName, animoFile, animoEvent, sequenceVariable);
+                String simpleAnimoFile = properties.get(objectName + ":FILENAME");
+                String simpleAnimoEvent = properties.get(objectName + ":EVENT");
+
+                if (simpleAnimoFile == null || simpleAnimoEvent == null) {
+                    Gdx.app.error("SequenceVariable", "Missing required properties for SIMPLE " + objectName);
+                    return;
+                }
+
+                event = new SequenceVariable.SequenceEvent(objectName, SequenceVariable.EventType.SIMPLE);
+
+                // find existing animo
+                Variable existingSimpleAnimo = sequenceVariable.getContext().getVariable(simpleAnimoFile);
+                if (existingSimpleAnimo instanceof AnimoVariable) {
+                    event.setAnimation((AnimoVariable) existingSimpleAnimo);
+                } else {
+                    // create new animation
+                    event.setAnimation(new AnimoVariable(simpleAnimoFile, sequenceVariable.getContext()));
+                    event.getAnimation().setAttribute("FILENAME", new Attribute("STRING", simpleAnimoFile));
+                }
                 break;
+
             default:
-                Gdx.app.error("SEQParser", "Unknown event type: " + type);
-                return;
+                Gdx.app.error("SequenceVariable", "Unknown event type: " + type + " for " + objectName);
         }
 
         String addTo = properties.get(objectName + ":ADD");
-
         if (addTo != null) {
-            SequenceVariable.SequenceEvent sequenceEvent = sequenceVariable.getEventMap().get(addTo);
-            if (sequenceEvent != null) {
-                sequenceEvent.getEventMap().put(objectName, event);
+            SequenceVariable.SequenceEvent parentEvent = sequenceVariable.getEventsByName().get(addTo);
+            if (parentEvent != null) {
+                parentEvent.getSubEvents().add(event);
             } else {
-                Gdx.app.error("SEQParser", "Event not found: " + objectName);
+                Gdx.app.error("SequenceVariable", "Parent event not found: " + addTo + " for " + objectName);
             }
+        } else {
+            // add it to main events
+            sequenceVariable.getEvents().add(event);
         }
 
-        sequenceVariable.getEventMap().put(objectName, event);
+        // Dodanie do mapy eventów
+        sequenceVariable.getEventsByName().put(objectName, event);
     }
 }
