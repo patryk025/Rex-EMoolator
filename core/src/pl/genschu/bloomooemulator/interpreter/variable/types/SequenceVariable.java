@@ -484,10 +484,6 @@ public class SequenceVariable extends Variable {
 		}
 	}
 
-	public AnimoVariable getCurrentAnimo() {
-		return currentEvent != null ? currentEvent.animation : null;
-	}
-
 	public boolean isVisible() {
 		return isVisible;
 	}
@@ -506,11 +502,5 @@ public class SequenceVariable extends Variable {
 
 	public List<SequenceEvent> getEvents() {
 		return events;
-	}
-
-	public void updateAnimation(float deltaTime) {
-		if (isPlaying() && getCurrentAnimo() != null) {
-			getCurrentAnimo().updateAnimation(deltaTime);
-		}
 	}
 }

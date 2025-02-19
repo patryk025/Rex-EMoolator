@@ -219,34 +219,6 @@ public class BlooMooEmulator extends ApplicationAdapter {
                         Gdx.app.log("AnimoVariable", "Image not found in Animo "+animoVariable.getName());
                     }
                 }
-            } else if(variable instanceof SequenceVariable) {
-                SequenceVariable sequenceVariable = (SequenceVariable) variable;
-
-                if(!sequenceVariable.isVisible()) continue;
-                
-                if(drawList.contains(sequenceVariable.getCurrentAnimo())) continue;
-
-                if(sequenceVariable.getCurrentAnimo() == null) continue;
-                if(!sequenceVariable.getCurrentAnimo().isVisible()) continue;
-
-                //Gdx.app.log(variable.getName(), ((SequenceVariable) variable).getCurrentAnimo().getRect().toString());
-                try {
-                    Image image = sequenceVariable.getCurrentAnimo().getCurrentImage();
-                    Event event = sequenceVariable.getCurrentAnimo().getCurrentEvent();
-                    if (event == null) continue;
-
-                    batch.setColor(1, 1, 1, sequenceVariable.getCurrentAnimo().getOpacity());
-
-                    Rectangle rect = sequenceVariable.getCurrentAnimo().getRect();
-                    try {
-                        batch.draw(image.getImageTexture(), rect.getXLeft(), VIRTUAL_HEIGHT - rect.getYTop() - image.height, image.width, image.height);
-                    } catch (NullPointerException ignored) {}
-                    if(sequenceVariable.isPlaying()) {
-                        sequenceVariable.updateAnimation(deltaTime);
-                    }
-                } catch(NullPointerException e) {
-                    //Gdx.app.log("SequenceVariable", "Image not found in Sequence "+sequenceVariable.getName());
-                }
             }
         }
 
@@ -361,9 +333,6 @@ public class BlooMooEmulator extends ApplicationAdapter {
         if(variable instanceof AnimoVariable) {
             return ((AnimoVariable) variable).getRect();
         }
-        if(variable instanceof SequenceVariable) {
-            return ((SequenceVariable) variable).getCurrentAnimo().getRect();
-        }
         return null;
     }
 
@@ -373,9 +342,6 @@ public class BlooMooEmulator extends ApplicationAdapter {
         }
         if(variable instanceof AnimoVariable) {
             return ((AnimoVariable) variable).getCurrentImage();
-        }
-        if(variable instanceof SequenceVariable) {
-            return ((SequenceVariable) variable).getCurrentAnimo().getCurrentImage();
         }
         return null;
     }
@@ -609,15 +575,6 @@ public class BlooMooEmulator extends ApplicationAdapter {
                     tooltipText += "\nIs playing: " + ((AnimoVariable) graphics).isPlaying();
                     tooltipText += "\nIs button: " + isGraphicsButton(graphics);
                     tooltipText += "\nCollision monitoring: " + (graphics.getAttribute("MONITORCOLLISION") != null ? graphics.getAttribute("MONITORCOLLISION").getValue() : "FALSE");
-                    tooltipText += rectText;
-                }
-                else if(graphics instanceof SequenceVariable) {
-                    tooltipText += "\nCurrent FPS: " + ((SequenceVariable) graphics).getCurrentAnimo().getFps();
-                    tooltipText += "\nCurrent event: " + ((SequenceVariable) graphics).getCurrentEventName();
-                    tooltipText += "\nCurrent animo event: " + ((SequenceVariable) graphics).getCurrentAnimo().getCurrentEvent().getName();
-                    tooltipText += "\nCurrent frame number: " + ((SequenceVariable) graphics).getCurrentAnimo().getCurrentFrameNumber();
-                    tooltipText += "\nCurrent image number: " + ((SequenceVariable) graphics).getCurrentAnimo().getCurrentImageNumber();
-                    tooltipText += "\nIs playing: " + ((SequenceVariable) graphics).getCurrentAnimo().isPlaying();
                     tooltipText += rectText;
                 }
                 else if(graphics instanceof ImageVariable) {

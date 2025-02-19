@@ -10,7 +10,9 @@ import pl.genschu.bloomooemulator.interpreter.variable.types.SoundVariable;
 import pl.genschu.bloomooemulator.utils.FileUtils;
 
 import java.io.*;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class SEQParser {
@@ -127,18 +129,20 @@ public class SEQParser {
                 event.setHasEndAnimation(ending);
 
                 // find existing animo
-                Variable existingAnimo = sequenceVariable.getContext().getVariable(animoFile);
-                if (existingAnimo instanceof AnimoVariable) {
-                    event.setAnimation((AnimoVariable) existingAnimo);
+                AnimoVariable existingAnimo = findAnimoWithFileName(animoFile, sequenceVariable);
+                if (existingAnimo != null) {
+                    event.setAnimation(existingAnimo);
                 } else {
                     // create new animation
                     event.setAnimation(new AnimoVariable(animoFile, sequenceVariable.getContext()));
                     event.getAnimation().setAttribute("FILENAME", new Attribute("STRING", animoFile));
+                    sequenceVariable.getContext().setVariable(animoFile, event.getAnimation());
                 }
 
                 // create audio
                 event.setSound(new SoundVariable(wavFile, sequenceVariable.getContext()));
                 event.getSound().setAttribute("FILENAME", new Attribute("STRING", wavFile));
+                sequenceVariable.getContext().setVariable(wavFile, event.getSound());
                 break;
 
             case "SIMPLE":
@@ -154,13 +158,14 @@ public class SEQParser {
                 event.setPrefix(simpleAnimoEvent);
 
                 // find existing animo
-                Variable existingSimpleAnimo = sequenceVariable.getContext().getVariable(simpleAnimoFile);
-                if (existingSimpleAnimo instanceof AnimoVariable) {
-                    event.setAnimation((AnimoVariable) existingSimpleAnimo);
+                AnimoVariable existingSimpleAnimo = findAnimoWithFileName(simpleAnimoFile, sequenceVariable);
+                if (existingSimpleAnimo != null) {
+                    event.setAnimation(existingSimpleAnimo);
                 } else {
                     // create new animation
                     event.setAnimation(new AnimoVariable(simpleAnimoFile, sequenceVariable.getContext()));
                     event.getAnimation().setAttribute("FILENAME", new Attribute("STRING", simpleAnimoFile));
+                    sequenceVariable.getContext().setVariable(simpleAnimoFile, event.getAnimation());
                 }
                 break;
 
@@ -183,5 +188,25 @@ public class SEQParser {
 
         // Dodanie do mapy eventów
         sequenceVariable.getEventsByName().put(objectName, event);
+    }
+
+    private static AnimoVariable findAnimoWithFileName(String filename, SequenceVariable sequenceVariable) {
+        Gdx.app.log("SequenceVariable", "Looking for ANIMO variable with filename: " + filename);
+        List<Variable> graphicsVariables = new ArrayList<>(sequenceVariable.getContext().getGraphicsVariables().values());
+
+        for(Variable variable : graphicsVariables) {
+            if(variable instanceof AnimoVariable) {
+                AnimoVariable animoVar = (AnimoVariable) variable;
+                if(animoVar.getAttribute("FILENAME").getValue().equals(filename)) {
+                    Gdx.app.log("SequenceVariable", "Found ANIMO variable with filename: " + filename);
+                    animoVar.setAttribute("TOCANVAS", new Attribute("BOOL", "TRUE"));
+                    animoVar.setAttribute("VISIBLE", new Attribute("BOOL", "TRUE"));
+                    return animoVar;
+                }
+            }
+        }
+
+        Gdx.app.log("SequenceVariable", "Could not find ANIMO variable with filename: " + filename);
+        return null;
     }
 }
