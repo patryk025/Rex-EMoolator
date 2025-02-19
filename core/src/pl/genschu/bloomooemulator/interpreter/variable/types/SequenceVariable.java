@@ -336,8 +336,7 @@ public class SequenceVariable extends Variable {
 			startSpeakingEvent(event);
 		} else {
 			if (event.animation != null) {
-				event.animation.fireMethod("SHOW");
-				event.animation.fireMethod("PLAY", new StringVariable("", "GADA", context));
+				event.animation.fireMethod("PLAY", new StringVariable("", event.prefix, context));
 			}
 			if (event.sound != null) {
 				event.sound.fireMethod("PLAY");
@@ -374,14 +373,11 @@ public class SequenceVariable extends Variable {
 
 	private void playSpeakingStartAnimation(SequenceEvent event) {
 		String startAnimName = event.prefix + "_START";
-		Variable startAnim = context.getVariable(startAnimName);
 
-		if (startAnim instanceof AnimoVariable) {
-			AnimoVariable startAnimVariable = (AnimoVariable) startAnim;
-			startAnimVariable.fireMethod("SHOW");
-			startAnimVariable.fireMethod("PLAY", new StringVariable("", "GADA", context));
+		if (event.animation.hasEvent(startAnimName)) {
+			event.animation.fireMethod("PLAY", new StringVariable("", startAnimName, context));
 
-			startAnimVariable.setSignal("ONFINISHED", new Signal() {
+			event.animation.setSignal("ONFINISHED", new Signal() {
 				@Override
 				public void execute(Object argument) {
 					startSpeakingMainPhase(event);
@@ -408,29 +404,24 @@ public class SequenceVariable extends Variable {
 
 	private void playSpeakingMainAnimation(SequenceEvent event) {
 		String mainAnimName = event.prefix + "_" + event.currentAnimationNumber;
-		Variable mainAnim = context.getVariable(mainAnimName);
 
-		if (mainAnim instanceof AnimoVariable) {
-			AnimoVariable mainAnimVariable = (AnimoVariable) mainAnim;
-			mainAnimVariable.fireMethod("SHOW");
-			mainAnimVariable.fireMethod("PLAY", new StringVariable("", "GADA", context));
+		event.animation.fireMethod("PLAY", new StringVariable("", mainAnimName, context));
 
-			mainAnimVariable.setSignal("ONFINISHED", new Signal() {
-				@Override
-				public void execute(Object argument) {
-					// check if next event exists
-					String nextAnimName = event.prefix + "_" + (event.currentAnimationNumber + 1);
-					if (context.getVariable(nextAnimName) != null) {
-						event.currentAnimationNumber++;
-					} else {
-						event.currentAnimationNumber = 1;
-					}
-					if (event.inMainPhase) {
-						playSpeakingMainAnimation(event);
-					}
+		event.animation.setSignal("ONFINISHED", new Signal() {
+			@Override
+			public void execute(Object argument) {
+				// check if next event exists
+				String nextAnimName = event.prefix + "_" + (event.currentAnimationNumber + 1);
+				if (event.animation.hasEvent(nextAnimName)) {
+					event.currentAnimationNumber++;
+				} else {
+					event.currentAnimationNumber = 1;
 				}
-			});
-		}
+				if (event.inMainPhase) {
+					playSpeakingMainAnimation(event);
+				}
+			}
+		});
 	}
 
 	private void playSpeakingEndAnimation(SequenceEvent event) {
@@ -438,14 +429,11 @@ public class SequenceVariable extends Variable {
 		event.inEndPhase = true;
 
 		String endAnimName = event.prefix + "_STOP";
-		Variable endAnim = context.getVariable(endAnimName);
 
-		if (endAnim instanceof AnimoVariable) {
-			AnimoVariable endAnimVariable = (AnimoVariable) endAnim;
-			endAnimVariable.fireMethod("SHOW");
-			endAnimVariable.fireMethod("PLAY", new StringVariable("", "GADA", context));
+		if (event.animation.hasEvent(endAnimName)) {
+			event.animation.fireMethod("PLAY", new StringVariable("", endAnimName, context));
 
-			endAnimVariable.setSignal("ONFINISHED", new Signal() {
+			event.animation.setSignal("ONFINISHED", new Signal() {
 				@Override
 				public void execute(Object argument) {
 					handleEventFinished(event);

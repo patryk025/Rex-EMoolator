@@ -151,6 +151,7 @@ public class SEQParser {
                 }
 
                 event = new SequenceVariable.SequenceEvent(objectName, SequenceVariable.EventType.SIMPLE);
+                event.setPrefix(simpleAnimoEvent);
 
                 // find existing animo
                 Variable existingSimpleAnimo = sequenceVariable.getContext().getVariable(simpleAnimoFile);
