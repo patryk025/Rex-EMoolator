@@ -254,6 +254,7 @@ public class SequenceVariable extends Variable {
 	}
 
 	private void stopSequence(String eventName) {
+		Gdx.app.log("SequenceVariable", "stopSequence: " + eventName);
 		if (eventName != null) {
 			SequenceEvent event = eventsByName.get(eventName);
 			if (event != null) {
@@ -269,6 +270,7 @@ public class SequenceVariable extends Variable {
 	}
 
 	private void stopEvent(SequenceEvent event) {
+		Gdx.app.log("SequenceVariable", "stopEvent: " + event.name);
 		event.isPlaying = false;
 		event.inStartPhase = false;
 		event.inMainPhase = false;
@@ -296,6 +298,7 @@ public class SequenceVariable extends Variable {
 	}
 
 	private void stopAnimationIfExists(String animName) {
+		Gdx.app.log("SequenceVariable", "stopAnimationIfExists: " + animName);
 		Variable anim = context.getVariable(animName);
 		if (anim instanceof AnimoVariable) {
 			anim.fireMethod("STOP");
@@ -303,6 +306,7 @@ public class SequenceVariable extends Variable {
 	}
 
 	private void playEvent(String eventName) {
+		Gdx.app.log("SequenceVariable", "playEvent: " + eventName);
 		SequenceEvent event = eventsByName.get(eventName);
 		if (event != null) {
 			stopSequence(null); // Stop current sequence
@@ -313,6 +317,7 @@ public class SequenceVariable extends Variable {
 	}
 
 	private void startEvent(SequenceEvent event) {
+		Gdx.app.log("SequenceVariable", "startEvent: " + event.name);
 		event.isPlaying = true;
 
 		if (event.type == EventType.SEQUENCE) {
@@ -332,6 +337,7 @@ public class SequenceVariable extends Variable {
 	}
 
 	private void startBasicEvent(SequenceEvent event) {
+		Gdx.app.log("SequenceVariable", "startBasicEvent: " + event.name);
 		if (event.type == EventType.SPEAKING) {
 			startSpeakingEvent(event);
 		} else {
@@ -359,6 +365,7 @@ public class SequenceVariable extends Variable {
 	}
 
 	private void startSpeakingEvent(SequenceEvent event) {
+		Gdx.app.log("SequenceVariable", "startSpeakingEvent: " + event.name);
 		event.inStartPhase = event.hasStartAnimation;
 		event.inMainPhase = false;
 		event.inEndPhase = false;
@@ -372,6 +379,7 @@ public class SequenceVariable extends Variable {
 	}
 
 	private void playSpeakingStartAnimation(SequenceEvent event) {
+		Gdx.app.log("SequenceVariable", "playSpeakingStartAnimation: " + event.name);
 		String startAnimName = event.prefix + "_START";
 
 		if (event.animation.hasEvent(startAnimName)) {
@@ -390,6 +398,7 @@ public class SequenceVariable extends Variable {
 	}
 
 	private void startSpeakingMainPhase(SequenceEvent event) {
+		Gdx.app.log("SequenceVariable", "startSpeakingMainPhase: " + event.name);
 		event.inStartPhase = false;
 		event.inMainPhase = true;
 
@@ -403,6 +412,7 @@ public class SequenceVariable extends Variable {
 	}
 
 	private void playSpeakingMainAnimation(SequenceEvent event) {
+		Gdx.app.log("SequenceVariable", "playSpeakingMainAnimation: " + event.name);
 		String mainAnimName = event.prefix + "_" + event.currentAnimationNumber;
 
 		event.animation.fireMethod("PLAY", new StringVariable("", mainAnimName, context));
@@ -425,6 +435,7 @@ public class SequenceVariable extends Variable {
 	}
 
 	private void playSpeakingEndAnimation(SequenceEvent event) {
+		Gdx.app.log("SequenceVariable", "playSpeakingEndAnimation: " + event.name);
 		event.inMainPhase = false;
 		event.inEndPhase = true;
 
@@ -445,12 +456,14 @@ public class SequenceVariable extends Variable {
 	}
 
 	private void startSequentialEvent(SequenceEvent event) {
+		Gdx.app.log("SequenceVariable", "startSequentialEvent: " + event.name);
 		if (!event.subEvents.isEmpty()) {
 			startEvent(event.subEvents.get(0));
 		}
 	}
 
 	private void startRandomEvent(SequenceEvent event) {
+		Gdx.app.log("SequenceVariable", "startRandomEvent: " + event.name);
 		if (!event.subEvents.isEmpty()) {
 			int index = random.nextInt(event.subEvents.size());
 			startEvent(event.subEvents.get(index));
@@ -458,6 +471,7 @@ public class SequenceVariable extends Variable {
 	}
 
 	private void handleEventFinished(SequenceEvent event) {
+		Gdx.app.log("SequenceVariable", "handleEventFinished: " + event.name);
 		event.isPlaying = false;
 		emitSignal("ONFINISHED", event.name);
 
