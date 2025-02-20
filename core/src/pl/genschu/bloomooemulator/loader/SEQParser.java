@@ -177,6 +177,9 @@ public class SEQParser {
         if (addTo != null) {
             SequenceVariable.SequenceEvent parentEvent = sequenceVariable.getEventsByName().get(addTo);
             if (parentEvent != null) {
+                if (event != null) {
+                    event.setParent(parentEvent);
+                }
                 parentEvent.getSubEvents().add(event);
             } else {
                 Gdx.app.error("SequenceVariable", "Parent event not found: " + addTo + " for " + objectName);

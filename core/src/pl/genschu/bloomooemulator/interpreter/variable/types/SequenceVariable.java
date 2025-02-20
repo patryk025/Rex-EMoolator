@@ -24,6 +24,7 @@ public class SequenceVariable extends Variable {
 	public static class SequenceEvent {
 		private String name;
 		private EventType type;
+		private SequenceEvent parent;
 		private List<SequenceEvent> subEvents;
 		private AnimoVariable animation;
 		private SoundVariable sound;
@@ -42,6 +43,7 @@ public class SequenceVariable extends Variable {
 		public SequenceEvent(String name, EventType type) {
 			this.name = name;
 			this.type = type;
+			this.parent = null;
 			this.subEvents = new ArrayList<>();
 			this.isPlaying = false;
 			this.isPaused = false;
@@ -85,6 +87,10 @@ public class SequenceVariable extends Variable {
 
 		public void setPrefix(String prefix) {
 			this.prefix = prefix;
+		}
+
+		public void setParent(SequenceEvent parent) {
+			this.parent = parent;
 		}
 	}
 
@@ -282,27 +288,6 @@ public class SequenceVariable extends Variable {
 		if (event.sound != null) {
 			event.sound.fireMethod("STOP");
 		}
-
-		// Zatrzymaj wszystkie możliwe animacje dla SPEAKING
-		if (event.type == EventType.SPEAKING) {
-			stopAnimationIfExists(event.prefix + "_START");
-			stopAnimationIfExists(event.prefix + "_STOP");
-			for (int i = 1; i <= 10; i++) { // Bezpieczny limit do 10
-				stopAnimationIfExists(event.prefix + "_" + i);
-			}
-		}
-
-		for (SequenceEvent subEvent : event.subEvents) {
-			stopEvent(subEvent);
-		}
-	}
-
-	private void stopAnimationIfExists(String animName) {
-		Gdx.app.log("SequenceVariable", "stopAnimationIfExists: " + animName);
-		Variable anim = context.getVariable(animName);
-		if (anim instanceof AnimoVariable) {
-			anim.fireMethod("STOP");
-		}
 	}
 
 	private void playEvent(String eventName) {
@@ -354,6 +339,7 @@ public class SequenceVariable extends Variable {
 			event.sound.setSignal("ONFINISHED", new Signal() {
 				@Override
 				public void execute(Object argument) {
+					event.inMainPhase = false;
 					if (event.hasEndAnimation) {
 						playSpeakingEndAnimation(event);
 					} else {
@@ -427,7 +413,7 @@ public class SequenceVariable extends Variable {
 				} else {
 					event.currentAnimationNumber = 1;
 				}
-				if (event.inMainPhase) {
+				if (event.inMainPhase && event.isPlaying) {
 					playSpeakingMainAnimation(event);
 				}
 			}
@@ -476,17 +462,24 @@ public class SequenceVariable extends Variable {
 		emitSignal("ONFINISHED", event.name);
 
 		// If this is a sub-event, find its parent and handle next event
-		for (SequenceEvent parentEvent : events) {
-			if (parentEvent.subEvents.contains(event)) {
-				int currentIndex = parentEvent.subEvents.indexOf(event);
-				if (parentEvent.mode == SequenceMode.SEQUENCE &&
-						currentIndex < parentEvent.subEvents.size() - 1) {
-					startEvent(parentEvent.subEvents.get(currentIndex + 1));
-					return;
-				}
-				handleEventFinished(parentEvent);
-				return;
+		SequenceEvent parentEvent = event.parent;
+		if (parentEvent != null) {
+			int currentIndex = parentEvent.subEvents.indexOf(event);
+			if (parentEvent.mode == SequenceMode.SEQUENCE &&
+					currentIndex < parentEvent.subEvents.size() - 1) {
+				// Jest następny event w sekwencji - uruchom go
+				startEvent(parentEvent.subEvents.get(currentIndex + 1));
+			} else {
+				// Nie ma następnego eventu - zakończ całą sekwencję
+				stopEvent(parentEvent);
+				emitSignal("ONFINISHED", currentEvent.name);
+				isPlaying = false;
 			}
+		} else {
+			// To główny event - po prostu go zatrzymaj
+			stopEvent(event);
+			emitSignal("ONFINISHED", event.name);
+			isPlaying = false;
 		}
 	}
 
