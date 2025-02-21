@@ -129,7 +129,7 @@ public class SEQParser {
                 event.setHasEndAnimation(ending);
 
                 // find existing animo
-                AnimoVariable existingAnimo = findAnimoWithFileName(animoFile, sequenceVariable);
+                AnimoVariable existingAnimo = findAnimo(animoFile, sequenceVariable);
                 if (existingAnimo != null) {
                     event.setAnimation(existingAnimo);
                 } else {
@@ -158,7 +158,7 @@ public class SEQParser {
                 event.setPrefix(simpleAnimoEvent);
 
                 // find existing animo
-                AnimoVariable existingSimpleAnimo = findAnimoWithFileName(simpleAnimoFile, sequenceVariable);
+                AnimoVariable existingSimpleAnimo = findAnimo(simpleAnimoFile, sequenceVariable);
                 if (existingSimpleAnimo != null) {
                     event.setAnimation(existingSimpleAnimo);
                 } else {
@@ -193,23 +193,35 @@ public class SEQParser {
         sequenceVariable.getEventsByName().put(objectName, event);
     }
 
-    private static AnimoVariable findAnimoWithFileName(String filename, SequenceVariable sequenceVariable) {
-        Gdx.app.log("SequenceVariable", "Looking for ANIMO variable with filename: " + filename);
-        List<Variable> graphicsVariables = new ArrayList<>(sequenceVariable.getContext().getGraphicsVariables().values());
+    private static AnimoVariable findAnimo(String name, SequenceVariable sequenceVariable) {
+        if(name.toLowerCase().endsWith(".ann")) {
+            Gdx.app.log("SequenceVariable", "Looking for ANIMO variable with filename: " + name);
+            List<Variable> graphicsVariables = new ArrayList<>(sequenceVariable.getContext().getGraphicsVariables().values());
 
-        for(Variable variable : graphicsVariables) {
-            if(variable instanceof AnimoVariable) {
-                AnimoVariable animoVar = (AnimoVariable) variable;
-                if(animoVar.getAttribute("FILENAME").getValue().equals(filename)) {
-                    Gdx.app.log("SequenceVariable", "Found ANIMO variable with filename: " + filename);
-                    animoVar.setAttribute("TOCANVAS", new Attribute("BOOL", "TRUE"));
-                    animoVar.setAttribute("VISIBLE", new Attribute("BOOL", "TRUE"));
-                    return animoVar;
+            for (Variable var : graphicsVariables) {
+                if (var instanceof AnimoVariable) {
+                    AnimoVariable animoVar = (AnimoVariable) var;
+                    if (animoVar.getAttribute("FILENAME").getValue().equals(name)) {
+                        Gdx.app.log("SequenceVariable", "Found ANIMO variable with filename: " + name);
+                        animoVar.setAttribute("TOCANVAS", new Attribute("BOOL", "TRUE"));
+                        animoVar.setAttribute("VISIBLE", new Attribute("BOOL", "TRUE"));
+                        return animoVar;
+                    }
                 }
             }
-        }
 
-        Gdx.app.log("SequenceVariable", "Could not find ANIMO variable with filename: " + filename);
-        return null;
+            Gdx.app.log("SequenceVariable", "Could not find ANIMO variable with filename: " + name);
+            return null;
+        }
+        else {
+            Gdx.app.log("SequenceVariable", "Looking for ANIMO variable with name: " + name);
+            Variable variable = sequenceVariable.getContext().getVariable(name);
+            if (variable instanceof AnimoVariable) {
+                Gdx.app.log("SequenceVariable", "Found ANIMO variable with name: " + name);
+                return (AnimoVariable) variable;
+            }
+            Gdx.app.log("SequenceVariable", "Could not find ANIMO variable with name: " + name);
+            return null;
+        }
     }
 }

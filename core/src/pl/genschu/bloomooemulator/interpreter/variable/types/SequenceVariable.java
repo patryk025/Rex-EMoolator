@@ -191,12 +191,12 @@ public class SequenceVariable extends Variable {
 		});
 
 		this.setMethod("STOP", new Method(
-				List.of(new Parameter("STRING", "eventName", false)),
+				List.of(new Parameter("BOOL", "emitSignal", false)),
 				"void") {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				String eventName = arguments.isEmpty() ? null : ArgumentsHelper.getString(arguments.get(0));
-				stopSequence(eventName);
+				boolean emitSignal = arguments.isEmpty() || ArgumentsHelper.getBoolean(arguments.get(0));
+				stopSequence(emitSignal);
 				return null;
 			}
 		});
@@ -236,42 +236,99 @@ public class SequenceVariable extends Variable {
 	private void pauseSequence() {
 		isPaused = true;
 		if (currentEvent != null) {
-			if (currentEvent.animation != null) {
-				currentEvent.animation.fireMethod("PAUSE");
+			if(currentEvent.type == EventType.SEQUENCE) {
+				for (SequenceEvent subEvent : currentEvent.subEvents) {
+					if(subEvent.isPlaying) {
+						if (subEvent.animation != null) {
+							subEvent.animation.fireMethod("PAUSE");
+						}
+						if (subEvent.sound != null) {
+							subEvent.sound.fireMethod("PAUSE");
+						}
+						subEvent.isPaused = true;
+						return;
+					}
+				}
 			}
-			if (currentEvent.sound != null) {
-				currentEvent.sound.fireMethod("PAUSE");
+			else {
+				if (currentEvent.animation != null) {
+					currentEvent.animation.fireMethod("PAUSE");
+				}
+				if (currentEvent.sound != null) {
+					currentEvent.sound.fireMethod("PAUSE");
+				}
+				currentEvent.isPaused = true;
 			}
-			currentEvent.isPaused = true;
 		}
 	}
 
 	private void resumeSequence() {
 		isPaused = false;
-		if (currentEvent != null && isPlaying) {
-			if (currentEvent.animation != null) {
-				currentEvent.animation.fireMethod("RESUME");
+		if (currentEvent != null) {
+			if(currentEvent.type == EventType.SEQUENCE) {
+				for (SequenceEvent subEvent : currentEvent.subEvents) {
+					if (subEvent.isPlaying && subEvent.isPaused) {
+						if (subEvent.animation != null) {
+							subEvent.animation.fireMethod("RESUME");
+						}
+						if (subEvent.sound != null) {
+							subEvent.sound.fireMethod("RESUME");
+						}
+						subEvent.isPaused = false;
+						return;
+					}
+				}
 			}
-			if (currentEvent.sound != null) {
-				currentEvent.sound.fireMethod("RESUME");
+			else {
+				if (currentEvent.isPlaying && currentEvent.isPaused) {
+					if (currentEvent.animation != null) {
+						currentEvent.animation.fireMethod("RESUME");
+					}
+					if (currentEvent.sound != null) {
+						currentEvent.sound.fireMethod("RESUME");
+					}
+					currentEvent.isPaused = false;
+				}
 			}
-			currentEvent.isPaused = false;
 		}
 	}
 
-	private void stopSequence(String eventName) {
-		Gdx.app.log("SequenceVariable", "stopSequence: " + eventName);
-		if (eventName != null) {
-			SequenceEvent event = eventsByName.get(eventName);
-			if (event != null) {
-				stopEvent(event);
+	private void stopSequence(boolean emitSignal) {
+		Gdx.app.log("SequenceVariable", "stopSequence: " + currentEvent);
+		if (currentEvent != null) {
+			if(currentEvent.type == EventType.SEQUENCE) {
+				for (SequenceEvent subEvent : currentEvent.subEvents) {
+					if (subEvent.isPlaying) {
+						if (subEvent.animation != null) {
+							subEvent.animation.fireMethod("STOP");
+						}
+						if (subEvent.sound != null) {
+							subEvent.sound.fireMethod("STOP");
+						}
+						subEvent.isPlaying = false;
+						subEvent.isPaused = false;
+						if(emitSignal) {
+							emitSignal("ONFINISHED", currentEvent.name);
+						}
+						return;
+					}
+				}
 			}
-		} else {
-			if (currentEvent != null) {
-				stopEvent(currentEvent);
+			else {
+				if (currentEvent.isPlaying && currentEvent.isPaused) {
+					if (currentEvent.animation != null) {
+						currentEvent.animation.fireMethod("STOP");
+					}
+					if (currentEvent.sound != null) {
+						currentEvent.sound.fireMethod("STOP");
+					}
+					currentEvent.isPlaying = false;
+					currentEvent.isPaused = false;
+					if(emitSignal) {
+						emitSignal("ONFINISHED", currentEvent.name);
+					}
+				}
 			}
-			isPlaying = false;
-			currentEvent = null;
 		}
 	}
 
@@ -294,7 +351,7 @@ public class SequenceVariable extends Variable {
 		Gdx.app.log("SequenceVariable", "playEvent: " + eventName);
 		SequenceEvent event = eventsByName.get(eventName);
 		if (event != null) {
-			stopSequence(null); // Stop current sequence
+			stopSequence(true); // Stop current sequence
 			currentEvent = event;
 			isPlaying = true;
 			startEvent(event);
@@ -390,11 +447,30 @@ public class SequenceVariable extends Variable {
 
 		// play audio
 		if (event.sound != null) {
-			event.sound.fireMethod("PLAY");
-		}
+			try {
+				event.sound.fireMethod("PLAY");
 
-		// run animo loop
-		playSpeakingMainAnimation(event);
+				// run animo loop
+				playSpeakingMainAnimation(event);
+			} catch (Exception e) {
+				Gdx.app.error("SequenceVariable", "Something went wrong while trying to play audio for " + event.name);
+
+				event.inMainPhase = false;
+				if (event.hasEndAnimation) {
+					playSpeakingEndAnimation(event);
+				} else {
+					handleEventFinished(event);
+				}
+			}
+		}
+		else { // no sound, no speaking, skipping
+			event.inMainPhase = false;
+			if (event.hasEndAnimation) {
+				playSpeakingEndAnimation(event);
+			} else {
+				handleEventFinished(event);
+			}
+		}
 	}
 
 	private void playSpeakingMainAnimation(SequenceEvent event) {
@@ -467,16 +543,16 @@ public class SequenceVariable extends Variable {
 			int currentIndex = parentEvent.subEvents.indexOf(event);
 			if (parentEvent.mode == SequenceMode.SEQUENCE &&
 					currentIndex < parentEvent.subEvents.size() - 1) {
-				// Jest następny event w sekwencji - uruchom go
+				// Next event, play it
 				startEvent(parentEvent.subEvents.get(currentIndex + 1));
 			} else {
-				// Nie ma następnego eventu - zakończ całą sekwencję
+				// End of event
 				stopEvent(parentEvent);
 				emitSignal("ONFINISHED", currentEvent.name);
 				isPlaying = false;
 			}
 		} else {
-			// To główny event - po prostu go zatrzymaj
+			// End of sequence
 			stopEvent(event);
 			emitSignal("ONFINISHED", event.name);
 			isPlaying = false;
