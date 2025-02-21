@@ -59,6 +59,8 @@ public class AnimoVariable extends Variable implements Cloneable{
 
 	private boolean monitorCollision = false;
 
+	private boolean isLoaded = false;
+
 	public AnimoVariable(String name, Context context) {
 		super(name, context);
 
@@ -894,7 +896,6 @@ public class AnimoVariable extends Variable implements Cloneable{
 				if(currentEvent.getLoopBy() == 0) { // TODO: check, how this value works
 					isPlaying = false;
 					emitSignal("ONFINISHED", currentEvent.getName());
-					emitSignal("ONFINISHED__SEQ^" + currentEvent.getName()); // emit generic signal for sequence
 				}
 				else {
 					currentFrameNumber = 0;
@@ -1309,6 +1310,14 @@ public class AnimoVariable extends Variable implements Cloneable{
 
 	public void setWasPressed(boolean wasPressed) {
 		this.wasPressed = wasPressed;
+	}
+
+	public boolean isLoaded() {
+		return isLoaded;
+	}
+
+	public void setLoaded(boolean loaded) {
+		isLoaded = loaded;
 	}
 
 	@Override

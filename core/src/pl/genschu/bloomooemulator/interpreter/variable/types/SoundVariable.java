@@ -79,7 +79,7 @@ public class SoundVariable extends Variable {
 					context.getGame().getPlayingAudios().add(sound);
 				} catch(Exception e) {
 					Gdx.app.log("SoundVariable", "Error on playing sound: "+e.getMessage(), e);
-					//emitSignal("ONFINISHED");
+					emitSignal("ONFINISHED");
 				}
 				return null;
 			}

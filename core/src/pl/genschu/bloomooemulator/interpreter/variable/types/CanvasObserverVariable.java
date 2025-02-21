@@ -345,9 +345,6 @@ public class CanvasObserverVariable extends Variable {
 		if(variable instanceof AnimoVariable) {
 			return ((AnimoVariable) variable).getRect();
 		}
-		if(variable instanceof SequenceVariable) {
-			return ((SequenceVariable) variable).getCurrentAnimo().getRect();
-		}
 		return null;
 	}
 
@@ -357,9 +354,6 @@ public class CanvasObserverVariable extends Variable {
 		}
 		if(variable instanceof AnimoVariable) {
 			return ((AnimoVariable) variable).getCurrentImage();
-		}
-		if(variable instanceof SequenceVariable) {
-			return ((SequenceVariable) variable).getCurrentAnimo().getCurrentImage();
 		}
 		return null;
 	}

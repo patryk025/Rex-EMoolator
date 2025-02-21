@@ -4,82 +4,164 @@ import com.badlogic.gdx.Gdx;
 import pl.genschu.bloomooemulator.interpreter.Context;
 import pl.genschu.bloomooemulator.interpreter.variable.*;
 import pl.genschu.bloomooemulator.loader.SEQParser;
-import pl.genschu.bloomooemulator.objects.Event;
 import pl.genschu.bloomooemulator.utils.ArgumentsHelper;
 
 import java.util.*;
 
 public class SequenceVariable extends Variable {
-	private final Map<String, AnimoVariable> animoCache = new HashMap<>();
-	protected Map<String, SequenceEvent> eventMap = new LinkedHashMap<>();
-	private String currentEventName;
-	private AnimoVariable currentAnimo;
-	private SoundVariable currentSound;
+	public enum EventType {
+		SEQUENCE,
+		SIMPLE,
+		SPEAKING
+	}
+
+	public enum SequenceMode {
+		PARAMETER,
+		SEQUENCE,
+		RANDOM
+	}
+
+	public static class SequenceEvent {
+		private String name;
+		private EventType type;
+		private SequenceEvent parent;
+		private List<SequenceEvent> subEvents;
+		private AnimoVariable animation;
+		private SoundVariable sound;
+		private SequenceMode mode;
+		private boolean isPlaying;
+		private boolean isPaused;
+
+		private String prefix;
+		private boolean hasStartAnimation;
+		private boolean hasEndAnimation;
+		private int currentAnimationNumber;
+		private boolean inStartPhase;
+		private boolean inMainPhase;
+		private boolean inEndPhase;
+
+		public SequenceEvent(String name, EventType type) {
+			this.name = name;
+			this.type = type;
+			this.parent = null;
+			this.subEvents = new ArrayList<>();
+			this.isPlaying = false;
+			this.isPaused = false;
+			this.currentAnimationNumber = 1;
+			this.inStartPhase = false;
+			this.inMainPhase = false;
+			this.inEndPhase = false;
+		}
+
+		public AnimoVariable getAnimation() {
+			return animation;
+		}
+
+		public void setAnimation(AnimoVariable animation) {
+			this.animation = animation;
+		}
+
+		public SoundVariable getSound() {
+			return sound;
+		}
+
+		public List<SequenceEvent> getSubEvents() {
+			return subEvents;
+		}
+
+		public void setSound(SoundVariable sound) {
+			this.sound = sound;
+		}
+
+		public void setMode(SequenceMode mode) {
+			this.mode = mode;
+		}
+
+		public void setHasStartAnimation(boolean hasStartAnimation) {
+			this.hasStartAnimation = hasStartAnimation;
+		}
+
+		public void setHasEndAnimation(boolean hasEndAnimation) {
+			this.hasEndAnimation = hasEndAnimation;
+		}
+
+		public void setPrefix(String prefix) {
+			this.prefix = prefix;
+		}
+
+		public void setParent(SequenceEvent parent) {
+			this.parent = parent;
+		}
+	}
+
+	private List<SequenceEvent> events;
+	private SequenceEvent currentEvent;
+	private SequenceMode mode;
+	private boolean isVisible;
 	private boolean isPlaying;
-    private boolean isVisible = true;
-	private int pausedFrameNumber;
+	private boolean isPaused;
+	private Random random;
+	private Map<String, SequenceEvent> eventsByName;
 
 	public SequenceVariable(String name, Context context) {
 		super(name, context);
+		this.events = new ArrayList<>();
+		this.eventsByName = new HashMap<>();
+		this.isVisible = true;
+		this.isPlaying = false;
+		this.isPaused = false;
+		this.random = new Random();
+	}
+
+	@Override
+	public String getType() {
+		return "SEQUENCE";
 	}
 
 	@Override
 	protected void setMethods() {
 		super.setMethods();
 
-		this.setMethod("GETEVENTNAME", new Method(
-				"STRING"
-		) {
+		this.setMethod("GETEVENTNAME", new Method("STRING") {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				return new StringVariable("", currentEventName, getContext());
-			}
-		});
-		this.setMethod("HIDE", new Method(
-				"void"
-		) {
-			@Override
-			public Variable execute(List<Object> arguments) {
-				hide();
-				return null;
-			}
-		});
-		this.setMethod("ISPLAYING", new Method(
-				"BOOL"
-		) {
-			@Override
-			public Variable execute(List<Object> arguments) {
-				return new BoolVariable("", isPlaying, getContext());
-			}
-		});
-		this.setMethod("PAUSE", new Method(
-				"void"
-		) {
-			@Override
-			public Variable execute(List<Object> arguments) {
-				pause();
-				return null;
-			}
-		});
-		this.setMethod("PLAY", new Method(
-				List.of(
-						new Parameter("STRING", "eventName", true)
-				),
-				"void"
-		) {
-			@Override
-			public Variable execute(List<Object> arguments) {
-				if(eventMap.isEmpty()) {
-					loadSequence();
+				if (currentEvent != null) {
+					return new StringVariable("", currentEvent.name, context);
 				}
+				return new StringVariable("", "", context);
+			}
+		});
 
-				for(AnimoVariable animoCache : animoCache.values()) {
-					animoCache.setPlaying(false);
-					try {
-						getAttribute("VISIBLE").setValue("FALSE");
-					} catch (NullPointerException e) {
-						setAttribute("VISIBLE", new Attribute("BOOL", "FALSE"));
-					}
+		this.setMethod("HIDE", new Method("void") {
+			@Override
+			public Variable execute(List<Object> arguments) {
+				hideSequence();
+				return null;
+			}
+		});
+
+		this.setMethod("ISPLAYING", new Method("BOOL") {
+			@Override
+			public Variable execute(List<Object> arguments) {
+				return new BoolVariable("", isPlaying, context);
+			}
+		});
+
+		this.setMethod("PAUSE", new Method("void") {
+			@Override
+			public Variable execute(List<Object> arguments) {
+				pauseSequence();
+				return null;
+			}
+		});
+
+		this.setMethod("PLAY", new Method(
+				List.of(new Parameter("STRING", "eventName", true)),
+				"void") {
+			@Override
+			public Variable execute(List<Object> arguments) {
+				if(events.isEmpty()) {
+					loadSequence();
 				}
 
 				String eventName = ArgumentsHelper.getString(arguments.get(0));
@@ -87,46 +169,34 @@ public class SequenceVariable extends Variable {
 				return null;
 			}
 		});
-		this.setMethod("RESUME", new Method(
-				"void"
-		) {
+
+		this.setMethod("RESUME", new Method("void") {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				resume();
+				resumeSequence();
 				return null;
 			}
 		});
-		this.setMethod("SHOW", new Method(
-				"void"
-		) {
+
+		this.setMethod("SHOW", new Method("void") {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				show();
-				return null;
-			}
-		});
-		this.setMethod("STOP", new Method(
-				List.of(
-						new Parameter("STRING", "eventName", false)
-				),
-				"void"
-		) {
-			@Override
-			public Variable execute(List<Object> arguments) {
-				if(eventMap.isEmpty()) {
+				if(events.isEmpty()) {
 					loadSequence();
 				}
 
-				if(!arguments.isEmpty()) {
-					String eventName = ArgumentsHelper.getString(arguments.get(0));
-					if (currentEventName != null && currentEventName.equals(eventName)) {
-						isPlaying = false;
-						getCurrentAnimo().setPlaying(false);
-					}
-				} else {
-					isPlaying = false;
-					getCurrentAnimo().setPlaying(false);
-				}
+				showSequence();
+				return null;
+			}
+		});
+
+		this.setMethod("STOP", new Method(
+				List.of(new Parameter("BOOL", "emitSignal", false)),
+				"void") {
+			@Override
+			public Variable execute(List<Object> arguments) {
+				boolean emitSignal = arguments.isEmpty() || ArgumentsHelper.getBoolean(arguments.get(0));
+				stopSequence(emitSignal);
 				return null;
 			}
 		});
@@ -140,93 +210,353 @@ public class SequenceVariable extends Variable {
 		}
 	}
 
-	private void playEvent(String eventName) {
-		SequenceEvent event = eventMap.get(eventName);
-		if (event != null) {
-			currentEventName = eventName;
-			event.play(this); // Pass the parent object to the play method
-		} else {
-			Gdx.app.error("SequenceVariable", "Event not found: " + eventName);
+	private void hideSequence() {
+		isVisible = false;
+		if (currentEvent != null) {
+			if (currentEvent.animation != null) {
+				currentEvent.animation.fireMethod("HIDE");
+			}
 		}
-	}
-
-	private void pause() {
-		isPlaying = false;
-		if(getCurrentAnimo() != null) {
-			pausedFrameNumber = getCurrentAnimo().getCurrentFrameNumber();
-			getCurrentAnimo().setPlaying(false);
-		}
-		if(getCurrentSound() != null) {
-			getCurrentSound().pause();
-		}
-		Gdx.app.debug("SequenceVariable", String.format(Locale.ROOT,
-				"Pausing sequence at event: %s, frame: %d",
-				currentEventName, pausedFrameNumber
-		));
-	}
-
-	private void resume() {
-		isPlaying = true;
-		if(getCurrentAnimo() != null) {
-			getCurrentAnimo().setCurrentFrameNumber(pausedFrameNumber);
-			getCurrentAnimo().setPlaying(true);
-		}
-		if(getCurrentSound() != null) {
-			getCurrentSound().resume();
-		}
-		Gdx.app.debug("SequenceVariable", String.format(Locale.ROOT,
-				"Resuming sequence at event: %s, frame: %d",
-				currentEventName, pausedFrameNumber
-		));
-	}
-
-	public void updateAnimation(float deltaTime) {
-		if (isPlaying && currentAnimo != null) {
-			currentAnimo.updateAnimation(deltaTime);
-			if (!currentAnimo.isPlaying()) {
-				isPlaying = false;
+		for (SequenceEvent event : events) {
+			if (event.animation != null) {
+				event.animation.fireMethod("HIDE");
 			}
 		}
 	}
 
-	public void changeVisibility(boolean visibility) {
-		if(visibility) show();
-		else hide();
-	}
-
-	private void show() {
-		setAttribute("VISIBLE", "TRUE");
+	private void showSequence() {
 		isVisible = true;
+		if (currentEvent != null && isPlaying && !isPaused) {
+			if (currentEvent.animation != null) {
+				currentEvent.animation.fireMethod("SHOW");
+			}
+		}
 	}
 
-	private void hide() {
-		setAttribute("VISIBLE","FALSE");
-		isVisible = false;
+	private void pauseSequence() {
+		isPaused = true;
+		if (currentEvent != null) {
+			if(currentEvent.type == EventType.SEQUENCE) {
+				for (SequenceEvent subEvent : currentEvent.subEvents) {
+					if(subEvent.isPlaying) {
+						if (subEvent.animation != null) {
+							subEvent.animation.fireMethod("PAUSE");
+						}
+						if (subEvent.sound != null) {
+							subEvent.sound.fireMethod("PAUSE");
+						}
+						subEvent.isPaused = true;
+						return;
+					}
+				}
+			}
+			else {
+				if (currentEvent.animation != null) {
+					currentEvent.animation.fireMethod("PAUSE");
+				}
+				if (currentEvent.sound != null) {
+					currentEvent.sound.fireMethod("PAUSE");
+				}
+				currentEvent.isPaused = true;
+			}
+		}
 	}
 
-	public void setCurrentAnimo(AnimoVariable currentAnimo) {
-		this.currentAnimo = currentAnimo;
+	private void resumeSequence() {
+		isPaused = false;
+		if (currentEvent != null) {
+			if(currentEvent.type == EventType.SEQUENCE) {
+				for (SequenceEvent subEvent : currentEvent.subEvents) {
+					if (subEvent.isPlaying && subEvent.isPaused) {
+						if (subEvent.animation != null) {
+							subEvent.animation.fireMethod("RESUME");
+						}
+						if (subEvent.sound != null) {
+							subEvent.sound.fireMethod("RESUME");
+						}
+						subEvent.isPaused = false;
+						return;
+					}
+				}
+			}
+			else {
+				if (currentEvent.isPlaying && currentEvent.isPaused) {
+					if (currentEvent.animation != null) {
+						currentEvent.animation.fireMethod("RESUME");
+					}
+					if (currentEvent.sound != null) {
+						currentEvent.sound.fireMethod("RESUME");
+					}
+					currentEvent.isPaused = false;
+				}
+			}
+		}
 	}
 
-	public void setCurrentSound(SoundVariable currentSound) {
-		this.currentSound = currentSound;
+	private void stopSequence(boolean emitSignal) {
+		Gdx.app.log("SequenceVariable", "stopSequence: " + currentEvent);
+		if (currentEvent != null) {
+			if(currentEvent.type == EventType.SEQUENCE) {
+				for (SequenceEvent subEvent : currentEvent.subEvents) {
+					if (subEvent.isPlaying) {
+						if (subEvent.animation != null) {
+							subEvent.animation.fireMethod("STOP");
+						}
+						if (subEvent.sound != null) {
+							subEvent.sound.fireMethod("STOP");
+						}
+						subEvent.isPlaying = false;
+						subEvent.isPaused = false;
+						if(emitSignal) {
+							emitSignal("ONFINISHED", currentEvent.name);
+						}
+						return;
+					}
+				}
+			}
+			else {
+				if (currentEvent.isPlaying && currentEvent.isPaused) {
+					if (currentEvent.animation != null) {
+						currentEvent.animation.fireMethod("STOP");
+					}
+					if (currentEvent.sound != null) {
+						currentEvent.sound.fireMethod("STOP");
+					}
+					currentEvent.isPlaying = false;
+					currentEvent.isPaused = false;
+					if(emitSignal) {
+						emitSignal("ONFINISHED", currentEvent.name);
+					}
+				}
+			}
+		}
 	}
 
-	public boolean isPlaying() {
-		return isPlaying;
+	private void stopEvent(SequenceEvent event) {
+		Gdx.app.log("SequenceVariable", "stopEvent: " + event.name);
+		event.isPlaying = false;
+		event.inStartPhase = false;
+		event.inMainPhase = false;
+		event.inEndPhase = false;
+
+		if (event.animation != null) {
+			event.animation.fireMethod("STOP");
+		}
+		if (event.sound != null) {
+			event.sound.fireMethod("STOP");
+		}
 	}
 
-	public void setPlaying(boolean playing) {
-		isPlaying = playing;
+	private void playEvent(String eventName) {
+		Gdx.app.log("SequenceVariable", "playEvent: " + eventName);
+		SequenceEvent event = eventsByName.get(eventName);
+		if (event != null) {
+			stopSequence(true); // Stop current sequence
+			currentEvent = event;
+			isPlaying = true;
+			startEvent(event);
+		}
 	}
 
-	@Override
-	public String getType() {
-		return "SEQUENCE";
+	private void startEvent(SequenceEvent event) {
+		Gdx.app.log("SequenceVariable", "startEvent: " + event.name);
+		event.isPlaying = true;
+
+		if (event.type == EventType.SEQUENCE) {
+			if (event.mode == SequenceMode.SEQUENCE) {
+				startSequentialEvent(event);
+			} else if (event.mode == SequenceMode.RANDOM) {
+				startRandomEvent(event);
+			} else if (event.mode == SequenceMode.PARAMETER) {
+				// not sure, what's happening in this mode
+				if (!event.subEvents.isEmpty()) {
+					startEvent(event.subEvents.get(0));
+				}
+			}
+		} else {
+			startBasicEvent(event);
+		}
 	}
-    
-    public boolean isVisible() {
-		return isVisible;
+
+	private void startBasicEvent(SequenceEvent event) {
+		Gdx.app.log("SequenceVariable", "startBasicEvent: " + event.name);
+		if (event.type == EventType.SPEAKING) {
+			startSpeakingEvent(event);
+		} else {
+			if (event.animation != null) {
+				event.animation.fireMethod("PLAY", new StringVariable("", event.prefix, context));
+			}
+			if (event.sound != null) {
+				event.sound.fireMethod("PLAY");
+			}
+		}
+
+		// Add ONFINISHED handler for audio in SPEAKING type
+		if (event.type == EventType.SPEAKING && event.sound != null) {
+			event.sound.setSignal("ONFINISHED", new Signal() {
+				@Override
+				public void execute(Object argument) {
+					event.inMainPhase = false;
+					if (event.hasEndAnimation) {
+						playSpeakingEndAnimation(event);
+					} else {
+						handleEventFinished(event);
+					}
+				}
+			});
+		}
+	}
+
+	private void startSpeakingEvent(SequenceEvent event) {
+		Gdx.app.log("SequenceVariable", "startSpeakingEvent: " + event.name);
+		event.inStartPhase = event.hasStartAnimation;
+		event.inMainPhase = false;
+		event.inEndPhase = false;
+		event.currentAnimationNumber = 1;
+
+		if (event.hasStartAnimation) {
+			playSpeakingStartAnimation(event);
+		} else {
+			startSpeakingMainPhase(event);
+		}
+	}
+
+	private void playSpeakingStartAnimation(SequenceEvent event) {
+		Gdx.app.log("SequenceVariable", "playSpeakingStartAnimation: " + event.name);
+		String startAnimName = event.prefix + "_START";
+
+		if (event.animation.hasEvent(startAnimName)) {
+			event.animation.fireMethod("PLAY", new StringVariable("", startAnimName, context));
+
+			event.animation.setSignal("ONFINISHED", new Signal() {
+				@Override
+				public void execute(Object argument) {
+					startSpeakingMainPhase(event);
+				}
+			});
+		} else {
+			// if no starting animo, start immediately
+			startSpeakingMainPhase(event);
+		}
+	}
+
+	private void startSpeakingMainPhase(SequenceEvent event) {
+		Gdx.app.log("SequenceVariable", "startSpeakingMainPhase: " + event.name);
+		event.inStartPhase = false;
+		event.inMainPhase = true;
+
+		// play audio
+		if (event.sound != null) {
+			try {
+				event.sound.fireMethod("PLAY");
+
+				// run animo loop
+				playSpeakingMainAnimation(event);
+			} catch (Exception e) {
+				Gdx.app.error("SequenceVariable", "Something went wrong while trying to play audio for " + event.name);
+
+				event.inMainPhase = false;
+				if (event.hasEndAnimation) {
+					playSpeakingEndAnimation(event);
+				} else {
+					handleEventFinished(event);
+				}
+			}
+		}
+		else { // no sound, no speaking, skipping
+			event.inMainPhase = false;
+			if (event.hasEndAnimation) {
+				playSpeakingEndAnimation(event);
+			} else {
+				handleEventFinished(event);
+			}
+		}
+	}
+
+	private void playSpeakingMainAnimation(SequenceEvent event) {
+		Gdx.app.log("SequenceVariable", "playSpeakingMainAnimation: " + event.name);
+		String mainAnimName = event.prefix + "_" + event.currentAnimationNumber;
+
+		event.animation.fireMethod("PLAY", new StringVariable("", mainAnimName, context));
+
+		event.animation.setSignal("ONFINISHED", new Signal() {
+			@Override
+			public void execute(Object argument) {
+				// check if next event exists
+				String nextAnimName = event.prefix + "_" + (event.currentAnimationNumber + 1);
+				if (event.animation.hasEvent(nextAnimName)) {
+					event.currentAnimationNumber++;
+				} else {
+					event.currentAnimationNumber = 1;
+				}
+				if (event.inMainPhase && event.isPlaying) {
+					playSpeakingMainAnimation(event);
+				}
+			}
+		});
+	}
+
+	private void playSpeakingEndAnimation(SequenceEvent event) {
+		Gdx.app.log("SequenceVariable", "playSpeakingEndAnimation: " + event.name);
+		event.inMainPhase = false;
+		event.inEndPhase = true;
+
+		String endAnimName = event.prefix + "_STOP";
+
+		if (event.animation.hasEvent(endAnimName)) {
+			event.animation.fireMethod("PLAY", new StringVariable("", endAnimName, context));
+
+			event.animation.setSignal("ONFINISHED", new Signal() {
+				@Override
+				public void execute(Object argument) {
+					handleEventFinished(event);
+				}
+			});
+		} else { // if no ending animo, end immediately
+			handleEventFinished(event);
+		}
+	}
+
+	private void startSequentialEvent(SequenceEvent event) {
+		Gdx.app.log("SequenceVariable", "startSequentialEvent: " + event.name);
+		if (!event.subEvents.isEmpty()) {
+			startEvent(event.subEvents.get(0));
+		}
+	}
+
+	private void startRandomEvent(SequenceEvent event) {
+		Gdx.app.log("SequenceVariable", "startRandomEvent: " + event.name);
+		if (!event.subEvents.isEmpty()) {
+			int index = random.nextInt(event.subEvents.size());
+			startEvent(event.subEvents.get(index));
+		}
+	}
+
+	private void handleEventFinished(SequenceEvent event) {
+		Gdx.app.log("SequenceVariable", "handleEventFinished: " + event.name);
+		event.isPlaying = false;
+		emitSignal("ONFINISHED", event.name);
+
+		// If this is a sub-event, find its parent and handle next event
+		SequenceEvent parentEvent = event.parent;
+		if (parentEvent != null) {
+			int currentIndex = parentEvent.subEvents.indexOf(event);
+			if (parentEvent.mode == SequenceMode.SEQUENCE &&
+					currentIndex < parentEvent.subEvents.size() - 1) {
+				// Next event, play it
+				startEvent(parentEvent.subEvents.get(currentIndex + 1));
+			} else {
+				// End of event
+				stopEvent(parentEvent);
+				emitSignal("ONFINISHED", currentEvent.name);
+				isPlaying = false;
+			}
+		} else {
+			// End of sequence
+			stopEvent(event);
+			emitSignal("ONFINISHED", event.name);
+			isPlaying = false;
+		}
 	}
 
 	@Override
@@ -237,289 +567,23 @@ public class SequenceVariable extends Variable {
 		}
 	}
 
-	public AnimoVariable getCurrentAnimo() {
-		return currentAnimo;
-	}
-
-	public SoundVariable getCurrentSound() {
-		return currentSound;
-	}
-
-	public Map<String, SequenceEvent> getEventMap() {
-		return eventMap;
-	}
-
-	public Map<String, AnimoVariable> getAnimoCache() {
-		return animoCache;
-	}
-
-	public static class SequenceEvent extends SequenceVariable{
-		protected final SequenceVariable parent;
-		private final String mode;
-		private Queue<SequenceEvent> eventQueue;
-		private Queue<SequenceEvent> savedEventQueue;
-
-		public SequenceEvent(String name, SequenceVariable parent, String mode) {
-			super(name, parent.getContext());
-			this.parent = parent;
-			this.mode = mode;
-			this.eventQueue = new LinkedList<>();
-		}
-
-		public void play(SequenceVariable parent) {
-			if (this.mode != null) {
-				if(this.mode.equals("SEQUENCE")) {
-					eventQueue.addAll(this.getEventMap().values());
-					playNextEvent(parent);
-				}
-				else if(this.mode.equals("RANDOM")) {
-					List<SequenceEvent> events = new ArrayList<>(this.eventMap.values());
-					Collections.shuffle(events);
-					eventQueue.add(events.get(0));
-					playNextEvent(parent);
-				}
-			}
-		}
-
-		private void playNextEvent(SequenceVariable parent) {
-			if (eventQueue.isEmpty()) {
-				Gdx.app.debug("SequenceEvent", "Queue empty, sequence finished");
-				parent.emitSignal("ONFINISHED", parent.currentEventName);
-				return;
-			}
-
-			SequenceEvent nextEvent = eventQueue.poll();
-			Gdx.app.debug("SequenceEvent", String.format(Locale.ROOT,
-					"Playing next event: %s, Queue size: %d, Current playing state: %b",
-					nextEvent.getName(), eventQueue.size(), parent.isPlaying
-			));
-
-			Signal oldGenericSignal = null;
-			Signal oldSignal = null;
-
-			if(nextEvent instanceof SpeakingEvent) {
-				oldGenericSignal = ((SpeakingEvent) nextEvent).soundVariable.getSignal("ONFINISHED");
-			}
-			else if(nextEvent instanceof SimpleEvent) {
-				oldGenericSignal = ((SimpleEvent) nextEvent).animoVariable.getSignal("ONFINISHED");
-				oldSignal = ((SimpleEvent) nextEvent).animoVariable.getSignal("ONFINISHED^"+nextEvent.getName());
-			}
-
-			Signal finalOldSignal = oldSignal;
-			Signal finalOldGenericSignal = oldGenericSignal;
-			nextEvent.setSignal("ONFINISHED", new Signal() {
-				@Override
-				public void execute(Object argument) {
-					playNextEvent(parent);
-					if(finalOldSignal != null) finalOldSignal.execute(argument);
-					else if(finalOldGenericSignal != null) finalOldGenericSignal.execute(argument);
-				}
-			});
-
-			nextEvent.play(parent);
-		}
-	}
-
-	public class SimpleEvent extends SequenceEvent {
-		private final StringVariable event;
-		private final AnimoVariable animoVariable;
-
-		public SimpleEvent(String name, String filename, String event, SequenceVariable parent) {
-			super(name, parent, null);
-			this.event = new StringVariable("", event, parent.getContext());
-			this.animoVariable = loadAnimoVariable(filename, parent);
-		}
-
-		private AnimoVariable loadAnimoVariable(String filename, SequenceVariable parent) {
-			AnimoVariable animoVar = parent.animoCache.get(filename);
-			if (animoVar == null) {
-				// at first try to find ANIMO variable with the same filename
-				animoVar = findAnimoWithFileName(filename, parent);
-				if(animoVar == null) {
-					animoVar = new AnimoVariable(filename.replace(".ANN", ""), parent.getContext());
-					animoVar.setAttribute("FILENAME", filename);
-					animoVar.setAttribute("TOCANVAS", new Attribute("BOOL", "TRUE"));
-				}
-				parent.animoCache.put(filename, animoVar);
-			}
-			return animoVar;
-		}
-
-		@Override
-		public void play(SequenceVariable parent) {
-			Gdx.app.log("SimpleEvent", "Playing event " + event);
-			this.animoVariable.getMethod("PLAY", Collections.singletonList("STRING")).execute(List.of(event));
-
-			this.animoVariable.setSignal("ONFINISHED__SEQ^" + event, new Signal() { // setting generic event (non existent in original engine)
-				@Override
-				public void execute(Object argument) {
-					emitSignal("ONFINISHED", SimpleEvent.this.getName());
-					parent.emitSignal("ONFINISHED", SimpleEvent.this.getName());
-				}
-			});
-			parent.setPlaying(true);
-			parent.setCurrentAnimo(animoVariable);
-			parent.setCurrentSound(null);
-		}
-	}
-
-	public class SpeakingEvent extends SequenceEvent {
-		private final String prefix;
-		private final boolean starting;
-		private final boolean ending;
-		private final AnimoVariable animoVariable;
-		private final SoundVariable soundVariable;
-
-		public SpeakingEvent(String name, String animofn, String prefix, String wavfn, boolean starting, boolean ending, SequenceVariable parent) {
-			super(name, parent, null);
-			this.animoVariable = loadAnimoVariable(animofn, parent);
-			this.prefix = prefix;
-			this.soundVariable = new SoundVariable("", parent.getContext());
-			this.soundVariable.setAttribute("FILENAME", wavfn);
-			this.starting = starting;
-			this.ending = ending;
-		}
-
-		private AnimoVariable loadAnimoVariable(String filename, SequenceVariable parent) {
-			AnimoVariable animoVar = parent.animoCache.get(filename);
-			if (animoVar == null) {
-				// at first try to find ANIMO variable with the same filename
-				animoVar = findAnimoWithFileName(filename, parent);
-				if(animoVar == null) {
-					animoVar = new AnimoVariable(filename.replace(".ANN", ""), parent.getContext());
-					animoVar.setAttribute("FILENAME", filename);
-					animoVar.setAttribute("TOCANVAS", new Attribute("BOOL", "TRUE"));
-				}
-				parent.animoCache.put(filename, animoVar);
-			}
-			return animoVar;
-		}
-
-		@Override
-		public void play(SequenceVariable parent) {
-			final int[] animoNumber = {1};
-            
-			Signal onMainFinished = new Signal() {
-				@Override
-				public void execute(Object argument) {
-					parent.getCurrentAnimo().setPlaying(false);
-
-					if (ending) {
-						playAnimation(parent, prefix + "_STOP", new Signal() {
-							@Override
-							public void execute(Object argument) {
-								emitSignal("ONFINISHED", SpeakingEvent.this.getName());
-								parent.emitSignal("ONFINISHED", SpeakingEvent.this.getName());
-							}
-						});
-					} else {
-						emitSignal("ONFINISHED", SpeakingEvent.this.getName());
-						parent.emitSignal("ONFINISHED", SpeakingEvent.this.getName());
-					}
-				}
-			};
-
-			Signal onStartFinished = new Signal() {
-				@Override
-				public void execute(Object argument) {
-					playAnimation(parent, prefix + "_" + animoNumber[0], new Signal() {
-						@Override
-						public void execute(Object argument) {
-							if(currentAnimo.hasEvent(prefix + "_" + (animoNumber[0]+1))) {
-								animoNumber[0] += 1;
-							}
-							else {
-								animoNumber[0] = 1;
-							}
-							playAnimation(parent, prefix + "_" + animoNumber[0], this);
-						}
-					});
-                    try {
-					    playSound(onMainFinished);
-                    } catch(Exception e) {
-                        Gdx.app.error("SpeakingEvent", "Error on sound playing: "+e.getMessage(), e);
-                        onMainFinished.execute(null);
-                    }
-				}
-			};
-
-			if (starting) {
-				playAnimation(parent, prefix + "_START", onStartFinished);
-			} else {
-				playAnimation(parent, prefix + "_" + animoNumber[0], new Signal() {
-                    @Override
-				    public void execute(Object argument) {
-						if(!currentAnimo.hasEvent(prefix + "_" + (++animoNumber[0]))) {
-							animoNumber[0] = 1;
-						}
-						playAnimation(parent, prefix + "_" + animoNumber[0], this);
-					}
-                });
-                try {
-					playSound(onMainFinished);
-                } catch(Exception e) {
-                    Gdx.app.error("SpeakingEvent", "Error on sound playing: "+e.getMessage(), e);
-                    onMainFinished.execute(null);
-                }
-			}
-
-		}
-
-		private void playAnimation(SequenceVariable parent, String event, Signal onFinished) {
-			Gdx.app.log("SpeakingEvent", "Playing animation " + event);
-			StringVariable prefixVar = new StringVariable("", event, parent.getContext());
-			this.animoVariable.getMethod("PLAY", Collections.singletonList("STRING")).execute(List.of(prefixVar));
-			this.animoVariable.setSignal("ONFINISHED__SEQ^" + event, onFinished);
-			parent.setPlaying(true);
-			parent.setCurrentAnimo(animoVariable);
-		}
-
-		private void playSound(Signal onFinished) {
-			this.soundVariable.getMethod("PLAY", Collections.emptyList()).execute(Collections.emptyList());
-			this.soundVariable.setSignal("ONFINISHED", onFinished);
-			parent.setCurrentSound(this.soundVariable);
-		}
-
-		public void emitSignal(String signalName) {
-			Signal signal = getSignal(signalName);
-			if (signal != null) {
-				signal.execute(null);
-			}
-		}
-	}
-
-	private AnimoVariable findAnimoWithFileName(String filename, SequenceVariable parent) {
-		Gdx.app.log("SequenceVariable", "Looking for ANIMO variable with filename: " + filename);
-		List<Variable> graphicsVariables = new ArrayList<>(parent.getContext().getGraphicsVariables().values());
-
-		for(Variable variable : graphicsVariables) {
-			if(variable instanceof AnimoVariable) {
-				AnimoVariable animoVar = (AnimoVariable) variable;
-				if(animoVar.getAttribute("FILENAME").getValue().equals(filename)) {
-					Gdx.app.log("SequenceVariable", "Found ANIMO variable with filename: " + filename);
-					animoVar.setAttribute("TOCANVAS", new Attribute("BOOL", "TRUE"));
-					animoVar.setAttribute("VISIBLE", new Attribute("BOOL", "TRUE"));
-					return animoVar;
-				}
-			}
-		}
-
-		Gdx.app.log("SequenceVariable", "Could not find ANIMO variable with filename: " + filename + ". Looking for variable with name: " + filename);
-		Variable animoVar = getContext().getVariable(filename);
-		if(animoVar instanceof AnimoVariable) {
-			Gdx.app.log("SequenceVariable", "Found ANIMO variable with name: " + filename);
-			return (AnimoVariable) animoVar;
-		}
-
-		Gdx.app.log("SequenceVariable", "Could not find ANIMO variable with filename: " + filename);
-		return null;
+	public boolean isVisible() {
+		return isVisible;
 	}
 
 	public String getCurrentEventName() {
-		return currentEventName;
+		return currentEvent != null ? currentEvent.name : "";
 	}
 
-	public void setCurrentEventName(String currentEventName) {
-		this.currentEventName = currentEventName;
+	public boolean isPlaying() {
+		return isPlaying && !isPaused;
+	}
+
+	public Map<String, SequenceEvent> getEventsByName() {
+		return eventsByName;
+	}
+
+	public List<SequenceEvent> getEvents() {
+		return events;
 	}
 }

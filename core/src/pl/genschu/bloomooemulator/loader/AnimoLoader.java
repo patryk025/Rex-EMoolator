@@ -12,6 +12,7 @@ import pl.genschu.bloomooemulator.utils.FileUtils;
 import pl.genschu.bloomooemulator.utils.StringUtils;
 
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
@@ -22,6 +23,9 @@ import java.util.*;
 public class AnimoLoader {
 
     public static void loadAnimo(AnimoVariable variable) {
+        if(variable.isLoaded()) {
+            return;
+        }
         Gdx.app.log("AnimoLoader", "Loading ANIMO: " + variable.getName());
         String filePath = FileUtils.resolveRelativePath(variable);
         try (FileInputStream f = new FileInputStream(filePath)) {
@@ -30,10 +34,14 @@ public class AnimoLoader {
             readImagesMetadata(variable, f);
             Gdx.app.log("AnimoLoader", "Loaded ANIMO: " + variable.getName());
             variable.setPlaying(false);
+            variable.setLoaded(true);
             if(variable.getAttribute("VISIBLE") == null)
                 variable.setAttribute("VISIBLE", new Attribute("BOOL", "FALSE"));
         } catch (Exception e) {
             Gdx.app.error("AnimoLoader", "Error while loading ANIMO: " + e.getMessage(), e);
+            if(e instanceof FileNotFoundException) {
+                variable.setLoaded(true);
+            }
         }
     }
 
