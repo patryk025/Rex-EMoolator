@@ -59,6 +59,8 @@ public class AnimoVariable extends Variable implements Cloneable{
 
 	private boolean monitorCollision = false;
 
+	private boolean isLoaded = false;
+
 	public AnimoVariable(String name, Context context) {
 		super(name, context);
 
@@ -1308,6 +1310,14 @@ public class AnimoVariable extends Variable implements Cloneable{
 
 	public void setWasPressed(boolean wasPressed) {
 		this.wasPressed = wasPressed;
+	}
+
+	public boolean isLoaded() {
+		return isLoaded;
+	}
+
+	public void setLoaded(boolean loaded) {
+		isLoaded = loaded;
 	}
 
 	@Override
