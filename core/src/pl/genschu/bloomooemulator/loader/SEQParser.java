@@ -129,9 +129,9 @@ public class SEQParser {
                 event.setHasEndAnimation(ending);
 
                 // find existing animo
-                AnimoVariable existingAnimo = findAnimo(animoFile, sequenceVariable);
-                if (existingAnimo != null) {
-                    event.setAnimation(existingAnimo);
+                Variable existingAnimo = findVariable(animoFile, sequenceVariable);
+                if (existingAnimo instanceof AnimoVariable) {
+                    event.setAnimation((AnimoVariable) existingAnimo);
                 } else {
                     // create new animation
                     event.setAnimation(new AnimoVariable(animoFile, sequenceVariable.getContext()));
@@ -140,8 +140,14 @@ public class SEQParser {
                 }
 
                 // create audio
-                event.setSound(new SoundVariable(wavFile, sequenceVariable.getContext()));
-                event.getSound().setAttribute("FILENAME", new Attribute("STRING", wavFile));
+                Variable existingSound = findVariable(wavFile, sequenceVariable);
+                if (existingSound instanceof SoundVariable) {
+                    event.setSound((SoundVariable) existingSound);
+                }
+                else {
+                    event.setSound(new SoundVariable(wavFile, sequenceVariable.getContext()));
+                    event.getSound().setAttribute("FILENAME", new Attribute("STRING", "$WAVS\\" + wavFile));
+                }
                 sequenceVariable.getContext().setVariable(wavFile, event.getSound());
                 break;
 
@@ -158,9 +164,9 @@ public class SEQParser {
                 event.setPrefix(simpleAnimoEvent);
 
                 // find existing animo
-                AnimoVariable existingSimpleAnimo = findAnimo(simpleAnimoFile, sequenceVariable);
-                if (existingSimpleAnimo != null) {
-                    event.setAnimation(existingSimpleAnimo);
+                Variable existingSimpleAnimo = findVariable(simpleAnimoFile, sequenceVariable);
+                if (existingSimpleAnimo instanceof AnimoVariable) {
+                    event.setAnimation((AnimoVariable) existingSimpleAnimo);
                 } else {
                     // create new animation
                     event.setAnimation(new AnimoVariable(simpleAnimoFile, sequenceVariable.getContext()));
@@ -193,7 +199,7 @@ public class SEQParser {
         sequenceVariable.getEventsByName().put(objectName, event);
     }
 
-    private static AnimoVariable findAnimo(String name, SequenceVariable sequenceVariable) {
+    private static Variable findVariable(String name, SequenceVariable sequenceVariable) {
         if(name.toLowerCase().endsWith(".ann")) {
             Gdx.app.log("SequenceVariable", "Looking for ANIMO variable with filename: " + name);
             List<Variable> graphicsVariables = new ArrayList<>(sequenceVariable.getContext().getGraphicsVariables().values());
@@ -211,17 +217,32 @@ public class SEQParser {
             }
 
             Gdx.app.log("SequenceVariable", "Could not find ANIMO variable with filename: " + name);
-            return null;
+        }
+        else if (name.toLowerCase().endsWith(".wav")) {
+            Gdx.app.log("SequenceVariable", "Looking for SOUND variable with filename: " + name);
+            List<Variable> soundVariables = new ArrayList<>(sequenceVariable.getContext().getSoundVariables().values());
+
+            for (Variable var : soundVariables) {
+                if (var instanceof SoundVariable) {
+                    SoundVariable soundVar = (SoundVariable) var;
+                    if (soundVar.getAttribute("FILENAME").getValue().equals(name)) {
+                        Gdx.app.log("SequenceVariable", "Found SOUND variable with filename: " + name);
+                        return soundVar;
+                    }
+                }
+            }
+
+            Gdx.app.log("SequenceVariable", "Could not find SOUND variable with filename: " + name);
         }
         else {
-            Gdx.app.log("SequenceVariable", "Looking for ANIMO variable with name: " + name);
+            Gdx.app.log("SequenceVariable", "Looking for variable with name: " + name);
             Variable variable = sequenceVariable.getContext().getVariable(name);
-            if (variable instanceof AnimoVariable) {
-                Gdx.app.log("SequenceVariable", "Found ANIMO variable with name: " + name);
-                return (AnimoVariable) variable;
+            if (variable != null) {
+                Gdx.app.log("SequenceVariable", "Found variable " + variable.getType() + " with name: " + name);
+                return variable;
             }
-            Gdx.app.log("SequenceVariable", "Could not find ANIMO variable with name: " + name);
-            return null;
+            Gdx.app.log("SequenceVariable", "Could not find variable with name: " + name);
         }
+        return null;
     }
 }
