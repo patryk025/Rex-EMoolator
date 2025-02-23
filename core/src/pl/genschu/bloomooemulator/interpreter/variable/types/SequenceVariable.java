@@ -506,7 +506,8 @@ public class SequenceVariable extends Variable {
 		if (event.animation.hasEvent(endAnimName)) {
 			event.animation.fireMethod("PLAY", new StringVariable("", endAnimName, context));
 
-			event.animation.setSignal("ONFINISHED", new Signal() {
+			event.animation.setSignal("ONFINISHED^" + endAnimName, new Signal() {
+
 				@Override
 				public void execute(Object argument) {
 					handleEventFinished(event);
