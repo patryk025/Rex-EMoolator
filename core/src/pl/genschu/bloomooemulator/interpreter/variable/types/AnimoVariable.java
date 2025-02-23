@@ -1225,7 +1225,7 @@ public class AnimoVariable extends Variable implements Cloneable{
 			return isVisible
 					&& this.getAttribute("TOCANVAS").getValue().toString().equals("TRUE");
 		} catch (NullPointerException e) {
-			return false;
+			return isVisible;
 		}
 	}
 
