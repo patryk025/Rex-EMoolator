@@ -791,7 +791,6 @@ public class AnimoVariable extends Variable implements Cloneable{
 
 				if(emitSignal) {
 					emitSignal("ONFINISHED", currentEvent.getName());
-					emitSignal("ONFINISHED__SEQ^" + currentEvent.getName()); // emit generic signal for sequence
 				}
 				return null;
 			}
