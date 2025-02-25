@@ -17,6 +17,7 @@ public class IntegerVariable extends Variable {
 	public IntegerVariable(String name, int value, Context context) {
 		super(name, context);
 		this.setAttribute("VALUE", new Attribute("INTEGER", value));
+		super.setAttribute("INIT_VALUE", new Attribute("INTEGER", value));
 	}
 
 	@Override
@@ -194,6 +195,23 @@ public class IntegerVariable extends Variable {
 					set(result);
 					return IntegerVariable.this;
 				}
+			}
+		});
+		this.setMethod("RESETINI", new Method(
+				"void"
+		) {
+			@Override
+			public Variable execute(List<Object> arguments) {
+				if(getAttribute("DEFAULT") != null) {
+					set(getAttribute("DEFAULT").getValue());
+				}
+				else if(getAttribute("INIT_VALUE") != null) {
+					set(getAttribute("INIT_VALUE").getValue());
+				}
+				else {
+					set(false);
+				}
+				return null;
 			}
 		});
 		this.setMethod("SET", new Method(

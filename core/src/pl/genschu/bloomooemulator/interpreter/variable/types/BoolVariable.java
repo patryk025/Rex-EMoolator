@@ -17,6 +17,7 @@ public class BoolVariable extends Variable {
 	public BoolVariable(String name, boolean value, Context context) {
 		super(name, context);
 		this.setAttribute("VALUE", new Attribute("BOOL", value));
+		super.setAttribute("INIT_VALUE", new Attribute("BOOL", value));
 	}
 
 	@Override
@@ -33,6 +34,23 @@ public class BoolVariable extends Variable {
 	protected void setMethods() {
 		super.setMethods();
 
+		this.setMethod("RESETINI", new Method(
+				"void"
+		) {
+			@Override
+			public Variable execute(List<Object> arguments) {
+				if(getAttribute("DEFAULT") != null) {
+					set(getAttribute("DEFAULT").getValue());
+				}
+				else if(getAttribute("INIT_VALUE") != null) {
+					set(getAttribute("INIT_VALUE").getValue());
+				}
+				else {
+					set(false);
+				}
+				return null;
+			}
+		});
 		this.setMethod("SET", new Method(
 				List.of(
 						new Parameter("BOOL", "value", true)

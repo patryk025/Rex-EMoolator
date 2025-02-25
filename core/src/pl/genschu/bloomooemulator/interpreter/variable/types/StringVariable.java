@@ -26,6 +26,7 @@ public class StringVariable extends Variable {
 	public StringVariable(String name, String value, final Context context) {
 		super(name, context);
 		setAttribute("VALUE", new Attribute("STRING", value));
+		super.setAttribute("INIT_VALUE", new Attribute("STRING", value));
 	}
 
 	@Override
@@ -221,6 +222,23 @@ public class StringVariable extends Variable {
 				}
 
 				set(newValue);
+				return null;
+			}
+		});
+		this.setMethod("RESETINI", new Method(
+				"void"
+		) {
+			@Override
+			public Variable execute(List<Object> arguments) {
+				if(getAttribute("DEFAULT") != null) {
+					set(getAttribute("DEFAULT").getValue());
+				}
+				else if(getAttribute("INIT_VALUE") != null) {
+					set(getAttribute("INIT_VALUE").getValue());
+				}
+				else {
+					set(false);
+				}
 				return null;
 			}
 		});
