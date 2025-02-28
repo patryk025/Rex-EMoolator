@@ -6,6 +6,7 @@ import pl.genschu.bloomooemulator.interpreter.variable.Attribute;
 import pl.genschu.bloomooemulator.interpreter.variable.Method;
 import pl.genschu.bloomooemulator.interpreter.variable.Parameter;
 import pl.genschu.bloomooemulator.interpreter.variable.Variable;
+import pl.genschu.bloomooemulator.utils.ArgumentsHelper;
 
 import java.util.List;
 
@@ -73,8 +74,15 @@ public class BoolVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				// TODO: implement this method
-				throw new ClassMethodNotImplementedException("Method SWITCH is not implemented yet");
+				boolean value1 = ArgumentsHelper.getBoolean(arguments.get(0));
+				boolean value2 = ArgumentsHelper.getBoolean(arguments.get(1));
+				if(GET() != value1) {
+					set(value2);
+				}
+				else {
+					set(value1);
+				}
+				return null;
 			}
 		});
 	}
