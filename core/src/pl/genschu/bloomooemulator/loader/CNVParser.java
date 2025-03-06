@@ -113,16 +113,17 @@ public class CNVParser {
         if(type.equals("BEHAVIOUR"))
             value = properties.get(objectName + ":CODE");
         else {
+            value = properties.get(objectName + ":VALUE");
             try {
                 String valueFromIni = context.getGame().getGameINI().get(context.getGame().getApplicationVariable().getName().toUpperCase(), objectName.toUpperCase());
                 if (valueFromIni != null) {
-                    value = valueFromIni;
+                    properties.put(objectName + ":INIT_VALUE", properties.get(objectName + ":VALUE"));
                     properties.put(objectName + ":VALUE", valueFromIni);
                     iniSection = context.getGame().getApplicationVariable().getName().toUpperCase();
                 } else {
                     valueFromIni = context.getGame().getGameINI().get(context.getGame().getCurrentEpisode().toUpperCase(), objectName.toUpperCase());
                     if (valueFromIni != null) {
-                        value = valueFromIni;
+                        properties.put(objectName + ":INIT_VALUE", properties.get(objectName + ":VALUE"));
                         properties.put(objectName + ":VALUE", valueFromIni);
                         iniSection = context.getGame().getCurrentEpisode().toUpperCase();
                     }
@@ -130,18 +131,13 @@ public class CNVParser {
                         // one last chance
                         valueFromIni = context.getGame().getGameINI().get(context.getGame().getCurrentScene().toUpperCase(), objectName.toUpperCase());
                         if (valueFromIni != null) {
-                            value = valueFromIni;
+                            properties.put(objectName + ":INIT_VALUE", properties.get(objectName + ":VALUE"));
                             properties.put(objectName + ":VALUE", valueFromIni);
                             iniSection = context.getGame().getCurrentScene().toUpperCase();
                         }
-                        else {
-                            value = properties.get(objectName + ":VALUE");
-                        }
                     }
                 }
-            } catch (NullPointerException e) {
-                value = properties.get(objectName + ":VALUE");
-            }
+            } catch (NullPointerException ignored) {}
         }
 
         try {
