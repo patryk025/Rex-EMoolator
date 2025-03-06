@@ -49,6 +49,7 @@ public class BlooMooEmulator extends ApplicationAdapter {
     private Variable activeButton = null;
     private boolean prevPressed = false;
     private ShapeRenderer shape;
+    private Context lastMouseClickContext = null;
 
     private final Set<Integer> previouslyPressedKeys = new HashSet<>();
 
@@ -114,6 +115,13 @@ public class BlooMooEmulator extends ApplicationAdapter {
             boolean isPressed = Gdx.input.isButtonPressed(Input.Buttons.LEFT);
             boolean justPressed = !prevPressed && isPressed;
             boolean justReleased = prevPressed && !isPressed;
+
+            if(justPressed) {
+                lastMouseClickContext = game.getCurrentSceneContext();
+            }
+            if(justReleased && lastMouseClickContext != game.getCurrentSceneContext()) {
+                justReleased = false;
+            }
 
             // correct coordinates according to window size
             Vector2 correctedVector = getCorrectedMouseCoords(x, y, Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), (int) VIRTUAL_WIDTH, (int) VIRTUAL_HEIGHT);
