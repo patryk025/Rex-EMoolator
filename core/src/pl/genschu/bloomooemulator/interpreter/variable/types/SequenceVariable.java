@@ -296,39 +296,13 @@ public class SequenceVariable extends Variable {
 	private void stopSequence(boolean emitSignal) {
 		Gdx.app.log("SequenceVariable", "stopSequence: " + currentEvent);
 		if (currentEvent != null) {
-			if(currentEvent.type == EventType.SEQUENCE) {
-				for (SequenceEvent subEvent : currentEvent.subEvents) {
-					if (subEvent.isPlaying) {
-						if (subEvent.animation != null) {
-							subEvent.animation.fireMethod("STOP");
-						}
-						if (subEvent.sound != null) {
-							subEvent.sound.fireMethod("STOP");
-						}
-						subEvent.isPlaying = false;
-						subEvent.isPaused = false;
-						if(emitSignal) {
-							emitSignal("ONFINISHED", currentEvent.name);
-						}
-						return;
-					}
-				}
+			stopEvent(currentEvent);
+			if (emitSignal) {
+				emitSignal("ONFINISHED", currentEvent.name);
 			}
-			else {
-				if (currentEvent.isPlaying && currentEvent.isPaused) {
-					if (currentEvent.animation != null) {
-						currentEvent.animation.fireMethod("STOP");
-					}
-					if (currentEvent.sound != null) {
-						currentEvent.sound.fireMethod("STOP");
-					}
-					currentEvent.isPlaying = false;
-					currentEvent.isPaused = false;
-					if(emitSignal) {
-						emitSignal("ONFINISHED", currentEvent.name);
-					}
-				}
-			}
+			currentEvent = null;
+			isPlaying = false;
+			isPaused = false;
 		}
 	}
 
@@ -339,11 +313,19 @@ public class SequenceVariable extends Variable {
 		event.inMainPhase = false;
 		event.inEndPhase = false;
 
-		if (event.animation != null) {
-			event.animation.fireMethod("STOP");
-		}
-		if (event.sound != null) {
-			event.sound.fireMethod("STOP");
+		if (event.type == EventType.SEQUENCE) {
+			for (SequenceEvent subEvent : event.subEvents) {
+				if (subEvent.isPlaying) {
+					stopEvent(subEvent);
+				}
+			}
+		} else {
+			if (event.animation != null) {
+				event.animation.fireMethod("STOP");
+			}
+			if (event.sound != null) {
+				event.sound.fireMethod("STOP");
+			}
 		}
 	}
 
@@ -370,7 +352,12 @@ public class SequenceVariable extends Variable {
 			} else if (event.mode == SequenceMode.PARAMETER) {
 				// not sure, what's happening in this mode
 				if (!event.subEvents.isEmpty()) {
-					startEvent(event.subEvents.get(0));
+					int index = Integer.parseInt(event.name) - 1;
+					if (index >= 0 && index < event.subEvents.size()) {
+						startEvent(event.subEvents.get(index));
+					} else {
+						Gdx.app.error("SequenceVariable", "Invalid PARAMETER index: " + index);
+					}
 				}
 			}
 		} else {
