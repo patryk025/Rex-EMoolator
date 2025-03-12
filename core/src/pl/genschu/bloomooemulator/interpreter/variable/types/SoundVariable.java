@@ -165,4 +165,8 @@ public class SoundVariable extends Variable {
 	public void setSound(Music sound) {
 		this.sound = sound;
 	}
+
+	public boolean isPlaying() {
+		return isPlaying;
+	}
 }

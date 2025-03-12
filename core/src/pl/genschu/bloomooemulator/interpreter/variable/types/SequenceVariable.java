@@ -321,10 +321,12 @@ public class SequenceVariable extends Variable {
 			}
 		} else {
 			if (event.animation != null) {
-				event.animation.fireMethod("STOP");
+				if(event.animation.isPlaying())
+					event.animation.fireMethod("STOP");
 			}
 			if (event.sound != null) {
-				event.sound.fireMethod("STOP");
+				if(event.sound.isPlaying())
+					event.sound.fireMethod("STOP");
 			}
 		}
 	}
@@ -333,7 +335,7 @@ public class SequenceVariable extends Variable {
 		Gdx.app.log("SequenceVariable", "playEvent: " + eventName);
 		SequenceEvent event = eventsByName.get(eventName);
 		if (event != null) {
-			stopSequence(true); // Stop current sequence
+			stopSequence(false); // Stop current sequence
 			currentEvent = event;
 			isPlaying = true;
 			startEvent(event);
