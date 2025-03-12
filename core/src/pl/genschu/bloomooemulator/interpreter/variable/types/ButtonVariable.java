@@ -355,6 +355,11 @@ public class ButtonVariable extends Variable {
             switch (name) {
 				case "ENABLE":
 					isEnabled = attribute.getValue().toString().equals("TRUE");
+					if (!isEnabled) {
+						hideGraphics();
+					} else {
+						updateGraphicsVisibility();
+					}
 					break;
 				case "RECT":
 					String rectRaw = getAttribute("RECT").getValue().toString();
