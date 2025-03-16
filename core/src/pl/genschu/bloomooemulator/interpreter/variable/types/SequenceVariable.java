@@ -395,6 +395,22 @@ public class SequenceVariable extends Variable {
 				}
 			});
 		}
+
+		// make wrapper on existing ONFINISHED handler
+		if(event.type == EventType.SIMPLE && event.animation != null) {
+			Signal originalSignal = event.animation.getSignal("ONFINISHED"); // get original signal
+			event.animation.setSignal("ONFINISHED", new Signal() {
+				@Override
+				public void execute(Object argument) {
+					if (originalSignal != null) {
+						originalSignal.execute(argument);
+					}
+					if (event.isPlaying) {
+						handleEventFinished(event);
+					}
+				}
+			});
+		}
 	}
 
 	private void startSpeakingEvent(SequenceEvent event) {
@@ -548,6 +564,7 @@ public class SequenceVariable extends Variable {
 			int currentIndex = parentEvent.subEvents.indexOf(event);
 			if (parentEvent.mode == SequenceMode.SEQUENCE &&
 					currentIndex < parentEvent.subEvents.size() - 1) {
+				emitSignal("ONFINISHED", event.name);
 				// Next event, play it
 				startEvent(parentEvent.subEvents.get(currentIndex + 1));
 			} else {
