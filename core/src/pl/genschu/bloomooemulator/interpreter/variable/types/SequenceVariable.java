@@ -4,6 +4,7 @@ import com.badlogic.gdx.Gdx;
 import pl.genschu.bloomooemulator.interpreter.Context;
 import pl.genschu.bloomooemulator.interpreter.variable.*;
 import pl.genschu.bloomooemulator.loader.SEQParser;
+import pl.genschu.bloomooemulator.objects.Event;
 import pl.genschu.bloomooemulator.utils.ArgumentsHelper;
 
 import java.util.*;
@@ -195,7 +196,7 @@ public class SequenceVariable extends Variable {
 				"void") {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				boolean emitSignal = arguments.isEmpty() || ArgumentsHelper.getBoolean(arguments.get(0));
+				boolean emitSignal = !arguments.isEmpty() && ArgumentsHelper.getBoolean(arguments.get(0));
 				stopSequence(emitSignal);
 				return null;
 			}
@@ -464,21 +465,35 @@ public class SequenceVariable extends Variable {
 
 	private void playSpeakingMainAnimation(SequenceEvent event) {
 		Gdx.app.log("SequenceVariable", "playSpeakingMainAnimation: " + event.name);
-		String mainAnimName = event.prefix + "_" + event.currentAnimationNumber;
+		List<Event> eventsWithPrefix = event.animation.getEventsWithPrefix(event.prefix);
+		List<Integer> validNumbers = new ArrayList<>();
+		for (Event e : eventsWithPrefix) {
+			String name = e.getName();
+			if (!name.endsWith("_START") && !name.endsWith("_STOP")) {
+				validNumbers.add(Integer.parseInt(name.substring(name.lastIndexOf("_") + 1)));
+			}
+		}
+
+		if (validNumbers.isEmpty()) {
+			Gdx.app.error("SequenceVariable", "No valid main animations for prefix: " + event.prefix);
+			event.inMainPhase = false;
+			if (event.hasEndAnimation) {
+				playSpeakingEndAnimation(event);
+			} else {
+				handleEventFinished(event);
+			}
+			return;
+		}
+
+		int nextAnimNumber = validNumbers.get(random.nextInt(validNumbers.size()));
+		String mainAnimName = event.prefix + "_" + nextAnimNumber;
 
 		event.animation.fireMethod("PLAY", new StringVariable("", mainAnimName, context));
 
 		event.animation.setSignal("ONFINISHED", new Signal() {
 			@Override
 			public void execute(Object argument) {
-				// check if next event exists
-				String nextAnimName = event.prefix + "_" + (event.currentAnimationNumber + 1);
-				if (event.animation.hasEvent(nextAnimName)) {
-					event.currentAnimationNumber++;
-				} else {
-					event.currentAnimationNumber = 1;
-				}
-				if (event.inMainPhase && event.isPlaying) {
+				if (event.inMainPhase && event.isPlaying && (event.sound == null || event.sound.isPlaying())) {
 					playSpeakingMainAnimation(event);
 				}
 			}
@@ -510,6 +525,7 @@ public class SequenceVariable extends Variable {
 	private void startSequentialEvent(SequenceEvent event) {
 		Gdx.app.log("SequenceVariable", "startSequentialEvent: " + event.name);
 		if (!event.subEvents.isEmpty()) {
+			emitSignal("ONSTARTED", event.name);
 			startEvent(event.subEvents.get(0));
 		}
 	}
@@ -525,7 +541,6 @@ public class SequenceVariable extends Variable {
 	private void handleEventFinished(SequenceEvent event) {
 		Gdx.app.log("SequenceVariable", "handleEventFinished: " + event.name);
 		event.isPlaying = false;
-		emitSignal("ONFINISHED", event.name);
 
 		// If this is a sub-event, find its parent and handle next event
 		SequenceEvent parentEvent = event.parent;
@@ -538,8 +553,16 @@ public class SequenceVariable extends Variable {
 			} else {
 				// End of event
 				stopEvent(parentEvent);
-				emitSignal("ONFINISHED", currentEvent.name);
-				isPlaying = false;
+				if (parentEvent.mode == SequenceMode.SEQUENCE &&
+						currentIndex == parentEvent.subEvents.size() - 1) {
+					emitSignal("ONFINISHED", parentEvent.name);
+				}
+				else {
+					emitSignal("ONFINISHED", event.name);
+				}
+				if (parentEvent.parent == null) {
+					isPlaying = false;
+				}
 			}
 		} else {
 			// End of sequence

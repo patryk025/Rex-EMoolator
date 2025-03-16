@@ -15,6 +15,7 @@ import pl.genschu.bloomooemulator.objects.Image;
 import pl.genschu.bloomooemulator.objects.Rectangle;
 import pl.genschu.bloomooemulator.utils.ArgumentsHelper;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
@@ -1250,6 +1251,16 @@ public class AnimoVariable extends Variable implements Cloneable{
 	private void hide() {
 		getAttribute("VISIBLE").setValue("FALSE");
 		isVisible = false;
+	}
+
+	public List<Event> getEventsWithPrefix(String prefix) {
+		List<Event> eventsWithPrefix = new ArrayList<>();
+		for(Event event : events) {
+			if(event.getName().startsWith(prefix+"_")) {
+				eventsWithPrefix.add(event);
+			}
+		}
+		return eventsWithPrefix;
 	}
 
 	public int getMaxWidth() {
