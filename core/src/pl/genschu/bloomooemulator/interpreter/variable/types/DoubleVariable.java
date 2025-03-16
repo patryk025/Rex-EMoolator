@@ -223,7 +223,7 @@ public class DoubleVariable extends Variable {
 					set(getAttribute("INIT_VALUE").getValue());
 				}
 				else {
-					set(false);
+					set(0.0);
 				}
 				return null;
 			}

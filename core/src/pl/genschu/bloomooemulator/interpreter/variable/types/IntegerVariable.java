@@ -209,7 +209,7 @@ public class IntegerVariable extends Variable {
 					set(getAttribute("INIT_VALUE").getValue());
 				}
 				else {
-					set(false);
+					set(0);
 				}
 				return null;
 			}

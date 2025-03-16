@@ -237,7 +237,7 @@ public class StringVariable extends Variable {
 					set(getAttribute("INIT_VALUE").getValue());
 				}
 				else {
-					set(false);
+					set("");
 				}
 				return null;
 			}
