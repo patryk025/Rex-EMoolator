@@ -41,6 +41,8 @@ public class SequenceVariable extends Variable {
 		private boolean inMainPhase;
 		private boolean inEndPhase;
 
+		private boolean isOnFinishedWrapped = false;
+
 		public SequenceEvent(String name, EventType type) {
 			this.name = name;
 			this.type = type;
@@ -92,6 +94,14 @@ public class SequenceVariable extends Variable {
 
 		public void setParent(SequenceEvent parent) {
 			this.parent = parent;
+		}
+
+		public boolean isOnFinishedWrapped() {
+			return isOnFinishedWrapped;
+		}
+
+		public void setOnFinishedWrapped(boolean wrapped) {
+			this.isOnFinishedWrapped = wrapped;
 		}
 	}
 
@@ -397,9 +407,9 @@ public class SequenceVariable extends Variable {
 		}
 
 		// make wrapper on existing ONFINISHED handler
-		if(event.type == EventType.SIMPLE && event.animation != null) {
-			Signal originalSignal = event.animation.getSignal("ONFINISHED"); // get original signal
-			event.animation.setSignal("ONFINISHED", new Signal() {
+		if(event.type == EventType.SIMPLE && event.animation != null && !event.isOnFinishedWrapped()) {
+			Signal originalSignal = event.animation.getSignal("ONFINISHED^"+event.prefix); // get original signal
+			event.animation.setSignal("ONFINISHED^"+event.prefix, new Signal() {
 				@Override
 				public void execute(Object argument) {
 					if (originalSignal != null) {
