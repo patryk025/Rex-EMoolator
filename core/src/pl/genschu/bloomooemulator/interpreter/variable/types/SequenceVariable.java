@@ -572,6 +572,7 @@ public class SequenceVariable extends Variable {
 				stopEvent(parentEvent);
 				if (parentEvent.mode == SequenceMode.SEQUENCE &&
 						currentIndex == parentEvent.subEvents.size() - 1) {
+					emitSignal("ONFINISHED", event.name);
 					emitSignal("ONFINISHED", parentEvent.name);
 				}
 				else {
