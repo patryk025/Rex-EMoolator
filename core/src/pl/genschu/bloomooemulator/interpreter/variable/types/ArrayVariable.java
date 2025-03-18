@@ -51,7 +51,7 @@ public class ArrayVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				for(Object argument : arguments) {
-					elements.add((Variable) argument);
+					elements.add(((Variable) argument).clone());
 				}
 				//debugArray();
 				return null;
@@ -83,7 +83,7 @@ public class ArrayVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				int index = ArgumentsHelper.getInteger(arguments.get(0));
-				elements.set(index, (Variable) arguments.get(1));
+				elements.set(index, ((Variable) arguments.get(1)).clone());
 				//debugArray();
 				return null;
 			}
@@ -202,7 +202,7 @@ public class ArrayVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				int index = ArgumentsHelper.getInteger(arguments.get(0));
-				elements.add(index, (Variable) arguments.get(1));
+				elements.add(index, ((Variable) arguments.get(1)).clone());
 				//debugArray();
 				return null;
 			}
