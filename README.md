@@ -26,13 +26,13 @@ Aktualne statusy gier opartych na silniku Piklib/BlooMoo:
 <tr>
 <td>Reksio i Skarb Piratów</td>
 <td><img alt="W grze" src="https://img.shields.io/badge/W grze-yellow"/></td>
-<td>Gra działa bez poważniejszych błędów do momentu dotarcia do wioski. Sekwencja z rzeką jest dość trudna do przejścia (nie, żeby w oryginale było to proste). Cutscenka nieco się buguje oraz kończy się za wcześnie. Sekwencja z kokosami ma drobne różnice w detekcji kolizji w stosunku do oryginału (dodatkowo pojawia się w rogu kura lekko przesłaniająca przycisk menu, nie wiem czemu). Kury po odegraniu poprawnej sekwencji nie śpiewają same z siebie. Etap ze zbieraniem pereł działa, jednak nie pojawia się pasek z tlenem. Są problemy ze strażnikiem do świątyni Boga Twaroga (bugują się tam animacje, włącznie z momentem przejścia do posągu). Przy posągu podczas odpowiadania na pytania pojawiają się nieprawidłowe grafiki z odpowiedziami. Dodatkowo SFX w tle jest chyba za głośny, a Reksio się nie wyświetla. Na trzecim pytaniu zapętlają się animacje. Pomimo otwartych wrót nie przeskakuje dalej, stąd też dalsza rozgrywka jest niemożliwa.</td>
+<td>Gra działa bez poważniejszych błędów do momentu dotarcia do wioski. Sekwencja z rzeką jest dość trudna do przejścia (nie, żeby w oryginale było to proste). Cutscenka z piratami kończy się za wcześnie. Sekwencja z kokosami ma drobne różnice w detekcji kolizji w stosunku do oryginału (dodatkowo pojawia się w rogu kura lekko przesłaniająca przycisk menu, nie wiem czemu). Kury po odegraniu poprawnej sekwencji... właściwie coś się zapętla i się wywala na pulpit, przez co nie da się przejść dalej. Etap ze zbieraniem pereł działa, jednak nie pojawia się pasek z tlenem.</td>
 <td>ok. 45% (10/22 scen)</td>
 </tr>
 <tr>
 <td>Reksio i Ufo</td>
 <td><img alt="W grze" src="https://img.shields.io/badge/W grze-yellow"/></td>
-<td>Gra działa w większości poprawnie do momentu, gdzie składamy wajhadłowiec. Podczas sekwencji z inwazją ufo są problemy z laserem, który przebija się przez ufo i nie znika przy ziemi, dodatkowo kod interpretera zaczyna przymulać przy takiej ilości obiektów. Buguje się menu przedmiotów, wzięte przedmioty na powrót się pojawiają na swoich miejscach po przeładowaniu sceny. Podczas kalibrowania kreta elementy na ekranach się nie ruszają.</td>
+<td>Gra działa w większości poprawnie do momentu, gdzie składamy wajhadłowiec. Podczas sekwencji z inwazją ufo są problemy z laserem, który przebija się przez ufo i nie znika przy ziemi, dodatkowo kod interpretera zaczyna przymulać przy takiej ilości obiektów. Buguje się menu przedmiotów, wzięte przedmioty na powrót się pojawiają na swoich miejscach po przeładowaniu sceny. Podczas kalibrowania kreta elementy na ekranach się ruszają, ale przestają, kiedy się na nie kliknie.</td>
 <td></td>
 </tr>
 <tr>
@@ -56,7 +56,7 @@ Aktualne statusy gier opartych na silniku Piklib/BlooMoo:
 <tr>
 <td>Reksio i Kretes w Akcji!</td>
 <td><img alt="W grze" src="https://img.shields.io/badge/W grze-yellow"/></td>
-<td>Częściowo działa startowe intro, przechodzi, jednakże niektóre elementy się nie ładują, czasami są problemy z priorytetami. Po kliknięciu myszą przenosi nas do menu. Wszystkie guziki działają i przenoszą od odpowiadających im minigierek. Są problemy z cutscenkami do gierek, brakuje elementów, albo Reksio szczeka, a Kogut się rusza. Po włączeniu Reksio i Skarb Piratów z powodu braku kolizji Reksio spada. Część elementów nie jest rysowana. Przy Reksio i Ufo zbugowane intro a gra rysuje tylko tło. Przy Reksio i Czarodzieje renderuje trasę, jednak całość jest jakby dopalona sterydami. Kolizje nie działają. Przy Reksio i Wehikuł czasu po zbugowanym intro gra się wywala. Przy Super Heros i Kapitan Nemo ładuje się zbugowana cutscenka, ale już nie mapa. Wejście w edytor poziomów zapętla emulator.</td>
+<td>Działa startowe intro i przechodzi poprawnie dalej. Po kliknięciu myszą przenosi nas do menu. Wszystkie guziki działają i przenoszą od odpowiadających im minigierek. Po włączeniu Reksio i Skarb Piratów z powodu braku kolizji Reksio spada. Część elementów nie jest rysowana. Przy Reksio i Ufo gra rysuje tylko tło. Przy Reksio i Czarodzieje renderuje trasę, jednak całość jest jakby dopalona sterydami i gdzieś pojawia się masywny wyciek pamięci. Kolizje nie działają. Przy Reksio i Wehikuł czasu po intrze wywala się na pulpit. Przy Super Heros i Kapitan Nemo ładuje się zbugowana cutscenka, ale już nie mapa. Wejście w edytor poziomów zapętla emulator.</td>
 <td>0%</td>
 </tr>
 <tr>
