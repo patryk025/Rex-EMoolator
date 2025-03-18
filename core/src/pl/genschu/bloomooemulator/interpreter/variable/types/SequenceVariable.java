@@ -418,6 +418,7 @@ public class SequenceVariable extends Variable {
 					if (event.isPlaying) {
 						handleEventFinished(event);
 					}
+					event.setOnFinishedWrapped(true);
 				}
 			});
 		}
