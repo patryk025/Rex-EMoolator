@@ -43,20 +43,20 @@ Aktualne statusy gier opartych na silniku Piklib/BlooMoo:
 </tr>
 <tr>
 <td>Reksio i Wehikuł Czasu</td>
-<td><img alt="W intrze" src="https://img.shields.io/badge/W intrze-orange"/></td>
-<td>Odpala się sekwencja z panoramą, odpala się muzyka w tle, ale sypie się pauzowanie i wznawianie sekwencji. Sekwencja z opowieścią babcia Kretesa działa prawie dobrze, obrazki na projektorze się przełączają. Dodatkowo pod koniec sekwencji z jakiegoś powodu (prawdopodobnie z powodów problemów ze wznawianiem sekwencji) zaczynają się przenikać wcześniejsze sekwencje z późniejszymi.</td>
+<td><img alt="W grze" src="https://img.shields.io/badge/W grze-yellow"/></td>
+<td>Odpala się sekwencja z panoramą. Menu startowe również, jednak nie wyświetla się tło menu bocznego oraz zrzuty ekranu zapisów. Sekwencja z opowieścią babcia Kretesa działa poprawnie. Po intrze z racji braku obsługi WORLD wyświetla się jedynie Kornelek, a resztę spowija czarne tło.</td>
 <td>0%</td>
 </tr>
 <tr>
 <td>Reksio i Kapitan Nemo</td>
-<td><img alt="W intrze" src="https://img.shields.io/badge/W intrze-orange"/></td>
-<td>Działa cutscenka z intro. Menu z szufladami również, jednak utyka na intrze opowieści, jedynie widać klatkę filmową oraz animację filmowego ziarna.</td>
+<td><img alt="W grze" src="https://img.shields.io/badge/W grze-yellow"/></td>
+<td>Działa cutscenka z intro. Menu z szufladami również. Intro wprowadzające do gry działa, jednak jest jeszcze zabugowane. Czasami nie ładuje obrazków, czasem plików audio. Po intrze ładuje się pierwsza plansza w Paryżu, jednak bez Kretesa oraz nie działają zdarzenia myszy.</td>
 <td>0%</td>
 </tr>
 <tr>
 <td>Reksio i Kretes w Akcji!</td>
-<td><img alt="W intrze" src="https://img.shields.io/badge/W intrze-orange"/></td>
-<td>Częściowo działa startowe intro, jednakże utyka na momencie, w który powinna odezwać się Molly. Po kliknięciu myszą przenosi nas do menu. Wszystkie guziki działają i przenoszą od odpowiadających im minigierek. Są problemy z cutscenkami do gierek, brakuje elementów, albo Reksio szczeka, a Kogut się rusza. Po włączeniu Reksio i Skarb Piratów z powodu braku kolizji Reksio spada. Część elementów nie jest rysowana. Przy Reksio i Ufo zbugowane intro a gra rysuje tylko tło. Przy Reksio i Czarodzieje renderuje trasę, jednak całość jest jakby dopalona sterydami. Kolizje nie działają. Przy Reksio i Wehikuł czasu po zbugowanym intro gra się wywala. Przy Super Heros i Kapitan Nemo ładuje się zbugowana cutscenka, ale już nie mapa. Wejście w edytor poziomów zapętla emulator.</td>
+<td><img alt="W grze" src="https://img.shields.io/badge/W grze-yellow"/></td>
+<td>Częściowo działa startowe intro, przechodzi, jednakże niektóre elementy się nie ładują, czasami są problemy z priorytetami. Po kliknięciu myszą przenosi nas do menu. Wszystkie guziki działają i przenoszą od odpowiadających im minigierek. Są problemy z cutscenkami do gierek, brakuje elementów, albo Reksio szczeka, a Kogut się rusza. Po włączeniu Reksio i Skarb Piratów z powodu braku kolizji Reksio spada. Część elementów nie jest rysowana. Przy Reksio i Ufo zbugowane intro a gra rysuje tylko tło. Przy Reksio i Czarodzieje renderuje trasę, jednak całość jest jakby dopalona sterydami. Kolizje nie działają. Przy Reksio i Wehikuł czasu po zbugowanym intro gra się wywala. Przy Super Heros i Kapitan Nemo ładuje się zbugowana cutscenka, ale już nie mapa. Wejście w edytor poziomów zapętla emulator.</td>
 <td>0%</td>
 </tr>
 <tr>
