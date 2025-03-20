@@ -138,7 +138,11 @@ public class ASTBuilderVisitor extends AidemMediaBaseVisitor<Node> {
         }
         else {
 			String text = ctx.getText();
-            return new ConstantExpression(text.substring(1, text.length()-1));
+            try {
+                return new ConstantExpression(text.substring(1, text.length() - 1));
+            } catch (StringIndexOutOfBoundsException e) {
+                return new ConstantExpression(text);
+            }
         }
     }
 

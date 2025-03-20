@@ -167,7 +167,11 @@ public class ArrayVariable extends Variable {
 				try {
 					return elements.get(ArgumentsHelper.getInteger(arguments.get(0)));
 				} catch (IndexOutOfBoundsException e) {
-					return (Variable) arguments.get(1);
+					if(arguments.size() > 1) {
+						return (Variable) arguments.get(1);
+					} else {
+						return new IntegerVariable("", 0, context);
+					}
 				}
 			}
 		});
