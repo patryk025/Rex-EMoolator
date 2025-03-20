@@ -501,23 +501,32 @@ public class SequenceVariable extends Variable {
 			}
 		}
 
-		if (validNumbers.isEmpty()) {
-			Gdx.app.error("SequenceVariable", "No valid main animations for prefix: " + event.prefix);
-			event.inMainPhase = false;
-			if (event.hasEndAnimation) {
-				playSpeakingEndAnimation(event);
-			} else {
-				handleEventFinished(event);
-			}
-			return;
-		}
+		String mainAnimName = "";
 
-		int nextAnimNumber = validNumbers.get(random.nextInt(validNumbers.size()));
-		String mainAnimName = event.prefix + "_" + nextAnimNumber;
+		if (validNumbers.isEmpty()) {
+			Gdx.app.error("SequenceVariable", "No valid main animations for prefix: " + event.prefix + "_*. Looking for " + event.prefix + " event..");
+			if(event.animation.hasEvent(event.prefix)) {
+				mainAnimName = event.prefix;
+			}
+			else {
+				Gdx.app.error("SequenceVariable", "No valid main animations for event: " + event.prefix);
+				event.inMainPhase = false;
+				if (event.hasEndAnimation) {
+					playSpeakingEndAnimation(event);
+				} else {
+					handleEventFinished(event);
+				}
+				return;
+			}
+		}
+		else {
+			int nextAnimNumber = validNumbers.get(random.nextInt(validNumbers.size()));
+			mainAnimName = event.prefix + "_" + nextAnimNumber;
+		}
 
 		event.animation.fireMethod("PLAY", new StringVariable("", mainAnimName, context));
 
-		event.animation.setSignal("ONFINISHED", new Signal() {
+		event.animation.setSignal("ONFINISHED^"+mainAnimName, new Signal() {
 			@Override
 			public void execute(Object argument) {
 				if (event.inMainPhase && event.isPlaying && (event.sound == null || event.sound.isPlaying())) {
@@ -568,6 +577,10 @@ public class SequenceVariable extends Variable {
 	private void handleEventFinished(SequenceEvent event) {
 		Gdx.app.log("SequenceVariable", "handleEventFinished: " + event.name);
 		event.isPlaying = false;
+
+		if(event.animation != null) {
+			event.animation.fireMethod("STOP", new BoolVariable("", false, context));
+		}
 
 		// If this is a sub-event, find its parent and handle next event
 		SequenceEvent parentEvent = event.parent;
