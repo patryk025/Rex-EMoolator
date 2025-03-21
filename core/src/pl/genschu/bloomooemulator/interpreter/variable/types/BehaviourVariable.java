@@ -2,7 +2,8 @@ package pl.genschu.bloomooemulator.interpreter.variable.types;
 
 import org.antlr.v4.runtime.*;
 import org.antlr.v4.runtime.misc.ParseCancellationException;
-import pl.genschu.bloomooemulator.interpreter.exceptions.ClassMethodNotImplementedException;
+import pl.genschu.bloomooemulator.interpreter.antlr.AidemMediaErrorListener;
+import pl.genschu.bloomooemulator.interpreter.antlr.AidemMediaErrorStrategy;
 import com.badlogic.gdx.Gdx;
 import org.antlr.v4.runtime.tree.ParseTree;
 import pl.genschu.bloomooemulator.interpreter.Context;
@@ -17,7 +18,6 @@ import pl.genschu.bloomooemulator.interpreter.variable.Parameter;
 import pl.genschu.bloomooemulator.interpreter.variable.Variable;
 import pl.genschu.bloomooemulator.utils.ArgumentsHelper;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
@@ -25,28 +25,57 @@ public class BehaviourVariable extends Variable {
 	private Interpreter interpreter;
 	private ConditionVariable condition;
 
+	CommonTokenStream tokens = null;
+
 	public BehaviourVariable(String name, String code, Context context) {
 		super(name, context);
-        
+
+		AidemMediaErrorListener errorListener = new AidemMediaErrorListener();
+		Node astRoot = parseCode(code, errorListener);
+
+		List<AidemMediaErrorListener.ParseError> errors = errorListener.getErrors();
+		if (!errors.isEmpty()) {
+			Gdx.app.log("BehaviourVariable", "Found " + errors.size() + " errors in " + name);
+			for (AidemMediaErrorListener.ParseError error : errors) {
+				Gdx.app.log("BehaviourVariable", error.toString());
+			}
+
+			String fixedCode = fixCode(tokens, errors);
+			Gdx.app.log("BehaviourVariable", "Fixed code: " + fixedCode);
+			astRoot = parseCode(fixedCode, errorListener);
+			errors = errorListener.getErrors();
+			if (!errors.isEmpty()) {
+				Gdx.app.error("BehaviourVariable", "Failed to fix " + errors.size() + " errors in " + name);
+			}
+		}
+
+		interpreter = new Interpreter(astRoot, context);
+	}
+
+	private Node parseCode(String code, AidemMediaErrorListener errorListener) {
+		errorListener.clearErrors();
 		try {
 			AidemMediaLexer lexer = new AidemMediaLexer(CharStreams.fromString(code));
-			AidemMediaParser parser = new AidemMediaParser(new CommonTokenStream(lexer));
+			tokens = new CommonTokenStream(lexer);
+			AidemMediaParser parser = new AidemMediaParser(tokens);
 
-			//lexer.removeErrorListeners();
-			//lexer.addErrorListener(ThrowingErrorListener.INSTANCE);
+			lexer.removeErrorListeners();
+			parser.removeErrorListeners();
+			lexer.addErrorListener(errorListener);
+			parser.addErrorListener(errorListener);
 
-			//parser.removeErrorListeners();
-			//parser.addErrorListener(ThrowingErrorListener.INSTANCE);
+			parser.setErrorHandler(new AidemMediaErrorStrategy());
 
 			ParseTree tree = parser.script();
 
 			ASTBuilderVisitor astBuilder = new ASTBuilderVisitor(context);
-			Node astRoot = astBuilder.visit(tree);
 
-			interpreter = new Interpreter(astRoot, context);
+            return astBuilder.visit(tree);
 		} catch (Exception e) {
 			Gdx.app.error("BehaviourVariable", "Failed to parse code: " + code, e);
 		}
+
+		return null;
 	}
 
 	@Override
@@ -58,15 +87,6 @@ public class BehaviourVariable extends Variable {
 	protected void setMethods() {
 		super.setMethods();
 
-		this.setMethod("PLAY", new Method(
-				"mixed"
-		) {
-			@Override
-			public Variable execute(List<Object> arguments) {
-				// TODO: implement this method
-				throw new ClassMethodNotImplementedException("Method PLAY is not implemented yet");
-			}
-		});
 		this.setMethod("RUN", new Method(
 				List.of(
 						new Parameter("mixed", "param1...paramN", false)
@@ -313,5 +333,22 @@ public class BehaviourVariable extends Variable {
 				throws ParseCancellationException {
 			throw new ParseCancellationException("line " + line + ":" + charPositionInLine + " " + msg);
 		}
+	}
+
+	private String fixCode(CommonTokenStream tokens, List<AidemMediaErrorListener.ParseError> errors) {
+		TokenStreamRewriter rewriter = new TokenStreamRewriter(tokens);
+		for (AidemMediaErrorListener.ParseError error : errors) {
+			Token token = error.getOffendingToken();
+			String msg = error.getMessage();
+
+			if (msg.contains("no viable alternative") && token.getType() == AidemMediaParser.ENDINSTR) {
+				Token prevToken = rewriter.getTokenStream().get(token.getTokenIndex() - 1);
+				if (prevToken != null && prevToken.getType() == AidemMediaParser.RPAREN) {
+					rewriter.insertBefore(prevToken, "\"");
+					Gdx.app.log("FixCode", "Inserted missing quotation mark before " + prevToken.getText());
+				}
+			}
+		}
+		return rewriter.getText();
 	}
 }
