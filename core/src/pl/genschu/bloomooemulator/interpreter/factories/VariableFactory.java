@@ -37,6 +37,9 @@ public class VariableFactory
                     return new BoolVariable(name, (Double) value != 0, context);
                 } else if (value instanceof String) {
                     try {
+                        if(((String) value).isEmpty()) {
+                            return new BoolVariable(name, false, context);
+                        }
                         return new BoolVariable(name, Boolean.parseBoolean((String) value), context);
                     } catch (NumberFormatException e) {
                         return new StringVariable(name, (String) value, context);
@@ -68,6 +71,9 @@ public class VariableFactory
                     return new DoubleVariable(name, ((Integer) value).doubleValue(), context);
                 } else if (value instanceof String) {
                     try {
+                        if(((String) value).isEmpty()) {
+                            return new DoubleVariable(name, 0, context);
+                        }
                         return new DoubleVariable(name, Double.parseDouble((String) value), context);
                     } catch (NumberFormatException e) {
                         return new StringVariable(name, (String) value, context);
@@ -101,6 +107,9 @@ public class VariableFactory
                     return new IntegerVariable(name, ((Boolean) value) ? 1 : 0, context);
                 } else if (value instanceof String) {
                     try {
+                        if(((String) value).isEmpty()) {
+                            return new IntegerVariable(name, 0, context);
+                        }
                         return new IntegerVariable(name, Integer.parseInt((String) value), context);
                     } catch (NumberFormatException e) {
                         return new StringVariable(name, (String) value, context);
