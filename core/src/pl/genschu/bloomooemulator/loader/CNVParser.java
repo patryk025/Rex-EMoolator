@@ -209,7 +209,45 @@ public class CNVParser {
     }
 
     private void runOnInitOnVariables(Context context) {
-        for(Variable variable : context.getVariables().values()) {
+        List<Variable> variables = new ArrayList<>(context.getVariables().values());
+
+        List<String> typeOrder = Arrays.asList(
+                "BEHAVIOUR",           // 1. Procedury
+                "INTEGER|STRING|DOUBLE|BOOLEAN",   // 2. Prymitywy
+                "ARRAY",               // 3. Tablice
+                "CONDITION",           // 4. Warunki
+                "ANIMO",               // 5. Animacje
+                "IMAGE",               // 6. Obrazy
+                "SOUND",               // 7. Dźwięki
+                "FONT",                // 8. Fonty
+                "BUTTON",              // 9. Przyciski
+                "TEXT",                // 10. Teksty
+                "SEQUENCE",            // 11. Sekwencje
+                "MOUSE", "KEYBOARD"    // 12. Urządzenia wejściowe
+        );
+
+        variables.sort((v1, v2) -> {
+            String var1Type = v1.getType();
+            String var2Type = v2.getType();
+
+            if(var1Type.matches("INTEGER|STRING|DOUBLE|BOOLEAN")) {
+                var1Type = "INTEGER|STRING|DOUBLE|BOOLEAN";
+            }
+
+            if(var2Type.matches("INTEGER|STRING|DOUBLE|BOOLEAN")) {
+                var2Type = "INTEGER|STRING|DOUBLE|BOOLEAN";
+            }
+
+            int index1 = typeOrder.indexOf(var1Type);
+            int index2 = typeOrder.indexOf(var2Type);
+
+            index1 = (index1 == -1) ? Integer.MAX_VALUE : index1;
+            index2 = (index2 == -1) ? Integer.MAX_VALUE : index2;
+            return Integer.compare(index1, index2);
+        });
+
+        for (Variable variable : variables) {
+            Gdx.app.log("CNVParser", "ONINIT for " + variable.getName() + " (" + variable.getType() + ")");
             variable.emitSignal("ONINIT");
         }
     }

@@ -278,7 +278,7 @@ public class Context {
     }
 
     public Map<String, Variable> getVariables(boolean includeParent) {
-        Map<String, Variable> variables = new HashMap<>();
+        Map<String, Variable> variables = new LinkedHashMap<>();
         for(Context context : additionalContexts) {
             variables.putAll(context.getVariables(includeParent));
         }
