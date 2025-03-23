@@ -385,6 +385,7 @@ public class Game {
         stopAllSounds();
         quadTree.clear();
         collisionMonitoredVariables.clear();
+        emulator.setActiveButton(null);
         Gdx.app.log("Game", "Loading scene " + scene.getName());
         try {
             currentSceneContext = new Context();

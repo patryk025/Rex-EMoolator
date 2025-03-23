@@ -100,7 +100,7 @@ public class TextVariable extends Variable {
 
 	public void renderText(Batch batch, FontVariable fontVariable, float startX, float startY, float lineSpacing, String hJustify, String vJustify) {
 		if (fontVariable == null) {
-			Gdx.app.error("TextVariable", "Font is not set!");
+			//Gdx.app.error("TextVariable", "Font is not set!");
 			return;
 		}
 
