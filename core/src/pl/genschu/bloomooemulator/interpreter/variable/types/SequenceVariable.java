@@ -579,7 +579,7 @@ public class SequenceVariable extends Variable {
 		event.isPlaying = false;
 
 		if(event.animation != null) {
-			event.animation.fireMethod("STOP", new BoolVariable("", false, context));
+			event.animation.fireMethod("PAUSE");
 		}
 
 		// If this is a sub-event, find its parent and handle next event
