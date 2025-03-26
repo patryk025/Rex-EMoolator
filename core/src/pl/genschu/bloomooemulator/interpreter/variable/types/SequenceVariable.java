@@ -349,6 +349,7 @@ public class SequenceVariable extends Variable {
 			stopSequence(false); // Stop current sequence
 			currentEvent = event;
 			isPlaying = true;
+			emitSignal("ONSTARTED", event.name);
 			startEvent(event);
 		}
 	}
@@ -561,7 +562,6 @@ public class SequenceVariable extends Variable {
 	private void startSequentialEvent(SequenceEvent event) {
 		Gdx.app.log("SequenceVariable", "startSequentialEvent: " + event.name);
 		if (!event.subEvents.isEmpty()) {
-			emitSignal("ONSTARTED", event.name);
 			startEvent(event.subEvents.get(0));
 		}
 	}
@@ -588,28 +588,20 @@ public class SequenceVariable extends Variable {
 			int currentIndex = parentEvent.subEvents.indexOf(event);
 			if (parentEvent.mode == SequenceMode.SEQUENCE &&
 					currentIndex < parentEvent.subEvents.size() - 1) {
-				emitSignal("ONFINISHED", event.name);
 				// Next event, play it
 				startEvent(parentEvent.subEvents.get(currentIndex + 1));
 			} else {
 				// End of event
 				stopEvent(parentEvent);
-				if (parentEvent.mode == SequenceMode.SEQUENCE &&
-						currentIndex == parentEvent.subEvents.size() - 1) {
-					emitSignal("ONFINISHED", event.name);
-					emitSignal("ONFINISHED", parentEvent.name);
-				}
-				else {
-					emitSignal("ONFINISHED", event.name);
-				}
-				if (parentEvent.parent == null) {
+                emitSignal("ONFINISHED", currentEvent.name);
+                if (parentEvent.parent == null) {
 					isPlaying = false;
 				}
 			}
 		} else {
 			// End of sequence
 			stopEvent(event);
-			emitSignal("ONFINISHED", event.name);
+			emitSignal("ONFINISHED", currentEvent.name);
 			isPlaying = false;
 		}
 	}
