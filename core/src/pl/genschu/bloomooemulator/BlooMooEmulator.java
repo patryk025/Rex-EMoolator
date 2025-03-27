@@ -28,7 +28,6 @@ import com.badlogic.gdx.utils.viewport.Viewport;
 import pl.genschu.bloomooemulator.utils.CollisionChecker;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 public class BlooMooEmulator extends ApplicationAdapter {
     private static final float VIRTUAL_WIDTH = 800;
@@ -43,8 +42,6 @@ public class BlooMooEmulator extends ApplicationAdapter {
     Game game;
 
     private final boolean debugButtons = false;
-
-    private Texture cursorTexture;
 
     private Variable activeButton = null;
     private boolean prevPressed = false;
@@ -84,8 +81,6 @@ public class BlooMooEmulator extends ApplicationAdapter {
             viewport = new StretchViewport(VIRTUAL_WIDTH, VIRTUAL_HEIGHT, camera);
         viewport.apply();
         camera.position.set(camera.viewportWidth / 2, camera.viewportHeight / 2, 0);
-        
-        cursorTexture = new Texture(Gdx.files.internal("kropka.png"));
 
         Gdx.app.setLogLevel(Application.LOG_DEBUG);
     }
@@ -253,29 +248,27 @@ public class BlooMooEmulator extends ApplicationAdapter {
         if(debugButtons) {
             List<Variable> buttons = new ArrayList<>(context.getButtonsVariables().values());
 
-            Collections.sort(buttons, (o1, o2) -> {
+            buttons.sort((o1, o2) -> {
                 Variable image1 = null;
-                if(o1 instanceof ButtonVariable) {
+                if (o1 instanceof ButtonVariable) {
                     image1 = ((ButtonVariable) o1).getCurrentImage();
-                }
-                else if(o1 instanceof AnimoVariable) {
+                } else if (o1 instanceof AnimoVariable) {
                     image1 = o1;
                 }
                 Variable image2 = null;
-                if(o2 instanceof ButtonVariable) {
+                if (o2 instanceof ButtonVariable) {
                     image2 = ((ButtonVariable) o2).getCurrentImage();
-                }
-                else if(o2 instanceof AnimoVariable) {
+                } else if (o2 instanceof AnimoVariable) {
                     image2 = o2;
                 }
 
                 int priority1 = 0;
                 int priority2 = 0;
 
-                if(image1 != null) {
+                if (image1 != null) {
                     priority1 = image1.getAttribute("PRIORITY") != null ? Integer.parseInt(image1.getAttribute("PRIORITY").getValue().toString()) : 0;
                 }
-                if(image2 != null) {
+                if (image2 != null) {
                     priority2 = image2.getAttribute("PRIORITY") != null ? Integer.parseInt(image2.getAttribute("PRIORITY").getValue().toString()) : 0;
                 }
 
@@ -401,29 +394,27 @@ public class BlooMooEmulator extends ApplicationAdapter {
         int minHSPriority = game.getCurrentSceneVariable().getMinHotSpotZ();
         int maxHSPriority = game.getCurrentSceneVariable().getMaxHotSpotZ();
 
-        Collections.sort(buttons, (o1, o2) -> {
+        buttons.sort((o1, o2) -> {
             Variable image1 = null;
-            if(o1 instanceof ButtonVariable) {
+            if (o1 instanceof ButtonVariable) {
                 image1 = ((ButtonVariable) o1).getCurrentImage();
-            }
-            else if(o1 instanceof AnimoVariable) {
+            } else if (o1 instanceof AnimoVariable) {
                 image1 = o1;
             }
             Variable image2 = null;
-            if(o2 instanceof ButtonVariable) {
+            if (o2 instanceof ButtonVariable) {
                 image2 = ((ButtonVariable) o2).getCurrentImage();
-            }
-            else if(o2 instanceof AnimoVariable) {
+            } else if (o2 instanceof AnimoVariable) {
                 image2 = o2;
             }
 
             int priority1 = 0;
             int priority2 = 0;
 
-            if(image1 != null) {
+            if (image1 != null) {
                 priority1 = image1.getAttribute("PRIORITY") != null ? Integer.parseInt(image1.getAttribute("PRIORITY").getValue().toString()) : 0;
             }
-            if(image2 != null) {
+            if (image2 != null) {
                 priority2 = image2.getAttribute("PRIORITY") != null ? Integer.parseInt(image2.getAttribute("PRIORITY").getValue().toString()) : 0;
             }
 
@@ -779,7 +770,7 @@ public class BlooMooEmulator extends ApplicationAdapter {
             int priority2 = priorityAttr2 != null ? Integer.parseInt(priorityAttr2.getValue().toString()) : 0;
             return Integer.compare(priority1, priority2);
         };
-        Collections.sort(drawList, comparator);
+        drawList.sort(comparator);
         //Gdx.app.log("Draw list after sort", getDrawListAsString(drawList));
         return drawList;
     }
@@ -801,21 +792,12 @@ public class BlooMooEmulator extends ApplicationAdapter {
                 continue;
             }
 
-            if (variable instanceof SequenceVariable) {
-                /*SequenceVariable seqVar = (SequenceVariable) variable;
-                if(seqVar.getCurrentEventName() != null) {
-                    if (seqVar.getCurrentEventName().isEmpty()) {
-                        sb.append("__").append(seqVar.getName()).append("_ANIMO_");
-                    }
-                }*/
-            } else {
-                sb.append(variable.getName());
-                Attribute priority = variable.getAttribute("PRIORITY");
-                if (priority != null) {
-                    sb.append(" (").append(priority.getValue()).append(")");
-                }
-                sb.append(", ");
+            sb.append(variable.getName());
+            Attribute priority = variable.getAttribute("PRIORITY");
+            if (priority != null) {
+                sb.append(" (").append(priority.getValue()).append(")");
             }
+            sb.append(", ");
         }
         if (sb.length() > 2) {
             sb.setLength(sb.length() - 2);

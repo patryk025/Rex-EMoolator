@@ -61,6 +61,19 @@ public class TextVariable extends Variable {
 				return null;
 			}
 		});
+		this.setMethod("SETPRIORITY", new Method(
+				List.of(
+						new Parameter("INTEGER", "posZ", true)
+				),
+				"void"
+		) {
+			@Override
+			public Variable execute(List<Object> arguments) {
+				priority = ArgumentsHelper.getInteger(arguments.get(0));
+				setAttribute("PRIORITY", new Attribute("INTEGER", priority));
+				return null;
+			}
+		});
 		this.setMethod("SETTEXT", new Method(
 				List.of(
 						new Parameter("STRING", "text", true)
