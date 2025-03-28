@@ -179,8 +179,6 @@ public class ButtonVariable extends Variable {
 	}
 
 	private void hideGraphics() {
-		loadImages();
-
 		if(gfxVariable != null) {
 			showImage(gfxVariable, false);
 		}
@@ -193,8 +191,6 @@ public class ButtonVariable extends Variable {
 	}
 
 	private void updateGraphicsVisibility() {
-		loadImages();
-
 		if (isPressed && gfxOnClick != null) {
 			showImage(gfxVariable, false);
 			showImage(gfxOnMove, false);
@@ -219,7 +215,6 @@ public class ButtonVariable extends Variable {
 
 	public void setFocused(boolean focused) {
 		isFocused = focused;
-		loadImages();
 		if (gfxOnMove != null) {
 			if (!focused) {
 				showImage(gfxOnMove, false);
@@ -235,7 +230,6 @@ public class ButtonVariable extends Variable {
 
 	public void setPressed(boolean pressed) {
 		isPressed = pressed;
-		loadImages();
 		updateGraphicsVisibility();
 	}
 
@@ -247,7 +241,7 @@ public class ButtonVariable extends Variable {
 		}
 		if(getAttribute("GFXSTANDARD") != null && gfxVariable == null) {
 			gfxVariable = context.getVariable(getAttribute("GFXSTANDARD").getValue().toString());
-			showImage(gfxVariable, true);
+			showImage(gfxVariable, isEnabled());
 			currentGfx = gfxVariable;
 		}
 
@@ -294,8 +288,6 @@ public class ButtonVariable extends Variable {
 			if (getAttribute("GFXSTANDARD") != null) {
 				Gdx.app.log("ButtonVariable", "Using GFXSTANDARD as RECT: " + getAttribute("GFXSTANDARD").getValue());
 
-				loadImages();
-
 				if (gfxVariable == null) {
 					return null;
 				}
@@ -329,11 +321,13 @@ public class ButtonVariable extends Variable {
 			if(var instanceof ImageVariable) {
 				ImageVariable imageVariable = (ImageVariable) var;
 				imageVariable.setAttribute("VISIBLE", new Attribute("BOOL", visible ? "TRUE" : "FALSE"));
+				imageVariable.setAttribute("TOCANVAS", new Attribute("BOOL", "TRUE"));
 				imageVariable.changeVisibility(visible);
 			}
 			else if(var instanceof AnimoVariable) {
 				AnimoVariable animoVariable = (AnimoVariable) var;
 				animoVariable.setAttribute("VISIBLE", new Attribute("BOOL", visible ? "TRUE" : "FALSE"));
+				animoVariable.setAttribute("TOCANVAS", new Attribute("BOOL", "TRUE"));
 				animoVariable.changeVisibility(visible);
 				if(!visible) {
 					animoVariable.setPlaying(false);

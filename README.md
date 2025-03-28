@@ -26,8 +26,8 @@ Aktualne statusy gier opartych na silniku Piklib/BlooMoo:
 <tr>
 <td>Reksio i Skarb Piratów</td>
 <td><img alt="W grze" src="https://img.shields.io/badge/W grze-yellow"/></td>
-<td>Gra działa bez poważniejszych błędów do momentu dotarcia do wioski. Sekwencja z rzeką jest dość trudna do przejścia (nie, żeby w oryginale było to proste). Cutscenka z piratami kończy się za wcześnie. Sekwencja z kokosami ma drobne różnice w detekcji kolizji w stosunku do oryginału (dodatkowo pojawia się w rogu kura lekko przesłaniająca przycisk menu, nie wiem czemu). Kury po odegraniu poprawnej sekwencji... właściwie coś się zapętla i się wywala na pulpit, przez co nie da się przejść dalej. Etap ze zbieraniem pereł działa, jednak nie pojawia się pasek z tlenem.</td>
-<td>ok. 45% (10/22 scen)</td>
+<td>Gra działa bez poważniejszych błędów do momentu dotarcia do jaskini za posągiem Boga Twaroga. Sekwencja z rzeką jest dość trudna do przejścia (nie, żeby w oryginale było to proste). Cutscenka z piratami kończy się za wcześnie (po ostatnich zmianach do sprawdzenia). Sekwencja z kokosami ma drobne różnice w detekcji kolizji w stosunku do oryginału (dodatkowo pojawia się w rogu kura lekko przesłaniająca przycisk menu, nie wiem czemu). Kury poprawnie odgrywają melodię. Etap ze zbieraniem pereł działa, jednak nie pojawia się pasek z tlenem. Podczas zagadek przy posągu Boga Twaroga sporadycznie grafiki odpowiedzi są zamienione miejscami (narrator jednak czyta poprawnie). Po wejściu do jaskini pochodnia pokazuje się dopiero, kiedy Reksio do niej podejdzie. W kolejnej sekcji z wejściami "nie działa" pochodnia, tj. nie daje światła (brak zaimplementowanej metody MERGEALPHA).</td>
+<td>ok. 52% (24/46 scen)</td>
 </tr>
 <tr>
 <td>Reksio i Ufo</td>
