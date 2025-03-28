@@ -426,8 +426,15 @@ public class ImageVariable extends Variable implements Cloneable {
 	}
 
 	public boolean isVisible() {
-		return isVisible
-				&&  this.getAttribute("TOCANVAS").getValue().toString().equals("TRUE");
+		return isVisible;
+	}
+
+	public boolean isRenderedOnCanvas() {
+		try {
+			return this.getAttribute("TOCANVAS").getValue().toString().equals("TRUE");
+		} catch (NullPointerException e) {
+			return false;
+		}
 	}
 
 	public void changeVisibility(boolean visibility) {

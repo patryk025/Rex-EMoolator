@@ -157,7 +157,7 @@ public class BlooMooEmulator extends ApplicationAdapter {
                 ImageVariable imageVariable = (ImageVariable) variable;
                 Image image = imageVariable.getImage();
 
-                if(imageVariable.isVisible()) {
+                if(imageVariable.isVisible() && imageVariable.isRenderedOnCanvas()) {
                     //Gdx.app.log(variable.getName(), ((ImageVariable) variable).getRect().toString());
 
                     batch.setColor(1, 1, 1, imageVariable.getOpacity());
@@ -211,12 +211,14 @@ public class BlooMooEmulator extends ApplicationAdapter {
                         Event event = animoVariable.getCurrentEvent();
                         if (event == null) continue;
 
-                        batch.setColor(1, 1, 1, animoVariable.getOpacity());
-
                         Rectangle rect = animoVariable.getRect();
-                        try {
-                            batch.draw(image.getImageTexture(), rect.getXLeft(), VIRTUAL_HEIGHT - rect.getYTop() - image.height, image.width, image.height);
-                        } catch (NullPointerException ignored) {}
+
+                        if(animoVariable.isRenderedOnCanvas()) {
+                            batch.setColor(1, 1, 1, animoVariable.getOpacity());
+                            try {
+                                batch.draw(image.getImageTexture(), rect.getXLeft(), VIRTUAL_HEIGHT - rect.getYTop() - image.height, image.width, image.height);
+                            } catch (NullPointerException ignored) {}
+                        }
                         animoVariable.updateAnimation(deltaTime);
                     } catch(NullPointerException ignored) {
                         Gdx.app.log("AnimoVariable", "Image not found in Animo "+animoVariable.getName());
