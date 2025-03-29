@@ -2,6 +2,7 @@ package pl.genschu.bloomooemulator.objects;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.TextureData;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 import pl.genschu.bloomooemulator.encoding.CLZW2Compression;
 import pl.genschu.bloomooemulator.encoding.CRLECompression;
@@ -28,6 +29,7 @@ public class Image {
     public int offsetX;
     public int offsetY;
     public int colorDepth;
+    private Texture originalImageTexture; // ładowane z pliku
     private Texture imageTexture;
 
     private boolean isLoaded = false;
@@ -80,6 +82,11 @@ public class Image {
         }
 
         imageTexture = combineImageDataWithAlpha(width, height, imageData, alphaData, colorDepth, isJPEG);
+
+        if(originalImageTexture != null)
+            originalImageTexture.dispose();
+
+        originalImageTexture = imageTexture;
 
         isLoaded = true;
     }
@@ -145,8 +152,36 @@ public class Image {
         return new Texture(pixmap);
     }
 
+    public static Texture applyAlphaMask(Texture base, Pixmap mask, int offsetX, int offsetY) {
+        TextureData textureData = base.getTextureData();
+        if (!textureData.isPrepared()) textureData.prepare();
+        Pixmap basePixmap = textureData.consumePixmap();
+
+        for (int x = 0; x < mask.getWidth(); x++) {
+            for (int y = 0; y < mask.getHeight(); y++) {
+                int alpha = new Color(mask.getPixel(x, y)).a > 0.1f ? 0 : 255;
+                int bx = offsetX + x;
+                int by = offsetY + (mask.getHeight() - 1 - y);
+                if (bx < 0 || by < 0 || bx >= basePixmap.getWidth() || by >= basePixmap.getHeight()) continue;
+
+                Color c = new Color(basePixmap.getPixel(bx, by));
+                basePixmap.drawPixel(bx, by, Color.rgba8888(c.r, c.g, c.b, alpha / 255f));
+            }
+        }
+
+        return new Texture(basePixmap);
+    }
+
     public Texture getImageTexture() {
         return imageTexture;
+    }
+
+    public Texture getOriginalImageTexture() {
+        return originalImageTexture;
+    }
+
+    public void setImageTexture(Texture imageTexture) {
+        this.imageTexture = imageTexture;
     }
 
     public boolean isLoaded() {

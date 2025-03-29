@@ -60,6 +60,9 @@ public class BlooMooEmulator extends ApplicationAdapter {
     private boolean showDebugVariables = false;
     private String debugVariablesValues = "";
 
+    private ShapeRenderer shapeRenderer;
+    private Rectangle debugRect;
+
     public BlooMooEmulator(GameEntry gameEntry) {
         this.gameEntry = gameEntry;
     }
@@ -68,6 +71,7 @@ public class BlooMooEmulator extends ApplicationAdapter {
     public void create () {
         batch = new SpriteBatch();
         font = new BitmapFont();
+        shapeRenderer = new ShapeRenderer();
 
         this.game = new Game(this.gameEntry, this);
 
@@ -302,6 +306,16 @@ public class BlooMooEmulator extends ApplicationAdapter {
 
         batch.end();
 
+        if (getDebugRect() != null) {
+            shapeRenderer.setProjectionMatrix(batch.getProjectionMatrix());
+            shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
+            shapeRenderer.setColor(Color.RED); // Czerwony prostokąt
+            Rectangle rect = getDebugRect();
+            shapeRenderer.rect(rect.getXLeft(), rect.getYBottom(),
+                    rect.getXRight() - rect.getXLeft(), rect.getYTop() - rect.getYBottom());
+            shapeRenderer.end();
+        }
+
         game.takeScreenshot();
         //dumpVariablesToLog();
 
@@ -310,6 +324,22 @@ public class BlooMooEmulator extends ApplicationAdapter {
 
         }
         renderTooltip();
+    }
+
+    public Rectangle getDebugRect() {
+        return debugRect;
+    }
+
+    public void setDebugRect(Rectangle debugRect) {
+        this.debugRect = debugRect;
+    }
+
+    public ShapeRenderer getShapeRenderer() {
+        return shapeRenderer;
+    }
+
+    public void setShapeRenderer(ShapeRenderer shapeRenderer) {
+        this.shapeRenderer = shapeRenderer;
     }
 
     private void checkForCollisions() {

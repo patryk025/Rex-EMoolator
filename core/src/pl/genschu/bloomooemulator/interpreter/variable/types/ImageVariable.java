@@ -1,7 +1,9 @@
 package pl.genschu.bloomooemulator.interpreter.variable.types;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Pixmap;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.TextureData;
 import pl.genschu.bloomooemulator.interpreter.exceptions.ClassMethodNotImplementedException;
 import pl.genschu.bloomooemulator.interpreter.Context;
@@ -215,8 +217,67 @@ public class ImageVariable extends Variable implements Cloneable {
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				// TODO: implement this method
-				throw new ClassMethodNotImplementedException("Method MERGEALPHA is not implemented yet");
+				int posX = ArgumentsHelper.getInteger(arguments.get(0));
+				int posY = ArgumentsHelper.getInteger(arguments.get(1));
+				String maskName = ArgumentsHelper.getString(arguments.get(2));
+
+				// correct posY
+				posY = 600 - posY;
+
+				Variable maskVar = context.getVariable(maskName);
+				if (!(maskVar instanceof ImageVariable)) {
+					Gdx.app.log("ImageVariable", "MERGEALPHA: Mask " + maskName + " is not an IMAGE");
+					return null;
+				}
+				ImageVariable mask = (ImageVariable) maskVar;
+				if (mask.getImage() == null) {
+					Gdx.app.log("ImageVariable", "MERGEALPHA: Mask " + maskName + " has no image");
+					return null;
+				}
+
+				TextureData targetData = image.getOriginalImageTexture().getTextureData();
+				TextureData maskData = mask.getImage().getImageTexture().getTextureData();
+
+				if (!targetData.isPrepared()) targetData.prepare();
+				if (!maskData.isPrepared()) maskData.prepare();
+
+				Pixmap targetPixmap = targetData.consumePixmap();
+				Pixmap maskPixmap = maskData.consumePixmap();
+
+				int targetWidth = image.width;
+				int targetHeight = image.height;
+				int maskWidth = mask.getImage().width;
+				int maskHeight = mask.getImage().height;
+
+				int startX = Math.max(0, posX - getPosX());
+				int startY = Math.max(0, (getPosY() - posY));
+
+				for (int x = 0; x < maskWidth; x++) {
+					for (int y = 0; y < maskHeight; y++) {
+						int targetX = startX + x;
+						int targetY = startY + y;
+
+						if (targetX < 0 || targetX >= targetWidth || targetY < 0 || targetY >= targetHeight) {
+							continue;
+						}
+
+						Color maskColor = new Color(maskPixmap.getPixel(x, y));
+						float maskAlpha = maskColor.a;
+
+						Color targetColor = new Color(targetPixmap.getPixel(targetX, targetY));
+
+						targetColor.a = maskAlpha;
+						targetPixmap.setColor(targetColor);
+						targetPixmap.drawPixel(targetX, targetY);
+					}
+				}
+
+				image.setImageTexture(new Texture(targetPixmap));
+				maskPixmap.dispose();
+
+				context.getGame().getEmulator().setDebugRect(new Rectangle(posX, posY - maskHeight, posX + maskWidth, posY));
+
+				return null;
 			}
 		});
 		this.setMethod("MONITORCOLLISION", new Method(

@@ -45,7 +45,7 @@ public class VariableHelper {
             if(tmp.startsWith("\"") && tmp.endsWith("\"")) {
                 return new StringVariable("", tmp.substring(1, tmp.length() - 1), context);
             }
-            return new StringVariable("", (String) value, context);
+            return context.getVariable(tmp);
         }
 
         return null;
