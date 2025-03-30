@@ -161,48 +161,112 @@ public class BlooMooEmulator extends ApplicationAdapter {
                 ImageVariable imageVariable = (ImageVariable) variable;
                 Image image = imageVariable.getImage();
 
-                if(imageVariable.isVisible() && imageVariable.isRenderedOnCanvas()) {
-                    //Gdx.app.log(variable.getName(), ((ImageVariable) variable).getRect().toString());
-
-                    batch.setColor(1, 1, 1, imageVariable.getOpacity());
-
+                if (imageVariable.isVisible() && imageVariable.isRenderedOnCanvas()) {
                     Rectangle rect = imageVariable.getRect();
                     Rectangle clippingRect = imageVariable.getClippingRect();
-                    if(clippingRect != null) {
-                        int xLeft = clippingRect.getXLeft();
-                        int yTop = (int) (VIRTUAL_HEIGHT - clippingRect.getYTop());
 
-                        int xRight = clippingRect.getXRight();
-                        int yBottom = (int) (VIRTUAL_HEIGHT - clippingRect.getYBottom());
+                    Map<String, Rectangle> alphaMasks = imageVariable.getAlphaMasks();
+                    if (alphaMasks.isEmpty()) {
+                        batch.setColor(1, 1, 1, imageVariable.getOpacity());
 
-                        Vector2 projectedCoordsLeftTop = cameraToWindowCoordinates(camera, xLeft, yTop);
-                        Vector2 projectedCoordsRightBottom = cameraToWindowCoordinates(camera, xRight, yBottom);
+                        if (clippingRect != null) {
+                            int xLeft = clippingRect.getXLeft();
+                            int yTop = (int) (VIRTUAL_HEIGHT - clippingRect.getYTop());
+                            int xRight = clippingRect.getXRight();
+                            int yBottom = (int) (VIRTUAL_HEIGHT - clippingRect.getYBottom());
 
-                        int scissorX = (int) projectedCoordsLeftTop.x;
-                        int scissorY = (int) projectedCoordsLeftTop.y;
-                        int scissorWidth = (int) (projectedCoordsRightBottom.x - projectedCoordsLeftTop.x);
-                        int scissorHeight = (int) (projectedCoordsRightBottom.y - projectedCoordsLeftTop.y);
+                            Vector2 projectedCoordsLeftTop = cameraToWindowCoordinates(camera, xLeft, yTop);
+                            Vector2 projectedCoordsRightBottom = cameraToWindowCoordinates(camera, xRight, yBottom);
 
-                        batch.flush();
+                            int scissorX = (int) projectedCoordsLeftTop.x;
+                            int scissorY = (int) projectedCoordsLeftTop.y;
+                            int scissorWidth = (int) (projectedCoordsRightBottom.x - projectedCoordsLeftTop.x);
+                            int scissorHeight = (int) (projectedCoordsRightBottom.y - projectedCoordsLeftTop.y);
 
-                        Gdx.gl.glEnable(GL20.GL_SCISSOR_TEST);
-                        Gdx.gl.glScissor(scissorX, scissorY, scissorWidth, scissorHeight);
+                            batch.flush();
+                            Gdx.gl.glEnable(GL20.GL_SCISSOR_TEST);
+                            Gdx.gl.glScissor(scissorX, scissorY, scissorWidth, scissorHeight);
 
-                        try {
-                            batch.draw(image.getImageTexture(), rect.getXLeft(), VIRTUAL_HEIGHT - rect.getYTop() - image.height, image.width, image.height);
-                        } catch(NullPointerException e) {
-                            Gdx.app.error("Render", e.getMessage());
+                            try {
+                                batch.draw(image.getImageTexture(), rect.getXLeft(), VIRTUAL_HEIGHT - rect.getYTop() - image.height, image.width, image.height);
+                            } catch (NullPointerException e) {
+                                Gdx.app.error("Render", e.getMessage());
+                            }
+
+                            batch.flush();
+                            Gdx.gl.glDisable(GL20.GL_SCISSOR_TEST);
+                        } else {
+                            try {
+                                batch.draw(image.getImageTexture(), rect.getXLeft(), VIRTUAL_HEIGHT - rect.getYTop() - image.height, image.width, image.height);
+                            } catch (NullPointerException ignored) {}
+                        }
+                    } else {
+                        batch.end();
+
+                        batch.begin();
+
+                        Gdx.gl.glColorMask(false, false, false, true);
+                        batch.setBlendFunction(GL20.GL_ONE, GL20.GL_ZERO);
+
+                        for (Map.Entry<String, Rectangle> entry : alphaMasks.entrySet()) {
+                            String maskName = entry.getKey();
+                            Rectangle maskRect = entry.getValue();
+
+                            Variable maskVar = imageVariable.getContext().getVariable(maskName);
+                            if (!(maskVar instanceof ImageVariable)) continue;
+                            ImageVariable mask = (ImageVariable) maskVar;
+                            if (mask.getImage() == null) continue;
+
+                            Texture maskTexture = mask.getImage().getImageTexture();
+                            if (maskTexture == null) continue;
+
+                            batch.draw(maskTexture, maskRect.getXLeft(), VIRTUAL_HEIGHT - maskRect.getYTop() - mask.getImage().height);
+
+                            batch.flush();
+                        }
+
+                        Gdx.gl.glColorMask(true, true, true, true);
+
+                        batch.setBlendFunction(GL20.GL_DST_ALPHA, GL20.GL_ONE_MINUS_DST_ALPHA);
+
+                        if (clippingRect != null) {
+                            int xLeft = clippingRect.getXLeft();
+                            int yTop = (int) (VIRTUAL_HEIGHT - clippingRect.getYTop());
+                            int xRight = clippingRect.getXRight();
+                            int yBottom = (int) (VIRTUAL_HEIGHT - clippingRect.getYBottom());
+
+                            Vector2 projectedCoordsLeftTop = cameraToWindowCoordinates(camera, xLeft, yTop);
+                            Vector2 projectedCoordsRightBottom = cameraToWindowCoordinates(camera, xRight, yBottom);
+
+                            int scissorX = (int) projectedCoordsLeftTop.x;
+                            int scissorY = (int) projectedCoordsLeftTop.y;
+                            int scissorWidth = (int) (projectedCoordsRightBottom.x - projectedCoordsLeftTop.x);
+                            int scissorHeight = (int) (projectedCoordsRightBottom.y - projectedCoordsLeftTop.y);
+
+                            batch.flush();
+                            Gdx.gl.glEnable(GL20.GL_SCISSOR_TEST);
+                            Gdx.gl.glScissor(scissorX, scissorY, scissorWidth, scissorHeight);
+
+                            try {
+                                batch.draw(image.getImageTexture(), rect.getXLeft(), VIRTUAL_HEIGHT - rect.getYTop() - image.height, image.width, image.height);
+                            } catch (NullPointerException e) {
+                                Gdx.app.error("Render", e.getMessage());
+                            }
+
+                            batch.flush();
+                            Gdx.gl.glDisable(GL20.GL_SCISSOR_TEST);
+                        } else {
+                            try {
+                                batch.draw(image.getImageTexture(), rect.getXLeft(), VIRTUAL_HEIGHT - rect.getYTop() - image.height, image.width, image.height);
+                            } catch (NullPointerException ignored) {}
                         }
 
                         batch.flush();
+                        batch.end();
 
-                        Gdx.gl.glDisable(GL20.GL_SCISSOR_TEST);
-                    }
-                    else {
-                        try {
-                            batch.draw(image.getImageTexture(), rect.getXLeft(), VIRTUAL_HEIGHT - rect.getYTop() - image.height, image.width, image.height);
-                        } catch(NullPointerException ignored) {
-                        }
+                        batch.begin();
+
+                        batch.setBlendFunction(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
                     }
                 }
             } else if(variable instanceof AnimoVariable) {
@@ -311,8 +375,8 @@ public class BlooMooEmulator extends ApplicationAdapter {
             shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
             shapeRenderer.setColor(Color.RED); // Czerwony prostokąt
             Rectangle rect = getDebugRect();
-            shapeRenderer.rect(rect.getXLeft(), rect.getYBottom(),
-                    rect.getXRight() - rect.getXLeft(), rect.getYTop() - rect.getYBottom());
+            shapeRenderer.rect(rect.getXLeft(), VIRTUAL_HEIGHT - rect.getYBottom() - rect.getHeight(),
+                    rect.getWidth(), rect.getHeight());
             shapeRenderer.end();
         }
 

@@ -16,7 +16,9 @@ import pl.genschu.bloomooemulator.objects.Image;
 import pl.genschu.bloomooemulator.objects.Rectangle;
 import pl.genschu.bloomooemulator.utils.ArgumentsHelper;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class ImageVariable extends Variable implements Cloneable {
 	Image image;
@@ -28,6 +30,8 @@ public class ImageVariable extends Variable implements Cloneable {
 
 	private boolean isVisible = true;
 	private boolean monitorCollision = false;
+
+	private Map<String, Rectangle> alphaMasks = new HashMap<>();
 
 	public ImageVariable(String name, Context context) {
 		super(name, context);
@@ -221,9 +225,7 @@ public class ImageVariable extends Variable implements Cloneable {
 				int posY = ArgumentsHelper.getInteger(arguments.get(1));
 				String maskName = ArgumentsHelper.getString(arguments.get(2));
 
-				// correct posY
-				posY = 600 - posY;
-
+				// Take the mask
 				Variable maskVar = context.getVariable(maskName);
 				if (!(maskVar instanceof ImageVariable)) {
 					Gdx.app.log("ImageVariable", "MERGEALPHA: Mask " + maskName + " is not an IMAGE");
@@ -235,47 +237,13 @@ public class ImageVariable extends Variable implements Cloneable {
 					return null;
 				}
 
-				TextureData targetData = image.getOriginalImageTexture().getTextureData();
-				TextureData maskData = mask.getImage().getImageTexture().getTextureData();
-
-				if (!targetData.isPrepared()) targetData.prepare();
-				if (!maskData.isPrepared()) maskData.prepare();
-
-				Pixmap targetPixmap = targetData.consumePixmap();
-				Pixmap maskPixmap = maskData.consumePixmap();
-
-				int targetWidth = image.width;
-				int targetHeight = image.height;
+				// Save the mask
 				int maskWidth = mask.getImage().width;
 				int maskHeight = mask.getImage().height;
+				Rectangle maskRect = new Rectangle(posX, posY + maskHeight, posX + maskWidth, posY);
+				alphaMasks.put(maskName, maskRect);
 
-				int startX = Math.max(0, posX - getPosX());
-				int startY = Math.max(0, (getPosY() - posY));
-
-				for (int x = 0; x < maskWidth; x++) {
-					for (int y = 0; y < maskHeight; y++) {
-						int targetX = startX + x;
-						int targetY = startY + y;
-
-						if (targetX < 0 || targetX >= targetWidth || targetY < 0 || targetY >= targetHeight) {
-							continue;
-						}
-
-						Color maskColor = new Color(maskPixmap.getPixel(x, y));
-						float maskAlpha = maskColor.a;
-
-						Color targetColor = new Color(targetPixmap.getPixel(targetX, targetY));
-
-						targetColor.a = maskAlpha;
-						targetPixmap.setColor(targetColor);
-						targetPixmap.drawPixel(targetX, targetY);
-					}
-				}
-
-				image.setImageTexture(new Texture(targetPixmap));
-				maskPixmap.dispose();
-
-				context.getGame().getEmulator().setDebugRect(new Rectangle(posX, posY - maskHeight, posX + maskWidth, posY));
+				Gdx.app.log("ImageVariable", "MERGEALPHA: Added mask " + maskName + " at " + posX + "," + posY);
 
 				return null;
 			}
@@ -484,6 +452,10 @@ public class ImageVariable extends Variable implements Cloneable {
 
 	public void setClippingRect(Rectangle clippingRect) {
 		this.clippingRect = clippingRect;
+	}
+
+	public Map<String, Rectangle> getAlphaMasks() {
+		return alphaMasks;
 	}
 
 	public boolean isVisible() {
