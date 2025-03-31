@@ -241,7 +241,17 @@ public class ButtonVariable extends Variable {
 		}
 		if(getAttribute("GFXSTANDARD") != null && gfxVariable == null) {
 			gfxVariable = context.getVariable(getAttribute("GFXSTANDARD").getValue().toString());
-			showImage(gfxVariable, isEnabled());
+			if(gfxVariable instanceof AnimoVariable) {
+				AnimoVariable animoVariable = (AnimoVariable) gfxVariable;
+				if(animoVariable.isPlaying()) {
+					showImage(gfxVariable, true);
+				}
+				else {
+					showImage(gfxVariable, isEnabled());
+				}
+			} else {
+				showImage(gfxVariable, isEnabled());
+			}
 			currentGfx = gfxVariable;
 		}
 
