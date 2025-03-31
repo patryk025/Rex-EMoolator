@@ -54,8 +54,8 @@ public class ExpressionVariable  extends Variable {
 
     @Override
     public Object getValue() {
-        Variable operand1 = parseOperand(this.operand1);
-        Variable operand2 = parseOperand(this.operand2);
+        Variable operand1 = getValue(parseOperand(this.operand1));
+        Variable operand2 = getValue(parseOperand(this.operand2));
         switch (operator) {
             case "ADD":
                 return ArithmeticSolver.add(operand1, operand2);
@@ -70,6 +70,14 @@ public class ExpressionVariable  extends Variable {
             default:
                 Gdx.app.error("ExpressionVariable", "Unknown operator: " + operator);
                 return null;
+        }
+    }
+
+    private Variable getValue(Variable var) {
+        if(var instanceof ExpressionVariable) {
+            return (Variable) var.getValue();
+        } else {
+            return var;
         }
     }
 }
