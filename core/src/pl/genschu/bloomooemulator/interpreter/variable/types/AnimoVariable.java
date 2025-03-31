@@ -494,6 +494,7 @@ public class AnimoVariable extends Variable implements Cloneable{
 					if(event.getName().equalsIgnoreCase(eventName)) {
 						currentEvent = event;
 						currentFrameNumber = 0;
+						Image oldCurrentImage = currentImage;
 						currentImage = currentEvent.getFrames().get(currentFrameNumber);
 						isPlaying = true;
 						//Gdx.app.log("updateRect()", "PLAY");
@@ -501,7 +502,8 @@ public class AnimoVariable extends Variable implements Cloneable{
 						updateRect();
 						playSfx();
 						emitSignal("ONSTARTED", currentEvent.getName());
-						emitSignal("ONFRAMECHANGED", currentEvent.getName());
+						if(oldCurrentImage != currentImage)
+							emitSignal("ONFRAMECHANGED", currentEvent.getName());
 						break;
 					}
 				}
