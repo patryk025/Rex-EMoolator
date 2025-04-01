@@ -271,7 +271,7 @@ public class BlooMooEmulator extends ApplicationAdapter {
                 }
             } else if(variable instanceof AnimoVariable) {
                 AnimoVariable animoVariable = (AnimoVariable) variable;
-                if(animoVariable.isVisible()) {
+                if(animoVariable.isVisible() || animoVariable.isPlaying()) {
                     //Gdx.app.log(variable.getName(), ((AnimoVariable) variable).getRect().toString());
                     try {
                         Image image = animoVariable.getCurrentImage();
@@ -281,7 +281,7 @@ public class BlooMooEmulator extends ApplicationAdapter {
 
                         Rectangle rect = animoVariable.getRect();
 
-                        if(animoVariable.isRenderedOnCanvas()) {
+                        if(animoVariable.isRenderedOnCanvas() && animoVariable.isVisible()) {
                             batch.setColor(1, 1, 1, animoVariable.getOpacity());
                             try {
                                 batch.draw(image.getImageTexture(), rect.getXLeft(), VIRTUAL_HEIGHT - rect.getYTop() - image.height, image.width, image.height);
