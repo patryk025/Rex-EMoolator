@@ -49,6 +49,9 @@ public class AnimoVariable extends Variable implements Cloneable{
 	private int priority = 0;
 	private float elapsedTime = 0f;
 
+	private int anchorX = 0;
+	private int anchorY = 0;
+
 	private Rectangle rect;
 	private Music currentSfx;
 
@@ -560,8 +563,51 @@ public class AnimoVariable extends Variable implements Cloneable{
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				// TODO: implement this method
-				throw new ClassMethodNotImplementedException("Method SETANCHOR is not implemented yet");
+				String anchor = ArgumentsHelper.getString(arguments.get(0), false);
+
+				switch (anchor) {
+					case "CENTER":
+						anchorX = rect.getXLeft() + rect.getWidth() / 2;
+						anchorY = rect.getYTop() + rect.getHeight() / 2;
+						break;
+					case "LEFTUPPER":
+						anchorX = rect.getXLeft();
+						anchorY = rect.getYTop();
+						break;
+					case "RIGHTUPPER":
+						anchorX = rect.getXRight();
+						anchorY = rect.getYTop();
+						break;
+					case "LEFTLOWER":
+						anchorX = rect.getXLeft();
+						anchorY = rect.getYBottom();
+						break;
+					case "RIGHTLOWER":
+						anchorX = rect.getXRight();
+						anchorY = rect.getYBottom();
+						break;
+					case "LEFT":
+						anchorX = rect.getXLeft();
+						anchorY = rect.getYTop() + rect.getHeight() / 2;
+						break;
+					case "RIGHT":
+						anchorX = rect.getXRight();
+						anchorY = rect.getYTop() + rect.getHeight() / 2;
+						break;
+					case "TOP":
+						anchorX = rect.getXLeft() + rect.getWidth() / 2;
+						anchorY = rect.getYTop();
+						break;
+					case "BOTTOM":
+						anchorX = rect.getXLeft() + rect.getWidth() / 2;
+						anchorY = rect.getYBottom();
+						break;
+					default:
+						Gdx.app.log("AnimoVariable", "Unknown anchor: " + anchor);
+						break;
+				}
+
+				return null;
 			}
 		});
 		this.setMethod("SETANCHOR", new Method(
@@ -573,8 +619,9 @@ public class AnimoVariable extends Variable implements Cloneable{
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				// TODO: implement this method
-				throw new ClassMethodNotImplementedException("Method SETANCHOR is not implemented yet");
+				anchorX = ArgumentsHelper.getInteger(arguments.get(0));
+				anchorY = ArgumentsHelper.getInteger(arguments.get(1));
+				return null;
 			}
 		});
 		this.setMethod("SETASBUTTON", new Method(
@@ -741,8 +788,8 @@ public class AnimoVariable extends Variable implements Cloneable{
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				posX = ArgumentsHelper.getInteger(arguments.get(0));
-				posY = ArgumentsHelper.getInteger(arguments.get(1));
+				posX = ArgumentsHelper.getInteger(arguments.get(0)) - anchorX;
+				posY = ArgumentsHelper.getInteger(arguments.get(1)) - anchorY;
 				//Gdx.app.log("updateRect()", "SETPOSITION");
 				updateRect();
 				return null;
