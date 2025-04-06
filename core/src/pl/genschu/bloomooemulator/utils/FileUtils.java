@@ -2,8 +2,10 @@ package pl.genschu.bloomooemulator.utils;
 
 import com.badlogic.gdx.Gdx;
 import pl.genschu.bloomooemulator.interpreter.variable.Variable;
-
 import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 public class FileUtils {
     public static String convertToPlatformPath(String path) {
@@ -18,55 +20,79 @@ public class FileUtils {
             return targetFile;
         }
 
-        String[] pathSegments = platformPath.split(File.separator.equals("\\") ? "\\\\" : "/");
+        Path basePath = baseDirectory.toPath();
+        Path resolvedPath = resolveCaseInsensitive(basePath, Paths.get(platformPath));
 
-        return findFileIgnoreCase(baseDirectory, pathSegments, 0);
+        return resolvedPath != null ? resolvedPath.toFile() : null;
     }
 
-    private static File findFileIgnoreCase(File directory, String[] pathSegments, int index) {
-        if (index >= pathSegments.length) {
-            return directory;
-        }
+    private static Path resolveCaseInsensitive(Path basePath, Path relativePath) {
+        Path currentPath = basePath.normalize();
 
-        File[] files = directory.listFiles();
-        if (files != null) {
-            for (File file : files) {
-                if (file.getName().equalsIgnoreCase(pathSegments[index])) {
-                    return findFileIgnoreCase(file, pathSegments, index + 1);
+        for (Path segment : relativePath.normalize()) {
+            if (segment.toString().isEmpty()) {
+                continue;
+            }
+
+            try {
+                Path finalCurrentPath = currentPath;
+                Path matchedPath = Files.list(currentPath)
+                        .filter(p -> p.getFileName().toString().equalsIgnoreCase(segment.toString()))
+                        .findFirst()
+                        .orElse(null);
+
+                if (matchedPath == null || !Files.exists(matchedPath)) {
+                    Gdx.app.debug("FileUtils", "No case-insensitive match for: " + segment + " in " + finalCurrentPath);
+                    return null;
                 }
+
+                currentPath = matchedPath;
+            } catch (Exception e) {
+                Gdx.app.error("FileUtils", "Error listing directory: " + currentPath, e);
+                return null;
             }
         }
 
-        return null;
+        return currentPath;
     }
 
     public static String resolveRelativePath(Variable variable) {
         String filePath = variable.getAttribute("FILENAME").getValue().toString();
-
         return resolveRelativePath(variable, filePath);
     }
 
     public static String resolveRelativePath(Variable variable, String filePath) {
-        if(filePath.startsWith("$")) {
-            if(filePath.contains("$COMMON"))
-                filePath = filePath.replace("$COMMON", variable.getContext().getGame().getCommonFolder().getAbsolutePath());
-            else if(filePath.contains("$WAVS"))
-                filePath = filePath.replace("$WAVS", variable.getContext().getGame().getWavsFolder().getAbsolutePath());
-            else
-                filePath = filePath.replace("$", variable.getContext().getGame().getDaneFolder().getParentFile().getAbsolutePath());
-        }
-        else {
-            // probably is relative path
-            if(variable.getContext().getGame().getCurrentSceneFile() != null)
-                filePath = variable.getContext().getGame().getCurrentSceneFile().getAbsolutePath() + "/" + filePath;
-            else if(variable.getContext().getGame().getCurrentEpisodeFile() != null)
-                filePath = variable.getContext().getGame().getCurrentEpisodeFile().getAbsolutePath() + "/" + filePath;
-            else if(variable.getContext().getGame().getCurrentApplicationFile() != null)
-                filePath = variable.getContext().getGame().getCurrentApplicationFile().getAbsolutePath() + "/" + filePath;
-            else
-                filePath = variable.getContext().getGame().getDaneFolder().getAbsolutePath() + "/" + filePath;
+        File resolvedFile;
+
+        if (filePath.startsWith("$")) {
+            if (filePath.contains("$COMMON")) {
+                resolvedFile = variable.getContext().getGame().getCommonFolder();
+                filePath = filePath.replace("$COMMON", "");
+            } else if (filePath.contains("$WAVS")) {
+                resolvedFile = variable.getContext().getGame().getWavsFolder();
+                filePath = filePath.replace("$WAVS", "");
+            } else {
+                resolvedFile = variable.getContext().getGame().getDaneFolder().getParentFile();
+                filePath = filePath.replace("$", "");
+            }
+            filePath = filePath.trim();
+            if (!filePath.isEmpty()) {
+                resolvedFile = new File(resolvedFile, convertToPlatformPath(filePath));
+            }
+        } else {
+            if (variable.getContext().getGame().getCurrentSceneFile() != null) {
+                resolvedFile = variable.getContext().getGame().getCurrentSceneFile();
+            } else if (variable.getContext().getGame().getCurrentEpisodeFile() != null) {
+                resolvedFile = variable.getContext().getGame().getCurrentEpisodeFile();
+            } else if (variable.getContext().getGame().getCurrentApplicationFile() != null) {
+                resolvedFile = variable.getContext().getGame().getCurrentApplicationFile();
+            } else {
+                resolvedFile = variable.getContext().getGame().getDaneFolder();
+            }
+            resolvedFile = new File(resolvedFile, convertToPlatformPath(filePath));
         }
 
-        return convertToPlatformPath(filePath);
+        File finalFile = findRelativeFileIgnoreCase(resolvedFile.getParentFile(), resolvedFile.getName());
+        return finalFile != null ? finalFile.getAbsolutePath() : resolvedFile.getAbsolutePath();
     }
 }
