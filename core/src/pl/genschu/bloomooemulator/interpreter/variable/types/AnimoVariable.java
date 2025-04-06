@@ -39,10 +39,6 @@ public class AnimoVariable extends Variable implements Cloneable{
 	private boolean isVisible = true;
 	private int posX = 0;
 	private int posY = 0;
-	private int endPosX = 0;
-	private int endPosY = 0;
-	private int centerX = 0;
-	private int centerY = 0;
 	private int maxWidth = 0;
 	private int maxHeight = 0;
 	private int direction = 1;
@@ -86,7 +82,7 @@ public class AnimoVariable extends Variable implements Cloneable{
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				return new IntegerVariable("", centerX, context);
+				return new IntegerVariable("", rect.getXLeft()+rect.getWidth()/2, context);
 			}
 		});
 		this.setMethod("GETCENTERY", new Method(
@@ -97,7 +93,7 @@ public class AnimoVariable extends Variable implements Cloneable{
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				return new IntegerVariable("", centerY, context);
+				return new IntegerVariable("", rect.getYTop()+rect.getHeight()/2, context);
 			}
 		});
 		this.setMethod("GETCFRAMEINEVENT", new Method(
@@ -129,7 +125,7 @@ public class AnimoVariable extends Variable implements Cloneable{
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				return new IntegerVariable("", endPosX, context);
+				return new IntegerVariable("", rect.getXLeft()+rect.getWidth(), context);
 			}
 		});
 		this.setMethod("GETENDY", new Method(
@@ -137,7 +133,7 @@ public class AnimoVariable extends Variable implements Cloneable{
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				return new IntegerVariable("", endPosY, context);
+				return new IntegerVariable("", rect.getYTop()+rect.getHeight(), context);
 			}
 		});
 		this.setMethod("GETEVENTNAME", new Method(
@@ -251,7 +247,7 @@ public class AnimoVariable extends Variable implements Cloneable{
 					return new IntegerVariable("", posX, context);
 				} else {
 					try {
-						return new IntegerVariable("", posX + currentEvent.getFrameData().get(currentFrameNumber).getOffsetX() + currentImage.offsetX, context);
+						return new IntegerVariable("", rect.getXLeft(), context);
 					} catch (IndexOutOfBoundsException e) {
 						return new IntegerVariable("", posX, context);
 					}
@@ -272,7 +268,7 @@ public class AnimoVariable extends Variable implements Cloneable{
 					return new IntegerVariable("", posY, context);
 				} else {
 					try {
-						return new IntegerVariable("", posY + currentEvent.getFrameData().get(currentFrameNumber).getOffsetY() + currentImage.offsetY, context);
+						return new IntegerVariable("", rect.getYTop(), context);
 					} catch (IndexOutOfBoundsException e) {
 						return new IntegerVariable("", posY, context);
 					}
@@ -996,10 +992,6 @@ public class AnimoVariable extends Variable implements Cloneable{
 			rect.setYTop(posY);
 			rect.setXRight(posX + 1);
 			rect.setYBottom(posY - 1);
-			endPosX = rect.getXRight();
-			endPosY = rect.getYBottom();
-			centerX = posX;
-			centerY = posY;
 		} else {
 			try {
 				FrameData frameData = currentEvent != null && !currentEvent.getFrameData().isEmpty()
@@ -1013,11 +1005,6 @@ public class AnimoVariable extends Variable implements Cloneable{
 				rect.setYTop(posY + frameOffsetY + currentImage.offsetY);
 				rect.setXRight(rect.getXLeft() + currentImage.width);
 				rect.setYBottom(rect.getYTop() - currentImage.height);
-
-				endPosX = rect.getXRight();
-				endPosY = rect.getYBottom();
-				centerX = rect.getXLeft() + currentImage.width / 2;
-				centerY = rect.getYTop() - currentImage.height / 2;
 			} catch (Exception e) {
 				Gdx.app.error("AnimoVariable", "Error updating rect: " + e.getMessage());
 				rect.setXLeft(posX);
@@ -1040,11 +1027,6 @@ public class AnimoVariable extends Variable implements Cloneable{
 		rect.setYTop(image.offsetY - posY);
 		rect.setXRight(rect.getXLeft() + image.width);
 		rect.setYBottom(rect.getYTop() - image.height);
-
-		endPosX = rect.getXRight();
-		endPosY = rect.getYBottom();
-		centerX = rect.getXLeft() + image.width / 2;
-		centerY = rect.getYTop() - image.height / 2;
 
 		//Gdx.app.debug("AnimoVariable ("+this.getName()+")", "Rect: " + rect);
 	}
