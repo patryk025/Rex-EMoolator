@@ -74,6 +74,21 @@ public class AnimoVariable extends Variable implements Cloneable{
 	protected void setMethods() {
 		super.setMethods();
 
+		this.setMethod("GETANCHOR", new Method(
+				List.of(
+						new Parameter("STRING", "arrayName", true)
+				),
+				"INTEGER"
+		) {
+			@Override
+			public Variable execute(List<Object> arguments) {
+				String arrayName = ArgumentsHelper.getString(arguments.get(0));
+				ArrayVariable array = (ArrayVariable) context.getVariable(arrayName);
+				array.elements.add(new IntegerVariable("", anchorX, context));
+				array.elements.add(new IntegerVariable("", anchorY, context));
+				return null;
+			}
+		});
 		this.setMethod("GETCENTERX", new Method(
 				List.of(
 						new Parameter("BOOL", "unknown", false)
