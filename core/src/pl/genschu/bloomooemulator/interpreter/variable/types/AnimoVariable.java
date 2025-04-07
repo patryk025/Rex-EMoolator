@@ -318,9 +318,9 @@ public class AnimoVariable extends Variable implements Cloneable{
 		});
 		this.setMethod("ISAT", new Method(
 				List.of(
-					new Parameter("INTEGER", "posX", true),
-					new Parameter("INTEGER", "posY", true),
-					new Parameter("BOOL", "checkAlpha?", true)
+						new Parameter("INTEGER", "posX", true),
+						new Parameter("INTEGER", "posY", true),
+						new Parameter("BOOL", "checkAlpha?", true)
 				),
 				"BOOL"
 		) {
@@ -452,12 +452,9 @@ public class AnimoVariable extends Variable implements Cloneable{
 					currentFrameNumber = 0;
 				}
 
-				currentImageNumber = currentEvent.getFramesNumbers().get(currentFrameNumber);
-				currentImage = currentEvent.getFrames().get(currentFrameNumber);
+				setCurrentImageNumber(currentEvent.getFramesNumbers().get(currentFrameNumber));
 				//Gdx.app.log("updateRect()", "NEXTFRAME");
 				show();
-				updateRect();
-				emitSignal("ONFRAMECHANGED", currentEvent.getName());
 				return null;
 			}
 		});
@@ -471,15 +468,14 @@ public class AnimoVariable extends Variable implements Cloneable{
 			public Variable execute(List<Object> arguments) {
 				int eventId = ArgumentsHelper.getInteger(arguments.get(0));
 				try {
+					emitSignal("ONSTARTED", currentEvent.getName());
 					currentEvent = events.get(eventId);
 					currentFrameNumber = 0;
+					setCurrentImageNumber(currentEvent.getFramesNumbers().get(currentFrameNumber));
+					playSfx();
 					isPlaying = true;
 					//Gdx.app.log("updateRect()", "NPLAY");
 					show();
-					updateRect();
-					playSfx();
-					emitSignal("ONSTARTED", currentEvent.getName());
-					emitSignal("ONFRAMECHANGED", currentEvent.getName());
 				} catch (IndexOutOfBoundsException e) {
 					Gdx.app.error("AnimoVariable", "Event with id " + eventId + " not found");
 				}
@@ -506,18 +502,15 @@ public class AnimoVariable extends Variable implements Cloneable{
 				String eventName = ArgumentsHelper.getString(arguments.get(0), false);
 				for(Event event : events) {
 					if(event.getName().equalsIgnoreCase(eventName)) {
+						emitSignal("ONSTARTED", currentEvent.getName());
 						currentEvent = event;
 						currentFrameNumber = 0;
-						Image oldCurrentImage = currentImage;
-						currentImage = currentEvent.getFrames().get(currentFrameNumber);
+						setCurrentImageNumber(currentEvent.getFramesNumbers().get(currentFrameNumber));
+						playSfx();
 						isPlaying = true;
 						//Gdx.app.log("updateRect()", "PLAY");
 						show();
-						updateRect();
-						playSfx();
-						emitSignal("ONSTARTED", currentEvent.getName());
-						if(oldCurrentImage != currentImage)
-							emitSignal("ONFRAMECHANGED", currentEvent.getName());
+
 						break;
 					}
 				}
@@ -533,12 +526,9 @@ public class AnimoVariable extends Variable implements Cloneable{
 				if(currentFrameNumber < 0) {
 					currentFrameNumber = currentEvent.getFramesNumbers().size() - 1;
 				}
-				currentImageNumber = currentEvent.getFramesNumbers().get(currentFrameNumber);
-				currentImage = currentEvent.getFrames().get(currentFrameNumber);
+				setCurrentImageNumber(currentEvent.getFramesNumbers().get(currentFrameNumber));
 				//Gdx.app.log("updateRect()", "PREVFRAME");
 				show();
-				updateRect();
-				emitSignal("ONFRAMECHANGED", currentEvent.getName());
 				return null;
 			}
 		});
@@ -700,14 +690,7 @@ public class AnimoVariable extends Variable implements Cloneable{
 			public Variable execute(List<Object> arguments) {
 				int frameNumber = ArgumentsHelper.getInteger(arguments.get(0));
 				currentFrameNumber = 0;
-
-				currentImageNumber = frameNumber;
-				try {
-					currentImage = getImages().get(currentImageNumber);
-					emitSignal("ONFRAMECHANGED");
-					//Gdx.app.log("updateRect()", "SETFRAME");
-					updateRect(currentImage);
-				} catch (IndexOutOfBoundsException ignored) {}
+				setCurrentImageNumber(frameNumber);
 				//show();
 				return null;
 			}
@@ -738,16 +721,13 @@ public class AnimoVariable extends Variable implements Cloneable{
 					}
 				}
 				if(arguments.size() >= 2) {
-                    currentFrameNumber = ArgumentsHelper.getInteger(arguments.get(1));
+					currentFrameNumber = ArgumentsHelper.getInteger(arguments.get(1));
 				}
 				else {
 					currentFrameNumber = 0;
 				}
 				if(!currentEvent.getFrames().isEmpty()) {
-					currentImageNumber = currentEvent.getFramesNumbers().get(currentFrameNumber);
-					currentImage = currentEvent.getFrames().get(currentFrameNumber);
-					//Gdx.app.log("updateRect()", "SETFRAME");
-					updateRect();
+					setCurrentImageNumber(currentEvent.getFramesNumbers().get(currentFrameNumber));
 				}
 				else {
 					currentImageNumber = 0;
@@ -846,10 +826,7 @@ public class AnimoVariable extends Variable implements Cloneable{
 				}
 
 				currentFrameNumber = 0;
-				currentImageNumber = currentEvent.getFramesNumbers().get(currentFrameNumber);
-				currentImage = getImages().get(currentImageNumber);
-				//Gdx.app.log("updateRect()", "STOP");
-				updateRect();
+				setCurrentImageNumber(currentEvent.getFramesNumbers().get(currentFrameNumber));
 				isPlaying = false;
 
 				if(emitSignal) {
@@ -877,7 +854,7 @@ public class AnimoVariable extends Variable implements Cloneable{
 		List<String> knownAttributes = List.of("ASBUTTON", "FILENAME", "FLUSHAFTERPLAYED", "FPS", "MONITORCOLLISION", "MONITORCOLLISIONALPHA", "PRELOAD", "PRIORITY", "RELEASE", "TOCANVAS", "VISIBLE");
 		if(knownAttributes.contains(name)) {
 			super.setAttribute(name, attribute);
-            switch (name) {
+			switch (name) {
 				case "FPS":
 					setFps(Integer.parseInt(getAttribute("FPS").getValue().toString()));
 					break;
@@ -898,18 +875,16 @@ public class AnimoVariable extends Variable implements Cloneable{
 							}
 							currentFrameNumber = 0;
 							if (!currentEvent.getFrames().isEmpty()) {
-								currentImageNumber = currentEvent.getFramesNumbers().get(0);
-								currentImage = currentEvent.getFrames().get(currentImageNumber);
-								updateRect();
+								setCurrentImageNumber(currentEvent.getFramesNumbers().get(0));
 							}
 						}
 					} catch (Exception e) {
 						Gdx.app.error("AnimoVariable", "Error loading ANIMO variable: " + filename, e);
 					}
 					break;
-                case "PRIORITY":
-                    priority = Integer.parseInt(getAttribute("PRIORITY").getValue().toString());
-                    break;
+				case "PRIORITY":
+					priority = Integer.parseInt(getAttribute("PRIORITY").getValue().toString());
+					break;
 				case "VISIBLE":
 					changeVisibility(attribute.getValue().toString().equals("TRUE"));
 					break;
@@ -920,7 +895,7 @@ public class AnimoVariable extends Variable implements Cloneable{
 				case "MONITORCOLLISION":
 					monitorCollision = attribute.getValue().toString().equals("TRUE");
 					break;
-            }
+			}
 		}
 	}
 
@@ -941,17 +916,15 @@ public class AnimoVariable extends Variable implements Cloneable{
 		elapsedTime += deltaTime;
 		if (elapsedTime >= frameDuration) {
 			elapsedTime -= frameDuration;
-            
+
 			if(elapsedTime >= frameDuration) {
-                elapsedTime = 0; // only when engine is lagging, set elapsedTime to zero to eliminate animation fast forward
-            }
-            
+				elapsedTime = 0; // only when engine is lagging, set elapsedTime to zero to eliminate animation fast forward
+			}
+
 			currentFrameNumber += direction;
 
 			if (currentFrameNumber >= currentEvent.getFrames().size()) {
 				currentFrameNumber = currentEvent.getFrames().size() - 1;
-
-				playSfx();
 
 				if(currentEvent.getLoopBy() == 0) { // TODO: check, how this value works
 					isPlaying = false;
@@ -959,19 +932,14 @@ public class AnimoVariable extends Variable implements Cloneable{
 				}
 				else {
 					currentFrameNumber = 0;
-					currentImageNumber = currentEvent.getFramesNumbers().get(currentFrameNumber);
-					currentImage = currentEvent.getFrames().get(currentFrameNumber);
+					setCurrentImageNumber(currentEvent.getFramesNumbers().get(currentFrameNumber));
+					playSfx();
 				}
 			}
 			else {
+				setCurrentImageNumber(currentEvent.getFramesNumbers().get(currentFrameNumber));
 				playSfx();
-				currentImageNumber = currentEvent.getFramesNumbers().get(currentFrameNumber);
-				currentImage = currentEvent.getFrames().get(currentFrameNumber);
 			}
-
-			//Gdx.app.log("updateRect()", "updateAnimation");
-			updateRect();
-			emitSignal("ONFRAMECHANGED", currentEvent.getName());
 		}
 	}
 
@@ -1144,7 +1112,7 @@ public class AnimoVariable extends Variable implements Cloneable{
 			}
 		}
 
- 		return opacity / 255f;
+		return opacity / 255f;
 	}
 
 	public void setOpacity(int opacity) {
@@ -1220,7 +1188,12 @@ public class AnimoVariable extends Variable implements Cloneable{
 	}
 
 	public void setCurrentImageNumber(int currentImageNumber) {
+		if(this.currentImageNumber != currentImageNumber) {
+			emitSignal("ONFRAMECHANGED", currentEvent != null ? currentEvent.getName() : null);
+		}
 		this.currentImageNumber = currentImageNumber;
+		this.currentImage = getImages().get(currentImageNumber);
+		updateRect();
 	}
 
 	public Image getCurrentImage() {
@@ -1372,9 +1345,9 @@ public class AnimoVariable extends Variable implements Cloneable{
 	}
 
 	@Override
-    public AnimoVariable clone() {
-        AnimoVariable clone = (AnimoVariable) super.clone();
-        this.rect = new Rectangle(rect.getXLeft(), rect.getYBottom(), rect.getXRight(), rect.getYTop());
-        return clone;
-    }
+	public AnimoVariable clone() {
+		AnimoVariable clone = (AnimoVariable) super.clone();
+		this.rect = new Rectangle(rect.getXLeft(), rect.getYBottom(), rect.getXRight(), rect.getYTop());
+		return clone;
+	}
 }
