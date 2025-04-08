@@ -76,7 +76,14 @@ public class CNVParser {
             else separator = "=";
             if (line.startsWith("OBJECT"+separator)) {
                 if (currentObjectName != null) {
-                    objects.put(currentObjectName, currentObject);
+                    if(objects.containsKey(currentObjectName)) {
+                        Gdx.app.log("CNVParser", "Redefinition of object: " + currentObjectName + ". Overwriting events..."); // TODO: check if other parameters are overwritten
+                        Map<String, String> oldObject = objects.get(currentObjectName);
+                        oldObject.putAll(currentObject);
+                    }
+                    else {
+                        objects.put(currentObjectName, currentObject);
+                    }
                 }
                 currentObjectName = line.split(separator)[1];
                 currentObject = new LinkedHashMap<>();
@@ -88,7 +95,14 @@ public class CNVParser {
             }
         }
         if (currentObjectName != null) {
-            objects.put(currentObjectName, currentObject);
+            if(objects.containsKey(currentObjectName)) {
+                Gdx.app.log("CNVParser", "Redefinition of object: " + currentObjectName + ". Overwriting events..."); // TODO: check if other parameters are overwritten
+                Map<String, String> oldObject = objects.get(currentObjectName);
+                oldObject.putAll(currentObject);
+            }
+            else {
+                objects.put(currentObjectName, currentObject);
+            }
         }
 
         for (Map.Entry<String, Map<String, String>> entry : objects.entrySet()) {
