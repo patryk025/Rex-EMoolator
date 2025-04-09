@@ -19,7 +19,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-public class AnimoVariable extends Variable implements Cloneable{
+public class AnimoVariable extends Variable implements Cloneable {
 	private int imagesCount = 0;
 	private int colorDepth;
 	private int eventsCount = 0;
@@ -468,8 +468,8 @@ public class AnimoVariable extends Variable implements Cloneable{
 			public Variable execute(List<Object> arguments) {
 				int eventId = ArgumentsHelper.getInteger(arguments.get(0));
 				try {
-					emitSignal("ONSTARTED", currentEvent.getName());
 					currentEvent = events.get(eventId);
+					emitSignal("ONSTARTED", currentEvent.getName());
 					currentFrameNumber = 0;
 					setCurrentImageNumber(currentEvent.getFramesNumbers().get(currentFrameNumber));
 					playSfx();
@@ -502,8 +502,8 @@ public class AnimoVariable extends Variable implements Cloneable{
 				String eventName = ArgumentsHelper.getString(arguments.get(0), false);
 				for(Event event : events) {
 					if(event.getName().equalsIgnoreCase(eventName)) {
-						emitSignal("ONSTARTED", currentEvent.getName());
 						currentEvent = event;
+						emitSignal("ONSTARTED", currentEvent.getName());
 						currentFrameNumber = 0;
 						setCurrentImageNumber(currentEvent.getFramesNumbers().get(currentFrameNumber));
 						playSfx();
