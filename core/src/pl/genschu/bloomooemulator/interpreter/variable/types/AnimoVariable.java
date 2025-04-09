@@ -469,10 +469,10 @@ public class AnimoVariable extends Variable implements Cloneable {
 				int eventId = ArgumentsHelper.getInteger(arguments.get(0));
 				try {
 					currentEvent = events.get(eventId);
-					emitSignal("ONSTARTED", currentEvent.getName());
 					currentFrameNumber = 0;
 					setCurrentImageNumber(currentEvent.getFramesNumbers().get(currentFrameNumber));
 					playSfx();
+					emitSignal("ONSTARTED", currentEvent.getName());
 					isPlaying = true;
 					//Gdx.app.log("updateRect()", "NPLAY");
 					show();
@@ -503,10 +503,10 @@ public class AnimoVariable extends Variable implements Cloneable {
 				for(Event event : events) {
 					if(event.getName().equalsIgnoreCase(eventName)) {
 						currentEvent = event;
-						emitSignal("ONSTARTED", currentEvent.getName());
 						currentFrameNumber = 0;
 						setCurrentImageNumber(currentEvent.getFramesNumbers().get(currentFrameNumber));
 						playSfx();
+						emitSignal("ONSTARTED", currentEvent.getName());
 						isPlaying = true;
 						//Gdx.app.log("updateRect()", "PLAY");
 						show();
