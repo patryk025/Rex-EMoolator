@@ -65,9 +65,9 @@ public class CanvasObserverVariable extends Variable {
 				List.of(
 						new Parameter("INTEGER", "posX", true),
 						new Parameter("INTEGER", "posY", true),
-						new Parameter("BOOL", "unknown", true),
-						new Parameter("INTEGER", "minZ", true),
-						new Parameter("INTEGER", "maxZ", true),
+						new Parameter("BOOL", "unknown", false),
+						new Parameter("INTEGER", "minZ", false),
+						new Parameter("INTEGER", "maxZ", false),
 						new Parameter("BOOL", "useAlpha", false)
 				),
 				"STRING"
@@ -76,9 +76,9 @@ public class CanvasObserverVariable extends Variable {
 			public Variable execute(List<Object> arguments) {
 				int posX = ArgumentsHelper.getInteger(arguments.get(0));
 				int posY = ArgumentsHelper.getInteger(arguments.get(1));
-				boolean unknown = ArgumentsHelper.getBoolean(arguments.get(2));
-				int minZ = ArgumentsHelper.getInteger(arguments.get(3));
-				int maxZ = ArgumentsHelper.getInteger(arguments.get(4));
+				boolean unknown = arguments.size() > 2 && ArgumentsHelper.getBoolean(arguments.get(2));
+				int minZ = arguments.size() > 3 ? ArgumentsHelper.getInteger(arguments.get(3)) : -1;
+				int maxZ = arguments.size() > 4 ? ArgumentsHelper.getInteger(arguments.get(4)) : -1;
 				boolean useAlpha = arguments.size() > 5 && ArgumentsHelper.getBoolean(arguments.get(5));
 
 				List<Variable> drawList = new ArrayList<>(context.getGraphicsVariables().values());
@@ -111,7 +111,7 @@ public class CanvasObserverVariable extends Variable {
 
 					int z = variable.getAttribute("PRIORITY") != null ? Integer.parseInt(variable.getAttribute("PRIORITY").getValue().toString()) : 0;
 
-					if (z >= minZ && z <= maxZ) {
+					if ((z >= minZ && z <= maxZ) || (minZ == -1 && maxZ == -1)) {
 						Rectangle rect = getRect(variable);
 						if(rect ==  null) continue;
 						if (rect.contains(posX, posY)) {
