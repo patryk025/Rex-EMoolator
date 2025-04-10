@@ -1187,13 +1187,13 @@ public class AnimoVariable extends Variable implements Cloneable {
 	}
 
 	public void setCurrentImageNumber(int currentImageNumber) {
-		boolean isFrameChanged = this.currentImageNumber != currentImageNumber;
+		//boolean isFrameChanged = this.currentImageNumber != currentImageNumber;
 		this.currentImageNumber = currentImageNumber;
 		this.currentImage = getImages().get(currentImageNumber);
 		updateRect();
-		if(isFrameChanged) {
+		//if(isFrameChanged) {
 			emitSignal("ONFRAMECHANGED", currentEvent != null ? currentEvent.getName() : null);
-		}
+		//}
 	}
 
 	public Image getCurrentImage() {
