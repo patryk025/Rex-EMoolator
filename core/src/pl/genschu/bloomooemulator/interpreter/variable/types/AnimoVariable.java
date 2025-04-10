@@ -124,7 +124,7 @@ public class AnimoVariable extends Variable implements Cloneable {
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				return new IntegerVariable("", currentEvent.getFrameData().get(currentFrameNumber).getOffsetX(), context);
+				return new IntegerVariable("", currentImage.offsetX, context);
 			}
 		});
 		this.setMethod("GETCURRFRAMEPOSY", new Method(
@@ -132,7 +132,7 @@ public class AnimoVariable extends Variable implements Cloneable {
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				return new IntegerVariable("", currentEvent.getFrameData().get(currentFrameNumber).getOffsetY(), context);
+				return new IntegerVariable("", currentImage.offsetY, context);
 			}
 		});
 		this.setMethod("GETENDX", new Method(
@@ -738,7 +738,6 @@ public class AnimoVariable extends Variable implements Cloneable {
 					rect.setXRight(1);
 					rect.setYBottom(1);
 				}
-				emitSignal("ONFRAMECHANGED", currentEvent.getName());
 				//show();
 				return null;
 			}
@@ -1188,12 +1187,13 @@ public class AnimoVariable extends Variable implements Cloneable {
 	}
 
 	public void setCurrentImageNumber(int currentImageNumber) {
-		if(this.currentImageNumber != currentImageNumber) {
-			emitSignal("ONFRAMECHANGED", currentEvent != null ? currentEvent.getName() : null);
-		}
+		boolean isFrameChanged = this.currentImageNumber != currentImageNumber;
 		this.currentImageNumber = currentImageNumber;
 		this.currentImage = getImages().get(currentImageNumber);
 		updateRect();
+		if(isFrameChanged) {
+			emitSignal("ONFRAMECHANGED", currentEvent != null ? currentEvent.getName() : null);
+		}
 	}
 
 	public Image getCurrentImage() {
