@@ -143,6 +143,14 @@ public class DoubleVariable extends Variable {
 				return DoubleVariable.this;
 			}
 		});
+		this.setMethod("GET", new Method(
+				"BOOL"
+		) {
+			@Override
+			public Variable execute(List<Object> arguments) {
+				return DoubleVariable.this;
+			}
+		});
 		this.setMethod("LENGTH", new Method(
 				List.of(
 						new Parameter("DOUBLE", "x", true),

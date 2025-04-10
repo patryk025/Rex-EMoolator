@@ -119,6 +119,14 @@ public class IntegerVariable extends Variable {
 				return IntegerVariable.this;
 			}
 		});
+		this.setMethod("GET", new Method(
+				"BOOL"
+		) {
+			@Override
+			public Variable execute(List<Object> arguments) {
+				return IntegerVariable.this;
+			}
+		});
 		this.setMethod("INC", new Method(
 				"void"
 		) {

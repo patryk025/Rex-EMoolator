@@ -35,6 +35,14 @@ public class BoolVariable extends Variable {
 	protected void setMethods() {
 		super.setMethods();
 
+		this.setMethod("GET", new Method(
+				"BOOL"
+		) {
+			@Override
+			public Variable execute(List<Object> arguments) {
+				return BoolVariable.this;
+			}
+		});
 		this.setMethod("RESETINI", new Method(
 				"void"
 		) {

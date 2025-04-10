@@ -26,13 +26,13 @@ Aktualne statusy gier opartych na silniku Piklib/BlooMoo:
 <tr>
 <td>Reksio i Skarb Piratów</td>
 <td><img alt="W grze" src="https://img.shields.io/badge/W grze-yellow"/></td>
-<td>Gra działa bez poważniejszych błędów do momentu dotarcia do dwóch mostów z pająkami, nietoperzem i płomieniem. Sekwencja z rzeką jest dość trudna do przejścia (nie, żeby w oryginale było to proste). Cutscenka z piratami kończy się za wcześnie (po ostatnich zmianach do sprawdzenia). Sekwencja z kokosami ma drobne różnice w detekcji kolizji w stosunku do oryginału (dodatkowo pojawia się w rogu kura lekko przesłaniająca przycisk menu, nie wiem czemu). Etap ze zbieraniem pereł działa, jednak nie pojawia się pasek z tlenem. Podczas zagadek przy posągu Boga Twaroga sporadycznie grafiki odpowiedzi są zamienione miejscami (narrator jednak czyta poprawnie). Sekwencja z mostem częściowo działa, są problemy, że z każdym ruchem Reksio jest nadmiarowo przesuwany o 9 pikseli, przez co niepoprawnie działa przemieszcza się na dolny most. Dodatkowo działa tylko jeden pająk.</td>
+<td>Gra działa bez poważniejszych błędów do outra. Praktycznie jest już grywalna z drobnymi bugami. Sekwencja z rzeką jest dość trudna do przejścia (nie, żeby w oryginale było to proste). Cutscenka z piratami kończy się za wcześnie. Sekwencja z kokosami ma drobne różnice w detekcji kolizji w stosunku do oryginału (dodatkowo pojawia się w rogu kura lekko przesłaniająca przycisk menu, nie wiem czemu). Jak się wejdzie do królewny, to wszystkie elementy graficzne przez moment są niewidoczne. Etap ze zbieraniem pereł działa, jednak nie pojawia się pasek z tlenem. Podczas zagadek przy posągu Boga Twaroga sporadycznie grafiki odpowiedzi są zamienione miejscami (narrator jednak czyta poprawnie). W etapie z UFO sporadycznie są problemy z priorytetami animacji (winda przesłania Reksia). Przy włazie nie wyświetla się drzewo, na którym siedzą papugi. Jest problem z sekwencją, gdzie piraci płyną po Kapitana O'Gryzka, przestaje działać audio i nie jest w stanie przejść dalej.</td>
 <td>ok. 61% (28/46 scen)</td>
 </tr>
 <tr>
 <td>Reksio i Ufo</td>
 <td><img alt="W grze" src="https://img.shields.io/badge/W grze-yellow"/></td>
-<td>Gra działa w większości poprawnie do momentu, gdzie składamy wajhadłowiec. Podczas sekwencji z inwazją ufo są problemy z laserem, który przebija się przez ufo i nie znika przy ziemi, dodatkowo kod interpretera zaczyna przymulać przy takiej ilości obiektów. Buguje się menu przedmiotów, wzięte przedmioty na powrót się pojawiają na swoich miejscach po przeładowaniu sceny. Podczas kalibrowania kreta elementy na ekranach się ruszają, ale przestają, kiedy się na nie kliknie.</td>
+<td>Występują problemy z menu. Gra działa w większości poprawnie do momentu, gdzie składamy wajhadłowiec. Buguje się menu przedmiotów, tj. kliknięte guziki nie znikają. Podczas kalibrowania kreta elementy na ekranach się ruszają, ale przestają, kiedy się na nie kliknie.</td>
 <td></td>
 </tr>
 <tr>

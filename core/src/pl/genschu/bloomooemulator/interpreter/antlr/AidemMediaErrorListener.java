@@ -28,7 +28,7 @@ public class AidemMediaErrorListener extends BaseErrorListener {
 
         @Override
         public String toString() {
-            return "Line " + line + ":" + charPosition + " - " + message + " at token '" + offendingToken.getText() + "'";
+            return "Line " + line + ":" + charPosition + " - " + message + " at token '" + (offendingToken == null ? "null" : offendingToken.getText()) + "'";
         }
     }
 
