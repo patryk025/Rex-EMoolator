@@ -262,11 +262,11 @@ public class CNVParser {
 
         for (Variable variable : variables) {
             Gdx.app.log("CNVParser", "ONINIT for " + variable.getName() + " (" + variable.getType() + ")");
-            variable.emitSignal("ONINIT");
-
             if(variable instanceof ButtonVariable) {
                 ((ButtonVariable) variable).loadImages();
+                ((ButtonVariable) variable).getRect();
             }
+            variable.emitSignal("ONINIT");
         }
     }
 
