@@ -11,14 +11,9 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.badlogic.gdx.backends.android.AndroidApplicationConfiguration;
-import com.badlogic.gdx.backends.android.AndroidApplication;
 import com.badlogic.gdx.utils.Array;
 
-import java.util.List;
-
 import pl.genschu.bloomooemulator.AndroidLauncher;
-import pl.genschu.bloomooemulator.BlooMooEmulator;
 import pl.genschu.bloomooemulator.GameListActivity;
 import pl.genschu.bloomooemulator.R;
 import pl.genschu.bloomooemulator.logic.GameEntry;

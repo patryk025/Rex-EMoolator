@@ -2,11 +2,10 @@ package pl.genschu.bloomooemulator.ui.buttons;
 
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3Application;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3ApplicationConfiguration;
-import pl.genschu.bloomooemulator.BlooMooEmulator;
+import pl.genschu.bloomooemulator.BlooMooEngine;
 import pl.genschu.bloomooemulator.logic.GameEntry;
 import pl.genschu.bloomooemulator.logic.GameManager;
 import pl.genschu.bloomooemulator.ui.ButtonColumn;
-import pl.genschu.bloomooemulator.ui.Dialogs;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
@@ -30,6 +29,6 @@ public class RunButton extends ButtonColumn {
         config.setWindowedMode(800, 600); // temporary for testing
         config.setTitle("Rex EMoolator");
 
-        new Lwjgl3Application(new BlooMooEmulator(game), config);
+        new Lwjgl3Application(new BlooMooEngine(game), config);
     }
 }

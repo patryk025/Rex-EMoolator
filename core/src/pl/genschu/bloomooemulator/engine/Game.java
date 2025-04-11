@@ -1,4 +1,4 @@
-package pl.genschu.bloomooemulator.objects;
+package pl.genschu.bloomooemulator.engine;
 
 import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.graphics.GL20;
@@ -6,8 +6,8 @@ import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 import org.ini4j.Ini;
-import org.w3c.dom.Attr;
-import pl.genschu.bloomooemulator.BlooMooEmulator;
+import pl.genschu.bloomooemulator.BlooMooEngine;
+import pl.genschu.bloomooemulator.engine.input.InputManager;
 import pl.genschu.bloomooemulator.interpreter.Context;
 import pl.genschu.bloomooemulator.interpreter.util.GlobalVariables;
 import pl.genschu.bloomooemulator.interpreter.variable.Attribute;
@@ -18,13 +18,15 @@ import pl.genschu.bloomooemulator.logic.GameEntry;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
 import java.util.*;
 
 import com.badlogic.gdx.Gdx;
+import pl.genschu.bloomooemulator.engine.ini.INIManager;
+import pl.genschu.bloomooemulator.objects.Image;
+import pl.genschu.bloomooemulator.objects.QuadTree;
+import pl.genschu.bloomooemulator.objects.Rectangle;
 import pl.genschu.bloomooemulator.utils.FileUtils;
 
 public class Game {
@@ -36,6 +38,8 @@ public class Game {
     private File currentEpisodeFile = null;
     private File currentSceneFile = null;
     private File previousSceneFile = null;
+
+    private InputManager inputManager;
 
     private INIManager gameINI = null;
     private String iniPath = null;
@@ -63,9 +67,9 @@ public class Game {
 
     private Pixmap lastFrame;
 
-    private BlooMooEmulator emulator;
+    private BlooMooEngine emulator;
 
-    public Game(GameEntry game, BlooMooEmulator emulator) {
+    public Game(GameEntry game, BlooMooEngine emulator) {
         this.definitionContext = new Context();
         this.game = game;
         this.quadTree = new QuadTree(0, new Rectangle(0, 0, 800, 600));
@@ -385,7 +389,9 @@ public class Game {
         stopAllSounds();
         quadTree.clear();
         collisionMonitoredVariables.clear();
-        emulator.setActiveButton(null);
+        if(inputManager != null) {
+            inputManager.setActiveButton(null);
+        }
         Gdx.app.log("Game", "Loading scene " + scene.getName());
         try {
             currentSceneContext = new Context();
@@ -675,7 +681,15 @@ public class Game {
         return collisionMonitoredVariables;
     }
 
-    public BlooMooEmulator getEmulator() {
+    public BlooMooEngine getEmulator() {
         return emulator;
+    }
+
+    public void setInputManager(InputManager inputManager) {
+        this.inputManager = inputManager;
+    }
+
+    public InputManager getInputManager() {
+        return inputManager;
     }
 }
