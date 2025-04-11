@@ -1,4 +1,4 @@
-package pl.genschu.bloomooemulator.objects;
+package pl.genschu.bloomooemulator.engine.ini;
 
 import org.ini4j.Config;
 import org.ini4j.Wini;

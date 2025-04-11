@@ -23,7 +23,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 import com.badlogic.gdx.Gdx;
-import pl.genschu.bloomooemulator.objects.INIManager;
+import pl.genschu.bloomooemulator.engine.ini.INIManager;
 import pl.genschu.bloomooemulator.objects.Image;
 import pl.genschu.bloomooemulator.objects.QuadTree;
 import pl.genschu.bloomooemulator.objects.Rectangle;
