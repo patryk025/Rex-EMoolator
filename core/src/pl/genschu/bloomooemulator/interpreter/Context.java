@@ -8,7 +8,7 @@ import pl.genschu.bloomooemulator.interpreter.variable.types.DatabaseVariable;
 import pl.genschu.bloomooemulator.interpreter.variable.types.KeyboardVariable;
 import pl.genschu.bloomooemulator.interpreter.variable.types.MouseVariable;
 import pl.genschu.bloomooemulator.interpreter.variable.types.StringVariable;
-import pl.genschu.bloomooemulator.objects.Game;
+import pl.genschu.bloomooemulator.engine.Game;
 
 import java.util.*;
 

@@ -38,8 +38,9 @@ public class ButtonVariable extends Variable {
 				hideGraphics();
 
 				if(isFocused) {
-					if (context.getGame().getEmulator().getActiveButton() == ButtonVariable.this) {
-						context.getGame().getEmulator().setActiveButton(null);
+					if (context.getGame().getInputManager() != null &&
+						context.getGame().getInputManager().getActiveButton() == ButtonVariable.this) {
+						context.getGame().getInputManager().setActiveButton(null);
 					}
 					setFocused(false);
 					Signal onFocusLossSignal = getSignal("ONFOCUSOFF");
