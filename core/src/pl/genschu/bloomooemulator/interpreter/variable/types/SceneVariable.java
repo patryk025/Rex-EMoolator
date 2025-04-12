@@ -22,6 +22,7 @@ public class SceneVariable extends Variable {
 	private File path;
 	private ImageVariable background;
 	private Music music;
+	private int musicVolume = 400;
 
 	private int minHotSpotZ = 0;
 	private int maxHotSpotZ = 10000000;
@@ -114,6 +115,7 @@ public class SceneVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				if(music != null) {
+					music.setVolume(musicVolume);
 					music.play();
 				}
 				return null;
@@ -266,9 +268,9 @@ public class SceneVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				int volume = ArgumentsHelper.getInteger(arguments.get(0));
+                musicVolume = ArgumentsHelper.getInteger(arguments.get(0));
 				if(music != null) {
-					music.setVolume(volume / 1024.0f);
+					music.setVolume(musicVolume / 1000.0f);
 				}
 				return null;
 			}
@@ -290,6 +292,7 @@ public class SceneVariable extends Variable {
 				setAttribute("MUSIC", new Attribute("STRING", ArgumentsHelper.getString(arguments.get(0))));
 				getMusic();
 				music.setLooping(true);
+				music.setVolume(musicVolume / 1000.0f);
 				music.play();
 				return null;
 			}
@@ -392,5 +395,12 @@ public class SceneVariable extends Variable {
 
 	public void setMaxHotSpotZ(int maxHotSpotZ) {
 		this.maxHotSpotZ = maxHotSpotZ;
+	}
+
+	public int getVolume() {
+		if(music != null) {
+			return musicVolume;
+		}
+		return 0;
 	}
 }

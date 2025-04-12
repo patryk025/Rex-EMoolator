@@ -414,6 +414,7 @@ public class Game {
 
             try {
                 if(scene.getMusic() != null && !scene.getMusic().isPlaying()) {
+                    scene.getMusic().setVolume(scene.getVolume()/1000.0f);
                     scene.getMusic().play();
                 }
             } catch (GdxRuntimeException e) {
