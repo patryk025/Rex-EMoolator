@@ -171,7 +171,6 @@ public class ButtonHandler {
                 if (inputManager.getActiveButton() == null) {
                     inputManager.setActiveButton(button);
                     inputManager.triggerSignal(button, "ONCLICKED");
-                    inputManager.triggerSignal(button, "ONACTION");
                     if(button.getSoundOnClick() != null) button.getSoundOnClick().fireMethod("PLAY");
                 }
             }
@@ -229,6 +228,7 @@ public class ButtonHandler {
         if (justReleased && activeButton != null) {
             if (activeButton instanceof ButtonVariable) {
                 inputManager.triggerSignal(activeButton, "ONRELEASED");
+                inputManager.triggerSignal(activeButton, "ONACTION");
                 ((ButtonVariable) activeButton).setPressed(false);
                 inputManager.triggerSignal(activeButton, "GFXONCLICK");
             } else if (activeButton instanceof AnimoVariable) {

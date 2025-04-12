@@ -79,9 +79,6 @@ public class ApplicationVariable extends Variable {
 				if(var instanceof ExpressionVariable) {
 					var = (Variable) var.getValue();
 				}
-				if(var instanceof StringVariable) {
-					var = variableContext.getVariable(((StringVariable) var).GET());
-				}
 				Variable result = var.fireMethod(methodName, params);
 				variableContext.setThisVariable(currentThis);
 				return result;
