@@ -84,33 +84,90 @@ public class ButtonHandler {
     private void processButtonInteractions(List<Variable> buttons, int x, int y, boolean isPressed,
                                            boolean justPressed, boolean justReleased,
                                            MouseVariable mouseVariable, int minHSPriority, int maxHSPriority) {
+        // find first button under cursor
+        Variable focusedButton = null;
+
         for (Variable variable : buttons) {
             if (variable instanceof ButtonVariable) {
-                processButtonVariable((ButtonVariable) variable, x, y, isPressed, justPressed,
-                        mouseVariable, minHSPriority, maxHSPriority);
+                ButtonVariable button = (ButtonVariable) variable;
+                Variable image = button.getCurrentImage();
+
+                // Sprawdź, czy przycisk jest w zakresie priorytetów hotspotów
+                if (image != null) {
+                    int priority = getPriority(image);
+                    if (priority < minHSPriority || priority > maxHSPriority) continue;
+                }
+
+                // Sprawdź, czy przycisk jest aktywny i pod kursorem
+                if (button.isEnabled() && button.getRect() != null && button.getRect().contains(x, y)) {
+                    focusedButton = button;
+                    break;
+                }
             } else if (variable instanceof AnimoVariable) {
-                processAnimoVariable((AnimoVariable) variable, x, y, isPressed, justPressed,
-                        mouseVariable, minHSPriority, maxHSPriority);
+                AnimoVariable animo = (AnimoVariable) variable;
+
+                // Sprawdź, czy animacja jest w zakresie priorytetów hotspotów
+                int priority = getPriority(animo);
+                if (priority < minHSPriority || priority > maxHSPriority) continue;
+
+                // Sprawdź, czy animacja jest pod kursorem
+                if (animo.getRect() != null && animo.getRect().contains(x, y)) {
+                    focusedButton = animo;
+                    break;
+                }
+            }
+        }
+
+        // Ustaw kursor ręki, jeśli znaleziono przycisk pod kursorem
+        if (focusedButton != null && (mouseVariable == null || mouseVariable.isVisible())) {
+            Gdx.graphics.setSystemCursor(Cursor.SystemCursor.Hand);
+        } else if (mouseVariable == null || mouseVariable.isVisible()) {
+            Gdx.graphics.setSystemCursor(Cursor.SystemCursor.Arrow);
+        }
+
+        // Przetwórz wszystkie przyciski
+        for (Variable variable : buttons) {
+            if (variable == focusedButton) {
+                if (variable instanceof ButtonVariable) {
+                    processButtonVariable((ButtonVariable) variable, x, y, isPressed, justPressed,
+                            mouseVariable, true);
+                } else if (variable instanceof AnimoVariable) {
+                    processAnimoVariable((AnimoVariable) variable, x, y, isPressed, justPressed,
+                            mouseVariable, true);
+                }
+            } else {
+                // Zdejmij focus z pozostałych przycisków
+                if (variable instanceof ButtonVariable) {
+                    ButtonVariable button = (ButtonVariable) variable;
+                    if (button.isFocused()) {
+                        button.setFocused(false);
+                        Signal onFocusLossSignal = button.getSignal("ONFOCUSOFF");
+                        if (onFocusLossSignal != null) {
+                            onFocusLossSignal.execute(null);
+                        }
+                    }
+                } else if (variable instanceof AnimoVariable) {
+                    AnimoVariable animo = (AnimoVariable) variable;
+                    if (animo.isFocused()) {
+                        animo.setFocused(false);
+                        Signal onFocusLossSignal = animo.getSignal("ONFOCUSOFF");
+                        if (onFocusLossSignal != null) {
+                            onFocusLossSignal.execute(null);
+                        }
+                        animo.fireMethod("PLAY", new StringVariable("", "ONFOCUSOFF", animo.getContext()));
+                        animo.setPlaying(false);
+                    }
+                }
             }
         }
     }
 
     private void processButtonVariable(ButtonVariable button, int x, int y, boolean isPressed,
                                        boolean justPressed, MouseVariable mouseVariable,
-                                       int minHSPriority, int maxHSPriority) {
-        Variable image = button.getCurrentImage();
-        if (image != null) {
-            int priority = getPriority(image);
-            if (priority < minHSPriority || priority > maxHSPriority) return;
-        }
-
+                                       boolean shouldFocus) {
         if (!button.isEnabled()) return;
 
-        if (button.getRect() != null && button.getRect().contains(x, y)) {
-            if (mouseVariable == null || mouseVariable.isVisible()) {
-                Gdx.graphics.setSystemCursor(Cursor.SystemCursor.Hand);
-            }
-
+        if (shouldFocus) {
             if (justPressed) {
                 if (inputManager.getActiveButton() == null) {
                     inputManager.setActiveButton(button);
@@ -121,49 +178,24 @@ public class ButtonHandler {
 
             if (button == inputManager.getActiveButton()) {
                 if (isPressed) {
-                    if (button.isEnabled()) {
-                        button.setPressed(true);
-                    }
+                    button.setPressed(true);
                 }
             }
 
-            if (!button.isFocused() && !isPressed && button.isEnabled()) {
+            if (!button.isFocused() && !isPressed) {
                 button.setFocused(true);
-                if (mouseVariable == null || mouseVariable.isVisible()) {
-                    Gdx.graphics.setSystemCursor(Cursor.SystemCursor.Hand);
-                }
                 Signal onFocusSignal = button.getSignal("ONFOCUSON");
                 if (onFocusSignal != null) {
                     onFocusSignal.execute(null);
                 }
-            }
-        } else {
-            if (button.isFocused() && !isPressed) {
-                button.setFocused(false);
-                if (mouseVariable == null || mouseVariable.isVisible()) {
-                    Gdx.graphics.setSystemCursor(Cursor.SystemCursor.Arrow);
-                }
-                Signal onFocusLossSignal = button.getSignal("ONFOCUSOFF");
-                if (onFocusLossSignal != null) {
-                    onFocusLossSignal.execute(null);
-                }
-            } else {
-                button.setFocused(false);
             }
         }
     }
 
     private void processAnimoVariable(AnimoVariable animo, int x, int y, boolean isPressed,
                                       boolean justPressed, MouseVariable mouseVariable,
-                                      int minHSPriority, int maxHSPriority) {
-        int priority = getPriority(animo);
-        if (priority < minHSPriority || priority > maxHSPriority) return;
-
-        if (animo.getRect() != null && animo.getRect().contains(x, y)) {
-            if (animo.isChangeCursor() && (mouseVariable == null || mouseVariable.isVisible())) {
-                Gdx.graphics.setSystemCursor(Cursor.SystemCursor.Hand);
-            }
-
+                                      boolean shouldFocus) {
+        if (shouldFocus) {
             if (justPressed) {
                 if (inputManager.getActiveButton() == null) {
                     inputManager.setActiveButton(animo);
@@ -181,27 +213,11 @@ public class ButtonHandler {
 
             if (!animo.isFocused() && !isPressed) {
                 animo.setFocused(true);
-                if (animo.isChangeCursor() && (mouseVariable == null || mouseVariable.isVisible())) {
-                    Gdx.graphics.setSystemCursor(Cursor.SystemCursor.Hand);
-                }
                 Signal onFocusSignal = animo.getSignal("ONFOCUSON");
                 if (onFocusSignal != null) {
                     onFocusSignal.execute(null);
                 }
                 animo.fireMethod("PLAY", new StringVariable("", "ONFOCUSON", animo.getContext()));
-                animo.setPlaying(false);
-            }
-        } else {
-            if (animo.isFocused() && !isPressed) {
-                animo.setFocused(false);
-                if (mouseVariable == null || mouseVariable.isVisible()) {
-                    Gdx.graphics.setSystemCursor(Cursor.SystemCursor.Arrow);
-                }
-                Signal onFocusLossSignal = animo.getSignal("ONFOCUSOFF");
-                if (onFocusLossSignal != null) {
-                    onFocusLossSignal.execute(null);
-                }
-                animo.fireMethod("PLAY", new StringVariable("", "ONFOCUSOFF", animo.getContext()));
                 animo.setPlaying(false);
             }
         }
