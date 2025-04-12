@@ -77,6 +77,7 @@ public class SoundVariable extends Variable {
 					isPlaying = true;
 					sound.setVolume(1.0f);
 					context.getGame().getPlayingAudios().add(sound);
+					emitSignal("ONSTARTED");
 				} catch(Exception e) {
 					Gdx.app.log("SoundVariable", "Error on playing sound: "+e.getMessage(), e);
 					emitSignal("ONFINISHED");
