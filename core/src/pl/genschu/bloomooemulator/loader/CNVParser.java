@@ -1,14 +1,6 @@
 package pl.genschu.bloomooemulator.loader;
 
 import pl.genschu.bloomooemulator.interpreter.Context;
-import pl.genschu.bloomooemulator.interpreter.Interpreter;
-import pl.genschu.bloomooemulator.interpreter.antlr.AidemMediaLexer;
-import org.antlr.v4.runtime.CharStreams;
-import pl.genschu.bloomooemulator.interpreter.antlr.AidemMediaParser;
-import org.antlr.v4.runtime.CommonTokenStream;
-import org.antlr.v4.runtime.tree.ParseTree;
-import pl.genschu.bloomooemulator.interpreter.ast.ASTBuilderVisitor;
-import pl.genschu.bloomooemulator.interpreter.ast.Node;
 import pl.genschu.bloomooemulator.interpreter.exceptions.BreakException;
 import pl.genschu.bloomooemulator.interpreter.exceptions.OneBreakException;
 import pl.genschu.bloomooemulator.interpreter.variable.Signal;
@@ -263,7 +255,7 @@ public class CNVParser {
         for (Variable variable : variables) {
             Gdx.app.log("CNVParser", "ONINIT for " + variable.getName() + " (" + variable.getType() + ")");
             if(variable instanceof ButtonVariable) {
-                ((ButtonVariable) variable).loadImages();
+                ((ButtonVariable) variable).load();
                 ((ButtonVariable) variable).getRect();
             }
             variable.emitSignal("ONINIT");

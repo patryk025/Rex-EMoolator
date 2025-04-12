@@ -6,10 +6,7 @@ import pl.genschu.bloomooemulator.engine.Game;
 import pl.genschu.bloomooemulator.interpreter.Context;
 import pl.genschu.bloomooemulator.interpreter.variable.Signal;
 import pl.genschu.bloomooemulator.interpreter.variable.Variable;
-import pl.genschu.bloomooemulator.interpreter.variable.types.AnimoVariable;
-import pl.genschu.bloomooemulator.interpreter.variable.types.ButtonVariable;
-import pl.genschu.bloomooemulator.interpreter.variable.types.MouseVariable;
-import pl.genschu.bloomooemulator.interpreter.variable.types.StringVariable;
+import pl.genschu.bloomooemulator.interpreter.variable.types.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -92,13 +89,13 @@ public class ButtonHandler {
                 ButtonVariable button = (ButtonVariable) variable;
                 Variable image = button.getCurrentImage();
 
-                // Sprawdź, czy przycisk jest w zakresie priorytetów hotspotów
+                // Filter by hotspot priority
                 if (image != null) {
                     int priority = getPriority(image);
                     if (priority < minHSPriority || priority > maxHSPriority) continue;
                 }
 
-                // Sprawdź, czy przycisk jest aktywny i pod kursorem
+                // Check if button is enabled
                 if (button.isEnabled() && button.getRect() != null && button.getRect().contains(x, y)) {
                     focusedButton = button;
                     break;
@@ -106,11 +103,11 @@ public class ButtonHandler {
             } else if (variable instanceof AnimoVariable) {
                 AnimoVariable animo = (AnimoVariable) variable;
 
-                // Sprawdź, czy animacja jest w zakresie priorytetów hotspotów
+                // Filter by hotspot priority
                 int priority = getPriority(animo);
                 if (priority < minHSPriority || priority > maxHSPriority) continue;
 
-                // Sprawdź, czy animacja jest pod kursorem
+                // Check if animo is under cursor
                 if (animo.getRect() != null && animo.getRect().contains(x, y)) {
                     focusedButton = animo;
                     break;
@@ -118,25 +115,25 @@ public class ButtonHandler {
             }
         }
 
-        // Ustaw kursor ręki, jeśli znaleziono przycisk pod kursorem
+        // Set hand cursor
         if (focusedButton != null && (mouseVariable == null || mouseVariable.isVisible())) {
             Gdx.graphics.setSystemCursor(Cursor.SystemCursor.Hand);
         } else if (mouseVariable == null || mouseVariable.isVisible()) {
             Gdx.graphics.setSystemCursor(Cursor.SystemCursor.Arrow);
         }
 
-        // Przetwórz wszystkie przyciski
+        // Process 'em all!
         for (Variable variable : buttons) {
             if (variable == focusedButton) {
                 if (variable instanceof ButtonVariable) {
                     processButtonVariable((ButtonVariable) variable, x, y, isPressed, justPressed,
                             mouseVariable, true);
-                } else if (variable instanceof AnimoVariable) {
+                } else if (variable != null) {
                     processAnimoVariable((AnimoVariable) variable, x, y, isPressed, justPressed,
                             mouseVariable, true);
                 }
             } else {
-                // Zdejmij focus z pozostałych przycisków
+                // Take down focus
                 if (variable instanceof ButtonVariable) {
                     ButtonVariable button = (ButtonVariable) variable;
                     if (button.isFocused()) {
@@ -145,6 +142,8 @@ public class ButtonHandler {
                         if (onFocusLossSignal != null) {
                             onFocusLossSignal.execute(null);
                         }
+                        if(button.getSoundOnMove() != null) button.getSoundOnMove().fireMethod("STOP");
+                        if(button.getSoundStandard() != null) button.getSoundStandard().fireMethod("PLAY");
                     }
                 } else if (variable instanceof AnimoVariable) {
                     AnimoVariable animo = (AnimoVariable) variable;
@@ -173,6 +172,7 @@ public class ButtonHandler {
                     inputManager.setActiveButton(button);
                     inputManager.triggerSignal(button, "ONCLICKED");
                     inputManager.triggerSignal(button, "ONACTION");
+                    if(button.getSoundOnClick() != null) button.getSoundOnClick().fireMethod("PLAY");
                 }
             }
 
@@ -188,6 +188,7 @@ public class ButtonHandler {
                 if (onFocusSignal != null) {
                     onFocusSignal.execute(null);
                 }
+                if(button.getSoundOnMove() != null) button.getSoundOnMove().fireMethod("PLAY");
             }
         }
     }

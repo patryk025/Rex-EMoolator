@@ -1,7 +1,7 @@
 package pl.genschu.bloomooemulator.interpreter.variable.types;
 
 import com.badlogic.gdx.Gdx;
-import pl.genschu.bloomooemulator.interpreter.exceptions.ClassMethodNotImplementedException;
+import com.badlogic.gdx.audio.Music;
 import pl.genschu.bloomooemulator.interpreter.Context;
 import pl.genschu.bloomooemulator.interpreter.variable.*;
 import pl.genschu.bloomooemulator.objects.Rectangle;
@@ -21,6 +21,10 @@ public class ButtonVariable extends Variable {
 	private Variable gfxVariable;
 	private Variable gfxOnClick;
 	private Variable currentGfx;
+
+	private Variable soundStandard = null;
+	private Variable soundOnMove = null;
+	private Variable soundOnClick = null;
 
 	public ButtonVariable(String name, Context context) {
 		super(name, context);
@@ -234,7 +238,7 @@ public class ButtonVariable extends Variable {
 		updateGraphicsVisibility();
 	}
 
-	public void loadImages() {
+	public void load() {
 		if(getAttribute("RECT") != null && rectVariable == null) {
 			if(!getAttribute("RECT").toString().contains(",")) {
 				rectVariable = context.getVariable(getAttribute("RECT").getValue().toString());
@@ -265,6 +269,18 @@ public class ButtonVariable extends Variable {
 			gfxOnClick = context.getVariable(getAttribute("GFXONCLICK").getValue().toString());
 			showImage(gfxOnClick, false);
 		}
+
+		if(getAttribute("SNDSTANDARD") != null && soundStandard == null) {
+			soundStandard = context.getVariable(getAttribute("SNDSTANDARD").getValue().toString());
+		}
+
+		if(getAttribute("SNDONMOVE") != null && soundOnMove == null) {
+			soundOnMove = context.getVariable(getAttribute("SNDONMOVE").getValue().toString());
+		}
+
+		if(getAttribute("SNDONCLICK") != null && soundOnClick == null) {
+			soundOnClick = context.getVariable(getAttribute("SNDONCLICK").getValue().toString());
+		}
 	}
 
 	public boolean isPressed() {
@@ -292,6 +308,18 @@ public class ButtonVariable extends Variable {
 			return currentGfx;
 		}
 		return rectVariable;
+	}
+
+	public Variable getSoundStandard() {
+		return soundStandard;
+	}
+
+	public Variable getSoundOnMove() {
+		return soundOnMove;
+	}
+
+	public Variable getSoundOnClick() {
+		return soundOnClick;
 	}
 
 	public Rectangle getRect() {
@@ -354,7 +382,7 @@ public class ButtonVariable extends Variable {
 
 	@Override
 	public void setAttribute(String name, Attribute attribute) {
-		List<String> knownAttributes = List.of("DRAGGABLE", "ENABLE", "GFXONCLICK", "GFXONMOVE", "GFXSTANDARD", "RECT", "SNDONMOVE");
+		List<String> knownAttributes = List.of("DRAGGABLE", "ENABLE", "GFXONCLICK", "GFXONMOVE", "GFXSTANDARD", "RECT", "SNDONMOVE", "SNDONCLICK", "SNDSTANDARD");
 		if (knownAttributes.contains(name)) {
 			super.setAttribute(name, attribute);
             switch (name) {
