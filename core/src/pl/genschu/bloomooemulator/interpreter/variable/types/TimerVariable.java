@@ -102,12 +102,12 @@ public class TimerVariable extends Variable {
 		switch (name) {
 			case "ELAPSE":
 				elapse = Long.parseLong(attribute.getValue().toString());
-				break;
-			case "ENABLED":
-				enabled = attribute.getValue().toString().equals("TRUE");
 				if (enabled) {
 					lastTickTime = System.currentTimeMillis();
 				}
+				break;
+			case "ENABLED":
+				enabled = attribute.getValue().toString().equals("TRUE");
 				break;
 			case "TICKS":
 				ticks = Integer.parseInt(attribute.getValue().toString());
