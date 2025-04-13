@@ -22,7 +22,7 @@ public class SceneVariable extends Variable {
 	private File path;
 	private ImageVariable background;
 	private Music music;
-	private int musicVolume = 400;
+	private int musicVolume = 1000;
 
 	private int minHotSpotZ = 0;
 	private int maxHotSpotZ = 10000000;
