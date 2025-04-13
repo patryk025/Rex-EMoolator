@@ -304,10 +304,7 @@ public class ButtonVariable extends Variable {
 	}
 
 	public Variable getCurrentImage() {
-		if(currentGfx != null) {
-			return currentGfx;
-		}
-		return rectVariable;
+		return currentGfx;
 	}
 
 	public Variable getSoundStandard() {
@@ -340,14 +337,25 @@ public class ButtonVariable extends Variable {
 				}
 			}
 			else if(getAttribute("RECT") != null) {
-				Variable rectVariable = context.getVariable(getAttribute("RECT").getValue().toString());
-				if(rectVariable != null) {
-					if (rectVariable instanceof ImageVariable) {
-						ImageVariable imageVariable = (ImageVariable) rectVariable;
-						rect = imageVariable.getRect();
-					} else if (rectVariable instanceof AnimoVariable) {
-						AnimoVariable animoVariable = (AnimoVariable) rectVariable;
-						rect = animoVariable.getRect();
+				String rectRaw = getAttribute("RECT").getValue().toString();
+				if (rectRaw.contains(",")) {
+					String[] rectSplit = rectRaw.split(",");
+					int xLeft = Integer.parseInt(rectSplit[0]);
+					int yBottom = Integer.parseInt(rectSplit[1]);
+					int xRight = Integer.parseInt(rectSplit[2]);
+					int yTop = Integer.parseInt(rectSplit[3]);
+					int height = yTop - yBottom;
+					rect = new Rectangle(xLeft, yBottom - height, xRight, yTop - height);
+				} else {
+					Variable rectVariable = context.getVariable(rectRaw);
+					if (rectVariable != null) {
+						if (rectVariable instanceof ImageVariable) {
+							ImageVariable imageVariable = (ImageVariable) rectVariable;
+							rect = imageVariable.getRect();
+						} else if (rectVariable instanceof AnimoVariable) {
+							AnimoVariable animoVariable = (AnimoVariable) rectVariable;
+							rect = animoVariable.getRect();
+						}
 					}
 				}
 			}

@@ -74,8 +74,19 @@ public class DebugManager implements Disposable {
         // Get info about graphics under cursor
         Vector2 mousePos = getMousePosition();
         Variable graphicsUnderCursor = getGraphicsAt((int) mousePos.x, (int) mousePos.y);
+        Variable buttonUnderCursor = getButtonAt((int) mousePos.x, (int) mousePos.y);
 
-        if (graphicsUnderCursor != null) {
+        if (buttonUnderCursor != null) {
+            if(buttonUnderCursor instanceof ButtonVariable) {
+                generateTooltipForButton((ButtonVariable) buttonUnderCursor);
+            }
+            else {
+                generateTooltipForGraphics(buttonUnderCursor);
+            }
+            tooltipPosition.set(mousePos.x + 20, VIRTUAL_HEIGHT - mousePos.y - 20);
+            showTooltip = true;
+        }
+        else if (graphicsUnderCursor != null) {
             generateTooltipForGraphics(graphicsUnderCursor);
             tooltipPosition.set(mousePos.x + 20, VIRTUAL_HEIGHT - mousePos.y - 20);
             showTooltip = true;
@@ -178,6 +189,51 @@ public class DebugManager implements Disposable {
         shapeRenderer.end();
     }
 
+    private void generateTooltipForButton(ButtonVariable button) {
+        StringBuilder sb = new StringBuilder();
+
+        sb.append("Button: ").append(button.getName()).append("\n");
+        sb.append("Active: ").append(button.isEnabled()).append("\n");
+
+        Variable gfxStandard = button.getCurrentImage();
+        if (gfxStandard != null) {
+            sb.append("\nStandard GFX: ").append(gfxStandard.getName()).append("\n");
+            sb.append("Priority: ").append(gfxStandard.getAttribute("PRIORITY") != null ?
+                    gfxStandard.getAttribute("PRIORITY").getValue() : "brak").append("\n");
+        } else {
+            sb.append("\nNo standard GFX\n");
+        }
+
+        Rectangle rect = button.getRect();
+        String rectText = "\nRect: " + (rect != null ?
+                ("\n    left upper corner: (" + rect.getXLeft() + ", " + rect.getYTop() + ")" +
+                        "\n    width: " + rect.getWidth() +
+                        "\n    height: " + rect.getHeight()) :
+                "no defined");
+        sb.append(rectText);
+
+        if (button.getAttribute("SNDONMOVE") != null) {
+            sb.append("\nSound on hover: ").append(button.getAttribute("SNDONMOVE").getValue()).append("\n");
+        }
+
+        if (button.getAttribute("SNDONCLICK") != null) {
+            sb.append("\nSound on click: ").append(button.getAttribute("SNDONCLICK").getValue()).append("\n");
+        }
+
+        sb.append("\nSignals: ");
+        boolean hasSignals = false;
+        for (String signalName : List.of("ONCLICKED", "ONACTION", "ONFOCUSON", "ONFOCUSOFF", "ONRELEASED")) {
+            if (button.getSignal(signalName) != null) {
+                if (hasSignals) sb.append(", ");
+                sb.append(signalName);
+                hasSignals = true;
+            }
+        }
+        if (!hasSignals) sb.append("no signals");
+
+        tooltipText = sb.toString();
+    }
+
     private void generateTooltipForGraphics(Variable graphics) {
         StringBuilder sb = new StringBuilder();
         sb.append(graphics.getName()).append(" (").append(graphics.getType()).append(")\n");
@@ -248,6 +304,60 @@ public class DebugManager implements Disposable {
 
     private Vector2 getMousePosition() {
         return new Vector2(Gdx.input.getX(), Gdx.input.getY());
+    }
+
+    private int getPriority(Variable image) {
+        if (image != null && image.getAttribute("PRIORITY") != null) {
+            return Integer.parseInt(image.getAttribute("PRIORITY").getValue().toString());
+        }
+        return 0;
+    }
+
+    private Variable getButtonAt(int x, int y) {
+        Context context = game.getCurrentSceneContext();
+        List<Variable> buttons = new ArrayList<>(context.getButtonsVariables().values());
+        for (Variable variable : context.getClassInstances().values()) {
+            List<Variable> classButtons = new ArrayList<>(variable.getContext().getButtonsVariables(false).values());
+            buttons.addAll(classButtons);
+        }
+
+        int minHSPriority = game.getCurrentSceneVariable().getMinHotSpotZ();
+        int maxHSPriority = game.getCurrentSceneVariable().getMaxHotSpotZ();
+
+        Variable focusedButton = null;
+
+        for (Variable variable : buttons) {
+            if (variable instanceof ButtonVariable) {
+                ButtonVariable button = (ButtonVariable) variable;
+                Variable image = button.getCurrentImage();
+
+                // Filter by hotspot priority
+                if (image != null) {
+                    int priority = getPriority(image);
+                    if (priority < minHSPriority || priority > maxHSPriority) continue;
+                }
+
+                // Check if button is enabled
+                if (button.isEnabled() && button.getRect() != null && button.getRect().contains(x, y)) {
+                    focusedButton = button;
+                    break;
+                }
+            } else if (variable instanceof AnimoVariable) {
+                AnimoVariable animo = (AnimoVariable) variable;
+
+                // Filter by hotspot priority
+                int priority = getPriority(animo);
+                if (priority < minHSPriority || priority > maxHSPriority) continue;
+
+                // Check if animo is under cursor
+                if (animo.getRect() != null && animo.getRect().contains(x, y)) {
+                    focusedButton = animo;
+                    break;
+                }
+            }
+        }
+
+        return focusedButton;
     }
 
     private Variable getGraphicsAt(int x, int y) {
