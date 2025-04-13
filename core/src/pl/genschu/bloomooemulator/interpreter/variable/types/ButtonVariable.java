@@ -15,6 +15,7 @@ public class ButtonVariable extends Variable {
 	private boolean isPressed = false;
 	private boolean wasPressed = false;
 	private boolean isEnabled = true;
+	private boolean isVisible = true;
 
 	private Variable rectVariable;
 	private Variable gfxOnMove;
@@ -39,11 +40,12 @@ public class ButtonVariable extends Variable {
 			public Variable execute(List<Object> arguments) {
 				setAttribute("ENABLE", new Attribute("BOOL", "FALSE"));
 				isEnabled = false;
+				isVisible = false;
 				hideGraphics();
 
 				if(isFocused) {
 					if (context.getGame().getInputManager() != null &&
-						context.getGame().getInputManager().getActiveButton() == ButtonVariable.this) {
+							context.getGame().getInputManager().getActiveButton() == ButtonVariable.this) {
 						context.getGame().getInputManager().setActiveButton(null);
 					}
 					setFocused(false);
@@ -71,6 +73,7 @@ public class ButtonVariable extends Variable {
 					}
 				}
 				isEnabled = false;
+				isVisible = true;
 				updateGraphicsVisibility();
 				return null;
 			}
@@ -80,6 +83,7 @@ public class ButtonVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				isEnabled = true;
+				isVisible = true;
 				updateGraphicsVisibility();
 				return null;
 			}
@@ -196,6 +200,11 @@ public class ButtonVariable extends Variable {
 	}
 
 	private void updateGraphicsVisibility() {
+		if (!isVisible) {
+			hideGraphics();
+			return;
+		}
+
 		if (isPressed && gfxOnClick != null) {
 			showImage(gfxVariable, false);
 			showImage(gfxOnMove, false);
@@ -207,7 +216,18 @@ public class ButtonVariable extends Variable {
 			showImage(gfxOnClick, false);
 			currentGfx = gfxOnMove;
 		} else if (gfxVariable != null) {
-			showImage(gfxVariable, true);
+			boolean shouldSetVisible = true;
+			if (gfxVariable instanceof AnimoVariable) {
+				AnimoVariable animo = (AnimoVariable) gfxVariable;
+				if (animo.isPlaying()) {
+					shouldSetVisible = animo.isVisible();
+				}
+			}
+
+			if (shouldSetVisible) {
+				showImage(gfxVariable, true);
+			}
+
 			showImage(gfxOnMove, false);
 			showImage(gfxOnClick, false);
 			currentGfx = gfxVariable;
@@ -220,16 +240,23 @@ public class ButtonVariable extends Variable {
 
 	public void setFocused(boolean focused) {
 		isFocused = focused;
-		if (gfxOnMove != null) {
-			if (!focused) {
-				showImage(gfxOnMove, false);
-				showImage(gfxVariable, true);
-				currentGfx = gfxVariable;
+
+		if (isVisible && isEnabled) {
+			if (gfxOnMove != null) {
+				if (!focused) {
+					if (gfxVariable instanceof AnimoVariable && ((AnimoVariable)gfxVariable).isPlaying()) {
+						Gdx.app.log("ButtonVariable", "Keeping playing animation visible: " + gfxVariable.getName());
+					} else {
+						showImage(gfxOnMove, false);
+						showImage(gfxVariable, true);
+					}
+					currentGfx = gfxVariable;
+				} else {
+					updateGraphicsVisibility();
+				}
 			} else {
 				updateGraphicsVisibility();
 			}
-		} else {
-			updateGraphicsVisibility();
 		}
 	}
 
@@ -246,16 +273,14 @@ public class ButtonVariable extends Variable {
 		}
 		if(getAttribute("GFXSTANDARD") != null && gfxVariable == null) {
 			gfxVariable = context.getVariable(getAttribute("GFXSTANDARD").getValue().toString());
+
 			if(gfxVariable instanceof AnimoVariable) {
 				AnimoVariable animoVariable = (AnimoVariable) gfxVariable;
-				if(animoVariable.isPlaying()) {
-					showImage(gfxVariable, true);
-				}
-				else {
-					showImage(gfxVariable, isEnabled());
+				if (!animoVariable.isPlaying()) {
+					showImage(gfxVariable, isVisible && isEnabled());
 				}
 			} else {
-				showImage(gfxVariable, isEnabled());
+				showImage(gfxVariable, isVisible && isEnabled());
 			}
 			currentGfx = gfxVariable;
 		}
@@ -297,6 +322,10 @@ public class ButtonVariable extends Variable {
 
 	public boolean isEnabled() {
 		return isEnabled;
+	}
+
+	public boolean isVisible() {
+		return isVisible;
 	}
 
 	public void setEnabled(boolean enabled) {
@@ -373,9 +402,16 @@ public class ButtonVariable extends Variable {
 			}
 			else if(var instanceof AnimoVariable) {
 				AnimoVariable animoVariable = (AnimoVariable) var;
+
+				if (animoVariable.isPlaying() && !visible) {
+					Gdx.app.log("ButtonVariable", "Not hiding playing animation: " + animoVariable.getName());
+					return;
+				}
+
 				animoVariable.setAttribute("VISIBLE", new Attribute("BOOL", visible ? "TRUE" : "FALSE"));
 				animoVariable.setAttribute("TOCANVAS", new Attribute("BOOL", "TRUE"));
 				animoVariable.changeVisibility(visible);
+
 				if(!visible) {
 					animoVariable.setPlaying(false);
 				}
@@ -393,12 +429,12 @@ public class ButtonVariable extends Variable {
 		List<String> knownAttributes = List.of("DRAGGABLE", "ENABLE", "GFXONCLICK", "GFXONMOVE", "GFXSTANDARD", "RECT", "SNDONMOVE", "SNDONCLICK", "SNDSTANDARD");
 		if (knownAttributes.contains(name)) {
 			super.setAttribute(name, attribute);
-            switch (name) {
+			switch (name) {
 				case "ENABLE":
 					isEnabled = attribute.getValue().toString().equals("TRUE");
-					if (!isEnabled) {
-						hideGraphics();
-					} else {
+					if (!isEnabled && gfxVariable != null) {
+					} else if (isEnabled) {
+						isVisible = true;
 						updateGraphicsVisibility();
 					}
 					break;
@@ -425,7 +461,7 @@ public class ButtonVariable extends Variable {
 						}
 					}
 					break;
-            }
+			}
 		}
 	}
 }

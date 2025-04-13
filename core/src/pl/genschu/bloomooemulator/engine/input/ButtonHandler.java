@@ -212,7 +212,6 @@ public class ButtonHandler {
                 inputManager.triggerSignal(activeButton, "ONRELEASED");
                 inputManager.triggerSignal(activeButton, "ONACTION");
                 ((ButtonVariable) activeButton).setPressed(false);
-                inputManager.triggerSignal(activeButton, "GFXONCLICK");
             } else if (activeButton instanceof AnimoVariable) {
                 inputManager.triggerSignal(activeButton, "ONRELEASE");
                 ((AnimoVariable) activeButton).setPressed(false);
