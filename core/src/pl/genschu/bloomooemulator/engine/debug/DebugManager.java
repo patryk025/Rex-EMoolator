@@ -57,6 +57,10 @@ public class DebugManager implements Disposable {
             renderVariablesDebug();
         }
 
+        if (config.isDebugButtons()) {
+            renderButtonBorders();
+        }
+
         if (debugRect != null) {
             renderDebugRectangle();
         }

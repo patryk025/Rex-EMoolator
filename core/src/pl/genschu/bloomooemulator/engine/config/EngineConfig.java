@@ -134,16 +134,16 @@ public class EngineConfig {
     }
 
     /**
-     * Ładuje konfigurację z pliku (do implementacji)
-     * @param configPath Ścieżka do pliku konfiguracyjnego
+     * Loads configuration from a file (to be implemented)
+     * @param configPath Path to the configuration file
      */
     public void loadFromFile(String configPath) {
         // TODO: Implementacja ładowania konfiguracji z pliku
     }
 
     /**
-     * Zapisuje konfigurację do pliku (do implementacji)
-     * @param configPath Ścieżka do pliku konfiguracyjnego
+     * Saves configuration to a file (to be implemented)
+     * @param configPath Path to the configuration file
      */
     public void saveToFile(String configPath) {
         // TODO: Implementacja zapisywania konfiguracji do pliku

@@ -32,9 +32,6 @@ public class ButtonHandler {
         int minHSPriority = game.getCurrentSceneVariable().getMinHotSpotZ();
         int maxHSPriority = game.getCurrentSceneVariable().getMaxHotSpotZ();
 
-        // Sort buttons by priority
-        sortButtonsByPriority(buttons);
-
         // Process button interactions
         processButtonInteractions(buttons, x, y, isPressed, justPressed, justReleased,
                 mouseVariable, minHSPriority, maxHSPriority);
@@ -48,18 +45,6 @@ public class ButtonHandler {
             List<Variable> classButtons = new ArrayList<>(variable.getContext().getButtonsVariables(false).values());
             buttons.addAll(classButtons);
         }
-    }
-
-    private void sortButtonsByPriority(List<Variable> buttons) {
-        buttons.sort((o1, o2) -> {
-            Variable image1 = getButtonImage(o1);
-            Variable image2 = getButtonImage(o2);
-
-            int priority1 = getPriority(image1);
-            int priority2 = getPriority(image2);
-
-            return Integer.compare(priority2, priority1);
-        });
     }
 
     private Variable getButtonImage(Variable button) {
