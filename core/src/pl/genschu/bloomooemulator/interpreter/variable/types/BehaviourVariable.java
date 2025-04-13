@@ -12,6 +12,8 @@ import pl.genschu.bloomooemulator.interpreter.antlr.AidemMediaLexer;
 import pl.genschu.bloomooemulator.interpreter.antlr.AidemMediaParser;
 import pl.genschu.bloomooemulator.interpreter.ast.ASTBuilderVisitor;
 import pl.genschu.bloomooemulator.interpreter.ast.Node;
+import pl.genschu.bloomooemulator.interpreter.exceptions.BreakException;
+import pl.genschu.bloomooemulator.interpreter.exceptions.OneBreakException;
 import pl.genschu.bloomooemulator.interpreter.variable.Attribute;
 import pl.genschu.bloomooemulator.interpreter.variable.Method;
 import pl.genschu.bloomooemulator.interpreter.variable.Parameter;
@@ -285,19 +287,23 @@ public class BehaviourVariable extends Variable {
 					Gdx.app.log("BehaviourVariable", "Argument " + (i-1) + ": " + arguments.get(i));
 				}
 
-				for(int i = startVal; i < endDiff; i+=incrementBy) {
-					if(condition != null) {
-						conditionResult = condition.fireMethod("CHECK", new BoolVariable("", true, context));
+				for (int i = startVal; i < endDiff; i += incrementBy) {
+					try {
+						if (condition != null) {
+							conditionResult = condition.fireMethod("CHECK", new BoolVariable("", true, context));
+						} else {
+							conditionResult = new BoolVariable("", true, context);
+						}
+						if (ArgumentsHelper.getBoolean(conditionResult)) {
+							context.setVariable("$1", new IntegerVariable("_I_", i, context));
+							interpreter.interpret();
+						} else {
+							Gdx.app.log("BehaviourVariable", "Skipping looped behaviour " + getName() + " at " + i + " due to condition " + condition.getName() + " result");
+						}
 					}
-					else {
-						conditionResult = new BoolVariable("", true, context);
-					}
-					if(ArgumentsHelper.getBoolean(conditionResult)) {
-						context.setVariable("$1", new IntegerVariable("_I_", i, context));
-						interpreter.interpret();
-					}
-					else {
-						Gdx.app.log("BehaviourVariable", "Skipping looped behaviour " + getName() + " at " + i + " due to condition " + condition.getName() + " result");
+					catch (OneBreakException | BreakException e) {
+						Gdx.app.log("BehaviourVariable", "Breaking looped behaviour " + getName() + " at " + i + " due to break");
+						break;
 					}
 				}
 
