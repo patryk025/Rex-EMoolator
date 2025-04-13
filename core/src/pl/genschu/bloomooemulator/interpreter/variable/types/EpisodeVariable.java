@@ -50,6 +50,15 @@ public class EpisodeVariable extends Variable {
 				return VariableFactory.createVariable("STRING", null, currentScene, getContext());
 			}
 		});
+		this.setMethod("GETLATESTSCENE", new Method(
+				"STRING"
+		) {
+			@Override
+			public Variable execute(List<Object> arguments) {
+				String previousScene = context.getGame().getPreviousScene();
+				return VariableFactory.createVariable("STRING", null, previousScene, getContext());
+			}
+		});
 		this.setMethod("GOTO", new Method(
 				List.of(
 						new Parameter("STRING", "sceneName", true)

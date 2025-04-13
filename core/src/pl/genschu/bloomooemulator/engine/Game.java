@@ -32,12 +32,12 @@ import pl.genschu.bloomooemulator.utils.FileUtils;
 public class Game {
     private Context definitionContext;
     private GameEntry game;
-    private String currentEpisode = "BRAKEPIZODU";
-    private String currentScene = "BRAKSCENY";
+    private String currentEpisode = "";
+    private String currentScene = "";
     private File currentApplicationFile = null;
     private File currentEpisodeFile = null;
     private File currentSceneFile = null;
-    private File previousSceneFile = null;
+    private String previousScene = "";
 
     private InputManager inputManager;
 
@@ -329,7 +329,10 @@ public class Game {
             }
 
             previousSceneVariable = currentSceneVariable;
-            previousSceneFile = currentSceneFile;
+            try {
+                previousScene = previousSceneVariable.getName();
+            }
+            catch (NullPointerException ignored) {}
             loadScene((SceneVariable) variable);
         }
     }
@@ -612,6 +615,10 @@ public class Game {
 
     public File getCurrentSceneFile() {
         return currentSceneFile;
+    }
+
+    public String getPreviousScene() {
+        return previousScene;
     }
 
     public void setCurrentSceneFile(File currentSceneFile) {

@@ -73,12 +73,13 @@ public class ApplicationVariable extends Variable {
 				Variable currentThis = variableContext.getThisVariable();
 				variableContext.setThisVariable(var);
 				if(var == null) {
-					Gdx.app.error("SceneVariable", "Variable not found: " + varName);
+					Gdx.app.error("ApplicationVariable", "Variable not found: " + varName);
 					return null;
 				}
 				if(var instanceof ExpressionVariable) {
 					var = (Variable) var.getValue();
 				}
+				Gdx.app.log("ApplicationVariable", "Running method " + methodName + " in variable " + varName + " of type " + var.getType());
 				Variable result = var.fireMethod(methodName, params);
 				variableContext.setThisVariable(currentThis);
 				return result;
