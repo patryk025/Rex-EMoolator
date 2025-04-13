@@ -643,6 +643,7 @@ public class AnimoVariable extends Variable implements Cloneable {
 				else {
 					getContext().getButtonsVariables().remove(getName());
 				}
+				setAsButton(enabled);
 				setChangeCursor(changeCursor);
 				show();
 
@@ -1309,6 +1310,17 @@ public class AnimoVariable extends Variable implements Cloneable {
 
 	public void setAsButton(boolean asButton) {
 		this.asButton = asButton;
+		if(asButton) {
+			// set current event to ONFOCUSOFF and last frame
+			for (Event event : events) {
+				if (event.getName().equals("ONFOCUSOFF")) {
+					currentEvent = event;
+					setCurrentFrameNumber(currentEvent.getFrames().size() - 1);
+					setCurrentImageNumber(currentEvent.getFramesNumbers().get(currentEvent.getFrames().size() - 1));
+					break;
+				}
+			}
+		}
 		show();
 	}
 

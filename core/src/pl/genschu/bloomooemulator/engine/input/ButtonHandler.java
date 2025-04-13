@@ -139,7 +139,6 @@ public class ButtonHandler {
                             onFocusLossSignal.execute(null);
                         }
                         animo.fireMethod("PLAY", new StringVariable("", "ONFOCUSOFF", animo.getContext()));
-                        animo.setPlaying(false);
                     }
                 }
             }
@@ -186,7 +185,6 @@ public class ButtonHandler {
                     inputManager.setActiveButton(animo);
                     inputManager.triggerSignal(animo, "ONCLICK");
                     animo.fireMethod("PLAY", new StringVariable("", "ONCLICK", animo.getContext()));
-                    animo.setPlaying(false);
                 }
             }
 
@@ -203,7 +201,6 @@ public class ButtonHandler {
                     onFocusSignal.execute(null);
                 }
                 animo.fireMethod("PLAY", new StringVariable("", "ONFOCUSON", animo.getContext()));
-                animo.setPlaying(false);
             }
         }
     }
