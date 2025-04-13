@@ -30,39 +30,41 @@ public class ConditionVariable extends Variable {
 
 		this.setMethod("BREAK", new Method(
 				List.of(
-						new Parameter("BOOL", "expectedResult", true)
+						new Parameter("BOOL", "emitSignal", true)
 				),
 				"void"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				boolean result = check();
-				boolean expectedResult = ArgumentsHelper.getBoolean(arguments.get(0));
-				if(result == expectedResult) {
-					emitSignal("ONRUNTIMESUCCESS");
-					throw new BreakException("Break statement encountered");
+				boolean emitSignal = ArgumentsHelper.getBoolean(arguments.get(0));
+				if(emitSignal) {
+					if(!result)
+						emitSignal("ONRUNTIMEFAILED");
+					else
+						emitSignal("ONRUNTIMESUCCESS");
 				}
-				else {
-					emitSignal("ONRUNTIMEFAILED");
+				if(result) {
+					throw new BreakException("Break statement encountered");
 				}
 				return null;
 			}
 		});
 		this.setMethod("CHECK", new Method(
 				List.of(
-						new Parameter("BOOL", "expectedResult?", true)
+						new Parameter("BOOL", "emitSignal", true)
 				),
 				"BOOL"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				boolean result = check();
-				boolean expectedResult = ArgumentsHelper.getBoolean(arguments.get(0));
-				if(result == expectedResult) {
-					emitSignal("ONRUNTIMESUCCESS");
-				}
-				else {
-					emitSignal("ONRUNTIMEFAILED");
+				boolean emitSignal = ArgumentsHelper.getBoolean(arguments.get(0));
+				if(emitSignal) {
+					if(!result)
+						emitSignal("ONRUNTIMEFAILED");
+					else
+						emitSignal("ONRUNTIMESUCCESS");
 				}
 				return new BoolVariable("", result, context);
 			}
@@ -76,13 +78,15 @@ public class ConditionVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				boolean result = check();
-				boolean expectedResult = ArgumentsHelper.getBoolean(arguments.get(0));
-				if(result == expectedResult) {
-					emitSignal("ONRUNTIMESUCCESS");
-					throw new OneBreakException("OneBreak statement encountered");
+				boolean emitSignal = ArgumentsHelper.getBoolean(arguments.get(0));
+				if(emitSignal) {
+					if(!result)
+						emitSignal("ONRUNTIMEFAILED");
+					else
+						emitSignal("ONRUNTIMESUCCESS");
 				}
-				else {
-					emitSignal("ONRUNTIMEFAILED");
+				if(result) {
+					throw new OneBreakException("OneBreak statement encountered");
 				}
 				return null;
 			}
