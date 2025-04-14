@@ -312,6 +312,7 @@ public class AnimoVariable extends Variable implements Cloneable {
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
+				isPlaying = false;
 				hide();
 				return null;
 			}
@@ -635,7 +636,17 @@ public class AnimoVariable extends Variable implements Cloneable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				boolean enabled = ArgumentsHelper.getBoolean(arguments.get(0));
-				boolean changeCursor = ArgumentsHelper.getBoolean(arguments.get(1)); // TODO: make this working
+				boolean changeCursor = ArgumentsHelper.getBoolean(arguments.get(1));
+
+				if (!enabled && asButton && isPressed) {
+					Gdx.app.log("AnimoVariable", "Disabling pressed animation button without triggering release events");
+					if (context.getGame().getInputManager() != null &&
+							context.getGame().getInputManager().getActiveButton() == AnimoVariable.this) {
+						context.getGame().getInputManager().clearActiveButton(AnimoVariable.this);
+					}
+					isPressed = false;
+					wasPressed = false;
+				}
 
 				if(enabled) {
 					getContext().addButtonVariable(AnimoVariable.this);
@@ -1311,7 +1322,7 @@ public class AnimoVariable extends Variable implements Cloneable {
 	public void setAsButton(boolean asButton) {
 		this.asButton = asButton;
 		if(asButton) {
-			fireMethod("PLAY", new StringVariable("", "ONFOCUSOFF", context));
+			fireMethod("PLAY", new StringVariable("", "ONNOEVENT", context));
 		}
 		show();
 	}

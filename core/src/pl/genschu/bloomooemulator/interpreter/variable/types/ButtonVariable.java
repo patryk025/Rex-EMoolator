@@ -43,21 +43,20 @@ public class ButtonVariable extends Variable {
 				isVisible = false;
 				hideGraphics();
 
-				if(isFocused) {
-					if (context.getGame().getInputManager() != null &&
-							context.getGame().getInputManager().getActiveButton() == ButtonVariable.this) {
-						context.getGame().getInputManager().setActiveButton(null);
-					}
-					setFocused(false);
-					Signal onFocusLossSignal = getSignal("ONFOCUSOFF");
-					if (onFocusLossSignal != null) {
-						onFocusLossSignal.execute(null);
-					}
+				if (context.getGame().getInputManager() != null &&
+						context.getGame().getInputManager().getActiveButton() == ButtonVariable.this) {
+					Gdx.app.log("ButtonVariable", "Removing active button without triggering release events");
+					context.getGame().getInputManager().clearActiveButton(ButtonVariable.this);
 				}
+
+				setFocused(false);
+
 				if(currentGfx != null) {
 					showImage(currentGfx, false);
 					currentGfx = null;
 				}
+				isPressed = false;
+				wasPressed = false;
 				return null;
 			}
 		});
@@ -65,15 +64,18 @@ public class ButtonVariable extends Variable {
 		this.setMethod("DISABLEBUTVISIBLE", new Method("void") {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				if(isFocused) {
-					setFocused(false);
-					Signal onFocusLossSignal = getSignal("ONFOCUSOFF");
-					if (onFocusLossSignal != null) {
-						onFocusLossSignal.execute(null);
-					}
+				if (context.getGame().getInputManager() != null &&
+						context.getGame().getInputManager().getActiveButton() == ButtonVariable.this) {
+					Gdx.app.log("ButtonVariable", "Removing active button without triggering release events");
+					context.getGame().getInputManager().clearActiveButton(ButtonVariable.this);
 				}
+
+				setFocused(false);
+
 				isEnabled = false;
 				isVisible = true;
+				isPressed = false;
+				wasPressed = false;
 				updateGraphicsVisibility();
 				return null;
 			}

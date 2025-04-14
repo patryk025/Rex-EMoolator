@@ -196,6 +196,12 @@ public class InputManager implements Disposable {
         this.activeButton = activeButton;
     }
 
+    public void clearActiveButton(Variable button) {
+        if (this.activeButton == button) {
+            this.activeButton = null;
+        }
+    }
+
     public Vector2 getMousePosition() {
         return mousePosition;
     }
