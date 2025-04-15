@@ -653,7 +653,7 @@ public class AnimoVariable extends Variable implements Cloneable {
 					getContext().addButtonVariable(AnimoVariable.this);
 				}
 				else {
-					getContext().getButtonsVariables().remove(getName());
+					getContext().removeButtonVariable(AnimoVariable.this);
 				}
 				setAsButton(enabled);
 				setChangeCursor(changeCursor);
