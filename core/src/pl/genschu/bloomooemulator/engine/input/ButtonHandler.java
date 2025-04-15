@@ -132,7 +132,7 @@ public class ButtonHandler {
                     }
                 } else if (variable instanceof AnimoVariable) {
                     AnimoVariable animo = (AnimoVariable) variable;
-                    if (animo.isFocused()) {
+                    if (animo.isFocused() && animo.isAsButton()) {
                         animo.setFocused(false);
                         Signal onFocusLossSignal = animo.getSignal("ONFOCUSOFF");
                         if (onFocusLossSignal != null) {
@@ -154,14 +154,9 @@ public class ButtonHandler {
             if (justPressed) {
                 if (inputManager.getActiveButton() == null) {
                     inputManager.setActiveButton(button);
+                    button.setPressed(true);
                     inputManager.triggerSignal(button, "ONCLICKED");
                     if(button.getSoundOnClick() != null) button.getSoundOnClick().fireMethod("PLAY");
-                }
-            }
-
-            if (button == inputManager.getActiveButton()) {
-                if (isPressed) {
-                    button.setPressed(true);
                 }
             }
 
@@ -183,18 +178,13 @@ public class ButtonHandler {
             if (justPressed) {
                 if (inputManager.getActiveButton() == null) {
                     inputManager.setActiveButton(animo);
-                    inputManager.triggerSignal(animo, "ONCLICK");
-                    animo.fireMethod("PLAY", new StringVariable("", "ONCLICK", animo.getContext()));
-                }
-            }
-
-            if (animo == inputManager.getActiveButton()) {
-                if (isPressed) {
                     animo.setPressed(true);
+                    animo.fireMethod("PLAY", new StringVariable("", "ONCLICK", animo.getContext()));
+                    inputManager.triggerSignal(animo, "ONCLICK");
                 }
             }
 
-            if (!animo.isFocused() && !isPressed) {
+            if (!animo.isFocused() && animo.isAsButton() && !isPressed) {
                 animo.setFocused(true);
                 Signal onFocusSignal = animo.getSignal("ONFOCUSON");
                 if (onFocusSignal != null) {

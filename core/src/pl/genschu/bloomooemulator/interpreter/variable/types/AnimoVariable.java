@@ -646,6 +646,7 @@ public class AnimoVariable extends Variable implements Cloneable {
 					}
 					isPressed = false;
 					wasPressed = false;
+					isFocused = false;
 				}
 
 				if(enabled) {
