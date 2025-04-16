@@ -32,7 +32,7 @@ Aktualne statusy gier opartych na silniku Piklib/BlooMoo:
 <tr>
 <td>Reksio i Ufo</td>
 <td><img alt="W grze" src="https://img.shields.io/badge/W grze-yellow"/></td>
-<td>Występują problemy z menu. Gra działa w większości poprawnie do momentu, gdzie składamy wajhadłowiec. Buguje się menu przedmiotów, tj. kliknięte guziki nie znikają. Podczas kalibrowania kreta elementy na ekranach się ruszają, ale przestają, kiedy się na nie kliknie.</td>
+<td>Gra działa w większości poprawnie do momentu, kiedy sterujemy Wajhadłowcem i musimy pilnować paliwa oraz omijać przeszkody. Z powodu błędu dekodowania CRLE pliku podpiętego do zmiennej LICZNIKI_BKG emulator się wywala..</td>
 <td></td>
 </tr>
 <tr>

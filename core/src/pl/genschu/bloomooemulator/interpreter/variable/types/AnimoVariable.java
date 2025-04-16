@@ -493,6 +493,20 @@ public class AnimoVariable extends Variable implements Cloneable {
 			}
 		});
 		this.setMethod("PLAY", new Method(
+				"void"
+		) {
+			@Override
+			public Variable execute(List<Object> arguments) {
+				currentFrameNumber = 0;
+				setCurrentImageNumber(currentEvent.getFramesNumbers().get(currentFrameNumber));
+				playSfx();
+				emitSignal("ONSTARTED", currentEvent.getName());
+				isPlaying = true;
+				show();
+				return null;
+			}
+		});
+		this.setMethod("PLAY", new Method(
 				List.of(
 						new Parameter("STRING", "anim", true)
 				),
