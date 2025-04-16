@@ -718,19 +718,10 @@ public class AnimoVariable extends Variable implements Cloneable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				String eventName = ArgumentsHelper.getString(arguments.get(0));
-				/*Variable variable = getContext().getVariable(eventName);
-				if(variable != null) {
-					eventName = variable.getValue().toString();
-				}*/
-				try {
-					int eventNumber = Integer.parseInt(eventName);
-					currentEvent = events.get(eventNumber);
-				} catch (NumberFormatException e) {
-					for (Event event : events) {
-						if (event.getName().equalsIgnoreCase(eventName)) {
-							currentEvent = event;
-							break;
-						}
+				for (Event event : events) {
+					if (event.getName().equalsIgnoreCase(eventName)) {
+						currentEvent = event;
+						break;
 					}
 				}
 				if(arguments.size() >= 2) {
