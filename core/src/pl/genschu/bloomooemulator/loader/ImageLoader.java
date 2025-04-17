@@ -45,6 +45,10 @@ public class ImageLoader {
         int offsetX = buffer.getInt();
         int offsetY = buffer.getInt();
 
+        if(compressionType == 4) {
+            compressionType = 0; // weird, in Animo it is CRLE compression, but here it is no compression
+        }
+
         byte[] imageData = new byte[imageSize];
         f.read(imageData);
         byte[] alphaData;
