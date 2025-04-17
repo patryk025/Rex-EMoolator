@@ -400,8 +400,8 @@ public class ImageVariable extends Variable implements Cloneable {
 		if(monitorCollision)
 			context.getGame().getQuadTree().remove(this); // we need to remove variable from quadtree
 
-		rect.setXLeft(posX + image.offsetX);
-		rect.setYTop(posY + image.offsetY);
+		rect.setXLeft(posX);
+		rect.setYTop(posY);
 		rect.setXRight(rect.getXLeft() + image.width);
 		rect.setYBottom(rect.getYTop() - image.height);
 

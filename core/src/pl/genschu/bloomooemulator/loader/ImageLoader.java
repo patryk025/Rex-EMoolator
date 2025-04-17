@@ -58,5 +58,7 @@ public class ImageLoader {
 
         Image image = new Image(width, height, offsetX, offsetY, colorDepth, imageData, alphaData, compressionType);
         variable.setImage(image);
+        variable.setPosX(offsetX);
+        variable.setPosY(offsetY);
     }
 }

@@ -26,7 +26,7 @@ Aktualne statusy gier opartych na silniku Piklib/BlooMoo:
 <tr>
 <td>Reksio i Skarb Piratów</td>
 <td><img alt="Grywalne" src="https://img.shields.io/badge/Grywalne-green"/></td>
-<td>Gra w pełni grywalna z drobnymi bugami. Sekwencja z kokosami ma drobne różnice w detekcji kolizji w stosunku do oryginału (dodatkowo pojawia się w rogu kura lekko przesłaniająca przycisk menu, nie wiem czemu). Etap ze zbieraniem pereł działa, jednak nie pojawia się pasek z tlenem. Podczas zagadek przy posągu Boga Twaroga sporadycznie grafiki odpowiedzi są zamienione miejscami (narrator jednak czyta poprawnie). Dodatkowo Kapłon jest zdublowany (pewnie coś guzik ma do gadania). W etapie z UFO sporadycznie są problemy z priorytetami animacji (winda przesłania Reksia). Poza tymi niekrytycznymi bugami wszystko działa poprawnie.</td>
+<td>Gra w pełni grywalna z drobnymi bugami. Sekwencja z kokosami ma drobne różnice w detekcji kolizji w stosunku do oryginału (dodatkowo pojawia się w rogu kura lekko przesłaniająca przycisk menu, nie wiem czemu). Podczas zagadek przy posągu Boga Twaroga sporadycznie grafiki odpowiedzi są zamienione miejscami (narrator jednak czyta poprawnie). Dodatkowo Kapłon jest zdublowany (pewnie coś guzik ma do gadania). W etapie z UFO sporadycznie są problemy z priorytetami animacji (winda przesłania Reksia). Poza tymi niekrytycznymi bugami wszystko działa poprawnie.</td>
 <td>100%</td>
 </tr>
 <tr>
