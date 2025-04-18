@@ -142,7 +142,7 @@ public class ImageVariable extends Variable implements Cloneable {
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				return new IntegerVariable("", posX+image.offsetX, context);
+				return new IntegerVariable("", posX, context);
 			}
 		});
 		this.setMethod("GETPOSITIONY", new Method(
@@ -150,7 +150,7 @@ public class ImageVariable extends Variable implements Cloneable {
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				return new IntegerVariable("", posY+image.offsetY, context);
+				return new IntegerVariable("", posY, context);
 			}
 		});
 		this.setMethod("GETWIDTH", new Method(
