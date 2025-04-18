@@ -68,8 +68,11 @@ public class BoolVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				Object value = ((Variable) arguments.get(0)).getValue();
-				set(value);
+				boolean value = ArgumentsHelper.getBoolean(arguments.get(0));
+				if(value)
+					set("TRUE");
+				else
+					set("FALSE");
 				return null;
 			}
 		});
