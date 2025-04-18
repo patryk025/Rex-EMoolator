@@ -65,10 +65,10 @@ public class CanvasObserverVariable extends Variable {
 				List.of(
 						new Parameter("INTEGER", "posX", true),
 						new Parameter("INTEGER", "posY", true),
-						new Parameter("BOOL", "unknown", false),
+						new Parameter("BOOL", "onlyVisible", false),
 						new Parameter("INTEGER", "minZ", false),
 						new Parameter("INTEGER", "maxZ", false),
-						new Parameter("BOOL", "useAlpha", false)
+						new Parameter("BOOL", "includeAlpha", false)
 				),
 				"STRING"
 		) {
@@ -76,70 +76,76 @@ public class CanvasObserverVariable extends Variable {
 			public Variable execute(List<Object> arguments) {
 				int posX = ArgumentsHelper.getInteger(arguments.get(0));
 				int posY = ArgumentsHelper.getInteger(arguments.get(1));
-				boolean unknown = arguments.size() > 2 && ArgumentsHelper.getBoolean(arguments.get(2));
-				int minZ = arguments.size() > 3 ? ArgumentsHelper.getInteger(arguments.get(3)) : -1;
-				int maxZ = arguments.size() > 4 ? ArgumentsHelper.getInteger(arguments.get(4)) : -1;
-				boolean useAlpha = arguments.size() > 5 && ArgumentsHelper.getBoolean(arguments.get(5));
+				boolean onlyVisible = arguments.size() > 2 && ArgumentsHelper.getBoolean(arguments.get(2));
+				int minZ = arguments.size() > 3 ? ArgumentsHelper.getInteger(arguments.get(3)) : Integer.MIN_VALUE;
+				int maxZ = arguments.size() > 4 ? ArgumentsHelper.getInteger(arguments.get(4)) : Integer.MAX_VALUE;
+				boolean includeAlpha = arguments.size() > 5 && ArgumentsHelper.getBoolean(arguments.get(5));
 
 				List<Variable> drawList = new ArrayList<>(context.getGraphicsVariables().values());
 
-				Comparator<Variable> comparator = (o1, o2) -> {
-					Attribute priorityAttr1 = o1.getAttribute("PRIORITY");
-					Attribute priorityAttr2 = o2.getAttribute("PRIORITY");
+				drawList.sort((v1, v2) -> {
+					Attribute priorityAttr1 = v1.getAttribute("PRIORITY");
+					Attribute priorityAttr2 = v2.getAttribute("PRIORITY");
 					int priority1 = priorityAttr1 != null ? Integer.parseInt(priorityAttr1.getValue().toString()) : 0;
 					int priority2 = priorityAttr2 != null ? Integer.parseInt(priorityAttr2.getValue().toString()) : 0;
 					return Integer.compare(priority1, priority2);
-				};
-				Collections.sort(drawList, comparator);
-
+				});
 				Collections.reverse(drawList);
 
 				for (Variable variable : drawList) {
 					boolean visible = false;
 					if (variable instanceof ImageVariable) {
 						visible = ((ImageVariable) variable).isVisible();
-					}
-					if (variable instanceof AnimoVariable) {
+					} else if (variable instanceof AnimoVariable) {
 						visible = ((AnimoVariable) variable).isVisible();
 					}
-					if (variable instanceof SequenceVariable) {
-						visible = ((SequenceVariable) variable).isVisible();
-					}
-					if (!visible) {
+
+					if (onlyVisible && !visible) {
 						continue;
 					}
 
-					int z = variable.getAttribute("PRIORITY") != null ? Integer.parseInt(variable.getAttribute("PRIORITY").getValue().toString()) : 0;
+					int z = variable.getAttribute("PRIORITY") != null ?
+							Integer.parseInt(variable.getAttribute("PRIORITY").getValue().toString()) : 0;
+					if (z < minZ || z > maxZ) {
+						continue;
+					}
 
-					if ((z >= minZ && z <= maxZ) || (minZ == -1 && maxZ == -1)) {
-						Rectangle rect = getRect(variable);
-						if(rect ==  null) continue;
+					Rectangle rect = getRect(variable);
+					if (rect == null) continue;
+
+					boolean containsPoint = false;
+					if (includeAlpha) {
+						containsPoint = posX > rect.getXLeft() &&
+								posX < rect.getXRight() &&
+								posY > rect.getYTop() &&
+								posY < rect.getYBottom();
+					} else {
 						if (rect.contains(posX, posY)) {
-							if (useAlpha) {
-								Gdx.app.log("CanvasObserver", "Debug - " + variable.getName() + " at (" + posX + "," + posY + ")");
-								return new StringVariable("", variable.getName(), context);
-							} else {
-								Image image = getImage(variable);
-								int relativeX = posX - rect.getXLeft();
-								int relativeY = posY - rect.getYTop();
-								int alpha = 255;
+							Image image = getImage(variable);
+							int relativeX = posX - rect.getXLeft();
+							int relativeY = posY - rect.getYTop();
+							int alpha = 255;
 
-								if(image.getImageTexture() != null) {
-									TextureData textureData = image.getImageTexture().getTextureData();
-									if (!textureData.isPrepared()) {
-										textureData.prepare();
-									}
-									Pixmap pixmap = textureData.consumePixmap();
-									int pixel = pixmap.getPixel(relativeX, relativeY);
-									alpha = (pixel & 0xFF);
+							if (image != null && image.getImageTexture() != null) {
+								TextureData textureData = image.getImageTexture().getTextureData();
+								if (!textureData.isPrepared()) {
+									textureData.prepare();
 								}
+								Pixmap pixmap = textureData.consumePixmap();
+								int pixel = pixmap.getPixel(relativeX, relativeY);
+								alpha = (pixel & 0xFF);
 
-								if (alpha > 0) {
-									Gdx.app.log("CanvasObserver", "Debug - "+variable.getName()+" at ("+posX+","+posY+")");
-									return new StringVariable("", variable.getName(), context);
+								if (textureData.disposePixmap()) {
+									pixmap.dispose();
 								}
 							}
+
+							containsPoint = alpha > 0;
 						}
+					}
+
+					if (containsPoint) {
+						return new StringVariable("", variable.getName(), context);
 					}
 				}
 
