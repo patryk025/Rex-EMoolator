@@ -8,6 +8,7 @@ import java.util.Set;
 
 public class KeyboardsKeysMapper {
     private static final Map<Integer, String> KEY_MAPPING = new HashMap<>();
+    private static final Map<String, Integer> KEY_REVERSE_MAPPING = new HashMap<>();
     static {
         // Function keys
         KEY_MAPPING.put(Input.Keys.F1, "F1");
@@ -85,6 +86,10 @@ public class KeyboardsKeysMapper {
         KEY_MAPPING.put(Input.Keys.RIGHT, "RIGHT");
         KEY_MAPPING.put(Input.Keys.UP, "UP");
         KEY_MAPPING.put(Input.Keys.DOWN, "DOWN");
+
+        for (Map.Entry<Integer, String> entry : KEY_MAPPING.entrySet()) {
+            KEY_REVERSE_MAPPING.put(entry.getValue(), entry.getKey());
+        }
     }
 
     public static String getMappedKey(int key) {
@@ -93,5 +98,10 @@ public class KeyboardsKeysMapper {
 
     public static Set<Integer> getKeySet() {
         return KEY_MAPPING.keySet();
+    }
+
+    public static int getKeyCode(String key) {
+        Integer keyCode = KEY_REVERSE_MAPPING.get(key);
+        return (keyCode != null) ? keyCode : -1;
     }
 }

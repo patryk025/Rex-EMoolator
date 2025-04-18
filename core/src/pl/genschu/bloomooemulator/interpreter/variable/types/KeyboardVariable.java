@@ -70,16 +70,13 @@ public class KeyboardVariable extends GlobalVariable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				String key = ArgumentsHelper.getString(arguments.get(0));
-
-				for (int keyCode : KeyboardsKeysMapper.getKeySet()) {
-					String keyName = KeyboardsKeysMapper.getMappedKey(keyCode);
-
-					if(key.equals(keyName)) {
-						return new BoolVariable("", Gdx.input.isKeyPressed(keyCode), getContext());
-					}
+				int keyCode = KeyboardsKeysMapper.getKeyCode(key);
+				if (keyCode != -1) {
+					return new BoolVariable("", Gdx.input.isKeyPressed(keyCode), getContext());
+				} else {
+					Gdx.app.error("KeyboardVariable", "Key " + key + " not found in lookup table. Returning false.");
+					return new BoolVariable("", false, getContext());
 				}
-
-				return new BoolVariable("", false, getContext());
 			}
 		});
 		this.setMethod("SETAUTOREPEAT", new Method(
