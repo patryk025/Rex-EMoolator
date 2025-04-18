@@ -114,6 +114,10 @@ public class SequenceVariable extends Variable {
 	private Random random;
 	private Map<String, SequenceEvent> eventsByName;
 
+	// source https://docs.google.com/spreadsheets/d/1SYI_Gu6MAuSGw-OTXzk_FDWScx29Cc-6eXpc6UfSn1Y/edit?gid=628883611#gid=628883611&range=A18
+	private final String PARAMS_CHARACTER_SET = "123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz{|}~";
+	private Map<String, Integer> parametersMapping = new HashMap<>();
+
 	public SequenceVariable(String name, Context context) {
 		super(name, context);
 		this.events = new ArrayList<>();
@@ -364,14 +368,15 @@ public class SequenceVariable extends Variable {
 			} else if (event.mode == SequenceMode.RANDOM) {
 				startRandomEvent(event);
 			} else if (event.mode == SequenceMode.PARAMETER) {
-				// not sure, what's happening in this mode
 				if (!event.subEvents.isEmpty()) {
-					int index = Integer.parseInt(event.name) - 1;
-					if (index >= 0 && index < event.subEvents.size()) {
+					Integer index = parametersMapping.get(event.name);
+					if (index != null && index >= 0 && index < event.subEvents.size()) {
 						startEvent(event.subEvents.get(index));
 					} else {
-						Gdx.app.error("SequenceVariable", "Invalid PARAMETER index: " + index);
+						Gdx.app.error("SequenceVariable", "Invalid PARAMETER index for event: " + event.name + ", index: " + index);
 					}
+				} else {
+					Gdx.app.error("SequenceVariable", "No sub-events for PARAMETER event: " + event.name);
 				}
 			}
 		} else {
@@ -632,5 +637,13 @@ public class SequenceVariable extends Variable {
 
 	public List<SequenceEvent> getEvents() {
 		return events;
+	}
+
+	public String getPARAMS_CHARACTER_SET() {
+		return PARAMS_CHARACTER_SET;
+	}
+
+	public Map<String, Integer> getParametersMapping() {
+		return parametersMapping;
 	}
 }

@@ -197,6 +197,20 @@ public class SEQParser {
 
         // Dodanie do mapy eventów
         sequenceVariable.getEventsByName().put(objectName, event);
+
+        // parse SEQEVENT properties
+        for(String key : properties.keySet()) {
+            if(key.startsWith("SEQEVENT:")) {
+                String name = key.substring("SEQEVENT:".length());
+                String indexer = properties.get(key);
+                int index = sequenceVariable.getPARAMS_CHARACTER_SET().indexOf(indexer.charAt(0)); // Index mapping (0-based), use only first letter
+                if (index >= 0) {
+                    sequenceVariable.getParametersMapping().put(name, index);
+                } else {
+                    Gdx.app.error("SequenceVariable", "Invalid SEQEVENT indexer: " + indexer + " for " + name);
+                }
+            }
+        }
     }
 
     private static Variable findVariable(String name, SequenceVariable sequenceVariable) {
