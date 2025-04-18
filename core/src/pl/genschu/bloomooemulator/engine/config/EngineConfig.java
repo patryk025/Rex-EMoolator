@@ -9,6 +9,7 @@ import com.badlogic.gdx.Application;
 public class EngineConfig {
     // debug settings
     private boolean debugGraphics = false;
+    private boolean debugGraphicsBounds = false;
     private boolean debugVariables = false;
     private boolean debugButtons = false;
     private boolean debugCollisions = false;
@@ -31,6 +32,10 @@ public class EngineConfig {
     // getters, setters, whatever
     public boolean isDebugGraphics() {
         return debugGraphics;
+    }
+
+    public boolean isDebugGraphicsBounds() {
+        return debugGraphicsBounds;
     }
 
     public void setDebugGraphics(boolean debugGraphics) {
@@ -63,6 +68,10 @@ public class EngineConfig {
 
     public void toggleDebugGraphics() {
         this.debugGraphics = !this.debugGraphics;
+    }
+
+    public void toggleDebugGraphicsBounds() {
+        this.debugGraphicsBounds = !this.debugGraphicsBounds;
     }
 
     public void toggleDebugVariables() {

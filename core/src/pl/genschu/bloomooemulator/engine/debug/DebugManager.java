@@ -53,6 +53,10 @@ public class DebugManager implements Disposable {
             renderGraphicsDebug();
         }
 
+        if (config.isDebugGraphicsBounds()) {
+            renderObjectBoundingBoxes();
+        }
+
         if (config.isDebugVariables()) {
             renderVariablesDebug();
         }
@@ -68,6 +72,52 @@ public class DebugManager implements Disposable {
         if (showTooltip && !tooltipText.isEmpty()) {
             renderTooltip();
         }
+    }
+
+    private void renderObjectBoundingBoxes() {
+        Context context = game.getCurrentSceneContext();
+        List<Variable> graphics = new ArrayList<>(context.getGraphicsVariables().values());
+
+        shapeRenderer.setProjectionMatrix(camera.combined);
+        shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
+
+        batch.begin();
+        font.setColor(Color.WHITE);
+
+        for (Variable variable : graphics) {
+            Rectangle rect = getRect(variable);
+            if (rect == null) continue;
+
+            boolean visible = false;
+            if (variable instanceof ImageVariable) {
+                visible = ((ImageVariable) variable).isVisible();
+            } else if (variable instanceof AnimoVariable) {
+                visible = ((AnimoVariable) variable).isVisible();
+            }
+
+            if (visible) {
+                shapeRenderer.setColor(Color.RED);
+            } else {
+                shapeRenderer.setColor(Color.GRAY);
+            }
+            shapeRenderer.rect(
+                    rect.getXLeft(),
+                    VIRTUAL_HEIGHT - rect.getYTop() - rect.getHeight(),
+                    rect.getWidth(),
+                    rect.getHeight()
+            );
+
+            String name = variable.getName();
+            font.draw(
+                    batch,
+                    name,
+                    rect.getXLeft(),
+                    VIRTUAL_HEIGHT - rect.getYTop() + 15
+            );
+        }
+
+        batch.end();
+        shapeRenderer.end();
     }
 
     private void renderGraphicsDebug() {
