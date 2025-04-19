@@ -82,6 +82,12 @@ public class Context {
             int cloneNumber = Integer.parseInt(name.substring(name.lastIndexOf('_') + 1));
 
             if (cloneNumber == 0) {
+                // first, check if variable with that name already exists (it could be not a clone)
+                Variable variable = variables.get(name);
+                if (variable != null) {
+                    return variable;
+                }
+
                 Variable baseVariable = getVariable(baseName);
                 if(baseVariable instanceof StringVariable) {
                     if(!baseName.equals(((StringVariable) baseVariable).GET())) {
