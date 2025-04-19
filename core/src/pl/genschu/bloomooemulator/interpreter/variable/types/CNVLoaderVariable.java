@@ -60,6 +60,7 @@ public class CNVLoaderVariable extends Variable {
 					}
 
 					loadedContexts.put(cnvFile, cnvContext);
+					getContext().addContext(cnvContext);
 					Gdx.app.log("CNVLoaderVariable", "Loaded " + cnvFile);
 				} catch (IOException e) {
 					Gdx.app.error("CNVLoaderVariable", "Error loading " + cnvFile, e);

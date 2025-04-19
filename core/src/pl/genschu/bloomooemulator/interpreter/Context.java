@@ -98,9 +98,14 @@ public class Context {
                     return baseVariable;
                 }
             } else {
-                Variable clonedVariable = variables.get(name);
-                if (clonedVariable != null) {
-                    return clonedVariable;
+                Variable variable = variables.get(baseName);
+                if (variable != null) {
+                    // find in clones
+                    for (Variable clone : variable.getClones()) {
+                        if (clone.getName().equals(name)) {
+                            return clone;
+                        }
+                    }
                 }
             }
         }
@@ -121,7 +126,12 @@ public class Context {
     }
 
     public Map<String, Variable> getGraphicsVariables(boolean includeParent) {
-        Map<String, Variable> result = new LinkedHashMap<>(graphicsVariables);
+        Map<String, Variable> result = new LinkedHashMap<>();
+        // Adding graphics from class instances
+        for(Context context : additionalContexts) {
+            result.putAll(context.getGraphicsVariables(false));
+        }
+        result.putAll(graphicsVariables);
         if (includeParent && parentContext != null) {
             result.putAll(parentContext.getGraphicsVariables());
         }
@@ -133,7 +143,12 @@ public class Context {
     }
 
     public Map<String, Variable> getButtonsVariables(boolean includeParent) {
-        Map<String, Variable> result = new LinkedHashMap<>(buttonsVariables);
+        Map<String, Variable> result = new LinkedHashMap<>();
+        // Adding buttons from class instances
+        for(Context context : additionalContexts) {
+            result.putAll(context.getButtonsVariables(false));
+        }
+        result.putAll(buttonsVariables);
         if (includeParent && parentContext != null) {
             result.putAll(parentContext.getButtonsVariables());
         }
@@ -145,7 +160,12 @@ public class Context {
     }
 
     public Map<String, Variable> getTimerVariables(boolean includeParent) {
-        Map<String, Variable> result = new HashMap<>(timerVariables);
+        Map<String, Variable> result = new HashMap<>();
+        // Adding timers from class instances
+        for(Context context : additionalContexts) {
+            result.putAll(context.getTimerVariables(false));
+        }
+        result.putAll(timerVariables);
         if (includeParent && parentContext != null) {
             result.putAll(parentContext.getTimerVariables());
         }
@@ -157,7 +177,12 @@ public class Context {
     }
 
     public Map<String, Variable> getTextVariables(boolean includeParent) {
-        Map<String, Variable> result = new HashMap<>(textVariables);
+        Map<String, Variable> result = new HashMap<>();
+        // Adding texts from class instances
+        for(Context context : additionalContexts) {
+            result.putAll(context.getTextVariables(false));
+        }
+        result.putAll(textVariables);
         if (includeParent && parentContext != null) {
             result.putAll(parentContext.getTextVariables());
         }

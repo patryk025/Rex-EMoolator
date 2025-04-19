@@ -6,12 +6,26 @@ import pl.genschu.bloomooemulator.interpreter.variable.Attribute;
 import pl.genschu.bloomooemulator.interpreter.variable.Method;
 import pl.genschu.bloomooemulator.interpreter.variable.Parameter;
 import pl.genschu.bloomooemulator.interpreter.variable.Variable;
+import pl.genschu.bloomooemulator.utils.ArgumentsHelper;
 
 import java.util.List;
 
 public class MatrixVariable extends Variable {
+	private int width;
+	private int height;
+	private int cellWidth;
+	private int cellHeight;
+	private int basePosX;
+	private int basePosY;
+	private ArrayVariable data;
+	private int gateRow = -1;
+	private int gateCol = -1;
+	private int gateWidth = 0;
+	private int gateHeight = 0;
+
 	public MatrixVariable(String name, Context context) {
 		super(name, context);
+		this.data = new ArrayVariable("_matrix_data_", context);
 	}
 
 	@Override
@@ -26,7 +40,7 @@ public class MatrixVariable extends Variable {
 		this.setMethod("CALCENEMYMOVEDEST", new Method(
 				List.of(
 						new Parameter("INTEGER", "oldCell", true),
-						new Parameter("INTEGER", "directory?", true)
+						new Parameter("INTEGER", "directory", true)
 				),
 				"INTEGER"
 		) {
@@ -39,7 +53,7 @@ public class MatrixVariable extends Variable {
 		this.setMethod("CALCENEMYMOVEDIR", new Method(
 				List.of(
 						new Parameter("INTEGER", "oldCell", true),
-						new Parameter("INTEGER", "oldDir?", true)
+						new Parameter("INTEGER", "oldDir", false)
 				),
 				"INTEGER"
 		) {
@@ -63,14 +77,17 @@ public class MatrixVariable extends Variable {
 		});
 		this.setMethod("GET", new Method(
 				List.of(
-						new Parameter("INTEGER", "cellNo", true)
+						new Parameter("INTEGER", "cellIndex", true)
 				),
 				"INTEGER"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				// TODO: implement this method
-				throw new ClassMethodNotImplementedException("Method GET is not implemented yet");
+				int cellIndex = ArgumentsHelper.getInteger(arguments.get(0));
+				if (cellIndex >= 0 && cellIndex < width * height) {
+					return data.getElements().get(cellIndex);
+				}
+				return new IntegerVariable("", 0, context);
 			}
 		});
 		this.setMethod("GETCELLOFFSET", new Method(
@@ -82,32 +99,39 @@ public class MatrixVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				// TODO: implement this method
-				throw new ClassMethodNotImplementedException("Method GETCELLOFFSET is not implemented yet");
+				int x = ArgumentsHelper.getInteger(arguments.get(0));
+				int y = ArgumentsHelper.getInteger(arguments.get(1));
+
+				if (x >= 0 && x < width && y >= 0 && y < height) {
+					return new IntegerVariable("", y * width + x, context);
+				}
+				return new IntegerVariable("", -1, context);
 			}
 		});
 		this.setMethod("GETCELLPOSX", new Method(
 				List.of(
-						new Parameter("INTEGER", "cellNo", true)
+						new Parameter("INTEGER", "cellIndex", true)
 				),
 				"INTEGER"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				// TODO: implement this method
-				throw new ClassMethodNotImplementedException("Method GETCELLPOSX is not implemented yet");
+				int cellIndex = ArgumentsHelper.getInteger(arguments.get(0));
+				int col = cellIndex % width;
+				return new IntegerVariable("", basePosX + col * cellWidth, context);
 			}
 		});
 		this.setMethod("GETCELLPOSY", new Method(
 				List.of(
-						new Parameter("INTEGER", "cellNo", true)
+						new Parameter("INTEGER", "cellIndex", true)
 				),
 				"INTEGER"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				// TODO: implement this method
-				throw new ClassMethodNotImplementedException("Method GETCELLPOSY is not implemented yet");
+				int cellIndex = ArgumentsHelper.getInteger(arguments.get(0));
+				int row = cellIndex / width;
+				return new IntegerVariable("", basePosY + row * cellHeight, context);
 			}
 		});
 		this.setMethod("GETCELLSNO", new Method(
@@ -118,8 +142,16 @@ public class MatrixVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				// TODO: implement this method
-				throw new ClassMethodNotImplementedException("Method GETCELLSNO is not implemented yet");
+				int cellCode = ArgumentsHelper.getInteger(arguments.get(0));
+				int count = 0;
+
+				for (Variable element : data.getElements()) {
+					if (element instanceof IntegerVariable && ((IntegerVariable) element).GET() == cellCode) {
+						count++;
+					}
+				}
+
+				return new IntegerVariable("", count, context);
 			}
 		});
 		this.setMethod("GETFIELDPOSX", new Method(
@@ -164,33 +196,67 @@ public class MatrixVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				// TODO: implement this method
-				throw new ClassMethodNotImplementedException("Method ISGATEEMPTY is not implemented yet");
+				if (gateRow == -1 || gateCol == -1 || gateWidth == 0 || gateHeight == 0) {
+					return new BoolVariable("", false, context);
+				}
+
+				for (int y = gateRow; y < gateRow + gateHeight; y++) {
+					for (int x = gateCol; x < gateCol + gateWidth; x++) {
+						int index = y * width + x;
+						if (index < data.getElements().size()) {
+							Variable cell = data.getElements().get(index);
+							if (cell instanceof IntegerVariable && ((IntegerVariable) cell).GET() != 0) {
+								return new BoolVariable("", false, context);
+							}
+						}
+					}
+				}
+
+				return new BoolVariable("", true, context);
 			}
 		});
 		this.setMethod("ISINGATE", new Method(
 				List.of(
-						new Parameter("INTEGER", "cellNo", true)
+						new Parameter("INTEGER", "cellIndex", true)
 				),
 				"BOOL"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				// TODO: implement this method
-				throw new ClassMethodNotImplementedException("Method ISINGATE is not implemented yet");
+				if (gateRow == -1 || gateCol == -1 || gateWidth == 0 || gateHeight == 0) {
+					return new BoolVariable("", false, context);
+				}
+
+				int cellIndex = ArgumentsHelper.getInteger(arguments.get(0));
+				int row = cellIndex / width;
+				int col = cellIndex % width;
+
+				boolean inGate = (row >= gateRow && row < gateRow + gateHeight &&
+						col >= gateCol && col < gateCol + gateWidth);
+
+				return new BoolVariable("", inGate, context);
 			}
 		});
 		this.setMethod("MOVE", new Method(
 				List.of(
-						new Parameter("INTEGER", "oldCell", true),
-						new Parameter("INTEGER", "newCell", true)
+						new Parameter("INTEGER", "srcCellIndex", true),
+						new Parameter("INTEGER", "destCellIndex", true)
 				),
 				"void"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				// TODO: implement this method
-				throw new ClassMethodNotImplementedException("Method MOVE is not implemented yet");
+				int srcCellIndex = ArgumentsHelper.getInteger(arguments.get(0));
+				int destCellIndex = ArgumentsHelper.getInteger(arguments.get(1));
+
+				if (srcCellIndex >= 0 && srcCellIndex < width * height &&
+						destCellIndex >= 0 && destCellIndex < width * height) {
+
+					Variable srcValue = data.getElements().get(srcCellIndex);
+					data.getElements().set(destCellIndex, srcValue);
+					data.getElements().set(srcCellIndex, new IntegerVariable("", 0, context)); // Puste pole
+				}
+				return null;
 			}
 		});
 		this.setMethod("NEXT", new Method(
@@ -204,30 +270,43 @@ public class MatrixVariable extends Variable {
 		});
 		this.setMethod("SET", new Method(
 				List.of(
-						new Parameter("INTEGER", "cellNo", true),
+						new Parameter("INTEGER", "cellIndex", true),
 						new Parameter("INTEGER", "cellCode", true)
 				),
 				"void"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				// TODO: implement this method
-				throw new ClassMethodNotImplementedException("Method SET is not implemented yet");
+				int cellIndex = ArgumentsHelper.getInteger(arguments.get(0));
+				int cellCode = ArgumentsHelper.getInteger(arguments.get(1));
+
+				if (cellIndex >= 0 && cellIndex < width * height) {
+					if (cellIndex >= data.getElements().size()) {
+						while (data.getElements().size() <= cellIndex) {
+							data.getElements().add(new IntegerVariable("", 0, context));
+						}
+					}
+					data.getElements().set(cellIndex, new IntegerVariable("", cellCode, context));
+				}
+				return null;
 			}
 		});
 		this.setMethod("SETGATE", new Method(
 				List.of(
 						new Parameter("INTEGER", "row", true),
 						new Parameter("INTEGER", "col", true),
-						new Parameter("INTEGER", "unknown", true),
-						new Parameter("INTEGER", "unknown", true)
+						new Parameter("INTEGER", "width", true),
+						new Parameter("INTEGER", "height", true)
 				),
 				"void"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				// TODO: implement this method
-				throw new ClassMethodNotImplementedException("Method SETGATE is not implemented yet");
+				gateRow = ArgumentsHelper.getInteger(arguments.get(0));
+				gateCol = ArgumentsHelper.getInteger(arguments.get(1));
+				gateWidth = ArgumentsHelper.getInteger(arguments.get(2));
+				gateHeight = ArgumentsHelper.getInteger(arguments.get(3));
+				return null;
 			}
 		});
 		this.setMethod("SETROW", new Method(
@@ -239,8 +318,24 @@ public class MatrixVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				// TODO: implement this method
-				throw new ClassMethodNotImplementedException("Method SETROW is not implemented yet");
+				int row = ArgumentsHelper.getInteger(arguments.get(0));
+
+				if (row >= 0 && row < height) {
+					int startIndex = row * width;
+
+					for (int i = 1; i < arguments.size() && i - 1 < width; i++) {
+						int cellCode = ArgumentsHelper.getInteger(arguments.get(i));
+						int index = startIndex + (i - 1);
+
+						if (index >= data.getElements().size()) {
+							while (data.getElements().size() <= index) {
+								data.getElements().add(new IntegerVariable("", 0, context));
+							}
+						}
+						data.getElements().set(index, new IntegerVariable("", cellCode, context));
+					}
+				}
+				return null;
 			}
 		});
 		this.setMethod("TICK", new Method(
@@ -256,10 +351,55 @@ public class MatrixVariable extends Variable {
 
 	@Override
 	public void setAttribute(String name, Attribute attribute) {
-		List<String> knownAttributes = List.of("INTEGER, INTEGER BASEPOS", "CELLHEIGHT", "CELLWIDTH", "INTEGER, INTEGER SIZE");
-		if(knownAttributes.contains(name)) {
-			super.setAttribute(name, attribute);
+		switch (name) {
+			case "SIZE":
+				String[] dimensions = attribute.getValue().toString().split(",");
+				if (dimensions.length == 2) {
+					width = Integer.parseInt(dimensions[0].trim());
+					height = Integer.parseInt(dimensions[1].trim());
+
+					// Inicjalizujemy tablicę danych
+					for (int i = 0; i < width * height; i++) {
+						data.getElements().add(new IntegerVariable("", 0, context));
+					}
+				}
+				break;
+			case "BASEPOS":
+				String[] basePos = attribute.getValue().toString().split(",");
+				if (basePos.length == 2) {
+					basePosX = Integer.parseInt(basePos[0].trim());
+					basePosY = Integer.parseInt(basePos[1].trim());
+				}
+				break;
+			case "CELLWIDTH":
+				cellWidth = Integer.parseInt(attribute.getValue().toString());
+				break;
+			case "CELLHEIGHT":
+				cellHeight = Integer.parseInt(attribute.getValue().toString());
+				break;
+			default:
+				super.setAttribute(name, attribute);
+				break;
 		}
 	}
 
+	public int getWidth() {
+		return width;
+	}
+
+	public int getHeight() {
+		return height;
+	}
+
+	public int getCellWidth() {
+		return cellWidth;
+	}
+
+	public int getCellHeight() {
+		return cellHeight;
+	}
+
+	public ArrayVariable getData() {
+		return data;
+	}
 }
