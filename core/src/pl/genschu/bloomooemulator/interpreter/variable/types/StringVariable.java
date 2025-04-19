@@ -25,6 +25,9 @@ import java.util.List;
 public class StringVariable extends Variable {
 	public StringVariable(String name, String value, final Context context) {
 		super(name, context);
+		if(value.startsWith("\"") && value.endsWith("\"")) {
+			value = value.substring(1, value.length() - 1);
+		}
 		setAttribute("VALUE", new Attribute("STRING", value));
 		super.setAttribute("INIT_VALUE", new Attribute("STRING", value));
 	}
