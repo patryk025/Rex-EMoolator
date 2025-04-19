@@ -32,7 +32,7 @@ Aktualne statusy gier opartych na silniku Piklib/BlooMoo:
 <tr>
 <td>Reksio i Ufo</td>
 <td><img alt="W grze" src="https://img.shields.io/badge/W grze-yellow"/></td>
-<td><td>Gra działa poprawnie do momentu inwazji UFO, gdzie po poprawce w GETGRAPHICSAT przestała działać tam detekcja kolizji. Poza tym etapem sprawdzone jest do momentu wyjścia ze składzika i spotkania z Molly. Poziom grywalności został wyznaczony na ten etap, z racji iż poprawka tego błędu regresji jest w drodze.</td>
+<td>Gra sprawdzona jest do momentu wyjścia ze składzika i spotkania z Molly.</td>
 <td>ok. 30% (26/86 scen)</td>
 </tr>
 <tr>

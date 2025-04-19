@@ -115,10 +115,7 @@ public class CanvasObserverVariable extends Variable {
 
 					boolean containsPoint = false;
 					if (includeAlpha) {
-						containsPoint = posX > rect.getXLeft() &&
-								posX < rect.getXRight() &&
-								posY > rect.getYTop() &&
-								posY < rect.getYBottom();
+						containsPoint = rect.contains(posX, posY);
 					} else {
 						if (rect.contains(posX, posY)) {
 							Image image = getImage(variable);
