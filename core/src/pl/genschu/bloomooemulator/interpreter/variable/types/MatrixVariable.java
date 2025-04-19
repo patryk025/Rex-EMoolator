@@ -23,6 +23,19 @@ public class MatrixVariable extends Variable {
 	private int gateWidth = 0;
 	private int gateHeight = 0;
 
+	// field codes
+	private final int FIELD_CODE_MOLE = 99;
+	private final int FIELD_CODE_EMPTY = 0;
+	private final int FIELD_CODE_GROUND = 1;
+	private final int FIELD_CODE_STONE = 2;
+	private final int FIELD_CODE_DYNAMITE = 3;
+	private final int FIELD_CODE_WALL_WEAK = 4;
+	private final int FIELD_CODE_ENEMY = 5;
+	private final int FIELD_CODE_WALL_STRONG = 6;
+	private final int FIELD_CODE_DYNAMITE_FIRED = 7;
+	private final int FIELD_CODE_EXPLOSION = 8;
+	private final int FIELD_CODE_EXIT = 9;
+
 	public MatrixVariable(String name, Context context) {
 		super(name, context);
 		this.data = new ArrayVariable("_matrix_data_", context);
@@ -46,8 +59,46 @@ public class MatrixVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				// TODO: implement this method
-				throw new ClassMethodNotImplementedException("Method CALCENEMYMOVEDEST is not implemented yet");
+				int oldCell = ArgumentsHelper.getInteger(arguments.get(0));
+				int direction = ArgumentsHelper.getInteger(arguments.get(1));
+				int row = oldCell / width;
+				int col = oldCell % width;
+
+				int newRow = row;
+				int newCol = col;
+
+				switch (direction) {
+					case 0: // LEFT
+						newCol = Math.max(0, col - 1);
+						break;
+					case 1: // UP
+						newRow = Math.max(0, row - 1);
+						break;
+					case 2: // RIGHT
+						newCol = Math.min(width - 1, col + 1);
+						break;
+					case 3: // DOWN
+						newRow = Math.min(height - 1, row + 1);
+						break;
+				}
+
+				if (newRow == row && newCol == col) {
+					return new IntegerVariable("", oldCell, context);
+				}
+
+				int destCell = newRow * width + newCol;
+
+				if (destCell >= 0 && destCell < data.getElements().size()) {
+					Variable cellContent = data.getElements().get(destCell);
+					if (cellContent instanceof IntegerVariable) {
+						int value = ((IntegerVariable)cellContent).GET();
+						if (value == FIELD_CODE_EMPTY || value == FIELD_CODE_MOLE) {
+							return new IntegerVariable("", destCell, context);
+						}
+					}
+				}
+
+				return new IntegerVariable("", oldCell, context);
 			}
 		});
 		this.setMethod("CALCENEMYMOVEDIR", new Method(
@@ -59,8 +110,55 @@ public class MatrixVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				// TODO: implement this method
-				throw new ClassMethodNotImplementedException("Method CALCENEMYMOVEDIR is not implemented yet");
+				int oldCell = ArgumentsHelper.getInteger(arguments.get(0));
+				int oldDir = arguments.size() > 1 ? ArgumentsHelper.getInteger(arguments.get(1)) : 0;
+
+				int row = oldCell / width;
+				int col = oldCell % width;
+
+				int[] directions = new int[4];
+				directions[0] = (oldDir + 3) % 4; // turn left
+				directions[1] = oldDir;           // go straight
+				directions[2] = (oldDir + 1) % 4; // turn right
+				directions[3] = (oldDir + 2) % 4; // turn around
+
+				for (int newDir : directions) {
+					int newRow = row;
+					int newCol = col;
+
+					switch (newDir) {
+						case 0: // left
+							newCol = Math.max(0, col - 1);
+							break;
+						case 1: // up
+							newRow = Math.max(0, row - 1);
+							break;
+						case 2: // right
+							newCol = Math.min(width - 1, col + 1);
+							break;
+						case 3: // down
+							newRow = Math.min(height - 1, row + 1);
+							break;
+					}
+
+					if (newRow == row && newCol == col) {
+						continue;
+					}
+
+					int destCell = newRow * width + newCol;
+
+					if (destCell >= 0 && destCell < data.getElements().size()) {
+						Variable cellContent = data.getElements().get(destCell);
+						if (cellContent instanceof IntegerVariable) {
+							int value = ((IntegerVariable)cellContent).GET();
+							if (value == FIELD_CODE_EMPTY || value == FIELD_CODE_MOLE) {
+								return new IntegerVariable("", newDir, context);
+							}
+						}
+					}
+				}
+
+				return new IntegerVariable("", directions[0], context);
 			}
 		});
 		this.setMethod("CANHEROGOTO", new Method(
@@ -71,8 +169,18 @@ public class MatrixVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				// TODO: implement this method
-				throw new ClassMethodNotImplementedException("Method CANHEROGOTO is not implemented yet");
+				int cellNo = ArgumentsHelper.getInteger(arguments.get(0));
+
+				if (cellNo >= 0 && cellNo < data.getElements().size()) {
+					Variable cell = data.getElements().get(cellNo);
+					if (cell instanceof IntegerVariable) {
+						int value = ((IntegerVariable) cell).GET();
+						// Check if cell is not a wall, enemy or stone
+						return new BoolVariable("", value != FIELD_CODE_WALL_WEAK && value != FIELD_CODE_WALL_STRONG && value != FIELD_CODE_ENEMY && value != FIELD_CODE_STONE, context);
+					}
+				}
+
+				return new BoolVariable("", false, context);
 			}
 		});
 		this.setMethod("GET", new Method(
