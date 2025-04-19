@@ -32,8 +32,8 @@ Aktualne statusy gier opartych na silniku Piklib/BlooMoo:
 <tr>
 <td>Reksio i Ufo</td>
 <td><img alt="W grze" src="https://img.shields.io/badge/W grze-yellow"/></td>
-<td>Gra działa w większości poprawnie do momentu, kiedy rozbijamy się w składziku i musimy z pomocą Kretesa i Diesla uwolnić Reksia. Diesel przegryza linę trzymającą konewkę i w momencie kiedy ma wejść w drugą rurę prowadzącą na górę zamiera w bezruchu.</td>
-<td></td>
+<td><td>Gra działa poprawnie do momentu inwazji UFO, gdzie po poprawce w GETGRAPHICSAT przestała działać tam detekcja kolizji. Poza tym etapem sprawdzone jest do momentu wyjścia ze składzika i spotkania z Molly. Poziom grywalności został wyznaczony na ten etap, z racji iż poprawka tego błędu regresji jest w drodze.</td>
+<td>ok. 30% (26/86 scen)</td>
 </tr>
 <tr>
 <td>Reksio i Czarodzieje</td>
