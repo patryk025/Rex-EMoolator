@@ -8,6 +8,9 @@ import pl.genschu.bloomooemulator.interpreter.variable.Parameter;
 import pl.genschu.bloomooemulator.interpreter.variable.Variable;
 import pl.genschu.bloomooemulator.utils.ArgumentsHelper;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 
 public class MatrixVariable extends Variable {
@@ -35,6 +38,9 @@ public class MatrixVariable extends Variable {
 	private final int FIELD_CODE_DYNAMITE_FIRED = 7;
 	private final int FIELD_CODE_EXPLOSION = 8;
 	private final int FIELD_CODE_EXIT = 9;
+
+	private List<int[]> pendingMoves = new ArrayList<>();
+	private int currentMoveIndex = -1;
 
 	public MatrixVariable(String name, Context context) {
 		super(name, context);
@@ -82,17 +88,19 @@ public class MatrixVariable extends Variable {
 						break;
 				}
 
+				// Jeśli nowa pozycja jest taka sama jak stara (np. z powodu granicy mapy)
 				if (newRow == row && newCol == col) {
-					return new IntegerVariable("", oldCell, context);
+					return new IntegerVariable("", oldCell, context); // Zwróć starą komórkę
 				}
 
 				int destCell = newRow * width + newCol;
 
+				// Sprawdź, czy komórka docelowa jest pusta lub zawiera gracza
 				if (destCell >= 0 && destCell < data.getElements().size()) {
 					Variable cellContent = data.getElements().get(destCell);
 					if (cellContent instanceof IntegerVariable) {
 						int value = ((IntegerVariable)cellContent).GET();
-						if (value == FIELD_CODE_EMPTY || value == FIELD_CODE_MOLE) {
+						if (value == 0 || value == 99) { // 0-puste, 99-gracz
 							return new IntegerVariable("", destCell, context);
 						}
 					}
@@ -116,42 +124,47 @@ public class MatrixVariable extends Variable {
 				int row = oldCell / width;
 				int col = oldCell % width;
 
+				// Kolejność kierunków (0: lewo, 1: góra, 2: prawo, 3: dół)
+				// Próbujemy z lewej względem aktualnego kierunku
 				int[] directions = new int[4];
-				directions[0] = (oldDir + 3) % 4; // turn left
-				directions[1] = oldDir;           // go straight
-				directions[2] = (oldDir + 1) % 4; // turn right
-				directions[3] = (oldDir + 2) % 4; // turn around
+				directions[0] = (oldDir + 3) % 4; // lewo względem obecnego kierunku
+				directions[1] = oldDir;           // prosto
+				directions[2] = (oldDir + 1) % 4; // prawo względem obecnego kierunku
+				directions[3] = (oldDir + 2) % 4; // zawróć
 
 				for (int newDir : directions) {
 					int newRow = row;
 					int newCol = col;
 
+					// Oblicz nową pozycję
 					switch (newDir) {
-						case 0: // left
+						case 0: // lewo
 							newCol = Math.max(0, col - 1);
 							break;
-						case 1: // up
+						case 1: // góra
 							newRow = Math.max(0, row - 1);
 							break;
-						case 2: // right
+						case 2: // prawo
 							newCol = Math.min(width - 1, col + 1);
 							break;
-						case 3: // down
+						case 3: // dół
 							newRow = Math.min(height - 1, row + 1);
 							break;
 					}
 
+					// Jeśli pozycja nie zmieniła się (bo jesteśmy na granicy mapy), spróbuj następny kierunek
 					if (newRow == row && newCol == col) {
 						continue;
 					}
 
 					int destCell = newRow * width + newCol;
 
+					// Sprawdź, czy komórka docelowa jest pusta lub zawiera gracza
 					if (destCell >= 0 && destCell < data.getElements().size()) {
 						Variable cellContent = data.getElements().get(destCell);
 						if (cellContent instanceof IntegerVariable) {
 							int value = ((IntegerVariable)cellContent).GET();
-							if (value == FIELD_CODE_EMPTY || value == FIELD_CODE_MOLE) {
+							if (value == 0 || value == 99) { // 0-puste, 99-gracz
 								return new IntegerVariable("", newDir, context);
 							}
 						}
@@ -264,26 +277,28 @@ public class MatrixVariable extends Variable {
 		});
 		this.setMethod("GETFIELDPOSX", new Method(
 				List.of(
-						new Parameter("INTEGER", "cellNo", true)
+						new Parameter("INTEGER", "cellIndex", true)
 				),
 				"INTEGER"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				// TODO: implement this method
-				throw new ClassMethodNotImplementedException("Method GETFIELDPOSX is not implemented yet");
+				int cellIndex = ArgumentsHelper.getInteger(arguments.get(0));
+				int col = cellIndex % width;
+				return new IntegerVariable("", basePosX + col * cellWidth, context);
 			}
 		});
 		this.setMethod("GETFIELDPOSY", new Method(
 				List.of(
-						new Parameter("INTEGER", "cellNo", true)
+						new Parameter("INTEGER", "cellIndex", true)
 				),
 				"INTEGER"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				// TODO: implement this method
-				throw new ClassMethodNotImplementedException("Method GETFIELDPOSY is not implemented yet");
+				int cellIndex = ArgumentsHelper.getInteger(arguments.get(0));
+				int row = cellIndex / width;
+				return new IntegerVariable("", basePosY + row * cellHeight, context);
 			}
 		});
 		this.setMethod("GETOFFSET", new Method(
@@ -295,8 +310,13 @@ public class MatrixVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				// TODO: implement this method
-				throw new ClassMethodNotImplementedException("Method GETOFFSET is not implemented yet");
+				int x = ArgumentsHelper.getInteger(arguments.get(0));
+				int y = ArgumentsHelper.getInteger(arguments.get(1));
+
+				if (x >= 0 && x < width && y >= 0 && y < height) {
+					return new IntegerVariable("", y * width + x, context);
+				}
+				return new IntegerVariable("", -1, context);
 			}
 		});
 		this.setMethod("ISGATEEMPTY", new Method(
@@ -368,12 +388,85 @@ public class MatrixVariable extends Variable {
 			}
 		});
 		this.setMethod("NEXT", new Method(
-				"void"
+				"INTEGER"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				// TODO: implement this method
-				throw new ClassMethodNotImplementedException("Method NEXT is not implemented yet");
+				if (pendingMoves.isEmpty()) {
+					return new IntegerVariable("", 0, context);
+				}
+
+				currentMoveIndex++;
+
+				// lets backup old arguments
+				HashMap<String, Variable> backupVariables = new HashMap<>();
+				for(String key : context.getVariables().keySet()) {
+					if(key.startsWith("$")) {
+						backupVariables.put(key, context.getVariable(key));
+					}
+				}
+
+				for(int i = 0; i < arguments.size(); i++) {
+					context.setVariable("$"+(i+1), (Variable) arguments.get(i));
+				}
+
+				if (currentMoveIndex >= pendingMoves.size()) {
+					// Wszystkie ruchy zostały wykonane
+					currentMoveIndex = -1;
+					int[] lastMove = pendingMoves.get(pendingMoves.size() - 1);
+
+					context.setVariable("$1", new IntegerVariable("", lastMove[0], context));
+					context.setVariable("$2", new IntegerVariable("", lastMove[1], context));
+					context.setVariable("$3", new IntegerVariable("", lastMove[4], context));
+
+					emitSignal("ONLATEST");
+					pendingMoves.clear();
+
+					for(int i = 0; i < arguments.size(); i++) {
+						context.removeVariable("$"+(i+1));
+					}
+
+					// restore old arguments
+					for(String key : backupVariables.keySet()) {
+						context.setVariable(key, backupVariables.get(key));
+					}
+					return new IntegerVariable("", 0, context);
+				}
+
+				int[] move = pendingMoves.get(currentMoveIndex);
+				int srcX = move[0];
+				int srcY = move[1];
+				int destX = move[2];
+				int destY = move[3];
+				int code = move[4];
+
+				int srcIndex = srcY * width + srcX;
+				int destIndex = destY * width + destX;
+
+				context.setVariable("$1", new IntegerVariable("", srcX, context));
+				context.setVariable("$2", new IntegerVariable("", srcY, context));
+				context.setVariable("$3", new IntegerVariable("", code, context));
+
+				// Jeśli to ostatni ruch, wyślij zdarzenie ONLATEST
+				if (currentMoveIndex == pendingMoves.size() - 1) {
+					emitSignal("ONLATEST");
+					pendingMoves.clear();
+					currentMoveIndex = -1;
+				}
+				else {
+					emitSignal("ONNEXT");
+				}
+
+				for(int i = 0; i < arguments.size(); i++) {
+					context.removeVariable("$"+(i+1));
+				}
+
+				// restore old arguments
+				for(String key : backupVariables.keySet()) {
+					context.setVariable(key, backupVariables.get(key));
+				}
+
+				return new IntegerVariable("", code, context);
 			}
 		});
 		this.setMethod("SET", new Method(
@@ -451,8 +544,63 @@ public class MatrixVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				// TODO: implement this method
-				throw new ClassMethodNotImplementedException("Method TICK is not implemented yet");
+				pendingMoves.clear();
+				currentMoveIndex = -1;
+
+				// Przeglądaj planszę od dołu do góry i od lewej do prawej
+				for (int y = height - 2; y >= 0; y--) {  // Zaczynamy od przedostatniej linii (nie sprawdzamy ostatniej)
+					for (int x = 0; x < width; x++) {
+						int currentIndex = y * width + x;
+						int belowIndex = (y + 1) * width + x;
+
+						// Sprawdź, czy pole zawiera kamień (kod 2)
+						if (currentIndex < data.getElements().size() &&
+								belowIndex < data.getElements().size()) {
+
+							Variable currentCell = data.getElements().get(currentIndex);
+							Variable belowCell = data.getElements().get(belowIndex);
+
+							if (currentCell instanceof IntegerVariable &&
+									belowCell instanceof IntegerVariable) {
+
+								int currentValue = ((IntegerVariable)currentCell).GET();
+								int belowValue = ((IntegerVariable)belowCell).GET();
+
+								// Jeśli to kamień i pod nim jest puste pole, zaplanuj ruch
+								if (currentValue == 2 && belowValue == 0) {
+									// Dodaj do listy ruchów [srcX, srcY, destX, destY, code]
+									pendingMoves.add(new int[]{x, y, x, y + 1, 1});  // kod 1 dla pionowego ruchu w dół
+								}
+								// Jeśli to kamień, pod nim jest kamień, a po lewo dół jest pusto
+								else if (currentValue == 2 && belowValue == 2 && x > 0) {
+									int leftBelowIndex = (y + 1) * width + (x - 1);
+									if (leftBelowIndex < data.getElements().size()) {
+										Variable leftBelowCell = data.getElements().get(leftBelowIndex);
+										if (leftBelowCell instanceof IntegerVariable &&
+												((IntegerVariable)leftBelowCell).GET() == 0) {
+											// Dodaj do listy ruchów [srcX, srcY, destX, destY, code]
+											pendingMoves.add(new int[]{x, y, x - 1, y + 1, 2});  // kod 2 dla ruchu po skosie w lewo-dół
+										}
+									}
+								}
+								// Jeśli to kamień, pod nim jest kamień, a po prawo dół jest pusto
+								else if (currentValue == 2 && belowValue == 2 && x < width - 1) {
+									int rightBelowIndex = (y + 1) * width + (x + 1);
+									if (rightBelowIndex < data.getElements().size()) {
+										Variable rightBelowCell = data.getElements().get(rightBelowIndex);
+										if (rightBelowCell instanceof IntegerVariable &&
+												((IntegerVariable)rightBelowCell).GET() == 0) {
+											// Dodaj do listy ruchów [srcX, srcY, destX, destY, code]
+											pendingMoves.add(new int[]{x, y, x + 1, y + 1, 3});  // kod 3 dla ruchu po skosie w prawo-dół
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+
+				return null;
 			}
 		});
 	}
@@ -505,6 +653,14 @@ public class MatrixVariable extends Variable {
 
 	public int getCellHeight() {
 		return cellHeight;
+	}
+
+	public int getBasePosY() {
+		return basePosY;
+	}
+
+	public int getBasePosX() {
+		return basePosX;
 	}
 
 	public ArrayVariable getData() {

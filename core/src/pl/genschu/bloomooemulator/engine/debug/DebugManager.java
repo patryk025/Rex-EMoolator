@@ -250,6 +250,8 @@ public class DebugManager implements Disposable {
     }
 
     private void debugMatrix(MatrixVariable matrixVariable) {
+        if (!config.isDebugMatrix()) return;
+
         // get array data
         ArrayVariable arrayVariable = matrixVariable.getData();
         if (arrayVariable == null) return;
@@ -258,21 +260,114 @@ public class DebugManager implements Disposable {
         List<Variable> elements = arrayVariable.getElements();
         if (elements == null) return;
 
-        // print elements
         // get matrix dimensions
         int width = matrixVariable.getWidth();
         int height = matrixVariable.getHeight();
+        int cellWidth = matrixVariable.getCellWidth();
+        int cellHeight = matrixVariable.getCellHeight();
 
-        Gdx.app.debug("MatrixVariable", "DEBUG " + matrixVariable.getName() + " (" + width + "x" + height + "):");
+        // get base pos
+        float startX = matrixVariable.getBasePosX();
+        float startY = matrixVariable.getBasePosY();
+
+        shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
+
         for (int i = 0; i < height; i++) {
-            StringBuilder lineDebug = new StringBuilder();
-            lineDebug.append("[").append(i).append("] ");
             for (int j = 0; j < width; j++) {
-                Variable element = elements.get(i * width + j);
-                lineDebug.append(element.toString()).append(" ");
+                int index = i * width + j;
+                if (index >= elements.size()) continue;
+
+                Variable element = elements.get(index);
+                int value = 0;
+                if (element instanceof IntegerVariable) {
+                    value = ((IntegerVariable) element).GET();
+                }
+
+                float x = startX + j * cellWidth;
+                float y = startY + i * cellHeight;
+
+                switch (value) {
+                    case 0: // EMPTY
+                        shapeRenderer.setColor(0.1f, 0.1f, 0.1f, 1f); // Ciemnoszary
+                        break;
+                    case 1: // GROUND
+                        shapeRenderer.setColor(0.5f, 0.35f, 0.05f, 1f); // Brązowy
+                        break;
+                    case 2: // STONE
+                        shapeRenderer.setColor(0.6f, 0.6f, 0.6f, 1f); // Szary
+                        break;
+                    case 3: // DYNAMITE
+                        shapeRenderer.setColor(1f, 0f, 0f, 1f); // Czerwony
+                        break;
+                    case 4: // WALL_WEAK
+                        shapeRenderer.setColor(0.7f, 0.5f, 0.3f, 1f); // Jasnobrązowy
+                        break;
+                    case 5: // ENEMY
+                        shapeRenderer.setColor(1f, 0.5f, 0f, 1f); // Pomarańczowy
+                        break;
+                    case 6: // WALL_STRONG
+                        shapeRenderer.setColor(0.3f, 0.3f, 0.3f, 1f); // Ciemnoszary
+                        break;
+                    case 7: // DYNAMITE_FIRED
+                        shapeRenderer.setColor(1f, 0.3f, 0.3f, 1f); // Jasnoczerwony
+                        break;
+                    case 8: // EXPLOSION
+                        shapeRenderer.setColor(1f, 1f, 0f, 1f); // Żółty
+                        break;
+                    case 9: // EXIT
+                        shapeRenderer.setColor(0f, 1f, 0f, 1f); // Zielony
+                        break;
+                    case 99: // MOLE
+                        shapeRenderer.setColor(0f, 0f, 1f, 1f); // Niebieski
+                        break;
+                    default:
+                        shapeRenderer.setColor(0.8f, 0.8f, 0.8f, 1f); // Biały dla nieznanych wartości
+                }
+
+                shapeRenderer.rect(x, VIRTUAL_HEIGHT - y - cellHeight, cellWidth - 1, cellHeight - 1);
             }
-            Gdx.app.debug("MatrixVariable", lineDebug.toString());
         }
+
+        shapeRenderer.end();
+
+        batch.begin();
+        font.setColor(Color.WHITE);
+
+        for (int i = 0; i < height; i++) {
+            for (int j = 0; j < width; j++) {
+                int index = i * width + j;
+                if (index >= elements.size()) continue;
+
+                Variable element = elements.get(index);
+                String value = element.toString();
+
+                float x = startX + j * cellWidth + 4; // Offset dla tekstu
+                float y = VIRTUAL_HEIGHT - (startY + i * cellHeight + 15); // Offset dla tekstu
+
+                font.draw(batch, value, x, y);
+            }
+        }
+
+        // Dodaj legendę
+        float legendX = startX + width * cellWidth + 20;
+        float legendY = VIRTUAL_HEIGHT - startY;
+
+        font.draw(batch, "Matrix: " + matrixVariable.getName(), legendX, legendY);
+        legendY -= 15;
+
+        // Lista typów pól do legendy
+        String[] fieldTypes = {
+                "0: EMPTY", "1: GROUND", "2: STONE", "3: DYNAMITE",
+                "4: WALL_WEAK", "5: ENEMY", "6: WALL_STRONG",
+                "7: DYNAMITE_FIRED", "8: EXPLOSION", "9: EXIT", "99: MOLE"
+        };
+
+        for (String fieldType : fieldTypes) {
+            font.draw(batch, fieldType, legendX, legendY);
+            legendY -= 15;
+        }
+
+        batch.end();
     }
 
     private void generateTooltipForButton(ButtonVariable button) {

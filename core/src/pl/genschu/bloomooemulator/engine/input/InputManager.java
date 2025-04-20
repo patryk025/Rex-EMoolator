@@ -148,6 +148,10 @@ public class InputManager implements Disposable {
         if (Gdx.input.isKeyJustPressed(Input.Keys.F4)) {
             config.toggleDebugGraphicsBounds();
         }
+
+        if (Gdx.input.isKeyJustPressed(Input.Keys.F5)) {
+            config.toggleDebugMatrix();
+        }
     }
 
     // Method converting screen coordinates to world coordinates
