@@ -418,6 +418,25 @@ public class MatrixVariable extends Variable {
 				context.setVariable("$2", new IntegerVariable("", srcY, context));
 				context.setVariable("$3", new IntegerVariable("", code, context));
 
+				// move stone
+				Variable srcCell = data.getElements().get(srcY * width + srcX);
+				if (srcCell instanceof IntegerVariable) {
+					switch (code) {
+						case 1:
+							data.getElements().set(srcY * width + srcX, data.getElements().get((srcY + 1) * width + srcX));
+							data.getElements().set((srcY + 1) * width + srcX, new IntegerVariable("", FIELD_CODE_STONE, context));
+							break;
+						case 2:
+							data.getElements().set(srcY * width + srcX, data.getElements().get((srcY + 1) * width + (srcX - 1)));
+							data.getElements().set((srcY + 1) * width + (srcX - 1), new IntegerVariable("", FIELD_CODE_STONE, context));
+							break;
+						case 3:
+							data.getElements().set(srcY * width + srcX, data.getElements().get((srcY + 1) * width + (srcX + 1)));
+							data.getElements().set((srcY + 1) * width + (srcX + 1), new IntegerVariable("", FIELD_CODE_STONE, context));
+							break;
+					}
+				}
+
 				// Wyślij zdarzenie
 				if (currentMoveIndex == pendingMoves.size() - 1) {
 					emitSignal("ONLATEST");
@@ -519,13 +538,16 @@ public class MatrixVariable extends Variable {
 							// check if there is no stone above
 							if (y > 0) {
 								int aboveIndex = (y - 1) * width + x;
-								if (aboveIndex >= 0 && aboveIndex < data.getElements().size()) {
+								int belowIndex = (y + 1) * width + x;
+								if (aboveIndex >= 0 && aboveIndex < data.getElements().size() && belowIndex >= 0 && belowIndex < data.getElements().size()) {
 									Variable aboveCell = data.getElements().get(aboveIndex);
-									if (aboveCell instanceof IntegerVariable) {
+									Variable belowCell = data.getElements().get(belowIndex);
+									if (aboveCell instanceof IntegerVariable && belowCell instanceof IntegerVariable) {
 										int aboveValue = ((IntegerVariable)aboveCell).GET();
+										int belowValue = ((IntegerVariable)belowCell).GET();
 
-										// check if above field is stone
-										if (aboveValue == FIELD_CODE_STONE) {
+										// check if above field is stone and below field is not empty
+										if (aboveValue == FIELD_CODE_STONE && belowValue != FIELD_CODE_EMPTY) {
 											continue;
 										}
 									}
@@ -540,7 +562,7 @@ public class MatrixVariable extends Variable {
 									int belowValue = ((IntegerVariable)belowCell).GET();
 
 									// check if below field is empty
-									if (belowValue == 0) {
+									if (belowValue == FIELD_CODE_EMPTY) {
 										pendingMoves.add(new int[]{x, y, 1}); // x, y, down
 										continue;
 									}
@@ -551,13 +573,17 @@ public class MatrixVariable extends Variable {
 							if (x > 0) {
 								int leftBelowIndex = (y + 1) * width + (x - 1);
 								int leftIndex = y * width + (x - 1);
-								if (leftBelowIndex < data.getElements().size() && leftIndex < data.getElements().size()) {
+								if (leftBelowIndex < data.getElements().size() && leftIndex < data.getElements().size() && belowIndex < data.getElements().size()) {
 									Variable leftBelowCell = data.getElements().get(leftBelowIndex);
 									Variable leftCell = data.getElements().get(leftIndex);
+									Variable belowCell = data.getElements().get(belowIndex);
+
 									if (leftBelowCell instanceof IntegerVariable &&
 											leftCell instanceof IntegerVariable &&
-											((IntegerVariable)leftBelowCell).GET() == 0 &&
-											((IntegerVariable)leftCell).GET() == 0) {
+											belowCell instanceof IntegerVariable &&
+											((IntegerVariable)leftBelowCell).GET() == FIELD_CODE_EMPTY &&
+											((IntegerVariable)leftCell).GET() == FIELD_CODE_EMPTY &&
+											((IntegerVariable)belowCell).GET() == FIELD_CODE_STONE) {
 
 										pendingMoves.add(new int[]{x, y, 2}); // x, y, down-left
 										continue;
@@ -569,13 +595,17 @@ public class MatrixVariable extends Variable {
 							if (x < width - 1) {
 								int rightBelowIndex = (y + 1) * width + (x + 1);
 								int rightIndex = y * width + (x + 1);
-								if (rightBelowIndex < data.getElements().size() && rightIndex < data.getElements().size()) {
+								if (rightBelowIndex < data.getElements().size() && rightIndex < data.getElements().size() && belowIndex < data.getElements().size()) {
 									Variable rightBelowCell = data.getElements().get(rightBelowIndex);
 									Variable rightCell = data.getElements().get(rightIndex);
+									Variable belowCell = data.getElements().get(belowIndex);
+
 									if (rightBelowCell instanceof IntegerVariable &&
 											rightCell instanceof IntegerVariable &&
-											((IntegerVariable)rightBelowCell).GET() == 0 &&
-											((IntegerVariable)rightCell).GET() == 0) {
+											belowCell instanceof IntegerVariable &&
+											((IntegerVariable)rightBelowCell).GET() == FIELD_CODE_EMPTY &&
+											((IntegerVariable)rightCell).GET() == FIELD_CODE_EMPTY &&
+											((IntegerVariable)belowCell).GET() == FIELD_CODE_STONE) {
 
 										pendingMoves.add(new int[]{x, y, 3}); // x, y, down-right
 									}
@@ -585,20 +615,9 @@ public class MatrixVariable extends Variable {
 					}
 				}
 
+				// If there are pending moves, trigger the first one via NEXT
 				if (!pendingMoves.isEmpty()) {
-					currentMoveIndex = 0;
-
-					int[] move = pendingMoves.get(currentMoveIndex);
-					int srcX = move[0];
-					int srcY = move[1];
-					int code = move[2];
-
-					context.setVariable("$1", new IntegerVariable("", srcX, context));
-					context.setVariable("$2", new IntegerVariable("", srcY, context));
-					context.setVariable("$3", new IntegerVariable("", code, context));
-
-					emitSignal("ONLATEST");
-
+					fireMethod("NEXT");
 				}
 
 				return null;
