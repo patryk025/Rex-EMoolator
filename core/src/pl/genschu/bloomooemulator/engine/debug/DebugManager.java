@@ -348,25 +348,6 @@ public class DebugManager implements Disposable {
             }
         }
 
-        // Dodaj legendę
-        float legendX = startX + width * cellWidth + 20;
-        float legendY = VIRTUAL_HEIGHT - startY;
-
-        font.draw(batch, "Matrix: " + matrixVariable.getName(), legendX, legendY);
-        legendY -= 15;
-
-        // Lista typów pól do legendy
-        String[] fieldTypes = {
-                "0: EMPTY", "1: GROUND", "2: STONE", "3: DYNAMITE",
-                "4: WALL_WEAK", "5: ENEMY", "6: WALL_STRONG",
-                "7: DYNAMITE_FIRED", "8: EXPLOSION", "9: EXIT", "99: MOLE"
-        };
-
-        for (String fieldType : fieldTypes) {
-            font.draw(batch, fieldType, legendX, legendY);
-            legendY -= 15;
-        }
-
         batch.end();
     }
 

@@ -387,86 +387,45 @@ public class MatrixVariable extends Variable {
 				return null;
 			}
 		});
-		this.setMethod("NEXT", new Method(
-				"INTEGER"
-		) {
+		this.setMethod("NEXT", new Method("INTEGER") {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				if (pendingMoves.isEmpty()) {
 					return new IntegerVariable("", 0, context);
 				}
 
-				currentMoveIndex++;
-
-				// lets backup old arguments
-				HashMap<String, Variable> backupVariables = new HashMap<>();
-				for(String key : context.getVariables().keySet()) {
-					if(key.startsWith("$")) {
-						backupVariables.put(key, context.getVariable(key));
-					}
+				// Pobierz następny ruch z listy
+				if (currentMoveIndex < 0) {
+					currentMoveIndex = 0;
+				} else {
+					currentMoveIndex++;
 				}
 
-				for(int i = 0; i < arguments.size(); i++) {
-					context.setVariable("$"+(i+1), (Variable) arguments.get(i));
-				}
-
+				// Jeśli wszystkie ruchy zostały wykonane, zresetuj
 				if (currentMoveIndex >= pendingMoves.size()) {
-					// Wszystkie ruchy zostały wykonane
-					currentMoveIndex = -1;
-					int[] lastMove = pendingMoves.get(pendingMoves.size() - 1);
-
-					context.setVariable("$1", new IntegerVariable("", lastMove[0], context));
-					context.setVariable("$2", new IntegerVariable("", lastMove[1], context));
-					context.setVariable("$3", new IntegerVariable("", lastMove[4], context));
-
-					emitSignal("ONLATEST");
 					pendingMoves.clear();
-
-					for(int i = 0; i < arguments.size(); i++) {
-						context.removeVariable("$"+(i+1));
-					}
-
-					// restore old arguments
-					for(String key : backupVariables.keySet()) {
-						context.setVariable(key, backupVariables.get(key));
-					}
+					currentMoveIndex = -1;
 					return new IntegerVariable("", 0, context);
 				}
 
 				int[] move = pendingMoves.get(currentMoveIndex);
 				int srcX = move[0];
 				int srcY = move[1];
-				int destX = move[2];
-				int destY = move[3];
-				int code = move[4];
+				int code = move[2];
 
-				int srcIndex = srcY * width + srcX;
-				int destIndex = destY * width + destX;
-
+				// Ustaw zmienne kontekstowe dla obsługi sygnału
 				context.setVariable("$1", new IntegerVariable("", srcX, context));
 				context.setVariable("$2", new IntegerVariable("", srcY, context));
 				context.setVariable("$3", new IntegerVariable("", code, context));
 
-				// Jeśli to ostatni ruch, wyślij zdarzenie ONLATEST
+				// Wyślij zdarzenie
 				if (currentMoveIndex == pendingMoves.size() - 1) {
 					emitSignal("ONLATEST");
-					pendingMoves.clear();
-					currentMoveIndex = -1;
-				}
-				else {
+				} else {
 					emitSignal("ONNEXT");
 				}
 
-				for(int i = 0; i < arguments.size(); i++) {
-					context.removeVariable("$"+(i+1));
-				}
-
-				// restore old arguments
-				for(String key : backupVariables.keySet()) {
-					context.setVariable(key, backupVariables.get(key));
-				}
-
-				return new IntegerVariable("", code, context);
+				return new IntegerVariable("", 0, context);
 			}
 		});
 		this.setMethod("SET", new Method(
@@ -539,65 +498,107 @@ public class MatrixVariable extends Variable {
 				return null;
 			}
 		});
-		this.setMethod("TICK", new Method(
-				"void"
-		) {
+		this.setMethod("TICK", new Method("void") {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				pendingMoves.clear();
 				currentMoveIndex = -1;
 
-				// Przeglądaj planszę od dołu do góry i od lewej do prawej
-				for (int y = height - 2; y >= 0; y--) {  // Zaczynamy od przedostatniej linii (nie sprawdzamy ostatniej)
+				// Check map from bottom to top, left to right
+				for (int y = height - 2; y >= 0; y--) {
 					for (int x = 0; x < width; x++) {
 						int currentIndex = y * width + x;
-						int belowIndex = (y + 1) * width + x;
 
-						// Sprawdź, czy pole zawiera kamień (kod 2)
-						if (currentIndex < data.getElements().size() &&
-								belowIndex < data.getElements().size()) {
+						if (currentIndex >= data.getElements().size()) continue;
 
-							Variable currentCell = data.getElements().get(currentIndex);
-							Variable belowCell = data.getElements().get(belowIndex);
+						Variable currentCell = data.getElements().get(currentIndex);
+						if (!(currentCell instanceof IntegerVariable)) continue;
+						int currentValue = ((IntegerVariable)currentCell).GET();
 
-							if (currentCell instanceof IntegerVariable &&
-									belowCell instanceof IntegerVariable) {
+						if (currentValue == FIELD_CODE_STONE) {
+							// check if there is no stone above
+							if (y > 0) {
+								int aboveIndex = (y - 1) * width + x;
+								if (aboveIndex >= 0 && aboveIndex < data.getElements().size()) {
+									Variable aboveCell = data.getElements().get(aboveIndex);
+									if (aboveCell instanceof IntegerVariable) {
+										int aboveValue = ((IntegerVariable)aboveCell).GET();
 
-								int currentValue = ((IntegerVariable)currentCell).GET();
-								int belowValue = ((IntegerVariable)belowCell).GET();
-
-								// Jeśli to kamień i pod nim jest puste pole, zaplanuj ruch
-								if (currentValue == 2 && belowValue == 0) {
-									// Dodaj do listy ruchów [srcX, srcY, destX, destY, code]
-									pendingMoves.add(new int[]{x, y, x, y + 1, 1});  // kod 1 dla pionowego ruchu w dół
-								}
-								// Jeśli to kamień, pod nim jest kamień, a po lewo dół jest pusto
-								else if (currentValue == 2 && belowValue == 2 && x > 0) {
-									int leftBelowIndex = (y + 1) * width + (x - 1);
-									if (leftBelowIndex < data.getElements().size()) {
-										Variable leftBelowCell = data.getElements().get(leftBelowIndex);
-										if (leftBelowCell instanceof IntegerVariable &&
-												((IntegerVariable)leftBelowCell).GET() == 0) {
-											// Dodaj do listy ruchów [srcX, srcY, destX, destY, code]
-											pendingMoves.add(new int[]{x, y, x - 1, y + 1, 2});  // kod 2 dla ruchu po skosie w lewo-dół
+										// check if above field is stone
+										if (aboveValue == FIELD_CODE_STONE) {
+											continue;
 										}
 									}
 								}
-								// Jeśli to kamień, pod nim jest kamień, a po prawo dół jest pusto
-								else if (currentValue == 2 && belowValue == 2 && x < width - 1) {
-									int rightBelowIndex = (y + 1) * width + (x + 1);
-									if (rightBelowIndex < data.getElements().size()) {
-										Variable rightBelowCell = data.getElements().get(rightBelowIndex);
-										if (rightBelowCell instanceof IntegerVariable &&
-												((IntegerVariable)rightBelowCell).GET() == 0) {
-											// Dodaj do listy ruchów [srcX, srcY, destX, destY, code]
-											pendingMoves.add(new int[]{x, y, x + 1, y + 1, 3});  // kod 3 dla ruchu po skosie w prawo-dół
-										}
+							}
+
+							// check below
+							int belowIndex = (y + 1) * width + x;
+							if (belowIndex < data.getElements().size()) {
+								Variable belowCell = data.getElements().get(belowIndex);
+								if (belowCell instanceof IntegerVariable) {
+									int belowValue = ((IntegerVariable)belowCell).GET();
+
+									// check if below field is empty
+									if (belowValue == 0) {
+										pendingMoves.add(new int[]{x, y, 1}); // x, y, down
+										continue;
+									}
+								}
+							}
+
+							// check if it can move askew left
+							if (x > 0) {
+								int leftBelowIndex = (y + 1) * width + (x - 1);
+								int leftIndex = y * width + (x - 1);
+								if (leftBelowIndex < data.getElements().size() && leftIndex < data.getElements().size()) {
+									Variable leftBelowCell = data.getElements().get(leftBelowIndex);
+									Variable leftCell = data.getElements().get(leftIndex);
+									if (leftBelowCell instanceof IntegerVariable &&
+											leftCell instanceof IntegerVariable &&
+											((IntegerVariable)leftBelowCell).GET() == 0 &&
+											((IntegerVariable)leftCell).GET() == 0) {
+
+										pendingMoves.add(new int[]{x, y, 2}); // x, y, down-left
+										continue;
+									}
+								}
+							}
+
+							// check if it can move askew right
+							if (x < width - 1) {
+								int rightBelowIndex = (y + 1) * width + (x + 1);
+								int rightIndex = y * width + (x + 1);
+								if (rightBelowIndex < data.getElements().size() && rightIndex < data.getElements().size()) {
+									Variable rightBelowCell = data.getElements().get(rightBelowIndex);
+									Variable rightCell = data.getElements().get(rightIndex);
+									if (rightBelowCell instanceof IntegerVariable &&
+											rightCell instanceof IntegerVariable &&
+											((IntegerVariable)rightBelowCell).GET() == 0 &&
+											((IntegerVariable)rightCell).GET() == 0) {
+
+										pendingMoves.add(new int[]{x, y, 3}); // x, y, down-right
 									}
 								}
 							}
 						}
 					}
+				}
+
+				if (!pendingMoves.isEmpty()) {
+					currentMoveIndex = 0;
+
+					int[] move = pendingMoves.get(currentMoveIndex);
+					int srcX = move[0];
+					int srcY = move[1];
+					int code = move[2];
+
+					context.setVariable("$1", new IntegerVariable("", srcX, context));
+					context.setVariable("$2", new IntegerVariable("", srcY, context));
+					context.setVariable("$3", new IntegerVariable("", code, context));
+
+					emitSignal("ONLATEST");
+
 				}
 
 				return null;
