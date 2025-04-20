@@ -72,6 +72,16 @@ public class DebugManager implements Disposable {
         if (showTooltip && !tooltipText.isEmpty()) {
             renderTooltip();
         }
+        else if(!showTooltip) {
+            tooltipText = "";
+        }
+
+        // get matrix variables
+        for (Variable matrixVariable : game.getCurrentSceneContext().getVariables().values()) {
+            if (matrixVariable instanceof MatrixVariable) {
+                debugMatrix((MatrixVariable) matrixVariable);
+            }
+        }
     }
 
     private void renderObjectBoundingBoxes() {
@@ -237,6 +247,32 @@ public class DebugManager implements Disposable {
         }
 
         shapeRenderer.end();
+    }
+
+    private void debugMatrix(MatrixVariable matrixVariable) {
+        // get array data
+        ArrayVariable arrayVariable = matrixVariable.getData();
+        if (arrayVariable == null) return;
+
+        // get array elements
+        List<Variable> elements = arrayVariable.getElements();
+        if (elements == null) return;
+
+        // print elements
+        // get matrix dimensions
+        int width = matrixVariable.getWidth();
+        int height = matrixVariable.getHeight();
+
+        Gdx.app.debug("MatrixVariable", "DEBUG " + matrixVariable.getName() + " (" + width + "x" + height + "):");
+        for (int i = 0; i < height; i++) {
+            StringBuilder lineDebug = new StringBuilder();
+            lineDebug.append("[").append(i).append("] ");
+            for (int j = 0; j < width; j++) {
+                Variable element = elements.get(i * width + j);
+                lineDebug.append(element.toString()).append(" ");
+            }
+            Gdx.app.debug("MatrixVariable", lineDebug.toString());
+        }
     }
 
     private void generateTooltipForButton(ButtonVariable button) {

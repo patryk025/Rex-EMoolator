@@ -98,8 +98,8 @@ public class SceneVariable extends Variable {
 		this.setMethod("REMOVECLONES", new Method(
 				List.of(
 						new Parameter("STRING", "varName", true),
-						new Parameter("INTEGER", "unknown", true),
-						new Parameter("INTEGER", "unknown", true)
+						new Parameter("INTEGER", "firstId", true),
+						new Parameter("INTEGER", "lastId", true)
 				),
 				"void"
 		) {
@@ -182,8 +182,8 @@ public class SceneVariable extends Variable {
 		this.setMethod("RUNCLONES", new Method(
 				List.of(
 						new Parameter("STRING", "varName", true),
-						new Parameter("INTEGER", "firstCloneIndex?", true),
-						new Parameter("INTEGER", "lastCloneIndex?", true),
+						new Parameter("INTEGER", "firstCloneIndex", true),
+						new Parameter("INTEGER", "lastCloneIndex", true),
 						new Parameter("STRING", "behaviourName", true)
 				),
 				"void"
