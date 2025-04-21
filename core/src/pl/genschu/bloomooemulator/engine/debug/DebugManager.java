@@ -1,6 +1,8 @@
 package pl.genschu.bloomooemulator.engine.debug;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
+import com.badlogic.gdx.InputAdapter;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
@@ -17,6 +19,7 @@ import pl.genschu.bloomooemulator.interpreter.variable.types.*;
 import pl.genschu.bloomooemulator.objects.Rectangle;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class DebugManager implements Disposable {
@@ -36,6 +39,19 @@ public class DebugManager implements Disposable {
 
     private String debugVariablesValues = "";
     private Rectangle debugRect;
+
+    private boolean showSceneSelector = false;
+    private List<String> sceneList = new ArrayList<>();
+    private int selectedScene = -1;
+    private Vector2 selectorPosition = new Vector2(10, 30);
+    private int scrollPosition = 0;
+    private static final int MAX_VISIBLE_SCENES = 15;
+
+    private float keyRepeatTimer = 0;
+    private boolean keyIsDown = false;
+    private final float KEY_INITIAL_DELAY = 0.4f;
+    private final float KEY_REPEAT_INTERVAL = 0.1f;
+
 
     public DebugManager(SpriteBatch batch, OrthographicCamera camera, Game game, EngineConfig config) {
         this.batch = batch;
@@ -74,6 +90,10 @@ public class DebugManager implements Disposable {
         }
         else if(!showTooltip) {
             tooltipText = "";
+        }
+
+        if (showSceneSelector) {
+            renderSceneSelector();
         }
 
         // get matrix variables
@@ -591,6 +611,162 @@ public class DebugManager implements Disposable {
 
     public void setDebugRect(Rectangle rect) {
         this.debugRect = rect;
+    }
+
+    public void toggleSceneSelector() {
+        showSceneSelector = !showSceneSelector;
+        if (showSceneSelector) {
+            updateSceneList();
+        }
+    }
+
+    private void updateSceneList() {
+        sceneList.clear();
+
+        // Get every scene
+        for (EpisodeVariable episode : game.getApplicationVariable().getEpisodes()) {
+            for (SceneVariable scene : episode.getScenes()) {
+                sceneList.add(scene.getName());
+            }
+        }
+
+        // Sort
+        Collections.sort(sceneList);
+
+        // Set selected scene
+        selectedScene = sceneList.indexOf(game.getCurrentScene());
+    }
+
+    private void renderSceneSelector() {
+        if (!showSceneSelector) return;
+
+        int width = 300;
+        int height = Math.min(sceneList.size(), MAX_VISIBLE_SCENES) * 20 + 40;
+
+        // Draw background
+        shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
+        shapeRenderer.setColor(new Color(0, 0, 0, 0.8f));
+        shapeRenderer.rect(selectorPosition.x, selectorPosition.y, width, height);
+        shapeRenderer.end();
+
+        // Draw border
+        shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
+        shapeRenderer.setColor(Color.WHITE);
+        shapeRenderer.rect(selectorPosition.x, selectorPosition.y, width, height);
+        shapeRenderer.end();
+
+        batch.begin();
+
+        // Draw header
+        font.setColor(Color.YELLOW);
+        font.draw(batch, "Scene Selector (F9 to toggle)", selectorPosition.x + 10, selectorPosition.y + height - 10);
+
+        // Draw scene list
+        int visibleCount = Math.min(sceneList.size(), MAX_VISIBLE_SCENES);
+
+        for (int i = 0; i < visibleCount; i++) {
+            int index = scrollPosition + i;
+            if (index >= sceneList.size()) break;
+
+            if (index == selectedScene) {
+                font.setColor(Color.GREEN);  // Selected scene
+            } else if (sceneList.get(index).equals(game.getCurrentScene())) {
+                font.setColor(Color.CYAN);   // Current scene
+            } else {
+                font.setColor(Color.WHITE);  // Rest of scenes
+            }
+
+            float itemY = selectorPosition.y + height - 35 - (i * 20);
+
+            font.draw(batch, sceneList.get(index), selectorPosition.x + 15, itemY);
+        }
+
+        batch.end();
+
+        if (sceneList.size() > MAX_VISIBLE_SCENES) {
+            float scrollableArea = height - 40;
+            float totalItems = sceneList.size();
+            float visibleItems = MAX_VISIBLE_SCENES;
+
+            float barHeight = (visibleItems / totalItems) * scrollableArea;
+
+            float barPositionRatio = scrollPosition / (totalItems - visibleItems);
+            float barY = selectorPosition.y + 10 + (scrollableArea - barHeight) * (1.0f - barPositionRatio);
+
+            shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
+            shapeRenderer.setColor(Color.GRAY);
+            shapeRenderer.rect(selectorPosition.x + width - 15, selectorPosition.y + 10, 10, scrollableArea);
+            shapeRenderer.setColor(Color.WHITE);
+            shapeRenderer.rect(selectorPosition.x + width - 13, barY, 6, barHeight);
+            shapeRenderer.end();
+        }
+    }
+
+    public void handleSceneSelectorInput(float deltaTime) {
+        if (!showSceneSelector) return;
+
+        boolean upPressed = Gdx.input.isKeyPressed(Input.Keys.UP);
+        boolean downPressed = Gdx.input.isKeyPressed(Input.Keys.DOWN);
+
+        if (upPressed || downPressed) {
+            if (!keyIsDown) {
+                keyIsDown = true;
+                keyRepeatTimer = 0;
+
+                if (upPressed) {
+                    moveSelectionUp();
+                } else {
+                    moveSelectionDown();
+                }
+            } else {
+                keyRepeatTimer += deltaTime;
+
+                if (keyRepeatTimer > KEY_INITIAL_DELAY) {
+                    float timeSinceDelay = keyRepeatTimer - KEY_INITIAL_DELAY;
+                    if (timeSinceDelay % KEY_REPEAT_INTERVAL < deltaTime) {
+                        if (upPressed) {
+                            moveSelectionUp();
+                        } else {
+                            moveSelectionDown();
+                        }
+                    }
+                }
+            }
+        } else {
+            keyIsDown = false;
+            keyRepeatTimer = 0;
+        }
+
+        if (Gdx.input.isKeyJustPressed(Input.Keys.ENTER) && selectedScene >= 0) {
+            // Goto scene
+            game.goTo(sceneList.get(selectedScene));
+            showSceneSelector = false;
+        } else if (Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) {
+            // Close selector
+            showSceneSelector = false;
+        }
+
+        Gdx.input.setInputProcessor(new InputAdapter());
+    }
+
+    private void moveSelectionUp() {
+        if (selectedScene > 0) {
+            selectedScene--;
+
+            if (selectedScene < scrollPosition) {
+                scrollPosition = selectedScene;
+            }
+        }
+    }
+
+    private void moveSelectionDown() {
+        if (selectedScene < sceneList.size() - 1) {
+            selectedScene++;
+
+            if (selectedScene >= scrollPosition + MAX_VISIBLE_SCENES) {
+                scrollPosition = selectedScene - MAX_VISIBLE_SCENES + 1;
+            }
+        }
     }
 
     @Override

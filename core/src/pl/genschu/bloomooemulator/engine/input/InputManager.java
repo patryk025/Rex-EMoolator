@@ -56,6 +56,8 @@ public class InputManager implements Disposable {
         MouseVariable mouseVariable = context.getMouseVariable();
         KeyboardVariable keyboardVariable = context.getKeyboardVariable();
 
+        game.getEmulator().getDebugManager().handleSceneSelectorInput(deltaTime);
+
         // Handle mouse input
         processMouseInput(mouseVariable);
 
@@ -151,6 +153,10 @@ public class InputManager implements Disposable {
 
         if (Gdx.input.isKeyJustPressed(Input.Keys.F5)) {
             config.toggleDebugMatrix();
+        }
+
+        if (Gdx.input.isKeyJustPressed(Input.Keys.F9)) {
+            game.getEmulator().getDebugManager().toggleSceneSelector();
         }
     }
 

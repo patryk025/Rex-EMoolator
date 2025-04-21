@@ -130,4 +130,8 @@ public class BlooMooEngine extends ApplicationAdapter {
     public EngineConfig getConfig() {
         return config;
     }
+
+    public DebugManager getDebugManager() {
+        return debugManager;
+    }
 }
