@@ -436,15 +436,15 @@ public class MatrixVariable extends Variable {
 				if (srcCell instanceof IntegerVariable) {
 					switch (code) {
 						case 1:
-							data.getElements().set(srcY * width + srcX, data.getElements().get((srcY + 1) * width + srcX));
+							data.getElements().set(srcY * width + srcX, new IntegerVariable("", FIELD_CODE_EMPTY, context));
 							data.getElements().set((srcY + 1) * width + srcX, new IntegerVariable("", FIELD_CODE_STONE, context));
 							break;
 						case 2:
-							data.getElements().set(srcY * width + srcX, data.getElements().get((srcY + 1) * width + (srcX - 1)));
+							data.getElements().set(srcY * width + srcX, new IntegerVariable("", FIELD_CODE_EMPTY, context));
 							data.getElements().set((srcY + 1) * width + (srcX - 1), new IntegerVariable("", FIELD_CODE_STONE, context));
 							break;
 						case 3:
-							data.getElements().set(srcY * width + srcX, data.getElements().get((srcY + 1) * width + (srcX + 1)));
+							data.getElements().set(srcY * width + srcX, new IntegerVariable("", FIELD_CODE_EMPTY, context));
 							data.getElements().set((srcY + 1) * width + (srcX + 1), new IntegerVariable("", FIELD_CODE_STONE, context));
 							break;
 					}
@@ -628,6 +628,11 @@ public class MatrixVariable extends Variable {
 									}
 								}
 							}
+						}
+
+						if(currentValue == FIELD_CODE_EXPLOSION) {
+							// set field type to empty
+							data.getElements().set(currentIndex, new IntegerVariable("", FIELD_CODE_EMPTY, context));
 						}
 					}
 				}
