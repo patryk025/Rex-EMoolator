@@ -487,6 +487,33 @@ public class MatrixVariable extends Variable {
 				return null;
 			}
 		});
+		this.setMethod("SET", new Method(
+				List.of(
+						new Parameter("INTEGER", "cellX", true),
+						new Parameter("INTEGER", "cellY", true),
+						new Parameter("INTEGER", "cellCode", true)
+				),
+				"void"
+		) {
+			@Override
+			public Variable execute(List<Object> arguments) {
+				int cellX = ArgumentsHelper.getInteger(arguments.get(0));
+				int cellY = ArgumentsHelper.getInteger(arguments.get(1));
+				int cellCode = ArgumentsHelper.getInteger(arguments.get(2));
+
+				int cellIndex = cellY * width + cellX;
+
+				if (cellIndex >= 0 && cellIndex < width * height) {
+					if (cellIndex >= data.getElements().size()) {
+						while (data.getElements().size() <= cellIndex) {
+							data.getElements().add(new IntegerVariable("", 0, context));
+						}
+					}
+					data.getElements().set(cellIndex, new IntegerVariable("", cellCode, context));
+				}
+				return null;
+			}
+		});
 		this.setMethod("SETGATE", new Method(
 				List.of(
 						new Parameter("INTEGER", "row", true),
@@ -628,11 +655,6 @@ public class MatrixVariable extends Variable {
 									}
 								}
 							}
-						}
-
-						if(currentValue == FIELD_CODE_EXPLOSION) {
-							// set field type to empty
-							data.getElements().set(currentIndex, new IntegerVariable("", FIELD_CODE_EMPTY, context));
 						}
 					}
 				}
