@@ -427,8 +427,15 @@ public class MatrixVariable extends Variable {
 				if(code == FIELD_MOVEMENT_DOWN) // collision with mole is only checked when stone moves down
 				{
 					Variable destCell = data.getElements().get((srcY + 1) * width + srcX);
-					if (destCell instanceof IntegerVariable && ((IntegerVariable) destCell).GET() == FIELD_CODE_MOLE) {
+					Variable upperCell = data.getElements().get((srcY - 1) * width + srcX);
+
+					// check if above cell is empty and below cell is mole
+					if (destCell instanceof IntegerVariable && ((IntegerVariable) destCell).GET() == FIELD_CODE_MOLE &&
+							upperCell instanceof IntegerVariable && ((IntegerVariable) upperCell).GET() == FIELD_CODE_EMPTY) {
 						return new IntegerVariable("", 2, context); // collision with mole
+					}
+					else if(destCell instanceof IntegerVariable && ((IntegerVariable) destCell).GET() == FIELD_CODE_MOLE) {
+						return new IntegerVariable("", 0, context);
 					}
 				}
 
