@@ -1,6 +1,5 @@
 package pl.genschu.bloomooemulator.interpreter.variable.types;
 
-import pl.genschu.bloomooemulator.interpreter.exceptions.ClassMethodNotImplementedException;
 import pl.genschu.bloomooemulator.interpreter.Context;
 import pl.genschu.bloomooemulator.interpreter.variable.Attribute;
 import pl.genschu.bloomooemulator.interpreter.variable.Method;
@@ -9,8 +8,6 @@ import pl.genschu.bloomooemulator.interpreter.variable.Variable;
 import pl.genschu.bloomooemulator.utils.ArgumentsHelper;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 
 public class MatrixVariable extends Variable {
@@ -20,7 +17,7 @@ public class MatrixVariable extends Variable {
 	private int cellHeight;
 	private int basePosX;
 	private int basePosY;
-	private ArrayVariable data;
+	private final ArrayVariable data;
 	private int gateRow = -1;
 	private int gateCol = -1;
 	private int gateWidth = 0;
@@ -38,6 +35,12 @@ public class MatrixVariable extends Variable {
 	private final int FIELD_CODE_DYNAMITE_FIRED = 7;
 	private final int FIELD_CODE_EXPLOSION = 8;
 	private final int FIELD_CODE_EXIT = 9;
+
+	// field movements
+	private final int FIELD_MOVEMENT_DOWN = 1;
+	private final int FIELD_MOVEMENT_DOWN_LEFT = 2;
+	private final int FIELD_MOVEMENT_DOWN_RIGHT = 3;
+	private final int FIELD_MOVEMENT_EXPLOSION = 4;
 
 	private List<int[]> pendingMoves = new ArrayList<>();
 	private int currentMoveIndex = -1;
@@ -391,21 +394,21 @@ public class MatrixVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				if (pendingMoves.isEmpty()) {
-					return new IntegerVariable("", 0, context);
+					return new IntegerVariable("", 0, context); // no action
 				}
 
-				// Pobierz następny ruch z listy
+				// get next move
 				if (currentMoveIndex < 0) {
 					currentMoveIndex = 0;
 				} else {
 					currentMoveIndex++;
 				}
 
-				// Jeśli wszystkie ruchy zostały wykonane, zresetuj
+				// all movements done, finish it all
 				if (currentMoveIndex >= pendingMoves.size()) {
 					pendingMoves.clear();
 					currentMoveIndex = -1;
-					return new IntegerVariable("", 0, context);
+					return new IntegerVariable("", 0, context);  // no action
 				}
 
 				int[] move = pendingMoves.get(currentMoveIndex);
@@ -413,13 +416,23 @@ public class MatrixVariable extends Variable {
 				int srcY = move[1];
 				int code = move[2];
 
-				// Ustaw zmienne kontekstowe dla obsługi sygnału
+				// set arguments for BEHONNEXT/BEHONLATEST
 				context.setVariable("$1", new IntegerVariable("", srcX, context));
 				context.setVariable("$2", new IntegerVariable("", srcY, context));
 				context.setVariable("$3", new IntegerVariable("", code, context));
 
-				// move stone
 				Variable srcCell = data.getElements().get(srcY * width + srcX);
+
+				// check if stone falls on mole
+				if(code == FIELD_MOVEMENT_DOWN) // collision with mole is only checked when stone moves down
+				{
+					Variable destCell = data.getElements().get((srcY + 1) * width + srcX);
+					if (destCell instanceof IntegerVariable && ((IntegerVariable) destCell).GET() == FIELD_CODE_MOLE) {
+						return new IntegerVariable("", 2, context); // collision with mole
+					}
+				}
+
+				// move stone
 				if (srcCell instanceof IntegerVariable) {
 					switch (code) {
 						case 1:
@@ -437,12 +450,15 @@ public class MatrixVariable extends Variable {
 					}
 				}
 
-				// Wyślij zdarzenie
+				// send signals
 				if (currentMoveIndex == pendingMoves.size() - 1) {
-					emitSignal("ONLATEST");
+					emitSignal("ONLATEST"); // when only one move left
 				} else {
-					emitSignal("ONNEXT");
-					fireMethod("NEXT");
+					emitSignal("ONNEXT"); // when there are more moves
+				}
+
+				if(code == FIELD_MOVEMENT_DOWN || code == FIELD_MOVEMENT_DOWN_LEFT || code == FIELD_MOVEMENT_DOWN_RIGHT) {
+					return new IntegerVariable("", 1, context); // 1 as movement action
 				}
 
 				return new IntegerVariable("", 0, context);
@@ -563,8 +579,8 @@ public class MatrixVariable extends Variable {
 									int belowValue = ((IntegerVariable)belowCell).GET();
 
 									// check if below field is empty
-									if (belowValue == FIELD_CODE_EMPTY) {
-										pendingMoves.add(new int[]{x, y, 1}); // x, y, down
+									if (belowValue == FIELD_CODE_EMPTY || belowValue == FIELD_CODE_MOLE) {
+										pendingMoves.add(new int[]{x, y, FIELD_MOVEMENT_DOWN}); // x, y, down
 										continue;
 									}
 								}
@@ -586,7 +602,7 @@ public class MatrixVariable extends Variable {
 											((IntegerVariable)leftCell).GET() == FIELD_CODE_EMPTY &&
 											((IntegerVariable)belowCell).GET() == FIELD_CODE_STONE) {
 
-										pendingMoves.add(new int[]{x, y, 2}); // x, y, down-left
+										pendingMoves.add(new int[]{x, y, FIELD_MOVEMENT_DOWN_LEFT}); // x, y, down-left
 										continue;
 									}
 								}
@@ -608,7 +624,7 @@ public class MatrixVariable extends Variable {
 											((IntegerVariable)rightCell).GET() == FIELD_CODE_EMPTY &&
 											((IntegerVariable)belowCell).GET() == FIELD_CODE_STONE) {
 
-										pendingMoves.add(new int[]{x, y, 3}); // x, y, down-right
+										pendingMoves.add(new int[]{x, y, FIELD_MOVEMENT_DOWN_RIGHT}); // x, y, down-right
 									}
 								}
 							}
