@@ -442,6 +442,7 @@ public class MatrixVariable extends Variable {
 					emitSignal("ONLATEST");
 				} else {
 					emitSignal("ONNEXT");
+					fireMethod("NEXT");
 				}
 
 				return new IntegerVariable("", 0, context);
@@ -613,11 +614,6 @@ public class MatrixVariable extends Variable {
 							}
 						}
 					}
-				}
-
-				// If there are pending moves, trigger the first one via NEXT
-				if (!pendingMoves.isEmpty()) {
-					fireMethod("NEXT");
 				}
 
 				return null;
