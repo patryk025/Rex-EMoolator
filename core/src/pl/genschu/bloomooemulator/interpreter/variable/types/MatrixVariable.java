@@ -452,7 +452,7 @@ public class MatrixVariable extends Variable {
 
 				// send signals
 				if (currentMoveIndex == pendingMoves.size() - 1) {
-					emitSignal("ONLATEST"); // when only one move left
+					emitSignal("ONLATEST"); // when there are no more moves
 				} else {
 					emitSignal("ONNEXT"); // when there are more moves
 				}

@@ -42,12 +42,10 @@ public class VariableFactory
                         }
                         return new BoolVariable(name, Boolean.parseBoolean((String) value), context);
                     } catch (NumberFormatException e) {
-                        return new StringVariable(name, (String) value, context);
+                        return new BoolVariable(name, false, context);
                     }
-                } else if (value == null) {
-                    return new BoolVariable(name, false, context);
                 } else {
-                    return new StringVariable(name, value.toString(), context);
+                    return new BoolVariable(name, false, context);
                 }
             case "BUTTON":
                 return new ButtonVariable(name, context);
@@ -76,14 +74,12 @@ public class VariableFactory
                         }
                         return new DoubleVariable(name, Double.parseDouble((String) value), context);
                     } catch (NumberFormatException e) {
-                        return new StringVariable(name, (String) value, context);
+                        return new DoubleVariable(name, 0, context);
                     }
                 } else if (value instanceof Boolean) {
                     return new DoubleVariable(name, ((Boolean) value) ? 1.0 : 0.0, context);
-                } else if (value == null) {
-                    return new DoubleVariable(name, 0.0, context);
                 } else {
-                    return new StringVariable(name, value.toString(), context);
+                    return new DoubleVariable(name, 0.0, context);
                 }
             case "EPISODE":
                 return new EpisodeVariable(name, context);
@@ -112,12 +108,10 @@ public class VariableFactory
                         }
                         return new IntegerVariable(name, Integer.parseInt((String) value), context);
                     } catch (NumberFormatException e) {
-                        return new StringVariable(name, (String) value, context);
+                        return new IntegerVariable(name, 0, context);
                     }
-                } else if (value == null) {
+                } else {
                     return new IntegerVariable(name, 0, context);
-                }else {
-                    return new StringVariable(name, value.toString(), context);
                 }
             case "KEYBOARD":
                 return new KeyboardVariable(name, context);
