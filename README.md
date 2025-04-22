@@ -2,7 +2,7 @@
 Emulator silnika graficznego Piklib/BlooMoo autorstwa firmy Aidem Media oraz interpretera skryptów.
 
 > [!WARNING]
-> Na ten moment trwają prace nad poprawą interpretera oraz naprawieniem scen ARCADE i CUTSCENKI. 
+> Na ten moment wysiłki są skoncentrowane na naprawieniu Reksio i Ufo, szczególnie etapów z kamieniami, wyścigami, platformami oraz "odkurzaniem Jaja z kury". 
 
 Dla tabeli niżej zastosowano następujący podział grywalności:
 - ![Grywalne](https://img.shields.io/badge/Grywalne-green) grę daje się ukończyć od początku do końca, bez błędów, które mogą ją zablokować.
@@ -32,7 +32,7 @@ Aktualne statusy gier opartych na silniku Piklib/BlooMoo:
 <tr>
 <td>Reksio i Ufo</td>
 <td><img alt="W grze" src="https://img.shields.io/badge/W grze-yellow"/></td>
-<td>Gra sprawdzona jest do momentu wyjścia ze składzika i spotkania z Molly.</td>
+<td>Gra działa poprawnie do momentu wyjścia ze składzika i spotkania z Molly. Sekcja podkopu pod murem więzienia jest naprawiona na tyle, że da się ją teoretycznie przejść, jednakże są jeszcze problemy z kolizjami kamieni z Kretesem, czasami grafiki nieprawidłowo się podmieniają co doprowadza do desynchronizacji danych w macierzy z tym co widać (czyli mówiąc po polsku, np. kamienia w danym miejscu już dawno może nie być, albo na odwrót, spadnie na nas, a go nie widać). W dalszym etapie gra utyka w sekcji platformowej na Indorze. Odtwarza się animacja Reksia jak wchodzi, po czym zmienia się w animację spadania, a klawisze kierunkowe jedynie zmieniają kierunek patrzenia.</td>
 <td>ok. 30% (26/86 scen)</td>
 </tr>
 <tr>
