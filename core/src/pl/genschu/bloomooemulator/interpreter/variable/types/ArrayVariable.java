@@ -3,6 +3,9 @@ package pl.genschu.bloomooemulator.interpreter.variable.types;
 import com.badlogic.gdx.Gdx;
 import pl.genschu.bloomooemulator.interpreter.arithmetic.ArithmeticOperation;
 import pl.genschu.bloomooemulator.interpreter.arithmetic.operations.AddOperation;
+import pl.genschu.bloomooemulator.interpreter.arithmetic.operations.ModuloOperation;
+import pl.genschu.bloomooemulator.interpreter.arithmetic.operations.MultiplyOperation;
+import pl.genschu.bloomooemulator.interpreter.arithmetic.operations.SubtractOperation;
 import pl.genschu.bloomooemulator.interpreter.exceptions.ClassMethodNotImplementedException;
 import pl.genschu.bloomooemulator.interpreter.Context;
 import pl.genschu.bloomooemulator.interpreter.factories.VariableFactory;
@@ -91,8 +94,8 @@ public class ArrayVariable extends Variable {
 		this.setMethod("CLAMPAT", new Method(
 				List.of(
 						new Parameter("INTEGER", "index", true),
-						new Parameter("INTEGER|DOUBLE", "rangeMin", true),
-						new Parameter("INTEGER|DOUBLE", "rangeMax", true)
+						new Parameter("mixed", "rangeMin", true),
+						new Parameter("mixed", "rangeMax", true)
 				),
 				"void"
 		) {
@@ -102,8 +105,9 @@ public class ArrayVariable extends Variable {
 				double rangeMin = ArgumentsHelper.getDouble(arguments.get(1));
 				double rangeMax = ArgumentsHelper.getDouble(arguments.get(2));
 
-				// TODO: implement this method
-				throw new ClassMethodNotImplementedException("Method CLAMPAT is not implemented yet");
+				// use CLAMP method (all glory to the variable access by reference)
+				elements.get(index).fireMethod("CLAMP", new DoubleVariable("", rangeMin, context), new DoubleVariable("", rangeMax, context));
+				return null;
 			}
 		});
 		this.setMethod("CONTAINS", new Method(
@@ -252,27 +256,33 @@ public class ArrayVariable extends Variable {
 		this.setMethod("MODAT", new Method(
 				List.of(
 						new Parameter("INTEGER", "index", true),
-						new Parameter("INTEGER|DOUBLE", "divisor", true)
+						new Parameter("mixed", "divisor", true)
 				),
 				"void"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				// TODO: implement this method
-				throw new ClassMethodNotImplementedException("Method MODAT is not implemented yet");
+				int index = ArgumentsHelper.getInteger(arguments.get(0));
+				ModuloOperation operation = new ModuloOperation();
+				elements.set(index, operation.performOperation(elements.get(index), (Variable) arguments.get(1)));
+				//debugArray();
+				return null;
 			}
 		});
 		this.setMethod("MULAT", new Method(
 				List.of(
 						new Parameter("INTEGER", "index", true),
-						new Parameter("INTEGER|DOUBLE", "multiplier", true)
+						new Parameter("mixed", "multiplier", true)
 				),
 				"void"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				// TODO: implement this method
-				throw new ClassMethodNotImplementedException("Method MULAT is not implemented yet");
+				int index = ArgumentsHelper.getInteger(arguments.get(0));
+				MultiplyOperation operation = new MultiplyOperation();
+				elements.set(index, operation.performOperation(elements.get(index), (Variable) arguments.get(1)));
+				//debugArray();
+				return null;
 			}
 		});
 		this.setMethod("REMOVE", new Method(
@@ -375,33 +385,40 @@ public class ArrayVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				// TODO: implement this method
-				throw new ClassMethodNotImplementedException("Method SUB is not implemented yet");
+				SubtractOperation operation = new SubtractOperation();
+				Variable valueToAdd = (Variable) arguments.get(0);
+				elements.replaceAll(var1 -> operation.performOperation(var1, valueToAdd));
+				return null;
 			}
 		});
 		this.setMethod("SUBAT", new Method(
 				List.of(
 						new Parameter("INTEGER", "index", true),
-						new Parameter("INTEGER|DOUBLE", "value", true)
+						new Parameter("mixed", "value", true)
 				),
 				"void"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				// TODO: implement this method
-				throw new ClassMethodNotImplementedException("Method SUBAT is not implemented yet");
+				int index = ArgumentsHelper.getInteger(arguments.get(0));
+				SubtractOperation operation = new SubtractOperation();
+				elements.set(index, operation.performOperation(elements.get(index), (Variable) arguments.get(1)));
+				//debugArray();
+				return null;
 			}
 		});
 		this.setMethod("SUM", new Method(
 				List.of(
-						new Parameter("INTEGER|DOUBLE", "value", true)
+						new Parameter("mixed", "value", true)
 				),
 				"void"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				// TODO: implement this method
-				throw new ClassMethodNotImplementedException("Method SUM is not implemented yet");
+				AddOperation operation = new AddOperation();
+				Variable valueToAdd = (Variable) arguments.get(0);
+                elements.replaceAll(var1 -> operation.performOperation(var1, valueToAdd));
+				return null;
 			}
 		});
 	}
