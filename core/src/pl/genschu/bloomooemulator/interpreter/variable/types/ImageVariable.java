@@ -5,6 +5,7 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.TextureData;
+import pl.genschu.bloomooemulator.engine.filters.Filter;
 import pl.genschu.bloomooemulator.interpreter.exceptions.ClassMethodNotImplementedException;
 import pl.genschu.bloomooemulator.interpreter.Context;
 import pl.genschu.bloomooemulator.interpreter.variable.Attribute;
@@ -16,6 +17,7 @@ import pl.genschu.bloomooemulator.objects.Image;
 import pl.genschu.bloomooemulator.objects.Rectangle;
 import pl.genschu.bloomooemulator.utils.ArgumentsHelper;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -32,6 +34,8 @@ public class ImageVariable extends Variable implements Cloneable {
 	private boolean monitorCollision = false;
 
 	private Map<String, Rectangle> alphaMasks = new HashMap<>();
+
+	private List<Filter> filters = new ArrayList<>();
 
 	public ImageVariable(String name, Context context) {
 		super(name, context);
@@ -483,6 +487,22 @@ public class ImageVariable extends Variable implements Cloneable {
 	private void hide() {
 		getAttribute("VISIBLE").setValue("FALSE");
 		isVisible = false;
+	}
+
+	public void addFilter(Filter filter) {
+		filters.add(filter);
+	}
+
+	public void removeFilter(Filter filter) {
+		filters.remove(filter);
+	}
+
+	public boolean hasFilters() {
+		return !filters.isEmpty();
+	}
+
+	public List<Filter> getFilters() {
+		return filters;
 	}
 
 	@Override

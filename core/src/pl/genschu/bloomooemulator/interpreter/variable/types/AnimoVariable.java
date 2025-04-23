@@ -2,6 +2,7 @@ package pl.genschu.bloomooemulator.interpreter.variable.types;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.audio.Music;
+import pl.genschu.bloomooemulator.engine.filters.Filter;
 import pl.genschu.bloomooemulator.interpreter.exceptions.ClassMethodNotImplementedException;
 import pl.genschu.bloomooemulator.interpreter.Context;
 import pl.genschu.bloomooemulator.interpreter.variable.Attribute;
@@ -58,6 +59,8 @@ public class AnimoVariable extends Variable implements Cloneable {
 	private boolean wasPressed = false;
 
 	private boolean monitorCollision = false;
+
+	private List<Filter> filters = new ArrayList<>();
 
 	public AnimoVariable(String name, Context context) {
 		super(name, context);
@@ -1363,6 +1366,22 @@ public class AnimoVariable extends Variable implements Cloneable {
 
 	public void setWasPressed(boolean wasPressed) {
 		this.wasPressed = wasPressed;
+	}
+
+	public void addFilter(Filter filter) {
+		filters.add(filter);
+	}
+
+	public void removeFilter(Filter filter) {
+		filters.remove(filter);
+	}
+
+	public boolean hasFilters() {
+		return !filters.isEmpty();
+	}
+
+	public List<Filter> getFilters() {
+		return filters;
 	}
 
 	@Override

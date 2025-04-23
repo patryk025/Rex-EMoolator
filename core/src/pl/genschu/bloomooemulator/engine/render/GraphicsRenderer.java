@@ -10,6 +10,7 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Disposable;
+import pl.genschu.bloomooemulator.engine.filters.Filter;
 import pl.genschu.bloomooemulator.interpreter.Context;
 import pl.genschu.bloomooemulator.interpreter.variable.Variable;
 import pl.genschu.bloomooemulator.interpreter.variable.types.AnimoVariable;
@@ -49,11 +50,17 @@ public class GraphicsRenderer implements Disposable {
 
         Rectangle rect = imageVariable.getRect();
         batch.setColor(1, 1, 1, imageVariable.getOpacity());
-        batch.draw(image.getImageTexture(),
-                rect.getXLeft(),
-                VIRTUAL_HEIGHT - rect.getYTop() - image.height,
-                image.width,
-                image.height);
+        if (imageVariable.hasFilters()) {
+            // get first filter (not sure if there can be more at once)
+            Filter filter = imageVariable.getFilters().get(0);
+            filter.apply(batch, image.getImageTexture(), rect.getXLeft(), rect.getYTop(), image.width, image.height);
+        } else {
+            batch.draw(image.getImageTexture(),
+                    rect.getXLeft(),
+                    VIRTUAL_HEIGHT - rect.getYTop() - image.height,
+                    image.width,
+                    image.height);
+        }
     }
 
     /**
@@ -71,11 +78,18 @@ public class GraphicsRenderer implements Disposable {
 
         Rectangle rect = animoVariable.getRect();
         batch.setColor(1, 1, 1, animoVariable.getOpacity());
-        batch.draw(image.getImageTexture(),
-                rect.getXLeft(),
-                VIRTUAL_HEIGHT - rect.getYTop() - image.height,
-                image.width,
-                image.height);
+
+        if (animoVariable.hasFilters()) {
+            // get first filter (not sure if there can be more at once)
+            Filter filter = animoVariable.getFilters().get(0);
+            filter.apply(batch, image.getImageTexture(), rect.getXLeft(), rect.getYTop(), image.width, image.height);
+        } else {
+            batch.draw(image.getImageTexture(),
+                    rect.getXLeft(),
+                    VIRTUAL_HEIGHT - rect.getYTop() - image.height,
+                    image.width,
+                    image.height);
+        }
     }
 
     @Override

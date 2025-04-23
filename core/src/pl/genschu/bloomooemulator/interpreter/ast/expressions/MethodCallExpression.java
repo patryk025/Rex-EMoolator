@@ -7,6 +7,9 @@ import pl.genschu.bloomooemulator.interpreter.ast.Expression;
 import pl.genschu.bloomooemulator.interpreter.exceptions.ClassMethodNotFoundException;
 import pl.genschu.bloomooemulator.interpreter.variable.types.ExpressionVariable;
 import pl.genschu.bloomooemulator.interpreter.variable.types.StringVariable;
+import pl.genschu.bloomooemulator.interpreter.variable.types.VectorVariable;
+
+import java.util.Arrays;
 
 import static pl.genschu.bloomooemulator.interpreter.util.VariableHelper.getVariableFromObject;
 
@@ -42,6 +45,9 @@ public class MethodCallExpression extends Expression {
             }
             else if(arguments[i] instanceof ExpressionVariable) {
                 Gdx.app.log("MethodCallExpression", methodName + " - argument " + i + ": expression to calculate " + arguments[i].getName());
+            }
+            else if(arguments[i] instanceof VectorVariable) {
+                Gdx.app.log("MethodCallExpression", methodName + " - argument " + i + ": vector " + arguments[i].getName() + " (" + Arrays.toString(((VectorVariable) arguments[i]).getComponents()) + ")");
             }
             else {
                 Gdx.app.log("MethodCallExpression", methodName + " - argument " + i + ": " + arguments[i].getValue().toString());

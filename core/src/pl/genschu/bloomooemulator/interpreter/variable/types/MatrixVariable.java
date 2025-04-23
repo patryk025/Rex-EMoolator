@@ -42,7 +42,7 @@ public class MatrixVariable extends Variable {
 	private final int FIELD_MOVEMENT_DOWN_RIGHT = 3;
 	private final int FIELD_MOVEMENT_EXPLOSION = 4;
 
-	private List<int[]> pendingMoves = new ArrayList<>();
+	private final List<int[]> pendingMoves = new ArrayList<>();
 	private int currentMoveIndex = -1;
 
 	public MatrixVariable(String name, Context context) {
