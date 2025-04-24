@@ -2,6 +2,7 @@ package pl.genschu.bloomooemulator.interpreter.variable.types;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.audio.Music;
+import pl.genschu.bloomooemulator.engine.decision.states.ButtonState;
 import pl.genschu.bloomooemulator.interpreter.Context;
 import pl.genschu.bloomooemulator.interpreter.variable.*;
 import pl.genschu.bloomooemulator.objects.Rectangle;
@@ -16,6 +17,8 @@ public class ButtonVariable extends Variable {
 	private boolean wasPressed = false;
 	private boolean isEnabled = true;
 	private boolean isVisible = true;
+
+	private ButtonState state = ButtonState.INIT;
 
 	private Variable rectVariable;
 	private Variable gfxOnMove;
@@ -348,6 +351,10 @@ public class ButtonVariable extends Variable {
 
 	public Variable getSoundOnClick() {
 		return soundOnClick;
+	}
+
+	public ButtonState getState() {
+		return state;
 	}
 
 	public Rectangle getRect() {

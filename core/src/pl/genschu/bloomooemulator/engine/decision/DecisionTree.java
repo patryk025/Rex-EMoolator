@@ -37,6 +37,18 @@ public class DecisionTree<T> {
                 return falseNode.evaluate(context);
             }
         }
+
+        public Predicate<Object[]> getCondition() {
+            return condition;
+        }
+
+        public DecisionNode<T> getTrueNode() {
+            return trueNode;
+        }
+
+        public DecisionNode<T> getFalseNode() {
+            return falseNode;
+        }
     }
 
     public static class ActionNode<T> implements DecisionNode<T> {
