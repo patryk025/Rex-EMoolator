@@ -6,7 +6,7 @@ import pl.genschu.bloomooemulator.engine.decision.states.ButtonState;
 import pl.genschu.bloomooemulator.interpreter.variable.types.ButtonVariable;
 
 public class ButtonStateTransitionTree {
-    DecisionTree<ButtonState> stateTransitionTree = DecisionTreeBuilder.<ButtonState>create()
+    private static final DecisionTree<ButtonState> stateTransitionTree = DecisionTreeBuilder.<ButtonState>create()
         .when(ctx -> getEvent(ctx) == ButtonEvent.ENABLE)
             .then(ctx -> ButtonState.STANDARD)
         .andWhen(ctx -> getEvent(ctx) == ButtonEvent.DISABLE)
@@ -21,18 +21,18 @@ public class ButtonStateTransitionTree {
             .then(ctx -> ButtonState.HOVERED)
         .andWhen(ctx -> getCurrentState(ctx) == ButtonState.HOVERED && getEvent(ctx) == ButtonEvent.FOCUS_OFF)
             .then(ctx -> ButtonState.STANDARD)
-        .otherwise(this::getCurrentState)
+        .otherwise(ButtonStateTransitionTree::getCurrentState)
         .build();
 
-    private ButtonEvent getEvent(Object[] ctx) {
+    private static ButtonEvent getEvent(Object[] ctx) {
         return (ButtonEvent) ctx[1];
     }
 
-    private ButtonState getCurrentState(Object[] ctx) {
+    private static ButtonState getCurrentState(Object[] ctx) {
         return ((ButtonVariable) ctx[0]).getState();
     }
 
-    public ButtonState evaluate(ButtonVariable variable, ButtonEvent event) {
+    public static ButtonState evaluate(ButtonVariable variable, ButtonEvent event) {
         return stateTransitionTree.evaluate(variable, event);
     }
 }

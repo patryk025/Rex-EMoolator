@@ -1,5 +1,7 @@
 package pl.genschu.bloomooemulator.loader;
 
+import pl.genschu.bloomooemulator.engine.decision.events.ButtonEvent;
+import pl.genschu.bloomooemulator.engine.decision.states.ButtonState;
 import pl.genschu.bloomooemulator.interpreter.Context;
 import pl.genschu.bloomooemulator.interpreter.exceptions.BreakException;
 import pl.genschu.bloomooemulator.interpreter.exceptions.OneBreakException;
@@ -255,8 +257,23 @@ public class CNVParser {
         for (Variable variable : variables) {
             Gdx.app.log("CNVParser", "ONINIT for " + variable.getName() + " (" + variable.getType() + ")");
             if(variable instanceof ButtonVariable) {
-                ((ButtonVariable) variable).load();
-                ((ButtonVariable) variable).getRect();
+                ButtonVariable buttonVariable = (ButtonVariable) variable;
+                buttonVariable.load();
+                buttonVariable.getRect();
+
+                boolean isEnabled = buttonVariable.getAttribute("ENABLE") != null && buttonVariable.getAttribute("ENABLE").getValue().equals("TRUE");
+                boolean isVisible = buttonVariable.getAttribute("VISIBLE") != null && buttonVariable.getAttribute("VISIBLE").getValue().equals("TRUE");
+
+                if(buttonVariable.getState() == ButtonState.INIT) {
+                    if (!isEnabled) {
+                        if (!isVisible)
+                            buttonVariable.changeState(ButtonEvent.DISABLE);
+                        else
+                            buttonVariable.changeState(ButtonEvent.DISABLE_BUT_VISIBLE);
+                    } else {
+                        buttonVariable.changeState(ButtonEvent.ENABLE);
+                    }
+                }
             }
             variable.emitSignal("ONINIT");
         }

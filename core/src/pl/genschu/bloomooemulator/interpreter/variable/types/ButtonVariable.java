@@ -1,7 +1,8 @@
 package pl.genschu.bloomooemulator.interpreter.variable.types;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.audio.Music;
+import pl.genschu.bloomooemulator.engine.decision.ButtonStateTransitionTree;
+import pl.genschu.bloomooemulator.engine.decision.events.ButtonEvent;
 import pl.genschu.bloomooemulator.engine.decision.states.ButtonState;
 import pl.genschu.bloomooemulator.interpreter.Context;
 import pl.genschu.bloomooemulator.interpreter.variable.*;
@@ -12,11 +13,6 @@ import java.util.List;
 
 public class ButtonVariable extends Variable {
 	private Rectangle rect = null;
-	private boolean isFocused = false;
-	private boolean isPressed = false;
-	private boolean wasPressed = false;
-	private boolean isEnabled = true;
-	private boolean isVisible = true;
 
 	private ButtonState state = ButtonState.INIT;
 
@@ -41,25 +37,12 @@ public class ButtonVariable extends Variable {
 		this.setMethod("DISABLE", new Method("void") {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				setAttribute("ENABLE", new Attribute("BOOL", "FALSE"));
-				isEnabled = false;
-				isVisible = false;
-				hideGraphics();
-
 				if (context.getGame().getInputManager() != null &&
 						context.getGame().getInputManager().getActiveButton() == ButtonVariable.this) {
-					Gdx.app.log("ButtonVariable", "Removing active button without triggering release events");
 					context.getGame().getInputManager().clearActiveButton(ButtonVariable.this);
 				}
 
-				setFocused(false);
-
-				if(currentGfx != null) {
-					showImage(currentGfx, false);
-					currentGfx = null;
-				}
-				isPressed = false;
-				wasPressed = false;
+				changeState(ButtonEvent.DISABLE);
 				return null;
 			}
 		});
@@ -69,17 +52,10 @@ public class ButtonVariable extends Variable {
 			public Variable execute(List<Object> arguments) {
 				if (context.getGame().getInputManager() != null &&
 						context.getGame().getInputManager().getActiveButton() == ButtonVariable.this) {
-					Gdx.app.log("ButtonVariable", "Removing active button without triggering release events");
 					context.getGame().getInputManager().clearActiveButton(ButtonVariable.this);
 				}
 
-				setFocused(false);
-
-				isEnabled = false;
-				isVisible = true;
-				isPressed = false;
-				wasPressed = false;
-				updateGraphicsVisibility();
+				changeState(ButtonEvent.DISABLE_BUT_VISIBLE);
 				return null;
 			}
 		});
@@ -87,9 +63,7 @@ public class ButtonVariable extends Variable {
 		this.setMethod("ENABLE", new Method("void") {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				isEnabled = true;
-				isVisible = true;
-				updateGraphicsVisibility();
+				changeState(ButtonEvent.ENABLE);
 				return null;
 			}
 		});
@@ -192,82 +166,85 @@ public class ButtonVariable extends Variable {
 		this.rect = rect;
 	}
 
-	private void hideGraphics() {
-		if(gfxVariable != null) {
-			showImage(gfxVariable, false);
-		}
-		if(gfxOnMove != null) {
-			showImage(gfxOnMove, false);
-		}
-		if(gfxOnClick != null) {
-			showImage(gfxOnClick, false);
-		}
-	}
-
-	private void updateGraphicsVisibility() {
-		if (!isVisible) {
-			hideGraphics();
-			return;
+	public void stopAllSounds() {
+		if(soundStandard != null) {
+			((SoundVariable) soundStandard).getSound().stop();
 		}
 
-		if (isPressed && gfxOnClick != null) {
-			showImage(gfxVariable, false);
-			showImage(gfxOnMove, false);
-			showImage(gfxOnClick, true);
-			currentGfx = gfxOnClick;
-		} else if (isFocused && gfxOnMove != null) {
-			showImage(gfxVariable, false);
-			showImage(gfxOnMove, true);
-			showImage(gfxOnClick, false);
-			currentGfx = gfxOnMove;
-		} else if (gfxVariable != null) {
-			boolean shouldSetVisible = true;
-			if (gfxVariable instanceof AnimoVariable) {
-				AnimoVariable animo = (AnimoVariable) gfxVariable;
-				if (animo.isPlaying()) {
-					shouldSetVisible = animo.isVisible();
-				}
-			}
+		if(soundOnMove != null) {
+			((SoundVariable) soundOnMove).getSound().stop();
+		}
 
-			if (shouldSetVisible) {
-				showImage(gfxVariable, true);
-			}
-
-			showImage(gfxOnMove, false);
-			showImage(gfxOnClick, false);
-			currentGfx = gfxVariable;
+		if(soundOnClick != null) {
+			((SoundVariable) soundOnClick).getSound().stop();
 		}
 	}
 
-	public boolean isFocused() {
-		return isFocused;
+	public void playSndIfExists(Variable sound) {
+		if(sound != null) {
+			((SoundVariable) sound).getSound().play();
+		}
 	}
 
-	public void setFocused(boolean focused) {
-		isFocused = focused;
+	public void changeState(ButtonEvent event) {
+		ButtonState newState = ButtonStateTransitionTree.evaluate(this, event);
 
-		if (isVisible && isEnabled) {
-			if (gfxOnMove != null) {
-				if (!focused) {
-					if (gfxVariable instanceof AnimoVariable && ((AnimoVariable)gfxVariable).isPlaying()) {
-						Gdx.app.log("ButtonVariable", "Keeping playing animation visible: " + gfxVariable.getName());
-					} else {
-						showImage(gfxOnMove, false);
-						showImage(gfxVariable, true);
+		if(newState != state) {
+			switch (newState) {
+				case STANDARD:
+					showImage(gfxVariable, true);
+					showImage(gfxOnMove, false);
+					showImage(gfxOnClick, false);
+
+					stopAllSounds();
+					playSndIfExists(soundStandard);
+
+					if(state == ButtonState.HOVERED)
+						emitSignal("ONFOCUSOFF");
+					break;
+				case HOVERED:
+					showImage(gfxOnMove, true);
+					showImage(gfxVariable, false);
+					showImage(gfxOnClick, false);
+
+					stopAllSounds();
+					playSndIfExists(soundOnMove);
+
+					if(state == ButtonState.PRESSED) {
+						emitSignal("ONRELEASED");
+						emitSignal("ONACTION");
 					}
-					currentGfx = gfxVariable;
-				} else {
-					updateGraphicsVisibility();
-				}
-			} else {
-				updateGraphicsVisibility();
-			}
-		}
-	}
 
-	public void setPressed(boolean pressed) {
-		isPressed = pressed;
-		updateGraphicsVisibility();
+					emitSignal("ONFOCUSON");
+					break;
+				case PRESSED:
+					showImage(gfxOnClick, true);
+					showImage(gfxVariable, false);
+					showImage(gfxOnMove, false);
+
+					stopAllSounds();
+					playSndIfExists(soundOnClick);
+
+					emitSignal("ONCLICKED");
+					break;
+				case DISABLED:
+					showImage(gfxVariable, false);
+					showImage(gfxOnMove, false);
+					showImage(gfxOnClick, false);
+
+					stopAllSounds();
+					break;
+				case DISABLED_BUT_VISIBLE:
+					showImage(gfxVariable, true);
+					showImage(gfxOnMove, false);
+					showImage(gfxOnClick, false);
+
+					stopAllSounds();
+					break;
+			}
+
+			state = newState;
+		}
 	}
 
 	public void load() {
@@ -278,26 +255,15 @@ public class ButtonVariable extends Variable {
 		}
 		if(getAttribute("GFXSTANDARD") != null && gfxVariable == null) {
 			gfxVariable = context.getVariable(getAttribute("GFXSTANDARD").getValue().toString());
-
-			if(gfxVariable instanceof AnimoVariable) {
-				AnimoVariable animoVariable = (AnimoVariable) gfxVariable;
-				if (!animoVariable.isPlaying()) {
-					showImage(gfxVariable, isVisible && isEnabled());
-				}
-			} else {
-				showImage(gfxVariable, isVisible && isEnabled());
-			}
 			currentGfx = gfxVariable;
 		}
 
 		if(getAttribute("GFXONMOVE") != null && gfxOnMove == null) {
 			gfxOnMove = context.getVariable(getAttribute("GFXONMOVE").getValue().toString());
-			showImage(gfxOnMove, false);
 		}
 
 		if(getAttribute("GFXONCLICK") != null && gfxOnClick == null) {
 			gfxOnClick = context.getVariable(getAttribute("GFXONCLICK").getValue().toString());
-			showImage(gfxOnClick, false);
 		}
 
 		if(getAttribute("SNDSTANDARD") != null && soundStandard == null) {
@@ -311,30 +277,6 @@ public class ButtonVariable extends Variable {
 		if(getAttribute("SNDONCLICK") != null && soundOnClick == null) {
 			soundOnClick = context.getVariable(getAttribute("SNDONCLICK").getValue().toString());
 		}
-	}
-
-	public boolean isPressed() {
-		return isPressed;
-	}
-
-	public boolean wasPressed() {
-		return wasPressed;
-	}
-
-	public void setWasPressed(boolean wasPressed) {
-		this.wasPressed = wasPressed;
-	}
-
-	public boolean isEnabled() {
-		return isEnabled;
-	}
-
-	public boolean isVisible() {
-		return isVisible;
-	}
-
-	public void setEnabled(boolean enabled) {
-		isEnabled = enabled;
 	}
 
 	public Variable getCurrentImage() {
@@ -361,10 +303,6 @@ public class ButtonVariable extends Variable {
 		if(rect == null) {
 			if (getAttribute("GFXSTANDARD") != null) {
 				Gdx.app.log("ButtonVariable", "Using GFXSTANDARD as RECT: " + getAttribute("GFXSTANDARD").getValue());
-
-				if (gfxVariable == null) {
-					return null;
-				}
 
 				if (gfxVariable instanceof ImageVariable) {
 					ImageVariable imageVariable = (ImageVariable) gfxVariable;
@@ -428,6 +366,10 @@ public class ButtonVariable extends Variable {
 		}
 	}
 
+	public boolean isEnabled() {
+		return state != ButtonState.DISABLED && state != ButtonState.DISABLED_BUT_VISIBLE;
+	}
+
 	@Override
 	public String getType() {
 		return "BUTTON";
@@ -439,14 +381,6 @@ public class ButtonVariable extends Variable {
 		if (knownAttributes.contains(name)) {
 			super.setAttribute(name, attribute);
 			switch (name) {
-				case "ENABLE":
-					isEnabled = attribute.getValue().toString().equals("TRUE");
-					if (!isEnabled && gfxVariable != null) {
-					} else if (isEnabled) {
-						isVisible = true;
-						updateGraphicsVisibility();
-					}
-					break;
 				case "RECT":
 					String rectRaw = getAttribute("RECT").getValue().toString();
 					if (rectRaw.contains(",")) {
