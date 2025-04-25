@@ -20,8 +20,8 @@ public class DecisionTree<T> {
 
     public static class ConditionNode<T> implements DecisionNode<T> {
         private final Predicate<Object[]> condition;
-        private final DecisionNode<T> trueNode;
-        private final DecisionNode<T> falseNode;
+        private DecisionNode<T> trueNode;
+        private DecisionNode<T> falseNode;
 
         public ConditionNode(Predicate<Object[]> condition, DecisionNode<T> trueNode, DecisionNode<T> falseNode) {
             this.condition = condition;
@@ -49,6 +49,9 @@ public class DecisionTree<T> {
         public DecisionNode<T> getFalseNode() {
             return falseNode;
         }
+
+        public void setTrueNode(DecisionNode<T> node)  { this.trueNode  = node; }
+        public void setFalseNode(DecisionNode<T> node) { this.falseNode = node; }
     }
 
     public static class ActionNode<T> implements DecisionNode<T> {

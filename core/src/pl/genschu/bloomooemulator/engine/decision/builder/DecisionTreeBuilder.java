@@ -30,57 +30,35 @@ public class DecisionTreeBuilder<T> {
     }
 
     public DecisionTreeBuilder<T> then(Function<Object[], T> action) {
-        if (!(currentNode instanceof DecisionTree.ConditionNode)) {
+        if (!(currentNode instanceof DecisionTree.ConditionNode))
             throw new IllegalStateException("then() must follow when() or andWhen()");
-        }
-        DecisionTree.ConditionNode<T> conditionNode = (DecisionTree.ConditionNode<T>) currentNode;
-        conditionNode = new DecisionTree.ConditionNode<>(
-                conditionNode.getCondition(),
-                new DecisionTree.ActionNode<>(action),
-                conditionNode.getFalseNode()
-        );
-        if (currentNode == root) {
-            root = conditionNode;
-        }
-        currentNode = conditionNode;
+
+        DecisionTree.ActionNode<T> actionNode = new DecisionTree.ActionNode<>(action);
+        ((DecisionTree.ConditionNode<T>) currentNode).setTrueNode(actionNode);
         return this;
     }
 
     public DecisionTreeBuilder<T> andWhen(Predicate<Object[]> condition) {
-        if (isFirstCondition) {
+        if (isFirstCondition)
             throw new IllegalStateException("Use when() for the first condition");
-        }
-        if (!(currentNode instanceof DecisionTree.ConditionNode)) {
+        if (!(currentNode instanceof DecisionTree.ConditionNode))
             throw new IllegalStateException("andWhen() must follow then()");
-        }
-        DecisionTree.ConditionNode<T> conditionNode = (DecisionTree.ConditionNode<T>) currentNode;
-        DecisionTree.DecisionNode<T> newFalseNode = new DecisionTree.ConditionNode<>(condition, null, null);
-        conditionNode = new DecisionTree.ConditionNode<>(
-                conditionNode.getCondition(),
-                conditionNode.getTrueNode(),
-                newFalseNode
-        );
-        if (currentNode == root) {
-            root = conditionNode;
-        }
-        currentNode = newFalseNode;
+
+        DecisionTree.ConditionNode<T> newFalse =
+                new DecisionTree.ConditionNode<>(condition, null, null);
+
+        ((DecisionTree.ConditionNode<T>) currentNode).setFalseNode(newFalse);
+        currentNode = newFalse;
         return this;
     }
 
     public DecisionTreeBuilder<T> otherwise(Function<Object[], T> action) {
-        if (!(currentNode instanceof DecisionTree.ConditionNode)) {
+        if (!(currentNode instanceof DecisionTree.ConditionNode))
             throw new IllegalStateException("otherwise() must follow then() or andWhen()");
-        }
-        DecisionTree.ConditionNode<T> conditionNode = (DecisionTree.ConditionNode<T>) currentNode;
-        conditionNode = new DecisionTree.ConditionNode<>(
-                conditionNode.getCondition(),
-                conditionNode.getTrueNode(),
-                new DecisionTree.ActionNode<>(action)
-        );
-        if (currentNode == root) {
-            root = conditionNode;
-        }
-        currentNode = conditionNode;
+
+        DecisionTree.ActionNode<T> actionNode = new DecisionTree.ActionNode<>(action);
+        ((DecisionTree.ConditionNode<T>) currentNode).setFalseNode(actionNode);
+        currentNode = actionNode;
         return this;
     }
 
