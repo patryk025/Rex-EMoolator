@@ -11,7 +11,9 @@ import pl.genschu.bloomooemulator.objects.Rectangle;
 import pl.genschu.bloomooemulator.utils.CollisionChecker;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 public class UpdateManager implements Disposable {
     private final Game game;
@@ -39,6 +41,9 @@ public class UpdateManager implements Disposable {
         // check collisions
         checkCollisions();
 
+        // update buttons
+        updateButtons();
+
         // update animations
         updateAnimations(deltaTime);
     }
@@ -53,6 +58,16 @@ public class UpdateManager implements Disposable {
 
     private void updateAnimations(float deltaTime) {
         animationManager.updateAnimations(deltaTime);
+    }
+
+    private void updateButtons() {
+        Map<String, Variable> buttons = game.getCurrentSceneContext().getButtonsVariables();
+
+        for (Variable button : buttons.values()) {
+            if (button instanceof ButtonVariable) {
+                ((ButtonVariable) button).update();
+            }
+        }
     }
 
     @Override

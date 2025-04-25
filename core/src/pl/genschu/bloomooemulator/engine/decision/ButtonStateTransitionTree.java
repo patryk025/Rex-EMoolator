@@ -21,6 +21,8 @@ public class ButtonStateTransitionTree {
             .then(ctx -> ButtonState.HOVERED)
         .andWhen(ctx -> getCurrentState(ctx) == ButtonState.HOVERED && getEvent(ctx) == ButtonEvent.FOCUS_OFF)
             .then(ctx -> ButtonState.STANDARD)
+        .andWhen(ctx -> getCurrentState(ctx) == ButtonState.PRESSED && getEvent(ctx) == ButtonEvent.FOCUS_OFF)
+            .then(ctx -> ButtonState.STANDARD)
         .otherwise(ButtonStateTransitionTree::getCurrentState)
         .build();
 

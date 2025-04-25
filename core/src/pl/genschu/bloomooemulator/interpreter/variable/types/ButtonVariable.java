@@ -9,7 +9,9 @@ import pl.genschu.bloomooemulator.interpreter.variable.*;
 import pl.genschu.bloomooemulator.objects.Rectangle;
 import pl.genschu.bloomooemulator.utils.ArgumentsHelper;
 
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Queue;
 
 public class ButtonVariable extends Variable {
 	private Rectangle rect = null;
@@ -25,6 +27,8 @@ public class ButtonVariable extends Variable {
 	private Variable soundStandard = null;
 	private Variable soundOnMove = null;
 	private Variable soundOnClick = null;
+
+	private Queue<ButtonEvent> pendingEvents = new LinkedList<>();
 
 	public ButtonVariable(String name, Context context) {
 		super(name, context);
@@ -42,7 +46,7 @@ public class ButtonVariable extends Variable {
 					context.getGame().getInputManager().clearActiveButton(ButtonVariable.this);
 				}
 
-				changeState(ButtonEvent.DISABLE);
+				queueStateChange(ButtonEvent.DISABLE);
 				return null;
 			}
 		});
@@ -55,7 +59,7 @@ public class ButtonVariable extends Variable {
 					context.getGame().getInputManager().clearActiveButton(ButtonVariable.this);
 				}
 
-				changeState(ButtonEvent.DISABLE_BUT_VISIBLE);
+				queueStateChange(ButtonEvent.DISABLE_BUT_VISIBLE);
 				return null;
 			}
 		});
@@ -63,7 +67,7 @@ public class ButtonVariable extends Variable {
 		this.setMethod("ENABLE", new Method("void") {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				changeState(ButtonEvent.ENABLE);
+				queueStateChange(ButtonEvent.ENABLE);
 				return null;
 			}
 		});
@@ -195,15 +199,44 @@ public class ButtonVariable extends Variable {
 		}
 	}
 
-	public void changeState(ButtonEvent event) {
+	private void showStandard() {
+		showImage(gfxVariable, true);
+		showImage(gfxOnMove, false);
+		showImage(gfxOnClick, false);
+	}
+
+	private void showOnMove() {
+		showImage(gfxVariable, false);
+		showImage(gfxOnClick, false);
+		if(gfxOnMove != null) {
+			showImage(gfxOnMove, true);
+		}
+		else {
+			showImage(gfxVariable, true);
+		}
+	}
+
+	private void showOnClick() {
+		showImage(gfxVariable, false);
+		showImage(gfxOnMove, false);
+		if(gfxOnClick != null) {
+			showImage(gfxOnClick, true);
+		}
+		else if(gfxOnMove != null) {
+			showImage(gfxOnMove, true);
+		}
+		else {
+			showImage(gfxVariable, true);
+		}
+	}
+
+	private void changeState(ButtonEvent event) {
 		ButtonState newState = ButtonStateTransitionTree.evaluate(this, event);
 
 		if(newState != state) {
 			switch (newState) {
 				case STANDARD:
-					showImage(gfxVariable, true);
-					showImage(gfxOnMove, false);
-					showImage(gfxOnClick, false);
+					showStandard();
 
 					stopAllSounds();
 					playSndIfExists(soundStandard);
@@ -212,12 +245,11 @@ public class ButtonVariable extends Variable {
 						emitSignal("ONFOCUSOFF");
 					break;
 				case HOVERED:
-					showImage(gfxOnMove, true);
-					showImage(gfxVariable, false);
-					showImage(gfxOnClick, false);
+					showOnMove();
 
 					stopAllSounds();
-					playSndIfExists(soundOnMove);
+					if(state == ButtonState.STANDARD)
+						playSndIfExists(soundOnMove);
 
 					if(state == ButtonState.PRESSED) {
 						emitSignal("ONRELEASED");
@@ -227,12 +259,11 @@ public class ButtonVariable extends Variable {
 					emitSignal("ONFOCUSON");
 					break;
 				case PRESSED:
-					showImage(gfxOnClick, true);
-					showImage(gfxVariable, false);
-					showImage(gfxOnMove, false);
+					showOnClick();
 
 					stopAllSounds();
-					playSndIfExists(soundOnClick);
+					if(state == ButtonState.HOVERED)
+						playSndIfExists(soundOnClick);
 
 					emitSignal("ONCLICKED");
 					break;
@@ -244,15 +275,24 @@ public class ButtonVariable extends Variable {
 					stopAllSounds();
 					break;
 				case DISABLED_BUT_VISIBLE:
-					showImage(gfxVariable, true);
-					showImage(gfxOnMove, false);
-					showImage(gfxOnClick, false);
+					showStandard();
 
 					stopAllSounds();
 					break;
 			}
 
+			Gdx.app.debug("ButtonVariable", getName() + " state changed from " + state + " to " + newState + " because of event " + event);
 			state = newState;
+		}
+	}
+
+	public void queueStateChange(ButtonEvent event) {
+		pendingEvents.add(event);
+	}
+
+	public void update() {
+		while (!pendingEvents.isEmpty()) {
+			changeState(pendingEvents.poll());
 		}
 	}
 

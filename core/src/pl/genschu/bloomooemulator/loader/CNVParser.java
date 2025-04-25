@@ -262,16 +262,16 @@ public class CNVParser {
                 buttonVariable.getRect();
 
                 boolean isEnabled = buttonVariable.getAttribute("ENABLE") != null && buttonVariable.getAttribute("ENABLE").getValue().equals("TRUE");
-                boolean isVisible = buttonVariable.getAttribute("VISIBLE") != null && buttonVariable.getAttribute("VISIBLE").getValue().equals("TRUE");
+                boolean isVisible = buttonVariable.getAttribute("VISIBLE") == null || buttonVariable.getAttribute("VISIBLE").getValue().equals("TRUE");
 
                 if(buttonVariable.getState() == ButtonState.INIT) {
                     if (!isEnabled) {
                         if (!isVisible)
-                            buttonVariable.changeState(ButtonEvent.DISABLE);
+                            buttonVariable.queueStateChange(ButtonEvent.DISABLE);
                         else
-                            buttonVariable.changeState(ButtonEvent.DISABLE_BUT_VISIBLE);
+                            buttonVariable.queueStateChange(ButtonEvent.DISABLE_BUT_VISIBLE);
                     } else {
-                        buttonVariable.changeState(ButtonEvent.ENABLE);
+                        buttonVariable.queueStateChange(ButtonEvent.ENABLE);
                     }
                 }
             }
