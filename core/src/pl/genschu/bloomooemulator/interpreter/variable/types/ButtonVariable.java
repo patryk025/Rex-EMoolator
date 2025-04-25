@@ -75,7 +75,16 @@ public class ButtonVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				setAttribute("PRIORITY", new Attribute("PRIORITY", arguments.get(0).toString()));
+				// Redirect argument to GFXes
+				if (gfxVariable != null) {
+					gfxVariable.fireMethod("SETPRIORITY", arguments.get(0));
+				}
+				if (gfxOnMove != null) {
+					gfxOnMove.fireMethod("SETPRIORITY", arguments.get(0));
+				}
+				if (gfxOnClick != null) {
+					gfxOnClick.fireMethod("SETPRIORITY", arguments.get(0));
+				}
 				return null;
 			}
 		});
