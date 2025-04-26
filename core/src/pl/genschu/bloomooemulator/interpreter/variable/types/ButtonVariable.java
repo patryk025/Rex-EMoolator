@@ -9,9 +9,7 @@ import pl.genschu.bloomooemulator.interpreter.variable.*;
 import pl.genschu.bloomooemulator.objects.Rectangle;
 import pl.genschu.bloomooemulator.utils.ArgumentsHelper;
 
-import java.util.LinkedList;
 import java.util.List;
-import java.util.Queue;
 
 public class ButtonVariable extends Variable {
 	private Rectangle rect = null;
@@ -27,8 +25,6 @@ public class ButtonVariable extends Variable {
 	private Variable soundStandard = null;
 	private Variable soundOnMove = null;
 	private Variable soundOnClick = null;
-
-	private Queue<ButtonEvent> pendingEvents = new LinkedList<>();
 
 	public ButtonVariable(String name, Context context) {
 		super(name, context);
@@ -46,7 +42,7 @@ public class ButtonVariable extends Variable {
 					context.getGame().getInputManager().clearActiveButton(ButtonVariable.this);
 				}
 
-				queueStateChange(ButtonEvent.DISABLE);
+				changeState(ButtonEvent.DISABLE);
 				return null;
 			}
 		});
@@ -59,7 +55,7 @@ public class ButtonVariable extends Variable {
 					context.getGame().getInputManager().clearActiveButton(ButtonVariable.this);
 				}
 
-				queueStateChange(ButtonEvent.DISABLE_BUT_VISIBLE);
+				changeState(ButtonEvent.DISABLE_BUT_VISIBLE);
 				return null;
 			}
 		});
@@ -67,7 +63,7 @@ public class ButtonVariable extends Variable {
 		this.setMethod("ENABLE", new Method("void") {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				queueStateChange(ButtonEvent.ENABLE);
+				changeState(ButtonEvent.ENABLE);
 				return null;
 			}
 		});
@@ -230,39 +226,42 @@ public class ButtonVariable extends Variable {
 		}
 	}
 
-	private void changeState(ButtonEvent event) {
-		ButtonState newState = ButtonStateTransitionTree.evaluate(this, event);
+	public void changeState(ButtonEvent event) {
+		ButtonState oldState = state;
+		state = ButtonStateTransitionTree.evaluate(this, event);
 
-		if(newState != state) {
-			switch (newState) {
+		if(oldState != state) {
+			switch (state) {
 				case STANDARD:
 					showStandard();
 
 					stopAllSounds();
 					playSndIfExists(soundStandard);
 
-					if(state == ButtonState.HOVERED)
+					if(oldState == ButtonState.HOVERED)
 						emitSignal("ONFOCUSOFF");
 					break;
 				case HOVERED:
 					showOnMove();
 
 					stopAllSounds();
-					if(state == ButtonState.STANDARD)
+					if(oldState == ButtonState.STANDARD)
 						playSndIfExists(soundOnMove);
 
-					if(state == ButtonState.PRESSED) {
+					if(oldState == ButtonState.PRESSED) {
 						emitSignal("ONRELEASED");
-						emitSignal("ONACTION");
+						if(isEnabled())
+							emitSignal("ONACTION");
 					}
 
-					emitSignal("ONFOCUSON");
+					if(isEnabled())
+						emitSignal("ONFOCUSON");
 					break;
 				case PRESSED:
 					showOnClick();
 
 					stopAllSounds();
-					if(state == ButtonState.HOVERED)
+					if(oldState == ButtonState.HOVERED)
 						playSndIfExists(soundOnClick);
 
 					emitSignal("ONCLICKED");
@@ -281,18 +280,7 @@ public class ButtonVariable extends Variable {
 					break;
 			}
 
-			Gdx.app.debug("ButtonVariable", getName() + " state changed from " + state + " to " + newState + " because of event " + event);
-			state = newState;
-		}
-	}
-
-	public void queueStateChange(ButtonEvent event) {
-		pendingEvents.add(event);
-	}
-
-	public void update() {
-		while (!pendingEvents.isEmpty()) {
-			changeState(pendingEvents.poll());
+			Gdx.app.debug("ButtonVariable", getName() + " state changed from " + oldState + " to " + state + " because of event " + event);
 		}
 	}
 

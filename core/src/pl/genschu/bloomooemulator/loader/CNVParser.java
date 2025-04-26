@@ -254,12 +254,19 @@ public class CNVParser {
             return Integer.compare(index1, index2);
         });
 
+        // load every buttons before INIT phase
         for (Variable variable : variables) {
-            Gdx.app.log("CNVParser", "ONINIT for " + variable.getName() + " (" + variable.getType() + ")");
             if(variable instanceof ButtonVariable) {
                 ButtonVariable buttonVariable = (ButtonVariable) variable;
                 buttonVariable.load();
                 buttonVariable.getRect();
+            }
+        }
+
+        for (Variable variable : variables) {
+            Gdx.app.log("CNVParser", "ONINIT for " + variable.getName() + " (" + variable.getType() + ")");
+            if(variable instanceof ButtonVariable) {
+                ButtonVariable buttonVariable = (ButtonVariable) variable;
 
                 boolean isEnabled = buttonVariable.getAttribute("ENABLE") != null && buttonVariable.getAttribute("ENABLE").getValue().equals("TRUE");
                 boolean isVisible = buttonVariable.getAttribute("VISIBLE") == null || buttonVariable.getAttribute("VISIBLE").getValue().equals("TRUE");
@@ -267,11 +274,11 @@ public class CNVParser {
                 if(buttonVariable.getState() == ButtonState.INIT) {
                     if (!isEnabled) {
                         if (!isVisible)
-                            buttonVariable.queueStateChange(ButtonEvent.DISABLE);
+                            buttonVariable.changeState(ButtonEvent.DISABLE);
                         else
-                            buttonVariable.queueStateChange(ButtonEvent.DISABLE_BUT_VISIBLE);
+                            buttonVariable.changeState(ButtonEvent.DISABLE_BUT_VISIBLE);
                     } else {
-                        buttonVariable.queueStateChange(ButtonEvent.ENABLE);
+                        buttonVariable.changeState(ButtonEvent.ENABLE);
                     }
                 }
             }

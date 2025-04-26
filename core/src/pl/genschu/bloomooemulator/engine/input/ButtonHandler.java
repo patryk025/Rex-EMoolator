@@ -123,7 +123,7 @@ public class ButtonHandler {
                 // Take down focus
                 if (variable instanceof ButtonVariable) {
                     ButtonVariable button = (ButtonVariable) variable;
-                    button.queueStateChange(ButtonEvent.FOCUS_OFF);
+                    button.changeState(ButtonEvent.FOCUS_OFF);
                 } else if (variable instanceof AnimoVariable) {
                     AnimoVariable animo = (AnimoVariable) variable;
                     if (animo.isFocused() && animo.isAsButton()) {
@@ -148,10 +148,10 @@ public class ButtonHandler {
             if (justPressed) {
                 if (inputManager.getActiveButton() == null) {
                     inputManager.setActiveButton(button);
-                    button.queueStateChange(ButtonEvent.PRESSED);
+                    button.changeState(ButtonEvent.PRESSED);
                 }
-            }else if (button.getState() != ButtonState.HOVERED) {
-                button.queueStateChange(ButtonEvent.FOCUS_ON);
+            } else if (button.getState() != ButtonState.HOVERED) {
+                button.changeState(ButtonEvent.FOCUS_ON);
             }
         }
     }
@@ -184,7 +184,7 @@ public class ButtonHandler {
         Variable activeButton = inputManager.getActiveButton();
         if (justReleased && activeButton != null) {
             if (activeButton instanceof ButtonVariable) {
-                ((ButtonVariable) activeButton).queueStateChange(ButtonEvent.RELEASED);
+                ((ButtonVariable) activeButton).changeState(ButtonEvent.RELEASED);
             } else if (activeButton instanceof AnimoVariable) {
                 inputManager.triggerSignal(activeButton, "ONRELEASE");
                 ((AnimoVariable) activeButton).setPressed(false);

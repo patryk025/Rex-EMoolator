@@ -41,9 +41,6 @@ public class UpdateManager implements Disposable {
         // check collisions
         checkCollisions();
 
-        // update buttons
-        updateButtons();
-
         // update animations
         updateAnimations(deltaTime);
     }
@@ -58,16 +55,6 @@ public class UpdateManager implements Disposable {
 
     private void updateAnimations(float deltaTime) {
         animationManager.updateAnimations(deltaTime);
-    }
-
-    private void updateButtons() {
-        Map<String, Variable> buttons = game.getCurrentSceneContext().getButtonsVariables();
-
-        for (Variable button : buttons.values()) {
-            if (button instanceof ButtonVariable) {
-                ((ButtonVariable) button).update();
-            }
-        }
     }
 
     @Override
