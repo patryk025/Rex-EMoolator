@@ -71,6 +71,10 @@ public class GraphicsRenderer implements Disposable {
             return;
         }
 
+        if(!animoVariable.isRenderedOnCanvas()) {
+            return;
+        }
+
         Image image = animoVariable.getCurrentImage();
         if (image == null || image.getImageTexture() == null) {
             return;

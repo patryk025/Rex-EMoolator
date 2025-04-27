@@ -11,7 +11,9 @@ import pl.genschu.bloomooemulator.objects.Rectangle;
 import pl.genschu.bloomooemulator.utils.CollisionChecker;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 public class UpdateManager implements Disposable {
     private final Game game;

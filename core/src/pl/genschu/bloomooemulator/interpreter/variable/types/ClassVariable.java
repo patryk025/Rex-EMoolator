@@ -1,6 +1,7 @@
 package pl.genschu.bloomooemulator.interpreter.variable.types;
 
 import com.badlogic.gdx.Gdx;
+import pl.genschu.bloomooemulator.engine.decision.events.AnimoEvent;
 import pl.genschu.bloomooemulator.interpreter.Context;
 import pl.genschu.bloomooemulator.interpreter.variable.Attribute;
 import pl.genschu.bloomooemulator.interpreter.variable.Method;
@@ -85,7 +86,7 @@ public class ClassVariable extends Variable {
 						((ImageVariable) var).changeVisibility(false);
 					}
 					else if (var instanceof AnimoVariable) {
-						((AnimoVariable) var).changeVisibility(false);
+						((AnimoVariable) var).changeAnimoState(AnimoEvent.HIDE);
 					}
 				}
 

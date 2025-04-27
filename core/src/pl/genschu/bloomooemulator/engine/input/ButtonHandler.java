@@ -3,6 +3,8 @@ package pl.genschu.bloomooemulator.engine.input;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Cursor;
 import pl.genschu.bloomooemulator.engine.Game;
+import pl.genschu.bloomooemulator.engine.decision.events.ButtonEvent;
+import pl.genschu.bloomooemulator.engine.decision.states.ButtonState;
 import pl.genschu.bloomooemulator.interpreter.Context;
 import pl.genschu.bloomooemulator.interpreter.variable.Signal;
 import pl.genschu.bloomooemulator.interpreter.variable.Variable;
@@ -121,25 +123,10 @@ public class ButtonHandler {
                 // Take down focus
                 if (variable instanceof ButtonVariable) {
                     ButtonVariable button = (ButtonVariable) variable;
-                    if (button.isFocused()) {
-                        button.setFocused(false);
-                        Signal onFocusLossSignal = button.getSignal("ONFOCUSOFF");
-                        if (onFocusLossSignal != null) {
-                            onFocusLossSignal.execute(null);
-                        }
-                        if(button.getSoundOnMove() != null) button.getSoundOnMove().fireMethod("STOP");
-                        if(button.getSoundStandard() != null) button.getSoundStandard().fireMethod("PLAY");
-                    }
+                    button.changeState(ButtonEvent.FOCUS_OFF);
                 } else if (variable instanceof AnimoVariable) {
                     AnimoVariable animo = (AnimoVariable) variable;
-                    if (animo.isFocused() && animo.isAsButton()) {
-                        animo.setFocused(false);
-                        Signal onFocusLossSignal = animo.getSignal("ONFOCUSOFF");
-                        if (onFocusLossSignal != null) {
-                            onFocusLossSignal.execute(null);
-                        }
-                        animo.fireMethod("PLAY", new StringVariable("", "ONFOCUSOFF", animo.getContext()));
-                    }
+                    animo.changeButtonState(ButtonEvent.FOCUS_OFF);
                 }
             }
         }
@@ -154,19 +141,10 @@ public class ButtonHandler {
             if (justPressed) {
                 if (inputManager.getActiveButton() == null) {
                     inputManager.setActiveButton(button);
-                    button.setPressed(true);
-                    inputManager.triggerSignal(button, "ONCLICKED");
-                    if(button.getSoundOnClick() != null) button.getSoundOnClick().fireMethod("PLAY");
+                    button.changeState(ButtonEvent.PRESSED);
                 }
-            }
-
-            if (!button.isFocused() && !isPressed) {
-                button.setFocused(true);
-                Signal onFocusSignal = button.getSignal("ONFOCUSON");
-                if (onFocusSignal != null) {
-                    onFocusSignal.execute(null);
-                }
-                if(button.getSoundOnMove() != null) button.getSoundOnMove().fireMethod("PLAY");
+            } else if (button.getState() != ButtonState.HOVERED) {
+                button.changeState(ButtonEvent.FOCUS_ON);
             }
         }
     }
@@ -178,19 +156,10 @@ public class ButtonHandler {
             if (justPressed) {
                 if (inputManager.getActiveButton() == null) {
                     inputManager.setActiveButton(animo);
-                    animo.setPressed(true);
-                    animo.fireMethod("PLAY", new StringVariable("", "ONCLICK", animo.getContext()));
-                    inputManager.triggerSignal(animo, "ONCLICK");
+                    animo.changeButtonState(ButtonEvent.PRESSED);
                 }
-            }
-
-            if (!animo.isFocused() && animo.isAsButton() && !isPressed) {
-                animo.setFocused(true);
-                Signal onFocusSignal = animo.getSignal("ONFOCUSON");
-                if (onFocusSignal != null) {
-                    onFocusSignal.execute(null);
-                }
-                animo.fireMethod("PLAY", new StringVariable("", "ONFOCUSON", animo.getContext()));
+            } else if (animo.getButtonState() != ButtonState.HOVERED) {
+                animo.changeButtonState(ButtonEvent.FOCUS_ON);
             }
         }
     }
@@ -199,12 +168,10 @@ public class ButtonHandler {
         Variable activeButton = inputManager.getActiveButton();
         if (justReleased && activeButton != null) {
             if (activeButton instanceof ButtonVariable) {
-                inputManager.triggerSignal(activeButton, "ONRELEASED");
-                inputManager.triggerSignal(activeButton, "ONACTION");
-                ((ButtonVariable) activeButton).setPressed(false);
+                ((ButtonVariable) activeButton).changeState(ButtonEvent.RELEASED);
             } else if (activeButton instanceof AnimoVariable) {
                 inputManager.triggerSignal(activeButton, "ONRELEASE");
-                ((AnimoVariable) activeButton).setPressed(false);
+                ((AnimoVariable) activeButton).changeButtonState(ButtonEvent.RELEASED);
             }
             inputManager.setActiveButton(null);
         }
