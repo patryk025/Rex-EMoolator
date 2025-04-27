@@ -269,14 +269,15 @@ public class CNVParser {
                 ButtonVariable buttonVariable = (ButtonVariable) variable;
 
                 boolean isEnabled = buttonVariable.getAttribute("ENABLE") != null && buttonVariable.getAttribute("ENABLE").getValue().equals("TRUE");
-                boolean isVisible = buttonVariable.getAttribute("VISIBLE") == null || buttonVariable.getAttribute("VISIBLE").getValue().equals("TRUE");
+                // VISIBLE do nothing
+                //boolean isVisible = buttonVariable.getAttribute("VISIBLE") == null || buttonVariable.getAttribute("VISIBLE").getValue().equals("TRUE");
 
                 if(buttonVariable.getState() == ButtonState.INIT) {
                     if (!isEnabled) {
-                        if (!isVisible)
+                        //if (!isVisible)
                             buttonVariable.changeState(ButtonEvent.DISABLE);
-                        else
-                            buttonVariable.changeState(ButtonEvent.DISABLE_BUT_VISIBLE);
+                        //else
+                        //    buttonVariable.changeState(ButtonEvent.DISABLE_BUT_VISIBLE);
                     } else {
                         buttonVariable.changeState(ButtonEvent.ENABLE);
                     }

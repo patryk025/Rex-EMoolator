@@ -1,5 +1,6 @@
-package pl.genschu.bloomooemulator.engine.decision;
+package pl.genschu.bloomooemulator.engine.decision.trees;
 
+import pl.genschu.bloomooemulator.engine.decision.DecisionTree;
 import pl.genschu.bloomooemulator.engine.decision.builder.DecisionTreeBuilder;
 import pl.genschu.bloomooemulator.engine.decision.events.ButtonEvent;
 import pl.genschu.bloomooemulator.engine.decision.states.ButtonState;

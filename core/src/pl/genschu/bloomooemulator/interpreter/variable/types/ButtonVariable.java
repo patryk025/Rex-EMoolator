@@ -1,7 +1,8 @@
 package pl.genschu.bloomooemulator.interpreter.variable.types;
 
 import com.badlogic.gdx.Gdx;
-import pl.genschu.bloomooemulator.engine.decision.ButtonStateTransitionTree;
+import pl.genschu.bloomooemulator.engine.decision.events.AnimoEvent;
+import pl.genschu.bloomooemulator.engine.decision.trees.ButtonStateTransitionTree;
 import pl.genschu.bloomooemulator.engine.decision.events.ButtonEvent;
 import pl.genschu.bloomooemulator.engine.decision.states.ButtonState;
 import pl.genschu.bloomooemulator.interpreter.Context;
@@ -386,18 +387,14 @@ public class ButtonVariable extends Variable {
 			}
 			else if(var instanceof AnimoVariable) {
 				AnimoVariable animoVariable = (AnimoVariable) var;
-
-				if (animoVariable.isPlaying() && !visible) {
-					Gdx.app.log("ButtonVariable", "Not hiding playing animation: " + animoVariable.getName());
-					return;
-				}
-
-				animoVariable.setAttribute("VISIBLE", new Attribute("BOOL", visible ? "TRUE" : "FALSE"));
 				animoVariable.setAttribute("TOCANVAS", new Attribute("BOOL", "TRUE"));
-				animoVariable.changeVisibility(visible);
 
-				if(!visible) {
-					animoVariable.setPlaying(false);
+				if(visible) {
+					animoVariable.changeAnimoState(AnimoEvent.PLAY);
+				}
+				else {
+					animoVariable.changeAnimoState(AnimoEvent.STOP, false); // first stop
+					animoVariable.changeAnimoState(AnimoEvent.HIDE); // then hide
 				}
 			}
 		}

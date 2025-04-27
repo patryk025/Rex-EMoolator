@@ -3,6 +3,8 @@ package pl.genschu.bloomooemulator.loader;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.files.FileHandle;
+import pl.genschu.bloomooemulator.engine.decision.events.AnimoEvent;
+import pl.genschu.bloomooemulator.engine.decision.events.ButtonEvent;
 import pl.genschu.bloomooemulator.interpreter.variable.Attribute;
 import pl.genschu.bloomooemulator.interpreter.variable.types.AnimoVariable;
 import pl.genschu.bloomooemulator.objects.Event;
@@ -29,9 +31,25 @@ public class AnimoLoader {
             readEvents(variable, f);
             readImagesMetadata(variable, f);
             Gdx.app.log("AnimoLoader", "Loaded ANIMO: " + variable.getName());
-            variable.setPlaying(false);
-            if(variable.getAttribute("VISIBLE") == null)
+            if(variable.getAttribute("VISIBLE") == null) {
                 variable.setAttribute("VISIBLE", new Attribute("BOOL", "FALSE"));
+                variable.changeAnimoState(AnimoEvent.HIDE);
+            }
+            else {
+                if(variable.getAttribute("VISIBLE").getValue().toString().equals("TRUE")) {
+                    variable.changeAnimoState(AnimoEvent.SHOW);
+                }
+                else {
+                    variable.changeAnimoState(AnimoEvent.HIDE);
+                }
+            }
+            if(variable.getAttribute("ASBUTTON") != null) {
+                boolean asButton = (variable.getAttribute("ASBUTTON").getValue().toString().equals("TRUE"));
+
+                if(asButton) {
+                    variable.changeButtonState(ButtonEvent.ENABLE);
+                }
+            }
         } catch (Exception e) {
             Gdx.app.error("AnimoLoader", "Error while loading ANIMO: " + e.getMessage(), e);
         }

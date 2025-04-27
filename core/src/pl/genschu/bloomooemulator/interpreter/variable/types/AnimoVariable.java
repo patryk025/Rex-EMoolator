@@ -2,6 +2,11 @@ package pl.genschu.bloomooemulator.interpreter.variable.types;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.audio.Music;
+import pl.genschu.bloomooemulator.engine.decision.events.AnimoEvent;
+import pl.genschu.bloomooemulator.engine.decision.events.ButtonEvent;
+import pl.genschu.bloomooemulator.engine.decision.states.AnimoState;
+import pl.genschu.bloomooemulator.engine.decision.states.ButtonState;
+import pl.genschu.bloomooemulator.engine.decision.trees.AnimoStateTransitionTree;
 import pl.genschu.bloomooemulator.engine.filters.Filter;
 import pl.genschu.bloomooemulator.interpreter.exceptions.ClassMethodNotImplementedException;
 import pl.genschu.bloomooemulator.interpreter.Context;
@@ -36,8 +41,7 @@ public class AnimoVariable extends Variable implements Cloneable {
 	private int currentFrameNumber = 0;
 	private int currentImageNumber = 0;
 	private Image currentImage;
-	private boolean isPlaying = false;
-	private boolean isVisible = true;
+
 	private int posX = 0;
 	private int posY = 0;
 	private int maxWidth = 0;
@@ -52,13 +56,12 @@ public class AnimoVariable extends Variable implements Cloneable {
 	private Rectangle rect;
 	private Music currentSfx;
 
-	private boolean asButton;
 	private boolean changeCursor;
-	private boolean isFocused = false;
-	private boolean isPressed = false;
-	private boolean wasPressed = false;
 
 	private boolean monitorCollision = false;
+
+	private AnimoState animationState = AnimoState.INIT;
+	private ButtonState buttonState = ButtonState.DISABLED;
 
 	private List<Filter> filters = new ArrayList<>();
 
@@ -315,8 +318,7 @@ public class AnimoVariable extends Variable implements Cloneable {
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				isPlaying = false;
-				hide();
+				changeAnimoState(AnimoEvent.HIDE);
 				return null;
 			}
 		});
@@ -377,9 +379,9 @@ public class AnimoVariable extends Variable implements Cloneable {
 				// TODO: check if it works correct
 				String eventName = arguments.isEmpty() ? null : ArgumentsHelper.getString(arguments.get(0));
 				if(eventName == null) {
-					return new BoolVariable("", isPlaying, context);
+					return new BoolVariable("", isPlaying(), context);
 				}
-				return new BoolVariable("", currentEvent.getName().equals(eventName) && isPlaying, context);
+				return new BoolVariable("", currentEvent.getName().equals(eventName) && isPlaying(), context);
 			}
 		});
 		this.setMethod("ISVISIBLE", new Method(
@@ -387,7 +389,7 @@ public class AnimoVariable extends Variable implements Cloneable {
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				return new BoolVariable("", isVisible, context);
+				return new BoolVariable("", isVisible(), context);
 			}
 		});
 		this.setMethod("LOAD", new Method(
@@ -401,7 +403,6 @@ public class AnimoVariable extends Variable implements Cloneable {
 				String path = ArgumentsHelper.getString(arguments.get(0));
 				setAttribute("FILENAME", path);
 				AnimoLoader.loadAnimo(AnimoVariable.this);
-				show();
 				return null;
 			}
 		});
@@ -458,7 +459,7 @@ public class AnimoVariable extends Variable implements Cloneable {
 
 				setCurrentImageNumber(currentEvent.getFramesNumbers().get(currentFrameNumber));
 				//Gdx.app.log("updateRect()", "NEXTFRAME");
-				show();
+				changeAnimoState(AnimoEvent.NEXT_FRAME);
 				return null;
 			}
 		});
@@ -473,13 +474,9 @@ public class AnimoVariable extends Variable implements Cloneable {
 				int eventId = ArgumentsHelper.getInteger(arguments.get(0));
 				try {
 					currentEvent = events.get(eventId);
-					currentFrameNumber = 0;
-					setCurrentImageNumber(currentEvent.getFramesNumbers().get(currentFrameNumber));
-					playSfx();
-					emitSignal("ONSTARTED", currentEvent.getName());
-					isPlaying = true;
+					setCurrentFrameNumber(0);
+					changeAnimoState(AnimoEvent.PLAY);
 					//Gdx.app.log("updateRect()", "NPLAY");
-					show();
 				} catch (IndexOutOfBoundsException e) {
 					Gdx.app.error("AnimoVariable", "Event with id " + eventId + " not found");
 				}
@@ -491,7 +488,7 @@ public class AnimoVariable extends Variable implements Cloneable {
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				isPlaying = false;
+				changeAnimoState(AnimoEvent.PAUSE);
 				return null;
 			}
 		});
@@ -500,12 +497,8 @@ public class AnimoVariable extends Variable implements Cloneable {
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				currentFrameNumber = 0;
-				setCurrentImageNumber(currentEvent.getFramesNumbers().get(currentFrameNumber));
-				playSfx();
-				emitSignal("ONSTARTED", currentEvent.getName());
-				isPlaying = true;
-				show();
+				setCurrentFrameNumber(0);
+				changeAnimoState(AnimoEvent.PLAY);
 				return null;
 			}
 		});
@@ -521,13 +514,9 @@ public class AnimoVariable extends Variable implements Cloneable {
 				for(Event event : events) {
 					if(event.getName().equalsIgnoreCase(eventName)) {
 						currentEvent = event;
-						currentFrameNumber = 0;
-						setCurrentImageNumber(currentEvent.getFramesNumbers().get(currentFrameNumber));
-						playSfx();
-						emitSignal("ONSTARTED", currentEvent.getName());
-						isPlaying = true;
+						setCurrentFrameNumber(0);
+						changeAnimoState(AnimoEvent.PLAY);
 						//Gdx.app.log("updateRect()", "PLAY");
-						show();
 
 						break;
 					}
@@ -546,7 +535,7 @@ public class AnimoVariable extends Variable implements Cloneable {
 				}
 				setCurrentImageNumber(currentEvent.getFramesNumbers().get(currentFrameNumber));
 				//Gdx.app.log("updateRect()", "PREVFRAME");
-				show();
+				changeAnimoState(AnimoEvent.PREV_FRAME);
 				return null;
 			}
 		});
@@ -570,7 +559,7 @@ public class AnimoVariable extends Variable implements Cloneable {
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				isPlaying = true;
+				changeAnimoState(AnimoEvent.PLAY);
 				return null;
 			}
 		});
@@ -655,26 +644,14 @@ public class AnimoVariable extends Variable implements Cloneable {
 				boolean enabled = ArgumentsHelper.getBoolean(arguments.get(0));
 				boolean changeCursor = ArgumentsHelper.getBoolean(arguments.get(1));
 
-				if (!enabled && asButton && isPressed) {
-					Gdx.app.log("AnimoVariable", "Disabling pressed animation button without triggering release events");
-					if (context.getGame().getInputManager() != null &&
-							context.getGame().getInputManager().getActiveButton() == AnimoVariable.this) {
-						context.getGame().getInputManager().clearActiveButton(AnimoVariable.this);
-					}
-					isPressed = false;
-					wasPressed = false;
-					isFocused = false;
-				}
-
-				if(enabled) {
-					getContext().addButtonVariable(AnimoVariable.this);
+				if (!enabled) {
+					changeButtonState(ButtonEvent.DISABLE);
 				}
 				else {
-					getContext().removeButtonVariable(AnimoVariable.this);
+					changeButtonState(ButtonEvent.ENABLE);
 				}
-				setAsButton(enabled);
+
 				setChangeCursor(changeCursor);
-				show();
 
 				return null;
 			}
@@ -712,7 +689,7 @@ public class AnimoVariable extends Variable implements Cloneable {
 		});
 		this.setMethod("SETFRAME", new Method(
 				List.of(
-						new Parameter("INTEGER", "frameNumber", true)
+						new Parameter("INTEGER", "imageNumber", true)
 				),
 				"void"
 		) {
@@ -721,6 +698,7 @@ public class AnimoVariable extends Variable implements Cloneable {
 				int frameNumber = ArgumentsHelper.getInteger(arguments.get(0));
 				currentFrameNumber = 0;
 				setCurrentImageNumber(frameNumber);
+				changeAnimoState(AnimoEvent.SET_FRAME);
 				//show();
 				return null;
 			}
@@ -737,28 +715,17 @@ public class AnimoVariable extends Variable implements Cloneable {
 				String eventName = ArgumentsHelper.getString(arguments.get(0));
 				for (Event event : events) {
 					if (event.getName().equalsIgnoreCase(eventName)) {
+						if(event.getFrames().isEmpty()) {
+							Gdx.app.error("AnimoVariable", "Event " + eventName + " has no frames");
+							return null;
+						}
 						currentEvent = event;
 						break;
 					}
 				}
-				if(arguments.size() >= 2) {
-					currentFrameNumber = ArgumentsHelper.getInteger(arguments.get(1));
-				}
-				else {
-					currentFrameNumber = 0;
-				}
-				if(!currentEvent.getFrames().isEmpty()) {
-					setCurrentImageNumber(currentEvent.getFramesNumbers().get(currentFrameNumber));
-				}
-				else {
-					currentImageNumber = 0;
-					currentImage = null;
-					//Gdx.app.log("updateRect()", "SETFRAME (empty)");
-					rect.setXLeft(0);
-					rect.setYTop(0);
-					rect.setXRight(1);
-					rect.setYBottom(1);
-				}
+
+				setCurrentFrameNumber(ArgumentsHelper.getInteger(arguments.get(1)));
+				changeAnimoState(AnimoEvent.SET_FRAME);
 				//show();
 				return null;
 			}
@@ -827,7 +794,7 @@ public class AnimoVariable extends Variable implements Cloneable {
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				show();
+				changeAnimoState(AnimoEvent.SHOW);
 				return null;
 			}
 		});
@@ -845,13 +812,12 @@ public class AnimoVariable extends Variable implements Cloneable {
 					emitSignal = ArgumentsHelper.getBoolean(arguments.get(0));
 				}
 
-				currentFrameNumber = 0;
-				setCurrentImageNumber(currentEvent.getFramesNumbers().get(currentFrameNumber));
-				isPlaying = false;
+				setCurrentFrameNumber(0);
+				changeAnimoState(AnimoEvent.STOP, emitSignal);
 
-				if(emitSignal) {
+				/*if(emitSignal) {
 					emitSignal("ONFINISHED", currentEvent.getName());
-				}
+				}*/
 				return null;
 			}
 		});
@@ -905,11 +871,8 @@ public class AnimoVariable extends Variable implements Cloneable {
 				case "PRIORITY":
 					priority = Integer.parseInt(getAttribute("PRIORITY").getValue().toString());
 					break;
-				case "VISIBLE":
-					changeVisibility(attribute.getValue().toString().equals("TRUE"));
-					break;
 				case "ASBUTTON":
-					setAsButton(attribute.getValue().toString().equals("TRUE"));
+					setAttribute("TOCANVAS", new Attribute("BOOL", "TRUE"));
 					changeCursor = true;
 					break;
 				case "MONITORCOLLISION":
@@ -919,17 +882,99 @@ public class AnimoVariable extends Variable implements Cloneable {
 		}
 	}
 
+	public void changeAnimoState(AnimoEvent event) {
+		changeAnimoState(event, true);
+	}
+
+	public void changeAnimoState(AnimoEvent event, boolean emitSignal) {
+		AnimoState oldAnimationState = animationState;
+
+		animationState = AnimoStateTransitionTree.evaluate(this, event);
+
+		if(animationState != oldAnimationState) {
+			switch (animationState) {
+				case PLAYING:
+					if(currentFrameNumber == 0) {
+						emitSignal("ONSTARTED", currentEvent.getName());
+					}
+					if(oldAnimationState == AnimoState.PAUSED) {
+						emitSignal("ONRESUMED", currentEvent.getName());
+					}
+					break;
+				case STOPPED:
+					if(emitSignal) {
+						emitSignal("ONFINISHED", currentEvent.getName());
+					}
+					break;
+				case PAUSED:
+					emitSignal("ONPAUSED", currentEvent.getName());
+					break;
+				case IDLE:
+					if(oldAnimationState == AnimoState.PLAYING)
+						emitSignal("ONFINISHED", currentEvent.getName());
+					break;
+			}
+
+			Gdx.app.debug("AnimoVariable", getName() + " animation state changed from " + oldAnimationState + " to " + animationState + " because of event " + event);
+		}
+	}
+
+	public void changeButtonState(ButtonEvent event) {
+		ButtonState oldButtonState = buttonState;
+
+		buttonState = AnimoStateTransitionTree.evaluate(this, event);
+
+		if(buttonState != oldButtonState) {
+			switch (buttonState) {
+				case STANDARD:
+					if(oldButtonState == ButtonState.HOVERED) {
+						fireMethod("PLAY", new StringVariable("", "ONFOCUSOFF", getContext()));
+						emitSignal("ONFOCUSOFF");
+					}
+					if(oldButtonState == ButtonState.DISABLED) {
+						setAttribute("TOCANVAS", new Attribute("BOOL", "TRUE"));
+						fireMethod("PLAY", new StringVariable("", "ONNOEVENT", getContext()));
+						context.addButtonVariable(this);
+					}
+					break;
+				case HOVERED:
+					fireMethod("PLAY", new StringVariable("", "ONFOCUSON", getContext()));
+					if(oldButtonState == ButtonState.STANDARD)
+						emitSignal("ONFOCUSON");
+					if(oldButtonState == ButtonState.PRESSED) {
+						emitSignal("ONRELEASE");
+					}
+					break;
+				case PRESSED:
+					fireMethod("PLAY", new StringVariable("", "ONCLICK", getContext()));
+					emitSignal("ONCLICK");
+					break;
+				case DISABLED:
+					context.removeButtonVariable(this);
+					if(oldButtonState == ButtonState.PRESSED) {
+						Gdx.app.log("AnimoVariable", "Clearing active button status for " + getName());
+						if (context.getGame().getInputManager() != null &&
+								context.getGame().getInputManager().getActiveButton() == AnimoVariable.this) {
+							context.getGame().getInputManager().clearActiveButton(AnimoVariable.this);
+						}
+					}
+			}
+
+			Gdx.app.debug("AnimoVariable", getName() + " button state changed from " + oldButtonState + " to " + buttonState + " because of event " + event);
+		}
+	}
+
 	public void updateAnimation(float deltaTime) {
 		if (currentEvent == null) {
 			return;
 		}
 
-		if (!isPlaying) {
+		if (animationState != AnimoState.PLAYING) {
 			return;
 		}
 
 		if(currentEvent.getFramesCount() == 0) {
-			isPlaying = false;
+			changeAnimoState(AnimoEvent.STOP);
 			return;
 		}
 
@@ -943,22 +988,15 @@ public class AnimoVariable extends Variable implements Cloneable {
 
 			currentFrameNumber += direction;
 
-			if (currentFrameNumber >= currentEvent.getFrames().size()) {
-				currentFrameNumber = currentEvent.getFrames().size() - 1;
-
-				if(currentEvent.getLoopBy() == 0) { // TODO: check, how this value works
-					isPlaying = false;
-					emitSignal("ONFINISHED", currentEvent.getName());
-				}
-				else {
-					currentFrameNumber = 0;
-					setCurrentImageNumber(currentEvent.getFramesNumbers().get(currentFrameNumber));
-					playSfx();
-				}
+			if(currentEvent.getLoopBy() != 0 && currentFrameNumber >= currentEvent.getLoopBy()) {
+				setCurrentFrameNumber(0);
+			}
+			else if (currentFrameNumber >= currentEvent.getFrames().size()) {
+				setCurrentFrameNumber(currentEvent.getFrames().size() - 1);
+				changeAnimoState(AnimoEvent.END);
 			}
 			else {
-				setCurrentImageNumber(currentEvent.getFramesNumbers().get(currentFrameNumber));
-				playSfx();
+				setCurrentFrameNumber(currentFrameNumber);
 			}
 		}
 	}
@@ -978,7 +1016,6 @@ public class AnimoVariable extends Variable implements Cloneable {
 	private int getRandomIndex(List<Music> musicList) {
 		return new Random().nextInt(musicList.size());
 	}
-
 
 	public Rectangle getRect() {
 		return rect;
@@ -1022,20 +1059,6 @@ public class AnimoVariable extends Variable implements Cloneable {
 		}
 
 		//Gdx.app.debug("AnimoVariable ("+this.getName()+")", "Rect: " + rect);
-	}
-
-	private void updateRect(Image image) {
-		//Gdx.app.debug("AnimoVariable ("+this.getName()+")", "Updating rect from Image...");
-		rect.setXLeft(image.offsetX - posX);
-		rect.setYTop(image.offsetY - posY);
-		rect.setXRight(rect.getXLeft() + image.width);
-		rect.setYBottom(rect.getYTop() - image.height);
-
-		//Gdx.app.debug("AnimoVariable ("+this.getName()+")", "Rect: " + rect);
-	}
-
-	public boolean isColliding(Rectangle rect1, Rectangle rect2) {
-		return isNear(rect1, rect2, 0);
 	}
 
 	public boolean isNear(Rectangle rect1, Rectangle rect2, int iouThreshold) {
@@ -1103,10 +1126,6 @@ public class AnimoVariable extends Variable implements Cloneable {
 		this.eventsCount = eventsCount;
 	}
 
-	public String getDescription() {
-		return description;
-	}
-
 	public void setDescription(String description) {
 		this.description = description;
 	}
@@ -1139,10 +1158,6 @@ public class AnimoVariable extends Variable implements Cloneable {
 		this.opacity = opacity;
 	}
 
-	public String getSignature() {
-		return signature;
-	}
-
 	public void setSignature(String signature) {
 		this.signature = signature;
 	}
@@ -1163,30 +1178,8 @@ public class AnimoVariable extends Variable implements Cloneable {
 		this.images = images;
 	}
 
-	public int getPosX() {
-		return posX;
-	}
-
-	public void setPosX(int posX) {
-		this.posX = posX;
-		updateRect();
-	}
-
-	public int getPosY() {
-		return posY;
-	}
-
-	public void setPosY(int posY) {
-		this.posY = posY;
-		updateRect();
-	}
-
 	public Event getCurrentEvent() {
 		return currentEvent;
-	}
-
-	public void setCurrentEvent(Event currentEvent) {
-		this.currentEvent = currentEvent;
 	}
 
 	public int getCurrentFrameNumber() {
@@ -1194,13 +1187,9 @@ public class AnimoVariable extends Variable implements Cloneable {
 	}
 
 	public void setCurrentFrameNumber(int currentFrameNumber) {
-		if (currentFrameNumber >= currentEvent.getFrames().size()) {
-			currentFrameNumber = currentEvent.getFrames().size() - 1;
-		}
 		this.currentFrameNumber = currentFrameNumber;
-		this.currentImageNumber = currentEvent.getFramesNumbers().get(currentFrameNumber);
-		this.currentImage = currentEvent.getFrames().get(currentImageNumber);
-		updateRect();
+		setCurrentImageNumber(currentEvent.getFramesNumbers().get(this.currentFrameNumber));
+		playSfx();
 	}
 
 	public int getCurrentImageNumber() {
@@ -1242,10 +1231,6 @@ public class AnimoVariable extends Variable implements Cloneable {
 		return currentImage;
 	}
 
-	public void setCurrentImage(Image currentImage) {
-		this.currentImage = currentImage;
-	}
-
 	public int getPriority() {
 		return priority;
 	}
@@ -1255,15 +1240,11 @@ public class AnimoVariable extends Variable implements Cloneable {
 	}
 
 	public boolean isPlaying() {
-		return isPlaying;
-	}
-
-	public void setPlaying(boolean playing) {
-		isPlaying = playing;
+		return animationState == AnimoState.PLAYING;
 	}
 
 	public boolean isVisible() {
-		return isVisible;
+		return animationState != AnimoState.HIDDEN;
 	}
 
 	public boolean isRenderedOnCanvas() {
@@ -1274,6 +1255,14 @@ public class AnimoVariable extends Variable implements Cloneable {
 		}
 	}
 
+	public ButtonState getButtonState() {
+		return buttonState;
+	}
+
+	public AnimoState getAnimationState() {
+		return animationState;
+	}
+
 	public boolean hasEvent(String eventName) {
 		for(Event event : events) {
 			if(event.getName().equals(eventName)) {
@@ -1281,21 +1270,6 @@ public class AnimoVariable extends Variable implements Cloneable {
 			}
 		}
 		return false;
-	}
-
-	public void changeVisibility(boolean visibility) {
-		if(visibility) show();
-		else hide();
-	}
-
-	private void show() {
-		getAttribute("VISIBLE").setValue("TRUE");
-		isVisible = true;
-	}
-
-	private void hide() {
-		getAttribute("VISIBLE").setValue("FALSE");
-		isVisible = false;
 	}
 
 	public List<Event> getEventsWithPrefix(String prefix) {
@@ -1308,16 +1282,8 @@ public class AnimoVariable extends Variable implements Cloneable {
 		return eventsWithPrefix;
 	}
 
-	public int getMaxWidth() {
-		return maxWidth;
-	}
-
 	public void setMaxWidth(int maxWidth) {
 		this.maxWidth = maxWidth;
-	}
-
-	public int getMaxHeight() {
-		return maxHeight;
 	}
 
 	public void setMaxHeight(int maxHeight) {
@@ -1325,15 +1291,7 @@ public class AnimoVariable extends Variable implements Cloneable {
 	}
 
 	public boolean isAsButton() {
-		return asButton;
-	}
-
-	public void setAsButton(boolean asButton) {
-		this.asButton = asButton;
-		if(asButton) {
-			fireMethod("PLAY", new StringVariable("", "ONNOEVENT", context));
-		}
-		show();
+		return buttonState != ButtonState.DISABLED;
 	}
 
 	public boolean isChangeCursor() {
@@ -1342,30 +1300,6 @@ public class AnimoVariable extends Variable implements Cloneable {
 
 	public void setChangeCursor(boolean changeCursor) {
 		this.changeCursor = changeCursor;
-	}
-
-	public boolean isFocused() {
-		return isFocused;
-	}
-
-	public void setFocused(boolean focused) {
-		isFocused = focused;
-	}
-
-	public boolean isPressed() {
-		return isPressed;
-	}
-
-	public void setPressed(boolean pressed) {
-		isPressed = pressed;
-	}
-
-	public boolean isWasPressed() {
-		return wasPressed;
-	}
-
-	public void setWasPressed(boolean wasPressed) {
-		this.wasPressed = wasPressed;
 	}
 
 	public void addFilter(Filter filter) {

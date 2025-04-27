@@ -126,14 +126,7 @@ public class ButtonHandler {
                     button.changeState(ButtonEvent.FOCUS_OFF);
                 } else if (variable instanceof AnimoVariable) {
                     AnimoVariable animo = (AnimoVariable) variable;
-                    if (animo.isFocused() && animo.isAsButton()) {
-                        animo.setFocused(false);
-                        Signal onFocusLossSignal = animo.getSignal("ONFOCUSOFF");
-                        if (onFocusLossSignal != null) {
-                            onFocusLossSignal.execute(null);
-                        }
-                        animo.fireMethod("PLAY", new StringVariable("", "ONFOCUSOFF", animo.getContext()));
-                    }
+                    animo.changeButtonState(ButtonEvent.FOCUS_OFF);
                 }
             }
         }
@@ -163,19 +156,10 @@ public class ButtonHandler {
             if (justPressed) {
                 if (inputManager.getActiveButton() == null) {
                     inputManager.setActiveButton(animo);
-                    animo.setPressed(true);
-                    animo.fireMethod("PLAY", new StringVariable("", "ONCLICK", animo.getContext()));
-                    inputManager.triggerSignal(animo, "ONCLICK");
+                    animo.changeButtonState(ButtonEvent.PRESSED);
                 }
-            }
-
-            if (!animo.isFocused() && animo.isAsButton() && !isPressed) {
-                animo.setFocused(true);
-                Signal onFocusSignal = animo.getSignal("ONFOCUSON");
-                if (onFocusSignal != null) {
-                    onFocusSignal.execute(null);
-                }
-                animo.fireMethod("PLAY", new StringVariable("", "ONFOCUSON", animo.getContext()));
+            } else if (animo.getButtonState() != ButtonState.HOVERED) {
+                animo.changeButtonState(ButtonEvent.FOCUS_ON);
             }
         }
     }
@@ -187,7 +171,7 @@ public class ButtonHandler {
                 ((ButtonVariable) activeButton).changeState(ButtonEvent.RELEASED);
             } else if (activeButton instanceof AnimoVariable) {
                 inputManager.triggerSignal(activeButton, "ONRELEASE");
-                ((AnimoVariable) activeButton).setPressed(false);
+                ((AnimoVariable) activeButton).changeButtonState(ButtonEvent.RELEASED);
             }
             inputManager.setActiveButton(null);
         }
