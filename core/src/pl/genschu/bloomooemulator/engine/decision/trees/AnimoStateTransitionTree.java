@@ -42,7 +42,7 @@ public class AnimoStateTransitionTree {
             .andWhen(ctx -> getAnimoEvent(ctx) == AnimoEvent.HIDE && (getCurrentAnimoState(ctx) != AnimoState.PLAYING && getCurrentAnimoState(ctx) != AnimoState.HIDDEN))
                 .then(ctx -> AnimoState.HIDDEN)
             .andWhen(ctx -> getAnimoEvent(ctx) == AnimoEvent.HIDE && getCurrentAnimoState(ctx) == AnimoState.PLAYING)
-                .then(ctx -> AnimoState.PLAYING) // Hiding the animation during playback doesn't make sense, and neither does this case in the decision tree, but I've written this as a note with information about this engine behaviour.
+                .then(ctx -> AnimoState.HIDDEN)
             .andWhen(ctx -> getAnimoEvent(ctx) == AnimoEvent.SHOW && getCurrentAnimoState(ctx) == AnimoState.HIDDEN)
                 .then(ctx -> AnimoState.IDLE)
             .andWhen(ctx -> (getAnimoEvent(ctx) == AnimoEvent.PREV_FRAME || getAnimoEvent(ctx) == AnimoEvent.NEXT_FRAME || getAnimoEvent(ctx) == AnimoEvent.SET_FRAME) && getCurrentAnimoState(ctx) == AnimoState.HIDDEN)

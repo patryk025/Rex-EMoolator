@@ -269,9 +269,19 @@ public class ButtonVariable extends Variable {
 					emitSignal("ONCLICKED");
 					break;
 				case DISABLED:
-					showImage(gfxVariable, false);
-					showImage(gfxOnMove, false);
-					showImage(gfxOnClick, false);
+					if(oldState == ButtonState.INIT) {
+						// check if animo isn't playing before assigning to button
+						if(gfxVariable != null && !((AnimoVariable) gfxVariable).isPlaying()) {
+							showImage(gfxVariable, false);
+						}
+						showImage(gfxOnMove, false);
+						showImage(gfxOnClick, false);
+					}
+					else {
+						showImage(gfxVariable, false);
+						showImage(gfxOnMove, false);
+						showImage(gfxOnClick, false);
+					}
 
 					stopAllSounds();
 					break;

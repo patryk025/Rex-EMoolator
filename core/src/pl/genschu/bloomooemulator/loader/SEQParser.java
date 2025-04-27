@@ -139,6 +139,8 @@ public class SEQParser {
                     sequenceVariable.getContext().setVariable(animoFile, event.getAnimation());
                 }
 
+                sequenceVariable.getAnimosInSequence().add(event.getAnimation());
+
                 // create audio
                 Variable existingSound = findVariable(wavFile, sequenceVariable);
                 if (existingSound instanceof SoundVariable) {
@@ -173,6 +175,7 @@ public class SEQParser {
                     event.getAnimation().setAttribute("FILENAME", new Attribute("STRING", simpleAnimoFile));
                     sequenceVariable.getContext().setVariable(simpleAnimoFile, event.getAnimation());
                 }
+                sequenceVariable.getAnimosInSequence().add(event.getAnimation());
                 break;
 
             default:

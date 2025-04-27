@@ -108,11 +108,12 @@ public class SequenceVariable extends Variable {
 	private List<SequenceEvent> events;
 	private SequenceEvent currentEvent;
 	private SequenceMode mode;
-	private boolean isVisible;
 	private boolean isPlaying;
 	private boolean isPaused;
 	private Random random;
 	private Map<String, SequenceEvent> eventsByName;
+
+	private Set<Variable> animosInSequence = new HashSet<>();
 
 	// source https://docs.google.com/spreadsheets/d/1SYI_Gu6MAuSGw-OTXzk_FDWScx29Cc-6eXpc6UfSn1Y/edit?gid=628883611#gid=628883611&range=A18
 	private final String PARAMS_CHARACTER_SET = "123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz{|}~";
@@ -122,7 +123,6 @@ public class SequenceVariable extends Variable {
 		super(name, context);
 		this.events = new ArrayList<>();
 		this.eventsByName = new HashMap<>();
-		this.isVisible = true;
 		this.isPlaying = false;
 		this.isPaused = false;
 		this.random = new Random();
@@ -175,10 +175,6 @@ public class SequenceVariable extends Variable {
 				"void") {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				if(events.isEmpty()) {
-					loadSequence();
-				}
-
 				String eventName = ArgumentsHelper.getString(arguments.get(0));
 				playEvent(eventName);
 				return null;
@@ -196,10 +192,6 @@ public class SequenceVariable extends Variable {
 		this.setMethod("SHOW", new Method("void") {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				if(events.isEmpty()) {
-					loadSequence();
-				}
-
 				showSequence();
 				return null;
 			}
@@ -226,25 +218,14 @@ public class SequenceVariable extends Variable {
 	}
 
 	private void hideSequence() {
-		isVisible = false;
-		if (currentEvent != null) {
-			if (currentEvent.animation != null) {
-				currentEvent.animation.fireMethod("HIDE");
-			}
-		}
-		for (SequenceEvent event : events) {
-			if (event.animation != null) {
-				event.animation.fireMethod("HIDE");
-			}
+		for(Variable animo : animosInSequence) {
+			animo.fireMethod("HIDE");
 		}
 	}
 
 	private void showSequence() {
-		isVisible = true;
-		if (currentEvent != null && isPlaying && !isPaused) {
-			if (currentEvent.animation != null) {
-				currentEvent.animation.fireMethod("SHOW");
-			}
+		for(Variable animo : animosInSequence) {
+			animo.fireMethod("SHOW");
 		}
 	}
 
@@ -390,7 +371,15 @@ public class SequenceVariable extends Variable {
 			startSpeakingEvent(event);
 		} else {
 			if (event.animation != null) {
-				event.animation.fireMethod("PLAY", new StringVariable("", event.prefix, context));
+				// check if event with this name exists
+				if (event.animation.hasEvent(event.prefix)) {
+					event.animation.fireMethod("PLAY", new StringVariable("", event.prefix, context));
+				}
+				else {
+					// get first event (needed in PALISADA13)
+					Event firstEvent = event.animation.getEvents().get(0);
+					event.animation.fireMethod("PLAY", new StringVariable("", firstEvent.getName(), context));
+				}
 			}
 			if (event.sound != null) {
 				event.sound.fireMethod("PLAY");
@@ -619,10 +608,6 @@ public class SequenceVariable extends Variable {
 		}
 	}
 
-	public boolean isVisible() {
-		return isVisible;
-	}
-
 	public String getCurrentEventName() {
 		return currentEvent != null ? currentEvent.name : "";
 	}
@@ -645,5 +630,9 @@ public class SequenceVariable extends Variable {
 
 	public Map<String, Integer> getParametersMapping() {
 		return parametersMapping;
+	}
+
+	public Set<Variable> getAnimosInSequence() {
+		return animosInSequence;
 	}
 }

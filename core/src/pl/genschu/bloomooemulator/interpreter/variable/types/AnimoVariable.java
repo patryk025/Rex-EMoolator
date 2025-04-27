@@ -474,6 +474,12 @@ public class AnimoVariable extends Variable implements Cloneable {
 				int eventId = ArgumentsHelper.getInteger(arguments.get(0));
 				try {
 					currentEvent = events.get(eventId);
+
+					if(currentEvent.getFramesCount() == 0) {
+						changeAnimoState(AnimoEvent.END);
+						return null;
+					}
+
 					setCurrentFrameNumber(0);
 					changeAnimoState(AnimoEvent.PLAY);
 					//Gdx.app.log("updateRect()", "NPLAY");
@@ -497,6 +503,11 @@ public class AnimoVariable extends Variable implements Cloneable {
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
+				if(currentEvent.getFramesCount() == 0) {
+					changeAnimoState(AnimoEvent.END);
+					return null;
+				}
+
 				setCurrentFrameNumber(0);
 				changeAnimoState(AnimoEvent.PLAY);
 				return null;
@@ -514,6 +525,12 @@ public class AnimoVariable extends Variable implements Cloneable {
 				for(Event event : events) {
 					if(event.getName().equalsIgnoreCase(eventName)) {
 						currentEvent = event;
+
+						if(currentEvent.getFramesCount() == 0) {
+							changeAnimoState(AnimoEvent.END);
+							return null;
+						}
+
 						setCurrentFrameNumber(0);
 						changeAnimoState(AnimoEvent.PLAY);
 						//Gdx.app.log("updateRect()", "PLAY");

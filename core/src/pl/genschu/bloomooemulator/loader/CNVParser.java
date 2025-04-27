@@ -283,6 +283,9 @@ public class CNVParser {
                     }
                 }
             }
+            if(variable instanceof SequenceVariable) {
+                ((SequenceVariable) variable).loadSequence();
+            }
             variable.emitSignal("ONINIT");
         }
     }
