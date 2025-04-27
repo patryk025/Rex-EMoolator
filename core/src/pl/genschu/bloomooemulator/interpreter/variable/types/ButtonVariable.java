@@ -271,8 +271,10 @@ public class ButtonVariable extends Variable {
 				case DISABLED:
 					if(oldState == ButtonState.INIT) {
 						// check if animo isn't playing before assigning to button
-						if(gfxVariable != null && !((AnimoVariable) gfxVariable).isPlaying()) {
-							showImage(gfxVariable, false);
+						if(gfxVariable != null) {
+							if((gfxVariable instanceof AnimoVariable && !((AnimoVariable) gfxVariable).isPlaying())
+								|| gfxVariable instanceof ImageVariable)
+									showImage(gfxVariable, false);
 						}
 						showImage(gfxOnMove, false);
 						showImage(gfxOnClick, false);
