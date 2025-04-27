@@ -2,6 +2,7 @@ package pl.genschu.bloomooemulator.interpreter.variable.types;
 
 import com.badlogic.gdx.Gdx;
 import pl.genschu.bloomooemulator.engine.decision.events.AnimoEvent;
+import pl.genschu.bloomooemulator.engine.decision.states.AnimoState;
 import pl.genschu.bloomooemulator.engine.decision.trees.ButtonStateTransitionTree;
 import pl.genschu.bloomooemulator.engine.decision.events.ButtonEvent;
 import pl.genschu.bloomooemulator.engine.decision.states.ButtonState;
@@ -390,7 +391,11 @@ public class ButtonVariable extends Variable {
 				animoVariable.setAttribute("TOCANVAS", new Attribute("BOOL", "TRUE"));
 
 				if(visible) {
-					animoVariable.changeAnimoState(AnimoEvent.PLAY);
+					if(animoVariable.getAnimationState() == AnimoState.HIDDEN)
+						animoVariable.changeAnimoState(AnimoEvent.PLAY);
+					else {
+						animoVariable.changeAnimoState(AnimoEvent.SHOW);
+					}
 				}
 				else {
 					animoVariable.changeAnimoState(AnimoEvent.STOP, false); // first stop

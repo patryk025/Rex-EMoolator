@@ -902,7 +902,7 @@ public class AnimoVariable extends Variable implements Cloneable {
 					}
 					break;
 				case STOPPED:
-					if(emitSignal) {
+					if(emitSignal && oldAnimationState == AnimoState.PLAYING) {
 						emitSignal("ONFINISHED", currentEvent.getName());
 					}
 					break;

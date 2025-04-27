@@ -557,8 +557,6 @@ public class DebugManager implements Disposable {
                 visible = ((ImageVariable) variable).isVisible();
             } else if (variable instanceof AnimoVariable) {
                 visible = ((AnimoVariable) variable).isVisible();
-            } else if (variable instanceof SequenceVariable) {
-                visible = ((SequenceVariable) variable).isVisible();
             }
 
             if (!visible) continue;
