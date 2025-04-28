@@ -128,15 +128,8 @@ public class RenderManager implements Disposable {
 
     private List<Variable> getGraphicsVariables() {
         Context context = game.getCurrentSceneContext();
-        List<Variable> drawList = new ArrayList<>(context.getGraphicsVariables().values());
 
-        // Adding graphics from class instances
-        Map<String, Variable> classInstances = context.getClassInstances();
-        for (Variable variable : classInstances.values()) {
-            drawList.addAll(variable.getContext().getGraphicsVariables(false).values());
-        }
-
-        return drawList;
+        return new ArrayList<>(context.getGraphicsVariables().values());
     }
 
     private void sortByPriority(List<Variable> drawList) {

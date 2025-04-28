@@ -498,10 +498,6 @@ public class DebugManager implements Disposable {
     private Variable getButtonAt(int x, int y) {
         Context context = game.getCurrentSceneContext();
         List<Variable> buttons = new ArrayList<>(context.getButtonsVariables().values());
-        for (Variable variable : context.getClassInstances().values()) {
-            List<Variable> classButtons = new ArrayList<>(variable.getContext().getButtonsVariables(false).values());
-            buttons.addAll(classButtons);
-        }
 
         int minHSPriority = game.getCurrentSceneVariable().getMinHotSpotZ();
         int maxHSPriority = game.getCurrentSceneVariable().getMaxHotSpotZ();

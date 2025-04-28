@@ -137,8 +137,14 @@ public class ArrayVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				// TODO: implement this method
-				throw new ClassMethodNotImplementedException("Method COPYTO is not implemented yet");
+				// TODO: check if it works this way
+				Variable arrayVar = context.getVariable(ArgumentsHelper.getString(arguments.get(0)));
+
+				if(arrayVar.getType().equals("ARRAY")) {
+					((ArrayVariable) arrayVar).elements.addAll(elements);
+				}
+
+				return null;
 			}
 		});
 		this.setMethod("FIND", new Method(
@@ -417,7 +423,7 @@ public class ArrayVariable extends Variable {
 			public Variable execute(List<Object> arguments) {
 				AddOperation operation = new AddOperation();
 				Variable valueToAdd = (Variable) arguments.get(0);
-                elements.replaceAll(var1 -> operation.performOperation(var1, valueToAdd));
+	            elements.replaceAll(var1 -> operation.performOperation(var1, valueToAdd));
 				return null;
 			}
 		});

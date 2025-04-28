@@ -4,10 +4,7 @@ import pl.genschu.bloomooemulator.interpreter.factories.VariableFactory;
 import pl.genschu.bloomooemulator.interpreter.util.GlobalVariables;
 import pl.genschu.bloomooemulator.interpreter.variable.GlobalVariable;
 import pl.genschu.bloomooemulator.interpreter.variable.Variable;
-import pl.genschu.bloomooemulator.interpreter.variable.types.DatabaseVariable;
-import pl.genschu.bloomooemulator.interpreter.variable.types.KeyboardVariable;
-import pl.genschu.bloomooemulator.interpreter.variable.types.MouseVariable;
-import pl.genschu.bloomooemulator.interpreter.variable.types.StringVariable;
+import pl.genschu.bloomooemulator.interpreter.variable.types.*;
 import pl.genschu.bloomooemulator.engine.Game;
 
 import java.util.*;
@@ -17,7 +14,7 @@ public class Context {
     private Context parentContext;
     private Object returnValue;
     private Game game;
-    private List<Context> additionalContexts = new ArrayList<>(); // loaded by CNVLoader
+    private final List<Context> additionalContexts = new ArrayList<>(); // loaded by CNVLoader
 
     private final Map<String, Variable> graphicsVariables; // cache for faster drawing
     private final Map<String, Variable> buttonsVariables;
@@ -128,6 +125,11 @@ public class Context {
     public Map<String, Variable> getGraphicsVariables(boolean includeParent) {
         Map<String, Variable> result = new LinkedHashMap<>();
         // Adding graphics from class instances
+        for(Variable classInstance : classInstances.values()) {
+            result.putAll(classInstance.getContext().getGraphicsVariables(false));
+        }
+
+        // Adding graphics from CNVLoader
         for(Context context : additionalContexts) {
             result.putAll(context.getGraphicsVariables(false));
         }
@@ -145,6 +147,11 @@ public class Context {
     public Map<String, Variable> getButtonsVariables(boolean includeParent) {
         Map<String, Variable> result = new LinkedHashMap<>();
         // Adding buttons from class instances
+        for(Variable classInstance : classInstances.values()) {
+            result.putAll(classInstance.getContext().getButtonsVariables(false));
+        }
+
+        // Adding buttons from CNVLoader
         for(Context context : additionalContexts) {
             result.putAll(context.getButtonsVariables(false));
         }
@@ -162,6 +169,11 @@ public class Context {
     public Map<String, Variable> getTimerVariables(boolean includeParent) {
         Map<String, Variable> result = new HashMap<>();
         // Adding timers from class instances
+        for(Variable classInstance : classInstances.values()) {
+            result.putAll(classInstance.getContext().getTimerVariables(false));
+        }
+
+        // Adding timers from CNVLoader
         for(Context context : additionalContexts) {
             result.putAll(context.getTimerVariables(false));
         }
@@ -179,6 +191,11 @@ public class Context {
     public Map<String, Variable> getTextVariables(boolean includeParent) {
         Map<String, Variable> result = new HashMap<>();
         // Adding texts from class instances
+        for(Variable classInstance : classInstances.values()) {
+            result.putAll(classInstance.getContext().getTextVariables(false));
+        }
+
+        // Adding texts from CNVLoader
         for(Context context : additionalContexts) {
             result.putAll(context.getTextVariables(false));
         }
@@ -232,7 +249,13 @@ public class Context {
     }
 
     public boolean hasVariable(String name) {
-        for(Context context : additionalContexts) { // first look in additionalContexts
+        // Check in class instances
+        for(Variable classInstance : classInstances.values()) {
+            if(classInstance.getContext().hasVariable(name))
+                return true;
+        }
+
+        for(Context context : additionalContexts) { // look in additionalContexts
             if(context.hasVariable(name))
                 return true;
         }
@@ -310,6 +333,11 @@ public class Context {
 
     public Map<String, Variable> getVariables(boolean includeParent) {
         Map<String, Variable> variables = new LinkedHashMap<>();
+
+        for(Variable classInstance : classInstances.values()) {
+            variables.putAll(classInstance.getContext().getVariables(false));
+        }
+
         for(Context context : additionalContexts) {
             variables.putAll(context.getVariables(includeParent));
         }
@@ -361,13 +389,5 @@ public class Context {
 
     public void setKeyboardVariable(KeyboardVariable keyboardVariable) {
         this.keyboardVariable = keyboardVariable;
-    }
-
-    public Map<String, Variable> getClassInstances() {
-        Map<String, Variable> result = new LinkedHashMap<>(classInstances);
-        if (parentContext != null) {
-            result.putAll(parentContext.getClassInstances());
-        }
-        return result;
     }
 }

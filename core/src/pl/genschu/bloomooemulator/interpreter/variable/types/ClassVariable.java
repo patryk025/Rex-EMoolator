@@ -80,16 +80,6 @@ public class ClassVariable extends Variable {
 
 				constructorBehaviour.getMethod("RUN", List.of("mixed")).execute(arguments);
 
-				// hide every images in the class
-				for (Variable var : classContext.getGraphicsVariables(false).values()) {
-					if (var instanceof ImageVariable) {
-						((ImageVariable) var).changeVisibility(false);
-					}
-					else if (var instanceof AnimoVariable) {
-						((AnimoVariable) var).changeAnimoState(AnimoEvent.HIDE);
-					}
-				}
-
 				return null;
 			}
 		});
@@ -141,6 +131,7 @@ public class ClassVariable extends Variable {
 			this.instanceContext = context;
 		}
 
+		@Override
 		public Context getContext() {
 			return instanceContext;
 		}

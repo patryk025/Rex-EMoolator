@@ -28,7 +28,6 @@ public class ButtonHandler {
 
         // Get all buttons from the context and class instances
         List<Variable> buttons = new ArrayList<>(context.getButtonsVariables().values());
-        addClassInstanceButtons(buttons, context);
 
         // Get the priority ranges of hotspots from the scene
         int minHSPriority = game.getCurrentSceneVariable().getMinHotSpotZ();
@@ -40,13 +39,6 @@ public class ButtonHandler {
 
         // Handle button release
         handleButtonRelease(justReleased);
-    }
-
-    private void addClassInstanceButtons(List<Variable> buttons, Context context) {
-        for (Variable variable : context.getClassInstances().values()) {
-            List<Variable> classButtons = new ArrayList<>(variable.getContext().getButtonsVariables(false).values());
-            buttons.addAll(classButtons);
-        }
     }
 
     private Variable getButtonImage(Variable button) {
