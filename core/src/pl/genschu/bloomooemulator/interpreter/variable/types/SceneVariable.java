@@ -3,6 +3,7 @@ package pl.genschu.bloomooemulator.interpreter.variable.types;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.files.FileHandle;
+import pl.genschu.bloomooemulator.engine.decision.events.AnimoEvent;
 import pl.genschu.bloomooemulator.interpreter.exceptions.ClassMethodNotImplementedException;
 import pl.genschu.bloomooemulator.interpreter.Context;
 import pl.genschu.bloomooemulator.interpreter.variable.Attribute;
@@ -88,9 +89,18 @@ public class SceneVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				// TODO: check how it should work
 				if(music != null) {
 					music.pause();
+				}
+
+				Collection<Variable> graphicsVariables = getContext().getGraphicsVariables().values();
+				for (Variable variable : graphicsVariables) {
+					if (variable instanceof AnimoVariable) {
+						AnimoVariable animo = (AnimoVariable) variable;
+						if (animo.isPlaying()) {
+							animo.changeAnimoState(AnimoEvent.PAUSE);
+						}
+					}
 				}
 				return null;
 			}
@@ -105,8 +115,24 @@ public class SceneVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				// TODO: implement this method
-				throw new ClassMethodNotImplementedException("Method REMOVECLONES is not implemented yet");
+				String varName = ArgumentsHelper.getString(arguments.get(0));
+				int firstId = ArgumentsHelper.getInteger(arguments.get(1));
+				int lastId = ArgumentsHelper.getInteger(arguments.get(2));
+
+				Variable variable = getContext().getVariable(varName);
+				if(variable == null) {
+					Gdx.app.error("SceneVariable", "Variable " + varName + " not found");
+					return null;
+				}
+				List<Variable> clones = variable.getClones();
+				for(Variable clone : clones) {
+					int id = Integer.parseInt(getName().substring(getName().lastIndexOf("_") + 1));
+					if(id >= firstId && id <= lastId) {
+						clones.remove(clone);
+						getContext().removeVariable(clone.getName());
+					}
+				}
+				return null;
 			}
 		});
 		this.setMethod("RESUME", new Method(
@@ -268,7 +294,7 @@ public class SceneVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-                musicVolume = ArgumentsHelper.getInteger(arguments.get(0));
+	            musicVolume = ArgumentsHelper.getInteger(arguments.get(0));
 				if(music != null) {
 					music.setVolume(musicVolume / 1000.0f);
 				}

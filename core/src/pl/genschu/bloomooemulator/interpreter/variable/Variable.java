@@ -253,7 +253,7 @@ public abstract class Variable implements Cloneable {
 				boolean foundVarargs = false;
 				String varargsType = null;
 
-                for (String methodParamType : methodParamTypes) {
+	            for (String methodParamType : methodParamTypes) {
                     if (methodParamType.endsWith("...")) {
                         foundVarargs = true;
                         varargsType = methodParamType.substring(0, methodParamType.length() - 3);
