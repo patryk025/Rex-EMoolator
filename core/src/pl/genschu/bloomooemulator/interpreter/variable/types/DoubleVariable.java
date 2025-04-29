@@ -174,7 +174,7 @@ public class DoubleVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				double max = 0;
+				double max = Integer.MIN_VALUE;
 				for(Object argument : arguments) {
 					double value = ArgumentsHelper.getDouble(argument);
 					if(value > max) {
@@ -194,7 +194,7 @@ public class DoubleVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				double min = 0;
+				double min = Integer.MAX_VALUE;
 				for(Object argument : arguments) {
 					double value = ArgumentsHelper.getDouble(argument);
 					if(value < min) {
@@ -280,7 +280,7 @@ public class DoubleVariable extends Variable {
 		});
 		this.setMethod("SUB", new Method(
 				List.of(
-						new Parameter("INTEGER|DOUBLE", "doubleValue", true)
+						new Parameter("DOUBLE", "doubleValue", true)
 				),
 				"DOUBLE"
 		) {

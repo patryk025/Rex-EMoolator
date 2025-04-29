@@ -50,16 +50,4 @@ public class VariableHelper {
 
         return null;
     }
-
-    public static int getValueFromString(Variable value) {
-        try {
-            return Integer.parseInt(value.getValue().toString());
-        } catch (NumberFormatException e) {
-            Variable variable = value.getContext().getVariable(value.getValue().toString());
-            if(variable == null) {
-                return 0;
-            }
-            return Integer.parseInt(variable.getValue().toString());
-        }
-    }
 }

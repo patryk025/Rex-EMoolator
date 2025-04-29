@@ -10,7 +10,6 @@ import pl.genschu.bloomooemulator.interpreter.variable.Variable;
 import java.util.List;
 import java.util.Random;
 
-import static pl.genschu.bloomooemulator.interpreter.util.VariableHelper.getValueFromString;
 import pl.genschu.bloomooemulator.utils.ArgumentsHelper;
 
 public class IntegerVariable extends Variable {
@@ -243,7 +242,7 @@ public class IntegerVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				int result = GET() - getValueFromString((Variable) arguments.get(0));
+				int result = GET() - ArgumentsHelper.getInteger(arguments.get(0));
 				set(result);
 				return IntegerVariable.this;
 			}
