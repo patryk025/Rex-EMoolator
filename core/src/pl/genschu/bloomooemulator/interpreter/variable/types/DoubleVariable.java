@@ -51,18 +51,17 @@ public class DoubleVariable extends Variable {
 		});
 		this.setMethod("ARCTAN", new Method(
 				List.of(
-						new Parameter("DOUBLE", "doubleValue", true)
+						new Parameter("DOUBLE", "angle", true)
 				),
 				"DOUBLE"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				double value = ArgumentsHelper.getDouble(arguments.get(0));
+				double angle = ArgumentsHelper.getDouble(arguments.get(0));
 
-				double atanRadians = Math.atan(value);
-				double atanDegrees = Math.toDegrees(atanRadians);
+				double atanRadians = Math.atan(Math.toRadians(angle));
 
-				set(atanDegrees);
+				set(atanRadians);
 				return DoubleVariable.this;
 			}
 		});
@@ -79,9 +78,8 @@ public class DoubleVariable extends Variable {
 				double x = ArgumentsHelper.getDouble(arguments.get(1));
 
 				double atanRadians = Math.atan2(y, x);
-				double atanDegrees = Math.toDegrees(atanRadians);
 
-				set(atanDegrees);
+				set(atanRadians);
 				return DoubleVariable.this;
 			}
 		});
@@ -111,18 +109,17 @@ public class DoubleVariable extends Variable {
 		});
 		this.setMethod("COSINUS", new Method(
 				List.of(
-						new Parameter("DOUBLE", "doubleValue", true)
+						new Parameter("DOUBLE", "angle", true)
 				),
 				"DOUBLE"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				double value = ArgumentsHelper.getDouble(arguments.get(0));
+				double angle = ArgumentsHelper.getDouble(arguments.get(0));
 
-				double cosRadians = Math.cos(value);
-				double cosDegrees = Math.toDegrees(cosRadians);
+				double cosRadians = Math.cos(Math.toRadians(angle));
 
-				set(cosDegrees);
+				set(cosRadians);
 				return DoubleVariable.this;
 			}
 		});
@@ -250,18 +247,17 @@ public class DoubleVariable extends Variable {
 		});
 		this.setMethod("SINUS", new Method(
 				List.of(
-						new Parameter("DOUBLE", "doubleValue", true)
+						new Parameter("DOUBLE", "angle", true)
 				),
 				"DOUBLE"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				double value = ArgumentsHelper.getDouble(arguments.get(0));
+				double angle = ArgumentsHelper.getDouble(arguments.get(0));
 
-				double sinRadians = Math.sin(value);
-				double sinDegrees = Math.toDegrees(sinRadians);
+				double sinRadians = Math.sin(Math.toRadians(angle));
 
-				set(sinDegrees);
+				set(sinRadians);
 				return DoubleVariable.this;
 			}
 		});
