@@ -332,7 +332,8 @@ public class ImageVariable extends Variable implements Cloneable {
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				opacity = ArgumentsHelper.getInteger(arguments.get(0)) / 255.0f;
+				if(!context.getGame().getCurrentScene().equals("S65_ZAMEK")) // Just testing
+					opacity = ArgumentsHelper.getInteger(arguments.get(0)) / 255.0f;
 				return null;
 			}
 		});
