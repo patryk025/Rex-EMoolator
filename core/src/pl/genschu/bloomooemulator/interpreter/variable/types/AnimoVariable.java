@@ -65,6 +65,8 @@ public class AnimoVariable extends Variable implements Cloneable {
 
 	private List<Filter> filters = new ArrayList<>();
 
+	private boolean isJustStarted = false;
+
 	public AnimoVariable(String name, Context context) {
 		super(name, context);
 
@@ -480,8 +482,8 @@ public class AnimoVariable extends Variable implements Cloneable {
 						return null;
 					}
 
-					setCurrentFrameNumber(0);
 					changeAnimoState(AnimoEvent.PLAY);
+					isJustStarted = true;
 					//Gdx.app.log("updateRect()", "NPLAY");
 				} catch (IndexOutOfBoundsException e) {
 					Gdx.app.error("AnimoVariable", "Event with id " + eventId + " not found");
@@ -508,7 +510,6 @@ public class AnimoVariable extends Variable implements Cloneable {
 					return null;
 				}
 
-				setCurrentFrameNumber(0);
 				changeAnimoState(AnimoEvent.PLAY);
 				return null;
 			}
@@ -533,6 +534,7 @@ public class AnimoVariable extends Variable implements Cloneable {
 
 						setCurrentFrameNumber(0);
 						changeAnimoState(AnimoEvent.PLAY);
+						isJustStarted = true;
 						//Gdx.app.log("updateRect()", "PLAY");
 
 						break;
@@ -911,7 +913,8 @@ public class AnimoVariable extends Variable implements Cloneable {
 		if(animationState != oldAnimationState) {
 			switch (animationState) {
 				case PLAYING:
-					if(currentFrameNumber == 0) {
+					if(oldAnimationState == AnimoState.IDLE) {
+						setCurrentFrameNumber(0);
 						emitSignal("ONSTARTED", currentEvent.getName());
 					}
 					if(oldAnimationState == AnimoState.PAUSED) {
@@ -982,19 +985,6 @@ public class AnimoVariable extends Variable implements Cloneable {
 	}
 
 	public void updateAnimation(float deltaTime) {
-		if (currentEvent == null) {
-			return;
-		}
-
-		if (animationState != AnimoState.PLAYING) {
-			return;
-		}
-
-		if(currentEvent.getFramesCount() == 0) {
-			changeAnimoState(AnimoEvent.STOP);
-			return;
-		}
-
 		elapsedTime += deltaTime;
 		if (elapsedTime >= frameDuration) {
 			elapsedTime -= frameDuration;
@@ -1003,17 +993,39 @@ public class AnimoVariable extends Variable implements Cloneable {
 				elapsedTime = 0; // only when engine is lagging, set elapsedTime to zero to eliminate animation fast forward
 			}
 
-			currentFrameNumber += direction;
-
-			if(currentEvent.getLoopBy() != 0 && currentFrameNumber >= currentEvent.getLoopBy()) {
-				setCurrentFrameNumber(0);
+			if (currentEvent == null) {
+				return;
 			}
-			else if (currentFrameNumber >= currentEvent.getFrames().size()) {
-				setCurrentFrameNumber(currentEvent.getFrames().size() - 1);
+
+			if (!isPlaying()) { // checking if animation is playing
+				return;
+			}
+
+			if(currentEvent.getFramesCount() == 0) {
+				changeAnimoState(AnimoEvent.STOP);
+				return;
+			}
+
+			if(!isJustStarted) {
+				setCurrentFrameNumber(currentFrameNumber);
+			}
+			else {
+				isJustStarted = false;
+			}
+
+			if (!isPlaying()) { // check if somehow animation wasn't stopped during ONFRAMECHANGED
+				return;
+			}
+
+			if(currentEvent.getLoopBy() != 0 && currentFrameNumber + direction >= currentEvent.getLoopBy()) {
+				currentFrameNumber = 0;
+			}
+			else if (currentFrameNumber + direction >= currentEvent.getFrames().size()) {
+				currentFrameNumber = 0;
 				changeAnimoState(AnimoEvent.END);
 			}
 			else {
-				setCurrentFrameNumber(currentFrameNumber);
+				currentFrameNumber += direction;
 			}
 		}
 	}
