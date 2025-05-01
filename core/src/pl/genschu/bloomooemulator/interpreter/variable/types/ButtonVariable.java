@@ -198,34 +198,42 @@ public class ButtonVariable extends Variable {
 	}
 
 	private void showStandard() {
-		showImage(gfxVariable, true);
 		showImage(gfxOnMove, false);
 		showImage(gfxOnClick, false);
+
+		// check if graphic is not already visible
+		if(gfxVariable != null) {
+			if(gfxVariable instanceof AnimoVariable) {
+				if(!((AnimoVariable) gfxVariable).isVisible())
+					showImage(gfxVariable, true);
+			}
+			else if(gfxVariable instanceof ImageVariable) {
+				if(!((ImageVariable) gfxVariable).isVisible())
+					showImage(gfxVariable, true);
+			}
+		}
 	}
 
 	private void showOnMove() {
+		// check if GFXONMOVE exists
+		if(gfxOnMove == null) {
+			return;
+		}
+
 		showImage(gfxVariable, false);
 		showImage(gfxOnClick, false);
-		if(gfxOnMove != null) {
-			showImage(gfxOnMove, true);
-		}
-		else {
-			showImage(gfxVariable, true);
-		}
+		showImage(gfxOnMove, true);
 	}
 
 	private void showOnClick() {
+		// check if GFXONCLICK exists
+		if(gfxOnClick == null) {
+			return;
+		}
+
 		showImage(gfxVariable, false);
 		showImage(gfxOnMove, false);
-		if(gfxOnClick != null) {
-			showImage(gfxOnClick, true);
-		}
-		else if(gfxOnMove != null) {
-			showImage(gfxOnMove, true);
-		}
-		else {
-			showImage(gfxVariable, true);
-		}
+		showImage(gfxOnClick, true);
 	}
 
 	public void changeState(ButtonEvent event) {
