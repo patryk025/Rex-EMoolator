@@ -609,6 +609,11 @@ public class SequenceVariable extends Variable {
 	}
 
 	@Override
+	public void init() {
+		loadSequence();
+	}
+
+	@Override
 	public void setAttribute(String name, Attribute attribute) {
 		List<String> knownAttributes = List.of("FILENAME");
 		if (knownAttributes.contains(name)) {

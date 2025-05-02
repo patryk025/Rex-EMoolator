@@ -494,23 +494,6 @@ public class Game {
                             ((ImageVariable) graphic).getImage().getImageTexture().dispose();
                         }
                     }
-                    if(graphic instanceof SequenceVariable) {
-                        SequenceVariable sequence = (SequenceVariable) graphic;
-
-                        /*
-                        Map<String, AnimoVariable> animos = sequence.getAnimoCache();
-                        
-                        for(String animoName : animos.keySet()) {
-                            AnimoVariable animo = animos.get(animoName);
-                            List<Image> images = animo.getImages();
-                            for(Image image : images) {
-                                if(image.isLoaded()) {
-                                    image.getImageTexture().dispose();
-                                }
-                            }
-                        }
-                        */
-                    }
                 }
             }
             variable.setContext(null);

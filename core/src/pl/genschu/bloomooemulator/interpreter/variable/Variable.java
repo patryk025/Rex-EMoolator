@@ -210,6 +210,10 @@ public abstract class Variable implements Cloneable {
         }
     }
 
+	public void init() {
+		// this method initialises the variable, in this place is no-op, every class should override it
+	}
+
 	public Variable fireMethod(String methodName, Object... params) {
 		List<String> paramsTypes = new ArrayList<>();
 		for(Object param : params) {
@@ -253,7 +257,7 @@ public abstract class Variable implements Cloneable {
 				boolean foundVarargs = false;
 				String varargsType = null;
 
-	            for (String methodParamType : methodParamTypes) {
+		         for (String methodParamType : methodParamTypes) {
                     if (methodParamType.endsWith("...")) {
                         foundVarargs = true;
                         varargsType = methodParamType.substring(0, methodParamType.length() - 3);

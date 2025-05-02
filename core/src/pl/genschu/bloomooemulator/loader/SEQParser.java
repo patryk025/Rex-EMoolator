@@ -150,6 +150,7 @@ public class SEQParser {
                     event.setSound(new SoundVariable(wavFile, sequenceVariable.getContext()));
                     event.getSound().setAttribute("FILENAME", new Attribute("STRING", "$WAVS\\" + wavFile));
                 }
+                event.getSound().init();
                 sequenceVariable.getContext().setVariable(wavFile, event.getSound());
                 break;
 

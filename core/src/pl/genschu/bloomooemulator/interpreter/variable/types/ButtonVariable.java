@@ -179,15 +179,27 @@ public class ButtonVariable extends Variable {
 
 	public void stopAllSounds() {
 		if(soundStandard != null) {
-			((SoundVariable) soundStandard).getSound().stop();
+			try {
+				((SoundVariable) soundStandard).getSound().stop();
+			} catch (NullPointerException e) {
+				Gdx.app.log("ButtonVariable", "Sound in soundStandard is null");
+			}
 		}
 
 		if(soundOnMove != null) {
-			((SoundVariable) soundOnMove).getSound().stop();
+			try {
+				((SoundVariable) soundOnMove).getSound().stop();
+			} catch (NullPointerException e) {
+				Gdx.app.log("ButtonVariable", "Sound in soundOnMove is null");
+			}
 		}
 
 		if(soundOnClick != null) {
-			((SoundVariable) soundOnClick).getSound().stop();
+			try {
+				((SoundVariable) soundOnClick).getSound().stop();
+			} catch (NullPointerException e) {
+				Gdx.app.log("ButtonVariable", "Sound in soundOnClick is null");
+			}
 		}
 	}
 
@@ -306,6 +318,13 @@ public class ButtonVariable extends Variable {
 		}
 	}
 
+	@Override
+	public void init() {
+		//load();
+		//getRect();
+		setDefaultState();
+	}
+
 	public void load() {
 		if(getAttribute("RECT") != null && rectVariable == null) {
 			if(!getAttribute("RECT").toString().contains(",")) {
@@ -335,6 +354,18 @@ public class ButtonVariable extends Variable {
 
 		if(getAttribute("SNDONCLICK") != null && soundOnClick == null) {
 			soundOnClick = context.getVariable(getAttribute("SNDONCLICK").getValue().toString());
+		}
+	}
+
+	private void setDefaultState() {
+		boolean isEnabled = getAttribute("ENABLE") != null && getAttribute("ENABLE").getBool();
+
+		if(getState() == ButtonState.INIT) {
+			if (!isEnabled) {
+				changeState(ButtonEvent.DISABLE);
+			} else {
+				changeState(ButtonEvent.ENABLE);
+			}
 		}
 	}
 

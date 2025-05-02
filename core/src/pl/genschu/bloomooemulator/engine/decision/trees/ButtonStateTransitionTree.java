@@ -8,7 +8,7 @@ import pl.genschu.bloomooemulator.interpreter.variable.types.ButtonVariable;
 
 public class ButtonStateTransitionTree {
     private static final DecisionTree<ButtonState> stateTransitionTree = DecisionTreeBuilder.<ButtonState>create()
-        .when(ctx -> getEvent(ctx) == ButtonEvent.ENABLE)
+        .when(ctx -> getEvent(ctx) == ButtonEvent.ENABLE && (getCurrentState(ctx) == ButtonState.INIT || getCurrentState(ctx) == ButtonState.DISABLED || getCurrentState(ctx) == ButtonState.DISABLED_BUT_VISIBLE))
             .then(ctx -> ButtonState.STANDARD)
         .andWhen(ctx -> getEvent(ctx) == ButtonEvent.DISABLE)
             .then(ctx -> ButtonState.DISABLED)

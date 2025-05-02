@@ -855,49 +855,77 @@ public class AnimoVariable extends Variable implements Cloneable {
 	}
 
 	@Override
+	public void init() {
+		initMissingAttributes();
+		initAttributes();
+		loadAnimo();
+	}
+
+	private void loadAnimo() {
+		String filename = getAttribute("FILENAME").getString();
+		if(!filename.endsWith(".ANN")) {
+			filename = filename + ".ANN";
+		}
+		getAttribute("FILENAME").setValue(filename);
+		try {
+			AnimoLoader.loadAnimo(this);
+			if (events != null && !events.isEmpty()) {
+				for(Event event : events) {
+					if(!event.getFrames().isEmpty()) {
+						currentEvent = event;
+						break;
+					}
+				}
+				currentFrameNumber = 0;
+				if (!currentEvent.getFrames().isEmpty()) {
+					setCurrentImageNumber(currentEvent.getFramesNumbers().get(0), false);
+				}
+			}
+		} catch (Exception e) {
+			Gdx.app.error("AnimoVariable", "Error loading ANIMO variable: " + filename, e);
+		}
+	}
+
+	private void initMissingAttributes() {
+		if(getAttribute("VISIBLE") == null) {
+			setAttribute("VISIBLE", new Attribute("BOOL", "TRUE"));
+		}
+		if(getAttribute("ASBUTTON") == null) {
+			setAttribute("ASBUTTON", new Attribute("BOOL", "FALSE"));
+		}
+		if (getAttribute("TOCANVAS") == null) {
+			setAttribute("TOCANVAS", new Attribute("BOOL", "TRUE"));
+		}
+		if (getAttribute("PRIORITY") == null) {
+			setAttribute("PRIORITY", new Attribute("INTEGER", "0"));
+		}
+		if (getAttribute("MONITORCOLLISION") == null) {
+			setAttribute("MONITORCOLLISION", new Attribute("BOOL", "FALSE"));
+		}
+		if (getAttribute("MONITORCOLLISIONALPHA") == null) {
+			setAttribute("MONITORCOLLISIONALPHA", new Attribute("BOOL", "FALSE"));
+		}
+		if (getAttribute("FPS") == null) {
+			setAttribute("FPS", new Attribute("INTEGER", "15"));
+		}
+	}
+
+	private void initAttributes() {
+		changeAnimoState(getAttribute("VISIBLE").getBool() ? AnimoEvent.SHOW : AnimoEvent.HIDE);
+		if(getAttribute("ASBUTTON").getBool()) {
+			changeButtonState(ButtonEvent.ENABLE);
+		}
+		priority = getAttribute("PRIORITY").getInt();
+		monitorCollision = getAttribute("MONITORCOLLISION").getBool();
+		//monitorCollisionAlpha = getAttribute("MONITORCOLLISIONALPHA").getBool();
+		fps = getAttribute("FPS").getInt();
+	}
+
+	@Override
 	public void setAttribute(String name, Attribute attribute) {
 		List<String> knownAttributes = List.of("ASBUTTON", "FILENAME", "FLUSHAFTERPLAYED", "FPS", "MONITORCOLLISION", "MONITORCOLLISIONALPHA", "PRELOAD", "PRIORITY", "RELEASE", "TOCANVAS", "VISIBLE");
 		if(knownAttributes.contains(name)) {
 			super.setAttribute(name, attribute);
-			switch (name) {
-				case "FPS":
-					setFps(Integer.parseInt(getAttribute("FPS").getValue().toString()));
-					break;
-				case "FILENAME":
-					String filename = getAttribute("FILENAME").getValue().toString();
-					if(!filename.endsWith(".ANN")) {
-						filename = filename + ".ANN";
-					}
-					getAttribute("FILENAME").setValue(filename);
-					try {
-						AnimoLoader.loadAnimo(this);
-						if (events != null && !events.isEmpty()) {
-							for(Event event : events) {
-								if(!event.getFrames().isEmpty()) {
-									currentEvent = event;
-									break;
-								}
-							}
-							currentFrameNumber = 0;
-							if (!currentEvent.getFrames().isEmpty()) {
-								setCurrentImageNumber(currentEvent.getFramesNumbers().get(0));
-							}
-						}
-					} catch (Exception e) {
-						Gdx.app.error("AnimoVariable", "Error loading ANIMO variable: " + filename, e);
-					}
-					break;
-				case "PRIORITY":
-					priority = Integer.parseInt(getAttribute("PRIORITY").getValue().toString());
-					break;
-				case "ASBUTTON":
-					setAttribute("TOCANVAS", new Attribute("BOOL", "TRUE"));
-					changeCursor = true;
-					break;
-				case "MONITORCOLLISION":
-					monitorCollision = attribute.getValue().toString().equals("TRUE");
-					break;
-			}
 		}
 	}
 
@@ -1226,13 +1254,16 @@ public class AnimoVariable extends Variable implements Cloneable {
 	}
 
 	public void setCurrentImageNumber(int currentImageNumber) {
-		//boolean isFrameChanged = this.currentImageNumber != currentImageNumber;
+		setCurrentImageNumber(currentImageNumber, true);
+	}
+
+	public void setCurrentImageNumber(int currentImageNumber, boolean emitFrameChanged) {
 		this.currentImageNumber = currentImageNumber;
 		this.currentImage = getImages().get(currentImageNumber);
 		updateRect();
-		//if(isFrameChanged) {
+		if(emitFrameChanged) {
 			emitSignal("ONFRAMECHANGED", currentEvent != null ? currentEvent.getName() : null);
-		//}
+		}
 	}
 
 	public Image getCurrentImage() {
@@ -1278,7 +1309,7 @@ public class AnimoVariable extends Variable implements Cloneable {
 
 	public boolean isRenderedOnCanvas() {
 		try {
-			return this.getAttribute("TOCANVAS").getValue().toString().equals("TRUE");
+			return this.getAttribute("TOCANVAS").getBool();
 		} catch (NullPointerException e) {
 			return false;
 		}

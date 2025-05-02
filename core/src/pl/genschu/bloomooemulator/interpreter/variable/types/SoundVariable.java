@@ -49,6 +49,7 @@ public class SoundVariable extends Variable {
 				}
 				isPlaying = false;
 				setAttribute("FILENAME", new Attribute("STRING", ArgumentsHelper.getString(arguments.get(0))));
+				init();
 				return null;
 			}
 		});
@@ -69,9 +70,6 @@ public class SoundVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				if(sound == null) {
-					loadSound();
-				}
 				try {
 					sound.play();
 					isPlaying = true;
@@ -123,14 +121,15 @@ public class SoundVariable extends Variable {
 	}
 
 	@Override
+	public void init() {
+		loadSound();
+	}
+
+	@Override
 	public void setAttribute(String name, Attribute attribute) {
 		List<String> knownAttributes = List.of("FILENAME", "FLUSHAFTERPLAYED", "PRELOAD", "RELEASE");
 		if(knownAttributes.contains(name)) {
 			super.setAttribute(name, attribute);
-
-			if(name.equals("FILENAME")) {
-				loadSound();
-			}
 		}
 	}
 

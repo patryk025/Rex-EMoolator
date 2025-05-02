@@ -31,25 +31,6 @@ public class AnimoLoader {
             readEvents(variable, f);
             readImagesMetadata(variable, f);
             Gdx.app.log("AnimoLoader", "Loaded ANIMO: " + variable.getName());
-            if(variable.getAttribute("VISIBLE") == null) {
-                variable.setAttribute("VISIBLE", new Attribute("BOOL", "FALSE"));
-                variable.changeAnimoState(AnimoEvent.HIDE);
-            }
-            else {
-                if(variable.getAttribute("VISIBLE").getValue().toString().equals("TRUE")) {
-                    variable.changeAnimoState(AnimoEvent.SHOW);
-                }
-                else {
-                    variable.changeAnimoState(AnimoEvent.HIDE);
-                }
-            }
-            if(variable.getAttribute("ASBUTTON") != null) {
-                boolean asButton = (variable.getAttribute("ASBUTTON").getValue().toString().equals("TRUE"));
-
-                if(asButton) {
-                    variable.changeButtonState(ButtonEvent.ENABLE);
-                }
-            }
         } catch (Exception e) {
             Gdx.app.error("AnimoLoader", "Error while loading ANIMO: " + e.getMessage(), e);
         }

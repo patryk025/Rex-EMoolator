@@ -20,4 +20,20 @@ public class Attribute {
     public void setValue(Object value) {
         this.value = value;
     }
+
+    public int getInt() {
+        return Integer.parseInt(value.toString());
+    }
+
+    public double getDouble() {
+        return Double.parseDouble(value.toString());
+    }
+
+    public boolean getBool() {
+        return value.toString().equals("TRUE");
+    }
+
+    public String getString() {
+        return value.toString();
+    }
 }

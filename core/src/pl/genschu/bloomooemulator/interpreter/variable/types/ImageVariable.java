@@ -5,6 +5,8 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.TextureData;
+import pl.genschu.bloomooemulator.engine.decision.events.AnimoEvent;
+import pl.genschu.bloomooemulator.engine.decision.events.ButtonEvent;
 import pl.genschu.bloomooemulator.engine.filters.Filter;
 import pl.genschu.bloomooemulator.interpreter.exceptions.ClassMethodNotImplementedException;
 import pl.genschu.bloomooemulator.interpreter.Context;
@@ -12,7 +14,9 @@ import pl.genschu.bloomooemulator.interpreter.variable.Attribute;
 import pl.genschu.bloomooemulator.interpreter.variable.Method;
 import pl.genschu.bloomooemulator.interpreter.variable.Parameter;
 import pl.genschu.bloomooemulator.interpreter.variable.Variable;
+import pl.genschu.bloomooemulator.loader.AnimoLoader;
 import pl.genschu.bloomooemulator.loader.ImageLoader;
+import pl.genschu.bloomooemulator.objects.Event;
 import pl.genschu.bloomooemulator.objects.Image;
 import pl.genschu.bloomooemulator.objects.Rectangle;
 import pl.genschu.bloomooemulator.utils.ArgumentsHelper;
@@ -29,6 +33,7 @@ public class ImageVariable extends Variable implements Cloneable {
 	private float opacity;
 	private Rectangle rect;
 	private Rectangle clippingRect;
+	private int priority;
 
 	private boolean isVisible = true;
 	private boolean monitorCollision = false;
@@ -43,6 +48,7 @@ public class ImageVariable extends Variable implements Cloneable {
 		rect = new Rectangle(0, 0, 0, 0);
 		clippingRect = null;
 		opacity = 255;
+		priority = 0;
 	}
 
 	@Override
@@ -376,22 +382,56 @@ public class ImageVariable extends Variable implements Cloneable {
 	}
 
 	@Override
+	public void init() {
+		initMissingAttributes();
+		initAttributes();
+		loadImage();
+	}
+
+	private void loadImage() {
+		String filename = getAttribute("FILENAME").getString();
+		if(!filename.endsWith(".IMG")) {
+			filename = filename + ".IMG";
+		}
+		getAttribute("FILENAME").setValue(filename);
+		try {
+			ImageLoader.loadImage(this);
+			updateRect();
+		} catch (Exception e) {
+			Gdx.app.error("ImageVariable", "Error loading IMAGE variable: " + filename, e);
+		}
+	}
+
+	private void initMissingAttributes() {
+		if(getAttribute("VISIBLE") == null) {
+			setAttribute("VISIBLE", new Attribute("BOOL", "TRUE"));
+		}
+		if (getAttribute("TOCANVAS") == null) {
+			setAttribute("TOCANVAS", new Attribute("BOOL", "TRUE"));
+		}
+		if (getAttribute("PRIORITY") == null) {
+			setAttribute("PRIORITY", new Attribute("INTEGER", "0"));
+		}
+		if (getAttribute("MONITORCOLLISION") == null) {
+			setAttribute("MONITORCOLLISION", new Attribute("BOOL", "FALSE"));
+		}
+		if (getAttribute("MONITORCOLLISIONALPHA") == null) {
+			setAttribute("MONITORCOLLISIONALPHA", new Attribute("BOOL", "FALSE"));
+		}
+	}
+
+	private void initAttributes() {
+		changeVisibility(getAttribute("VISIBLE").getBool());
+		priority = getAttribute("PRIORITY").getInt();
+		monitorCollision = getAttribute("MONITORCOLLISION").getBool();
+		//monitorCollisionAlpha = getAttribute("MONITORCOLLISIONALPHA").getBool();
+	}
+
+	@Override
 	public void setAttribute(String name, Attribute attribute) {
 		List<String> knownAttributes = List.of("FILENAME", "MONITORCOLLISION", "MONITORCOLLISIONALPHA", "PRELOAD", "PRIORITY", "RELEASE", "TOCANVAS", "VISIBLE");
 		if(knownAttributes.contains(name)) {
 			super.setAttribute(name, attribute);
-			if(name.equals("FILENAME")) {
-				ImageLoader.loadImage(this);
-				updateRect();
-			}
-			if(name.equals("VISIBLE")) {
-				changeVisibility(attribute.getValue().toString().equals("TRUE"));
-			}
-			if(name.equals("MONITORCOLLISION")) {
-				if(attribute.getValue().toString().equals("TRUE")) {
-					monitorCollision = true;
-				}
-			}
 		}
 	}
 

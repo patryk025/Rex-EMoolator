@@ -57,7 +57,7 @@ public class FileUtils {
     }
 
     public static String resolveRelativePath(Variable variable) {
-        String filePath = variable.getAttribute("FILENAME").getValue().toString();
+        String filePath = variable.getAttribute("FILENAME").getString();
         return resolveRelativePath(variable, filePath);
     }
 

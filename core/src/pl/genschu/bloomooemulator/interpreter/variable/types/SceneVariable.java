@@ -356,15 +356,13 @@ public class SceneVariable extends Variable {
 				if(bkgLangDir.exists()) {
 					String filePath = getContext().getGame().getApplicationVariable().getLanguage()+"/"+getAttribute("BACKGROUND").getValue().toString();
 					background.setAttribute("FILENAME", new Attribute("FILENAME", filePath));
-					background.setAttribute("PRIORITY", new Attribute("PRIORITY", 0));
-					background.setAttribute("VISIBLE", new Attribute("VISIBLE", true));
+					background.init();
 					return background;
 				}
 			}
 
 			background.setAttribute("FILENAME", new Attribute("FILENAME", getAttribute("BACKGROUND").getValue().toString()));
-			background.setAttribute("PRIORITY", new Attribute("PRIORITY", 0));
-			background.setAttribute("VISIBLE", new Attribute("VISIBLE", true));
+			background.init();
 		}
 
 		return background;
