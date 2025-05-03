@@ -287,7 +287,7 @@ public class BehaviourVariable extends Variable {
 					Gdx.app.log("BehaviourVariable", "Argument " + (i-1) + ": " + arguments.get(i));
 				}
 
-				for (int i = startVal; i < endDiff; i += incrementBy) {
+				for (int i = startVal; i < startVal + endDiff; i += incrementBy) {
 					try {
 						if (condition != null) {
 							conditionResult = condition.fireMethod("CHECK", new BoolVariable("", true, context));
@@ -301,9 +301,12 @@ public class BehaviourVariable extends Variable {
 							Gdx.app.log("BehaviourVariable", "Skipping looped behaviour " + getName() + " at " + i + " due to condition " + condition.getName() + " result");
 						}
 					}
-					catch (OneBreakException | BreakException e) {
+					catch (BreakException e) {
 						Gdx.app.log("BehaviourVariable", "Breaking looped behaviour " + getName() + " at " + i + " due to break");
 						break;
+					}
+					catch (OneBreakException e) {
+						Gdx.app.log("BehaviourVariable", "Behaviour " + getName() + " has one break at " + i + ". Continuing loop");
 					}
 				}
 
