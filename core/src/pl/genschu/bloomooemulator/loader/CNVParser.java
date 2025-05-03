@@ -15,6 +15,8 @@ import pl.genschu.bloomooemulator.utils.SignalAndParams;
 
 import java.io.*;
 import java.util.*;
+import java.util.regex.Pattern;
+import java.util.stream.IntStream;
 
 import static pl.genschu.bloomooemulator.interpreter.util.VariableHelper.getVariableFromObject;
 
@@ -220,41 +222,31 @@ public class CNVParser {
         List<Variable> variables = new ArrayList<>(context.getVariables().values());
 
         List<String> typeOrder = Arrays.asList(
-                "BEHAVIOUR",           // 1. Procedury
-                "INTEGER|STRING|DOUBLE|BOOLEAN",   // 2. Prymitywy
-                "ARRAY",               // 3. Tablice
-                "CONDITION",           // 4. Warunki
-                "ANIMO",               // 5. Animacje
-                "IMAGE",               // 6. Obrazy
-                "SOUND",               // 7. Dźwięki
-                "FONT",                // 8. Fonty
-                "BUTTON",              // 9. Przyciski
-                "TEXT",                // 10. Teksty
-                "SEQUENCE",            // 11. Sekwencje
-                "MOUSE", "KEYBOARD"    // 12. Urządzenia wejściowe
+                "BEHAVIOUR",                                                      // 1. Procedury
+                "INTEGER|STRING|DOUBLE|BOOLEAN",                                  // 2. Typy prymitywne
+                "ARRAY|CONDITION",                                                // 3. Tablice i warunki
+                "ANIMO|IMAGE|SOUND|VECTOR|FONT",                                  // 4. Animacje, obrazy, dźwięki, wektory, czcionki
+                "BUTTON|TEXT|SEQUENCE|GROUP|TIMER|MOUSE|KEYBOARD|CANVAS_OBSERVER" // 5. Przyciski, teksty, sekwencje, grupy, timery, urządzenia wejściowe, obserwator kanwy
         );
 
         variables.sort((v1, v2) -> {
             String var1Type = v1.getType();
             String var2Type = v2.getType();
 
-            if(var1Type.matches("INTEGER|STRING|DOUBLE|BOOLEAN")) {
-                var1Type = "INTEGER|STRING|DOUBLE|BOOLEAN";
-            }
+            int index1 = IntStream.range(0, typeOrder.size())
+                    .filter(i -> Pattern.compile(typeOrder.get(i)).matcher(var1Type).matches())
+                    .findFirst()
+                    .orElse(Integer.MAX_VALUE);
 
-            if(var2Type.matches("INTEGER|STRING|DOUBLE|BOOLEAN")) {
-                var2Type = "INTEGER|STRING|DOUBLE|BOOLEAN";
-            }
+            int index2 = IntStream.range(0, typeOrder.size())
+                    .filter(i -> Pattern.compile(typeOrder.get(i)).matcher(var2Type).matches())
+                    .findFirst()
+                    .orElse(Integer.MAX_VALUE);
 
-            int index1 = typeOrder.indexOf(var1Type);
-            int index2 = typeOrder.indexOf(var2Type);
-
-            index1 = (index1 == -1) ? Integer.MAX_VALUE : index1;
-            index2 = (index2 == -1) ? Integer.MAX_VALUE : index2;
             return Integer.compare(index1, index2);
         });
 
-        // load every buttons before INIT phase
+        // load every button before INIT phase
         for (Variable variable : variables) {
             if(variable instanceof ButtonVariable) {
                 ButtonVariable buttonVariable = (ButtonVariable) variable;

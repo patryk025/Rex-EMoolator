@@ -226,7 +226,6 @@ public class Context {
         }
         else if(variable.getType().equals("BUTTON")) {
             buttonsVariables.put(name, variable);
-            variable.emitSignal("ONFOCUSOFF");
         }
         else if(variable.getType().equals("TIMER")) {
             timerVariables.put(name, variable);
