@@ -27,6 +27,7 @@ public class InputManager implements Disposable {
     private boolean mousePressed = false;
     private boolean mousePrevPressed = false;
     private Context lastMouseClickContext = null;
+    private boolean mouseVisible = true;
 
     // Keyboard state
     private final Set<Integer> pressedKeys = new HashSet<>();
@@ -222,6 +223,14 @@ public class InputManager implements Disposable {
 
     public boolean isMousePressed() {
         return mousePressed;
+    }
+
+    public boolean isMouseVisible() {
+        return mouseVisible;
+    }
+
+    public void setMouseVisible(boolean mouseVisible) {
+        this.mouseVisible = mouseVisible;
     }
 
     @Override

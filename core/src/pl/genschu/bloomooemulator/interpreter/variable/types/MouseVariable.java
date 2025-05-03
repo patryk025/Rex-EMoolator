@@ -12,7 +12,6 @@ public class MouseVariable extends GlobalVariable {
 	private boolean isEnabled = true;
 	private int posX;
 	private int posY;
-	private boolean isVisible = true;
 	private boolean emitSignals = true;
 
 	public MouseVariable(String name, Context context) {
@@ -104,8 +103,7 @@ public class MouseVariable extends GlobalVariable {
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				Gdx.graphics.setSystemCursor(SystemCursor.Arrow);
-				isVisible = true;
+				context.getGame().getInputManager().setMouseVisible(true);
 				return null;
 			}
 		});
@@ -114,8 +112,7 @@ public class MouseVariable extends GlobalVariable {
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				Gdx.graphics.setSystemCursor(SystemCursor.None);
-				isVisible = false;
+				context.getGame().getInputManager().setMouseVisible(false);
 				return null;
 			}
 		});
@@ -143,14 +140,6 @@ public class MouseVariable extends GlobalVariable {
 		}
 		this.posX = x;
 		this.posY = y;
-	}
-
-	public boolean isVisible() {
-		return isVisible;
-	}
-
-	public void setVisible(boolean visible) {
-		isVisible = visible;
 	}
 
 	public boolean isEmitSignals() {

@@ -94,11 +94,25 @@ public class ButtonHandler {
             }
         }
 
+        boolean isMouseVisible = inputManager.isMouseVisible();
+
         // Set hand cursor
-        if (focusedButton != null && (mouseVariable == null || mouseVariable.isVisible())) {
-            Gdx.graphics.setSystemCursor(Cursor.SystemCursor.Hand);
-        } else if (mouseVariable == null || mouseVariable.isVisible()) {
+        if (focusedButton != null && isMouseVisible) {
+            if(focusedButton instanceof AnimoVariable) {
+                if(((AnimoVariable) focusedButton).isChangeCursor()) {
+                    Gdx.graphics.setSystemCursor(Cursor.SystemCursor.Hand);
+                }
+                else {
+                    Gdx.graphics.setSystemCursor(Cursor.SystemCursor.Arrow);
+                }
+            } else {
+                Gdx.graphics.setSystemCursor(Cursor.SystemCursor.Hand);
+            }
+        } else if (isMouseVisible) {
             Gdx.graphics.setSystemCursor(Cursor.SystemCursor.Arrow);
+        }
+        else {
+            Gdx.graphics.setSystemCursor(Cursor.SystemCursor.None);
         }
 
         // Process 'em all!

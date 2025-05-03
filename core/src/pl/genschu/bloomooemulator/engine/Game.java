@@ -394,6 +394,7 @@ public class Game {
         collisionMonitoredVariables.clear();
         if(inputManager != null) {
             inputManager.setActiveButton(null);
+            inputManager.setMouseVisible(true);
         }
         Gdx.app.log("Game", "Loading scene " + scene.getName());
         try {
