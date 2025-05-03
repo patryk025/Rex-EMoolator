@@ -1,7 +1,6 @@
 package pl.genschu.bloomooemulator.interpreter.variable.types;
 
 import com.badlogic.gdx.Gdx;
-import pl.genschu.bloomooemulator.interpreter.arithmetic.ArithmeticOperation;
 import pl.genschu.bloomooemulator.interpreter.arithmetic.operations.AddOperation;
 import pl.genschu.bloomooemulator.interpreter.arithmetic.operations.ModuloOperation;
 import pl.genschu.bloomooemulator.interpreter.arithmetic.operations.MultiplyOperation;
@@ -243,17 +242,16 @@ public class ArrayVariable extends Variable {
 			public Variable execute(List<Object> arguments) {
 				String serialized = context.getGame().getGameINI().get(context.getGame().getApplicationVariable().getName().toUpperCase(), getName().toUpperCase());
 
-				if(serialized != null) {
-					elements.clear();
-					if(serialized.isEmpty()) return null;
+                elements.clear();
+                if(serialized != null) {
+                    if(serialized.isEmpty()) return null;
 					String[] elems = serialized.split(",");
 					for(String element : elems) {
 						elements.add(VariableFactory.createVariableWithAutoType("", element, context));
 					}
 				}
 				else {
-					elements.clear();
-					Gdx.app.log("ARRAY", "No value in INI for " + getName());
+                    Gdx.app.log("ARRAY", "No value in INI for " + getName());
 				}
 
 				return null;
