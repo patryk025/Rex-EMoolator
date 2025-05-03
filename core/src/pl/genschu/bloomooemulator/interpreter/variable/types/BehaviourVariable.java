@@ -276,15 +276,16 @@ public class BehaviourVariable extends Variable {
 
 				if(arguments.size() > 3) {
 					for(int i = 3; i < arguments.size(); i++) {
-						context.setVariable("$"+(i-1), (Variable) arguments.get(i));
+						context.setVariable("$"+i, (Variable) arguments.get(i));
 					}
 				}
 
 				Gdx.app.log("BehaviourVariable", "Running looped behaviour " + getName() + " with " + (arguments.size() - 2) + " arguments");
 
 				Gdx.app.log("BehaviourVariable", "Argument 1: "+startVal);
+				Gdx.app.log("BehaviourVariable", "Argument 2: "+incrementBy);
 				for(int i = 3; i < arguments.size(); i++) {
-					Gdx.app.log("BehaviourVariable", "Argument " + (i-1) + ": " + arguments.get(i));
+					Gdx.app.log("BehaviourVariable", "Argument " + i + ": " + arguments.get(i));
 				}
 
 				for (int i = startVal; i < startVal + endDiff; i += incrementBy) {
@@ -296,6 +297,7 @@ public class BehaviourVariable extends Variable {
 						}
 						if (ArgumentsHelper.getBoolean(conditionResult)) {
 							context.setVariable("$1", new IntegerVariable("_I_", i, context));
+							context.setVariable("$2", new IntegerVariable("_step_", incrementBy, context));
 							interpreter.interpret();
 						} else {
 							Gdx.app.log("BehaviourVariable", "Skipping looped behaviour " + getName() + " at " + i + " due to condition " + condition.getName() + " result");
