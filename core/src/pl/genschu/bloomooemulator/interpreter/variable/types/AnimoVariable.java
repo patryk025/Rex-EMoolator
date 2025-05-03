@@ -716,6 +716,10 @@ public class AnimoVariable extends Variable implements Cloneable {
 			public Variable execute(List<Object> arguments) {
 				int frameNumber = ArgumentsHelper.getInteger(arguments.get(0));
 				currentFrameNumber = 0;
+				if(frameNumber >= getImagesCount()) {
+					Gdx.app.error("AnimoVariable", "SETFRAME tried to change image number which is out of range");
+					return null;
+				}
 				setCurrentImageNumber(frameNumber);
 				changeAnimoState(AnimoEvent.SET_FRAME);
 				//show();
