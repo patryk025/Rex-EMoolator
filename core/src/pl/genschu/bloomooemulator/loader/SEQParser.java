@@ -137,6 +137,7 @@ public class SEQParser {
                     event.setAnimation(new AnimoVariable(animoFile, sequenceVariable.getContext()));
                     event.getAnimation().setAttribute("FILENAME", new Attribute("STRING", animoFile));
                     sequenceVariable.getContext().setVariable(animoFile, event.getAnimation());
+                    event.getAnimation().init();
                 }
 
                 sequenceVariable.getAnimosInSequence().add(event.getAnimation());
@@ -149,8 +150,8 @@ public class SEQParser {
                 else {
                     event.setSound(new SoundVariable(wavFile, sequenceVariable.getContext()));
                     event.getSound().setAttribute("FILENAME", new Attribute("STRING", "$WAVS\\" + wavFile));
+                    event.getSound().init();
                 }
-                event.getSound().init();
                 sequenceVariable.getContext().setVariable(wavFile, event.getSound());
                 break;
 
@@ -175,6 +176,7 @@ public class SEQParser {
                     event.setAnimation(new AnimoVariable(simpleAnimoFile, sequenceVariable.getContext()));
                     event.getAnimation().setAttribute("FILENAME", new Attribute("STRING", simpleAnimoFile));
                     sequenceVariable.getContext().setVariable(simpleAnimoFile, event.getAnimation());
+                    event.getAnimation().init();
                 }
                 sequenceVariable.getAnimosInSequence().add(event.getAnimation());
                 break;

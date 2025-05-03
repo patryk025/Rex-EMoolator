@@ -320,8 +320,8 @@ public class ButtonVariable extends Variable {
 
 	@Override
 	public void init() {
-		//load();
-		//getRect();
+		load();
+		getRect();
 		setDefaultState();
 	}
 

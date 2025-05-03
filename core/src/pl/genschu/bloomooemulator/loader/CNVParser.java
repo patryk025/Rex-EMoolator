@@ -246,18 +246,14 @@ public class CNVParser {
             return Integer.compare(index1, index2);
         });
 
-        // load every button before INIT phase
+        // init variables
         for (Variable variable : variables) {
-            if(variable instanceof ButtonVariable) {
-                ButtonVariable buttonVariable = (ButtonVariable) variable;
-                buttonVariable.load();
-                buttonVariable.getRect();
-            }
+            variable.init();
         }
 
+        // than send ONINIT
         for (Variable variable : variables) {
             Gdx.app.log("CNVParser", "ONINIT for " + variable.getName() + " (" + variable.getType() + ")");
-            variable.init();
             variable.emitSignal("ONINIT");
         }
     }
