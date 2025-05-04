@@ -532,7 +532,6 @@ public class AnimoVariable extends Variable implements Cloneable {
 							return null;
 						}
 
-						setCurrentFrameNumber(0);
 						changeAnimoState(AnimoEvent.PLAY);
 						isJustStarted = true;
 						//Gdx.app.log("updateRect()", "PLAY");
