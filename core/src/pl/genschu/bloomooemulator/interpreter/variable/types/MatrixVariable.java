@@ -8,7 +8,9 @@ import pl.genschu.bloomooemulator.interpreter.variable.Variable;
 import pl.genschu.bloomooemulator.utils.ArgumentsHelper;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class MatrixVariable extends Variable {
 	private int width;
@@ -421,47 +423,35 @@ public class MatrixVariable extends Variable {
 				context.setVariable("$2", new IntegerVariable("", srcY, context));
 				context.setVariable("$3", new IntegerVariable("", code, context));
 
-				Variable srcCell = data.getElements().get(srcY * width + srcX);
-
-				// check if stone falls on mole
-				if(code == FIELD_MOVEMENT_DOWN) // collision with mole is only checked when stone moves down
-				{
-					Variable destCell = data.getElements().get((srcY + 1) * width + srcX);
-					Variable upperCell = data.getElements().get((srcY - 1) * width + srcX);
-
-					// check if above cell is empty and below cell is mole
-					if (destCell instanceof IntegerVariable && ((IntegerVariable) destCell).GET() == FIELD_CODE_MOLE &&
-							upperCell instanceof IntegerVariable && ((IntegerVariable) upperCell).GET() == FIELD_CODE_EMPTY) {
-						return new IntegerVariable("", 2, context); // collision with mole
-					}
-					else if(destCell instanceof IntegerVariable && ((IntegerVariable) destCell).GET() == FIELD_CODE_MOLE) {
-						return new IntegerVariable("", 0, context);
-					}
-				}
+				int srcCellIdx = srcY * width + srcX;
+				int destCellIdx = getCellIndex(srcCellIdx, code);
 
 				// move stone
-				if (srcCell instanceof IntegerVariable) {
-					switch (code) {
-						case 1:
-							data.getElements().set(srcY * width + srcX, new IntegerVariable("", FIELD_CODE_EMPTY, context));
-							data.getElements().set((srcY + 1) * width + srcX, new IntegerVariable("", FIELD_CODE_STONE, context));
-							break;
-						case 2:
-							data.getElements().set(srcY * width + srcX, new IntegerVariable("", FIELD_CODE_EMPTY, context));
-							data.getElements().set((srcY + 1) * width + (srcX - 1), new IntegerVariable("", FIELD_CODE_STONE, context));
-							break;
-						case 3:
-							data.getElements().set(srcY * width + srcX, new IntegerVariable("", FIELD_CODE_EMPTY, context));
-							data.getElements().set((srcY + 1) * width + (srcX + 1), new IntegerVariable("", FIELD_CODE_STONE, context));
-							break;
-					}
-				}
+				setCell(srcCellIdx, FIELD_CODE_EMPTY);
+				setCell(destCellIdx, FIELD_CODE_STONE);
+
+				// update variables
+				int sourceCellCode = getCell(srcCellIdx);
+				int destCellCode = getCell(destCellIdx);
 
 				// send signals
 				if (currentMoveIndex == pendingMoves.size() - 1) {
 					emitSignal("ONLATEST"); // when there are no more moves
 				} else {
 					emitSignal("ONNEXT"); // when there are more moves
+				}
+
+				// check if stone falls on mole
+				if(code == FIELD_MOVEMENT_DOWN) // collision with mole is only checked when stone moves down
+				{
+					int potentialMoleCellCode = getCell(srcX, srcY + 2);
+
+					// check if below cell is empty and below below cell is mole
+					if (sourceCellCode == FIELD_CODE_EMPTY &&
+						destCellCode == FIELD_CODE_STONE &&
+						potentialMoleCellCode == FIELD_CODE_MOLE) {
+						return new IntegerVariable("", 2, context); // collision with mole
+					}
 				}
 
 				if(code == FIELD_MOVEMENT_DOWN || code == FIELD_MOVEMENT_DOWN_LEFT || code == FIELD_MOVEMENT_DOWN_RIGHT) {
@@ -574,6 +564,8 @@ public class MatrixVariable extends Variable {
 				pendingMoves.clear();
 				currentMoveIndex = -1;
 
+				Set<Integer> reservedDest = new HashSet<>();
+
 				// Check map from bottom to top, left to right
 				for (int y = height - 2; y >= 0; y--) {
 					for (int x = 0; x < width; x++) {
@@ -581,83 +573,61 @@ public class MatrixVariable extends Variable {
 
 						if (currentIndex >= data.getElements().size()) continue;
 
-						Variable currentCell = data.getElements().get(currentIndex);
-						if (!(currentCell instanceof IntegerVariable)) continue;
-						int currentValue = ((IntegerVariable)currentCell).GET();
+						int cellCode = getCell(currentIndex);
 
-						if (currentValue == FIELD_CODE_STONE) {
+						if (cellCode == FIELD_CODE_STONE) {
+							int aboveIndex = getCellIndex(currentIndex, 0, -1);
+							int belowIndex = getCellIndex(currentIndex, FIELD_MOVEMENT_DOWN);
+
+							int aboveCellCode = getCell(aboveIndex);
+							int belowCellCode = getCell(belowIndex);
+
 							// check if there is no stone above
 							if (y > 0) {
-								int aboveIndex = (y - 1) * width + x;
-								int belowIndex = (y + 1) * width + x;
-								if (aboveIndex >= 0 && aboveIndex < data.getElements().size() && belowIndex >= 0 && belowIndex < data.getElements().size()) {
-									Variable aboveCell = data.getElements().get(aboveIndex);
-									Variable belowCell = data.getElements().get(belowIndex);
-									if (aboveCell instanceof IntegerVariable && belowCell instanceof IntegerVariable) {
-										int aboveValue = ((IntegerVariable)aboveCell).GET();
-										int belowValue = ((IntegerVariable)belowCell).GET();
-
-										// check if above field is stone and below field is not empty
-										if (aboveValue == FIELD_CODE_STONE && belowValue != FIELD_CODE_EMPTY) {
-											continue;
-										}
-									}
+								// check if above field is stone and below field is not empty
+								if (aboveCellCode == FIELD_CODE_STONE && belowCellCode != FIELD_CODE_EMPTY) {
+									continue;
 								}
 							}
 
-							// check below
-							int belowIndex = (y + 1) * width + x;
-							if (belowIndex < data.getElements().size()) {
-								Variable belowCell = data.getElements().get(belowIndex);
-								if (belowCell instanceof IntegerVariable) {
-									int belowValue = ((IntegerVariable)belowCell).GET();
-
-									// check if below field is empty
-									if (belowValue == FIELD_CODE_EMPTY || belowValue == FIELD_CODE_MOLE) {
-										pendingMoves.add(new int[]{x, y, FIELD_MOVEMENT_DOWN}); // x, y, down
-										continue;
-									}
+							// check if below field is empty
+							if (belowCellCode == FIELD_CODE_EMPTY) {
+								if (reservedDest.add(belowIndex)) {
+									pendingMoves.add(new int[]{x, y, FIELD_MOVEMENT_DOWN});  // x, y, down
 								}
+								continue;
 							}
 
 							// check if it can move askew left
 							if (x > 0) {
-								int leftBelowIndex = (y + 1) * width + (x - 1);
-								int leftIndex = y * width + (x - 1);
-								if (leftBelowIndex < data.getElements().size() && leftIndex < data.getElements().size() && belowIndex < data.getElements().size()) {
-									Variable leftBelowCell = data.getElements().get(leftBelowIndex);
-									Variable leftCell = data.getElements().get(leftIndex);
-									Variable belowCell = data.getElements().get(belowIndex);
+								int leftBelowIndex = getCellIndex(currentIndex, FIELD_MOVEMENT_DOWN_LEFT);
+								int leftIndex = getCellIndex(currentIndex, 1, 0);
 
-									if (leftBelowCell instanceof IntegerVariable &&
-											leftCell instanceof IntegerVariable &&
-											belowCell instanceof IntegerVariable &&
-											((IntegerVariable)leftBelowCell).GET() == FIELD_CODE_EMPTY &&
-											((IntegerVariable)leftCell).GET() == FIELD_CODE_EMPTY &&
-											((IntegerVariable)belowCell).GET() == FIELD_CODE_STONE) {
+								int leftBelowCellCode = getCell(leftBelowIndex);
+								int leftCellCode = getCell(leftIndex);
 
+								if (leftBelowCellCode == FIELD_CODE_EMPTY &&
+									leftCellCode == FIELD_CODE_EMPTY &&
+									belowCellCode == FIELD_CODE_STONE) {
+									if (reservedDest.add(leftBelowCellCode)) {
 										pendingMoves.add(new int[]{x, y, FIELD_MOVEMENT_DOWN_LEFT}); // x, y, down-left
-										continue;
 									}
+									continue;
 								}
 							}
 
 							// check if it can move askew right
 							if (x < width - 1) {
-								int rightBelowIndex = (y + 1) * width + (x + 1);
-								int rightIndex = y * width + (x + 1);
-								if (rightBelowIndex < data.getElements().size() && rightIndex < data.getElements().size() && belowIndex < data.getElements().size()) {
-									Variable rightBelowCell = data.getElements().get(rightBelowIndex);
-									Variable rightCell = data.getElements().get(rightIndex);
-									Variable belowCell = data.getElements().get(belowIndex);
+								int rightBelowIndex = getCellIndex(currentIndex, FIELD_MOVEMENT_DOWN_RIGHT);
+								int rightIndex = getCellIndex(currentIndex, 1, 0);
 
-									if (rightBelowCell instanceof IntegerVariable &&
-											rightCell instanceof IntegerVariable &&
-											belowCell instanceof IntegerVariable &&
-											((IntegerVariable)rightBelowCell).GET() == FIELD_CODE_EMPTY &&
-											((IntegerVariable)rightCell).GET() == FIELD_CODE_EMPTY &&
-											((IntegerVariable)belowCell).GET() == FIELD_CODE_STONE) {
+								int rightBelowCellCode = getCell(rightBelowIndex);
+								int rightCellCode = getCell(rightIndex);
 
+								if (rightBelowCellCode == FIELD_CODE_EMPTY &&
+									rightCellCode == FIELD_CODE_EMPTY &&
+									belowCellCode == FIELD_CODE_STONE) {
+									if (reservedDest.add(rightBelowCellCode)) {
 										pendingMoves.add(new int[]{x, y, FIELD_MOVEMENT_DOWN_RIGHT}); // x, y, down-right
 									}
 								}
@@ -703,6 +673,47 @@ public class MatrixVariable extends Variable {
 				super.setAttribute(name, attribute);
 				break;
 		}
+	}
+
+	private void setCell(int idx, int value) {
+		if (idx < data.getElements().size()) {
+			data.getElements().set(idx, new IntegerVariable("", value, context));
+		}
+	}
+
+	private int getCell(int x, int y) {
+		int idx = y * width + x;
+		return getCell(idx);
+	}
+
+	private int getCell(int idx) {
+		if (idx < data.getElements().size()) {
+			Variable cell = data.getElements().get(idx);
+			if (cell instanceof IntegerVariable) {
+				return ((IntegerVariable)cell).GET();
+			}
+		}
+		return 0;
+	}
+
+	private int getCellIndex(int srcIdx, int direction) {
+		switch (direction) {
+			case FIELD_MOVEMENT_DOWN:
+				return getCellIndex(srcIdx, 0, 1);
+			case FIELD_MOVEMENT_DOWN_LEFT:
+				return getCellIndex(srcIdx, -1, 1);
+			case FIELD_MOVEMENT_DOWN_RIGHT:
+				return getCellIndex(srcIdx, 1, 1);
+			default:
+				return srcIdx;
+		}
+	}
+
+	private int getCellIndex(int srcIdx, int offsetX, int offsetY) {
+		int x = srcIdx % width;
+		int y = srcIdx / width;
+
+		return (y + offsetY) * width + (x + offsetX);
 	}
 
 	public int getWidth() {
