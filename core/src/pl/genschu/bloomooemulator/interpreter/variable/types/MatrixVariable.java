@@ -601,7 +601,7 @@ public class MatrixVariable extends Variable {
 							// check if it can move askew left
 							if (x > 0) {
 								int leftBelowIndex = getCellIndex(currentIndex, FIELD_MOVEMENT_DOWN_LEFT);
-								int leftIndex = getCellIndex(currentIndex, 1, 0);
+								int leftIndex = getCellIndex(currentIndex, -1, 0);
 
 								int leftBelowCellCode = getCell(leftBelowIndex);
 								int leftCellCode = getCell(leftIndex);
