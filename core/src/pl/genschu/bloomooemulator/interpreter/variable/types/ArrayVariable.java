@@ -421,7 +421,7 @@ public class ArrayVariable extends Variable {
 			public Variable execute(List<Object> arguments) {
 				AddOperation operation = new AddOperation();
 				Variable valueToAdd = (Variable) arguments.get(0);
-	            elements.replaceAll(var1 -> operation.performOperation(var1, valueToAdd));
+				elements.replaceAll(var1 -> operation.performOperation(var1, valueToAdd));
 				return null;
 			}
 		});

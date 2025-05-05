@@ -743,4 +743,8 @@ public class MatrixVariable extends Variable {
 	public ArrayVariable getData() {
 		return data;
 	}
+
+	public List<int[]> getPendingMoves() {
+		return pendingMoves;
+	}
 }

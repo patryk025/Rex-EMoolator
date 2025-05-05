@@ -40,7 +40,11 @@ public abstract class Variable implements Cloneable {
 
 		this.setMethods();
 
-		this.iniSection = context.getGame().getCurrentScene().toUpperCase();
+		try {
+			this.iniSection = context.getGame().getCurrentScene().toUpperCase();
+		} catch (Exception e) {
+			this.iniSection = "NO_SCENE";
+		}
 	}
 
 	public String getName() {
