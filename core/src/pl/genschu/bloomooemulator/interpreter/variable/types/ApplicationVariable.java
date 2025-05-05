@@ -70,8 +70,6 @@ public class ApplicationVariable extends Variable {
 				Context variableContext = getContext().getGame().getCurrentSceneContext(); // we need to get current scene context
 
 				Variable var = variableContext.getVariable(varName);
-				Variable currentThis = variableContext.getThisVariable();
-				variableContext.setThisVariable(var);
 				if(var == null) {
 					Gdx.app.error("ApplicationVariable", "Variable not found: " + varName);
 					return null;
@@ -80,9 +78,7 @@ public class ApplicationVariable extends Variable {
 					var = (Variable) var.getValue();
 				}
 				Gdx.app.log("ApplicationVariable", "Running method " + methodName + " in variable " + varName + " of type " + var.getType());
-				Variable result = var.fireMethod(methodName, params);
-				variableContext.setThisVariable(currentThis);
-				return result;
+                return var.fireMethod(methodName, params);
 			}
 		});
 		this.setMethod("RUNENV", new Method(

@@ -188,8 +188,6 @@ public class SceneVariable extends Variable {
 				Context variableContext = ((Variable) arguments.get(0)).getContext(); // we need to get context from argument, as Scene has only context from Application.def
 
 				Variable var = variableContext.getVariable(varName);
-				Variable currentThis = variableContext.getThisVariable();
-				variableContext.setThisVariable(var);
 				if(var == null) {
 					Gdx.app.error("SceneVariable", "Variable not found: " + varName);
 					return null;
@@ -200,9 +198,7 @@ public class SceneVariable extends Variable {
 				if(var instanceof StringVariable) {
 					var = variableContext.getVariable(((StringVariable) var).GET());
 				}
-				Variable result = var.fireMethod(methodName, params);
-				variableContext.setThisVariable(currentThis);
-				return result;
+                return var.fireMethod(methodName, params);
 			}
 		});
 		this.setMethod("RUNCLONES", new Method(
@@ -249,12 +245,7 @@ public class SceneVariable extends Variable {
 				for(int i = firstIndex; i <= lastIndex; i++) {
 					Variable clone = clones.get(i);
 
-					Variable oldThis = clone.getContext().getThisVariable();
-					clone.getContext().setThisVariable(clone);
-
 					behaviour.fireMethod(behaviour.getAttribute("CONDITION") != null ? "RUNC" : "RUN", clone);
-
-					clone.getContext().setThisVariable(oldThis);
 				}
 
 				return null;
