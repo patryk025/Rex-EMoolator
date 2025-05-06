@@ -202,14 +202,14 @@ public class CanvasObserverVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				for(int i = 0; i < arguments.size(); i++) {
-					String name = ArgumentsHelper.getString(arguments.get(i));
-					Variable var = getContext().getVariable(name);
+                for (Object argument : arguments) {
+                    String name = ArgumentsHelper.getString(argument);
+                    Variable var = getContext().getVariable(name);
 
-					// I will simply hide it instead of removing it
-					var.setAttribute("VISIBLE", new Attribute("BOOL", "FALSE"));
-					var.setAttribute("TOCANVAS", new Attribute("BOOL", "FALSE"));
-				}
+                    // I will simply hide it instead of removing it
+                    var.setAttribute("VISIBLE", new Attribute("BOOL", "FALSE"));
+                    var.setAttribute("TOCANVAS", new Attribute("BOOL", "FALSE"));
+                }
 				return null;
 			}
 		});

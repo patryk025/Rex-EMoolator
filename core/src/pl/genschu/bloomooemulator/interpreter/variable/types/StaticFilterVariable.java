@@ -17,8 +17,8 @@ import java.util.Map;
 
 public class StaticFilterVariable extends Variable {
 	private String action;
-	private Map<String, Object> properties = new HashMap<>();
-	private Map<Variable, Filter> linkedFilters = new HashMap<>();
+	private final Map<String, Object> properties = new HashMap<>();
+	private final Map<Variable, Filter> linkedFilters = new HashMap<>();
 
 	public StaticFilterVariable(String name, Context context) {
 		super(name, context);

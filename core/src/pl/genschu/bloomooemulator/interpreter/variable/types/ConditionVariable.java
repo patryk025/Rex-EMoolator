@@ -1,16 +1,12 @@
 package pl.genschu.bloomooemulator.interpreter.variable.types;
 
-import pl.genschu.bloomooemulator.interpreter.Interpreter;
-import pl.genschu.bloomooemulator.interpreter.ast.statements.BreakStatement;
 import pl.genschu.bloomooemulator.interpreter.exceptions.BreakException;
-import pl.genschu.bloomooemulator.interpreter.exceptions.ClassMethodNotImplementedException;
 import pl.genschu.bloomooemulator.interpreter.Context;
 import pl.genschu.bloomooemulator.interpreter.exceptions.OneBreakException;
 import pl.genschu.bloomooemulator.interpreter.variable.Attribute;
 import pl.genschu.bloomooemulator.interpreter.variable.Method;
 import pl.genschu.bloomooemulator.interpreter.variable.Parameter;
 import pl.genschu.bloomooemulator.interpreter.variable.Variable;
-import pl.genschu.bloomooemulator.loader.CNVParser;
 import pl.genschu.bloomooemulator.utils.ArgumentsHelper;
 
 import java.io.IOException;

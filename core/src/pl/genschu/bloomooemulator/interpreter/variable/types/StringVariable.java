@@ -343,18 +343,16 @@ public class StringVariable extends Variable {
 	}
 
 	public Variable convert(String type) {
-		if(type.equals("DOUBLE")) {
-			return new DoubleVariable(this.getName(), this.toDouble(), this.context);
-		}
-		else if(type.equals("BOOL")) {
-			return new BoolVariable(this.getName(), this.toBool(), this.context);
-		}
-		else if(type.equals("INTEGER")) {
-			return new IntegerVariable(this.getName(), this.toInt(), this.context);
-		}
-		else {
-			return this;
-		}
+        switch (type) {
+            case "DOUBLE":
+                return new DoubleVariable(this.getName(), this.toDouble(), this.context);
+            case "BOOL":
+                return new BoolVariable(this.getName(), this.toBool(), this.context);
+            case "INTEGER":
+                return new IntegerVariable(this.getName(), this.toInt(), this.context);
+            default:
+                return this;
+        }
 	}
 
 	public String GET() {

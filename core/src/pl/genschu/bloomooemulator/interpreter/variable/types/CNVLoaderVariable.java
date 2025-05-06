@@ -17,7 +17,7 @@ import java.util.List;
 import java.util.Map;
 
 public class CNVLoaderVariable extends Variable {
-	private Map<String, Context> loadedContexts = new HashMap<>();
+	private final Map<String, Context> loadedContexts = new HashMap<>();
 
 	public CNVLoaderVariable(String name, Context context) {
 		super(name, context);

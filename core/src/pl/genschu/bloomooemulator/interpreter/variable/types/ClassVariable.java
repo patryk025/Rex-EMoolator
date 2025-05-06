@@ -1,7 +1,6 @@
 package pl.genschu.bloomooemulator.interpreter.variable.types;
 
 import com.badlogic.gdx.Gdx;
-import pl.genschu.bloomooemulator.engine.decision.events.AnimoEvent;
 import pl.genschu.bloomooemulator.interpreter.Context;
 import pl.genschu.bloomooemulator.interpreter.variable.Attribute;
 import pl.genschu.bloomooemulator.interpreter.variable.Method;
@@ -13,11 +12,7 @@ import pl.genschu.bloomooemulator.utils.FileUtils;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Objects;
 
 public class ClassVariable extends Variable {
 	private final CNVParser cnvParser = new CNVParser();

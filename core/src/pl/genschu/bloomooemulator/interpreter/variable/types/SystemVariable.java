@@ -3,7 +3,6 @@ package pl.genschu.bloomooemulator.interpreter.variable.types;
 import oshi.SystemInfo;
 import oshi.hardware.HardwareAbstractionLayer;
 import pl.genschu.bloomooemulator.interpreter.Context;
-import pl.genschu.bloomooemulator.interpreter.exceptions.ClassMethodNotImplementedException;
 import pl.genschu.bloomooemulator.interpreter.variable.*;
 
 import java.util.Calendar;
