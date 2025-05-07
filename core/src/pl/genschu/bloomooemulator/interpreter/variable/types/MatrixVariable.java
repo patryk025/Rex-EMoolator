@@ -20,10 +20,10 @@ public class MatrixVariable extends Variable {
 	private int basePosX;
 	private int basePosY;
 	private final ArrayVariable data;
-	private int gateRow = -1;
-	private int gateCol = -1;
-	private int gateWidth = 0;
-	private int gateHeight = 0;
+	private int startGateColumn = -1;
+	private int startGateRow = -1;
+	private int endGateColumn = 0;
+	private int endGateRow = 0;
 
 	// field codes
 	private final int FIELD_CODE_MOLE = 99;
@@ -329,12 +329,12 @@ public class MatrixVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				if (gateRow == -1 || gateCol == -1 || gateWidth == 0 || gateHeight == 0) {
+				if (startGateColumn == -1 || startGateRow == -1 || endGateColumn == 0 || endGateRow == 0) {
 					return new BoolVariable("", false, context);
 				}
 
-				for (int y = gateRow; y < gateRow + gateHeight; y++) {
-					for (int x = gateCol; x < gateCol + gateWidth; x++) {
+				for (int y = startGateColumn; y < startGateColumn + endGateRow; y++) {
+					for (int x = startGateRow; x < startGateRow + endGateColumn; x++) {
 						int index = y * width + x;
 						if (index < data.getElements().size()) {
 							Variable cell = data.getElements().get(index);
@@ -356,7 +356,7 @@ public class MatrixVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				if (gateRow == -1 || gateCol == -1 || gateWidth == 0 || gateHeight == 0) {
+				if (startGateColumn == -1 || startGateRow == -1 || endGateColumn == 0 || endGateRow == 0) {
 					return new BoolVariable("", false, context);
 				}
 
@@ -364,8 +364,8 @@ public class MatrixVariable extends Variable {
 				int row = cellIndex / width;
 				int col = cellIndex % width;
 
-				boolean inGate = (row >= gateRow && row < gateRow + gateHeight &&
-						col >= gateCol && col < gateCol + gateWidth);
+				boolean inGate = (row >= startGateRow && row <= endGateRow &&
+						col >= startGateColumn && col <= endGateColumn);
 
 				return new BoolVariable("", inGate, context);
 			}
@@ -513,19 +513,19 @@ public class MatrixVariable extends Variable {
 		});
 		this.setMethod("SETGATE", new Method(
 				List.of(
-						new Parameter("INTEGER", "row", true),
-						new Parameter("INTEGER", "col", true),
-						new Parameter("INTEGER", "width", true),
-						new Parameter("INTEGER", "height", true)
+						new Parameter("INTEGER", "startCol", true),
+						new Parameter("INTEGER", "startRow", true),
+						new Parameter("INTEGER", "endCol", true),
+						new Parameter("INTEGER", "endRow", true)
 				),
 				"void"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				gateRow = ArgumentsHelper.getInteger(arguments.get(0));
-				gateCol = ArgumentsHelper.getInteger(arguments.get(1));
-				gateWidth = ArgumentsHelper.getInteger(arguments.get(2));
-				gateHeight = ArgumentsHelper.getInteger(arguments.get(3));
+				startGateColumn = ArgumentsHelper.getInteger(arguments.get(0));
+				startGateRow = ArgumentsHelper.getInteger(arguments.get(1));
+				endGateColumn = ArgumentsHelper.getInteger(arguments.get(2));
+				endGateRow = ArgumentsHelper.getInteger(arguments.get(3));
 				return null;
 			}
 		});
