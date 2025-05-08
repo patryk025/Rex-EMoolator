@@ -22,8 +22,8 @@ public class MatrixVariable extends Variable {
 	private final ArrayVariable data;
 	private int startGateColumn = -1;
 	private int startGateRow = -1;
-	private int endGateColumn = 0;
-	private int endGateRow = 0;
+	private int endGateColumn = -1;
+	private int endGateRow = -1;
 
 	// field codes
 	private final int FIELD_CODE_MOLE = 99;
@@ -102,12 +102,9 @@ public class MatrixVariable extends Variable {
 
 				// Sprawdź, czy komórka docelowa jest pusta lub zawiera gracza
 				if (destCell >= 0 && destCell < data.getElements().size()) {
-					Variable cellContent = data.getElements().get(destCell);
-					if (cellContent instanceof IntegerVariable) {
-						int value = ((IntegerVariable)cellContent).GET();
-						if (value == 0 || value == 99) { // 0-puste, 99-gracz
-							return new IntegerVariable("", destCell, context);
-						}
+					int cellCode = getCell(destCell);
+					if (cellCode == 0 || cellCode == 99) { // 0-puste, 99-gracz
+						return new IntegerVariable("", destCell, context);
 					}
 				}
 
@@ -166,12 +163,9 @@ public class MatrixVariable extends Variable {
 
 					// Sprawdź, czy komórka docelowa jest pusta lub zawiera gracza
 					if (destCell >= 0 && destCell < data.getElements().size()) {
-						Variable cellContent = data.getElements().get(destCell);
-						if (cellContent instanceof IntegerVariable) {
-							int value = ((IntegerVariable)cellContent).GET();
-							if (value == 0 || value == 99) { // 0-puste, 99-gracz
-								return new IntegerVariable("", newDir, context);
-							}
+						int cellCode = getCell(destCell);
+						if (cellCode == 0 || cellCode == 99) { // 0-puste, 99-gracz
+							return new IntegerVariable("", newDir, context);
 						}
 					}
 				}
@@ -190,12 +184,16 @@ public class MatrixVariable extends Variable {
 				int cellNo = ArgumentsHelper.getInteger(arguments.get(0));
 
 				if (cellNo >= 0 && cellNo < data.getElements().size()) {
-					Variable cell = data.getElements().get(cellNo);
-					if (cell instanceof IntegerVariable) {
-						int value = ((IntegerVariable) cell).GET();
-						// Check if cell is not a wall, enemy or stone
-						return new BoolVariable("", value != FIELD_CODE_WALL_WEAK && value != FIELD_CODE_WALL_STRONG && value != FIELD_CODE_ENEMY && value != FIELD_CODE_STONE, context);
-					}
+					// check if there is no gate there
+					if(isInGate(cellNo))
+						return new BoolVariable("", false, context);
+
+					int cellCode = getCell(cellNo);
+					return new BoolVariable("",
+							cellCode != FIELD_CODE_WALL_WEAK &&
+							cellCode != FIELD_CODE_WALL_STRONG &&
+							cellCode != FIELD_CODE_ENEMY &&
+							cellCode != FIELD_CODE_STONE, context);
 				}
 
 				return new BoolVariable("", false, context);
@@ -329,16 +327,16 @@ public class MatrixVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				if (startGateColumn == -1 || startGateRow == -1 || endGateColumn == 0 || endGateRow == 0) {
+				if (startGateColumn == -1 || startGateRow == -1 || endGateColumn == -1 || endGateRow == -1) {
 					return new BoolVariable("", false, context);
 				}
 
-				for (int y = startGateColumn; y < startGateColumn + endGateRow; y++) {
-					for (int x = startGateRow; x < startGateRow + endGateColumn; x++) {
+				for (int y = startGateRow; y <= endGateRow; y++) {
+					for (int x = startGateColumn; x <= endGateColumn; x++) {
 						int index = y * width + x;
 						if (index < data.getElements().size()) {
-							Variable cell = data.getElements().get(index);
-							if (cell instanceof IntegerVariable && ((IntegerVariable) cell).GET() != 0) {
+							int cellCode = getCell(index);
+							if (cellCode != FIELD_CODE_EMPTY) {
 								return new BoolVariable("", false, context);
 							}
 						}
@@ -356,18 +354,13 @@ public class MatrixVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				if (startGateColumn == -1 || startGateRow == -1 || endGateColumn == 0 || endGateRow == 0) {
+				if (startGateColumn == -1 || startGateRow == -1 || endGateColumn == -1 || endGateRow == -1) {
 					return new BoolVariable("", false, context);
 				}
 
 				int cellIndex = ArgumentsHelper.getInteger(arguments.get(0));
-				int row = cellIndex / width;
-				int col = cellIndex % width;
 
-				boolean inGate = (row >= startGateRow && row <= endGateRow &&
-						col >= startGateColumn && col <= endGateColumn);
-
-				return new BoolVariable("", inGate, context);
+				return new BoolVariable("", isInGate(cellIndex), context);
 			}
 		});
 		this.setMethod("MOVE", new Method(
@@ -714,6 +707,14 @@ public class MatrixVariable extends Variable {
 		int y = srcIdx / width;
 
 		return (y + offsetY) * width + (x + offsetX);
+	}
+
+	private boolean isInGate(int cellIndex) {
+		int row = cellIndex / width;
+		int col = cellIndex % width;
+
+        return (row >= startGateRow && row <= endGateRow &&
+                col >= startGateColumn && col <= endGateColumn);
 	}
 
 	public int getWidth() {
