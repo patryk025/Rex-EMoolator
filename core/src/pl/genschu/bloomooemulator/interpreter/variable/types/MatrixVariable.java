@@ -591,6 +591,13 @@ public class MatrixVariable extends Variable {
 								continue;
 							}
 
+							if (belowCellCode == FIELD_CODE_ENEMY) {
+								if (reservedDest.add(belowIndex)) {
+									pendingMoves.add(new int[]{x, y, FIELD_MOVEMENT_EXPLOSION});  // x, y, explosion
+								}
+								continue;
+							}
+
 							// check if it can move askew left
 							if (x > 0) {
 								int leftBelowIndex = getCellIndex(currentIndex, FIELD_MOVEMENT_DOWN_LEFT);
