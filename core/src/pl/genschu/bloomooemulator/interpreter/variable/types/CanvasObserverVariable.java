@@ -290,6 +290,7 @@ public class CanvasObserverVariable extends Variable {
 				}
 				ImageVariable image = new ImageVariable("", context);
 				image.setAttribute("FILENAME", new Attribute("STRING", imageName));
+				image.init();
 				context.getGame().getCurrentSceneVariable().setBackground(image);
 				return null;
 			}
