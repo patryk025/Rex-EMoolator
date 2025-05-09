@@ -69,16 +69,17 @@ public class ImageVariable extends Variable implements Cloneable {
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
+				int posX = ArgumentsHelper.getInteger(arguments.get(0));
+				int posY = ArgumentsHelper.getInteger(arguments.get(1));
+
 				if(image == null) return new IntegerVariable("", 0, context);
-				else {
-					if(image.getImageTexture() == null) return new IntegerVariable("", 0, context);
-					else {
-						Pixmap pixmap = image.getImageTexture().getTextureData().consumePixmap();
-						Color color = new Color(pixmap.getPixel(posX, posY));
-						int alpha = (int) (color.a * 255f);
-						return new IntegerVariable("", alpha, context);
-					}
-				}
+
+				if(image.getImageTexture() == null) return new IntegerVariable("", 0, context);
+
+				Pixmap pixmap = image.getImageTexture().getTextureData().consumePixmap();
+				Color color = new Color(pixmap.getPixel(posX, posY));
+				int alpha = (int) (color.a * 255f);
+				return new IntegerVariable("", alpha, context);
 			}
 		});
 		this.setMethod("GETCENTERX", new Method(
@@ -120,31 +121,32 @@ public class ImageVariable extends Variable implements Cloneable {
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				if(image == null) return new IntegerVariable("", 0, context);
-				else {
-					if(image.getImageTexture() == null) return new IntegerVariable("", 0, context);
-					else {
-						TextureData textureData = image.getImageTexture().getTextureData();
-						if (!textureData.isPrepared()) {
-							textureData.prepare();
-						}
-						Pixmap pixmap = textureData.consumePixmap();
-						Color color = new Color(pixmap.getPixel(posX, posY));
-						int red = (int) (color.r * 255f);
-						int green = (int) (color.g * 255f);
-						int blue = (int) (color.b * 255f);
+				int posX = ArgumentsHelper.getInteger(arguments.get(0));
+				int posY = ArgumentsHelper.getInteger(arguments.get(1));
 
-						if(image.colorDepth == 16) {
-							int rgb565 = (red & 0xF8) << 8 | (green & 0xFC) << 3 | (blue & 0xF8) >> 3;
-							return new IntegerVariable("", rgb565, context);
-						}
-						else if(image.colorDepth == 15) {
-							int rgb555 = (red & 0xF8) << 7 | (green & 0xF8) << 2 | (blue & 0xF8) >> 3;
-							return new IntegerVariable("", rgb555, context);
-						}
-						return new IntegerVariable("", 255, context);
-					}
+				if(image == null) return new IntegerVariable("", 0, context);
+
+				if(image.getImageTexture() == null) return new IntegerVariable("", 0, context);
+
+				TextureData textureData = image.getImageTexture().getTextureData();
+				if (!textureData.isPrepared()) {
+					textureData.prepare();
 				}
+				Pixmap pixmap = textureData.consumePixmap();
+				Color color = new Color(pixmap.getPixel(posX, posY));
+				int red = (int) (color.r * 255f);
+				int green = (int) (color.g * 255f);
+				int blue = (int) (color.b * 255f);
+
+				if(image.colorDepth == 16) {
+					int rgb565 = (red & 0xF8) << 8 | (green & 0xFC) << 3 | (blue & 0xF8) >> 3;
+					return new IntegerVariable("", rgb565, context);
+				}
+				else if(image.colorDepth == 15) {
+					int rgb555 = (red & 0xF8) << 7 | (green & 0xF8) << 2 | (blue & 0xF8) >> 3;
+					return new IntegerVariable("", rgb555, context);
+				}
+				return new IntegerVariable("", 255, context);
 			}
 		});
 		this.setMethod("GETPOSITIONX", new Method(
