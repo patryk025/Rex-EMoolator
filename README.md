@@ -26,13 +26,13 @@ Aktualne statusy gier opartych na silniku Piklib/BlooMoo:
 <tr>
 <td>Reksio i Skarb Piratów</td>
 <td><img alt="Grywalne" src="https://img.shields.io/badge/Grywalne-green"/></td>
-<td>Gra w pełni grywalna z drobnymi bugami. Sekwencja z kokosami ma drobne różnice w detekcji kolizji w stosunku do oryginału (dodatkowo pojawia się w rogu kura lekko przesłaniająca przycisk menu, nie wiem czemu). Podczas zagadek przy posągu Boga Twaroga sporadycznie grafiki odpowiedzi są zamienione miejscami (narrator jednak czyta poprawnie). Dodatkowo Kapłon jest zdublowany (pewnie coś guzik ma do gadania). W etapie z UFO sporadycznie są problemy z priorytetami animacji (winda przesłania Reksia). Poza tymi niekrytycznymi bugami wszystko działa poprawnie.</td>
+<td>Gra w pełni grywalna z drobnymi bugami. Etapy z przejściem rzeki zaczęły się przymulać (do sprawdzenia). Sekwencja z kokosami ma drobne różnice w detekcji kolizji w stosunku do oryginału (dodatkowo pojawia się w rogu kura lekko przesłaniająca przycisk menu, nie wiem czemu). Podczas zagadek przy posągu Boga Twaroga sporadycznie grafiki odpowiedzi są zamienione miejscami (narrator jednak czyta poprawnie).W etapie z UFO sporadycznie są problemy z priorytetami animacji (winda przesłania Reksia, do weryfikacji). Poza tymi niekrytycznymi bugami wszystko działa poprawnie.</td>
 <td>100%</td>
 </tr>
 <tr>
 <td>Reksio i Ufo</td>
 <td><img alt="W grze" src="https://img.shields.io/badge/W grze-yellow"/></td>
-<td>Gra działa poprawnie do momentu wyjścia ze składzika i spotkania z Molly. Sekcja podkopu pod murem więzienia jest naprawiona na tyle, że da się ją teoretycznie przejść, jednakże są jeszcze problemy z kolizjami kamieni z Kretesem, czasami grafiki nieprawidłowo się podmieniają co doprowadza do desynchronizacji danych w macierzy z tym co widać (czyli mówiąc po polsku, np. kamienia w danym miejscu już dawno może nie być, albo na odwrót, spadnie na nas, a go nie widać). W dalszym etapie gra utyka w sekcji platformowej na Indorze. Odtwarza się animacja Reksia jak wchodzi, po czym zmienia się w animację spadania, a klawisze kierunkowe jedynie zmieniają kierunek patrzenia.</td>
+<td>Gra działa poprawnie do momentu dotarcia do wąwozu na Indorze. Sekcja podkopu pod murem więzienia oraz burzenia muru na Indorze została zaimplementowana na tyle, żeby etapy w skryptach działały poprawnie, nie sprawdzałem już egzotycznych kombinacji, które na oryginalnych skryptach nie wystąpią. W dalszym etapie gra utyka w sekcji platformowej na Indorze. Odtwarza się animacja Reksia jak wchodzi, po czym zmienia się w animację spadania. Klawisze kierunkowe działają, jednak ten etap działa bardzo niestabilnie i lubi scrashować emulator</td>
 <td>ok. 30% (26/86 scen)</td>
 </tr>
 <tr>
