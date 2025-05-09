@@ -501,6 +501,26 @@ public class Game {
         }
     }
 
+    public String findINISectionForVariable(String variableName) {
+        if (gameINI == null) {
+            return currentScene.toUpperCase();
+        }
+
+        // Section hierarchy
+        String[] sectionsToCheck = new String[] {
+                currentScene.toUpperCase(),
+                currentEpisode.toUpperCase(),
+                applicationVariable.getName().toUpperCase()
+        };
+
+        String existingSection = gameINI.findSectionForKey(sectionsToCheck, variableName);
+
+        if(existingSection != null)
+            return existingSection;
+
+        return currentScene.toUpperCase();
+    }
+
     public void takeScreenshot() {
         // save frame for CanvasObserver
         if(lastFrame != null && !lastFrame.isDisposed())

@@ -193,7 +193,7 @@ public class ArrayVariable extends Variable {
 			}
 		});
 		this.setMethod("GETSUMVALUE", new Method(
-				"INTEGER|DOUBLE"
+				"mixed"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
@@ -240,10 +240,10 @@ public class ArrayVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				String serialized = context.getGame().getGameINI().get(context.getGame().getApplicationVariable().getName().toUpperCase(), getName().toUpperCase());
+				String serialized = context.getGame().getGameINI().get(getIniSection(), getName().toUpperCase());
 
                 elements.clear();
-                if(serialized != null) {
+	            if(serialized != null) {
                     if(serialized.isEmpty()) return null;
 					String[] elems = serialized.split(",");
 					for(String element : elems) {
@@ -376,14 +376,14 @@ public class ArrayVariable extends Variable {
 					}
 				}
 
-				context.getGame().getGameINI().put(context.getGame().getApplicationVariable().getName().toUpperCase(), getName().toUpperCase(), sb.toString());
+				context.getGame().getGameINI().put(getIniSection(), getName().toUpperCase(), sb.toString());
 
 				return null;
 			}
 		});
 		this.setMethod("SUB", new Method(
 				List.of(
-						new Parameter("INTEGER|DOUBLE", "value", true)
+						new Parameter("mixed", "value", true)
 				),
 				"void"
 		) {

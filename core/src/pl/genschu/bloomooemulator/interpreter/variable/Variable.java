@@ -261,7 +261,7 @@ public abstract class Variable implements Cloneable {
 				boolean foundVarargs = false;
 				String varargsType = null;
 
-		         for (String methodParamType : methodParamTypes) {
+				for (String methodParamType : methodParamTypes) {
                     if (methodParamType.endsWith("...")) {
                         foundVarargs = true;
                         varargsType = methodParamType.substring(0, methodParamType.length() - 3);
@@ -271,13 +271,7 @@ public abstract class Variable implements Cloneable {
 
 				if (foundVarargs) {
 					List<String> baseMethodParamTypes = new ArrayList<>(methodParamTypes);
-					Iterator<String> iterator = baseMethodParamTypes.iterator();
-					while (iterator.hasNext()) {
-						String param = iterator.next();
-						if (param.endsWith("...")) {
-							iterator.remove();
-						}
-					}
+                    baseMethodParamTypes.removeIf(param -> param.endsWith("..."));
 
 					if (paramTypes.size() >= baseMethodParamTypes.size()) {
 						while (baseMethodParamTypes.size() < paramTypes.size()) {
@@ -402,15 +396,21 @@ public abstract class Variable implements Cloneable {
 		getAttribute("VALUE").setValue(value);
 		Gdx.app.log("Variable", "Emitting signal ONBRUTALCHANGED for variable " + this.getName() + ", class type " + this.getType());
 		emitSignal("ONBRUTALCHANGED", value.toString());
-		if(!value.toString().equals(currentValue.toString())) {
+		if (!value.toString().equals(currentValue.toString())) {
 			Gdx.app.log("Variable", "Emitting signal ONCHANGED for variable " + this.getName() + ", class type " + this.getType());
 			emitSignal("ONCHANGED", value.toString());
 		}
-		if(getAttribute("TOINI") != null) {
-			if(getAttribute("TOINI").getValue().toString().equals("TRUE")) {
-				// FIXME: make it shorter and check, how engine creates sections
-				context.getGame().getGameINI().put(getIniSection(), this.getName().toUpperCase(), value.toString());
+
+		if (getAttribute("TOINI") != null && getAttribute("TOINI").getBool()) {
+			String section = getIniSection();
+
+			if (section == null) {
+				section = context.getGame().findINISectionForVariable(this.getName().toUpperCase());
+				setIniSection(section);
 			}
+
+			Gdx.app.log("Variable", "Saving variable " + this.getName() + " to INI section " + section);
+			context.getGame().getGameINI().put(section, this.getName().toUpperCase(), value.toString());
 		}
 	}
 

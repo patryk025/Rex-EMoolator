@@ -118,48 +118,45 @@ public class CNVParser {
         Gdx.app.log("CNVParser", "Processing object " + objectName + " of type " + type);
 
         Object value;
-        String iniSection = context.getGame().getCurrentScene().toUpperCase();
+        String iniSection = null;
 
-        if(type.equals("BEHAVIOUR"))
+        if (type.equals("BEHAVIOUR")) {
             value = properties.get(objectName + ":CODE");
-        else {
+        } else {
             value = properties.get(objectName + ":VALUE");
             try {
-                String valueFromIni = context.getGame().getGameINI().get(context.getGame().getApplicationVariable().getName().toUpperCase(), objectName.toUpperCase());
-                if (valueFromIni != null) {
-                    properties.put(objectName + ":INIT_VALUE", properties.get(objectName + ":VALUE"));
-                    properties.put(objectName + ":VALUE", valueFromIni);
-                    iniSection = context.getGame().getApplicationVariable().getName().toUpperCase();
-                } else {
-                    valueFromIni = context.getGame().getGameINI().get(context.getGame().getCurrentEpisode().toUpperCase(), objectName.toUpperCase());
-                    if (valueFromIni != null) {
-                        properties.put(objectName + ":INIT_VALUE", properties.get(objectName + ":VALUE"));
-                        properties.put(objectName + ":VALUE", valueFromIni);
-                        iniSection = context.getGame().getCurrentEpisode().toUpperCase();
-                    }
-                    else {
-                        // one last chance
-                        valueFromIni = context.getGame().getGameINI().get(context.getGame().getCurrentScene().toUpperCase(), objectName.toUpperCase());
+                if (context.getGame().getGameINI() != null) {
+                    // Check if variable isn't current in INI
+                    String foundSection = context.getGame().findINISectionForVariable(objectName.toUpperCase());
+
+                    if (foundSection != null) {
+                        String valueFromIni = context.getGame().getGameINI().get(foundSection, objectName.toUpperCase());
+
                         if (valueFromIni != null) {
                             properties.put(objectName + ":INIT_VALUE", properties.get(objectName + ":VALUE"));
                             properties.put(objectName + ":VALUE", valueFromIni);
-                            iniSection = context.getGame().getCurrentScene().toUpperCase();
+                            iniSection = foundSection;
+                            Gdx.app.log("CNVParser", "Found value for " + objectName + " in section " + foundSection);
                         }
                     }
                 }
-            } catch (NullPointerException ignored) {}
+            } catch (NullPointerException e) {
+                Gdx.app.error("CNVParser", "Error while getting INI value for " + objectName, e);
+            }
+        }
+
+        // Set default section if not found
+        if (iniSection == null) {
+            iniSection = context.getGame().getCurrentScene().toUpperCase();
         }
 
         try {
             Variable variable = VariableFactory.createVariable(type, objectName, value, context);
             for (Map.Entry<String, String> property : properties.entrySet()) {
-                if (
-                       !property.getKey().equals(objectName + ":TYPE")
-                ) {
-                    if(!property.getKey().startsWith(objectName + ":ON")) {
+                if (!property.getKey().equals(objectName + ":TYPE")) {
+                    if (!property.getKey().startsWith(objectName + ":ON")) {
                         variable.setAttribute(property.getKey().replace(objectName + ":", ""), property.getValue());
-                    }
-                    else {
+                    } else {
                         // Store signal information for later processing
                         String signalName = property.getKey().replace(objectName + ":", "");
                         String signalCode = property.getValue();
@@ -169,7 +166,6 @@ public class CNVParser {
             }
 
             variable.setIniSection(iniSection);
-
             context.setVariable(objectName, variable);
         } catch (IllegalArgumentException e) {
             Gdx.app.error("CNVParser", "Failed to create variable " + objectName + ": " + e.getMessage());
