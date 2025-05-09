@@ -2,10 +2,7 @@ package pl.genschu.bloomooemulator.interpreter.arithmetic;
 
 import pl.genschu.bloomooemulator.interpreter.variable.Variable;
 import pl.genschu.bloomooemulator.interpreter.exceptions.VariableUnsupportedOperationException;
-import pl.genschu.bloomooemulator.interpreter.variable.types.BoolVariable;
-import pl.genschu.bloomooemulator.interpreter.variable.types.DoubleVariable;
-import pl.genschu.bloomooemulator.interpreter.variable.types.IntegerVariable;
-import pl.genschu.bloomooemulator.interpreter.variable.types.StringVariable;
+import pl.genschu.bloomooemulator.interpreter.variable.types.*;
 
 public abstract class ArithmeticOperation {
     public Variable performOperation(Variable var1, Variable var2) {
@@ -20,7 +17,10 @@ public abstract class ArithmeticOperation {
                     return performOperation((StringVariable) var1, (DoubleVariable) var2);
                 } else if (var2.getType().equals("BOOL")) {
                     return performOperation((StringVariable) var1, (BoolVariable) var2);
-                } else {
+                } else if (var2.getType().equals("EXPRESSION")) {
+                    return performOperation(var1, (Variable) var2.getValue());
+                }
+                else {
                     throw new VariableUnsupportedOperationException(var1, var2, this.getOperation());
                 }
             case "INTEGER":
@@ -32,6 +32,8 @@ public abstract class ArithmeticOperation {
                     return performOperation((IntegerVariable) var1, (DoubleVariable) var2);
                 } else if (var2.getType().equals("BOOL")) {
                     return performOperation((IntegerVariable) var1, (BoolVariable) var2);
+                } else if (var2.getType().equals("EXPRESSION")) {
+                    return performOperation(var1, (Variable) var2.getValue());
                 } else {
                     throw new VariableUnsupportedOperationException(var1, var2, this.getOperation());
                 }
@@ -44,6 +46,8 @@ public abstract class ArithmeticOperation {
                     return performOperation((DoubleVariable) var1, (DoubleVariable) var2);
                 } else if (var2.getType().equals("BOOL")) {
                     return performOperation((DoubleVariable) var1, (BoolVariable) var2);
+                } else if (var2.getType().equals("EXPRESSION")) {
+                    return performOperation(var1, (Variable) var2.getValue());
                 } else {
                     throw new VariableUnsupportedOperationException(var1, var2, this.getOperation());
                 }
@@ -56,6 +60,22 @@ public abstract class ArithmeticOperation {
                     return performOperation((BoolVariable) var1, (DoubleVariable) var2);
                 } else if (var2.getType().equals("BOOL")) {
                     return performOperation((BoolVariable) var1, (BoolVariable) var2);
+                } else if (var2.getType().equals("EXPRESSION")) {
+                    return performOperation(var1, (Variable) var2.getValue());
+                } else {
+                    throw new VariableUnsupportedOperationException(var1, var2, this.getOperation());
+                }
+            case "EXPRESSION":
+                if (var2.getType().equals("STRING")) {
+                    return performOperation((Variable) var1.getValue(), var2);
+                } else if (var2.getType().equals("INTEGER")) {
+                    return performOperation((Variable) var2.getValue(), var2);
+                } else if (var2.getType().equals("DOUBLE")) {
+                    return performOperation((Variable) var2.getValue(), var2);
+                } else if (var2.getType().equals("BOOL")) {
+                    return performOperation((Variable) var2.getValue(), var2);
+                } else if (var2.getType().equals("EXPRESSION")) {
+                    return performOperation((Variable) var2.getValue(), (Variable) var2.getValue());
                 } else {
                     throw new VariableUnsupportedOperationException(var1, var2, this.getOperation());
                 }
