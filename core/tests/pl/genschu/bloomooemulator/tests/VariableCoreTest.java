@@ -206,5 +206,16 @@ class VariableCoreTest {
         var.fireMethod("SEND", new StringVariable("", "TEST", ctx));
 
         assertTrue(flag.GET());
+
+        flag.setSignal("ONBRUTALCHANGED^TRUE", new Signal() {
+            @Override
+            public void execute(Object argument) {
+                flag.fireMethod("SET", new BoolVariable("", false, ctx));
+            }
+        });
+
+        flag.fireMethod("SET", new BoolVariable("", true, ctx));
+
+        assertFalse(flag.GET());
     }
 }
