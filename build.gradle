@@ -128,8 +128,10 @@ project(":core") {
             exclude group: 'net.java.dev.jna', module: 'jna'
         }
 
-        testImplementation 'org.junit.jupiter:junit-jupiter:5.10.2'
-        testImplementation 'org.mockito:mockito-core:5.11.0'
+        testImplementation 'org.junit.jupiter:junit-jupiter:5.11.4'
+        testImplementation 'org.mockito:mockito-core:5.17.0'
+        testImplementation "org.mockito:mockito-inline:5.2.0"
+        testImplementation "org.mockito:mockito-junit-jupiter:5.17.0"
         testImplementation 'org.assertj:assertj-core:3.25.3'
         testImplementation "com.badlogicgames.gdx:gdx-backend-headless:$gdxVersion"
         testRuntimeOnly "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-desktop"
@@ -140,5 +142,6 @@ project(":core") {
         testLogging {
             events 'passed', 'skipped', 'failed'
         }
+        jvmArgs "-javaagent:${configurations.testRuntimeClasspath.find { it.name.contains('mockito-core') }}", '-Xshare:off'
     }
 }
