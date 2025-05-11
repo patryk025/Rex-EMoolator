@@ -10,6 +10,7 @@ import pl.genschu.bloomooemulator.TestEnvironment;
 import pl.genschu.bloomooemulator.builders.ContextBuilder;
 import org.mockito.junit.jupiter.MockitoExtension;
 import pl.genschu.bloomooemulator.interpreter.variable.Attribute;
+import pl.genschu.bloomooemulator.interpreter.variable.Signal;
 import pl.genschu.bloomooemulator.interpreter.variable.Variable;
 import pl.genschu.bloomooemulator.interpreter.variable.types.AnimoVariable;
 import pl.genschu.bloomooemulator.interpreter.Context;
@@ -34,18 +35,49 @@ class AnimoTest {
     // helper for capturing signals
     static class CapturingAnimo extends AnimoVariable {
         List<String> signals = new ArrayList<>();
+        List<Integer> frames = new ArrayList<>();
+        List<Integer> images = new ArrayList<>();
         CapturingAnimo(String name, Context ctx) { super(name, ctx); }
         @Override
         public void emitSignal(String s, Object arg) {
             signals.add(arg == null ? s : s + "^" + arg);
+            frames.add(getCurrentFrameNumber());
+            images.add(getCurrentImageNumber());
             super.emitSignal(s, arg);
         }
     }
 
     @Test
     void testPlayAnimo() {
-        Context ctx = new ContextBuilder().build();
+        Context ctx = new ContextBuilder()
+                .withFactory("INTEGER", "LOOP_NO", 0)
+                .build();
         CapturingAnimo animo = new CapturingAnimo("ANIMOMLYNEK", ctx);
+        ctx.setVariable("ANIMOMLYNEK", animo);
+
+        IntegerVariable loopNo = (IntegerVariable) ctx.getVariable("LOOP_NO");
+
+        animo.setSignal("ONFINISHED^B", new Signal() {
+            @Override
+            public void execute(Object argument) {
+                loopNo.fireMethod("INC");
+                if(loopNo.GET() < 2) {
+                    animo.fireMethod("PLAY", new StringVariable("", "B", ctx));
+                }
+            }
+        });
+
+        animo.setSignal("ONFRAMECHANGED^B", new Signal() {
+            @Override
+            public void execute(Object argument) {
+                if(loopNo.GET() == 1 && animo.getCurrentFrameNumber() == 2) {
+                    animo.fireMethod("PAUSE");
+                    animo.fireMethod("RESUME");
+                    animo.fireMethod("STOP");
+                }
+            }
+        });
+
         String filename = "MLYNEK.ANN";
         animo.setAttribute("FILENAME", new Attribute("STRING", filename));
 
@@ -78,8 +110,20 @@ class AnimoTest {
                 "ONFRAMECHANGED^B",
                 "ONFRAMECHANGED^B",
                 "ONFRAMECHANGED^B",
+                "ONFINISHED^B",
+                "ONFRAMECHANGED^B",
+                "ONSTARTED^B",
+                "ONFRAMECHANGED^B",
+                "ONFRAMECHANGED^B",
+                "ONPAUSED^B", // somehow BlooMoo doesn't send this event
+                "ONRESUMED^B", // and this one also
                 "ONFINISHED^B"
         );
+
+        List<Integer> expectedFrames = List.of(0, 0, 1, 2, 3, 4, 5, 6, 6, 0, 0, 1, 2, 2, 2, 2);
+        List<Integer> expectedImages = List.of(0, 0, 2, 4, 6, 8, 10, 12, 12, 0, 0, 2, 4, 4, 4, 4);
         assertEquals(expected, animo.signals);
+        assertEquals(expectedFrames, animo.frames);
+        assertEquals(expectedImages, animo.images);
     }
 }
