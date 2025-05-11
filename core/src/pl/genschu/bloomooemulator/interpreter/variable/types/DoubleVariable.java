@@ -123,6 +123,16 @@ public class DoubleVariable extends Variable {
 				return DoubleVariable.this;
 			}
 		});
+		this.setMethod("DEC", new Method(
+				"void"
+		) {
+			@Override
+			public Variable execute(List<Object> arguments) {
+				double result = GET() - 1.0;
+				set(result);
+				return DoubleVariable.this;
+			}
+		});
 		this.setMethod("DIV", new Method(
 				List.of(
 						new Parameter("DOUBLE", "divisor", true)
@@ -148,6 +158,16 @@ public class DoubleVariable extends Variable {
 				return DoubleVariable.this;
 			}
 		});
+		this.setMethod("INC", new Method(
+				"void"
+		) {
+			@Override
+			public Variable execute(List<Object> arguments) {
+				double result = GET() + 1;
+				set(result);
+				return DoubleVariable.this;
+			}
+		});
 		this.setMethod("LENGTH", new Method(
 				List.of(
 						new Parameter("DOUBLE", "x", true),
@@ -160,6 +180,19 @@ public class DoubleVariable extends Variable {
 				double x = ArgumentsHelper.getDouble(arguments.get(0));
 				double y = ArgumentsHelper.getDouble(arguments.get(1));
 				set(Math.sqrt(x * x + y * y));
+				return DoubleVariable.this;
+			}
+		});
+		this.setMethod("LOG", new Method(
+				List.of(
+						new Parameter("DOUBLE", "value", true)
+				),
+				"DOUBLE"
+		) {
+			@Override
+			public Variable execute(List<Object> arguments) {
+				double value = ArgumentsHelper.getDouble(arguments.get(0));
+				set(Math.log(value));
 				return DoubleVariable.this;
 			}
 		});
@@ -284,6 +317,26 @@ public class DoubleVariable extends Variable {
 			public Variable execute(List<Object> arguments) {
 				double value = ArgumentsHelper.getDouble(arguments.get(0));
 				set(GET() - value);
+				return DoubleVariable.this;
+			}
+		});
+		this.setMethod("SWITCH", new Method(
+				List.of(
+						new Parameter("INTEGER", "val1", true),
+						new Parameter("INTEGER", "val1", true)
+				),
+				"INTEGER"
+		) {
+			@Override
+			public Variable execute(List<Object> arguments) {
+				double val1 = ArgumentsHelper.getDouble(arguments.get(0));
+				double val2 = ArgumentsHelper.getDouble(arguments.get(1));
+
+				if(GET() == val1) {
+					set(val2);
+				} else {
+					set(val1);
+				}
 				return DoubleVariable.this;
 			}
 		});

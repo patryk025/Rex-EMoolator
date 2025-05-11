@@ -1,5 +1,6 @@
 package pl.genschu.bloomooemulator;
 
+import com.badlogic.gdx.Application;
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.backends.headless.HeadlessApplication;
@@ -22,6 +23,7 @@ public class TestEnvironment {
         );
         Gdx.gl   = Gdx.gl20 = mock(GL20.class);
         Gdx.gl30 = mock(GL30.class);
+        Gdx.app.setLogLevel(Application.LOG_NONE);
         initialised = true;
     }
 }
