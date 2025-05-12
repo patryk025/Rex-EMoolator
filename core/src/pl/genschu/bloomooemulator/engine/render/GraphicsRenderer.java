@@ -53,7 +53,7 @@ public class GraphicsRenderer implements Disposable {
         if (imageVariable.hasFilters()) {
             // get first filter (not sure if there can be more at once)
             Filter filter = imageVariable.getFilters().get(0);
-            filter.apply(batch, image.getImageTexture(), rect.getXLeft(), rect.getYTop(), image.width, image.height);
+            filter.apply(batch, image.getImageTexture(), rect.getXLeft(), VIRTUAL_HEIGHT - rect.getYTop() - image.height, image.width, image.height);
         } else {
             batch.draw(image.getImageTexture(),
                     rect.getXLeft(),
@@ -86,7 +86,7 @@ public class GraphicsRenderer implements Disposable {
         if (animoVariable.hasFilters()) {
             // get first filter (not sure if there can be more at once)
             Filter filter = animoVariable.getFilters().get(0);
-            filter.apply(batch, image.getImageTexture(), rect.getXLeft(), rect.getYTop(), image.width, image.height);
+            filter.apply(batch, image.getImageTexture(), rect.getXLeft(), VIRTUAL_HEIGHT - rect.getYTop() - image.height, image.width, image.height);
         } else {
             batch.draw(image.getImageTexture(),
                     rect.getXLeft(),
