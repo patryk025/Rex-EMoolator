@@ -59,9 +59,10 @@ public class DoubleVariable extends Variable {
 			public Variable execute(List<Object> arguments) {
 				double angle = ArgumentsHelper.getDouble(arguments.get(0));
 
-				double atanRadians = Math.atan(Math.toRadians(angle));
+				double atanRadians = Math.atan(angle);
+				double atanDegrees = Math.toDegrees(atanRadians);
 
-				set(atanRadians);
+				set(atanDegrees);
 				return DoubleVariable.this;
 			}
 		});
@@ -78,8 +79,9 @@ public class DoubleVariable extends Variable {
 				double x = ArgumentsHelper.getDouble(arguments.get(1));
 
 				double atanRadians = Math.atan2(y, x);
+				double atanDegrees = Math.toDegrees(atanRadians);
 
-				set(atanRadians);
+				set(atanDegrees);
 				return DoubleVariable.this;
 			}
 		});
@@ -104,6 +106,16 @@ public class DoubleVariable extends Variable {
 				}
 
 				set(value);
+				return DoubleVariable.this;
+			}
+		});
+		this.setMethod("CLEAR", new Method(
+				List.of(),
+				"DOUBLE"
+		) {
+			@Override
+			public Variable execute(List<Object> arguments) {
+				set(0);
 				return DoubleVariable.this;
 			}
 		});
@@ -196,6 +208,23 @@ public class DoubleVariable extends Variable {
 				return DoubleVariable.this;
 			}
 		});
+		this.setMethod("MOD", new Method(
+				List.of(
+						new Parameter("DOUBLE", "divisor", true)
+				),
+				"DOUBLE"
+		) {
+			@Override
+			public Variable execute(List<Object> arguments) {
+				double divisor = ArgumentsHelper.getDouble(arguments.get(0));
+				try {
+					set((int) (GET() % divisor)); // modulo cuts off decimal part in original engine
+				} catch(ArithmeticException e) {
+					set(0.0); // divide by zero normally crashes engine
+				}
+				return DoubleVariable.this;
+			}
+		});
 		this.setMethod("MAXA", new Method(
 				List.of(
 						new Parameter("DOUBLE", "value1...valueN", true)
@@ -278,6 +307,21 @@ public class DoubleVariable extends Variable {
 				return DoubleVariable.this;
 			}
 		});
+		this.setMethod("SGN", new Method(
+				List.of(),
+				"void"
+		) {
+			@Override
+			public Variable execute(List<Object> arguments) {
+				int sgn = 0;
+				if(GET() > 0) {
+					sgn = 1;
+				} else if(GET() < 0) {
+					sgn = -1;
+				}
+				return new IntegerVariable("SGN", sgn, context);
+			}
+		});
 		this.setMethod("SINUS", new Method(
 				List.of(
 						new Parameter("DOUBLE", "angle", true)
@@ -296,13 +340,13 @@ public class DoubleVariable extends Variable {
 		});
 		this.setMethod("SQRT", new Method(
 				List.of(
-						new Parameter("DOUBLE", "doubleValue", true)
+						new Parameter("DOUBLE", "doubleValue", false)
 				),
 				"DOUBLE"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				double value = ArgumentsHelper.getDouble(arguments.get(0));
+				double value = arguments.isEmpty() ? GET() : ArgumentsHelper.getDouble(arguments.get(0));
 				set(Math.sqrt(value));
 				return DoubleVariable.this;
 			}

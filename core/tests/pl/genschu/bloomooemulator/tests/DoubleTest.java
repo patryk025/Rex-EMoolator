@@ -9,6 +9,7 @@ import pl.genschu.bloomooemulator.TestEnvironment;
 import pl.genschu.bloomooemulator.builders.ContextBuilder;
 import pl.genschu.bloomooemulator.interpreter.Context;
 import pl.genschu.bloomooemulator.interpreter.variable.types.DoubleVariable;
+import pl.genschu.bloomooemulator.interpreter.variable.types.IntegerVariable;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -199,10 +200,10 @@ class DoubleTest {
         double result;
 
         testVar = new DoubleVariable("TEST", 0, ctx);
-        testVar.fireMethod("LENGTH", new DoubleVariable("", 3.0, ctx), new DoubleVariable("", 4.0, ctx));
+        testVar.fireMethod("LENGTH", new DoubleVariable("", 4.0, ctx), new DoubleVariable("", 5.0, ctx));
         result = testVar.GET();
         assertEquals(parseDoubleOrSpecial(EXPECTED_RESULTS.get("LENGTH")[0]), result, 0.00001,
-                "LENGTH failed for vector (3,4)");
+                "LENGTH failed for vector (4,5)");
     }
 
     @ParameterizedTest
@@ -303,8 +304,8 @@ class DoubleTest {
         double result;
 
         testVar = new DoubleVariable("TEST", testValue, ctx);
-        testVar.fireMethod("SGN", new DoubleVariable("", testValue, ctx));
-        result = testVar.GET();
+        IntegerVariable varResult = (IntegerVariable) testVar.fireMethod("SGN", new DoubleVariable("", testValue, ctx));
+        result = varResult.GET();
         assertEquals(parseDoubleOrSpecial(EXPECTED_RESULTS.get("SGN")[vectorIndex]), result, 0.00001,
                 "SGN failed for vector " + testValue);
     }
