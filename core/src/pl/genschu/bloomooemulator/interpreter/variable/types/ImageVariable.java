@@ -294,6 +294,7 @@ public class ImageVariable extends Variable implements Cloneable {
 				posX += offsetX;
 				posY += offsetY;
 				updateRect();
+				context.getGame().getEmulator().getUpdateManager().checkCollisions(ImageVariable.this);
 				return null;
 			}
 		});

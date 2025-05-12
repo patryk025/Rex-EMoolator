@@ -134,4 +134,8 @@ public class BlooMooEngine extends ApplicationAdapter {
     public DebugManager getDebugManager() {
         return debugManager;
     }
+
+    public UpdateManager getUpdateManager() {
+        return updateManager;
+    }
 }

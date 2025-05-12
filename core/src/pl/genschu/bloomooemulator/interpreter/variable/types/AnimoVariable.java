@@ -442,7 +442,7 @@ public class AnimoVariable extends Variable implements Cloneable {
 				posY += offsetY;
 				//Gdx.app.log("updateRect()", "MOVE");
 				updateRect();
-
+				context.getGame().getEmulator().getUpdateManager().checkCollisions(AnimoVariable.this);
 				return null;
 			}
 		});
@@ -507,6 +507,7 @@ public class AnimoVariable extends Variable implements Cloneable {
 					return null;
 				}
 
+				setCurrentFrameNumber(0);
 				changeAnimoState(AnimoEvent.PLAY);
 				return null;
 			}
@@ -529,6 +530,7 @@ public class AnimoVariable extends Variable implements Cloneable {
 							return null;
 						}
 
+						setCurrentFrameNumber(0);
 						changeAnimoState(AnimoEvent.PLAY);
 						//Gdx.app.log("updateRect()", "PLAY");
 
@@ -940,7 +942,6 @@ public class AnimoVariable extends Variable implements Cloneable {
 			switch (animationState) {
 				case PLAYING:
 					if(oldAnimationState == AnimoState.IDLE) {
-						setCurrentFrameNumber(0);
 						emitSignal("ONSTARTED", currentEvent.getName());
 					}
 					if(oldAnimationState == AnimoState.PAUSED) {
@@ -1235,6 +1236,10 @@ public class AnimoVariable extends Variable implements Cloneable {
 	}
 
 	public void setCurrentFrameNumber(int currentFrameNumber) {
+		if(currentFrameNumber < 0 || currentFrameNumber >= currentEvent.getFramesNumbers().size()) {
+			Gdx.app.error("AnimoVariable", "Trying to set frame " + currentFrameNumber + " which is out of bounds");
+			return;
+		}
 		this.currentFrameNumber = currentFrameNumber;
 		setCurrentImageNumber(currentEvent.getFramesNumbers().get(this.currentFrameNumber));
 		playSfx();

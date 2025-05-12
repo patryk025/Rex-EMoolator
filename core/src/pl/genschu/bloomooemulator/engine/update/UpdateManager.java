@@ -38,9 +38,6 @@ public class UpdateManager implements Disposable {
         // update timers
         updateTimers();
 
-        // check collisions
-        checkCollisions();
-
         // update animations
         updateAnimations(deltaTime);
     }
@@ -49,8 +46,8 @@ public class UpdateManager implements Disposable {
         timerManager.updateTimers();
     }
 
-    private void checkCollisions() {
-        collisionManager.checkCollisions();
+    public void checkCollisions(Variable object) {
+        collisionManager.checkCollisions(object);
     }
 
     private void updateAnimations(float deltaTime) {
@@ -73,18 +70,22 @@ public class UpdateManager implements Disposable {
             this.game = game;
         }
 
-        public void checkCollisions() {
+        public void checkCollisions(Variable object) {
             List<Variable> objects = new ArrayList<>(game.getCollisionMonitoredVariables());
-            for (Variable object : objects) {
-                List<Variable> potentialCollisions = game.getQuadTree().retrieve(new ArrayList<>(), object);
-                for (Variable other : potentialCollisions) {
-                    if (other != object && checkCollision(object, other)) {
-                        if (!object.isColliding(other)) {
-                            object.setColliding(other);
-                        }
-                    } else if (object.isColliding(other)) {
-                        object.releaseColliding(other);
+
+            // Check if the object is in the list of objects to check
+            if (!objects.contains(object)) {
+                return;
+            }
+
+            List<Variable> potentialCollisions = game.getQuadTree().retrieve(new ArrayList<>(), object);
+            for (Variable other : potentialCollisions) {
+                if (other != object && checkCollision(object, other)) {
+                    if (!object.isColliding(other)) {
+                        object.setColliding(other);
                     }
+                } else if (object.isColliding(other)) {
+                    object.releaseColliding(other);
                 }
             }
         }
