@@ -69,6 +69,12 @@ public class ArrayVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				int index = ArgumentsHelper.getInteger(arguments.get(0));
+
+				if(index < 0 || index >= elements.size()) {
+					Gdx.app.error("ArrayVariable", "Trying to set value in index out of bounds: "+index);
+					return null;
+				}
+
 				AddOperation operation = new AddOperation();
 				elements.set(index, operation.performOperation(elements.get(index), (Variable) arguments.get(1)));
 				//debugArray();
@@ -85,6 +91,12 @@ public class ArrayVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				int index = ArgumentsHelper.getInteger(arguments.get(0));
+
+				if(index < 0 || index >= elements.size()) {
+					Gdx.app.error("ArrayVariable", "Trying to set value in index out of bounds: "+index);
+					return null;
+				}
+
 				elements.set(index, ((Variable) arguments.get(1)).clone());
 				//debugArray();
 				return null;
@@ -103,6 +115,11 @@ public class ArrayVariable extends Variable {
 				int index = ArgumentsHelper.getInteger(arguments.get(0));
 				double rangeMin = ArgumentsHelper.getDouble(arguments.get(1));
 				double rangeMax = ArgumentsHelper.getDouble(arguments.get(2));
+
+				if(index < 0 || index >= elements.size()) {
+					Gdx.app.error("ArrayVariable", "Trying to set value in index out of bounds: "+index);
+					return null;
+				}
 
 				// use CLAMP method (all glory to the variable access by reference)
 				elements.get(index).fireMethod("CLAMP", new DoubleVariable("", rangeMin, context), new DoubleVariable("", rangeMax, context));
@@ -215,6 +232,12 @@ public class ArrayVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				int index = ArgumentsHelper.getInteger(arguments.get(0));
+
+				if(index < 0 || index >= elements.size()) {
+					Gdx.app.error("ArrayVariable", "Trying to insert value in index out of bounds: "+index);
+					return null;
+				}
+
 				elements.add(index, ((Variable) arguments.get(1)).clone());
 				//debugArray();
 				return null;
@@ -267,6 +290,12 @@ public class ArrayVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				int index = ArgumentsHelper.getInteger(arguments.get(0));
+
+				if(index < 0 || index >= elements.size()) {
+					Gdx.app.error("ArrayVariable", "Trying to set value in index out of bounds: "+index);
+					return null;
+				}
+
 				ModuloOperation operation = new ModuloOperation();
 				elements.set(index, operation.performOperation(elements.get(index), (Variable) arguments.get(1)));
 				//debugArray();
@@ -283,6 +312,12 @@ public class ArrayVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				int index = ArgumentsHelper.getInteger(arguments.get(0));
+
+				if(index < 0 || index >= elements.size()) {
+					Gdx.app.error("ArrayVariable", "Trying to set value in index out of bounds: "+index);
+					return null;
+				}
+
 				MultiplyOperation operation = new MultiplyOperation();
 				elements.set(index, operation.performOperation(elements.get(index), (Variable) arguments.get(1)));
 				//debugArray();
@@ -320,13 +355,13 @@ public class ArrayVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				int index = ArgumentsHelper.getInteger(arguments.get(0));
-				try {
-					elements.remove(index);
-					//debugArray();
-				} catch (IndexOutOfBoundsException e) {
-					Gdx.app.log("ArrayVariable", "IndexOutOfBoundsException: "+index);
-					// do nothing
+
+				if(index < 0 || index >= elements.size()) {
+					Gdx.app.error("ArrayVariable", "Trying to remove value in index out of bounds: "+index);
+					return null;
 				}
+
+				elements.remove(index);
 				return null;
 			}
 		});
@@ -405,6 +440,12 @@ public class ArrayVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				int index = ArgumentsHelper.getInteger(arguments.get(0));
+
+				if(index < 0 || index >= elements.size()) {
+					Gdx.app.error("ArrayVariable", "Trying to set value in index out of bounds: "+index);
+					return null;
+				}
+
 				SubtractOperation operation = new SubtractOperation();
 				elements.set(index, operation.performOperation(elements.get(index), (Variable) arguments.get(1)));
 				//debugArray();
