@@ -91,6 +91,16 @@ public class IntegerVariable extends Variable {
 				return IntegerVariable.this;
 			}
 		});
+		this.setMethod("CLEAR", new Method(
+				List.of(),
+				"DOUBLE"
+		) {
+			@Override
+			public Variable execute(List<Object> arguments) {
+				set(0);
+				return IntegerVariable.this;
+			}
+		});
 		this.setMethod("DEC", new Method(
 				"void"
 		) {
@@ -179,6 +189,47 @@ public class IntegerVariable extends Variable {
 				return IntegerVariable.this;
 			}
 		});
+		this.setMethod("NOT", new Method(
+				List.of(),
+				"INTEGER"
+		) {
+			@Override
+			public Variable execute(List<Object> arguments) {
+				int result = ~GET();
+				set(result);
+				return IntegerVariable.this;
+			}
+		});
+		this.setMethod("OR", new Method(
+				List.of(
+						new Parameter("INTEGER", "value", true)
+				),
+				"INTEGER"
+		) {
+			@Override
+			public Variable execute(List<Object> arguments) {
+				int result = GET() | ArgumentsHelper.getInteger(arguments.get(0));
+				set(result);
+				return IntegerVariable.this;
+			}
+		});
+		this.setMethod("POWER", new Method(
+				List.of(
+						new Parameter("INTEGER", "power", true)
+				),
+				"INTEGER"
+		) {
+			@Override
+			public Variable execute(List<Object> arguments) {
+				double result = Math.pow(GET(), ArgumentsHelper.getInteger(arguments.get(0)));
+				if (result > 0) {
+					set((int) Math.round(result));
+				} else {
+					set((int) Math.ceil(result - 0.5));
+				}
+				return IntegerVariable.this;
+			}
+		});
 		this.setMethod("RANDOM", new Method(
 				List.of(
 						new Parameter("INTEGER", "param1", true),
@@ -264,6 +315,19 @@ public class IntegerVariable extends Variable {
 				} else {
 					set(val1);
 				}
+				return IntegerVariable.this;
+			}
+		});
+		this.setMethod("XOR", new Method(
+				List.of(
+						new Parameter("INTEGER", "value", true)
+				),
+				"INTEGER"
+		) {
+			@Override
+			public Variable execute(List<Object> arguments) {
+				int result = GET() ^ ArgumentsHelper.getInteger(arguments.get(0));
+				set(result);
 				return IntegerVariable.this;
 			}
 		});

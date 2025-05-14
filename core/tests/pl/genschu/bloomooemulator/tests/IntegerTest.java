@@ -8,6 +8,7 @@ import org.junit.jupiter.params.provider.ValueSource;
 import pl.genschu.bloomooemulator.TestEnvironment;
 import pl.genschu.bloomooemulator.builders.ContextBuilder;
 import pl.genschu.bloomooemulator.interpreter.Context;
+import pl.genschu.bloomooemulator.interpreter.variable.types.DoubleVariable;
 import pl.genschu.bloomooemulator.interpreter.variable.types.IntegerVariable;
 
 import java.util.HashMap;
@@ -178,19 +179,6 @@ public class IntegerTest {
                 "INC failed for vector " + testValue);
     }
 
-    @Test
-    void testLength() {
-        // LENGTH in INTEGER is broken
-        IntegerVariable testVar;
-        int result;
-
-        testVar = new IntegerVariable("TEST", 0, ctx);
-        testVar.fireMethod("LENGTH", new IntegerVariable("", 4, ctx), new IntegerVariable("", 5, ctx));
-        result = testVar.GET();
-        assertEquals(parseInt(EXPECTED_RESULTS.get("LENGTH")[0]), result,
-                "LENGTH failed for vector (4,5)");
-    }
-
     @ParameterizedTest
     @ValueSource(ints = {0, 1, 2, 3, 4, 5, 6})
     void testMod(int vectorIndex) {
@@ -260,7 +248,7 @@ public class IntegerTest {
         int result;
 
         testVar = new IntegerVariable("TEST", testValue, ctx);
-        testVar.fireMethod("POWER");
+        testVar.fireMethod("POWER", new DoubleVariable("", 1.5, ctx));
         result = testVar.GET();
         assertEquals(parseInt(EXPECTED_RESULTS.get("POWER")[vectorIndex]), result,
                 "POWER failed for vector " + testValue);
