@@ -265,8 +265,8 @@ public class ArrayVariable extends Variable {
 			public Variable execute(List<Object> arguments) {
 				String serialized = context.getGame().getGameINI().get(getIniSection(), getName().toUpperCase());
 
-                elements.clear();
-	            if(serialized != null) {
+				elements.clear();
+				if(serialized != null) {
                     if(serialized.isEmpty()) return null;
 					String[] elems = serialized.split(",");
 					for(String element : elems) {

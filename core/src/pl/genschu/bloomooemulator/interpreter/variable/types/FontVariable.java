@@ -6,21 +6,18 @@ import com.badlogic.gdx.graphics.PixmapIO;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.utils.GdxRuntimeException;
-import pl.genschu.bloomooemulator.interpreter.exceptions.ClassMethodNotImplementedException;
 import pl.genschu.bloomooemulator.interpreter.Context;
 import pl.genschu.bloomooemulator.interpreter.variable.Attribute;
 import pl.genschu.bloomooemulator.interpreter.variable.Variable;
 import pl.genschu.bloomooemulator.loader.FontLoader;
-import pl.genschu.bloomooemulator.objects.FontKerning;
+import pl.genschu.bloomooemulator.objects.FontCropping;
 
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class FontVariable extends Variable {
-	private Map<Character, TextureRegion> charTextures = new LinkedHashMap<>();
-	private Map<Character, FontKerning> charKernings = new LinkedHashMap<>();
+	private final Map<Character, TextureRegion> charTextures = new LinkedHashMap<>();
+	private final Map<Character, FontCropping> charCroppings = new LinkedHashMap<>();
+	private final Map<Character, Map<Character, Integer>> charKerningsMap = new HashMap<>();
 	private int charHeight;
 	private int charWidth;
 
@@ -36,15 +33,23 @@ public class FontVariable extends Variable {
 		return charTextures.get(c);
 	}
 
-	public void setCharKerning(char c, FontKerning kerning) {
-		charKernings.put(c, kerning);
+	public void setCharCropping(char c, FontCropping kerning) {
+		charCroppings.put(c, kerning);
 	}
 
-	public FontKerning getCharKerning(char c) {
-		if(!charKernings.containsKey(c)) {
-			return new FontKerning(0, 0);
+	public FontCropping getCharCropping(char c) {
+		if(!charCroppings.containsKey(c)) {
+            return new FontCropping(0, 0);
 		}
-		return charKernings.get(c);
+		return charCroppings.get(c);
+	}
+
+	public int getCharKerning(char c, char k) {
+		if(charKerningsMap.containsKey(c) && charKerningsMap.get(c).containsKey(k)) {
+			return charKerningsMap.get(c).get(k);
+		} else {
+			return 0;
+		}
 	}
 
 	public int getCharHeight() {
@@ -67,8 +72,8 @@ public class FontVariable extends Variable {
 		return charTextures;
 	}
 
-	public Map<Character, FontKerning> getCharKernings() {
-		return charKernings;
+	public Map<Character, FontCropping> getCharCroppings() {
+		return charCroppings;
 	}
 
 	public List<Character> getCharTextureKeys() {
@@ -122,5 +127,23 @@ public class FontVariable extends Variable {
 		}
 
 		fullPixmap.dispose();
+	}
+
+	public Map<Character, Map<Character, Integer>> getCharKerningsMap() {
+		return charKerningsMap;
+	}
+
+	public void setCharKerning(int i, int[] kernings) {
+		char character = getCharTextureKeys().get(i);
+
+		charKerningsMap.put(character, new HashMap<>());
+	}
+
+	public void setCharKerning(int i, int i2, int kerning) {
+		char character = getCharTextureKeys().get(i);
+		char character2 = getCharTextureKeys().get(i2);
+
+		charKerningsMap.putIfAbsent(character, new HashMap<>());
+		charKerningsMap.get(character).put(character2, kerning);
 	}
 }

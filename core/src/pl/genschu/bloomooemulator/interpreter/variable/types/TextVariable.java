@@ -1,16 +1,13 @@
 package pl.genschu.bloomooemulator.interpreter.variable.types;
 
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import pl.genschu.bloomooemulator.interpreter.exceptions.ClassMethodNotImplementedException;
 import pl.genschu.bloomooemulator.interpreter.Context;
 import pl.genschu.bloomooemulator.interpreter.variable.Attribute;
 import pl.genschu.bloomooemulator.interpreter.variable.Method;
 import pl.genschu.bloomooemulator.interpreter.variable.Parameter;
 import pl.genschu.bloomooemulator.interpreter.variable.Variable;
-import pl.genschu.bloomooemulator.objects.FontKerning;
+import pl.genschu.bloomooemulator.objects.FontCropping;
 import pl.genschu.bloomooemulator.objects.Rectangle;
 import pl.genschu.bloomooemulator.utils.ArgumentsHelper;
 
@@ -162,7 +159,7 @@ public class TextVariable extends Variable {
 				continue;  // Skip if the character texture is not found
 			}
 
-			FontKerning kerning = fontVariable.getCharKerning(currentChar);
+			FontCropping kerning = fontVariable.getCharCropping(currentChar);
 			int leftKerning = kerning.getLeft();
 			int rightKerning = kerning.getRight();
 
@@ -191,7 +188,7 @@ public class TextVariable extends Variable {
 				currentWidth = 0;
 			} else {
 				TextureRegion charTexture = fontVariable.getCharTexture(currentChar);
-				FontKerning kerning = fontVariable.getCharKerning(currentChar);
+				FontCropping kerning = fontVariable.getCharCropping(currentChar);
 				currentWidth += (charTexture.getRegionWidth() - kerning.getRight());
 			}
 		}

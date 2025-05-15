@@ -1,11 +1,9 @@
 package pl.genschu.bloomooemulator.loader;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.graphics.Pixmap;
-import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import pl.genschu.bloomooemulator.interpreter.variable.types.FontVariable;
-import pl.genschu.bloomooemulator.objects.FontKerning;
+import pl.genschu.bloomooemulator.objects.FontCropping;
 import pl.genschu.bloomooemulator.objects.Image;
 import pl.genschu.bloomooemulator.utils.FileUtils;
 
@@ -55,14 +53,25 @@ public class FontLoader {
             fontVariable.setCharTexture(character, null);
         }
 
-        // Skip weird matrix
-        fileInputStream.skip(numChars * numChars);
+        byte[] kerningData = new byte[numChars * numChars];
+        fileInputStream.read(kerningData);
+
+        for (int i = 0; i < numChars; i++) {
+            fontVariable.setCharKerning(i, new int[numChars]);
+            for (int j = 0; j < numChars; j++) {
+                fontVariable.setCharKerning(i, j, kerningData[i * numChars + j]);
+            }
+        }
 
         for (int i = 0; i < numChars; i++) {
             int kerningLeft = fileInputStream.read();
+            fontVariable.setCharCropping(fontVariable.getCharTextureKeys().get(i), new FontCropping(kerningLeft, 0));
+        }
+
+        for (int i = 0; i < numChars; i++) {
             int kerningRight = fileInputStream.read();
-            char character = fontVariable.getCharTextureKeys().get(i);
-            fontVariable.setCharKerning(character, new FontKerning(kerningLeft, kerningRight));
+            FontCropping cropping = fontVariable.getCharCropping(fontVariable.getCharTextureKeys().get(i));
+            cropping.setRight(kerningRight);
         }
 
         byte[] imageData = new byte[lineLength * charHeight * 2];
