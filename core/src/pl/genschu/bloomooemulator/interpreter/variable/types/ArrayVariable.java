@@ -19,7 +19,7 @@ import pl.genschu.bloomooemulator.utils.ArgumentsHelper;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ArrayVariable extends Variable {
+public class ArrayVariable extends Variable implements Cloneable {
 	List<Variable> elements;
 
 	public ArrayVariable(String name, Context context) {
@@ -480,4 +480,11 @@ public class ArrayVariable extends Variable {
 	public void setElements(List<Variable> elements) {
 		this.elements = elements;
 	}
+
+    @Override
+    public ArrayVariable clone() {
+        ArrayVariable clone = (ArrayVariable) super.clone();
+		clone.setElements(new ArrayList<>(elements));
+        return clone;
+    }
 }
