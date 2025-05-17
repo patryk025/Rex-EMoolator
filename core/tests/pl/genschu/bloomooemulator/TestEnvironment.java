@@ -26,4 +26,12 @@ public class TestEnvironment {
         Gdx.app.setLogLevel(Application.LOG_NONE);
         initialised = true;
     }
+
+    public static void enableLogs() {
+        Gdx.app.setLogLevel(Application.LOG_DEBUG);
+    }
+
+    public static void disableLogs() {
+        Gdx.app.setLogLevel(Application.LOG_NONE);
+    }
 }

@@ -37,7 +37,7 @@ public class AnimoStateTransitionTree {
                 .then(ctx -> AnimoState.STOPPED)
             .andWhen(ctx -> getAnimoEvent(ctx) == AnimoEvent.END && getCurrentAnimoState(ctx) == AnimoState.PLAYING)
                 .then(ctx -> AnimoState.IDLE)
-            .andWhen(ctx -> getAnimoEvent(ctx) == AnimoEvent.SHOW)
+            .andWhen(ctx -> getAnimoEvent(ctx) == AnimoEvent.SHOW && getCurrentAnimoState(ctx) == AnimoState.INIT)
                 .then(ctx -> AnimoState.IDLE)
             .andWhen(ctx -> getAnimoEvent(ctx) == AnimoEvent.HIDE && (getCurrentAnimoState(ctx) != AnimoState.PLAYING && getCurrentAnimoState(ctx) != AnimoState.HIDDEN))
                 .then(ctx -> AnimoState.HIDDEN)

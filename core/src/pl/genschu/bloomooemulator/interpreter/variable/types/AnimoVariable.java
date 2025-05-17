@@ -480,6 +480,7 @@ public class AnimoVariable extends Variable implements Cloneable {
 						return null;
 					}
 
+					setCurrentFrameNumber(0);
 					changeAnimoState(AnimoEvent.PLAY);
 					//Gdx.app.log("updateRect()", "NPLAY");
 				} catch (IndexOutOfBoundsException e) {
