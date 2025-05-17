@@ -193,11 +193,7 @@ public class ArrayVariable extends Variable implements Cloneable {
 				try {
 					return elements.get(ArgumentsHelper.getInteger(arguments.get(0)));
 				} catch (IndexOutOfBoundsException e) {
-					if(arguments.size() > 1) {
-						return (Variable) arguments.get(1);
-					} else {
-						return new IntegerVariable("", 0, context);
-					}
+					return new StringVariable("", "NULL", context);
 				}
 			}
 		});
