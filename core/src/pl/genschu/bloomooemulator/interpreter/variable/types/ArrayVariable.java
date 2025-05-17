@@ -8,6 +8,7 @@ import pl.genschu.bloomooemulator.interpreter.arithmetic.operations.SubtractOper
 import pl.genschu.bloomooemulator.interpreter.exceptions.ClassMethodNotImplementedException;
 import pl.genschu.bloomooemulator.interpreter.Context;
 import pl.genschu.bloomooemulator.interpreter.factories.VariableFactory;
+import pl.genschu.bloomooemulator.interpreter.logic.operations.EqualsOperation;
 import pl.genschu.bloomooemulator.interpreter.variable.Attribute;
 import pl.genschu.bloomooemulator.interpreter.variable.Method;
 import pl.genschu.bloomooemulator.interpreter.variable.Parameter;
@@ -173,8 +174,12 @@ public class ArrayVariable extends Variable implements Cloneable {
 			public Variable execute(List<Object> arguments) {
 				Variable needle = (Variable) arguments.get(0);
 
+				EqualsOperation operation = new EqualsOperation();
+
 				for(int i = 0; i < elements.size(); i++) {
-					if(elements.get(i).toString().equals(needle.toString())) {
+					Variable element = elements.get(i);
+
+					if(((BoolVariable) operation.performOperation(element, needle)).GET()) {
 						return new IntegerVariable("", i, context);
 					}
 				}
@@ -371,8 +376,12 @@ public class ArrayVariable extends Variable implements Cloneable {
 			public Variable execute(List<Object> arguments) {
 				Variable needle = (Variable) arguments.get(0);
 
+				EqualsOperation operation = new EqualsOperation();
+
 				for(int i = elements.size() - 1; i >= 0 ; i--) {
-					if(elements.get(i).toString().equals(needle.toString())) {
+					Variable element = elements.get(i);
+
+					if(((BoolVariable) operation.performOperation(element, needle)).GET()) {
 						return new IntegerVariable("", i, context);
 					}
 				}
