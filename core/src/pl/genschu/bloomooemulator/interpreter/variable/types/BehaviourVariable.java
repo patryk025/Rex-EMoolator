@@ -115,7 +115,7 @@ public class BehaviourVariable extends Variable {
 				}
 
 				for(int i = 0; i < arguments.size(); i++) {
-					context.setVariable("$"+(i+1), (Variable) arguments.get(i));
+					context.setVariable("$"+(i+1), prepareArgument((Variable) arguments.get(i)));
 				}
 
 				Gdx.app.log("BehaviourVariable", "Running behaviour " + getName() + " with " + arguments.size() + " arguments");
@@ -200,7 +200,8 @@ public class BehaviourVariable extends Variable {
 				}
 
 				for(int i = 0; i < arguments.size(); i++) {
-					context.setVariable("$"+(i+1), (Variable) arguments.get(i));
+					// try to resolve variable
+					context.setVariable("$"+(i+1), prepareArgument((Variable) arguments.get(i)));
 				}
 
 				Gdx.app.log("BehaviourVariable", "Running behaviour " + getName() + " with " + arguments.size() + " arguments");
@@ -276,7 +277,8 @@ public class BehaviourVariable extends Variable {
 
 				if(arguments.size() > 3) {
 					for(int i = 3; i < arguments.size(); i++) {
-						context.setVariable("$"+i, (Variable) arguments.get(i));
+						// try to resolve variable
+						context.setVariable("$"+i, prepareArgument((Variable) arguments.get(i)));
 					}
 				}
 
@@ -324,6 +326,19 @@ public class BehaviourVariable extends Variable {
 				return null;
 			}
 		});
+	}
+
+	private Variable prepareArgument(Variable argument) {
+		if(argument instanceof StringVariable) {
+			String varValue = ((StringVariable) argument).GET();
+			if(context.hasVariable(varValue)) {
+				return context.getVariable(varValue);
+			}
+			else {
+				return argument;
+			}
+		}
+		return argument;
 	}
 
 	@Override
