@@ -2,6 +2,8 @@ package pl.genschu.bloomooemulator.interpreter.variable.types;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.audio.Music;
+import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.Pixmap;
 import pl.genschu.bloomooemulator.engine.decision.events.AnimoEvent;
 import pl.genschu.bloomooemulator.engine.decision.events.ButtonEvent;
 import pl.genschu.bloomooemulator.engine.decision.states.AnimoState;
@@ -1202,6 +1204,16 @@ public class AnimoVariable extends Variable implements Cloneable {
 		}
 
 		return opacity / 255f;
+	}
+
+	public int getAlpha(int x, int y) {
+		if(currentImage == null) return 0;
+
+		if(currentImage.getImageTexture() == null) return 0;
+
+		Pixmap pixmap = currentImage.getImageTexture().getTextureData().consumePixmap();
+		Color color = new Color(pixmap.getPixel(x, y));
+		return (int) (color.a * 255f);
 	}
 
 	public void setOpacity(int opacity) {

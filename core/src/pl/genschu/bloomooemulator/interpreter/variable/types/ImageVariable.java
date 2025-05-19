@@ -38,9 +38,9 @@ public class ImageVariable extends Variable implements Cloneable {
 	private boolean isVisible = true;
 	private boolean monitorCollision = false;
 
-	private Map<String, Rectangle> alphaMasks = new HashMap<>();
+	private final Map<String, Rectangle> alphaMasks = new HashMap<>();
 
-	private List<Filter> filters = new ArrayList<>();
+	private final List<Filter> filters = new ArrayList<>();
 
 	public ImageVariable(String name, Context context) {
 		super(name, context);
@@ -72,13 +72,7 @@ public class ImageVariable extends Variable implements Cloneable {
 				int posX = ArgumentsHelper.getInteger(arguments.get(0));
 				int posY = ArgumentsHelper.getInteger(arguments.get(1));
 
-				if(image == null) return new IntegerVariable("", 0, context);
-
-				if(image.getImageTexture() == null) return new IntegerVariable("", 0, context);
-
-				Pixmap pixmap = image.getImageTexture().getTextureData().consumePixmap();
-				Color color = new Color(pixmap.getPixel(posX, posY));
-				int alpha = (int) (color.a * 255f);
+				int alpha = getAlpha(posX, posY);
 				return new IntegerVariable("", alpha, context);
 			}
 		});
@@ -460,6 +454,16 @@ public class ImageVariable extends Variable implements Cloneable {
 	public boolean isAt(int x, int y) {
 		// TODO: check how it works
 		return x >= rect.getXLeft() && x <= rect.getXRight() && y >= rect.getYTop() && y <= rect.getYBottom();
+	}
+
+	public int getAlpha(int x, int y) {
+		if(image == null) return 0;
+
+		if(image.getImageTexture() == null) return 0;
+
+		Pixmap pixmap = image.getImageTexture().getTextureData().consumePixmap();
+		Color color = new Color(pixmap.getPixel(x, y));
+		return (int) (color.a * 255f);
 	}
 
 	public Image getImage() {

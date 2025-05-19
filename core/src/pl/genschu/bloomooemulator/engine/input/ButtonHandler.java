@@ -16,6 +16,8 @@ import java.util.List;
 public class ButtonHandler {
     private final Game game;
     private final InputManager inputManager;
+    // TODO: debug, check pixel perfect
+    private final boolean pixelPerfect = true;
 
     public ButtonHandler(Game game, InputManager inputManager) {
         this.game = game;
@@ -72,6 +74,10 @@ public class ButtonHandler {
                 if (image != null) {
                     int priority = getPriority(image);
                     if (priority < minHSPriority || priority > maxHSPriority) continue;
+                    if(pixelPerfect) {
+                        //Gdx.app.debug("ButtonHandler", "Alpha for "+image.getName()+": " + getAlpha(image, x, y));
+                        if(getAlpha(image, x, y) == 0) continue;
+                    }
                 }
 
                 // Check if button is enabled
@@ -88,6 +94,10 @@ public class ButtonHandler {
 
                 // Check if animo is under cursor
                 if (animo.getRect() != null && animo.getRect().contains(x, y)) {
+                    if(pixelPerfect) {
+                        //Gdx.app.debug("ButtonHandler", "Alpha for "+animo.getName()+": " + getAlpha(animo, x, y));
+                        if(getAlpha(animo, x, y) == 0) continue;
+                    }
                     focusedButton = animo;
                     break;
                 }
@@ -168,6 +178,18 @@ public class ButtonHandler {
                 animo.changeButtonState(ButtonEvent.FOCUS_ON);
             }
         }
+    }
+
+    private int getAlpha(Variable image, int x, int y) {
+        if(image instanceof ImageVariable) {
+            ImageVariable imageVariable = (ImageVariable) image;
+            return imageVariable.getAlpha(x-imageVariable.getPosX(), y-imageVariable.getPosY());
+        }
+        if(image instanceof AnimoVariable) {
+            AnimoVariable animoVariable = (AnimoVariable) image;
+            return ((AnimoVariable) image).getAlpha(x-animoVariable.getRect().getXLeft(), y-animoVariable.getRect().getYTop());
+        }
+        return 0;
     }
 
     private void handleButtonRelease(boolean justReleased) {
