@@ -1,5 +1,6 @@
 package pl.genschu.bloomooemulator.logic;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Json;
 
@@ -8,7 +9,7 @@ import java.nio.charset.StandardCharsets;
 
 public class GameManager {
     private Array<GameEntry> games;
-    private String filePath;
+    private final String filePath;
 
     public GameManager(String filePath) {
         games = new Array<>();
@@ -16,15 +17,19 @@ public class GameManager {
 
         try {
             File file = new File(this.filePath);
+
+            // to, tylko żeby IntelliJ nie narzekał na nieużywaną wartość zwracaną
+            //noinspection ResultOfMethodCallIgnored
             file.getParentFile().mkdirs();
             if (file.exists()) {
                 // load json from file
                 String json = loadFile(file);
                 Json jsonParser = new Json();
-                games = jsonParser.fromJson(Array.class, GameEntry.class, json);
+                GameEntry[] entries = jsonParser.fromJson(GameEntry[].class, json);
+                games = new Array<>(entries);
             }
         } catch(Exception e) {
-            e.printStackTrace();
+            Gdx.app.error("GameManager", "Error loading games.json", e);
         }
     }
 
@@ -36,7 +41,9 @@ public class GameManager {
                 content.append((char) data);
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            Gdx.app.error("GameManager", "Error reading file: " + file.getAbsolutePath(), e);
+        } catch (Exception e) {
+            Gdx.app.error("GameManager", "Unexpected error", e);
         }
         return content.toString();
     }
@@ -45,7 +52,9 @@ public class GameManager {
         try (OutputStreamWriter writer = new OutputStreamWriter(new FileOutputStream(file), StandardCharsets.UTF_8)) {
             writer.write(data);
         } catch (IOException e) {
-            e.printStackTrace();
+            Gdx.app.error("GameManager", "Error writing file: " + file.getAbsolutePath(), e);
+        } catch (Exception e) {
+            Gdx.app.error("GameManager", "Unexpected error", e);
         }
     }
 
