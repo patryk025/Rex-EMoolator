@@ -1211,9 +1211,21 @@ public class AnimoVariable extends Variable implements Cloneable {
 
 		if(currentImage.getImageTexture() == null) return 0;
 
-		Pixmap pixmap = currentImage.getImageTexture().getTextureData().consumePixmap();
+		return getAlpha(currentImage, x, y);
+	}
+
+	public int getAlpha(Image image, int x, int y) {
+		Pixmap pixmap = image.getImageTexture().getTextureData().consumePixmap();
 		Color color = new Color(pixmap.getPixel(x, y));
 		return (int) (color.a * 255f);
+	}
+
+	public int getPosX() {
+		return posX;
+	}
+
+	public int getPosY() {
+		return posY;
 	}
 
 	public void setOpacity(int opacity) {
@@ -1339,6 +1351,15 @@ public class AnimoVariable extends Variable implements Cloneable {
 			}
 		}
 		return false;
+	}
+
+	public Event getEvent(String eventName) {
+		for(Event event : events) {
+			if(event.getName().equals(eventName)) {
+				return event;
+			}
+		}
+		return null;
 	}
 
 	public List<Event> getEventsWithPrefix(String prefix) {

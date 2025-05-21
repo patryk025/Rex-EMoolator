@@ -22,7 +22,6 @@ public class ButtonVariable extends Variable {
 	private Variable gfxOnMove;
 	private Variable gfxVariable;
 	private Variable gfxOnClick;
-	private Variable currentGfx;
 
 	private Variable soundStandard = null;
 	private Variable soundOnMove = null;
@@ -333,7 +332,6 @@ public class ButtonVariable extends Variable {
 		}
 		if(getAttribute("GFXSTANDARD") != null && gfxVariable == null) {
 			gfxVariable = context.getVariable(getAttribute("GFXSTANDARD").getValue().toString());
-			currentGfx = gfxVariable;
 		}
 
 		if(getAttribute("GFXONMOVE") != null && gfxOnMove == null) {
@@ -370,7 +368,16 @@ public class ButtonVariable extends Variable {
 	}
 
 	public Variable getCurrentImage() {
-		return currentGfx;
+		switch (state) {
+			case STANDARD:
+				return gfxVariable;
+			case HOVERED:
+				return gfxOnMove != null ? gfxOnMove : gfxVariable;
+			case PRESSED:
+				return gfxOnClick != null ? gfxOnClick : gfxVariable;
+			default:
+				return null;
+		}
 	}
 
 	public Variable getSoundStandard() {

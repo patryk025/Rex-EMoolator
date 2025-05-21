@@ -9,6 +9,9 @@ import pl.genschu.bloomooemulator.interpreter.Context;
 import pl.genschu.bloomooemulator.interpreter.variable.Signal;
 import pl.genschu.bloomooemulator.interpreter.variable.Variable;
 import pl.genschu.bloomooemulator.interpreter.variable.types.*;
+import pl.genschu.bloomooemulator.objects.Event;
+import pl.genschu.bloomooemulator.objects.FrameData;
+import pl.genschu.bloomooemulator.objects.Image;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -183,10 +186,30 @@ public class ButtonHandler {
     private int getAlpha(Variable image, int x, int y) {
         if(image instanceof ImageVariable) {
             ImageVariable imageVariable = (ImageVariable) image;
+            //Gdx.app.debug("ButtonHandler", "x,y: " + x + ", " + y + " - img.x,y: " + imageVariable.getPosX() + ", " + imageVariable.getPosY());
             return imageVariable.getAlpha(x-imageVariable.getPosX(), y-imageVariable.getPosY());
         }
         if(image instanceof AnimoVariable) {
             AnimoVariable animoVariable = (AnimoVariable) image;
+            Event noEvent = animoVariable.getEvent("ONNOEVENT");
+            if(noEvent != null) {
+                Image noEventImage = noEvent.getFrames().get(0);
+                FrameData frameData = !noEvent.getFrameData().isEmpty()
+                        ? noEvent.getFrameData().get(0)
+                        : null;
+
+                int frameOffsetX = frameData != null ? frameData.getOffsetX() : 0;
+                int frameOffsetY = frameData != null ? frameData.getOffsetY() : 0;
+
+                int offsetX = animoVariable.getPosX() + frameOffsetX + noEventImage.offsetX;
+                int offsetY = animoVariable.getPosY() + frameOffsetY + noEventImage.offsetY;
+
+                //Gdx.app.debug("ButtonHandler", "animoVariable: " + animoVariable.getName());
+                //Gdx.app.debug("ButtonHandler", "image: " + noEventImage);
+                //Gdx.app.debug("ButtonHandler", "x,y: " + x + ", " + y + " - animo.x,y: " + offsetX + ", " + offsetY);
+                return ((AnimoVariable) image).getAlpha(noEventImage, x-offsetX, y-offsetY);
+            }
+            //Gdx.app.debug("ButtonHandler", "x,y: " + x + ", " + y + " - animo.x,y: " + animoVariable.getRect().getXLeft() + ", " + animoVariable.getRect().getYTop());
             return ((AnimoVariable) image).getAlpha(x-animoVariable.getRect().getXLeft(), y-animoVariable.getRect().getYTop());
         }
         return 0;
