@@ -1015,6 +1015,10 @@ public class AnimoVariable extends Variable implements Cloneable {
 	}
 
 	public void updateAnimation(float deltaTime) {
+		if(context.getGame().getCurrentScene().equals("S62_PAKMAN") && getName().startsWith("ANNWORM")) {
+			Gdx.app.debug("AnimoVariable", "Current state of " + getName() + " is " + animationState);
+			Gdx.app.debug("AnimoVariable", "Current position of " + getName() + " is " + getRect().getXLeft() + ", " + getRect().getYTop());
+		}
 		elapsedTime += deltaTime;
 		if (elapsedTime >= frameDuration) {
 			elapsedTime -= frameDuration;
