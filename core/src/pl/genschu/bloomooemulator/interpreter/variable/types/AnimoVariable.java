@@ -485,8 +485,8 @@ public class AnimoVariable extends Variable implements Cloneable {
 					}
 
 					isVisible = true;
-					setCurrentFrameNumber(0);
 					changeAnimoState(AnimoEvent.PLAY);
+					setCurrentFrameNumber(0);
 					//Gdx.app.log("updateRect()", "NPLAY");
 				} catch (IndexOutOfBoundsException e) {
 					Gdx.app.error("AnimoVariable", "Event with id " + eventId + " not found");
@@ -514,8 +514,8 @@ public class AnimoVariable extends Variable implements Cloneable {
 				}
 
 				isVisible = true;
-				setCurrentFrameNumber(0);
 				changeAnimoState(AnimoEvent.PLAY);
+				setCurrentFrameNumber(0);
 				return null;
 			}
 		});
@@ -538,8 +538,8 @@ public class AnimoVariable extends Variable implements Cloneable {
 						}
 
 						isVisible = true;
-						setCurrentFrameNumber(0);
 						changeAnimoState(AnimoEvent.PLAY);
+						setCurrentFrameNumber(0);
 						//Gdx.app.log("updateRect()", "PLAY");
 
 						break;
@@ -949,21 +949,10 @@ public class AnimoVariable extends Variable implements Cloneable {
 
 		if(animationState != oldAnimationState) {
 			switch (animationState) {
-				case PLAYING:
-					if(oldAnimationState == AnimoState.IDLE || oldAnimationState == AnimoState.INIT) {
-						emitSignal("ONSTARTED", currentEvent.getName());
-					}
-					if(oldAnimationState == AnimoState.PAUSED) {
-						emitSignal("ONRESUMED", currentEvent.getName());
-					}
-					break;
 				case STOPPED:
 					if(emitSignal && oldAnimationState == AnimoState.PLAYING) {
 						emitSignal("ONFINISHED", currentEvent.getName());
 					}
-					break;
-				case PAUSED:
-					emitSignal("ONPAUSED", currentEvent.getName());
 					break;
 				case IDLE:
 					if(oldAnimationState == AnimoState.PLAYING)
@@ -1297,6 +1286,9 @@ public class AnimoVariable extends Variable implements Cloneable {
 		updateRect();
 		if(emitFrameChanged) {
 			emitSignal("ONFRAMECHANGED", currentEvent != null ? currentEvent.getName() : null);
+			if(currentFrameNumber == 0) {
+				emitSignal("ONSTARTED", currentEvent != null ? currentEvent.getName() : null);
+			}
 		}
 	}
 

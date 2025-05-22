@@ -37,9 +37,13 @@ class AnimoTest {
         List<String> signals = new ArrayList<>();
         List<Integer> frames = new ArrayList<>();
         List<Integer> images = new ArrayList<>();
-        CapturingAnimo(String name, Context ctx) { super(name, ctx); }
+
+        int eventLimit;
+        CapturingAnimo(String name, Context ctx) { this(name, ctx, Integer.MAX_VALUE); }
+        CapturingAnimo(String name, Context ctx, int eventLimit) { super(name, ctx); this.eventLimit = eventLimit; }
         @Override
         public void emitSignal(String s, Object arg) {
+            if(signals.size() >= eventLimit) throw new RuntimeException("Too many signals");
             signals.add(arg == null ? s : s + "^" + arg);
             frames.add(getCurrentFrameNumber());
             images.add(getCurrentImageNumber());
@@ -115,15 +119,293 @@ class AnimoTest {
                 "ONSTARTED^B",
                 "ONFRAMECHANGED^B",
                 "ONFRAMECHANGED^B",
-                "ONPAUSED^B", // somehow BlooMoo doesn't send this event
-                "ONRESUMED^B", // and this one also
                 "ONFINISHED^B"
         );
 
-        List<Integer> expectedFrames = List.of(0, 0, 1, 2, 3, 4, 5, 6, 6, 0, 0, 1, 2, 2, 2, 2);
-        List<Integer> expectedImages = List.of(0, 0, 2, 4, 6, 8, 10, 12, 12, 0, 0, 2, 4, 4, 4, 4);
+        List<Integer> expectedFrames = List.of(0, 0, 1, 2, 3, 4, 5, 6, 6, 0, 0, 1, 2, 2);
+        List<Integer> expectedImages = List.of(0, 0, 2, 4, 6, 8, 10, 12, 12, 0, 0, 2, 4, 4);
         assertEquals(expected, animo.signals);
         assertEquals(expectedFrames, animo.frames);
         assertEquals(expectedImages, animo.images);
+    }
+
+    @Test
+    void testPauseDuringRestartAnimo() {
+        // S65_ZAMEK
+        Context ctx = new ContextBuilder()
+                .withFactory("INTEGER", "VAROPACITY", 255)
+                .build();
+        CapturingAnimo animo = new CapturingAnimo("ANNST2", ctx, 200);
+        ctx.setVariable("ANNST2", animo);
+
+        IntegerVariable varOpacity = (IntegerVariable) ctx.getVariable("VAROPACITY");
+
+        animo.setSignal("ONFINISHED^ELAPSE", new Signal() {
+            @Override
+            public void execute(Object argument) {
+                animo.fireMethod("PLAY", new StringVariable("", "ELAPSE", ctx));
+            }
+        });
+
+        animo.setSignal("ONFRAMECHANGED^ELAPSE", new Signal() {
+            @Override
+            public void execute(Object argument) {
+                varOpacity.fireMethod("SUB", new IntegerVariable("", 4, ctx));
+            }
+        });
+
+        varOpacity.setSignal("ONCHANGED^0", new Signal() {
+            @Override
+            public void execute(Object argument) {
+                animo.fireMethod("PAUSE");
+            }
+        });
+
+        varOpacity.setSignal("ONCHANGED^-1", new Signal() {
+            @Override
+            public void execute(Object argument) {
+                animo.fireMethod("PAUSE");
+            }
+        });
+
+        varOpacity.setSignal("ONCHANGED^-2", new Signal() {
+            @Override
+            public void execute(Object argument) {
+                animo.fireMethod("PAUSE");
+            }
+        });
+
+        varOpacity.setSignal("ONCHANGED^-3", new Signal() {
+            @Override
+            public void execute(Object argument) {
+                animo.fireMethod("PAUSE");
+            }
+        });
+
+        varOpacity.setSignal("ONCHANGED^-4", new Signal() {
+            @Override
+            public void execute(Object argument) {
+                animo.fireMethod("PAUSE");
+            }
+        });
+
+        String filename = "st2.ann";
+        animo.setAttribute("FILENAME", new Attribute("STRING", filename));
+
+        try (MockedStatic<FileUtils> fu = Mockito.mockStatic(FileUtils.class)) {
+            String absPath = Gdx.files.internal("../assets/test-assets/"+filename).file().getAbsolutePath();
+            fu.when(() -> FileUtils.resolveRelativePath(Mockito.any(Variable.class)))
+                    .thenReturn(absPath);
+
+            animo.init();
+        }
+
+        // sanity check – check if loader works
+        assertTrue(animo.getEventsCount() > 0);
+
+        // switch state machine to PLAYING on that event
+        animo.fireMethod("PLAY", new StringVariable("", "ELAPSE", ctx));
+
+        float frameTime = 1f / animo.getFps();
+        while(animo.isPlaying()) {
+            animo.updateAnimation(frameTime);
+        }
+
+        // captured signals in strict order
+        List<String> expected = List.of(
+                "ONFRAMECHANGED^ELAPSE",
+                "ONSTARTED^ELAPSE",
+                "ONFINISHED^ELAPSE",
+                "ONFRAMECHANGED^ELAPSE",
+                "ONSTARTED^ELAPSE",
+                "ONFINISHED^ELAPSE",
+                "ONFRAMECHANGED^ELAPSE",
+                "ONSTARTED^ELAPSE",
+                "ONFINISHED^ELAPSE",
+                "ONFRAMECHANGED^ELAPSE",
+                "ONSTARTED^ELAPSE",
+                "ONFINISHED^ELAPSE",
+                "ONFRAMECHANGED^ELAPSE",
+                "ONSTARTED^ELAPSE",
+                "ONFINISHED^ELAPSE",
+                "ONFRAMECHANGED^ELAPSE",
+                "ONSTARTED^ELAPSE",
+                "ONFINISHED^ELAPSE",
+                "ONFRAMECHANGED^ELAPSE",
+                "ONSTARTED^ELAPSE",
+                "ONFINISHED^ELAPSE",
+                "ONFRAMECHANGED^ELAPSE",
+                "ONSTARTED^ELAPSE",
+                "ONFINISHED^ELAPSE",
+                "ONFRAMECHANGED^ELAPSE",
+                "ONSTARTED^ELAPSE",
+                "ONFINISHED^ELAPSE",
+                "ONFRAMECHANGED^ELAPSE",
+                "ONSTARTED^ELAPSE",
+                "ONFINISHED^ELAPSE",
+                "ONFRAMECHANGED^ELAPSE",
+                "ONSTARTED^ELAPSE",
+                "ONFINISHED^ELAPSE",
+                "ONFRAMECHANGED^ELAPSE",
+                "ONSTARTED^ELAPSE",
+                "ONFINISHED^ELAPSE",
+                "ONFRAMECHANGED^ELAPSE",
+                "ONSTARTED^ELAPSE",
+                "ONFINISHED^ELAPSE",
+                "ONFRAMECHANGED^ELAPSE",
+                "ONSTARTED^ELAPSE",
+                "ONFINISHED^ELAPSE",
+                "ONFRAMECHANGED^ELAPSE",
+                "ONSTARTED^ELAPSE",
+                "ONFINISHED^ELAPSE",
+                "ONFRAMECHANGED^ELAPSE",
+                "ONSTARTED^ELAPSE",
+                "ONFINISHED^ELAPSE",
+                "ONFRAMECHANGED^ELAPSE",
+                "ONSTARTED^ELAPSE",
+                "ONFINISHED^ELAPSE",
+                "ONFRAMECHANGED^ELAPSE",
+                "ONSTARTED^ELAPSE",
+                "ONFINISHED^ELAPSE",
+                "ONFRAMECHANGED^ELAPSE",
+                "ONSTARTED^ELAPSE",
+                "ONFINISHED^ELAPSE",
+                "ONFRAMECHANGED^ELAPSE",
+                "ONSTARTED^ELAPSE",
+                "ONFINISHED^ELAPSE",
+                "ONFRAMECHANGED^ELAPSE",
+                "ONSTARTED^ELAPSE",
+                "ONFINISHED^ELAPSE",
+                "ONFRAMECHANGED^ELAPSE",
+                "ONSTARTED^ELAPSE",
+                "ONFINISHED^ELAPSE",
+                "ONFRAMECHANGED^ELAPSE",
+                "ONSTARTED^ELAPSE",
+                "ONFINISHED^ELAPSE",
+                "ONFRAMECHANGED^ELAPSE",
+                "ONSTARTED^ELAPSE",
+                "ONFINISHED^ELAPSE",
+                "ONFRAMECHANGED^ELAPSE",
+                "ONSTARTED^ELAPSE",
+                "ONFINISHED^ELAPSE",
+                "ONFRAMECHANGED^ELAPSE",
+                "ONSTARTED^ELAPSE",
+                "ONFINISHED^ELAPSE",
+                "ONFRAMECHANGED^ELAPSE",
+                "ONSTARTED^ELAPSE",
+                "ONFINISHED^ELAPSE",
+                "ONFRAMECHANGED^ELAPSE",
+                "ONSTARTED^ELAPSE",
+                "ONFINISHED^ELAPSE",
+                "ONFRAMECHANGED^ELAPSE",
+                "ONSTARTED^ELAPSE",
+                "ONFINISHED^ELAPSE",
+                "ONFRAMECHANGED^ELAPSE",
+                "ONSTARTED^ELAPSE",
+                "ONFINISHED^ELAPSE",
+                "ONFRAMECHANGED^ELAPSE",
+                "ONSTARTED^ELAPSE",
+                "ONFINISHED^ELAPSE",
+                "ONFRAMECHANGED^ELAPSE",
+                "ONSTARTED^ELAPSE",
+                "ONFINISHED^ELAPSE",
+                "ONFRAMECHANGED^ELAPSE",
+                "ONSTARTED^ELAPSE",
+                "ONFINISHED^ELAPSE",
+                "ONFRAMECHANGED^ELAPSE",
+                "ONSTARTED^ELAPSE",
+                "ONFINISHED^ELAPSE",
+                "ONFRAMECHANGED^ELAPSE",
+                "ONSTARTED^ELAPSE",
+                "ONFINISHED^ELAPSE",
+                "ONFRAMECHANGED^ELAPSE",
+                "ONSTARTED^ELAPSE",
+                "ONFINISHED^ELAPSE",
+                "ONFRAMECHANGED^ELAPSE",
+                "ONSTARTED^ELAPSE",
+                "ONFINISHED^ELAPSE",
+                "ONFRAMECHANGED^ELAPSE",
+                "ONSTARTED^ELAPSE",
+                "ONFINISHED^ELAPSE",
+                "ONFRAMECHANGED^ELAPSE",
+                "ONSTARTED^ELAPSE",
+                "ONFINISHED^ELAPSE",
+                "ONFRAMECHANGED^ELAPSE",
+                "ONSTARTED^ELAPSE",
+                "ONFINISHED^ELAPSE",
+                "ONFRAMECHANGED^ELAPSE",
+                "ONSTARTED^ELAPSE",
+                "ONFINISHED^ELAPSE",
+                "ONFRAMECHANGED^ELAPSE",
+                "ONSTARTED^ELAPSE",
+                "ONFINISHED^ELAPSE",
+                "ONFRAMECHANGED^ELAPSE",
+                "ONSTARTED^ELAPSE",
+                "ONFINISHED^ELAPSE",
+                "ONFRAMECHANGED^ELAPSE",
+                "ONSTARTED^ELAPSE",
+                "ONFINISHED^ELAPSE",
+                "ONFRAMECHANGED^ELAPSE",
+                "ONSTARTED^ELAPSE",
+                "ONFINISHED^ELAPSE",
+                "ONFRAMECHANGED^ELAPSE",
+                "ONSTARTED^ELAPSE",
+                "ONFINISHED^ELAPSE",
+                "ONFRAMECHANGED^ELAPSE",
+                "ONSTARTED^ELAPSE",
+                "ONFINISHED^ELAPSE",
+                "ONFRAMECHANGED^ELAPSE",
+                "ONSTARTED^ELAPSE",
+                "ONFINISHED^ELAPSE",
+                "ONFRAMECHANGED^ELAPSE",
+                "ONSTARTED^ELAPSE",
+                "ONFINISHED^ELAPSE",
+                "ONFRAMECHANGED^ELAPSE",
+                "ONSTARTED^ELAPSE",
+                "ONFINISHED^ELAPSE",
+                "ONFRAMECHANGED^ELAPSE",
+                "ONSTARTED^ELAPSE",
+                "ONFINISHED^ELAPSE",
+                "ONFRAMECHANGED^ELAPSE",
+                "ONSTARTED^ELAPSE",
+                "ONFINISHED^ELAPSE",
+                "ONFRAMECHANGED^ELAPSE",
+                "ONSTARTED^ELAPSE",
+                "ONFINISHED^ELAPSE",
+                "ONFRAMECHANGED^ELAPSE",
+                "ONSTARTED^ELAPSE",
+                "ONFINISHED^ELAPSE",
+                "ONFRAMECHANGED^ELAPSE",
+                "ONSTARTED^ELAPSE",
+                "ONFINISHED^ELAPSE",
+                "ONFRAMECHANGED^ELAPSE",
+                "ONSTARTED^ELAPSE",
+                "ONFINISHED^ELAPSE",
+                "ONFRAMECHANGED^ELAPSE",
+                "ONSTARTED^ELAPSE",
+                "ONFINISHED^ELAPSE",
+                "ONFRAMECHANGED^ELAPSE",
+                "ONSTARTED^ELAPSE",
+                "ONFINISHED^ELAPSE",
+                "ONFRAMECHANGED^ELAPSE",
+                "ONSTARTED^ELAPSE",
+                "ONFINISHED^ELAPSE",
+                "ONFRAMECHANGED^ELAPSE",
+                "ONSTARTED^ELAPSE",
+                "ONFINISHED^ELAPSE",
+                "ONFRAMECHANGED^ELAPSE",
+                "ONSTARTED^ELAPSE",
+                "ONFINISHED^ELAPSE",
+                "ONFRAMECHANGED^ELAPSE",
+                "ONSTARTED^ELAPSE",
+                "ONFINISHED^ELAPSE",
+                "ONFRAMECHANGED^ELAPSE",
+                "ONSTARTED^ELAPSE",
+                "ONFINISHED^ELAPSE",
+                "ONFRAMECHANGED^ELAPSE",
+                "ONSTARTED^ELAPSE"
+        );
+
+        assertEquals(expected, animo.signals);
     }
 }
