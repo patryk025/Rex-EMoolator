@@ -367,11 +367,19 @@ public class BehaviourVariable extends Variable {
 			Token token = error.getOffendingToken();
 			String msg = error.getMessage();
 
-			if (msg.contains("no viable alternative") && token.getType() == AidemMediaParser.ENDINSTR) {
+			if (msg.contains("no viable alternative")) {
 				Token prevToken = rewriter.getTokenStream().get(token.getTokenIndex() - 1);
-				if (prevToken != null && prevToken.getType() == AidemMediaParser.RPAREN) {
-					rewriter.insertBefore(prevToken, "\"");
-					Gdx.app.log("FixCode", "Inserted missing quotation mark before " + prevToken.getText());
+				if(token.getType() == AidemMediaParser.ENDINSTR) {
+					if (prevToken != null && prevToken.getType() == AidemMediaParser.RPAREN) {
+						rewriter.insertBefore(prevToken, "\"");
+						Gdx.app.log("FixCode", "Inserted missing quotation mark before " + prevToken.getText());
+					}
+				}
+				if(token.getType() == AidemMediaParser.SEPARATOR) {
+					if (prevToken != null && prevToken.getType() == AidemMediaParser.LITERAL) {
+						rewriter.insertAfter(prevToken, "\"");
+						Gdx.app.log("FixCode", "Inserted missing quotation mark after " + prevToken.getText());
+					}
 				}
 			}
 		}
