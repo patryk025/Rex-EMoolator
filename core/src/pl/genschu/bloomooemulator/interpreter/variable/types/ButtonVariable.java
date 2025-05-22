@@ -396,6 +396,10 @@ public class ButtonVariable extends Variable {
 		return state;
 	}
 
+	public Variable getRectVariable() {
+		return rectVariable;
+	}
+
 	public Rectangle getRect() {
 		if(rect == null) {
 			if (getAttribute("GFXSTANDARD") != null) {

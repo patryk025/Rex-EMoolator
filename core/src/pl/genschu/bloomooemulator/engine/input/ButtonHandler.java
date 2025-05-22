@@ -77,7 +77,7 @@ public class ButtonHandler {
                 if (image != null) {
                     int priority = getPriority(image);
                     if (priority < minHSPriority || priority > maxHSPriority) continue;
-                    if(pixelPerfect) {
+                    if(pixelPerfect && !(button.getRectVariable() instanceof StringVariable )) {
                         //Gdx.app.debug("ButtonHandler", "Alpha for "+image.getName()+": " + getAlpha(image, x, y));
                         if(getAlpha(image, x, y) == 0) continue;
                     }
