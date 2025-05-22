@@ -39,6 +39,8 @@ public class AnimoVariable extends Variable implements Cloneable {
 	private List<Event> events;
 	private List<Image> images;
 
+	private boolean isVisible = true;
+
 	private Event currentEvent;
 	private int currentFrameNumber = 0;
 	private int currentImageNumber = 0;
@@ -320,7 +322,7 @@ public class AnimoVariable extends Variable implements Cloneable {
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				changeAnimoState(AnimoEvent.HIDE);
+				isVisible = false;
 				return null;
 			}
 		});
@@ -482,6 +484,7 @@ public class AnimoVariable extends Variable implements Cloneable {
 						return null;
 					}
 
+					isVisible = true;
 					setCurrentFrameNumber(0);
 					changeAnimoState(AnimoEvent.PLAY);
 					//Gdx.app.log("updateRect()", "NPLAY");
@@ -510,6 +513,7 @@ public class AnimoVariable extends Variable implements Cloneable {
 					return null;
 				}
 
+				isVisible = true;
 				setCurrentFrameNumber(0);
 				changeAnimoState(AnimoEvent.PLAY);
 				return null;
@@ -533,6 +537,7 @@ public class AnimoVariable extends Variable implements Cloneable {
 							return null;
 						}
 
+						isVisible = true;
 						setCurrentFrameNumber(0);
 						changeAnimoState(AnimoEvent.PLAY);
 						//Gdx.app.log("updateRect()", "PLAY");
@@ -817,7 +822,7 @@ public class AnimoVariable extends Variable implements Cloneable {
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				changeAnimoState(AnimoEvent.SHOW);
+				isVisible = true;
 				return null;
 			}
 		});
@@ -892,6 +897,7 @@ public class AnimoVariable extends Variable implements Cloneable {
 	private void initMissingAttributes() {
 		if(getAttribute("VISIBLE") == null) {
 			setAttribute("VISIBLE", new Attribute("BOOL", "TRUE"));
+			isVisible = true;
 		}
 		if(getAttribute("ASBUTTON") == null) {
 			setAttribute("ASBUTTON", new Attribute("BOOL", "FALSE"));
@@ -914,7 +920,7 @@ public class AnimoVariable extends Variable implements Cloneable {
 	}
 
 	private void initAttributes() {
-		changeAnimoState(getAttribute("VISIBLE").getBool() ? AnimoEvent.SHOW : AnimoEvent.HIDE);
+		isVisible = getAttribute("VISIBLE").getBool();
 		if(getAttribute("ASBUTTON").getBool()) {
 			changeButtonState(ButtonEvent.ENABLE);
 		}
@@ -944,7 +950,7 @@ public class AnimoVariable extends Variable implements Cloneable {
 		if(animationState != oldAnimationState) {
 			switch (animationState) {
 				case PLAYING:
-					if(oldAnimationState == AnimoState.IDLE) {
+					if(oldAnimationState == AnimoState.IDLE || oldAnimationState == AnimoState.INIT) {
 						emitSignal("ONSTARTED", currentEvent.getName());
 					}
 					if(oldAnimationState == AnimoState.PAUSED) {
@@ -1015,10 +1021,13 @@ public class AnimoVariable extends Variable implements Cloneable {
 	}
 
 	public void updateAnimation(float deltaTime) {
-		if(context.getGame().getCurrentScene().equals("S62_PAKMAN") && getName().startsWith("ANNWORM")) {
+		/*if(context.getGame().getCurrentScene().equals("S62_PAKMAN") && getName().startsWith("ANNWORM")) {
 			Gdx.app.debug("AnimoVariable", "Current state of " + getName() + " is " + animationState);
 			Gdx.app.debug("AnimoVariable", "Current position of " + getName() + " is " + getRect().getXLeft() + ", " + getRect().getYTop());
-		}
+			Gdx.app.debug("AnimoVariable", "Current frame of " + getName() + " is " + currentFrameNumber);
+			Gdx.app.debug("AnimoVariable", "Current event of " + getName() + " is " + currentEvent.getName());
+			Gdx.app.debug("AnimoVariable", "Current FPS " + getName() + " is " + fps + " (" + frameDuration + "s)");
+		}*/
 		elapsedTime += deltaTime;
 		if (elapsedTime >= frameDuration) {
 			elapsedTime -= frameDuration;
@@ -1329,7 +1338,11 @@ public class AnimoVariable extends Variable implements Cloneable {
 	}
 
 	public boolean isVisible() {
-		return animationState != AnimoState.HIDDEN;
+		return isVisible;
+	}
+
+	public void setVisible(boolean visible) {
+		this.isVisible = visible;
 	}
 
 	public boolean isRenderedOnCanvas() {

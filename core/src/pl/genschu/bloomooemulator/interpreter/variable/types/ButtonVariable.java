@@ -449,15 +449,15 @@ public class ButtonVariable extends Variable {
 				animoVariable.setAttribute("TOCANVAS", new Attribute("BOOL", "TRUE"));
 
 				if(visible) {
-					if(animoVariable.getAnimationState() == AnimoState.HIDDEN)
+					if(animoVariable.isVisible())
 						animoVariable.changeAnimoState(AnimoEvent.PLAY);
 					else {
-						animoVariable.changeAnimoState(AnimoEvent.SHOW);
+						animoVariable.setVisible(true);
 					}
 				}
 				else {
 					animoVariable.changeAnimoState(AnimoEvent.STOP, false); // first stop
-					animoVariable.changeAnimoState(AnimoEvent.HIDE); // then hide
+					animoVariable.setVisible(false); // then hide
 				}
 			}
 		}

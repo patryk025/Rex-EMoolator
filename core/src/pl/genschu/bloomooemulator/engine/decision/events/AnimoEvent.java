@@ -5,8 +5,6 @@ public enum AnimoEvent {
     STOP,
     PAUSE,
     END,
-    SHOW,
-    HIDE,
     PREV_FRAME,
     NEXT_FRAME,
     SET_FRAME

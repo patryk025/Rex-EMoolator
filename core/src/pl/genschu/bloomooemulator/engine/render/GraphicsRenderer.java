@@ -67,7 +67,7 @@ public class GraphicsRenderer implements Disposable {
      * Renders an object of type AnimoVariable.
      */
     public void renderAnimo(AnimoVariable animoVariable) {
-        if (!animoVariable.isVisible() && !animoVariable.isPlaying()) {
+        if (!animoVariable.isVisible()) {
             return;
         }
 
