@@ -3,6 +3,7 @@ package pl.genschu.bloomooemulator.interpreter.variable.types;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.audio.Music;
 import pl.genschu.bloomooemulator.interpreter.Context;
+import pl.genschu.bloomooemulator.interpreter.exceptions.ClassMethodNotImplementedException;
 import pl.genschu.bloomooemulator.interpreter.variable.Attribute;
 import pl.genschu.bloomooemulator.interpreter.variable.Method;
 import pl.genschu.bloomooemulator.interpreter.variable.Parameter;
@@ -88,6 +89,20 @@ public class SoundVariable extends Variable {
 			public Variable execute(List<Object> arguments) {
 				resume();
 				return null;
+			}
+		});
+		this.setMethod("SETFREQ", new Method(
+				List.of(
+						new Parameter("DOUBLE", "freq", false)
+				),
+				"void"
+		) {
+			@Override
+			public Variable execute(List<Object> arguments) {
+				// TODO: implement this method
+				// probably changes pitch, but how? Also Music from libgdx doesn't support pitch... But Sound instead doesn't support completion listener
+				// So probably I will switching to Sound if needed but completion tracking must be rewrote or some kind of workaround must be implemented
+				throw new ClassMethodNotImplementedException("Method SETFREQ is not implemented yet");
 			}
 		});
 		this.setMethod("STOP", new Method(
