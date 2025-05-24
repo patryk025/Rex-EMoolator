@@ -1,6 +1,7 @@
 package pl.genschu.bloomooemulator.engine;
 
 import com.badlogic.gdx.audio.Music;
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
@@ -61,7 +62,7 @@ public class Game {
     private Context currentEpisodeContext;
     private Context currentSceneContext;
 
-    private List<Music> playingAudios = new ArrayList<>();
+    private List<SoundVariable> playingAudios = new ArrayList<>();
 
     private Map<String, Music> musicCache;
 
@@ -657,11 +658,11 @@ public class Game {
         return applicationVariable;
     }
 
-    public List<Music> getPlayingAudios() {
+    public List<SoundVariable> getPlayingAudios() {
         return playingAudios;
     }
 
-    public void setPlayingAudios(List<Music> playingAudios) {
+    public void setPlayingAudios(List<SoundVariable> playingAudios) {
         this.playingAudios = playingAudios;
     }
 
@@ -670,9 +671,9 @@ public class Game {
     }
 
     public void stopAllSounds(boolean stopBackground) {
-        for(Music music : playingAudios) {
-            if(stopBackground || music != currentSceneVariable.getMusic()) {
-                music.stop();
+        for(SoundVariable sound : playingAudios) {
+            if(stopBackground || sound.getSound() != currentSceneVariable.getMusic()) {
+                sound.getSound().stop();
             }
         }
     }

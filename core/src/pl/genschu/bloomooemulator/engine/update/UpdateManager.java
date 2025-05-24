@@ -22,6 +22,7 @@ public class UpdateManager implements Disposable {
     private final CollisionManager collisionManager;
     private final TimerManager timerManager;
     private final AnimationManager animationManager;
+    private final AudioManager audioManager;
 
     public UpdateManager(Game game, EngineConfig config) {
         this.game = game;
@@ -30,6 +31,7 @@ public class UpdateManager implements Disposable {
         this.collisionManager = new CollisionManager(game);
         this.timerManager = new TimerManager(game);
         this.animationManager = new AnimationManager(game);
+        this.audioManager = new AudioManager(game);
     }
 
     public void update(float deltaTime) {
@@ -40,6 +42,9 @@ public class UpdateManager implements Disposable {
 
         // update animations
         updateAnimations(deltaTime);
+
+        // update audio
+        updateAudio(deltaTime);
     }
 
     private void updateTimers() {
@@ -54,12 +59,17 @@ public class UpdateManager implements Disposable {
         animationManager.updateAnimations(deltaTime);
     }
 
+    private void updateAudio(float deltaTime) {
+        audioManager.update(deltaTime);
+    }
+
     @Override
     public void dispose() {
         // Dispose elements
         collisionManager.dispose();
         timerManager.dispose();
         animationManager.dispose();
+        audioManager.dispose();
     }
 
     // Class managing collision
@@ -155,6 +165,25 @@ public class UpdateManager implements Disposable {
                     }
                 }
             }
+        }
+
+        @Override
+        public void dispose() {
+            // Implementation not needed
+        }
+    }
+
+    // Class managing audio
+    public static class AudioManager implements Disposable {
+        private final Game game;
+
+        public AudioManager(Game game) {
+            this.game = game;
+        }
+
+        public void update(float deltaTime) {
+            List<SoundVariable> playingAudios = new ArrayList<>(game.getPlayingAudios());
+            playingAudios.forEach(SoundVariable::update);
         }
 
         @Override
