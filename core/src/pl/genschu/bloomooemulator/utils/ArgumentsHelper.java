@@ -131,6 +131,9 @@ public class ArgumentsHelper {
         else if(object instanceof ExpressionVariable) {
             return getString(((ExpressionVariable) object).getValue(), resolveString);
         }
+        else if(object instanceof Variable) {
+            return ((Variable) object).getName();
+        }
         else {
             return object.toString();
         }

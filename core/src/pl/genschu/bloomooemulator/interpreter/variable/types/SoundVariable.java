@@ -77,6 +77,7 @@ public class SoundVariable extends Variable {
             @Override
             public Variable execute(List<Object> arguments) {
                 try {
+                    sound.stop();
                     soundId = sound.play();
                     isPlaying = true;
                     sound.setVolume(soundId, 1.0f);

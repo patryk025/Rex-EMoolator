@@ -1,5 +1,6 @@
 package pl.genschu.bloomooemulator.interpreter.variable.types;
 
+import pl.genschu.bloomooemulator.interpreter.exceptions.ClassMethodNotFoundException;
 import pl.genschu.bloomooemulator.interpreter.exceptions.ClassMethodNotImplementedException;
 import com.badlogic.gdx.Gdx;
 import pl.genschu.bloomooemulator.interpreter.Context;
@@ -78,8 +79,13 @@ public class ApplicationVariable extends Variable {
 					var = (Variable) var.getValue();
 				}
 				Gdx.app.log("ApplicationVariable", "Running method " + methodName + " in variable " + varName + " of type " + var.getType());
-                return var.fireMethod(methodName, params);
-			}
+                try {
+					return var.fireMethod(methodName, params);
+				} catch (ClassMethodNotFoundException | ClassMethodNotImplementedException | ClassCastException e) {
+					Gdx.app.error("ApplicationVariable", "Method call error in variable " + varName + " of class " + var.getType() + ": " + e.getMessage(), e);
+					return null;
+				}
+            }
 		});
 		this.setMethod("RUNENV", new Method(
 				List.of(

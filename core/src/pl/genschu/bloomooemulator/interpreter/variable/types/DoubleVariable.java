@@ -422,7 +422,7 @@ public class DoubleVariable extends Variable {
 			return "0";
 		}
 		NumberFormat formatter = new DecimalFormat("#0.00000");
-		return formatter.format(this.getValue()).replace(",", ".");
+		return formatter.format(this.GET()).replace(",", ".");
 	}
 
 	public double clipToBool() {

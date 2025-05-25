@@ -5,9 +5,7 @@ import pl.genschu.bloomooemulator.interpreter.Context;
 import pl.genschu.bloomooemulator.interpreter.variable.Variable;
 import pl.genschu.bloomooemulator.interpreter.ast.Expression;
 import pl.genschu.bloomooemulator.interpreter.exceptions.ClassMethodNotFoundException;
-import pl.genschu.bloomooemulator.interpreter.variable.types.ExpressionVariable;
-import pl.genschu.bloomooemulator.interpreter.variable.types.StringVariable;
-import pl.genschu.bloomooemulator.interpreter.variable.types.VectorVariable;
+import pl.genschu.bloomooemulator.interpreter.variable.types.*;
 
 import java.util.Arrays;
 
@@ -48,6 +46,13 @@ public class MethodCallExpression extends Expression {
             }
             else if(arguments[i] instanceof VectorVariable) {
                 Gdx.app.log("MethodCallExpression", methodName + " - argument " + i + ": vector " + arguments[i].getName() + " (" + Arrays.toString(((VectorVariable) arguments[i]).getComponents()) + ")");
+            }
+            else if(!(arguments[i] instanceof StringVariable
+                    || arguments[i] instanceof IntegerVariable
+                    || arguments[i] instanceof DoubleVariable
+                    || arguments[i] instanceof BoolVariable)) {
+                Gdx.app.log("MethodCallExpression", methodName + " - argument " + i + ": string " + arguments[i].getName());
+                arguments[i] = new StringVariable("", arguments[i].getName(), context);
             }
             else {
                 Gdx.app.log("MethodCallExpression", methodName + " - argument " + i + ": " + arguments[i].getValue().toString());
