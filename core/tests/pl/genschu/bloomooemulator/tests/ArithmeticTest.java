@@ -64,7 +64,7 @@ public class ArithmeticTest {
                         // Set 1
                         {{"S", "Test"}, {"S", "Test"}, {"S", "Test"}, {"S", "Test"}},
                         {{"I", 1}, {"I", 0}, {"I", -1}, {"I", 0}},
-                        {{"D", 1.50000}, {"D", 0.50000}, {"D", 0}, {"D", 0.50000}},
+                        {{"D", 1.50000}, {"D", 0.50000}, {"D", 0.00000}, {"D", 0.50000}},
                         {{"B", true}, {"B", true}, {"B", true}, {"B", true}},
 
                         // Set 2
@@ -96,7 +96,7 @@ public class ArithmeticTest {
                         // Set 2
                         {{"S", "Test"}, {"S", "Test"}, {"S", "Test"}, {"S", "Test"}},
                         {{"I", 0}, {"I", 3}, {"I", 3}, {"I", 0}},
-                        {{"D", 0}, {"D", 4.50000}, {"D", 3.75000}, {"D", 0}},
+                        {{"D", 0}, {"D", 4.50000}, {"D", 3.75000}, {"D", 0.00000}},
                         {{"B", true}, {"B", true}, {"B", true}, {"B", true}},
 
                         // Set 3
@@ -108,7 +108,7 @@ public class ArithmeticTest {
                         // Set 4
                         {{"S", "Zzz"}, {"S", "Zzz"}, {"S", "Zzz"}, {"S", "Zzz"}},
                         {{"I", 0}, {"I", -5}, {"I", 1}, {"I", 0}},
-                        {{"D", 0}, {"D", -32.50000}, {"D", 6.50007}, {"D", 0}},
+                        {{"D", 0}, {"D", -32.50000}, {"D", 6.50007}, {"D", 0.00000}},
                         {{"B", false}, {"B", true}, {"B", true}, {"B", false}}
                 },
 
@@ -142,7 +142,7 @@ public class ArithmeticTest {
                         // Set 1
                         {{"S", "NULL"}, {"S", "Test"}, {"S", "Test"}, {"S", "Test"}},
                         {{"S", "NULL"}, {"I", 0}, {"I", 1}, {"I", 0}},
-                        {{"S", "NULL"}, {"D", 0}, {"D", 0}, {"D", 0}},
+                        {{"S", "NULL"}, {"D", 0.00000}, {"D", 0.00000}, {"D", 0.00000}},
                         {{"S", "NULL"}, {"B", true}, {"B", true}, {"B", true}},
 
                         // Set 2
@@ -154,13 +154,13 @@ public class ArithmeticTest {
                         // Set 3
                         {{"S", "Test"}, {"S", "Test"}, {"S", "Test"}, {"S", "Test"}},
                         {{"I", 1}, {"I", 1}, {"I", 1}, {"I", 0}},
-                        {{"D", 1.00000}, {"D", 1.00000}, {"D", 1.00000}, {"D", 0}},
+                        {{"D", 1.00000}, {"D", 1.00000}, {"D", 1.00000}, {"D", 0.00000}},
                         {{"B", true}, {"B", true}, {"B", true}, {"B", true}},
 
                         // Set 4
                         {{"S", "NULL"}, {"S", "Zzz"}, {"S", "Zzz"}, {"S", "NULL"}},
                         {{"S", "NULL"}, {"I", 1}, {"I", 0}, {"S", "NULL"}},
-                        {{"S", "NULL"}, {"D", 1.00000}, {"D", 0}, {"S", "NULL"}},
+                        {{"S", "NULL"}, {"D", 1.00000}, {"D", 0.00000}, {"S", "NULL"}},
                         {{"S", "NULL"}, {"B", false}, {"B", false}, {"S", "NULL"}}
                 },
 
@@ -287,9 +287,9 @@ public class ArithmeticTest {
             // Set 2: Test, true, 1.5, 1 vs Test2, false, 2.5, 3
             {{"Test", true, 1.5, 1}, {"Test2", false, 2.5, 3}},
             // Set 3: Test, true, 1.5, 1 vs 3, 2, -2.5, -3
-            {{"Test", true, 1.5, 1}, {"3", 2, -2.5, -3}},
+            {{"Test", true, 1.5, 1}, {"3", true, -2.5, -3}}, // 2 == TRUE
             // Set 4: Zzz, false, 6.5, 1 vs TEST3, 0, 1.00001, -5
-            {{"Zzz", false, 6.5, 1}, {"TEST3", 0, 1.00001, -5}}
+            {{"Zzz", false, 6.5, 1}, {"TEST3", false, 1.00001, -5}} // 0 == FALSE
     };
 
     @ParameterizedTest
