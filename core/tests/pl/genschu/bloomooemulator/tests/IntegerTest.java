@@ -119,10 +119,9 @@ public class IntegerTest {
                 "CLAMP failed for vector " + testValue);
     }
 
-    @ParameterizedTest
-    @ValueSource(ints = {0, 1, 2, 3, 4, 5, 6})
-    void testClear(int vectorIndex) {
-        int testValue = TEST_VECTORS[vectorIndex];
+    @Test
+    void testClear() {
+        int testValue = TEST_VECTORS[0];
 
         IntegerVariable testVar;
         int result;

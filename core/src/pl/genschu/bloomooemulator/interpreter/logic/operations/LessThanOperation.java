@@ -56,7 +56,7 @@ public class LessThanOperation extends ArithmeticOperation {
 
     @Override
     public Variable performOperation(BoolVariable var1, StringVariable var2) {
-        return VariableFactory.createVariable("BOOL", "", var1.toInt() < var2.toInt(true), var1.getContext());
+        return VariableFactory.createVariable("BOOL", "", var1.toInt() < (var2.toBool() ? 1 : 0), var1.getContext());
     }
 
     @Override

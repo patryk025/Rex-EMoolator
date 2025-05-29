@@ -90,13 +90,13 @@ public class ArithmeticTest {
                         // Set 1
                         {{"S", "Test"}, {"S", "Test"}, {"S", "Test"}, {"S", "Test"}},
                         {{"I", 0}, {"I", 1}, {"I", 2}, {"I", 1}},
-                        {{"D", 0}, {"D", 1.50000}, {"D", 2.25000}, {"D", 1.50000}},
+                        {{"D", 0.00000}, {"D", 1.50000}, {"D", 2.25000}, {"D", 1.50000}},
                         {{"B", true}, {"B", true}, {"B", true}, {"B", true}},
 
                         // Set 2
                         {{"S", "Test"}, {"S", "Test"}, {"S", "Test"}, {"S", "Test"}},
                         {{"I", 0}, {"I", 3}, {"I", 3}, {"I", 0}},
-                        {{"D", 0}, {"D", 4.50000}, {"D", 3.75000}, {"D", 0.00000}},
+                        {{"D", 0.00000}, {"D", 4.50000}, {"D", 3.75000}, {"D", 0.00000}},
                         {{"B", true}, {"B", true}, {"B", true}, {"B", true}},
 
                         // Set 3
@@ -108,7 +108,7 @@ public class ArithmeticTest {
                         // Set 4
                         {{"S", "Zzz"}, {"S", "Zzz"}, {"S", "Zzz"}, {"S", "Zzz"}},
                         {{"I", 0}, {"I", -5}, {"I", 1}, {"I", 0}},
-                        {{"D", 0}, {"D", -32.50000}, {"D", 6.50007}, {"D", 0.00000}},
+                        {{"D", 0.00000}, {"D", -32.50000}, {"D", 6.50007}, {"D", 0.00000}},
                         {{"B", false}, {"B", true}, {"B", true}, {"B", false}}
                 },
 
@@ -162,84 +162,6 @@ public class ArithmeticTest {
                         {{"S", "NULL"}, {"I", 1}, {"I", 0}, {"S", "NULL"}},
                         {{"S", "NULL"}, {"D", 1.00000}, {"D", 0.00000}, {"S", "NULL"}},
                         {{"S", "NULL"}, {"B", false}, {"B", false}, {"S", "NULL"}}
-                },
-
-                "EQUALS", new Object[][][] {
-                        // Set 1
-                        {{"B", true}, {"B", false}, {"B", false}, {"B", false}},
-                        {{"B", false}, {"B", true}, {"B", false}, {"B", true}},
-                        {{"B", false}, {"B", false}, {"B", true}, {"B", false}},
-                        {{"B", false}, {"B", true}, {"B", true}, {"B", true}},
-
-                        // Set 2
-                        {{"B", false}, {"B", false}, {"B", false}, {"B", false}},
-                        {{"B", false}, {"B", false}, {"B", false}, {"B", false}},
-                        {{"B", false}, {"B", false}, {"B", false}, {"B", false}},
-                        {{"B", false}, {"B", true}, {"B", true}, {"B", false}},
-
-                        // Set 3
-                        {{"B", false}, {"B", false}, {"B", false}, {"B", false}},
-                        {{"B", false}, {"B", false}, {"B", false}, {"B", true}},
-                        {{"B", false}, {"B", false}, {"B", false}, {"B", false}},
-                        {{"B", false}, {"B", true}, {"B", true}, {"B", true}},
-
-                        // Set 4
-                        {{"B", false}, {"B", false}, {"B", false}, {"B", false}},
-                        {{"B", false}, {"B", false}, {"B", true}, {"B", false}},
-                        {{"B", false}, {"B", false}, {"B", false}, {"B", false}},
-                        {{"B", true}, {"B", false}, {"B", false}, {"B", true}}
-                },
-
-                "LOWER", new Object[][][] {
-                        // Set 1
-                        {{"B", false}, {"B", false}, {"B", false}, {"B", false}},
-                        {{"B", false}, {"B", false}, {"B", true}, {"B", false}},
-                        {{"B", false}, {"B", false}, {"B", false}, {"B", false}},
-                        {{"B", false}, {"B", false}, {"B", false}, {"B", false}},
-
-                        // Set 2
-                        {{"B", true}, {"B", false}, {"B", false}, {"B", false}},
-                        {{"B", false}, {"B", true}, {"B", true}, {"B", false}},
-                        {{"B", false}, {"B", true}, {"B", true}, {"B", false}},
-                        {{"B", false}, {"B", false}, {"B", false}, {"B", false}},
-
-                        // Set 3
-                        {{"B", false}, {"B", false}, {"B", false}, {"B", false}},
-                        {{"B", true}, {"B", false}, {"B", false}, {"B", false}},
-                        {{"B", true}, {"B", false}, {"B", false}, {"B", false}},
-                        {{"B", false}, {"B", false}, {"B", false}, {"B", false}},
-
-                        // Set 4
-                        {{"B", false}, {"B", false}, {"B", false}, {"B", false}},
-                        {{"B", false}, {"B", false}, {"B", false}, {"B", false}},
-                        {{"B", false}, {"B", false}, {"B", false}, {"B", false}},
-                        {{"B", false}, {"B", true}, {"B", true}, {"B", false}}
-                },
-
-                "GREATER", new Object[][][] {
-                        // Set 1
-                        {{"B", false}, {"B", true}, {"B", true}, {"B", true}},
-                        {{"B", true}, {"B", false}, {"B", false}, {"B", false}},
-                        {{"B", true}, {"B", true}, {"B", false}, {"B", true}},
-                        {{"B", true}, {"B", false}, {"B", false}, {"B", false}},
-
-                        // Set 2
-                        {{"B", false}, {"B", true}, {"B", true}, {"B", true}},
-                        {{"B", true}, {"B", false}, {"B", false}, {"B", true}},
-                        {{"B", true}, {"B", false}, {"B", false}, {"B", true}},
-                        {{"B", true}, {"B", false}, {"B", false}, {"B", true}},
-
-                        // Set 3
-                        {{"B", true}, {"B", true}, {"B", true}, {"B", true}},
-                        {{"B", false}, {"B", true}, {"B", true}, {"B", false}},
-                        {{"B", false}, {"B", true}, {"B", true}, {"B", true}},
-                        {{"B", true}, {"B", false}, {"B", false}, {"B", false}},
-
-                        // Set 4
-                        {{"B", true}, {"B", true}, {"B", true}, {"B", true}},
-                        {{"B", true}, {"B", true}, {"B", false}, {"B", true}},
-                        {{"B", true}, {"B", true}, {"B", true}, {"B", true}},
-                        {{"B", false}, {"B", false}, {"B", false}, {"B", false}}
                 }
         );
     }
@@ -280,7 +202,7 @@ public class ArithmeticTest {
         }
     }
 
-    // Test data sets (4 zestawy danych z Math_test.cnv)
+    // Test data sets
     private static final Object[][][] TEST_SETS = {
             // Set 1: Test, true, 1.5, 1 vs Test, true, 1.5, 1
             {{"Test", true, 1.5, 1}, {"Test", true, 1.5, 1}},

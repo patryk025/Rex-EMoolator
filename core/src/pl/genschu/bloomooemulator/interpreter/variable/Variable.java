@@ -182,6 +182,20 @@ public abstract class Variable implements Cloneable {
 				return null;
 			}
 		});
+		this.setMethod("SEND", new Method(
+				List.of(
+						new Parameter("STRING", "signal", true)
+				),
+				"void"
+		) {
+			@Override
+			public Variable execute(List<Object> arguments) {
+				String signal = ArgumentsHelper.getString(arguments.get(0));
+
+				emitSignal("ONSIGNAL", signal);
+				return null;
+			}
+		});
 	}
 
 	public String getType() {

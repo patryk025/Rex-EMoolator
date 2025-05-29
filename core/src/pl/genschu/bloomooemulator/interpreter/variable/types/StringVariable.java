@@ -310,10 +310,12 @@ public class StringVariable extends Variable {
 
 	public int toInt(boolean clipToBool) {
 		try {
-			if(clipToBool) {
-				return Integer.parseInt((String) this.getValue()) != 0 ? 1 : 0;
+			String numericPrefix = this.GET().replaceFirst("^([-+]?\\d*\\.?\\d+).*", "$1");
+			double value = Double.parseDouble(numericPrefix);
+			if (clipToBool) {
+				return value != 0.0 ? 1 : 0;
 			}
-			return Integer.parseInt((String) this.getValue());
+			return (int) value; // tu tnie po przecinku, ale przy obliczeniach zaokrągla. Weird
 		}
 		catch(NumberFormatException e) {
 			return 0;
@@ -326,20 +328,19 @@ public class StringVariable extends Variable {
 
 	public double toDouble(boolean clipToBool) {
 		try {
-			return Double.parseDouble((String) this.getValue());
+			String numericPrefix = this.GET().replaceFirst("^([-+]?\\d*\\.?\\d+([eE][-+]?\\d+)?).*", "$1");
+			double value = Double.parseDouble(numericPrefix);
+			if (clipToBool) {
+				return value != 0.0 ? 1.0 : 0.0;
+			}
+			return value;
 		}
 		catch(NumberFormatException e) {
 			return 0;
 		}
 	}
-
 	public boolean toBool() {
-		try {
-			return Boolean.parseBoolean((String) this.getValue());
-		}
-		catch(NumberFormatException e) {
-			return false;
-		}
+		return Boolean.parseBoolean(this.GET());
 	}
 
 	public Variable convert(String type) {

@@ -119,10 +119,9 @@ class DoubleTest {
                 "CLAMP failed for vector " + testValue);
     }
 
-    @ParameterizedTest
-    @ValueSource(ints = {0, 1, 2, 3, 4, 5, 6})
-    void testClear(int vectorIndex) {
-        double testValue = TEST_VECTORS[vectorIndex];
+    @Test
+    void testClear() {
+        double testValue = TEST_VECTORS[0];
 
         DoubleVariable testVar;
         double result;

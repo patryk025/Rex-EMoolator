@@ -66,7 +66,49 @@ class VariableCoreTest {
         assertEquals(123.45, dblVar.getValue());
 
         Variable boolVar = strVar.convertTo("BOOL");
-        assertEquals(true, boolVar.getValue());
+        assertEquals(false, boolVar.getValue());
+    }
+
+    @Test
+    void testConvertStringTypes2() {
+        Variable strVar = VariableFactory.createVariable("STRING", "STR", "123.55", ctx);
+
+        Variable intVar = strVar.convertTo("INTEGER");
+        assertEquals(123, intVar.getValue());
+
+        Variable dblVar = strVar.convertTo("DOUBLE");
+        assertEquals(123.55, dblVar.getValue());
+
+        Variable boolVar = strVar.convertTo("BOOL");
+        assertEquals(false, boolVar.getValue());
+    }
+
+    @Test
+    void testConvertStringTypesWithBrokenValues() {
+        Variable strVar = VariableFactory.createVariable("STRING", "STR", "123.55.55", ctx);
+
+        Variable intVar = strVar.convertTo("INTEGER");
+        assertEquals(123, intVar.getValue());
+
+        Variable dblVar = strVar.convertTo("DOUBLE");
+        assertEquals(123.55, dblVar.getValue());
+
+        Variable boolVar = strVar.convertTo("BOOL");
+        assertEquals(false, boolVar.getValue());
+    }
+
+    @Test
+    void testConvertStringTypesWithScientificNotation() {
+        Variable strVar = VariableFactory.createVariable("STRING", "STR", "123.55e12", ctx);
+
+        Variable intVar = strVar.convertTo("INTEGER");
+        assertEquals(123, intVar.getValue());
+
+        Variable dblVar = strVar.convertTo("DOUBLE");
+        assertEquals(123550000000000.00000, dblVar.getValue());
+
+        Variable boolVar = strVar.convertTo("BOOL");
+        assertEquals(false, boolVar.getValue());
     }
 
     @Test
