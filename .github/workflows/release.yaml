@@ -36,11 +36,15 @@ jobs:
       - name: Generate version name
         id: version
         run: |
-          COMMIT_HASH=$(git rev-parse --short HEAD)
-          DATE=$(date +%Y-%m-%d)
-          VERSION=${{ github.event.inputs.version }}
-          if [ -z "$VERSION" ]; then
-            VERSION="v${DATE}_${COMMIT_HASH}"
+          if [[ "${{ github.ref_type }}" == "tag" ]]; then
+            VERSION="${{ github.ref_name }}"
+          else
+            COMMIT_HASH=$(git rev-parse --short HEAD)
+            DATE=$(date +%Y-%m-%d)
+            VERSION="${{ github.event.inputs.version }}"
+            if [ -z "$VERSION" ]; then
+              VERSION="v${DATE}_${COMMIT_HASH}"
+            fi
           fi
           echo "version_name=$VERSION" >> $GITHUB_OUTPUT
 
