@@ -121,6 +121,12 @@ project(":android") {
             sourceCompatibility JavaVersion.VERSION_1_10
             targetCompatibility JavaVersion.VERSION_1_10
         }
+
+        applicationVariants.all { variant ->
+            variant.outputs.all {
+                outputFileName = "Rex_Emoolator-android-${version}-${variant.name}.apk"
+            }
+        }
     }
 }
 

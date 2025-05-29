@@ -58,14 +58,11 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ steps.version.outputs.version_name }}
-          name: Release ${{ steps.version.outputs.version_name }}
+          name: ${{ steps.version.outputs.version_name }}
           draft: false
           prerelease: false
           files: |
             desktop/build/libs/*.jar
             android/build/outputs/apk/debug/*.apk
-          file_names: |
-            desktop/build/libs/*.jar:Rex_EMoolator-desktop-${{ steps.version.outputs.version_name }}.jar
-            android/build/outputs/apk/debug/*.apk:Rex_EMoolator-android-${{ steps.version.outputs.version_name }}.apk
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
