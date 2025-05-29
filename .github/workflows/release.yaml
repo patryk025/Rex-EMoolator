@@ -1,0 +1,71 @@
+name: Build and Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Release version (leave empty for auto-generated)'
+        required: false
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: gradle
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Make gradlew executable
+        run: chmod +x gradlew
+
+      - name: Generate version name
+        id: version
+        run: |
+          COMMIT_HASH=$(git rev-parse --short HEAD)
+          DATE=$(date +%Y-%m-%d)
+          VERSION=${{ github.event.inputs.version }}
+          if [ -z "$VERSION" ]; then
+            VERSION="v${DATE}_${COMMIT_HASH}"
+          fi
+          echo "version_name=$VERSION" >> $GITHUB_OUTPUT
+
+      - name: Build desktop JAR
+        run: ./gradlew :desktop:shadowJar --no-daemon
+        env:
+          RELEASE_VERSION: ${{ steps.version.outputs.version_name }}
+
+      - name: Build Android APK
+        run: ./gradlew :android:assembleDebug --no-daemon
+        env:
+          RELEASE_VERSION: ${{ steps.version.outputs.version_name }}
+
+      - name: Create and upload release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.version.outputs.version_name }}
+          name: Release ${{ steps.version.outputs.version_name }}
+          draft: false
+          prerelease: false
+          files: |
+            desktop/build/libs/*.jar
+            android/build/outputs/apk/debug/*.apk
+          file_names: |
+            desktop/build/libs/*.jar:Rex_EMoolator-desktop-${{ steps.version.outputs.version_name }}.jar
+            android/build/outputs/apk/debug/*.apk:Rex_EMoolator-android-${{ steps.version.outputs.version_name }}.apk
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

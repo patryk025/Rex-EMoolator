@@ -1,10 +1,10 @@
 name: Code Testing
 
 on:
+  workflow_dispatch:
   push:
-    branches: [ "engine_emulator" ]
-  pull_request:
-    branches: [ "engine_emulator" ]
+    tags:
+      - 'v*'
 
 jobs:
   test:

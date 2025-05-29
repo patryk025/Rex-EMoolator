@@ -1,6 +1,4 @@
 buildscript {
-    
-
     repositories {
         mavenLocal()
         mavenCentral()
@@ -10,15 +8,14 @@ buildscript {
     }
     dependencies {
         classpath 'com.android.tools.build:gradle:8.9.3'
-        
-
+        classpath 'com.gradleup.shadow:shadow-gradle-plugin:8.3.6'
     }
 }
 
 allprojects {
     apply plugin: "eclipse"
 
-    version = '1.0'
+    version = System.getenv('RELEASE_VERSION') ?: '0.1-SNAPSHOT'
     ext {
         appName = "Rex EMoolator"
         gdxVersion = '1.13.5'
@@ -46,7 +43,7 @@ allprojects {
 
 project(":desktop") {
     apply plugin: "java-library"
-
+    apply plugin: "com.gradleup.shadow"
 
     dependencies {
         implementation project(":core")
@@ -55,8 +52,24 @@ project(":desktop") {
         api "com.badlogicgames.gdx-controllers:gdx-controllers-desktop:$gdxControllersVersion"
         api "com.badlogicgames.gdx:gdx-freetype-platform:$gdxVersion:natives-desktop"
         api "com.badlogicgames.gdx:gdx-box2d-platform:$gdxVersion:natives-desktop"
-
         implementation "net.java.dev.jna:jna:$jnaVersion"
+    }
+
+    shadowJar {
+        archiveBaseName.set('Rex_EMoolator-desktop')
+        archiveClassifier.set('')
+        manifest {
+            attributes(
+                    'Main-Class': 'pl.genschu.bloomooemulator.GameListFrame'
+            )
+        }
+    }
+
+    tasks.named('jar') {
+        enabled = false
+    }
+    tasks.named('build') {
+        dependsOn shadowJar
     }
 }
 
