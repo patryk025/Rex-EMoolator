@@ -130,6 +130,65 @@ class AnimoTest {
     }
 
     @Test
+    void testPlayAnimo2() {
+        Context ctx = new ContextBuilder().build();
+        CapturingAnimo animo = new CapturingAnimo("ANNLAMPKI", ctx);
+        ctx.setVariable("ANNLAMPKI", animo);
+
+        animo.setSignal("ONFINISHED^PLAY", new Signal() {
+            @Override
+            public void execute(Object argument) {
+                animo.fireMethod("HIDE");
+            }
+        });
+
+        animo.setSignal("ONINIT", new Signal() {
+            @Override
+            public void execute(Object argument) {
+                animo.fireMethod("HIDE");
+                animo.fireMethod("SETFPS", new IntegerVariable("", 1, ctx));
+            }
+        });
+
+        String filename = "odliczanie.ann";
+        animo.setAttribute("FILENAME", new Attribute("STRING", filename));
+
+        try (MockedStatic<FileUtils> fu = Mockito.mockStatic(FileUtils.class)) {
+            String absPath = Gdx.files.internal("../assets/test-assets/"+filename).file().getAbsolutePath();
+            fu.when(() -> FileUtils.resolveRelativePath(Mockito.any(Variable.class)))
+                    .thenReturn(absPath);
+
+            animo.init();
+        }
+
+        // sanity check – check if loader works
+        assertTrue(animo.getEventsCount() > 0);
+
+        // switch state machine to PLAYING on that event
+        animo.fireMethod("PLAY", new StringVariable("", "PLAY", ctx));
+
+        float frameTime = 1f / animo.getFps();
+        while(animo.isPlaying()) {
+            animo.updateAnimation(frameTime);
+        }
+
+        // captured signals in strict order
+        List<String> expected = List.of(
+                "ONFRAMECHANGED^PLAY",
+                "ONSTARTED^PLAY",
+                "ONFRAMECHANGED^PLAY",
+                "ONFRAMECHANGED^PLAY",
+                "ONFINISHED^PLAY"
+        );
+
+        List<Integer> expectedFrames = List.of(0, 0, 1, 2, 2);
+        List<Integer> expectedImages = List.of(0, 0, 1, 2, 2);
+        assertEquals(expected, animo.signals);
+        assertEquals(expectedFrames, animo.frames);
+        assertEquals(expectedImages, animo.images);
+    }
+
+    @Test
     void testPauseDuringRestartAnimo() {
         // S65_ZAMEK
         Context ctx = new ContextBuilder()
