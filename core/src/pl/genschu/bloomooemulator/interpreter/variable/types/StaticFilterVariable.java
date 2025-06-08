@@ -47,10 +47,6 @@ public class StaticFilterVariable extends Variable {
 
 				properties.put(propertyName, propertyValue);
 
-				for (Map.Entry<Variable, Filter> entry : linkedFilters.entrySet()) {
-					entry.getValue().setProperty(propertyName, propertyValue);
-				}
-
 				return null;
 			}
 		});

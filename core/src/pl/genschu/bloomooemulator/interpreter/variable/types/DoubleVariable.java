@@ -129,7 +129,7 @@ public class DoubleVariable extends Variable {
 			public Variable execute(List<Object> arguments) {
 				double angle = ArgumentsHelper.getDouble(arguments.get(0));
 
-				double cosRadians = Math.cos(Math.toRadians(angle));
+				double cosRadians = Math.cos((float) Math.toRadians(angle));
 
 				set(cosRadians);
 				return DoubleVariable.this;
@@ -332,7 +332,7 @@ public class DoubleVariable extends Variable {
 			public Variable execute(List<Object> arguments) {
 				double angle = ArgumentsHelper.getDouble(arguments.get(0));
 
-				double sinRadians = Math.sin(Math.toRadians(angle));
+				double sinRadians = Math.sin((float) Math.toRadians(angle));
 
 				set(sinRadians);
 				return DoubleVariable.this;
