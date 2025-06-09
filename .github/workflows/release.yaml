@@ -70,13 +70,30 @@ jobs:
         env:
           RELEASE_VERSION: ${{ steps.version.outputs.version_name }}
           RELEASE_CODE: ${{ env.RELEASE_CODE }}
-
+          
+      - name: Generate changelog
+        id: changelog
+        run: |
+          PREV_TAG=$(git describe --tags --abbrev=0 HEAD^ 2>/dev/null || echo "")
+          echo "Previous tag: $PREV_TAG"
+      
+          if [ -z "$PREV_TAG" ]; then
+            LOG=$(git log --pretty=format:"- %s (%h)" --no-merges)
+          else
+            LOG=$(git log "$PREV_TAG"..HEAD --pretty=format:"- %s (%h)" --no-merges)
+          fi
+      
+          echo 'changelog<<EOF' >> $GITHUB_OUTPUT
+          echo "$LOG" >> $GITHUB_OUTPUT
+          echo 'EOF' >> $GITHUB_OUTPUT
+      
       - name: Create and upload release
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ steps.version.outputs.version_name }}
           name: ${{ steps.version.outputs.version_name }}
           draft: false
+          body: ${{ steps.changelog.outputs.changelog }}
           prerelease: false
           files: |
             desktop/build/libs/*.jar
