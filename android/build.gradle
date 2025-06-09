@@ -20,8 +20,8 @@ android {
         compileSdk 35
         minSdkVersion 24
         targetSdkVersion 34
-        versionCode 1
-        versionName "1.0"
+        versionCode System.getenv("RELEASE_CODE")?.toInteger() ?: 1
+        versionName System.getenv("RELEASE_VERSION") ?: "0.1-SNAPSHOT"
     }
     buildTypes {
         release {
