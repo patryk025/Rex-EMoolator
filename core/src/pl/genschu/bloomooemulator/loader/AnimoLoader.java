@@ -152,10 +152,10 @@ public class AnimoLoader {
                         if(!sfxFile.startsWith("$")) {
                             sfxFile = "$WAVS\\"+ sfxFile;
                         }
-                        sfxFile = FileUtils.resolveRelativePath(variable, sfxFile);
-                        FileHandle soundFileHandle = Gdx.files.absolute(sfxFile);
 
                         try {
+                            sfxFile = FileUtils.resolveRelativePath(variable, sfxFile);
+                            FileHandle soundFileHandle = Gdx.files.absolute(sfxFile);
                             sfxAudioList.add(Gdx.audio.newMusic(soundFileHandle));
                         } catch (Exception e) {
                             Gdx.app.error("AnimoLoader", "Error while loading SFX: " + e.getMessage());
