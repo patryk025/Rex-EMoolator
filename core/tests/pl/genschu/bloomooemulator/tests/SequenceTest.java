@@ -1,6 +1,7 @@
 package pl.genschu.bloomooemulator.tests;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.utils.TimeUtils;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -8,18 +9,19 @@ import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 import pl.genschu.bloomooemulator.TestEnvironment;
 import pl.genschu.bloomooemulator.builders.ContextBuilder;
+import pl.genschu.bloomooemulator.engine.Game;
 import pl.genschu.bloomooemulator.interpreter.Context;
 import pl.genschu.bloomooemulator.interpreter.variable.Attribute;
 import pl.genschu.bloomooemulator.interpreter.variable.Signal;
 import pl.genschu.bloomooemulator.interpreter.variable.Variable;
 import pl.genschu.bloomooemulator.interpreter.variable.types.AnimoVariable;
 import pl.genschu.bloomooemulator.interpreter.variable.types.SequenceVariable;
+import pl.genschu.bloomooemulator.interpreter.variable.types.SoundVariable;
 import pl.genschu.bloomooemulator.interpreter.variable.types.StringVariable;
+import pl.genschu.bloomooemulator.loader.SoundLoader;
 import pl.genschu.bloomooemulator.utils.FileUtils;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -96,6 +98,8 @@ public class SequenceTest {
         CapturingAnimo kogut = new CapturingAnimo("KOGUT", ctx, 1000);
         ctx.setVariable("KOGUT", kogut);
 
+        ctx.setGame(new Game(null, null)); // faking game
+
         String filename = "kogut.ann";
         kogut.setAttribute("FILENAME", new Attribute("STRING", filename.toUpperCase()));
 
@@ -151,22 +155,56 @@ public class SequenceTest {
 
         seq.fireMethod("PLAY", new StringVariable("", "SEKWEN", ctx));
 
-        while(seq.isPlaying()) {
+        Map<String, Integer> audioFilesTimes = new HashMap<>();
+        audioFilesTimes.put("KOGUT_I019.WAV", 4047);
+        audioFilesTimes.put("KURATOR_I020.WAV", 4021);
+        audioFilesTimes.put("KOGUT_I021.WAV", 6686);
+        audioFilesTimes.put("KURATOR_I022.WAV", 4599);
+        audioFilesTimes.put("KOGUT_I023.WAV", 4323);
+        audioFilesTimes.put("KURATOR_I024.WAV", 5073);
+        audioFilesTimes.put("KOGUT_I025.WAV", 2321);
+
+        Map<String, Variable> audioFiles = ctx.getSoundVariables();
+
+        // insert duration times
+        for(Map.Entry<String, Variable> entry : audioFiles.entrySet()) {
+            String audioFilename = entry.getKey();
+            SoundVariable audio = (SoundVariable) entry.getValue();
+            audio.setDuration(audioFilesTimes.get(audioFilename)/1000f);
+        }
+
+        long startingTime = TimeUtils.nanoTime();
+        long fakeNow = startingTime;
+
+        try (MockedStatic<TimeUtils> timeMock = Mockito.mockStatic(TimeUtils.class)) {
             Set<Variable> animos = seq.getAnimosInSequence();
+            while (seq.isPlaying()) {
+                boolean anyPlaying = false;
 
-            boolean anyPlaying = false;
-
-            for(Variable animo : animos) {
-                CapturingAnimo ca = (CapturingAnimo) animo;
-                if(ca.isPlaying()) {
-                    anyPlaying = true;
-                    float frameTime = 1f / ca.getFps();
-                    ca.updateAnimation(frameTime);
+                for (Variable animo : animos) {
+                    CapturingAnimo ca = (CapturingAnimo) animo;
+                    if (ca.isPlaying()) {
+                        anyPlaying = true;
+                        float frameTime = 1f / ca.getFps();
+                        long advance = (long)(frameTime * 1_000_000_000L);
+                        fakeNow += advance;
+                        timeMock.when(TimeUtils::nanoTime).thenReturn(fakeNow);
+                        ca.updateAnimation(frameTime);
+                    }
                 }
-            }
 
-            if(!anyPlaying) {
-                fail("Sequence is stuck");
+                for (Map.Entry<String, Variable> entry : audioFiles.entrySet()) {
+                    SoundVariable audio = (SoundVariable) entry.getValue();
+                    if (audio.isPlaying()) {
+                        anyPlaying = true;
+                        timeMock.when(TimeUtils::nanoTime).thenReturn(fakeNow);
+                        audio.update();
+                    }
+                }
+
+                if (!anyPlaying) {
+                    fail("Sequence is stuck");
+                }
             }
         }
 

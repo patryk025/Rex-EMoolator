@@ -82,7 +82,9 @@ public class Game {
 
         GlobalVariables.reset();
 
-        scanGameDirectory();
+        if(game != null) {
+            scanGameDirectory();
+        }
     }
 
     private void scanGameDirectory() {
