@@ -18,7 +18,6 @@ import pl.genschu.bloomooemulator.interpreter.variable.types.AnimoVariable;
 import pl.genschu.bloomooemulator.interpreter.variable.types.SequenceVariable;
 import pl.genschu.bloomooemulator.interpreter.variable.types.SoundVariable;
 import pl.genschu.bloomooemulator.interpreter.variable.types.StringVariable;
-import pl.genschu.bloomooemulator.loader.SoundLoader;
 import pl.genschu.bloomooemulator.utils.FileUtils;
 
 import java.util.*;
@@ -26,7 +25,7 @@ import java.util.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class SequenceTest {
-    private static List<String> signals = new ArrayList<>();
+    private static final List<String> signals = new ArrayList<>();
     private Context ctx;
 
     // helpers for capturing signals
@@ -44,7 +43,7 @@ public class SequenceTest {
             }
             if(!s.contains("ONFRAMECHANGED") && (
                     v instanceof CapturingSequence ||
-                    (v instanceof CapturingAnimo && (arg.toString().endsWith("_START") || arg.toString().endsWith("_STOP")))
+                    (v instanceof CapturingAnimo && (arg == null || arg.toString().endsWith("_START") || arg.toString().endsWith("_STOP")))
                 )
             )
             	signals.add(v.getName()+"_"+(arg == null ? s : s + "^" + arg));
@@ -178,8 +177,7 @@ public class SequenceTest {
             audio.setDuration(audioFilesTimes.get(audioFilename)/1000f);
         }
 
-        long startingTime = TimeUtils.nanoTime();
-        long fakeNow = startingTime;
+        long fakeNow = TimeUtils.nanoTime();
 
         try (MockedStatic<TimeUtils> timeMock = Mockito.mockStatic(TimeUtils.class)) {
             Set<Variable> animos = seq.getAnimosInSequence();
@@ -238,6 +236,7 @@ public class SequenceTest {
                 "KURATOR_ONFINISHED^GADA_START",
                 "KURATOR_ONSTARTED^GADA_STOP",
                 "KURATOR_ONFINISHED^GADA_STOP",
+                "GADAJA_ONSTARTED^KOGUTY5",
                 "KOGUT_ONSTARTED^GADA_START",
                 "GADAJA_ONFINISHED^KOGUTY4",
                 "KOGUT_ONFINISHED^GADA_START",
@@ -247,10 +246,10 @@ public class SequenceTest {
                 "KURATOR_ONSTARTED^GADA_START",
                 "GADAJA_ONFINISHED^KOGUTY5",
                 "KURATOR_ONFINISHED^GADA_START",
+                "KURATOR_ONSTARTED^GADA_STOP",
+                "KURATOR_ONFINISHED^GADA_STOP",
                 "GADAJA_ONFINISHED^SEKWEN",
                 "GADAJA_ONFINISHED^KOGUTY6",
-                "KOGUT_ONSTARTED^PRZEWRACA",
-                "KOGUT_ONFINISHED^PRZEWRACA",
                 "GADAJA_ONSTARTED^FINALKOG",
                 "KOGUT_ONSTARTED^GADA_START",
                 "KOGUT_ONFINISHED^GADA_START",

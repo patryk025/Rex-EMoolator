@@ -113,6 +113,8 @@ public class SequenceVariable extends Variable {
 	private Random random;
 	private Map<String, SequenceEvent> eventsByName;
 
+	private SequenceEvent pendingFinishedEvent = null;
+
 	private Set<Variable> animosInSequence = new HashSet<>();
 
 	// source https://docs.google.com/spreadsheets/d/1SYI_Gu6MAuSGw-OTXzk_FDWScx29Cc-6eXpc6UfSn1Y/edit?gid=628883611#gid=628883611&range=A18
@@ -334,7 +336,6 @@ public class SequenceVariable extends Variable {
 			stopSequence(false); // Stop current sequence
 			currentEvent = event;
 			isPlaying = true;
-			emitSignal("ONSTARTED", event.name);
 			startEvent(event);
 		}
 	}
@@ -342,6 +343,7 @@ public class SequenceVariable extends Variable {
 	private void startEvent(SequenceEvent event) {
 		Gdx.app.log("SequenceVariable", "startEvent: " + event.name);
 		event.isPlaying = true;
+		emitSignal("ONSTARTED", event.name);
 
 		if (event.type == EventType.SEQUENCE) {
 			if (event.mode == SequenceMode.SEQUENCE) {
@@ -379,6 +381,10 @@ public class SequenceVariable extends Variable {
 					// get first event (needed in PALISADA13)
 					Event firstEvent = event.animation.getEvents().get(0);
 					event.animation.fireMethod("PLAY", new StringVariable("", firstEvent.getName(), context));
+				}
+				if(pendingFinishedEvent != null) {
+					emitSignal("ONFINISHED", pendingFinishedEvent.name);
+					pendingFinishedEvent = null;
 				}
 			}
 			if (event.sound != null) {
@@ -439,6 +445,11 @@ public class SequenceVariable extends Variable {
 
 		if (event.animation.hasEvent(startAnimName)) {
 			event.animation.fireMethod("PLAY", new StringVariable("", startAnimName, context));
+
+			if(pendingFinishedEvent != null) {
+				emitSignal("ONFINISHED", pendingFinishedEvent.name);
+				pendingFinishedEvent = null;
+			}
 
 			event.animation.setSignal("ONFINISHED", new Signal() {
 				@Override
@@ -582,7 +593,9 @@ public class SequenceVariable extends Variable {
 			int currentIndex = parentEvent.subEvents.indexOf(event);
 			if (parentEvent.mode == SequenceMode.SEQUENCE &&
 					currentIndex < parentEvent.subEvents.size() - 1) {
-				emitSignal("ONFINISHED", event.name);
+
+				pendingFinishedEvent = event;
+
 				// Next event, play it
 				startEvent(parentEvent.subEvents.get(currentIndex + 1));
 			} else {
@@ -590,13 +603,13 @@ public class SequenceVariable extends Variable {
 				stopEvent(parentEvent);
 				if (parentEvent.mode == SequenceMode.SEQUENCE &&
 						currentIndex == parentEvent.subEvents.size() - 1) {
-					emitSignal("ONFINISHED", event.name);
 					emitSignal("ONFINISHED", parentEvent.name);
+					emitSignal("ONFINISHED", event.name);
 				}
 				else {
 					emitSignal("ONFINISHED", event.name);
 				}
-                if (parentEvent.parent == null) {
+				if (parentEvent.parent == null) {
 					isPlaying = false;
 				}
 			}
