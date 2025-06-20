@@ -402,6 +402,7 @@ public class SequenceVariable extends Variable {
 						playSpeakingEndAnimation(event);
 					} else {
 						handleEventFinished(event);
+						event.sound.removeSignal("ONFINISHED"); // remove signal... just in case
 					}
 				}
 			});
@@ -418,6 +419,7 @@ public class SequenceVariable extends Variable {
 					}
 					if (event.isPlaying) {
 						handleEventFinished(event);
+						event.animation.setSignal("ONFINISHED^"+event.prefix, originalSignal); // restore original signal to prevent unexpected loops when SIMPLE tries to play the same animation again
 					}
 					event.setOnFinishedWrapped(true);
 				}
@@ -557,6 +559,7 @@ public class SequenceVariable extends Variable {
 				@Override
 				public void execute(Object argument) {
 					handleEventFinished(event);
+					event.animation.removeSignal("ONFINISHED^" + endAnimName); // remove signal to prevent unexpected loops when SIMPLE tries to play the same animation again
 				}
 			});
 		} else { // if no ending animo, end immediately
