@@ -38,7 +38,7 @@ public class AnimoStateTransitionTree {
             .andWhen(ctx -> getAnimoEvent(ctx) == AnimoEvent.END && getCurrentAnimoState(ctx) == AnimoState.PLAYING)
                 .then(ctx -> AnimoState.IDLE)
             .andWhen(ctx -> (getAnimoEvent(ctx) == AnimoEvent.PREV_FRAME || getAnimoEvent(ctx) == AnimoEvent.NEXT_FRAME || getAnimoEvent(ctx) == AnimoEvent.SET_FRAME))
-                .then(ctx -> AnimoState.IDLE)
+                .then(ctx -> getCurrentAnimoState(ctx) == AnimoState.PLAYING ? AnimoState.PLAYING : AnimoState.IDLE)
             .otherwise(AnimoStateTransitionTree::getCurrentAnimoState)
             .build();
 
