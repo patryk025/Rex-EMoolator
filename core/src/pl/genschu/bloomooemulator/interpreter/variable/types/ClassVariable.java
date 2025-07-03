@@ -118,7 +118,7 @@ public class ClassVariable extends Variable {
 		}
 	}
 
-	private static class InstanceVariable extends Variable {
+	public static class InstanceVariable extends Variable {
 		private final Context instanceContext;
 
 		public InstanceVariable(String name, Context context) {

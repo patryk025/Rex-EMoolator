@@ -248,21 +248,32 @@ public class Context {
     }
 
     public boolean hasVariable(String name) {
+        // Use a set to track visited contexts to prevent infinite loops
+        Set<Context> visitedContexts = new HashSet<>();
+        return hasVariableInternal(name, visitedContexts);
+    }
+
+    private boolean hasVariableInternal(String name, Set<Context> visitedContexts) {
+        // Mark this context as visited
+        if (!visitedContexts.add(this)) {
+            return false; // If already visited, avoid further checks
+        }
+
         // Check in class instances
         for(Variable classInstance : classInstances.values()) {
-            if(classInstance.getContext().hasVariable(name))
+            if(classInstance.getContext().hasVariableInternal(name, visitedContexts))
                 return true;
         }
 
         for(Context context : additionalContexts) { // look in additionalContexts
-            if(context.hasVariable(name))
+            if(context.hasVariableInternal(name, visitedContexts))
                 return true;
         }
 
         if (variables.containsKey(name)) {
             return true;
         }
-        return parentContext != null && parentContext.hasVariable(name);
+        return parentContext != null && parentContext.hasVariableInternal(name, visitedContexts);
     }
 
     public void removeVariable(String name) {

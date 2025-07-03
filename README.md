@@ -38,7 +38,7 @@ Aktualne statusy gier opartych na silniku Piklib/BlooMoo:
 <tr>
 <td>Reksio i Czarodzieje</td>
 <td><img alt="W grze" src="https://img.shields.io/badge/W grze-yellow"/></td>
-<td>Crashuje się na wzgórzach (w wyniku StackOverflowError) po ostatnich aktualizacjach. Wymaga sprawdzenia.</td>
+<td>Zbugowane menu. Prace w toku.</td>
 <td></td>
 </tr>
 <tr>

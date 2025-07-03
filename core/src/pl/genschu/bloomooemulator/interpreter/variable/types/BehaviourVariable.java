@@ -332,9 +332,15 @@ public class BehaviourVariable extends Variable {
 		if(argument instanceof StringVariable) {
 			String varValue = ((StringVariable) argument).GET();
 			if(context.hasVariable(varValue)) {
-				return context.getVariable(varValue);
-			}
-			else {
+				Variable variable = context.getVariable(varValue);
+				
+				// Check if variable is one of primitive types
+				if (variable instanceof StringVariable || 
+					variable instanceof DoubleVariable || 
+					variable instanceof IntegerVariable || 
+					variable instanceof BoolVariable) {
+					return variable;
+				}
 				return argument;
 			}
 		}
