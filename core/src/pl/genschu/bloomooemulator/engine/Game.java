@@ -79,10 +79,12 @@ public class Game {
         musicCache = Collections.synchronizedMap(new HashMap<>());
 
         definitionContext.setGame(this);
+    }
 
+    public void loadGame() {
         GlobalVariables.reset();
 
-        if(game != null) {
+        if (game != null) {
             scanGameDirectory();
         }
     }
@@ -198,10 +200,6 @@ public class Game {
             Gdx.app.log("Game loader", "Application variables loaded");
 
             runInit(currentApplicationContext);
-
-            // FIXME: I still don't know, why RANDOM is working without defining it in scripts
-            currentApplicationContext.setVariable("RANDOM", new RandVariable("RANDOM", currentApplicationContext));
-            currentApplicationContext.setVariable("SYSTEM", new SystemVariable("RANDOM", currentApplicationContext));
 
             goTo(applicationVariable.getFirstEpisode().getFirstScene().getName());
         } catch (IOException e) {

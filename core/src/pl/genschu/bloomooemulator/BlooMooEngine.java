@@ -63,6 +63,8 @@ public class BlooMooEngine extends ApplicationAdapter {
 
         game.setInputManager(inputManager);
 
+        game.loadGame();
+
         // set log level
         Gdx.app.setLogLevel(config.getLogLevel());
     }
