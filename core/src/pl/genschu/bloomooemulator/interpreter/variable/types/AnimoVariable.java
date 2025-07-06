@@ -1047,6 +1047,7 @@ public class AnimoVariable extends Variable implements Cloneable {
 
 			if(currentEvent.getLoopBy() != 0 && currentFrameNumber + direction >= currentEvent.getLoopBy()) {
 				currentFrameNumber = 0;
+				setCurrentFrameNumber(currentFrameNumber);
 			}
 			else if (currentFrameNumber + direction >= currentEvent.getFrames().size()) {
 				changeAnimoState(AnimoEvent.END);
