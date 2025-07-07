@@ -14,6 +14,7 @@ public class EngineConfig {
     private boolean debugButtons = false;
     private boolean debugCollisions = false;
     private boolean debugMatrix = false;
+    private boolean monitorPerformance = false;
 
     // render settings
     private boolean maintainAspectRatio = true;
@@ -93,6 +94,14 @@ public class EngineConfig {
 
     public void toggleDebugMatrix() {
         this.debugMatrix = !this.debugMatrix;
+    }
+
+    public boolean isMonitorPerformance() {
+        return monitorPerformance;
+    }
+
+    public void toggleMonitorPerformance() {
+        this.monitorPerformance = !this.monitorPerformance;
     }
 
     public boolean isMaintainAspectRatio() {

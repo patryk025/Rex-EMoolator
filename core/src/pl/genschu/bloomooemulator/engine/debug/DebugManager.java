@@ -77,6 +77,10 @@ public class DebugManager implements Disposable {
             renderVariablesDebug();
         }
 
+        if (config.isMonitorPerformance()) {
+            renderMonitorPerformance();
+        }
+
         if (config.isDebugButtons()) {
             renderButtonBorders();
         }
@@ -184,6 +188,15 @@ public class DebugManager implements Disposable {
         batch.begin();
         font.setColor(Color.WHITE);
         font.draw(batch, debugVariablesValues, 5, VIRTUAL_HEIGHT - 5);
+        batch.end();
+    }
+
+    private void renderMonitorPerformance() {
+        String performanceMetrics = PerformanceMonitor.printStats();
+
+        batch.begin();
+        font.setColor(Color.WHITE);
+        font.draw(batch, performanceMetrics, 350, VIRTUAL_HEIGHT - 5);
         batch.end();
     }
 

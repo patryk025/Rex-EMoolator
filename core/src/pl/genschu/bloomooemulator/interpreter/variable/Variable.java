@@ -1,6 +1,7 @@
 package pl.genschu.bloomooemulator.interpreter.variable;
 
 import com.badlogic.gdx.Gdx;
+import pl.genschu.bloomooemulator.engine.debug.PerformanceMonitor;
 import pl.genschu.bloomooemulator.interpreter.Context;
 import pl.genschu.bloomooemulator.interpreter.exceptions.BreakException;
 import pl.genschu.bloomooemulator.interpreter.exceptions.ClassMethodNotFoundException;
@@ -239,10 +240,13 @@ public abstract class Variable implements Cloneable {
 		}
 		Method method = this.getMethod(methodName, paramsTypes);
 		try {
+			PerformanceMonitor.startOperation("(" + this.getType() + ") " + methodName);
 			return method.execute(List.of(params));
 		} catch (ClassMethodNotFoundException | ClassMethodNotImplementedException | ClassCastException e) {
 			Gdx.app.error("Variable", "Method call error in variable " + this.getName() + " of class " + this.getType() + ": " + e.getMessage(), e);
 			return null;
+		} finally {
+			PerformanceMonitor.endOperation("(" + this.getType() + ") " + methodName);
 		}
     }
 

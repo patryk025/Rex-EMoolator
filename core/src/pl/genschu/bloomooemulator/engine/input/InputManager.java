@@ -156,6 +156,10 @@ public class InputManager implements Disposable {
             config.toggleDebugMatrix();
         }
 
+        if (Gdx.input.isKeyJustPressed(Input.Keys.F6)) {
+            config.toggleMonitorPerformance();
+        }
+
         if (Gdx.input.isKeyJustPressed(Input.Keys.F9)) {
             game.getEmulator().getDebugManager().toggleSceneSelector();
         }
