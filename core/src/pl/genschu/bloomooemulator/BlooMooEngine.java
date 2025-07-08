@@ -9,6 +9,7 @@ import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.StretchViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import pl.genschu.bloomooemulator.engine.config.EngineConfig;
+import pl.genschu.bloomooemulator.engine.debug.PerformanceMonitor;
 import pl.genschu.bloomooemulator.logic.GameEntry;
 import pl.genschu.bloomooemulator.engine.Game;
 import pl.genschu.bloomooemulator.engine.input.InputManager;
@@ -73,6 +74,8 @@ public class BlooMooEngine extends ApplicationAdapter {
     public void render() {
         float deltaTime = Gdx.graphics.getDeltaTime();
 
+        PerformanceMonitor.startOperation("Render - frame time");
+
         // clear screen
         Gdx.gl.glClearColor(0, 0, 0, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
@@ -81,20 +84,30 @@ public class BlooMooEngine extends ApplicationAdapter {
         camera.update();
         batch.setProjectionMatrix(camera.combined);
 
+        PerformanceMonitor.startOperation("Render - processing input");
         // handle input
         inputManager.processInput(deltaTime);
+        PerformanceMonitor.endOperation("Render - processing input");
 
+        PerformanceMonitor.startOperation("Render - updating game state");
         // update objects
         updateManager.update(deltaTime);
+        PerformanceMonitor.endOperation("Render - updating game state");
 
+        PerformanceMonitor.startOperation("Render - rendering");
         // render objects
         renderManager.render(deltaTime);
+        PerformanceMonitor.endOperation("Render - rendering");
 
+        PerformanceMonitor.startOperation("Render - rendering debug info");
         // render debug info
         debugManager.render(deltaTime);
+        PerformanceMonitor.endOperation("Render - rendering debug info");
 
         // take screenshot for CanvasObserver
         game.takeScreenshot();
+
+        PerformanceMonitor.endOperation("Render - frame time");
     }
 
     @Override
