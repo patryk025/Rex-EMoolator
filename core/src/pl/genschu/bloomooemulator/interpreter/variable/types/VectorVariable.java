@@ -186,6 +186,7 @@ public class VectorVariable extends Variable {
 						this.size = 2;
 						this.components = new double[2];
 					}
+					break;
 				case "VALUE":
 					String value = attribute.getValue().toString();
 					String[] values = value.split(",");

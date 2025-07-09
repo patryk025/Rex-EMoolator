@@ -10,6 +10,7 @@ import org.junit.jupiter.params.provider.Arguments;
 import pl.genschu.bloomooemulator.TestEnvironment;
 import pl.genschu.bloomooemulator.builders.ContextBuilder;
 import pl.genschu.bloomooemulator.interpreter.Context;
+import pl.genschu.bloomooemulator.interpreter.variable.Attribute;
 import pl.genschu.bloomooemulator.interpreter.variable.Variable;
 import pl.genschu.bloomooemulator.interpreter.variable.types.*;
 
@@ -29,6 +30,7 @@ class VectorTest {
     void setUp() {
         ctx    = new ContextBuilder().build();
         vector = new VectorVariable("TEST_VECTOR", ctx);
+        vector.setAttribute("SIZE", new Attribute("INTEGER", 2));
     }
 
     private static Stream<Arguments> assignProvider() {
@@ -143,9 +145,11 @@ class VectorTest {
         vector.fireMethod("ASSIGN", new DoubleVariable("", vx, ctx), new DoubleVariable("", vy, ctx));
 
         VectorVariable normal = new VectorVariable("N", ctx);
+        normal.setAttribute("SIZE", new Attribute("INTEGER", 2));
         normal.fireMethod("ASSIGN", new DoubleVariable("", nx, ctx), new DoubleVariable("", ny, ctx));
 
         VectorVariable result = new VectorVariable("R", ctx);
+        result.setAttribute("SIZE", new Attribute("INTEGER", 2));
         vector.fireMethod("REFLECT", normal, result);
 
         assertEquals(expectedRx, ((DoubleVariable) result.fireMethod("GET", new IntegerVariable("", 0, ctx))).GET(), 1e-5);
