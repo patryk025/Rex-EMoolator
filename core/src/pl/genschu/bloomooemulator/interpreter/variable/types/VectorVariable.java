@@ -157,7 +157,7 @@ public class VectorVariable extends Variable {
 				}
 
 				for (int i = 0; i < size; i++) {
-					resultVector.components[i] = components[i] - 2 * dotProduct * normalVector.components[i];
+					resultVector.components[i] = 2 * dotProduct * normalVector.components[i] - components[i];
 				}
 				return null;
 			}
