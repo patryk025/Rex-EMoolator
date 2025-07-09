@@ -16,7 +16,7 @@ public class VectorVariable extends Variable {
 
 	public VectorVariable(String name, Context context) {
 		super(name, context);
-		this.size = 2; // Default size
+		this.size = 0; // Default size
 		this.components = new double[size];
 	}
 
@@ -69,18 +69,25 @@ public class VectorVariable extends Variable {
 		});
 		this.setMethod("ASSIGN", new Method(
 				List.of(
-						new Parameter("DOUBLE", "x", true),
-						new Parameter("DOUBLE", "y", true)
+						new Parameter("DOUBLE", "x...z", true)
 				),
 				"void"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				double x = ArgumentsHelper.getDouble(arguments.get(0));
-				double y = ArgumentsHelper.getDouble(arguments.get(1));
+				if (arguments.size() > components.length) {
+					Gdx.app.log("VectorVariable", "Stretching vector from " + components.length + " to " + arguments.size() + " components.");
+					double[] newComponents = new double[arguments.size()];
+					System.arraycopy(components, 0, newComponents, 0, components.length);
+					for (int i = components.length; i < newComponents.length; i++) {
+						newComponents[i] = 0.0;
+					}
+					components = newComponents;
+				}
 
-				components[0] = x;
-				components[1] = y;
+				for (int i = 0; i < arguments.size(); i++) {
+					components[i] = ArgumentsHelper.getDouble(arguments.get(i));
+				}
 				return null;
 			}
 		});
@@ -94,7 +101,7 @@ public class VectorVariable extends Variable {
 			public Variable execute(List<Object> arguments) {
 				int index = ArgumentsHelper.getInteger(arguments.get(0));
 
-				if (index >= 0 && index < size) {
+				if (index >= 0 && index < components.length) {
 					return new DoubleVariable("", components[index], context);
 				}
 				return new DoubleVariable("", 0.0, context);
@@ -183,7 +190,9 @@ public class VectorVariable extends Variable {
 					String value = attribute.getValue().toString();
 					String[] values = value.split(",");
 
-					for (int i = 0; i < Math.min(values.length, size); i++) {
+					components = new double[values.length];
+
+					for (int i = 0; i < values.length; i++) {
 						try {
 							components[i] = Double.parseDouble(values[i].trim());
 						} catch (NumberFormatException e) {
