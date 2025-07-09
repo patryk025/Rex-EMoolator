@@ -407,6 +407,7 @@ public class AnimoVariable extends Variable implements Cloneable {
 				String path = ArgumentsHelper.getString(arguments.get(0));
 				setAttribute("FILENAME", path);
 				AnimoLoader.loadAnimo(AnimoVariable.this);
+				updateRect();
 				return null;
 			}
 		});

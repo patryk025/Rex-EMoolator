@@ -213,6 +213,7 @@ public class ImageVariable extends Variable implements Cloneable {
 				String path = ArgumentsHelper.getString(arguments.get(0));
 				setAttribute("FILENAME", path);
 				ImageLoader.loadImage(ImageVariable.this);
+				updateRect();
 				show();
 				return null;
 			}
