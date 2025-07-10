@@ -2,9 +2,16 @@ package pl.genschu.bloomooemulator.engine.input;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
+import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.Pixmap;
+import com.badlogic.gdx.graphics.PixmapIO;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Disposable;
+import com.badlogic.gdx.utils.Json;
+import com.badlogic.gdx.utils.ObjectMap;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import pl.genschu.bloomooemulator.engine.Game;
 import pl.genschu.bloomooemulator.engine.config.EngineConfig;
@@ -12,8 +19,13 @@ import pl.genschu.bloomooemulator.interpreter.Context;
 import pl.genschu.bloomooemulator.interpreter.variable.Signal;
 import pl.genschu.bloomooemulator.interpreter.variable.Variable;
 import pl.genschu.bloomooemulator.interpreter.variable.types.*;
+import pl.genschu.bloomooemulator.objects.Image;
+import pl.genschu.bloomooemulator.objects.Rectangle;
 
 import java.util.*;
+
+import static pl.genschu.bloomooemulator.utils.CollisionChecker.getImage;
+import static pl.genschu.bloomooemulator.utils.CollisionChecker.getRect;
 
 public class InputManager implements Disposable {
     // Camera and viewport references
@@ -160,9 +172,61 @@ public class InputManager implements Disposable {
             config.toggleMonitorPerformance();
         }
 
+        if (Gdx.input.isKeyJustPressed(Input.Keys.F7)) {
+            exportGraphicsToFile(new ArrayList<>(game.getCurrentSceneContext().getGraphicsVariables().values()));
+        }
+
         if (Gdx.input.isKeyJustPressed(Input.Keys.F9)) {
             game.getEmulator().getDebugManager().toggleSceneSelector();
         }
+    }
+
+    private void exportGraphicsToFile(List<Variable> drawList) {
+        FileHandle exportDir = Gdx.files.local("exported_graphics");
+        if (!exportDir.exists()) exportDir.mkdirs();
+
+        FileHandle metaFile = exportDir.child("meta.json");
+        Json json = new Json();
+        Array<ObjectMap<String, Object>> metadata = new Array<>();
+
+        for (Variable variable : drawList) {
+            Image image = getImage(variable);
+            Rectangle rect = getRect(variable);
+            if (image == null || image.getImageTexture() == null || rect == null) continue;
+
+            boolean isVisible = false;
+            if (variable instanceof ImageVariable) {
+                isVisible = ((ImageVariable) variable).isVisible();
+            } else if (variable instanceof AnimoVariable) {
+                isVisible = ((AnimoVariable) variable).isVisible();
+            }
+
+            Texture texture = image.getImageTexture();
+            if (!texture.getTextureData().isPrepared()) {
+                texture.getTextureData().prepare();
+            }
+            Pixmap pixmap = texture.getTextureData().consumePixmap();
+
+            String filename = variable.getName() + ".png";
+            PixmapIO.writePNG(exportDir.child(filename), pixmap);
+
+            ObjectMap<String, Object> entry = new ObjectMap<>();
+            entry.put("name", variable.getName());
+            entry.put("file", filename);
+            entry.put("visible", isVisible);
+            entry.put("type", variable.getType());
+            entry.put("rect", Map.of(
+                    "x", rect.getXLeft(),
+                    "y", rect.getYTop(),
+                    "w", rect.getWidth(),
+                    "h", rect.getHeight()
+            ));
+
+            metadata.add(entry);
+        }
+
+        metaFile.writeString(json.prettyPrint(metadata), false);
+        Gdx.app.log("Export", "Exported graphics to " + exportDir.file().getAbsolutePath());
     }
 
     // Method converting screen coordinates to world coordinates
