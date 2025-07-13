@@ -2,7 +2,7 @@
 Emulator silnika graficznego Piklib/BlooMoo autorstwa firmy Aidem Media oraz interpretera skryptów.
 
 > [!WARNING]
-> Na ten moment wysiłki są skoncentrowane na naprawieniu Reksio i Ufo, szczególnie etapów z kamieniami, wyścigami, platformami oraz "odkurzaniem Jaja z kury". 
+> Na ten moment wysiłki są skoncentrowane na rewersowaniu plików SEK oraz działania obiektów typu World. Postępy prac nad tym, jak i innymi typami plików będą widoczne w branchu [format_definitions](/patryk025/Rex-EMoolator/tree/format_definitions)
 
 Dla tabeli niżej zastosowano następujący podział grywalności:
 - ![Grywalne](https://img.shields.io/badge/Grywalne-green) grę daje się ukończyć od początku do końca, bez błędów, które mogą ją zablokować.
@@ -20,67 +20,76 @@ Aktualne statusy gier opartych na silniku Piklib/BlooMoo:
 <th>Status</th>
 <th>Uwagi</th>
 <th>Szacowany poziom grywalności</th>
+<th>Link do projektu z trackingiem</th>
 </tr>
 </thead>
 <tbody>
 <tr>
 <td>Reksio i Skarb Piratów</td>
 <td><img alt="Grywalne" src="https://img.shields.io/badge/Grywalne-green"/></td>
-<td>Gra w pełni grywalna z drobnymi bugami. Etapy z przejściem rzeki zaczęły się przymulać (do sprawdzenia). Sekwencja z kokosami ma drobne różnice w detekcji kolizji w stosunku do oryginału (dodatkowo pojawia się w rogu kura lekko przesłaniająca przycisk menu, nie wiem czemu). Podczas zagadek przy posągu Boga Twaroga sporadycznie grafiki odpowiedzi są zamienione miejscami (narrator jednak czyta poprawnie).W etapie z UFO sporadycznie są problemy z priorytetami animacji (winda przesłania Reksia, do weryfikacji). Poza tymi niekrytycznymi bugami wszystko działa poprawnie.</td>
+<td>Gra w pełni grywalna z drobnymi bugami. Etapy z przejściem rzeki zaczęły się przymulać (do sprawdzenia). Sekwencja z kokosami ma drobne różnice w detekcji kolizji w stosunku do oryginału (dodatkowo pojawia się w rogu kura lekko przesłaniająca przycisk menu, nie wiem czemu). Podczas zagadek przy posągu Boga Twaroga sporadycznie grafiki odpowiedzi są zamienione miejscami (narrator jednak czyta poprawnie). W etapie z UFO sporadycznie są problemy z priorytetami animacji (winda przesłania Reksia, do weryfikacji). Poza tymi niekrytycznymi bugami wszystko działa poprawnie.</td>
 <td>100%</td>
+<td>[Link](https://github.com/users/patryk025/projects/3)</td>
 </tr>
 <tr>
 <td>Reksio i Ufo</td>
 <td><img alt="W grze" src="https://img.shields.io/badge/W grze-yellow"/></td>
-<td>Gra działa poprawnie do momentu dotarcia do wąwozu na Indorze. Sekcja podkopu pod murem więzienia oraz burzenia muru na Indorze została zaimplementowana na tyle, żeby etapy w skryptach działały poprawnie, nie sprawdzałem już egzotycznych kombinacji, które na oryginalnych skryptach nie wystąpią. W dalszym etapie gra utyka w sekcji platformowej na Indorze. Odtwarza się animacja Reksia jak wchodzi, po czym zmienia się w animację spadania. Klawisze kierunkowe działają, jednak ten etap działa bardzo niestabilnie i lubi scrashować emulator</td>
+<td>Gra działa poprawnie do momentu dotarcia do wąwozu na Indorze. Sekwencja platformowa działa, aczkolwiek ma problemy, np. można wyjść z drabiny i iść w powietrzu. Są problemy w wyścigu. Da się przejść, tylko są problemy z przeciwnikami, którzy potrafią utknąć. Sekwencja odkurzania Jaja z kury ma problemy ze zbyt szybko działającą animacją odkurzacza (zdaje się jest to problem globalny z emulatorem, do sprawdzenia). Do tego wysypała emulator po pierwszym wystrzeleniu torpedy. Ujawniają się też problemy z "przeciekającymi" dźwiękami. Dźwięki z poprzedniej sceny potrafią się odtworzyć w następnej.</td>
 <td>ok. 30% (26/86 scen)</td>
+<td>[Link](https://github.com/users/patryk025/projects/4)</td>
 </tr>
 <tr>
 <td>Reksio i Czarodzieje</td>
 <td><img alt="W grze" src="https://img.shields.io/badge/W grze-yellow"/></td>
-<td>Zbugowane menu. Prace w toku.</td>
+<td>Menu jest lekko zlagowane. Sekwencja ze wzgórzami działa, jednak etap zaraz za nimi z ukrytymi drzwami już nie z racji braku implementacji typu World (prace w toku). Jest to punkt blokujący i uniemożliwia dalszą rozgrywkę.</td>
 <td></td>
+<td>[Link](https://github.com/users/patryk025/projects/5)</td>
 </tr>
 <tr>
 <td>Reksio i Wehikuł Czasu</td>
 <td><img alt="W grze" src="https://img.shields.io/badge/W grze-yellow"/></td>
-<td>Po ostatnich aktualizacjach jest problem z cutscenkami w intro.</td>
+<td>Wymagana ponowna ewaluacja.</td>
 <td>0%</td>
 </tr>
 <tr>
 <td>Reksio i Kapitan Nemo</td>
 <td><img alt="W grze" src="https://img.shields.io/badge/W grze-yellow"/></td>
-<td>Po ostatnich aktualizacjach jest problem z cutscenkami w intro.</td>
+<td>Wymagana ponowna ewaluacja.</td>
 <td>0%</td>
+<td></td>
 </tr>
 <tr>
 <td>Reksio i Kretes w Akcji!</td>
 <td><img alt="W grze" src="https://img.shields.io/badge/W grze-yellow"/></td>
 <td>Działa startowe intro i przechodzi poprawnie dalej. Po kliknięciu myszą przenosi nas do menu. Wszystkie guziki działają i przenoszą od odpowiadających im minigierek. Reksio i Skarb Piratów technicznie działa. Tło się nie przesuwa, ale kolizje działają. Przy Reksio i Ufo gra rysuje tylko tło, Sikora Millenium oraz jakieś efekty cząsteczkowe, ale przez brak implementacji Inertia etap nie działa. Przy Reksio i Czarodzieje renderuje trasę, jednak całość jest jakby dopalona sterydami. Kolizje działają, ale elementy się nie przesuwają. Przy Reksio i Wehikuł Czasu mapa się rysuje oraz daje się poruszać postaciami, jednak są błędy oraz problemy z grafikami i ich pozycjami. Przy Super Heros i Kapitan Nemo nie ładuje się mapa. Edytor map jest również niekompletny.</td>
 <td>0%</td>
+<td></td>
 </tr>
 <tr>
 <td>Poznaj Mity: Wyprawa po Złote Runo</td>
 <td><img alt="W grze" src="https://img.shields.io/badge/W grze-yellow"/></td>
-<td>Przechodzi do menu i przyciski działają. Minigierki na ten moment nie działają (bugują się, crashują grę itp.). Bajka prawie działa (są problemy pod Androidem).</td>
+<td>Wymagana ponowna ewaluacja.</td>
+<td></td>
 <td></td>
 </tr>
 <tr>
 <td>Poznaj Mity: Wojna Trojańska</td>
 <td><img alt="W grze" src="https://img.shields.io/badge/W grze-yellow"/></td>
-<td>Przechodzi do menu i przyciski działają. Minigierki na ten moment nie działają (głównie się bugują), czasami guziki znikają.</td>
+<td>Wymagana ponowna ewaluacja.</td>
+<td></td>
 <td></td>
 </tr>
 <tr>
 <td>Poznaj Mity: Przygody Odyseusza</td>
 <td><img alt="W grze" src="https://img.shields.io/badge/W grze-yellow"/></td>
-<td>Przechodzi do menu i przyciski działają. Statek Ozyrysa czasami znika. Odnoszę wrażenie, że bajka działa z błędami. Minigierki na ten moment nie działają lub wywalają grę.</td>
+<td>Wymagana ponowna ewaluacja.</td>
+<td></td>
 <td></td>
 </tr>
 <tr>
 <td>Poznaj Mity: Herkules</td>
 <td><img alt="W grze" src="https://img.shields.io/badge/W grze-yellow"/></td>
-<td>Pojawia się plansza startowa i wchodzi do menu, przyciski działają i udaje się przejść do minigierek, ale nie da się jeszcze grać. Bajka się buguje (grafiki się podmieniają jedynie podczas ręcznego przechodzenia między rozdziałami).</td>
+<td>Wymagana ponowna ewaluacja.</td>
 <td></td>
 </tr>
 </tbody>
