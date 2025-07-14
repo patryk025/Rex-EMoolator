@@ -2,7 +2,7 @@
 Emulator silnika graficznego Piklib/BlooMoo autorstwa firmy Aidem Media oraz interpretera skryptów.
 
 > [!WARNING]
-> Na ten moment wysiłki są skoncentrowane na rewersowaniu plików SEK oraz działania obiektów typu World. Postępy prac nad tym, jak i innymi typami plików będą widoczne w branchu [format_definitions](/patryk025/Rex-EMoolator/tree/format_definitions)
+> Na ten moment wysiłki są skoncentrowane na rewersowaniu plików SEK oraz działania obiektów typu World. Postępy prac nad tym, jak i innymi typami plików będą widoczne w branchu [format_definitions](https://github.com/patryk025/Rex-EMoolator/tree/format_definitions)
 
 Dla tabeli niżej zastosowano następujący podział grywalności:
 - ![Grywalne](https://img.shields.io/badge/Grywalne-green) grę daje się ukończyć od początku do końca, bez błędów, które mogą ją zablokować.
@@ -29,27 +29,28 @@ Aktualne statusy gier opartych na silniku Piklib/BlooMoo:
 <td><img alt="Grywalne" src="https://img.shields.io/badge/Grywalne-green"/></td>
 <td>Gra w pełni grywalna z drobnymi bugami. Etapy z przejściem rzeki zaczęły się przymulać (do sprawdzenia). Sekwencja z kokosami ma drobne różnice w detekcji kolizji w stosunku do oryginału (dodatkowo pojawia się w rogu kura lekko przesłaniająca przycisk menu, nie wiem czemu). Podczas zagadek przy posągu Boga Twaroga sporadycznie grafiki odpowiedzi są zamienione miejscami (narrator jednak czyta poprawnie). W etapie z UFO sporadycznie są problemy z priorytetami animacji (winda przesłania Reksia, do weryfikacji). Poza tymi niekrytycznymi bugami wszystko działa poprawnie.</td>
 <td>100%</td>
-<td>[Link](https://github.com/users/patryk025/projects/3)</td>
+<td><a href="https://github.com/users/patryk025/projects/3">Link</a></td>
 </tr>
 <tr>
 <td>Reksio i Ufo</td>
 <td><img alt="W grze" src="https://img.shields.io/badge/W grze-yellow"/></td>
 <td>Gra działa poprawnie do momentu dotarcia do wąwozu na Indorze. Sekwencja platformowa działa, aczkolwiek ma problemy, np. można wyjść z drabiny i iść w powietrzu. Są problemy w wyścigu. Da się przejść, tylko są problemy z przeciwnikami, którzy potrafią utknąć. Sekwencja odkurzania Jaja z kury ma problemy ze zbyt szybko działającą animacją odkurzacza (zdaje się jest to problem globalny z emulatorem, do sprawdzenia). Do tego wysypała emulator po pierwszym wystrzeleniu torpedy. Ujawniają się też problemy z "przeciekającymi" dźwiękami. Dźwięki z poprzedniej sceny potrafią się odtworzyć w następnej.</td>
 <td>ok. 30% (26/86 scen)</td>
-<td>[Link](https://github.com/users/patryk025/projects/4)</td>
+<td><a href="https://github.com/users/patryk025/projects/4">Link</a></td>
 </tr>
 <tr>
 <td>Reksio i Czarodzieje</td>
 <td><img alt="W grze" src="https://img.shields.io/badge/W grze-yellow"/></td>
 <td>Menu jest lekko zlagowane. Sekwencja ze wzgórzami działa, jednak etap zaraz za nimi z ukrytymi drzwami już nie z racji braku implementacji typu World (prace w toku). Jest to punkt blokujący i uniemożliwia dalszą rozgrywkę.</td>
 <td></td>
-<td>[Link](https://github.com/users/patryk025/projects/5)</td>
+<td><a href="https://github.com/users/patryk025/projects/5">Link</a></td>
 </tr>
 <tr>
 <td>Reksio i Wehikuł Czasu</td>
 <td><img alt="W grze" src="https://img.shields.io/badge/W grze-yellow"/></td>
 <td>Wymagana ponowna ewaluacja.</td>
 <td>0%</td>
+<td></td>
 </tr>
 <tr>
 <td>Reksio i Kapitan Nemo</td>
@@ -90,6 +91,7 @@ Aktualne statusy gier opartych na silniku Piklib/BlooMoo:
 <td>Poznaj Mity: Herkules</td>
 <td><img alt="W grze" src="https://img.shields.io/badge/W grze-yellow"/></td>
 <td>Wymagana ponowna ewaluacja.</td>
+<td></td>
 <td></td>
 </tr>
 </tbody>
