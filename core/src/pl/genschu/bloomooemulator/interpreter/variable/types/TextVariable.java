@@ -8,7 +8,7 @@ import pl.genschu.bloomooemulator.interpreter.variable.Method;
 import pl.genschu.bloomooemulator.interpreter.variable.Parameter;
 import pl.genschu.bloomooemulator.interpreter.variable.Variable;
 import pl.genschu.bloomooemulator.objects.FontCropping;
-import pl.genschu.bloomooemulator.objects.Rectangle;
+import pl.genschu.bloomooemulator.geometry.shapes.Box2D;
 import pl.genschu.bloomooemulator.utils.ArgumentsHelper;
 
 import java.util.Arrays;
@@ -18,7 +18,7 @@ public class TextVariable extends Variable {
 	private String text;
 	private boolean isVisible;
 	private int priority;
-	private Rectangle rect;
+	private Box2D rect;
 	private String vJustify;
 	private String hJustify;
 	private FontVariable font;
@@ -52,7 +52,7 @@ public class TextVariable extends Variable {
 				String hJustify = ArgumentsHelper.getString(arguments.get(4));
 				String vJustify = ArgumentsHelper.getString(arguments.get(5));
 
-				rect = new Rectangle(xLeft, yLower, xRight, yUpper);
+				rect = new Box2D(xLeft, yLower, xRight, yUpper);
 				sethJustify(hJustify);
 				setvJustify(vJustify);
 				return null;
@@ -232,7 +232,7 @@ public class TextVariable extends Variable {
 						int xRight = Integer.parseInt(rectSplit[2]);
 						int yTop = Integer.parseInt(rectSplit[3]);
 						int height = yTop - yBottom;
-						rect = new Rectangle(xLeft, yBottom-height, xRight, yTop-height);
+						rect = new Box2D(xLeft, yBottom-height, xRight, yTop-height);
 					}
 					else {
 						Variable rectVariable = context.getVariable(rectRaw);
@@ -293,11 +293,11 @@ public class TextVariable extends Variable {
 		this.priority = priority;
 	}
 
-	public Rectangle getRect() {
+	public Box2D getRect() {
 		return rect;
 	}
 
-	public void setRect(Rectangle rect) {
+	public void setRect(Box2D rect) {
 		this.rect = rect;
 	}
 

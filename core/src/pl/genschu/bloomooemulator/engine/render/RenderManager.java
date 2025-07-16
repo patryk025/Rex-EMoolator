@@ -1,10 +1,8 @@
 package pl.genschu.bloomooemulator.engine.render;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Disposable;
 import pl.genschu.bloomooemulator.engine.Game;
 import pl.genschu.bloomooemulator.engine.config.EngineConfig;
@@ -12,9 +10,8 @@ import pl.genschu.bloomooemulator.interpreter.Context;
 import pl.genschu.bloomooemulator.interpreter.variable.Attribute;
 import pl.genschu.bloomooemulator.interpreter.variable.Variable;
 import pl.genschu.bloomooemulator.interpreter.variable.types.*;
-import pl.genschu.bloomooemulator.objects.Event;
 import pl.genschu.bloomooemulator.objects.Image;
-import pl.genschu.bloomooemulator.objects.Rectangle;
+import pl.genschu.bloomooemulator.geometry.shapes.Box2D;
 
 import java.util.*;
 
@@ -99,9 +96,9 @@ public class RenderManager implements Disposable {
             return;
         }
 
-        Rectangle rect = imageVariable.getRect();
-        Rectangle clippingRect = imageVariable.getClippingRect();
-        Map<String, Rectangle> alphaMasks = imageVariable.getAlphaMasks();
+        Box2D rect = imageVariable.getRect();
+        Box2D clippingRect = imageVariable.getClippingRect();
+        Map<String, Box2D> alphaMasks = imageVariable.getAlphaMasks();
 
         if (alphaMasks.isEmpty()) {
             batch.setColor(1, 1, 1, imageVariable.getOpacity());

@@ -20,7 +20,7 @@ import pl.genschu.bloomooemulator.interpreter.variable.Signal;
 import pl.genschu.bloomooemulator.interpreter.variable.Variable;
 import pl.genschu.bloomooemulator.interpreter.variable.types.*;
 import pl.genschu.bloomooemulator.objects.Image;
-import pl.genschu.bloomooemulator.objects.Rectangle;
+import pl.genschu.bloomooemulator.geometry.shapes.Box2D;
 
 import java.util.*;
 
@@ -191,7 +191,7 @@ public class InputManager implements Disposable {
 
         for (Variable variable : drawList) {
             Image image = getImage(variable);
-            Rectangle rect = getRect(variable);
+            Box2D rect = getRect(variable);
             if (image == null || image.getImageTexture() == null || rect == null) continue;
 
             boolean isVisible = false;

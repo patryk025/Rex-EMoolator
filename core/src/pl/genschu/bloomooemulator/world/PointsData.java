@@ -1,4 +1,6 @@
-package pl.genschu.bloomooemulator.objects.world;
+package pl.genschu.bloomooemulator.world;
+
+import pl.genschu.bloomooemulator.geometry.points.Point3D;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -11,14 +11,13 @@ import pl.genschu.bloomooemulator.interpreter.variable.Method;
 import pl.genschu.bloomooemulator.interpreter.variable.Parameter;
 import pl.genschu.bloomooemulator.interpreter.variable.Variable;
 import pl.genschu.bloomooemulator.objects.Image;
-import pl.genschu.bloomooemulator.objects.Rectangle;
+import pl.genschu.bloomooemulator.geometry.shapes.Box2D;
 import pl.genschu.bloomooemulator.saver.ImageSaver;
 import pl.genschu.bloomooemulator.utils.ArgumentsHelper;
 
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 
 public class CanvasObserverVariable extends Variable {
@@ -110,7 +109,7 @@ public class CanvasObserverVariable extends Variable {
 						continue;
 					}
 
-					Rectangle rect = getRect(variable);
+					Box2D rect = getRect(variable);
 					if (rect == null) continue;
 
 					boolean containsPoint = false;
@@ -342,7 +341,7 @@ public class CanvasObserverVariable extends Variable {
 		return byteArray;
 	}
 
-	private Rectangle getRect(Variable variable) {
+	private Box2D getRect(Variable variable) {
 		if(variable instanceof ImageVariable) {
 			return ((ImageVariable) variable).getRect();
 		}

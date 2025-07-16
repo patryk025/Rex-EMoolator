@@ -3,10 +3,7 @@ package pl.genschu.bloomooemulator.interpreter.variable.types;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Pixmap;
-import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.TextureData;
-import pl.genschu.bloomooemulator.engine.decision.events.AnimoEvent;
-import pl.genschu.bloomooemulator.engine.decision.events.ButtonEvent;
 import pl.genschu.bloomooemulator.engine.filters.Filter;
 import pl.genschu.bloomooemulator.interpreter.exceptions.ClassMethodNotImplementedException;
 import pl.genschu.bloomooemulator.interpreter.Context;
@@ -14,11 +11,9 @@ import pl.genschu.bloomooemulator.interpreter.variable.Attribute;
 import pl.genschu.bloomooemulator.interpreter.variable.Method;
 import pl.genschu.bloomooemulator.interpreter.variable.Parameter;
 import pl.genschu.bloomooemulator.interpreter.variable.Variable;
-import pl.genschu.bloomooemulator.loader.AnimoLoader;
 import pl.genschu.bloomooemulator.loader.ImageLoader;
-import pl.genschu.bloomooemulator.objects.Event;
 import pl.genschu.bloomooemulator.objects.Image;
-import pl.genschu.bloomooemulator.objects.Rectangle;
+import pl.genschu.bloomooemulator.geometry.shapes.Box2D;
 import pl.genschu.bloomooemulator.utils.ArgumentsHelper;
 
 import java.util.ArrayList;
@@ -31,21 +26,21 @@ public class ImageVariable extends Variable implements Cloneable {
 	private int posX;
 	private int posY;
 	private float opacity;
-	private Rectangle rect;
-	private Rectangle clippingRect;
+	private Box2D rect;
+	private Box2D clippingRect;
 	private int priority;
 
 	private boolean isVisible = true;
 	private boolean monitorCollision = false;
 
-	private final Map<String, Rectangle> alphaMasks = new HashMap<>();
+	private final Map<String, Box2D> alphaMasks = new HashMap<>();
 
 	private final List<Filter> filters = new ArrayList<>();
 
 	public ImageVariable(String name, Context context) {
 		super(name, context);
 
-		rect = new Rectangle(0, 0, 0, 0);
+		rect = new Box2D(0, 0, 0, 0);
 		clippingRect = null;
 		opacity = 255;
 		priority = 0;
@@ -247,7 +242,7 @@ public class ImageVariable extends Variable implements Cloneable {
 				// Save the mask
 				int maskWidth = mask.getImage().width;
 				int maskHeight = mask.getImage().height;
-				Rectangle maskRect = new Rectangle(posX, posY + maskHeight, posX + maskWidth, posY);
+				Box2D maskRect = new Box2D(posX, posY + maskHeight, posX + maskWidth, posY);
 				alphaMasks.put(maskName, maskRect);
 
 				Gdx.app.log("ImageVariable", "MERGEALPHA: Added mask " + maskName + " at " + posX + "," + posY);
@@ -324,7 +319,7 @@ public class ImageVariable extends Variable implements Cloneable {
 				int xRight = ArgumentsHelper.getInteger(arguments.get(2));
 				int yTop = ArgumentsHelper.getInteger(arguments.get(3));
 
-				clippingRect = new Rectangle(xLeft, yBottom, xRight, yTop);
+				clippingRect = new Box2D(xLeft, yBottom, xRight, yTop);
 				return null;
 			}
 		});
@@ -433,7 +428,7 @@ public class ImageVariable extends Variable implements Cloneable {
 		}
 	}
 
-	public Rectangle getRect() {
+	public Box2D getRect() {
 		return rect;
 	}
 
@@ -499,15 +494,15 @@ public class ImageVariable extends Variable implements Cloneable {
 		this.opacity = opacity;
 	}
 
-	public Rectangle getClippingRect() {
+	public Box2D getClippingRect() {
 		return clippingRect;
 	}
 
-	public void setClippingRect(Rectangle clippingRect) {
+	public void setClippingRect(Box2D clippingRect) {
 		this.clippingRect = clippingRect;
 	}
 
-	public Map<String, Rectangle> getAlphaMasks() {
+	public Map<String, Box2D> getAlphaMasks() {
 		return alphaMasks;
 	}
 
@@ -557,7 +552,7 @@ public class ImageVariable extends Variable implements Cloneable {
 	@Override
     public ImageVariable clone() {
         ImageVariable clone = (ImageVariable) super.clone();
-		this.rect = new Rectangle(rect.getXLeft(), rect.getYBottom(), rect.getXRight(), rect.getYTop());
+		this.rect = new Box2D(rect.getXLeft(), rect.getYBottom(), rect.getXRight(), rect.getYTop());
         return clone;
     }
 }

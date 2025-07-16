@@ -20,7 +20,7 @@ import pl.genschu.bloomooemulator.loader.AnimoLoader;
 import pl.genschu.bloomooemulator.objects.Event;
 import pl.genschu.bloomooemulator.objects.FrameData;
 import pl.genschu.bloomooemulator.objects.Image;
-import pl.genschu.bloomooemulator.objects.Rectangle;
+import pl.genschu.bloomooemulator.geometry.shapes.Box2D;
 import pl.genschu.bloomooemulator.utils.ArgumentsHelper;
 
 import java.util.ArrayList;
@@ -57,7 +57,7 @@ public class AnimoVariable extends Variable implements Cloneable {
 	private int anchorX = 0;
 	private int anchorY = 0;
 
-	private Rectangle rect;
+	private Box2D rect;
 	private Music currentSfx;
 
 	private boolean changeCursor;
@@ -72,7 +72,7 @@ public class AnimoVariable extends Variable implements Cloneable {
 	public AnimoVariable(String name, Context context) {
 		super(name, context);
 
-		rect = new Rectangle(0, 0, 0, 0);
+		rect = new Box2D(0, 0, 0, 0);
 	}
 
 	@Override
@@ -360,8 +360,8 @@ public class AnimoVariable extends Variable implements Cloneable {
 					return new BoolVariable("", false, context);
 				}
 
-				Rectangle rect1 = getRect();
-				Rectangle rect2;
+				Box2D rect1 = getRect();
+				Box2D rect2;
 				if(var instanceof AnimoVariable) {
 					rect2 = ((AnimoVariable) var).getRect();
 				}
@@ -1075,7 +1075,7 @@ public class AnimoVariable extends Variable implements Cloneable {
 		return new Random().nextInt(musicList.size());
 	}
 
-	public Rectangle getRect() {
+	public Box2D getRect() {
 		return rect;
 	}
 
@@ -1119,7 +1119,7 @@ public class AnimoVariable extends Variable implements Cloneable {
 		//Gdx.app.debug("AnimoVariable ("+this.getName()+")", "Rect: " + rect);
 	}
 
-	public boolean isNear(Rectangle rect1, Rectangle rect2, int iouThreshold) {
+	public boolean isNear(Box2D rect1, Box2D rect2, int iouThreshold) {
 		// get intersection area
 		int intersectionX = Math.max(rect1.getXLeft(), rect2.getXLeft());
 		int intersectionY = Math.max(rect1.getYBottom(), rect2.getYBottom());
@@ -1421,7 +1421,7 @@ public class AnimoVariable extends Variable implements Cloneable {
 	@Override
 	public AnimoVariable clone() {
 		AnimoVariable clone = (AnimoVariable) super.clone();
-		this.rect = new Rectangle(rect.getXLeft(), rect.getYBottom(), rect.getXRight(), rect.getYTop());
+		this.rect = new Box2D(rect.getXLeft(), rect.getYBottom(), rect.getXRight(), rect.getYTop());
 		return clone;
 	}
 }

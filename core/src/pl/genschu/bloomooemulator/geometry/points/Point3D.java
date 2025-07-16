@@ -1,4 +1,4 @@
-package pl.genschu.bloomooemulator.objects.world;
+package pl.genschu.bloomooemulator.geometry.points;
 
 public class Point3D {
     private float x;
@@ -33,5 +33,10 @@ public class Point3D {
 
     public void setZ(float z) {
         this.z = z;
+    }
+
+    @Override
+    public String toString() {
+        return "Point3D("+this.getX()+","+this.getY()+","+this.getZ()+")";
     }
 }

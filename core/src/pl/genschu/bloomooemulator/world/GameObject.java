@@ -1,4 +1,4 @@
-package pl.genschu.bloomooemulator.objects.world;
+package pl.genschu.bloomooemulator.world;
 
 public class GameObject {
     private int id;

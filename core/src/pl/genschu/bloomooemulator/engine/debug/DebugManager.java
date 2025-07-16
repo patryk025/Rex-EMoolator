@@ -16,7 +16,7 @@ import pl.genschu.bloomooemulator.engine.config.EngineConfig;
 import pl.genschu.bloomooemulator.interpreter.Context;
 import pl.genschu.bloomooemulator.interpreter.variable.Variable;
 import pl.genschu.bloomooemulator.interpreter.variable.types.*;
-import pl.genschu.bloomooemulator.objects.Rectangle;
+import pl.genschu.bloomooemulator.geometry.shapes.Box2D;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -38,7 +38,7 @@ public class DebugManager implements Disposable {
     private boolean showTooltip = false;
 
     private String debugVariablesValues = "";
-    private Rectangle debugRect;
+    private Box2D debugRect;
 
     private boolean showSceneSelector = false;
     private List<String> sceneList = new ArrayList<>();
@@ -119,7 +119,7 @@ public class DebugManager implements Disposable {
         font.setColor(Color.WHITE);
 
         for (Variable variable : graphics) {
-            Rectangle rect = getRect(variable);
+            Box2D rect = getRect(variable);
             if (rect == null) continue;
 
             boolean visible = false;
@@ -204,7 +204,7 @@ public class DebugManager implements Disposable {
         shapeRenderer.setProjectionMatrix(batch.getProjectionMatrix());
         shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
         shapeRenderer.setColor(Color.RED);
-        Rectangle rect = debugRect;
+        Box2D rect = debugRect;
         shapeRenderer.rect(rect.getXLeft(), VIRTUAL_HEIGHT - rect.getYBottom() - rect.getHeight(),
                 rect.getWidth(), rect.getHeight());
         shapeRenderer.end();
@@ -254,7 +254,7 @@ public class DebugManager implements Disposable {
         shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
 
         for (Variable variable : buttons) {
-            Rectangle rect = null;
+            Box2D rect = null;
             boolean isEnabled = true;
 
             if (variable instanceof ButtonVariable) {
@@ -399,7 +399,7 @@ public class DebugManager implements Disposable {
             sb.append("\nNo standard GFX\n");
         }
 
-        Rectangle rect = button.getRect();
+        Box2D rect = button.getRect();
         String rectText = "\nRect: " + (rect != null ?
                 ("\n    left upper corner: (" + rect.getXLeft() + ", " + rect.getYTop() + ")" +
                         "\n    width: " + rect.getWidth() +
@@ -435,7 +435,7 @@ public class DebugManager implements Disposable {
         sb.append("Priority: ").append(graphics.getAttribute("PRIORITY") != null ?
                 graphics.getAttribute("PRIORITY").getValue() : 0);
 
-        Rectangle rect = getRect(graphics);
+        Box2D rect = getRect(graphics);
         String rectText = "\nRect: " + (rect != null ?
                 ("\n    left upper corner: (" + rect.getXLeft() + ", " + rect.getYTop() + ")" +
                         "\n    width: " + rect.getWidth() +
@@ -570,7 +570,7 @@ public class DebugManager implements Disposable {
 
             if (!visible) continue;
 
-            Rectangle rect = getRect(variable);
+            Box2D rect = getRect(variable);
             if (rect != null && rect.contains(x, y)) {
                 return variable;
             }
@@ -579,7 +579,7 @@ public class DebugManager implements Disposable {
         return null;
     }
 
-    private Rectangle getRect(Variable variable) {
+    private Box2D getRect(Variable variable) {
         if (variable instanceof ImageVariable) {
             return ((ImageVariable) variable).getRect();
         } else if (variable instanceof AnimoVariable) {
@@ -589,7 +589,7 @@ public class DebugManager implements Disposable {
     }
 
     private boolean isGraphicsButton(Variable variable) {
-        Rectangle rect = getRect(variable);
+        Box2D rect = getRect(variable);
         Context context = game.getCurrentSceneContext();
 
         // Check if graphics is a button
@@ -616,7 +616,7 @@ public class DebugManager implements Disposable {
         return false;
     }
 
-    public void setDebugRect(Rectangle rect) {
+    public void setDebugRect(Box2D rect) {
         this.debugRect = rect;
     }
 
