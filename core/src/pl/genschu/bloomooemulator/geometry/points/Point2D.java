@@ -1,32 +1,20 @@
 package pl.genschu.bloomooemulator.geometry.points;
 
-public class Point2D {
-    private float x;
-    private float y;
+public class Point2D implements Cloneable {
+    public double x, y;
 
-    public Point2D(float x, float y) {
+    public Point2D(double x, double y) {
         this.x = x;
-        this.y = y;
-    }
-
-    public float getX() {
-        return this.x;
-    }
-
-    public void setX(float x) {
-        this.x = x;
-    }
-
-    public float getY() {
-        return this.y;
-    }
-
-    public void setY(float y) {
         this.y = y;
     }
     
     @Override
-    public String toString() {
-        return "Point2D("+this.getX()+","+this.getY()+")";
+    public Point2D clone() {
+        try {
+            return (Point2D) super.clone();
+        } catch (CloneNotSupportedException e) {
+            // This should never happen since we implement Cloneable
+            throw new AssertionError();
+        }
     }
 }

@@ -1,6 +1,7 @@
 package pl.genschu.bloomooemulator.geometry.shapes;
 
 public class Box2D {
+    // TODO: refactor like in Box3D class (it will be very much classes to refactor, whole rendering, collisions, buttons, etc.)
     private int xLeft;
     private int yBottom;
     private int xRight;

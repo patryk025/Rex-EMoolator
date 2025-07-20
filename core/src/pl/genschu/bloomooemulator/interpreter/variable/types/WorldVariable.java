@@ -6,10 +6,22 @@ import pl.genschu.bloomooemulator.interpreter.variable.Attribute;
 import pl.genschu.bloomooemulator.interpreter.variable.Method;
 import pl.genschu.bloomooemulator.interpreter.variable.Parameter;
 import pl.genschu.bloomooemulator.interpreter.variable.Variable;
+import pl.genschu.bloomooemulator.loader.SEKLoader;
+import pl.genschu.bloomooemulator.utils.ArgumentsHelper;
+import pl.genschu.bloomooemulator.world.GameObject;
+import pl.genschu.bloomooemulator.world.PointsData;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class WorldVariable extends Variable {
+	private int entityCount;
+	Map<Integer, GameObject> gameObjects = new HashMap<>();
+	List<PointsData> points = new ArrayList<>();
+	Map<Variable, GameObject> gameObjectsMap = new HashMap<>();
+
 	public WorldVariable(String name, Context context) {
 		super(name, context);
 	}
@@ -249,8 +261,10 @@ public class WorldVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				// TODO: implement this method
-				throw new ClassMethodNotImplementedException("Method LOAD is not implemented yet");
+				String filename = ArgumentsHelper.getString(arguments.get(0));
+				getAttribute("FILENAME").setValue(filename);
+				SEKLoader.loadSek(WorldVariable.this);
+				return null;
 			}
 		});
 		this.setMethod("MOVEOBJECTS", new Method(
@@ -270,28 +284,15 @@ public class WorldVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				// TODO: implement this method
-				throw new ClassMethodNotImplementedException("Method REMOVEOBJECT is not implemented yet");
+				gameObjects.remove(ArgumentsHelper.getInteger(arguments.get(0)));
+				return null;
 			}
 		});
 		this.setMethod("SETACTIVE", new Method(
 				List.of(
-						new Parameter("INTEGER", "objectId", true),
-						new Parameter("BOOLEAN", "active?", true)
-				),
-				"void"
-		) {
-			@Override
-			public Variable execute(List<Object> arguments) {
-				// TODO: implement this method
-				throw new ClassMethodNotImplementedException("Method SETACTIVE is not implemented yet");
-			}
-		});
-		this.setMethod("SETACTIVE", new Method(
-				List.of(
-						new Parameter("INTEGER", "objectId", true),
-						new Parameter("INTEGER", "unknown", true),
-						new Parameter("INTEGER", "unknown", true)
+						new Parameter("INTEGER", "pathId?", false),
+						new Parameter("INTEGER", "objectId?", true),
+						new Parameter("BOOLEAN", "active", true)
 				),
 				"void"
 		) {
@@ -484,7 +485,31 @@ public class WorldVariable extends Variable {
 		List<String> knownAttributes = List.of("FILENAME");
 		if(knownAttributes.contains(name)) {
 			super.setAttribute(name, attribute);
+			SEKLoader.loadSek(this);
 		}
 	}
 
+	public int getEntityCount() {
+		return entityCount;
+	}
+
+	public void setEntityCount(int entityCount) {
+		this.entityCount = entityCount;
+	}
+
+	public Map<Integer, GameObject> getGameObjects() {
+		return gameObjects;
+	}
+
+	public void setGameObjects(Map<Integer, GameObject> gameObjects) {
+		this.gameObjects = gameObjects;
+	}
+
+	public List<PointsData> getPoints() {
+		return points;
+	}
+
+	public void setPoints(List<PointsData> points) {
+		this.points = points;
+	}
 }
