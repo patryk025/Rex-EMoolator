@@ -176,6 +176,10 @@ public class InputManager implements Disposable {
             exportGraphicsToFile(new ArrayList<>(game.getCurrentSceneContext().getGraphicsVariables().values()));
         }
 
+        if (Gdx.input.isKeyJustPressed(Input.Keys.F8)) {
+            config.toggleDebugWorld();
+        }
+
         if (Gdx.input.isKeyJustPressed(Input.Keys.F9)) {
             game.getEmulator().getDebugManager().toggleSceneSelector();
         }

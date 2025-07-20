@@ -10,25 +10,35 @@ public class GameObject {
     private float z;
     private float rotationZ;
     private final List<EntityProp> props = new ArrayList<>();
-    private final List<Mesh> meshes = new ArrayList<>(); // one object can have multiple meshes, AABB is faster for boxes than complicated meshes
+    private Mesh mesh;
+    private boolean rigidBody = false;
 
     public GameObject() {
+        this.id = -1;
+        this.x = 0f;
+        this.y = 0f;
+        this.z = 0f;
+        this.rotationZ = 0f;
+        this.mesh = null;
+        this.rigidBody = false;
     }
 
-    public GameObject(int id, float x, float y, float z, float rotationZ) {
+    public GameObject(int id, float x, float y, float z, float rotationZ, boolean rigidBody) {
         this.id = id;
         this.x = x;
         this.y = y;
         this.z = z;
         this.rotationZ = rotationZ;
+        this.mesh = null;
+        this.rigidBody = rigidBody;
     }
 
     public void addProp(EntityProp prop) {
         this.props.add(prop);
     }
 
-    public void addMesh(Mesh mesh) {
-        this.meshes.add(mesh);
+    public void setMesh(Mesh mesh) {
+        this.mesh = mesh;
     }
 
     public int getId() {
@@ -73,5 +83,17 @@ public class GameObject {
 
     public List<EntityProp> getProps() {
         return props;
+    }
+
+    public Mesh getMesh() {
+        return mesh;
+    }
+
+    public boolean isRigidBody() {
+        return rigidBody;
+    }
+
+    public void setRigidBody(boolean rigidBody) {
+        this.rigidBody = rigidBody;
     }
 }

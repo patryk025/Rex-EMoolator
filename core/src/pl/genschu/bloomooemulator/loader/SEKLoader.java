@@ -29,50 +29,44 @@ public class SEKLoader {
     }
 
     private static void readHeader(WorldVariable variable, FileInputStream f) throws IOException {
-        byte[] magicBytes = new byte[19];
-        if (f.read(magicBytes) != 19) throw new IOException("Unable to read magic");
-        String magic = new String(magicBytes, StandardCharsets.US_ASCII);
+        String magic = BinaryHelper.readString(f, 19);
         if(!magic.equals("SEKAI81080701915004")) {
             throw new IllegalArgumentException("Not a valid SEK file. Expected magic: SEKAI81080701915004, got: " + magic);
         }
-        byte[] entityCountBytes = new byte[4];
-        if (f.read(entityCountBytes) != 4) throw new IOException("Unable to read entity count");
-        variable.setEntityCount(ByteBuffer.wrap(entityCountBytes).order(ByteOrder.LITTLE_ENDIAN).getInt());
+        variable.setEntityCount(BinaryHelper.readIntLE(f));
     }
 
     private static void readEntities(WorldVariable variable, FileInputStream f) throws IOException {
         int entityCount = variable.getEntityCount();
-        List<GameObject> gameObjects = new ArrayList<>();
-        List<PointsData> points = new ArrayList<>();
 
         for (int i = 0; i < entityCount; i++) {
-            byte[] typeIdBytes = new byte[4];
-            if (f.read(typeIdBytes) != 4) throw new IOException("Unable to read entity type");
-            int typeId = ByteBuffer.wrap(typeIdBytes).order(ByteOrder.LITTLE_ENDIAN).getInt();
+            int typeId = BinaryHelper.readIntLE(f);
 
             switch (typeId) {
                 case 1:
-                    gameObjects.add(parseSceneObject(f));
+                    parseSceneObject(variable, f);
                     break;
                 case 4:
-                    points.add(parsePointsData(f));
+                    parsePointsData(variable, f);
                     break;
                 default:
                     Gdx.app.log("WorldVariable", "Unknown entity type: " + typeId);
                     break;
             }
         }
-
-        //variable.setGameObjects(gameObjects);
-        variable.setPoints(points);
     }
 
-    private static GameObject parseSceneObject(FileInputStream f) throws IOException {
+    private static void parseSceneObject(WorldVariable variable, FileInputStream f) throws IOException {
         GameObject obj = new GameObject();
+
+        if(variable.getGameObjects().containsKey(obj.getId())) {
+            // TODO: investigate how this works (duplicate objects as separate objects or as single object?)
+            Gdx.app.log("WorldVariable", "Duplicate entity id: " + obj.getId()+", adding new object with the same id");
+        }
 
         int length = BinaryHelper.readIntLE(f);
         int entityId = BinaryHelper.readIntLE(f);
-        int unknown3 = BinaryHelper.readIntLE(f);
+        int flags = BinaryHelper.readIntLE(f); // ?, if 3, object can move and its position is read from file, if 0 and other position is ignored and is set to (0, 0, 0)
 
         float objX = BinaryHelper.readFloatLE(f);
         float objY = BinaryHelper.readFloatLE(f);
@@ -89,6 +83,7 @@ public class SEKLoader {
         obj.setZ(objZ);
         obj.setRotationZ(rotationZ);
         obj.setId(entityId);
+        obj.setRigidBody(flags == 3); // TODO: verify
 
         int numProps = BinaryHelper.readIntLE(f);
         for (int i = 0; i < numProps; i++) {
@@ -124,12 +119,12 @@ public class SEKLoader {
             triangles.add(meshTriangle);
         }
         Mesh mesh = new Mesh(triangles);
-        obj.addMesh(mesh);
+        obj.setMesh(mesh);
 
-        return obj;
+        variable.addGameObject(obj);
     }
 
-    private static PointsData parsePointsData(FileInputStream f) throws IOException {
+    private static void parsePointsData(WorldVariable variable, FileInputStream f) throws IOException {
         PointsData obj = new PointsData();
 
         int length = BinaryHelper.readIntLE(f); // =noOfPoints*12+numberOfPaths*12+56, usable data size without padding
@@ -153,6 +148,6 @@ public class SEKLoader {
             obj.addPath(firstId, secondId, unknown);
         }
 
-        return obj;
+        variable.addPoint(obj);
     }
 }

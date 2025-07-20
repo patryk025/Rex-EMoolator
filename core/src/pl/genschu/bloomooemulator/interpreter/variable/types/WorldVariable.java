@@ -18,7 +18,7 @@ import java.util.Map;
 
 public class WorldVariable extends Variable {
 	private int entityCount;
-	Map<Integer, GameObject> gameObjects = new HashMap<>();
+	Map<Integer, List<GameObject>> gameObjects = new HashMap<>();
 	List<PointsData> points = new ArrayList<>();
 	Map<Variable, GameObject> gameObjectsMap = new HashMap<>();
 
@@ -497,12 +497,15 @@ public class WorldVariable extends Variable {
 		this.entityCount = entityCount;
 	}
 
-	public Map<Integer, GameObject> getGameObjects() {
+	public Map<Integer, List<GameObject>> getGameObjects() {
 		return gameObjects;
 	}
 
-	public void setGameObjects(Map<Integer, GameObject> gameObjects) {
-		this.gameObjects = gameObjects;
+	public void addGameObject(GameObject gameObject) {
+		if(!this.gameObjects.containsKey(gameObject.getId())) {
+			this.gameObjects.put(gameObject.getId(), new ArrayList<>());
+		}
+		this.gameObjects.get(gameObject.getId()).add(gameObject);
 	}
 
 	public List<PointsData> getPoints() {
@@ -511,5 +514,9 @@ public class WorldVariable extends Variable {
 
 	public void setPoints(List<PointsData> points) {
 		this.points = points;
+	}
+
+	public void addPoint(PointsData point) {
+		this.points.add(point);
 	}
 }

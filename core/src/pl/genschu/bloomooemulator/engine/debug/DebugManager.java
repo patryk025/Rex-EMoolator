@@ -17,6 +17,10 @@ import pl.genschu.bloomooemulator.interpreter.Context;
 import pl.genschu.bloomooemulator.interpreter.variable.Variable;
 import pl.genschu.bloomooemulator.interpreter.variable.types.*;
 import pl.genschu.bloomooemulator.geometry.shapes.Box2D;
+import pl.genschu.bloomooemulator.world.GameObject;
+import pl.genschu.bloomooemulator.world.Mesh;
+import pl.genschu.bloomooemulator.world.MeshTriangle;
+import pl.genschu.bloomooemulator.world.TriangleVertex;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -79,6 +83,10 @@ public class DebugManager implements Disposable {
 
         if (config.isMonitorPerformance()) {
             renderMonitorPerformance();
+        }
+
+        if (config.isDebugWorld()) {
+            renderMeshDebug();
         }
 
         if (config.isDebugButtons()) {
@@ -383,6 +391,44 @@ public class DebugManager implements Disposable {
 
         batch.end();
     }
+
+    private void renderMeshDebug() {
+        shapeRenderer.setProjectionMatrix(camera.combined);
+        shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
+
+        WorldVariable worldVariable = game.getCurrentSceneContext().getWorldVariable();
+
+        for (List<GameObject> objectList : worldVariable.getGameObjects().values()) {
+            for (GameObject object : objectList) {
+                float x = object.getX();
+                float y = object.getY();
+
+                shapeRenderer.setColor(1f, 0f, 0f, 1f);
+
+                Mesh mesh = object.getMesh();
+                List<MeshTriangle> triangles = mesh.getTriangles();
+
+                // Drawing triangles (ignoring Z axis as it is not relevant for this debug view)
+                for (MeshTriangle triangle : triangles) {
+                    TriangleVertex v0 = triangle.getVertices()[0];
+                    TriangleVertex v1 = triangle.getVertices()[1];
+                    TriangleVertex v2 = triangle.getVertices()[2];
+
+                    float xCorrection = (object.isRigidBody() ? x : 0);
+                    float yCorrection = (object.isRigidBody() ? y : 0);
+
+                    // not sure if position adds up to the mesh position, it should but still checking
+                    // INFO: I don't reverse Y axis like in render loop as Z axis is reversed in OpenGL so mesh would be flipped upside down
+                    shapeRenderer.line((float) (xCorrection + v0.getPoint().x + 400), (float) (yCorrection + v0.getPoint().y + 300), (float) (xCorrection + v1.getPoint().x + 400), (float) (yCorrection + v1.getPoint().y + 300));
+                    shapeRenderer.line((float) (xCorrection + v1.getPoint().x + 400), (float) (yCorrection + v1.getPoint().y + 300), (float) (xCorrection + v2.getPoint().x + 400), (float) (yCorrection + v2.getPoint().y + 300));
+                    shapeRenderer.line((float) (xCorrection + v2.getPoint().x + 400), (float) (yCorrection + v2.getPoint().y + 300), (float) (xCorrection + v0.getPoint().x + 400), (float) (yCorrection + v0.getPoint().y + 300));
+                }
+            }
+        }
+
+        shapeRenderer.end();
+    }
+
 
     private void generateTooltipForButton(ButtonVariable button) {
         StringBuilder sb = new StringBuilder();
