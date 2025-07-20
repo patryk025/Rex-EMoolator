@@ -24,14 +24,14 @@ struct MeshTriangle {
 };
 
 struct SceneObject {
-    u32 length; // but something is odd
+    u32 length; // 56 bytes + triangles data
     u32 entityId;
-    u32 unknown3; // 0 or 3
+    u32 unknown3; // 0 (walls) or 3 (rigid body?)
     float x; // relative to 400px
     float y; // relative to 300px
     float z; // relative to 0px
     float unknown7; // ?, 0 or 1
-    float rotationZ; // normalized angle, but with offset
+    float rotationZ; // normalized angle, but with very weird behaviour
     padding[4]; // ?
     float unknown10; // have impact on speed somehow
     float unknown11;
@@ -48,20 +48,20 @@ struct Point {
     padding[4];
 };
 
-struct WaypointData {
+struct PathData {
     u32 fromPoint;
     u32 toPoint;
     u32 unknown; // always 3 so far, probably bitflag or direction flag
 };
 
 struct PointsData {
-    u32 unknown; // length?
-    u32 unknown2; // 9000?
-    char unknown3[44]; // currently unknown
+    u32 length; // length without padding, noOfPoints * 12 + noOfPaths * 12 + 56
+    u32 unknown2; // 9000 or 9001?
+    char unknown3[44]; // NUL bytes
     u32 noOfPoints;
-    u32 numberOfPaths;
+    u32 noOfPaths;
     Point points[noOfPoints];
-    WaypointData waypoints[numberOfPaths];
+    PathData paths[noOfPaths];
 };
 
 
