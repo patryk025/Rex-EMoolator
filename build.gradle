@@ -28,6 +28,7 @@ allprojects {
         ini4jVersion = '0.5.4'
         oshiVersion = '6.6.3'
         jnaVersion = '5.14.0'
+        ode4jVersion = '0.5.4'
     }
 
     repositories {
@@ -146,6 +147,7 @@ project(":core") {
         implementation("com.github.oshi:oshi-core:$oshiVersion") {
             exclude group: 'net.java.dev.jna', module: 'jna'
         }
+        implementation "org.ode4j:core:$ode4jVersion"
 
         testImplementation 'org.junit.jupiter:junit-jupiter:5.11.4'
         testImplementation 'org.mockito:mockito-core:5.17.0'
