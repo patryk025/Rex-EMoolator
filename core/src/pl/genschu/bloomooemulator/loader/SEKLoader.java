@@ -29,30 +29,40 @@ public class SEKLoader {
     }
 
     private static void readHeader(WorldVariable variable, FileInputStream f) throws IOException {
-        String magic = BinaryHelper.readString(f, 19);
-        if(!magic.equals("SEKAI81080701915004")) {
-            throw new IllegalArgumentException("Not a valid SEK file. Expected magic: SEKAI81080701915004, got: " + magic);
+        String magic = BinaryHelper.readString(f, 16);
+        if(!magic.equals("SEKAI81080701915")) {
+            throw new IllegalArgumentException("Not a valid SEK file. Expected magic: SEKAI81080701915, got: " + magic);
         }
+        String version = BinaryHelper.readString(f, 3);
+        variable.setSekVersion(version);
         variable.setEntityCount(BinaryHelper.readIntLE(f));
     }
 
     private static void readEntities(WorldVariable variable, FileInputStream f) throws IOException {
         int entityCount = variable.getEntityCount();
 
-        for (int i = 0; i < entityCount; i++) {
-            int typeId = BinaryHelper.readIntLE(f);
+        switch (variable.getSekVersion()) {
+            case "004":
+                for (int i = 0; i < entityCount; i++) {
+                    int typeId = BinaryHelper.readIntLE(f);
 
-            switch (typeId) {
-                case 1:
-                    parseSceneObject(variable, f);
-                    break;
-                case 4:
-                    parsePointsData(variable, f);
-                    break;
-                default:
-                    Gdx.app.log("WorldVariable", "Unknown entity type: " + typeId);
-                    break;
-            }
+                    switch (typeId) {
+                        case 1:
+                            parseSceneObject(variable, f);
+                            break;
+                        case 4:
+                            parsePointsData(variable, f);
+                            break;
+                        default:
+                            Gdx.app.log("WorldVariable", "Unknown entity type: " + typeId);
+                            break;
+                    }
+                }
+            case "003": // It was present in Sekai.dll and their loading functions was slightly different
+            case "002":
+                throw new RuntimeException("Unsupported SEK version: " + variable.getSekVersion());
+            default:
+                throw new RuntimeException("Unknown SEK version: " + variable.getSekVersion());
         }
     }
 

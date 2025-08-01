@@ -21,6 +21,7 @@ public class WorldVariable extends Variable {
 	Map<Integer, List<GameObject>> gameObjects = new HashMap<>();
 	List<PointsData> points = new ArrayList<>();
 	Map<Variable, GameObject> gameObjectsMap = new HashMap<>();
+	private String sekVersion;
 
 	public WorldVariable(String name, Context context) {
 		super(name, context);
@@ -518,5 +519,13 @@ public class WorldVariable extends Variable {
 
 	public void addPoint(PointsData point) {
 		this.points.add(point);
+	}
+
+	public String getSekVersion() {
+		return sekVersion;
+	}
+
+	public void setSekVersion(String sekVersion) {
+		this.sekVersion = sekVersion;
 	}
 }
