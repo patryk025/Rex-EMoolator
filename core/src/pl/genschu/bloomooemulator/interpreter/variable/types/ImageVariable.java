@@ -432,7 +432,7 @@ public class ImageVariable extends Variable implements Cloneable {
 		return rect;
 	}
 
-	private void updateRect() {
+	public void updateRect() {
 		if(image == null) return;
 
 		if(monitorCollision)

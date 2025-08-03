@@ -1079,7 +1079,7 @@ public class AnimoVariable extends Variable implements Cloneable {
 		return rect;
 	}
 
-	private void updateRect() {
+	public void updateRect() {
 		//Gdx.app.debug("AnimoVariable ("+this.getName()+")", "Updating rect...");
 		if (monitorCollision) {
 			context.getGame().getQuadTree().remove(this);
@@ -1232,6 +1232,14 @@ public class AnimoVariable extends Variable implements Cloneable {
 
 	public int getPosY() {
 		return posY;
+	}
+
+	public void setPosX(int posX) {
+		this.posX = posX;
+	}
+
+	public void setPosY(int posY) {
+		this.posY = posY;
 	}
 
 	public void setOpacity(int opacity) {

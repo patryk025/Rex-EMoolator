@@ -1,5 +1,7 @@
 package pl.genschu.bloomooemulator.interpreter.variable.types;
 
+import pl.genschu.bloomooemulator.engine.physics.IPhysicsEngine;
+import pl.genschu.bloomooemulator.engine.physics.ODEPhysicsEngine;
 import pl.genschu.bloomooemulator.interpreter.exceptions.ClassMethodNotImplementedException;
 import pl.genschu.bloomooemulator.interpreter.Context;
 import pl.genschu.bloomooemulator.interpreter.variable.Attribute;
@@ -17,10 +19,7 @@ import java.util.List;
 import java.util.Map;
 
 public class WorldVariable extends Variable {
-	private int entityCount;
-	Map<Integer, List<GameObject>> gameObjects = new HashMap<>();
-	List<PointsData> points = new ArrayList<>();
-	Map<Variable, GameObject> gameObjectsMap = new HashMap<>();
+	private final IPhysicsEngine physicsEngine = new ODEPhysicsEngine();
 	private String sekVersion;
 
 	public WorldVariable(String name, Context context) {
@@ -50,8 +49,22 @@ public class WorldVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				// TODO: implement this method
-				throw new ClassMethodNotImplementedException("Method ADDBODY is not implemented yet");
+				int objectId = ArgumentsHelper.getInteger(arguments.get(0));
+				double mass = ArgumentsHelper.getDouble(arguments.get(1));
+				double mu = ArgumentsHelper.getDouble(arguments.get(2));
+				double mu2 = ArgumentsHelper.getDouble(arguments.get(3));
+				double bounce = ArgumentsHelper.getDouble(arguments.get(4));
+				double bounceVel = ArgumentsHelper.getDouble(arguments.get(5));
+				double maxVel = ArgumentsHelper.getDouble(arguments.get(6));
+				int bodyType = ArgumentsHelper.getInteger(arguments.get(7));
+				int geomType = ArgumentsHelper.getInteger(arguments.get(8));
+				double x = ArgumentsHelper.getDouble(arguments.get(9));
+				double y = ArgumentsHelper.getDouble(arguments.get(10));
+				double z = ArgumentsHelper.getDouble(arguments.get(11));
+
+				physicsEngine.createBody(objectId, mass, mu, mu2, bounce, bounceVel, maxVel, bodyType, geomType, x, y, z);
+
+				return null; // void
 			}
 		});
 		this.setMethod("ADDFORCE", new Method(
@@ -285,7 +298,8 @@ public class WorldVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				gameObjects.remove(ArgumentsHelper.getInteger(arguments.get(0)));
+				int objectId = ArgumentsHelper.getInteger(arguments.get(0));
+				physicsEngine.destroyBody(objectId);
 				return null;
 			}
 		});
@@ -488,37 +502,6 @@ public class WorldVariable extends Variable {
 			super.setAttribute(name, attribute);
 			SEKLoader.loadSek(this);
 		}
-	}
-
-	public int getEntityCount() {
-		return entityCount;
-	}
-
-	public void setEntityCount(int entityCount) {
-		this.entityCount = entityCount;
-	}
-
-	public Map<Integer, List<GameObject>> getGameObjects() {
-		return gameObjects;
-	}
-
-	public void addGameObject(GameObject gameObject) {
-		if(!this.gameObjects.containsKey(gameObject.getId())) {
-			this.gameObjects.put(gameObject.getId(), new ArrayList<>());
-		}
-		this.gameObjects.get(gameObject.getId()).add(gameObject);
-	}
-
-	public List<PointsData> getPoints() {
-		return points;
-	}
-
-	public void setPoints(List<PointsData> points) {
-		this.points = points;
-	}
-
-	public void addPoint(PointsData point) {
-		this.points.add(point);
 	}
 
 	public String getSekVersion() {
