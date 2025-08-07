@@ -84,25 +84,34 @@ public class ODEPhysicsEngine implements IPhysicsEngine {
         bodies.putIfAbsent(objectId, new ArrayList<>());
         bodies.get(objectId).add(body);
         if( bodies.get(objectId).size() > 1) {
-            // If there are multiple bodies for the same objectId, we can log a warning or handle it as needed
             Gdx.app.log("ODEPhysicsEngine", "Warning: Multiple bodies created for objectId: " + objectId + ". Creating fixed joint...");
             // Create a fixed joint to link the bodies together
-            DJoint joint = OdeHelper.createFixedJoint(world);
-            joint.attach(bodies.get(objectId).get(0), body);
+            DFixedJoint joint = OdeHelper.createFixedJoint(world);
+            DBody first = bodies.get(objectId).get(0);
+            joint.attach(first, body);
+            joint.setFixed();
+
         }
         return body;
     }
 
     private void attachGeometry(DBody body, int geomType) {
+        float[] dimensions = new float[]{1.0f, 1.0f, 1.0f};
+
+        if(body.getData() instanceof GameObject) {
+            GameObject go = (GameObject) body.getData();
+            dimensions = go.getDimensions();
+        }
+
         switch (GeomType.values()[geomType]) {
             case BOX: 
-                OdeHelper.createBox(1, 1, 1).setBody(body);
+                OdeHelper.createBox(dimensions[0], dimensions[1], dimensions[2]).setBody(body);
                 break;
             case CYLINDER:
-                OdeHelper.createCylinder(1, 1).setBody(body);
+                OdeHelper.createCylinder(dimensions[0], dimensions[1]).setBody(body);
                 break;
             case SPHERE:
-                OdeHelper.createSphere(1).setBody(body);
+                OdeHelper.createSphere(dimensions[0]).setBody(body);
                 break;
         }
     }

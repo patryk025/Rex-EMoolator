@@ -205,21 +205,23 @@ public class SEKLoader {
         int numPoints = BinaryHelper.readIntLE(f);
         int numPaths = BinaryHelper.readIntLE(f);
 
+        PointsData obj = new PointsData();
+
         for (int i = 0; i < numPoints; i++) {
             float x = BinaryHelper.readFloatLE(f);
             float y = BinaryHelper.readFloatLE(f);
             float z = BinaryHelper.readFloatLE(f);
             f.skip(4); // padding (4th value in dVector3, used for better alignment)
-            //obj.addPoint(new Point3D(x, y, z));
+            obj.addPoint(new Point3D(x, y, z));
         }
 
         for (int i = 0; i < numPaths; i++) {
             int firstId = BinaryHelper.readIntLE(f);
             int secondId = BinaryHelper.readIntLE(f);
             int unknown = BinaryHelper.readIntLE(f); // in test only value 3
-            //obj.addPath(firstId, secondId, unknown);
+            obj.addPath(firstId, secondId, unknown);
         }
 
-        //variable.addPoint(obj);
+        variable.getPhysicsEngine().createBody(builder.build(), null);
     }
 }

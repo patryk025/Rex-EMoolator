@@ -15,6 +15,7 @@ public class GameObject {
     private float maxXLimit, maxYLimit, maxZLimit;
     private float[] dimensions;
     private boolean rigidBody;
+    private PointsData pointsData;
 
     private GameObject() {}
 
@@ -47,6 +48,7 @@ public class GameObject {
             obj.rigidBody = false;
             obj.geomType = 2;
             obj.dimensions = new float[]{1.0f, 1.0f, 1.0f};
+            obj.pointsData = null;
         }
 
         public GameObjectBuilder id(int id) {
@@ -118,6 +120,11 @@ public class GameObject {
             obj.maxXLimit = maxX;
             obj.maxYLimit = maxY;
             obj.maxZLimit = maxZ;
+            return this;
+        }
+
+        public GameObjectBuilder pointsData(PointsData pointsData) {
+            obj.pointsData = pointsData;
             return this;
         }
 
@@ -204,5 +211,9 @@ public class GameObject {
 
     public boolean isRigidBody() {
         return rigidBody;
+    }
+
+    public PointsData getPointsData() {
+        return pointsData;
     }
 }
