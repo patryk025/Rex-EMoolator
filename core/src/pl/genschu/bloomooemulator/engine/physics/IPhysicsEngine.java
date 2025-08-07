@@ -57,6 +57,10 @@ public interface IPhysicsEngine {
 
     double getSpeed(int objectId);
 
+    double getRotationZ(int objectId);
+
+    double getAngle(int objectId);
+
     void stepSimulation(double deltaTime);
 
     void destroyBody(int objectId);

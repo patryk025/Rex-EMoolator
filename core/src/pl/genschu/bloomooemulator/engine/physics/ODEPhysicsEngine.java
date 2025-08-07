@@ -1,6 +1,7 @@
 package pl.genschu.bloomooemulator.engine.physics;
 
 import com.badlogic.gdx.Gdx;
+import org.ode4j.math.DMatrix3C;
 import org.ode4j.math.DVector3C;
 import org.ode4j.ode.*;
 import pl.genschu.bloomooemulator.geometry.points.Point3D;
@@ -263,6 +264,26 @@ public class ODEPhysicsEngine implements IPhysicsEngine {
         DBody body = bodies.get(objectId).get(0);
         DVector3C velocity = body.getLinearVel();
         return velocity.length();
+    }
+
+    @Override
+    public double getRotationZ(int objectId) {
+        DBody body = bodies.get(objectId).get(0);
+        // ODE does not provide a direct way to get rotation, we can calculate it from the orientation
+        DMatrix3C rotation = body.getRotation();
+        // Assuming the rotation is in a 3x3 matrix, we can extract the Z rotation
+        return Math.atan2(rotation.get(1, 0), rotation.get(0, 0));
+    }
+
+    @Override
+    public double getAngle(int objectId) {
+        // get speed vector and calculate angle
+        DBody body = bodies.get(objectId).get(0);
+        DVector3C velocity = body.getLinearVel();
+        if (velocity.length() == 0) {
+            return 0.0; // No movement, angle is 0
+        }
+        return Math.toDegrees(Math.atan2(velocity.get(1), velocity.get(0)));
     }
 
     @Override
