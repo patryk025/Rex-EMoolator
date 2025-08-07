@@ -1,20 +1,33 @@
 package pl.genschu.bloomooemulator.engine.physics;
 
+import com.badlogic.gdx.Gdx;
 import org.ode4j.math.DVector3C;
 import org.ode4j.ode.*;
+import pl.genschu.bloomooemulator.geometry.points.Point3D;
 import pl.genschu.bloomooemulator.interpreter.variable.Variable;
 import pl.genschu.bloomooemulator.interpreter.variable.types.AnimoVariable;
 import pl.genschu.bloomooemulator.interpreter.variable.types.ImageVariable;
+import pl.genschu.bloomooemulator.world.GameObject;
+import pl.genschu.bloomooemulator.world.Mesh;
+import pl.genschu.bloomooemulator.world.MeshTriangle;
+import pl.genschu.bloomooemulator.world.TriangleVertex;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class ODEPhysicsEngine implements IPhysicsEngine {
     DWorld world;
     DSpace space;
-    DJointGroup contactGroup;
-    private final Map<Integer, DBody> bodies = new HashMap<>();
+    private final Map<Integer, List<DBody>> bodies = new HashMap<>();
     private final Map<DBody, Variable> linkedVariables = new HashMap<>();
+
+    enum GeomType {
+        BOX,
+        CYLINDER,
+        SPHERE
+    }
 
     @Override
     public void init() {
@@ -27,45 +40,146 @@ public class ODEPhysicsEngine implements IPhysicsEngine {
 
         space = OdeHelper.createSimpleSpace();
 
-        contactGroup = OdeHelper.createJointGroup();
     }
 
     @Override
-    public void createBody(int objectId, double mass, double mu, double mu2, double bounce, double bounceVelocity, double maxVelocity, int bodyType, int geomType, double x, double y, double z) {
+    public void createBody(GameObject gameObject, Mesh geometryMesh) {
+        DBody body = createBasicBody(gameObject.getId(), gameObject.getX(), gameObject.getY(), gameObject.getZ());
+        setMass(gameObject.getId(), gameObject.getMass(), gameObject.getGeomType());
+        attachGeometry(body, gameObject.getGeomType());
+        body.setData(gameObject);
+        attachMesh(body, geometryMesh);
+    }
+
+    @Override
+    public void createBody(
+            int objectId, double mass, double mu, double mu2,
+            double bounce, double bounceVelocity, double maxVelocity,
+            int bodyType, int geomType,
+            double x, double y, double z
+    ) {
+        createBody(objectId, mass, mu, mu2, bounce, bounceVelocity, maxVelocity, bodyType, geomType, x, y, z, null);
+    }
+
+    @Override
+    public void createBody(
+            int objectId, double mass, double mu, double mu2,
+            double bounce, double bounceVelocity, double maxVelocity,
+            int bodyType, int geomType,
+            double x, double y, double z, Mesh geometryMesh
+    ) {
+        DBody body = createBasicBody(objectId, x, y, z);
+        setMass(objectId, mass, geomType);
+        attachGeometry(body, geomType);
+
+        GameObject go = toGameObject(objectId, mass, mu, mu2, bounce, bounceVelocity, maxVelocity, geomType, x, y, z);
+        body.setData(go);
+
+        attachMesh(body, geometryMesh);
+    }
+
+    private DBody createBasicBody(int objectId, double x, double y, double z) {
         DBody body = OdeHelper.createBody(world);
         body.setPosition(x, y, z);
+        bodies.putIfAbsent(objectId, new ArrayList<>());
+        bodies.get(objectId).add(body);
+        if( bodies.get(objectId).size() > 1) {
+            // If there are multiple bodies for the same objectId, we can log a warning or handle it as needed
+            Gdx.app.log("ODEPhysicsEngine", "Warning: Multiple bodies created for objectId: " + objectId + ". Creating fixed joint...");
+            // Create a fixed joint to link the bodies together
+            DJoint joint = OdeHelper.createFixedJoint(world);
+            joint.attach(bodies.get(objectId).get(0), body);
+        }
+        return body;
+    }
 
-        bodies.put(objectId, body);
-
-        // set mass
-        setMass(objectId, mass, geomType);
-
-        // create geometry
-        // TODO: check lengths in Sekai
-        switch (geomType) {
-            case 0: // box
-                DBox box = OdeHelper.createBox(1, 1, 1);
-                box.setBody(body);
+    private void attachGeometry(DBody body, int geomType) {
+        switch (GeomType.values()[geomType]) {
+            case BOX: 
+                OdeHelper.createBox(1, 1, 1).setBody(body);
                 break;
-            case 1: // cylinder
-                DCylinder cylinder = OdeHelper.createCylinder(1, 1);
-                cylinder.setBody(body);
+            case CYLINDER:
+                OdeHelper.createCylinder(1, 1).setBody(body);
                 break;
-            case 2: // sphere
-                DSphere sphere = OdeHelper.createSphere(1);
-                sphere.setBody(body);
+            case SPHERE:
+                OdeHelper.createSphere(1).setBody(body);
                 break;
         }
+    }
 
-        // TODO: move GameObject here and save as user data
-        // body.setData();
+    private void attachMesh(DBody body, Mesh mesh) {
+        if (mesh == null) return;
 
-        // set physical properties
+        DTriMeshData meshData = OdeHelper.createTriMeshData();
+        List<Float> verticesList = new ArrayList<>();
+        List<Integer> indicesList = new ArrayList<>();
+        Map<Point3D, Integer> vertexToIndex = new HashMap<>();
+
+        int index = 0;
+        for (MeshTriangle triangle : mesh.getTriangles()) {
+            for (TriangleVertex v : triangle.getVertices()) {
+                Point3D point = v.getPoint();
+                if (!vertexToIndex.containsKey(point)) {
+                    verticesList.add((float) point.x);
+                    verticesList.add((float) point.y);
+                    verticesList.add((float) point.z);
+                    vertexToIndex.put(point, index++);
+                }
+                indicesList.add(vertexToIndex.get(point));
+            }
+        }
+
+        float[] vertices = new float[verticesList.size()];
+        for (int i = 0; i < verticesList.size(); i++) {
+            vertices[i] = verticesList.get(i);
+        }
+        int[] indices = indicesList.stream().mapToInt(i -> i).toArray();
+        meshData.build(vertices, indices);
+
+        DTriMesh triMesh = OdeHelper.createTriMesh(space, meshData, null, null, null);
+        triMesh.setBody(body);
+    }
+
+    private GameObject toGameObject(
+            int objectId, double mass, double mu, double mu2,
+            double bounce, double bounceVelocity, double maxVelocity,
+            int geomType, double x, double y, double z
+    ) {
+        return GameObject.builder()
+                .id(objectId)
+                .mass(mass)
+                .mu(mu)
+                .mu2(mu2)
+                .bounce(bounce)
+                .bounceVelocity(bounceVelocity)
+                .maxVelocity(maxVelocity)
+                .geomType(geomType)
+                .position((float)x, (float)y, (float)z)
+                .build();
+    }
+
+
+    @Override
+    public void addForce(int objectId, double forceX, double forceY, double forceZ) {
+        List<DBody> bodyObjects = bodies.get(objectId);
+        if (bodyObjects == null) {
+            throw new IllegalArgumentException("No body found with ID: " + objectId);
+        }
+        if( bodyObjects.isEmpty()) {
+            throw new IllegalStateException("No bodies associated with ID: " + objectId);
+        }
+        for (DBody body : bodyObjects) {
+            if (body == null) {
+                continue; // Skip null bodies
+            }
+            // Apply force to each body associated with the objectId
+            body.addForce(forceX, forceY, forceZ);
+        }
     }
 
     @Override
     public void setPosition(int objectId, double x, double y, double z) {
-        DBody body = bodies.get(objectId);
+        DBody body = bodies.get(objectId).get(0); // TODO: check this case, maybe we should use all bodies?
         body.setPosition(x, y, z);
         if(linkedVariables.containsKey(body)) {
             Variable var = linkedVariables.get(body);
@@ -88,26 +202,39 @@ public class ODEPhysicsEngine implements IPhysicsEngine {
 
     @Override
     public void setSpeed(int objectId, double speedX, double speedY, double speedZ) {
-        DBody body = bodies.get(objectId);
-        body.setLinearVel(speedX, speedY, speedZ);
+        for(DBody body : bodies.get(objectId)) {
+            if (body == null) {
+                continue; // Skip null bodies
+            }
+            // Set linear velocity for each body associated with the objectId
+            body.setLinearVel(speedX, speedY, speedZ);
+        }
     }
 
     @Override
     public void setMass(int objectId, double mass, int geomType) {
-        DBody body = bodies.get(objectId);
-        DMass m = OdeHelper.createMass();
-        switch (geomType) {
-            case 0: // box
-                m.setBoxTotal(mass, 1, 1, 1);
-                break;
-            case 1: // cylinder
-                m.setCylinderTotal(mass, 3, 1, 1); // axis, radius, length
-                break;
-            case 2: // sphere
-                m.setSphereTotal(mass, 1);
-                break;
+        List<DBody> bodyObjects = bodies.get(objectId);
+        if (bodyObjects == null || bodyObjects.isEmpty()) {
+            throw new IllegalArgumentException("No body found with ID: " + objectId);
         }
-        body.setMass(m);
+        for(DBody body : bodyObjects) {
+            if (body == null) {
+                continue; // Skip null bodies
+            }
+            DMass m = OdeHelper.createMass();
+            switch (GeomType.values()[geomType]) {
+                case BOX:
+                    m.setBoxTotal(mass, 1, 1, 1);
+                    break;
+                case CYLINDER:
+                    m.setCylinderTotal(mass, 3, 1, 1); // axis, radius, length
+                    break;
+                case SPHERE:
+                    m.setSphereTotal(mass, 1);
+                    break;
+            }
+            body.setMass(m);
+        }
     }
 
     @Override
@@ -117,9 +244,16 @@ public class ODEPhysicsEngine implements IPhysicsEngine {
 
     @Override
     public double[] getPosition(int objectId) {
-        DBody body = bodies.get(objectId);
+        DBody body = bodies.get(objectId).get(0);
         DVector3C position = body.getPosition();
         return position.toDoubleArray();
+    }
+
+    @Override
+    public double getSpeed(int objectId) {
+        DBody body = bodies.get(objectId).get(0);
+        DVector3C velocity = body.getLinearVel();
+        return velocity.length();
     }
 
     @Override
@@ -131,13 +265,24 @@ public class ODEPhysicsEngine implements IPhysicsEngine {
 
     @Override
     public void destroyBody(int objectId) {
-        DBody body = bodies.remove(objectId);
-        body.destroy();
+        List<DBody> objectBodies = bodies.remove(objectId);
+        if (objectBodies == null) {
+            throw new IllegalArgumentException("No body found with ID: " + objectId);
+        }
+        for (DBody body : objectBodies) {
+            if (body == null) {
+                continue; // Skip null bodies
+            }
+            // Remove the body from the space and destroy it
+            space.remove(body.getFirstGeom());
+            linkedVariables.remove(body); // Remove any linked variable
+            body.destroy();
+        }
     }
 
     @Override
     public void linkVariable(Variable variable, int objectId) {
-        DBody body = bodies.get(objectId);
+        DBody body = bodies.get(objectId).get(0);
         linkedVariables.put(body, variable);
     }
 
@@ -145,7 +290,6 @@ public class ODEPhysicsEngine implements IPhysicsEngine {
     public void shutdown() {
         world.destroy();
         space.destroy();
-        contactGroup.destroy();
         OdeHelper.closeODE();
     }
 }

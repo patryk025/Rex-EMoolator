@@ -64,7 +64,7 @@ public class WorldVariable extends Variable {
 
 				physicsEngine.createBody(objectId, mass, mu, mu2, bounce, bounceVel, maxVel, bodyType, geomType, x, y, z);
 
-				return null; // void
+				return null;
 			}
 		});
 		this.setMethod("ADDFORCE", new Method(
@@ -78,8 +78,14 @@ public class WorldVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				// TODO: implement this method
-				throw new ClassMethodNotImplementedException("Method ADDFORCE is not implemented yet");
+				int objectId = ArgumentsHelper.getInteger(arguments.get(0));
+                double forceX = ArgumentsHelper.getDouble(arguments.get(1));
+                double forceY = ArgumentsHelper.getDouble(arguments.get(2));
+                double forceZ = arguments.size() > 3 ? ArgumentsHelper.getDouble(arguments.get(3)) : 0.0;
+
+                physicsEngine.addForce(objectId, forceX, forceY, forceZ);
+
+                return null;
 			}
 		});
 		this.setMethod("ADDGRAVITYEX", new Method(
@@ -179,8 +185,12 @@ public class WorldVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				// TODO: implement this method
-				throw new ClassMethodNotImplementedException("Method GETPOSITIONX is not implemented yet");
+				int objectId = ArgumentsHelper.getInteger(arguments.get(0));
+                double[] position = physicsEngine.getPosition(objectId);
+                if (position == null || position.length < 3) {
+                    throw new IllegalArgumentException("Object with ID " + objectId + " does not exist or has no position.");
+                }
+                return new DoubleVariable("", position[0], WorldVariable.this.context);
 			}
 		});
 		this.setMethod("GETPOSITIONY", new Method(
@@ -191,8 +201,12 @@ public class WorldVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				// TODO: implement this method
-				throw new ClassMethodNotImplementedException("Method GETPOSITIONY is not implemented yet");
+				int objectId = ArgumentsHelper.getInteger(arguments.get(0));
+                double[] position = physicsEngine.getPosition(objectId);
+                if (position == null || position.length < 3) {
+                    throw new IllegalArgumentException("Object with ID " + objectId + " does not exist or has no position.");
+                }
+                return new DoubleVariable("", position[1], WorldVariable.this.context);
 			}
 		});
 		this.setMethod("GETPOSITIONZ", new Method(
@@ -203,8 +217,12 @@ public class WorldVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				// TODO: implement this method
-				throw new ClassMethodNotImplementedException("Method GETPOSITIONZ is not implemented yet");
+				int objectId = ArgumentsHelper.getInteger(arguments.get(0));
+                double[] position = physicsEngine.getPosition(objectId);
+                if (position == null || position.length < 3) {
+                    throw new IllegalArgumentException("Object with ID " + objectId + " does not exist or has no position.");
+                }
+                return new DoubleVariable("", position[2], WorldVariable.this.context);
 			}
 		});
 		this.setMethod("GETROTATIONZ", new Method(
@@ -227,8 +245,7 @@ public class WorldVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				// TODO: implement this method
-				throw new ClassMethodNotImplementedException("Method GETSPEED is not implemented yet");
+				return new DoubleVariable("", physicsEngine.getSpeed(ArgumentsHelper.getInteger(arguments.get(0))), WorldVariable.this.context);
 			}
 		});
 		this.setMethod("JOIN", new Method(
@@ -510,5 +527,9 @@ public class WorldVariable extends Variable {
 
 	public void setSekVersion(String sekVersion) {
 		this.sekVersion = sekVersion;
+	}
+
+	public IPhysicsEngine getPhysicsEngine() {
+		return physicsEngine;
 	}
 }

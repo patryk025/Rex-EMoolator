@@ -398,7 +398,8 @@ public class DebugManager implements Disposable {
 
         WorldVariable worldVariable = game.getCurrentSceneContext().getWorldVariable();
 
-        for (List<GameObject> objectList : worldVariable.getGameObjects().values()) {
+        // TODO: adjust to new implementation
+        /*for (List<GameObject> objectList : worldVariable.getGameObjects().values()) {
             for (GameObject object : objectList) {
                 float x = object.getX();
                 float y = object.getY();
@@ -424,7 +425,7 @@ public class DebugManager implements Disposable {
                     shapeRenderer.line((float) (xCorrection + v2.getPoint().x + 400), (float) (yCorrection + v2.getPoint().y + 300), (float) (xCorrection + v0.getPoint().x + 400), (float) (yCorrection + v0.getPoint().y + 300));
                 }
             }
-        }
+        }*/
 
         shapeRenderer.end();
     }
