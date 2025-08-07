@@ -379,16 +379,19 @@ public class WorldVariable extends Variable {
 		});
 		this.setMethod("SETGRAVITY", new Method(
 				List.of(
-						new Parameter("DOUBLE", "forceX?", true),
-						new Parameter("DOUBLE", "forceY?", true),
-						new Parameter("DOUBLE", "forceZ?", true)
+						new Parameter("DOUBLE", "gravityX", true),
+						new Parameter("DOUBLE", "gravityY", true),
+						new Parameter("DOUBLE", "gravityZ", true)
 				),
 				"void"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				// TODO: implement this method
-				throw new ClassMethodNotImplementedException("Method SETGRAVITY is not implemented yet");
+				double gravityX = ArgumentsHelper.getDouble(arguments.get(0));
+                double gravityY = ArgumentsHelper.getDouble(arguments.get(1));
+                double gravityZ = ArgumentsHelper.getDouble(arguments.get(2));
+                physicsEngine.setGravity(gravityX, gravityY, gravityZ);
+                return null;
 			}
 		});
 		this.setMethod("SETGRAVITYCENTER", new Method(
@@ -418,8 +421,15 @@ public class WorldVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				// TODO: implement this method
-				throw new ClassMethodNotImplementedException("Method SETLIMIT is not implemented yet");
+				int objectId = ArgumentsHelper.getInteger(arguments.get(0));
+                int minX = ArgumentsHelper.getInteger(arguments.get(1));
+                int minY = ArgumentsHelper.getInteger(arguments.get(2));
+                int minZ = ArgumentsHelper.getInteger(arguments.get(3));
+                int maxX = ArgumentsHelper.getInteger(arguments.get(4));
+                int maxY = ArgumentsHelper.getInteger(arguments.get(5));
+                int maxZ = ArgumentsHelper.getInteger(arguments.get(6));
+                physicsEngine.setLimit(objectId, minX, minY, minZ, maxX, maxY, maxZ);
+                return null;
 			}
 		});
 		this.setMethod("SETMAXSPEED", new Method(
@@ -431,8 +441,10 @@ public class WorldVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				// TODO: implement this method
-				throw new ClassMethodNotImplementedException("Method SETMAXSPEED is not implemented yet");
+				int objectId = ArgumentsHelper.getInteger(arguments.get(0));
+                int maxSpeed = ArgumentsHelper.getInteger(arguments.get(1));
+                physicsEngine.setMaxVelocity(objectId, maxSpeed);
+                return null;
 			}
 		});
 		this.setMethod("SETMOVEFLAGS", new Method(

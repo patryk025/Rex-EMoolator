@@ -58,6 +58,7 @@ public class SEKLoader {
                             break;
                     }
                 }
+                break;
             case "003": // It was present in Sekai.dll and their loading functions was slightly different
             case "002":
                 throw new RuntimeException("Unsupported SEK version: " + variable.getSekVersion());

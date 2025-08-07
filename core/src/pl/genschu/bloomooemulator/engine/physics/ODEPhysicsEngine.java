@@ -1,6 +1,7 @@
 package pl.genschu.bloomooemulator.engine.physics;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.math.MathUtils;
 import org.ode4j.math.DMatrix3C;
 import org.ode4j.math.DVector3C;
 import org.ode4j.ode.*;
@@ -13,10 +14,8 @@ import pl.genschu.bloomooemulator.world.Mesh;
 import pl.genschu.bloomooemulator.world.MeshTriangle;
 import pl.genschu.bloomooemulator.world.TriangleVertex;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class ODEPhysicsEngine implements IPhysicsEngine {
     DWorld world;
@@ -46,7 +45,7 @@ public class ODEPhysicsEngine implements IPhysicsEngine {
     @Override
     public void createBody(GameObject gameObject, Mesh geometryMesh) {
         DBody body = createBasicBody(gameObject.getId(), gameObject.getX(), gameObject.getY(), gameObject.getZ());
-        setMass(gameObject.getId(), gameObject.getMass(), gameObject.getGeomType());
+        setMass(body, gameObject.getMass(), gameObject.getGeomType());
         attachGeometry(body, gameObject.getGeomType());
         body.setData(gameObject);
         attachMesh(body, geometryMesh);
@@ -70,7 +69,7 @@ public class ODEPhysicsEngine implements IPhysicsEngine {
             double x, double y, double z, Mesh geometryMesh
     ) {
         DBody body = createBasicBody(objectId, x, y, z);
-        setMass(objectId, mass, geomType);
+        setMass(body, mass, geomType);
         attachGeometry(body, geomType);
 
         GameObject go = toGameObject(objectId, mass, mu, mu2, bounce, bounceVelocity, maxVelocity, geomType, x, y, z);
@@ -221,6 +220,29 @@ public class ODEPhysicsEngine implements IPhysicsEngine {
         }
     }
 
+    private void setMass(DBody body, double mass, int geomType) {
+        float[] dimensions = new float[]{1.0f, 1.0f, 1.0f};
+
+        if(body.getData() instanceof GameObject) {
+            GameObject go = (GameObject) body.getData();
+            dimensions = go.getDimensions();
+        }
+
+        DMass m = OdeHelper.createMass();
+        switch (GeomType.values()[geomType]) {
+            case BOX:
+                m.setBoxTotal(mass, dimensions[0], dimensions[1], dimensions[2]);
+                break;
+            case CYLINDER:
+                m.setCylinderTotal(mass, 3, dimensions[0], dimensions[1]); // axis, radius, length
+                break;
+            case SPHERE:
+                m.setSphereTotal(mass, dimensions[0]);
+                break;
+        }
+        body.setMass(m);
+    }
+
     @Override
     public void setMass(int objectId, double mass, int geomType) {
         List<DBody> bodyObjects = bodies.get(objectId);
@@ -231,25 +253,26 @@ public class ODEPhysicsEngine implements IPhysicsEngine {
             if (body == null) {
                 continue; // Skip null bodies
             }
-            DMass m = OdeHelper.createMass();
-            switch (GeomType.values()[geomType]) {
-                case BOX:
-                    m.setBoxTotal(mass, 1, 1, 1);
-                    break;
-                case CYLINDER:
-                    m.setCylinderTotal(mass, 3, 1, 1); // axis, radius, length
-                    break;
-                case SPHERE:
-                    m.setSphereTotal(mass, 1);
-                    break;
-            }
-            body.setMass(m);
+
+            setMass(body, mass, geomType);
         }
     }
 
     @Override
     public void setGravity(double gravityX, double gravityY, double gravityZ) {
         world.setGravity(gravityX, gravityY, gravityZ);
+    }
+
+    @Override
+    public void setMaxVelocity(int objectId, double maxVelocity) {
+        List<DBody> bodyObjects = bodies.get(objectId);
+        if (bodyObjects == null || bodyObjects.isEmpty()) {
+            throw new IllegalArgumentException("No body found with ID: " + objectId);
+        }
+        for(DBody body : bodyObjects) {
+            GameObject go = (GameObject) body.getData();
+            go.setMaxVelocity(maxVelocity);
+        }
     }
 
     @Override
@@ -272,7 +295,7 @@ public class ODEPhysicsEngine implements IPhysicsEngine {
         // ODE does not provide a direct way to get rotation, we can calculate it from the orientation
         DMatrix3C rotation = body.getRotation();
         // Assuming the rotation is in a 3x3 matrix, we can extract the Z rotation
-        return Math.atan2(rotation.get(1, 0), rotation.get(0, 0));
+        return Math.toDegrees(Math.atan2(rotation.get(1, 0), rotation.get(0, 0)));
     }
 
     @Override
@@ -291,6 +314,74 @@ public class ODEPhysicsEngine implements IPhysicsEngine {
         if(deltaTime > 0.3f) deltaTime = 0.3f; // that limit was in Sekai
         //world.step(deltaTime);
         world.quickStep(deltaTime);
+
+        for (DBody body : bodies.values().stream().flatMap(List::stream).filter(Objects::nonNull).collect(Collectors.toList())) {
+            if (body == null) {
+                continue; // Skip null bodies
+            }
+
+            if(body.getData() instanceof GameObject) {
+                GameObject go = (GameObject) body.getData();
+
+                // clamp velocity
+                double maxVel = go.getMaxVelocity();
+                if (maxVel <= 0) continue;
+
+                DVector3C vel = body.getLinearVel();
+                double speed = vel.length();
+                if (speed > maxVel) {
+                    double scale = maxVel / speed;
+                    body.setLinearVel(
+                            vel.get0() * scale,
+                            vel.get1() * scale,
+                            vel.get2() * scale
+                    );
+                }
+
+                // clamp position
+                DVector3C pos = body.getPosition();
+                float minX = go.getMinXLimit(), maxX = go.getMaxXLimit();
+                float minY = go.getMinYLimit(), maxY = go.getMaxYLimit();
+                float minZ = go.getMinZLimit(), maxZ = go.getMaxZLimit();
+
+                double clampedX = MathUtils.clamp(pos.get0(), minX, maxX);
+                double clampedY = MathUtils.clamp(pos.get1(), minY, maxY);
+                double clampedZ = MathUtils.clamp(pos.get2(), minZ, maxZ);
+                body.setPosition(clampedX, clampedY, clampedZ);
+            }
+
+            // Update the position of the body in the linked variable
+            if(linkedVariables.containsKey(body)) {
+                Variable var = linkedVariables.get(body);
+                if(var instanceof ImageVariable) {
+                    ImageVariable imageVar = (ImageVariable) var;
+                    double[] position = body.getPosition().toDoubleArray();
+                    imageVar.setPosX((int) position[0]);
+                    imageVar.setPosY((int) position[1]);
+                    // TODO: scaling image based on Z axis
+                    imageVar.updateRect();
+                }
+                if(var instanceof AnimoVariable) {
+                    AnimoVariable animoVar = (AnimoVariable) var;
+                    double[] position = body.getPosition().toDoubleArray();
+                    animoVar.setPosX((int) position[0]);
+                    animoVar.setPosY((int) position[1]);
+                    // TODO: scaling image based on Z axis
+                    animoVar.updateRect();
+                }
+            }
+        }
+    }
+
+    @Override
+    public void setLimit(int objectId, double minX, double minY, double minZ, double maxX, double maxY, double maxZ) {
+        for(DBody body : bodies.get(objectId)) {
+            if (body == null) {
+                continue; // Skip null bodies
+            }
+            GameObject go = (GameObject) body.getData();
+            go.setLimits(minX, maxX, minY, maxY, minZ, maxZ);
+        }
     }
 
     @Override

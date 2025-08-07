@@ -216,4 +216,17 @@ public class GameObject {
     public PointsData getPointsData() {
         return pointsData;
     }
+
+    public void setMaxVelocity(double maxVelocity) {
+        this.maxVelocity = maxVelocity;
+    }
+
+    public void setLimits(double minX, double maxX, double minY, double maxY, double minZ, double maxZ) {
+        minXLimit = (float) minX;
+        minYLimit = (float) minY;
+        minZLimit = (float) minZ;
+        maxXLimit = (float) maxX;
+        maxYLimit = (float) maxY;
+        maxZLimit = (float) maxZ;
+    }
 }
