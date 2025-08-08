@@ -4,6 +4,7 @@ public class GameObject {
     private int id;
     private float rotationZ;
     private float x, y, z;
+    private float velX, velY, velZ;
     private double mass;
     private double mu;
     private double mu2;
@@ -16,6 +17,8 @@ public class GameObject {
     private float[] dimensions;
     private boolean rigidBody;
     private PointsData pointsData;
+    private Mesh mesh;
+    private Object body; // Placeholder for the physics body, type depends on the physics engine
 
     private GameObject() {}
 
@@ -33,6 +36,9 @@ public class GameObject {
             obj.x = 0f;
             obj.y = 0f;
             obj.z = 0f;
+            obj.velX = 0f;
+            obj.velY = 0f;
+            obj.velZ = 0f;
             obj.mass = 1.0f;
             obj.mu = -1.0f;
             obj.mu2 = 0.0f;
@@ -49,6 +55,8 @@ public class GameObject {
             obj.geomType = 2;
             obj.dimensions = new float[]{1.0f, 1.0f, 1.0f};
             obj.pointsData = null;
+            obj.mesh = null;
+            obj.body = null;
         }
 
         public GameObjectBuilder id(int id) {
@@ -125,6 +133,11 @@ public class GameObject {
 
         public GameObjectBuilder pointsData(PointsData pointsData) {
             obj.pointsData = pointsData;
+            return this;
+        }
+
+        public GameObjectBuilder mesh(Mesh mesh) {
+            obj.mesh = mesh;
             return this;
         }
 
@@ -217,6 +230,12 @@ public class GameObject {
         return pointsData;
     }
 
+    public Mesh getMesh() { return mesh; }
+
+    public void setMesh(Mesh mesh) {
+        this.mesh = mesh;
+    }
+
     public void setMaxVelocity(double maxVelocity) {
         this.maxVelocity = maxVelocity;
     }
@@ -228,5 +247,39 @@ public class GameObject {
         maxXLimit = (float) maxX;
         maxYLimit = (float) maxY;
         maxZLimit = (float) maxZ;
+    }
+
+    public void setRotationZ(float rotationZ) {
+        this.rotationZ = rotationZ;
+    }
+
+    public void setX(float x) {
+        this.x = x;
+    }
+
+    public void setY(float y) {
+        this.y = y;
+    }
+
+    public void setZ(float z) {
+        this.z = z;
+    }
+
+    public Object getBody() {
+        return body;
+    }
+
+    public void setBody(Object body) {
+        this.body = body;
+    }
+
+    public float getVelX() { return velX; }
+    public float getVelY() { return velY; }
+    public float getVelZ() { return velZ; }
+
+    public void setVelocity(float vx, float vy, float vz) {
+        this.velX = vx;
+        this.velY = vy;
+        this.velZ = vz;
     }
 }

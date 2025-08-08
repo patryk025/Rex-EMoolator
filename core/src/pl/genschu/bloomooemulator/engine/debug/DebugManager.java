@@ -392,43 +392,137 @@ public class DebugManager implements Disposable {
         batch.end();
     }
 
+    private void drawVelocityArrow(ShapeRenderer sr, GameObject go) {
+        final float vx = go.getVelX();
+        final float vy = go.getVelY();
+
+        final float speed = (float)Math.hypot(vx, vy);
+        if (speed < 1e-3f) return;
+
+        final float baseLen   = 12f;
+        final float scaleLen  = 0.25f;
+        final float maxLen    = 80f;
+        final float headFrac  = 0.25f;
+        final float headAngle = (float)Math.toRadians(25);
+
+        final float dx = vx / speed;
+        final float dy = vy / speed;
+
+        float len = Math.min(maxLen, baseLen + scaleLen * speed);
+
+        final float x0 = go.getX();
+        final float y0 = go.getY();
+        final float x1 = x0 + dx * len;
+        final float y1 = y0 + dy * len;
+
+        sr.line(x0, y0, x1, y1);
+
+        final float headLen = len * headFrac;
+        final float cosA = (float)Math.cos(headAngle);
+        final float sinA = (float)Math.sin(headAngle);
+
+        final float pLx =  dx * cosA - dy * sinA;
+        final float pLy =  dx * sinA + dy * cosA;
+        final float pRx =  dx * cosA + dy * sinA;
+        final float pRy = -dx * sinA + dy * cosA;
+
+        sr.line(x1, y1, x1 - pLx * headLen, y1 - pLy * headLen);
+        sr.line(x1, y1, x1 - pRx * headLen, y1 - pRy * headLen);
+    }
+
+
+    private static float[] rot2D(float x, float y, float c, float s) {
+        return new float[] { c*x - s*y, s*x + c*y };
+    }
+
     private void renderMeshDebug() {
         shapeRenderer.setProjectionMatrix(camera.combined);
         shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
 
-        WorldVariable worldVariable = game.getCurrentSceneContext().getWorldVariable();
+        WorldVariable world = game.getCurrentSceneContext().getWorldVariable();
+        List<GameObject> objects = world.getPhysicsEngine().getGameObjects();
 
-        // TODO: adjust to new implementation
-        /*for (List<GameObject> objectList : worldVariable.getGameObjects().values()) {
-            for (GameObject object : objectList) {
-                float x = object.getX();
-                float y = object.getY();
+        for (GameObject go : objects) {
+            Mesh mesh = go.getMesh();
+            final float x = go.getX();
+            final float y = go.getY();
+            final float theta = go.getRotationZ();
+            final float c = (float)Math.cos(theta);
+            final float s = (float)Math.sin(theta);
 
-                shapeRenderer.setColor(1f, 0f, 0f, 1f);
+            if (mesh == null) {
+                final float[] d = go.getDimensions();
 
-                Mesh mesh = object.getMesh();
-                List<MeshTriangle> triangles = mesh.getTriangles();
+                switch (go.getGeomType()) {
+                    case 0: // box
+                        float halfW = (d[0] > 0 ? d[0] : 1f) * 0.5f;
+                        float halfH = (d[1] > 0 ? d[1] : 1f) * 0.5f;
 
-                // Drawing triangles (ignoring Z axis as it is not relevant for this debug view)
-                for (MeshTriangle triangle : triangles) {
-                    TriangleVertex v0 = triangle.getVertices()[0];
-                    TriangleVertex v1 = triangle.getVertices()[1];
-                    TriangleVertex v2 = triangle.getVertices()[2];
+                        float[][] corners = {
+                                {-halfW, -halfH},
+                                { halfW, -halfH},
+                                { halfW,  halfH},
+                                {-halfW,  halfH}
+                        };
 
-                    float xCorrection = (object.isRigidBody() ? x : 0);
-                    float yCorrection = (object.isRigidBody() ? y : 0);
+                        float[][] wc = new float[4][2];
+                        for (int i=0;i<4;i++){
+                            float[] r2 = rot2D(corners[i][0], corners[i][1], c, s);
+                            wc[i][0] = x + r2[0];
+                            wc[i][1] = y + r2[1];
+                        }
 
-                    // not sure if position adds up to the mesh position, it should but still checking
-                    // INFO: I don't reverse Y axis like in render loop as Z axis is reversed in OpenGL so mesh would be flipped upside down
-                    shapeRenderer.line((float) (xCorrection + v0.getPoint().x + 400), (float) (yCorrection + v0.getPoint().y + 300), (float) (xCorrection + v1.getPoint().x + 400), (float) (yCorrection + v1.getPoint().y + 300));
-                    shapeRenderer.line((float) (xCorrection + v1.getPoint().x + 400), (float) (yCorrection + v1.getPoint().y + 300), (float) (xCorrection + v2.getPoint().x + 400), (float) (yCorrection + v2.getPoint().y + 300));
-                    shapeRenderer.line((float) (xCorrection + v2.getPoint().x + 400), (float) (yCorrection + v2.getPoint().y + 300), (float) (xCorrection + v0.getPoint().x + 400), (float) (yCorrection + v0.getPoint().y + 300));
+                        shapeRenderer.line(wc[0][0], wc[0][1], wc[1][0], wc[1][1]);
+                        shapeRenderer.line(wc[1][0], wc[1][1], wc[2][0], wc[2][1]);
+                        shapeRenderer.line(wc[2][0], wc[2][1], wc[3][0], wc[3][1]);
+                        shapeRenderer.line(wc[3][0], wc[3][1], wc[0][0], wc[0][1]);
+                        break;
+                    case 1: // cylinder
+                    case 2: // box
+                        float r = d[0] > 0 ? d[0] : 1f;
+                        shapeRenderer.circle(x, y, r, 24);
+                        break;
+                    default:
+                        shapeRenderer.line(x-4, y, x+4, y);
+                        shapeRenderer.line(x, y-4, x, y+4);
                 }
             }
-        }*/
+            else {
+                final float dx = 400f, dy = 300f;
+
+                for (MeshTriangle tri : mesh.getTriangles()) {
+                    TriangleVertex[] vs = tri.getVertices();
+
+                    // TODO: DRY, currently duplicated code for each vertex
+                    float x0 = (float) vs[0].getPoint().x;
+                    float y0 = (float) vs[0].getPoint().y;
+                    float[] r0 = rot2D(x0, y0, c, s);
+                    float wx0 = (go.isRigidBody() ? x + r0[0] : r0[0]) + dx;
+                    float wy0 = (go.isRigidBody() ? y + r0[1] : r0[1]) + dy;
+
+                    float x1 = (float) vs[1].getPoint().x;
+                    float y1 = (float) vs[1].getPoint().y;
+                    float[] r1 = rot2D(x1, y1, c, s);
+                    float wx1 = (go.isRigidBody() ? x + r1[0] : r1[0]) + dx;
+                    float wy1 = (go.isRigidBody() ? y + r1[1] : r1[1]) + dy;
+
+                    float x2 = (float) vs[2].getPoint().x;
+                    float y2 = (float) vs[2].getPoint().y;
+                    float[] r2 = rot2D(x2, y2, c, s);
+                    float wx2 = (go.isRigidBody() ? x + r2[0] : r2[0]) + dx;
+                    float wy2 = (go.isRigidBody() ? y + r2[1] : r2[1]) + dy;
+
+                    shapeRenderer.line(wx0, wy0, wx1, wy1);
+                    shapeRenderer.line(wx1, wy1, wx2, wy2);
+                    shapeRenderer.line(wx2, wy2, wx0, wy0);
+                }
+            }
+            drawVelocityArrow(shapeRenderer, go);
+        }
 
         shapeRenderer.end();
     }
+
 
 
     private void generateTooltipForButton(ButtonVariable button) {

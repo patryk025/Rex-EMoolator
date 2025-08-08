@@ -48,6 +48,8 @@ public class ODEPhysicsEngine implements IPhysicsEngine {
         setMass(body, gameObject.getMass(), gameObject.getGeomType());
         attachGeometry(body, gameObject.getGeomType());
         body.setData(gameObject);
+        gameObject.setBody(body);
+        gameObject.setMesh(geometryMesh);
         attachMesh(body, geometryMesh);
     }
 
@@ -74,6 +76,8 @@ public class ODEPhysicsEngine implements IPhysicsEngine {
 
         GameObject go = toGameObject(objectId, mass, mu, mu2, bounce, bounceVelocity, maxVelocity, geomType, x, y, z);
         body.setData(go);
+        go.setBody(body);
+        go.setMesh(geometryMesh);
 
         attachMesh(body, geometryMesh);
     }
@@ -207,6 +211,12 @@ public class ODEPhysicsEngine implements IPhysicsEngine {
                 animoVar.updateRect();
             }
         }
+        if (body.getData() instanceof GameObject) {
+            GameObject go = (GameObject) body.getData();
+            go.setX((float) x);
+            go.setY((float) y);
+            go.setZ((float) z);
+        }
     }
 
     @Override
@@ -295,7 +305,7 @@ public class ODEPhysicsEngine implements IPhysicsEngine {
         // ODE does not provide a direct way to get rotation, we can calculate it from the orientation
         DMatrix3C rotation = body.getRotation();
         // Assuming the rotation is in a 3x3 matrix, we can extract the Z rotation
-        return Math.toDegrees(Math.atan2(rotation.get(1, 0), rotation.get(0, 0)));
+        return Math.atan2(rotation.get(1, 0), rotation.get(0, 0));
     }
 
     @Override
@@ -306,12 +316,12 @@ public class ODEPhysicsEngine implements IPhysicsEngine {
         if (velocity.length() == 0) {
             return 0.0; // No movement, angle is 0
         }
-        return Math.toDegrees(Math.atan2(velocity.get(1), velocity.get(0)));
+        return Math.atan2(velocity.get(1), velocity.get(0));
     }
 
     @Override
     public void stepSimulation(double deltaTime) {
-        if(deltaTime > 0.3f) deltaTime = 0.3f; // that limit was in Sekai
+        if(deltaTime > 0.03f) deltaTime = 0.03f; // that limit was in Sekai
         //world.step(deltaTime);
         world.quickStep(deltaTime);
 
@@ -325,17 +335,18 @@ public class ODEPhysicsEngine implements IPhysicsEngine {
 
                 // clamp velocity
                 double maxVel = go.getMaxVelocity();
-                if (maxVel <= 0) continue;
 
-                DVector3C vel = body.getLinearVel();
-                double speed = vel.length();
-                if (speed > maxVel) {
-                    double scale = maxVel / speed;
-                    body.setLinearVel(
-                            vel.get0() * scale,
-                            vel.get1() * scale,
-                            vel.get2() * scale
-                    );
+                if(maxVel > 0) {
+                    DVector3C vel = body.getLinearVel();
+                    double speed = vel.length();
+                    if (speed > maxVel) {
+                        double scale = maxVel / speed;
+                        body.setLinearVel(
+                                vel.get0() * scale,
+                                vel.get1() * scale,
+                                vel.get2() * scale
+                        );
+                    }
                 }
 
                 // clamp position
@@ -348,6 +359,14 @@ public class ODEPhysicsEngine implements IPhysicsEngine {
                 double clampedY = MathUtils.clamp(pos.get1(), minY, maxY);
                 double clampedZ = MathUtils.clamp(pos.get2(), minZ, maxZ);
                 body.setPosition(clampedX, clampedY, clampedZ);
+
+                go.setX((float) clampedX);
+                go.setY((float) clampedY);
+                go.setZ((float) clampedZ);
+                go.setRotationZ((float) getRotationZ(go.getId()));
+
+                DVector3C v = body.getLinearVel();
+                go.setVelocity((float)v.get0(), (float)v.get1(), (float)v.get2());
             }
 
             // Update the position of the body in the linked variable
@@ -405,6 +424,28 @@ public class ODEPhysicsEngine implements IPhysicsEngine {
     public void linkVariable(Variable variable, int objectId) {
         DBody body = bodies.get(objectId).get(0);
         linkedVariables.put(body, variable);
+    }
+
+    @Override
+    public void unlinkVariable(int objectId) {
+        List<DBody> objectBodies = bodies.get(objectId);
+        if (objectBodies == null || objectBodies.isEmpty()) {
+            throw new IllegalArgumentException("No body found with ID: " + objectId);
+        }
+        for (DBody body : objectBodies) {
+            linkedVariables.remove(body);
+        }
+    }
+
+    @Override
+    public List<GameObject> getGameObjects() {
+        return bodies.values().stream()
+                .flatMap(List::stream)
+                .filter(Objects::nonNull)
+                .map(DBody::getData)
+                .filter(data -> data instanceof GameObject)
+                .map(data -> (GameObject) data)
+                .collect(Collectors.toList());
     }
 
     @Override

@@ -146,7 +146,7 @@ public class WorldVariable extends Variable {
 			public Variable execute(List<Object> arguments) {
 				int objectId = ArgumentsHelper.getInteger(arguments.get(0));
                 double angle = physicsEngine.getAngle(objectId);
-                return new DoubleVariable("", angle, WorldVariable.this.context);
+                return new DoubleVariable("", Math.toDegrees(angle), WorldVariable.this.context);
 			}
 		});
 		this.setMethod("GETBKGPOSX", new Method(
@@ -236,7 +236,7 @@ public class WorldVariable extends Variable {
 			@Override
 			public Variable execute(List<Object> arguments) {
 				int objectId = ArgumentsHelper.getInteger(arguments.get(0));
-                return new DoubleVariable("", physicsEngine.getRotationZ(objectId), WorldVariable.this.context);
+                return new DoubleVariable("", Math.toDegrees(physicsEngine.getRotationZ(objectId)), WorldVariable.this.context);
 			}
 		});
 		this.setMethod("GETSPEED", new Method(
@@ -533,8 +533,9 @@ public class WorldVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				// TODO: implement this method
-				throw new ClassMethodNotImplementedException("Method UNLINK is not implemented yet");
+				int objectId = ArgumentsHelper.getInteger(arguments.get(0));
+                physicsEngine.unlinkVariable(objectId);
+                return null;
 			}
 		});
 	}
@@ -548,9 +549,9 @@ public class WorldVariable extends Variable {
 	public void setAttribute(String name, Attribute attribute) {
 		List<String> knownAttributes = List.of("FILENAME");
 		if(knownAttributes.contains(name)) {
-			super.setAttribute(name, attribute);
+            super.setAttribute(name, attribute);
             physicsEngine.init();
-			SEKLoader.loadSek(this);
+            SEKLoader.loadSek(this);
 		}
 	}
 

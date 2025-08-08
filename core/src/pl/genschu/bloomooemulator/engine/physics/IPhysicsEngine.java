@@ -4,6 +4,8 @@ import pl.genschu.bloomooemulator.interpreter.variable.Variable;
 import pl.genschu.bloomooemulator.world.GameObject;
 import pl.genschu.bloomooemulator.world.Mesh;
 
+import java.util.List;
+
 public interface IPhysicsEngine {
     void init();
 
@@ -70,6 +72,10 @@ public interface IPhysicsEngine {
     void destroyBody(int objectId);
 
     void linkVariable(Variable variable, int objectId);
+
+    void unlinkVariable(int objectId);
+
+    List<GameObject> getGameObjects();
 
     void shutdown();
 }
