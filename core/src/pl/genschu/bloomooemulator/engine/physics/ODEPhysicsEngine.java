@@ -9,6 +9,7 @@ import pl.genschu.bloomooemulator.geometry.points.Point3D;
 import pl.genschu.bloomooemulator.interpreter.variable.Variable;
 import pl.genschu.bloomooemulator.interpreter.variable.types.AnimoVariable;
 import pl.genschu.bloomooemulator.interpreter.variable.types.ImageVariable;
+import pl.genschu.bloomooemulator.interpreter.variable.types.IntegerVariable;
 import pl.genschu.bloomooemulator.world.GameObject;
 import pl.genschu.bloomooemulator.world.Mesh;
 import pl.genschu.bloomooemulator.world.MeshTriangle;

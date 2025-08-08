@@ -275,8 +275,7 @@ public class WorldVariable extends Variable {
 		this.setMethod("LINK", new Method(
 				List.of(
 						new Parameter("INTEGER", "objectId", true),
-						new Parameter("STRING", "objectName", true),
-						new Parameter("INTEGER", "unknown", true)
+						new Parameter("STRING", "objectName", true)
 				),
 				"void"
 		) {
@@ -284,7 +283,6 @@ public class WorldVariable extends Variable {
 			public Variable execute(List<Object> arguments) {
 				int objectId = ArgumentsHelper.getInteger(arguments.get(0));
                 String objectName = ArgumentsHelper.getString(arguments.get(1));
-                int unknown = ArgumentsHelper.getInteger(arguments.get(2));
 
                 Variable objectVariable = context.getVariable(objectName);
                 if (!(objectVariable instanceof AnimoVariable || objectVariable instanceof ImageVariable)) {

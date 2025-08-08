@@ -797,8 +797,8 @@ public class AnimoVariable extends Variable implements Cloneable {
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				posX = ArgumentsHelper.getInteger(arguments.get(0)) - anchorX;
-				posY = ArgumentsHelper.getInteger(arguments.get(1)) - anchorY;
+				posX = ArgumentsHelper.getInteger(arguments.get(0));
+				posY = ArgumentsHelper.getInteger(arguments.get(1));
 				//Gdx.app.log("updateRect()", "SETPOSITION");
 				updateRect();
 				return null;
@@ -1086,10 +1086,10 @@ public class AnimoVariable extends Variable implements Cloneable {
 		}
 
 		if (currentImage == null) {
-			rect.setXLeft(posX);
-			rect.setYTop(posY);
-			rect.setXRight(posX + 1);
-			rect.setYBottom(posY - 1);
+			rect.setXLeft(posX - anchorX);
+			rect.setYTop(posY - anchorY);
+			rect.setXRight(posX - anchorX + 1);
+			rect.setYBottom(posY - anchorY - 1);
 		} else {
 			try {
 				FrameData frameData = currentEvent != null && !currentEvent.getFrameData().isEmpty()
@@ -1099,16 +1099,16 @@ public class AnimoVariable extends Variable implements Cloneable {
 				int frameOffsetX = frameData != null ? frameData.getOffsetX() : 0;
 				int frameOffsetY = frameData != null ? frameData.getOffsetY() : 0;
 
-				rect.setXLeft(posX + frameOffsetX + currentImage.offsetX);
-				rect.setYTop(posY + frameOffsetY + currentImage.offsetY);
+				rect.setXLeft(posX - anchorX + frameOffsetX + currentImage.offsetX);
+				rect.setYTop(posY - anchorY + frameOffsetY + currentImage.offsetY);
 				rect.setXRight(rect.getXLeft() + currentImage.width);
 				rect.setYBottom(rect.getYTop() - currentImage.height);
 			} catch (Exception e) {
 				Gdx.app.error("AnimoVariable", "Error updating rect: " + e.getMessage());
-				rect.setXLeft(posX);
-				rect.setYTop(posY);
-				rect.setXRight(posX + 1);
-				rect.setYBottom(posY - 1);
+				rect.setXLeft(posX - anchorX);
+				rect.setYTop(posY - anchorY);
+				rect.setXRight(posX - anchorX + 1);
+				rect.setYBottom(posY - anchorY - 1);
 			}
 		}
 
