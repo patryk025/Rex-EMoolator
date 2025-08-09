@@ -1,6 +1,8 @@
 package pl.genschu.bloomooemulator.interpreter.variable.types;
 
 import com.badlogic.gdx.graphics.g2d.Batch;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import pl.genschu.bloomooemulator.interpreter.Context;
 import pl.genschu.bloomooemulator.interpreter.variable.Attribute;
@@ -108,7 +110,62 @@ public class TextVariable extends Variable {
 		renderText(batch, font, rect.getXLeft(), rect.getYTop(), 2, hJustify, vJustify);
 	}
 
-	public void renderText(Batch batch, FontVariable fontVariable, float startX, float startY, float lineSpacing, String hJustify, String vJustify) {
+    private final BitmapFont _debugFont = new BitmapFont(); // domyślny; podmień jeśli chcesz
+    private final GlyphLayout _glyph = new GlyphLayout();
+    public void renderText(Batch batch,
+                           FontVariable fontVariable,
+                           float startX, float startY,
+                           float lineSpacing,
+                           String hJustify, String vJustify) {
+
+        if (text == null || text.isEmpty()) return;
+
+        String[] lines = text.split("\\|", -1);
+
+        float[] lineWidths = new float[lines.length];
+        float lineHeight = _debugFont.getLineHeight();
+        float totalTextHeight = lines.length * lineHeight + Math.max(0, lines.length - 1) * lineSpacing;
+
+        float maxWidth = 0f;
+        for (int i = 0; i < lines.length; i++) {
+            _glyph.setText(_debugFont, lines[i]);
+            lineWidths[i] = _glyph.width;
+            if (lineWidths[i] > maxWidth) maxWidth = lineWidths[i];
+        }
+
+        float y0 = startY;
+        String vj = vJustify == null ? "TOP" : vJustify.toUpperCase();
+        switch (vj) {
+            case "CENTER":
+                y0 += totalTextHeight * 0.5f;
+                break;
+            case "BOTTOM":
+                y0 += totalTextHeight;
+                break;
+        }
+
+        String hj = hJustify == null ? "LEFT" : hJustify.toUpperCase();
+        float rectW = getRect().getWidth();
+
+        float y = y0;
+        for (int i = 0; i < lines.length; i++) {
+            float x = startX;
+            switch (hj) {
+                case "CENTER":
+                    x += (rectW - lineWidths[i]) * 0.5f;
+                    break;
+                case "RIGHT":
+                    x += rectW - lineWidths[i];
+                    break;
+            }
+
+            _debugFont.draw(batch, lines[i], x, 600-y);
+
+            y += (lineHeight + lineSpacing);
+        }
+    }
+
+	/*public void renderText(Batch batch, FontVariable fontVariable, float startX, float startY, float lineSpacing, String hJustify, String vJustify) {
 		if (fontVariable == null) {
 			//Gdx.app.error("TextVariable", "Font is not set!");
 			return;
@@ -144,7 +201,7 @@ public class TextVariable extends Variable {
 
 			// Newline handling (using '|' as the newline character)
 			if (currentChar == '|') {
-				y -= fontVariable.getCharHeight() + lineSpacing;
+				y += fontVariable.getCharHeight() + lineSpacing;
 				if ("CENTER".equals(hJustify)) {
 					startX += (getRect().getWidth() / 2f) - (totalTextWidth[0] / 2);
 				} else if ("RIGHT".equals(hJustify)) {
@@ -173,7 +230,7 @@ public class TextVariable extends Variable {
 			// Move the x position for the next character
 			x += charTexture.getRegionWidth() - rightKerning;
 		}
-	}
+	}*/
 
 	private float[] calculateTotalTextWidths(FontVariable fontVariable) {
 		float[] widths = new float[1];
