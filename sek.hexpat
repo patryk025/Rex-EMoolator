@@ -1,3 +1,18 @@
+enum GeomType : u32 {
+    BOX,
+    CYLINDER,
+    SPHERE,
+    TRIMESH,
+    CAR // really? 4 wheels and box
+};
+
+enum DataType : u32 {
+    INT = 0,
+    FLOAT = 1,
+    STRING = 2,
+    LIST = 6
+};
+
 struct Header {
     char magic[19];
     u32 entitiesNumber;
@@ -5,7 +20,7 @@ struct Header {
 
 struct EntityProps {
     char nameOfProp[];
-    padding[4]; //?
+    DataType dataType;
     char valueOfProp[];
 };
 
@@ -23,29 +38,31 @@ struct MeshTriangle {
     float unknown25, unknown26, unknown27; // 0 or 1 (flags?)
 };
 
-struct SceneObject {
-    u32 length; // 56 bytes + triangles data
+struct ObjectHeader {
     u32 entityId;
-    u32 unknown3; // 0 (walls) or 3 (rigid body?)
+    u32 type; // 0 (static mesh) or 3 (physical entity)
     float x; // relative to 400px
     float y; // relative to 300px
     float z; // relative to 0px
     float unknown7; // ?, 0 or 1
-    float rotationZ; // normalized angle, but with very weird behaviour
-    padding[4]; // ?
-    float unknown10; // have impact on speed somehow
-    float unknown11;
-    float unknown12;
+    float rotationZ; // angle, but with very weird behaviour
+    float unknown9; // ?
+    float bodyDimension[3];
     u32 numberOfProps;
     EntityProps props[numberOfProps];
-    u32 unknown13; // 0 or 2
+};
+
+struct SceneObject {
+    u32 length; // 56 bytes + triangles data
+    ObjectHeader header;
+    GeomType geomType;
     u32 numberOfTriangles;
-    MeshTriangle meshTriangle[numberOfTriangles];
+    MeshTriangle collisionMeshTriangle[numberOfTriangles];
 };
 
 struct Point {
     float x, y, z;
-    padding[4];
+    padding[4]; // 3D vector in ODE are 4 element float arrays (for better alignment)
 };
 
 struct PathData {
@@ -56,8 +73,7 @@ struct PathData {
 
 struct PointsData {
     u32 length; // length without padding, noOfPoints * 12 + noOfPaths * 12 + 56
-    u32 unknown2; // 9000 or 9001?
-    char unknown3[44]; // NUL bytes
+    ObjectHeader header; // id 9000 or 9001, other params are always 0
     u32 noOfPoints;
     u32 noOfPaths;
     Point points[noOfPoints];
