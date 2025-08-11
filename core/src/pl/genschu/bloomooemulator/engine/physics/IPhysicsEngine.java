@@ -19,9 +19,9 @@ public interface IPhysicsEngine {
             double maxVelocity,
             int bodyType,
             int geomType,
-            double x,
-            double y,
-            double z
+            double dim0,
+            double dim1,
+            double dim2
     );
 
     void createBody(
@@ -34,9 +34,9 @@ public interface IPhysicsEngine {
             double maxVelocity,
             int bodyType,
             int geomType,
-            double x,
-            double y,
-            double z,
+            double dim0,
+            double dim1,
+            double dim2,
             Mesh geometryMesh
     );
 

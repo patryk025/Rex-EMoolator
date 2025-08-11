@@ -7,11 +7,11 @@ import java.util.List;
 
 public class PointsData {
     private final List<Point3D> points;
-    private final List<Path> paths;
+    private final List<Edge> edges;
 
     public PointsData() {
         points = new ArrayList<>();
-        paths = new ArrayList<>();
+        edges = new ArrayList<>();
     }
 
     public void addPoint(Point3D point) {
@@ -24,6 +24,6 @@ public class PointsData {
         }
         Point3D firstPoint = points.get(firstIdx - 1); // Assuming 1-based index
         Point3D secondPoint = points.get(secondIdx - 1);
-        paths.add(new Path(firstPoint, secondPoint, unknown));
+        edges.add(new Edge(firstPoint, secondPoint, unknown));
     }
 }

@@ -410,8 +410,8 @@ public class DebugManager implements Disposable {
 
         float len = Math.min(maxLen, baseLen + scaleLen * speed);
 
-        final float x0 = go.getX();
-        final float y0 = go.getY();
+        final float x0 = go.getX()+400;
+        final float y0 = go.getY()+300;
         final float x1 = x0 + dx * len;
         final float y1 = y0 + dy * len;
 
@@ -453,6 +453,9 @@ public class DebugManager implements Disposable {
             if (mesh == null) {
                 final float[] d = go.getDimensions();
 
+                final float correctedX = x + 400;
+                final float correctedY = y + 300;
+
                 switch (go.getGeomType()) {
                     case 0: // box
                         float halfW = (d[0] > 0 ? d[0] : 1f) * 0.5f;
@@ -468,8 +471,8 @@ public class DebugManager implements Disposable {
                         float[][] wc = new float[4][2];
                         for (int i=0;i<4;i++){
                             float[] r2 = rot2D(corners[i][0], corners[i][1], c, s);
-                            wc[i][0] = x + r2[0];
-                            wc[i][1] = y + r2[1];
+                            wc[i][0] = correctedX + r2[0];
+                            wc[i][1] = correctedY + r2[1];
                         }
 
                         shapeRenderer.line(wc[0][0], wc[0][1], wc[1][0], wc[1][1]);
@@ -480,11 +483,11 @@ public class DebugManager implements Disposable {
                     case 1: // cylinder
                     case 2: // box
                         float r = d[0] > 0 ? d[0] : 1f;
-                        shapeRenderer.circle(x, y, r, 24);
+                        shapeRenderer.circle(correctedX, correctedY, r, 24);
                         break;
                     default:
-                        shapeRenderer.line(x-4, y, x+4, y);
-                        shapeRenderer.line(x, y-4, x, y+4);
+                        shapeRenderer.line(correctedX-4, correctedY, correctedX+4, correctedY);
+                        shapeRenderer.line(correctedX, correctedY-4, correctedX, correctedY+4);
                 }
             }
             else {

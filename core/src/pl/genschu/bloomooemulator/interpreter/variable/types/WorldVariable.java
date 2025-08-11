@@ -59,11 +59,11 @@ public class WorldVariable extends Variable {
 				double maxVel = ArgumentsHelper.getDouble(arguments.get(6));
 				int bodyType = ArgumentsHelper.getInteger(arguments.get(7));
 				int geomType = ArgumentsHelper.getInteger(arguments.get(8));
-				double x = ArgumentsHelper.getDouble(arguments.get(9));
-				double y = ArgumentsHelper.getDouble(arguments.get(10));
-				double z = ArgumentsHelper.getDouble(arguments.get(11));
+				double dim0 = ArgumentsHelper.getDouble(arguments.get(9));
+				double dim1 = ArgumentsHelper.getDouble(arguments.get(10));
+				double dim2 = ArgumentsHelper.getDouble(arguments.get(11));
 
-				physicsEngine.createBody(objectId, mass, mu, mu2, bounce, bounceVel, maxVel, bodyType, geomType, x, y, z);
+				physicsEngine.createBody(objectId, mass, mu, mu2, bounce, bounceVel, maxVel, bodyType, geomType, dim0, dim1, dim2);
 
 				return null;
 			}
@@ -154,8 +154,8 @@ public class WorldVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				// TODO: implement this method
-				throw new ClassMethodNotImplementedException("Method GETBKGPOSX is not implemented yet");
+                // TODO: for now its stub, as I don't have implementation
+				return new IntegerVariable("", 0, WorldVariable.this.context);
 			}
 		});
 		this.setMethod("GETBKGPOSY", new Method(
@@ -163,8 +163,8 @@ public class WorldVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				// TODO: implement this method
-				throw new ClassMethodNotImplementedException("Method GETBKGPOSY is not implemented yet");
+                // TODO: for now its stub, as I don't have implementation
+                return new IntegerVariable("", 0, WorldVariable.this.context);
 			}
 		});
 		this.setMethod("GETMOVEDISTANCE", new Method(
@@ -469,8 +469,12 @@ public class WorldVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				// TODO: implement this method
-				throw new ClassMethodNotImplementedException("Method SETPOSITION is not implemented yet");
+				int objectId = ArgumentsHelper.getInteger(arguments.get(0));
+                double x = ArgumentsHelper.getDouble(arguments.get(1));
+                double y = ArgumentsHelper.getDouble(arguments.get(2));
+                double z = ArgumentsHelper.getDouble(arguments.get(3));
+                physicsEngine.setPosition(objectId, x, y, z);
+                return null;
 			}
 		});
 		this.setMethod("SETREFOBJECT", new Method(
