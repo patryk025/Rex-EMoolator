@@ -67,6 +67,8 @@ public interface IPhysicsEngine {
 
     double getAngle(int objectId);
 
+    void stepSimulation();
+
     void stepSimulation(double deltaTime);
 
     void destroyBody(int objectId);
@@ -74,6 +76,10 @@ public interface IPhysicsEngine {
     void linkVariable(Variable variable, int objectId);
 
     void unlinkVariable(int objectId);
+
+    void start();
+
+    void stop();
 
     List<GameObject> getGameObjects();
 

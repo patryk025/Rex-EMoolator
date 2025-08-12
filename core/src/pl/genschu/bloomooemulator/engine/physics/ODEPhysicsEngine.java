@@ -23,6 +23,7 @@ import static org.ode4j.ode.OdeConstants.*;
 public class ODEPhysicsEngine implements IPhysicsEngine {
     DWorld world;
     DSpace space;
+    ODEPhysicsTimer timer;
     private final Map<Integer, List<DBody>> bodies = new HashMap<>();
     private final Map<DBody, Variable> linkedVariables = new HashMap<>();
 
@@ -45,6 +46,7 @@ public class ODEPhysicsEngine implements IPhysicsEngine {
 
         space = OdeHelper.createSimpleSpace();
 
+        timer = new ODEPhysicsTimer();
     }
 
     private DBody getBody(int objectId) {
@@ -307,6 +309,11 @@ public class ODEPhysicsEngine implements IPhysicsEngine {
     }
 
     @Override
+    public void stepSimulation() {
+        stepSimulation(timer.calculateStepSize());
+    }
+
+    @Override
     public void stepSimulation(double deltaTime) {
         if(deltaTime > 0.03f) deltaTime = 0.03f; // that limit was in Sekai
         space.collide(this, nearCallback);
@@ -381,6 +388,16 @@ public class ODEPhysicsEngine implements IPhysicsEngine {
     }
 
     @Override
+    public void start() {
+        timer.resume();
+    }
+
+    @Override
+    public void stop() {
+        timer.pause();
+    }
+
+    @Override
     public void setLimit(int objectId, double minX, double minY, double minZ, double maxX, double maxY, double maxZ) {
         DBody body = getBody(objectId);
         GameObject go = (GameObject) body.getData();
@@ -398,7 +415,13 @@ public class ODEPhysicsEngine implements IPhysicsEngine {
                 continue; // Skip null bodies
             }
             // Remove the body from the space and destroy it
-            space.remove(body.getFirstGeom());
+            Iterator<DGeom> iterator = body.getGeomIterator();
+            while (iterator.hasNext()) {
+                DGeom geom = iterator.next();
+                space.remove(geom);
+                geom.destroy();
+            }
+            body.destroy();
             linkedVariables.remove(body); // Remove any linked variable
             body.destroy();
         }

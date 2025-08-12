@@ -21,7 +21,6 @@ import java.util.Map;
 public class WorldVariable extends Variable {
 	private final IPhysicsEngine physicsEngine = new ODEPhysicsEngine();
 	private String sekVersion;
-    private boolean started = false;
 
 	public WorldVariable(String name, Context context) {
 		super(name, context);
@@ -311,12 +310,7 @@ public class WorldVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				if(started) {
-                    physicsEngine.stepSimulation(0.03f);
-                }
-                else {
-                    throw new IllegalStateException("World is not started. Call START method before MOVEOBJECTS.");
-                }
+                physicsEngine.stepSimulation();
                 return null;
 			}
 		});
@@ -514,7 +508,7 @@ public class WorldVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				started = true;
+				physicsEngine.start();
                 return null;
 			}
 		});
@@ -523,7 +517,7 @@ public class WorldVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				started = false;
+				physicsEngine.stop();
                 return null;
 			}
 		});
