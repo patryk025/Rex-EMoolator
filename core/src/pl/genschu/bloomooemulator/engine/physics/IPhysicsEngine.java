@@ -73,6 +73,8 @@ public interface IPhysicsEngine {
 
     void destroyBody(int objectId);
 
+    void addJoint(int firstId, int secondId, double anchorX, double anchorY, double anchorZ, double limitMotor, double lowStop, double highStop, double hingeAxisX, double hingeAxisY, double hingeAxisZ);
+
     void linkVariable(Variable variable, int objectId);
 
     void unlinkVariable(int objectId);

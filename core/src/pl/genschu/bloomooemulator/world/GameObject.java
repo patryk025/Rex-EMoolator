@@ -19,6 +19,9 @@ public class GameObject {
     private PointsData pointsData;
     private Mesh mesh;
     private Object body; // Placeholder for the physics body, type depends on the physics engine
+    private Object joint; // Placeholder for the physics joint
+    private Object jointFeedback;
+    private float limot;
 
     private GameObject() {}
 
@@ -281,5 +284,22 @@ public class GameObject {
         this.velX = vx;
         this.velY = vy;
         this.velZ = vz;
+    }
+
+    public void setJoint(Object joint, float limot) {
+        this.joint = joint;
+        this.limot = limot;
+    }
+
+    public Object getJoint() {
+        return joint;
+    }
+
+    public Object getJointFeedback() {
+        return jointFeedback;
+    }
+
+    public void setJointFeedback(Object jointFeedback) {
+        this.jointFeedback = jointFeedback;
     }
 }

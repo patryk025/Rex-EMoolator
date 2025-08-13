@@ -253,22 +253,33 @@ public class WorldVariable extends Variable {
 				List.of(
 						new Parameter("INTEGER", "firstId", true),
 						new Parameter("INTEGER", "secondId", true),
-						new Parameter("INTEGER", "posX", true),
-						new Parameter("INTEGER", "posY", true),
-						new Parameter("INTEGER", "posZ?", true),
-						new Parameter("INTEGER", "rotationX?", true),
-						new Parameter("INTEGER", "rotationY", true),
-						new Parameter("INTEGER", "rotationZ?", true),
-						new Parameter("INTEGER", "unknown", false),
-						new Parameter("INTEGER", "unknown", false),
-						new Parameter("INTEGER", "unknown", false)
+						new Parameter("DOUBLE", "anchorX", true),
+						new Parameter("DOUBLE", "anchorY", true),
+						new Parameter("DOUBLE", "anchorZ", true),
+						new Parameter("DOUBLE", "limitMotor?", true),
+						new Parameter("DOUBLE", "lowStop", true),
+						new Parameter("DOUBLE", "highStop", true),
+						new Parameter("DOUBLE", "hingeAxisX", false),
+						new Parameter("DOUBLE", "hingeAxisY", false),
+						new Parameter("DOUBLE", "hingeAxisZ", false)
 				),
 				"void"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				// TODO: implement this method
-				throw new ClassMethodNotImplementedException("Method JOIN is not implemented yet");
+				int firstId = ArgumentsHelper.getInteger(arguments.get(0));
+                int secondId = ArgumentsHelper.getInteger(arguments.get(1));
+                double anchorX = ArgumentsHelper.getDouble(arguments.get(2));
+                double anchorY = ArgumentsHelper.getDouble(arguments.get(3));
+                double anchorZ = ArgumentsHelper.getDouble(arguments.get(4));
+                double limitMotor = ArgumentsHelper.getDouble(arguments.get(5));
+                double lowStop = ArgumentsHelper.getDouble(arguments.get(6));
+                double highStop = ArgumentsHelper.getDouble(arguments.get(7));
+                double hingeAxisX = (arguments.size() == 11) ? ArgumentsHelper.getDouble(arguments.get(8)) : 0;
+                double hingeAxisY = (arguments.size() == 11) ? ArgumentsHelper.getDouble(arguments.get(9)) : 0;
+                double hingeAxisZ = (arguments.size() == 11) ? ArgumentsHelper.getDouble(arguments.get(10)) : 1;
+                physicsEngine.addJoint(firstId, secondId, anchorX, anchorY, anchorZ, limitMotor, lowStop, highStop, hingeAxisX, hingeAxisY, hingeAxisZ);
+                return null;
 			}
 		});
 		this.setMethod("LINK", new Method(

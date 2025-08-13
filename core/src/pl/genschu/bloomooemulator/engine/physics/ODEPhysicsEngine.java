@@ -97,6 +97,8 @@ public class ODEPhysicsEngine implements IPhysicsEngine {
         body.setData(go);
         go.setBody(body);
         go.setMesh(geometryMesh);
+        DJoint.DJointFeedback jointFeedback = OdeHelper.createJointFeedback();
+        go.setJointFeedback(jointFeedback);
 
         attachMesh(body, geometryMesh);
     }
@@ -428,6 +430,43 @@ public class ODEPhysicsEngine implements IPhysicsEngine {
     }
 
     @Override
+    public void addJoint(int firstId, int secondId, double anchorX, double anchorY, double anchorZ, double limitMotor, double lowStop, double highStop, double hingeAxisX, double hingeAxisY, double hingeAxisZ) {
+        DBody body1 = getBody(firstId);
+        DBody body2 = getBody(secondId);
+        if (body1 == null) {
+            throw new IllegalArgumentException("No body found with ID: " + firstId);
+        }
+        if (body2 == null) {
+            Gdx.app.log("ODEPhysicsEngine", "No second body supplied for joint. Joining to plane.");
+        }
+        DHingeJoint joint = OdeHelper.createHingeJoint(body1.getWorld());
+
+        GameObject go = (GameObject) body1.getData();
+
+        if (go != null) {
+            if (go.getJoint() != null) {
+                DJoint oldJoint = (DJoint) go.getJoint();
+                oldJoint.setFeedback(null);
+                oldJoint.destroy();
+            }
+            go.setJoint(joint, (float) limitMotor);
+
+            if (limitMotor <= 0.0) {
+                joint.setFeedback(null);
+            }
+            else {
+                joint.setFeedback((DJoint.DJointFeedback) go.getJointFeedback());
+            }
+        }
+
+        joint.attach(body1, body2);
+        joint.setAxis(hingeAxisX, hingeAxisY, hingeAxisZ);
+        joint.setAnchor(anchorX, anchorY, anchorZ);
+        joint.setParamLoStop(lowStop);
+        joint.setParamHiStop(highStop);
+    }
+
+    @Override
     public void linkVariable(Variable variable, int objectId) {
         DBody body = getBody(objectId);
         linkedVariables.put(body, variable);
@@ -478,8 +517,10 @@ public class ODEPhysicsEngine implements IPhysicsEngine {
 
             Gdx.app.log("ODE", "Colliding " + go1.getId() + " with " + go2.getId());
 
-            DContactBuffer contacts = new DContactBuffer(16);
-            int numContacts = OdeHelper.collide(g1, g2, dContactApprox1, contacts.getGeomBuffer());
+            int N = 16;
+            DContactBuffer contacts = new DContactBuffer(N);
+            DContactGeomBuffer gb = contacts.getGeomBuffer();
+            int numContacts = OdeHelper.collide(g1, g2, N, gb);
 
             for (int i = 0; i < numContacts; i++) {
                 DContact contact = contacts.get(i);
