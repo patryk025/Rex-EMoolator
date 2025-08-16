@@ -11,6 +11,9 @@ public class GameObject {
     private double bounce;
     private double bounceVelocity;
     private double maxVelocity;
+    private double G; // Gravitational constant
+    private boolean gravityCenter;
+    private boolean active;
     private int geomType;
     private float minXLimit, minYLimit, minZLimit;
     private float maxXLimit, maxYLimit, maxZLimit;
@@ -48,6 +51,9 @@ public class GameObject {
             obj.bounce = 0.0f;
             obj.bounceVelocity = 0.0f;
             obj.maxVelocity = 0.0f;
+            obj.G = 0.0f;
+            obj.gravityCenter = false;
+            obj.active = true;
             obj.minXLimit = -100_000f;
             obj.minYLimit = -100_000f;
             obj.minZLimit = -100_000f;
@@ -301,5 +307,29 @@ public class GameObject {
 
     public void setJointFeedback(Object jointFeedback) {
         this.jointFeedback = jointFeedback;
+    }
+
+    public double getG() {
+        return G;
+    }
+
+    public void setG(double g) {
+        G = g;
+    }
+
+    public boolean isGravityCenter() {
+        return gravityCenter;
+    }
+
+    public void setGravityCenter(boolean gravityCenter) {
+        this.gravityCenter = gravityCenter;
+    }
+
+    public boolean isActive() {
+        return active;
+    }
+
+    public void setActive(boolean active) {
+        this.active = active;
     }
 }

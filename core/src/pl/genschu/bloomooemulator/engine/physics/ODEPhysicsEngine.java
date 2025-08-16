@@ -315,9 +315,60 @@ public class ODEPhysicsEngine implements IPhysicsEngine {
         stepSimulation(timer.calculateStepSize());
     }
 
+    private void calculateBodiesAttraction() {
+        // Newton's law of universal gravitation baby
+        // This method is mainly used for magnets in Reksio i Wehikuł Czasu, where G is modified
+
+        if (world == null) return;
+
+        final double EPS2 = 1e-6;
+
+        List<DBody> bodyList = bodies.values().stream()
+                .flatMap(List::stream)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
+
+        for (DBody centerBody : bodyList) {
+            GameObject centerGO = (GameObject) centerBody.getData();
+            if (!(centerGO.isGravityCenter() && centerGO.isActive())) continue;
+
+            DVector3C pc = centerBody.getPosition();
+            double m1 = centerGO.getMass();
+            double G  = centerGO.getG();
+
+            for (DBody other : bodyList) {
+                if (other == centerBody) continue;
+
+                GameObject go2 = (GameObject) other.getData();
+                DVector3C po = other.getPosition();
+
+                double m2 = go2.getMass();
+
+                double dx = pc.get0() - po.get0();
+                double dy = pc.get1() - po.get1();
+                double dz = pc.get2() - po.get2();
+
+                double r2 = dx*dx + dy*dy + dz*dz;
+                if (r2 < EPS2) continue;
+
+                double invR = 1.0 / Math.sqrt(r2);
+                double invR3 = invR * invR * invR;
+
+                double scalar = G * m1 * m2 * invR3;
+
+                double fx = dx * scalar;
+                double fy = dy * scalar;
+                double fz = dz * scalar;
+
+                other.addForce(fx, fy, fz);
+            }
+        }
+    }
+
     @Override
     public void stepSimulation(double deltaTime) {
         if(deltaTime > 0.03f) deltaTime = 0.03f; // that limit was in Sekai
+        calculateBodiesAttraction();
         space.collide(this, nearCallback);
         //world.step(deltaTime);
         world.quickStep(deltaTime);
@@ -467,6 +518,20 @@ public class ODEPhysicsEngine implements IPhysicsEngine {
     }
 
     @Override
+    public void setG(int objectId, double g) {
+        DBody body = getBody(objectId);
+        GameObject go = (GameObject) body.getData();
+        go.setG(g);
+    }
+
+    @Override
+    public void setActive(int objectId, boolean active, boolean unknown) {
+        DBody body = getBody(objectId);
+        GameObject go = (GameObject) body.getData();
+        go.setActive(active);
+    }
+
+    @Override
     public void linkVariable(Variable variable, int objectId) {
         DBody body = getBody(objectId);
         linkedVariables.put(body, variable);
@@ -515,7 +580,7 @@ public class ODEPhysicsEngine implements IPhysicsEngine {
                 if (go1.getId() == go2.getId()) return;
             }
 
-            Gdx.app.log("ODE", "Colliding " + go1.getId() + " with " + go2.getId());
+            Gdx.app.log("ODEPhysicsEngine", "Colliding " + go1.getId() + " with " + go2.getId());
 
             int N = 16;
             DContactBuffer contacts = new DContactBuffer(N);

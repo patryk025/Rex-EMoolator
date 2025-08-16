@@ -75,6 +75,10 @@ public interface IPhysicsEngine {
 
     void addJoint(int firstId, int secondId, double anchorX, double anchorY, double anchorZ, double limitMotor, double lowStop, double highStop, double hingeAxisX, double hingeAxisY, double hingeAxisZ);
 
+    void setG(int objectId, double g);
+
+    void setActive(int objectId, boolean active, boolean unknown);
+
     void linkVariable(Variable variable, int objectId);
 
     void unlinkVariable(int objectId);

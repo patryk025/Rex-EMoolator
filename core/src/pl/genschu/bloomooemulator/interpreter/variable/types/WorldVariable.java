@@ -340,16 +340,19 @@ public class WorldVariable extends Variable {
 		});
 		this.setMethod("SETACTIVE", new Method(
 				List.of(
-						new Parameter("INTEGER", "pathId?", false),
-						new Parameter("INTEGER", "objectId?", true),
-						new Parameter("BOOLEAN", "active", true)
+						new Parameter("INTEGER", "objectId", false),
+						new Parameter("BOOLEAN", "active?", true),
+						new Parameter("BOOLEAN", "collidable?", true)
 				),
 				"void"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				// TODO: implement this method
-				throw new ClassMethodNotImplementedException("Method SETACTIVE is not implemented yet");
+				int objectId = ArgumentsHelper.getInteger(arguments.get(0));
+                boolean active = ArgumentsHelper.getBoolean(arguments.get(1));
+                boolean collidable = ArgumentsHelper.getBoolean(arguments.get(2));
+                physicsEngine.setActive(objectId, active, collidable);
+                return null;
 			}
 		});
 		this.setMethod("SETBKGSIZE", new Method(
@@ -370,14 +373,14 @@ public class WorldVariable extends Variable {
 		this.setMethod("SETG", new Method(
 				List.of(
 						new Parameter("INTEGER", "objectId", true),
-						new Parameter("INTEGER", "force", true)
+						new Parameter("DOUBLE", "g", true)
 				),
 				"void"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				// TODO: implement this method
-				throw new ClassMethodNotImplementedException("Method SETG is not implemented yet");
+				physicsEngine.setG(ArgumentsHelper.getInteger(arguments.get(0)), ArgumentsHelper.getDouble(arguments.get(1)));
+                return null;
 			}
 		});
 		this.setMethod("SETGRAVITY", new Method(
