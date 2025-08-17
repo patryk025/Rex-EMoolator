@@ -67,6 +67,8 @@ public interface IPhysicsEngine {
 
     double getAngle(int objectId);
 
+    double getMoveDistance(int objectId);
+
     void stepSimulation();
 
     void stepSimulation(double deltaTime);

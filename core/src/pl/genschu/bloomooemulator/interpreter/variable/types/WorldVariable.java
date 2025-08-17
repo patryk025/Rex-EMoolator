@@ -174,8 +174,8 @@ public class WorldVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				// TODO: implement this method
-				throw new ClassMethodNotImplementedException("Method GETMOVEDISTANCE is not implemented yet");
+                int objectId = ArgumentsHelper.getInteger(arguments.get(0));
+				return new DoubleVariable("", physicsEngine.getMoveDistance(objectId), WorldVariable.this.context);
 			}
 		});
 		this.setMethod("GETPOSITIONX", new Method(

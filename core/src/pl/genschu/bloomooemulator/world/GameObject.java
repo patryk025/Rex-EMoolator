@@ -4,6 +4,7 @@ public class GameObject {
     private int id;
     private float rotationZ;
     private float x, y, z;
+    private float prevX, prevY, prevZ;
     private float velX, velY, velZ;
     private double mass;
     private double mu;
@@ -42,6 +43,9 @@ public class GameObject {
             obj.x = 0f;
             obj.y = 0f;
             obj.z = 0f;
+            obj.prevX = 0f;
+            obj.prevY = 0f;
+            obj.prevZ = 0f;
             obj.velX = 0f;
             obj.velY = 0f;
             obj.velZ = 0f;
@@ -263,14 +267,17 @@ public class GameObject {
     }
 
     public void setX(float x) {
+        this.prevX = this.x;
         this.x = x;
     }
 
     public void setY(float y) {
+        this.prevY = this.y;
         this.y = y;
     }
 
     public void setZ(float z) {
+        this.prevZ = this.z;
         this.z = z;
     }
 
@@ -331,5 +338,12 @@ public class GameObject {
 
     public void setActive(boolean active) {
         this.active = active;
+    }
+
+    public double getMoveDistance() {
+        float xDelta = x - prevX;
+        float yDelta = y - prevY;
+        float zDelta = z - prevZ;
+        return Math.sqrt(xDelta * xDelta + yDelta * yDelta + zDelta * zDelta);
     }
 }

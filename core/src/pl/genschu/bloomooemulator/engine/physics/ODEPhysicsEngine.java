@@ -311,6 +311,13 @@ public class ODEPhysicsEngine implements IPhysicsEngine {
     }
 
     @Override
+    public double getMoveDistance(int objectId) {
+        DBody body = getBody(objectId);
+        GameObject go = (GameObject) body.getData();
+        return go.getMoveDistance();
+    }
+
+    @Override
     public void stepSimulation() {
         stepSimulation(timer.calculateStepSize());
     }
