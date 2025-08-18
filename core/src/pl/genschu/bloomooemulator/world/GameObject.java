@@ -346,4 +346,12 @@ public class GameObject {
         float zDelta = z - prevZ;
         return Math.sqrt(xDelta * xDelta + yDelta * yDelta + zDelta * zDelta);
     }
+
+    public float getLimot() {
+        return limot;
+    }
+
+    public void setLimot(float limot) {
+        this.limot = limot;
+    }
 }

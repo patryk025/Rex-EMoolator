@@ -24,6 +24,7 @@ public class ODEPhysicsEngine implements IPhysicsEngine {
     DWorld world;
     DSpace space;
     ODEPhysicsTimer timer;
+    DJointGroup jointGroup;
     private final Map<Integer, List<DBody>> bodies = new HashMap<>();
     private final Map<DBody, Variable> linkedVariables = new HashMap<>();
 
@@ -45,6 +46,8 @@ public class ODEPhysicsEngine implements IPhysicsEngine {
         world.setERP(0.8f);
 
         space = OdeHelper.createSimpleSpace();
+
+        jointGroup = OdeHelper.createJointGroup();
 
         timer = new ODEPhysicsTimer();
     }
@@ -347,6 +350,9 @@ public class ODEPhysicsEngine implements IPhysicsEngine {
                 if (other == centerBody) continue;
 
                 GameObject go2 = (GameObject) other.getData();
+
+                if(!go2.isActive()) continue;
+
                 DVector3C po = other.getPosition();
 
                 double m2 = go2.getMass();
@@ -372,6 +378,24 @@ public class ODEPhysicsEngine implements IPhysicsEngine {
         }
     }
 
+    private boolean breakJointIfOverloaded(GameObject go, double fx, double fy, double fz) {
+        if (go.getJoint() != null) {
+            DJoint joint = (DJoint) go.getJoint();
+
+            double limot = go.getLimot();
+
+            double force = Math.sqrt(fx * fx + fy * fy + fz * fz);
+
+            if (force > limot) {
+                joint.setFeedback(null);
+                joint.destroy();
+                go.setJoint(null, (float) limot);
+                return true;
+            }
+        }
+        return false;
+    }
+
     @Override
     public void stepSimulation(double deltaTime) {
         if(deltaTime > 0.03f) deltaTime = 0.03f; // that limit was in Sekai
@@ -379,6 +403,7 @@ public class ODEPhysicsEngine implements IPhysicsEngine {
         space.collide(this, nearCallback);
         //world.step(deltaTime);
         world.quickStep(deltaTime);
+        jointGroup.clear();
 
         for (DBody body : bodies.values().stream().flatMap(List::stream).filter(Objects::nonNull).collect(Collectors.toList())) {
             if (body == null) {
@@ -387,6 +412,21 @@ public class ODEPhysicsEngine implements IPhysicsEngine {
 
             if(body.getData() instanceof GameObject) {
                 GameObject go = (GameObject) body.getData();
+
+                // check joints
+                if(go.getJoint() != null) {
+                    DJoint joint = (DJoint) go.getJoint();
+
+                    DJoint.DJointFeedback jointFeedback = joint.getFeedback();
+
+                    if(jointFeedback != null) {
+                        DVector3C f1 = jointFeedback.f1;
+                        if(!breakJointIfOverloaded(go, f1.get0(), f1.get1(), f1.get2())) {
+                            DVector3C f2 = jointFeedback.f2;
+                            breakJointIfOverloaded(go, f2.get0(), f2.get1(), f2.get2());
+                        }
+                    }
+                }
 
                 // clamp velocity
                 double maxVel = go.getMaxVelocity();
