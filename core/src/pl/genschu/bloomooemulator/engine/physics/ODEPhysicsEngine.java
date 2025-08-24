@@ -1,7 +1,6 @@
 package pl.genschu.bloomooemulator.engine.physics;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.math.MathUtils;
 import org.ode4j.math.DMatrix3C;
 import org.ode4j.math.DVector3C;
 import org.ode4j.ode.*;
@@ -186,13 +185,14 @@ public class ODEPhysicsEngine implements IPhysicsEngine {
                 .id(objectId)
                 .mass(mass)
                 .mu(mu)
-                .mu2(mu2)
+                .friction(mu2)
                 .bounce(bounce)
                 .bounceVelocity(bounceVelocity)
                 .maxVelocity(maxVelocity)
                 .geomType(geomType)
                 .dimensions(new float[]{(float) dim0, (float) dim1, (float) dim2})
                 .position(0, 0, 0)
+                .physicsEngine(this)
                 .build();
     }
 
@@ -287,10 +287,10 @@ public class ODEPhysicsEngine implements IPhysicsEngine {
     }
 
     @Override
-    public double getSpeed(int objectId) {
+    public double[] getSpeed(int objectId) {
         DBody body = getBody(objectId);
         DVector3C velocity = body.getLinearVel();
-        return velocity.length();
+        return velocity.toDoubleArray();
     }
 
     @Override
@@ -325,10 +325,9 @@ public class ODEPhysicsEngine implements IPhysicsEngine {
         stepSimulation(timer.calculateStepSize());
     }
 
-    private void calculateBodiesAttraction() {
+    private void calculateBodiesAttraction(double deltaTime) {
         // Newton's law of universal gravitation baby
         // This method is mainly used for magnets in Reksio i Wehikuł Czasu, where G is modified
-
         if (world == null) return;
 
         final double EPS2 = 1e-6;
@@ -345,6 +344,8 @@ public class ODEPhysicsEngine implements IPhysicsEngine {
             DVector3C pc = centerBody.getPosition();
             double m1 = centerGO.getMass();
             double G  = centerGO.getG();
+
+            centerGO.setStepsize(deltaTime);
 
             for (DBody other : bodyList) {
                 if (other == centerBody) continue;
@@ -399,7 +400,7 @@ public class ODEPhysicsEngine implements IPhysicsEngine {
     @Override
     public void stepSimulation(double deltaTime) {
         if(deltaTime > 0.03f) deltaTime = 0.03f; // that limit was in Sekai
-        calculateBodiesAttraction();
+        calculateBodiesAttraction(deltaTime);
         space.collide(this, nearCallback);
         //world.step(deltaTime);
         world.quickStep(deltaTime);
@@ -428,40 +429,7 @@ public class ODEPhysicsEngine implements IPhysicsEngine {
                     }
                 }
 
-                // clamp velocity
-                double maxVel = go.getMaxVelocity();
-
-                if(maxVel > 0) {
-                    DVector3C vel = body.getLinearVel();
-                    double speed = vel.length();
-                    if (speed > maxVel) {
-                        double scale = maxVel / speed;
-                        body.setLinearVel(
-                                vel.get0() * scale,
-                                vel.get1() * scale,
-                                vel.get2() * scale
-                        );
-                    }
-                }
-
-                // clamp position
-                DVector3C pos = body.getPosition();
-                float minX = go.getMinXLimit(), maxX = go.getMaxXLimit();
-                float minY = go.getMinYLimit(), maxY = go.getMaxYLimit();
-                float minZ = go.getMinZLimit(), maxZ = go.getMaxZLimit();
-
-                double clampedX = MathUtils.clamp(pos.get0(), minX, maxX);
-                double clampedY = MathUtils.clamp(pos.get1(), minY, maxY);
-                double clampedZ = MathUtils.clamp(pos.get2(), minZ, maxZ);
-                body.setPosition(clampedX, clampedY, clampedZ);
-
-                go.setX((float) clampedX);
-                go.setY((float) clampedY);
-                go.setZ((float) clampedZ);
-                go.setRotationZ((float) getRotationZ(go.getId()));
-
-                DVector3C v = body.getLinearVel();
-                go.setVelocity((float)v.get0(), (float)v.get1(), (float)v.get2());
+                go.updateObject();
             }
 
             // Update the position of the body in the linked variable
@@ -629,16 +597,15 @@ public class ODEPhysicsEngine implements IPhysicsEngine {
 
             Gdx.app.log("ODEPhysicsEngine", "Colliding " + go1.getId() + " with " + go2.getId());
 
-            int N = 16;
+            int N = 4;
             DContactBuffer contacts = new DContactBuffer(N);
             DContactGeomBuffer gb = contacts.getGeomBuffer();
             int numContacts = OdeHelper.collide(g1, g2, N, gb);
 
             for (int i = 0; i < numContacts; i++) {
                 DContact contact = contacts.get(i);
-                contact.surface.mode = dContactBounce | dContactSoftCFM | dContactMu2;
-                contact.surface.mu = (go1.getMu() + go2.getMu())/2.0;
-                contact.surface.mu2 = (go1.getMu2() + go2.getMu2())/2.0;
+                contact.surface.mode = dContactBounce | dContactSoftCFM | dContactApprox1_1 | dContactApprox1_2;
+                contact.surface.mu = Math.min(go1.getMu(), go2.getMu());
                 contact.surface.bounce = Math.max(go1.getBounce(), go2.getBounce());
                 contact.surface.bounce_vel = Math.max(go1.getBounceVelocity(), go2.getBounceVelocity());
 

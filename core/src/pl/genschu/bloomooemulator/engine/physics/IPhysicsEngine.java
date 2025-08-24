@@ -61,7 +61,7 @@ public interface IPhysicsEngine {
 
     double[] getPosition(int objectId);
 
-    double getSpeed(int objectId);
+    double[] getSpeed(int objectId);
 
     double getRotationZ(int objectId);
 

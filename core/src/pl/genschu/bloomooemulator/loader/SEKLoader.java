@@ -9,9 +9,6 @@ import pl.genschu.bloomooemulator.world.*;
 
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -122,7 +119,7 @@ public class SEKLoader {
                                 object.mu(Float.parseFloat(values[0].trim()));
                                 break;
                             case "friction":
-                                object.mu2(Float.parseFloat(values[0].trim()));
+                                object.friction(Float.parseFloat(values[0].trim()));
                                 break;
                             case "bounce":
                                 object.bounce(Float.parseFloat(values[0].trim()));
@@ -174,6 +171,7 @@ public class SEKLoader {
         int numTriangles = BinaryHelper.readIntLE(f);
 
         builder.geomType(geometryType);
+        builder.physicsEngine(variable.getPhysicsEngine());
 
         List<MeshTriangle> triangles = new ArrayList<>();
         for (int i = 0; i < numTriangles; i++) {
@@ -202,6 +200,8 @@ public class SEKLoader {
 
     private static void parsePointsData(WorldVariable variable, FileInputStream f) throws IOException {
         GameObject.GameObjectBuilder builder = parseObjectHeader(f);
+
+        builder.physicsEngine(variable.getPhysicsEngine());
 
         int numPoints = BinaryHelper.readIntLE(f);
         int numPaths = BinaryHelper.readIntLE(f);

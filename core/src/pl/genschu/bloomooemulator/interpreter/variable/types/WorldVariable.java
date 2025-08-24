@@ -246,7 +246,10 @@ public class WorldVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				return new DoubleVariable("", physicsEngine.getSpeed(ArgumentsHelper.getInteger(arguments.get(0))), WorldVariable.this.context);
+                int objectId = ArgumentsHelper.getInteger(arguments.get(0));
+                double[] speed = physicsEngine.getSpeed(objectId);
+                double v = Math.sqrt(speed[0]*speed[0] + speed[1]*speed[1] + speed[2]*speed[2]);
+				return new DoubleVariable("", v, WorldVariable.this.context);
 			}
 		});
 		this.setMethod("JOIN", new Method(

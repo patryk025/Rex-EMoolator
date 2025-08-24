@@ -1,5 +1,7 @@
 package pl.genschu.bloomooemulator.world;
 
+import pl.genschu.bloomooemulator.engine.physics.IPhysicsEngine;
+
 public class GameObject {
     private int id;
     private float rotationZ;
@@ -8,7 +10,7 @@ public class GameObject {
     private float velX, velY, velZ;
     private double mass;
     private double mu;
-    private double mu2;
+    private double friction;
     private double bounce;
     private double bounceVelocity;
     private double maxVelocity;
@@ -26,6 +28,9 @@ public class GameObject {
     private Object joint; // Placeholder for the physics joint
     private Object jointFeedback;
     private float limot;
+    private double stepsize;
+    private boolean isLimited;
+    private IPhysicsEngine physicsEngine;
 
     private GameObject() {}
 
@@ -51,7 +56,7 @@ public class GameObject {
             obj.velZ = 0f;
             obj.mass = 1.0f;
             obj.mu = -1.0f;
-            obj.mu2 = 0.0f;
+            obj.friction = 0.0f;
             obj.bounce = 0.0f;
             obj.bounceVelocity = 0.0f;
             obj.maxVelocity = 0.0f;
@@ -70,6 +75,12 @@ public class GameObject {
             obj.pointsData = null;
             obj.mesh = null;
             obj.body = null;
+            obj.joint = null;
+            obj.jointFeedback = null;
+            obj.limot = 0f;
+            obj.stepsize = 0;
+            obj.isLimited = false;
+            obj.physicsEngine = null;
         }
 
         public GameObjectBuilder id(int id) {
@@ -104,8 +115,8 @@ public class GameObject {
             return this;
         }
 
-        public GameObjectBuilder mu2(double mu2) {
-            obj.mu2 = mu2;
+        public GameObjectBuilder friction(double friction) {
+            obj.friction = friction;
             return this;
         }
 
@@ -141,6 +152,7 @@ public class GameObject {
             obj.maxXLimit = maxX;
             obj.maxYLimit = maxY;
             obj.maxZLimit = maxZ;
+            obj.isLimited = true;
             return this;
         }
 
@@ -154,9 +166,51 @@ public class GameObject {
             return this;
         }
 
+        public GameObjectBuilder physicsEngine(IPhysicsEngine physicsEngine) {
+            obj.physicsEngine = physicsEngine;
+            return this;
+        }
+
         public GameObject build() {
             return obj;
         }
+    }
+
+    private void speedDamping() {
+        double[] v = physicsEngine.getSpeed(id);
+        double vx = v[0], vy = v[1], vz = v[2];
+
+        double mag = Math.sqrt(vx*vx + vy*vy + vz*vz);
+
+        if (!(mag >= 0) || !(maxVelocity >= 0) || !(friction >= 0) || !(stepsize >= 0)) {
+            return;
+        }
+
+        double magPrime = Math.max(0.0, Math.min(maxVelocity, mag - friction * stepsize));
+
+        double scale = (mag > 1e-9) ? (magPrime / mag) : 0.0;
+
+        double nx = vx * scale;
+        double ny = vy * scale;
+        double nz = vz * scale;
+
+        if (Double.isFinite(nx) && Double.isFinite(ny) && Double.isFinite(nz)) {
+            physicsEngine.setSpeed(id, nx, ny, nz);
+        }
+    }
+
+    public void updateObject() {
+        double[] position = physicsEngine.getPosition(id);
+
+        this.prevX = this.x;
+        this.prevY = this.y;
+        this.prevZ = this.z;
+
+        this.x = (float) position[0];
+        this.y = (float) position[1];
+        this.z = (float) position[2];
+
+        this.speedDamping();
     }
 
     public double getMass() {
@@ -167,8 +221,8 @@ public class GameObject {
         return mu;
     }
 
-    public double getMu2() {
-        return mu2;
+    public double getFriction() {
+        return friction;
     }
 
     public double getBounce() {
@@ -353,5 +407,13 @@ public class GameObject {
 
     public void setLimot(float limot) {
         this.limot = limot;
+    }
+
+    public double getStepsize() {
+        return stepsize;
+    }
+
+    public void setStepsize(double stepsize) {
+        this.stepsize = stepsize;
     }
 }
