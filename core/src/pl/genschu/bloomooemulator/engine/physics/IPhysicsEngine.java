@@ -55,6 +55,8 @@ public interface IPhysicsEngine {
 
     void setGravity(double gravityX, double gravityY, double gravityZ);
 
+    void setGravityCenter(int objectId, boolean gravityCenter);
+
     void setMaxVelocity(int objectId, double maxVelocity);
 
     void setLimit(int objectId, double minX, double minY, double minZ, double maxX, double maxY, double maxZ);

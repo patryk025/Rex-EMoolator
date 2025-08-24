@@ -273,6 +273,13 @@ public class ODEPhysicsEngine implements IPhysicsEngine {
     }
 
     @Override
+    public void setGravityCenter(int objectId, boolean gravityCenter) {
+        DBody body = getBody(objectId);
+        GameObject go = (GameObject) body.getData();
+        go.setGravityCenter(gravityCenter);
+    }
+
+    @Override
     public void setMaxVelocity(int objectId, double maxVelocity) {
         DBody body = getBody(objectId);
         GameObject go = (GameObject) body.getData();

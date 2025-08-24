@@ -412,8 +412,10 @@ public class WorldVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				// TODO: implement this method
-				throw new ClassMethodNotImplementedException("Method SETGRAVITYCENTER is not implemented yet");
+				int objectId = ArgumentsHelper.getInteger(ArgumentsHelper.getInteger(arguments.get(0)));
+				boolean gravityCenter = ArgumentsHelper.getBoolean(ArgumentsHelper.getInteger(arguments.get(1)));
+				physicsEngine.setGravityCenter(objectId, gravityCenter);
+				return null;
 			}
 		});
 		this.setMethod("SETLIMIT", new Method(
