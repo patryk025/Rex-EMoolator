@@ -400,6 +400,7 @@ public class ODEPhysicsEngine implements IPhysicsEngine {
     @Override
     public void stepSimulation(double deltaTime) {
         if(deltaTime > 0.03f) deltaTime = 0.03f; // that limit was in Sekai
+        if(deltaTime <= 0) return; // ignore zero and negative delta times
         calculateBodiesAttraction(deltaTime);
         space.collide(this, nearCallback);
         //world.step(deltaTime);
