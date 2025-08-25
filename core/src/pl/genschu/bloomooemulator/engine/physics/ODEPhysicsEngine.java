@@ -132,13 +132,13 @@ public class ODEPhysicsEngine implements IPhysicsEngine {
 
         switch (GeomType.values()[geomType]) {
             case BOX: 
-                OdeHelper.createBox(dimensions[0], dimensions[1], dimensions[2]).setBody(body);
+                OdeHelper.createBox(space, dimensions[0], dimensions[1], dimensions[2]).setBody(body);
                 break;
             case CYLINDER:
-                OdeHelper.createCylinder(dimensions[0], dimensions[1]).setBody(body);
+                OdeHelper.createCylinder(space, dimensions[0], dimensions[1]).setBody(body);
                 break;
             case SPHERE:
-                OdeHelper.createSphere(dimensions[0]).setBody(body);
+                OdeHelper.createSphere(space, dimensions[0]).setBody(body);
                 break;
         }
     }
