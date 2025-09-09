@@ -83,6 +83,8 @@ public interface IPhysicsEngine {
 
     void setActive(int objectId, boolean active, boolean unknown);
 
+    void setReferenceObjectId(int referenceObjectId);
+
     void linkVariable(Variable variable, int objectId);
 
     void unlinkVariable(int objectId);

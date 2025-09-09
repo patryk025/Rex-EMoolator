@@ -498,8 +498,9 @@ public class WorldVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				// TODO: implement this method
-				throw new ClassMethodNotImplementedException("Method SETREFOBJECT is not implemented yet");
+				int objectId = ArgumentsHelper.getInteger(arguments.get(0));
+                physicsEngine.setReferenceObjectId(objectId);
+                return null;
 			}
 		});
 		this.setMethod("SETVELOCITY", new Method(

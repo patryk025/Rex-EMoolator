@@ -2,12 +2,16 @@ package pl.genschu.bloomooemulator.world;
 
 import pl.genschu.bloomooemulator.engine.physics.IPhysicsEngine;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class GameObject {
     private int id;
     private float rotationZ;
     private float x, y, z;
     private float prevX, prevY, prevZ;
     private float velX, velY, velZ;
+    private float prevVelX, prevVelY, prevVelZ;
     private double mass;
     private double mu;
     private double friction;
@@ -31,6 +35,7 @@ public class GameObject {
     private double stepsize;
     private boolean isLimited;
     private IPhysicsEngine physicsEngine;
+    private List<Integer> collisionIds;
 
     private GameObject() {}
 
@@ -54,6 +59,9 @@ public class GameObject {
             obj.velX = 0f;
             obj.velY = 0f;
             obj.velZ = 0f;
+            obj.prevVelX = 0f;
+            obj.prevVelY = 0f;
+            obj.prevVelZ = 0f;
             obj.mass = 1.0f;
             obj.mu = -1.0f;
             obj.friction = 0.0f;
@@ -81,6 +89,7 @@ public class GameObject {
             obj.stepsize = 0;
             obj.isLimited = false;
             obj.physicsEngine = null;
+            obj.collisionIds = new ArrayList<>();
         }
 
         public GameObjectBuilder id(int id) {
@@ -197,6 +206,8 @@ public class GameObject {
         if (Double.isFinite(nx) && Double.isFinite(ny) && Double.isFinite(nz)) {
             physicsEngine.setSpeed(id, nx, ny, nz);
         }
+
+        this.setVelocity((float)nx, (float)ny, (float)nz);
     }
 
     public void updateObject() {
@@ -347,7 +358,22 @@ public class GameObject {
     public float getVelY() { return velY; }
     public float getVelZ() { return velZ; }
 
+    public float getPrevVelX() {
+        return prevVelX;
+    }
+
+    public float getPrevVelY() {
+        return prevVelY;
+    }
+
+    public float getPrevVelZ() {
+        return prevVelZ;
+    }
+
     public void setVelocity(float vx, float vy, float vz) {
+        this.prevVelX = this.velX;
+        this.prevVelY = this.velY;
+        this.prevVelZ = this.velZ;
         this.velX = vx;
         this.velY = vy;
         this.velZ = vz;
@@ -415,5 +441,9 @@ public class GameObject {
 
     public void setStepsize(double stepsize) {
         this.stepsize = stepsize;
+    }
+
+    public List<Integer> getCollisionIds() {
+        return collisionIds;
     }
 }

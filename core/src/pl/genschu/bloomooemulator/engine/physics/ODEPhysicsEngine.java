@@ -1,5 +1,6 @@
 package pl.genschu.bloomooemulator.engine.physics;
 
+import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import org.ode4j.math.DMatrix3C;
 import org.ode4j.math.DVector3C;
@@ -26,6 +27,10 @@ public class ODEPhysicsEngine implements IPhysicsEngine {
     DJointGroup jointGroup;
     private final Map<Integer, List<DBody>> bodies = new HashMap<>();
     private final Map<DBody, Variable> linkedVariables = new HashMap<>();
+    private int cameraX = 0;
+    private int cameraY = 0;
+    private int referenceObjectId = 0;
+    private float velEps = 0.001f;
 
     enum GeomType {
         BOX,
@@ -332,6 +337,77 @@ public class ODEPhysicsEngine implements IPhysicsEngine {
         stepSimulation(timer.calculateStepSize());
     }
 
+    private void synchronizeObjects() {
+        // first get position of reference object
+        double[] position = getPosition(referenceObjectId);
+
+        // next gets anchor and converts it to screen space (for now, I didn't reverse it)
+
+        // iteration over links
+        for (DBody linkedBody : linkedVariables.keySet()) {
+            // technically there is possibility of pausing and resuming links,
+            // but I didn't find usage of this feature, so I skip it for now
+
+            // get position of object
+            double[] bodyPosition = linkedBody.getPosition().toDoubleArray();
+
+            // camera correction
+            bodyPosition[0] += cameraX;
+            bodyPosition[1] -= cameraY;
+
+            // synchronizing object position
+            Variable var = linkedVariables.get(linkedBody);
+            IntegerVariable x = new IntegerVariable("", (int) bodyPosition[0], var.getContext());
+            IntegerVariable y = new IntegerVariable("", (int) bodyPosition[1], var.getContext());
+            // I don't need to check type right now, fireMethod is smart enough
+            var.fireMethod("SETPOSITION", x, y);
+
+            // let's tell emulator that object is at goal and if it has collisions and with what
+
+            // checking if is at goal (not implemented yet)
+            int isAtGoal = 0; // TODO: implement IsAtGoal... and pathfinding... and waypoint map, jeez
+            if (isAtGoal == 1) {
+                var.emitSignal("ONSIGNAL", "ATGOAL");
+            } else if (isAtGoal == 2) {
+                var.emitSignal("ONSIGNAL", "NOPATH");
+            }
+
+            // check if it has any collisions
+            GameObject go = (GameObject) linkedBody.getData();
+            List<Integer> collisionsIds = go.getCollisionIds();
+            if (!collisionsIds.isEmpty()) {
+                for(Integer collisionId : collisionsIds) {
+                    var.emitSignal("ONSIGNAL", collisionId);
+                }
+                var.emitSignal("ONSIGNAL", "ANY");
+            }
+            else {
+                var.emitSignal("ONSIGNAL", "NOCOLL");
+            }
+
+            // last step, let's check if object started moving or stopped
+            float vx = go.getVelX();
+            float vy = go.getVelY();
+            float vz = go.getVelZ();
+
+            float pvx = go.getPrevVelX();
+            float pvy = go.getPrevVelY();
+            float pvz = go.getPrevVelZ();
+
+            double v = Math.sqrt(vx * vx + vy * vy + vz * vz);
+            double pv = Math.sqrt(pvx * pvx + pvy * pvy + pvz * pvz);
+
+            double vdiff = v - pv;
+
+            if(vdiff > 0 && pv < velEps) {
+                var.emitSignal("ONSIGNAL", "ONSTARTED");
+            }
+            else if(vdiff < 0 && v < velEps) {
+                var.emitSignal("ONSIGNAL", "ONSTOPPED");
+            }
+        }
+    }
+
     private void calculateBodiesAttraction(double deltaTime) {
         // Newton's law of universal gravitation baby
         // This method is mainly used for magnets in Reksio i Wehikuł Czasu, where G is modified
@@ -404,10 +480,18 @@ public class ODEPhysicsEngine implements IPhysicsEngine {
         return false;
     }
 
+    private void clearCollisions() {
+        for (DBody body : bodies.values().stream().flatMap(List::stream).filter(Objects::nonNull).collect(Collectors.toList())) {
+            GameObject go = (GameObject) body.getData();
+            go.getCollisionIds().clear();
+        }
+    }
+
     @Override
     public void stepSimulation(double deltaTime) {
         if(deltaTime > 0.03f) deltaTime = 0.03f; // that limit was in Sekai
         if(deltaTime <= 0) return; // ignore zero and negative delta times
+        clearCollisions(); // clear collisions from previous frame
         calculateBodiesAttraction(deltaTime);
         space.collide(this, nearCallback);
         //world.step(deltaTime);
@@ -439,28 +523,9 @@ public class ODEPhysicsEngine implements IPhysicsEngine {
 
                 go.updateObject();
             }
-
-            // Update the position of the body in the linked variable
-            if(linkedVariables.containsKey(body)) {
-                Variable var = linkedVariables.get(body);
-                if(var instanceof ImageVariable) {
-                    ImageVariable imageVar = (ImageVariable) var;
-                    double[] position = body.getPosition().toDoubleArray();
-                    imageVar.setPosX((int) position[0]);
-                    imageVar.setPosY((int) -position[1]); // reversed and ignores anchor?
-                    // TODO: scaling image based on Z axis
-                    imageVar.updateRect();
-                }
-                if(var instanceof AnimoVariable) {
-                    AnimoVariable animoVar = (AnimoVariable) var;
-                    double[] position = body.getPosition().toDoubleArray();
-                    animoVar.setPosX((int) position[0]);
-                    animoVar.setPosY((int) -position[1]);
-                    // TODO: scaling image based on Z axis
-                    animoVar.updateRect();
-                }
-            }
         }
+
+        synchronizeObjects();
     }
 
     @Override
@@ -555,6 +620,11 @@ public class ODEPhysicsEngine implements IPhysicsEngine {
     }
 
     @Override
+    public void setReferenceObjectId(int referenceObjectId) {
+        this.referenceObjectId = referenceObjectId;
+    }
+
+    @Override
     public void linkVariable(Variable variable, int objectId) {
         DBody body = getBody(objectId);
         linkedVariables.put(body, variable);
@@ -604,6 +674,8 @@ public class ODEPhysicsEngine implements IPhysicsEngine {
             }
 
             Gdx.app.log("ODEPhysicsEngine", "Colliding " + go1.getId() + " with " + go2.getId());
+            go1.getCollisionIds().add(go2.getId());
+            go2.getCollisionIds().add(go1.getId());
 
             int N = 4;
             DContactBuffer contacts = new DContactBuffer(N);
