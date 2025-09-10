@@ -212,29 +212,6 @@ public class ODEPhysicsEngine implements IPhysicsEngine {
     public void setPosition(int objectId, double x, double y, double z) {
         DBody body = getBody(objectId);
         body.setPosition(x, y, z);
-        if(linkedVariables.containsKey(body)) {
-            Variable var = linkedVariables.get(body);
-            if(var instanceof ImageVariable) {
-                ImageVariable imageVar = (ImageVariable) var;
-                imageVar.setPosX((int) x);
-                imageVar.setPosY((int) y);
-                // TODO: scaling image based on Z axis
-                imageVar.updateRect();
-            }
-            if(var instanceof AnimoVariable) {
-                AnimoVariable animoVar = (AnimoVariable) var;
-                animoVar.setPosX((int) x);
-                animoVar.setPosY((int) y);
-                // TODO: scaling image based on Z axis
-                animoVar.updateRect();
-            }
-        }
-        if (body.getData() instanceof GameObject) {
-            GameObject go = (GameObject) body.getData();
-            go.setX((float) x);
-            go.setY((float) y);
-            go.setZ((float) z);
-        }
     }
 
     @Override
@@ -354,6 +331,10 @@ public class ODEPhysicsEngine implements IPhysicsEngine {
             // camera correction
             bodyPosition[0] += cameraX;
             bodyPosition[1] -= cameraY;
+
+            // also correct by 400, 300 (jeez, seriously?)
+            bodyPosition[0] += 400;
+            bodyPosition[1] = 300 - bodyPosition[1];
 
             // synchronizing object position
             Variable var = linkedVariables.get(linkedBody);

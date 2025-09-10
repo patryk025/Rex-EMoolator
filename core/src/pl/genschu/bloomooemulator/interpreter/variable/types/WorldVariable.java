@@ -486,7 +486,7 @@ public class WorldVariable extends Variable {
                 double x = ArgumentsHelper.getDouble(arguments.get(1));
                 double y = ArgumentsHelper.getDouble(arguments.get(2));
                 double z = ArgumentsHelper.getDouble(arguments.get(3));
-                physicsEngine.setPosition(objectId, x, y, z);
+                physicsEngine.setPosition(objectId, x-400, 300-y, z); // 400 and 300 are correction by half of screen size
                 return null;
 			}
 		});
