@@ -31,6 +31,7 @@ public class ODEPhysicsEngine implements IPhysicsEngine {
     private int cameraY = 0;
     private int referenceObjectId = 0;
     private float velEps = 0.001f;
+    private final List<DTriMeshData> triMeshDatas = new ArrayList<>();
 
     enum GeomType {
         BOX,
@@ -38,6 +39,25 @@ public class ODEPhysicsEngine implements IPhysicsEngine {
         SPHERE,
         TRI_MESH,
         CAR // wait, what? id == 4, 4 spheres, 1 box
+    }
+
+    // class for faster and safer lookup of vertices
+    static final class VertexKey {
+        final int ix, iy, iz;
+        VertexKey(float x, float y, float z) {
+            this.ix = Float.floatToIntBits(x);
+            this.iy = Float.floatToIntBits(y);
+            this.iz = Float.floatToIntBits(z);
+        }
+        @Override public boolean equals(Object o) {
+            if (this == o) return true;
+            if (!(o instanceof VertexKey)) return false;
+            VertexKey k = (VertexKey) o;
+            return ix == k.ix && iy == k.iy && iz == k.iz;
+        }
+        @Override public int hashCode() {
+            int h = ix; h = 31*h + iy; h = 31*h + iz; return h;
+        }
     }
 
     @Override
@@ -71,12 +91,15 @@ public class ODEPhysicsEngine implements IPhysicsEngine {
     @Override
     public void createBody(GameObject gameObject, Mesh geometryMesh) {
         DBody body = createBasicBody(gameObject.getId(), gameObject.getX(), gameObject.getY(), gameObject.getZ());
-        setMass(body, gameObject.getMass(), gameObject.getGeomType());
-        attachGeometry(body, gameObject.getGeomType());
         body.setData(gameObject);
         gameObject.setBody(body);
         gameObject.setMesh(geometryMesh);
-        attachMesh(body, geometryMesh);
+        if (geometryMesh != null) {
+            attachMesh(body, geometryMesh);
+        } else {
+            attachGeometry(body, gameObject.getGeomType());
+        }
+        setMass(body, gameObject.getMass(), gameObject.getGeomType());
     }
 
     @Override
@@ -84,9 +107,9 @@ public class ODEPhysicsEngine implements IPhysicsEngine {
             int objectId, double mass, double mu, double mu2,
             double bounce, double bounceVelocity, double maxVelocity,
             int bodyType, int geomType,
-            double x, double y, double z
+            double dim0, double dim1, double dim2
     ) {
-        createBody(objectId, mass, mu, mu2, bounce, bounceVelocity, maxVelocity, bodyType, geomType, x, y, z, null);
+        createBody(objectId, mass, mu, mu2, bounce, bounceVelocity, maxVelocity, bodyType, geomType, dim0, dim1, dim2, null);
     }
 
     @Override
@@ -96,14 +119,21 @@ public class ODEPhysicsEngine implements IPhysicsEngine {
             int bodyType, int geomType,
             double dim0, double dim1, double dim2, Mesh geometryMesh
     ) {
-        DBody body = createBasicBody(objectId, 0, 0, 0);
-        setMass(body, mass, geomType);
-        attachGeometry(body, geomType);
-
         GameObject go = toGameObject(objectId, mass, mu, mu2, bounce, bounceVelocity, maxVelocity, geomType, dim0, dim1, dim2);
+
+        DBody body = createBasicBody(objectId, 0, 0, 0);
         body.setData(go);
         go.setBody(body);
         go.setMesh(geometryMesh);
+
+        if (geometryMesh != null) {
+            attachMesh(body, geometryMesh);
+        } else {
+            attachGeometry(body, geomType);
+        }
+
+        setMass(body, mass, geomType);
+
         DJoint.DJointFeedback jointFeedback = OdeHelper.createJointFeedback();
         go.setJointFeedback(jointFeedback);
 
@@ -152,30 +182,33 @@ public class ODEPhysicsEngine implements IPhysicsEngine {
         if (mesh == null) return;
 
         DTriMeshData meshData = OdeHelper.createTriMeshData();
-        List<Float> verticesList = new ArrayList<>();
-        List<Integer> indicesList = new ArrayList<>();
-        Map<Point3D, Integer> vertexToIndex = new HashMap<>();
+        List<Float> verts = new ArrayList<>();
+        List<Integer> idx  = new ArrayList<>();
+        Map<VertexKey, Integer> indexOf = new HashMap<>();
 
-        int index = 0;
-        for (MeshTriangle triangle : mesh.getTriangles()) {
-            for (TriangleVertex v : triangle.getVertices()) {
-                Point3D point = v.getPoint();
-                if (!vertexToIndex.containsKey(point)) {
-                    verticesList.add((float) point.x);
-                    verticesList.add((float) point.y);
-                    verticesList.add((float) point.z);
-                    vertexToIndex.put(point, index++);
+        int next = 0;
+        for (MeshTriangle t : mesh.getTriangles()) {
+            for (TriangleVertex tv : t.getVertices()) {
+                float x = (float) tv.getPoint().x;
+                float y = (float) tv.getPoint().y;
+                float z = (float) tv.getPoint().z;
+                VertexKey key = new VertexKey(x, y, z);
+                Integer i = indexOf.get(key);
+                if (i == null) {
+                    i = next++;
+                    indexOf.put(key, i);
+                    verts.add(x); verts.add(y); verts.add(z);
                 }
-                indicesList.add(vertexToIndex.get(point));
+                idx.add(i);
             }
         }
 
-        float[] vertices = new float[verticesList.size()];
-        for (int i = 0; i < verticesList.size(); i++) {
-            vertices[i] = verticesList.get(i);
-        }
-        int[] indices = indicesList.stream().mapToInt(i -> i).toArray();
+        float[] vertices = new float[verts.size()];
+        for (int i = 0; i < verts.size(); i++) vertices[i] = verts.get(i);
+        int[] indices = idx.stream().mapToInt(i -> i).toArray();
+
         meshData.build(vertices, indices);
+        triMeshDatas.add(meshData);
 
         DTriMesh triMesh = OdeHelper.createTriMesh(space, meshData, null, null, null);
         triMesh.setBody(body);
@@ -228,6 +261,10 @@ public class ODEPhysicsEngine implements IPhysicsEngine {
             dimensions = go.getDimensions();
         }
 
+        Gdx.app.log("ODEPhysicsEngine", "Setting mass for geomType: " + geomType +
+                ", dimensions: [" + dimensions[0] + ", " + dimensions[1] + ", " + dimensions[2] + "]");
+
+
         DMass m = OdeHelper.createMass();
         switch (GeomType.values()[geomType]) {
             case BOX:
@@ -240,7 +277,12 @@ public class ODEPhysicsEngine implements IPhysicsEngine {
                 m.setSphereTotal(mass, dimensions[0]);
                 break;
         }
-        body.setMass(m);
+        try {
+            body.setMass(m);
+        } catch (Exception e) {
+            Gdx.app.error("ODEPhysicsEngine", "Failed to set mass for geomType: " + geomType +
+                    ", dimensions: [" + dimensions[0] + ", " + dimensions[1] + ", " + dimensions[2] + "]");
+        }
     }
 
     @Override
@@ -635,13 +677,6 @@ public class ODEPhysicsEngine implements IPhysicsEngine {
         OdeHelper.closeODE();
     }
 
-    private void tryFireSend(DBody body) {
-        Variable var = linkedVariables.get(body);
-        if (var != null) {
-            var.fireMethod("SEND", new IntegerVariable("", 0, var.getContext()));
-        }
-    }
-
     private final DGeom.DNearCallback nearCallback = new DGeom.DNearCallback() {
         @Override
         public void call(Object data, DGeom g1, DGeom g2) {
@@ -655,26 +690,32 @@ public class ODEPhysicsEngine implements IPhysicsEngine {
             }
 
             Gdx.app.log("ODEPhysicsEngine", "Colliding " + go1.getId() + " with " + go2.getId());
-            go1.getCollisionIds().add(go2.getId());
-            go2.getCollisionIds().add(go1.getId());
+            Gdx.app.log("ODEPhysicsEngine", g1.getPosition().toString());
+            Gdx.app.log("ODEPhysicsEngine", g2.getPosition().toString());
 
             int N = 4;
             DContactBuffer contacts = new DContactBuffer(N);
             DContactGeomBuffer gb = contacts.getGeomBuffer();
             int numContacts = OdeHelper.collide(g1, g2, N, gb);
 
+            if(numContacts > 0) {
+                go1.getCollisionIds().add(go2.getId());
+                go2.getCollisionIds().add(go1.getId());
+            }
+
+            Gdx.app.log("ODEPhysicsEngine", "Number of contacts: " + numContacts);
+
             for (int i = 0; i < numContacts; i++) {
-                DContact contact = contacts.get(i);
-                contact.surface.mode = dContactBounce | dContactSoftCFM | dContactApprox1_1 | dContactApprox1_2;
-                contact.surface.mu = Math.min(go1.getMu(), go2.getMu());
-                contact.surface.bounce = Math.max(go1.getBounce(), go2.getBounce());
-                contact.surface.bounce_vel = Math.max(go1.getBounceVelocity(), go2.getBounceVelocity());
+                DContact c = contacts.get(i);
+                c.surface.mode = dContactBounce | dContactSoftERP | dContactSoftCFM;
+                c.surface.mu = Math.min(go1.getMu(), go2.getMu());
+                c.surface.bounce = Math.max(go1.getBounce(), go2.getBounce());
+                c.surface.bounce_vel = Math.max(go1.getBounceVelocity(), go2.getBounceVelocity());
+                c.surface.soft_erp = 0.8;
+                c.surface.soft_cfm = 1e-5;
 
-                DJoint j = OdeHelper.createContactJoint(world, contact);
+                DJoint j = OdeHelper.createContactJoint(world, jointGroup, c);
                 j.attach(g1.getBody(), g2.getBody());
-
-                tryFireSend(g1.getBody());
-                tryFireSend(g2.getBody());
             }
         }
     };
