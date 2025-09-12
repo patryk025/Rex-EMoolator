@@ -141,6 +141,7 @@ public class ODEPhysicsEngine implements IPhysicsEngine {
     }
 
     private DBody createBasicBody(int objectId, double x, double y, double z) {
+        Gdx.app.log("ODEPhysicsEngine", "Creating body for objectId: " + objectId + " at position: (" + x + ", " + y + ", " + z + ")");
         DBody body = OdeHelper.createBody(world);
         body.setPosition(x, y, z);
         bodies.putIfAbsent(objectId, new ArrayList<>());
@@ -672,6 +673,14 @@ public class ODEPhysicsEngine implements IPhysicsEngine {
 
     @Override
     public void shutdown() {
+        for (Integer id : bodies.keySet()) {
+            destroyBody(id);
+        }
+        for (DTriMeshData meshData : triMeshDatas) {
+            meshData.destroy();
+        }
+        triMeshDatas.clear();
+        jointGroup.destroy();
         world.destroy();
         space.destroy();
         OdeHelper.closeODE();

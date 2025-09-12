@@ -315,6 +315,8 @@ public class WorldVariable extends Variable {
 			public Variable execute(List<Object> arguments) {
 				String filename = ArgumentsHelper.getString(arguments.get(0));
 				getAttribute("FILENAME").setValue(filename);
+                physicsEngine.shutdown();
+                physicsEngine.init();
 				SEKLoader.loadSek(WorldVariable.this);
 				return null;
 			}
