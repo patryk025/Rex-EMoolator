@@ -183,6 +183,10 @@ public class InputManager implements Disposable {
         if (Gdx.input.isKeyJustPressed(Input.Keys.F9)) {
             game.getEmulator().getDebugManager().toggleSceneSelector();
         }
+
+        if (Gdx.input.isKeyJustPressed(Input.Keys.F10)) {
+            game.getCurrentSceneContext().getWorldVariable().getPhysicsEngine().dumpGeometryData("geometry_dump_"+(new Date()).getTime()+".json");
+        }
     }
 
     private void exportGraphicsToFile(List<Variable> drawList) {

@@ -719,4 +719,126 @@ public class ODEPhysicsEngine implements IPhysicsEngine {
             }
         }
     };
+
+    @Override
+    public void dumpGeometryData(String path) {
+        try (java.io.PrintWriter out = new java.io.PrintWriter(path)) {
+            StringBuilder sb = new StringBuilder();
+            sb.append("{\"trimeshes\":[");
+            boolean firstTri = true;
+
+            for (DBody body : bodies.values().stream().flatMap(List::stream).filter(Objects::nonNull).collect(Collectors.toList())) {
+                GameObject go = (GameObject) body.getData();
+                if (go == null) continue;
+
+                // POSE
+                double px = body.getPosition().get0();
+                double py = body.getPosition().get1();
+                double pz = body.getPosition().get2();
+                org.ode4j.math.DMatrix3C R = body.getRotation();
+                double r00 = R.get00(), r01 = R.get01(), r02 = R.get02();
+                double r10 = R.get10(), r11 = R.get11(), r12 = R.get12();
+                double r20 = R.get20(), r21 = R.get21(), r22 = R.get22();
+
+                Mesh mesh = go.getMesh();
+                if (mesh != null && mesh.getTriangles() != null && !mesh.getTriangles().isEmpty()) {
+                    java.util.Map<VertexKey, Integer> idx = new java.util.LinkedHashMap<>();
+                    java.util.List<float[]> verts = new java.util.ArrayList<>();
+                    java.util.List<Integer> indices = new java.util.ArrayList<>();
+                    int next = 0;
+
+                    for (MeshTriangle t : mesh.getTriangles()) {
+                        for (TriangleVertex tv : t.getVertices()) {
+                            float x = (float) tv.getPoint().x;
+                            float y = (float) tv.getPoint().y;
+                            float z = (float) tv.getPoint().z;
+
+                            // world transform
+                            double X = r00*x + r01*y + r02*z + px;
+                            double Y = r10*x + r11*y + r12*z + py;
+                            double Z = r20*x + r21*y + r22*z + pz;
+
+                            VertexKey key = new VertexKey((float)X, (float)Y, (float)Z);
+                            Integer id = idx.get(key);
+                            if (id == null) {
+                                id = next++;
+                                idx.put(key, id);
+                                verts.add(new float[]{(float)X,(float)Y,(float)Z});
+                            }
+                            indices.add(id);
+                        }
+                    }
+
+                    if (!firstTri) sb.append(",");
+                    firstTri = false;
+                    sb.append("{\"id\":").append(go.getId()).append(",");
+                    sb.append("\"pose\":{\"p\":[").append(px).append(",").append(py).append(",").append(pz).append("],");
+                    sb.append("\"R\":[").append(r00).append(",").append(r01).append(",").append(r02).append(",")
+                            .append(r10).append(",").append(r11).append(",").append(r12).append(",")
+                            .append(r20).append(",").append(r21).append(",").append(r22).append("]},");
+                    sb.append("\"verts\":[");
+                    for (int i=0;i<verts.size();i++) {
+                        float[] v = verts.get(i);
+                        if (i>0) sb.append(",");
+                        sb.append("[").append(v[0]).append(",").append(v[1]).append(",").append(v[2]).append("]");
+                    }
+                    sb.append("],\"indices\":[");
+                    for (int i=0;i<indices.size();i++) {
+                        if (i>0) sb.append(",");
+                        sb.append(indices.get(i));
+                    }
+                    sb.append("]}");
+                }
+            }
+            sb.append("],\"primitives\":[");
+
+            boolean firstPrim = true;
+            for (DBody body : bodies.values().stream().flatMap(List::stream).filter(Objects::nonNull).collect(Collectors.toList())) {
+                GameObject go = (GameObject) body.getData();
+                if (go == null) continue;
+                if(go.getMesh() != null) continue;
+
+                float[] d = go.getDimensions();
+                String type = GeomType.values()[go.getGeomType()].name();
+
+                double px = body.getPosition().get0();
+                double py = body.getPosition().get1();
+                double pz = body.getPosition().get2();
+                org.ode4j.math.DMatrix3C R = body.getRotation();
+                double r00 = R.get00(), r01 = R.get01(), r02 = R.get02();
+                double r10 = R.get10(), r11 = R.get11(), r12 = R.get12();
+                double r20 = R.get20(), r21 = R.get21(), r22 = R.get22();
+
+                if (!firstPrim) sb.append(",");
+                firstPrim = false;
+                sb.append("{\"id\":").append(go.getId()).append(",");
+                sb.append("\"type\":\"").append(type).append("\",");
+                sb.append("\"params\":{");
+                switch (GeomType.values()[go.getGeomType()]) {
+                    case BOX:
+                        sb.append("\"dx\":").append(d[0]).append(",\"dy\":").append(d[1]).append(",\"dz\":").append(d[2]);
+                        break;
+                    case SPHERE:
+                        sb.append("\"radius\":").append(d[0]);
+                        break;
+                    case CYLINDER:
+                        sb.append("\"radius\":").append(d[0]).append(",\"length\":").append(d[1]).append(",\"axis\":3");
+                        break;
+                    default:
+                        sb.append("\"note\":\"unsupported-or-custom\"");
+                        break;
+                }
+                sb.append("},");
+                sb.append("\"pose\":{\"p\":[").append(px).append(",").append(py).append(",").append(pz).append("],");
+                sb.append("\"R\":[")
+                        .append(r00).append(",").append(r01).append(",").append(r02).append(",")
+                        .append(r10).append(",").append(r11).append(",").append(r12).append(",")
+                        .append(r20).append(",").append(r21).append(",").append(r22).append("]}}");
+            }
+            sb.append("]}");
+            out.println(sb.toString());
+        } catch (Exception e) {
+            Gdx.app.error("ODEPhysicsEngine", "dumpSceneToJson failed", e);
+        }
+    }
 }

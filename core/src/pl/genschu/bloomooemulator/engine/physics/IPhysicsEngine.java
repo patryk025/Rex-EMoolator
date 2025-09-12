@@ -96,4 +96,6 @@ public interface IPhysicsEngine {
     List<GameObject> getGameObjects();
 
     void shutdown();
+
+    void dumpGeometryData(String path);
 }
