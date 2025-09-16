@@ -195,7 +195,29 @@ public class SEKLoader {
             triangles.add(meshTriangle);
         }
 
-        variable.getPhysicsEngine().createBody(builder.build(), new Mesh(triangles));
+        GameObject gameObject = builder.build();
+        if(gameObject.isRigidBody())
+            variable.getPhysicsEngine().createBody(gameObject, null); // create object without mesh (rigid body)
+        else {
+            if(!triangles.isEmpty()) { // just a safe check
+                GameObject.GameObjectBuilder meshBuilder = GameObject.builder(); // yeah, another game object builder, sweet
+                meshBuilder.id(gameObject.getId())
+                        .rigidBody(false)
+                        .position(0, 0, 0)
+                        .rotationZ(0)
+                        .mass(1)
+                        .mu(-1)
+                        .friction(0)
+                        .bounce(0)
+                        .bounceVelocity(0)
+                        .maxVelocity(0)
+                        .geomType(3) // trimesh
+                        .dimensions(new float[]{0, 0, 0})
+                        .physicsEngine(variable.getPhysicsEngine());
+
+                variable.getPhysicsEngine().createBody(meshBuilder.build(), new Mesh(triangles)); // create object with only geometry
+            }
+        }
     }
 
     private static void parsePointsData(WorldVariable variable, FileInputStream f) throws IOException {

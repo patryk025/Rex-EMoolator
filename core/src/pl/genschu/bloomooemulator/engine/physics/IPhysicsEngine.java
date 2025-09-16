@@ -25,22 +25,6 @@ public interface IPhysicsEngine {
     );
 
     void createBody(
-            int objectId,
-            double mass,
-            double mu,
-            double friction,
-            double bounce,
-            double bounceVelocity,
-            double maxVelocity,
-            int bodyType,
-            int geomType,
-            double dim0,
-            double dim1,
-            double dim2,
-            Mesh geometryMesh
-    );
-
-    void createBody(
             GameObject gameObject,
             Mesh geometryMesh
     );

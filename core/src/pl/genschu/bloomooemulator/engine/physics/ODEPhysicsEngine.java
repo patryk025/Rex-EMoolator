@@ -5,10 +5,7 @@ import com.badlogic.gdx.Gdx;
 import org.ode4j.math.DMatrix3C;
 import org.ode4j.math.DVector3C;
 import org.ode4j.ode.*;
-import pl.genschu.bloomooemulator.geometry.points.Point3D;
 import pl.genschu.bloomooemulator.interpreter.variable.Variable;
-import pl.genschu.bloomooemulator.interpreter.variable.types.AnimoVariable;
-import pl.genschu.bloomooemulator.interpreter.variable.types.ImageVariable;
 import pl.genschu.bloomooemulator.interpreter.variable.types.IntegerVariable;
 import pl.genschu.bloomooemulator.world.GameObject;
 import pl.genschu.bloomooemulator.world.Mesh;
@@ -25,7 +22,7 @@ public class ODEPhysicsEngine implements IPhysicsEngine {
     DSpace space;
     ODEPhysicsTimer timer;
     DJointGroup jointGroup;
-    private final Map<Integer, List<DBody>> bodies = new HashMap<>();
+    private final Map<Integer, List<GameObject>> objects = new HashMap<>();
     private final Map<DBody, Variable> linkedVariables = new HashMap<>();
     private int cameraX = 0;
     private int cameraY = 0;
@@ -76,30 +73,39 @@ public class ODEPhysicsEngine implements IPhysicsEngine {
         timer = new ODEPhysicsTimer();
     }
 
-    private DBody getBody(int objectId) {
+    private GameObject getObject(int objectId) {
         // get last body
-        List<DBody> objectBodies = bodies.get(objectId);
-        if (objectBodies == null) {
-            throw new IllegalArgumentException("No body found with ID: " + objectId);
+        List<GameObject> objectsData = objects.get(objectId);
+        if (objectsData == null) {
+            throw new IllegalArgumentException("No objects found with ID: " + objectId);
         }
-        if(objectBodies.isEmpty()) {
-            throw new IllegalStateException("No bodies associated with ID: " + objectId);
+        if(objectsData.isEmpty()) {
+            throw new IllegalStateException("No objects associated with ID: " + objectId);
         }
-        return objectBodies.get(objectBodies.size() - 1);
+        return objectsData.get(objectsData.size() - 1);
     }
 
     @Override
     public void createBody(GameObject gameObject, Mesh geometryMesh) {
-        DBody body = createBasicBody(gameObject.getId(), gameObject.getX(), gameObject.getY(), gameObject.getZ());
-        body.setData(gameObject);
-        gameObject.setBody(body);
-        gameObject.setMesh(geometryMesh);
-        if (geometryMesh != null) {
-            attachMesh(body, geometryMesh);
-        } else {
+        if(gameObject.isRigidBody()) {
+            DBody body = createBasicBody(gameObject.getId(), gameObject.getX(), gameObject.getY(), gameObject.getZ());
+            body.setData(gameObject);
+            gameObject.setBody(body);
+            gameObject.setMesh(null);
             attachGeometry(body, gameObject.getGeomType());
+            setMass(body, gameObject.getMass(), gameObject.getGeomType());
         }
-        setMass(body, gameObject.getMass(), gameObject.getGeomType());
+        else { // no body, no mass, pure geometry
+            gameObject.setBody(null);
+            gameObject.setMesh(geometryMesh);
+            attachMesh(geometryMesh);
+        }
+
+        objects.putIfAbsent(gameObject.getId(), new ArrayList<>());
+        objects.get(gameObject.getId()).add(gameObject);
+
+        DJoint.DJointFeedback jointFeedback = OdeHelper.createJointFeedback();
+        gameObject.setJointFeedback(jointFeedback);
     }
 
     @Override
@@ -109,52 +115,26 @@ public class ODEPhysicsEngine implements IPhysicsEngine {
             int bodyType, int geomType,
             double dim0, double dim1, double dim2
     ) {
-        createBody(objectId, mass, mu, mu2, bounce, bounceVelocity, maxVelocity, bodyType, geomType, dim0, dim1, dim2, null);
-    }
-
-    @Override
-    public void createBody(
-            int objectId, double mass, double mu, double mu2,
-            double bounce, double bounceVelocity, double maxVelocity,
-            int bodyType, int geomType,
-            double dim0, double dim1, double dim2, Mesh geometryMesh
-    ) {
         GameObject go = toGameObject(objectId, mass, mu, mu2, bounce, bounceVelocity, maxVelocity, geomType, dim0, dim1, dim2);
 
         DBody body = createBasicBody(objectId, 0, 0, 0);
+        objects.putIfAbsent(objectId, new ArrayList<>());
+        objects.get(objectId).add(go);
         body.setData(go);
         go.setBody(body);
-        go.setMesh(geometryMesh);
+        go.setMesh(null);
 
-        if (geometryMesh != null) {
-            attachMesh(body, geometryMesh);
-        } else {
-            attachGeometry(body, geomType);
-        }
-
+        attachGeometry(body, geomType);
         setMass(body, mass, geomType);
 
         DJoint.DJointFeedback jointFeedback = OdeHelper.createJointFeedback();
         go.setJointFeedback(jointFeedback);
-
-        attachMesh(body, geometryMesh);
     }
 
     private DBody createBasicBody(int objectId, double x, double y, double z) {
         Gdx.app.log("ODEPhysicsEngine", "Creating body for objectId: " + objectId + " at position: (" + x + ", " + y + ", " + z + ")");
         DBody body = OdeHelper.createBody(world);
         body.setPosition(x, y, z);
-        bodies.putIfAbsent(objectId, new ArrayList<>());
-        bodies.get(objectId).add(body);
-        if( bodies.get(objectId).size() > 1) {
-            Gdx.app.log("ODEPhysicsEngine", "Warning: Multiple bodies created for objectId: " + objectId + ". Creating fixed joint...");
-            // Create a fixed joint to link the bodies together
-            DFixedJoint joint = OdeHelper.createFixedJoint(world);
-            DBody first = bodies.get(objectId).get(0);
-            joint.attach(first, body);
-            joint.setFixed();
-
-        }
         return body;
     }
 
@@ -179,7 +159,7 @@ public class ODEPhysicsEngine implements IPhysicsEngine {
         }
     }
 
-    private void attachMesh(DBody body, Mesh mesh) {
+    private void attachMesh(Mesh mesh) {
         if (mesh == null) return;
 
         DTriMeshData meshData = OdeHelper.createTriMeshData();
@@ -212,7 +192,7 @@ public class ODEPhysicsEngine implements IPhysicsEngine {
         triMeshDatas.add(meshData);
 
         DTriMesh triMesh = OdeHelper.createTriMesh(space, meshData, null, null, null);
-        triMesh.setBody(body);
+        triMesh.setBody(null);
     }
 
     private GameObject toGameObject(
@@ -238,20 +218,38 @@ public class ODEPhysicsEngine implements IPhysicsEngine {
 
     @Override
     public void addForce(int objectId, double forceX, double forceY, double forceZ) {
-        DBody body = getBody(objectId);
-        body.addForce(forceX, forceY, forceZ);
+        GameObject go = getObject(objectId);
+        DBody body = (DBody) go.getBody();
+        try {
+            body.addForce(forceX, forceY, forceZ);
+        }
+        catch (NullPointerException e) {
+            Gdx.app.error("ODEPhysicsEngine", "Failed to add force to object " + objectId + ". Body is null (object is not rigid body)");
+        }
     }
 
     @Override
     public void setPosition(int objectId, double x, double y, double z) {
-        DBody body = getBody(objectId);
-        body.setPosition(x, y, z);
+        GameObject go = getObject(objectId);
+        DBody body = (DBody) go.getBody();
+        try {
+            body.setPosition(x, y, z);
+        }
+        catch (NullPointerException e) {
+            Gdx.app.error("ODEPhysicsEngine", "Failed to set position to object " + objectId + ". Body is null (object is not rigid body)");
+        }
     }
 
     @Override
     public void setSpeed(int objectId, double speedX, double speedY, double speedZ) {
-        DBody body = getBody(objectId);
-        body.setLinearVel(speedX, speedY, speedZ);
+        GameObject go = getObject(objectId);
+        DBody body = (DBody) go.getBody();
+        try {
+            body.setLinearVel(speedX, speedY, speedZ);
+        }
+        catch (NullPointerException e) {
+            Gdx.app.error("ODEPhysicsEngine", "Failed to set linear velocity to object " + objectId + ". Body is null (object is not rigid body)");
+        }
     }
 
     private void setMass(DBody body, double mass, int geomType) {
@@ -288,8 +286,14 @@ public class ODEPhysicsEngine implements IPhysicsEngine {
 
     @Override
     public void setMass(int objectId, double mass, int geomType) {
-        DBody body = getBody(objectId);
-        setMass(body, mass, geomType);
+        GameObject go = getObject(objectId);
+        DBody body = (DBody) go.getBody();
+        try {
+            setMass(body, mass, geomType);
+        }
+        catch (NullPointerException e) {
+            Gdx.app.error("ODEPhysicsEngine", "Cannot set mass to object " + objectId + ". Body is null (object is not rigid body)");
+        }
     }
 
     @Override
@@ -299,56 +303,81 @@ public class ODEPhysicsEngine implements IPhysicsEngine {
 
     @Override
     public void setGravityCenter(int objectId, boolean gravityCenter) {
-        DBody body = getBody(objectId);
-        GameObject go = (GameObject) body.getData();
+        GameObject go = getObject(objectId);
         go.setGravityCenter(gravityCenter);
     }
 
     @Override
     public void setMaxVelocity(int objectId, double maxVelocity) {
-        DBody body = getBody(objectId);
-        GameObject go = (GameObject) body.getData();
+        GameObject go = getObject(objectId);
         go.setMaxVelocity(maxVelocity);
     }
 
     @Override
     public double[] getPosition(int objectId) {
-        DBody body = getBody(objectId);
-        DVector3C position = body.getPosition();
-        return position.toDoubleArray();
+        GameObject go = getObject(objectId);
+        DBody body = (DBody) go.getBody();
+        try {
+            DVector3C position = body.getPosition();
+            return position.toDoubleArray();
+        }
+        catch (NullPointerException e) {
+            Gdx.app.error("ODEPhysicsEngine", "Cannot get position of object " + objectId + ". Body is null (object is not rigid body). Returning [0, 0, 0] instead");
+            return new double[] {0, 0, 0};
+        }
     }
 
     @Override
     public double[] getSpeed(int objectId) {
-        DBody body = getBody(objectId);
-        DVector3C velocity = body.getLinearVel();
-        return velocity.toDoubleArray();
+        GameObject go = getObject(objectId);
+        DBody body = (DBody) go.getBody();
+        try {
+            DVector3C velocity = body.getLinearVel();
+            return velocity.toDoubleArray();
+        }
+        catch (NullPointerException e) {
+            Gdx.app.error("ODEPhysicsEngine", "Cannot get velocity of object " + objectId + ". Body is null (object is not rigid body). Returning [0, 0, 0] instead");
+            return new double[] {0, 0, 0};
+        }
     }
 
     @Override
     public double getRotationZ(int objectId) {
-        DBody body = getBody(objectId);
-        // ODE does not provide a direct way to get rotation, we can calculate it from the orientation
-        DMatrix3C rotation = body.getRotation();
-        // Assuming the rotation is in a 3x3 matrix, we can extract the Z rotation
-        return Math.atan2(rotation.get(1, 0), rotation.get(0, 0));
+        GameObject go = getObject(objectId);
+        DBody body = (DBody) go.getBody();
+        try {
+            // ODE does not provide a direct way to get rotation, we can calculate it from the orientation
+            DMatrix3C rotation = body.getRotation();
+            // Assuming the rotation is in a 3x3 matrix, we can extract the Z rotation
+            return Math.atan2(rotation.get(1, 0), rotation.get(0, 0));
+        }
+        catch (NullPointerException e) {
+            Gdx.app.error("ODEPhysicsEngine", "Cannot get rotation of object " + objectId + ". Body is null (object is not rigid body). Returning 0 instead");
+            return 0.0;
+        }
     }
 
     @Override
     public double getAngle(int objectId) {
-        // get speed vector and calculate angle
-        DBody body = getBody(objectId);
-        DVector3C velocity = body.getLinearVel();
-        if (velocity.length() == 0) {
-            return 0.0; // No movement, angle is 0
+        GameObject go = getObject(objectId);
+        DBody body = (DBody) go.getBody();
+        try {
+            // get speed vector and calculate angle
+            DVector3C velocity = body.getLinearVel();
+            if (velocity.length() == 0) {
+                return 0.0; // No movement, angle is 0
+            }
+            return Math.atan2(velocity.get(1), velocity.get(0));
         }
-        return Math.atan2(velocity.get(1), velocity.get(0));
+        catch (NullPointerException e) {
+            Gdx.app.error("ODEPhysicsEngine", "Cannot get angle of object " + objectId + ". Body is null (object is not rigid body). Returning 0 instead");
+            return 0.0;
+        }
     }
 
     @Override
     public double getMoveDistance(int objectId) {
-        DBody body = getBody(objectId);
-        GameObject go = (GameObject) body.getData();
+        GameObject go = getObject(objectId);
         return go.getMoveDistance();
     }
 
@@ -359,7 +388,12 @@ public class ODEPhysicsEngine implements IPhysicsEngine {
 
     private void synchronizeObjects() {
         // first get position of reference object
-        double[] position = getPosition(referenceObjectId);
+        double[] position;
+        try {
+            position = getPosition(referenceObjectId);
+        } catch (Exception e) {
+            position = new double[]{ 0,0,0 };
+        }
 
         // next gets anchor and converts it to screen space (for now, I didn't reverse it)
 
@@ -439,25 +473,24 @@ public class ODEPhysicsEngine implements IPhysicsEngine {
 
         final double EPS2 = 1e-6;
 
-        List<DBody> bodyList = bodies.values().stream()
-                .flatMap(List::stream)
-                .filter(Objects::nonNull)
-                .collect(Collectors.toList());
+        List<GameObject> gameObjects = getGameObjects();
 
-        for (DBody centerBody : bodyList) {
-            GameObject centerGO = (GameObject) centerBody.getData();
-            if (!(centerGO.isGravityCenter() && centerGO.isActive())) continue;
+        for (GameObject go : gameObjects) {
+            if (!(go.isGravityCenter() && go.isActive())) continue;
+            DBody centerBody = (DBody) go.getBody();
+
+            if(centerBody == null) continue; // ignore non-rigid bodies
 
             DVector3C pc = centerBody.getPosition();
-            double m1 = centerGO.getMass();
-            double G  = centerGO.getG();
+            double m1 = go.getMass();
+            double G  = go.getG();
 
-            centerGO.setStepsize(deltaTime);
+            go.setStepsize(deltaTime);
 
-            for (DBody other : bodyList) {
+            for (GameObject go2 : gameObjects) {
+                DBody other = (DBody) go2.getBody();
                 if (other == centerBody) continue;
-
-                GameObject go2 = (GameObject) other.getData();
+                if (other == null) continue; // ignore non-rigid bodies
 
                 if(!go2.isActive()) continue;
 
@@ -505,8 +538,7 @@ public class ODEPhysicsEngine implements IPhysicsEngine {
     }
 
     private void clearCollisions() {
-        for (DBody body : bodies.values().stream().flatMap(List::stream).filter(Objects::nonNull).collect(Collectors.toList())) {
-            GameObject go = (GameObject) body.getData();
+        for (GameObject go : getGameObjects()) {
             go.getCollisionIds().clear();
         }
     }
@@ -522,31 +554,28 @@ public class ODEPhysicsEngine implements IPhysicsEngine {
         world.quickStep(deltaTime);
         jointGroup.clear();
 
-        for (DBody body : bodies.values().stream().flatMap(List::stream).filter(Objects::nonNull).collect(Collectors.toList())) {
+        for (GameObject go : getGameObjects()) {
+            DBody body = (DBody) go.getBody();
             if (body == null) {
                 continue; // Skip null bodies
             }
 
-            if(body.getData() instanceof GameObject) {
-                GameObject go = (GameObject) body.getData();
+            // check joints
+            if(go.getJoint() != null) {
+                DJoint joint = (DJoint) go.getJoint();
 
-                // check joints
-                if(go.getJoint() != null) {
-                    DJoint joint = (DJoint) go.getJoint();
+                DJoint.DJointFeedback jointFeedback = joint.getFeedback();
 
-                    DJoint.DJointFeedback jointFeedback = joint.getFeedback();
-
-                    if(jointFeedback != null) {
-                        DVector3C f1 = jointFeedback.f1;
-                        if(!breakJointIfOverloaded(go, f1.get0(), f1.get1(), f1.get2())) {
-                            DVector3C f2 = jointFeedback.f2;
-                            breakJointIfOverloaded(go, f2.get0(), f2.get1(), f2.get2());
-                        }
+                if(jointFeedback != null) {
+                    DVector3C f1 = jointFeedback.f1;
+                    if(!breakJointIfOverloaded(go, f1.get0(), f1.get1(), f1.get2())) {
+                        DVector3C f2 = jointFeedback.f2;
+                        breakJointIfOverloaded(go, f2.get0(), f2.get1(), f2.get2());
                     }
                 }
-
-                go.updateObject();
             }
+
+            go.updateObject();
         }
 
         synchronizeObjects();
@@ -564,18 +593,19 @@ public class ODEPhysicsEngine implements IPhysicsEngine {
 
     @Override
     public void setLimit(int objectId, double minX, double minY, double minZ, double maxX, double maxY, double maxZ) {
-        DBody body = getBody(objectId);
-        GameObject go = (GameObject) body.getData();
+        GameObject go = getObject(objectId);
         go.setLimits(minX, maxX, minY, maxY, minZ, maxZ);
     }
 
     @Override
     public void destroyBody(int objectId) {
-        List<DBody> objectBodies = bodies.remove(objectId);
-        if (objectBodies == null) {
-            throw new IllegalArgumentException("No body found with ID: " + objectId);
+        List<GameObject> gameObjects = objects.remove(objectId);
+        if (gameObjects == null) {
+            throw new IllegalArgumentException("No objects found with ID: " + objectId);
         }
-        for (DBody body : objectBodies) {
+        for (GameObject go : gameObjects) {
+            DBody body = (DBody) go.getBody();
+
             if (body == null) {
                 continue; // Skip null bodies
             }
@@ -594,8 +624,10 @@ public class ODEPhysicsEngine implements IPhysicsEngine {
 
     @Override
     public void addJoint(int firstId, int secondId, double anchorX, double anchorY, double anchorZ, double limitMotor, double lowStop, double highStop, double hingeAxisX, double hingeAxisY, double hingeAxisZ) {
-        DBody body1 = getBody(firstId);
-        DBody body2 = getBody(secondId);
+        GameObject go = getObject(firstId);
+        GameObject go2 = getObject(secondId);
+        DBody body1 = (DBody) go.getBody();
+        DBody body2 = (DBody) go2.getBody();
         if (body1 == null) {
             throw new IllegalArgumentException("No body found with ID: " + firstId);
         }
@@ -604,22 +636,18 @@ public class ODEPhysicsEngine implements IPhysicsEngine {
         }
         DHingeJoint joint = OdeHelper.createHingeJoint(body1.getWorld());
 
-        GameObject go = (GameObject) body1.getData();
+        if (go.getJoint() != null) {
+            DJoint oldJoint = (DJoint) go.getJoint();
+            oldJoint.setFeedback(null);
+            oldJoint.destroy();
+        }
+        go.setJoint(joint, (float) limitMotor);
 
-        if (go != null) {
-            if (go.getJoint() != null) {
-                DJoint oldJoint = (DJoint) go.getJoint();
-                oldJoint.setFeedback(null);
-                oldJoint.destroy();
-            }
-            go.setJoint(joint, (float) limitMotor);
-
-            if (limitMotor <= 0.0) {
-                joint.setFeedback(null);
-            }
-            else {
-                joint.setFeedback((DJoint.DJointFeedback) go.getJointFeedback());
-            }
+        if (limitMotor <= 0.0) {
+            joint.setFeedback(null);
+        }
+        else {
+            joint.setFeedback((DJoint.DJointFeedback) go.getJointFeedback());
         }
 
         joint.attach(body1, body2);
@@ -631,15 +659,13 @@ public class ODEPhysicsEngine implements IPhysicsEngine {
 
     @Override
     public void setG(int objectId, double g) {
-        DBody body = getBody(objectId);
-        GameObject go = (GameObject) body.getData();
+        GameObject go = getObject(objectId);
         go.setG(g);
     }
 
     @Override
     public void setActive(int objectId, boolean active, boolean unknown) {
-        DBody body = getBody(objectId);
-        GameObject go = (GameObject) body.getData();
+        GameObject go = getObject(objectId);
         go.setActive(active);
     }
 
@@ -650,30 +676,36 @@ public class ODEPhysicsEngine implements IPhysicsEngine {
 
     @Override
     public void linkVariable(Variable variable, int objectId) {
-        DBody body = getBody(objectId);
-        linkedVariables.put(body, variable);
+        GameObject go = getObject(objectId);
+        DBody body = (DBody) go.getBody();
+        if(body != null) {
+            linkedVariables.put(body, variable);
+        }
+        else {
+            Gdx.app.error("ODEPhysicsEngine", "Cannot link variable to object " + objectId + ". Body is null (object is not rigid body).");
+        }
     }
 
     @Override
     public void unlinkVariable(int objectId) {
-        DBody body = getBody(objectId);
-        linkedVariables.remove(body);
+        GameObject go = getObject(objectId);
+        DBody body = (DBody) go.getBody();
+        if(body != null) {
+            linkedVariables.remove(body);
+        }
+        else {
+            Gdx.app.error("ODEPhysicsEngine", "Cannot unlink variable from object " + objectId + ". Body is null (object is not rigid body).");
+        }
     }
 
     @Override
     public List<GameObject> getGameObjects() {
-        return bodies.values().stream()
-                .flatMap(List::stream)
-                .filter(Objects::nonNull)
-                .map(DBody::getData)
-                .filter(data -> data instanceof GameObject)
-                .map(data -> (GameObject) data)
-                .collect(Collectors.toList());
+        return objects.values().stream().flatMap(List::stream).collect(Collectors.toList());
     }
 
     @Override
     public void shutdown() {
-        for (Integer id : bodies.keySet()) {
+        for (Integer id : objects.keySet()) {
             destroyBody(id);
         }
         for (DTriMeshData meshData : triMeshDatas) {
@@ -736,19 +768,7 @@ public class ODEPhysicsEngine implements IPhysicsEngine {
             sb.append("{\"trimeshes\":[");
             boolean firstTri = true;
 
-            for (DBody body : bodies.values().stream().flatMap(List::stream).filter(Objects::nonNull).collect(Collectors.toList())) {
-                GameObject go = (GameObject) body.getData();
-                if (go == null) continue;
-
-                // POSE
-                double px = body.getPosition().get0();
-                double py = body.getPosition().get1();
-                double pz = body.getPosition().get2();
-                org.ode4j.math.DMatrix3C R = body.getRotation();
-                double r00 = R.get00(), r01 = R.get01(), r02 = R.get02();
-                double r10 = R.get10(), r11 = R.get11(), r12 = R.get12();
-                double r20 = R.get20(), r21 = R.get21(), r22 = R.get22();
-
+            for (GameObject go : getGameObjects()) {
                 Mesh mesh = go.getMesh();
                 if (mesh != null && mesh.getTriangles() != null && !mesh.getTriangles().isEmpty()) {
                     java.util.Map<VertexKey, Integer> idx = new java.util.LinkedHashMap<>();
@@ -762,17 +782,12 @@ public class ODEPhysicsEngine implements IPhysicsEngine {
                             float y = (float) tv.getPoint().y;
                             float z = (float) tv.getPoint().z;
 
-                            // world transform
-                            double X = r00*x + r01*y + r02*z + px;
-                            double Y = r10*x + r11*y + r12*z + py;
-                            double Z = r20*x + r21*y + r22*z + pz;
-
-                            VertexKey key = new VertexKey((float)X, (float)Y, (float)Z);
+                            VertexKey key = new VertexKey(x, y, z);
                             Integer id = idx.get(key);
                             if (id == null) {
                                 id = next++;
                                 idx.put(key, id);
-                                verts.add(new float[]{(float)X,(float)Y,(float)Z});
+                                verts.add(new float[]{x, y, z});
                             }
                             indices.add(id);
                         }
@@ -781,10 +796,10 @@ public class ODEPhysicsEngine implements IPhysicsEngine {
                     if (!firstTri) sb.append(",");
                     firstTri = false;
                     sb.append("{\"id\":").append(go.getId()).append(",");
-                    sb.append("\"pose\":{\"p\":[").append(px).append(",").append(py).append(",").append(pz).append("],");
-                    sb.append("\"R\":[").append(r00).append(",").append(r01).append(",").append(r02).append(",")
-                            .append(r10).append(",").append(r11).append(",").append(r12).append(",")
-                            .append(r20).append(",").append(r21).append(",").append(r22).append("]},");
+                    sb.append("\"pose\":{\"p\":[").append(0).append(",").append(0).append(",").append(0).append("],");
+                    sb.append("\"R\":[").append(1).append(",").append(0).append(",").append(0).append(",")
+                            .append(0).append(",").append(1).append(",").append(0).append(",")
+                            .append(0).append(",").append(0).append(",").append(1).append("]},");
                     sb.append("\"verts\":[");
                     for (int i=0;i<verts.size();i++) {
                         float[] v = verts.get(i);
@@ -802,10 +817,9 @@ public class ODEPhysicsEngine implements IPhysicsEngine {
             sb.append("],\"primitives\":[");
 
             boolean firstPrim = true;
-            for (DBody body : bodies.values().stream().flatMap(List::stream).filter(Objects::nonNull).collect(Collectors.toList())) {
-                GameObject go = (GameObject) body.getData();
-                if (go == null) continue;
-                if(go.getMesh() != null) continue;
+            for (GameObject go : getGameObjects()) {
+                DBody body = (DBody) go.getBody();
+                if (body == null) continue;
 
                 float[] d = go.getDimensions();
                 String type = GeomType.values()[go.getGeomType()].name();
