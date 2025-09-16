@@ -98,7 +98,7 @@ public class ODEPhysicsEngine implements IPhysicsEngine {
         else { // no body, no mass, pure geometry
             gameObject.setBody(null);
             gameObject.setMesh(geometryMesh);
-            attachMesh(geometryMesh);
+            attachMesh(gameObject, geometryMesh);
         }
 
         objects.putIfAbsent(gameObject.getId(), new ArrayList<>());
@@ -141,25 +141,32 @@ public class ODEPhysicsEngine implements IPhysicsEngine {
     private void attachGeometry(DBody body, int geomType) {
         float[] dimensions = new float[]{1.0f, 1.0f, 1.0f};
 
+        GameObject go = null;
         if(body.getData() instanceof GameObject) {
-            GameObject go = (GameObject) body.getData();
+            go = (GameObject) body.getData();
             dimensions = go.getDimensions();
         }
 
         switch (GeomType.values()[geomType]) {
             case BOX: 
-                OdeHelper.createBox(space, dimensions[0], dimensions[1], dimensions[2]).setBody(body);
+                DBox box = OdeHelper.createBox(space, dimensions[0], dimensions[1], dimensions[2]);
+                box.setBody(body);
+                box.setData(go);
                 break;
             case CYLINDER:
-                OdeHelper.createCylinder(space, dimensions[0], dimensions[1]).setBody(body);
+                DCylinder cylinder = OdeHelper.createCylinder(space, dimensions[0], dimensions[1]);
+                cylinder.setBody(body);
+                cylinder.setData(go);
                 break;
             case SPHERE:
-                OdeHelper.createSphere(space, dimensions[0]).setBody(body);
+                DSphere sphere = OdeHelper.createSphere(space, dimensions[0]);
+                sphere.setBody(body);
+                sphere.setData(go);
                 break;
         }
     }
 
-    private void attachMesh(Mesh mesh) {
+    private void attachMesh(GameObject go, Mesh mesh) {
         if (mesh == null) return;
 
         DTriMeshData meshData = OdeHelper.createTriMeshData();
@@ -193,6 +200,7 @@ public class ODEPhysicsEngine implements IPhysicsEngine {
 
         DTriMesh triMesh = OdeHelper.createTriMesh(space, meshData, null, null, null);
         triMesh.setBody(null);
+        triMesh.setData(go);
     }
 
     private GameObject toGameObject(
@@ -721,18 +729,15 @@ public class ODEPhysicsEngine implements IPhysicsEngine {
     private final DGeom.DNearCallback nearCallback = new DGeom.DNearCallback() {
         @Override
         public void call(Object data, DGeom g1, DGeom g2) {
-            if (g1.getBody() == null || g2.getBody() == null) return;
+            GameObject go1 = (GameObject) g1.getData();
+            GameObject go2 = (GameObject) g2.getData();
 
-            GameObject go1 = (GameObject) g1.getBody().getData();
-            GameObject go2 = (GameObject) g2.getBody().getData();
-
-            if (g1.getBody() != null && g2.getBody() != null) {
-                if (go1.getId() == go2.getId()) return;
+            if (go1 == null || go2 == null) {
+                return; // Skip if either GameObject is null
             }
-
-            Gdx.app.log("ODEPhysicsEngine", "Colliding " + go1.getId() + " with " + go2.getId());
-            Gdx.app.log("ODEPhysicsEngine", g1.getPosition().toString());
-            Gdx.app.log("ODEPhysicsEngine", g2.getPosition().toString());
+            if (go1 == go2) {
+                return; // Skip self-collisions
+            }
 
             int N = 4;
             DContactBuffer contacts = new DContactBuffer(N);
@@ -743,8 +748,6 @@ public class ODEPhysicsEngine implements IPhysicsEngine {
                 go1.getCollisionIds().add(go2.getId());
                 go2.getCollisionIds().add(go1.getId());
             }
-
-            Gdx.app.log("ODEPhysicsEngine", "Number of contacts: " + numContacts);
 
             for (int i = 0; i < numContacts; i++) {
                 DContact c = contacts.get(i);
