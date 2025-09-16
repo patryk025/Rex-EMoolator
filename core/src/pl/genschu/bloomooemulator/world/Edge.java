@@ -3,25 +3,25 @@ package pl.genschu.bloomooemulator.world;
 import pl.genschu.bloomooemulator.geometry.points.Point3D;
 
 public class Edge {
-    private final Point3D firstPoint;
-    private final Point3D secondPoint;
-    private final int direction; // ?, bitwise?
+    private final int from;
+    private final int to;
+    private final int flags; // ?, bitwise?
 
-    public Edge(Point3D firstPoint, Point3D secondPoint, int direction) {
-        this.firstPoint = firstPoint;
-        this.secondPoint = secondPoint;
-        this.direction = direction;
+    public Edge(int from, int to, int flags) {
+        this.from = from;
+        this.to = to;
+        this.flags = flags;
     }
 
-    public Point3D getFirstPoint() {
-        return firstPoint;
+    public int from() {
+        return from;
     }
 
-    public Point3D getSecondPoint() {
-        return secondPoint;
+    public int to() {
+        return to;
     }
 
-    public int getDirection() {
-        return direction;
+    public int flags() {
+        return flags;
     }
 }

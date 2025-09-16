@@ -22,8 +22,14 @@ public class PointsData {
         if (firstIdx < 0 || firstIdx >= points.size() || secondIdx < 0 || secondIdx >= points.size()) {
             throw new IndexOutOfBoundsException("Invalid point index for path.");
         }
-        Point3D firstPoint = points.get(firstIdx - 1); // Assuming 1-based index
-        Point3D secondPoint = points.get(secondIdx - 1);
-        edges.add(new Edge(firstPoint, secondPoint, unknown));
+        edges.add(new Edge(firstIdx, secondIdx, unknown));
+    }
+
+    public List<Point3D> getPoints() {
+        return points;
+    }
+
+    public List<Edge> getEdges() {
+        return edges;
     }
 }
