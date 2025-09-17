@@ -5,12 +5,12 @@ import com.badlogic.gdx.Gdx;
 import org.ode4j.math.DMatrix3C;
 import org.ode4j.math.DVector3C;
 import org.ode4j.ode.*;
+import pl.genschu.bloomooemulator.engine.physics.pathfinding.AStar;
+import pl.genschu.bloomooemulator.engine.physics.pathfinding.Graph;
+import pl.genschu.bloomooemulator.geometry.points.Point3D;
 import pl.genschu.bloomooemulator.interpreter.variable.Variable;
 import pl.genschu.bloomooemulator.interpreter.variable.types.IntegerVariable;
-import pl.genschu.bloomooemulator.world.GameObject;
-import pl.genschu.bloomooemulator.world.Mesh;
-import pl.genschu.bloomooemulator.world.MeshTriangle;
-import pl.genschu.bloomooemulator.world.TriangleVertex;
+import pl.genschu.bloomooemulator.world.*;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -704,6 +704,35 @@ public class ODEPhysicsEngine implements IPhysicsEngine {
         else {
             Gdx.app.error("ODEPhysicsEngine", "Cannot unlink variable from object " + objectId + ". Body is null (object is not rigid body).");
         }
+    }
+
+    @Override
+    public float followPath(int objectId, int arrivalRadius, double turnClamp, double speed) {
+        return 0;
+    }
+
+    @Override
+    public void findPath(int objectId, int pointObjectId, int targetX, int targetY, int targetZ, boolean saveIntermediates, boolean unknown) {
+        GameObject go = getObject(objectId);
+        GameObject go2 = getObject(pointObjectId);
+        DBody body = (DBody) go.getBody();
+        if(body == null) {
+            Gdx.app.error("ODEPhysicsEngine", "Cannot find path for object " + objectId + ". Body is null (object is not rigid body)." );
+            return;
+        }
+        DVector3C position = body.getPosition();
+        Point3D start = new Point3D(position.get(0), position.get(1), position.get(2));
+        Point3D target = new Point3D(targetX, targetY, targetZ);
+
+        AStar pathfinder = go2.getPathfinder();
+        PointsData pointsData = go2.getPointsData();
+
+        List<Integer> path = pathfinder.findPath(pointsData.getNearestPoint(start), pointsData.getNearestPoint(target));
+
+        for(Integer pointIdx : path) {
+            go.addPointToPath(pointsData.getPoints().get(pointIdx));
+        }
+        return;
     }
 
     @Override

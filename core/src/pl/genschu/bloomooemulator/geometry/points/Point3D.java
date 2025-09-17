@@ -18,4 +18,8 @@ public class Point3D implements Cloneable {
             throw new AssertionError();
         }
     }
+
+    public float distance(Point3D point) {
+        return (float) Math.sqrt((x - point.x) * (x - point.x) + (y - point.y) * (y - point.y) + (z - point.z) * (z - point.z));
+    }
 }

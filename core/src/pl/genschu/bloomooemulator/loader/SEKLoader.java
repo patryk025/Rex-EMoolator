@@ -1,6 +1,8 @@
 package pl.genschu.bloomooemulator.loader;
 
 import com.badlogic.gdx.Gdx;
+import pl.genschu.bloomooemulator.engine.physics.pathfinding.AStar;
+import pl.genschu.bloomooemulator.engine.physics.pathfinding.Graph;
 import pl.genschu.bloomooemulator.geometry.points.Point3D;
 import pl.genschu.bloomooemulator.interpreter.variable.types.WorldVariable;
 import pl.genschu.bloomooemulator.loader.helpers.BinaryHelper;
@@ -244,6 +246,12 @@ public class SEKLoader {
             int unknown = BinaryHelper.readIntLE(f); // in test only value 3
             obj.addPath(firstId, secondId, unknown);
         }
+
+        Graph graph = Graph.fromPointsData(obj, false);
+        AStar pathfinder = new AStar(graph);
+
+        builder.pathfinder(pathfinder);
+        builder.pointsData(obj);
 
         variable.getPhysicsEngine().createBody(builder.build(), null);
     }

@@ -105,34 +105,47 @@ public class WorldVariable extends Variable {
 		this.setMethod("FINDPATH", new Method(
 				List.of(
 						new Parameter("INTEGER", "objectId", true),
-						new Parameter("INTEGER", "pathId", true),
-						new Parameter("INTEGER", "x", true),
-						new Parameter("INTEGER", "y", true),
-						new Parameter("INTEGER", "z?", true),
-						new Parameter("BOOL", "unknown", true),
+						new Parameter("INTEGER", "pointObjectId", true),
+						new Parameter("INTEGER", "targetX", true),
+						new Parameter("INTEGER", "targetY", true),
+						new Parameter("INTEGER", "targetZ", true),
+						new Parameter("BOOL", "saveIntermediates?", true),
 						new Parameter("BOOL", "unknown", false)
-				),
-				"void?"
-		) {
-			@Override
-			public Variable execute(List<Object> arguments) {
-				// TODO: implement this method
-				throw new ClassMethodNotImplementedException("Method FINDPATH is not implemented yet");
-			}
-		});
-		this.setMethod("FOLLOWPATH", new Method(
-				List.of(
-						new Parameter("INTEGER", "objectId", true),
-						new Parameter("INTEGER", "pathId", true),
-						new Parameter("DOUBLE", "unknown", true),
-						new Parameter("DOUBLE", "speed?", true)
 				),
 				"void"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				// TODO: implement this method
-				throw new ClassMethodNotImplementedException("Method FOLLOWPATH is not implemented yet");
+				int objectId = ArgumentsHelper.getInteger(arguments.get(0));
+				int pointObjectId = ArgumentsHelper.getInteger(arguments.get(1));
+				int targetX = ArgumentsHelper.getInteger(arguments.get(2));
+				int targetY = ArgumentsHelper.getInteger(arguments.get(3));
+				int targetZ = ArgumentsHelper.getInteger(arguments.get(4));
+				boolean saveIntermediates = ArgumentsHelper.getBoolean(arguments.get(5));
+				boolean unknown = ArgumentsHelper.getBoolean(arguments.get(6));
+
+                physicsEngine.findPath(objectId, pointObjectId, targetX, targetY, targetZ, saveIntermediates, unknown);
+                return null;
+			}
+		});
+		this.setMethod("FOLLOWPATH", new Method(
+				List.of(
+						new Parameter("INTEGER", "objectId", true),
+						new Parameter("INTEGER", "arrivalRadius", true),
+						new Parameter("DOUBLE", "turnClamp", true),
+						new Parameter("DOUBLE", "speed", true)
+				),
+				"DOUBLE"
+		) {
+			@Override
+			public Variable execute(List<Object> arguments) {
+				int objectId = ArgumentsHelper.getInteger(arguments.get(0));
+				int arrivalRadius = ArgumentsHelper.getInteger(arguments.get(1));
+				double turnClamp = ArgumentsHelper.getDouble(arguments.get(2));
+				double speed = ArgumentsHelper.getDouble(arguments.get(3));
+
+                float outDist = physicsEngine.followPath(objectId, arrivalRadius, turnClamp, speed);
+                return new DoubleVariable("", outDist, WorldVariable.this.context);
 			}
 		});
 		this.setMethod("GETANGLE", new Method(

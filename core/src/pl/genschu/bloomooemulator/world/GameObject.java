@@ -1,10 +1,13 @@
 package pl.genschu.bloomooemulator.world;
 
 import pl.genschu.bloomooemulator.engine.physics.IPhysicsEngine;
+import pl.genschu.bloomooemulator.engine.physics.pathfinding.AStar;
 import pl.genschu.bloomooemulator.engine.physics.pathfinding.Graph;
+import pl.genschu.bloomooemulator.geometry.points.Point3D;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Queue;
 
 public class GameObject {
     private int id;
@@ -27,7 +30,7 @@ public class GameObject {
     private float maxXLimit, maxYLimit, maxZLimit;
     private float[] dimensions;
     private boolean rigidBody;
-    private Graph pointsGraph;
+    private AStar pathfinder;
     private Mesh mesh;
     private Object body; // Placeholder for the physics body, type depends on the physics engine
     private Object joint; // Placeholder for the physics joint
@@ -37,6 +40,9 @@ public class GameObject {
     private boolean isLimited;
     private IPhysicsEngine physicsEngine;
     private List<Integer> collisionIds;
+    private Queue<Point3D> path;
+    private PointsData pointsData;
+    private int isAtGoal;
 
     private GameObject() {}
 
@@ -81,7 +87,9 @@ public class GameObject {
             obj.rigidBody = false;
             obj.geomType = 2;
             obj.dimensions = new float[]{1.0f, 1.0f, 1.0f};
-            obj.pointsGraph = null;
+            obj.pathfinder = null;
+            obj.pointsData = null;
+            obj.isAtGoal = 0;
             obj.mesh = null;
             obj.body = null;
             obj.joint = null;
@@ -166,8 +174,13 @@ public class GameObject {
             return this;
         }
 
-        public GameObjectBuilder pointsGraph(Graph pointsGraph) {
-            obj.pointsGraph = pointsGraph;
+        public GameObjectBuilder pathfinder(AStar pathfinder) {
+            obj.pathfinder = pathfinder;
+            return this;
+        }
+
+        public GameObjectBuilder pointsData(PointsData pointsData) {
+            obj.pointsData = pointsData;
             return this;
         }
 
@@ -305,8 +318,12 @@ public class GameObject {
         return rigidBody;
     }
 
-    public Graph getPointsGraph() {
-        return pointsGraph;
+    public AStar getPathfinder() {
+        return pathfinder;
+    }
+
+    public PointsData getPointsData() {
+        return pointsData;
     }
 
     public Mesh getMesh() { return mesh; }
@@ -446,5 +463,20 @@ public class GameObject {
 
     public List<Integer> getCollisionIds() {
         return collisionIds;
+    }
+    public void addPointToPath(Point3D point) {
+        path.add(point);
+    }
+
+    public Point3D getNextPointInPath() {
+        return path.poll();
+    }
+
+    public int getIsAtGoal() {
+        return isAtGoal;
+    }
+
+    public void setIsAtGoal(int isAtGoal) {
+        this.isAtGoal = isAtGoal;
     }
 }

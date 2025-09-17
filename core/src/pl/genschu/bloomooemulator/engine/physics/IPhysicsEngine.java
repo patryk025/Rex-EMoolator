@@ -73,6 +73,10 @@ public interface IPhysicsEngine {
 
     void unlinkVariable(int objectId);
 
+    float followPath(int objectId, int arrivalRadius, double turnClamp, double speed);
+
+    void findPath(int objectId, int pointObjectId, int targetX, int targetY, int targetZ, boolean saveIntermediates, boolean unknown);
+
     void start();
 
     void stop();
