@@ -1,6 +1,7 @@
 package pl.genschu.bloomooemulator.world;
 
 import pl.genschu.bloomooemulator.engine.physics.IPhysicsEngine;
+import pl.genschu.bloomooemulator.engine.physics.pathfinding.Graph;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,7 +27,7 @@ public class GameObject {
     private float maxXLimit, maxYLimit, maxZLimit;
     private float[] dimensions;
     private boolean rigidBody;
-    private PointsData pointsData;
+    private Graph pointsGraph;
     private Mesh mesh;
     private Object body; // Placeholder for the physics body, type depends on the physics engine
     private Object joint; // Placeholder for the physics joint
@@ -80,7 +81,7 @@ public class GameObject {
             obj.rigidBody = false;
             obj.geomType = 2;
             obj.dimensions = new float[]{1.0f, 1.0f, 1.0f};
-            obj.pointsData = null;
+            obj.pointsGraph = null;
             obj.mesh = null;
             obj.body = null;
             obj.joint = null;
@@ -165,8 +166,8 @@ public class GameObject {
             return this;
         }
 
-        public GameObjectBuilder pointsData(PointsData pointsData) {
-            obj.pointsData = pointsData;
+        public GameObjectBuilder pointsGraph(Graph pointsGraph) {
+            obj.pointsGraph = pointsGraph;
             return this;
         }
 
@@ -304,8 +305,8 @@ public class GameObject {
         return rigidBody;
     }
 
-    public PointsData getPointsData() {
-        return pointsData;
+    public Graph getPointsGraph() {
+        return pointsGraph;
     }
 
     public Mesh getMesh() { return mesh; }

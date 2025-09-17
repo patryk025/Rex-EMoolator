@@ -39,11 +39,11 @@ public class WorldVariable extends Variable {
 						new Parameter("DOUBLE", "bounce", true),
 						new Parameter("DOUBLE", "bounceV", true),
 						new Parameter("DOUBLE", "maxV", true),
-						new Parameter("INTEGER", "unknown", true),
-						new Parameter("INTEGER", "unknown", true),
-						new Parameter("INTEGER", "x?", true),
-						new Parameter("INTEGER", "y?", true),
-						new Parameter("INTEGER", "z?", true)
+						new Parameter("INTEGER", "bodyType", true),
+						new Parameter("INTEGER", "geomType", true),
+						new Parameter("INTEGER", "dim0", true),
+						new Parameter("INTEGER", "dim1", true),
+						new Parameter("INTEGER", "dim2", true)
 				),
 				"void"
 		) {
@@ -317,7 +317,7 @@ public class WorldVariable extends Variable {
 				getAttribute("FILENAME").setValue(filename);
                 physicsEngine.shutdown();
                 physicsEngine.init();
-				SEKLoader.loadSek(WorldVariable.this);
+                SEKLoader.loadSek(WorldVariable.this);
 				return null;
 			}
 		});
