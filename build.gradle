@@ -9,13 +9,11 @@ buildscript {
     dependencies {
         classpath 'com.android.tools.build:gradle:8.11.2'
         classpath 'com.gradleup.shadow:shadow-gradle-plugin:9.1.0'
-        classpath 'com.github.jk1:gradle-license-report:2.9'
     }
 }
 
 allprojects {
     apply plugin: "eclipse"
-    apply plugin: 'com.github.jk1.dependency-license-report'
 
     version = System.getenv('RELEASE_VERSION') ?: '0.1-SNAPSHOT'
     ext {
@@ -144,6 +142,7 @@ project(":core") {
         implementation "org.ode4j:core:$ode4jVersion"
 
         testImplementation 'org.junit.jupiter:junit-jupiter:5.13.4'
+        testRuntimeOnly "org.junit.platform:junit-platform-launcher:1.13.4"
         testImplementation 'org.mockito:mockito-core:5.19.0'
         testImplementation "org.mockito:mockito-inline:5.2.0"
         testImplementation "org.mockito:mockito-junit-jupiter:5.19.0"
