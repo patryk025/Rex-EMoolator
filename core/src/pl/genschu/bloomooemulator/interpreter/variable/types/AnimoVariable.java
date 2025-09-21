@@ -162,11 +162,21 @@ public class AnimoVariable extends Variable implements Cloneable {
 			}
 		});
 		this.setMethod("GETEVENTNAME", new Method(
+                List.of(
+                        new Parameter("INTEGER", "eventIndex", false)
+                ),
 				"STRING"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-				return new StringVariable("", currentEvent.getName().toUpperCase(), context);
+                if(arguments.isEmpty()) {
+                    return new StringVariable("", currentEvent.getName().toUpperCase(), context);
+                }
+                int eventIndex = ArgumentsHelper.getInteger(arguments.get(0));
+                if(eventIndex < 0 || eventIndex >= events.size()) {
+                    return new StringVariable("", currentEvent.getName().toUpperCase(), context);
+                }
+                return new StringVariable("", events.get(eventIndex).getName().toUpperCase(), context);
 			}
 		});
 		this.setMethod("GETFRAME", new Method(
