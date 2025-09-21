@@ -742,7 +742,7 @@ public class ODEPhysicsEngine implements IPhysicsEngine {
 
     @Override
     public void shutdown() {
-        for (Integer id : objects.keySet()) {
+        for (Integer id : new ArrayList<>(objects.keySet())) {
             destroyBody(id);
         }
         for (DTriMeshData meshData : triMeshDatas) {
