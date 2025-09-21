@@ -55,9 +55,9 @@ public interface IPhysicsEngine {
 
     double getMoveDistance(int objectId);
 
-    void stepSimulation();
+    double stepSimulation();
 
-    void stepSimulation(double deltaTime);
+    double stepSimulation(double deltaTime);
 
     void destroyBody(int objectId);
 

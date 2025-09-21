@@ -390,8 +390,8 @@ public class ODEPhysicsEngine implements IPhysicsEngine {
     }
 
     @Override
-    public void stepSimulation() {
-        stepSimulation(timer.calculateStepSize());
+    public double stepSimulation() {
+        return stepSimulation(timer.calculateStepSize());
     }
 
     private void synchronizeObjects() {
@@ -552,9 +552,9 @@ public class ODEPhysicsEngine implements IPhysicsEngine {
     }
 
     @Override
-    public void stepSimulation(double deltaTime) {
+    public double stepSimulation(double deltaTime) {
         if(deltaTime > 0.03f) deltaTime = 0.03f; // that limit was in Sekai
-        if(deltaTime <= 0) return; // ignore zero and negative delta times
+        if(deltaTime <= 0) return 0.0; // ignore zero and negative delta times
         clearCollisions(); // clear collisions from previous frame
         calculateBodiesAttraction(deltaTime);
         space.collide(this, nearCallback);
@@ -587,6 +587,7 @@ public class ODEPhysicsEngine implements IPhysicsEngine {
         }
 
         synchronizeObjects();
+        return deltaTime;
     }
 
     @Override

@@ -335,12 +335,12 @@ public class WorldVariable extends Variable {
 			}
 		});
 		this.setMethod("MOVEOBJECTS", new Method(
-				"void"
+				"DOUBLE"
 		) {
 			@Override
 			public Variable execute(List<Object> arguments) {
-                physicsEngine.stepSimulation();
-                return null;
+                double elapsedTime = physicsEngine.stepSimulation();
+                return new DoubleVariable("", elapsedTime, WorldVariable.this.context);
 			}
 		});
 		this.setMethod("REMOVEOBJECT", new Method(
