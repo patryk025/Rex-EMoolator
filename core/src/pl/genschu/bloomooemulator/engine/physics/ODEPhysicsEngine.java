@@ -709,6 +709,67 @@ public class ODEPhysicsEngine implements IPhysicsEngine {
 
     @Override
     public float followPath(int objectId, int arrivalRadius, double turnClamp, double speed) {
+        GameObject go = getObject(objectId);
+        Point3D currentWaypoint = go.getCurrentPathPoint();
+        if(currentWaypoint != null) {
+            double[] position = getPosition(objectId);
+            double dx = currentWaypoint.x - position[0];
+            double dy = currentWaypoint.y - position[1];
+            double dz = currentWaypoint.z - position[2];
+            double distance = Math.sqrt(dx * dx + dy * dy + dz * dz);
+            if (distance > arrivalRadius) {
+                // let's calculate direction vector
+                double dirX = dx / distance;
+                double dirY = dy / distance;
+                double dirZ = dz / distance;
+
+                // get normalized velocity
+                double[] velocity = getSpeed(objectId);
+                double vel = Math.sqrt(velocity[0] * velocity[0] + velocity[1] * velocity[1] + velocity[2] * velocity[2]);
+                double normVelX = vel > 0 ? velocity[0] / vel : 0;
+                double normVelY = vel > 0 ? velocity[1] / vel : 0;
+                double normVelZ = vel > 0 ? velocity[2] / vel : 0;
+
+                // calculate diff from direction and current velocity
+                double diffX = dirX - normVelX;
+                double diffY = dirY - normVelY;
+                double diffZ = dirZ - normVelZ;
+
+                turnClamp = Math.abs(turnClamp);
+
+                // multiply by turnClamp to limit turning speed
+                double newDirX = turnClamp * diffX;
+                double newDirY = turnClamp * diffY;
+                double newDirZ = turnClamp * diffZ;
+
+                // calculate new velocity
+                double newVelX = normVelX + newDirX;
+                double newVelY = normVelY + newDirY;
+                double newVelZ = normVelZ + newDirZ;
+
+                // normalize new velocity
+                double newVelLength = Math.sqrt(newVelX * newVelX + newVelY * newVelY + newVelZ * newVelZ);
+                if (newVelLength > 0) {
+                    newVelX = (newVelX / newVelLength) * speed;
+                    newVelY = (newVelY / newVelLength) * speed;
+                    newVelZ = (newVelZ / newVelLength) * speed;
+                } else {
+                    newVelX = 0;
+                    newVelY = 0;
+                    newVelZ = 0;
+                }
+                setSpeed(objectId, newVelX, newVelY, newVelZ);
+                return (float) distance;
+            }
+            else {
+                go.getNextPointInPath();
+                Point3D nextWaypoint = go.getCurrentPathPoint();
+                if(nextWaypoint == null) {
+                    go.setIsAtGoal(1); // at goal
+                    return (float) distance;
+                }
+            }
+        }
         return 0;
     }
 

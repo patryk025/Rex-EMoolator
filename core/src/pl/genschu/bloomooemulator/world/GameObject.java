@@ -471,6 +471,9 @@ public class GameObject {
     public Point3D getNextPointInPath() {
         return path.poll();
     }
+    public Point3D getCurrentPathPoint() {
+        return path.peek();
+    }
 
     public int getIsAtGoal() {
         return isAtGoal;
