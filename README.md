@@ -43,7 +43,7 @@ Aktualne statusy gier opartych na silniku Piklib/BlooMoo:
 <td><img alt="W grze" src="https://img.shields.io/badge/W grze-yellow"/></td>
 <td>Menu jest lekko zlagowane. Sekwencja ze wzgórzami działa, jednak etap zaraz za nimi z ukrytymi drzwami już nie z racji braku implementacji typu World (prace w toku). Jest to punkt blokujący i uniemożliwia dalszą rozgrywkę.</td>
 <td></td>
-<td><a href="https://github.com/users/patryk025/projects/5">Link</a></td>
+<td><a href="https://github.com/users/patryk025/projects/6">Link</a></td>
 </tr>
 <tr>
 <td>Reksio i Wehikuł Czasu</td>
