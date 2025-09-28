@@ -5,7 +5,7 @@ on:
   push:
     tags:
       - 'v*'
-    branches: [ "engine_emulator" ]
+    branches: [ "main", "feat/*" ]
   pull_request:
 
 jobs:
