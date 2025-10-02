@@ -220,7 +220,7 @@ public class WorldVariable extends Variable {
                 if (position == null || position.length < 3) {
                     throw new IllegalArgumentException("Object with ID " + objectId + " does not exist or has no position.");
                 }
-                return new DoubleVariable("", position[1]+300, WorldVariable.this.context); // position is offset by 300 in Y direction
+                return new DoubleVariable("", 300-position[1], WorldVariable.this.context); // position is offset by 300 in Y direction
 			}
 		});
 		this.setMethod("GETPOSITIONZ", new Method(
