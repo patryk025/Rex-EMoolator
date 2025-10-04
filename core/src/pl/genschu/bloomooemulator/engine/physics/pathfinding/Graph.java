@@ -28,22 +28,19 @@ public class Graph {
         for (int i = 0; i < n; i++) adj.add(new ArrayList<>());
 
         for (Edge e : pd.getEdges()) {
-            float cost = euclid2_5D(pd.getPoints().get(e.from()), pd.getPoints().get(e.to()));
+            float cost = distance3D(pd.getPoints().get(e.from()), pd.getPoints().get(e.to()));
             adj.get(e.from()).add(new Arc(e.to(), cost, e.flags()));
-            if (undirected) {
-                boolean oneWay = e.flags() != 3;
-                if (!oneWay) {
-                    adj.get(e.to()).add(new Arc(e.from(), cost, e.flags()));
-                }
+            if (undirected || e.flags() == 3) {
+                adj.get(e.to()).add(new Arc(e.from(), cost, e.flags()));
             }
         }
         return new Graph(nodes, adj);
     }
 
-    /** Euclid 2,5D (ignoring Y) */
-    private static float euclid2_5D(Point3D a, Point3D b) {
+    private static float distance3D(Point3D a, Point3D b) {
         double dx = a.x - b.x;
+        double dy = a.y - b.y;
         double dz = a.z - b.z;
-        return (float)Math.hypot(dx, dz);
+        return (float)Math.sqrt(dx*dx + dy*dy + dz*dz);
     }
 }

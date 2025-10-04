@@ -122,7 +122,7 @@ public class WorldVariable extends Variable {
 				int targetY = ArgumentsHelper.getInteger(arguments.get(3));
 				int targetZ = ArgumentsHelper.getInteger(arguments.get(4));
 				boolean saveIntermediates = ArgumentsHelper.getBoolean(arguments.get(5));
-				boolean unknown = ArgumentsHelper.getBoolean(arguments.get(6));
+				boolean unknown = arguments.size() > 6 && ArgumentsHelper.getBoolean(arguments.get(6));
 
                 physicsEngine.findPath(objectId, pointObjectId, targetX, targetY, targetZ, saveIntermediates, unknown);
                 return null;

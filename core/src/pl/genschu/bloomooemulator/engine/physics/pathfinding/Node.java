@@ -7,10 +7,12 @@ import java.util.Objects;
 public final class Node {
     private final int id;
     private final Point3D pos;
+    private boolean walkable;
 
     public Node(int id, Point3D pos) {
         this.id = id;
         this.pos = pos;
+        this.walkable = true;
     }
 
     public int id() {
@@ -28,6 +30,8 @@ public final class Node {
         Node node = (Node) o;
         return id == node.id && Objects.equals(pos, node.pos);
     }
+
+    public boolean walkable() { return walkable; }
 
     @Override
     public int hashCode() {

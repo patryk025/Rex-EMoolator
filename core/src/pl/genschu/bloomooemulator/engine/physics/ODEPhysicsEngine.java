@@ -710,67 +710,76 @@ public class ODEPhysicsEngine implements IPhysicsEngine {
     @Override
     public float followPath(int objectId, int arrivalRadius, double turnClamp, double speed) {
         GameObject go = getObject(objectId);
-        Point3D currentWaypoint = go.getCurrentPathPoint();
-        if(currentWaypoint != null) {
+
+        while (true) {
+            Point3D currentWaypoint = go.getCurrentPathPoint();
+
+            if (currentWaypoint == null) {
+                go.setIsAtGoal(1);
+                return 0.0f;
+            }
+
             double[] position = getPosition(objectId);
             double dx = currentWaypoint.x - position[0];
             double dy = currentWaypoint.y - position[1];
             double dz = currentWaypoint.z - position[2];
             double distance = Math.sqrt(dx * dx + dy * dy + dz * dz);
+
+            // Is point far away?
             if (distance > arrivalRadius) {
-                // let's calculate direction vector
+                // If so, go to them
+
+                // calculate normalised direction vector
                 double dirX = dx / distance;
                 double dirY = dy / distance;
                 double dirZ = dz / distance;
 
                 // get normalized velocity
                 double[] velocity = getSpeed(objectId);
-                double vel = Math.sqrt(velocity[0] * velocity[0] + velocity[1] * velocity[1] + velocity[2] * velocity[2]);
+                double vel = Math.sqrt(velocity[0] * velocity[0] +
+                        velocity[1] * velocity[1] +
+                        velocity[2] * velocity[2]);
                 double normVelX = vel > 0 ? velocity[0] / vel : 0;
                 double normVelY = vel > 0 ? velocity[1] / vel : 0;
                 double normVelZ = vel > 0 ? velocity[2] / vel : 0;
 
-                // calculate diff from direction and current velocity
+                // direction difference
                 double diffX = dirX - normVelX;
                 double diffY = dirY - normVelY;
                 double diffZ = dirZ - normVelZ;
 
+                // Limit rotation speed
                 turnClamp = Math.abs(turnClamp);
+                double corrX = diffX * turnClamp;
+                double corrY = diffY * turnClamp;
+                double corrZ = diffZ * turnClamp;
 
-                // multiply by turnClamp to limit turning speed
-                double newDirX = turnClamp * diffX;
-                double newDirY = turnClamp * diffY;
-                double newDirZ = turnClamp * diffZ;
+                // New direction
+                double newDirX = normVelX + corrX;
+                double newDirY = normVelY + corrY;
+                double newDirZ = normVelZ + corrZ;
 
-                // calculate new velocity
-                double newVelX = normVelX + newDirX;
-                double newVelY = normVelY + newDirY;
-                double newVelZ = normVelZ + newDirZ;
-
-                // normalize new velocity
-                double newVelLength = Math.sqrt(newVelX * newVelX + newVelY * newVelY + newVelZ * newVelZ);
-                if (newVelLength > 0) {
-                    newVelX = (newVelX / newVelLength) * speed;
-                    newVelY = (newVelY / newVelLength) * speed;
-                    newVelZ = (newVelZ / newVelLength) * speed;
+                // Normalize and scale by speed
+                double newLen = Math.sqrt(newDirX * newDirX +
+                        newDirY * newDirY +
+                        newDirZ * newDirZ);
+                if (newLen > 1e-6) {
+                    newDirX = (newDirX / newLen) * speed;
+                    newDirY = (newDirY / newLen) * speed;
+                    newDirZ = (newDirZ / newLen) * speed;
                 } else {
-                    newVelX = 0;
-                    newVelY = 0;
-                    newVelZ = 0;
+                    newDirX = 0;
+                    newDirY = 0;
+                    newDirZ = 0;
                 }
-                setSpeed(objectId, newVelX, newVelY, newVelZ);
+
+                setSpeed(objectId, newDirX, newDirY, newDirZ);
                 return (float) distance;
             }
-            else {
-                go.getNextPointInPath();
-                Point3D nextWaypoint = go.getCurrentPathPoint();
-                if(nextWaypoint == null) {
-                    go.setIsAtGoal(1); // at goal
-                    return (float) distance;
-                }
-            }
+
+            // if not, get next point
+            go.getNextPointInPath();
         }
-        return 0;
     }
 
     @Override
@@ -784,15 +793,14 @@ public class ODEPhysicsEngine implements IPhysicsEngine {
         }
         DVector3C position = body.getPosition();
         Point3D start = new Point3D(position.get(0), position.get(1), position.get(2));
-        Point3D target = new Point3D(targetX, targetY, targetZ);
+        Point3D target = new Point3D(targetX-400, 300-targetY, targetZ);
 
         AStar pathfinder = go2.getPathfinder();
-        PointsData pointsData = go2.getPointsData();
 
-        List<Integer> path = pathfinder.findPath(pointsData.getNearestPoint(start), pointsData.getNearestPoint(target));
+        List<Point3D> path = pathfinder.findPath(start, target);
 
-        for(Integer pointIdx : path) {
-            go.addPointToPath(pointsData.getPoints().get(pointIdx));
+        for(Point3D point : path) {
+            go.addPointToPath(point);
         }
         return;
     }

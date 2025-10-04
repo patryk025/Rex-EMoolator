@@ -2,12 +2,9 @@ package pl.genschu.bloomooemulator.world;
 
 import pl.genschu.bloomooemulator.engine.physics.IPhysicsEngine;
 import pl.genschu.bloomooemulator.engine.physics.pathfinding.AStar;
-import pl.genschu.bloomooemulator.engine.physics.pathfinding.Graph;
 import pl.genschu.bloomooemulator.geometry.points.Point3D;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Queue;
+import java.util.*;
 
 public class GameObject {
     private int id;
@@ -40,7 +37,7 @@ public class GameObject {
     private boolean isLimited;
     private IPhysicsEngine physicsEngine;
     private List<Integer> collisionIds;
-    private Queue<Point3D> path;
+    private Deque<Point3D> path;
     private PointsData pointsData;
     private int isAtGoal;
 
@@ -99,6 +96,7 @@ public class GameObject {
             obj.isLimited = false;
             obj.physicsEngine = null;
             obj.collisionIds = new ArrayList<>();
+            obj.path = new ArrayDeque<>();
         }
 
         public GameObjectBuilder id(int id) {
@@ -465,14 +463,14 @@ public class GameObject {
         return collisionIds;
     }
     public void addPointToPath(Point3D point) {
-        path.add(point);
+        path.addLast(point);
     }
 
-    public Point3D getNextPointInPath() {
-        return path.poll();
+    public void getNextPointInPath() {
+        path.pollFirst();
     }
     public Point3D getCurrentPathPoint() {
-        return path.peek();
+        return path.peekFirst();
     }
 
     public int getIsAtGoal() {

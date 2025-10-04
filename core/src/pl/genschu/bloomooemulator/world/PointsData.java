@@ -32,17 +32,4 @@ public class PointsData {
     public List<Edge> getEdges() {
         return edges;
     }
-
-    public int getNearestPoint(Point3D point) {
-        int nearestPoint = -1;
-        float nearestDistance = Float.MAX_VALUE;
-        for (int i = 0; i < points.size(); i++) {
-            float distance = points.get(i).distance(point);
-            if (distance < nearestDistance) {
-                nearestDistance = distance;
-                nearestPoint = i;
-            }
-        }
-        return nearestPoint;
-    }
 }
