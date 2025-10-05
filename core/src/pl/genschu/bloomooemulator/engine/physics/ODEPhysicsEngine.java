@@ -430,8 +430,9 @@ public class ODEPhysicsEngine implements IPhysicsEngine {
 
             // let's tell emulator that object is at goal and if it has collisions and with what
 
+            GameObject go = (GameObject) linkedBody.getData();
             // checking if is at goal (not implemented yet)
-            int isAtGoal = 0; // TODO: implement IsAtGoal... and pathfinding... and waypoint map, jeez
+            int isAtGoal = go.getIsAtGoal();
             if (isAtGoal == 1) {
                 var.emitSignal("ONSIGNAL", "ATGOAL");
             } else if (isAtGoal == 2) {
@@ -439,7 +440,6 @@ public class ODEPhysicsEngine implements IPhysicsEngine {
             }
 
             // check if it has any collisions
-            GameObject go = (GameObject) linkedBody.getData();
             List<Integer> collisionsIds = go.getCollisionIds();
             if (!collisionsIds.isEmpty()) {
                 for(Integer collisionId : collisionsIds) {

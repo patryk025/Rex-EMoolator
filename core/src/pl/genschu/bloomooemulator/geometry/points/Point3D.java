@@ -40,6 +40,9 @@ public class Point3D implements Cloneable {
     }
 
     public float distance(Point3D point) {
-        return (float) Math.sqrt((x - point.x) * (x - point.x) + (y - point.y) * (y - point.y) + (z - point.z) * (z - point.z));
+        double dx = x - point.x;
+        double dy = y - point.y;
+        double dz = z - point.z;
+        return (float)Math.sqrt(dx*dx + dy*dy + dz*dz);
     }
 }

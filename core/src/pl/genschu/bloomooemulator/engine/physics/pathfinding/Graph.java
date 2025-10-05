@@ -28,19 +28,12 @@ public class Graph {
         for (int i = 0; i < n; i++) adj.add(new ArrayList<>());
 
         for (Edge e : pd.getEdges()) {
-            float cost = distance3D(pd.getPoints().get(e.from()), pd.getPoints().get(e.to()));
+            float cost = pd.getPoints().get(e.from()).distance(pd.getPoints().get(e.to()));
             adj.get(e.from()).add(new Arc(e.to(), cost, e.flags()));
             if (undirected || e.flags() == 3) {
                 adj.get(e.to()).add(new Arc(e.from(), cost, e.flags()));
             }
         }
         return new Graph(nodes, adj);
-    }
-
-    private static float distance3D(Point3D a, Point3D b) {
-        double dx = a.x - b.x;
-        double dy = a.y - b.y;
-        double dz = a.z - b.z;
-        return (float)Math.sqrt(dx*dx + dy*dy + dz*dz);
     }
 }
