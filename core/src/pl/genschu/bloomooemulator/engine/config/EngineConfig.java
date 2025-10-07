@@ -21,6 +21,8 @@ public class EngineConfig {
     private boolean maintainAspectRatio = true;
     private boolean vsync = true;
     private int targetFPS = 60;
+    private boolean paused = false;
+    private boolean stepFrame = false;
 
     // log level settings
     private int logLevel = Application.LOG_DEBUG;
@@ -167,6 +169,22 @@ public class EngineConfig {
 
     public void setSoundVolume(float soundVolume) {
         this.soundVolume = Math.max(0.0f, Math.min(1.0f, soundVolume));
+    }
+
+    public boolean isPaused() {
+        return paused;
+    }
+
+    public void togglePaused() {
+        this.paused = !this.paused;
+    }
+
+    public boolean isStepFrame() {
+        return stepFrame;
+    }
+
+    public void toggleStepFrame() {
+        this.stepFrame = !this.stepFrame;
     }
 
     /**
