@@ -480,4 +480,8 @@ public class GameObject {
     public void setIsAtGoal(int isAtGoal) {
         this.isAtGoal = isAtGoal;
     }
+
+    public Deque<Point3D> getPath() {
+        return path;
+    }
 }

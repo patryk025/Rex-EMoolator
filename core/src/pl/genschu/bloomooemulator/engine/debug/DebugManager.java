@@ -13,6 +13,7 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Disposable;
 import pl.genschu.bloomooemulator.engine.Game;
 import pl.genschu.bloomooemulator.engine.config.EngineConfig;
+import pl.genschu.bloomooemulator.geometry.points.Point3D;
 import pl.genschu.bloomooemulator.interpreter.Context;
 import pl.genschu.bloomooemulator.interpreter.variable.Variable;
 import pl.genschu.bloomooemulator.interpreter.variable.types.*;
@@ -24,6 +25,7 @@ import pl.genschu.bloomooemulator.world.TriangleVertex;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Deque;
 import java.util.List;
 
 public class DebugManager implements Disposable {
@@ -393,6 +395,7 @@ public class DebugManager implements Disposable {
     }
 
     private void drawVelocityArrow(ShapeRenderer sr, GameObject go) {
+        sr.setColor(Color.CYAN);
         final float vx = go.getVelX();
         final float vy = go.getVelY();
 
@@ -430,6 +433,20 @@ public class DebugManager implements Disposable {
         sr.line(x1, y1, x1 - pRx * headLen, y1 - pRy * headLen);
     }
 
+    private void drawPath(ShapeRenderer sr, GameObject go) {
+        Deque<Point3D> path = go.getPath();
+        if (path == null || path.size() < 2) return;
+
+        sr.setColor(Color.RED);
+        Point3D prev = null;
+        for (Point3D p : path) {
+            if (prev != null) {
+                sr.line((float) prev.x+400, (float) prev.y+300,
+                        (float) p.x+400, (float) p.y+300);
+            }
+            prev = p;
+        }
+    }
 
     private static float[] rot2D(float x, float y, float c, float s) {
         return new float[] { c*x - s*y, s*x + c*y };
@@ -438,6 +455,7 @@ public class DebugManager implements Disposable {
     private void renderMeshDebug() {
         shapeRenderer.setProjectionMatrix(camera.combined);
         shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
+        shapeRenderer.setColor(Color.GREEN);
 
         WorldVariable world = game.getCurrentSceneContext().getWorldVariable();
         List<GameObject> objects = world.getPhysicsEngine().getGameObjects();
@@ -521,6 +539,7 @@ public class DebugManager implements Disposable {
                 }
             }
             drawVelocityArrow(shapeRenderer, go);
+            drawPath(shapeRenderer, go);
         }
 
         shapeRenderer.end();
