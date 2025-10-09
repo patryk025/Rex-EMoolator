@@ -15,7 +15,7 @@ public class EngineConfig {
     private boolean debugCollisions = false;
     private boolean debugMatrix = false;
     private boolean monitorPerformance = false;
-    private boolean debugWorld = false;
+    private boolean debugWorld = true;
 
     // render settings
     private boolean maintainAspectRatio = true;

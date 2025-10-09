@@ -40,6 +40,7 @@ public class GameObject {
     private Deque<Point3D> path;
     private PointsData pointsData;
     private int isAtGoal;
+    private int flags;
 
     private GameObject() {}
 
@@ -97,6 +98,7 @@ public class GameObject {
             obj.physicsEngine = null;
             obj.collisionIds = new ArrayList<>();
             obj.path = new ArrayDeque<>();
+            obj.flags = 3;
         }
 
         public GameObjectBuilder id(int id) {
@@ -483,5 +485,21 @@ public class GameObject {
 
     public Deque<Point3D> getPath() {
         return path;
+    }
+
+    public float getSpeed() {
+        return (float) Math.sqrt(velX * velX + velY * velY + velZ * velZ);
+    }
+
+    public float getLastSpeed() {
+        return (float) Math.sqrt(prevVelX * prevVelX + prevVelY * prevVelY + prevVelZ * prevVelZ);
+    }
+
+    public int getFlags() {
+        return flags;
+    }
+
+    public void setFlags(int flags) {
+        this.flags = flags;
     }
 }
