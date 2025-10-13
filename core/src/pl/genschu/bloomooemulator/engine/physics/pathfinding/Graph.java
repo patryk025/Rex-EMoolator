@@ -29,8 +29,14 @@ public class Graph {
 
         for (Edge e : pd.getEdges()) {
             float cost = pd.getPoints().get(e.from()).distance(pd.getPoints().get(e.to()));
-            adj.get(e.from()).add(new Arc(e.to(), cost, e.flags()));
-            if (undirected || e.flags() == 3) {
+
+            boolean fromFirstToSecond = (e.flags() & 2) != 0 || undirected;
+            boolean fromSecondToFirst = (e.flags() & 1) != 0 || undirected;
+
+            if(fromFirstToSecond) {
+                adj.get(e.from()).add(new Arc(e.to(), cost, e.flags()));
+            }
+            if (fromSecondToFirst) {
                 adj.get(e.to()).add(new Arc(e.from(), cost, e.flags()));
             }
         }
