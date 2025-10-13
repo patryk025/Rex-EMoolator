@@ -2,8 +2,7 @@ package pl.genschu.bloomooemulator.engine.physics;
 
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
-import org.ode4j.math.DMatrix3C;
-import org.ode4j.math.DVector3C;
+import org.ode4j.math.*;
 import org.ode4j.ode.*;
 import pl.genschu.bloomooemulator.engine.physics.camera.CameraAnchor;
 import pl.genschu.bloomooemulator.engine.physics.pathfinding.AStar;
@@ -726,57 +725,40 @@ public class ODEPhysicsEngine implements IPhysicsEngine {
             double dx = currentWaypoint.x - position[0];
             double dy = currentWaypoint.y - position[1];
             double dz = currentWaypoint.z - position[2];
-            double distance = Math.sqrt(dx * dx + dy * dy + dz * dz);
+
+            DVector3 deltaToTarget = new DVector3(dx, dy, dz);
+            double distance = deltaToTarget.length();
 
             // Is point far away?
             if (distance > arrivalRadius) {
                 // If so, go to them
 
                 // calculate normalised direction vector
-                double dirX = dx / distance;
-                double dirY = dy / distance;
-                double dirZ = dz / distance;
-
-                // get normalized velocity
-                double[] velocity = getSpeed(objectId);
-                double vel = Math.sqrt(velocity[0] * velocity[0] +
-                        velocity[1] * velocity[1] +
-                        velocity[2] * velocity[2]);
-                double normVelX = vel > 0 ? velocity[0] / vel : 0;
-                double normVelY = vel > 0 ? velocity[1] / vel : 0;
-                double normVelZ = vel > 0 ? velocity[2] / vel : 0;
-
-                // direction difference
-                double diffX = dirX - normVelX;
-                double diffY = dirY - normVelY;
-                double diffZ = dirZ - normVelZ;
-
-                // Limit rotation speed
-                turnClamp = Math.abs(turnClamp);
-                double corrX = diffX * turnClamp;
-                double corrY = diffY * turnClamp;
-                double corrZ = diffZ * turnClamp;
-
-                // New direction
-                double newDirX = normVelX + corrX;
-                double newDirY = normVelY + corrY;
-                double newDirZ = normVelZ + corrZ;
-
-                // Normalize and scale by speed
-                double newLen = Math.sqrt(newDirX * newDirX +
-                        newDirY * newDirY +
-                        newDirZ * newDirZ);
-                if (newLen > 1e-6) {
-                    newDirX = (newDirX / newLen) * speed;
-                    newDirY = (newDirY / newLen) * speed;
-                    newDirZ = (newDirZ / newLen) * speed;
-                } else {
-                    newDirX = 0;
-                    newDirY = 0;
-                    newDirZ = 0;
+                if(distance > 0.0f) {
+                    deltaToTarget.normalize();
                 }
 
-                setSpeed(objectId, newDirX, newDirY, newDirZ);
+                // get current forward direction
+                DVector3C velVector = ((DBody) go.getBody()).getLinearVel();
+                DVector3 forward = new DVector3(velVector.get0(), velVector.get1(), velVector.get2());
+                if(forward.length() > 0.0f) {
+                    forward.normalize();
+                }
+
+                DVector3 steeringForce = new DVector3(
+                        deltaToTarget.get0() - forward.get0(),
+                        deltaToTarget.get1() - forward.get1(),
+                        deltaToTarget.get2() - forward.get2()
+                );
+
+                turnClamp = Math.abs(turnClamp);
+                steeringForce.scale(turnClamp);
+
+                forward.add(steeringForce);
+                forward.normalize();
+                forward.scale(speed);
+
+                setSpeed(objectId, forward.get0(), forward.get1(), forward.get2());
                 return (float) distance;
             }
 
