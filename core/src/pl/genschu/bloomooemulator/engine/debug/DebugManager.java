@@ -458,6 +458,10 @@ public class DebugManager implements Disposable {
         shapeRenderer.setColor(Color.GREEN);
 
         WorldVariable world = game.getCurrentSceneContext().getWorldVariable();
+        if( world == null ) {
+            shapeRenderer.end();
+            return;
+        }
         List<GameObject> objects = world.getPhysicsEngine().getGameObjects();
 
         for (GameObject go : objects) {

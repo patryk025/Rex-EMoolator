@@ -91,12 +91,96 @@ public class ODEPhysicsEngine implements IPhysicsEngine {
     @Override
     public void createBody(GameObject gameObject, Mesh geometryMesh) {
         if(gameObject.isRigidBody()) {
-            DBody body = createBasicBody(gameObject.getId(), gameObject.getX(), gameObject.getY(), gameObject.getZ());
-            body.setData(gameObject);
-            gameObject.setBody(body);
-            gameObject.setMesh(null);
-            attachGeometry(body, gameObject.getGeomType());
-            setMass(body, gameObject.getMass(), gameObject.getGeomType());
+            if(gameObject.getGeomType() == GeomType.CAR.ordinal()) {
+                // it's a car, create 4 spheres and 1 box
+                // first box
+                DBody body = createBasicBody(gameObject.getId(), 0, 0, 0); // position was set to 0,0,0 during creation
+                body.setData(gameObject);
+                gameObject.setBody(body);
+                gameObject.setMesh(null);
+                attachGeometry(body, GeomType.BOX.ordinal());
+                setMass(body, gameObject.getMass(), GeomType.BOX.ordinal());
+
+                // wheels
+                List<DBody> wheels = new ArrayList<>(4);
+
+                for (int i = 0; i < 4; i++) {
+                    // create body
+                    DBody wheel = createBasicBody(gameObject.getId(), 0, 0, 0);
+                    wheel.setData(gameObject);
+
+                    // rotate it
+                    DMatrix3 R = new DMatrix3();
+                    DRotation.dRFromAxisAndAngle(R, 1.0, 0.0, 0.0, Math.PI / 2);
+                    wheel.setRotation(R);
+
+                    // set mass
+                    DMass mass = OdeHelper.createMass();
+                    mass.setSphereTotal(gameObject.getMass() * 0.2, gameObject.getDimensions()[1]);
+                    wheel.setMass(mass);
+
+                    // attach geometry
+                    DSphere sphere = OdeHelper.createSphere(space, gameObject.getDimensions()[1]);
+                    sphere.setBody(wheel);
+
+                    wheels.add(wheel);
+                }
+
+                float halfWidth = gameObject.getDimensions()[0] * 0.5f;
+                float halfLength = gameObject.getDimensions()[1] * 0.5f;
+                float halfHeight = gameObject.getDimensions()[2] * 0.5f;
+
+                // position wheels
+                wheels.get(0).setPosition(
+                    halfWidth,
+                    halfLength,
+                    -halfHeight
+                );
+
+                wheels.get(1).setPosition(
+                    +halfWidth,
+                    -halfLength,
+                    -halfHeight
+                );
+
+                wheels.get(2).setPosition(
+                    -halfWidth,
+                    halfLength,
+                    -halfHeight
+                );
+
+                wheels.get(3).setPosition(
+                    -halfWidth,
+                    -halfLength,
+                    -halfHeight
+                );
+
+                // now it's time for suspensions
+                for (int i = 0; i < 4; i++) {
+                    DBody wheel = wheels.get(i);
+                    DHingeJoint suspension = OdeHelper.createHingeJoint(world);
+                    suspension.attach(body, wheel);
+
+                    DVector3C wheelPos = wheel.getPosition();
+
+                    suspension.setAnchor(wheelPos);
+                    suspension.setAxis(0, 1, 0); // hinge axis along Y
+                    suspension.setParamLoStop(0.0);
+                    suspension.setParamHiStop(0.0);
+                    suspension.setParam(DJoint.PARAM_N.dParamSuspensionERP1, 0.8);
+                    suspension.setParam(DJoint.PARAM_N.dParamSuspensionCFM1, 0.00001);
+                    suspension.setParamVel(0.0);
+                    suspension.setParamFMax(0.2);
+                }
+            }
+            else {
+                DBody body = createBasicBody(gameObject.getId(), gameObject.getX(), gameObject.getY(), gameObject.getZ());
+                body.setData(gameObject);
+                gameObject.setBody(body);
+                gameObject.setMesh(null);
+                attachGeometry(body, gameObject.getGeomType());
+                setMass(body, gameObject.getMass(), gameObject.getGeomType());
+            }
         }
         else { // no body, no mass, pure geometry
             gameObject.setBody(null);
