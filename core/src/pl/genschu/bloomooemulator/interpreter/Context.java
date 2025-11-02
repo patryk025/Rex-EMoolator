@@ -1,5 +1,6 @@
 package pl.genschu.bloomooemulator.interpreter;
 
+import pl.genschu.bloomooemulator.engine.config.EngineConfig;
 import pl.genschu.bloomooemulator.interpreter.factories.VariableFactory;
 import pl.genschu.bloomooemulator.interpreter.util.GlobalVariables;
 import pl.genschu.bloomooemulator.interpreter.variable.GlobalVariable;
@@ -417,4 +418,12 @@ public class Context {
         this.worldVariable = worldVariable;
     }
 
+    public EngineConfig getConfig() {
+        try {
+            return this.getGame().getEmulator().getConfig();
+        }
+        catch (NullPointerException e) {
+            return new EngineConfig();
+        }
+    }
 }

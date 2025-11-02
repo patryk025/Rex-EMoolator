@@ -11,6 +11,7 @@ import pl.genschu.bloomooemulator.utils.ArgumentsHelper;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.List;
+import java.util.Locale;
 
 public class DoubleVariable extends Variable {
 	public DoubleVariable(String name, double value, Context context) {
@@ -417,12 +418,110 @@ public class DoubleVariable extends Variable {
 		return this.GET() != 0;
 	}
 
+    private Object[] fcvt(double number, int ndigits) {
+        if (number == 0.0) {
+            StringBuilder sb = new StringBuilder();
+            for (int i = 0; i < Math.max(1, ndigits + 1); i++) {
+                sb.append('0');
+            }
+            return new Object[] {sb.toString(), 0, 0};
+        }
+
+        // Determine sign
+        int sign = number < 0 ? 1 : 0;
+        number = Math.abs(number);
+
+        // Format number with specified decimal places
+        String formatted = String.format(Locale.ROOT, "%.5f", number);
+        String[] parts = formatted.split("\\.");
+        String integerPart = parts[0];
+        String decimalPart = parts.length > 1 ? parts[1] : "";
+
+        // Ensure decimal part has exactly ndigits
+        if (decimalPart.length() > ndigits) {
+            decimalPart = decimalPart.substring(0, ndigits);
+        } else {
+            decimalPart = String.format("%-" + ndigits + "s", decimalPart).replace(' ', '0');
+        }
+
+        // Calculate decimal point position
+        int decpoint = integerPart.length();
+
+        // Combine all digits
+        String digits = integerPart + decimalPart;
+
+        // Remove leading zeros (unless it's all zeros)
+        if (!digits.matches("0+")) {
+            digits = digits.replaceAll("^0+", "");
+            if (integerPart.equals("0")) {
+                decpoint = 0;  // No digits before decimal point
+            }
+        }
+
+        return new Object[] {digits, decpoint, sign};
+    }
+
 	public String toStringVariable() {
-		if(this.GET() == 0) {
-			return "0";
-		}
-		NumberFormat formatter = new DecimalFormat("#0.00000");
-		return formatter.format(this.GET()).replace(",", ".");
+        if(context.getConfig().isUseOriginalDoubleRepresentation()) {
+            // Weird implementation from Piklib library
+            double value = this.GET();
+            Object[] result = fcvt(value, 5);
+            String digits = (String) result[0];
+            int decimal = (int) result[1];
+            int sign = (int) result[2];
+
+            StringBuilder output = new StringBuilder();
+
+            // Add sign if negative
+            if (sign == 1) {
+                output.append("-");
+            }
+
+            // Check if number is very small (0 < |x| < 1)
+            boolean isVerySmall = (value != 0.0 && value * value < 1.0);
+
+            // Handle leading zeros for very small numbers
+            StringBuilder signStr = new StringBuilder();
+            double tempValue = value;
+            while (tempValue > 0.0) {
+                if (tempValue * 10.0001 >= 1.0) {
+                    break;
+                }
+                signStr.append("0");
+                tempValue *= 10.0;
+            }
+
+            // Handle empty buffer case
+            if (digits.isEmpty()) {
+                digits = "0";
+            }
+
+            // Construct the final string
+            if (decimal < 1) {
+                output.append(signStr).append(digits);
+            } else {
+                String left = digits.substring(0, Math.min(decimal, digits.length()));
+                String right = decimal < digits.length() ? digits.substring(decimal) : "";
+                output.append(signStr).append(left);
+                if (!right.isEmpty()) {
+                    output.append(".").append(right);
+                }
+            }
+
+            // Add leading "0." for very small numbers without decimal point
+            if (isVerySmall && output.indexOf(".") == -1) {
+                output.insert(0, "0.");
+            }
+
+            return output.toString();
+        }
+        else {
+            if (this.GET() == 0) {
+                return "0";
+            }
+            NumberFormat formatter = new DecimalFormat("#0.00000");
+            return formatter.format(this.GET()).replace(",", ".");
+        }
 	}
 
 	public double clipToBool() {

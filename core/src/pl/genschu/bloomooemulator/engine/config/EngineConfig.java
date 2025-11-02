@@ -32,6 +32,10 @@ public class EngineConfig {
     private float musicVolume = 1.0f;
     private float soundVolume = 1.0f;
 
+    // engine specific settings
+    private boolean useOriginalDoubleRepresentation = true; // enables bugged double to string algorithm used in original engine
+
+    // TODO: Make it singleton
     public EngineConfig() {}
 
     // getters, setters, whatever
@@ -185,6 +189,14 @@ public class EngineConfig {
 
     public void toggleStepFrame() {
         this.stepFrame = !this.stepFrame;
+    }
+
+    public boolean isUseOriginalDoubleRepresentation() {
+        return useOriginalDoubleRepresentation;
+    }
+
+    public void setUseOriginalDoubleRepresentation(boolean useOriginalDoubleRepresentation) {
+        this.useOriginalDoubleRepresentation = useOriginalDoubleRepresentation;
     }
 
     /**
