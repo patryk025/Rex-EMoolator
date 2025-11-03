@@ -189,6 +189,45 @@ class AnimoTest {
     }
 
     @Test
+    void testPlayAnimo3() {
+        Context ctx = new ContextBuilder().build();
+        CapturingAnimo animo = new CapturingAnimo("STLIDLE0", ctx);
+        ctx.setVariable("STLIDLE0", animo);
+
+        String filename = "stl2.ann";
+        animo.setAttribute("FILENAME", new Attribute("STRING", filename));
+
+        try (MockedStatic<FileUtils> fu = Mockito.mockStatic(FileUtils.class)) {
+            String absPath = Gdx.files.internal("../assets/test-assets/"+filename).file().getAbsolutePath();
+            fu.when(() -> FileUtils.resolveRelativePath(Mockito.any(Variable.class)))
+                    .thenReturn(absPath);
+
+            animo.init();
+        }
+
+        // sanity check – check if loader works
+        assertTrue(animo.getEventsCount() > 0);
+
+        // switch state machine to PLAYING on that event
+        animo.fireMethod("PLAY", new StringVariable("", "ELAPSE", ctx));
+
+        float frameTime = 1f / animo.getFps();
+        animo.updateAnimation(frameTime);
+
+        // captured signals in strict order
+        List<String> expected = List.of(
+                "ONFRAMECHANGED^ELAPSE",
+                "ONSTARTED^ELAPSE"
+        );
+
+        List<Integer> expectedFrames = List.of(0, 0);
+        List<Integer> expectedImages = List.of(0, 0);
+        assertEquals(expected, animo.signals);
+        assertEquals(expectedFrames, animo.frames);
+        assertEquals(expectedImages, animo.images);
+    }
+
+    @Test
     void testPauseDuringRestartAnimo() {
         // S65_ZAMEK
         Context ctx = new ContextBuilder()
