@@ -7,8 +7,8 @@ buildscript {
         google()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:8.12.0'
-        classpath 'com.gradleup.shadow:shadow-gradle-plugin:9.1.0'
+        classpath 'com.android.tools.build:gradle:8.12.3'
+        classpath 'com.gradleup.shadow:shadow-gradle-plugin:9.2.2'
     }
 }
 
@@ -18,7 +18,7 @@ allprojects {
     version = System.getenv('RELEASE_VERSION') ?: '0.1-SNAPSHOT'
     ext {
         appName = "Rex EMoolator"
-        gdxVersion = '1.13.5'
+        gdxVersion = '1.14.0'
         roboVMVersion = '2.3.20'
         ashleyVersion = '1.7.4'
         aiVersion = '1.8.2'
@@ -26,7 +26,7 @@ allprojects {
         antlrVersion = '4.13.2'
         ini4jVersion = '0.5.4'
         oshiVersion = '6.6.3'
-        jnaVersion = '5.17.0'
+        jnaVersion = '5.18.1'
         ode4jVersion = '0.5.4'
     }
 
@@ -94,14 +94,14 @@ project(":android") {
 
         implementation 'androidx.appcompat:appcompat:1.7.1'
         implementation 'androidx.constraintlayout:constraintlayout:2.2.1'
-        implementation 'androidx.navigation:navigation-fragment:2.9.4'
+        implementation 'androidx.navigation:navigation-fragment:2.9.6'
         implementation 'androidx.navigation:navigation-ui:2.9.4'
         implementation 'androidx.activity:activity:1.11.0'
         testImplementation 'junit:junit:4.13.2'
         androidTestImplementation 'androidx.test.ext:junit:1.3.0'
         androidTestImplementation 'androidx.test.espresso:espresso-core:3.7.0'
         implementation 'androidx.recyclerview:recyclerview:1.4.0'
-        implementation 'androidx.work:work-runtime:2.10.4'
+        implementation 'androidx.work:work-runtime:2.11.0'
 
         implementation "net.java.dev.jna:jna:$jnaVersion@aar"
     }
@@ -113,8 +113,8 @@ project(":android") {
         }
 
         compileOptions {
-            sourceCompatibility JavaVersion.VERSION_1_10
-            targetCompatibility JavaVersion.VERSION_1_10
+            sourceCompatibility JavaVersion.VERSION_11
+            targetCompatibility JavaVersion.VERSION_11
         }
 
         applicationVariants.all { variant ->
@@ -127,8 +127,8 @@ project(":android") {
 
 project(":core") {
     apply plugin: "java-library"
-    sourceCompatibility = JavaVersion.VERSION_1_10
-    targetCompatibility = JavaVersion.VERSION_1_10
+    sourceCompatibility = JavaVersion.VERSION_11
+    targetCompatibility = JavaVersion.VERSION_11
 
     dependencies {
         api "com.badlogicgames.gdx:gdx:$gdxVersion"
@@ -143,10 +143,10 @@ project(":core") {
 
         testImplementation 'org.junit.jupiter:junit-jupiter:5.13.4'
         testRuntimeOnly "org.junit.platform:junit-platform-launcher:1.13.4"
-        testImplementation 'org.mockito:mockito-core:5.19.0'
+        testImplementation 'org.mockito:mockito-core:5.20.0'
         testImplementation "org.mockito:mockito-inline:5.2.0"
-        testImplementation "org.mockito:mockito-junit-jupiter:5.19.0"
-        testImplementation 'org.assertj:assertj-core:3.27.4'
+        testImplementation "org.mockito:mockito-junit-jupiter:5.20.0"
+        testImplementation 'org.assertj:assertj-core:3.27.6'
         testImplementation "com.badlogicgames.gdx:gdx-backend-headless:$gdxVersion"
         testRuntimeOnly "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-desktop"
     }
