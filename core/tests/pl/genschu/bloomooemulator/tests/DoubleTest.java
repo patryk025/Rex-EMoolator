@@ -25,7 +25,7 @@ class DoubleTest {
     };
 
     private static final double[] TEST_STRING_VECTORS = {
-            2.5, 0.0, 0.012345, -123.45, -0.12415, 0.00000123, 123456789.987654321
+            2.5, 0.0, 0.012345, -123.45, -0.12415, 0.00000123, 123456789.987654321, 1.0, 0.09999, 1e-6, -1e-6, 0.999999
     };
 
     private static final Map<String, String[]> EXPECTED_RESULTS = new HashMap<>();
@@ -58,7 +58,7 @@ class DoubleTest {
         EXPECTED_RESULTS.put("SINUS", new String[]{"-0.08107", "0", "0.05059", "1.00000", "0.87462", "-0.06976", "0"});
         EXPECTED_RESULTS.put("SQRT", new String[]{"1.#IND0", "0", "1.70294", "9.48683", "20.51828", "1.#IND0", "0.00316"});
         EXPECTED_RESULTS.put("SUB", new String[]{"-9.65000", "-5.00000", "-2.10000", "85.00000", "416.00000", "-181.00000", "-4.99999"});
-        EXPECTED_RESULTS.put("<TO_STRING>", new String[]{"2.50000", "00000", "0.01235", "-123.45000", "0.-12415", "0.000000", "123456789.98765"});
+        EXPECTED_RESULTS.put("<TO_STRING>", new String[]{"2.50000", "00000", "0.01235", "-123.45000", "0.-12415", "0.000000", "123456789.98765", "1.00000", "0.09999", "0.000000", "0.-0", "1.00000"});
     }
 
     @BeforeEach
@@ -389,7 +389,7 @@ class DoubleTest {
     }
 
     @ParameterizedTest
-    @ValueSource(ints = {0, 1, 2, 3, 4, 5, 6})
+    @ValueSource(ints = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11})
     void testToString(int vectorIndex) {
         double testValue = TEST_STRING_VECTORS[vectorIndex];
         DoubleVariable testVar;

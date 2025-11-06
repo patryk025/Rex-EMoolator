@@ -7,11 +7,14 @@ import pl.genschu.bloomooemulator.interpreter.variable.Method;
 import pl.genschu.bloomooemulator.interpreter.variable.Parameter;
 import pl.genschu.bloomooemulator.interpreter.variable.Variable;
 import pl.genschu.bloomooemulator.utils.ArgumentsHelper;
+import pl.genschu.bloomooemulator.utils.DoubleUtils;
 
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.List;
 import java.util.Locale;
+
+import static pl.genschu.bloomooemulator.utils.DoubleUtils.fcvt;
 
 public class DoubleVariable extends Variable {
 	public DoubleVariable(String name, double value, Context context) {
@@ -418,57 +421,14 @@ public class DoubleVariable extends Variable {
 		return this.GET() != 0;
 	}
 
-    private Object[] fcvt(double number, int ndigits) {
-        if (number == 0.0) {
-            StringBuilder sb = new StringBuilder();
-            for (int i = 0; i < Math.max(1, ndigits + 1); i++) {
-                sb.append('0');
-            }
-            return new Object[] {sb.toString(), 0, 0};
-        }
-
-        // Determine sign
-        int sign = number < 0 ? 1 : 0;
-        number = Math.abs(number);
-
-        // Format number with specified decimal places
-        String formatted = String.format(Locale.ROOT, "%.5f", number);
-        String[] parts = formatted.split("\\.");
-        String integerPart = parts[0];
-        String decimalPart = parts.length > 1 ? parts[1] : "";
-
-        // Ensure decimal part has exactly ndigits
-        if (decimalPart.length() > ndigits) {
-            decimalPart = decimalPart.substring(0, ndigits);
-        } else {
-            decimalPart = String.format("%-" + ndigits + "s", decimalPart).replace(' ', '0');
-        }
-
-        // Calculate decimal point position
-        int decpoint = integerPart.length();
-
-        // Combine all digits
-        String digits = integerPart + decimalPart;
-
-        // Remove leading zeros (unless it's all zeros)
-        if (!digits.matches("0+")) {
-            digits = digits.replaceAll("^0+", "");
-            if (integerPart.equals("0")) {
-                decpoint = 0;  // No digits before decimal point
-            }
-        }
-
-        return new Object[] {digits, decpoint, sign};
-    }
-
 	public String toStringVariable() {
         if(context.getConfig().isUseOriginalDoubleRepresentation()) {
-            // Weird implementation from Piklib library
+            // Reconstruction of algorithm from Piklib library
             double value = this.GET();
-            Object[] result = fcvt(value, 5);
-            String digits = (String) result[0];
-            int decimal = (int) result[1];
-            int sign = (int) result[2];
+            DoubleUtils.FcvtResult result = fcvt(value, 5);
+            String digits = result.digits;
+            int decimal = result.dec;
+            int sign = result.sign;
 
             StringBuilder output = new StringBuilder();
 
