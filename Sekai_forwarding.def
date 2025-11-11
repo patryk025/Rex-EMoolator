@@ -1,0 +1,83 @@
+LIBRARY Sekai
+EXPORTS
+; --- ordinały 1..75, Z NAZWAMI, forward do Sekai_orig.dll ---
+??0ISekai@@QAE@XZ                                   = Sekai_orig.??0ISekai@@QAE@XZ @1
+??1ISekai@@QAE@XZ                                   = Sekai_orig.??1ISekai@@QAE@XZ @2
+??4ISekai@@QAEAAV0@ABV0@@Z                          = Sekai_orig.??4ISekai@@QAEAAV0@ABV0@@Z @3
+?AddBody@ISekai@@QAEJKMMMMMMHHMMM@Z                 = Sekai_orig.?AddBody@ISekai@@QAEJKMMMMMMHHMMM@Z @4
+?AddForce@ISekai@@QAEJKMMM@Z                        = Sekai_orig.?AddForce@ISekai@@QAEJKMMM@Z @5
+?AddForceAt@ISekai@@QAEJKMMMMMM@Z                   = Sekai_orig.?AddForceAt@ISekai@@QAEJKMMMMMM@Z @6
+?AddMeshWayPoint@ISekai@@QAEJK@Z                    = Sekai_orig.?AddMeshWayPoint@ISekai@@QAEJK@Z @7
+?AddMeshWayPoint@ISekai@@QAEJKMMM@Z                 = Sekai_orig.?AddMeshWayPoint@ISekai@@QAEJKMMM@Z @8
+?AddObject@ISekai@@QAEJKH@Z                         = Sekai_orig.?AddObject@ISekai@@QAEJKH@Z @9
+?AddToPath@ISekai@@QAEJKMMM@Z                       = Sekai_orig.?AddToPath@ISekai@@QAEJKMMM@Z @10
+?AddWayPoint@ISekai@@QAEJKMMM@Z                     = Sekai_orig.?AddWayPoint@ISekai@@QAEJKMMM@Z @11
+?Break@ISekai@@QAEJK@Z                              = Sekai_orig.?Break@ISekai@@QAEJK@Z @12
+?CollideMesh@ISekai@@QAEJK_N@Z                      = Sekai_orig.?CollideMesh@ISekai@@QAEJK_N@Z @13
+?Create@ISekai@@QAEJPBD@Z                           = Sekai_orig.?Create@ISekai@@QAEJPBD@Z @14
+?EnableMesh@ISekai@@QAEJK_N@Z                       = Sekai_orig.?EnableMesh@ISekai@@QAEJK_N@Z @15
+?FindPath@ISekai@@QAEJKKMMM_N@Z                     = Sekai_orig.?FindPath@ISekai@@QAEJKKMMM_N@Z @16
+?Follow@ISekai@@QAEJKMMMMMMPAM@Z                    = Sekai_orig.?Follow@ISekai@@QAEJKMMMMMMPAM@Z @17
+?FollowPath@ISekai@@QAEJKMMMPAM@Z                   = Sekai_orig.?FollowPath@ISekai@@QAEJKMMMPAM@Z @18
+?FollowRoute@ISekai@@QAEJKMMPAM@Z                   = Sekai_orig.?FollowRoute@ISekai@@QAEJKMMPAM@Z @19
+?GetActive@ISekai@@QAEJKPA_N@Z                      = Sekai_orig.?GetActive@ISekai@@QAEJKPA_N@Z @20
+?GetAllCollisions@ISekai@@QAEJKPAPAV?$IVector@K@@@Z  = Sekai_orig.?GetAllCollisions@ISekai@@QAEJKPAPAV?$IVector@K@@@Z @21
+?GetAngle@ISekai@@QAEJKPAM@Z                        = Sekai_orig.?GetAngle@ISekai@@QAEJKPAM@Z @22
+?GetCollision@ISekai@@QAEJKKPA_N@Z                  = Sekai_orig.?GetCollision@ISekai@@QAEJKKPA_N@Z @23
+?GetCollision@ISekai@@QAEJKPA_N@Z                   = Sekai_orig.?GetCollision@ISekai@@QAEJKPA_N@Z @24
+?GetMass@ISekai@@QAEJKPAM@Z                         = Sekai_orig.?GetMass@ISekai@@QAEJKPAM@Z @25
+?GetMaxVelocity@ISekai@@QAEJKPAM@Z                  = Sekai_orig.?GetMaxVelocity@ISekai@@QAEJKPAM@Z @26
+?GetMoveDistance@ISekai@@QAEJKPAM@Z                 = Sekai_orig.?GetMoveDistance@ISekai@@QAEJKPAM@Z @27
+?GetMoveVector@ISekai@@QAEJKPAM00@Z                 = Sekai_orig.?GetMoveVector@ISekai@@QAEJKPAM00@Z @28
+?GetPosition@ISekai@@QAEJKPAM00@Z                   = Sekai_orig.?GetPosition@ISekai@@QAEJKPAM00@Z @29
+?GetRadius@ISekai@@QAEJKPAM00@Z                     = Sekai_orig.?GetRadius@ISekai@@QAEJKPAM00@Z @30
+?GetRigid@ISekai@@QAEJKPAM@Z                        = Sekai_orig.?GetRigid@ISekai@@QAEJKPAM@Z @31
+?GetRotationZ@ISekai@@QAEJKPAM@Z                    = Sekai_orig.?GetRotationZ@ISekai@@QAEJKPAM@Z @32
+?GetSpeed@ISekai@@QAEJKPAM@Z                        = Sekai_orig.?GetSpeed@ISekai@@QAEJKPAM@Z @33
+?GotoPath@ISekai@@QAEJKMPAM@Z                       = Sekai_orig.?GotoPath@ISekai@@QAEJKMPAM@Z @34
+?IsAtGoal@ISekai@@QAEJKPAK@Z                        = Sekai_orig.?IsAtGoal@ISekai@@QAEJKPAK@Z @35
+?IsMeshColliding@ISekai@@QAEJKPA_N@Z                = Sekai_orig.?IsMeshColliding@ISekai@@QAEJKPA_N@Z @36
+?IsMeshEnabled@ISekai@@QAEJKPA_N@Z                  = Sekai_orig.?IsMeshEnabled@ISekai@@QAEJKPA_N@Z @37
+?Join@ISekai@@QAEJKKMMMMMM@Z                        = Sekai_orig.?Join@ISekai@@QAEJKKMMMMMM@Z @38
+?Load@ISekai@@QAEJPBD@Z                             = Sekai_orig.?Load@ISekai@@QAEJPBD@Z @39
+?MoveObject@ISekai@@QAEJK@Z                         = Sekai_orig.?MoveObject@ISekai@@QAEJK@Z @40
+
+?MoveTo@ISekai@@QAEJKMMMMMPAM@Z                     = Sekai_orig.?MoveTo@ISekai@@QAEJKMMMMMPAM@Z @42
+?MoveToPath@ISekai@@QAEJKMMPAM@Z                    = Sekai_orig.?MoveToPath@ISekai@@QAEJKMMPAM@Z @43
+?Release@ISekai@@QAEJXZ                             = Sekai_orig.?Release@ISekai@@QAEJXZ @44
+?RemoveObject@ISekai@@QAEJK@Z                       = Sekai_orig.?RemoveObject@ISekai@@QAEJK@Z @45
+?RemoveRoute@ISekai@@QAEJK@Z                        = Sekai_orig.?RemoveRoute@ISekai@@QAEJK@Z @46
+?RemoveWayPoint@ISekai@@QAEJKK@Z                    = Sekai_orig.?RemoveWayPoint@ISekai@@QAEJKK@Z @47
+?Rotate@ISekai@@QAEJKHM@Z                           = Sekai_orig.?Rotate@ISekai@@QAEJKHM@Z @48
+?SetActive@ISekai@@QAEJK_N0@Z                       = Sekai_orig.?SetActive@ISekai@@QAEJK_N0@Z @49
+?SetActivePath@ISekai@@QAEJKK_N@Z                   = Sekai_orig.?SetActivePath@ISekai@@QAEJKK_N@Z @50
+?SetAlwaysActive@ISekai@@QAEJK_N@Z                  = Sekai_orig.?SetAlwaysActive@ISekai@@QAEJK_N@Z @51
+?SetAngle@ISekai@@QAEJKM@Z                          = Sekai_orig.?SetAngle@ISekai@@QAEJKM@Z @52
+?SetBodyDynamics@ISekai@@QAEJKMMMMM@Z               = Sekai_orig.?SetBodyDynamics@ISekai@@QAEJKMMMMM@Z @53
+?SetBodyProperties@ISekai@@QAEJKMMMM@Z              = Sekai_orig.?SetBodyProperties@ISekai@@QAEJKMMMM@Z @54
+?SetCFM@ISekai@@QAEJKM@Z                            = Sekai_orig.?SetCFM@ISekai@@QAEJKM@Z @55
+?SetCollisionType@ISekai@@QAEJKK@Z                  = Sekai_orig.?SetCollisionType@ISekai@@QAEJKK@Z @56
+?SetDispersion@ISekai@@QAEJKM@Z                     = Sekai_orig.?SetDispersion@ISekai@@QAEJKM@Z @57
+?SetForce@ISekai@@QAEJKMMM@Z                        = Sekai_orig.?SetForce@ISekai@@QAEJKMMM@Z @58
+?SetG@ISekai@@QAEJKN@Z                              = Sekai_orig.?SetG@ISekai@@QAEJKN@Z @59
+?SetGravity@ISekai@@QAEJMMM@Z                       = Sekai_orig.?SetGravity@ISekai@@QAEJMMM@Z @60
+?SetGravityCenter@ISekai@@QAEJK_N@Z                 = Sekai_orig.?SetGravityCenter@ISekai@@QAEJK_N@Z @61
+?SetLimit@ISekai@@QAEJKMMMMMM@Z                     = Sekai_orig.?SetLimit@ISekai@@QAEJKMMMMMM@Z @62
+?SetLimits@ISekai@@QAEJMMMMMM@Z                     = Sekai_orig.?SetLimits@ISekai@@QAEJMMMMMM@Z @63
+?SetMass@ISekai@@QAEJKM@Z                           = Sekai_orig.?SetMass@ISekai@@QAEJKM@Z @64
+?SetMaxSpeed@ISekai@@QAEJKM@Z                       = Sekai_orig.?SetMaxSpeed@ISekai@@QAEJKM@Z @65
+?SetPosition@ISekai@@QAEJKMMM@Z                     = Sekai_orig.?SetPosition@ISekai@@QAEJKMMM@Z @66
+?SetRadius@ISekai@@QAEJKMMM@Z                       = Sekai_orig.?SetRadius@ISekai@@QAEJKMMM@Z @67
+?SetRigid@ISekai@@QAEJKM@Z                          = Sekai_orig.?SetRigid@ISekai@@QAEJKM@Z @68
+?SetSpeed@ISekai@@QAEJKM@Z                          = Sekai_orig.?SetSpeed@ISekai@@QAEJKM@Z @69
+?SetVelocity@ISekai@@QAEJKMMM_N@Z                   = Sekai_orig.?SetVelocity@ISekai@@QAEJKMMM_N@Z @70
+?Start@ISekai@@QAEJXZ                               = Sekai_orig.?Start@ISekai@@QAEJXZ @71
+?Step@ISekai@@QAEJM@Z                               = Sekai_orig.?Step@ISekai@@QAEJM@Z @72
+?Stop@ISekai@@QAEJXZ                                = Sekai_orig.?Stop@ISekai@@QAEJXZ @73
+?UseFF@ISekai@@QAEJ_N@Z                             = Sekai_orig.?UseFF@ISekai@@QAEJ_N@Z @74
+?ZeroAll@ISekai@@QAEJK@Z                            = Sekai_orig.?ZeroAll@ISekai@@QAEJK@Z @75
+
+; --- (opcjonalnie) Twoje helpery – BEZ nadpisywania 1..75 ---
+ TriggerObjectDump
+ DumpObjectById
+ GetSekaiObjectCount
