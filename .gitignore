@@ -1,0 +1,6 @@
+Sekai_orig.dll
+sekai_shim.obj
+Sekai.dll
+Sekai.lib
+Sekai.exp
+*.log

@@ -14,9 +14,11 @@
 #include <cstdint>
 #include <stdint.h>
 #include <vector>
+#include <MinHook.h>
 
 #pragma comment(lib, "ws2_32.lib")
 #pragma comment(lib, "user32.lib")
+#pragma comment(lib, "libMinHook.x86.lib")
 
 extern "C" IMAGE_DOS_HEADER __ImageBase;
 
@@ -43,21 +45,45 @@ struct ShimConfig {
     char udpHost[64] = "127.0.0.1";
     int  udpPort = 44444;
     int  dumpEnabled = 1;
+    int  overrideTime = 0;
+    int  overrideFPS = 30;
 } g_cfg;
 
 static void LoadIni() {
     char dllPath[MAX_PATH]{}, iniPath[MAX_PATH]{};
     GetModuleFileNameA((HMODULE)&__ImageBase, dllPath, MAX_PATH);
+    
+    if (g_shim.logFile) {
+        fprintf(g_shim.logFile, "[LoadIni] DLL path: %s\n", dllPath);
+    }
+    
     // zamień rozszerzenie na .ini
     char* dot = strrchr(dllPath, '.');
     if (!dot) dot = dllPath + strlen(dllPath);
     strcpy_s(dot, MAX_PATH - (dot - dllPath), ".ini");
     strcpy_s(iniPath, dllPath);
 
+    if (g_shim.logFile) {
+        fprintf(g_shim.logFile, "[LoadIni] INI path: %s\n", iniPath);
+    }
+
     GetPrivateProfileStringA("udp", "host", "127.0.0.1", g_cfg.udpHost, (DWORD)sizeof(g_cfg.udpHost), iniPath);
     g_cfg.startServer   = GetPrivateProfileIntA("udp", "startServer", 1, iniPath);
     g_cfg.udpPort   = GetPrivateProfileIntA("udp", "port", 44444, iniPath);
     g_cfg.dumpEnabled = GetPrivateProfileIntA("debug", "dumpEnabled", 1, iniPath);
+    g_cfg.overrideTime = GetPrivateProfileIntA("time", "overrideTime", 1, iniPath);
+    g_cfg.overrideFPS = GetPrivateProfileIntA("time", "overrideFPS", 30, iniPath);
+    
+    if (g_shim.logFile) {
+        fprintf(g_shim.logFile, "[LoadIni] Loaded config:\n");
+        fprintf(g_shim.logFile, "  startServer: %d\n", g_cfg.startServer);
+        fprintf(g_shim.logFile, "  udpHost: %s\n", g_cfg.udpHost);
+        fprintf(g_shim.logFile, "  udpPort: %d\n", g_cfg.udpPort);
+        fprintf(g_shim.logFile, "  dumpEnabled: %d\n", g_cfg.dumpEnabled);
+        fprintf(g_shim.logFile, "  overrideTime: %d\n", g_cfg.overrideTime);
+        fprintf(g_shim.logFile, "  overrideFPS: %d\n", g_cfg.overrideFPS);
+        fflush(g_shim.logFile);
+    }
 }
 
 SOCKET sock = INVALID_SOCKET;
@@ -85,6 +111,39 @@ void SendSnapshotUDP(uint32_t frameIndex, double ts, std::vector<ObjRec>& objs) 
     sendto(sock, buf.data(), (int)sz, 0, (sockaddr*)&addr, sizeof(addr));
 }
 
+typedef float (__cdecl *GenerateDtFunc)();
+
+GenerateDtFunc originalGenerateDt = nullptr;
+
+float __cdecl HookedGenerateDt() {
+    if (g_shim.forcedStepTime > 0.0f) {
+        return g_shim.forcedStepTime;
+    }
+    return originalGenerateDt();
+}
+
+void InitTimeHook() {
+    if (MH_Initialize() != MH_OK) {
+        MessageBoxA(0, "MinHook init failed", "Error", 0);
+        return;
+    }
+
+    void* base = g_shim.originalDll;
+    void* target = (void*)((uintptr_t)base + 0x69b0);
+
+    if (MH_CreateHook(target, &HookedGenerateDt, (LPVOID*)&originalGenerateDt) != MH_OK) {
+        LogCall("Init", "Failed to create hook for FUN_100069b0");
+        return;
+    }
+
+    if (MH_EnableHook(target) != MH_OK) {
+        LogCall("Init", "Failed to enable hook");
+        return;
+    }
+
+    LogCall("Init", "Hooked FUN_100069b0 at 0x%p", target);
+}
+
 void InitShim() {
     // Load original DLL with different name
     g_shim.originalDll = LoadLibraryA("Sekai_orig.dll");
@@ -106,10 +165,18 @@ void InitShim() {
         fflush(g_shim.logFile);
     }
     
-    /*LoadIni();
+    fprintf(g_shim.logFile, "Loading config...\n");
+    fflush(g_shim.logFile);
+    LoadIni();
     if(g_cfg.startServer) {
+        fprintf(g_shim.logFile, "Starting UDP server on %s:%d\n", g_cfg.udpHost, g_cfg.udpPort);
+        fflush(g_shim.logFile);
         InitUDP(g_cfg.udpHost, g_cfg.udpPort);
-    }*/
+    }
+
+    if(g_cfg.overrideTime) {
+        InitTimeHook();
+    }
     
     g_shim.dumpEnabled = g_cfg.dumpEnabled;
 }
@@ -294,6 +361,9 @@ long __thiscall ISekai::MoveObjects(float* outDt) {
     long result = origFunc(this, outDt);
     
     LogCall("MoveObjects", "dt = %.6f", *outDt);
+    if(g_cfg.overrideTime) {
+        LogCall("MoveObjects", "Override time: %.6f", g_cfg.overrideTime);
+    }
     
     // Dump objects if enabled
     if (g_shim.dumpEnabled) {
