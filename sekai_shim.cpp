@@ -1,5 +1,4 @@
 #define WIN32_LEAN_AND_MEAN
-// opcjonalnie dodatkowe zabezpieczenie (gdyby ktoś kiedyś zainkludował winsock.h):
 #ifndef _WINSOCKAPI_
 #define _WINSOCKAPI_
 #endif
@@ -47,7 +46,47 @@ struct ShimConfig {
     int  dumpEnabled = 1;
     int  overrideTime = 0;
     int  overrideFPS = 30;
+    int  dumpMem = 0;
 } g_cfg;
+
+#pragma pack(push, 1)
+struct RegionIdx {
+    uint32_t base;       // base VA
+    uint32_t size;       // region size
+    uint32_t protect;    // MEMORY_BASIC_INFORMATION.Protect
+    uint32_t type;       // MEM_IMAGE / MEM_MAPPED / MEM_PRIVATE
+    uint64_t fileOffset; // offset in .mem file where this region starts
+};
+#pragma pack(pop)
+
+static bool IsReadablePage(DWORD prot) {
+    if (prot & PAGE_GUARD) return false;
+    if (prot & PAGE_NOACCESS) return false;
+    // „readable” combinations
+    static const DWORD readable[] = {
+        PAGE_READONLY, PAGE_READWRITE, PAGE_WRITECOPY,
+        PAGE_EXECUTE_READ, PAGE_EXECUTE_READWRITE, PAGE_EXECUTE_WRITECOPY
+    };
+    for (DWORD p : readable) if (prot == p) return true;
+    
+    if ( (prot & (PAGE_READONLY|PAGE_READWRITE|PAGE_WRITECOPY|
+                  PAGE_EXECUTE_READ|PAGE_EXECUTE_READWRITE|PAGE_EXECUTE_WRITECOPY)) != 0 )
+        return true;
+    return false;
+}
+
+static void BuildDumpPaths(char* memPath, size_t memPathSz, char* idxPath, size_t idxPathSz) {
+    char dllPath[MAX_PATH]{}, dirPath[MAX_PATH]{};
+    GetModuleFileNameA((HMODULE)&__ImageBase, dllPath, MAX_PATH);
+    strcpy_s(dirPath, dllPath);
+    if (char* lastSlash = strrchr(dirPath, '\\')) *(lastSlash+1) = '\0';
+    SYSTEMTIME st{}; GetLocalTime(&st);
+    // Sekai_YYYYmmdd_HHMMSS.mem / .idx
+    sprintf_s(memPath, memPathSz, "%sSekai_%04u%02u%02u_%02u%02u%02u.mem",
+              dirPath, st.wYear, st.wMonth, st.wDay, st.wHour, st.wMinute, st.wSecond);
+    sprintf_s(idxPath, idxPathSz, "%sSekai_%04u%02u%02u_%02u%02u%02u.idx",
+              dirPath, st.wYear, st.wMonth, st.wDay, st.wHour, st.wMinute, st.wSecond);
+}
 
 static void LoadIni() {
     char dllPath[MAX_PATH]{}, iniPath[MAX_PATH]{};
@@ -57,7 +96,7 @@ static void LoadIni() {
         fprintf(g_shim.logFile, "[LoadIni] DLL path: %s\n", dllPath);
     }
     
-    // zamień rozszerzenie na .ini
+    // use module name and change extension to .ini
     char* dot = strrchr(dllPath, '.');
     if (!dot) dot = dllPath + strlen(dllPath);
     strcpy_s(dot, MAX_PATH - (dot - dllPath), ".ini");
@@ -73,6 +112,7 @@ static void LoadIni() {
     g_cfg.dumpEnabled = GetPrivateProfileIntA("debug", "dumpEnabled", 1, iniPath);
     g_cfg.overrideTime = GetPrivateProfileIntA("time", "overrideTime", 1, iniPath);
     g_cfg.overrideFPS = GetPrivateProfileIntA("time", "overrideFPS", 30, iniPath);
+    g_cfg.dumpMem = GetPrivateProfileIntA("dump", "dumpMem", 1, iniPath);
     
     if (g_shim.logFile) {
         fprintf(g_shim.logFile, "[LoadIni] Loaded config:\n");
@@ -82,6 +122,7 @@ static void LoadIni() {
         fprintf(g_shim.logFile, "  dumpEnabled: %d\n", g_cfg.dumpEnabled);
         fprintf(g_shim.logFile, "  overrideTime: %d\n", g_cfg.overrideTime);
         fprintf(g_shim.logFile, "  overrideFPS: %d\n", g_cfg.overrideFPS);
+        fprintf(g_shim.logFile, "  dumpMem: %d\n", g_cfg.dumpMem);
         fflush(g_shim.logFile);
     }
 }
@@ -219,6 +260,115 @@ SekaiObjectBase* GetObjectById(uint32_t objectId) {
     return nullptr;
 }
 
+void DumpAllMemory() {
+    char memPath[MAX_PATH]{}, idxPath[MAX_PATH]{};
+    BuildDumpPaths(memPath, sizeof(memPath), idxPath, sizeof(idxPath));
+
+    FILE* fMem = fopen(memPath, "wb");
+    if (!fMem) { LogCall("DumpAllMemory", "Cannot open %s", memPath); return; }
+
+    std::vector<RegionIdx> index;
+    index.reserve(4096);
+
+    SYSTEM_INFO si{};
+    GetSystemInfo(&si);
+    uintptr_t p = (uintptr_t)si.lpMinimumApplicationAddress;
+    uintptr_t max = (uintptr_t)si.lpMaximumApplicationAddress;
+
+    HANDLE self = GetCurrentProcess();
+    SIZE_T totalWritten = 0;
+
+    while (p < max) {
+        MEMORY_BASIC_INFORMATION mbi{};
+        SIZE_T got = VirtualQuery((LPCVOID)p, &mbi, sizeof(mbi));
+        if (!got) break;
+
+        if (mbi.State == MEM_COMMIT && IsReadablePage(mbi.Protect)) {
+            RegionIdx ri{};
+            ri.base = (uint32_t)(uintptr_t)mbi.BaseAddress;
+            ri.size = (uint32_t)mbi.RegionSize;
+            ri.protect = mbi.Protect;
+            ri.type = mbi.Type;
+            ri.fileOffset = (uint64_t)_ftelli64(fMem);
+
+            // read region by chunks of 1 MiB
+            const size_t CHUNK = 1 << 20; // 1 MiB
+            std::vector<uint8_t> buf; buf.resize((std::min)((size_t)ri.size, CHUNK));
+
+            uintptr_t cur = (uintptr_t)mbi.BaseAddress;
+            SIZE_T left = mbi.RegionSize;
+            while (left > 0) {
+                SIZE_T toRead = (SIZE_T)std::min<size_t>(left, buf.size());
+                SIZE_T read = 0;
+                if (!ReadProcessMemory(self, (LPCVOID)cur, buf.data(), toRead, &read)) {
+                    if (read > 0) fwrite(buf.data(), 1, read, fMem);
+                    break;
+                }
+                fwrite(buf.data(), 1, read, fMem);
+                totalWritten += (SIZE_T)read;
+                cur += read;
+                left -= read;
+                if (read < toRead) break;
+            }
+
+            ri.size = (uint32_t)((uint64_t)_ftelli64(fMem) - ri.fileOffset);
+            if (ri.size > 0) index.push_back(ri);
+        }
+
+        p = (uintptr_t)mbi.BaseAddress + mbi.RegionSize;
+    }
+
+    fclose(fMem);
+
+    FILE* fIdx = fopen(idxPath, "wb");
+    if (!fIdx) { LogCall("DumpAllMemory", "Cannot open %s", idxPath); return; }
+
+    struct {
+        uint32_t magic;   // 'M''E''M''X' -> 0x584D454D
+        uint32_t version; // 1
+        uint32_t count;   // number of regions
+        uint32_t reserved;
+    } hdr{ 0x584D454D, 1, (uint32_t)index.size(), 0 };
+
+    fwrite(&hdr, sizeof(hdr), 1, fIdx);
+    if (!index.empty()) fwrite(index.data(), sizeof(RegionIdx), index.size(), fIdx);
+    fclose(fIdx);
+
+    LogCall("DumpAllMemory", "DONE: wrote %zu regions, total ~%zu bytes -> %s (+ %s)",
+            index.size(), (size_t)totalWritten, memPath, idxPath);
+}
+
+
+void DumpObjectToBin(SekaiObjectBase* obj, uint32_t objectId) {
+    if (!obj) return;
+    
+    char dllPath[MAX_PATH]{}, dirPath[MAX_PATH]{};
+    GetModuleFileNameA((HMODULE)&__ImageBase, dllPath, MAX_PATH);
+    
+    // Get directory path
+    strcpy_s(dirPath, dllPath);
+    char* lastSlash = strrchr(dirPath, '\\');
+    if (lastSlash) {
+        *(lastSlash + 1) = '\0';
+    }
+    
+    time_t t = time(NULL);
+    char filename[MAX_PATH];
+    sprintf_s(filename, sizeof(filename), "%sobj_dump_%u_%lu.bin", dirPath, objectId, (unsigned long)t);
+    
+    FILE* file = fopen(filename, "wb");
+    if (!file) {
+        fprintf(g_shim.logFile, "Failed to open file %s\n", filename);
+        return;
+    }
+
+    uint8_t* bytes = (uint8_t*)obj;
+    fwrite(bytes, 0x158, 1, file);
+    fclose(file);
+
+    fprintf(g_shim.logFile, "Object %u dumped to %s\n", objectId, filename);
+}
+
 void DumpObject(uint32_t objectId) {
     if (!g_shim.logFile) return;
     
@@ -294,6 +444,8 @@ void DumpObject(uint32_t objectId) {
     }
     
     fprintf(g_shim.logFile, "=== End Dump ===\n\n");
+    fprintf(g_shim.logFile, "Dumping to .bin file...\n");
+    DumpObjectToBin(obj, objectId);
     fflush(g_shim.logFile);
 }
 
@@ -367,6 +519,7 @@ long __thiscall ISekai::MoveObjects(float* outDt) {
     
     // Dump objects if enabled
     if (g_shim.dumpEnabled) {
+        if (g_cfg.dumpMem) DumpAllMemory();
         DumpAllObjects();
         g_shim.dumpEnabled = false;
     }
