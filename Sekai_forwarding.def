@@ -14,7 +14,7 @@ EXPORTS
 ?AddWayPoint@ISekai@@QAEJKMMM@Z                     = Sekai_orig.?AddWayPoint@ISekai@@QAEJKMMM@Z @11
 ?Break@ISekai@@QAEJK@Z                              = Sekai_orig.?Break@ISekai@@QAEJK@Z @12
 ?CollideMesh@ISekai@@QAEJK_N@Z                      = Sekai_orig.?CollideMesh@ISekai@@QAEJK_N@Z @13
-?Create@ISekai@@QAEJPBD@Z                           = Sekai_orig.?Create@ISekai@@QAEJPBD@Z @14
+
 ?EnableMesh@ISekai@@QAEJK_N@Z                       = Sekai_orig.?EnableMesh@ISekai@@QAEJK_N@Z @15
 ?FindPath@ISekai@@QAEJKKMMM_N@Z                     = Sekai_orig.?FindPath@ISekai@@QAEJKKMMM_N@Z @16
 ?Follow@ISekai@@QAEJKMMMMMMPAM@Z                    = Sekai_orig.?Follow@ISekai@@QAEJKMMMMMMPAM@Z @17
@@ -39,7 +39,7 @@ EXPORTS
 ?IsMeshColliding@ISekai@@QAEJKPA_N@Z                = Sekai_orig.?IsMeshColliding@ISekai@@QAEJKPA_N@Z @36
 ?IsMeshEnabled@ISekai@@QAEJKPA_N@Z                  = Sekai_orig.?IsMeshEnabled@ISekai@@QAEJKPA_N@Z @37
 ?Join@ISekai@@QAEJKKMMMMMM@Z                        = Sekai_orig.?Join@ISekai@@QAEJKKMMMMMM@Z @38
-?Load@ISekai@@QAEJPBD@Z                             = Sekai_orig.?Load@ISekai@@QAEJPBD@Z @39
+
 ?MoveObject@ISekai@@QAEJK@Z                         = Sekai_orig.?MoveObject@ISekai@@QAEJK@Z @40
 
 ?MoveTo@ISekai@@QAEJKMMMMMPAM@Z                     = Sekai_orig.?MoveTo@ISekai@@QAEJKMMMMMPAM@Z @42

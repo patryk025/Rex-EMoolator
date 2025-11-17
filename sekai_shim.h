@@ -173,7 +173,7 @@ public:
     virtual ~ISekai();
     
     // All exported methods (ordinals 1-75)
-    virtual long Create(const char* path);
+    long Create(const char* path);
     virtual long AddBody(uint32_t id, float p1, float p2, float p3, float p4, float p5, float p6, 
                         int rigid, int geomType, float d1, float d2, float d3);
     virtual long Release();
@@ -195,7 +195,7 @@ public:
     virtual long FindPath(uint32_t id, uint32_t meshId, float x, float y, float z, bool flag);
     virtual long GetSpeed(uint32_t id, float* speed);
     virtual long GetAllCollisions(uint32_t id, IVector<uint32_t>** vector);
-    virtual long Load(const char* path);
+    long Load(const char* path);
     virtual long RemoveObject(uint32_t id);
     virtual long IsAtGoal(uint32_t id, uint32_t* result);
     virtual long SetActive(uint32_t id, bool active, bool flag);

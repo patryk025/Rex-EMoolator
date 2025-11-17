@@ -561,6 +561,52 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD ul_reason_for_call, LPVOID lpReserv
 #pragma warning(push)
 #pragma warning(disable: 4273)
 
+long __thiscall ISekai::Create(const char* path) {
+    // Get original function
+    typedef long (__thiscall *OrigFunc)(ISekai*, const char*);
+    static OrigFunc origFunc = nullptr;
+
+    LogCall("MoveObjects", "Called Create(%s)", path);
+    
+    if (!origFunc) {
+        origFunc = (OrigFunc)GetProcAddress(g_shim.originalDll, "?Create@ISekai@@QAEJPBD@Z");
+        if (!origFunc) {
+            LogCall("MoveObjects", "ERROR: Could not find original function");
+            return -1;
+        }
+    }
+    
+    // Call original
+    long result = origFunc(this, path);
+
+    // TODO: Call ISekai::AddBody with fixed parameters (for reconstructing objects templates)
+    
+    return result;
+}
+
+long __thiscall ISekai::Load(const char* path) {
+    // Get original function
+    typedef long (__thiscall *OrigFunc)(ISekai*, const char*);
+    static OrigFunc origFunc = nullptr;
+
+    LogCall("MoveObjects", "Called Load(%s)", path);
+    
+    if (!origFunc) {
+        origFunc = (OrigFunc)GetProcAddress(g_shim.originalDll, "?Load@ISekai@@QAEJPBD@Z");
+        if (!origFunc) {
+            LogCall("MoveObjects", "ERROR: Could not find original function");
+            return -1;
+        }
+    }
+    
+    // Call original
+    long result = origFunc(this, path);
+
+    // TODO: Call ISekai::AddBody with fixed parameters (for reconstructing objects templates)
+    
+    return result;
+}
+
 long __thiscall ISekai::MoveObjects(float* outDt) {
     // Get original function
     typedef long (__thiscall *OrigFunc)(ISekai*, float*);
