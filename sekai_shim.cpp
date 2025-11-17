@@ -1,3 +1,6 @@
+// =============================================================================
+// Windows & Standard Headers
+// =============================================================================
 #define WIN32_LEAN_AND_MEAN
 #ifndef _WINSOCKAPI_
 #define _WINSOCKAPI_
@@ -21,6 +24,10 @@
 
 extern "C" IMAGE_DOS_HEADER __ImageBase;
 
+// =============================================================================
+// Global Variables & Constants
+// =============================================================================
+
 // Global shim instance
 SekaiShim g_shim = {0};
 
@@ -30,6 +37,10 @@ SekaiShim g_shim = {0};
 #define SPACE_OFFSET 0x1004062C
 #define JOINT_GROUP_OFFSET 0x10040630
 
+// =============================================================================
+// Data Structures - UDP Protocol
+// =============================================================================
+
 struct FrameHeader { uint32_t magic, version, frameIndex; double timestamp; uint32_t objectCount; };
 struct ObjRec {
     uint32_t id, geomType;
@@ -38,6 +49,10 @@ struct ObjRec {
     float speed;
     uint32_t flags;
 };
+
+// =============================================================================
+// Configuration Structure
+// =============================================================================
 
 struct ShimConfig {
     int  startServer = 1;
@@ -49,6 +64,10 @@ struct ShimConfig {
     int  dumpMem = 0;
 } g_cfg;
 
+// =============================================================================
+// Memory Dump Structures
+// =============================================================================
+
 #pragma pack(push, 1)
 struct RegionIdx {
     uint32_t base;       // base VA
@@ -58,6 +77,10 @@ struct RegionIdx {
     uint64_t fileOffset; // offset in .mem file where this region starts
 };
 #pragma pack(pop)
+
+// =============================================================================
+// Helper Functions - Memory Operations
+// =============================================================================
 
 static bool IsReadablePage(DWORD prot) {
     if (prot & PAGE_GUARD) return false;
@@ -87,6 +110,10 @@ static void BuildDumpPaths(char* memPath, size_t memPathSz, char* idxPath, size_
     sprintf_s(idxPath, idxPathSz, "%sSekai_%04u%02u%02u_%02u%02u%02u.idx",
               dirPath, st.wYear, st.wMonth, st.wDay, st.wHour, st.wMinute, st.wSecond);
 }
+
+// =============================================================================
+// Configuration Loading
+// =============================================================================
 
 static void LoadIni() {
     char dllPath[MAX_PATH]{}, iniPath[MAX_PATH]{};
@@ -127,6 +154,10 @@ static void LoadIni() {
     }
 }
 
+// =============================================================================
+// UDP Network Functions
+// =============================================================================
+
 SOCKET sock = INVALID_SOCKET;
 sockaddr_in addr;
 
@@ -151,6 +182,10 @@ void SendSnapshotUDP(uint32_t frameIndex, double ts, std::vector<ObjRec>& objs) 
     memcpy(buf.data()+sizeof(h), objs.data(), objs.size()*sizeof(ObjRec));
     sendto(sock, buf.data(), (int)sz, 0, (sockaddr*)&addr, sizeof(addr));
 }
+
+// =============================================================================
+// Time Hook Functions (MinHook)
+// =============================================================================
 
 typedef float (__cdecl *GenerateDtFunc)();
 
@@ -184,6 +219,10 @@ void InitTimeHook() {
 
     LogCall("Init", "Hooked FUN_100069b0 at 0x%p", target);
 }
+
+// =============================================================================
+// Initialization Functions
+// =============================================================================
 
 void InitShim() {
     // Load original DLL with different name
@@ -222,6 +261,10 @@ void InitShim() {
     g_shim.dumpEnabled = g_cfg.dumpEnabled;
 }
 
+// =============================================================================
+// Logging & Debugging Functions
+// =============================================================================
+
 void LogCall(const char* funcName, const char* format, ...) {
     if (!g_shim.logFile) return;
     
@@ -235,6 +278,10 @@ void LogCall(const char* funcName, const char* format, ...) {
     fprintf(g_shim.logFile, "\n");
     fflush(g_shim.logFile);
 }
+
+// =============================================================================
+// Object Query Functions
+// =============================================================================
 
 int GetObjectCount() {
     if (!g_shim.managerPtr) return 0;
@@ -259,6 +306,10 @@ SekaiObjectBase* GetObjectById(uint32_t objectId) {
     }
     return nullptr;
 }
+
+// =============================================================================
+// Memory Dump Functions
+// =============================================================================
 
 void DumpAllMemory() {
     char memPath[MAX_PATH]{}, idxPath[MAX_PATH]{};
@@ -338,6 +389,9 @@ void DumpAllMemory() {
             index.size(), (size_t)totalWritten, memPath, idxPath);
 }
 
+// =============================================================================
+// Object Dump Functions
+// =============================================================================
 
 void DumpObjectToBin(SekaiObjectBase* obj, uint32_t objectId) {
     if (!obj) return;
@@ -379,6 +433,7 @@ void DumpObject(uint32_t objectId) {
     }
     
     fprintf(g_shim.logFile, "\n=== Object %u Dump ===\n", objectId);
+    fprintf(g_shim.logFile, "Object address: 0x%p\n", obj);
     fprintf(g_shim.logFile, "vtable: 0x%p\n", obj->vtable);
     fprintf(g_shim.logFile, "geomType: %u ", obj->geomType);
     switch(obj->geomType) {
@@ -477,7 +532,10 @@ void DumpAllObjects() {
     fflush(g_shim.logFile);
 }
 
-// DLL Main
+// =============================================================================
+// DLL Entry Point
+// =============================================================================
+
 BOOL APIENTRY DllMain(HMODULE hModule, DWORD ul_reason_for_call, LPVOID lpReserved) {
     switch (ul_reason_for_call) {
     case DLL_PROCESS_ATTACH:
@@ -494,6 +552,15 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD ul_reason_for_call, LPVOID lpReserv
     return TRUE;
 }
 
+// =============================================================================
+// ISekai Method Implementations
+// =============================================================================
+
+// Suppress C4273: inconsistent dll linkage warning for MoveObjects
+// This is intentional - we need non-virtual __thiscall to match original DLL name mangling
+#pragma warning(push)
+#pragma warning(disable: 4273)
+
 long __thiscall ISekai::MoveObjects(float* outDt) {
     // Get original function
     typedef long (__thiscall *OrigFunc)(ISekai*, float*);
@@ -507,6 +574,11 @@ long __thiscall ISekai::MoveObjects(float* outDt) {
             LogCall("MoveObjects", "ERROR: Could not find original function");
             return -1;
         }
+    }
+
+    // Dump objects before physics tick
+    if (g_shim.dumpEnabled) {
+        if (g_cfg.dumpMem) DumpAllMemory();
     }
     
     // Call original
@@ -526,6 +598,12 @@ long __thiscall ISekai::MoveObjects(float* outDt) {
     
     return result;
 }
+
+#pragma warning(pop)
+
+// =============================================================================
+// Exported Helper Functions
+// =============================================================================
 
 // Helper function to trigger object dump
 extern "C" __declspec(dllexport) void TriggerObjectDump() {

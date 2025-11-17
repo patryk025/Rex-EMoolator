@@ -3,37 +3,49 @@
 
 #pragma once
 
+// =============================================================================
+// DLL Export/Import Configuration
+// =============================================================================
 #ifdef SEKAI_SHIM_EXPORTS
 #define SEKAI_API __declspec(dllexport)
 #else
 #define SEKAI_API __declspec(dllimport)
 #endif
 
+// =============================================================================
+// Includes
+// =============================================================================
 #include <windows.h>
 #include <cstdint>
 #include <cstdio>
 
-// Forward declarations
+// =============================================================================
+// Forward Declarations
+// =============================================================================
 class ISekai;
 template<typename T> class IVector;
+
+// =============================================================================
+// Data Structures - Sekai Manager
+// =============================================================================
 
 // Sekai Manager structure (at fixed global address)
 struct SekaiManager {
     void* vtable;                      // +0x00
-    uint8_t field_04;                  // +0x04
-    uint8_t pad_05[3];                 // padding
+    uint32_t capacity;                 // +0x04 - capacity
     uint32_t count;                    // +0x08 - number of objects
     void** objects;                    // +0x0C - array of object pointers
-    // ... more fields ...
-    uint32_t capacity;                 // capacity (somewhere early)
-    // ... rest unknown ...
 };
+
+// =============================================================================
+// Data Structures - Sekai Object Base
+// =============================================================================
 
 // Sekai Object Base structure
 struct SekaiObjectBase {
     void* vtable;                      // +0x00
-    uint32_t field_04;                 // +0x04
-    uint32_t field_08;                 // +0x08
+    uint32_t field_04;                 // +0x04 (looks like pointer)
+    uint32_t id;                       // +0x08
     uint32_t field_0C;                 // +0x0C
     uint32_t geomType;                 // +0x10 (0=box, 1=cyl, 2=sphere, 3=mesh, 4=trimesh)
     uint32_t field_14;                 // +0x14
@@ -78,6 +90,10 @@ struct SekaiObjectBase {
     uint32_t* collisionIDs;            // +0x154
 };
 
+// =============================================================================
+// Data Structures - Shim Context
+// =============================================================================
+
 // Shim context
 struct SekaiShim {
     HMODULE originalDll;
@@ -90,10 +106,14 @@ struct SekaiShim {
     void* originalFunctions[76];       // Array of original function pointers
 };
 
-// Global shim instance
+// =============================================================================
+// Global Variables
+// =============================================================================
 extern SekaiShim g_shim;
 
-// Helper functions
+// =============================================================================
+// Helper Functions
+// =============================================================================
 void InitShim();
 void DumpObject(uint32_t objectId);
 void DumpAllObjects();
@@ -101,8 +121,14 @@ void LogCall(const char* funcName, const char* format, ...);
 SekaiObjectBase* GetObjectById(uint32_t objectId);
 int GetObjectCount();
 
-// Macro for easy logging
+// =============================================================================
+// Macros
+// =============================================================================
 #define LOG_CALL(name, ...) if (g_shim.logFile) LogCall(name, __VA_ARGS__)
+
+// =============================================================================
+// Vtable Function Signatures & Inline Helpers
+// =============================================================================
 
 // Vtable function signatures (for direct calls if needed)
 typedef uint32_t (__thiscall *GetIdFunc)(void* obj);
@@ -135,7 +161,11 @@ inline float CallGetSpeed(void* obj) {
     return func(obj);
 }
 
-// ISekai class interface (must match original)
+// =============================================================================
+// ISekai Interface Class
+// =============================================================================
+
+// ISekai class interface (must match original DLL vtable layout)
 class SEKAI_API ISekai {
 public:
     // Constructor/Destructor
