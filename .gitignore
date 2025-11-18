@@ -4,3 +4,7 @@ Sekai.dll
 Sekai.lib
 Sekai.exp
 *.log
+*.idx
+*.mem
+*.bin
+*.txt

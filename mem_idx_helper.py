@@ -54,6 +54,147 @@ def parse_int(s):
     s = s.strip()
     return int(s, 0)
 
+def diff_dumps(regions1, regions2, memdump1, memdump2):
+    # Create maps for quick lookup
+    regions1_map = {r.base: r for r in regions1}
+    regions2_map = {r.base: r for r in regions2}
+
+    # Find region differences
+    bases1 = set(regions1_map.keys())
+    bases2 = set(regions2_map.keys())
+
+    only_in_1 = bases1 - bases2
+    only_in_2 = bases2 - bases1
+    common = bases1 & bases2
+
+    print(f"[*] Analiza struktury regionów:")
+    print(f"    Tylko w zrzucie 1: {len(only_in_1)} regionów")
+    print(f"    Tylko w zrzucie 2: {len(only_in_2)} regionów")
+    print(f"    Wspólnych regionów: {len(common)}")
+    print()
+
+    if only_in_1:
+        print("[+] Regiony usunięte (tylko w zrzucie 1):")
+        for base in sorted(only_in_1)[:10]:  # Show max 10
+            r = regions1_map[base]
+            print(f"    0x{r.base:08X} - 0x{r.base + r.size:08X} (size=0x{r.size:X})")
+        if len(only_in_1) > 10:
+            print(f"    ... i {len(only_in_1) - 10} więcej")
+        print()
+
+    if only_in_2:
+        print("[+] Regiony dodane (tylko w zrzucie 2):")
+        for base in sorted(only_in_2)[:10]:
+            r = regions2_map[base]
+            print(f"    0x{r.base:08X} - 0x{r.base + r.size:08X} (size=0x{r.size:X})")
+        if len(only_in_2) > 10:
+            print(f"    ... i {len(only_in_2) - 10} więcej")
+        print()
+
+    # Continue only if there are common regions
+    if not common:
+        print("[!] Brak wspólnych regionów do porównania")
+        return
+
+    # Check if memory dump files exist
+    if not os.path.isfile(memdump1):
+        print(f"[!] Brak pliku zrzutu pamięci: {memdump1}")
+        return
+    if not os.path.isfile(memdump2):
+        print(f"[!] Brak pliku zrzutu pamięci: {memdump2}")
+        return
+
+    print("[*] Porównywanie zawartości wspólnych regionów...")
+
+    changed_regions = []
+
+    with open(memdump1, "rb") as f1, open(memdump2, "rb") as f2:
+        for base in sorted(common):
+            r1 = regions1_map[base]
+            r2 = regions2_map[base]
+
+            # Check region size
+            if r1.size != r2.size:
+                changed_regions.append({
+                    'base': base,
+                    'type': 'size_changed',
+                    'old_size': r1.size,
+                    'new_size': r2.size
+                })
+                continue
+
+            # Read region data from both dumps
+            f1.seek(r1.file_offset)
+            data1 = f1.read(r1.size)
+
+            f2.seek(r2.file_offset)
+            data2 = f2.read(r2.size)
+
+            if len(data1) != r1.size or len(data2) != r2.size:
+                print(f"[!] Błąd odczytu dla regionu 0x{base:08X}")
+                continue
+
+            # Compare byte by byte
+            if data1 != data2:
+                # Find differing byte ranges
+                diffs = []
+                diff_start = None
+
+                for i in range(len(data1)):
+                    if data1[i] != data2[i]:
+                        if diff_start is None:
+                            diff_start = i
+                    else:
+                        if diff_start is not None:
+                            diffs.append((diff_start, i - 1))
+                            diff_start = None
+
+                # Handle case where difference goes to the end
+                if diff_start is not None:
+                    diffs.append((diff_start, len(data1) - 1))
+
+                changed_regions.append({
+                    'base': base,
+                    'type': 'content_changed',
+                    'size': r1.size,
+                    'diffs': diffs,
+                    'total_changed': sum(end - start + 1 for start, end in diffs)
+                })
+
+    if not changed_regions:
+        print("[+] Brak różnic w zawartości wspólnych regionów!")
+        return
+
+    print(f"[+] Znaleziono {len(changed_regions)} zmienionych regionów:")
+    print()
+
+    for change in changed_regions[:20]:  # Show max 20
+        base = change['base']
+        if change['type'] == 'size_changed':
+            print(f"  Region 0x{base:08X}:")
+            print(f"    Zmiana rozmiaru: 0x{change['old_size']:X} -> 0x{change['new_size']:X}")
+        else:
+            print(f"  Region 0x{base:08X} (size=0x{change['size']:X}):")
+            print(f"    Zmienione bajty: {change['total_changed']} / {change['size']} ({100.0 * change['total_changed'] / change['size']:.2f}%)")
+            print(f"    Zakresów różnic: {len(change['diffs'])}")
+
+            # Show first 5 diff ranges
+            for start, end in change['diffs'][:5]:
+                va_start = base + start
+                va_end = base + end
+                print(f"      VA 0x{va_start:08X} - 0x{va_end:08X} (offset +0x{start:X}, {end - start + 1} bajtów)")
+
+            if len(change['diffs']) > 5:
+                print(f"      ... i {len(change['diffs']) - 5} więcej zakresów")
+        print()
+
+    if len(changed_regions) > 20:
+        print(f"... i {len(changed_regions) - 20} więcej zmienionych regionów")
+        print()
+
+    total_bytes_changed = sum(c.get('total_changed', 0) for c in changed_regions if c['type'] == 'content_changed')
+    print(f"[=] Podsumowanie: łącznie ~{total_bytes_changed} bajtów zmienionych")
+
 def main():
     if len(sys.argv) < 2:
         print("Użycie: python mem_idx_helper.py Sekai_xxx.idx")
@@ -76,6 +217,7 @@ def main():
     print("  mr <base> <rva>       - base modułu + RVA → offset w .mem")
     print("  info                  - podstawowe info")
     print("  region <addr>         - pokaż tylko info o regionie")
+    print("  diff <idx_path>            - pokaż różnice pomiędzy dwoma zrzutami pamięci")
     print("  q / quit / exit       - wyjście")
     print()
     print("Przykłady:")
@@ -161,6 +303,27 @@ def main():
                 print(f"VA 0x{va:08X} nie należy do żadnego regionu")
                 continue
             print(r)
+            continue
+
+        if cmd == "diff":
+            if len(parts) != 2:
+                print("Użycie: diff <idx_path>")
+                continue
+
+            try:
+                other_regions = load_index(parts[1])
+            except RuntimeError as e:
+                print(f"Błąd wczytywania indexu: {e}")
+                continue
+            
+            other_mem_guessed = parts[1].rsplit(".", 1)[0] + ".mem"
+
+            print(f"Analiza różnic między zrzutami")
+            print(f"  {idx_path} -> {parts[1]}")
+            print(f"  {mem_guess} -> {other_mem_guessed}")
+            print()
+
+            diff_dumps(regions, other_regions, mem_guess, other_mem_guessed)
             continue
 
         print("Nieznana komenda. Dostępne: va, mr, info, region, quit")
