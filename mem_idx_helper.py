@@ -50,6 +50,13 @@ def find_region_for_va(va, regions):
             return r
     return None
 
+def find_region_for_offset(offset, regions):
+    # Find region that contains the given file offset
+    for r in regions:
+        if r.file_offset <= offset < r.file_offset + r.size:
+            return r
+    return None
+
 def parse_int(s):
     s = s.strip()
     return int(s, 0)
@@ -214,15 +221,17 @@ def main():
     print()
     print("Tryb interaktywny. Komendy:")
     print("  va <addr>             - adres wirtualny → offset w .mem")
+    print("  offset <offset>       - offset w .mem → adres wirtualny")
     print("  mr <base> <rva>       - base modułu + RVA → offset w .mem")
     print("  info                  - podstawowe info")
     print("  region <addr>         - pokaż tylko info o regionie")
-    print("  diff <idx_path>            - pokaż różnice pomiędzy dwoma zrzutami pamięci")
+    print("  diff <idx_path>       - pokaż różnice pomiędzy dwoma zrzutami pamięci")
     print("  q / quit / exit       - wyjście")
     print()
     print("Przykłady:")
     print("  va 0x14F80BD0")
-    print("  mr 0x0FFA0000 0xD354    # vtable Sekai: base + RVA")
+    print("  offset 0x1A3F4B0       # offset w .mem → VA")
+    print("  mr 0x0FFA0000 0xD354   # vtable Sekai: base + RVA")
     print()
 
     while True:
@@ -264,6 +273,29 @@ def main():
             offset = r.file_offset + (va - r.base)
             print(f"VA 0x{va:08X} -> region base=0x{r.base:08X}, size=0x{r.size:X}")
             print(f"              file_offset=0x{r.file_offset:X} -> offset w .mem = 0x{offset:X} ({offset} dec)")
+            continue
+
+        if cmd == "offset" or cmd == "off":
+            if len(parts) != 2:
+                print("Użycie: offset <offset>")
+                continue
+            try:
+                offset = parse_int(parts[1])
+            except ValueError as e:
+                print(f"Błąd parsowania offsetu: {e}")
+                continue
+
+            r = find_region_for_offset(offset, regions)
+            if not r:
+                print(f"Offset 0x{offset:X} nie należy do żadnego regionu")
+                continue
+
+            va = r.base + (offset - r.file_offset)
+            rva = va - r.base
+            print(f"Offset w .mem 0x{offset:X} ({offset} dec)")
+            print(f"  -> region base=0x{r.base:08X}, size=0x{r.size:X}")
+            print(f"  -> VA = 0x{va:08X}")
+            print(f"  -> RVA (offset w regionie) = 0x{rva:X}")
             continue
 
         if cmd == "mr":
@@ -326,7 +358,7 @@ def main():
             diff_dumps(regions, other_regions, mem_guess, other_mem_guessed)
             continue
 
-        print("Nieznana komenda. Dostępne: va, mr, info, region, quit")
+        print("Nieznana komenda. Dostępne: va, offset, mr, info, region, diff, quit")
 
 
 if __name__ == "__main__":
