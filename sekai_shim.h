@@ -18,6 +18,7 @@
 #include <windows.h>
 #include <cstdint>
 #include <cstdio>
+#include "ode_structs.h"
 
 // =============================================================================
 // Forward Declarations
@@ -53,18 +54,18 @@ struct SekaiObjectBase {
     bool hasLimits;                    // +0x19
     bool collisionEnabled;             // +0x1A
     bool gravityCenter;                // +0x1B
-    void* physicsBody;                 // +0x1C (dBodyID)
-    void* physicsGeom;                 // +0x20 (dGeomID)
-    void* joint;                       // +0x24 (dJointID)
-    double field_28;                   // +0x28
-    double field_30;                   // +0x30
-    double field_38;                   // +0x38
+    dxBody* physicsBody;               // +0x1C (dBodyID)
+    dxGeom* physicsGeom;               // +0x20 (dGeomID)
+    dxJoint* joint;                    // +0x24 (dJointID)
+    double mu;                         // +0x28
+    double bounce;                     // +0x30
+    double bounceVel;                  // +0x38
     double CFM;                        // +0x40
     double maxSpeed;                   // +0x48
     float field_4C;                    // +0x4C
-    double currentSpeed;               // +0x50
+    double unknown;                    // +0x50
     float field_54;                    // +0x54
-    double mass;                       // +0x58
+    double field_58;                   // +0x58
     float field_60;                    // +0x60
     float field_64;                    // +0x64
     double gravity_G;                  // +0x68
@@ -132,9 +133,10 @@ int GetObjectCount();
 
 // Vtable function signatures (for direct calls if needed)
 typedef uint32_t (__thiscall *GetIdFunc)(void* obj);
-typedef void (__thiscall *GetPositionFunc)(void* obj, float* outX, float* outY, float* outZ);
+typedef float* (__thiscall *GetPositionFunc)(void* obj);
 typedef bool (__thiscall *IsActiveFunc)(void* obj);
-typedef float (__thiscall *GetSpeedFunc)(void* obj);
+typedef void (__thiscall *GetSpeedFunc)(void* obj, float* speed);
+typedef void (__thiscall *GetSpeedVectorFunc)(void* obj, float* speed);
 
 // Inline helpers for accessing vtable functions
 inline uint32_t CallGetId(void* obj) {
@@ -146,7 +148,10 @@ inline uint32_t CallGetId(void* obj) {
 inline void CallGetPosition(void* obj, float* x, float* y, float* z) {
     void** vtable = *(void***)obj;
     GetPositionFunc func = (GetPositionFunc)vtable[0x1C / 4];
-    func(obj, x, y, z);
+    float* pos = func(obj);
+    *x = pos[0];
+    *y = pos[1];
+    *z = pos[2];
 }
 
 inline bool CallIsActive(void* obj) {
@@ -155,10 +160,14 @@ inline bool CallIsActive(void* obj) {
     return func(obj);
 }
 
-inline float CallGetSpeed(void* obj) {
+inline void CallGetSpeedVector(void* obj, float* speedX, float* speedY, float* speedZ) {
     void** vtable = *(void***)obj;
-    GetSpeedFunc func = (GetSpeedFunc)vtable[0x5C / 4];
-    return func(obj);
+    GetSpeedVectorFunc func = (GetSpeedVectorFunc)vtable[0x54 / 4];
+    float *speed;
+    func(obj, speed);
+    *speedX = speed[0];
+    *speedY = speed[1];
+    *speedZ = speed[2];
 }
 
 // =============================================================================

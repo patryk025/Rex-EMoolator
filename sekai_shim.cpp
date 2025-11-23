@@ -37,6 +37,10 @@ SekaiShim g_shim = {0};
 #define SPACE_OFFSET 0x1004062C
 #define JOINT_GROUP_OFFSET 0x10040630
 
+typedef long (__thiscall *AddBody)(ISekai*, uint32_t, float, float, float, float, float, float, 
+                        int, int, float, float, float);
+static AddBody addBodyFunc = nullptr;
+
 // =============================================================================
 // Data Structures - UDP Protocol
 // =============================================================================
@@ -55,13 +59,13 @@ struct ObjRec {
 // =============================================================================
 
 struct ShimConfig {
-    int  startServer = 1;
+    bool startServer = true;
     char udpHost[64] = "127.0.0.1";
     int  udpPort = 44444;
-    int  dumpEnabled = 1;
-    int  overrideTime = 0;
+    bool dumpEnabled = true;
+    bool overrideTime = false;
     int  overrideFPS = 30;
-    int  dumpMem = 0;
+    bool dumpMem = false;
 } g_cfg;
 
 // =============================================================================
@@ -134,12 +138,12 @@ static void LoadIni() {
     }
 
     GetPrivateProfileStringA("udp", "host", "127.0.0.1", g_cfg.udpHost, (DWORD)sizeof(g_cfg.udpHost), iniPath);
-    g_cfg.startServer   = GetPrivateProfileIntA("udp", "startServer", 1, iniPath);
+    g_cfg.startServer   = GetPrivateProfileIntA("udp", "startServer", 1, iniPath) != 0;
     g_cfg.udpPort   = GetPrivateProfileIntA("udp", "port", 44444, iniPath);
-    g_cfg.dumpEnabled = GetPrivateProfileIntA("debug", "dumpEnabled", 1, iniPath);
-    g_cfg.overrideTime = GetPrivateProfileIntA("time", "overrideTime", 1, iniPath);
+    g_cfg.dumpEnabled = GetPrivateProfileIntA("debug", "dumpEnabled", 1, iniPath) != 0;
+    g_cfg.overrideTime = GetPrivateProfileIntA("time", "overrideTime", 1, iniPath) != 0;
     g_cfg.overrideFPS = GetPrivateProfileIntA("time", "overrideFPS", 30, iniPath);
-    g_cfg.dumpMem = GetPrivateProfileIntA("dump", "dumpMem", 1, iniPath);
+    g_cfg.dumpMem = GetPrivateProfileIntA("dump", "dumpMem", 1, iniPath) != 0;
     
     if (g_shim.logFile) {
         fprintf(g_shim.logFile, "[LoadIni] Loaded config:\n");
@@ -259,6 +263,9 @@ void InitShim() {
     }
     
     g_shim.dumpEnabled = g_cfg.dumpEnabled;
+
+    // get AddBody function pointer
+    addBodyFunc =  (AddBody)GetProcAddress(g_shim.originalDll, "?AddBody@ISekai@@QAEJKMMMMMMHHMMM@Z");
 }
 
 // =============================================================================
@@ -423,6 +430,58 @@ void DumpObjectToBin(SekaiObjectBase* obj, uint32_t objectId) {
     fprintf(g_shim.logFile, "Object %u dumped to %s\n", objectId, filename);
 }
 
+double GetObjectMass(SekaiObjectBase* obj) {
+    if (!obj) return 0.0f;
+    dxBody* body = (dxBody*)obj->physicsBody;
+    if (!body) return 0.0f;
+    dMass *mass = &body->mass;
+    if (!mass) return 0.0f;
+    return mass->mass;
+}
+
+bool GetObjectMassCenter(SekaiObjectBase* obj, float outC[3]) {
+    if (!obj || !obj->physicsBody || !outC) return false;
+    dxBody* body = (dxBody*)obj->physicsBody;
+    dMass* mass = &body->mass;
+    outC[0] = (float)mass->c[0];
+    outC[1] = (float)mass->c[1];
+    outC[2] = (float)mass->c[2];
+    return true;
+}
+
+bool GetObjectInertiaTensor(SekaiObjectBase* obj, float outI[3][3]) {
+    if (!obj || !obj->physicsBody || !outI) return false;
+    dxBody* body = (dxBody*)obj->physicsBody;
+    dMass* mass = &body->mass;
+    for (int i = 0; i < 3; ++i) {
+        for (int j = 0; j < 3; ++j) {
+            outI[i][j] = (float)mass->I[4 * i + j];
+        }
+    }
+    return true;
+}
+
+bool GetRotationMatrix(SekaiObjectBase* obj, dMatrix3 outR) {
+    if (!obj || !obj->physicsBody || !outR) return false;
+    dxBody* body = (dxBody*)obj->physicsBody;
+    // copy rotation matrix
+    memcpy(outR, body->R, sizeof(dMatrix3));
+    return true;
+}
+
+// implementation like in Sekai.dll
+double GetRotationX(dMatrix3 R) {
+    return atan2(R[2], R[1]) * 180.0;
+}
+
+double GetRotationY(dMatrix3 R) {
+    return atan2(R[10], R[8]) * 57.295776;
+}
+
+double GetRotationZ(dMatrix3 R) {
+    return atan2(R[8], *R) * 57.295776;
+}
+
 void DumpObject(uint32_t objectId) {
     if (!g_shim.logFile) return;
     
@@ -455,9 +514,43 @@ void DumpObject(uint32_t objectId) {
     fprintf(g_shim.logFile, "  body: 0x%p\n", obj->physicsBody);
     fprintf(g_shim.logFile, "  geom: 0x%p\n", obj->physicsGeom);
     fprintf(g_shim.logFile, "  joint: 0x%p\n", obj->joint);
-    fprintf(g_shim.logFile, "  mass: %.6f\n", obj->mass);
-    fprintf(g_shim.logFile, "  currentSpeed: %.6f\n", obj->currentSpeed);
+    fprintf(g_shim.logFile, "  mass: %.6f\n", GetObjectMass(obj));
+
+    float mc[3];
+    if (GetObjectMassCenter(obj, mc)) {
+        fprintf(g_shim.logFile, "  mass center: %.6f, %.6f, %.6f\n", mc[0], mc[1], mc[2]);
+    } else {
+        fprintf(g_shim.logFile, "  mass center: N/A\n");
+    }
+
+    float I[3][3];
+    if (GetObjectInertiaTensor(obj, I)) {
+        fprintf(g_shim.logFile, "  mass inertia tensor:\n");
+        for (int r = 0; r < 3; ++r) {
+            fprintf(g_shim.logFile, "    %.6f  %.6f  %.6f\n", I[r][0], I[r][1], I[r][2]);
+        }
+    } else {
+        fprintf(g_shim.logFile, "  mass inertia tensor: N/A\n");
+    }
+
+    double *speedVector = obj->physicsBody->lvel;
+    double currentSpeed = sqrt(speedVector[0] * speedVector[0] + speedVector[1] * speedVector[1] + speedVector[2] * speedVector[2]);
+
+    fprintf(g_shim.logFile, "  currentSpeed: %.6f\n", currentSpeed);
+    fprintf(g_shim.logFile, "  currentSpeedVector: (%.6f, %.6f, %.6f)\n", speedVector[0], speedVector[1], speedVector[2]);
     fprintf(g_shim.logFile, "  maxSpeed: %.6f\n", obj->maxSpeed);
+
+    // get rotation matrix
+    dMatrix3 R;
+    if (GetRotationMatrix(obj, R)) {
+        fprintf(g_shim.logFile, "  rotation matrix:\n");
+        fprintf(g_shim.logFile, "    %.6f  %.6f  %.6f\n", R[0], R[1], R[2]);
+        fprintf(g_shim.logFile, "    %.6f  %.6f  %.6f\n", R[3], R[4], R[5]);
+        fprintf(g_shim.logFile, "    %.6f  %.6f  %.6f\n", R[6], R[7], R[8]);
+    }
+    fprintf(g_shim.logFile, "  rotation X: %.6f\n", GetRotationX(R));
+    fprintf(g_shim.logFile, "  rotation Y: %.6f\n", GetRotationY(R));
+    fprintf(g_shim.logFile, "  rotation Z: %.6f\n", GetRotationZ(R));
     fprintf(g_shim.logFile, "  CFM: %.6f\n", obj->CFM);
     fprintf(g_shim.logFile, "  gravity_G: %.6f\n", obj->gravity_G);
     
@@ -465,10 +558,6 @@ void DumpObject(uint32_t objectId) {
     float x, y, z;
     CallGetPosition(obj, &x, &y, &z);
     fprintf(g_shim.logFile, "Position: (%.3f, %.3f, %.3f)\n", x, y, z);
-    
-    // Get speed
-    float speed = CallGetSpeed(obj);
-    fprintf(g_shim.logFile, "Speed: %.3f\n", speed);
     
     // Collisions
     /*fprintf(g_shim.logFile, "Collisions: %u\n", obj->collisionCount);
@@ -484,11 +573,11 @@ void DumpObject(uint32_t objectId) {
     }*/
     
     // Waypoints
-    fprintf(g_shim.logFile, "Waypoints: %u/%u\n", obj->waypointCount, obj->waypointCapacity);
+    //fprintf(g_shim.logFile, "Waypoints: %u/%u\n", obj->waypointCount, obj->waypointCapacity);
     
    
     // Binary dump (first 0x158 bytes for base object)
-    fprintf(g_shim.logFile, "\nBinary dump (first 0x158 bytes):\n");
+    /*fprintf(g_shim.logFile, "\nBinary dump (first 0x158 bytes):\n");
     uint8_t* bytes = (uint8_t*)obj;
     for (int i = 0; i < 0x158; i += 16) {
         fprintf(g_shim.logFile, "%04X: ", i);
@@ -500,7 +589,7 @@ void DumpObject(uint32_t objectId) {
     
     fprintf(g_shim.logFile, "=== End Dump ===\n\n");
     fprintf(g_shim.logFile, "Dumping to .bin file...\n");
-    DumpObjectToBin(obj, objectId);
+    DumpObjectToBin(obj, objectId);*/
     fflush(g_shim.logFile);
 }
 
@@ -553,6 +642,29 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD ul_reason_for_call, LPVOID lpReserv
 }
 
 // =============================================================================
+// ISekai helper functions
+// =============================================================================
+
+void CreateObject(ISekai *sekai) {
+    //int __thiscall ISekai::AddBody(ISekai *this, unsigned int objectId, float mass, float mu, float mu2, float bounce, float bounceVel, float maxVel, unsigned int a9, int geomType, float dimX, float dimY, float dimZ)
+    int objectId = 4567;
+    float mass = 50.0f;
+    float mu = 5.9f;
+    float mu2 = 5.8f;
+    float bounce = 5.7f;
+    float bounceVel = 5.6f;
+    float maxVel = 5.5f;
+    int a9 = 1;
+    int geomType = 1;
+    float dimX = 8.0f;
+    float dimY = 7.0f;
+    float dimZ = 6.0f;
+    
+    // call addBodyFunc
+    long result = addBodyFunc(sekai, objectId, mass, mu, mu2, bounce, bounceVel, maxVel, a9, geomType, dimX, dimY, dimZ);
+}
+
+// =============================================================================
 // ISekai Method Implementations
 // =============================================================================
 
@@ -580,6 +692,7 @@ long __thiscall ISekai::Create(const char* path) {
     long result = origFunc(this, path);
 
     // TODO: Call ISekai::AddBody with fixed parameters (for reconstructing objects templates)
+    CreateObject(this);
     
     return result;
 }
@@ -603,6 +716,7 @@ long __thiscall ISekai::Load(const char* path) {
     long result = origFunc(this, path);
 
     // TODO: Call ISekai::AddBody with fixed parameters (for reconstructing objects templates)
+    CreateObject(this);
     
     return result;
 }
@@ -639,7 +753,7 @@ long __thiscall ISekai::MoveObjects(float* outDt) {
     if (g_shim.dumpEnabled) {
         if (g_cfg.dumpMem) DumpAllMemory();
         DumpAllObjects();
-        g_shim.dumpEnabled = false;
+        //g_shim.dumpEnabled = false;
     }
     
     return result;
