@@ -15,11 +15,14 @@ public class EngineConfig {
     private boolean debugCollisions = false;
     private boolean debugMatrix = false;
     private boolean monitorPerformance = false;
+    private boolean debugWorld = true;
 
     // render settings
     private boolean maintainAspectRatio = true;
     private boolean vsync = true;
     private int targetFPS = 60;
+    private boolean paused = false;
+    private boolean stepFrame = false;
 
     // log level settings
     private int logLevel = Application.LOG_DEBUG;
@@ -29,6 +32,10 @@ public class EngineConfig {
     private float musicVolume = 1.0f;
     private float soundVolume = 1.0f;
 
+    // engine specific settings
+    private boolean useOriginalDoubleRepresentation = true; // enables bugged double to string algorithm used in original engine
+
+    // TODO: Make it singleton
     public EngineConfig() {}
 
     // getters, setters, whatever
@@ -104,6 +111,14 @@ public class EngineConfig {
         this.monitorPerformance = !this.monitorPerformance;
     }
 
+    public boolean isDebugWorld() {
+        return debugWorld;
+    }
+
+    public void toggleDebugWorld() {
+        this.debugWorld = !this.debugWorld;
+    }
+
     public boolean isMaintainAspectRatio() {
         return maintainAspectRatio;
     }
@@ -158,6 +173,30 @@ public class EngineConfig {
 
     public void setSoundVolume(float soundVolume) {
         this.soundVolume = Math.max(0.0f, Math.min(1.0f, soundVolume));
+    }
+
+    public boolean isPaused() {
+        return paused;
+    }
+
+    public void togglePaused() {
+        this.paused = !this.paused;
+    }
+
+    public boolean isStepFrame() {
+        return stepFrame;
+    }
+
+    public void toggleStepFrame() {
+        this.stepFrame = !this.stepFrame;
+    }
+
+    public boolean isUseOriginalDoubleRepresentation() {
+        return useOriginalDoubleRepresentation;
+    }
+
+    public void setUseOriginalDoubleRepresentation(boolean useOriginalDoubleRepresentation) {
+        this.useOriginalDoubleRepresentation = useOriginalDoubleRepresentation;
     }
 
     /**

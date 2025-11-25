@@ -1,6 +1,7 @@
-package pl.genschu.bloomooemulator.objects;
+package pl.genschu.bloomooemulator.geometry.shapes;
 
-public class Rectangle {
+public class Box2D {
+    // TODO: refactor like in Box3D class (it will be very much classes to refactor, whole rendering, collisions, buttons, etc.)
     private int xLeft;
     private int yBottom;
     private int xRight;
@@ -9,7 +10,7 @@ public class Rectangle {
     private int width;
     private int height;
 
-    public Rectangle(int xLeft, int yBottom, int xRight, int yTop) {
+    public Box2D(int xLeft, int yBottom, int xRight, int yTop) {
         this.xLeft = xLeft;
         this.yBottom = yBottom;
         this.xRight = xRight;
@@ -58,7 +59,7 @@ public class Rectangle {
         return x >= xLeft && x <= xRight && y >= yBottom + getHeight() && y <= yTop + getHeight();
     }
 
-    public boolean intersects(Rectangle other) {
+    public boolean intersects(Box2D other) {
         return xLeft < other.getXRight() && xRight > other.getXLeft() && yBottom + getHeight() < other.getYTop() + other.getHeight() && yTop + getHeight() > other.getYBottom() + other.getHeight();
     }
 

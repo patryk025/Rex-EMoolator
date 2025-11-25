@@ -1,7 +1,6 @@
 package pl.genschu.bloomooemulator.engine;
 
 import com.badlogic.gdx.audio.Music;
-import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
@@ -26,8 +25,8 @@ import java.util.*;
 import com.badlogic.gdx.Gdx;
 import pl.genschu.bloomooemulator.engine.ini.INIManager;
 import pl.genschu.bloomooemulator.objects.Image;
-import pl.genschu.bloomooemulator.objects.QuadTree;
-import pl.genschu.bloomooemulator.objects.Rectangle;
+import pl.genschu.bloomooemulator.geometry.spartial.QuadTree;
+import pl.genschu.bloomooemulator.geometry.shapes.Box2D;
 import pl.genschu.bloomooemulator.utils.FileUtils;
 
 public class Game {
@@ -73,7 +72,7 @@ public class Game {
     public Game(GameEntry game, BlooMooEngine emulator) {
         this.definitionContext = new Context();
         this.game = game;
-        this.quadTree = new QuadTree(0, new Rectangle(0, 0, 800, 600));
+        this.quadTree = new QuadTree(0, new Box2D(0, 0, 800, 600));
         this.emulator = emulator;
 
         musicCache = Collections.synchronizedMap(new HashMap<>());

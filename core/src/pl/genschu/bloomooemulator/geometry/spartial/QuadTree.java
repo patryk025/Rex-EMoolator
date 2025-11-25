@@ -1,6 +1,6 @@
-package pl.genschu.bloomooemulator.objects;
+package pl.genschu.bloomooemulator.geometry.spartial;
 
-import pl.genschu.bloomooemulator.interpreter.util.Rect;
+import pl.genschu.bloomooemulator.geometry.shapes.Box2D;
 import pl.genschu.bloomooemulator.interpreter.variable.Variable;
 import pl.genschu.bloomooemulator.interpreter.variable.types.AnimoVariable;
 import pl.genschu.bloomooemulator.interpreter.variable.types.ImageVariable;
@@ -14,10 +14,10 @@ public class QuadTree {
 
     private final int level;
     private final List<Variable> objects;
-    private final Rectangle bounds;
+    private final Box2D bounds;
     private final QuadTree[] nodes;
 
-    public QuadTree(int level, Rectangle bounds) {
+    public QuadTree(int level, Box2D bounds) {
         this.level = level;
         this.objects = new ArrayList<>();
         this.bounds = bounds;
@@ -41,13 +41,13 @@ public class QuadTree {
         int x = bounds.getXLeft();
         int y = bounds.getYBottom();
 
-        nodes[0] = new QuadTree(level + 1, new Rectangle(x + subWidth, y, subWidth, subHeight));
-        nodes[1] = new QuadTree(level + 1, new Rectangle(x, y, subWidth, subHeight));
-        nodes[2] = new QuadTree(level + 1, new Rectangle(x, y + subHeight, subWidth, subHeight));
-        nodes[3] = new QuadTree(level + 1, new Rectangle(x + subWidth, y + subHeight, subWidth, subHeight));
+        nodes[0] = new QuadTree(level + 1, new Box2D(x + subWidth, y, subWidth, subHeight));
+        nodes[1] = new QuadTree(level + 1, new Box2D(x, y, subWidth, subHeight));
+        nodes[2] = new QuadTree(level + 1, new Box2D(x, y + subHeight, subWidth, subHeight));
+        nodes[3] = new QuadTree(level + 1, new Box2D(x + subWidth, y + subHeight, subWidth, subHeight));
     }
 
-    private int getIndex(Rectangle rect) {
+    private int getIndex(Box2D rect) {
         int index = -1;
 
         if(rect == null) return index;
@@ -127,7 +127,7 @@ public class QuadTree {
         objects.remove(obj);
     }
 
-    private Rectangle getRect(Variable obj) {
+    private Box2D getRect(Variable obj) {
         if(obj instanceof ImageVariable) {
             return ((ImageVariable) obj).getRect();
         } else if(obj instanceof AnimoVariable) {

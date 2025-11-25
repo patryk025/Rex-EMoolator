@@ -2,19 +2,18 @@ package pl.genschu.bloomooemulator.interpreter.variable.types;
 
 import com.badlogic.gdx.Gdx;
 import pl.genschu.bloomooemulator.engine.decision.events.AnimoEvent;
-import pl.genschu.bloomooemulator.engine.decision.states.AnimoState;
 import pl.genschu.bloomooemulator.engine.decision.trees.ButtonStateTransitionTree;
 import pl.genschu.bloomooemulator.engine.decision.events.ButtonEvent;
 import pl.genschu.bloomooemulator.engine.decision.states.ButtonState;
 import pl.genschu.bloomooemulator.interpreter.Context;
 import pl.genschu.bloomooemulator.interpreter.variable.*;
-import pl.genschu.bloomooemulator.objects.Rectangle;
+import pl.genschu.bloomooemulator.geometry.shapes.Box2D;
 import pl.genschu.bloomooemulator.utils.ArgumentsHelper;
 
 import java.util.List;
 
 public class ButtonVariable extends Variable {
-	private Rectangle rect = null;
+	private Box2D rect = null;
 
 	private ButtonState state = ButtonState.INIT;
 
@@ -135,7 +134,7 @@ public class ButtonVariable extends Variable {
 				int yBottom = ((IntegerVariable) arguments.get(1)).GET();
 				int xRight = ((IntegerVariable) arguments.get(2)).GET();
 				int yTop = ((IntegerVariable) arguments.get(3)).GET();
-				rect = new Rectangle(xLeft, yBottom, xRight, yTop);
+				rect = new Box2D(xLeft, yBottom, xRight, yTop);
 				rectVariable = null;
 				return null;
 			}
@@ -172,7 +171,7 @@ public class ButtonVariable extends Variable {
 		});
 	}
 
-	public void setRect(Rectangle rect) {
+	public void setRect(Box2D rect) {
 		this.rect = rect;
 	}
 
@@ -400,7 +399,7 @@ public class ButtonVariable extends Variable {
 		return rectVariable;
 	}
 
-	public Rectangle getRect() {
+	public Box2D getRect() {
 		if(rect == null) {
 			if (getAttribute("GFXSTANDARD") != null) {
 				Gdx.app.log("ButtonVariable", "Using GFXSTANDARD as RECT: " + getAttribute("GFXSTANDARD").getValue());
@@ -422,7 +421,7 @@ public class ButtonVariable extends Variable {
 					int xRight = Integer.parseInt(rectSplit[2]);
 					int yTop = Integer.parseInt(rectSplit[3]);
 					int height = yTop - yBottom;
-					rect = new Rectangle(xLeft, yBottom - height, xRight, yTop - height);
+					rect = new Box2D(xLeft, yBottom - height, xRight, yTop - height);
 				} else {
 					Variable rectVariable = context.getVariable(rectRaw);
 					if (rectVariable != null) {
@@ -491,7 +490,7 @@ public class ButtonVariable extends Variable {
 						int xRight = Integer.parseInt(rectSplit[2]);
 						int yTop = Integer.parseInt(rectSplit[3]);
 						int height = yTop - yBottom;
-						rect = new Rectangle(xLeft, yBottom - height, xRight, yTop - height);
+						rect = new Box2D(xLeft, yBottom - height, xRight, yTop - height);
 					} else {
 						Variable rectVariable = context.getVariable(rectRaw);
 						if (rectVariable != null) {

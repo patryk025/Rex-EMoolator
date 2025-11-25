@@ -13,13 +13,19 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Disposable;
 import pl.genschu.bloomooemulator.engine.Game;
 import pl.genschu.bloomooemulator.engine.config.EngineConfig;
+import pl.genschu.bloomooemulator.geometry.points.Point3D;
 import pl.genschu.bloomooemulator.interpreter.Context;
 import pl.genschu.bloomooemulator.interpreter.variable.Variable;
 import pl.genschu.bloomooemulator.interpreter.variable.types.*;
-import pl.genschu.bloomooemulator.objects.Rectangle;
+import pl.genschu.bloomooemulator.geometry.shapes.Box2D;
+import pl.genschu.bloomooemulator.world.GameObject;
+import pl.genschu.bloomooemulator.world.Mesh;
+import pl.genschu.bloomooemulator.world.MeshTriangle;
+import pl.genschu.bloomooemulator.world.TriangleVertex;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Deque;
 import java.util.List;
 
 public class DebugManager implements Disposable {
@@ -38,7 +44,7 @@ public class DebugManager implements Disposable {
     private boolean showTooltip = false;
 
     private String debugVariablesValues = "";
-    private Rectangle debugRect;
+    private Box2D debugRect;
 
     private boolean showSceneSelector = false;
     private List<String> sceneList = new ArrayList<>();
@@ -81,6 +87,10 @@ public class DebugManager implements Disposable {
             renderMonitorPerformance();
         }
 
+        if (config.isDebugWorld()) {
+            renderMeshDebug();
+        }
+
         if (config.isDebugButtons()) {
             renderButtonBorders();
         }
@@ -119,7 +129,7 @@ public class DebugManager implements Disposable {
         font.setColor(Color.WHITE);
 
         for (Variable variable : graphics) {
-            Rectangle rect = getRect(variable);
+            Box2D rect = getRect(variable);
             if (rect == null) continue;
 
             boolean visible = false;
@@ -204,7 +214,7 @@ public class DebugManager implements Disposable {
         shapeRenderer.setProjectionMatrix(batch.getProjectionMatrix());
         shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
         shapeRenderer.setColor(Color.RED);
-        Rectangle rect = debugRect;
+        Box2D rect = debugRect;
         shapeRenderer.rect(rect.getXLeft(), VIRTUAL_HEIGHT - rect.getYBottom() - rect.getHeight(),
                 rect.getWidth(), rect.getHeight());
         shapeRenderer.end();
@@ -254,7 +264,7 @@ public class DebugManager implements Disposable {
         shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
 
         for (Variable variable : buttons) {
-            Rectangle rect = null;
+            Box2D rect = null;
             boolean isEnabled = true;
 
             if (variable instanceof ButtonVariable) {
@@ -384,6 +394,163 @@ public class DebugManager implements Disposable {
         batch.end();
     }
 
+    private void drawVelocityArrow(ShapeRenderer sr, GameObject go) {
+        sr.setColor(Color.CYAN);
+        final float vx = go.getVelX();
+        final float vy = go.getVelY();
+
+        final float speed = (float)Math.hypot(vx, vy);
+        if (speed < 1e-3f) return;
+
+        final float baseLen   = 12f;
+        final float scaleLen  = 0.25f;
+        final float maxLen    = 80f;
+        final float headFrac  = 0.25f;
+        final float headAngle = (float)Math.toRadians(25);
+
+        final float dx = vx / speed;
+        final float dy = vy / speed;
+
+        float len = Math.min(maxLen, baseLen + scaleLen * speed);
+
+        final float x0 = go.getX()+400;
+        final float y0 = go.getY()+300;
+        final float x1 = x0 + dx * len;
+        final float y1 = y0 + dy * len;
+
+        sr.line(x0, y0, x1, y1);
+
+        final float headLen = len * headFrac;
+        final float cosA = (float)Math.cos(headAngle);
+        final float sinA = (float)Math.sin(headAngle);
+
+        final float pLx =  dx * cosA - dy * sinA;
+        final float pLy =  dx * sinA + dy * cosA;
+        final float pRx =  dx * cosA + dy * sinA;
+        final float pRy = -dx * sinA + dy * cosA;
+
+        sr.line(x1, y1, x1 - pLx * headLen, y1 - pLy * headLen);
+        sr.line(x1, y1, x1 - pRx * headLen, y1 - pRy * headLen);
+    }
+
+    private void drawPath(ShapeRenderer sr, GameObject go) {
+        Deque<Point3D> path = go.getPath();
+        if (path == null || path.size() < 2) return;
+
+        sr.setColor(Color.RED);
+        Point3D prev = null;
+        for (Point3D p : path) {
+            if (prev != null) {
+                sr.line((float) prev.x+400, (float) prev.y+300,
+                        (float) p.x+400, (float) p.y+300);
+            }
+            prev = p;
+        }
+    }
+
+    private static float[] rot2D(float x, float y, float c, float s) {
+        return new float[] { c*x - s*y, s*x + c*y };
+    }
+
+    private void renderMeshDebug() {
+        shapeRenderer.setProjectionMatrix(camera.combined);
+        shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
+        shapeRenderer.setColor(Color.GREEN);
+
+        WorldVariable world = game.getCurrentSceneContext().getWorldVariable();
+        if( world == null ) {
+            shapeRenderer.end();
+            return;
+        }
+        List<GameObject> objects = world.getPhysicsEngine().getGameObjects();
+
+        for (GameObject go : objects) {
+            Mesh mesh = go.getMesh();
+            final float x = go.getX();
+            final float y = go.getY();
+            final float theta = go.getRotationZ();
+            final float c = (float)Math.cos(theta);
+            final float s = (float)Math.sin(theta);
+
+            if (mesh == null) {
+                final float[] d = go.getDimensions();
+
+                final float correctedX = x + 400;
+                final float correctedY = y + 300;
+
+                switch (go.getGeomType()) {
+                    case 0: // box
+                        float halfW = (d[0] > 0 ? d[0] : 1f) * 0.5f;
+                        float halfH = (d[1] > 0 ? d[1] : 1f) * 0.5f;
+
+                        float[][] corners = {
+                                {-halfW, -halfH},
+                                { halfW, -halfH},
+                                { halfW,  halfH},
+                                {-halfW,  halfH}
+                        };
+
+                        float[][] wc = new float[4][2];
+                        for (int i=0;i<4;i++){
+                            float[] r2 = rot2D(corners[i][0], corners[i][1], c, s);
+                            wc[i][0] = correctedX + r2[0];
+                            wc[i][1] = correctedY + r2[1];
+                        }
+
+                        shapeRenderer.line(wc[0][0], wc[0][1], wc[1][0], wc[1][1]);
+                        shapeRenderer.line(wc[1][0], wc[1][1], wc[2][0], wc[2][1]);
+                        shapeRenderer.line(wc[2][0], wc[2][1], wc[3][0], wc[3][1]);
+                        shapeRenderer.line(wc[3][0], wc[3][1], wc[0][0], wc[0][1]);
+                        break;
+                    case 1: // cylinder
+                    case 2: // box
+                        float r = d[0] > 0 ? d[0] : 1f;
+                        shapeRenderer.circle(correctedX, correctedY, r, 24);
+                        break;
+                    default:
+                        shapeRenderer.line(correctedX-4, correctedY, correctedX+4, correctedY);
+                        shapeRenderer.line(correctedX, correctedY-4, correctedX, correctedY+4);
+                }
+            }
+            else {
+                final float dx = 400f, dy = 300f;
+
+                for (MeshTriangle tri : mesh.getTriangles()) {
+                    TriangleVertex[] vs = tri.getVertices();
+
+                    // TODO: DRY, currently duplicated code for each vertex
+                    float x0 = (float) vs[0].getPoint().x;
+                    float y0 = (float) vs[0].getPoint().y;
+                    float[] r0 = rot2D(x0, y0, c, s);
+                    float wx0 = (go.isRigidBody() ? x + r0[0] : r0[0]) + dx;
+                    float wy0 = (go.isRigidBody() ? y + r0[1] : r0[1]) + dy;
+
+                    float x1 = (float) vs[1].getPoint().x;
+                    float y1 = (float) vs[1].getPoint().y;
+                    float[] r1 = rot2D(x1, y1, c, s);
+                    float wx1 = (go.isRigidBody() ? x + r1[0] : r1[0]) + dx;
+                    float wy1 = (go.isRigidBody() ? y + r1[1] : r1[1]) + dy;
+
+                    float x2 = (float) vs[2].getPoint().x;
+                    float y2 = (float) vs[2].getPoint().y;
+                    float[] r2 = rot2D(x2, y2, c, s);
+                    float wx2 = (go.isRigidBody() ? x + r2[0] : r2[0]) + dx;
+                    float wy2 = (go.isRigidBody() ? y + r2[1] : r2[1]) + dy;
+
+                    shapeRenderer.line(wx0, wy0, wx1, wy1);
+                    shapeRenderer.line(wx1, wy1, wx2, wy2);
+                    shapeRenderer.line(wx2, wy2, wx0, wy0);
+                }
+            }
+            drawVelocityArrow(shapeRenderer, go);
+            drawPath(shapeRenderer, go);
+        }
+
+        shapeRenderer.end();
+    }
+
+
+
     private void generateTooltipForButton(ButtonVariable button) {
         StringBuilder sb = new StringBuilder();
 
@@ -399,7 +566,7 @@ public class DebugManager implements Disposable {
             sb.append("\nNo standard GFX\n");
         }
 
-        Rectangle rect = button.getRect();
+        Box2D rect = button.getRect();
         String rectText = "\nRect: " + (rect != null ?
                 ("\n    left upper corner: (" + rect.getXLeft() + ", " + rect.getYTop() + ")" +
                         "\n    width: " + rect.getWidth() +
@@ -435,7 +602,7 @@ public class DebugManager implements Disposable {
         sb.append("Priority: ").append(graphics.getAttribute("PRIORITY") != null ?
                 graphics.getAttribute("PRIORITY").getValue() : 0);
 
-        Rectangle rect = getRect(graphics);
+        Box2D rect = getRect(graphics);
         String rectText = "\nRect: " + (rect != null ?
                 ("\n    left upper corner: (" + rect.getXLeft() + ", " + rect.getYTop() + ")" +
                         "\n    width: " + rect.getWidth() +
@@ -570,7 +737,7 @@ public class DebugManager implements Disposable {
 
             if (!visible) continue;
 
-            Rectangle rect = getRect(variable);
+            Box2D rect = getRect(variable);
             if (rect != null && rect.contains(x, y)) {
                 return variable;
             }
@@ -579,7 +746,7 @@ public class DebugManager implements Disposable {
         return null;
     }
 
-    private Rectangle getRect(Variable variable) {
+    private Box2D getRect(Variable variable) {
         if (variable instanceof ImageVariable) {
             return ((ImageVariable) variable).getRect();
         } else if (variable instanceof AnimoVariable) {
@@ -589,7 +756,7 @@ public class DebugManager implements Disposable {
     }
 
     private boolean isGraphicsButton(Variable variable) {
-        Rectangle rect = getRect(variable);
+        Box2D rect = getRect(variable);
         Context context = game.getCurrentSceneContext();
 
         // Check if graphics is a button
@@ -616,7 +783,7 @@ public class DebugManager implements Disposable {
         return false;
     }
 
-    public void setDebugRect(Rectangle rect) {
+    public void setDebugRect(Box2D rect) {
         this.debugRect = rect;
     }
 

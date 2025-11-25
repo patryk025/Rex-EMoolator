@@ -7,10 +7,14 @@ import pl.genschu.bloomooemulator.interpreter.variable.Method;
 import pl.genschu.bloomooemulator.interpreter.variable.Parameter;
 import pl.genschu.bloomooemulator.interpreter.variable.Variable;
 import pl.genschu.bloomooemulator.utils.ArgumentsHelper;
+import pl.genschu.bloomooemulator.utils.DoubleUtils;
 
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.List;
+import java.util.Locale;
+
+import static pl.genschu.bloomooemulator.utils.DoubleUtils.fcvt;
 
 public class DoubleVariable extends Variable {
 	public DoubleVariable(String name, double value, Context context) {
@@ -418,11 +422,66 @@ public class DoubleVariable extends Variable {
 	}
 
 	public String toStringVariable() {
-		if(this.GET() == 0) {
-			return "0";
-		}
-		NumberFormat formatter = new DecimalFormat("#0.00000");
-		return formatter.format(this.GET()).replace(",", ".");
+        if(context.getConfig().isUseOriginalDoubleRepresentation()) {
+            // Reconstruction of algorithm from Piklib library
+            double value = this.GET();
+            DoubleUtils.FcvtResult result = fcvt(value, 5);
+            String digits = result.digits;
+            int decimal = result.dec;
+            int sign = result.sign;
+
+            StringBuilder output = new StringBuilder();
+
+            // Add sign if negative
+            if (sign == 1) {
+                output.append("-");
+            }
+
+            // Check if number is very small (0 < |x| < 1)
+            boolean isVerySmall = (value != 0.0 && value * value < 1.0);
+
+            // Handle leading zeros for very small numbers
+            StringBuilder signStr = new StringBuilder();
+            double tempValue = value;
+            while (tempValue > 0.0) {
+                if (tempValue * 10.0001 >= 1.0) {
+                    break;
+                }
+                signStr.append("0");
+                tempValue *= 10.0;
+            }
+
+            // Handle empty buffer case
+            if (digits.isEmpty()) {
+                digits = "0";
+            }
+
+            // Construct the final string
+            if (decimal < 1) {
+                output.append(signStr).append(digits);
+            } else {
+                String left = digits.substring(0, Math.min(decimal, digits.length()));
+                String right = decimal < digits.length() ? digits.substring(decimal) : "";
+                output.append(signStr).append(left);
+                if (!right.isEmpty()) {
+                    output.append(".").append(right);
+                }
+            }
+
+            // Add leading "0." for very small numbers without decimal point
+            if (isVerySmall && output.indexOf(".") == -1) {
+                output.insert(0, "0.");
+            }
+
+            return output.toString();
+        }
+        else {
+            if (this.GET() == 0) {
+                return "0";
+            }
+            NumberFormat formatter = new DecimalFormat("#0.00000");
+            return formatter.format(this.GET()).replace(",", ".");
+        }
 	}
 
 	public double clipToBool() {

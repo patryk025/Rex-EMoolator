@@ -20,7 +20,7 @@ import pl.genschu.bloomooemulator.interpreter.variable.Signal;
 import pl.genschu.bloomooemulator.interpreter.variable.Variable;
 import pl.genschu.bloomooemulator.interpreter.variable.types.*;
 import pl.genschu.bloomooemulator.objects.Image;
-import pl.genschu.bloomooemulator.objects.Rectangle;
+import pl.genschu.bloomooemulator.geometry.shapes.Box2D;
 
 import java.util.*;
 
@@ -176,8 +176,24 @@ public class InputManager implements Disposable {
             exportGraphicsToFile(new ArrayList<>(game.getCurrentSceneContext().getGraphicsVariables().values()));
         }
 
+        if (Gdx.input.isKeyJustPressed(Input.Keys.F8)) {
+            config.toggleDebugWorld();
+        }
+
         if (Gdx.input.isKeyJustPressed(Input.Keys.F9)) {
             game.getEmulator().getDebugManager().toggleSceneSelector();
+        }
+
+        if (Gdx.input.isKeyJustPressed(Input.Keys.F10)) {
+            game.getCurrentSceneContext().getWorldVariable().getPhysicsEngine().dumpGeometryData("geometry_dump_"+(new Date()).getTime()+".json");
+        }
+
+        if (Gdx.input.isKeyJustPressed(Input.Keys.F11)) {
+            config.togglePaused();
+        }
+
+        if (Gdx.input.isKeyJustPressed(Input.Keys.F12)) {
+            config.toggleStepFrame();
         }
     }
 
@@ -191,7 +207,7 @@ public class InputManager implements Disposable {
 
         for (Variable variable : drawList) {
             Image image = getImage(variable);
-            Rectangle rect = getRect(variable);
+            Box2D rect = getRect(variable);
             if (image == null || image.getImageTexture() == null || rect == null) continue;
 
             boolean isVisible = false;

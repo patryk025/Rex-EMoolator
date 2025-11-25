@@ -9,7 +9,7 @@ import pl.genschu.bloomooemulator.interpreter.variable.Variable;
 import pl.genschu.bloomooemulator.interpreter.variable.types.AnimoVariable;
 import pl.genschu.bloomooemulator.interpreter.variable.types.ImageVariable;
 import pl.genschu.bloomooemulator.objects.Image;
-import pl.genschu.bloomooemulator.objects.Rectangle;
+import pl.genschu.bloomooemulator.geometry.shapes.Box2D;
 
 /**
  * Klasa pomocnicza do sprawdzania kolizji między obiektami gry.
@@ -21,11 +21,11 @@ public class CollisionChecker {
      *
      * @param obj1 Pierwszy obiekt
      * @param obj2 Drugi obiekt
-     * @return true jeśli obiekty kolidują, false w przeciwnym wypadku
+     * @return true, jeśli obiekty kolidują, false w przeciwnym wypadku
      */
     public static boolean checkCollision(Variable obj1, Variable obj2) {
-        Rectangle rect1 = getRect(obj1);
-        Rectangle rect2 = getRect(obj2);
+        Box2D rect1 = getRect(obj1);
+        Box2D rect2 = getRect(obj2);
 
         if (rect1 == null || rect2 == null) {
             return false;
@@ -53,7 +53,7 @@ public class CollisionChecker {
      * Sprawdza kolizję piksel po pikselu między dwoma obiektami.
      */
     private static boolean checkPixelPerfectCollision(Variable obj1, Variable obj2,
-                                                      Rectangle rect1, Rectangle rect2,
+                                                      Box2D rect1, Box2D rect2,
                                                       boolean checkAlpha1, boolean checkAlpha2) {
         // Oblicz prostokąt przecięcia
         int left = Math.max(rect1.getXLeft(), rect2.getXLeft());
@@ -101,7 +101,7 @@ public class CollisionChecker {
             }
             Pixmap pixmap = textureData.consumePixmap();
 
-            // Sprawdź czy punkt jest w zakresie obrazu
+            // Sprawdź, czy punkt jest w zakresie obrazu
             if (x < 0 || y < 0 || x >= pixmap.getWidth() || y >= pixmap.getHeight()) {
                 return 0; // Punkt poza obrazem
             }
@@ -118,7 +118,7 @@ public class CollisionChecker {
     /**
      * Pobiera prostokąt ograniczający obiekt.
      */
-    public static Rectangle getRect(Variable variable) {
+    public static Box2D getRect(Variable variable) {
         if (variable instanceof ImageVariable) {
             return ((ImageVariable) variable).getRect();
         } else if (variable instanceof AnimoVariable) {
@@ -153,7 +153,7 @@ public class CollisionChecker {
     /**
      * Sprawdza, czy dwa prostokąty kolidują.
      */
-    public static boolean rectanglesCollide(Rectangle rect1, Rectangle rect2) {
+    public static boolean rectanglesCollide(Box2D rect1, Box2D rect2) {
         return rect1.getXLeft() < rect2.getXRight() &&
                 rect1.getXRight() > rect2.getXLeft() &&
                 rect1.getYTop() > rect2.getYBottom() &&
@@ -167,7 +167,7 @@ public class CollisionChecker {
      * @param rect2 Drugi prostokąt
      * @return Wartość IoU (Intersection over Union) w zakresie 0-100
      */
-    public static double calculateIoU(Rectangle rect1, Rectangle rect2) {
+    public static double calculateIoU(Box2D rect1, Box2D rect2) {
         int intersectionX = Math.max(rect1.getXLeft(), rect2.getXLeft());
         int intersectionY = Math.max(rect1.getYBottom(), rect2.getYBottom());
         int intersectionWidth = Math.min(rect1.getXRight(), rect2.getXRight()) - intersectionX;

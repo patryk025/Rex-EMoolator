@@ -74,6 +74,14 @@ public class BlooMooEngine extends ApplicationAdapter {
     public void render() {
         float deltaTime = Gdx.graphics.getDeltaTime();
 
+        if(config.isPaused() && !config.isStepFrame()) {
+            deltaTime = 0;
+        }
+        if(config.isStepFrame()) {
+            config.toggleStepFrame();
+            deltaTime = 1.0f / 15.0f; // assume 15 FPS for a single step
+        }
+
         PerformanceMonitor.startOperation("Render - frame time");
 
         // clear screen

@@ -1,7 +1,6 @@
 package pl.genschu.bloomooemulator.engine.render;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
@@ -11,13 +10,12 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Disposable;
 import pl.genschu.bloomooemulator.engine.filters.Filter;
-import pl.genschu.bloomooemulator.interpreter.Context;
 import pl.genschu.bloomooemulator.interpreter.variable.Variable;
 import pl.genschu.bloomooemulator.interpreter.variable.types.AnimoVariable;
 import pl.genschu.bloomooemulator.interpreter.variable.types.ImageVariable;
 import pl.genschu.bloomooemulator.interpreter.variable.types.TextVariable;
 import pl.genschu.bloomooemulator.objects.Image;
-import pl.genschu.bloomooemulator.objects.Rectangle;
+import pl.genschu.bloomooemulator.geometry.shapes.Box2D;
 
 import java.util.Map;
 
@@ -48,7 +46,7 @@ public class GraphicsRenderer implements Disposable {
             return;
         }
 
-        Rectangle rect = imageVariable.getRect();
+        Box2D rect = imageVariable.getRect();
         batch.setColor(1, 1, 1, imageVariable.getOpacity());
         if (imageVariable.hasFilters()) {
             // get first filter (not sure if there can be more at once)
@@ -80,7 +78,7 @@ public class GraphicsRenderer implements Disposable {
             return;
         }
 
-        Rectangle rect = animoVariable.getRect();
+        Box2D rect = animoVariable.getRect();
         batch.setColor(1, 1, 1, animoVariable.getOpacity());
 
         if (animoVariable.hasFilters()) {
@@ -146,7 +144,7 @@ class MaskRenderer implements Disposable {
     /**
      * Renders a clipping mask for the graphic object.
      */
-    public void renderWithClipping(Image image, Rectangle rect, Rectangle clippingRect) {
+    public void renderWithClipping(Image image, Box2D rect, Box2D clippingRect) {
         if (clippingRect == null) {
             return;
         }
@@ -208,7 +206,7 @@ class AlphaMaskRenderer implements Disposable {
     /**
      * Renders object with alpha mask
      */
-    public void renderWithAlphaMask(ImageVariable imageVariable, Rectangle rect, Rectangle clippingRect, Map<String, Rectangle> alphaMasks) {
+    public void renderWithAlphaMask(ImageVariable imageVariable, Box2D rect, Box2D clippingRect, Map<String, Box2D> alphaMasks) {
         Image image = imageVariable.getImage();
         if (image == null || image.getImageTexture() == null) {
             return;
@@ -223,9 +221,9 @@ class AlphaMaskRenderer implements Disposable {
         batch.setBlendFunction(GL20.GL_ONE, GL20.GL_ZERO);
 
         // Render alpha masks
-        for (Map.Entry<String, Rectangle> entry : alphaMasks.entrySet()) {
+        for (Map.Entry<String, Box2D> entry : alphaMasks.entrySet()) {
             String maskName = entry.getKey();
-            Rectangle maskRect = entry.getValue();
+            Box2D maskRect = entry.getValue();
 
             Variable maskVar = imageVariable.getContext().getVariable(maskName);
             if (!(maskVar instanceof ImageVariable)) continue;
@@ -266,7 +264,7 @@ class AlphaMaskRenderer implements Disposable {
         batch.setBlendFunction(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
     }
 
-    private void renderWithClipping(Image image, Rectangle rect, Rectangle clippingRect) {
+    private void renderWithClipping(Image image, Box2D rect, Box2D clippingRect) {
         int xLeft = clippingRect.getXLeft();
         int yTop = (int) (VIRTUAL_HEIGHT - clippingRect.getYTop());
         int xRight = clippingRect.getXRight();
