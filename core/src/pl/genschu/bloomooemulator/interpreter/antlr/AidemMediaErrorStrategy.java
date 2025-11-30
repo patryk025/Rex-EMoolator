@@ -9,12 +9,12 @@ public class AidemMediaErrorStrategy extends DefaultErrorStrategy {
     public void recover(Parser recognizer, RecognitionException e) {
         TokenStream tokens = recognizer.getInputStream();
 
-        while (tokens.LA(1) != AidemMediaParser.ENDINSTR
-                && tokens.LA(1) != AidemMediaParser.STOPCODE
+        while (tokens.LA(1) != AidemMediaParser.SEMI
+                && tokens.LA(1) != AidemMediaParser.RBRACE
                 && tokens.LA(1) != Token.EOF) {
             tokens.consume();
         }
-        if (tokens.LA(1) == AidemMediaParser.ENDINSTR) {
+        if (tokens.LA(1) == AidemMediaParser.SEMI) {
             tokens.consume();
         }
     }

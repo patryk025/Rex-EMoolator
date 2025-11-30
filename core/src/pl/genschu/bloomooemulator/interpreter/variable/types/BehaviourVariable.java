@@ -375,14 +375,14 @@ public class BehaviourVariable extends Variable {
 
 			if (msg.contains("no viable alternative")) {
 				Token prevToken = rewriter.getTokenStream().get(token.getTokenIndex() - 1);
-				if(token.getType() == AidemMediaParser.ENDINSTR) {
+				if(token.getType() == AidemMediaParser.SEMI) {
 					if (prevToken != null && prevToken.getType() == AidemMediaParser.RPAREN) {
 						rewriter.insertBefore(prevToken, "\"");
 						Gdx.app.log("FixCode", "Inserted missing quotation mark before " + prevToken.getText());
 					}
 				}
-				if(token.getType() == AidemMediaParser.SEPARATOR) {
-					if (prevToken != null && prevToken.getType() == AidemMediaParser.LITERAL) {
+				if(token.getType() == AidemMediaParser.COMMA) {
+					if (prevToken != null && prevToken.getType() == AidemMediaParser.IDENT) {
 						rewriter.insertAfter(prevToken, "\"");
 						Gdx.app.log("FixCode", "Inserted missing quotation mark after " + prevToken.getText());
 					}
