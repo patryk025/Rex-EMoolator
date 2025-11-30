@@ -161,4 +161,26 @@ project(":core") {
         }
         jvmArgs "-javaagent:${configurations.testRuntimeClasspath.find { it.name.contains('mockito-core') }}", '-Xshare:off'
     }
+
+    tasks.register('jmh', JavaExec) {
+        group = 'verification'
+        description = 'Run JMH benchmarks'
+
+        classpath = sourceSets.test.runtimeClasspath
+        mainClass = 'org.openjdk.jmh.Main'
+
+        def resultsDir = layout.buildDirectory.dir("reports/jmh")
+        def resultsFile = resultsDir.map { it.file("results.json") }
+
+        doFirst {
+            resultsDir.get().asFile.mkdirs()
+        }
+
+        args '-rf', 'json'
+        args '-rff', resultsFile.get().asFile.absolutePath
+
+        if (project.hasProperty('jmhIncludeRegex')) {
+            args project.property('jmhIncludeRegex')
+        }
+    }
 }

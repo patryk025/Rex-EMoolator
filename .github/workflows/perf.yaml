@@ -1,0 +1,63 @@
+name: Performance benchmarks
+
+on:
+  push:
+    branches:
+      - main
+      - feat/**
+      - perf/**
+
+jobs:
+  jmh-benchmarks:
+    if: startsWith(github.event.head_commit.message, 'perf:')
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+          cache: 'gradle'
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+
+      - name: Make gradlew executable
+        run: chmod +x ./gradlew
+
+      - name: Run JMH benchmarks
+        run: ./gradlew :core:jmh -PjmhIncludeRegex='.*Benchmark.*'
+
+      - name: Generate Markdown report from JMH JSON
+        run: |
+          python core/jmh_to_md.py core/build/reports/jmh/results.json > core/build/reports/jmh/results.md
+          echo "=== JMH Markdown Summary ==="
+          cat core/build/reports/jmh/results.md
+
+      - name: Upload JMH artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: jmh-results
+          path: |
+            core/build/reports/jmh/results.json
+            core/build/reports/jmh/results.md
+          if-no-files-found: error
+
+      - name: Comment on commit with JMH report
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          body="$(cat core/build/reports/jmh/results.md)"
+          
+          # utwórz komentarz do commita
+          gh api \
+            -X POST \
+            -H "Authorization: token $GITHUB_TOKEN" \
+            "/repos/${GITHUB_REPOSITORY}/commits/${GITHUB_SHA}/comments" \
+            -f body="$body"
