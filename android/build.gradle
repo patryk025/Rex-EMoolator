@@ -19,7 +19,7 @@ android {
     }
     defaultConfig {
         applicationId "pl.genschu.bloomooemulator"
-        compileSdk 35
+        compileSdkVersion 36
         minSdkVersion 24
         targetSdkVersion 34
         versionCode System.getenv("RELEASE_CODE")?.toInteger() ?: 1
