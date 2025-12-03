@@ -1,178 +1,250 @@
 # Rex EMoolator
-Emulator silnika graficznego Piklib/BlooMoo autorstwa firmy Aidem Media oraz interpretera skryptów.
 
-> [!WARNING]
-> Na ten moment wysiłki są skoncentrowane na rewersowaniu plików SEK oraz działania obiektów typu World. Postępy prac nad tym, jak i innymi typami plików będą widoczne w branchu [format_definitions](https://github.com/patryk025/Rex-EMoolator/tree/format_definitions)
+[Polski](README.pl.md) | **English**
 
-Dla tabeli niżej zastosowano następujący podział grywalności:
-- ![Grywalne](https://img.shields.io/badge/Grywalne-green) grę daje się ukończyć od początku do końca, bez błędów, które mogą ją zablokować.
-- ![W grze](https://img.shields.io/badge/W%20grze-yellow) gra działa, jednak przez różne błędy i niedoróbki nie jest możliwa do ukończenia.
-- ![W intrze](https://img.shields.io/badge/W%20intrze-orange) gra ładuje się, jednak nie przechodzi poza intro.
-- ![Niegrywalne](https://img.shields.io/badge/Niegrywalne-red) gra nie inicjalizuje się poprawnie, ładuje się z błędem, wywołuje crash emulatora lub daje czarny obraz.
+An open-source emulator that recreates the behavior of the Piklib/BlooMoo engine used in Aidem Media games.
 
-Szacowane poziomy grywalności są wyznaczane na podstawie ilości scen, które się odgrywają poprawnie zgodnie z przepływem narzuconym przez skrypty gry do pierwszego momentu, w którym błędy emulatora uniemożliwiają przejście dalej. Nie uwzględniam tutaj drobnych błędów, problemów z animacjami, a jedynie błędy, które powodują, że scena się nie kończy bądź nie zaczyna lub emulator się crashuje. Z racji, iż wymaga to przechodzenia tytułu przynajmniej od momentu, gdzie wszystko działało, a co któryś raz od początku informacja ta nie będzie aktualizowana na bieżąco.
+## Requirements
 
-Aktualne statusy gier opartych na silniku Piklib/BlooMoo:
+### Desktop
+- **Java**: Version 11 or newer
+- **Operating System**: Windows, Linux, or macOS
+- **Game Files**: Original game files (data from the original CD-ROM or installation)
+
+### Android
+- **Android Version**: 7.0 (API level 24) or newer
+- **Game Files**: Original game files
+
+## Building the Project
+
+This project uses Gradle as its build system.
+
+### Desktop Build
+```bash
+# Windows
+gradlew.bat desktop:shadowJar
+
+# Linux/macOS
+./gradlew desktop:shadowJar
+```
+
+The executable JAR will be created in `desktop/build/libs/`.
+
+### Android Build
+```bash
+# Windows
+gradlew.bat android:assembleRelease
+
+# Linux/macOS
+./gradlew android:assembleRelease
+```
+
+The APK will be created in `android/build/outputs/apk/`.
+
+## Running the Emulator
+
+### Desktop
+After building:
+```bash
+java -jar desktop/build/libs/Rex_EMoolator-desktop.jar
+```
+
+Or run directly with Gradle:
+```bash
+# Windows
+gradlew.bat desktop:run
+
+# Linux/macOS
+./gradlew desktop:run
+```
+
+### Android
+Install the generated APK on your Android device and launch the application.
+
+## Supported Games
+
+The emulator targets games based on the Piklib/BlooMoo engine.
+
+### Playability Status Legend
+- ![Playable](https://img.shields.io/badge/Playable-green) Game can be completed from start to finish without blocking bugs
+- ![In-game](https://img.shields.io/badge/In--game-yellow) Game runs but cannot be completed due to various bugs
+- ![In-intro](https://img.shields.io/badge/In--intro-orange) Game loads but doesn't progress past the intro
+- ![Unplayable](https://img.shields.io/badge/Unplayable-red) Game doesn't initialize properly, loads with errors, crashes, or shows a black screen
+
+Playability estimates are based on the number of scenes that play correctly according to the game scripts until the first point where emulator bugs prevent further progress. Minor bugs and animation issues are not counted—only bugs that prevent scenes from starting/ending or cause crashes. Since this requires playing through titles repeatedly, this information may not be updated frequently. The list of scenes and the assessment of their correctness will be gradually created as part of GitHub Projects. However, since the newer games use dedicated scenes for cutscenes and minigames—which are significantly harder to trace in the code than simple `GOTO` transitions—this process will not be immediate.
+
+### Current Game Status
 <table>
 <thead>
 <tr>
-<th>Nazwa gry</th>
+<th>Game Title</th>
 <th>Status</th>
-<th>Uwagi</th>
-<th>Szacowany poziom grywalności</th>
-<th>Link do projektu z trackingiem</th>
+<th>Notes</th>
+<th>Estimated Playability</th>
+<th>Project Tracking</th>
 </tr>
 </thead>
 <tbody>
 <tr>
 <td>Reksio i Skarb Piratów</td>
-<td><img alt="Grywalne" src="https://img.shields.io/badge/Grywalne-green"/></td>
-<td>Gra w pełni grywalna z drobnymi bugami. Etapy z przejściem rzeki zaczęły się przymulać (do sprawdzenia). Sekwencja z kokosami ma drobne różnice w detekcji kolizji w stosunku do oryginału (dodatkowo pojawia się w rogu kura lekko przesłaniająca przycisk menu, nie wiem czemu). Podczas zagadek przy posągu Boga Twaroga sporadycznie grafiki odpowiedzi są zamienione miejscami (narrator jednak czyta poprawnie). W etapie z UFO sporadycznie są problemy z priorytetami animacji (winda przesłania Reksia, do weryfikacji). Poza tymi niekrytycznymi bugami wszystko działa poprawnie.</td>
+<td><img alt="Playable" src="https://img.shields.io/badge/Playable-green"/></td>
+<td>Fully playable with minor bugs. River crossing stages started to lag (needs verification). Coconut sequence has minor collision detection differences vs original (also a chicken appears in the corner slightly obscuring the menu button). During Twarog God statue puzzles, answer graphics occasionally swap positions (narrator reads correctly though). UFO stage occasionally has animation priority issues (elevator obscures Rex, needs verification). Otherwise everything works correctly.</td>
 <td>100%</td>
 <td><a href="https://github.com/users/patryk025/projects/3">Link</a></td>
 </tr>
 <tr>
 <td>Reksio i Ufo</td>
-<td><img alt="W grze" src="https://img.shields.io/badge/W grze-yellow"/></td>
-<td>Gra działa poprawnie do momentu dotarcia do wąwozu na Indorze. Sekwencja platformowa działa, aczkolwiek ma problemy, np. można wyjść z drabiny i iść w powietrzu. Są problemy w wyścigu. Da się przejść, tylko są problemy z przeciwnikami, którzy potrafią utknąć. Sekwencja odkurzania Jaja z kury ma problemy ze zbyt szybko działającą animacją odkurzacza (zdaje się jest to problem globalny z emulatorem, do sprawdzenia). Do tego wysypała emulator po pierwszym wystrzeleniu torpedy. Ujawniają się też problemy z "przeciekającymi" dźwiękami. Dźwięki z poprzedniej sceny potrafią się odtworzyć w następnej.</td>
-<td>ok. 30% (26/86 scen)</td>
+<td><img alt="In-game" src="https://img.shields.io/badge/In--game-yellow"/></td>
+<td>Works correctly until reaching the canyon on Indor. Platform sequence works but has issues (can exit ladder and walk in air). Race has problems—completable but opponents can get stuck. Egg vacuuming sequence has issues with vacuum animation running too fast (seems to be a global emulator issue, needs checking). Crashed after first torpedo fired. Also reveals "leaking" sound issues—sounds from previous scene can play in the next.</td>
+<td>~30% (26/86 scenes)</td>
 <td><a href="https://github.com/users/patryk025/projects/4">Link</a></td>
 </tr>
 <tr>
 <td>Reksio i Czarodzieje</td>
-<td><img alt="W grze" src="https://img.shields.io/badge/W grze-yellow"/></td>
-<td>Menu jest lekko zlagowane. Sekwencja ze wzgórzami działa, jednak etap zaraz za nimi z ukrytymi drzwami już nie z racji braku implementacji typu World (prace w toku). Jest to punkt blokujący i uniemożliwia dalszą rozgrywkę.</td>
+<td><img alt="In-game" src="https://img.shields.io/badge/In--game-yellow"/></td>
+<td>Menu is slightly laggy. Hills sequence works, but the stage after with hidden doors doesn't due to missing World type implementation (in progress). This is a blocking point preventing further gameplay.</td>
 <td></td>
 <td><a href="https://github.com/users/patryk025/projects/6">Link</a></td>
 </tr>
 <tr>
 <td>Reksio i Wehikuł Czasu</td>
-<td><img alt="W grze" src="https://img.shields.io/badge/W grze-yellow"/></td>
-<td>Wymagana ponowna ewaluacja.</td>
+<td><img alt="In-game" src="https://img.shields.io/badge/In--game-yellow"/></td>
+<td>Requires re-evaluation.</td>
 <td>0%</td>
 <td></td>
 </tr>
 <tr>
 <td>Reksio i Kapitan Nemo</td>
-<td><img alt="W grze" src="https://img.shields.io/badge/W grze-yellow"/></td>
-<td>Wymagana ponowna ewaluacja.</td>
+<td><img alt="In-game" src="https://img.shields.io/badge/In--game-yellow"/></td>
+<td>Requires re-evaluation.</td>
 <td>0%</td>
 <td></td>
 </tr>
 <tr>
 <td>Reksio i Kretes w Akcji!</td>
-<td><img alt="W grze" src="https://img.shields.io/badge/W grze-yellow"/></td>
-<td>Działa startowe intro i przechodzi poprawnie dalej. Po kliknięciu myszą przenosi nas do menu. Wszystkie guziki działają i przenoszą od odpowiadających im minigierek. Reksio i Skarb Piratów technicznie działa. Tło się nie przesuwa, ale kolizje działają. Przy Reksio i Ufo gra rysuje tylko tło, Sikora Millenium oraz jakieś efekty cząsteczkowe, ale przez brak implementacji Inertia etap nie działa. Przy Reksio i Czarodzieje renderuje trasę, jednak całość jest jakby dopalona sterydami. Kolizje działają, ale elementy się nie przesuwają. Przy Reksio i Wehikuł Czasu mapa się rysuje oraz daje się poruszać postaciami, jednak są błędy oraz problemy z grafikami i ich pozycjami. Przy Super Heros i Kapitan Nemo nie ładuje się mapa. Edytor map jest również niekompletny.</td>
+<td><img alt="In-game" src="https://img.shields.io/badge/In--game-yellow"/></td>
+<td>Opening intro works and proceeds correctly. Clicking brings you to menu. All buttons work and go to corresponding minigames. Reksio i Skarb Piratów technically works—background doesn't scroll but collisions work. In Reksio i Ufo, only background, Millennium Falcon, and particle effects render, but stage doesn't work due to missing Inertia implementation. In Reksio i Czarodzieje, track renders but everything seems over-accelerated. Collisions work but elements don't move. In Reksio i Wehikuł Czasu, map draws and characters can move but there are bugs with graphics and positions. Super Heros i Kapitan Nemo doesn't load the map. Map editor is also incomplete.</td>
 <td>0%</td>
 <td></td>
 </tr>
 <tr>
 <td>Poznaj Mity: Wyprawa po Złote Runo</td>
-<td><img alt="W grze" src="https://img.shields.io/badge/W grze-yellow"/></td>
-<td>Wymagana ponowna ewaluacja.</td>
+<td><img alt="In-game" src="https://img.shields.io/badge/In--game-yellow"/></td>
+<td>Requires re-evaluation.</td>
 <td></td>
 <td></td>
 </tr>
 <tr>
 <td>Poznaj Mity: Wojna Trojańska</td>
-<td><img alt="W grze" src="https://img.shields.io/badge/W grze-yellow"/></td>
-<td>Wymagana ponowna ewaluacja.</td>
+<td><img alt="In-game" src="https://img.shields.io/badge/In--game-yellow"/></td>
+<td>Requires re-evaluation.</td>
 <td></td>
 <td></td>
 </tr>
 <tr>
 <td>Poznaj Mity: Przygody Odyseusza</td>
-<td><img alt="W grze" src="https://img.shields.io/badge/W grze-yellow"/></td>
-<td>Wymagana ponowna ewaluacja.</td>
+<td><img alt="In-game" src="https://img.shields.io/badge/In--game-yellow"/></td>
+<td>Requires re-evaluation.</td>
 <td></td>
 <td></td>
 </tr>
 <tr>
 <td>Poznaj Mity: Herkules</td>
-<td><img alt="W grze" src="https://img.shields.io/badge/W grze-yellow"/></td>
-<td>Wymagana ponowna ewaluacja.</td>
+<td><img alt="In-game" src="https://img.shields.io/badge/In--game-yellow"/></td>
+<td>Requires re-evaluation.</td>
 <td></td>
 <td></td>
 </tr>
 </tbody>
 </table>
 
-## Garść screenshotów
+## Screenshots
 ### Reksio i Skarb Piratów
-![Screen z próby uruchomienia Reksio i Skarb Piratów](images/risp.jpg)
-*Screen z próby uruchomienia Reksio i Skarb Piratów*
+![Screenshot from Reksio i Skarb Piratów](images/risp.jpg)
+*Screenshot from Reksio i Skarb Piratów*
 
 ### Reksio i Ufo
-![Screen z próby uruchomienia Reksio i Ufo](images/riu.jpg)
-*Screen z próby uruchomienia Reksio i Ufo*
+![Screenshot from Reksio i Ufo](images/riu.jpg)
+*Screenshot from Reksio i Ufo*
 
 ### Reksio i Czarodzieje
-![Screen z próby uruchomienia Reksio i Czarodzieje](images/ric.jpg)
-*Screen z próby uruchomienia Reksio i Czarodzieje*
+![Screenshot from Reksio i Czarodzieje](images/ric.jpg)
+*Screenshot from Reksio i Czarodzieje*
 
 ### Reksio i Wehikuł Czasu
-![Screen z próby uruchomienia Reksio i Wehikuł Czasu](images/riwc.jpg)
-*Screen z próby uruchomienia Reksio i Wehikuł Czasu*
+![Screenshot from Reksio i Wehikuł Czasu](images/riwc.jpg)
+*Screenshot from Reksio i Wehikuł Czasu*
 
 ### Reksio i Kapitan Nemo
-![Menu gry Reksio i Kapitan Nemo](images/rikn_menu.jpg)
-*Menu gry Reksio i Kapitan Nemo*
+![Reksio i Kapitan Nemo menu](images/rikn_menu.jpg)
+*Reksio i Kapitan Nemo menu*
 
-![Intro po kliknięciu szuflady](images/rikn_gra_intro.jpg)
-*Intro po kliknięciu szuflady*
+![Intro after clicking the drawer](images/rikn_gra_intro.jpg)
+*Intro after clicking the drawer*
 
 ### Reksio i Kretes w Akcji
-![Intro gry Reksio i Kretes w Akcji](images/rikwa_intro.jpg)
-*Intro gry Reksio i Kretes w Akcji*
+![Reksio i Kretes w Akcji intro](images/rikwa_intro.jpg)
+*Reksio i Kretes w Akcji intro*
 
-![Menu gry Reksio i Kretes w Akcji](images/rikwa_menu.jpg)
-*Menu gry Reksio i Kretes w Akcji*
+![Reksio i Kretes w Akcji menu](images/rikwa_menu.jpg)
+*Reksio i Kretes w Akcji menu*
 
-![Intro gry Reksio i Skarb Piratów](images/rikwa_risp_intro.jpg)
-*Intro gry Reksio i Skarb Piratów*
+![Reksio i Skarb Piratów intro](images/rikwa_risp_intro.jpg)
+*Reksio i Skarb Piratów intro*
 
-![Gra Reksio i Skarb Piratów](images/rikwa_risp_gra.jpg)
-*Gra Reksio i Skarb Piratów*
+![Reksio i Skarb Piratów gameplay](images/rikwa_risp_gra.jpg)
+*Reksio i Skarb Piratów gameplay*
 
-![Intro gry Reksio i Ufo](images/rikwa_riu_intro.jpg)
-*Intro gry Reksio i Ufo*
+![Reksio i Ufo intro](images/rikwa_riu_intro.jpg)
+*Reksio i Ufo intro*
 
-![Gra Reksio i Ufo](images/rikwa_riu_gra.jpg)
-*Gra Reksio i Ufo*
+![Reksio i Ufo gameplay](images/rikwa_riu_gra.jpg)
+*Reksio i Ufo gameplay*
 
-![Intro gry Reksio i Czarodzieje](images/rikwa_ric_intro1.jpg)
-*Intro gry Reksio i Czarodzieje*
+![Reksio i Czarodzieje intro](images/rikwa_ric_intro1.jpg)
+*Reksio i Czarodzieje intro*
 
-![Intro gry Reksio i Czarodzieje](images/rikwa_ric_intro2.jpg)
-*Intro gry Reksio i Czarodzieje*
+![Reksio i Czarodzieje intro](images/rikwa_ric_intro2.jpg)
+*Reksio i Czarodzieje intro*
 
-![Gra Reksio i Czarodzieje](images/rikwa_ric_gra.jpg)
-*Gra Reksio i Czarodzieje*
+![Reksio i Czarodzieje gameplay](images/rikwa_ric_gra.jpg)
+*Reksio i Czarodzieje gameplay*
 
-![Menu gry Reksio i Wehikuł Czasu](images/rikwa_riwc_menu.jpg)
-*Menu gry Reksio i Wehikuł Czasu*
+![Reksio i Wehikuł Czasu menu](images/rikwa_riwc_menu.jpg)
+*Reksio i Wehikuł Czasu menu*
 
-![Gra Reksio i Wehikuł Czasu na moment przed wywaleniem się.](images/rikwa_riwc_gra.png)
-*Gra Reksio i Wehikuł Czasu na moment przed wywaleniem się.*
+![Reksio i Wehikuł Czasu gameplay moments before crash](images/rikwa_riwc_gra.png)
+*Reksio i Wehikuł Czasu gameplay moments before crash*
 
-![Intro gry Super Heros i Kapitan Nemo](images/rikwa_shikn_intro.jpg)
-*Intro gry Super Heros i Kapitan Nemo*
+![Super Heros i Kapitan Nemo intro](images/rikwa_shikn_intro.jpg)
+*Super Heros i Kapitan Nemo intro*
 
-![Gra Super Heros i Kapitan Nemo](images/rikwa_shikn_gra.jpg)
-*Gra Super Heros i Kapitan Nemo*
+![Super Heros i Kapitan Nemo gameplay](images/rikwa_shikn_gra.jpg)
+*Super Heros i Kapitan Nemo gameplay*
 
 ### Poznaj Mity: Wyprawa po Złote Runo
-![Screen z próby uruchomienia Wyprawy po Złote Runo](images/wpzr.jpg)
-*Screen z próby uruchomienia Wyprawy po Złote Runo*
+![Screenshot from Wyprawa po Złote Runo](images/wpzr.jpg)
+*Screenshot from Wyprawa po Złote Runo*
 
 ### Poznaj Mity: Wojna Trojańska
-![Screen z próby uruchomienia Wojny Trojańskiej](images/wt.jpg)
-*Screen z próby uruchomienia Wojny Trojańskiej*
+![Screenshot from Wojna Trojańska](images/wt.jpg)
+*Screenshot from Wojna Trojańska*
 
 ### Poznaj Mity: Przygody Odyseusza
-![Screen z próby uruchomienia Przygód Odyseusza](images/po.jpg)
-*Screen z próby uruchomienia Przygód Odyseusza*
+![Screenshot from Przygody Odyseusza](images/po.jpg)
+*Screenshot from Przygody Odyseusza*
 
 ### Poznaj Mity: Herkules
-![Screen z próby uruchomienia Herkulesa](images/herc.jpg)
-*Screen z próby uruchomienia Herkulesa*
+![Screenshot from Herkules](images/herc.jpg)
+*Screenshot from Herkules*
+
+## License
+
+This project is intended for educational and preservation purposes. You must own the original games to use this emulator.
+
+The project does not distribute complete copyrighted assets from the original titles, such as full graphics, audio, or binary data.
+The assets/ directory may contain minimal, necessary fragments of assets used solely for automated testing and engine validation. These files are included only to the extent required to analyze and reproduce the engine’s behavior, and fall under fair use / permitted use for interoperability.
+
+Users are required to obtain the full original game assets legally, from copies they personally own.
+
+The author of this project is not affiliated with the rights holders of the original games. The emulator is provided in good faith, “as is”, without any warranties, as a research and documentation tool.
