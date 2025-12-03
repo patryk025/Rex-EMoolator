@@ -161,82 +161,82 @@ Playability estimates are based on the number of scenes that play correctly acco
 ## Screenshots
 ### Reksio i Skarb Piratów
 ![Screenshot from Reksio i Skarb Piratów](images/risp.jpg)
-*Screenshot from Reksio i Skarb Piratów*
+<br>*Screenshot from Reksio i Skarb Piratów*
 
 ### Reksio i Ufo
 ![Screenshot from Reksio i Ufo](images/riu.jpg)
-*Screenshot from Reksio i Ufo*
+<br>*Screenshot from Reksio i Ufo*
 
 ### Reksio i Czarodzieje
 ![Screenshot from Reksio i Czarodzieje](images/ric.jpg)
-*Screenshot from Reksio i Czarodzieje*
+<br>*Screenshot from Reksio i Czarodzieje*
 
 ### Reksio i Wehikuł Czasu
 ![Screenshot from Reksio i Wehikuł Czasu](images/riwc.jpg)
-*Screenshot from Reksio i Wehikuł Czasu*
+<br>*Screenshot from Reksio i Wehikuł Czasu*
 
 ### Reksio i Kapitan Nemo
 ![Reksio i Kapitan Nemo menu](images/rikn_menu.jpg)
-*Reksio i Kapitan Nemo menu*
+<br>*Reksio i Kapitan Nemo menu*
 
 ![Intro after clicking the drawer](images/rikn_gra_intro.jpg)
-*Intro after clicking the drawer*
+<br>*Intro after clicking the drawer*
 
 ### Reksio i Kretes w Akcji
 ![Reksio i Kretes w Akcji intro](images/rikwa_intro.jpg)
-*Reksio i Kretes w Akcji intro*
+<br>*Reksio i Kretes w Akcji intro*
 
 ![Reksio i Kretes w Akcji menu](images/rikwa_menu.jpg)
-*Reksio i Kretes w Akcji menu*
+<br>*Reksio i Kretes w Akcji menu*
 
 ![Reksio i Skarb Piratów intro](images/rikwa_risp_intro.jpg)
-*Reksio i Skarb Piratów intro*
+<br>*Reksio i Skarb Piratów intro*
 
 ![Reksio i Skarb Piratów gameplay](images/rikwa_risp_gra.jpg)
-*Reksio i Skarb Piratów gameplay*
+<br>*Reksio i Skarb Piratów gameplay*
 
 ![Reksio i Ufo intro](images/rikwa_riu_intro.jpg)
-*Reksio i Ufo intro*
+<br>*Reksio i Ufo intro*
 
 ![Reksio i Ufo gameplay](images/rikwa_riu_gra.jpg)
-*Reksio i Ufo gameplay*
+<br>*Reksio i Ufo gameplay*
 
 ![Reksio i Czarodzieje intro](images/rikwa_ric_intro1.jpg)
-*Reksio i Czarodzieje intro*
+<br>*Reksio i Czarodzieje intro*
 
 ![Reksio i Czarodzieje intro](images/rikwa_ric_intro2.jpg)
-*Reksio i Czarodzieje intro*
+<br>*Reksio i Czarodzieje intro*
 
 ![Reksio i Czarodzieje gameplay](images/rikwa_ric_gra.jpg)
-*Reksio i Czarodzieje gameplay*
+<br>*Reksio i Czarodzieje gameplay*
 
 ![Reksio i Wehikuł Czasu menu](images/rikwa_riwc_menu.jpg)
-*Reksio i Wehikuł Czasu menu*
+<br>*Reksio i Wehikuł Czasu menu*
 
 ![Reksio i Wehikuł Czasu gameplay moments before crash](images/rikwa_riwc_gra.png)
-*Reksio i Wehikuł Czasu gameplay moments before crash*
+<br>*Reksio i Wehikuł Czasu gameplay moments before crash*
 
 ![Super Heros i Kapitan Nemo intro](images/rikwa_shikn_intro.jpg)
-*Super Heros i Kapitan Nemo intro*
+<br>*Super Heros i Kapitan Nemo intro*
 
 ![Super Heros i Kapitan Nemo gameplay](images/rikwa_shikn_gra.jpg)
-*Super Heros i Kapitan Nemo gameplay*
+<br>*Super Heros i Kapitan Nemo gameplay*
 
 ### Poznaj Mity: Wyprawa po Złote Runo
 ![Screenshot from Wyprawa po Złote Runo](images/wpzr.jpg)
-*Screenshot from Wyprawa po Złote Runo*
+<br>*Screenshot from Wyprawa po Złote Runo*
 
 ### Poznaj Mity: Wojna Trojańska
 ![Screenshot from Wojna Trojańska](images/wt.jpg)
-*Screenshot from Wojna Trojańska*
+<br>*Screenshot from Wojna Trojańska*
 
 ### Poznaj Mity: Przygody Odyseusza
 ![Screenshot from Przygody Odyseusza](images/po.jpg)
-*Screenshot from Przygody Odyseusza*
+<br>*Screenshot from Przygody Odyseusza*
 
 ### Poznaj Mity: Herkules
 ![Screenshot from Herkules](images/herc.jpg)
-*Screenshot from Herkules*
+<br>*Screenshot from Herkules*
 
 ## License
 

@@ -161,82 +161,82 @@ Szacowane poziomy grywalności są wyznaczane na podstawie ilości scen, które 
 ## Garść screenshotów
 ### Reksio i Skarb Piratów
 ![Screen z próby uruchomienia Reksio i Skarb Piratów](images/risp.jpg)
-*Screen z próby uruchomienia Reksio i Skarb Piratów*
+<br>*Screen z próby uruchomienia Reksio i Skarb Piratów*
 
 ### Reksio i Ufo
 ![Screen z próby uruchomienia Reksio i Ufo](images/riu.jpg)
-*Screen z próby uruchomienia Reksio i Ufo*
+<br>*Screen z próby uruchomienia Reksio i Ufo*
 
 ### Reksio i Czarodzieje
 ![Screen z próby uruchomienia Reksio i Czarodzieje](images/ric.jpg)
-*Screen z próby uruchomienia Reksio i Czarodzieje*
+<br>*Screen z próby uruchomienia Reksio i Czarodzieje*
 
 ### Reksio i Wehikuł Czasu
 ![Screen z próby uruchomienia Reksio i Wehikuł Czasu](images/riwc.jpg)
-*Screen z próby uruchomienia Reksio i Wehikuł Czasu*
+<br>*Screen z próby uruchomienia Reksio i Wehikuł Czasu*
 
 ### Reksio i Kapitan Nemo
 ![Menu gry Reksio i Kapitan Nemo](images/rikn_menu.jpg)
-*Menu gry Reksio i Kapitan Nemo*
+<br>*Menu gry Reksio i Kapitan Nemo*
 
 ![Intro po kliknięciu szuflady](images/rikn_gra_intro.jpg)
-*Intro po kliknięciu szuflady*
+<br>*Intro po kliknięciu szuflady*
 
 ### Reksio i Kretes w Akcji
 ![Intro gry Reksio i Kretes w Akcji](images/rikwa_intro.jpg)
-*Intro gry Reksio i Kretes w Akcji*
+<br>*Intro gry Reksio i Kretes w Akcji*
 
 ![Menu gry Reksio i Kretes w Akcji](images/rikwa_menu.jpg)
-*Menu gry Reksio i Kretes w Akcji*
+<br>*Menu gry Reksio i Kretes w Akcji*
 
 ![Intro gry Reksio i Skarb Piratów](images/rikwa_risp_intro.jpg)
-*Intro gry Reksio i Skarb Piratów*
+<br>*Intro gry Reksio i Skarb Piratów*
 
 ![Gra Reksio i Skarb Piratów](images/rikwa_risp_gra.jpg)
-*Gra Reksio i Skarb Piratów*
+<br>*Gra Reksio i Skarb Piratów*
 
 ![Intro gry Reksio i Ufo](images/rikwa_riu_intro.jpg)
-*Intro gry Reksio i Ufo*
+<br>*Intro gry Reksio i Ufo*
 
 ![Gra Reksio i Ufo](images/rikwa_riu_gra.jpg)
-*Gra Reksio i Ufo*
+<br>*Gra Reksio i Ufo*
 
 ![Intro gry Reksio i Czarodzieje](images/rikwa_ric_intro1.jpg)
-*Intro gry Reksio i Czarodzieje*
+<br>*Intro gry Reksio i Czarodzieje*
 
 ![Intro gry Reksio i Czarodzieje](images/rikwa_ric_intro2.jpg)
-*Intro gry Reksio i Czarodzieje*
+<br>*Intro gry Reksio i Czarodzieje*
 
 ![Gra Reksio i Czarodzieje](images/rikwa_ric_gra.jpg)
-*Gra Reksio i Czarodzieje*
+<br>*Gra Reksio i Czarodzieje*
 
 ![Menu gry Reksio i Wehikuł Czasu](images/rikwa_riwc_menu.jpg)
-*Menu gry Reksio i Wehikuł Czasu*
+<br>*Menu gry Reksio i Wehikuł Czasu*
 
 ![Gra Reksio i Wehikuł Czasu na moment przed wywaleniem się.](images/rikwa_riwc_gra.png)
-*Gra Reksio i Wehikuł Czasu na moment przed wywaleniem się.*
+<br>*Gra Reksio i Wehikuł Czasu na moment przed wywaleniem się.*
 
 ![Intro gry Super Heros i Kapitan Nemo](images/rikwa_shikn_intro.jpg)
-*Intro gry Super Heros i Kapitan Nemo*
+<br>*Intro gry Super Heros i Kapitan Nemo*
 
 ![Gra Super Heros i Kapitan Nemo](images/rikwa_shikn_gra.jpg)
-*Gra Super Heros i Kapitan Nemo*
+<br>*Gra Super Heros i Kapitan Nemo*
 
 ### Poznaj Mity: Wyprawa po Złote Runo
 ![Screen z próby uruchomienia Wyprawy po Złote Runo](images/wpzr.jpg)
-*Screen z próby uruchomienia Wyprawy po Złote Runo*
+<br>*Screen z próby uruchomienia Wyprawy po Złote Runo*
 
 ### Poznaj Mity: Wojna Trojańska
 ![Screen z próby uruchomienia Wojny Trojańskiej](images/wt.jpg)
-*Screen z próby uruchomienia Wojny Trojańskiej*
+<br>*Screen z próby uruchomienia Wojny Trojańskiej*
 
 ### Poznaj Mity: Przygody Odyseusza
 ![Screen z próby uruchomienia Przygód Odyseusza](images/po.jpg)
-*Screen z próby uruchomienia Przygód Odyseusza*
+<br>*Screen z próby uruchomienia Przygód Odyseusza*
 
 ### Poznaj Mity: Herkules
 ![Screen z próby uruchomienia Herkulesa](images/herc.jpg)
-*Screen z próby uruchomienia Herkulesa*
+<br>*Screen z próby uruchomienia Herkulesa*
 
 ## Licencja
 
