@@ -670,11 +670,12 @@ public class Game {
     }
 
     public void stopAllSounds(boolean stopBackground) {
-        for(SoundVariable sound : playingAudios) {
+        for(SoundVariable sound : new ArrayList<>(playingAudios)) {
             if(stopBackground || sound.getSound() != currentSceneVariable.getMusic()) {
-                sound.getSound().stop();
+                sound.stop(false);
             }
         }
+        playingAudios.clear();
     }
 
     public EpisodeVariable getCurrentEpisodeVariable() {
