@@ -884,6 +884,10 @@ public class AnimoVariable extends Variable implements Cloneable {
         getAttribute("FILENAME").setValue(filename);
         try {
             AnimoLoader.loadAnimo(this);
+            // reset FPS to value pass to ANIMO variable
+            if (getAttribute("FPS") != null) {
+                setFps(getAttribute("FPS").getInt());
+            }
             if (events != null && !events.isEmpty()) {
                 for(Event event : events) {
                     if(!event.getFrames().isEmpty()) {
