@@ -66,8 +66,14 @@ public class AnimoVariable extends Variable implements Cloneable {
 
     private AnimoState animationState = AnimoState.INIT;
     private ButtonState buttonState = ButtonState.DISABLED;
-
     private List<Filter> filters = new ArrayList<>();
+
+    static class EventFlags {
+        // I found only 3 flags, but is used 32 bits...
+        final static int PLAY_NEXT_EVENT = 0x800000; // event chain, go to next event on end
+        final static int WAIT_FOR_SFX = 0x100000; // wait until SFX is finished?
+        final static int PING_PONG = 0x20000; // bounce back and forward
+    }
 
     public AnimoVariable(String name, Context context) {
         super(name, context);
@@ -496,6 +502,7 @@ public class AnimoVariable extends Variable implements Cloneable {
                     isVisible = true;
                     changeAnimoState(AnimoEvent.PLAY);
                     setCurrentFrameNumber(0, true);
+                    currentEvent.setRepeatCounter(0);
                     emitSignal("ONSTARTED", currentEvent != null ? currentEvent.getName() : null);
                 } catch (IndexOutOfBoundsException e) {
                     Gdx.app.error("AnimoVariable", "Event with id " + eventId + " not found");
@@ -525,6 +532,7 @@ public class AnimoVariable extends Variable implements Cloneable {
                 isVisible = true;
                 changeAnimoState(AnimoEvent.PLAY);
                 setCurrentFrameNumber(0, true);
+                currentEvent.setRepeatCounter(0);
                 emitSignal("ONSTARTED", currentEvent != null ? currentEvent.getName() : null);
                 return null;
             }
@@ -550,6 +558,7 @@ public class AnimoVariable extends Variable implements Cloneable {
                         isVisible = true;
                         changeAnimoState(AnimoEvent.PLAY);
                         setCurrentFrameNumber(0, true);
+                        currentEvent.setRepeatCounter(0);
                         emitSignal("ONSTARTED", currentEvent != null ? currentEvent.getName() : null);
 
                         break;
@@ -1021,13 +1030,7 @@ public class AnimoVariable extends Variable implements Cloneable {
     }
 
     public void updateAnimation(float deltaTime) {
-		/*if(context.getGame().getCurrentScene().equals("S62_PAKMAN") && getName().startsWith("ANNWORM")) {
-			Gdx.app.debug("AnimoVariable", "Current state of " + getName() + " is " + animationState);
-			Gdx.app.debug("AnimoVariable", "Current position of " + getName() + " is " + getRect().getXLeft() + ", " + getRect().getYTop());
-			Gdx.app.debug("AnimoVariable", "Current frame of " + getName() + " is " + currentFrameNumber);
-			Gdx.app.debug("AnimoVariable", "Current event of " + getName() + " is " + currentEvent.getName());
-			Gdx.app.debug("AnimoVariable", "Current FPS " + getName() + " is " + fps + " (" + frameDuration + "s)");
-		}*/
+		// TODO: implement WAIT_FOR_SFX (oh sh*t, here we go again)
         elapsedTime += deltaTime;
         if (elapsedTime > frameDuration) {
             elapsedTime -= frameDuration;
@@ -1055,11 +1058,45 @@ public class AnimoVariable extends Variable implements Cloneable {
 
             int nextFrameNumber = currentFrameNumber + direction;
 
-            if(currentEvent.getLoopBy() != 0 && nextFrameNumber >= currentEvent.getLoopBy()) {
-                setCurrentFrameNumber(0, true);
+            if(currentEvent.getLoopEnd() != 0 && nextFrameNumber >= currentEvent.getLoopEnd()) {
+                setCurrentFrameNumber(currentEvent.getLoopStart(), true);
+                currentEvent.setRepeatCounter(currentEvent.getRepeatCounter()+1);
+                if(currentEvent.getRepeatCounter() >= currentEvent.getRepeatCount()) {
+                    changeAnimoState(AnimoEvent.END);
+                }
             }
-            else if (nextFrameNumber >= currentEvent.getFrames().size()) {
-                changeAnimoState(AnimoEvent.END);
+            else if (nextFrameNumber >= currentEvent.getFrames().size() || nextFrameNumber < 0) {
+                // handle overflow (forward) and underflow (backward)
+                if (nextFrameNumber < 0) {
+                    // animation goes backwards past first frame
+                    if((currentEvent.getFlags() & EventFlags.PING_PONG) != 0) { // Boink
+                        direction *= -1;
+                    } else {
+                        changeAnimoState(AnimoEvent.END);
+                    }
+                } else { // nextFrameNumber >= frames.size()
+                    if((currentEvent.getFlags() & EventFlags.PING_PONG) != 0) { // If Ping
+                        direction *= -1; // then Pong.
+                    }
+                    else {
+                        if((currentEvent.getFlags() & EventFlags.PLAY_NEXT_EVENT) != 0) {
+                            // try to find next event
+                            int currentEventIndex = events.indexOf(currentEvent);
+                            if(currentEventIndex < events.size() - 1) {
+                                currentEvent = events.get(currentEventIndex + 1);
+                                setCurrentFrameNumber(0, true);
+                                currentEvent.setRepeatCounter(0);
+                            }
+                            else {
+                                // if there is no next event, end animation
+                                changeAnimoState(AnimoEvent.END);
+                            }
+                        }
+                        else {
+                            changeAnimoState(AnimoEvent.END);
+                        }
+                    }
+                }
             }
             else {
                 setCurrentFrameNumber(nextFrameNumber, true);

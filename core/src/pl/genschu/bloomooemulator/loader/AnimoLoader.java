@@ -3,9 +3,6 @@ package pl.genschu.bloomooemulator.loader;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.files.FileHandle;
-import pl.genschu.bloomooemulator.engine.decision.events.AnimoEvent;
-import pl.genschu.bloomooemulator.engine.decision.events.ButtonEvent;
-import pl.genschu.bloomooemulator.interpreter.variable.Attribute;
 import pl.genschu.bloomooemulator.interpreter.variable.types.AnimoVariable;
 import pl.genschu.bloomooemulator.objects.Event;
 import pl.genschu.bloomooemulator.objects.FrameData;
@@ -90,10 +87,13 @@ public class AnimoLoader {
             event.setName(eventName);
 
             event.setFramesCount(buffer.getShort() & 0xFFFF);
-            buffer.position(buffer.position() + 6);
-            event.setLoopBy(buffer.getInt());
-            buffer.position(buffer.position() + 4); // weird numbers
-            buffer.position(buffer.position() + 6);
+            buffer.position(buffer.position() + 4);
+            event.setLoopStart(buffer.getShort() & 0xFFFF);
+            event.setLoopEnd(buffer.getShort() & 0xFFFF);
+            event.setRepeatCount(buffer.getShort() & 0xFFFF);
+            event.setRepeatCounter(buffer.getShort() & 0xFFFF);
+            buffer.position(buffer.position() + 4);
+            event.setFlags(buffer.getInt());
             event.setOpacity(buffer.get() & 0xFF);
 
             buffer.position(buffer.position() + 12);
