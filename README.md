@@ -111,49 +111,49 @@ Playability estimates are based on the number of scenes that play correctly acco
 <td><img alt="In-game" src="https://img.shields.io/badge/In--game-yellow"/></td>
 <td>Requires re-evaluation.</td>
 <td>0%</td>
-<td></td>
+<td><a href="https://github.com/users/patryk025/projects/8">Link</a></td>
 </tr>
 <tr>
 <td>Reksio i Kapitan Nemo</td>
 <td><img alt="In-game" src="https://img.shields.io/badge/In--game-yellow"/></td>
 <td>Requires re-evaluation.</td>
 <td>0%</td>
-<td></td>
+<td><a href="https://github.com/users/patryk025/projects/10">Link</a></td>
 </tr>
 <tr>
 <td>Reksio i Kretes w Akcji!</td>
 <td><img alt="In-game" src="https://img.shields.io/badge/In--game-yellow"/></td>
 <td>Opening intro works and proceeds correctly. Clicking brings you to menu. All buttons work and go to corresponding minigames. Reksio i Skarb Piratów technically works—background doesn't scroll but collisions work. In Reksio i Ufo, only background, Millennium Falcon, and particle effects render, but stage doesn't work due to missing Inertia implementation. In Reksio i Czarodzieje, track renders but everything seems over-accelerated. Collisions work but elements don't move. In Reksio i Wehikuł Czasu, map draws and characters can move but there are bugs with graphics and positions. Super Heros i Kapitan Nemo doesn't load the map. Map editor is also incomplete.</td>
 <td>0%</td>
-<td></td>
+<td><a href="https://github.com/users/patryk025/projects/11">Link</a></td>
 </tr>
 <tr>
 <td>Poznaj Mity: Wyprawa po Złote Runo</td>
 <td><img alt="In-game" src="https://img.shields.io/badge/In--game-yellow"/></td>
 <td>Requires re-evaluation.</td>
 <td></td>
-<td></td>
+<td><a href="https://github.com/users/patryk025/projects/12">Link</a></td>
 </tr>
 <tr>
 <td>Poznaj Mity: Wojna Trojańska</td>
 <td><img alt="In-game" src="https://img.shields.io/badge/In--game-yellow"/></td>
 <td>Requires re-evaluation.</td>
 <td></td>
-<td></td>
+<td><a href="https://github.com/users/patryk025/projects/13">Link</a></td>
 </tr>
 <tr>
 <td>Poznaj Mity: Przygody Odyseusza</td>
 <td><img alt="In-game" src="https://img.shields.io/badge/In--game-yellow"/></td>
 <td>Requires re-evaluation.</td>
 <td></td>
-<td></td>
+<td><a href="https://github.com/users/patryk025/projects/14">Link</a></td>
 </tr>
 <tr>
 <td>Poznaj Mity: Herkules</td>
 <td><img alt="In-game" src="https://img.shields.io/badge/In--game-yellow"/></td>
 <td>Requires re-evaluation.</td>
 <td></td>
-<td></td>
+<td><a href="https://github.com/users/patryk025/projects/15">Link</a></td>
 </tr>
 </tbody>
 </table>
