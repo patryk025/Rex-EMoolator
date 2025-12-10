@@ -3,6 +3,8 @@ package pl.genschu.bloomooemulator.interpreter.ast.expressions;
 import pl.genschu.bloomooemulator.interpreter.Context;
 import pl.genschu.bloomooemulator.interpreter.ast.Expression;
 
+import java.util.Objects;
+
 import static pl.genschu.bloomooemulator.interpreter.util.VariableHelper.getVariableFromObject;
 
 public class ReturnExpression extends Expression
@@ -15,6 +17,6 @@ public class ReturnExpression extends Expression
 
     @Override
     public Object evaluate(Context context) {
-        return getVariableFromObject(returnValue, context);
+        return Objects.requireNonNull(getVariableFromObject(returnValue, context)).clone();
     }
 }

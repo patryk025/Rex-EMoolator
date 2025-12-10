@@ -215,7 +215,7 @@ public abstract class Variable implements Cloneable {
 			cloneVar.attributes = new HashMap<>();
 			for(Map.Entry<String, Attribute> entry : this.attributes.entrySet()) {
 				Attribute currentAttr = entry.getValue();
-				cloneVar.attributes.put(entry.getKey(), new Attribute(currentAttr.getType(), currentAttr.getValue().toString()));
+				cloneVar.attributes.put(entry.getKey(), new Attribute(currentAttr.getType(), currentAttr.getValue()));
 			}
 			cloneVar.methods = new HashMap<>();
 			cloneVar.setMethods();

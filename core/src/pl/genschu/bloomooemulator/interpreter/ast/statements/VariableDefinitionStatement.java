@@ -1,5 +1,6 @@
 package pl.genschu.bloomooemulator.interpreter.ast.statements;
 
+import com.badlogic.gdx.Gdx;
 import pl.genschu.bloomooemulator.interpreter.Context;
 import pl.genschu.bloomooemulator.interpreter.variable.Variable;
 import pl.genschu.bloomooemulator.interpreter.ast.Expression;
@@ -32,6 +33,10 @@ public class VariableDefinitionStatement extends Statement {
 
         String valueString = value.toString(); // expression returns Variable, not String expected by createVariable
 
+        if(context.hasVariable(variableName)) {
+            Gdx.app.log("VariableDefinitionStatement", "Variable " + variableName + " already exists in this context, skipping");
+            return;
+        }
         Variable variable = VariableFactory.createVariable(type, variableName, valueString, context);
         context.setVariable(variableName, variable);
     }

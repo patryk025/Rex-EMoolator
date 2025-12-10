@@ -59,6 +59,11 @@ public class CodeParserTest {
                           "}", 1), // probably redeclaration and using own value in that way is not permitted so engine returns 1, not 2
                 arguments("{" +
                             "@INT(\"A\",1);" +
+                            "@INT(\"A\",2); " +
+                            "@RETURN(A);" +
+                          "}", 1), // yup, redeclaration does not work.
+                arguments("{" +
+                            "@INT(\"A\",1);" +
                             "@INT(\"B\",[A+1]); " +
                             "@RETURN(B);" +
                           "}", 2),
@@ -90,7 +95,10 @@ public class CodeParserTest {
                 // access to variables by reference
                 arguments("{@RETURN(*TEST_VALUE_NAME^GET());}", 5), // access by STRING variable
                 arguments("{@RETURN(*[\"TEST_VALUE_\"+TEST_NO]^GET());}", 5), // access by arithmetic operation
-                arguments("{@RETURN(*[\"TEST_VALUE_\"+TEST_NO+1]^GET());}", "TEST_VALUE_11") // access to non-existent variable
+                arguments("{@RETURN(*[\"TEST_VALUE_\"+TEST_NO+1]^GET());}", "TEST_VALUE_11"), // access to non-existent variable
+
+                arguments("{@INT(\"B\",0);@RETURN(B);B^SET(1);}", 0), // RETURN only sets value to return, is not exiting the behaviour
+                arguments("{@INT(\"B\",0);@RETURN(B);B^SET(1);@RETURN(B);B^SET(2);}", 1) // and every next call of @RETURN overrides previous value
         );
     }
 
