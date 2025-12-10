@@ -3,6 +3,7 @@ package pl.genschu.bloomooemulator.interpreter.ast;
 import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
+import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.TerminalNode;
 import pl.genschu.bloomooemulator.interpreter.Context;
 import pl.genschu.bloomooemulator.interpreter.antlr.AidemMediaLexer;
@@ -279,28 +280,13 @@ public class ASTBuilderVisitor extends AidemMediaParserBaseVisitor<Node> {
 
     @Override
     public Node visitExpr(AidemMediaParser.ExprContext ctx) {
-        // expr: addExpr
-        return visit(ctx.addExpr());
+        // expr: arithmeticExpr
+        return visit(ctx.arithmeticExpr());
     }
 
     @Override
-    public Node visitAddExpr(AidemMediaParser.AddExprContext ctx) {
-        // addExpr: left=mulExpr (op=(PLUS|MINUS) right=mulExpr)* ;
-        Expression result = asExpression(visit(ctx.left));
-
-        int childCount = ctx.getChildCount();
-        for (int i = 1; i + 1 < childCount; i += 2) {
-            String op = ctx.getChild(i).getText();
-            Expression right = asExpression(visit(ctx.getChild(i + 1)));
-            result = new ArithmeticExpression(result, right, op);
-        }
-
-        return result;
-    }
-
-    @Override
-    public Node visitMulExpr(AidemMediaParser.MulExprContext ctx) {
-        // mulExpr: left=unaryExpr (op=(STAR|AT|PERC) right=unaryExpr)* ;
+    public Node visitArithmeticExpr(AidemMediaParser.ArithmeticExprContext ctx) {
+        // arithmeticExpr: left=unaryExpr (op=(PLUS|MINUS|STAR|AT|PERC) right=unaryExpr)* ;
         Expression result = asExpression(visit(ctx.left));
 
         int childCount = ctx.getChildCount();
@@ -542,5 +528,54 @@ public class ASTBuilderVisitor extends AidemMediaParserBaseVisitor<Node> {
         }
 
         return stack.pop();
+    }
+
+    private void collectLinearExprTokens(ParseTree node, List<Object> tokens) {
+        if (node instanceof TerminalNode) {
+            TerminalNode term = (TerminalNode) node;
+            int type = term.getSymbol().getType();
+            String text = term.getText();
+
+            switch (type) {
+                case AidemMediaLexer.PLUS:
+                case AidemMediaLexer.MINUS:
+                case AidemMediaLexer.STAR:
+                case AidemMediaLexer.AT:
+                case AidemMediaLexer.PERC:
+                    // operator
+                    tokens.add(text);
+                    break;
+
+                case AidemMediaLexer.NUMBER: {
+                    Expression e;
+                    if (text.contains(".")) {
+                        e = new ConstantExpression(Double.parseDouble(text));
+                    } else {
+                        e = new ConstantExpression(Integer.parseInt(text));
+                    }
+                    tokens.add(e);
+                    break;
+                }
+
+                case AidemMediaLexer.TRUE:
+                    tokens.add(new ConstantExpression(true));
+                    break;
+
+                case AidemMediaLexer.FALSE:
+                    tokens.add(new ConstantExpression(false));
+                    break;
+
+                case AidemMediaLexer.IDENT:
+                    tokens.add(new VariableExpression(text));
+                    break;
+
+                default:
+                    break;
+            }
+        } else {
+            for (int i = 0; i < node.getChildCount(); i++) {
+                collectLinearExprTokens(node.getChild(i), tokens);
+            }
+        }
     }
 }

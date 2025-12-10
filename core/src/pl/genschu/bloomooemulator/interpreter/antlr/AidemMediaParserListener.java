@@ -98,25 +98,15 @@ public interface AidemMediaParserListener extends ParseTreeListener {
 	 */
 	void exitExpr(AidemMediaParser.ExprContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link AidemMediaParser#addExpr}.
+	 * Enter a parse tree produced by {@link AidemMediaParser#arithmeticExpr}.
 	 * @param ctx the parse tree
 	 */
-	void enterAddExpr(AidemMediaParser.AddExprContext ctx);
+	void enterArithmeticExpr(AidemMediaParser.ArithmeticExprContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link AidemMediaParser#addExpr}.
+	 * Exit a parse tree produced by {@link AidemMediaParser#arithmeticExpr}.
 	 * @param ctx the parse tree
 	 */
-	void exitAddExpr(AidemMediaParser.AddExprContext ctx);
-	/**
-	 * Enter a parse tree produced by {@link AidemMediaParser#mulExpr}.
-	 * @param ctx the parse tree
-	 */
-	void enterMulExpr(AidemMediaParser.MulExprContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link AidemMediaParser#mulExpr}.
-	 * @param ctx the parse tree
-	 */
-	void exitMulExpr(AidemMediaParser.MulExprContext ctx);
+	void exitArithmeticExpr(AidemMediaParser.ArithmeticExprContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link AidemMediaParser#unaryExpr}.
 	 * @param ctx the parse tree

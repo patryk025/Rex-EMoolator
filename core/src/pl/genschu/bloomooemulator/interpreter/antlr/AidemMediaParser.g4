@@ -32,10 +32,9 @@ arg
   ;
 
 // math
-expr        : addExpr ;
+expr        : arithmeticExpr ;
 
-addExpr     : left=mulExpr (op=(PLUS|MINUS) right=mulExpr)* ;
-mulExpr     : left=unaryExpr (op=(STAR|AT|PERC) right=unaryExpr)* ;
+arithmeticExpr     : left=unaryExpr (op=(PLUS|MINUS|STAR|AT|PERC) right=unaryExpr)* ;
 
 unaryExpr   : op=(PLUS|MINUS|STAR) unaryExpr
             | primary;
