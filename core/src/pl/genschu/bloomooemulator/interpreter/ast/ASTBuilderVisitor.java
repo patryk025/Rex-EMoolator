@@ -8,6 +8,7 @@ import pl.genschu.bloomooemulator.interpreter.Context;
 import pl.genschu.bloomooemulator.interpreter.antlr.AidemMediaLexer;
 import pl.genschu.bloomooemulator.interpreter.antlr.AidemMediaParser;
 import pl.genschu.bloomooemulator.interpreter.antlr.AidemMediaParserBaseVisitor;
+import pl.genschu.bloomooemulator.interpreter.arithmetic.utils.InfixToPostfix;
 import pl.genschu.bloomooemulator.interpreter.ast.expressions.*;
 import pl.genschu.bloomooemulator.interpreter.ast.statements.*;
 
@@ -129,56 +130,63 @@ public class ASTBuilderVisitor extends AidemMediaParserBaseVisitor<Node> {
                 return null;
 
             case "IF": {
-                // @IF(cond, codeTrue, codeFalse)
-                // @IF(left, operator, right, codeTrue, codeFalse)
-                if (args.size() < 3) {
-                    throw new RuntimeException("@IF expects at least 3 arguments");
+                if (args.size() != 3 && args.size() != 5) {
+                    throw new RuntimeException("@IF expects 3 or 5 arguments");
                 }
 
                 Expression cond;
-                if(args.size() == 3)
-                    cond = args.get(0);
-                else {
+                Expression trueBranch;
+                Expression falseBranch;
+
+                if (args.size() == 3) {
+                    // @IF(cond, codeTrue, codeFalse)
+                    Expression condArg = args.get(0);
+
+                    if (condArg instanceof ConstantExpression) {
+                        ConstantExpression c = (ConstantExpression) condArg;
+                        Object v = c.evaluate(context);
+
+                        cond = buildConditionExpressionFromString((String) v);
+                    } else {
+                        cond = condArg;
+                    }
+
+                    trueBranch = parseCodeArg(args.get(1));
+                    falseBranch = parseCodeArg(args.get(2));
+                } else {
+                    // @IF(left, operator, right, codeTrue, codeFalse)
                     Expression left = args.get(0);
-                    String operator = args.get(1).evaluate(context).toString();
+                    Expression operatorExpr = args.get(1);
                     Expression right = args.get(2);
+
+                    String operator = operatorExpr.evaluate(context).toString();
+
+                    if (left instanceof ConstantExpression) {
+                        left = new VariableExpression(left);
+                    }
+                    if (right instanceof ConstantExpression) {
+                        right = new VariableExpression(right);
+                    }
+
                     cond = new ConditionExpression(left, right, operator);
+                    trueBranch = parseCodeArg(args.get(3));
+                    falseBranch = parseCodeArg(args.get(4));
                 }
-                Expression trueBranch = parseCodeArg(args.get(1));
-                Expression falseBranch = args.size() >= 3
-                        ? parseCodeArg(args.get(2))
-                        : null;
 
                 return new IfStatement(cond, trueBranch, falseBranch);
             }
 
             case "WHILE": {
-                // @WHILE(cond, code)
-                if (args.size() < 2) {
-                    throw new RuntimeException("@WHILE expects 2 arguments");
+                // @WHILE(left, operator, right, code)
+                if (args.size() == 4) {
+                    throw new RuntimeException("@WHILE expects 4 arguments");
                 }
 
-                Expression cond = args.get(0);
+                Expression left = args.get(0);
+                String operator = args.get(1).evaluate(context).toString();
+                Expression right = args.get(2);
+                Expression cond = new ConditionExpression(left, right, operator);
                 Expression code = parseCodeArg(args.get(1));
-
-                // DEAD-END OPT: @WHILE(FALSE, {...}) -> nic
-                if (cond instanceof ConstantExpression) {
-                    ConstantExpression c = (ConstantExpression) cond;
-                    Object v = c.evaluate(context);
-                    boolean asBool = false;
-                    if (v instanceof Boolean) {
-                        asBool = (Boolean) v;
-                    } else if (v instanceof Number) {
-                        Number n = (Number) v;
-                        asBool = n.doubleValue() != 0.0;
-                    } else if (v != null) {
-                        asBool = Boolean.parseBoolean(v.toString());
-                    }
-
-                    if (!asBool) {
-                        return null; // pętla nigdy się nie wykona
-                    }
-                }
 
                 return new WhileStatement(cond, code);
             }
@@ -429,5 +437,110 @@ public class ASTBuilderVisitor extends AidemMediaParserBaseVisitor<Node> {
         Node node = nested.visit(scriptCtx);
 
         return asExpression(node);
+    }
+
+    private Expression buildConditionExpressionFromString(String condText) {
+        String input = condText.trim();
+
+        List<Expression> tokens = new ArrayList<>();
+        StringBuilder current = new StringBuilder();
+
+        String[] ops = {
+                "&&", "||",
+                "!'",
+                ">'",
+                "<'",
+                "'",
+                ">", "<"
+        };
+
+        int i = 0;
+        while (i < input.length()) {
+            char c = input.charAt(i);
+
+            if (Character.isWhitespace(c)) {
+                if (current.length() > 0) {
+                    String operand = current.toString().trim();
+                    if (!operand.isEmpty()) {
+                        tokens.add(wrapConditionOperand(operand));
+                    }
+                    current.setLength(0);
+                }
+                i++;
+                continue;
+            }
+
+            if (c == '(' || c == ')') {
+                if (current.length() > 0) {
+                    String operand = current.toString().trim();
+                    if (!operand.isEmpty()) {
+                        tokens.add(wrapConditionOperand(operand));
+                    }
+                    current.setLength(0);
+                }
+                tokens.add(new OperatorExpression(String.valueOf(c)));
+                i++;
+                continue;
+            }
+
+            boolean matched = false;
+            for (String op : ops) {
+                if (input.startsWith(op, i)) {
+                    if (current.length() > 0) {
+                        String operand = current.toString().trim();
+                        if (!operand.isEmpty()) {
+                            tokens.add(wrapConditionOperand(operand));
+                        }
+                        current.setLength(0);
+                    }
+                    tokens.add(new OperatorExpression(op));
+                    i += op.length();
+                    matched = true;
+                    break;
+                }
+            }
+            if (matched) {
+                continue;
+            }
+
+            current.append(c);
+            i++;
+        }
+
+        if (current.length() > 0) {
+            String operand = current.toString().trim();
+            if (!operand.isEmpty()) {
+                tokens.add(wrapConditionOperand(operand));
+            }
+        }
+
+        var postfix = InfixToPostfix.convertToPostfix(tokens);
+        return createConditionExpressionTree(postfix);
+    }
+
+    private Expression wrapConditionOperand(String text) {
+        ConstantExpression constant = new ConstantExpression(text);
+        return new VariableExpression(constant);
+    }
+
+    private Expression createConditionExpressionTree(java.util.Deque<Expression> operands) {
+        if (operands.size() == 1) {
+            return operands.pop();
+        }
+
+        java.util.Stack<Expression> stack = new java.util.Stack<>();
+
+        while (!operands.isEmpty()) {
+            Expression operand = operands.removeFirst();
+            if (operand instanceof OperatorExpression) {
+                Expression right = stack.pop();
+                Expression left = stack.pop();
+                stack.push(new ConditionExpression(left, right, operand.evaluate(null).toString()));
+            } else {
+                stack.push(operand);
+            }
+        }
+
+        return stack.pop();
     }
 }
