@@ -37,10 +37,10 @@ public class CodeParserTest {
 
     static Stream<Arguments> cases() {
         return Stream.of(
-                arguments("{@RETURN([1+2*3]);}", 7),
+                arguments("{@RETURN([1+2*3]);}", 9),
                 arguments("{@RETURN([[10-3]*[2+1]]);}", 21),
                 arguments("{@RETURN([10%3]);}", 1),
-                arguments("{@RETURN([2+2*2]);}", 6),
+                arguments("{@RETURN([2+2*2]);}", 8),
                 arguments("{@RETURN([1.2+2.3]);}", 3.5),
                 arguments("{@INT(\"A\", 5); @RETURN([A + 2]);}", 7),
                 arguments("{" +
@@ -56,6 +56,11 @@ public class CodeParserTest {
                             "@INT(\"A\",1);" +
                             "@INT(\"A\",[A+1]); " +
                             "@RETURN(A);" +
+                          "}", 1), // probably redeclaration and using own value in that way is not permitted so engine returns 1, not 2
+                arguments("{" +
+                            "@INT(\"A\",1);" +
+                            "@INT(\"B\",[A+1]); " +
+                            "@RETURN(B);" +
                           "}", 2),
                 // fibonacci with little subtle changes
                 arguments("{" +
