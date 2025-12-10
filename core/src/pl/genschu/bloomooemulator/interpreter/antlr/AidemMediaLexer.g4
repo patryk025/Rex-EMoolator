@@ -32,7 +32,7 @@ RBRACE: '}';
 MISSING_CLOSE_QUOTE: '"' ~[",)]+ ;
 
 // variable name/method
-IDENT : [A-Za-z_$][A-Za-z0-9_$./?-]* ;
+IDENT : [A-Za-z_$][A-Za-z0-9_$./?]* ;
 
 // inline comment
 LINE_COMMENT : '!' ~[;]* -> skip;
