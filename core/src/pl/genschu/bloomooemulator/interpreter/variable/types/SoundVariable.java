@@ -76,20 +76,7 @@ public class SoundVariable extends Variable {
         ) {
             @Override
             public Variable execute(List<Object> arguments) {
-                try {
-                    sound.stop();
-                    soundId = sound.play();
-                    isPlaying = true;
-                    sound.setVolume(soundId, 1.0f);
-                    sound.setPitch(soundId, (float) currentSampleRate/sampleRate);
-                    sound.setLooping(soundId, false);
-                    playStartTime = TimeUtils.nanoTime() / 1_000_000_000f;
-                    context.getGame().getPlayingAudios().add(SoundVariable.this);
-                    emitSignal("ONSTARTED");
-                } catch(Exception e) {
-                    Gdx.app.log("SoundVariable", "Error on playing sound: "+e.getMessage(), e);
-                    emitSignal("ONFINISHED");
-                }
+                play();
                 return null;
             }
         });
@@ -123,17 +110,11 @@ public class SoundVariable extends Variable {
         ) {
             @Override
             public Variable execute(List<Object> arguments) {
-                try {
-                    sound.stop();
-					context.getGame().getPlayingAudios().remove(SoundVariable.this);
-                } catch(NullPointerException ignored) {}
-                isPlaying = false;
-
+                boolean emitSignal = false;
                 if(!arguments.isEmpty()) {
-                    if(ArgumentsHelper.getBoolean(arguments.get(0))) {
-                        emitSignal("ONFINISHED");
-                    }
+                    emitSignal = ArgumentsHelper.getBoolean(arguments.get(0));
                 }
+                stop(emitSignal);
                 return null;
             }
         });
@@ -174,6 +155,23 @@ public class SoundVariable extends Variable {
         }
     }
 
+    public void play() {
+        try {
+            sound.stop();
+            soundId = sound.play();
+            isPlaying = true;
+            sound.setVolume(soundId, 1.0f);
+            sound.setPitch(soundId, (float) currentSampleRate/sampleRate);
+            sound.setLooping(soundId, false);
+            playStartTime = TimeUtils.nanoTime() / 1_000_000_000f;
+            context.getGame().getPlayingAudios().add(SoundVariable.this);
+            emitSignal("ONSTARTED");
+        } catch(Exception e) {
+            Gdx.app.log("SoundVariable", "Error on playing sound: "+e.getMessage(), e);
+            emitSignal("ONFINISHED");
+        }
+    }
+
     public void pause() {
         if(sound != null) {
             sound.pause();
@@ -186,6 +184,18 @@ public class SoundVariable extends Variable {
             sound.play();
         }
         isPlaying = true;
+    }
+
+    public void stop(boolean emitSignal) {
+        try {
+            sound.stop();
+            context.getGame().getPlayingAudios().remove(SoundVariable.this);
+        } catch(NullPointerException ignored) {}
+        isPlaying = false;
+
+        if(emitSignal) {
+            emitSignal("ONFINISHED");
+        }
     }
 
     public Sound getSound() {

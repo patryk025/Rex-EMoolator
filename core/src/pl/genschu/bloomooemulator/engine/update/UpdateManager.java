@@ -7,13 +7,11 @@ import pl.genschu.bloomooemulator.interpreter.Context;
 import pl.genschu.bloomooemulator.interpreter.exceptions.BreakException;
 import pl.genschu.bloomooemulator.interpreter.variable.Variable;
 import pl.genschu.bloomooemulator.interpreter.variable.types.*;
-import pl.genschu.bloomooemulator.objects.Rectangle;
+import pl.genschu.bloomooemulator.geometry.shapes.Box2D;
 import pl.genschu.bloomooemulator.utils.CollisionChecker;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 
 public class UpdateManager implements Disposable {
     private final Game game;
@@ -104,7 +102,7 @@ public class UpdateManager implements Disposable {
             return CollisionChecker.checkCollision(obj1, obj2);
         }
 
-        public Rectangle getRect(Variable variable) {
+        public Box2D getRect(Variable variable) {
             if (variable instanceof ImageVariable) {
                 return ((ImageVariable) variable).getRect();
             } else if (variable instanceof AnimoVariable) {

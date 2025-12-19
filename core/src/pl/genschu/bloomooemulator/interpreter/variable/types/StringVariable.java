@@ -271,6 +271,10 @@ public class StringVariable extends Variable {
 				int index = ArgumentsHelper.getInteger(arguments.get(0));
 				int length = ArgumentsHelper.getInteger(arguments.get(1));
 
+                if (index < 0 || index > value.length()) {
+                    throw new IndexOutOfBoundsException("Index out of bounds: " + index);
+                }
+
 				String newValue = value.substring(0, index) + value.substring(index + length);
 				set(newValue);
 				return null;

@@ -6,11 +6,16 @@ import java.util.List;
 public class Event {
     private String name;
     private int framesCount;
-    private int loopBy;
+    private int loopStart; // start index in loop (usually 0)
+    private int loopEnd; // end index in loop
+    private int repeatCount; // max number of loops?
+    private int repeatCounter; // current loop
     private int opacity;
     private List<Integer> framesNumbers;
     private List<FrameData> frameData;
     private List<Image> frames;
+    private int flags; // Geez, 32 bits for flags? Really? What a waste of space
+
 
     public String getName() {
         return name;
@@ -28,12 +33,36 @@ public class Event {
         this.framesCount = framesCount;
     }
 
-    public int getLoopBy() {
-        return loopBy;
+    public int getLoopStart() {
+        return loopStart;
     }
 
-    public void setLoopBy(int loopBy) {
-        this.loopBy = loopBy;
+    public void setLoopStart(int loopStart) {
+        this.loopStart = loopStart;
+    }
+
+    public int getLoopEnd() {
+        return loopEnd;
+    }
+
+    public void setLoopEnd(int loopEnd) {
+        this.loopEnd = loopEnd;
+    }
+
+    public int getRepeatCount() {
+        return repeatCount;
+    }
+
+    public void setRepeatCount(int repeatCount) {
+        this.repeatCount = repeatCount;
+    }
+
+    public int getRepeatCounter() {
+        return repeatCounter;
+    }
+
+    public void setRepeatCounter(int repeatCounter) {
+        this.repeatCounter = repeatCounter;
     }
 
     public int getOpacity() {
@@ -66,5 +95,13 @@ public class Event {
 
     public void setFrames(List<Image> frames) {
         this.frames = frames;
+    }
+
+    public int getFlags() {
+        return flags;
+    }
+
+    public void setFlags(int flags) {
+        this.flags = flags;
     }
 }

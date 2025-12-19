@@ -1,5 +1,6 @@
 package pl.genschu.bloomooemulator.interpreter;
 
+import pl.genschu.bloomooemulator.engine.config.EngineConfig;
 import pl.genschu.bloomooemulator.interpreter.factories.VariableFactory;
 import pl.genschu.bloomooemulator.interpreter.util.GlobalVariables;
 import pl.genschu.bloomooemulator.interpreter.variable.GlobalVariable;
@@ -24,6 +25,7 @@ public class Context {
     private final Map<String, Variable> textVariables;
     private MouseVariable mouseVariable;
     private KeyboardVariable keyboardVariable;
+    private WorldVariable worldVariable;
 
     Variable thisVariable = null;
 
@@ -245,6 +247,9 @@ public class Context {
         else if(variable.getType().equals("TEXT")) {
             textVariables.put(name, variable);
         }
+        else if(variable.getType().equals("WORLD")) {
+            worldVariable = (WorldVariable) variable;
+        }
     }
 
     public boolean hasVariable(String name) {
@@ -399,5 +404,26 @@ public class Context {
 
     public void setKeyboardVariable(KeyboardVariable keyboardVariable) {
         this.keyboardVariable = keyboardVariable;
+    }
+
+    public WorldVariable getWorldVariable() {
+        if(worldVariable != null)
+            return worldVariable;
+        else {
+            return parentContext != null ? parentContext.getWorldVariable() : null;
+        }
+    }
+
+    public void setWorldVariable(WorldVariable worldVariable) {
+        this.worldVariable = worldVariable;
+    }
+
+    public EngineConfig getConfig() {
+        try {
+            return this.getGame().getEmulator().getConfig();
+        }
+        catch (NullPointerException e) {
+            return new EngineConfig();
+        }
     }
 }
