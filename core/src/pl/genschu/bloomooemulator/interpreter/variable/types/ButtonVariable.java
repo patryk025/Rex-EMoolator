@@ -36,34 +36,34 @@ public class ButtonVariable extends Variable {
 
 		this.setMethod("DISABLE", new Method("void") {
 			@Override
-			public Variable execute(List<Object> arguments) {
-				if (context.getGame().getInputManager() != null &&
-						context.getGame().getInputManager().getActiveButton() == ButtonVariable.this) {
-					context.getGame().getInputManager().clearActiveButton(ButtonVariable.this);
+			public Variable execute(Variable self, List<Object> arguments) {
+				if (self.getContext().getGame().getInputManager() != null &&
+						self.getContext().getGame().getInputManager().getActiveButton() == ButtonVariable.this) {
+					self.getContext().getGame().getInputManager().clearActiveButton(ButtonVariable.this);
 				}
 
-				changeState(ButtonEvent.DISABLE);
+				((ButtonVariable) self).changeState(ButtonEvent.DISABLE);
 				return null;
 			}
 		});
 
 		this.setMethod("DISABLEBUTVISIBLE", new Method("void") {
 			@Override
-			public Variable execute(List<Object> arguments) {
-				if (context.getGame().getInputManager() != null &&
-						context.getGame().getInputManager().getActiveButton() == ButtonVariable.this) {
-					context.getGame().getInputManager().clearActiveButton(ButtonVariable.this);
+			public Variable execute(Variable self, List<Object> arguments) {
+				if (self.getContext().getGame().getInputManager() != null &&
+						self.getContext().getGame().getInputManager().getActiveButton() == ButtonVariable.this) {
+					self.getContext().getGame().getInputManager().clearActiveButton(ButtonVariable.this);
 				}
 
-				changeState(ButtonEvent.DISABLE_BUT_VISIBLE);
+				((ButtonVariable) self).changeState(ButtonEvent.DISABLE_BUT_VISIBLE);
 				return null;
 			}
 		});
 
 		this.setMethod("ENABLE", new Method("void") {
 			@Override
-			public Variable execute(List<Object> arguments) {
-				changeState(ButtonEvent.ENABLE);
+			public Variable execute(Variable self, List<Object> arguments) {
+				((ButtonVariable) self).changeState(ButtonEvent.ENABLE);
 				return null;
 			}
 		});
@@ -74,16 +74,16 @@ public class ButtonVariable extends Variable {
 				"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
+			public Variable execute(Variable self, List<Object> arguments) {
 				// Redirect argument to GFXes
-				if (gfxVariable != null) {
-					gfxVariable.fireMethod("SETPRIORITY", arguments.get(0));
+				if (((ButtonVariable) self).gfxVariable != null) {
+					((ButtonVariable) self).gfxVariable.fireMethod("SETPRIORITY", arguments.get(0));
 				}
-				if (gfxOnMove != null) {
-					gfxOnMove.fireMethod("SETPRIORITY", arguments.get(0));
+				if (((ButtonVariable) self).gfxOnMove != null) {
+					((ButtonVariable) self).gfxOnMove.fireMethod("SETPRIORITY", arguments.get(0));
 				}
-				if (gfxOnClick != null) {
-					gfxOnClick.fireMethod("SETPRIORITY", arguments.get(0));
+				if (((ButtonVariable) self).gfxOnClick != null) {
+					((ButtonVariable) self).gfxOnClick.fireMethod("SETPRIORITY", arguments.get(0));
 				}
 				return null;
 			}
@@ -95,10 +95,10 @@ public class ButtonVariable extends Variable {
 				"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
+			public Variable execute(Variable self, List<Object> arguments) {
 				String varName = ArgumentsHelper.getString(arguments.get(0));
 
-				Variable variable = context.getVariable(varName);
+				Variable variable = self.getContext().getVariable(varName);
 
 				if (variable == null) {
 					Gdx.app.log("ButtonVariable", "Variable " + varName + " not found, RECT is not changed");
@@ -107,12 +107,12 @@ public class ButtonVariable extends Variable {
 
 				if(variable instanceof AnimoVariable || variable instanceof ImageVariable) {
 					if(variable instanceof AnimoVariable) {
-						rect = ((AnimoVariable) variable).getRect();
+						((ButtonVariable) self).rect = ((AnimoVariable) variable).getRect();
 					}
 					else {
-						rect = ((ImageVariable) variable).getRect();
+						((ButtonVariable) self).rect = ((ImageVariable) variable).getRect();
 					}
-					rectVariable = variable;
+					((ButtonVariable) self).rectVariable = variable;
 					return null;
 				}
 
@@ -129,13 +129,13 @@ public class ButtonVariable extends Variable {
 				"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
+			public Variable execute(Variable self, List<Object> arguments) {
 				int xLeft = ((IntegerVariable) arguments.get(0)).GET();
 				int yBottom = ((IntegerVariable) arguments.get(1)).GET();
 				int xRight = ((IntegerVariable) arguments.get(2)).GET();
 				int yTop = ((IntegerVariable) arguments.get(3)).GET();
-				rect = new Box2D(xLeft, yBottom, xRight, yTop);
-				rectVariable = null;
+				((ButtonVariable) self).rect = new Box2D(xLeft, yBottom, xRight, yTop);
+				((ButtonVariable) self).rectVariable = null;
 				return null;
 			}
 		});
@@ -147,25 +147,25 @@ public class ButtonVariable extends Variable {
 				"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
-				if(rect != null) {
+			public Variable execute(Variable self, List<Object> arguments) {
+				if(((ButtonVariable) self).rect != null) {
 					return null;
 				}
 
 				String varName = ArgumentsHelper.getString(arguments.get(0));
 
-				Variable variable = context.getVariable(varName);
+				Variable variable = self.getContext().getVariable(varName);
 				if(variable instanceof AnimoVariable) {
-					rect = ((AnimoVariable) variable).getRect();
+					((ButtonVariable) self).rect = ((AnimoVariable) variable).getRect();
 				}
 				else if(variable instanceof ImageVariable) {
-					rect = ((ImageVariable) variable).getRect();
+					((ButtonVariable) self).rect = ((ImageVariable) variable).getRect();
 				}
 				else {
 					Gdx.app.log("ButtonVariable", "Variable " + varName + " not found, RECT is not changed");
 				}
 
-				setAttribute("PRIORITY", new Attribute("PRIORITY", "0"));
+				self.setAttribute("PRIORITY", new Attribute("PRIORITY", "0"));
 				return null;
 			}
 		});

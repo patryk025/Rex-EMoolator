@@ -47,18 +47,19 @@ public class MultiArrayVariable extends Variable {
                 "mixed"
         ) {
             @Override
-            public Variable execute(List<Object> arguments) {
-                int[] indices = parseIndices(arguments);
+            public Variable execute(Variable self, List<Object> arguments) {
+                MultiArrayVariable selfVar = (MultiArrayVariable) self;
+                int[] indices = selfVar.parseIndices(arguments);
 
-                if (!validateIndices(indices)) {
-                    Gdx.app.error("MultiArrayVariable", "Invalid indices for GET: " + arrayToString(indices));
-                    return new StringVariable("", "NULL", context);
+                if (!selfVar.validateIndices(indices)) {
+                    Gdx.app.error("MultiArrayVariable", "Invalid indices for GET: " + selfVar.arrayToString(indices));
+                    return new StringVariable("", "NULL", selfVar.getContext());
                 }
 
-                int flatIndex = indicesToFlatIndex(indices);
-                Variable value = data[flatIndex];
+                int flatIndex = selfVar.indicesToFlatIndex(indices);
+                Variable value = selfVar.getData()[flatIndex];
 
-                return Objects.requireNonNullElseGet(value, () -> new StringVariable("", "NULL", context));
+                return Objects.requireNonNullElseGet(value, () -> new StringVariable("", "NULL", selfVar.getContext()));
             }
         });
 
@@ -72,20 +73,21 @@ public class MultiArrayVariable extends Variable {
                 "void"
         ) {
             @Override
-            public Variable execute(List<Object> arguments) {
+            public Variable execute(Variable self, List<Object> arguments) {
+                MultiArrayVariable selfVar = (MultiArrayVariable) self;
                 // Last argument is value
-                int[] indices = parseIndices(arguments.subList(0, arguments.size() - 1));
+                int[] indices = selfVar.parseIndices(arguments.subList(0, arguments.size() - 1));
                 Variable value = (Variable) arguments.get(arguments.size() - 1);
 
-                ensureCapacity(indices);
+                selfVar.ensureCapacity(indices);
 
-                if (!validateIndices(indices)) {
-                    Gdx.app.error("MultiArrayVariable", "Invalid indices for SET: " + arrayToString(indices));
+                if (!selfVar.validateIndices(indices)) {
+                    Gdx.app.error("MultiArrayVariable", "Invalid indices for SET: " + selfVar.arrayToString(indices));
                     return null;
                 }
 
-                int flatIndex = indicesToFlatIndex(indices);
-                data[flatIndex] = value.clone();
+                int flatIndex = selfVar.indicesToFlatIndex(indices);
+                selfVar.getData()[flatIndex] = value.clone();
 
                 return null;
             }
@@ -98,7 +100,7 @@ public class MultiArrayVariable extends Variable {
                 "void"
         ) {
             @Override
-            public Variable execute(List<Object> arguments) {
+            public Variable execute(Variable self, List<Object> arguments) {
                 String path = ArgumentsHelper.getString(arguments.get(0));
                 MultiArraySaver.saveMultiArray(MultiArrayVariable.this, path);
                 return null;
@@ -112,7 +114,7 @@ public class MultiArrayVariable extends Variable {
                 "void"
         ) {
             @Override
-            public Variable execute(List<Object> arguments) {
+            public Variable execute(Variable self, List<Object> arguments) {
                 String path = ArgumentsHelper.getString(arguments.get(0));
                 MultiArrayLoader.loadMultiArray(MultiArrayVariable.this, path);
                 return null;
@@ -126,14 +128,15 @@ public class MultiArrayVariable extends Variable {
                 "INTEGER"
         ) {
             @Override
-            public Variable execute(List<Object> arguments) {
+            public Variable execute(Variable self, List<Object> arguments) {
+                MultiArrayVariable selfVar = (MultiArrayVariable) self;
                 // Return size of one dimension
                 int dim = ArgumentsHelper.getInteger(arguments.get(0));
-                if (dim < 0 || dim >= dimensions.length) {
+                if (dim < 0 || dim >= selfVar.getDimensions().length) {
                     Gdx.app.error("MultiArrayVariable", "Invalid dimension index: " + dim);
-                    return new IntegerVariable("", 0, context);
+                    return new IntegerVariable("", 0, selfVar.getContext());
                 }
-                return new IntegerVariable("", dimensions[dim], context);
+                return new IntegerVariable("", selfVar.getDimensions()[dim], selfVar.getContext());
             }
         });
     }

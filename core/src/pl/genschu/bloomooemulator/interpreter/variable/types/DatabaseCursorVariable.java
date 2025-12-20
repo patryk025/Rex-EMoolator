@@ -31,7 +31,7 @@ public class DatabaseCursorVariable extends Variable {
                     "void"
             ) {
                 @Override
-                public Variable execute(List<Object> arguments) {
+                public Variable execute(Variable self, List<Object> arguments) {
                     Variable struct = getContext().getVariable(ArgumentsHelper.getString(arguments.get(0)));
                     if(struct != null) {
                         if(struct instanceof StructVariable) {

@@ -43,7 +43,7 @@ public class CanvasObserverVariable extends Variable {
 				"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
+			public Variable execute(Variable self, List<Object> arguments) {
 				// TODO: implement this method
 				throw new ClassMethodNotImplementedException("Method ADD is not implemented yet");
 			}
@@ -55,7 +55,7 @@ public class CanvasObserverVariable extends Variable {
 				"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
+			public Variable execute(Variable self, List<Object> arguments) {
 				// TODO: implement this method
 				throw new ClassMethodNotImplementedException("Method ENABLENOTIFY is not implemented yet");
 			}
@@ -72,7 +72,7 @@ public class CanvasObserverVariable extends Variable {
 				"STRING"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
+			public Variable execute(Variable self, List<Object> arguments) {
 				int posX = ArgumentsHelper.getInteger(arguments.get(0));
 				int posY = ArgumentsHelper.getInteger(arguments.get(1));
 				boolean onlyVisible = arguments.size() > 2 && ArgumentsHelper.getBoolean(arguments.get(2));
@@ -80,7 +80,7 @@ public class CanvasObserverVariable extends Variable {
 				int maxZ = arguments.size() > 4 ? ArgumentsHelper.getInteger(arguments.get(4)) : Integer.MAX_VALUE;
 				boolean includeAlpha = arguments.size() > 5 && ArgumentsHelper.getBoolean(arguments.get(5));
 
-				List<Variable> drawList = new ArrayList<>(context.getGraphicsVariables().values());
+				List<Variable> drawList = new ArrayList<>(self.getContext().getGraphicsVariables().values());
 
 				drawList.sort((v1, v2) -> {
 					Attribute priorityAttr1 = v1.getAttribute("PRIORITY");
@@ -109,7 +109,7 @@ public class CanvasObserverVariable extends Variable {
 						continue;
 					}
 
-					Box2D rect = getRect(variable);
+					Box2D rect = ((CanvasObserverVariable) self).getRect(variable);
 					if (rect == null) continue;
 
 					boolean containsPoint = false;
@@ -117,7 +117,7 @@ public class CanvasObserverVariable extends Variable {
 						containsPoint = rect.contains(posX, posY);
 					} else {
 						if (rect.contains(posX, posY)) {
-							Image image = getImage(variable);
+							Image image = ((CanvasObserverVariable) self).getImage(variable);
 							int relativeX = posX - rect.getXLeft();
 							int relativeY = posY - rect.getYTop();
 							int alpha = 255;
@@ -141,11 +141,11 @@ public class CanvasObserverVariable extends Variable {
 					}
 
 					if (containsPoint) {
-						return new StringVariable("", variable.getName(), context);
+						return new StringVariable("", variable.getName(), self.getContext());
 					}
 				}
 
-				return new StringVariable("", "NULL", context);
+				return new StringVariable("", "NULL", self.getContext());
 			}
 		});
 		this.setMethod("MOVEBKG", new Method(
@@ -156,7 +156,7 @@ public class CanvasObserverVariable extends Variable {
 				"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
+			public Variable execute(Variable self, List<Object> arguments) {
 				// TODO: implement this method
 				throw new ClassMethodNotImplementedException("Method MOVEBKG is not implemented yet");
 			}
@@ -170,7 +170,7 @@ public class CanvasObserverVariable extends Variable {
 				"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
+			public Variable execute(Variable self, List<Object> arguments) {
 				// TODO: implement this method
 				throw new ClassMethodNotImplementedException("Method PASTE is not implemented yet");
 			}
@@ -179,7 +179,7 @@ public class CanvasObserverVariable extends Variable {
 				"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
+			public Variable execute(Variable self, List<Object> arguments) {
 				// TODO: implement this method
 				throw new ClassMethodNotImplementedException("Method REDRAW is not implemented yet");
 			}
@@ -188,7 +188,7 @@ public class CanvasObserverVariable extends Variable {
 				"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
+			public Variable execute(Variable self, List<Object> arguments) {
 				Gdx.app.error("CanvasObserverVariable", "Currently refresh is not supported"); // It's just for make less log spam
 				return null;
 			}
@@ -200,10 +200,10 @@ public class CanvasObserverVariable extends Variable {
 				"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
+			public Variable execute(Variable self, List<Object> arguments) {
                 for (Object argument : arguments) {
                     String name = ArgumentsHelper.getString(argument);
-                    Variable var = getContext().getVariable(name);
+                    Variable var = self.getContext().getVariable(name);
 
                     // I will simply hide it instead of removing it
                     var.setAttribute("VISIBLE", new Attribute("BOOL", "FALSE"));
@@ -225,7 +225,7 @@ public class CanvasObserverVariable extends Variable {
 				"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
+			public Variable execute(Variable self, List<Object> arguments) {
 				// TODO: add scaling and cropping
 				String imgFileName = ArgumentsHelper.getString(arguments.get(0));
 				double xScaleFactor = ArgumentsHelper.getDouble(arguments.get(1));
@@ -243,7 +243,7 @@ public class CanvasObserverVariable extends Variable {
 					yBottom = ArgumentsHelper.getInteger(arguments.get(6));
 				}
 
-				Pixmap pixmap = getContext().getGame().getLastFrame();
+				Pixmap pixmap = self.getContext().getGame().getLastFrame();
 
 				if(pixmap == null) {
 					Gdx.app.error("CanvasObserverVariable", "Pixmap is null, screenshots may be not captured correctly");
@@ -252,7 +252,7 @@ public class CanvasObserverVariable extends Variable {
 					Gdx.gl.glReadPixels(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), GL20.GL_RGB, GL20.GL_UNSIGNED_SHORT_5_6_5, pixmap.getPixels());
 				}
 
-				flipPixmapVertically(pixmap);
+				CanvasObserverVariable.flipPixmapVertically(pixmap);
 
 				Pixmap croppedPixmap = new Pixmap(xRight - xLeft, yBottom - yTop, pixmap.getFormat());
 				croppedPixmap.drawPixmap(pixmap, 0, 0, xLeft, yTop, xRight - xLeft, yBottom - yTop);
@@ -265,7 +265,7 @@ public class CanvasObserverVariable extends Variable {
 				int width = scaledPixmap.getWidth();
 				int height = scaledPixmap.getHeight();
 
-				ImageSaver.saveScreenshot(CanvasObserverVariable.this, imgFileName, pixmapToByteArray(scaledPixmap), width, height);
+				ImageSaver.saveScreenshot(CanvasObserverVariable.this, imgFileName, ((CanvasObserverVariable) self).pixmapToByteArray(scaledPixmap), width, height);
 				scaledPixmap.dispose();
 
 				return null;
@@ -278,19 +278,19 @@ public class CanvasObserverVariable extends Variable {
 				"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
+			public Variable execute(Variable self, List<Object> arguments) {
 				// hacky way for now
 				String imageName = ArgumentsHelper.getString(arguments.get(0));
 				// check if it is not a variable
-				Variable var = context.getVariable(imageName);
+				Variable var = self.getContext().getVariable(imageName);
 				if (var != null && var.getType().equals("IMAGE")) {
-					context.getGame().getCurrentSceneVariable().setBackground((ImageVariable) var);
+					self.getContext().getGame().getCurrentSceneVariable().setBackground((ImageVariable) var);
 					return null;
 				}
-				ImageVariable image = new ImageVariable("", context);
+				ImageVariable image = new ImageVariable("", self.getContext());
 				image.setAttribute("FILENAME", new Attribute("STRING", imageName));
 				image.init();
-				context.getGame().getCurrentSceneVariable().setBackground(image);
+				self.getContext().getGame().getCurrentSceneVariable().setBackground(image);
 				return null;
 			}
 		});
@@ -302,7 +302,7 @@ public class CanvasObserverVariable extends Variable {
 				"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
+			public Variable execute(Variable self, List<Object> arguments) {
 				// TODO: implement this method
 				throw new ClassMethodNotImplementedException("Method SETBKGPOS is not implemented yet");
 			}

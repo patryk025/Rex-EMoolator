@@ -20,9 +20,14 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class StringVariable extends Variable {
+	private static final Map<String, List<Method>> METHOD_TEMPLATES = createMethodTemplates();
+
 	public StringVariable(String name, String value, final Context context) {
 		super(name, context);
 		if(value.startsWith("\"") && value.endsWith("\"")) {
@@ -44,22 +49,27 @@ public class StringVariable extends Variable {
 
 	@Override
 	protected void setMethods() {
-		super.setMethods();
+		this.methods = METHOD_TEMPLATES;
+	}
 
-		this.setMethod("ADD", new Method(
+	private static Map<String, List<Method>> createMethodTemplates() {
+		Map<String, List<Method>> methods = newTemplateMap(baseMethodTemplates());
+
+		addMethodTemplate(methods, "ADD", new Method(
 				List.of(
 						new Parameter("STRING", "stringValue", true)
 				),
 				"STRING"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
-				String value = GET();
-				set(value + ArgumentsHelper.getString(arguments.get(0)));
-				return StringVariable.this;
+			public Variable execute(Variable self, List<Object> arguments) {
+				StringVariable selfVar = (StringVariable) self;
+				String value = selfVar.GET();
+				selfVar.set(value + ArgumentsHelper.getString(arguments.get(0)));
+				return selfVar;
 			}
 		});
-		this.setMethod("CHANGEAT", new Method(
+		addMethodTemplate(methods, "CHANGEAT", new Method(
 				List.of(
 						new Parameter("INTEGER", "index", true),
 						new Parameter("STRING", "stringValue", true)
@@ -67,16 +77,17 @@ public class StringVariable extends Variable {
 				"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
+			public Variable execute(Variable self, List<Object> arguments) {
+				StringVariable selfVar = (StringVariable) self;
 				//TODO: do sprawdzenia
-				String value = GET();
+				String value = selfVar.GET();
 				int index = ArgumentsHelper.getInteger(arguments.get(0));
 				value = value.substring(0, index) + ArgumentsHelper.getString(arguments.get(1)) + value.substring(index + 1);
-				set(value);
+				selfVar.set(value);
 				return null;
 			}
 		});
-		this.setMethod("COPYFILE", new Method(
+		addMethodTemplate(methods, "COPYFILE", new Method(
 				List.of(
 						new Parameter("STRING", "source", true),
 						new Parameter("STRING", "destination", true)
@@ -84,16 +95,17 @@ public class StringVariable extends Variable {
 				"BOOL"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
-				String sourcePathString = FileUtils.resolveRelativePath(StringVariable.this, ArgumentsHelper.getString(arguments.get(0)));
-				String destinationPathString = FileUtils.resolveRelativePath(StringVariable.this, ArgumentsHelper.getString(arguments.get(1)));
+			public Variable execute(Variable self, List<Object> arguments) {
+				StringVariable selfVar = (StringVariable) self;
+				String sourcePathString = FileUtils.resolveRelativePath(selfVar, ArgumentsHelper.getString(arguments.get(0)));
+				String destinationPathString = FileUtils.resolveRelativePath(selfVar, ArgumentsHelper.getString(arguments.get(1)));
 
 				File sourceFile = new File(sourcePathString);
 				File destinationFile = new File(destinationPathString);
 
 				if (!sourceFile.exists()) {
 					Gdx.app.error("COPYFILE", "Source file does not exist: " + sourcePathString);
-					return VariableFactory.createVariable("BOOL", "COPYFILE_RESULT", "FALSE", getContext());
+					return VariableFactory.createVariable("BOOL", "COPYFILE_RESULT", "FALSE", selfVar.getContext());
 				}
 
 				FileInputStream inputStream = null;
@@ -108,10 +120,10 @@ public class StringVariable extends Variable {
 						outputStream.write(buffer, 0, length);
 					}
 
-					return VariableFactory.createVariable("BOOL", "COPYFILE_RESULT", "TRUE", getContext());
+					return VariableFactory.createVariable("BOOL", "COPYFILE_RESULT", "TRUE", selfVar.getContext());
 				} catch (IOException e) {
 					Gdx.app.error("COPYFILE", "Error copying file from " + sourcePathString + " to " + destinationPathString, e);
-					return VariableFactory.createVariable("BOOL", "COPYFILE_RESULT", "FALSE", getContext());
+					return VariableFactory.createVariable("BOOL", "COPYFILE_RESULT", "FALSE", selfVar.getContext());
 				} finally {
 					try {
 						if (inputStream != null) {
@@ -126,7 +138,7 @@ public class StringVariable extends Variable {
 				}
 			}
 		});
-		this.setMethod("CUT", new Method(
+		addMethodTemplate(methods, "CUT", new Method(
 				List.of(
 						new Parameter("INTEGER", "index", true),
 						new Parameter("INTEGER", "length", true)
@@ -134,16 +146,17 @@ public class StringVariable extends Variable {
 				"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
-				String value = GET();
+			public Variable execute(Variable self, List<Object> arguments) {
+				StringVariable selfVar = (StringVariable) self;
+				String value = selfVar.GET();
 				int index = ArgumentsHelper.getInteger(arguments.get(0));
 				int length = ArgumentsHelper.getInteger(arguments.get(1));
 				value = value.substring(index, index + length);
-				set(value);
+				selfVar.set(value);
 				return null;
 			}
 		});
-		this.setMethod("FIND", new Method(
+		addMethodTemplate(methods, "FIND", new Method(
 				List.of(
 						new Parameter("STRING", "needle", true),
 						new Parameter("INTEGER", "offset", false)
@@ -151,114 +164,90 @@ public class StringVariable extends Variable {
 				"INTEGER"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
-				String value = GET();
+			public Variable execute(Variable self, List<Object> arguments) {
+				StringVariable selfVar = (StringVariable) self;
+				String value = selfVar.GET();
 				String needle = ArgumentsHelper.getString(arguments.get(0));
 				int offset = 0;
 				if (arguments.size() > 1 && arguments.get(1) != null) {
 					offset = ArgumentsHelper.getInteger(arguments.get(1));
 				}
 				int index = value.indexOf(needle, offset);
-				return VariableFactory.createVariable("INTEGER", "", String.valueOf(index), context);
+				return new IntegerVariable("", index, selfVar.context);
 			}
 		});
-		this.setMethod("GET", new Method(
+		addMethodTemplate(methods, "GET", new Method(
+				"STRING"
+		) {
+			@Override
+			public Variable execute(Variable self, List<Object> arguments) {
+				return (StringVariable) self;
+			}
+		});
+		addMethodTemplate(methods, "LENGTH", new Method(
+				"INTEGER"
+		) {
+			@Override
+			public Variable execute(Variable self, List<Object> arguments) {
+				StringVariable selfVar = (StringVariable) self;
+				String value = selfVar.GET();
+				return new IntegerVariable("", value.length(), selfVar.context);
+			}
+		});
+		addMethodTemplate(methods, "REPLACEAT", new Method(
 				List.of(
-						new Parameter("INTEGER", "index", false),
-						new Parameter("INTEGER", "length", false)
+						new Parameter("INTEGER", "index", true),
+						new Parameter("INTEGER", "length", true),
+						new Parameter("STRING", "replacement", true)
+				),
+				"void"
+		) {
+			@Override
+			public Variable execute(Variable self, List<Object> arguments) {
+				StringVariable selfVar = (StringVariable) self;
+				String value = selfVar.GET();
+				int index = ArgumentsHelper.getInteger(arguments.get(0));
+				int length = ArgumentsHelper.getInteger(arguments.get(1));
+				String replacement = ArgumentsHelper.getString(arguments.get(2));
+
+				value = value.substring(0, index) + replacement + value.substring(index + length);
+				selfVar.set(value);
+				return null;
+			}
+		});
+		addMethodTemplate(methods, "RESETINI", new Method(
+				"void"
+		) {
+			@Override
+			public Variable execute(Variable self, List<Object> arguments) {
+				StringVariable selfVar = (StringVariable) self;
+				if(selfVar.getAttribute("DEFAULT") != null) {
+					selfVar.set(selfVar.getAttribute("DEFAULT").getValue());
+				}
+				else if(selfVar.getAttribute("INIT_VALUE") != null) {
+					selfVar.set(selfVar.getAttribute("INIT_VALUE").getValue());
+				}
+				else {
+					selfVar.set("");
+				}
+				return null;
+			}
+		});
+		addMethodTemplate(methods, "SET", new Method(
+				List.of(
+						new Parameter("STRING", "value", true)
 				),
 				"STRING"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
-				String value = GET();
-				int index = 0;
-				if(arguments.isEmpty()) {
-					return StringVariable.this;
-				}
-				if(arguments.get(0) != null)
-					index = ArgumentsHelper.getInteger(arguments.get(0));
-				int length = 1;
-				if (arguments.size() > 1 && arguments.get(1) != null) {
-					length = ArgumentsHelper.getInteger(arguments.get(1));
-				}
-				int endIndex = Math.min(index + length, value.length());
-				try {
-					return VariableFactory.createVariable("STRING", "", value.substring(index, endIndex), context);
-				} catch (StringIndexOutOfBoundsException e) {
-					return VariableFactory.createVariable("STRING", "", "", context);
-				}
-			}
-		});
-		this.setMethod("LENGTH", new Method(
-				"INTEGER"
-		) {
-			@Override
-			public Variable execute(List<Object> arguments) {
-				String value = GET();
-				return VariableFactory.createVariable("INTEGER", "", String.valueOf(value.length()), context);
-			}
-		});
-		this.setMethod("REPLACEAT", new Method(
-				List.of(
-						new Parameter("INTEGER", "index", true),
-						new Parameter("STRING", "stringValue", true)
-				),
-				"void"
-		) {
-			@Override
-			public Variable execute(List<Object> arguments) {
-				String value = GET();
-
-				int index = ArgumentsHelper.getInteger(arguments.get(0));
-				String stringValue = ArgumentsHelper.getString(arguments.get(1));
-
-				String newValue;
-				if (index < 0 || index > value.length()) {
-					throw new IndexOutOfBoundsException("Index out of bounds: " + index);
-				}
-
-				if (index + stringValue.length() > value.length()) {
-					newValue = value.substring(0, index) + stringValue;
-				} else {
-					newValue = value.substring(0, index) + stringValue + value.substring(index + stringValue.length());
-				}
-
-				set(newValue);
-				return null;
-			}
-		});
-		this.setMethod("RESETINI", new Method(
-				"void"
-		) {
-			@Override
-			public Variable execute(List<Object> arguments) {
-				if(getAttribute("DEFAULT") != null) {
-					set(getAttribute("DEFAULT").getValue());
-				}
-				else if(getAttribute("INIT_VALUE") != null) {
-					set(getAttribute("INIT_VALUE").getValue());
-				}
-				else {
-					set("");
-				}
-				return null;
-			}
-		});
-		this.setMethod("SET", new Method(
-				List.of(
-						new Parameter("STRING", "value", true)
-				),
-				"void"
-		) {
-			@Override
-			public Variable execute(List<Object> arguments) {
+			public Variable execute(Variable self, List<Object> arguments) {
+				StringVariable selfVar = (StringVariable) self;
 				String value = ArgumentsHelper.getString(arguments.get(0));
-				set(value);
+				selfVar.set(value);
 				return null;
 			}
 		});
-		this.setMethod("SUB", new Method(
+		addMethodTemplate(methods, "SUB", new Method(
 				List.of(
 						new Parameter("INTEGER", "index", true),
 						new Parameter("INTEGER", "length", true)
@@ -266,30 +255,34 @@ public class StringVariable extends Variable {
 				"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
-				String value = GET();
+			public Variable execute(Variable self, List<Object> arguments) {
+				StringVariable selfVar = (StringVariable) self;
+				String value = selfVar.GET();
 				int index = ArgumentsHelper.getInteger(arguments.get(0));
 				int length = ArgumentsHelper.getInteger(arguments.get(1));
 
-                if (index < 0 || index > value.length()) {
-                    throw new IndexOutOfBoundsException("Index out of bounds: " + index);
-                }
+				if (index < 0 || index > value.length()) {
+					throw new IndexOutOfBoundsException("Index out of bounds: " + index);
+				}
 
 				String newValue = value.substring(0, index) + value.substring(index + length);
-				set(newValue);
+				selfVar.set(newValue);
 				return null;
 			}
 		});
-		this.setMethod("UPPER", new Method(
+		addMethodTemplate(methods, "UPPER", new Method(
 				"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
-				String value = GET();
-				set(value.toUpperCase());
+			public Variable execute(Variable self, List<Object> arguments) {
+				StringVariable selfVar = (StringVariable) self;
+				String value = selfVar.GET();
+				selfVar.set(value.toUpperCase());
 				return null;
 			}
 		});
+
+		return Collections.unmodifiableMap(methods);
 	}
 
 	@Override

@@ -52,9 +52,9 @@ public class ArrayVariable extends Variable implements Cloneable {
 				"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
+			public Variable execute(Variable self, List<Object> arguments) {
 				for(Object argument : arguments) {
-					elements.add(((Variable) argument).clone());
+					((ArrayVariable) self).elements.add(((Variable) argument).clone());
 				}
 				//debugArray();
 				return null;
@@ -68,16 +68,16 @@ public class ArrayVariable extends Variable implements Cloneable {
 				"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
+			public Variable execute(Variable self, List<Object> arguments) {
 				int index = ArgumentsHelper.getInteger(arguments.get(0));
 
-				if(index < 0 || index >= elements.size()) {
+				if(index < 0 || index >= ((ArrayVariable) self).elements.size()) {
 					Gdx.app.error("ArrayVariable", "Trying to set value in index out of bounds: "+index);
 					return null;
 				}
 
 				AddOperation operation = new AddOperation();
-				elements.set(index, operation.performOperation(elements.get(index), (Variable) arguments.get(1)));
+				((ArrayVariable) self).elements.set(index, operation.performOperation(((ArrayVariable) self).elements.get(index), (Variable) arguments.get(1)));
 				//debugArray();
 				return null;
 			}
@@ -90,15 +90,15 @@ public class ArrayVariable extends Variable implements Cloneable {
 				"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
+			public Variable execute(Variable self, List<Object> arguments) {
 				int index = ArgumentsHelper.getInteger(arguments.get(0));
 
-				if(index < 0 || index >= elements.size()) {
+				if(index < 0 || index >= ((ArrayVariable) self).elements.size()) {
 					Gdx.app.error("ArrayVariable", "Trying to set value in index out of bounds: "+index);
 					return null;
 				}
 
-				elements.set(index, ((Variable) arguments.get(1)).clone());
+				((ArrayVariable) self).elements.set(index, ((Variable) arguments.get(1)).clone());
 				//debugArray();
 				return null;
 			}
@@ -112,18 +112,18 @@ public class ArrayVariable extends Variable implements Cloneable {
 				"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
+			public Variable execute(Variable self, List<Object> arguments) {
 				int index = ArgumentsHelper.getInteger(arguments.get(0));
 				double rangeMin = ArgumentsHelper.getDouble(arguments.get(1));
 				double rangeMax = ArgumentsHelper.getDouble(arguments.get(2));
 
-				if(index < 0 || index >= elements.size()) {
+				if(index < 0 || index >= ((ArrayVariable) self).elements.size()) {
 					Gdx.app.error("ArrayVariable", "Trying to set value in index out of bounds: "+index);
 					return null;
 				}
 
 				// use CLAMP method (all glory to the variable access by reference)
-				elements.get(index).fireMethod("CLAMP", new DoubleVariable("", rangeMin, context), new DoubleVariable("", rangeMax, context));
+				((ArrayVariable) self).elements.get(index).fireMethod("CLAMP", new DoubleVariable("", rangeMin, self.getContext()), new DoubleVariable("", rangeMax, self.getContext()));
 				return null;
 			}
 		});
@@ -134,16 +134,16 @@ public class ArrayVariable extends Variable implements Cloneable {
 				"BOOL"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
+			public Variable execute(Variable self, List<Object> arguments) {
 				String needle = ArgumentsHelper.getString(arguments.get(0));
 
-				for(Variable element : elements) {
+				for(Variable element : ((ArrayVariable) self).elements) {
 					if(element.toString().equals(needle)) {
-						return new BoolVariable("", true, context);
+						return new BoolVariable("", true, self.getContext());
 					}
 				}
 
-				return new BoolVariable("", false, context);
+				return new BoolVariable("", false, self.getContext());
 			}
 		});
 		this.setMethod("COPYTO", new Method(
@@ -153,12 +153,12 @@ public class ArrayVariable extends Variable implements Cloneable {
 				"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
+			public Variable execute(Variable self, List<Object> arguments) {
 				// TODO: check if it works this way
-				Variable arrayVar = context.getVariable(ArgumentsHelper.getString(arguments.get(0)));
+				Variable arrayVar = self.getContext().getVariable(ArgumentsHelper.getString(arguments.get(0)));
 
 				if(arrayVar.getType().equals("ARRAY")) {
-					((ArrayVariable) arrayVar).elements.addAll(elements);
+					((ArrayVariable) arrayVar).elements.addAll(((ArrayVariable) self).elements);
 				}
 
 				return null;
@@ -171,19 +171,19 @@ public class ArrayVariable extends Variable implements Cloneable {
 				"INTEGER"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
+			public Variable execute(Variable self, List<Object> arguments) {
 				Variable needle = (Variable) arguments.get(0);
 
 				EqualsOperation operation = new EqualsOperation();
 
-				for(int i = 0; i < elements.size(); i++) {
-					Variable element = elements.get(i);
+				for(int i = 0; i < ((ArrayVariable) self).elements.size(); i++) {
+					Variable element = ((ArrayVariable) self).elements.get(i);
 
 					if(((BoolVariable) operation.performOperation(element, needle)).GET()) {
-						return new IntegerVariable("", i, context);
+						return new IntegerVariable("", i, self.getContext());
 					}
 				}
-				return new IntegerVariable("", -1, context);
+				return new IntegerVariable("", -1, self.getContext());
 			}
 		});
 		this.setMethod("GET", new Method(
@@ -194,11 +194,11 @@ public class ArrayVariable extends Variable implements Cloneable {
 				"mixed"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
+			public Variable execute(Variable self, List<Object> arguments) {
 				try {
-					return elements.get(ArgumentsHelper.getInteger(arguments.get(0)));
+					return ((ArrayVariable) self).elements.get(ArgumentsHelper.getInteger(arguments.get(0)));
 				} catch (IndexOutOfBoundsException e) {
-					return new StringVariable("", "NULL", context);
+					return new StringVariable("", "NULL", self.getContext());
 				}
 			}
 		});
@@ -206,18 +206,18 @@ public class ArrayVariable extends Variable implements Cloneable {
 				"INTEGER"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
-				return new IntegerVariable("", elements.size(), context);
+			public Variable execute(Variable self, List<Object> arguments) {
+				return new IntegerVariable("", ((ArrayVariable) self).elements.size(), self.getContext());
 			}
 		});
 		this.setMethod("GETSUMVALUE", new Method(
 				"mixed"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
-				DoubleVariable sum = new DoubleVariable("", 0.0, context);
+			public Variable execute(Variable self, List<Object> arguments) {
+				DoubleVariable sum = new DoubleVariable("", 0.0, self.getContext());
 				AddOperation operation = new AddOperation();
-				for(Variable element : elements) {
+				for(Variable element : ((ArrayVariable) self).elements) {
 					sum = (DoubleVariable) operation.performOperation(sum, element);
 				}
 				return sum;
@@ -231,15 +231,15 @@ public class ArrayVariable extends Variable implements Cloneable {
 				"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
+			public Variable execute(Variable self, List<Object> arguments) {
 				int index = ArgumentsHelper.getInteger(arguments.get(0));
 
-				if(index < 0 || index >= elements.size()) {
+				if(index < 0 || index >= ((ArrayVariable) self).elements.size()) {
 					Gdx.app.error("ArrayVariable", "Trying to insert value in index out of bounds: "+index);
 					return null;
 				}
 
-				elements.add(index, ((Variable) arguments.get(1)).clone());
+				((ArrayVariable) self).elements.add(index, ((Variable) arguments.get(1)).clone());
 				//debugArray();
 				return null;
 			}
@@ -251,8 +251,8 @@ public class ArrayVariable extends Variable implements Cloneable {
 				"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
-				elements.clear();
+			public Variable execute(Variable self, List<Object> arguments) {
+				((ArrayVariable) self).elements.clear();
 				String path = ArgumentsHelper.getString(arguments.get(0));
 				ArrayLoader.loadArray(ArrayVariable.this, path);
 				//debugArray();
@@ -263,19 +263,19 @@ public class ArrayVariable extends Variable implements Cloneable {
 				"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
-				String serialized = context.getGame().getGameINI().get(getIniSection(), getName().toUpperCase());
+			public Variable execute(Variable self, List<Object> arguments) {
+				String serialized = self.getContext().getGame().getGameINI().get(self.getIniSection(), self.getName().toUpperCase());
 
-				elements.clear();
+				((ArrayVariable) self).elements.clear();
 				if(serialized != null) {
                     if(serialized.isEmpty()) return null;
 					String[] elems = serialized.split(",");
 					for(String element : elems) {
-						elements.add(VariableFactory.createVariableWithAutoType("", element, context));
+						((ArrayVariable) self).elements.add(VariableFactory.createVariableWithAutoType("", element, self.getContext()));
 					}
 				}
 				else {
-                    Gdx.app.log("ARRAY", "No value in INI for " + getName());
+                    Gdx.app.log("ARRAY", "No value in INI for " + self.getName());
 				}
 
 				return null;
@@ -289,16 +289,16 @@ public class ArrayVariable extends Variable implements Cloneable {
 				"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
+			public Variable execute(Variable self, List<Object> arguments) {
 				int index = ArgumentsHelper.getInteger(arguments.get(0));
 
-				if(index < 0 || index >= elements.size()) {
+				if(index < 0 || index >= ((ArrayVariable) self).elements.size()) {
 					Gdx.app.error("ArrayVariable", "Trying to set value in index out of bounds: "+index);
 					return null;
 				}
 
 				ModuloOperation operation = new ModuloOperation();
-				elements.set(index, operation.performOperation(elements.get(index), (Variable) arguments.get(1)));
+				((ArrayVariable) self).elements.set(index, operation.performOperation(((ArrayVariable) self).elements.get(index), (Variable) arguments.get(1)));
 				//debugArray();
 				return null;
 			}
@@ -311,16 +311,16 @@ public class ArrayVariable extends Variable implements Cloneable {
 				"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
+			public Variable execute(Variable self, List<Object> arguments) {
 				int index = ArgumentsHelper.getInteger(arguments.get(0));
 
-				if(index < 0 || index >= elements.size()) {
+				if(index < 0 || index >= ((ArrayVariable) self).elements.size()) {
 					Gdx.app.error("ArrayVariable", "Trying to set value in index out of bounds: "+index);
 					return null;
 				}
 
 				MultiplyOperation operation = new MultiplyOperation();
-				elements.set(index, operation.performOperation(elements.get(index), (Variable) arguments.get(1)));
+				((ArrayVariable) self).elements.set(index, operation.performOperation(((ArrayVariable) self).elements.get(index), (Variable) arguments.get(1)));
 				//debugArray();
 				return null;
 			}
@@ -332,7 +332,7 @@ public class ArrayVariable extends Variable implements Cloneable {
 				"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
+			public Variable execute(Variable self, List<Object> arguments) {
 				// TODO: implement this method
 				throw new ClassMethodNotImplementedException("Method REMOVE is not implemented yet");
 			}
@@ -341,8 +341,8 @@ public class ArrayVariable extends Variable implements Cloneable {
 				"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
-				elements.clear();
+			public Variable execute(Variable self, List<Object> arguments) {
+				((ArrayVariable) self).elements.clear();
 				//debugArray();
 				return null;
 			}
@@ -354,15 +354,15 @@ public class ArrayVariable extends Variable implements Cloneable {
 				"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
+			public Variable execute(Variable self, List<Object> arguments) {
 				int index = ArgumentsHelper.getInteger(arguments.get(0));
 
-				if(index < 0 || index >= elements.size()) {
+				if(index < 0 || index >= ((ArrayVariable) self).elements.size()) {
 					Gdx.app.error("ArrayVariable", "Trying to remove value in index out of bounds: "+index);
 					return null;
 				}
 
-				elements.remove(index);
+				((ArrayVariable) self).elements.remove(index);
 				return null;
 			}
 		});
@@ -373,19 +373,19 @@ public class ArrayVariable extends Variable implements Cloneable {
 				"INTEGER"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
+			public Variable execute(Variable self, List<Object> arguments) {
 				Variable needle = (Variable) arguments.get(0);
 
 				EqualsOperation operation = new EqualsOperation();
 
-				for(int i = elements.size() - 1; i >= 0 ; i--) {
-					Variable element = elements.get(i);
+				for(int i = ((ArrayVariable) self).elements.size() - 1; i >= 0 ; i--) {
+					Variable element = ((ArrayVariable) self).elements.get(i);
 
 					if(((BoolVariable) operation.performOperation(element, needle)).GET()) {
-						return new IntegerVariable("", i, context);
+						return new IntegerVariable("", i, self.getContext());
 					}
 				}
-				return new IntegerVariable("", -1, context);
+				return new IntegerVariable("", -1, self.getContext());
 			}
 		});
 		this.setMethod("SAVE", new Method(
@@ -395,7 +395,7 @@ public class ArrayVariable extends Variable implements Cloneable {
 				"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
+			public Variable execute(Variable self, List<Object> arguments) {
 				ArraySaver.saveArray(ArrayVariable.this, ArgumentsHelper.getString(arguments.get(0)));
 				return null;
 			}
@@ -404,19 +404,19 @@ public class ArrayVariable extends Variable implements Cloneable {
 				"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
+			public Variable execute(Variable self, List<Object> arguments) {
 				StringBuilder sb = new StringBuilder();
 
-				for(int i = 0; i < elements.size(); i++) {
-					Variable element = elements.get(i);
+				for(int i = 0; i < ((ArrayVariable) self).elements.size(); i++) {
+					Variable element = ((ArrayVariable) self).elements.get(i);
 					sb.append(element.toString());
 
-					if(i < elements.size() - 1) {
+					if(i < ((ArrayVariable) self).elements.size() - 1) {
 						sb.append(",");
 					}
 				}
 
-				context.getGame().getGameINI().put(getIniSection(), getName().toUpperCase(), sb.toString());
+				self.getContext().getGame().getGameINI().put(self.getIniSection(), self.getName().toUpperCase(), sb.toString());
 
 				return null;
 			}
@@ -428,10 +428,10 @@ public class ArrayVariable extends Variable implements Cloneable {
 				"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
+			public Variable execute(Variable self, List<Object> arguments) {
 				SubtractOperation operation = new SubtractOperation();
 				Variable valueToAdd = (Variable) arguments.get(0);
-				elements.replaceAll(var1 -> operation.performOperation(var1, valueToAdd));
+				((ArrayVariable) self).elements.replaceAll(var1 -> operation.performOperation(var1, valueToAdd));
 				return null;
 			}
 		});
@@ -443,16 +443,16 @@ public class ArrayVariable extends Variable implements Cloneable {
 				"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
+			public Variable execute(Variable self, List<Object> arguments) {
 				int index = ArgumentsHelper.getInteger(arguments.get(0));
 
-				if(index < 0 || index >= elements.size()) {
+				if(index < 0 || index >= ((ArrayVariable) self).elements.size()) {
 					Gdx.app.error("ArrayVariable", "Trying to set value in index out of bounds: "+index);
 					return null;
 				}
 
 				SubtractOperation operation = new SubtractOperation();
-				elements.set(index, operation.performOperation(elements.get(index), (Variable) arguments.get(1)));
+				((ArrayVariable) self).elements.set(index, operation.performOperation(((ArrayVariable) self).elements.get(index), (Variable) arguments.get(1)));
 				//debugArray();
 				return null;
 			}
@@ -464,10 +464,10 @@ public class ArrayVariable extends Variable implements Cloneable {
 				"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
+			public Variable execute(Variable self, List<Object> arguments) {
 				AddOperation operation = new AddOperation();
 				Variable valueToAdd = (Variable) arguments.get(0);
-				elements.replaceAll(var1 -> operation.performOperation(var1, valueToAdd));
+				((ArrayVariable) self).elements.replaceAll(var1 -> operation.performOperation(var1, valueToAdd));
 				return null;
 			}
 		});

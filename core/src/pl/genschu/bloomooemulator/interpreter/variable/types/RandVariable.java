@@ -27,7 +27,8 @@ public class RandVariable extends GlobalVariable {
 				"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
+			public Variable execute(Variable self, List<Object> arguments) {
+				RandVariable selfVar = (RandVariable) self;
 				int offset = 0;
 				int range;
 				if(arguments.size() >= 2) {
@@ -38,7 +39,7 @@ public class RandVariable extends GlobalVariable {
 					range = ArgumentsHelper.getInteger(arguments.get(0));
 				}
 
-				return new IntegerVariable("", getRandom(offset, range), getContext());
+				return new IntegerVariable("", selfVar.getRandom(offset, range), selfVar.getContext());
 			}
 		});
 		this.setMethod("GETPLENTY", new Method(
@@ -52,14 +53,15 @@ public class RandVariable extends GlobalVariable {
 				"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
+			public Variable execute(Variable self, List<Object> arguments) {
+				RandVariable selfVar = (RandVariable) self;
 				String targetArrayName = ArgumentsHelper.getString(arguments.get(0));
 				int count = ArgumentsHelper.getInteger(arguments.get(1));
 				int offset = ArgumentsHelper.getInteger(arguments.get(2));
 				int range = ArgumentsHelper.getInteger(arguments.get(3));
 				boolean onlyUnique = ArgumentsHelper.getBoolean(arguments.get(4));
 
-				Variable targetArray = context.getVariable(targetArrayName);
+				Variable targetArray = selfVar.getContext().getVariable(targetArrayName);
 				if(!(targetArray instanceof ArrayVariable)) {
 					Gdx.app.error("RandVariable", "GETPLENTY method requires an ARRAY variable as target, got " + targetArray.getType() + " instead.");
                 }
@@ -72,7 +74,7 @@ public class RandVariable extends GlobalVariable {
 					}
 
 					while (elements.size() < count) {
-						int randomValue = getRandom(offset, range);
+						int randomValue = selfVar.getRandom(offset, range);
 						if (onlyUnique && elements.contains(randomValue)) { // it only checks for uniqueness newly generated values, not existing ones
 							continue; // Skip if the value is already in the list
 						}
@@ -82,7 +84,7 @@ public class RandVariable extends GlobalVariable {
 					// Convert Integer list to Variable list
 					List<Variable> variableElements = new ArrayList<>();
 					for (Integer element : elements) {
-						variableElements.add(new IntegerVariable("", element, getContext()));
+						variableElements.add(new IntegerVariable("", element, selfVar.getContext()));
 					}
 
 					// add all elements to the target array (not overwriting existing elements)

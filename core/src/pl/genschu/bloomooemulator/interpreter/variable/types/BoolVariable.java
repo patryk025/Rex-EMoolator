@@ -39,7 +39,7 @@ public class BoolVariable extends Variable {
 				"BOOL"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
+			public Variable execute(Variable self, List<Object> arguments) {
 				return BoolVariable.this;
 			}
 		});
@@ -47,7 +47,7 @@ public class BoolVariable extends Variable {
 				"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
+			public Variable execute(Variable self, List<Object> arguments) {
 				if(getAttribute("DEFAULT") != null) {
 					set(getAttribute("DEFAULT").getValue());
 				}
@@ -67,7 +67,7 @@ public class BoolVariable extends Variable {
 				"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
+			public Variable execute(Variable self, List<Object> arguments) {
 				boolean value = ArgumentsHelper.getBoolean(arguments.get(0));
 				if(value)
 					set("TRUE");
@@ -84,7 +84,7 @@ public class BoolVariable extends Variable {
 				"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
+			public Variable execute(Variable self, List<Object> arguments) {
 				boolean value1 = ArgumentsHelper.getBoolean(arguments.get(0));
 				boolean value2 = ArgumentsHelper.getBoolean(arguments.get(1));
 				if(GET() != value1) {

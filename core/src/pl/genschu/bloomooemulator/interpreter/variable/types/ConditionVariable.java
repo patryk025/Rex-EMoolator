@@ -31,14 +31,14 @@ public class ConditionVariable extends Variable {
 				"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
-				boolean result = check();
+			public Variable execute(Variable self, List<Object> arguments) {
+				boolean result = ((ConditionVariable) self).check();
 				boolean emitSignal = ArgumentsHelper.getBoolean(arguments.get(0));
 				if(emitSignal) {
 					if(!result)
-						emitSignal("ONRUNTIMEFAILED");
+						self.emitSignal("ONRUNTIMEFAILED");
 					else
-						emitSignal("ONRUNTIMESUCCESS");
+						self.emitSignal("ONRUNTIMESUCCESS");
 				}
 				if(result) {
 					throw new BreakException("Break statement encountered");
@@ -53,16 +53,16 @@ public class ConditionVariable extends Variable {
 				"BOOL"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
-				boolean result = check();
+			public Variable execute(Variable self, List<Object> arguments) {
+				boolean result = ((ConditionVariable) self).check();
 				boolean emitSignal = ArgumentsHelper.getBoolean(arguments.get(0));
 				if(emitSignal) {
 					if(!result)
-						emitSignal("ONRUNTIMEFAILED");
+						self.emitSignal("ONRUNTIMEFAILED");
 					else
-						emitSignal("ONRUNTIMESUCCESS");
+						self.emitSignal("ONRUNTIMESUCCESS");
 				}
-				return new BoolVariable("", result, context);
+				return new BoolVariable("", result, self.getContext());
 			}
 		});
 		this.setMethod("ONE_BREAK", new Method(
@@ -72,14 +72,14 @@ public class ConditionVariable extends Variable {
 				"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
-				boolean result = check();
+			public Variable execute(Variable self, List<Object> arguments) {
+				boolean result = ((ConditionVariable) self).check();
 				boolean emitSignal = ArgumentsHelper.getBoolean(arguments.get(0));
 				if(emitSignal) {
 					if(!result)
-						emitSignal("ONRUNTIMEFAILED");
+						self.emitSignal("ONRUNTIMEFAILED");
 					else
-						emitSignal("ONRUNTIMESUCCESS");
+						self.emitSignal("ONRUNTIMESUCCESS");
 				}
 				if(result) {
 					throw new OneBreakException("OneBreak statement encountered");
@@ -91,7 +91,7 @@ public class ConditionVariable extends Variable {
 
 	protected boolean check() {
 		behaviourVariable.getMethod("RUN", Collections.singletonList("mixed"))
-				.execute(null);
+				.execute(behaviourVariable, null);
 		Object checkResult = behaviourVariable.getContext().getReturnValue();
 		return ArgumentsHelper.getBoolean(checkResult);
 	}

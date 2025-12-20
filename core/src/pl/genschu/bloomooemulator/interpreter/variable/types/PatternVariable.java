@@ -34,7 +34,7 @@ public class PatternVariable extends Variable {
 				"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
+			public Variable execute(Variable self, List<Object> arguments) {
 				// TODO: implement this method
 				throw new ClassMethodNotImplementedException("Method ADD is not implemented yet");
 			}

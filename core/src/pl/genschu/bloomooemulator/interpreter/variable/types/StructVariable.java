@@ -33,9 +33,10 @@ public class StructVariable extends Variable {
 				"STRING"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
-				setAttributes();
-				return getField(ArgumentsHelper.getInteger(arguments.get(0)));
+			public Variable execute(Variable self, List<Object> arguments) {
+				StructVariable selfVar = (StructVariable) self;
+				selfVar.setAttributes();
+				return selfVar.getField(ArgumentsHelper.getInteger(arguments.get(0)));
 			}
 		});
 		this.setMethod("SET", new Method(
@@ -45,10 +46,11 @@ public class StructVariable extends Variable {
 				"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
-				setAttributes();
+			public Variable execute(Variable self, List<Object> arguments) {
+				StructVariable selfVar = (StructVariable) self;
+				selfVar.setAttributes();
 				String varName = ArgumentsHelper.getString(arguments.get(0));
-				set(varName);
+				selfVar.set(varName);
 				return null;
 			}
 		});

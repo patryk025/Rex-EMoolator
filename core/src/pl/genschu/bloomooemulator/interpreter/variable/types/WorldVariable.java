@@ -48,7 +48,7 @@ public class WorldVariable extends Variable {
 				"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
+			public Variable execute(Variable self, List<Object> arguments) {
 				int objectId = ArgumentsHelper.getInteger(arguments.get(0));
 				double mass = ArgumentsHelper.getDouble(arguments.get(1));
 				double mu = ArgumentsHelper.getDouble(arguments.get(2));
@@ -77,7 +77,7 @@ public class WorldVariable extends Variable {
 				"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
+			public Variable execute(Variable self, List<Object> arguments) {
 				int objectId = ArgumentsHelper.getInteger(arguments.get(0));
                 double forceX = ArgumentsHelper.getDouble(arguments.get(1));
                 double forceY = ArgumentsHelper.getDouble(arguments.get(2));
@@ -97,7 +97,7 @@ public class WorldVariable extends Variable {
 				"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
+			public Variable execute(Variable self, List<Object> arguments) {
 				// TODO: implement this method
 				throw new ClassMethodNotImplementedException("Method ADDGRAVITYEX is not implemented yet");
 			}
@@ -115,7 +115,7 @@ public class WorldVariable extends Variable {
 				"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
+			public Variable execute(Variable self, List<Object> arguments) {
 				int objectId = ArgumentsHelper.getInteger(arguments.get(0));
 				int pointObjectId = ArgumentsHelper.getInteger(arguments.get(1));
 				int targetX = ArgumentsHelper.getInteger(arguments.get(2));
@@ -138,7 +138,7 @@ public class WorldVariable extends Variable {
 				"DOUBLE"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
+			public Variable execute(Variable self, List<Object> arguments) {
 				int objectId = ArgumentsHelper.getInteger(arguments.get(0));
 				int arrivalRadius = ArgumentsHelper.getInteger(arguments.get(1));
 				double turnClamp = ArgumentsHelper.getDouble(arguments.get(2));
@@ -155,7 +155,7 @@ public class WorldVariable extends Variable {
 				"DOUBLE"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
+			public Variable execute(Variable self, List<Object> arguments) {
 				int objectId = ArgumentsHelper.getInteger(arguments.get(0));
                 double angle = physicsEngine.getAngle(objectId);
                 return new DoubleVariable("", Math.toDegrees(angle), WorldVariable.this.context);
@@ -165,7 +165,7 @@ public class WorldVariable extends Variable {
 				"INTEGER"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
+			public Variable execute(Variable self, List<Object> arguments) {
                 // TODO: for now its stub, as I don't have implementation
 				return new IntegerVariable("", 0, WorldVariable.this.context);
 			}
@@ -174,7 +174,7 @@ public class WorldVariable extends Variable {
 				"INTEGER"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
+			public Variable execute(Variable self, List<Object> arguments) {
                 // TODO: for now its stub, as I don't have implementation
                 return new IntegerVariable("", 0, WorldVariable.this.context);
 			}
@@ -186,7 +186,7 @@ public class WorldVariable extends Variable {
 				"DOUBLE"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
+			public Variable execute(Variable self, List<Object> arguments) {
                 int objectId = ArgumentsHelper.getInteger(arguments.get(0));
 				return new DoubleVariable("", physicsEngine.getMoveDistance(objectId), WorldVariable.this.context);
 			}
@@ -198,7 +198,7 @@ public class WorldVariable extends Variable {
 				"INTEGER"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
+			public Variable execute(Variable self, List<Object> arguments) {
 				int objectId = ArgumentsHelper.getInteger(arguments.get(0));
                 double[] position = physicsEngine.getPosition(objectId);
                 if (position == null || position.length < 3) {
@@ -214,7 +214,7 @@ public class WorldVariable extends Variable {
 				"INTEGER"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
+			public Variable execute(Variable self, List<Object> arguments) {
 				int objectId = ArgumentsHelper.getInteger(arguments.get(0));
                 double[] position = physicsEngine.getPosition(objectId);
                 if (position == null || position.length < 3) {
@@ -230,7 +230,7 @@ public class WorldVariable extends Variable {
 				"INTEGER"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
+			public Variable execute(Variable self, List<Object> arguments) {
 				int objectId = ArgumentsHelper.getInteger(arguments.get(0));
                 double[] position = physicsEngine.getPosition(objectId);
                 if (position == null || position.length < 3) {
@@ -246,7 +246,7 @@ public class WorldVariable extends Variable {
 				"DOUBLE"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
+			public Variable execute(Variable self, List<Object> arguments) {
 				int objectId = ArgumentsHelper.getInteger(arguments.get(0));
                 return new DoubleVariable("", Math.toDegrees(physicsEngine.getRotationZ(objectId)), WorldVariable.this.context);
 			}
@@ -258,7 +258,7 @@ public class WorldVariable extends Variable {
 				"DOUBLE"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
+			public Variable execute(Variable self, List<Object> arguments) {
                 int objectId = ArgumentsHelper.getInteger(arguments.get(0));
                 double[] speed = physicsEngine.getSpeed(objectId);
                 double v = Math.sqrt(speed[0]*speed[0] + speed[1]*speed[1] + speed[2]*speed[2]);
@@ -282,7 +282,7 @@ public class WorldVariable extends Variable {
 				"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
+			public Variable execute(Variable self, List<Object> arguments) {
 				int firstId = ArgumentsHelper.getInteger(arguments.get(0));
                 int secondId = ArgumentsHelper.getInteger(arguments.get(1));
                 double anchorX = ArgumentsHelper.getDouble(arguments.get(2));
@@ -306,7 +306,7 @@ public class WorldVariable extends Variable {
 				"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
+			public Variable execute(Variable self, List<Object> arguments) {
 				int objectId = ArgumentsHelper.getInteger(arguments.get(0));
                 String objectName = ArgumentsHelper.getString(arguments.get(1));
 
@@ -325,7 +325,7 @@ public class WorldVariable extends Variable {
 				"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
+			public Variable execute(Variable self, List<Object> arguments) {
 				String filename = ArgumentsHelper.getString(arguments.get(0));
 				getAttribute("FILENAME").setValue(filename);
                 physicsEngine.shutdown();
@@ -338,7 +338,7 @@ public class WorldVariable extends Variable {
 				"DOUBLE"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
+			public Variable execute(Variable self, List<Object> arguments) {
                 double elapsedTime = physicsEngine.stepSimulation();
                 return new DoubleVariable("", elapsedTime, WorldVariable.this.context);
 			}
@@ -350,7 +350,7 @@ public class WorldVariable extends Variable {
 				"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
+			public Variable execute(Variable self, List<Object> arguments) {
 				int objectId = ArgumentsHelper.getInteger(arguments.get(0));
 				physicsEngine.destroyBody(objectId);
 				return null;
@@ -365,7 +365,7 @@ public class WorldVariable extends Variable {
 				"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
+			public Variable execute(Variable self, List<Object> arguments) {
 				int objectId = ArgumentsHelper.getInteger(arguments.get(0));
                 boolean active = ArgumentsHelper.getBoolean(arguments.get(1));
                 boolean collidable = ArgumentsHelper.getBoolean(arguments.get(2));
@@ -383,7 +383,7 @@ public class WorldVariable extends Variable {
 				"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
+			public Variable execute(Variable self, List<Object> arguments) {
 				// TODO: implement this method
 				throw new ClassMethodNotImplementedException("Method SETBKGSIZE is not implemented yet");
 			}
@@ -396,7 +396,7 @@ public class WorldVariable extends Variable {
 				"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
+			public Variable execute(Variable self, List<Object> arguments) {
 				physicsEngine.setG(ArgumentsHelper.getInteger(arguments.get(0)), ArgumentsHelper.getDouble(arguments.get(1)));
                 return null;
 			}
@@ -410,7 +410,7 @@ public class WorldVariable extends Variable {
 				"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
+			public Variable execute(Variable self, List<Object> arguments) {
 				double gravityX = ArgumentsHelper.getDouble(arguments.get(0));
                 double gravityY = ArgumentsHelper.getDouble(arguments.get(1));
                 double gravityZ = ArgumentsHelper.getDouble(arguments.get(2));
@@ -426,7 +426,7 @@ public class WorldVariable extends Variable {
 				"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
+			public Variable execute(Variable self, List<Object> arguments) {
 				int objectId = ArgumentsHelper.getInteger(ArgumentsHelper.getInteger(arguments.get(0)));
 				boolean gravityCenter = ArgumentsHelper.getBoolean(ArgumentsHelper.getInteger(arguments.get(1)));
 				physicsEngine.setGravityCenter(objectId, gravityCenter);
@@ -446,7 +446,7 @@ public class WorldVariable extends Variable {
 				"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
+			public Variable execute(Variable self, List<Object> arguments) {
 				int objectId = ArgumentsHelper.getInteger(arguments.get(0));
                 int minX = ArgumentsHelper.getInteger(arguments.get(1));
                 int minY = ArgumentsHelper.getInteger(arguments.get(2));
@@ -466,7 +466,7 @@ public class WorldVariable extends Variable {
 				"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
+			public Variable execute(Variable self, List<Object> arguments) {
 				int objectId = ArgumentsHelper.getInteger(arguments.get(0));
                 int maxSpeed = ArgumentsHelper.getInteger(arguments.get(1));
                 physicsEngine.setMaxVelocity(objectId, maxSpeed);
@@ -481,7 +481,7 @@ public class WorldVariable extends Variable {
 				"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
+			public Variable execute(Variable self, List<Object> arguments) {
 				// TODO: implement this method
 				throw new ClassMethodNotImplementedException("Method SETMOVEFLAGS is not implemented yet");
 			}
@@ -496,7 +496,7 @@ public class WorldVariable extends Variable {
 				"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
+			public Variable execute(Variable self, List<Object> arguments) {
 				int objectId = ArgumentsHelper.getInteger(arguments.get(0));
                 double x = ArgumentsHelper.getDouble(arguments.get(1));
                 double y = ArgumentsHelper.getDouble(arguments.get(2));
@@ -512,7 +512,7 @@ public class WorldVariable extends Variable {
 				"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
+			public Variable execute(Variable self, List<Object> arguments) {
 				int objectId = ArgumentsHelper.getInteger(arguments.get(0));
                 physicsEngine.setReferenceObjectId(objectId);
                 return null;
@@ -528,7 +528,7 @@ public class WorldVariable extends Variable {
 				"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
+			public Variable execute(Variable self, List<Object> arguments) {
 				int objectId = ArgumentsHelper.getInteger(arguments.get(0));
                 double x = ArgumentsHelper.getDouble(arguments.get(1));
                 double y = ArgumentsHelper.getDouble(arguments.get(2));
@@ -542,7 +542,7 @@ public class WorldVariable extends Variable {
 				"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
+			public Variable execute(Variable self, List<Object> arguments) {
 				physicsEngine.start();
                 return null;
 			}
@@ -551,7 +551,7 @@ public class WorldVariable extends Variable {
 				"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
+			public Variable execute(Variable self, List<Object> arguments) {
 				physicsEngine.stop();
                 return null;
 			}
@@ -563,7 +563,7 @@ public class WorldVariable extends Variable {
 				"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
+			public Variable execute(Variable self, List<Object> arguments) {
 				int objectId = ArgumentsHelper.getInteger(arguments.get(0));
                 physicsEngine.unlinkVariable(objectId);
                 return null;

@@ -4,9 +4,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 public abstract class Method {
-    private List<Parameter> parameters;
-    private List<String> parameterTypes;
-    private String returnType;
+    private final List<Parameter> parameters;
+    private final List<String> parameterTypes;
+    private final String returnType;
 
     public Method(String returnType) {
         this(new ArrayList<>(), returnType);
@@ -42,5 +42,5 @@ public abstract class Method {
         return returnType;
     }
 
-    public abstract Variable execute(List<Object> arguments);
+    public abstract Variable execute(Variable self, List<Object> arguments);
 }

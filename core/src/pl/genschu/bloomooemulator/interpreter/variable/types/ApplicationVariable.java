@@ -39,7 +39,7 @@ public class ApplicationVariable extends Variable {
 				"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
+			public Variable execute(Variable self, List<Object> arguments) {
 				Gdx.app.exit();
 				return null;
 			}
@@ -48,8 +48,9 @@ public class ApplicationVariable extends Variable {
 				"STRING"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
-				return VariableFactory.createVariable("STRING", null, language, getContext()); // default
+			public Variable execute(Variable self, List<Object> arguments) {
+				String language = ((ApplicationVariable) self).getLanguage();
+				return VariableFactory.createVariable("STRING", null, language, self.getContext()); // default
 			}
 		});
 		this.setMethod("RUN", new Method(
@@ -61,14 +62,15 @@ public class ApplicationVariable extends Variable {
 				"mixed?"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
+			public Variable execute(Variable self, List<Object> arguments) {
+				Context context = self.getContext();
 				String varName = ArgumentsHelper.getString(arguments.get(0));
 				String methodName = ArgumentsHelper.getString(arguments.get(1));
 				Object[] params = new Object[arguments.size() - 2];
 				for(int i = 2; i < arguments.size(); i++) {
 					params[i - 2] = arguments.get(i);
 				}
-				Context variableContext = getContext().getGame().getCurrentSceneContext(); // we need to get current scene context
+				Context variableContext = context.getGame().getCurrentSceneContext(); // we need to get current scene context
 
 				Variable var = variableContext.getVariable(varName);
 				if(var == null) {
@@ -95,13 +97,14 @@ public class ApplicationVariable extends Variable {
 				"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
+			public Variable execute(Variable self, List<Object> arguments) {
+				Context context = self.getContext();
 				// TODO: check what if scene is not loaded
 				String sceneName = ArgumentsHelper.getString(arguments.get(0));
 				String behaviourName = ArgumentsHelper.getString(arguments.get(1));
 
-				if(sceneName.equals(getContext().getGame().getCurrentScene())) {
-					Variable behaviour = getContext().getGame().getCurrentSceneContext().getVariable(behaviourName); // we need to get current scene context because getContext() have only definition variables
+				if(sceneName.equals(context.getGame().getCurrentScene())) {
+					Variable behaviour = context.getGame().getCurrentSceneContext().getVariable(behaviourName); // we need to get current scene context because getContext() have only definition variables
 					if(behaviour instanceof BehaviourVariable) {
 						behaviour.fireMethod(behaviour.getAttribute("CONDITION") != null ? "RUNC" : "RUN", new StringVariable("", behaviourName, context));
 					}
@@ -116,9 +119,9 @@ public class ApplicationVariable extends Variable {
 				"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
+			public Variable execute(Variable self, List<Object> arguments) {
 				String languageCode = ArgumentsHelper.getString(arguments.get(0));
-				language = LangCodeConverter.lcidToIsoCode(languageCode);
+				((ApplicationVariable) self).setLanguage(LangCodeConverter.lcidToIsoCode(languageCode));
 				return null;
 			}
 		});

@@ -46,7 +46,8 @@ public class TextVariable extends Variable {
 				"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
+			public Variable execute(Variable self, List<Object> arguments) {
+				TextVariable selfVar = (TextVariable) self;
 				int xLeft = ArgumentsHelper.getInteger(arguments.get(0));
 				int yLower = ArgumentsHelper.getInteger(arguments.get(1));
 				int xRight = ArgumentsHelper.getInteger(arguments.get(2));
@@ -54,9 +55,9 @@ public class TextVariable extends Variable {
 				String hJustify = ArgumentsHelper.getString(arguments.get(4));
 				String vJustify = ArgumentsHelper.getString(arguments.get(5));
 
-				rect = new Box2D(xLeft, yLower, xRight, yUpper);
-				sethJustify(hJustify);
-				setvJustify(vJustify);
+				selfVar.rect = new Box2D(xLeft, yLower, xRight, yUpper);
+				selfVar.sethJustify(hJustify);
+				selfVar.setvJustify(vJustify);
 				return null;
 			}
 		});
@@ -67,9 +68,10 @@ public class TextVariable extends Variable {
 				"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
-				priority = ArgumentsHelper.getInteger(arguments.get(0));
-				setAttribute("PRIORITY", new Attribute("INTEGER", priority));
+			public Variable execute(Variable self, List<Object> arguments) {
+				TextVariable selfVar = (TextVariable) self;
+				selfVar.priority = ArgumentsHelper.getInteger(arguments.get(0));
+				selfVar.setAttribute("PRIORITY", new Attribute("INTEGER", selfVar.priority));
 				return null;
 			}
 		});
@@ -80,9 +82,10 @@ public class TextVariable extends Variable {
 				"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
+			public Variable execute(Variable self, List<Object> arguments) {
+				TextVariable selfVar = (TextVariable) self;
 				String text = ArgumentsHelper.getString(arguments.get(0));
-				setText(text);
+				selfVar.setText(text);
 				return null;
 			}
 		});
@@ -90,8 +93,9 @@ public class TextVariable extends Variable {
 				"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
-				isVisible = true;
+			public Variable execute(Variable self, List<Object> arguments) {
+				TextVariable selfVar = (TextVariable) self;
+				selfVar.isVisible = true;
 				return null;
 			}
 		});
@@ -99,8 +103,9 @@ public class TextVariable extends Variable {
 				"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
-				isVisible = false;
+			public Variable execute(Variable self, List<Object> arguments) {
+				TextVariable selfVar = (TextVariable) self;
+				selfVar.isVisible = false;
 				return null;
 			}
 		});

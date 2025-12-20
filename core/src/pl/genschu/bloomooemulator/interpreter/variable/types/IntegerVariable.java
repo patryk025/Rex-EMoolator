@@ -7,12 +7,17 @@ import pl.genschu.bloomooemulator.interpreter.variable.Method;
 import pl.genschu.bloomooemulator.interpreter.variable.Parameter;
 import pl.genschu.bloomooemulator.interpreter.variable.Variable;
 
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 
 import pl.genschu.bloomooemulator.utils.ArgumentsHelper;
 
 public class IntegerVariable extends Variable {
+	private static final Map<String, List<Method>> METHOD_TEMPLATES = createMethodTemplates();
+
 	public IntegerVariable(String name, int value, Context context) {
 		super(name, context);
 		this.setAttribute("VALUE", new Attribute("INTEGER", value));
@@ -26,49 +31,56 @@ public class IntegerVariable extends Variable {
 
 	@Override
 	protected void setMethods() {
-		super.setMethods();
+		this.methods = METHOD_TEMPLATES;
+	}
 
-		this.setMethod("ABS", new Method(
+	private static Map<String, List<Method>> createMethodTemplates() {
+		Map<String, List<Method>> methods = newTemplateMap(baseMethodTemplates());
+
+		addMethodTemplate(methods, "ABS", new Method(
 				List.of(
 						new Parameter("INTEGER", "value", true)
 				),
 				"INTEGER"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
+			public Variable execute(Variable self, List<Object> arguments) {
+				IntegerVariable selfVar = (IntegerVariable) self;
 				int value = ArgumentsHelper.getInteger(arguments.get(0));
 				int result = Math.abs(value);
-				set(result);
-				return IntegerVariable.this;
+				selfVar.set(result);
+				return selfVar;
 			}
 		});
-		this.setMethod("ADD", new Method(
+		addMethodTemplate(methods, "ADD", new Method(
 				List.of(
 						new Parameter("INTEGER", "addend", true)
 				),
 				"INTEGER"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
-				int result = GET() + ArgumentsHelper.getInteger(arguments.get(0));
-				set(result);
-				return IntegerVariable.this;
+			public Variable execute(Variable self, List<Object> arguments) {
+				IntegerVariable selfVar = (IntegerVariable) self;
+				int result = selfVar.GET() + ArgumentsHelper.getInteger(arguments.get(0));
+				selfVar.set(result);
+				return selfVar;
 			}
 		});
-		this.setMethod("AND", new Method(
+		addMethodTemplate(methods, "AND", new Method(
 				List.of(
 						new Parameter("INTEGER", "value", true)
 				),
 				"INTEGER"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
-				int result = GET() & ArgumentsHelper.getInteger(arguments.get(0));
-				set(result);
-				return IntegerVariable.this;
+			public Variable execute(Variable self, List<Object> arguments) {
+				IntegerVariable selfVar = (IntegerVariable) self;
+				int result = selfVar.GET() & ArgumentsHelper.getInteger(arguments.get(0));
+				selfVar.set(result);
+				return selfVar;
 			}
 		});
-		this.setMethod("CLAMP", new Method(
+		addMethodTemplate(methods, "CLAMP", new Method(
 				List.of(
 						new Parameter("INTEGER", "rangeMin", true),
 						new Parameter("INTEGER", "rangeMax", true)
@@ -76,8 +88,9 @@ public class IntegerVariable extends Variable {
 				"INTEGER"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
-				int currentValue = GET();
+			public Variable execute(Variable self, List<Object> arguments) {
+				IntegerVariable selfVar = (IntegerVariable) self;
+				int currentValue = selfVar.GET();
 				int rangeMin = ArgumentsHelper.getInteger(arguments.get(0));
 				int rangeMax = ArgumentsHelper.getInteger(arguments.get(1));
 
@@ -87,66 +100,70 @@ public class IntegerVariable extends Variable {
 					currentValue = rangeMax;
 				}
 
-				set(currentValue);
-				return IntegerVariable.this;
+				selfVar.set(currentValue);
+				return selfVar;
 			}
 		});
-		this.setMethod("CLEAR", new Method(
+		addMethodTemplate(methods, "CLEAR", new Method(
 				List.of(),
 				"DOUBLE"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
-				set(0);
-				return IntegerVariable.this;
+			public Variable execute(Variable self, List<Object> arguments) {
+				IntegerVariable selfVar = (IntegerVariable) self;
+				selfVar.set(0);
+				return selfVar;
 			}
 		});
-		this.setMethod("DEC", new Method(
+		addMethodTemplate(methods, "DEC", new Method(
 				"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
-				int result = GET() - 1;
-				set(result);
-				return IntegerVariable.this;
+			public Variable execute(Variable self, List<Object> arguments) {
+				IntegerVariable selfVar = (IntegerVariable) self;
+				int result = selfVar.GET() - 1;
+				selfVar.set(result);
+				return selfVar;
 			}
 		});
-		this.setMethod("DIV", new Method(
+		addMethodTemplate(methods, "DIV", new Method(
 				List.of(
 						new Parameter("INTEGER", "divisor", true)
 				),
 				"INTEGER"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
+			public Variable execute(Variable self, List<Object> arguments) {
+				IntegerVariable selfVar = (IntegerVariable) self;
 				try {
-					int result = GET() / ArgumentsHelper.getInteger(arguments.get(0));
-					set(result);
+					int result = selfVar.GET() / ArgumentsHelper.getInteger(arguments.get(0));
+					selfVar.set(result);
 				} catch (ArithmeticException e) {
-					set(0); // division by zero normally crashes engine
+					selfVar.set(0); // division by zero normally crashes engine
 				}
-				return IntegerVariable.this;
+				return selfVar;
 			}
 		});
-		this.setMethod("GET", new Method(
+		addMethodTemplate(methods, "GET", new Method(
 				"BOOL"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
-				return IntegerVariable.this;
+			public Variable execute(Variable self, List<Object> arguments) {
+				return (IntegerVariable) self;
 			}
 		});
-		this.setMethod("INC", new Method(
+		addMethodTemplate(methods, "INC", new Method(
 				"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
-				int result = GET() + 1;
-				set(result);
-				return IntegerVariable.this;
+			public Variable execute(Variable self, List<Object> arguments) {
+				IntegerVariable selfVar = (IntegerVariable) self;
+				int result = selfVar.GET() + 1;
+				selfVar.set(result);
+				return selfVar;
 			}
 		});
-		this.setMethod("LENGTH", new Method(
+		addMethodTemplate(methods, "LENGTH", new Method(
 				List.of(
 						new Parameter("INTEGER", "x", true),
 						new Parameter("INTEGER", "y", true)
@@ -154,83 +171,89 @@ public class IntegerVariable extends Variable {
 				"INTEGER"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
+			public Variable execute(Variable self, List<Object> arguments) {
+				IntegerVariable selfVar = (IntegerVariable) self;
 				int x = ArgumentsHelper.getInteger(arguments.get(0));
 				int y = ArgumentsHelper.getInteger(arguments.get(1));
 
 				int result = (int) Math.sqrt(x * x + y * y);
-				set(result);
-				return IntegerVariable.this;
+				selfVar.set(result);
+				return selfVar;
 			}
 		});
-		this.setMethod("MOD", new Method(
+		addMethodTemplate(methods, "MOD", new Method(
 				List.of(
 						new Parameter("INTEGER", "divisor", true)
 				),
 				"INTEGER"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
-				int result = GET() % (ArgumentsHelper.getInteger(arguments.get(0)));
-				set(result);
-				return IntegerVariable.this;
+			public Variable execute(Variable self, List<Object> arguments) {
+				IntegerVariable selfVar = (IntegerVariable) self;
+				int result = selfVar.GET() % (ArgumentsHelper.getInteger(arguments.get(0)));
+				selfVar.set(result);
+				return selfVar;
 			}
 		});
-		this.setMethod("MUL", new Method(
+		addMethodTemplate(methods, "MUL", new Method(
 				List.of(
 						new Parameter("INTEGER", "multiplier", true)
 				),
 				"INTEGER"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
-				int result = GET() * ArgumentsHelper.getInteger(arguments.get(0));
-				set(result);
-				return IntegerVariable.this;
+			public Variable execute(Variable self, List<Object> arguments) {
+				IntegerVariable selfVar = (IntegerVariable) self;
+				int result = selfVar.GET() * ArgumentsHelper.getInteger(arguments.get(0));
+				selfVar.set(result);
+				return selfVar;
 			}
 		});
-		this.setMethod("NOT", new Method(
+		addMethodTemplate(methods, "NOT", new Method(
 				List.of(),
 				"INTEGER"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
-				int result = ~GET();
-				set(result);
-				return IntegerVariable.this;
+			public Variable execute(Variable self, List<Object> arguments) {
+				IntegerVariable selfVar = (IntegerVariable) self;
+				int result = ~selfVar.GET();
+				selfVar.set(result);
+				return selfVar;
 			}
 		});
-		this.setMethod("OR", new Method(
+		addMethodTemplate(methods, "OR", new Method(
 				List.of(
 						new Parameter("INTEGER", "value", true)
 				),
 				"INTEGER"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
-				int result = GET() | ArgumentsHelper.getInteger(arguments.get(0));
-				set(result);
-				return IntegerVariable.this;
+			public Variable execute(Variable self, List<Object> arguments) {
+				IntegerVariable selfVar = (IntegerVariable) self;
+				int result = selfVar.GET() | ArgumentsHelper.getInteger(arguments.get(0));
+				selfVar.set(result);
+				return selfVar;
 			}
 		});
-		this.setMethod("POWER", new Method(
+		addMethodTemplate(methods, "POWER", new Method(
 				List.of(
 						new Parameter("INTEGER", "power", true)
 				),
 				"INTEGER"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
-				double result = Math.pow(GET(), ArgumentsHelper.getInteger(arguments.get(0)));
+			public Variable execute(Variable self, List<Object> arguments) {
+				IntegerVariable selfVar = (IntegerVariable) self;
+				double result = Math.pow(selfVar.GET(), ArgumentsHelper.getInteger(arguments.get(0)));
 				if (result > 0) {
-					set((int) Math.round(result));
+					selfVar.set((int) Math.round(result));
 				} else {
-					set((int) Math.ceil(result - 0.5));
+					selfVar.set((int) Math.ceil(result - 0.5));
 				}
-				return IntegerVariable.this;
+				return selfVar;
 			}
 		});
-		this.setMethod("RANDOM", new Method(
+		addMethodTemplate(methods, "RANDOM", new Method(
 				List.of(
 						new Parameter("INTEGER", "param1", true),
 						new Parameter("INTEGER", "param2", false)
@@ -238,67 +261,71 @@ public class IntegerVariable extends Variable {
 				"INTEGER"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
+			public Variable execute(Variable self, List<Object> arguments) {
+				IntegerVariable selfVar = (IntegerVariable) self;
 				if(arguments.size() == 1) {
 					Random random = new Random();
 					int bound = ArgumentsHelper.getInteger(arguments.get(0));
 					int result = random.nextInt(bound);
-					set(result);
-					return IntegerVariable.this;
+					selfVar.set(result);
+					return selfVar;
 				} else {
 					int min = ArgumentsHelper.getInteger(arguments.get(0));
 					int max = ArgumentsHelper.getInteger(arguments.get(1));
 					Random random = new Random();
 					int result = min + random.nextInt(max - min + 1);
-					set(result);
-					return IntegerVariable.this;
+					selfVar.set(result);
+					return selfVar;
 				}
 			}
 		});
-		this.setMethod("RESETINI", new Method(
+		addMethodTemplate(methods, "RESETINI", new Method(
 				"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
-				if(getAttribute("DEFAULT") != null) {
-					set(getAttribute("DEFAULT").getValue());
+			public Variable execute(Variable self, List<Object> arguments) {
+				IntegerVariable selfVar = (IntegerVariable) self;
+				if(selfVar.getAttribute("DEFAULT") != null) {
+					selfVar.set(selfVar.getAttribute("DEFAULT").getValue());
 				}
-				else if(getAttribute("INIT_VALUE") != null) {
-					set(getAttribute("INIT_VALUE").getValue());
+				else if(selfVar.getAttribute("INIT_VALUE") != null) {
+					selfVar.set(selfVar.getAttribute("INIT_VALUE").getValue());
 				}
 				else {
-					set(0);
+					selfVar.set(0);
 				}
 				return null;
 			}
 		});
-		this.setMethod("SET", new Method(
+		addMethodTemplate(methods, "SET", new Method(
 				List.of(
 						new Parameter("INTEGER", "value", true)
 				),
 				"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
+			public Variable execute(Variable self, List<Object> arguments) {
+				IntegerVariable selfVar = (IntegerVariable) self;
 				int value = ArgumentsHelper.getInteger(arguments.get(0));
-				set(value);
+				selfVar.set(value);
 				return null;
 			}
 		});
-		this.setMethod("SUB", new Method(
+		addMethodTemplate(methods, "SUB", new Method(
 				List.of(
 						new Parameter("INTEGER", "subtrahend", true)
 				),
 				"INTEGER"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
-				int result = GET() - ArgumentsHelper.getInteger(arguments.get(0));
-				set(result);
-				return IntegerVariable.this;
+			public Variable execute(Variable self, List<Object> arguments) {
+				IntegerVariable selfVar = (IntegerVariable) self;
+				int result = selfVar.GET() - ArgumentsHelper.getInteger(arguments.get(0));
+				selfVar.set(result);
+				return selfVar;
 			}
 		});
-		this.setMethod("SWITCH", new Method(
+		addMethodTemplate(methods, "SWITCH", new Method(
 				List.of(
 						new Parameter("INTEGER", "val1", true),
 						new Parameter("INTEGER", "val1", true)
@@ -306,31 +333,35 @@ public class IntegerVariable extends Variable {
 				"INTEGER"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
+			public Variable execute(Variable self, List<Object> arguments) {
+				IntegerVariable selfVar = (IntegerVariable) self;
 				int val1 = ArgumentsHelper.getInteger(arguments.get(0));
 				int val2 = ArgumentsHelper.getInteger(arguments.get(1));
 
-				if(GET() == val1) {
-					set(val2);
+				if(selfVar.GET() == val1) {
+					selfVar.set(val2);
 				} else {
-					set(val1);
+					selfVar.set(val1);
 				}
-				return IntegerVariable.this;
+				return selfVar;
 			}
 		});
-		this.setMethod("XOR", new Method(
+		addMethodTemplate(methods, "XOR", new Method(
 				List.of(
 						new Parameter("INTEGER", "value", true)
 				),
 				"INTEGER"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
-				int result = GET() ^ ArgumentsHelper.getInteger(arguments.get(0));
-				set(result);
-				return IntegerVariable.this;
+			public Variable execute(Variable self, List<Object> arguments) {
+				IntegerVariable selfVar = (IntegerVariable) self;
+				int result = selfVar.GET() ^ ArgumentsHelper.getInteger(arguments.get(0));
+				selfVar.set(result);
+				return selfVar;
 			}
 		});
+
+		return Collections.unmodifiableMap(methods);
 	}
 
 	@Override
@@ -364,13 +395,13 @@ public class IntegerVariable extends Variable {
 
 	public Variable convert(String type) {
 		if(type.equals("DOUBLE")) {
-			return new DoubleVariable(this.getName(), this.toDouble(), this.context);
+			return new DoubleVariable(this.getName(), this.toDouble(), this.getContext());
 		}
 		else if(type.equals("BOOL")) {
-			return new BoolVariable(this.getName(), this.toBool(), this.context);
+			return new BoolVariable(this.getName(), this.toBool(), this.getContext());
 		}
 		else if(type.equals("STRING")) {
-			return new StringVariable(this.getName(), this.toStringVariable(), this.context);
+			return new StringVariable(this.getName(), this.toStringVariable(), this.getContext());
 		}
 		else {
 			return this;

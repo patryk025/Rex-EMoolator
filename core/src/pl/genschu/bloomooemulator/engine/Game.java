@@ -44,7 +44,7 @@ public class Game {
     private INIManager gameINI = null;
     private String iniPath = null;
 
-    private QuadTree quadTree;
+    private final QuadTree quadTree;
     private final Set<Variable> collisionMonitoredVariables = new HashSet<>();
 
     private SceneVariable currentSceneVariable;
@@ -53,7 +53,7 @@ public class Game {
     private ApplicationVariable applicationVariable;
     private EpisodeVariable currentEpisodeVariable;
 
-    private CNVParser cnvParser = new CNVParser();
+    private final CNVParser cnvParser = new CNVParser();
     private File daneFolder = null; // $
     private File commonFolder = null; // $COMMON
     private File wavsFolder = null; // $WAVS
@@ -67,7 +67,7 @@ public class Game {
 
     private Pixmap lastFrame;
 
-    private BlooMooEngine emulator;
+    private final BlooMooEngine emulator;
 
     public Game(GameEntry game, BlooMooEngine emulator) {
         this.definitionContext = new Context();
@@ -454,7 +454,8 @@ public class Game {
         }
 
         try {
-            context.getVariable("__INIT__").getMethod("RUN", Collections.singletonList("mixed")).execute(null);
+            Variable initVariable = context.getVariable("__INIT__");
+            initVariable.getMethod("RUN", Collections.singletonList("mixed")).execute(initVariable, null);
         } catch (Exception e) {
             Gdx.app.error("Game", "Error while running __INIT__ BEHAVIOUR: " + e.getMessage(), e);
         }

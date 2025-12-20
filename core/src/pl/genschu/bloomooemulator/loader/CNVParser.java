@@ -203,7 +203,7 @@ public class CNVParser {
 
                         try {
                             signalAndParams.behaviourVariable.getMethod(signalAndParams.behaviourVariable.getAttribute("CONDITION") != null ? "RUNC" : "RUN", Collections.singletonList("mixed"))
-                                    .execute(!arguments.isEmpty() ? arguments : null);
+                                    .execute(signalAndParams.behaviourVariable, !arguments.isEmpty() ? arguments : null);
                         } catch (BreakException | OneBreakException ignored) {}
 
                         signalAndParams.behaviourVariable.getContext().setThisVariable(oldThis);

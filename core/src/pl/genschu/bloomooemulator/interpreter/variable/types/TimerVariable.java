@@ -16,6 +16,12 @@ public class TimerVariable extends Variable {
 	private long lastTickTime;
 	private int currentTickCount;
 
+	public void setElapse(long elapse) { this.elapse = elapse; }
+	public void setEnabled(boolean enabled) { this.enabled = enabled; }
+	public void setTicks(int ticks) { this.ticks = ticks; }
+	public void setLastTickTime(long lastTickTime) { this.lastTickTime = lastTickTime; }
+	public void setCurrentTickCount(int currentTickCount) { this.currentTickCount = currentTickCount; }
+
 	public TimerVariable(String name, Context context) {
 		super(name, context);
 
@@ -35,8 +41,9 @@ public class TimerVariable extends Variable {
 				"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
-				enabled = false;
+			public Variable execute(Variable self, List<Object> arguments) {
+				TimerVariable selfVar = (TimerVariable) self;
+				selfVar.setEnabled(false);
 				return null;
 			}
 		});
@@ -44,9 +51,10 @@ public class TimerVariable extends Variable {
 				"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
-				enabled = true;
-				lastTickTime = System.currentTimeMillis();
+			public Variable execute(Variable self, List<Object> arguments) {
+				TimerVariable selfVar = (TimerVariable) self;
+				selfVar.setEnabled(true);
+				selfVar.setLastTickTime(System.currentTimeMillis());
 				return null;
 			}
 		});
@@ -54,17 +62,19 @@ public class TimerVariable extends Variable {
 				"INTEGER"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
-				return new IntegerVariable("", currentTickCount, getContext());
+			public Variable execute(Variable self, List<Object> arguments) {
+				TimerVariable selfVar = (TimerVariable) self;
+				return new IntegerVariable("", selfVar.getCurrentTickCount(), selfVar.getContext());
 			}
 		});
 		this.setMethod("RESET", new Method(
 				"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
-				currentTickCount = 0;
-				lastTickTime = System.currentTimeMillis();
+			public Variable execute(Variable self, List<Object> arguments) {
+				TimerVariable selfVar = (TimerVariable) self;
+				selfVar.setCurrentTickCount(0);
+				selfVar.setLastTickTime(System.currentTimeMillis());
 				return null;
 			}
 		});
@@ -75,8 +85,9 @@ public class TimerVariable extends Variable {
 				"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
-				ticks = ArgumentsHelper.getInteger(arguments.get(0));
+			public Variable execute(Variable self, List<Object> arguments) {
+				TimerVariable selfVar = (TimerVariable) self;
+				selfVar.setTicks(ArgumentsHelper.getInteger(arguments.get(0)));
 				return null;
 			}
 		});
@@ -87,10 +98,11 @@ public class TimerVariable extends Variable {
 				"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
-				elapse = ArgumentsHelper.getInteger(arguments.get(0));
+			public Variable execute(Variable self, List<Object> arguments) {
+				TimerVariable selfVar = (TimerVariable) self;
+				selfVar.setElapse(ArgumentsHelper.getInteger(arguments.get(0)));
 				// reset timer
-				lastTickTime = System.currentTimeMillis();
+				selfVar.setLastTickTime(System.currentTimeMillis());
 				return null;
 			}
 		});

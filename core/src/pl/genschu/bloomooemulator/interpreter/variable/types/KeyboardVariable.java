@@ -30,8 +30,9 @@ public class KeyboardVariable extends GlobalVariable {
 				"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
-				setEnabled(false);
+			public Variable execute(Variable self, List<Object> arguments) {
+				KeyboardVariable selfVar = (KeyboardVariable) self;
+				selfVar.setEnabled(false);
 				return null;
 			}
 		});
@@ -39,8 +40,9 @@ public class KeyboardVariable extends GlobalVariable {
 				"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
-				setEnabled(true);
+			public Variable execute(Variable self, List<Object> arguments) {
+				KeyboardVariable selfVar = (KeyboardVariable) self;
+				selfVar.setEnabled(true);
 				return null;
 			}
 		});
@@ -48,7 +50,7 @@ public class KeyboardVariable extends GlobalVariable {
 				"STRING"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
+			public Variable execute(Variable self, List<Object> arguments) {
 				// TODO: implement this method
 				throw new ClassMethodNotImplementedException("Method GETLATESTKEY is not implemented yet");
 			}
@@ -57,8 +59,9 @@ public class KeyboardVariable extends GlobalVariable {
 				"BOOL"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
-				return new BoolVariable("", isEnabled, getContext());
+			public Variable execute(Variable self, List<Object> arguments) {
+				KeyboardVariable selfVar = (KeyboardVariable) self;
+				return new BoolVariable("", selfVar.isEnabled(), selfVar.getContext());
 			}
 		});
 		this.setMethod("ISKEYDOWN", new Method(
@@ -68,14 +71,15 @@ public class KeyboardVariable extends GlobalVariable {
 				"BOOL"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
+			public Variable execute(Variable self, List<Object> arguments) {
+				KeyboardVariable selfVar = (KeyboardVariable) self;
 				String key = ArgumentsHelper.getString(arguments.get(0));
 				int keyCode = KeyboardsKeysMapper.getKeyCode(key);
 				if (keyCode != -1) {
-					return new BoolVariable("", Gdx.input.isKeyPressed(keyCode), getContext());
+					return new BoolVariable("", Gdx.input.isKeyPressed(keyCode), selfVar.getContext());
 				} else {
 					Gdx.app.error("KeyboardVariable", "Key " + key + " not found in lookup table. Returning false.");
-					return new BoolVariable("", false, getContext());
+					return new BoolVariable("", false, selfVar.getContext());
 				}
 			}
 		});
@@ -86,8 +90,9 @@ public class KeyboardVariable extends GlobalVariable {
 				"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
-				setAutoRepeat(ArgumentsHelper.getBoolean(arguments.get(0)));
+			public Variable execute(Variable self, List<Object> arguments) {
+				KeyboardVariable selfVar = (KeyboardVariable) self;
+				selfVar.setAutoRepeat(ArgumentsHelper.getBoolean(arguments.get(0)));
 				return null;
 			}
 		});

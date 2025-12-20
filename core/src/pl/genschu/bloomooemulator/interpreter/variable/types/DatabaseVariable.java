@@ -36,24 +36,24 @@ public class DatabaseVariable extends Variable {
 				"INTEGER"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
+			public Variable execute(Variable self, List<Object> arguments) {
 				String columnName = ArgumentsHelper.getString(arguments.get(0));
 				String columnValue = ArgumentsHelper.getString(arguments.get(1));
 				int defaultIndex = ArgumentsHelper.getInteger(arguments.get(2));
 
-				if(columns == null) {
-					Variable tmpColumns = context.getVariable(getAttribute("MODEL").getValue().toString());
+				if(((DatabaseVariable) self).columns == null) {
+					Variable tmpColumns = self.getContext().getVariable(self.getAttribute("MODEL").getValue().toString());
 					if(tmpColumns == null) {
 						Gdx.app.error("DatabaseVariable", "Database doesn't have column information. Find is not possible");
-						return new IntegerVariable("", defaultIndex, context);
+						return new IntegerVariable("", defaultIndex, self.getContext());
 					}
 					else {
-						columns = (StructVariable) tmpColumns;
-						return new IntegerVariable("", find(columnName, columnValue, defaultIndex), context);
+						((DatabaseVariable) self).columns = (StructVariable) tmpColumns;
+						return new IntegerVariable("", ((DatabaseVariable) self).find(columnName, columnValue, defaultIndex), self.getContext());
 					}
 				}
 				else {
-					return new IntegerVariable("", find(columnName, columnValue, defaultIndex), context);
+					return new IntegerVariable("", ((DatabaseVariable) self).find(columnName, columnValue, defaultIndex), self.getContext());
 				}
 			}
 		});
@@ -61,8 +61,8 @@ public class DatabaseVariable extends Variable {
 				"INTEGER"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
-				return new IntegerVariable("", getRowsNo(), context);
+			public Variable execute(Variable self, List<Object> arguments) {
+				return new IntegerVariable("", ((DatabaseVariable) self).getRowsNo(), self.getContext());
 			}
 		});
 		this.setMethod("LOAD", new Method(
@@ -72,7 +72,7 @@ public class DatabaseVariable extends Variable {
 				"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
+			public Variable execute(Variable self, List<Object> arguments) {
 				String dtaName = ArgumentsHelper.getString(arguments.get(0));
 				Gdx.app.log("DatabaseVariable", "Loading database " + dtaName);
 				DBLoader.loadDatabase(DatabaseVariable.this, dtaName);
@@ -83,8 +83,8 @@ public class DatabaseVariable extends Variable {
 				"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
-				next();
+			public Variable execute(Variable self, List<Object> arguments) {
+				((DatabaseVariable) self).next();
 				return null;
 			}
 		});
@@ -92,8 +92,8 @@ public class DatabaseVariable extends Variable {
 				"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
-				removeAll();
+			public Variable execute(Variable self, List<Object> arguments) {
+				((DatabaseVariable) self).removeAll();
 				return null;
 			}
 		});
@@ -104,7 +104,7 @@ public class DatabaseVariable extends Variable {
 				"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
+			public Variable execute(Variable self, List<Object> arguments) {
 				DBSaver.saveDatabase(DatabaseVariable.this, ArgumentsHelper.getString(arguments.get(0)));
 				return null;
 			}
@@ -116,17 +116,17 @@ public class DatabaseVariable extends Variable {
 				"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
-				Variable rowIndex = context.getVariable(ArgumentsHelper.getString(arguments.get(0)));
+			public Variable execute(Variable self, List<Object> arguments) {
+				Variable rowIndex = self.getContext().getVariable(ArgumentsHelper.getString(arguments.get(0)));
 				if(rowIndex == null) {
-					select(0);
+					((DatabaseVariable) self).select(0);
 				}
 				else {
 					try {
-						select(Integer.parseInt(rowIndex.getValue().toString()));
+						((DatabaseVariable) self).select(Integer.parseInt(rowIndex.getValue().toString()));
 					} catch (NumberFormatException e) {
 						Gdx.app.error("DatabaseVariable", "Row index " + rowIndex.getValue() + " is not an integer. Selecting first row.");
-						select(0);
+						((DatabaseVariable) self).select(0);
 					}
 				}
 				return null;

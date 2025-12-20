@@ -7,7 +7,6 @@ import pl.genschu.bloomooemulator.interpreter.exceptions.BreakException;
 import pl.genschu.bloomooemulator.interpreter.exceptions.ClassMethodNotFoundException;
 import pl.genschu.bloomooemulator.interpreter.exceptions.ClassMethodNotImplementedException;
 import pl.genschu.bloomooemulator.interpreter.exceptions.VariableUnsupportedOperationException;
-import pl.genschu.bloomooemulator.interpreter.factories.VariableFactory;
 import pl.genschu.bloomooemulator.interpreter.variable.types.*;
 import pl.genschu.bloomooemulator.loader.CNVParser;
 import pl.genschu.bloomooemulator.utils.ArgumentsHelper;
@@ -18,6 +17,25 @@ import java.util.*;
 import static pl.genschu.bloomooemulator.interpreter.util.VariableHelper.getVariableFromObject;
 
 public abstract class Variable implements Cloneable {
+	protected static Map<String, List<Method>> baseMethodTemplates() {
+		return METHOD_TEMPLATES;
+	}
+
+    protected static Map<String, List<Method>> newTemplateMap(Map<String, List<Method>> base) {
+        Map<String, List<Method>> methods = new HashMap<>();
+        if (base != null) {
+            for (var e : base.entrySet()) {
+                methods.put(e.getKey(), new ArrayList<>(e.getValue()));
+            }
+        }
+        return methods;
+    }
+
+    protected static void addMethodTemplate(Map<String, List<Method>> methods, String name, Method method) {
+		methods.computeIfAbsent(name, key -> new ArrayList<>()).add(method);
+	}
+
+	private static final Map<String, List<Method>> METHOD_TEMPLATES = createMethodTemplates();
 	protected String name;
 	protected Map<String, Attribute> attributes;
 	protected Map<String, List<Method>> methods;
@@ -27,9 +45,9 @@ public abstract class Variable implements Cloneable {
 
 	private String iniSection;
 
-	private Map<String, String> pendingSignals = new HashMap<>(); // unprocessed signals
+	private final Map<String, String> pendingSignals = new HashMap<>(); // unprocessed signals
 
-	private Map<Variable, Boolean> isCollidingMap = new HashMap<>();
+	private final Map<Variable, Boolean> isCollidingMap = new HashMap<>();
 
 	public Variable(String name, Context context) {
 		this.name = name;
@@ -83,7 +101,13 @@ public abstract class Variable implements Cloneable {
 	}
 
 	protected void setMethods() {
-		this.setMethod("ADDBEHAVIOUR", new Method(
+		this.methods = newTemplateMap(METHOD_TEMPLATES);
+	}
+
+	private static Map<String, List<Method>> createMethodTemplates() {
+		Map<String, List<Method>> methods = new HashMap<>();
+
+		addMethodTemplate(methods, "ADDBEHAVIOUR", new Method(
 				List.of(
 						new Parameter("STRING", "signalName", true),
 						new Parameter("STRING", "behaviourName", true)
@@ -91,15 +115,15 @@ public abstract class Variable implements Cloneable {
 				"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
-				String signalName = ArgumentsHelper.getString(arguments.get(0));
+			public Variable execute(Variable self, List<Object> arguments) {
+                String signalName = ArgumentsHelper.getString(arguments.get(0));
 				String behaviourName = ArgumentsHelper.getString(arguments.get(1));
 
 				if(signalName.contains("$")) {
 					signalName = signalName.replace("$", "^");
 				}
 
-				SignalAndParams signalAndParams = new CNVParser().processEventCode(behaviourName, context);
+				SignalAndParams signalAndParams = new CNVParser().processEventCode(behaviourName, self.context);
 
 				if (signalAndParams == null || signalAndParams.behaviourVariable == null) {
 					Gdx.app.error("VARIABLE", "Error in ADDBEHAVIOUR: Failed to get behaviour variable for signal " + signalName);
@@ -107,18 +131,18 @@ public abstract class Variable implements Cloneable {
 				}
 
 				String finalSignalName = signalName;
-				setSignal(signalName, new Signal() {
+				self.setSignal(signalName, new Signal() {
 					@Override
 					public void execute(Object argument) {
 						List<Object> arguments = new ArrayList<>();
 						if(signalAndParams.params != null)
 							for(String param : signalAndParams.params) {
-								arguments.add(getVariableFromObject(param, context));
+								arguments.add(getVariableFromObject(param, self.context));
 							}
 						Variable oldThis = signalAndParams.behaviourVariable.getContext().getThisVariable();
-						signalAndParams.behaviourVariable.getContext().setThisVariable(Variable.this);
+						signalAndParams.behaviourVariable.getContext().setThisVariable(self);
 						signalAndParams.behaviourVariable.getMethod(signalAndParams.behaviourVariable.getAttribute("CONDITION") != null ? "RUNC" : "RUN", Collections.singletonList("mixed"))
-								.execute(!arguments.isEmpty() ? arguments : null);
+								.execute(signalAndParams.behaviourVariable, !arguments.isEmpty() ? arguments : null);
 						signalAndParams.behaviourVariable.getContext().setThisVariable(oldThis);
 						Gdx.app.log("Signal", "Signal " + finalSignalName + " done");
 					}
@@ -126,77 +150,79 @@ public abstract class Variable implements Cloneable {
 				return null;
 			}
 		});
-		this.setMethod("CLONE", new Method(
+		addMethodTemplate(methods, "CLONE", new Method(
 				List.of(
 						new Parameter("INTEGER", "amount", false)
 				),
 				"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
-				int amount = 1;
+			public Variable execute(Variable self, List<Object> arguments) {
+                int amount = 1;
 				if(!arguments.isEmpty()) {
 					amount = ArgumentsHelper.getInteger(arguments.get(0));
 				}
 
 				for(int i = 0; i < amount; i++) {
-					Variable cloneVar = Variable.this.clone();
-					String newName = cloneVar.getName()+"_"+(getClones().size()+1);
+					Variable cloneVar = self.clone();
+					String newName = cloneVar.getName()+"_"+(self.getClones().size()+1);
 					cloneVar.setName(newName);
-					context.setVariable(newName, cloneVar);
-					clones.add(cloneVar);
+					self.context.setVariable(newName, cloneVar);
+					self.clones.add(cloneVar);
 				}
 
 				return null;
 			}
 		});
-		this.setMethod("GETCLONEINDEX", new Method(
+		addMethodTemplate(methods, "GETCLONEINDEX", new Method(
 				"INTEGER"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
-				if(getName().contains("_"))
-					return new IntegerVariable("", Integer.parseInt(getName().substring(getName().lastIndexOf("_") + 1)), context);
-				return new IntegerVariable("", 0, context);
+			public Variable execute(Variable self, List<Object> arguments) {
+				if(self.getName().contains("_"))
+					return new IntegerVariable("", Integer.parseInt(self.getName().substring(self.getName().lastIndexOf("_") + 1)), self.context);
+				return new IntegerVariable("", 0, self.context);
 			}
 		});
-		this.setMethod("MSGBOX", new Method(
+		addMethodTemplate(methods, "MSGBOX", new Method(
 				"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
+			public Variable execute(Variable self, List<Object> arguments) {
 				// TODO: implement this method
 				throw new ClassMethodNotImplementedException("Method MSGBOX is not implemented yet");
 			}
 		});
-		this.setMethod("REMOVEBEHAVIOUR", new Method(
+		addMethodTemplate(methods, "REMOVEBEHAVIOUR", new Method(
 				List.of(
 						new Parameter("STRING", "behaviourName", true)
 				),
 				"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
-				String behaviourName = ArgumentsHelper.getString(arguments.get(0));
+			public Variable execute(Variable self, List<Object> arguments) {
+                String behaviourName = ArgumentsHelper.getString(arguments.get(0));
 
-				removeSignal(behaviourName);
+				self.removeSignal(behaviourName);
 				return null;
 			}
 		});
-		this.setMethod("SEND", new Method(
+		addMethodTemplate(methods, "SEND", new Method(
 				List.of(
 						new Parameter("STRING", "signal", true)
 				),
 				"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
-				String signal = ArgumentsHelper.getString(arguments.get(0));
+			public Variable execute(Variable self, List<Object> arguments) {
+                String signal = ArgumentsHelper.getString(arguments.get(0));
 
-				emitSignal("ONSIGNAL", signal);
+				self.emitSignal("ONSIGNAL", signal);
 				return null;
 			}
 		});
+
+		return Collections.unmodifiableMap(methods);
 	}
 
 	public String getType() {
@@ -217,8 +243,7 @@ public abstract class Variable implements Cloneable {
 				Attribute currentAttr = entry.getValue();
 				cloneVar.attributes.put(entry.getKey(), new Attribute(currentAttr.getType(), currentAttr.getValue()));
 			}
-			cloneVar.methods = new HashMap<>();
-			cloneVar.setMethods();
+			cloneVar.methods = this.methods;
 			cloneVar.signals = new HashMap<>();
 			cloneVar.context = this.context;
 			cloneVar.clones = new ArrayList<>();
@@ -241,7 +266,7 @@ public abstract class Variable implements Cloneable {
 		Method method = this.getMethod(methodName, paramsTypes);
 		try {
 			PerformanceMonitor.startOperation("(" + this.getType() + ") " + methodName);
-			return method.execute(List.of(params));
+			return method.execute(this, List.of(params));
 		} catch (ClassMethodNotFoundException | ClassMethodNotImplementedException | ClassCastException e) {
 			Gdx.app.error("Variable", "Method call error in variable " + this.getName() + " of class " + this.getType() + ": " + e.getMessage(), e);
 			return null;
@@ -263,10 +288,7 @@ public abstract class Variable implements Cloneable {
 	}
 
 	public void setMethod(String name, Method method) {
-		if (!methods.containsKey(name)) {
-			methods.put(name, new ArrayList<>());
-		}
-		methods.get(name).add(method);
+        addMethodTemplate(methods, name, method);
 	}
 
 	public Method getMethod(String name, List<String> paramTypes) {

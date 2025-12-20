@@ -27,7 +27,7 @@ public class VirtualGraphicsObjectVariable extends Variable {
 				"INTEGER"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
+			public Variable execute(Variable self, List<Object> arguments) {
 				// TODO: implement this method
 				throw new ClassMethodNotImplementedException("Method GETHEIGHT is not implemented yet");
 			}
@@ -36,7 +36,7 @@ public class VirtualGraphicsObjectVariable extends Variable {
 				"INTEGER"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
+			public Variable execute(Variable self, List<Object> arguments) {
 				// TODO: implement this method
 				throw new ClassMethodNotImplementedException("Method GETPOSITIONX is not implemented yet");
 			}
@@ -45,7 +45,7 @@ public class VirtualGraphicsObjectVariable extends Variable {
 				"INTEGER"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
+			public Variable execute(Variable self, List<Object> arguments) {
 				// TODO: implement this method
 				throw new ClassMethodNotImplementedException("Method GETPOSITIONY is not implemented yet");
 			}
@@ -54,7 +54,7 @@ public class VirtualGraphicsObjectVariable extends Variable {
 				"INTEGER"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
+			public Variable execute(Variable self, List<Object> arguments) {
 				// TODO: implement this method
 				throw new ClassMethodNotImplementedException("Method GETWIDTH is not implemented yet");
 			}
@@ -67,7 +67,7 @@ public class VirtualGraphicsObjectVariable extends Variable {
 				"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
+			public Variable execute(Variable self, List<Object> arguments) {
 				// TODO: implement this method
 				throw new ClassMethodNotImplementedException("Method MOVE is not implemented yet");
 			}
@@ -79,7 +79,7 @@ public class VirtualGraphicsObjectVariable extends Variable {
 				"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
+			public Variable execute(Variable self, List<Object> arguments) {
 				// TODO: implement this method
 				throw new ClassMethodNotImplementedException("Method SETMASK is not implemented yet");
 			}
@@ -92,7 +92,7 @@ public class VirtualGraphicsObjectVariable extends Variable {
 				"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
+			public Variable execute(Variable self, List<Object> arguments) {
 				// TODO: implement this method
 				throw new ClassMethodNotImplementedException("Method SETPOSITION is not implemented yet");
 			}
@@ -104,7 +104,7 @@ public class VirtualGraphicsObjectVariable extends Variable {
 				"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
+			public Variable execute(Variable self, List<Object> arguments) {
 				// TODO: implement this method
 				throw new ClassMethodNotImplementedException("Method SETPRIORITY is not implemented yet");
 			}
@@ -116,7 +116,7 @@ public class VirtualGraphicsObjectVariable extends Variable {
 				"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
+			public Variable execute(Variable self, List<Object> arguments) {
 				// TODO: implement this method
 				throw new ClassMethodNotImplementedException("Method SETSOURCE is not implemented yet");
 			}

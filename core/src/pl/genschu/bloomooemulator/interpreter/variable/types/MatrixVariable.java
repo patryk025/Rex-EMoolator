@@ -38,6 +38,14 @@ public class MatrixVariable extends Variable {
 	private final int FIELD_CODE_EXPLOSION = 8;
 	private final int FIELD_CODE_EXIT = 9;
 
+	public int getFieldCodeMole() { return FIELD_CODE_MOLE; }
+	public int getFieldCodeEmpty() { return FIELD_CODE_EMPTY; }
+	public int getFieldCodeStone() { return FIELD_CODE_STONE; }
+	public int getFieldCodeWallWeak() { return FIELD_CODE_WALL_WEAK; }
+	public int getFieldCodeEnemy() { return FIELD_CODE_ENEMY; }
+	public int getFieldCodeWallStrong() { return FIELD_CODE_WALL_STRONG; }
+	public int getFieldCodeExplosion() { return FIELD_CODE_EXPLOSION; }
+
 	// field movements
 	private final int FIELD_MOVEMENT_DOWN = 1;
 	private final int FIELD_MOVEMENT_DOWN_LEFT = 2;
@@ -69,11 +77,12 @@ public class MatrixVariable extends Variable {
 				"INTEGER"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
+			public Variable execute(Variable self, List<Object> arguments) {
+				MatrixVariable selfVar = (MatrixVariable) self;
 				int oldCell = ArgumentsHelper.getInteger(arguments.get(0));
 				int direction = ArgumentsHelper.getInteger(arguments.get(1));
-				int row = oldCell / width;
-				int col = oldCell % width;
+				int row = oldCell / selfVar.getWidth();
+				int col = oldCell % selfVar.getWidth();
 
 				int newRow = row;
 				int newCol = col;
@@ -86,29 +95,29 @@ public class MatrixVariable extends Variable {
 						newRow = Math.max(0, row - 1);
 						break;
 					case 2: // RIGHT
-						newCol = Math.min(width - 1, col + 1);
+						newCol = Math.min(selfVar.getWidth() - 1, col + 1);
 						break;
 					case 3: // DOWN
-						newRow = Math.min(height - 1, row + 1);
+						newRow = Math.min(selfVar.getHeight() - 1, row + 1);
 						break;
 				}
 
 				// Jeśli nowa pozycja jest taka sama jak stara (np. z powodu granicy mapy)
 				if (newRow == row && newCol == col) {
-					return new IntegerVariable("", oldCell, context); // Zwróć starą komórkę
+					return new IntegerVariable("", oldCell, selfVar.getContext()); // Zwróć starą komórkę
 				}
 
-				int destCell = newRow * width + newCol;
+				int destCell = newRow * selfVar.getWidth() + newCol;
 
 				// Sprawdź, czy komórka docelowa jest pusta lub zawiera gracza
-				if (destCell >= 0 && destCell < data.getElements().size()) {
-					int cellCode = getCell(destCell);
+				if (destCell >= 0 && destCell < selfVar.getData().getElements().size()) {
+					int cellCode = selfVar.getCell(destCell);
 					if (cellCode == 0 || cellCode == 99) { // 0-puste, 99-gracz
-						return new IntegerVariable("", destCell, context);
+						return new IntegerVariable("", destCell, selfVar.getContext());
 					}
 				}
 
-				return new IntegerVariable("", oldCell, context);
+				return new IntegerVariable("", oldCell, selfVar.getContext());
 			}
 		});
 		this.setMethod("CALCENEMYMOVEDIR", new Method(
@@ -119,12 +128,13 @@ public class MatrixVariable extends Variable {
 				"INTEGER"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
+			public Variable execute(Variable self, List<Object> arguments) {
+				MatrixVariable selfVar = (MatrixVariable) self;
 				int oldCell = ArgumentsHelper.getInteger(arguments.get(0));
 				int oldDir = arguments.size() > 1 ? ArgumentsHelper.getInteger(arguments.get(1)) : 0;
 
-				int row = oldCell / width;
-				int col = oldCell % width;
+				int row = oldCell / selfVar.getWidth();
+				int col = oldCell % selfVar.getWidth();
 
 				// Kolejność kierunków (0: lewo, 1: góra, 2: prawo, 3: dół)
 				// Próbujemy z lewej względem aktualnego kierunku
@@ -147,10 +157,10 @@ public class MatrixVariable extends Variable {
 							newRow = Math.max(0, row - 1);
 							break;
 						case 2: // prawo
-							newCol = Math.min(width - 1, col + 1);
+							newCol = Math.min(selfVar.getWidth() - 1, col + 1);
 							break;
 						case 3: // dół
-							newRow = Math.min(height - 1, row + 1);
+							newRow = Math.min(selfVar.getHeight() - 1, row + 1);
 							break;
 					}
 
@@ -159,18 +169,18 @@ public class MatrixVariable extends Variable {
 						continue;
 					}
 
-					int destCell = newRow * width + newCol;
+					int destCell = newRow * selfVar.getWidth() + newCol;
 
 					// Sprawdź, czy komórka docelowa jest pusta lub zawiera gracza
-					if (destCell >= 0 && destCell < data.getElements().size()) {
-						int cellCode = getCell(destCell);
+					if (destCell >= 0 && destCell < selfVar.getData().getElements().size()) {
+						int cellCode = selfVar.getCell(destCell);
 						if (cellCode == 0 || cellCode == 99) { // 0-puste, 99-gracz
-							return new IntegerVariable("", newDir, context);
+							return new IntegerVariable("", newDir, selfVar.getContext());
 						}
 					}
 				}
 
-				return new IntegerVariable("", directions[0], context);
+				return new IntegerVariable("", directions[0], selfVar.getContext());
 			}
 		});
 		this.setMethod("CANHEROGOTO", new Method(
@@ -180,23 +190,24 @@ public class MatrixVariable extends Variable {
 				"BOOL"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
+			public Variable execute(Variable self, List<Object> arguments) {
+				MatrixVariable selfVar = (MatrixVariable) self;
 				int cellNo = ArgumentsHelper.getInteger(arguments.get(0));
 
-				if (cellNo >= 0 && cellNo < data.getElements().size()) {
+				if (cellNo >= 0 && cellNo < selfVar.getData().getElements().size()) {
 					// check if there is no gate there
-					if(isInGate(cellNo))
-						return new BoolVariable("", false, context);
+					if(selfVar.isInGate(cellNo))
+						return new BoolVariable("", false, selfVar.getContext());
 
-					int cellCode = getCell(cellNo);
+					int cellCode = selfVar.getCell(cellNo);
 					return new BoolVariable("",
-							cellCode != FIELD_CODE_WALL_WEAK &&
-							cellCode != FIELD_CODE_WALL_STRONG &&
-							cellCode != FIELD_CODE_ENEMY &&
-							cellCode != FIELD_CODE_STONE, context);
+							cellCode != selfVar.getFieldCodeWallWeak() &&
+							cellCode != selfVar.getFieldCodeWallStrong() &&
+							cellCode != selfVar.getFieldCodeEnemy() &&
+							cellCode != selfVar.getFieldCodeStone(), selfVar.getContext());
 				}
 
-				return new BoolVariable("", false, context);
+				return new BoolVariable("", false, selfVar.getContext());
 			}
 		});
 		this.setMethod("GET", new Method(
@@ -206,12 +217,13 @@ public class MatrixVariable extends Variable {
 				"INTEGER"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
+			public Variable execute(Variable self, List<Object> arguments) {
+				MatrixVariable selfVar = (MatrixVariable) self;
 				int cellIndex = ArgumentsHelper.getInteger(arguments.get(0));
-				if (cellIndex >= 0 && cellIndex < width * height) {
-					return data.getElements().get(cellIndex);
+				if (cellIndex >= 0 && cellIndex < selfVar.getWidth() * selfVar.getHeight()) {
+					return selfVar.getData().getElements().get(cellIndex);
 				}
-				return new IntegerVariable("", 0, context);
+				return new IntegerVariable("", 0, selfVar.getContext());
 			}
 		});
 		this.setMethod("GETCELLOFFSET", new Method(
@@ -222,14 +234,15 @@ public class MatrixVariable extends Variable {
 				"INTEGER"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
+			public Variable execute(Variable self, List<Object> arguments) {
+				MatrixVariable selfVar = (MatrixVariable) self;
 				int x = ArgumentsHelper.getInteger(arguments.get(0));
 				int y = ArgumentsHelper.getInteger(arguments.get(1));
 
-				if (x >= 0 && x < width && y >= 0 && y < height) {
-					return new IntegerVariable("", y * width + x, context);
+				if (x >= 0 && x < selfVar.getWidth() && y >= 0 && y < selfVar.getHeight()) {
+					return new IntegerVariable("", y * selfVar.getWidth() + x, selfVar.getContext());
 				}
-				return new IntegerVariable("", -1, context);
+				return new IntegerVariable("", -1, selfVar.getContext());
 			}
 		});
 		this.setMethod("GETCELLPOSX", new Method(
@@ -239,10 +252,11 @@ public class MatrixVariable extends Variable {
 				"INTEGER"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
+			public Variable execute(Variable self, List<Object> arguments) {
+				MatrixVariable selfVar = (MatrixVariable) self;
 				int cellIndex = ArgumentsHelper.getInteger(arguments.get(0));
-				int col = cellIndex % width;
-				return new IntegerVariable("", basePosX + col * cellWidth, context);
+				int col = cellIndex % selfVar.getWidth();
+				return new IntegerVariable("", selfVar.getBasePosX() + col * selfVar.getCellWidth(), selfVar.getContext());
 			}
 		});
 		this.setMethod("GETCELLPOSY", new Method(
@@ -252,10 +266,11 @@ public class MatrixVariable extends Variable {
 				"INTEGER"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
+			public Variable execute(Variable self, List<Object> arguments) {
+				MatrixVariable selfVar = (MatrixVariable) self;
 				int cellIndex = ArgumentsHelper.getInteger(arguments.get(0));
-				int row = cellIndex / width;
-				return new IntegerVariable("", basePosY + row * cellHeight, context);
+				int row = cellIndex / selfVar.getWidth();
+				return new IntegerVariable("", selfVar.getBasePosY() + row * selfVar.getCellHeight(), selfVar.getContext());
 			}
 		});
 		this.setMethod("GETCELLSNO", new Method(
@@ -265,17 +280,18 @@ public class MatrixVariable extends Variable {
 				"INTEGER"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
+			public Variable execute(Variable self, List<Object> arguments) {
+				MatrixVariable selfVar = (MatrixVariable) self;
 				int cellCode = ArgumentsHelper.getInteger(arguments.get(0));
 				int count = 0;
 
-				for (Variable element : data.getElements()) {
+				for (Variable element : selfVar.getData().getElements()) {
 					if (element instanceof IntegerVariable && ((IntegerVariable) element).GET() == cellCode) {
 						count++;
 					}
 				}
 
-				return new IntegerVariable("", count, context);
+				return new IntegerVariable("", count, selfVar.getContext());
 			}
 		});
 		this.setMethod("GETFIELDPOSX", new Method(
@@ -285,10 +301,11 @@ public class MatrixVariable extends Variable {
 				"INTEGER"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
+			public Variable execute(Variable self, List<Object> arguments) {
+				MatrixVariable selfVar = (MatrixVariable) self;
 				int cellIndex = ArgumentsHelper.getInteger(arguments.get(0));
-				int col = cellIndex % width;
-				return new IntegerVariable("", basePosX + col * cellWidth, context);
+				int col = cellIndex % selfVar.getWidth();
+				return new IntegerVariable("", selfVar.getBasePosX() + col * selfVar.getCellWidth(), selfVar.getContext());
 			}
 		});
 		this.setMethod("GETFIELDPOSY", new Method(
@@ -298,10 +315,11 @@ public class MatrixVariable extends Variable {
 				"INTEGER"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
+			public Variable execute(Variable self, List<Object> arguments) {
+				MatrixVariable selfVar = (MatrixVariable) self;
 				int cellIndex = ArgumentsHelper.getInteger(arguments.get(0));
-				int row = cellIndex / width;
-				return new IntegerVariable("", basePosY + row * cellHeight, context);
+				int row = cellIndex / selfVar.getWidth();
+				return new IntegerVariable("", selfVar.getBasePosY() + row * selfVar.getCellHeight(), selfVar.getContext());
 			}
 		});
 		this.setMethod("GETOFFSET", new Method(
@@ -312,38 +330,40 @@ public class MatrixVariable extends Variable {
 				"INTEGER"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
+			public Variable execute(Variable self, List<Object> arguments) {
+				MatrixVariable selfVar = (MatrixVariable) self;
 				int x = ArgumentsHelper.getInteger(arguments.get(0));
 				int y = ArgumentsHelper.getInteger(arguments.get(1));
 
-				if (x >= 0 && x < width && y >= 0 && y < height) {
-					return new IntegerVariable("", y * width + x, context);
+				if (x >= 0 && x < selfVar.getWidth() && y >= 0 && y < selfVar.getHeight()) {
+					return new IntegerVariable("", y * selfVar.getWidth() + x, selfVar.getContext());
 				}
-				return new IntegerVariable("", -1, context);
+				return new IntegerVariable("", -1, selfVar.getContext());
 			}
 		});
 		this.setMethod("ISGATEEMPTY", new Method(
 				"BOOL"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
-				if (startGateColumn == -1 || startGateRow == -1 || endGateColumn == -1 || endGateRow == -1) {
-					return new BoolVariable("", false, context);
+			public Variable execute(Variable self, List<Object> arguments) {
+				MatrixVariable selfVar = (MatrixVariable) self;
+				if (selfVar.startGateColumn == -1 || selfVar.startGateRow == -1 || selfVar.endGateColumn == -1 || selfVar.endGateRow == -1) {
+					return new BoolVariable("", false, selfVar.getContext());
 				}
 
-				for (int y = startGateRow; y <= endGateRow; y++) {
-					for (int x = startGateColumn; x <= endGateColumn; x++) {
-						int index = y * width + x;
-						if (index < data.getElements().size()) {
-							int cellCode = getCell(index);
-							if (cellCode != FIELD_CODE_EMPTY) {
-								return new BoolVariable("", false, context);
+				for (int y = selfVar.startGateRow; y <= selfVar.endGateRow; y++) {
+					for (int x = selfVar.startGateColumn; x <= selfVar.endGateColumn; x++) {
+						int index = y * selfVar.getWidth() + x;
+						if (index < selfVar.getData().getElements().size()) {
+							int cellCode = selfVar.getCell(index);
+							if (cellCode != selfVar.FIELD_CODE_EMPTY) {
+								return new BoolVariable("", false, selfVar.getContext());
 							}
 						}
 					}
 				}
 
-				return new BoolVariable("", true, context);
+				return new BoolVariable("", true, selfVar.getContext());
 			}
 		});
 		this.setMethod("ISINGATE", new Method(
@@ -353,14 +373,15 @@ public class MatrixVariable extends Variable {
 				"BOOL"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
-				if (startGateColumn == -1 || startGateRow == -1 || endGateColumn == -1 || endGateRow == -1) {
-					return new BoolVariable("", false, context);
+			public Variable execute(Variable self, List<Object> arguments) {
+				MatrixVariable selfVar = (MatrixVariable) self;
+				if (selfVar.startGateColumn == -1 || selfVar.startGateRow == -1 || selfVar.endGateColumn == -1 || selfVar.endGateRow == -1) {
+					return new BoolVariable("", false, selfVar.getContext());
 				}
 
 				int cellIndex = ArgumentsHelper.getInteger(arguments.get(0));
 
-				return new BoolVariable("", isInGate(cellIndex), context);
+				return new BoolVariable("", selfVar.isInGate(cellIndex), selfVar.getContext());
 			}
 		});
 		this.setMethod("MOVE", new Method(
@@ -371,87 +392,89 @@ public class MatrixVariable extends Variable {
 				"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
+			public Variable execute(Variable self, List<Object> arguments) {
+				MatrixVariable selfVar = (MatrixVariable) self;
 				int srcCellIndex = ArgumentsHelper.getInteger(arguments.get(0));
 				int destCellIndex = ArgumentsHelper.getInteger(arguments.get(1));
 
-				if (srcCellIndex >= 0 && srcCellIndex < width * height &&
-						destCellIndex >= 0 && destCellIndex < width * height) {
+				if (srcCellIndex >= 0 && srcCellIndex < selfVar.getWidth() * selfVar.getHeight() &&
+						destCellIndex >= 0 && destCellIndex < selfVar.getWidth() * selfVar.getHeight()) {
 
-					Variable srcValue = data.getElements().get(srcCellIndex);
-					data.getElements().set(destCellIndex, srcValue);
-					data.getElements().set(srcCellIndex, new IntegerVariable("", 0, context)); // Puste pole
+					Variable srcValue = selfVar.getData().getElements().get(srcCellIndex);
+					selfVar.getData().getElements().set(destCellIndex, srcValue);
+					selfVar.getData().getElements().set(srcCellIndex, new IntegerVariable("", 0, selfVar.getContext())); // Puste pole
 				}
 				return null;
 			}
 		});
 		this.setMethod("NEXT", new Method("INTEGER") {
 			@Override
-			public Variable execute(List<Object> arguments) {
-				if (pendingMoves.isEmpty()) {
-					return new IntegerVariable("", 0, context); // no action
+			public Variable execute(Variable self, List<Object> arguments) {
+				MatrixVariable selfVar = (MatrixVariable) self;
+				if (selfVar.getPendingMoves().isEmpty()) {
+					return new IntegerVariable("", 0, selfVar.getContext()); // no action
 				}
 
 				// get next move
-				if (currentMoveIndex < 0) {
-					currentMoveIndex = 0;
+				if (selfVar.currentMoveIndex < 0) {
+					selfVar.currentMoveIndex = 0;
 				} else {
-					currentMoveIndex++;
+					selfVar.currentMoveIndex++;
 				}
 
 				// all movements done, finish it all
-				if (currentMoveIndex >= pendingMoves.size()) {
-					pendingMoves.clear();
-					currentMoveIndex = -1;
-					return new IntegerVariable("", 0, context);  // no action
+				if (selfVar.currentMoveIndex >= selfVar.getPendingMoves().size()) {
+					selfVar.getPendingMoves().clear();
+					selfVar.currentMoveIndex = -1;
+					return new IntegerVariable("", 0, selfVar.getContext());  // no action
 				}
 
-				int[] move = pendingMoves.get(currentMoveIndex);
+				int[] move = selfVar.getPendingMoves().get(selfVar.currentMoveIndex);
 				int srcX = move[0];
 				int srcY = move[1];
 				int code = move[2];
 
 				// set arguments for BEHONNEXT/BEHONLATEST
-				context.setVariable("$1", new IntegerVariable("", srcX, context));
-				context.setVariable("$2", new IntegerVariable("", srcY, context));
-				context.setVariable("$3", new IntegerVariable("", code, context));
+				selfVar.getContext().setVariable("$1", new IntegerVariable("", srcX, selfVar.getContext()));
+				selfVar.getContext().setVariable("$2", new IntegerVariable("", srcY, selfVar.getContext()));
+				selfVar.getContext().setVariable("$3", new IntegerVariable("", code, selfVar.getContext()));
 
-				int srcCellIdx = srcY * width + srcX;
-				int destCellIdx = getCellIndex(srcCellIdx, code);
+				int srcCellIdx = srcY * selfVar.getWidth() + srcX;
+				int destCellIdx = selfVar.getCellIndex(srcCellIdx, code);
 
 				// move stone
-				setCell(srcCellIdx, FIELD_CODE_EMPTY);
-				setCell(destCellIdx, FIELD_CODE_STONE);
+				selfVar.setCell(srcCellIdx, selfVar.FIELD_CODE_EMPTY);
+				selfVar.setCell(destCellIdx, selfVar.FIELD_CODE_STONE);
 
 				// update variables
-				int sourceCellCode = getCell(srcCellIdx);
-				int destCellCode = getCell(destCellIdx);
+				int sourceCellCode = selfVar.getCell(srcCellIdx);
+				int destCellCode = selfVar.getCell(destCellIdx);
 
 				// send signals
-				if (currentMoveIndex == pendingMoves.size() - 1) {
-					emitSignal("ONLATEST"); // when there are no more moves
+				if (selfVar.currentMoveIndex == selfVar.getPendingMoves().size() - 1) {
+					selfVar.emitSignal("ONLATEST"); // when there are no more moves
 				} else {
-					emitSignal("ONNEXT"); // when there are more moves
+					selfVar.emitSignal("ONNEXT"); // when there are more moves
 				}
 
 				// check if stone falls on mole
-				if(code == FIELD_MOVEMENT_DOWN) // collision with mole is only checked when stone moves down
+				if(code == selfVar.FIELD_MOVEMENT_DOWN) // collision with mole is only checked when stone moves down
 				{
-					int potentialMoleCellCode = getCell(srcX, srcY + 2);
+					int potentialMoleCellCode = selfVar.getCell(srcX, srcY + 2);
 
 					// check if below cell is empty and below below cell is mole
-					if (sourceCellCode == FIELD_CODE_EMPTY &&
-						destCellCode == FIELD_CODE_STONE &&
-						potentialMoleCellCode == FIELD_CODE_MOLE) {
-						return new IntegerVariable("", 2, context); // collision with mole
+					if (sourceCellCode == selfVar.FIELD_CODE_EMPTY &&
+						destCellCode == selfVar.FIELD_CODE_STONE &&
+						potentialMoleCellCode == selfVar.getFieldCodeMole()) {
+						return new IntegerVariable("", 2, selfVar.getContext()); // collision with mole
 					}
 				}
 
-				if(code == FIELD_MOVEMENT_DOWN || code == FIELD_MOVEMENT_DOWN_LEFT || code == FIELD_MOVEMENT_DOWN_RIGHT) {
-					return new IntegerVariable("", 1, context); // 1 as movement action
+				if(code == selfVar.FIELD_MOVEMENT_DOWN || code == selfVar.FIELD_MOVEMENT_DOWN_LEFT || code == selfVar.FIELD_MOVEMENT_DOWN_RIGHT) {
+					return new IntegerVariable("", 1, selfVar.getContext()); // 1 as movement action
 				}
 
-				return new IntegerVariable("", 0, context);
+				return new IntegerVariable("", 0, selfVar.getContext());
 			}
 		});
 		this.setMethod("SET", new Method(
@@ -462,17 +485,18 @@ public class MatrixVariable extends Variable {
 				"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
+			public Variable execute(Variable self, List<Object> arguments) {
+				MatrixVariable selfVar = (MatrixVariable) self;
 				int cellIndex = ArgumentsHelper.getInteger(arguments.get(0));
 				int cellCode = ArgumentsHelper.getInteger(arguments.get(1));
 
-				if (cellIndex >= 0 && cellIndex < width * height) {
-					if (cellIndex >= data.getElements().size()) {
-						while (data.getElements().size() <= cellIndex) {
-							data.getElements().add(new IntegerVariable("", 0, context));
+				if (cellIndex >= 0 && cellIndex < selfVar.getWidth() * selfVar.getHeight()) {
+					if (cellIndex >= selfVar.getData().getElements().size()) {
+						while (selfVar.getData().getElements().size() <= cellIndex) {
+							selfVar.getData().getElements().add(new IntegerVariable("", 0, selfVar.getContext()));
 						}
 					}
-					data.getElements().set(cellIndex, new IntegerVariable("", cellCode, context));
+					selfVar.getData().getElements().set(cellIndex, new IntegerVariable("", cellCode, selfVar.getContext()));
 				}
 				return null;
 			}
@@ -486,20 +510,21 @@ public class MatrixVariable extends Variable {
 				"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
+			public Variable execute(Variable self, List<Object> arguments) {
+				MatrixVariable selfVar = (MatrixVariable) self;
 				int cellX = ArgumentsHelper.getInteger(arguments.get(0));
 				int cellY = ArgumentsHelper.getInteger(arguments.get(1));
 				int cellCode = ArgumentsHelper.getInteger(arguments.get(2));
 
-				int cellIndex = cellY * width + cellX;
+				int cellIndex = cellY * selfVar.getWidth() + cellX;
 
-				if (cellIndex >= 0 && cellIndex < width * height) {
-					if (cellIndex >= data.getElements().size()) {
-						while (data.getElements().size() <= cellIndex) {
-							data.getElements().add(new IntegerVariable("", 0, context));
+				if (cellIndex >= 0 && cellIndex < selfVar.getWidth() * selfVar.getHeight()) {
+					if (cellIndex >= selfVar.getData().getElements().size()) {
+						while (selfVar.getData().getElements().size() <= cellIndex) {
+							selfVar.getData().getElements().add(new IntegerVariable("", 0, selfVar.getContext()));
 						}
 					}
-					data.getElements().set(cellIndex, new IntegerVariable("", cellCode, context));
+					selfVar.getData().getElements().set(cellIndex, new IntegerVariable("", cellCode, selfVar.getContext()));
 				}
 				return null;
 			}
@@ -514,11 +539,12 @@ public class MatrixVariable extends Variable {
 				"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
-				startGateColumn = ArgumentsHelper.getInteger(arguments.get(0));
-				startGateRow = ArgumentsHelper.getInteger(arguments.get(1));
-				endGateColumn = ArgumentsHelper.getInteger(arguments.get(2));
-				endGateRow = ArgumentsHelper.getInteger(arguments.get(3));
+			public Variable execute(Variable self, List<Object> arguments) {
+				MatrixVariable selfVar = (MatrixVariable) self;
+				selfVar.startGateColumn = ArgumentsHelper.getInteger(arguments.get(0));
+				selfVar.startGateRow = ArgumentsHelper.getInteger(arguments.get(1));
+				selfVar.endGateColumn = ArgumentsHelper.getInteger(arguments.get(2));
+				selfVar.endGateRow = ArgumentsHelper.getInteger(arguments.get(3));
 				return null;
 			}
 		});
@@ -530,22 +556,23 @@ public class MatrixVariable extends Variable {
 				"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
+			public Variable execute(Variable self, List<Object> arguments) {
+				MatrixVariable selfVar = (MatrixVariable) self;
 				int row = ArgumentsHelper.getInteger(arguments.get(0));
 
-				if (row >= 0 && row < height) {
-					int startIndex = row * width;
+				if (row >= 0 && row < selfVar.getHeight()) {
+					int startIndex = row * selfVar.getWidth();
 
-					for (int i = 1; i < arguments.size() && i - 1 < width; i++) {
+					for (int i = 1; i < arguments.size() && i - 1 < selfVar.getWidth(); i++) {
 						int cellCode = ArgumentsHelper.getInteger(arguments.get(i));
 						int index = startIndex + (i - 1);
 
-						if (index >= data.getElements().size()) {
-							while (data.getElements().size() <= index) {
-								data.getElements().add(new IntegerVariable("", 0, context));
+						if (index >= selfVar.getData().getElements().size()) {
+							while (selfVar.getData().getElements().size() <= index) {
+								selfVar.getData().getElements().add(new IntegerVariable("", 0, selfVar.getContext()));
 							}
 						}
-						data.getElements().set(index, new IntegerVariable("", cellCode, context));
+						selfVar.getData().getElements().set(index, new IntegerVariable("", cellCode, selfVar.getContext()));
 					}
 				}
 				return null;
@@ -553,82 +580,83 @@ public class MatrixVariable extends Variable {
 		});
 		this.setMethod("TICK", new Method("void") {
 			@Override
-			public Variable execute(List<Object> arguments) {
-				pendingMoves.clear();
-				currentMoveIndex = -1;
+			public Variable execute(Variable self, List<Object> arguments) {
+				MatrixVariable selfVar = (MatrixVariable) self;
+				selfVar.getPendingMoves().clear();
+				selfVar.currentMoveIndex = -1;
 
 				Set<Integer> reservedDest = new HashSet<>();
 
 				// Check map from bottom to top, left to right
-				for (int y = height - 2; y >= 0; y--) {
-					for (int x = 0; x < width; x++) {
-						int currentIndex = y * width + x;
+				for (int y = selfVar.getHeight() - 2; y >= 0; y--) {
+					for (int x = 0; x < selfVar.getWidth(); x++) {
+						int currentIndex = y * selfVar.getWidth() + x;
 
-						if (currentIndex >= data.getElements().size()) continue;
+						if (currentIndex >= selfVar.getData().getElements().size()) continue;
 
-						int cellCode = getCell(currentIndex);
+						int cellCode = selfVar.getCell(currentIndex);
 
-						if (cellCode == FIELD_CODE_STONE) {
-							int aboveIndex = getCellIndex(currentIndex, 0, -1);
-							int belowIndex = getCellIndex(currentIndex, FIELD_MOVEMENT_DOWN);
+						if (cellCode == selfVar.getFieldCodeStone()) {
+							int aboveIndex = selfVar.getCellIndex(currentIndex, 0, -1);
+							int belowIndex = selfVar.getCellIndex(currentIndex, selfVar.FIELD_MOVEMENT_DOWN);
 
-							int aboveCellCode = getCell(aboveIndex);
-							int belowCellCode = getCell(belowIndex);
+							int aboveCellCode = selfVar.getCell(aboveIndex);
+							int belowCellCode = selfVar.getCell(belowIndex);
 
 							// check if there is no stone above
 							if (y > 0) {
 								// check if above field is stone and below field is not empty
-								if (aboveCellCode == FIELD_CODE_STONE && belowCellCode != FIELD_CODE_EMPTY) {
+								if (aboveCellCode == selfVar.getFieldCodeStone() && belowCellCode != selfVar.FIELD_CODE_EMPTY) {
 									continue;
 								}
 							}
 
 							// check if below field is empty
-							if (belowCellCode == FIELD_CODE_EMPTY) {
+							if (belowCellCode == selfVar.FIELD_CODE_EMPTY) {
 								if (reservedDest.add(belowIndex)) {
-									pendingMoves.add(new int[]{x, y, FIELD_MOVEMENT_DOWN});  // x, y, down
+									selfVar.getPendingMoves().add(new int[]{x, y, selfVar.FIELD_MOVEMENT_DOWN});  // x, y, down
 								}
 								continue;
 							}
 
-							if (belowCellCode == FIELD_CODE_ENEMY) {
+							if (belowCellCode == selfVar.getFieldCodeEnemy()) {
 								if (reservedDest.add(belowIndex)) {
-									pendingMoves.add(new int[]{x, y, FIELD_MOVEMENT_EXPLOSION});  // x, y, explosion
+									selfVar.getPendingMoves().add(new int[]{x, y, selfVar.FIELD_MOVEMENT_EXPLOSION});  // x, y, explosion
 								}
 								continue;
 							}
 
 							// check if it can move askew left
 							if (x > 0) {
-								int leftBelowIndex = getCellIndex(currentIndex, FIELD_MOVEMENT_DOWN_LEFT);
-								int leftIndex = getCellIndex(currentIndex, -1, 0);
+								int leftBelowIndex = selfVar.getCellIndex(currentIndex, selfVar.FIELD_MOVEMENT_DOWN_LEFT);
+								int leftIndex = selfVar.getCellIndex(currentIndex, -1, 0);
 
-								int leftBelowCellCode = getCell(leftBelowIndex);
-								int leftCellCode = getCell(leftIndex);
+								int leftBelowCellCode = selfVar.getCell(leftBelowIndex);
+								int leftCellCode = selfVar.getCell(leftIndex);
 
-								if (leftBelowCellCode == FIELD_CODE_EMPTY &&
-									leftCellCode == FIELD_CODE_EMPTY &&
-									belowCellCode == FIELD_CODE_STONE) {
+								if (leftBelowCellCode == selfVar.FIELD_CODE_EMPTY &&
+									leftCellCode == selfVar.FIELD_CODE_EMPTY &&
+									belowCellCode == selfVar.getFieldCodeStone()) {
 									if (reservedDest.add(leftBelowCellCode)) {
-										pendingMoves.add(new int[]{x, y, FIELD_MOVEMENT_DOWN_LEFT}); // x, y, down-left
+										selfVar.getPendingMoves().add(new int[]{x, y, selfVar.FIELD_MOVEMENT_DOWN_LEFT}); // x, y, down-left
 									}
 									continue;
 								}
 							}
 
 							// check if it can move askew right
-							if (x < width - 1) {
-								int rightBelowIndex = getCellIndex(currentIndex, FIELD_MOVEMENT_DOWN_RIGHT);
-								int rightIndex = getCellIndex(currentIndex, 1, 0);
+							if (x < selfVar.getWidth() - 1) {
+								int rightBelowIndex = selfVar.getCellIndex(currentIndex, selfVar.FIELD_MOVEMENT_DOWN_RIGHT);
+								int rightIndex = selfVar.getCellIndex(currentIndex, 1, 0);
 
-								int rightBelowCellCode = getCell(rightBelowIndex);
-								int rightCellCode = getCell(rightIndex);
+								int rightBelowCellCode = selfVar.getCell(rightBelowIndex);
+								int rightCellCode = selfVar.getCell(rightIndex);
 
-								if (rightBelowCellCode == FIELD_CODE_EMPTY &&
-									rightCellCode == FIELD_CODE_EMPTY &&
-									belowCellCode == FIELD_CODE_STONE) {
+								if (rightBelowCellCode == selfVar.FIELD_CODE_EMPTY &&
+									rightCellCode == selfVar.FIELD_CODE_EMPTY &&
+									belowCellCode == selfVar.getFieldCodeStone()) {
 									if (reservedDest.add(rightBelowCellCode)) {
-										pendingMoves.add(new int[]{x, y, FIELD_MOVEMENT_DOWN_RIGHT}); // x, y, down-right
+										selfVar.getPendingMoves().add(new int[]{x, y, selfVar.FIELD_MOVEMENT_DOWN_RIGHT}); // x, y, down-right
 									}
 								}
 							}

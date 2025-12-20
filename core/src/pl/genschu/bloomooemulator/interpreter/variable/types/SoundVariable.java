@@ -11,9 +11,14 @@ import pl.genschu.bloomooemulator.interpreter.variable.Variable;
 import pl.genschu.bloomooemulator.loader.SoundLoader;
 import pl.genschu.bloomooemulator.utils.ArgumentsHelper;
 
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class SoundVariable extends Variable {
+    private static final Map<String, List<Method>> METHOD_TEMPLATES = createMethodTemplates();
+
     private Sound sound;
     private boolean isPlaying;
     private long soundId;
@@ -30,94 +35,107 @@ public class SoundVariable extends Variable {
 
     @Override
     protected void setMethods() {
-        super.setMethods();
+        this.methods = METHOD_TEMPLATES;
+    }
 
-        this.setMethod("ISPLAYING", new Method(
+    private static Map<String, List<Method>> createMethodTemplates() {
+        Map<String, List<Method>> methods = newTemplateMap(baseMethodTemplates());
+
+        addMethodTemplate(methods, "ISPLAYING", new Method(
                 "BOOL"
         ) {
             @Override
-            public Variable execute(List<Object> arguments) {
-                return new BoolVariable("", isPlaying, getContext());
+            public Variable execute(Variable self, List<Object> arguments) {
+                SoundVariable selfVar = (SoundVariable) self;
+                return new BoolVariable("", selfVar.isPlaying, selfVar.getContext());
             }
         });
-        this.setMethod("LOAD", new Method(
+        addMethodTemplate(methods, "LOAD", new Method(
                 List.of(
                         new Parameter("STRING", "path", true)
                 ),
                 "void"
         ) {
             @Override
-            public Variable execute(List<Object> arguments) {
-                if(sound != null) {
-                    sound.stop();
-                    sound.dispose();
-                    sound = null;
+            public Variable execute(Variable self, List<Object> arguments) {
+                SoundVariable selfVar = (SoundVariable) self;
+                if(selfVar.sound != null) {
+                    selfVar.sound.stop();
+                    selfVar.sound.dispose();
+                    selfVar.sound = null;
                 }
-                isPlaying = false;
-                setAttribute("FILENAME", new Attribute("STRING", ArgumentsHelper.getString(arguments.get(0))));
-                init();
+                selfVar.isPlaying = false;
+                selfVar.setAttribute("FILENAME", new Attribute("STRING", ArgumentsHelper.getString(arguments.get(0))));
+                selfVar.init();
                 return null;
             }
         });
-        this.setMethod("PAUSE", new Method(
+        addMethodTemplate(methods, "PAUSE", new Method(
                 "void"
         ) {
             @Override
-            public Variable execute(List<Object> arguments) {
-                pause();
+            public Variable execute(Variable self, List<Object> arguments) {
+                SoundVariable selfVar = (SoundVariable) self;
+                selfVar.pause();
                 return null;
             }
         });
-        this.setMethod("PLAY", new Method(
+        addMethodTemplate(methods, "PLAY", new Method(
                 List.of(
                         new Parameter("STRING", "unknown", false)
                 ),
                 "void"
         ) {
             @Override
-            public Variable execute(List<Object> arguments) {
-                play();
+            public Variable execute(Variable self, List<Object> arguments) {
+                SoundVariable selfVar = (SoundVariable) self;
+                selfVar.play();
                 return null;
             }
         });
-        this.setMethod("RESUME", new Method(
+        addMethodTemplate(methods, "RESUME", new Method(
                 "void"
         ) {
             @Override
-            public Variable execute(List<Object> arguments) {
-                resume();
+            public Variable execute(Variable self, List<Object> arguments) {
+                SoundVariable selfVar = (SoundVariable) self;
+                selfVar.resume();
                 return null;
             }
         });
-        this.setMethod("SETFREQ", new Method(
+        addMethodTemplate(methods, "SETFREQ", new Method(
                 List.of(
                         new Parameter("INTEGER", "freq", false)
                 ),
                 "void"
         ) {
             @Override
-            public Variable execute(List<Object> arguments) {
-                currentSampleRate = ArgumentsHelper.getInteger(arguments.get(0));
-                sound.setPitch(soundId, (float) currentSampleRate/sampleRate);
+            public Variable execute(Variable self, List<Object> arguments) {
+                SoundVariable selfVar = (SoundVariable) self;
+                selfVar.currentSampleRate = ArgumentsHelper.getInteger(arguments.get(0));
+                selfVar.sound.setPitch(selfVar.soundId, (float) selfVar.currentSampleRate / selfVar.sampleRate);
                 return null;
             }
         });
-        this.setMethod("STOP", new Method(
+        addMethodTemplate(methods, "STOP", new Method(
                 List.of(
                         new Parameter("BOOL", "emitSignal", false)
                 ),
                 "void"
         ) {
             @Override
-            public Variable execute(List<Object> arguments) {
+            public Variable execute(Variable self, List<Object> arguments) {
+                SoundVariable selfVar = (SoundVariable) self;
                 boolean emitSignal = false;
                 if(!arguments.isEmpty()) {
                     emitSignal = ArgumentsHelper.getBoolean(arguments.get(0));
                 }
-                stop(emitSignal);
+                selfVar.stop(emitSignal);
                 return null;
             }
         });
+
+        return Collections.unmodifiableMap(methods);
     }
 
     @Override

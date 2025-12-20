@@ -34,7 +34,7 @@ public class DoubleVariable extends Variable {
 				"DOUBLE"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
+			public Variable execute(Variable self, List<Object> arguments) {
 				double value = ArgumentsHelper.getDouble(arguments.get(0));
 				set(Math.abs(value));
 				return DoubleVariable.this;
@@ -47,7 +47,7 @@ public class DoubleVariable extends Variable {
 				"DOUBLE"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
+			public Variable execute(Variable self, List<Object> arguments) {
 				double value = ArgumentsHelper.getDouble(arguments.get(0));
 				set(GET()+value);
 				return DoubleVariable.this;
@@ -60,7 +60,7 @@ public class DoubleVariable extends Variable {
 				"DOUBLE"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
+			public Variable execute(Variable self, List<Object> arguments) {
 				double angle = ArgumentsHelper.getDouble(arguments.get(0));
 
 				double atanRadians = Math.atan(angle);
@@ -78,7 +78,7 @@ public class DoubleVariable extends Variable {
 				"DOUBLE"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
+			public Variable execute(Variable self, List<Object> arguments) {
 				double y = ArgumentsHelper.getDouble(arguments.get(0));
 				double x = ArgumentsHelper.getDouble(arguments.get(1));
 
@@ -97,7 +97,7 @@ public class DoubleVariable extends Variable {
 				"DOUBLE"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
+			public Variable execute(Variable self, List<Object> arguments) {
 				double rangeMin = ArgumentsHelper.getDouble(arguments.get(0));
 				double rangeMax = ArgumentsHelper.getDouble(arguments.get(1));
 
@@ -118,7 +118,7 @@ public class DoubleVariable extends Variable {
 				"DOUBLE"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
+			public Variable execute(Variable self, List<Object> arguments) {
 				set(0);
 				return DoubleVariable.this;
 			}
@@ -130,7 +130,7 @@ public class DoubleVariable extends Variable {
 				"DOUBLE"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
+			public Variable execute(Variable self, List<Object> arguments) {
 				double angle = ArgumentsHelper.getDouble(arguments.get(0));
 
 				double cosRadians = Math.cos((float) Math.toRadians(angle));
@@ -143,7 +143,7 @@ public class DoubleVariable extends Variable {
 				"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
+			public Variable execute(Variable self, List<Object> arguments) {
 				double result = GET() - 1.0;
 				set(result);
 				return DoubleVariable.this;
@@ -156,7 +156,7 @@ public class DoubleVariable extends Variable {
 				"DOUBLE"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
+			public Variable execute(Variable self, List<Object> arguments) {
 				double divisor = ArgumentsHelper.getDouble(arguments.get(0));
 				try {
 					set(GET() / divisor);
@@ -170,7 +170,7 @@ public class DoubleVariable extends Variable {
 				"BOOL"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
+			public Variable execute(Variable self, List<Object> arguments) {
 				return DoubleVariable.this;
 			}
 		});
@@ -178,7 +178,7 @@ public class DoubleVariable extends Variable {
 				"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
+			public Variable execute(Variable self, List<Object> arguments) {
 				double result = GET() + 1;
 				set(result);
 				return DoubleVariable.this;
@@ -192,7 +192,7 @@ public class DoubleVariable extends Variable {
 				"DOUBLE"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
+			public Variable execute(Variable self, List<Object> arguments) {
 				double x = ArgumentsHelper.getDouble(arguments.get(0));
 				double y = ArgumentsHelper.getDouble(arguments.get(1));
 				set(Math.sqrt(x * x + y * y));
@@ -206,7 +206,7 @@ public class DoubleVariable extends Variable {
 				"DOUBLE"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
+			public Variable execute(Variable self, List<Object> arguments) {
 				double value = ArgumentsHelper.getDouble(arguments.get(0));
 				set(Math.log(value));
 				return DoubleVariable.this;
@@ -219,7 +219,7 @@ public class DoubleVariable extends Variable {
 				"DOUBLE"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
+			public Variable execute(Variable self, List<Object> arguments) {
 				double divisor = ArgumentsHelper.getDouble(arguments.get(0));
 				try {
 					set((int) (GET() % divisor)); // modulo cuts off decimal part in original engine
@@ -236,7 +236,7 @@ public class DoubleVariable extends Variable {
 				"DOUBLE"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
+			public Variable execute(Variable self, List<Object> arguments) {
 				double max = Integer.MIN_VALUE;
 				for(Object argument : arguments) {
 					double value = ArgumentsHelper.getDouble(argument);
@@ -256,7 +256,7 @@ public class DoubleVariable extends Variable {
 				"DOUBLE"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
+			public Variable execute(Variable self, List<Object> arguments) {
 				double min = Integer.MAX_VALUE;
 				for(Object argument : arguments) {
 					double value = ArgumentsHelper.getDouble(argument);
@@ -276,7 +276,7 @@ public class DoubleVariable extends Variable {
 				"DOUBLE"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
+			public Variable execute(Variable self, List<Object> arguments) {
 				double multiplier = ArgumentsHelper.getDouble(arguments.get(0));
 				set(GET() * multiplier);
 				return DoubleVariable.this;
@@ -286,7 +286,7 @@ public class DoubleVariable extends Variable {
 				"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
+			public Variable execute(Variable self, List<Object> arguments) {
 				if(getAttribute("DEFAULT") != null) {
 					set(getAttribute("DEFAULT").getValue());
 				}
@@ -306,7 +306,7 @@ public class DoubleVariable extends Variable {
 				"DOUBLE"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
+			public Variable execute(Variable self, List<Object> arguments) {
 				set(ArgumentsHelper.getDouble(arguments.get(0)));
 				return DoubleVariable.this;
 			}
@@ -316,14 +316,14 @@ public class DoubleVariable extends Variable {
 				"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
+			public Variable execute(Variable self, List<Object> arguments) {
 				int sgn = 0;
-				if(GET() > 0) {
+				if(((DoubleVariable) self).GET() > 0) {
 					sgn = 1;
-				} else if(GET() < 0) {
+				} else if(((DoubleVariable) self).GET() < 0) {
 					sgn = -1;
 				}
-				return new IntegerVariable("SGN", sgn, context);
+				return new IntegerVariable("SGN", sgn, self.getContext());
 			}
 		});
 		this.setMethod("SINUS", new Method(
@@ -333,7 +333,7 @@ public class DoubleVariable extends Variable {
 				"DOUBLE"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
+			public Variable execute(Variable self, List<Object> arguments) {
 				double angle = ArgumentsHelper.getDouble(arguments.get(0));
 
 				double sinRadians = Math.sin((float) Math.toRadians(angle));
@@ -349,7 +349,7 @@ public class DoubleVariable extends Variable {
 				"DOUBLE"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
+			public Variable execute(Variable self, List<Object> arguments) {
 				double value = arguments.isEmpty() ? GET() : ArgumentsHelper.getDouble(arguments.get(0));
 				set(Math.sqrt(value));
 				return DoubleVariable.this;
@@ -362,7 +362,7 @@ public class DoubleVariable extends Variable {
 				"DOUBLE"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
+			public Variable execute(Variable self, List<Object> arguments) {
 				double value = ArgumentsHelper.getDouble(arguments.get(0));
 				set(GET() - value);
 				return DoubleVariable.this;
@@ -376,7 +376,7 @@ public class DoubleVariable extends Variable {
 				"INTEGER"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
+			public Variable execute(Variable self, List<Object> arguments) {
 				double val1 = ArgumentsHelper.getDouble(arguments.get(0));
 				double val2 = ArgumentsHelper.getDouble(arguments.get(1));
 

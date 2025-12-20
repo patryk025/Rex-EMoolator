@@ -96,46 +96,46 @@ public class BehaviourVariable extends Variable {
 				"mixed"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
+			public Variable execute(Variable self, List<Object> arguments) {
 				if(arguments == null) {
 					arguments = List.of();
 				}
 
-				if(interpreter == null) {
+				if(((BehaviourVariable) self).interpreter == null) {
 					Gdx.app.error("BehaviourVariable", "Interpreter is null");
 					return null;
 				}
 
 				// lets backup old arguments
 				HashMap<String, Variable> backupVariables = new HashMap<>();
-				for(String key : context.getVariables().keySet()) {
+				for(String key : self.getContext().getVariables().keySet()) {
 					if(key.startsWith("$")) {
-						backupVariables.put(key, context.getVariable(key));
+						backupVariables.put(key, self.getContext().getVariable(key));
 					}
 				}
 
 				for(int i = 0; i < arguments.size(); i++) {
-					context.setVariable("$"+(i+1), prepareArgument((Variable) arguments.get(i)));
+					self.getContext().setVariable("$"+(i+1), prepareArgument((Variable) arguments.get(i)));
 				}
 
-				Gdx.app.log("BehaviourVariable", "Running behaviour " + getName() + " with " + arguments.size() + " arguments");
+				Gdx.app.log("BehaviourVariable", "Running behaviour " + self.getName() + " with " + arguments.size() + " arguments");
 
 				for(int i = 0; i < arguments.size(); i++) {
 					Gdx.app.log("BehaviourVariable", "Argument " + (i+1) + ": " + arguments.get(i));
 				}
 
-				interpreter.interpret();
+				((BehaviourVariable) self).interpreter.interpret();
 
 				for(int i = 0; i < arguments.size(); i++) {
-					context.removeVariable("$"+(i+1));
+					self.getContext().removeVariable("$"+(i+1));
 				}
 
 				// restore old arguments
 				for(String key : backupVariables.keySet()) {
-					context.setVariable(key, backupVariables.get(key));
+					self.getContext().setVariable(key, backupVariables.get(key));
 				}
 
-				return (Variable) interpreter.getReturnValue();
+				return (Variable) ((BehaviourVariable) self).interpreter.getReturnValue();
 			}
 		});
 		this.setMethod("RUNC", new Method(
@@ -145,21 +145,21 @@ public class BehaviourVariable extends Variable {
 				"mixed"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
-				Variable conditionResult = new BoolVariable("", true, context);
+			public Variable execute(Variable self, List<Object> arguments) {
+				Variable conditionResult = new BoolVariable("", true, self.getContext());
 
-				if(condition != null) {
-					conditionResult = condition.fireMethod("CHECK", new BoolVariable("", true, context));
+				if(((BehaviourVariable) self).condition != null) {
+					conditionResult = ((BehaviourVariable) self).condition.fireMethod("CHECK", new BoolVariable("", true, self.getContext()));
 				}
 				else {
-					if(getAttribute("CONDITION") != null) {
-						Attribute attribute = getAttribute("CONDITION");
-						Variable variable = context.getVariable(attribute.getValue().toString());
+					if(self.getAttribute("CONDITION") != null) {
+						Attribute attribute = self.getAttribute("CONDITION");
+						Variable variable = self.getContext().getVariable(attribute.getValue().toString());
 						if(variable != null) {
 							if(variable instanceof ConditionVariable) {
-								condition = (ConditionVariable) variable;
+								((BehaviourVariable) self).condition = (ConditionVariable) variable;
 
-								conditionResult = condition.fireMethod("CHECK", new BoolVariable("", true, context));
+								conditionResult = ((BehaviourVariable) self).condition.fireMethod("CHECK", new BoolVariable("", true, self.getContext()));
 							}
 							else {
 								Gdx.app.error("BehaviourVariable", "Variable " + attribute.getValue().toString() + " is not a condition variable");
@@ -170,13 +170,13 @@ public class BehaviourVariable extends Variable {
 						}
 					}
 					else {
-						Gdx.app.error("BehaviourVariable", "Condition variable not set in behaviour " + getName() + ". Assume true?");
+						Gdx.app.error("BehaviourVariable", "Condition variable not set in behaviour " + self.getName() + ". Assume true?");
 					}
 				}
 
 				boolean result = ArgumentsHelper.getBoolean(conditionResult);
 
-				Gdx.app.log("BehaviourVariable", "RUNC in behaviour " + getName() + " condition result: " + result);
+				Gdx.app.log("BehaviourVariable", "RUNC in behaviour " + self.getName() + " condition result: " + result);
 
 				if(!result) {
 					return null;
@@ -186,42 +186,42 @@ public class BehaviourVariable extends Variable {
 					arguments = List.of();
 				}
 
-				if(interpreter == null) {
+				if(((BehaviourVariable) self).interpreter == null) {
 					Gdx.app.error("BehaviourVariable", "Interpreter is null");
 					return null;
 				}
 
 				// lets backup old arguments
 				HashMap<String, Variable> backupVariables = new HashMap<>();
-				for(String key : context.getVariables().keySet()) {
+				for(String key : self.getContext().getVariables().keySet()) {
 					if(key.startsWith("$")) {
-						backupVariables.put(key, context.getVariable(key));
+						backupVariables.put(key, self.getContext().getVariable(key));
 					}
 				}
 
 				for(int i = 0; i < arguments.size(); i++) {
 					// try to resolve variable
-					context.setVariable("$"+(i+1), prepareArgument((Variable) arguments.get(i)));
+					self.getContext().setVariable("$"+(i+1), prepareArgument((Variable) arguments.get(i)));
 				}
 
-				Gdx.app.log("BehaviourVariable", "Running behaviour " + getName() + " with " + arguments.size() + " arguments");
+				Gdx.app.log("BehaviourVariable", "Running behaviour " + self.getName() + " with " + arguments.size() + " arguments");
 
 				for(int i = 0; i < arguments.size(); i++) {
 					Gdx.app.log("BehaviourVariable", "Argument " + (i+1) + ": " + arguments.get(i));
 				}
 
-				interpreter.interpret();
+				((BehaviourVariable) self).interpreter.interpret();
 
 				for(int i = 0; i < arguments.size(); i++) {
-					context.removeVariable("$"+(i+1));
+					self.getContext().removeVariable("$"+(i+1));
 				}
 
 				// restore old arguments
 				for(String key : backupVariables.keySet()) {
-					context.setVariable(key, backupVariables.get(key));
+					self.getContext().setVariable(key, backupVariables.get(key));
 				}
 
-				return (Variable) interpreter.getReturnValue();
+				return (Variable) ((BehaviourVariable) self).interpreter.getReturnValue();
 			}
 		});
 		this.setMethod("RUNLOOPED", new Method(
@@ -234,7 +234,7 @@ public class BehaviourVariable extends Variable {
 				"mixed"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
+			public Variable execute(Variable self, List<Object> arguments) {
 				int startVal = ArgumentsHelper.getInteger(arguments.get(0));
 				int endDiff = ArgumentsHelper.getInteger(arguments.get(1));
 				int incrementBy = 1;
@@ -242,20 +242,20 @@ public class BehaviourVariable extends Variable {
 					incrementBy = ArgumentsHelper.getInteger(arguments.get(2));
 				}
 
-				if(interpreter == null) {
+				if(((BehaviourVariable) self).interpreter == null) {
 					Gdx.app.error("BehaviourVariable", "Interpreter is null");
 					return null;
 				}
 
 				Variable conditionResult;
 
-				if(condition == null) {
-					if(getAttribute("CONDITION") != null) {
-						Attribute attribute = getAttribute("CONDITION");
-						Variable variable = context.getVariable(attribute.getValue().toString());
+				if(((BehaviourVariable) self).condition == null) {
+					if(self.getAttribute("CONDITION") != null) {
+						Attribute attribute = self.getAttribute("CONDITION");
+						Variable variable = self.getContext().getVariable(attribute.getValue().toString());
 						if(variable != null) {
 							if(variable instanceof ConditionVariable) {
-								condition = (ConditionVariable) variable;
+								((BehaviourVariable) self).condition = (ConditionVariable) variable;
 							}
 							else {
 								Gdx.app.error("BehaviourVariable", "Variable " + attribute.getValue().toString() + " is not a condition variable");
@@ -269,20 +269,20 @@ public class BehaviourVariable extends Variable {
 
 				// let's backup old arguments
 				HashMap<String, Variable> backupVariables = new HashMap<>();
-				for(String key : context.getVariables().keySet()) {
+				for(String key : self.getContext().getVariables().keySet()) {
 					if(key.startsWith("$")) {
-						backupVariables.put(key, context.getVariable(key));
+						backupVariables.put(key, self.getContext().getVariable(key));
 					}
 				}
 
 				if(arguments.size() > 3) {
 					for(int i = 3; i < arguments.size(); i++) {
 						// try to resolve variable
-						context.setVariable("$"+i, prepareArgument((Variable) arguments.get(i)));
+						self.getContext().setVariable("$"+i, prepareArgument((Variable) arguments.get(i)));
 					}
 				}
 
-				Gdx.app.log("BehaviourVariable", "Running looped behaviour " + getName() + " with " + (arguments.size() - 2) + " arguments");
+				Gdx.app.log("BehaviourVariable", "Running looped behaviour " + self.getName() + " with " + (arguments.size() - 2) + " arguments");
 
 				Gdx.app.log("BehaviourVariable", "Argument 1: "+startVal);
 				Gdx.app.log("BehaviourVariable", "Argument 2: "+incrementBy);
@@ -292,35 +292,35 @@ public class BehaviourVariable extends Variable {
 
 				for (int i = startVal; i < startVal + endDiff; i += incrementBy) {
 					try {
-						if (condition != null) {
-							conditionResult = condition.fireMethod("CHECK", new BoolVariable("", true, context));
+						if (((BehaviourVariable) self).condition != null) {
+							conditionResult = ((BehaviourVariable) self).condition.fireMethod("CHECK", new BoolVariable("", true, self.getContext()));
 						} else {
-							conditionResult = new BoolVariable("", true, context);
+							conditionResult = new BoolVariable("", true, self.getContext());
 						}
 						if (ArgumentsHelper.getBoolean(conditionResult)) {
-							context.setVariable("$1", new IntegerVariable("_I_", i, context));
-							context.setVariable("$2", new IntegerVariable("_step_", incrementBy, context));
-							interpreter.interpret();
+							self.getContext().setVariable("$1", new IntegerVariable("_I_", i, self.getContext()));
+							self.getContext().setVariable("$2", new IntegerVariable("_step_", incrementBy, self.getContext()));
+							((BehaviourVariable) self).interpreter.interpret();
 						} else {
-							Gdx.app.log("BehaviourVariable", "Skipping looped behaviour " + getName() + " at " + i + " due to condition " + condition.getName() + " result");
+							Gdx.app.log("BehaviourVariable", "Skipping looped behaviour " + self.getName() + " at " + i + " due to condition " + ((BehaviourVariable) self).condition.getName() + " result");
 						}
 					}
 					catch (BreakException e) {
-						Gdx.app.log("BehaviourVariable", "Breaking looped behaviour " + getName() + " at " + i + " due to break");
+						Gdx.app.log("BehaviourVariable", "Breaking looped behaviour " + self.getName() + " at " + i + " due to break");
 						break;
 					}
 					catch (OneBreakException e) {
-						Gdx.app.log("BehaviourVariable", "Behaviour " + getName() + " has one break at " + i + ". Continuing loop");
+						Gdx.app.log("BehaviourVariable", "Behaviour " + self.getName() + " has one break at " + i + ". Continuing loop");
 					}
 				}
 
 				for(int i = 1; i < arguments.size() - 1; i++) {
-					context.removeVariable("$"+i);
+					self.getContext().removeVariable("$"+i);
 				}
 
 				// restore old arguments
 				for(String key : backupVariables.keySet()) {
-					context.setVariable(key, backupVariables.get(key));
+					self.getContext().setVariable(key, backupVariables.get(key));
 				}
 
 				return null;

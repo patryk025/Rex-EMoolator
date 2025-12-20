@@ -141,33 +141,37 @@ public class SequenceVariable extends Variable {
 
 		this.setMethod("GETEVENTNAME", new Method("STRING") {
 			@Override
-			public Variable execute(List<Object> arguments) {
-				if (currentEvent != null) {
-					return new StringVariable("", currentEvent.name, context);
+			public Variable execute(Variable self, List<Object> arguments) {
+				SequenceVariable selfVar = (SequenceVariable) self;
+				if (selfVar.currentEvent != null) {
+					return new StringVariable("", selfVar.currentEvent.name, selfVar.getContext());
 				}
-				return new StringVariable("", "", context);
+				return new StringVariable("", "", selfVar.getContext());
 			}
 		});
 
 		this.setMethod("HIDE", new Method("void") {
 			@Override
-			public Variable execute(List<Object> arguments) {
-				hideSequence();
+			public Variable execute(Variable self, List<Object> arguments) {
+				SequenceVariable selfVar = (SequenceVariable) self;
+				selfVar.hideSequence();
 				return null;
 			}
 		});
 
 		this.setMethod("ISPLAYING", new Method("BOOL") {
 			@Override
-			public Variable execute(List<Object> arguments) {
-				return new BoolVariable("", isPlaying, context);
+			public Variable execute(Variable self, List<Object> arguments) {
+				SequenceVariable selfVar = (SequenceVariable) self;
+				return new BoolVariable("", selfVar.isPlaying, selfVar.getContext());
 			}
 		});
 
 		this.setMethod("PAUSE", new Method("void") {
 			@Override
-			public Variable execute(List<Object> arguments) {
-				pauseSequence();
+			public Variable execute(Variable self, List<Object> arguments) {
+				SequenceVariable selfVar = (SequenceVariable) self;
+				selfVar.pauseSequence();
 				return null;
 			}
 		});
@@ -176,25 +180,28 @@ public class SequenceVariable extends Variable {
 				List.of(new Parameter("STRING", "eventName", true)),
 				"void") {
 			@Override
-			public Variable execute(List<Object> arguments) {
+			public Variable execute(Variable self, List<Object> arguments) {
+				SequenceVariable selfVar = (SequenceVariable) self;
 				String eventName = ArgumentsHelper.getString(arguments.get(0));
-				playEvent(eventName);
+				selfVar.playEvent(eventName);
 				return null;
 			}
 		});
 
 		this.setMethod("RESUME", new Method("void") {
 			@Override
-			public Variable execute(List<Object> arguments) {
-				resumeSequence();
+			public Variable execute(Variable self, List<Object> arguments) {
+				SequenceVariable selfVar = (SequenceVariable) self;
+				selfVar.resumeSequence();
 				return null;
 			}
 		});
 
 		this.setMethod("SHOW", new Method("void") {
 			@Override
-			public Variable execute(List<Object> arguments) {
-				showSequence();
+			public Variable execute(Variable self, List<Object> arguments) {
+				SequenceVariable selfVar = (SequenceVariable) self;
+				selfVar.showSequence();
 				return null;
 			}
 		});
@@ -203,9 +210,10 @@ public class SequenceVariable extends Variable {
 				List.of(new Parameter("BOOL", "emitSignal", false)),
 				"void") {
 			@Override
-			public Variable execute(List<Object> arguments) {
+			public Variable execute(Variable self, List<Object> arguments) {
+				SequenceVariable selfVar = (SequenceVariable) self;
 				boolean emitSignal = !arguments.isEmpty() && ArgumentsHelper.getBoolean(arguments.get(0));
-				stopSequence(emitSignal);
+				selfVar.stopSequence(emitSignal);
 				return null;
 			}
 		});

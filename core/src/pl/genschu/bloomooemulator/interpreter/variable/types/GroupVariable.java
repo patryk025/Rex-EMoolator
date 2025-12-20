@@ -36,10 +36,10 @@ public class GroupVariable extends Variable {
 				"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
+			public Variable execute(Variable self, List<Object> arguments) {
 				for(Object argument : arguments) {
-					Variable variable = context.getVariable(ArgumentsHelper.getString(argument));
-					variables.add(variable);
+					Variable variable = self.getContext().getVariable(ArgumentsHelper.getString(argument));
+					((GroupVariable) self).variables.add(variable);
 				}
 				return null;
 			}
@@ -53,7 +53,7 @@ public class GroupVariable extends Variable {
 				"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
+			public Variable execute(Variable self, List<Object> arguments) {
 				// TODO: implement this method
 				throw new ClassMethodNotImplementedException("Method ADDCLONES is not implemented yet");
 			}
@@ -62,30 +62,30 @@ public class GroupVariable extends Variable {
 				"INTEGER"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
-				return new IntegerVariable("", variables.size(), context);
+			public Variable execute(Variable self, List<Object> arguments) {
+				return new IntegerVariable("", ((GroupVariable) self).variables.size(), self.getContext());
 			}
 		});
 		this.setMethod("NEXT", new Method(
 				"mixed"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
-				if(marker < variables.size()-1) {
-					return variables.toArray(new Variable[0])[++marker];
+			public Variable execute(Variable self, List<Object> arguments) {
+				if(((GroupVariable) self).marker < ((GroupVariable) self).variables.size()-1) {
+					return ((GroupVariable) self).variables.toArray(new Variable[0])[++((GroupVariable) self).marker];
 				}
-				return variables.toArray(new Variable[0])[marker];
+				return ((GroupVariable) self).variables.toArray(new Variable[0])[((GroupVariable) self).marker];
 			}
 		});
 		this.setMethod("PREV", new Method(
 				"mixed"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
-				if(marker > 0) {
-					return variables.toArray(new Variable[0])[--marker];
+			public Variable execute(Variable self, List<Object> arguments) {
+				if(((GroupVariable) self).marker > 0) {
+					return ((GroupVariable) self).variables.toArray(new Variable[0])[--((GroupVariable) self).marker];
 				}
-				return variables.toArray(new Variable[0])[marker];
+				return ((GroupVariable) self).variables.toArray(new Variable[0])[((GroupVariable) self).marker];
 			}
 		});
 		this.setMethod("REMOVE", new Method(
@@ -95,12 +95,12 @@ public class GroupVariable extends Variable {
 				"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
+			public Variable execute(Variable self, List<Object> arguments) {
 				String varName = ArgumentsHelper.getString(arguments.get(0));
 
-				for(Variable variable : variables) {
+				for(Variable variable : ((GroupVariable) self).variables) {
 					if(variable.getName().equals(varName)) {
-						variables.remove(variable);
+						((GroupVariable) self).variables.remove(variable);
 						return null;
 					}
 				}
@@ -111,8 +111,8 @@ public class GroupVariable extends Variable {
 				"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
-				variables.clear();
+			public Variable execute(Variable self, List<Object> arguments) {
+				((GroupVariable) self).variables.clear();
 				return null;
 			}
 		});
@@ -120,12 +120,12 @@ public class GroupVariable extends Variable {
 				"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
-				if(!variables.isEmpty()) {
-					marker = 0;
+			public Variable execute(Variable self, List<Object> arguments) {
+				if(!((GroupVariable) self).variables.isEmpty()) {
+					((GroupVariable) self).marker = 0;
 				}
 				else {
-					marker = -1;
+					((GroupVariable) self).marker = -1;
 				}
 
 				return null;
@@ -142,11 +142,11 @@ public class GroupVariable extends Variable {
 			return new Method("void") {
 
 				@Override
-				public Variable execute(List<Object> arguments) {
-					for(Variable variable : variables) {
+				public Variable execute(Variable self, List<Object> arguments) {
+					for(Variable variable : ((GroupVariable) self).variables) {
 						try {
 							Gdx.app.log("GroupVariable", "Firing method " + name + " on variable " + variable.getName());
-							variable.getMethod(name, paramTypes).execute(arguments);
+							variable.getMethod(name, paramTypes).execute(variable, arguments);
 						} catch (ClassMethodNotFoundException | ClassMethodNotImplementedException ignored) {
 							// nothing to do
 							Gdx.app.log("GroupVariable", "Method " + name + " not found on variable " + variable.getName()+". Ignoring it.");

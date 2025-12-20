@@ -41,8 +41,9 @@ public class SceneVariable extends Variable {
 				"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
-				return new IntegerVariable("", getMinHotSpotZ(), getContext());
+			public Variable execute(Variable self, List<Object> arguments) {
+				SceneVariable selfVar = (SceneVariable) self;
+				return new IntegerVariable("", selfVar.getMinHotSpotZ(), selfVar.getContext());
 			}
 		});
 		this.setMethod("GETMAXHSPRIORITY", new Method(
@@ -50,8 +51,9 @@ public class SceneVariable extends Variable {
 				"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
-				return new IntegerVariable("", getMaxHotSpotZ(), getContext());
+			public Variable execute(Variable self, List<Object> arguments) {
+				SceneVariable selfVar = (SceneVariable) self;
+				return new IntegerVariable("", selfVar.getMaxHotSpotZ(), selfVar.getContext());
 			}
 		});
 		this.setMethod("GETPLAYINGANIMO", new Method(
@@ -61,14 +63,15 @@ public class SceneVariable extends Variable {
 				"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
-				Variable groupVariable = getContext().getVariable(ArgumentsHelper.getString(arguments.get(0)));
+			public Variable execute(Variable self, List<Object> arguments) {
+				SceneVariable selfVar = (SceneVariable) self;
+				Variable groupVariable = selfVar.getContext().getVariable(ArgumentsHelper.getString(arguments.get(0)));
 
 				if(groupVariable instanceof GroupVariable) {
 					GroupVariable group = (GroupVariable) groupVariable;
 					group.variables.clear();
 
-					Collection<Variable> drawList = getContext().getGraphicsVariables().values();
+					Collection<Variable> drawList = selfVar.getContext().getGraphicsVariables().values();
 					for(Variable variable : drawList) {
 						if(variable instanceof AnimoVariable) {
 							AnimoVariable animo = (AnimoVariable) variable;
@@ -88,12 +91,13 @@ public class SceneVariable extends Variable {
 				"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
-				if(music != null) {
-					music.pause();
+			public Variable execute(Variable self, List<Object> arguments) {
+				SceneVariable selfVar = (SceneVariable) self;
+				if(selfVar.music != null) {
+					selfVar.music.pause();
 				}
 
-				Collection<Variable> graphicsVariables = getContext().getGraphicsVariables().values();
+				Collection<Variable> graphicsVariables = selfVar.getContext().getGraphicsVariables().values();
 				for (Variable variable : graphicsVariables) {
 					if (variable instanceof AnimoVariable) {
 						AnimoVariable animo = (AnimoVariable) variable;
@@ -114,22 +118,23 @@ public class SceneVariable extends Variable {
 				"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
+			public Variable execute(Variable self, List<Object> arguments) {
+				SceneVariable selfVar = (SceneVariable) self;
 				String varName = ArgumentsHelper.getString(arguments.get(0));
 				int firstId = ArgumentsHelper.getInteger(arguments.get(1));
 				int lastId = ArgumentsHelper.getInteger(arguments.get(2));
 
-				Variable variable = getContext().getVariable(varName);
+				Variable variable = selfVar.getContext().getVariable(varName);
 				if(variable == null) {
 					Gdx.app.error("SceneVariable", "Variable " + varName + " not found");
 					return null;
 				}
 				List<Variable> clones = variable.getClones();
 				for(Variable clone : clones) {
-					int id = Integer.parseInt(getName().substring(getName().lastIndexOf("_") + 1));
+					int id = Integer.parseInt(selfVar.getName().substring(selfVar.getName().lastIndexOf("_") + 1));
 					if(id >= firstId && id <= lastId) {
 						clones.remove(clone);
-						getContext().removeVariable(clone.getName());
+						selfVar.getContext().removeVariable(clone.getName());
 					}
 				}
 				return null;
@@ -139,10 +144,11 @@ public class SceneVariable extends Variable {
 				"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
-				if(music != null) {
-					music.setVolume(musicVolume);
-					music.play();
+			public Variable execute(Variable self, List<Object> arguments) {
+				SceneVariable selfVar = (SceneVariable) self;
+				if(selfVar.music != null) {
+					selfVar.music.setVolume(selfVar.musicVolume);
+					selfVar.music.play();
 				}
 				return null;
 			}
@@ -154,8 +160,9 @@ public class SceneVariable extends Variable {
 				"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
-				Variable groupVariable = getContext().getVariable(ArgumentsHelper.getString(arguments.get(0)));
+			public Variable execute(Variable self, List<Object> arguments) {
+				SceneVariable selfVar = (SceneVariable) self;
+				Variable groupVariable = selfVar.getContext().getVariable(ArgumentsHelper.getString(arguments.get(0)));
 
 				if(groupVariable instanceof GroupVariable) {
 					GroupVariable group = (GroupVariable) groupVariable;
@@ -178,7 +185,7 @@ public class SceneVariable extends Variable {
 				"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
+			public Variable execute(Variable self, List<Object> arguments) {
 				String varName = ArgumentsHelper.getString(arguments.get(0));
 				String methodName = ArgumentsHelper.getString(arguments.get(1));
 				Object[] params = new Object[arguments.size() - 2];
@@ -211,7 +218,7 @@ public class SceneVariable extends Variable {
 				"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
+			public Variable execute(Variable self, List<Object> arguments) {
 				String varName = ArgumentsHelper.getString(arguments.get(0));
 				int firstIndex = ArgumentsHelper.getInteger(arguments.get(1));
 				int lastIndex = ArgumentsHelper.getInteger(arguments.get(2));
@@ -258,9 +265,10 @@ public class SceneVariable extends Variable {
 				"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
+			public Variable execute(Variable self, List<Object> arguments) {
+				SceneVariable selfVar = (SceneVariable) self;
 				int minHSPriority = ArgumentsHelper.getInteger(arguments.get(0));
-				setMinHotSpotZ(minHSPriority);
+				selfVar.setMinHotSpotZ(minHSPriority);
 				return null;
 			}
 		});
@@ -271,9 +279,10 @@ public class SceneVariable extends Variable {
 				"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
+			public Variable execute(Variable self, List<Object> arguments) {
+				SceneVariable selfVar = (SceneVariable) self;
 				int maxHSPriority = ArgumentsHelper.getInteger(arguments.get(0));
-				setMaxHotSpotZ(maxHSPriority);
+				selfVar.setMaxHotSpotZ(maxHSPriority);
 				return null;
 			}
 		});
@@ -284,10 +293,11 @@ public class SceneVariable extends Variable {
 				"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
-	            musicVolume = ArgumentsHelper.getInteger(arguments.get(0));
-				if(music != null) {
-					music.setVolume(musicVolume / 1000.0f);
+			public Variable execute(Variable self, List<Object> arguments) {
+				SceneVariable selfVar = (SceneVariable) self;
+	            selfVar.musicVolume = ArgumentsHelper.getInteger(arguments.get(0));
+				if(selfVar.music != null) {
+					selfVar.music.setVolume(selfVar.musicVolume / 1000.0f);
 				}
 				return null;
 			}
@@ -299,18 +309,19 @@ public class SceneVariable extends Variable {
 				"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
-				if(music != null) {
-					if(music.isPlaying()) {
-						music.stop();
-						music = null;
+			public Variable execute(Variable self, List<Object> arguments) {
+				SceneVariable selfVar = (SceneVariable) self;
+				if(selfVar.music != null) {
+					if(selfVar.music.isPlaying()) {
+						selfVar.music.stop();
+						selfVar.music = null;
 					}
 				}
-				setAttribute("MUSIC", new Attribute("STRING", ArgumentsHelper.getString(arguments.get(0))));
-				getMusic();
-				music.setLooping(true);
-				music.setVolume(musicVolume / 1000.0f);
-				music.play();
+				selfVar.setAttribute("MUSIC", new Attribute("STRING", ArgumentsHelper.getString(arguments.get(0))));
+				selfVar.getMusic();
+				selfVar.music.setLooping(true);
+				selfVar.music.setVolume(selfVar.musicVolume / 1000.0f);
+				selfVar.music.play();
 				return null;
 			}
 		});

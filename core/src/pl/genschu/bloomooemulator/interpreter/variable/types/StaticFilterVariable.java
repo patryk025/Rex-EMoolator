@@ -41,11 +41,12 @@ public class StaticFilterVariable extends Variable {
 				"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
+			public Variable execute(Variable self, List<Object> arguments) {
+				StaticFilterVariable selfVar = (StaticFilterVariable) self;
 				String propertyName = ArgumentsHelper.getString(arguments.get(0));
 				Object propertyValue = arguments.get(1);
 
-				properties.put(propertyName, propertyValue);
+				selfVar.properties.put(propertyName, propertyValue);
 
 				return null;
 			}
@@ -58,9 +59,10 @@ public class StaticFilterVariable extends Variable {
 				"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
+			public Variable execute(Variable self, List<Object> arguments) {
+				StaticFilterVariable selfVar = (StaticFilterVariable) self;
 				String objectName = ArgumentsHelper.getString(arguments.get(0));
-				Variable object = context.getVariable(objectName);
+				Variable object = selfVar.getContext().getVariable(objectName);
 
 				if (object == null) {
 					Gdx.app.error("StaticFilterVariable", "Object not found: " + objectName);
@@ -72,13 +74,13 @@ public class StaticFilterVariable extends Variable {
 					return null;
 				}
 
-				Filter filter = createFilterFromAction(action);
+				Filter filter = selfVar.createFilterFromAction(selfVar.action);
 				if (filter == null) {
-					Gdx.app.error("StaticFilterVariable", "Failed to create filter for action: " + action);
+					Gdx.app.error("StaticFilterVariable", "Failed to create filter for action: " + selfVar.action);
 					return null;
 				}
 
-				for (Map.Entry<String, Object> entry : properties.entrySet()) {
+				for (Map.Entry<String, Object> entry : selfVar.properties.entrySet()) {
 					filter.setProperty(entry.getKey(), entry.getValue());
 				}
 
@@ -88,7 +90,7 @@ public class StaticFilterVariable extends Variable {
 					((AnimoVariable) object).addFilter(filter);
 				}
 
-				linkedFilters.put(object, filter);
+				selfVar.linkedFilters.put(object, filter);
 
 				return null;
 			}
@@ -101,15 +103,16 @@ public class StaticFilterVariable extends Variable {
 				"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
+			public Variable execute(Variable self, List<Object> arguments) {
+				StaticFilterVariable selfVar = (StaticFilterVariable) self;
 				String objectName = ArgumentsHelper.getString(arguments.get(0));
-				Variable object = context.getVariable(objectName);
+				Variable object = selfVar.getContext().getVariable(objectName);
 
 				if (object == null) {
 					return null;
 				}
 
-				Filter filter = linkedFilters.get(object);
+				Filter filter = selfVar.linkedFilters.get(object);
 				if (filter == null) {
 					return null;
 				}
@@ -120,7 +123,7 @@ public class StaticFilterVariable extends Variable {
 					((AnimoVariable) object).removeFilter(filter);
 				}
 
-				linkedFilters.remove(object);
+				selfVar.linkedFilters.remove(object);
 
 				return null;
 			}

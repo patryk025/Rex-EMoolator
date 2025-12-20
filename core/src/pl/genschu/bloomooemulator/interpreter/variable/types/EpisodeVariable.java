@@ -36,8 +36,8 @@ public class EpisodeVariable extends Variable {
 				"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
-				context.getGame().goToPreviousScene();
+			public Variable execute(Variable self, List<Object> arguments) {
+				self.getContext().getGame().goToPreviousScene();
 				return null;
 			}
 		});
@@ -45,18 +45,18 @@ public class EpisodeVariable extends Variable {
 				"STRING"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
-				String currentScene = context.getGame().getCurrentScene();
-				return VariableFactory.createVariable("STRING", null, currentScene, getContext());
+			public Variable execute(Variable self, List<Object> arguments) {
+				String currentScene = self.getContext().getGame().getCurrentScene();
+				return VariableFactory.createVariable("STRING", null, currentScene, self.getContext());
 			}
 		});
 		this.setMethod("GETLATESTSCENE", new Method(
 				"STRING"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
-				String previousScene = context.getGame().getPreviousScene();
-				return VariableFactory.createVariable("STRING", null, previousScene, getContext());
+			public Variable execute(Variable self, List<Object> arguments) {
+				String previousScene = self.getContext().getGame().getPreviousScene();
+				return VariableFactory.createVariable("STRING", null, previousScene, self.getContext());
 			}
 		});
 		this.setMethod("GOTO", new Method(
@@ -66,10 +66,10 @@ public class EpisodeVariable extends Variable {
 				"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
+			public Variable execute(Variable self, List<Object> arguments) {
 				String sceneName = ArgumentsHelper.getString(arguments.get(0));
 				Gdx.app.log("EpisodeVariable", "Goto " + sceneName);
-				context.getGame().goTo(sceneName);
+				self.getContext().getGame().goTo(sceneName);
 				return null;
 			}
 		});

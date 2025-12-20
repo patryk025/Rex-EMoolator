@@ -39,7 +39,7 @@ public class CNVLoaderVariable extends Variable {
 				"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
+			public Variable execute(Variable self, List<Object> arguments) {
 				String cnvFile = ArgumentsHelper.getString(arguments.get(0));
 				if (loadedContexts.containsKey(cnvFile)) { // TODO: check if stay intact or reload CNV
 					Gdx.app.log("CNVLoaderVariable", "CNV already loaded " + cnvFile);
@@ -78,7 +78,7 @@ public class CNVLoaderVariable extends Variable {
 				"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
+			public Variable execute(Variable self, List<Object> arguments) {
 				String cnvFile = ArgumentsHelper.getString(arguments.get(0));
 				if (!loadedContexts.containsKey(cnvFile)) {
 					Gdx.app.log("CNVLoaderVariable", "CNV not loaded " + cnvFile);

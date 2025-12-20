@@ -14,6 +14,9 @@ public class MouseVariable extends GlobalVariable {
 	private int posY;
 	private boolean emitSignals = true;
 
+	public int getPosX() { return posX; }
+	public int getPosY() { return posY; }
+
 	public MouseVariable(String name, Context context) {
 		super(name, context);
 	}
@@ -31,8 +34,9 @@ public class MouseVariable extends GlobalVariable {
 				"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
-				isEnabled = false;
+			public Variable execute(Variable self, List<Object> arguments) {
+				MouseVariable selfVar = (MouseVariable) self;
+				selfVar.setEnabled(false);
 				return null;
 			}
 		});
@@ -40,8 +44,9 @@ public class MouseVariable extends GlobalVariable {
 				"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
-				emitSignals = false;
+			public Variable execute(Variable self, List<Object> arguments) {
+				MouseVariable selfVar = (MouseVariable) self;
+				selfVar.setEmitSignals(false);
 				return null;
 			}
 		});
@@ -49,8 +54,9 @@ public class MouseVariable extends GlobalVariable {
 				"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
-				isEnabled = true;
+			public Variable execute(Variable self, List<Object> arguments) {
+				MouseVariable selfVar = (MouseVariable) self;
+				selfVar.setEnabled(true);
 				return null;
 			}
 		});
@@ -58,8 +64,9 @@ public class MouseVariable extends GlobalVariable {
 				"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
-				emitSignals = true;
+			public Variable execute(Variable self, List<Object> arguments) {
+				MouseVariable selfVar = (MouseVariable) self;
+				selfVar.setEmitSignals(true);
 				return null;
 			}
 		});
@@ -67,16 +74,18 @@ public class MouseVariable extends GlobalVariable {
 				"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
-				return new IntegerVariable("", posX, context);
+			public Variable execute(Variable self, List<Object> arguments) {
+				MouseVariable selfVar = (MouseVariable) self;
+				return new IntegerVariable("", selfVar.getPosX(), selfVar.getContext());
 			}
 		});
 		this.setMethod("GETPOSY", new Method(
 				"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
-				return new IntegerVariable("", posY, context);
+			public Variable execute(Variable self, List<Object> arguments) {
+				MouseVariable selfVar = (MouseVariable) self;
+				return new IntegerVariable("", selfVar.getPosY(), selfVar.getContext());
 			}
 		});
 		this.setMethod("SETPOSITION", new Method(
@@ -87,14 +96,15 @@ public class MouseVariable extends GlobalVariable {
 				"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
+			public Variable execute(Variable self, List<Object> arguments) {
+				MouseVariable selfVar = (MouseVariable) self;
 				int posX = ArgumentsHelper.getInteger(arguments.get(0));
 				int posY = ArgumentsHelper.getInteger(arguments.get(1));
 
 				posX = Math.max(0, Math.min(800, posX));
 				posY = Math.max(0, Math.min(600, posY));
 
-				update(posX, posY);
+				selfVar.update(posX, posY);
 				return null;
 			}
 		});
@@ -102,8 +112,9 @@ public class MouseVariable extends GlobalVariable {
 				"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
-				context.getGame().getInputManager().setMouseVisible(true);
+			public Variable execute(Variable self, List<Object> arguments) {
+				MouseVariable selfVar = (MouseVariable) self;
+				selfVar.getContext().getGame().getInputManager().setMouseVisible(true);
 				return null;
 			}
 		});
@@ -111,8 +122,9 @@ public class MouseVariable extends GlobalVariable {
 				"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
-				context.getGame().getInputManager().setMouseVisible(false);
+			public Variable execute(Variable self, List<Object> arguments) {
+				MouseVariable selfVar = (MouseVariable) self;
+				selfVar.getContext().getGame().getInputManager().setMouseVisible(false);
 				return null;
 			}
 		});

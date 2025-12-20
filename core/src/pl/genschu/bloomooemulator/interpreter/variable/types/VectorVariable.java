@@ -36,7 +36,8 @@ public class VectorVariable extends Variable {
 				"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
+			public Variable execute(Variable self, List<Object> arguments) {
+				VectorVariable selfVar = (VectorVariable) self;
 				if(arguments.size() != 1) {
 					Gdx.app.error("VectorVariable", "Method ADD requires 1 argument, got " + arguments.size() + " instead.");
 					return null;
@@ -47,7 +48,7 @@ public class VectorVariable extends Variable {
 				}
 				else if(arguments.get(0) instanceof StringVariable) {
 					String argString = ArgumentsHelper.getString(arguments.get(0));
-					Variable var = context.getVariable(argString);
+					Variable var = selfVar.getContext().getVariable(argString);
 					if(!(var instanceof VectorVariable)) {
 						Gdx.app.error("VectorVariable", "Method ADD requires VECTOR argument, got " + arguments.get(0).getClass().getSimpleName() + " instead.");
 						return null;
@@ -61,8 +62,8 @@ public class VectorVariable extends Variable {
 					return null;
 				}
 
-				for (int i = 0; i < size; i++) {
-					components[i] += otherVector.components[i];
+				for (int i = 0; i < selfVar.size; i++) {
+					selfVar.components[i] += otherVector.components[i];
 				}
 				return null;
 			}
@@ -74,19 +75,20 @@ public class VectorVariable extends Variable {
 				"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
-				if (arguments.size() > components.length) {
-					Gdx.app.log("VectorVariable", "Stretching vector from " + components.length + " to " + arguments.size() + " components.");
+			public Variable execute(Variable self, List<Object> arguments) {
+				VectorVariable selfVar = (VectorVariable) self;
+				if (arguments.size() > selfVar.components.length) {
+					Gdx.app.log("VectorVariable", "Stretching vector from " + selfVar.components.length + " to " + arguments.size() + " components.");
 					double[] newComponents = new double[arguments.size()];
-					System.arraycopy(components, 0, newComponents, 0, components.length);
-					for (int i = components.length; i < newComponents.length; i++) {
+					System.arraycopy(selfVar.components, 0, newComponents, 0, selfVar.components.length);
+					for (int i = selfVar.components.length; i < newComponents.length; i++) {
 						newComponents[i] = 0.0;
 					}
-					components = newComponents;
+					selfVar.components = newComponents;
 				}
 
 				for (int i = 0; i < arguments.size(); i++) {
-					components[i] = ArgumentsHelper.getDouble(arguments.get(i));
+					selfVar.components[i] = ArgumentsHelper.getDouble(arguments.get(i));
 				}
 				return null;
 			}
@@ -98,13 +100,14 @@ public class VectorVariable extends Variable {
 				"DOUBLE"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
+			public Variable execute(Variable self, List<Object> arguments) {
+				VectorVariable selfVar = (VectorVariable) self;
 				int index = ArgumentsHelper.getInteger(arguments.get(0));
 
-				if (index >= 0 && index < components.length) {
-					return new DoubleVariable("", components[index], context);
+				if (index >= 0 && index < selfVar.components.length) {
+					return new DoubleVariable("", selfVar.components[index], selfVar.getContext());
 				}
-				return new DoubleVariable("", 0.0, context);
+				return new DoubleVariable("", 0.0, selfVar.getContext());
 			}
 		});
 		this.setMethod("MUL", new Method(
@@ -114,11 +117,12 @@ public class VectorVariable extends Variable {
 				"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
+			public Variable execute(Variable self, List<Object> arguments) {
+				VectorVariable selfVar = (VectorVariable) self;
 				double scalar = ArgumentsHelper.getDouble(arguments.get(0));
 
-				for (int i = 0; i < size; i++) {
-					components[i] *= scalar;
+				for (int i = 0; i < selfVar.size; i++) {
+					selfVar.components[i] *= scalar;
 				}
 				return null;
 			}
@@ -127,12 +131,13 @@ public class VectorVariable extends Variable {
 				"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
-				double length = length();
+			public Variable execute(Variable self, List<Object> arguments) {
+				VectorVariable selfVar = (VectorVariable) self;
+				double length = selfVar.length();
 
 				if (length > 0) {
-					for (int i = 0; i < size; i++) {
-						components[i] /= length;
+					for (int i = 0; i < selfVar.size; i++) {
+						selfVar.components[i] /= length;
 					}
 				}
 				return null;
@@ -142,8 +147,9 @@ public class VectorVariable extends Variable {
 				"DOUBLE"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
-				return new DoubleVariable("", length(), context);
+			public Variable execute(Variable self, List<Object> arguments) {
+				VectorVariable selfVar = (VectorVariable) self;
+				return new DoubleVariable("", selfVar.length(), selfVar.getContext());
 			}
 		});
 		this.setMethod("REFLECT", new Method(
@@ -154,17 +160,18 @@ public class VectorVariable extends Variable {
 				"void"
 		) {
 			@Override
-			public Variable execute(List<Object> arguments) {
+			public Variable execute(Variable self, List<Object> arguments) {
+				VectorVariable selfVar = (VectorVariable) self;
 				VectorVariable normalVector = (VectorVariable) arguments.get(0);
 				VectorVariable resultVector = (VectorVariable) arguments.get(1);
 
 				double dotProduct = 0;
-				for (int i = 0; i < size; i++) {
-					dotProduct += components[i] * normalVector.components[i];
+				for (int i = 0; i < selfVar.size; i++) {
+					dotProduct += selfVar.components[i] * normalVector.components[i];
 				}
 
-				for (int i = 0; i < size; i++) {
-					resultVector.components[i] = 2 * dotProduct * normalVector.components[i] - components[i];
+				for (int i = 0; i < selfVar.size; i++) {
+					resultVector.components[i] = 2 * dotProduct * normalVector.components[i] - selfVar.components[i];
 				}
 				return null;
 			}
