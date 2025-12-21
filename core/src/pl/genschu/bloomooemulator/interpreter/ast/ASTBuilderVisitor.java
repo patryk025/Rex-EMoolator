@@ -156,18 +156,11 @@ public class ASTBuilderVisitor extends AidemMediaParserBaseVisitor<Node> {
                     falseBranch = parseCodeArg(args.get(2));
                 } else {
                     // @IF(left, operator, right, codeTrue, codeFalse)
-                    Expression left = args.get(0);
+                    Expression left = parseStringExpressionArg(args.get(0));
                     Expression operatorExpr = args.get(1);
-                    Expression right = args.get(2);
+                    Expression right = parseStringExpressionArg(args.get(2));
 
                     String operator = operatorExpr.evaluate(context).toString();
-
-                    if (left instanceof ConstantExpression) {
-                        left = new VariableExpression(left);
-                    }
-                    if (right instanceof ConstantExpression) {
-                        right = new VariableExpression(right);
-                    }
 
                     cond = new ConditionExpression(left, right, operator);
                     trueBranch = parseCodeArg(args.get(3));
@@ -431,6 +424,10 @@ public class ASTBuilderVisitor extends AidemMediaParserBaseVisitor<Node> {
         List<Expression> tokens = new ArrayList<>();
         StringBuilder current = new StringBuilder();
 
+        int parenDepth = 0;
+        int bracketDepth = 0;
+        boolean inString = false;
+
         String[] ops = {
                 "&&", "||",
                 "!'",
@@ -444,11 +441,46 @@ public class ASTBuilderVisitor extends AidemMediaParserBaseVisitor<Node> {
         while (i < input.length()) {
             char c = input.charAt(i);
 
+            if (c == '"' && (i == 0 || input.charAt(i - 1) != '\\')) {
+                inString = !inString;
+                current.append(c);
+                i++;
+                continue;
+            }
+
+            if (inString) {
+                current.append(c);
+                i++;
+                continue;
+            }
+
+            if (bracketDepth > 0 || parenDepth > 0) {
+                if (c == '[') {
+                    bracketDepth++;
+                } else if (c == ']') {
+                    bracketDepth--;
+                } else if (c == '(') {
+                    parenDepth++;
+                } else if (c == ')') {
+                    parenDepth--;
+                }
+                current.append(c);
+                i++;
+                continue;
+            }
+
+            if (c == '[') {
+                bracketDepth = 1;
+                current.append(c);
+                i++;
+                continue;
+            }
+
             if (Character.isWhitespace(c)) {
                 if (current.length() > 0) {
                     String operand = current.toString().trim();
                     if (!operand.isEmpty()) {
-                        tokens.add(wrapConditionOperand(operand));
+                        tokens.add(parseConditionOperand(operand));
                     }
                     current.setLength(0);
                 }
@@ -456,11 +488,22 @@ public class ASTBuilderVisitor extends AidemMediaParserBaseVisitor<Node> {
                 continue;
             }
 
-            if (c == '(' || c == ')') {
+            if (c == '(') {
+                if (current.length() == 0) {
+                    tokens.add(new OperatorExpression(String.valueOf(c)));
+                } else {
+                    parenDepth = 1;
+                    current.append(c);
+                }
+                i++;
+                continue;
+            }
+
+            if (c == ')') {
                 if (current.length() > 0) {
                     String operand = current.toString().trim();
                     if (!operand.isEmpty()) {
-                        tokens.add(wrapConditionOperand(operand));
+                        tokens.add(parseConditionOperand(operand));
                     }
                     current.setLength(0);
                 }
@@ -475,7 +518,7 @@ public class ASTBuilderVisitor extends AidemMediaParserBaseVisitor<Node> {
                     if (current.length() > 0) {
                         String operand = current.toString().trim();
                         if (!operand.isEmpty()) {
-                            tokens.add(wrapConditionOperand(operand));
+                            tokens.add(parseConditionOperand(operand));
                         }
                         current.setLength(0);
                     }
@@ -496,7 +539,7 @@ public class ASTBuilderVisitor extends AidemMediaParserBaseVisitor<Node> {
         if (current.length() > 0) {
             String operand = current.toString().trim();
             if (!operand.isEmpty()) {
-                tokens.add(wrapConditionOperand(operand));
+                tokens.add(parseConditionOperand(operand));
             }
         }
 
@@ -504,9 +547,74 @@ public class ASTBuilderVisitor extends AidemMediaParserBaseVisitor<Node> {
         return createConditionExpressionTree(postfix);
     }
 
-    private Expression wrapConditionOperand(String text) {
-        ConstantExpression constant = new ConstantExpression(text);
-        return new VariableExpression(constant);
+    private Expression parseConditionOperand(String text) {
+        return parseExpressionFromString(text);
+    }
+
+    private Expression parseStringExpressionArg(Expression arg) {
+        if (arg instanceof ConstantExpression) {
+            Object value = ((ConstantExpression) arg).evaluate(context);
+            if (value instanceof String) {
+                return parseExpressionFromString((String) value);
+            }
+        }
+        return arg;
+    }
+
+    private Expression parseExpressionFromString(String text) {
+        String input = text.trim();
+        if (input.isEmpty()) {
+            return new ConstantExpression("");
+        }
+        Expression expr = tryParseExpression(input);
+        if (expr != null) {
+            return expr;
+        }
+
+        if (input.contains("^")) {
+            Expression methodExpr = tryParseMethodCall(input);
+            if (methodExpr != null) {
+                return methodExpr;
+            }
+        }
+
+        return new VariableExpression(new ConstantExpression(text));
+    }
+
+    private Expression tryParseExpression(String input) {
+        CharStream inputStream = CharStreams.fromString(input);
+        AidemMediaLexer lexer = new AidemMediaLexer(inputStream);
+        CommonTokenStream tokens = new CommonTokenStream(lexer);
+        AidemMediaParser parser = new AidemMediaParser(tokens);
+        AidemMediaParser.ExprContext exprCtx = parser.expr();
+
+        if (parser.getNumberOfSyntaxErrors() > 0) {
+            return null;
+        }
+        if (tokens.LA(1) != org.antlr.v4.runtime.Token.EOF) {
+            return null;
+        }
+
+        ASTBuilderVisitor nested = new ASTBuilderVisitor(this.context);
+        return asExpression(nested.visit(exprCtx));
+    }
+
+    private Expression tryParseMethodCall(String input) {
+        CharStream inputStream = CharStreams.fromString(input);
+        AidemMediaLexer lexer = new AidemMediaLexer(inputStream);
+        CommonTokenStream tokens = new CommonTokenStream(lexer);
+        AidemMediaParser parser = new AidemMediaParser(tokens);
+        AidemMediaParser.MethodCallContext methodCtx = parser.methodCall();
+
+        if (parser.getNumberOfSyntaxErrors() > 0) {
+            return null;
+        }
+        if (tokens.LA(1) != org.antlr.v4.runtime.Token.EOF) {
+            return null;
+        }
+
+        ASTBuilderVisitor nested = new ASTBuilderVisitor(this.context);
+        return asExpression(nested.visit(methodCtx));
     }
 
     private Expression createConditionExpressionTree(java.util.Deque<Expression> operands) {

@@ -113,13 +113,22 @@ public class CodeParserTest {
                           "}", "OK"),
                 arguments("{" +
                             "@STRING(\"TEST\", \"\");" +
-                            "@IF(\"TEST_BEH\",\"_\",\"2\",\"{" +
+                            "@IF(\"TEST_BEH^RUN()\",\"_\",\"2\",\"{" +
                                 "TEST^SET(\"OK\");" +
                             "}\",\"{" +
                                 "TEST^SET(\"BAD\");" +
                             "}\");" +
                             "@RETURN(TEST);" +
                           "}", "OK"),
+                arguments("{" +
+                            "@STRING(\"TEST\", \"\");" +
+                            "@IF(\"TEST_BEH\",\"_\",\"2\",\"{" +
+                                "TEST^SET(\"OK\");" +
+                            "}\",\"{" +
+                                "TEST^SET(\"BAD\");" +
+                            "}\");" +
+                            "@RETURN(TEST);" +
+                          "}", "BAD"),
                 arguments("{" +
                             "@STRING(\"TEST\", \"\");" +
                             "@IF(\"TEST_STRUCT|VAL\",\"_\",\"5\",\"{" +

@@ -3,6 +3,7 @@ package pl.genschu.bloomooemulator.interpreter.ast.statements;
 import pl.genschu.bloomooemulator.interpreter.Context;
 import pl.genschu.bloomooemulator.interpreter.ast.Statement;
 import pl.genschu.bloomooemulator.interpreter.ast.Expression;
+import pl.genschu.bloomooemulator.interpreter.ast.expressions.ConstantExpression;
 import pl.genschu.bloomooemulator.interpreter.variable.Variable;
 import pl.genschu.bloomooemulator.interpreter.variable.types.IntegerVariable;
 import pl.genschu.bloomooemulator.utils.ArgumentsHelper;
@@ -39,15 +40,33 @@ public class LoopStatement extends Statement {
     }
 
     private int getIntValue(Object object, Context context) {
-        String value = object.toString();
-        try {
-            return Integer.parseInt(value);
-        } catch (NumberFormatException e) {
-            Variable var = context.getVariable(value);
-            if(var != null) {
-                return ArgumentsHelper.getInteger(var);
-            }
-            return 0;
+        Object value = object;
+        if (value instanceof Expression) {
+            value = ((Expression) value).evaluate(context);
         }
+        if (value instanceof ConstantExpression) {
+            value = ((ConstantExpression) value).evaluate(context);
+        }
+        if (value instanceof Variable) {
+            return ArgumentsHelper.getInteger((Variable) value);
+        }
+        if (value instanceof Integer) {
+            return (Integer) value;
+        }
+        if (value instanceof Double) {
+            return ((Double) value).intValue();
+        }
+        if (value instanceof String) {
+            String raw = value.toString();
+            try {
+                return Integer.parseInt(raw);
+            } catch (NumberFormatException e) {
+                Variable var = context.getVariable(raw);
+                if (var != null) {
+                    return ArgumentsHelper.getInteger(var);
+                }
+            }
+        }
+        return 0;
     }
 }

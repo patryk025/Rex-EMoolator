@@ -15,22 +15,15 @@ public class PointerExpression extends Expression {
     public Object evaluate(Context context) {
         Object result = expression.evaluate(context);
         if (result instanceof ConstantExpression) {
-            result = ((ConstantExpression) result).evaluate(context).toString();
+            result = ((ConstantExpression) result).evaluate(context);
+        }
+        if (result instanceof Variable) {
+            result = ((Variable) result).getValue();
         }
         if (!(result instanceof String)) {
             throw new RuntimeException("Dereferenced value must be a string: " + result);
         }
-        Variable targetVariableNameValue = context.getVariable((String) result);
-        try {
-            String targetVariableName = targetVariableNameValue.getValue().toString();
-            Variable targetVariable = context.getVariable(targetVariableName);
-            if (targetVariable == null) {
-                throw new RuntimeException("Variable not defined: " + targetVariableName);
-            }
-            return targetVariableName;
-        } catch (NullPointerException e) {
-            return result;
-        }
+        return result;
     }
 }
 
