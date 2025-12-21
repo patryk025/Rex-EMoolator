@@ -9,9 +9,12 @@ import org.junit.jupiter.params.provider.MethodSource;
 import pl.genschu.bloomooemulator.TestEnvironment;
 import pl.genschu.bloomooemulator.builders.ContextBuilder;
 import pl.genschu.bloomooemulator.interpreter.Context;
+import pl.genschu.bloomooemulator.interpreter.factories.VariableFactory;
 import pl.genschu.bloomooemulator.interpreter.variable.Variable;
 import pl.genschu.bloomooemulator.interpreter.variable.types.BehaviourVariable;
+import pl.genschu.bloomooemulator.interpreter.variable.types.StructVariable;
 
+import java.util.List;
 import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -33,6 +36,24 @@ public class CodeParserTest {
                 .withFactory("INTEGER", "TEST_VALUE_1", 5)
                 .withFactory("STRING", "TEST_VALUE_NAME", "TEST_VALUE_1")
                 .build();
+
+        BehaviourVariable behaviour = new BehaviourVariable("TEST_BEH", "{@RETURN(2);}", ctx);
+        ctx.setVariable("TEST_BEH", behaviour);
+
+        StructVariable struct = new StructVariable("TEST_STRUCT", ctx);
+        ctx.setVariable("TEST_STRUCT", struct);
+        struct.setFields(List.of(
+                "NAME",
+                "VAL"
+        ));
+        struct.setTypes(List.of(
+                "STRING",
+                "INTEGER"
+        ));
+        struct.setValues(List.of(
+                VariableFactory.createVariable("STRING", null, "PIERWSZA", ctx),
+                VariableFactory.createVariable("INTEGER", null, 5, ctx)
+        ));
     }
 
     static Stream<Arguments> cases() {
@@ -43,6 +64,7 @@ public class CodeParserTest {
                 arguments("{@RETURN([2+2*2]);}", 8),
                 arguments("{@RETURN([1.2+2.3]);}", 3.5),
                 arguments("{@INT(\"A\", 5); @RETURN([A + 2]);}", 7),
+                // three arguments IFs
                 arguments("{" +
                             "@STRING(\"TEST\", \"\");" +
                             "@IF(\"1'1\",\"{" +
@@ -51,7 +73,62 @@ public class CodeParserTest {
                                 "TEST^SET(\"BAD\");" +
                             "}\");" +
                             "@RETURN(TEST);" +
-                           "}", "OK"),
+                          "}", "OK"),
+                arguments("{" +
+                            "@STRING(\"TEST\", \"\");" +
+                            "@IF(\"TEST_BEH^RUN()'2\",\"{" +
+                                "TEST^SET(\"OK\");" +
+                            "}\",\"{" +
+                                "TEST^SET(\"BAD\");" +
+                            "}\");" +
+                            "@RETURN(TEST);" +
+                          "}", "OK"),
+                arguments("{" +
+                            "@STRING(\"TEST\", \"\");" +
+                            "@IF(\"TEST_BEH'2\",\"{" +
+                                "TEST^SET(\"OK\");" +
+                            "}\",\"{" +
+                                "TEST^SET(\"BAD\");" +
+                            "}\");" +
+                            "@RETURN(TEST);" +
+                           "}", "BAD"),
+                arguments("{" +
+                            "@STRING(\"TEST\", \"\");" +
+                            "@IF(\"TEST_STRUCT|VAL'5\",\"{" +
+                                "TEST^SET(\"OK\");" +
+                            "}\",\"{" +
+                                "TEST^SET(\"BAD\");" +
+                            "}\");" +
+                            "@RETURN(TEST);" +
+                          "}", "OK"),
+                // five arguments IFs
+                arguments("{" +
+                            "@STRING(\"TEST\", \"\");" +
+                            "@IF(\"1\",\"_\",\"1\",\"{" +
+                                "TEST^SET(\"OK\");" +
+                            "}\",\"{" +
+                                "TEST^SET(\"BAD\");" +
+                            "}\");" +
+                            "@RETURN(TEST);" +
+                          "}", "OK"),
+                arguments("{" +
+                            "@STRING(\"TEST\", \"\");" +
+                            "@IF(\"TEST_BEH\",\"_\",\"2\",\"{" +
+                                "TEST^SET(\"OK\");" +
+                            "}\",\"{" +
+                                "TEST^SET(\"BAD\");" +
+                            "}\");" +
+                            "@RETURN(TEST);" +
+                          "}", "OK"),
+                arguments("{" +
+                            "@STRING(\"TEST\", \"\");" +
+                            "@IF(\"TEST_STRUCT|VAL\",\"_\",\"5\",\"{" +
+                                "TEST^SET(\"OK\");" +
+                            "}\",\"{" +
+                                "TEST^SET(\"BAD\");" +
+                            "}\");" +
+                            "@RETURN(TEST);" +
+                          "}", "OK"),
                 arguments("{" +
                             "@INT(\"A\",1);" +
                             "@INT(\"A\",[A+1]); " +
