@@ -184,6 +184,23 @@ public class StringVariable extends Variable {
 				return (StringVariable) self;
 			}
 		});
+        addMethodTemplate(methods, "GET", new Method(
+                List.of(
+                        new Parameter("INTEGER", "index", true),
+                        new Parameter("INTEGER", "length", false)
+                ),
+                "STRING"
+        ) {
+            @Override
+            public Variable execute(Variable self, List<Object> arguments) {
+                int index = ArgumentsHelper.getInteger(arguments.get(0));
+                int length = 1;
+                if(arguments.size() >= 2) {
+                    length = ArgumentsHelper.getInteger(arguments.get(1));
+                }
+                return new StringVariable("", ((StringVariable) self).GET().substring(index, index+length), self.getContext());
+            }
+        });
 		addMethodTemplate(methods, "LENGTH", new Method(
 				"INTEGER"
 		) {
