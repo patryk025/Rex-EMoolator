@@ -26,7 +26,7 @@ import java.util.Map;
  * - No unknown subtypes
  */
 public sealed interface Variable permits
-    IntVariable,
+    IntegerVariable,
     DoubleVariable,
     StringVariable,
     BoolVariable,

@@ -6,31 +6,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-/**
- * IntVariable - SZABLON dla innych typów!
- *
- * Pokaże Ci wzorzec, który możesz replikować dla:
- * - DoubleVariable
- * - StringVariable
- * - BoolVariable
- * - ArrayVariable
- * - etc.
- *
- * Key points:
- * 1. Record = immutable automatycznie
- * 2. Metody zdefiniowane w METHODS map
- * 3. withValue() tworzy NOWĄ instancję
- * 4. callMethod() deleguje do METHODS
- * 5. Signals przechowywane w Map
- */
-public record IntVariable(
+public record IntegerVariable(
     String name,
     int intValue,  // Primitive value stored directly!
     Map<String, SignalHandler> signals
 ) implements Variable {
 
     // Compact constructor - validation
-    public IntVariable {
+    public IntegerVariable {
         if (name == null || name.isEmpty()) {
             throw new IllegalArgumentException("Variable name cannot be null or empty");
         }
@@ -42,7 +25,7 @@ public record IntVariable(
     }
 
     // Convenience constructor without signals
-    public IntVariable(String name, int intValue) {
+    public IntegerVariable(String name, int intValue) {
         this(name, intValue, Map.of());
     }
 
@@ -75,7 +58,7 @@ public record IntVariable(
         };
 
         // Return NEW instance (immutable!)
-        return new IntVariable(name, newInt, signals);
+        return new IntegerVariable(name, newInt, signals);
     }
 
     @Override
@@ -100,7 +83,7 @@ public record IntVariable(
     public Variable withSignal(String signalName, SignalHandler handler) {
         Map<String, SignalHandler> newSignals = new HashMap<>(signals);
         newSignals.put(signalName, handler);
-        return new IntVariable(name, intValue, newSignals);
+        return new IntegerVariable(name, intValue, newSignals);
     }
 
     @Override
@@ -125,40 +108,40 @@ public record IntVariable(
     private static final Map<String, VariableMethod> METHODS = Map.ofEntries(
         // ADD(value) - dodaj wartość
         Map.entry("ADD", (self, args) -> {
-            IntVariable thisVar = (IntVariable) self;
+            IntegerVariable thisVar = (IntegerVariable) self;
             if (args.isEmpty()) {
                 throw new IllegalArgumentException("ADD requires 1 argument");
             }
 
             int addend = toInt(args.get(0));
-            return new IntVariable(thisVar.name, thisVar.intValue + addend, thisVar.signals);
+            return new IntegerVariable(thisVar.name, thisVar.intValue + addend, thisVar.signals);
         }),
 
         // SUB(value) - odejmij wartość
         Map.entry("SUB", (self, args) -> {
-            IntVariable thisVar = (IntVariable) self;
+            IntegerVariable thisVar = (IntegerVariable) self;
             if (args.isEmpty()) {
                 throw new IllegalArgumentException("SUB requires 1 argument");
             }
 
             int subtrahend = toInt(args.get(0));
-            return new IntVariable(thisVar.name, thisVar.intValue - subtrahend, thisVar.signals);
+            return new IntegerVariable(thisVar.name, thisVar.intValue - subtrahend, thisVar.signals);
         }),
 
         // MUL(value) - pomnóż przez wartość
         Map.entry("MUL", (self, args) -> {
-            IntVariable thisVar = (IntVariable) self;
+            IntegerVariable thisVar = (IntegerVariable) self;
             if (args.isEmpty()) {
                 throw new IllegalArgumentException("MUL requires 1 argument");
             }
 
             int multiplier = toInt(args.get(0));
-            return new IntVariable(thisVar.name, thisVar.intValue * multiplier, thisVar.signals);
+            return new IntegerVariable(thisVar.name, thisVar.intValue * multiplier, thisVar.signals);
         }),
 
         // DIV(value) - podziel przez wartość
         Map.entry("DIV", (self, args) -> {
-            IntVariable thisVar = (IntVariable) self;
+            IntegerVariable thisVar = (IntegerVariable) self;
             if (args.isEmpty()) {
                 throw new IllegalArgumentException("DIV requires 1 argument");
             }
@@ -167,12 +150,12 @@ public record IntVariable(
             if (divisor == 0) {
                 return thisVar;  // Division by zero = no change
             }
-            return new IntVariable(thisVar.name, thisVar.intValue / divisor, thisVar.signals);
+            return new IntegerVariable(thisVar.name, thisVar.intValue / divisor, thisVar.signals);
         }),
 
         // MOD(value) - modulo
         Map.entry("MOD", (self, args) -> {
-            IntVariable thisVar = (IntVariable) self;
+            IntegerVariable thisVar = (IntegerVariable) self;
             if (args.isEmpty()) {
                 throw new IllegalArgumentException("MOD requires 1 argument");
             }
@@ -181,18 +164,18 @@ public record IntVariable(
             if (divisor == 0) {
                 return thisVar;
             }
-            return new IntVariable(thisVar.name, thisVar.intValue % divisor, thisVar.signals);
+            return new IntegerVariable(thisVar.name, thisVar.intValue % divisor, thisVar.signals);
         }),
 
         // SET(value) - ustaw wartość
         Map.entry("SET", (self, args) -> {
-            IntVariable thisVar = (IntVariable) self;
+            IntegerVariable thisVar = (IntegerVariable) self;
             if (args.isEmpty()) {
                 throw new IllegalArgumentException("SET requires 1 argument");
             }
 
             int newValue = toInt(args.get(0));
-            return new IntVariable(thisVar.name, newValue, thisVar.signals);
+            return new IntegerVariable(thisVar.name, newValue, thisVar.signals);
         }),
 
         // GET() - pobierz wartość (zwraca siebie)
@@ -200,48 +183,48 @@ public record IntVariable(
 
         // INC() - inkrementuj
         Map.entry("INC", (self, args) -> {
-            IntVariable thisVar = (IntVariable) self;
-            return new IntVariable(thisVar.name, thisVar.intValue + 1, thisVar.signals);
+            IntegerVariable thisVar = (IntegerVariable) self;
+            return new IntegerVariable(thisVar.name, thisVar.intValue + 1, thisVar.signals);
         }),
 
         // DEC() - dekrementuj
         Map.entry("DEC", (self, args) -> {
-            IntVariable thisVar = (IntVariable) self;
-            return new IntVariable(thisVar.name, thisVar.intValue - 1, thisVar.signals);
+            IntegerVariable thisVar = (IntegerVariable) self;
+            return new IntegerVariable(thisVar.name, thisVar.intValue - 1, thisVar.signals);
         }),
 
         // ABS() - wartość bezwzględna
         Map.entry("ABS", (self, args) -> {
-            IntVariable thisVar = (IntVariable) self;
-            return new IntVariable(thisVar.name, Math.abs(thisVar.intValue), thisVar.signals);
+            IntegerVariable thisVar = (IntegerVariable) self;
+            return new IntegerVariable(thisVar.name, Math.abs(thisVar.intValue), thisVar.signals);
         }),
 
         // NEG() - negacja
         Map.entry("NEG", (self, args) -> {
-            IntVariable thisVar = (IntVariable) self;
-            return new IntVariable(thisVar.name, -thisVar.intValue, thisVar.signals);
+            IntegerVariable thisVar = (IntegerVariable) self;
+            return new IntegerVariable(thisVar.name, -thisVar.intValue, thisVar.signals);
         }),
 
         // MIN(value) - minimum z dwóch wartości
         Map.entry("MIN", (self, args) -> {
-            IntVariable thisVar = (IntVariable) self;
+            IntegerVariable thisVar = (IntegerVariable) self;
             if (args.isEmpty()) {
                 throw new IllegalArgumentException("MIN requires 1 argument");
             }
 
             int other = toInt(args.get(0));
-            return new IntVariable(thisVar.name, Math.min(thisVar.intValue, other), thisVar.signals);
+            return new IntegerVariable(thisVar.name, Math.min(thisVar.intValue, other), thisVar.signals);
         }),
 
         // MAX(value) - maksimum z dwóch wartości
         Map.entry("MAX", (self, args) -> {
-            IntVariable thisVar = (IntVariable) self;
+            IntegerVariable thisVar = (IntegerVariable) self;
             if (args.isEmpty()) {
                 throw new IllegalArgumentException("MAX requires 1 argument");
             }
 
             int other = toInt(args.get(0));
-            return new IntVariable(thisVar.name, Math.max(thisVar.intValue, other), thisVar.signals);
+            return new IntegerVariable(thisVar.name, Math.max(thisVar.intValue, other), thisVar.signals);
         })
     );
 

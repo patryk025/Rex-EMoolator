@@ -31,6 +31,10 @@ public record DoubleVariable(
         }
     }
 
+    public DoubleVariable(String name, double doubleValue) {
+        this(name, doubleValue, Map.of());
+    }
+
     @Override
     public Value value() {
         throw new UnsupportedOperationException("TODO: Implement based on IntVariable");

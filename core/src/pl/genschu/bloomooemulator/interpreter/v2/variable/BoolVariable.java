@@ -31,6 +31,10 @@ public record BoolVariable(
         }
     }
 
+    public BoolVariable(String name, boolean boolValue) {
+        this(name, boolValue, Map.of());
+    }
+
     @Override
     public Value value() {
         throw new UnsupportedOperationException("TODO: Implement based on IntVariable");
