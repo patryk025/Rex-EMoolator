@@ -4,7 +4,7 @@ import pl.genschu.bloomooemulator.interpreter.exceptions.ClassMethodNotFoundExce
 import pl.genschu.bloomooemulator.interpreter.exceptions.ClassMethodNotImplementedException;
 import com.badlogic.gdx.Gdx;
 import pl.genschu.bloomooemulator.interpreter.Context;
-import pl.genschu.bloomooemulator.interpreter.factories.VariableFactory;
+import pl.genschu.bloomooemulator.interpreter.factories.LegacyVariableFactory;
 import pl.genschu.bloomooemulator.interpreter.variable.Attribute;
 import pl.genschu.bloomooemulator.interpreter.variable.Method;
 import pl.genschu.bloomooemulator.interpreter.variable.Parameter;
@@ -50,7 +50,7 @@ public class ApplicationVariable extends Variable {
 			@Override
 			public Variable execute(Variable self, List<Object> arguments) {
 				String language = ((ApplicationVariable) self).getLanguage();
-				return VariableFactory.createVariable("STRING", null, language, self.getContext()); // default
+				return LegacyVariableFactory.createVariable("STRING", null, language, self.getContext()); // default
 			}
 		});
 		this.setMethod("RUN", new Method(

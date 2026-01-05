@@ -5,7 +5,7 @@ import pl.genschu.bloomooemulator.interpreter.Context;
 import pl.genschu.bloomooemulator.interpreter.variable.Variable;
 import pl.genschu.bloomooemulator.interpreter.ast.Expression;
 import pl.genschu.bloomooemulator.interpreter.ast.Statement;
-import pl.genschu.bloomooemulator.interpreter.factories.VariableFactory;
+import pl.genschu.bloomooemulator.interpreter.factories.LegacyVariableFactory;
 import pl.genschu.bloomooemulator.interpreter.ast.expressions.ConstantExpression;
 
 public class VariableDefinitionStatement extends Statement {
@@ -37,7 +37,7 @@ public class VariableDefinitionStatement extends Statement {
             Gdx.app.log("VariableDefinitionStatement", "Variable " + variableName + " already exists in this context, skipping");
             return;
         }
-        Variable variable = VariableFactory.createVariable(type, variableName, valueString, context);
+        Variable variable = LegacyVariableFactory.createVariable(type, variableName, valueString, context);
         context.setVariable(variableName, variable);
     }
 }

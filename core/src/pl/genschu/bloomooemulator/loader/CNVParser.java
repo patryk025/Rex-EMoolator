@@ -1,13 +1,11 @@
 package pl.genschu.bloomooemulator.loader;
 
-import pl.genschu.bloomooemulator.engine.decision.events.ButtonEvent;
-import pl.genschu.bloomooemulator.engine.decision.states.ButtonState;
 import pl.genschu.bloomooemulator.interpreter.Context;
 import pl.genschu.bloomooemulator.interpreter.exceptions.BreakException;
 import pl.genschu.bloomooemulator.interpreter.exceptions.OneBreakException;
 import pl.genschu.bloomooemulator.interpreter.variable.Signal;
 import pl.genschu.bloomooemulator.interpreter.variable.Variable;
-import pl.genschu.bloomooemulator.interpreter.factories.VariableFactory;
+import pl.genschu.bloomooemulator.interpreter.factories.LegacyVariableFactory;
 import pl.genschu.bloomooemulator.encoding.ScriptDecypher;
 import com.badlogic.gdx.Gdx;
 import pl.genschu.bloomooemulator.interpreter.variable.types.*;
@@ -151,7 +149,7 @@ public class CNVParser {
         }
 
         try {
-            Variable variable = VariableFactory.createVariable(type, objectName, value, context);
+            Variable variable = LegacyVariableFactory.createVariable(type, objectName, value, context);
             for (Map.Entry<String, String> property : properties.entrySet()) {
                 if (!property.getKey().equals(objectName + ":TYPE")) {
                     if (!property.getKey().startsWith(objectName + ":ON")) {

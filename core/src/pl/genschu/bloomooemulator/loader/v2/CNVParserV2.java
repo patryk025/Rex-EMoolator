@@ -5,7 +5,7 @@ import pl.genschu.bloomooemulator.encoding.ScriptDecypher;
 import pl.genschu.bloomooemulator.interpreter.Context;
 import pl.genschu.bloomooemulator.interpreter.exceptions.BreakException;
 import pl.genschu.bloomooemulator.interpreter.exceptions.OneBreakException;
-import pl.genschu.bloomooemulator.interpreter.factories.VariableFactory;
+import pl.genschu.bloomooemulator.interpreter.factories.LegacyVariableFactory;
 import pl.genschu.bloomooemulator.interpreter.variable.Signal;
 import pl.genschu.bloomooemulator.interpreter.variable.Variable;
 import pl.genschu.bloomooemulator.interpreter.variable.types.BehaviourVariable;
@@ -151,7 +151,7 @@ public class CNVParserV2 {
         String iniSection = determineIniSection(objectName, context);
 
         try {
-            Variable variable = VariableFactory.createVariable(type, objectName, value, context);
+            Variable variable = LegacyVariableFactory.createVariable(type, objectName, value, context);
             applyProperties(variable, objectName, properties);
             variable.setIniSection(iniSection);
             context.setVariable(objectName, variable);

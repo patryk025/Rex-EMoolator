@@ -20,6 +20,7 @@ public class ExecutionFrame {
 
     // Local variables in this frame (e.g., $1, $2 for behaviour arguments)
     private final Map<String, Value> locals;
+    private Value thisValue;
 
     public ExecutionFrame(
         String name,
@@ -32,6 +33,7 @@ public class ExecutionFrame {
         this.location = location != null ? location : SourceLocation.UNKNOWN;
         this.parent = parent;
         this.locals = new HashMap<>();
+        this.thisValue = null;
     }
 
     public String getName() {
@@ -70,6 +72,18 @@ public class ExecutionFrame {
      */
     public boolean hasLocal(String name) {
         return locals.containsKey(name);
+    }
+
+    public void setThis(Value value) {
+        this.thisValue = value;
+    }
+
+    public Value getThis() {
+        return thisValue;
+    }
+
+    public boolean hasThis() {
+        return thisValue != null;
     }
 
     /**

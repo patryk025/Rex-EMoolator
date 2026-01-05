@@ -2,14 +2,13 @@ package pl.genschu.bloomooemulator.tests;
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import pl.genschu.bloomooemulator.TestEnvironment;
 import pl.genschu.bloomooemulator.builders.ContextBuilder;
 import pl.genschu.bloomooemulator.interpreter.Context;
-import pl.genschu.bloomooemulator.interpreter.factories.VariableFactory;
+import pl.genschu.bloomooemulator.interpreter.factories.LegacyVariableFactory;
 import pl.genschu.bloomooemulator.interpreter.variable.Variable;
 import pl.genschu.bloomooemulator.interpreter.variable.types.BehaviourVariable;
 import pl.genschu.bloomooemulator.interpreter.variable.types.StructVariable;
@@ -51,8 +50,8 @@ public class CodeParserTest {
                 "INTEGER"
         ));
         struct.setValues(List.of(
-                VariableFactory.createVariable("STRING", null, "PIERWSZA", ctx),
-                VariableFactory.createVariable("INTEGER", null, 5, ctx)
+                LegacyVariableFactory.createVariable("STRING", null, "PIERWSZA", ctx),
+                LegacyVariableFactory.createVariable("INTEGER", null, 5, ctx)
         ));
     }
 

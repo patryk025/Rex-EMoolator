@@ -6,12 +6,10 @@ import org.junit.jupiter.api.BeforeEach;
 import pl.genschu.bloomooemulator.TestEnvironment;
 import pl.genschu.bloomooemulator.builders.ContextBuilder;
 import pl.genschu.bloomooemulator.interpreter.Context;
-import pl.genschu.bloomooemulator.interpreter.exceptions.ClassMethodNotImplementedException;
 import pl.genschu.bloomooemulator.interpreter.exceptions.VariableUnsupportedOperationException;
-import pl.genschu.bloomooemulator.interpreter.factories.VariableFactory;
+import pl.genschu.bloomooemulator.interpreter.factories.LegacyVariableFactory;
 import pl.genschu.bloomooemulator.interpreter.variable.Signal;
 import pl.genschu.bloomooemulator.interpreter.variable.Variable;
-import pl.genschu.bloomooemulator.interpreter.variable.types.BehaviourVariable;
 import pl.genschu.bloomooemulator.interpreter.variable.types.BoolVariable;
 import pl.genschu.bloomooemulator.interpreter.variable.types.IntegerVariable;
 import pl.genschu.bloomooemulator.interpreter.variable.types.StringVariable;
@@ -33,7 +31,7 @@ class VariableCoreTest {
 
     @Test
     void testConvertPrimitives() {
-        Variable intVar = VariableFactory.createVariable("INTEGER", "I", 42, ctx);
+        Variable intVar = LegacyVariableFactory.createVariable("INTEGER", "I", 42, ctx);
 
         Variable strVar = intVar.convertTo("STRING");
         assertEquals("42", strVar.getValue());
@@ -50,14 +48,14 @@ class VariableCoreTest {
 
     @Test
     void testConvertZeroToBool() {
-        Variable zeroInt = VariableFactory.createVariable("INTEGER", "ZERO", 0, ctx);
+        Variable zeroInt = LegacyVariableFactory.createVariable("INTEGER", "ZERO", 0, ctx);
         Variable boolVar = zeroInt.convertTo("BOOL");
         assertEquals(false, boolVar.getValue());
     }
 
     @Test
     void testConvertStringTypes() {
-        Variable strVar = VariableFactory.createVariable("STRING", "STR", "123.45", ctx);
+        Variable strVar = LegacyVariableFactory.createVariable("STRING", "STR", "123.45", ctx);
 
         Variable intVar = strVar.convertTo("INTEGER");
         assertEquals(123, intVar.getValue());
@@ -71,7 +69,7 @@ class VariableCoreTest {
 
     @Test
     void testConvertStringTypes2() {
-        Variable strVar = VariableFactory.createVariable("STRING", "STR", "123.55", ctx);
+        Variable strVar = LegacyVariableFactory.createVariable("STRING", "STR", "123.55", ctx);
 
         Variable intVar = strVar.convertTo("INTEGER");
         assertEquals(123, intVar.getValue());
@@ -85,7 +83,7 @@ class VariableCoreTest {
 
     @Test
     void testConvertStringTypesWithBrokenValues() {
-        Variable strVar = VariableFactory.createVariable("STRING", "STR", "123.55.55", ctx);
+        Variable strVar = LegacyVariableFactory.createVariable("STRING", "STR", "123.55.55", ctx);
 
         Variable intVar = strVar.convertTo("INTEGER");
         assertEquals(123, intVar.getValue());
@@ -99,7 +97,7 @@ class VariableCoreTest {
 
     @Test
     void testConvertStringTypesWithScientificNotation() {
-        Variable strVar = VariableFactory.createVariable("STRING", "STR", "123.55e12", ctx);
+        Variable strVar = LegacyVariableFactory.createVariable("STRING", "STR", "123.55e12", ctx);
 
         Variable intVar = strVar.convertTo("INTEGER");
         assertEquals(123, intVar.getValue());
@@ -214,7 +212,7 @@ class VariableCoreTest {
 
     @Test
     void testConvertToSameType() {
-        Variable intVar = VariableFactory.createVariable("INTEGER", "I", 42, ctx);
+        Variable intVar = LegacyVariableFactory.createVariable("INTEGER", "I", 42, ctx);
         Variable converted = intVar.convertTo("INTEGER");
 
         assertSame(intVar, converted);
@@ -222,7 +220,7 @@ class VariableCoreTest {
 
     @Test
     void testConvertNonPrimitiveTypes() {
-        Variable animoVar = VariableFactory.createVariable("ANIMO", "A", null, ctx);
+        Variable animoVar = LegacyVariableFactory.createVariable("ANIMO", "A", null, ctx);
 
         assertThrows(VariableUnsupportedOperationException.class, () -> {
             animoVar.convertTo("STRING");
@@ -231,7 +229,7 @@ class VariableCoreTest {
 
     @Test
     void testEmitSignal() {
-        Variable var = VariableFactory.createVariable("STRING", "TEST", "value", ctx);
+        Variable var = LegacyVariableFactory.createVariable("STRING", "TEST", "value", ctx);
 
         BoolVariable flag = new BoolVariable("FLAG", false, ctx);
         ctx.setVariable("FLAG", flag);

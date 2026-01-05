@@ -1,6 +1,6 @@
 package pl.genschu.bloomooemulator.interpreter.arithmetic;
 
-import pl.genschu.bloomooemulator.interpreter.factories.VariableFactory;
+import pl.genschu.bloomooemulator.interpreter.factories.LegacyVariableFactory;
 import pl.genschu.bloomooemulator.interpreter.variable.Variable;
 import pl.genschu.bloomooemulator.interpreter.arithmetic.operations.*;
 
@@ -27,7 +27,7 @@ public class ArithmeticSolver {
         try {
             return divideOperation.performOperation(var1, var2);
         } catch (ArithmeticException e) {
-            return VariableFactory.createVariable("STRING", null, "NULL", var1.getContext());
+            return LegacyVariableFactory.createVariable("STRING", null, "NULL", var1.getContext());
         }
     }
 
@@ -35,7 +35,7 @@ public class ArithmeticSolver {
         try {
             return moduloOperation.performOperation(var1, var2);
         } catch (ArithmeticException e) {
-            return VariableFactory.createVariable("STRING", null, "NULL", var1.getContext());
+            return LegacyVariableFactory.createVariable("STRING", null, "NULL", var1.getContext());
         }
     }
 }

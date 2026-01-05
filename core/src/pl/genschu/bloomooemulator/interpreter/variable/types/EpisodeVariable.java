@@ -1,9 +1,8 @@
 package pl.genschu.bloomooemulator.interpreter.variable.types;
 
 import com.badlogic.gdx.Gdx;
-import pl.genschu.bloomooemulator.interpreter.exceptions.ClassMethodNotImplementedException;
 import pl.genschu.bloomooemulator.interpreter.Context;
-import pl.genschu.bloomooemulator.interpreter.factories.VariableFactory;
+import pl.genschu.bloomooemulator.interpreter.factories.LegacyVariableFactory;
 import pl.genschu.bloomooemulator.interpreter.variable.Attribute;
 import pl.genschu.bloomooemulator.interpreter.variable.Method;
 import pl.genschu.bloomooemulator.interpreter.variable.Parameter;
@@ -47,7 +46,7 @@ public class EpisodeVariable extends Variable {
 			@Override
 			public Variable execute(Variable self, List<Object> arguments) {
 				String currentScene = self.getContext().getGame().getCurrentScene();
-				return VariableFactory.createVariable("STRING", null, currentScene, self.getContext());
+				return LegacyVariableFactory.createVariable("STRING", null, currentScene, self.getContext());
 			}
 		});
 		this.setMethod("GETLATESTSCENE", new Method(
@@ -56,7 +55,7 @@ public class EpisodeVariable extends Variable {
 			@Override
 			public Variable execute(Variable self, List<Object> arguments) {
 				String previousScene = self.getContext().getGame().getPreviousScene();
-				return VariableFactory.createVariable("STRING", null, previousScene, self.getContext());
+				return LegacyVariableFactory.createVariable("STRING", null, previousScene, self.getContext());
 			}
 		});
 		this.setMethod("GOTO", new Method(

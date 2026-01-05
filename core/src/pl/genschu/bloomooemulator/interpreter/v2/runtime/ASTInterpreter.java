@@ -50,16 +50,9 @@ public class ASTInterpreter {
     // === VARIABLES ===
 
     private ExecutionResult executeVariable(VariableNode node) {
-        // Resolve variable from legacy context
-        if (context.getLegacyContext() == null) {
-            // No context - just return a reference
-            return new NormalResult(new VariableRef(node.name()));
-        }
+        Value value = context.getVariableValue(node.name());
 
-        pl.genschu.bloomooemulator.interpreter.variable.Variable variable =
-            context.getLegacyContext().getVariable(node.name());
-
-        if (variable == null) {
+        if (value == null) {
             throw new InterpreterException(
                 "Variable not found: " + node.name(),
                 context,
@@ -67,8 +60,6 @@ public class ASTInterpreter {
             );
         }
 
-        // Convert v1 Variable to v2 Value using the bridge
-        Value value = VariableBridge.toValue(variable);
         return new NormalResult(value);
     }
 
@@ -404,10 +395,17 @@ public class ASTInterpreter {
 
             // Step 5: Convert result back to Value
             if (result == null) {
+                if (node.target() instanceof VariableNode varNode) {
+                    Value updated = VariableBridge.toValue(targetVariable);
+                    context.setVariableValue(varNode.name(), updated);
+                }
                 return new NormalResult(NullValue.INSTANCE);
             }
 
             Value resultValue = VariableBridge.toValue(result);
+            if (node.target() instanceof VariableNode varNode) {
+                context.setVariableValue(varNode.name(), resultValue);
+            }
             return new NormalResult(resultValue);
 
         } catch (Exception e) {
@@ -438,12 +436,12 @@ public class ASTInterpreter {
 
         // If it's a VariableRef, look it up
         if (targetValue instanceof VariableRef ref) {
-            return context.getLegacyContext().getVariable(ref.name());
+            return context.getLegacyVariable(ref.name());
         }
 
         // If target is a VariableNode, look it up directly
         if (targetNode instanceof VariableNode varNode) {
-            return context.getLegacyContext().getVariable(varNode.name());
+            return context.getLegacyVariable(varNode.name());
         }
 
         // Otherwise, create a temporary Variable from the Value
@@ -476,17 +474,7 @@ public class ASTInterpreter {
 
         Value initialValue = valueResult.getValue();
 
-        // Create variable in legacy context
-        if (context.getLegacyContext() != null) {
-            pl.genschu.bloomooemulator.interpreter.variable.Variable variable =
-                VariableBridge.toVariable(
-                    initialValue,
-                    node.varName(),
-                    context.getLegacyContext()
-                );
-
-            context.getLegacyContext().setVariable(node.varName(), variable);
-        }
+        context.setVariableValue(node.varName(), initialValue);
 
         return new NormalResult(initialValue);
     }

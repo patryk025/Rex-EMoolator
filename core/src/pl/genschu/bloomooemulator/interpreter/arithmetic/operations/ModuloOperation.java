@@ -2,7 +2,7 @@ package pl.genschu.bloomooemulator.interpreter.arithmetic.operations;
 
 import pl.genschu.bloomooemulator.interpreter.variable.Variable;
 import pl.genschu.bloomooemulator.interpreter.arithmetic.ArithmeticOperation;
-import pl.genschu.bloomooemulator.interpreter.factories.VariableFactory;
+import pl.genschu.bloomooemulator.interpreter.factories.LegacyVariableFactory;
 import pl.genschu.bloomooemulator.interpreter.variable.types.BoolVariable;
 import pl.genschu.bloomooemulator.interpreter.variable.types.DoubleVariable;
 import pl.genschu.bloomooemulator.interpreter.variable.types.IntegerVariable;
@@ -24,7 +24,7 @@ public class ModuloOperation extends ArithmeticOperation {
         if (divisor == 0) {
             throw new ArithmeticException("Division by zero");
         }
-        return VariableFactory.createVariable("INTEGER", null, var1.GET() % var2.toInt(), var1.getContext());
+        return LegacyVariableFactory.createVariable("INTEGER", null, var1.GET() % var2.toInt(), var1.getContext());
     }
 
     @Override
@@ -42,7 +42,7 @@ public class ModuloOperation extends ArithmeticOperation {
         if (divisor == 0) {
             throw new ArithmeticException("Division by zero");
         }
-        return VariableFactory.createVariable("DOUBLE", null, (int) (var1.GET() % var2.toDouble()), var1.getContext()); //wygląda, że zwraca resztę bez części po przecinku
+        return LegacyVariableFactory.createVariable("DOUBLE", null, (int) (var1.GET() % var2.toDouble()), var1.getContext()); //wygląda, że zwraca resztę bez części po przecinku
     }
 
     @Override
@@ -60,7 +60,7 @@ public class ModuloOperation extends ArithmeticOperation {
         if (divisor == 0) {
             throw new ArithmeticException("Division by zero");
         }
-        return VariableFactory.createVariable("INTEGER", null, var1.GET() % var2.GET(), var1.getContext());
+        return LegacyVariableFactory.createVariable("INTEGER", null, var1.GET() % var2.GET(), var1.getContext());
     }
 
     @Override
@@ -69,7 +69,7 @@ public class ModuloOperation extends ArithmeticOperation {
         if (divisor == 0) {
             throw new ArithmeticException("Division by zero");
         }
-        return VariableFactory.createVariable("DOUBLE", null, (int) (var1.GET() % var2.GET()), var1.getContext());
+        return LegacyVariableFactory.createVariable("DOUBLE", null, (int) (var1.GET() % var2.GET()), var1.getContext());
     }
 
     @Override
@@ -78,7 +78,7 @@ public class ModuloOperation extends ArithmeticOperation {
         if (divisor == 0) {
             throw new ArithmeticException("Division by zero");
         }
-        return VariableFactory.createVariable("INTEGER", null, var1.GET() % var2.toInt(), var1.getContext());
+        return LegacyVariableFactory.createVariable("INTEGER", null, var1.GET() % var2.toInt(), var1.getContext());
     }
 
     @Override
@@ -87,7 +87,7 @@ public class ModuloOperation extends ArithmeticOperation {
         if (divisor == 0) {
             throw new ArithmeticException("Division by zero");
         }
-        return VariableFactory.createVariable("DOUBLE", null, (int) (var1.GET() % var2.GET()), var1.getContext());
+        return LegacyVariableFactory.createVariable("DOUBLE", null, (int) (var1.GET() % var2.GET()), var1.getContext());
     }
 
     @Override
@@ -132,7 +132,7 @@ public class ModuloOperation extends ArithmeticOperation {
         if (divisor == 0) {
             throw new ArithmeticException("Division by zero");
         }
-        return VariableFactory.createVariable("INTEGER", null, var1.GET() % var2.toInt(), var1.getContext());
+        return LegacyVariableFactory.createVariable("INTEGER", null, var1.GET() % var2.toInt(), var1.getContext());
     }
 
     @Override
@@ -150,6 +150,6 @@ public class ModuloOperation extends ArithmeticOperation {
         if (divisor == 0) {
             throw new ArithmeticException("Division by zero");
         }
-        return VariableFactory.createVariable("DOUBLE", null, (int) (var1.GET() % var2.toDouble()), var1.getContext());
+        return LegacyVariableFactory.createVariable("DOUBLE", null, (int) (var1.GET() % var2.toDouble()), var1.getContext());
     }
 }

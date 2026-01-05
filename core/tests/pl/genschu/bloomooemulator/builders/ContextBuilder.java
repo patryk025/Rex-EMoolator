@@ -1,14 +1,14 @@
 package pl.genschu.bloomooemulator.builders;
 
 import pl.genschu.bloomooemulator.interpreter.Context;
-import pl.genschu.bloomooemulator.interpreter.factories.VariableFactory;
+import pl.genschu.bloomooemulator.interpreter.factories.LegacyVariableFactory;
 import pl.genschu.bloomooemulator.interpreter.variable.Variable;
 
 public final class ContextBuilder {
     private final Context ctx = new Context();
 
     public ContextBuilder withFactory(String type, String name, Object value) {
-        Variable v = VariableFactory
+        Variable v = LegacyVariableFactory
                 .createVariable(type, name, value, ctx);
         ctx.setVariable(name, v);
         return this;

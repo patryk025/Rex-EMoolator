@@ -1,7 +1,7 @@
 package pl.genschu.bloomooemulator.interpreter.variable.types;
 
 import pl.genschu.bloomooemulator.interpreter.Context;
-import pl.genschu.bloomooemulator.interpreter.factories.VariableFactory;
+import pl.genschu.bloomooemulator.interpreter.factories.LegacyVariableFactory;
 import pl.genschu.bloomooemulator.interpreter.variable.Method;
 import pl.genschu.bloomooemulator.interpreter.variable.Parameter;
 import pl.genschu.bloomooemulator.interpreter.variable.Variable;
@@ -69,9 +69,9 @@ public class StructVariable extends Variable {
 			List<String> currentRow = db.getCurrentRow();
 			for (int i = 0; i < fields.size(); i++) {
 				try {
-					values.set(i, VariableFactory.createVariable(types.get(i), "", currentRow.get(i), context));
+					values.set(i, LegacyVariableFactory.createVariable(types.get(i), "", currentRow.get(i), context));
 				} catch (IndexOutOfBoundsException e) {
-					values.set(i, VariableFactory.createVariable(types.get(i), "", "", context));
+					values.set(i, LegacyVariableFactory.createVariable(types.get(i), "", "", context));
 				}
 			}
 		}
@@ -131,7 +131,7 @@ public class StructVariable extends Variable {
 		while (matcher.find()) {
 			fields.add(matcher.group(1));
 			types.add(matcher.group(2));
-			values.add(VariableFactory.createVariable(types.get(types.size() - 1), null, null, context));
+			values.add(LegacyVariableFactory.createVariable(types.get(types.size() - 1), null, null, context));
 		}
 	}
 }

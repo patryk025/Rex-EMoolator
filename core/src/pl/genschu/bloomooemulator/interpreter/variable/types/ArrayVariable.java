@@ -7,7 +7,7 @@ import pl.genschu.bloomooemulator.interpreter.arithmetic.operations.MultiplyOper
 import pl.genschu.bloomooemulator.interpreter.arithmetic.operations.SubtractOperation;
 import pl.genschu.bloomooemulator.interpreter.exceptions.ClassMethodNotImplementedException;
 import pl.genschu.bloomooemulator.interpreter.Context;
-import pl.genschu.bloomooemulator.interpreter.factories.VariableFactory;
+import pl.genschu.bloomooemulator.interpreter.factories.LegacyVariableFactory;
 import pl.genschu.bloomooemulator.interpreter.logic.operations.EqualsOperation;
 import pl.genschu.bloomooemulator.interpreter.variable.Attribute;
 import pl.genschu.bloomooemulator.interpreter.variable.Method;
@@ -271,7 +271,7 @@ public class ArrayVariable extends Variable implements Cloneable {
                     if(serialized.isEmpty()) return null;
 					String[] elems = serialized.split(",");
 					for(String element : elems) {
-						((ArrayVariable) self).elements.add(VariableFactory.createVariableWithAutoType("", element, self.getContext()));
+						((ArrayVariable) self).elements.add(LegacyVariableFactory.createVariableWithAutoType("", element, self.getContext()));
 					}
 				}
 				else {

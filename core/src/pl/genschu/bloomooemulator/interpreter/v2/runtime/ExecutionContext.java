@@ -3,6 +3,10 @@ package pl.genschu.bloomooemulator.interpreter.v2.runtime;
 import pl.genschu.bloomooemulator.interpreter.Context;
 import pl.genschu.bloomooemulator.interpreter.v2.errors.SourceLocation;
 import pl.genschu.bloomooemulator.interpreter.v2.values.Value;
+import pl.genschu.bloomooemulator.interpreter.variable.Variable;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Execution context that manages the call stack and provides stack trace functionality.
@@ -14,6 +18,7 @@ public class ExecutionContext {
     private final Context legacyContext;  // Old context - temporary bridge
     private ExecutionFrame currentFrame;  // Current execution frame
     private int maxStackDepth = 1000;     // Maximum stack depth before overflow
+    private final Map<String, Value> globalVariables = new HashMap<>();
 
     public ExecutionContext(Context legacyContext) {
         this.legacyContext = legacyContext;
@@ -70,6 +75,30 @@ public class ExecutionContext {
     }
 
     /**
+     * Sets a "this" value on the current frame.
+     */
+    public void setThis(Value value) {
+        if (currentFrame == null) {
+            throw new IllegalStateException("No active execution frame");
+        }
+        currentFrame.setThis(value);
+    }
+
+    /**
+     * Gets the nearest "this" value from the current frame upwards.
+     */
+    public Value getThis() {
+        ExecutionFrame frame = currentFrame;
+        while (frame != null) {
+            if (frame.hasThis()) {
+                return frame.getThis();
+            }
+            frame = frame.getParent();
+        }
+        return null;
+    }
+
+    /**
      * Sets a local variable in the current frame.
      *
      * @throws IllegalStateException if no frame is active
@@ -94,6 +123,113 @@ public class ExecutionContext {
             frame = frame.getParent();
         }
         return null;
+    }
+
+    /**
+     * Sets a variable in the active scope. If a local exists, it is updated; otherwise
+     * the value is stored in the current frame (if present) or as a global.
+     */
+    public void setVariableValue(String name, Value value) {
+        ExecutionFrame frameWithLocal = findFrameWithLocal(name);
+        if (frameWithLocal != null) {
+            frameWithLocal.setLocal(name, value);
+        } else if (globalVariables.containsKey(name)) {
+            setGlobal(name, value);
+            return;
+        } else if (currentFrame != null) {
+            currentFrame.setLocal(name, value);
+        } else {
+            setGlobal(name, value);
+            return;
+        }
+
+        mirrorLegacyVariable(name, value);
+    }
+
+    /**
+     * Gets a variable value from locals or globals. If not found, falls back to legacy context
+     * and converts it to a v2 Value (also caching it as a global for subsequent reads).
+     */
+    public Value getVariableValue(String name) {
+        Value value = getLocalOrGlobal(name);
+        if (value != null) {
+            return value;
+        }
+
+        if (legacyContext != null) {
+            Variable legacyVariable = legacyContext.getVariable(name);
+            if (legacyVariable != null) {
+                Value bridged = VariableBridge.toValue(legacyVariable);
+                setGlobal(name, bridged);
+                return bridged;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Exposes the global variable map for reads.
+     */
+    public Value getGlobal(String name) {
+        return globalVariables.get(name);
+    }
+
+    /**
+     * Stores a global variable value.
+     */
+    public void setGlobal(String name, Value value) {
+        globalVariables.put(name, value);
+        mirrorLegacyVariable(name, value);
+    }
+
+    /**
+     * Returns a legacy Variable representation of a stored value if possible,
+     * otherwise falls back to the wrapped legacy context.
+     */
+    public Variable getLegacyVariable(String name) {
+        if (legacyContext == null) {
+            return null;
+        }
+
+        Value stored = getLocalOrGlobal(name);
+        if (stored != null) {
+            return VariableBridge.toVariable(stored, name, legacyContext);
+        }
+
+        return legacyContext.getVariable(name);
+    }
+
+    private Value getLocalOrGlobal(String name) {
+        Value local = getLocal(name);
+        if (local != null) {
+            return local;
+        }
+        return globalVariables.get(name);
+    }
+
+    private ExecutionFrame findFrameWithLocal(String name) {
+        ExecutionFrame frame = currentFrame;
+        while (frame != null) {
+            if (frame.hasLocal(name)) {
+                return frame;
+            }
+            frame = frame.getParent();
+        }
+        return null;
+    }
+
+    private void mirrorLegacyVariable(String name, Value value) {
+        if (legacyContext == null) {
+            return;
+        }
+
+        try {
+            Variable variable = VariableBridge.toVariable(value, name, legacyContext);
+            legacyContext.setVariable(name, variable);
+        } catch (Exception ignored) {
+            // Some values cannot be mirrored yet (e.g., behaviours without AST)
+        }
     }
 
     /**

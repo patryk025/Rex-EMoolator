@@ -6,14 +6,10 @@ import pl.genschu.bloomooemulator.interpreter.ast.Expression;
 import pl.genschu.bloomooemulator.interpreter.ast.Statement;
 import pl.genschu.bloomooemulator.interpreter.ast.expressions.ConstantExpression;
 import pl.genschu.bloomooemulator.interpreter.exceptions.BreakException;
-import pl.genschu.bloomooemulator.interpreter.factories.VariableFactory;
-import pl.genschu.bloomooemulator.interpreter.variable.Variable;
 import pl.genschu.bloomooemulator.interpreter.variable.types.BehaviourVariable;
 import pl.genschu.bloomooemulator.interpreter.variable.types.BoolVariable;
 
 import java.util.Collections;
-
-import static pl.genschu.bloomooemulator.interpreter.util.VariableHelper.getVariableFromObject;
 
 public class IfStatement extends Statement {
     private final Expression condition;

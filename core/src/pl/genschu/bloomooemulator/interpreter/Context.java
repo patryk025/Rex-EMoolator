@@ -1,7 +1,7 @@
 package pl.genschu.bloomooemulator.interpreter;
 
 import pl.genschu.bloomooemulator.engine.config.EngineConfig;
-import pl.genschu.bloomooemulator.interpreter.factories.VariableFactory;
+import pl.genschu.bloomooemulator.interpreter.factories.LegacyVariableFactory;
 import pl.genschu.bloomooemulator.interpreter.util.GlobalVariables;
 import pl.genschu.bloomooemulator.interpreter.variable.GlobalVariable;
 import pl.genschu.bloomooemulator.interpreter.variable.Variable;
@@ -115,7 +115,7 @@ public class Context {
                 return parentContext.getVariable(name);
             }
 
-            variable = VariableFactory.createVariable("STRING", name, name, this);
+            variable = LegacyVariableFactory.createVariable("STRING", name, name, this);
         }
         return variable;
     }

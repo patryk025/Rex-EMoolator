@@ -1,9 +1,8 @@
 package pl.genschu.bloomooemulator.interpreter.variable.types;
 
 import com.badlogic.gdx.Gdx;
-import pl.genschu.bloomooemulator.interpreter.exceptions.ClassMethodNotImplementedException;
 import pl.genschu.bloomooemulator.interpreter.Context;
-import pl.genschu.bloomooemulator.interpreter.factories.VariableFactory;
+import pl.genschu.bloomooemulator.interpreter.factories.LegacyVariableFactory;
 import pl.genschu.bloomooemulator.interpreter.variable.Attribute;
 import pl.genschu.bloomooemulator.interpreter.variable.Method;
 import pl.genschu.bloomooemulator.interpreter.variable.Parameter;
@@ -15,13 +14,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.nio.channels.FileChannel;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -105,7 +98,7 @@ public class StringVariable extends Variable {
 
 				if (!sourceFile.exists()) {
 					Gdx.app.error("COPYFILE", "Source file does not exist: " + sourcePathString);
-					return VariableFactory.createVariable("BOOL", "COPYFILE_RESULT", "FALSE", selfVar.getContext());
+					return LegacyVariableFactory.createVariable("BOOL", "COPYFILE_RESULT", "FALSE", selfVar.getContext());
 				}
 
 				FileInputStream inputStream = null;
@@ -120,10 +113,10 @@ public class StringVariable extends Variable {
 						outputStream.write(buffer, 0, length);
 					}
 
-					return VariableFactory.createVariable("BOOL", "COPYFILE_RESULT", "TRUE", selfVar.getContext());
+					return LegacyVariableFactory.createVariable("BOOL", "COPYFILE_RESULT", "TRUE", selfVar.getContext());
 				} catch (IOException e) {
 					Gdx.app.error("COPYFILE", "Error copying file from " + sourcePathString + " to " + destinationPathString, e);
-					return VariableFactory.createVariable("BOOL", "COPYFILE_RESULT", "FALSE", selfVar.getContext());
+					return LegacyVariableFactory.createVariable("BOOL", "COPYFILE_RESULT", "FALSE", selfVar.getContext());
 				} finally {
 					try {
 						if (inputStream != null) {

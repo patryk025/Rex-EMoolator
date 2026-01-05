@@ -2,7 +2,7 @@ package pl.genschu.bloomooemulator.interpreter.util;
 
 import pl.genschu.bloomooemulator.interpreter.Context;
 import pl.genschu.bloomooemulator.interpreter.variable.Variable;
-import pl.genschu.bloomooemulator.interpreter.factories.VariableFactory;
+import pl.genschu.bloomooemulator.interpreter.factories.LegacyVariableFactory;
 import pl.genschu.bloomooemulator.interpreter.ast.expressions.*;
 import pl.genschu.bloomooemulator.interpreter.variable.types.*;
 
@@ -12,7 +12,7 @@ public class VariableHelper {
             return (Variable) ((MethodCallExpression) value).evaluate(context);
         }
         else if(value instanceof ArithmeticExpression) {
-            return VariableFactory.createVariableWithAutoType("",  ((ConstantExpression) ((ArithmeticExpression) value).evaluate(context)).evaluate(context).toString(), context);
+            return LegacyVariableFactory.createVariableWithAutoType("",  ((ConstantExpression) ((ArithmeticExpression) value).evaluate(context)).evaluate(context).toString(), context);
         }
         else if(value instanceof ConstantExpression) {
             Object valueString = ((ConstantExpression) value).evaluate(context);
