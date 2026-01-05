@@ -1,9 +1,9 @@
 package pl.genschu.bloomooemulator.geometry.spartial;
 
 import pl.genschu.bloomooemulator.geometry.shapes.Box2D;
-import pl.genschu.bloomooemulator.interpreter.variable.Variable;
-import pl.genschu.bloomooemulator.interpreter.variable.types.AnimoVariable;
-import pl.genschu.bloomooemulator.interpreter.variable.types.ImageVariable;
+import pl.genschu.bloomooemulator.interpreter.v1.variable.Variable;
+import pl.genschu.bloomooemulator.interpreter.v1.variable.types.AnimoVariable;
+import pl.genschu.bloomooemulator.interpreter.v1.variable.types.ImageVariable;
 
 import java.util.ArrayList;
 import java.util.List;

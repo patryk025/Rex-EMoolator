@@ -5,9 +5,9 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import pl.genschu.bloomooemulator.TestEnvironment;
 import pl.genschu.bloomooemulator.builders.ContextBuilder;
-import pl.genschu.bloomooemulator.interpreter.Context;
-import pl.genschu.bloomooemulator.interpreter.variable.Variable;
-import pl.genschu.bloomooemulator.interpreter.variable.types.*;
+import pl.genschu.bloomooemulator.interpreter.v1.Context;
+import pl.genschu.bloomooemulator.interpreter.v1.variable.Variable;
+import pl.genschu.bloomooemulator.interpreter.v1.variable.types.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 

@@ -1,10 +1,10 @@
 package pl.genschu.bloomooemulator;
 
-import pl.genschu.bloomooemulator.interpreter.variable.Attribute;
-import pl.genschu.bloomooemulator.interpreter.variable.Variable;
-import pl.genschu.bloomooemulator.interpreter.variable.types.ArrayVariable;
-import pl.genschu.bloomooemulator.interpreter.variable.types.IntegerVariable;
-import pl.genschu.bloomooemulator.interpreter.variable.types.MatrixVariable;
+import pl.genschu.bloomooemulator.interpreter.v1.variable.Attribute;
+import pl.genschu.bloomooemulator.interpreter.v1.variable.Variable;
+import pl.genschu.bloomooemulator.interpreter.v1.variable.types.ArrayVariable;
+import pl.genschu.bloomooemulator.interpreter.v1.variable.types.IntegerVariable;
+import pl.genschu.bloomooemulator.interpreter.v1.variable.types.MatrixVariable;
 
 import java.util.List;
 

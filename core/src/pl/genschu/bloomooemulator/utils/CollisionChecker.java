@@ -4,10 +4,10 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.TextureData;
-import pl.genschu.bloomooemulator.interpreter.variable.Attribute;
-import pl.genschu.bloomooemulator.interpreter.variable.Variable;
-import pl.genschu.bloomooemulator.interpreter.variable.types.AnimoVariable;
-import pl.genschu.bloomooemulator.interpreter.variable.types.ImageVariable;
+import pl.genschu.bloomooemulator.interpreter.v1.variable.Attribute;
+import pl.genschu.bloomooemulator.interpreter.v1.variable.Variable;
+import pl.genschu.bloomooemulator.interpreter.v1.variable.types.AnimoVariable;
+import pl.genschu.bloomooemulator.interpreter.v1.variable.types.ImageVariable;
 import pl.genschu.bloomooemulator.objects.Image;
 import pl.genschu.bloomooemulator.geometry.shapes.Box2D;
 

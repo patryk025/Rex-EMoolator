@@ -3,10 +3,10 @@ package pl.genschu.bloomooemulator.engine.update;
 import com.badlogic.gdx.utils.Disposable;
 import pl.genschu.bloomooemulator.engine.Game;
 import pl.genschu.bloomooemulator.engine.config.EngineConfig;
-import pl.genschu.bloomooemulator.interpreter.Context;
-import pl.genschu.bloomooemulator.interpreter.exceptions.BreakException;
-import pl.genschu.bloomooemulator.interpreter.variable.Variable;
-import pl.genschu.bloomooemulator.interpreter.variable.types.*;
+import pl.genschu.bloomooemulator.interpreter.v1.Context;
+import pl.genschu.bloomooemulator.interpreter.v1.exceptions.BreakException;
+import pl.genschu.bloomooemulator.interpreter.v1.variable.Variable;
+import pl.genschu.bloomooemulator.interpreter.v1.variable.types.*;
 import pl.genschu.bloomooemulator.geometry.shapes.Box2D;
 import pl.genschu.bloomooemulator.utils.CollisionChecker;
 

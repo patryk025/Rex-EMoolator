@@ -1,7 +1,7 @@
 package pl.genschu.bloomooemulator.saver;
 
 import com.badlogic.gdx.Gdx;
-import pl.genschu.bloomooemulator.interpreter.variable.types.DatabaseVariable;
+import pl.genschu.bloomooemulator.interpreter.v1.variable.types.DatabaseVariable;
 import pl.genschu.bloomooemulator.utils.FileUtils;
 
 import java.io.BufferedWriter;

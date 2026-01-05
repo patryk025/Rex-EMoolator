@@ -1,9 +1,9 @@
 package pl.genschu.bloomooemulator.interpreter.factories;
 
-import pl.genschu.bloomooemulator.interpreter.Context;
-import pl.genschu.bloomooemulator.interpreter.variable.types.*;
-import pl.genschu.bloomooemulator.interpreter.util.TypeGuesser;
-import pl.genschu.bloomooemulator.interpreter.variable.Variable;
+import pl.genschu.bloomooemulator.interpreter.v1.Context;
+import pl.genschu.bloomooemulator.interpreter.v1.variable.types.*;
+import pl.genschu.bloomooemulator.interpreter.v1.util.TypeGuesser;
+import pl.genschu.bloomooemulator.interpreter.v1.variable.Variable;
 
 import java.util.Objects;
 

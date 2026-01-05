@@ -1,6 +1,6 @@
 package pl.genschu.bloomooemulator.engine.physics;
 
-import pl.genschu.bloomooemulator.interpreter.variable.Variable;
+import pl.genschu.bloomooemulator.interpreter.v1.variable.Variable;
 import pl.genschu.bloomooemulator.world.GameObject;
 import pl.genschu.bloomooemulator.world.Mesh;
 

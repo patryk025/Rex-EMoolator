@@ -4,7 +4,7 @@ import com.badlogic.gdx.Gdx;
 import pl.genschu.bloomooemulator.engine.physics.pathfinding.AStar;
 import pl.genschu.bloomooemulator.engine.physics.pathfinding.Graph;
 import pl.genschu.bloomooemulator.geometry.points.Point3D;
-import pl.genschu.bloomooemulator.interpreter.variable.types.WorldVariable;
+import pl.genschu.bloomooemulator.interpreter.v1.variable.types.WorldVariable;
 import pl.genschu.bloomooemulator.loader.helpers.BinaryHelper;
 import pl.genschu.bloomooemulator.utils.FileUtils;
 import pl.genschu.bloomooemulator.world.*;

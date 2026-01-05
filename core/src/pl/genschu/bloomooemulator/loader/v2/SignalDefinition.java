@@ -1,6 +1,6 @@
 package pl.genschu.bloomooemulator.loader.v2;
 
-import pl.genschu.bloomooemulator.interpreter.variable.types.BehaviourVariable;
+import pl.genschu.bloomooemulator.interpreter.v1.variable.types.BehaviourVariable;
 
 /**
  * Structured representation of a signal definition from CNV file.

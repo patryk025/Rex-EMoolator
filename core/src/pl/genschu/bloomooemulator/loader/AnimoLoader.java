@@ -3,7 +3,7 @@ package pl.genschu.bloomooemulator.loader;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.files.FileHandle;
-import pl.genschu.bloomooemulator.interpreter.variable.types.AnimoVariable;
+import pl.genschu.bloomooemulator.interpreter.v1.variable.types.AnimoVariable;
 import pl.genschu.bloomooemulator.objects.Event;
 import pl.genschu.bloomooemulator.objects.FrameData;
 import pl.genschu.bloomooemulator.objects.Image;

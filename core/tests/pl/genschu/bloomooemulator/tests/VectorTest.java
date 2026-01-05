@@ -2,17 +2,15 @@ package pl.genschu.bloomooemulator.tests;
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.Arguments;
 
 import pl.genschu.bloomooemulator.TestEnvironment;
 import pl.genschu.bloomooemulator.builders.ContextBuilder;
-import pl.genschu.bloomooemulator.interpreter.Context;
-import pl.genschu.bloomooemulator.interpreter.variable.Attribute;
-import pl.genschu.bloomooemulator.interpreter.variable.Variable;
-import pl.genschu.bloomooemulator.interpreter.variable.types.*;
+import pl.genschu.bloomooemulator.interpreter.v1.Context;
+import pl.genschu.bloomooemulator.interpreter.v1.variable.Attribute;
+import pl.genschu.bloomooemulator.interpreter.v1.variable.types.*;
 
 import java.util.stream.Stream;
 

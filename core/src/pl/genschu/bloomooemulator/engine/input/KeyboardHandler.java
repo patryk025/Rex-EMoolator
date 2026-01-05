@@ -1,10 +1,9 @@
 package pl.genschu.bloomooemulator.engine.input;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Input;
 import pl.genschu.bloomooemulator.engine.Game;
-import pl.genschu.bloomooemulator.interpreter.util.KeyboardsKeysMapper;
-import pl.genschu.bloomooemulator.interpreter.variable.types.KeyboardVariable;
+import pl.genschu.bloomooemulator.interpreter.v1.util.KeyboardsKeysMapper;
+import pl.genschu.bloomooemulator.interpreter.v1.variable.types.KeyboardVariable;
 
 import java.util.Set;
 

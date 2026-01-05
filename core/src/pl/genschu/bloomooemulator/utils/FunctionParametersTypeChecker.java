@@ -1,8 +1,8 @@
 package pl.genschu.bloomooemulator.utils;
 
-import pl.genschu.bloomooemulator.interpreter.variable.Variable;
-import pl.genschu.bloomooemulator.interpreter.exceptions.InterpreterException;
-import pl.genschu.bloomooemulator.interpreter.exceptions.InvalidMethodParamTypeException;
+import pl.genschu.bloomooemulator.interpreter.v1.variable.Variable;
+import pl.genschu.bloomooemulator.interpreter.v1.exceptions.InterpreterException;
+import pl.genschu.bloomooemulator.interpreter.v1.exceptions.InvalidMethodParamTypeException;
 
 public class FunctionParametersTypeChecker {
     public static void checkTypes(Variable[] params, String[] types) {

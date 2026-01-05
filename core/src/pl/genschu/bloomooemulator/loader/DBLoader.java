@@ -1,11 +1,10 @@
 package pl.genschu.bloomooemulator.loader;
 
 import com.badlogic.gdx.Gdx;
-import pl.genschu.bloomooemulator.interpreter.variable.types.DatabaseVariable;
+import pl.genschu.bloomooemulator.interpreter.v1.variable.types.DatabaseVariable;
 import pl.genschu.bloomooemulator.utils.FileUtils;
 
 import java.io.BufferedReader;
-import java.io.FileInputStream;
 import java.io.FileReader;
 import java.util.ArrayList;
 import java.util.Arrays;

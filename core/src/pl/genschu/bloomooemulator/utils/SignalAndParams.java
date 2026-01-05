@@ -1,6 +1,6 @@
 package pl.genschu.bloomooemulator.utils;
 
-import pl.genschu.bloomooemulator.interpreter.variable.types.BehaviourVariable;
+import pl.genschu.bloomooemulator.interpreter.v1.variable.types.BehaviourVariable;
 
 // Helper class to store the behaviour variable and its parameters
 public class SignalAndParams {

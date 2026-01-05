@@ -1,8 +1,8 @@
 package pl.genschu.bloomooemulator.builders;
 
-import pl.genschu.bloomooemulator.interpreter.Context;
+import pl.genschu.bloomooemulator.interpreter.v1.Context;
 import pl.genschu.bloomooemulator.interpreter.factories.LegacyVariableFactory;
-import pl.genschu.bloomooemulator.interpreter.variable.Variable;
+import pl.genschu.bloomooemulator.interpreter.v1.variable.Variable;
 
 public final class ContextBuilder {
     private final Context ctx = new Context();

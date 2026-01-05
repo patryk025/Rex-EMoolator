@@ -5,14 +5,14 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.BeforeEach;
 import pl.genschu.bloomooemulator.TestEnvironment;
 import pl.genschu.bloomooemulator.builders.ContextBuilder;
-import pl.genschu.bloomooemulator.interpreter.Context;
-import pl.genschu.bloomooemulator.interpreter.exceptions.VariableUnsupportedOperationException;
+import pl.genschu.bloomooemulator.interpreter.v1.Context;
+import pl.genschu.bloomooemulator.interpreter.v1.exceptions.VariableUnsupportedOperationException;
 import pl.genschu.bloomooemulator.interpreter.factories.LegacyVariableFactory;
-import pl.genschu.bloomooemulator.interpreter.variable.Signal;
-import pl.genschu.bloomooemulator.interpreter.variable.Variable;
-import pl.genschu.bloomooemulator.interpreter.variable.types.BoolVariable;
-import pl.genschu.bloomooemulator.interpreter.variable.types.IntegerVariable;
-import pl.genschu.bloomooemulator.interpreter.variable.types.StringVariable;
+import pl.genschu.bloomooemulator.interpreter.v1.variable.Signal;
+import pl.genschu.bloomooemulator.interpreter.v1.variable.Variable;
+import pl.genschu.bloomooemulator.interpreter.v1.variable.types.BoolVariable;
+import pl.genschu.bloomooemulator.interpreter.v1.variable.types.IntegerVariable;
+import pl.genschu.bloomooemulator.interpreter.v1.variable.types.StringVariable;
 
 import static org.junit.jupiter.api.Assertions.*;
 

@@ -1,8 +1,8 @@
 package pl.genschu.bloomooemulator.interpreter.factories;
 
-import pl.genschu.bloomooemulator.interpreter.v2.ast.ASTNode;
-import pl.genschu.bloomooemulator.interpreter.v2.values.*;
-import pl.genschu.bloomooemulator.interpreter.v2.variable.*;
+import pl.genschu.bloomooemulator.interpreter.ast.ASTNode;
+import pl.genschu.bloomooemulator.interpreter.values.*;
+import pl.genschu.bloomooemulator.interpreter.variable.*;
 
 import java.util.Locale;
 

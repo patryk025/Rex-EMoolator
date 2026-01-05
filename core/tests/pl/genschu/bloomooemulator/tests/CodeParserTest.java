@@ -7,11 +7,11 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import pl.genschu.bloomooemulator.TestEnvironment;
 import pl.genschu.bloomooemulator.builders.ContextBuilder;
-import pl.genschu.bloomooemulator.interpreter.Context;
+import pl.genschu.bloomooemulator.interpreter.v1.Context;
 import pl.genschu.bloomooemulator.interpreter.factories.LegacyVariableFactory;
-import pl.genschu.bloomooemulator.interpreter.variable.Variable;
-import pl.genschu.bloomooemulator.interpreter.variable.types.BehaviourVariable;
-import pl.genschu.bloomooemulator.interpreter.variable.types.StructVariable;
+import pl.genschu.bloomooemulator.interpreter.v1.variable.Variable;
+import pl.genschu.bloomooemulator.interpreter.v1.variable.types.BehaviourVariable;
+import pl.genschu.bloomooemulator.interpreter.v1.variable.types.StructVariable;
 
 import java.util.List;
 import java.util.stream.Stream;

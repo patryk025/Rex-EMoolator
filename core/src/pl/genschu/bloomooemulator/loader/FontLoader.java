@@ -2,7 +2,7 @@ package pl.genschu.bloomooemulator.loader;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import pl.genschu.bloomooemulator.interpreter.variable.types.FontVariable;
+import pl.genschu.bloomooemulator.interpreter.v1.variable.types.FontVariable;
 import pl.genschu.bloomooemulator.objects.FontCropping;
 import pl.genschu.bloomooemulator.objects.Image;
 import pl.genschu.bloomooemulator.utils.FileUtils;

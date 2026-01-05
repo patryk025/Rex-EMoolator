@@ -10,10 +10,10 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Disposable;
 import pl.genschu.bloomooemulator.engine.filters.Filter;
-import pl.genschu.bloomooemulator.interpreter.variable.Variable;
-import pl.genschu.bloomooemulator.interpreter.variable.types.AnimoVariable;
-import pl.genschu.bloomooemulator.interpreter.variable.types.ImageVariable;
-import pl.genschu.bloomooemulator.interpreter.variable.types.TextVariable;
+import pl.genschu.bloomooemulator.interpreter.v1.variable.Variable;
+import pl.genschu.bloomooemulator.interpreter.v1.variable.types.AnimoVariable;
+import pl.genschu.bloomooemulator.interpreter.v1.variable.types.ImageVariable;
+import pl.genschu.bloomooemulator.interpreter.v1.variable.types.TextVariable;
 import pl.genschu.bloomooemulator.objects.Image;
 import pl.genschu.bloomooemulator.geometry.shapes.Box2D;
 

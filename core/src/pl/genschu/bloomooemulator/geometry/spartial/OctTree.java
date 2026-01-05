@@ -2,7 +2,7 @@ package pl.genschu.bloomooemulator.geometry.spartial;
 
 import pl.genschu.bloomooemulator.geometry.points.Point3D;
 import pl.genschu.bloomooemulator.geometry.shapes.Box3D;
-import pl.genschu.bloomooemulator.interpreter.variable.Variable;
+import pl.genschu.bloomooemulator.interpreter.v1.variable.Variable;
 
 import java.util.ArrayList;
 import java.util.List;

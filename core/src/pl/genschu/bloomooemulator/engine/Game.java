@@ -8,11 +8,11 @@ import com.badlogic.gdx.utils.GdxRuntimeException;
 import org.ini4j.Ini;
 import pl.genschu.bloomooemulator.BlooMooEngine;
 import pl.genschu.bloomooemulator.engine.input.InputManager;
-import pl.genschu.bloomooemulator.interpreter.Context;
-import pl.genschu.bloomooemulator.interpreter.util.GlobalVariables;
-import pl.genschu.bloomooemulator.interpreter.variable.Attribute;
-import pl.genschu.bloomooemulator.interpreter.variable.Variable;
-import pl.genschu.bloomooemulator.interpreter.variable.types.*;
+import pl.genschu.bloomooemulator.interpreter.v1.Context;
+import pl.genschu.bloomooemulator.interpreter.v1.util.GlobalVariables;
+import pl.genschu.bloomooemulator.interpreter.v1.variable.Attribute;
+import pl.genschu.bloomooemulator.interpreter.v1.variable.Variable;
+import pl.genschu.bloomooemulator.interpreter.v1.variable.types.*;
 import pl.genschu.bloomooemulator.loader.CNVParser;
 import pl.genschu.bloomooemulator.logic.GameEntry;
 

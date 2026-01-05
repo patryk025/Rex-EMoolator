@@ -4,7 +4,7 @@ import org.openjdk.jmh.annotations.*;
 import pl.genschu.bloomooemulator.TestEnvironment;
 import pl.genschu.bloomooemulator.encoding.ScriptDecypher;
 import pl.genschu.bloomooemulator.engine.Game;
-import pl.genschu.bloomooemulator.interpreter.Context;
+import pl.genschu.bloomooemulator.interpreter.v1.Context;
 import pl.genschu.bloomooemulator.loader.CNVParser;
 
 import java.io.File;

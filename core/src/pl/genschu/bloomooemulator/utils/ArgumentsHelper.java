@@ -1,7 +1,7 @@
 package pl.genschu.bloomooemulator.utils;
 
-import pl.genschu.bloomooemulator.interpreter.variable.Variable;
-import pl.genschu.bloomooemulator.interpreter.variable.types.*;
+import pl.genschu.bloomooemulator.interpreter.v1.variable.Variable;
+import pl.genschu.bloomooemulator.interpreter.v1.variable.types.*;
 
 public class ArgumentsHelper {
     public static int getInteger(Object object) {

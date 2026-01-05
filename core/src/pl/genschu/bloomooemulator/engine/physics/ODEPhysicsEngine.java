@@ -1,15 +1,13 @@
 package pl.genschu.bloomooemulator.engine.physics;
 
-import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import org.ode4j.math.*;
 import org.ode4j.ode.*;
 import pl.genschu.bloomooemulator.engine.physics.camera.CameraAnchor;
 import pl.genschu.bloomooemulator.engine.physics.pathfinding.AStar;
-import pl.genschu.bloomooemulator.engine.physics.pathfinding.Graph;
 import pl.genschu.bloomooemulator.geometry.points.Point3D;
-import pl.genschu.bloomooemulator.interpreter.variable.Variable;
-import pl.genschu.bloomooemulator.interpreter.variable.types.IntegerVariable;
+import pl.genschu.bloomooemulator.interpreter.v1.variable.Variable;
+import pl.genschu.bloomooemulator.interpreter.v1.variable.types.IntegerVariable;
 import pl.genschu.bloomooemulator.world.*;
 
 import java.util.*;

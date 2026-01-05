@@ -1,14 +1,14 @@
 package pl.genschu.bloomooemulator.loader;
 
-import pl.genschu.bloomooemulator.interpreter.Context;
-import pl.genschu.bloomooemulator.interpreter.exceptions.BreakException;
-import pl.genschu.bloomooemulator.interpreter.exceptions.OneBreakException;
-import pl.genschu.bloomooemulator.interpreter.variable.Signal;
-import pl.genschu.bloomooemulator.interpreter.variable.Variable;
+import pl.genschu.bloomooemulator.interpreter.v1.Context;
+import pl.genschu.bloomooemulator.interpreter.v1.exceptions.BreakException;
+import pl.genschu.bloomooemulator.interpreter.v1.exceptions.OneBreakException;
+import pl.genschu.bloomooemulator.interpreter.v1.variable.Signal;
+import pl.genschu.bloomooemulator.interpreter.v1.variable.Variable;
 import pl.genschu.bloomooemulator.interpreter.factories.LegacyVariableFactory;
 import pl.genschu.bloomooemulator.encoding.ScriptDecypher;
 import com.badlogic.gdx.Gdx;
-import pl.genschu.bloomooemulator.interpreter.variable.types.*;
+import pl.genschu.bloomooemulator.interpreter.v1.variable.types.*;
 import pl.genschu.bloomooemulator.utils.SignalAndParams;
 
 import java.io.*;
@@ -16,7 +16,7 @@ import java.util.*;
 import java.util.regex.Pattern;
 import java.util.stream.IntStream;
 
-import static pl.genschu.bloomooemulator.interpreter.util.VariableHelper.getVariableFromObject;
+import static pl.genschu.bloomooemulator.interpreter.v1.util.VariableHelper.getVariableFromObject;
 
 public class CNVParser {
     String[] tmpParam = null;

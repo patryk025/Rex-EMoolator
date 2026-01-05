@@ -2,11 +2,11 @@ package pl.genschu.bloomooemulator.loader;
 
 import com.badlogic.gdx.Gdx;
 import pl.genschu.bloomooemulator.encoding.ScriptDecypher;
-import pl.genschu.bloomooemulator.interpreter.variable.Attribute;
-import pl.genschu.bloomooemulator.interpreter.variable.Variable;
-import pl.genschu.bloomooemulator.interpreter.variable.types.AnimoVariable;
-import pl.genschu.bloomooemulator.interpreter.variable.types.SequenceVariable;
-import pl.genschu.bloomooemulator.interpreter.variable.types.SoundVariable;
+import pl.genschu.bloomooemulator.interpreter.v1.variable.Attribute;
+import pl.genschu.bloomooemulator.interpreter.v1.variable.Variable;
+import pl.genschu.bloomooemulator.interpreter.v1.variable.types.AnimoVariable;
+import pl.genschu.bloomooemulator.interpreter.v1.variable.types.SequenceVariable;
+import pl.genschu.bloomooemulator.interpreter.v1.variable.types.SoundVariable;
 import pl.genschu.bloomooemulator.utils.FileUtils;
 
 import java.io.*;

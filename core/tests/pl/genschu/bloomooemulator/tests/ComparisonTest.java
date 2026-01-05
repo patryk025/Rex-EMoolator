@@ -6,14 +6,13 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import pl.genschu.bloomooemulator.TestEnvironment;
 import pl.genschu.bloomooemulator.builders.ContextBuilder;
-import pl.genschu.bloomooemulator.interpreter.Context;
-import pl.genschu.bloomooemulator.interpreter.arithmetic.ArithmeticSolver;
-import pl.genschu.bloomooemulator.interpreter.logic.LogicSolver;
-import pl.genschu.bloomooemulator.interpreter.variable.Variable;
-import pl.genschu.bloomooemulator.interpreter.variable.types.BoolVariable;
-import pl.genschu.bloomooemulator.interpreter.variable.types.DoubleVariable;
-import pl.genschu.bloomooemulator.interpreter.variable.types.IntegerVariable;
-import pl.genschu.bloomooemulator.interpreter.variable.types.StringVariable;
+import pl.genschu.bloomooemulator.interpreter.v1.Context;
+import pl.genschu.bloomooemulator.interpreter.v1.logic.LogicSolver;
+import pl.genschu.bloomooemulator.interpreter.v1.variable.Variable;
+import pl.genschu.bloomooemulator.interpreter.v1.variable.types.BoolVariable;
+import pl.genschu.bloomooemulator.interpreter.v1.variable.types.DoubleVariable;
+import pl.genschu.bloomooemulator.interpreter.v1.variable.types.IntegerVariable;
+import pl.genschu.bloomooemulator.interpreter.v1.variable.types.StringVariable;
 
 import java.util.Map;
 

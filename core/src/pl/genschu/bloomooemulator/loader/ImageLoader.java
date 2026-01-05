@@ -1,8 +1,7 @@
 package pl.genschu.bloomooemulator.loader;
 
 import com.badlogic.gdx.Gdx;
-import pl.genschu.bloomooemulator.interpreter.variable.types.AnimoVariable;
-import pl.genschu.bloomooemulator.interpreter.variable.types.ImageVariable;
+import pl.genschu.bloomooemulator.interpreter.v1.variable.types.ImageVariable;
 import pl.genschu.bloomooemulator.objects.Image;
 import pl.genschu.bloomooemulator.utils.FileUtils;
 
