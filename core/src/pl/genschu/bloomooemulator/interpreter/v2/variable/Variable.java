@@ -5,33 +5,13 @@ import pl.genschu.bloomooemulator.interpreter.v2.values.Value;
 import java.util.List;
 import java.util.Map;
 
-/**
- * V2 Variable - Clean, immutable, type-safe!
- *
- * Key differences from v1:
- * - Immutable (returns new instance on change)
- * - Type-safe (sealed interface)
- * - Clean API (no getAttribute("VALUE"))
- * - Built-in signal support
- *
- * Why immutable?
- * - No side effects
- * - Thread-safe automatically
- * - Easy to test
- * - Easy to reason about
- *
- * Why sealed?
- * - Exhaustive pattern matching
- * - Compiler enforces handling all types
- * - No unknown subtypes
- */
 public sealed interface Variable permits
-    IntegerVariable,
-    DoubleVariable,
-    StringVariable,
-    BoolVariable,
-    BehaviourVariable,
-    ArrayVariable {
+        IntegerVariable,
+        DoubleVariable,
+        StringVariable,
+        BoolVariable,
+        BehaviourVariable,
+        ArrayVariable {
 
     /**
      * Returns the name of this variable.
@@ -67,7 +47,18 @@ public sealed interface Variable permits
      *   Variable result = x.callMethod("ADD", List.of(new IntValue(5)));
      *   // result is IntVariable("x", 15, ...)
      */
-    Variable callMethod(String methodName, List<Value> arguments);
+    default Variable callMethod(String methodName, List<Value> arguments) {
+        Map<String, VariableMethod> availableMethods = methods();
+        VariableMethod method = availableMethods != null
+                ? availableMethods.get(methodName.toUpperCase())
+                : null;
+
+        if (method == null) {
+            throw new IllegalArgumentException("Method not found: " + methodName + " on " + type() + " variable");
+        }
+
+        return method.execute(this, arguments == null ? List.of() : arguments);
+    }
 
     /**
      * Returns available methods for this variable type.
@@ -88,5 +79,11 @@ public sealed interface Variable permits
      * Emits a signal on this variable.
      * This executes the signal handler if one is registered.
      */
-    void emitSignal(String signalName, Value argument);
+    default void emitSignal(String signalName, Value... arguments) {
+        Map<String, SignalHandler> registeredSignals = signals();
+        SignalHandler handler = registeredSignals != null ? registeredSignals.get(signalName) : null;
+        if (handler != null) {
+            handler.handle(this, signalName, arguments);
+        }
+    }
 }

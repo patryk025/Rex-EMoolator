@@ -3,16 +3,17 @@ package pl.genschu.bloomooemulator.interpreter.v2.variable;
 import pl.genschu.bloomooemulator.interpreter.v2.values.*;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
+/**
+ * IntegerVariable holds int value
+ **/
 public record IntegerVariable(
     String name,
-    int intValue,  // Primitive value stored directly!
+    int intValue,
     Map<String, SignalHandler> signals
 ) implements Variable {
 
-    // Compact constructor - validation
     public IntegerVariable {
         if (name == null || name.isEmpty()) {
             throw new IllegalArgumentException("Variable name cannot be null or empty");
@@ -57,21 +58,8 @@ public record IntegerVariable(
             default -> 0;
         };
 
-        // Return NEW instance (immutable!)
+        // Return NEW instance
         return new IntegerVariable(name, newInt, signals);
-    }
-
-    @Override
-    public Variable callMethod(String methodName, List<Value> arguments) {
-        VariableMethod method = METHODS.get(methodName.toUpperCase());
-
-        if (method == null) {
-            throw new IllegalArgumentException(
-                "Method not found: " + methodName + " on INTEGER variable"
-            );
-        }
-
-        return method.execute(this, arguments);
     }
 
     @Override
@@ -86,27 +74,11 @@ public record IntegerVariable(
         return new IntegerVariable(name, intValue, newSignals);
     }
 
-    @Override
-    public void emitSignal(String signalName, Value argument) {
-        SignalHandler handler = signals.get(signalName);
-        if (handler != null) {
-            handler.handle(this, signalName, argument);
-        }
-    }
-
     // ========================================
     // METHODS DEFINITION
     // ========================================
 
-    /**
-     * All methods available on IntVariable.
-     *
-     * Pattern: method name -> lambda implementation
-     *
-     * To replikuj dla innych typów!
-     */
     private static final Map<String, VariableMethod> METHODS = Map.ofEntries(
-        // ADD(value) - dodaj wartość
         Map.entry("ADD", (self, args) -> {
             IntegerVariable thisVar = (IntegerVariable) self;
             if (args.isEmpty()) {
@@ -117,7 +89,6 @@ public record IntegerVariable(
             return new IntegerVariable(thisVar.name, thisVar.intValue + addend, thisVar.signals);
         }),
 
-        // SUB(value) - odejmij wartość
         Map.entry("SUB", (self, args) -> {
             IntegerVariable thisVar = (IntegerVariable) self;
             if (args.isEmpty()) {
@@ -128,7 +99,6 @@ public record IntegerVariable(
             return new IntegerVariable(thisVar.name, thisVar.intValue - subtrahend, thisVar.signals);
         }),
 
-        // MUL(value) - pomnóż przez wartość
         Map.entry("MUL", (self, args) -> {
             IntegerVariable thisVar = (IntegerVariable) self;
             if (args.isEmpty()) {
@@ -139,7 +109,6 @@ public record IntegerVariable(
             return new IntegerVariable(thisVar.name, thisVar.intValue * multiplier, thisVar.signals);
         }),
 
-        // DIV(value) - podziel przez wartość
         Map.entry("DIV", (self, args) -> {
             IntegerVariable thisVar = (IntegerVariable) self;
             if (args.isEmpty()) {
@@ -153,7 +122,6 @@ public record IntegerVariable(
             return new IntegerVariable(thisVar.name, thisVar.intValue / divisor, thisVar.signals);
         }),
 
-        // MOD(value) - modulo
         Map.entry("MOD", (self, args) -> {
             IntegerVariable thisVar = (IntegerVariable) self;
             if (args.isEmpty()) {
@@ -167,7 +135,6 @@ public record IntegerVariable(
             return new IntegerVariable(thisVar.name, thisVar.intValue % divisor, thisVar.signals);
         }),
 
-        // SET(value) - ustaw wartość
         Map.entry("SET", (self, args) -> {
             IntegerVariable thisVar = (IntegerVariable) self;
             if (args.isEmpty()) {
@@ -178,34 +145,28 @@ public record IntegerVariable(
             return new IntegerVariable(thisVar.name, newValue, thisVar.signals);
         }),
 
-        // GET() - pobierz wartość (zwraca siebie)
         Map.entry("GET", (self, args) -> self),
 
-        // INC() - inkrementuj
         Map.entry("INC", (self, args) -> {
             IntegerVariable thisVar = (IntegerVariable) self;
             return new IntegerVariable(thisVar.name, thisVar.intValue + 1, thisVar.signals);
         }),
 
-        // DEC() - dekrementuj
         Map.entry("DEC", (self, args) -> {
             IntegerVariable thisVar = (IntegerVariable) self;
             return new IntegerVariable(thisVar.name, thisVar.intValue - 1, thisVar.signals);
         }),
 
-        // ABS() - wartość bezwzględna
         Map.entry("ABS", (self, args) -> {
             IntegerVariable thisVar = (IntegerVariable) self;
             return new IntegerVariable(thisVar.name, Math.abs(thisVar.intValue), thisVar.signals);
         }),
 
-        // NEG() - negacja
         Map.entry("NEG", (self, args) -> {
             IntegerVariable thisVar = (IntegerVariable) self;
             return new IntegerVariable(thisVar.name, -thisVar.intValue, thisVar.signals);
         }),
 
-        // MIN(value) - minimum z dwóch wartości
         Map.entry("MIN", (self, args) -> {
             IntegerVariable thisVar = (IntegerVariable) self;
             if (args.isEmpty()) {
@@ -216,7 +177,6 @@ public record IntegerVariable(
             return new IntegerVariable(thisVar.name, Math.min(thisVar.intValue, other), thisVar.signals);
         }),
 
-        // MAX(value) - maksimum z dwóch wartości
         Map.entry("MAX", (self, args) -> {
             IntegerVariable thisVar = (IntegerVariable) self;
             if (args.isEmpty()) {

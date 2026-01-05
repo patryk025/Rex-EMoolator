@@ -6,14 +6,8 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * TODO: Implement based on IntVariable template!
- *
- * Bool-specific methods:
- * - AND(value) - logical AND
- * - OR(value) - logical OR
- * - NOT() - logical NOT
- * - XOR(value) - logical XOR
- */
+ * BoolVariable holds boolean value
+ **/
 public record BoolVariable(
     String name,
     boolean boolValue,

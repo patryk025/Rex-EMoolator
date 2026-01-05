@@ -1,24 +1,12 @@
 package pl.genschu.bloomooemulator.interpreter.v2.variable;
 
-import pl.genschu.bloomooemulator.interpreter.v2.values.Value;
+import pl.genschu.bloomooemulator.interpreter.v2.values.*;
 
-import java.util.List;
 import java.util.Map;
 
 /**
- * TODO: Implement based on IntVariable template!
- *
- * String-specific methods to implement:
- * - GET(index) - get character at index
- * - GET(index, length) - substring
- * - LEN() - string length
- * - CONCAT(string) - concatenate
- * - UPPER() - to uppercase
- * - LOWER() - to lowercase
- * - TRIM() - trim whitespace
- * - REPLACE(old, new) - replace substring
- * etc.
- */
+ * StringVariable holds text value
+ **/
 public record StringVariable(
     String name,
     String stringValue,
@@ -45,7 +33,7 @@ public record StringVariable(
 
     @Override
     public Value value() {
-        throw new UnsupportedOperationException("TODO: Implement based on IntVariable");
+        return new StringValue(stringValue);
     }
 
     @Override
@@ -55,13 +43,18 @@ public record StringVariable(
 
     @Override
     public Variable withValue(Value newValue) {
-        throw new UnsupportedOperationException("TODO: Implement based on IntVariable");
+        String newString = switch (newValue) {
+            case StringValue v -> v.value();
+            case IntValue v -> String.valueOf(v.value());
+            case DoubleValue v -> String.valueOf(v.value());
+            case BoolValue v -> v.toDisplayString();
+            case NullValue __ -> "NULL";
+            default -> newValue.toDisplayString();
+        };
+
+        return new StringVariable(name, newString, signals);
     }
 
-    @Override
-    public Variable callMethod(String methodName, List<Value> arguments) {
-        throw new UnsupportedOperationException("TODO: Implement based on IntVariable");
-    }
 
     @Override
     public Map<String, VariableMethod> methods() {
@@ -70,11 +63,6 @@ public record StringVariable(
 
     @Override
     public Variable withSignal(String signalName, SignalHandler handler) {
-        throw new UnsupportedOperationException("TODO: Implement based on IntVariable");
-    }
-
-    @Override
-    public void emitSignal(String signalName, Value argument) {
         throw new UnsupportedOperationException("TODO: Implement based on IntVariable");
     }
 }

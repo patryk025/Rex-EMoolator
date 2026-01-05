@@ -7,16 +7,8 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * TODO: Implement!
- *
  * BehaviourVariable stores executable code (AST).
- *
- * Key difference from primitives:
- * - Stores ASTNode instead of primitive value
- * - RUN() method executes the AST
- * - RUNC() runs with condition check
- * - RUNLOOPED() runs in loop
- */
+ **/
 public record BehaviourVariable(
     String name,
     ASTNode ast,  // The compiled code!
@@ -53,22 +45,12 @@ public record BehaviourVariable(
     }
 
     @Override
-    public Variable callMethod(String methodName, List<Value> arguments) {
-        throw new UnsupportedOperationException("TODO: Implement RUN, RUNC, RUNLOOPED");
-    }
-
-    @Override
     public Map<String, VariableMethod> methods() {
         throw new UnsupportedOperationException("TODO: Implement");
     }
 
     @Override
     public Variable withSignal(String signalName, SignalHandler handler) {
-        throw new UnsupportedOperationException("TODO: Implement");
-    }
-
-    @Override
-    public void emitSignal(String signalName, Value argument) {
         throw new UnsupportedOperationException("TODO: Implement");
     }
 }

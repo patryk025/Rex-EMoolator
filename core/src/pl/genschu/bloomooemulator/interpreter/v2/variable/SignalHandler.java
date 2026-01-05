@@ -19,7 +19,7 @@ public interface SignalHandler {
      *
      * @param variable The variable that emitted the signal
      * @param signalName The name of the signal
-     * @param argument Optional argument passed with the signal
+     * @param arguments Optional arguments passed with the signal
      */
-    void handle(Variable variable, String signalName, Value argument);
+    void handle(Variable variable, String signalName, Value... arguments);
 }
