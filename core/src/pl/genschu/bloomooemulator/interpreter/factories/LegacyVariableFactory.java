@@ -7,19 +7,17 @@ import pl.genschu.bloomooemulator.interpreter.v1.variable.Variable;
 
 import java.util.Objects;
 
+@Deprecated(forRemoval = true, since = "0.2.0-beta")
 public class LegacyVariableFactory
 {
-    @Deprecated(forRemoval = true, since = "0.2.0-beta")
     public static Variable createVariableWithAutoType(String name, Object value, Context context) {
         return createVariable(TypeGuesser.guessType(""+value), name, value, context);
     }
 
-    @Deprecated(forRemoval = true, since = "0.2.0-beta")
     public static Variable createVariable(String type, String name, Context context) {
         return createVariable(Objects.requireNonNullElse(type, "VOID"), name, null, context);
     }
 
-    @Deprecated(forRemoval = true, since = "0.2.0-beta")
     public static Variable createVariable(String type, String name, Object value, Context context) {
         // System.out.println("VariableFactory, type: "+type+", valie: "+value);
 		switch (type.toUpperCase()) {

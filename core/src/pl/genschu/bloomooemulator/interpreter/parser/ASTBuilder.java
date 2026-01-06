@@ -11,10 +11,8 @@ import pl.genschu.bloomooemulator.interpreter.v1.Context;
 import pl.genschu.bloomooemulator.interpreter.antlr.AidemMediaLexer;
 import pl.genschu.bloomooemulator.interpreter.antlr.AidemMediaParser;
 import pl.genschu.bloomooemulator.interpreter.antlr.AidemMediaParserBaseVisitor;
-import pl.genschu.bloomooemulator.interpreter.v2.ast.*;
 import pl.genschu.bloomooemulator.interpreter.errors.ParseException;
 import pl.genschu.bloomooemulator.interpreter.errors.SourceLocation;
-import pl.genschu.bloomooemulator.interpreter.v2.values.*;
 import pl.genschu.bloomooemulator.interpreter.values.*;
 
 import java.util.ArrayList;
@@ -30,10 +28,10 @@ import java.util.List;
  * - Cleaner code with records
  * - No "asExpression" casts - everything is typed
  */
-public class ASTBuilderV2 extends AidemMediaParserBaseVisitor<ASTNode> {
+public class ASTBuilder extends AidemMediaParserBaseVisitor<ASTNode> {
     private final Context context;  // Legacy context - for now
 
-    public ASTBuilderV2(Context context) {
+    public ASTBuilder(Context context) {
         this.context = context;
     }
 
@@ -362,7 +360,7 @@ public class ASTBuilderV2 extends AidemMediaParserBaseVisitor<ASTNode> {
 
             AidemMediaParser.ScriptContext scriptCtx = parser.script();
 
-            ASTBuilderV2 nested = new ASTBuilderV2(this.context);
+            ASTBuilder nested = new ASTBuilder(this.context);
             return nested.visit(scriptCtx);
         } catch (Exception e) {
             throw new ParseException(
@@ -385,7 +383,7 @@ public class ASTBuilderV2 extends AidemMediaParserBaseVisitor<ASTNode> {
 
             AidemMediaParser.ExprContext exprCtx = parser.expr();
 
-            ASTBuilderV2 nested = new ASTBuilderV2(this.context);
+            ASTBuilder nested = new ASTBuilder(this.context);
             return nested.visit(exprCtx);
         } catch (Exception e) {
             throw new ParseException(

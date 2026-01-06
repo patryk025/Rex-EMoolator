@@ -7,6 +7,7 @@ import pl.genschu.bloomooemulator.interpreter.v1.ast.Statement;
 import pl.genschu.bloomooemulator.interpreter.v1.exceptions.BreakException;
 import pl.genschu.bloomooemulator.interpreter.v1.exceptions.OneBreakException;
 
+@Deprecated(forRemoval = true, since = "0.2.0-beta")
 public class Interpreter
 {
     private final Node astRoot;

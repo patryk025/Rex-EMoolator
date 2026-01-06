@@ -1,5 +1,6 @@
 package pl.genschu.bloomooemulator.interpreter.variable;
 
+import pl.genschu.bloomooemulator.annotations.InternalMutable;
 import pl.genschu.bloomooemulator.interpreter.values.Value;
 
 import java.util.List;
@@ -10,6 +11,7 @@ import java.util.Map;
  **/
 public record ArrayVariable(
     String name,
+    @InternalMutable
     List<Value> elements,
     Map<String, SignalHandler> signals
 ) implements Variable {

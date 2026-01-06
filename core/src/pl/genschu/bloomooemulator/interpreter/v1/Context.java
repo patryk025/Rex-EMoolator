@@ -10,6 +10,7 @@ import pl.genschu.bloomooemulator.engine.Game;
 
 import java.util.*;
 
+@Deprecated(forRemoval = true, since = "0.2.0-beta")
 public class Context {
     private Map<String, Variable> variables = new LinkedHashMap<>();
     private Context parentContext;

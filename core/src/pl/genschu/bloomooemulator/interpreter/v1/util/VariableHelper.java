@@ -6,6 +6,7 @@ import pl.genschu.bloomooemulator.interpreter.factories.LegacyVariableFactory;
 import pl.genschu.bloomooemulator.interpreter.v1.ast.expressions.*;
 import pl.genschu.bloomooemulator.interpreter.v1.variable.types.*;
 
+@Deprecated(forRemoval = true, since = "0.2.0-beta")
 public class VariableHelper {
     public static Variable getVariableFromObject(Object value, Context context) {
         if (value instanceof MethodCallExpression) {

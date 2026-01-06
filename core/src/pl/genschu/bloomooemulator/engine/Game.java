@@ -13,7 +13,7 @@ import pl.genschu.bloomooemulator.interpreter.v1.util.GlobalVariables;
 import pl.genschu.bloomooemulator.interpreter.v1.variable.Attribute;
 import pl.genschu.bloomooemulator.interpreter.v1.variable.Variable;
 import pl.genschu.bloomooemulator.interpreter.v1.variable.types.*;
-import pl.genschu.bloomooemulator.loader.CNVParser;
+import pl.genschu.bloomooemulator.loader.v1.CNVParser;
 import pl.genschu.bloomooemulator.logic.GameEntry;
 
 import java.io.File;

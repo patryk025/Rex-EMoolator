@@ -6,7 +6,7 @@ import pl.genschu.bloomooemulator.interpreter.v1.variable.Attribute;
 import pl.genschu.bloomooemulator.interpreter.v1.variable.Method;
 import pl.genschu.bloomooemulator.interpreter.v1.variable.Parameter;
 import pl.genschu.bloomooemulator.interpreter.v1.variable.Variable;
-import pl.genschu.bloomooemulator.loader.CNVParser;
+import pl.genschu.bloomooemulator.loader.v1.CNVParser;
 import pl.genschu.bloomooemulator.utils.ArgumentsHelper;
 import pl.genschu.bloomooemulator.utils.FileUtils;
 

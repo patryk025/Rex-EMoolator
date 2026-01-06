@@ -5,7 +5,7 @@ import pl.genschu.bloomooemulator.TestEnvironment;
 import pl.genschu.bloomooemulator.encoding.ScriptDecypher;
 import pl.genschu.bloomooemulator.engine.Game;
 import pl.genschu.bloomooemulator.interpreter.v1.Context;
-import pl.genschu.bloomooemulator.loader.CNVParser;
+import pl.genschu.bloomooemulator.loader.v1.CNVParser;
 
 import java.io.File;
 import java.io.IOException;

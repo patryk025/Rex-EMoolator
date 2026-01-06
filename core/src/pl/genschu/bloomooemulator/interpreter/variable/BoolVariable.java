@@ -45,22 +45,12 @@ public record BoolVariable(
     }
 
     @Override
-    public Variable callMethod(String methodName, List<Value> arguments) {
-        throw new UnsupportedOperationException("TODO: Implement based on IntVariable");
-    }
-
-    @Override
     public Map<String, VariableMethod> methods() {
         throw new UnsupportedOperationException("TODO: Implement based on IntVariable");
     }
 
     @Override
     public Variable withSignal(String signalName, SignalHandler handler) {
-        throw new UnsupportedOperationException("TODO: Implement based on IntVariable");
-    }
-
-    @Override
-    public void emitSignal(String signalName, Value argument) {
         throw new UnsupportedOperationException("TODO: Implement based on IntVariable");
     }
 }

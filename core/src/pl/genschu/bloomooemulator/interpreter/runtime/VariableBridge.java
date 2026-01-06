@@ -3,7 +3,6 @@ package pl.genschu.bloomooemulator.interpreter.runtime;
 import pl.genschu.bloomooemulator.interpreter.v1.Context;
 import pl.genschu.bloomooemulator.interpreter.v1.variable.Variable;
 import pl.genschu.bloomooemulator.interpreter.v1.variable.types.*;
-import pl.genschu.bloomooemulator.interpreter.v2.values.*;
 import pl.genschu.bloomooemulator.interpreter.values.*;
 
 /**

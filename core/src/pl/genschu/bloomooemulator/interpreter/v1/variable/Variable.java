@@ -8,7 +8,7 @@ import pl.genschu.bloomooemulator.interpreter.v1.exceptions.ClassMethodNotFoundE
 import pl.genschu.bloomooemulator.interpreter.v1.exceptions.ClassMethodNotImplementedException;
 import pl.genschu.bloomooemulator.interpreter.v1.exceptions.VariableUnsupportedOperationException;
 import pl.genschu.bloomooemulator.interpreter.v1.variable.types.*;
-import pl.genschu.bloomooemulator.loader.CNVParser;
+import pl.genschu.bloomooemulator.loader.v1.CNVParser;
 import pl.genschu.bloomooemulator.utils.ArgumentsHelper;
 import pl.genschu.bloomooemulator.utils.SignalAndParams;
 
@@ -16,6 +16,7 @@ import java.util.*;
 
 import static pl.genschu.bloomooemulator.interpreter.v1.util.VariableHelper.getVariableFromObject;
 
+@Deprecated(forRemoval = true, since = "0.2.0-beta")
 public abstract class Variable implements Cloneable {
 	protected static Map<String, List<Method>> baseMethodTemplates() {
 		return METHOD_TEMPLATES;

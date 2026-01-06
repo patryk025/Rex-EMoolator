@@ -1,6 +1,5 @@
 package pl.genschu.bloomooemulator.interpreter.variable;
 
-import pl.genschu.bloomooemulator.interpreter.v2.values.*;
 import pl.genschu.bloomooemulator.interpreter.values.*;
 
 import java.util.HashMap;

@@ -1,4 +1,4 @@
-package pl.genschu.bloomooemulator.loader.v2;
+package pl.genschu.bloomooemulator.loader;
 
 import pl.genschu.bloomooemulator.interpreter.v1.variable.types.BehaviourVariable;
 
@@ -9,10 +9,11 @@ import pl.genschu.bloomooemulator.interpreter.v1.variable.types.BehaviourVariabl
  *
  * Examples:
  * - ONINIT=MyBehaviour(param1, param2)  → behaviour=MyBehaviour, params=[param1, param2]
- * - ONCLICK={@PRINT("hello");}          → behaviour=anonymous, params=null
+ * - ONCLICK={TEST^SET("hello");}          → behaviour=anonymous, params=null
  */
 public record SignalDefinition(
     String signalName,
+    String[] signalParams,
     BehaviourVariable behaviourVariable,
     String[] params
 ) {
@@ -23,6 +24,12 @@ public record SignalDefinition(
         if (signalName == null || signalName.isEmpty()) {
             throw new IllegalArgumentException("Signal name cannot be null or empty");
         }
+        String[] parts = signalName.split("\\^", 2);
+        signalName = parts[0];
+        signalParams = (parts.length > 1 && !parts[1].isEmpty())
+                ? parts[1].split("\\^")
+                : null;
+        signalParams = (signalParams != null) ? signalParams.clone() : null; // ensure immutability
         if (behaviourVariable == null) {
             throw new IllegalArgumentException("Behaviour variable cannot be null");
         }
@@ -33,7 +40,11 @@ public record SignalDefinition(
      * Convenience constructor without params.
      */
     public SignalDefinition(String signalName, BehaviourVariable behaviourVariable) {
-        this(signalName, behaviourVariable, null);
+        this(signalName, null, behaviourVariable, null);
+    }
+
+    public SignalDefinition(String signalName, BehaviourVariable behaviourVariable, String[] params) {
+        this(signalName, null, behaviourVariable, params);
     }
 
     /**

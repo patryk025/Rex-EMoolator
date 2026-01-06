@@ -1,9 +1,8 @@
 package pl.genschu.bloomooemulator.interpreter.runtime;
 
 import pl.genschu.bloomooemulator.interpreter.ast.*;
-import pl.genschu.bloomooemulator.interpreter.v2.ast.*;
+import pl.genschu.bloomooemulator.interpreter.ast.*;
 import pl.genschu.bloomooemulator.interpreter.errors.InterpreterException;
-import pl.genschu.bloomooemulator.interpreter.v2.values.*;
 import pl.genschu.bloomooemulator.interpreter.values.*;
 
 /**
