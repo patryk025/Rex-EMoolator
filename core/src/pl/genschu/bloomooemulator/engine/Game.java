@@ -57,6 +57,8 @@ public class Game {
     private File daneFolder = null; // $
     private File commonFolder = null; // $COMMON
     private File wavsFolder = null; // $WAVS
+
+    private String currentLanguage = "POL"; // Default language (Polish)
     private Context currentApplicationContext;
     private Context currentEpisodeContext;
     private Context currentSceneContext;
@@ -170,6 +172,9 @@ public class Game {
 
         applicationVariable.reloadEpisodes();
         applicationVariable.setPath(FileUtils.findRelativeFileIgnoreCase(daneFolder, applicationVariable.getAttribute("PATH").getValue().toString()));
+
+        // Sync language from ApplicationVariable to Game
+        this.setLanguage(applicationVariable.getLanguage());
 
         for(EpisodeVariable episode : applicationVariable.getEpisodes()) {
             episode.reloadScenes();
@@ -578,18 +583,48 @@ public class Game {
         this.daneFolder = daneFolder;
     }
 
+    /**
+     * Gets the current language code (e.g., "POL", "HUN", "CZE").
+     *
+     * @return Current language code
+     */
+    public String getLanguage() {
+        return currentLanguage;
+    }
+
+    /**
+     * Sets the current language code.
+     * Also updates ApplicationVariable if present.
+     *
+     * @param language Language code (e.g., "POL", "HUN", "CZE")
+     */
+    public void setLanguage(String language) {
+        this.currentLanguage = language;
+
+        // Sync with ApplicationVariable
+        if (applicationVariable != null) {
+            applicationVariable.setLanguage(language);
+        }
+
+        Gdx.app.log("Game", "Language set to: " + language);
+    }
+
+    @Deprecated(forRemoval = true, since = "0.2.0-beta")
     public File getCommonFolder() {
         return commonFolder;
     }
 
+    @Deprecated(forRemoval = true, since = "0.2.0-beta")
     public void setCommonFolder(File commonFolder) {
         this.commonFolder = commonFolder;
     }
 
+    @Deprecated(forRemoval = true, since = "0.2.0-beta")
     public File getWavsFolder() {
         return wavsFolder;
     }
 
+    @Deprecated(forRemoval = true, since = "0.2.0-beta")
     public void setWavsFolder(File wavsFolder) {
         this.wavsFolder = wavsFolder;
     }

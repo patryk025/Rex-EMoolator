@@ -20,19 +20,6 @@ import static pl.genschu.bloomooemulator.interpreter.v1.util.VariableHelper.getV
 
 /**
  * CNVParserV2 - Improved CNV file parser with cleaner signal handling.
- *
- * Key improvements over v1:
- * 1. Structured signal definitions (SignalDefinition) instead of messy closures
- * 2. Cleaner separation of concerns
- * 3. Better error handling and logging
- * 4. Same functionality, cleaner code
- *
- * What stays the same:
- * - CNV file format parsing
- * - VariableFactory usage
- * - INI loading with TOINI support
- * - Initialization order
- * - Context integration (even though it's a "god class")
  */
 public class CNVParser {
 

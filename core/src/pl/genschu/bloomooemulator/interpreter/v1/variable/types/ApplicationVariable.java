@@ -121,7 +121,14 @@ public class ApplicationVariable extends Variable {
 			@Override
 			public Variable execute(Variable self, List<Object> arguments) {
 				String languageCode = ArgumentsHelper.getString(arguments.get(0));
-				((ApplicationVariable) self).setLanguage(LangCodeConverter.lcidToIsoCode(languageCode));
+				String isoCode = LangCodeConverter.lcidToIsoCode(languageCode);
+				((ApplicationVariable) self).setLanguage(isoCode);
+
+				// Sync with Game
+				if (self.getContext().getGame() != null) {
+					self.getContext().getGame().setLanguage(isoCode);
+				}
+
 				return null;
 			}
 		});

@@ -61,25 +61,56 @@ public class FileUtils {
         return resolveRelativePath(variable, filePath);
     }
 
+    /**
+     * Finds a file with language fallback mechanism.
+     *
+     * Search order:
+     * 1. baseDirectory/{langCode}/{relativePath}
+     * 2. baseDirectory/{relativePath}
+     *
+     * @param baseDirectory Base directory to search in
+     * @param relativePath Relative path to the file
+     * @param langCode Language code (e.g., "POL", "ENG", "DEU") - can be null
+     * @return File if found, null otherwise
+     */
+    public static File findRelativeFileWithLanguageFallback(File baseDirectory, String relativePath, String langCode) {
+        if (langCode != null && !langCode.isEmpty()) {
+            // Try language-specific directory first
+            String langPath = langCode + File.separator + relativePath;
+            File langFile = findRelativeFileIgnoreCase(baseDirectory, langPath);
+
+            if (langFile != null && langFile.exists()) {
+                Gdx.app.log("FileUtils", "Found language-specific file: " + langFile.getAbsolutePath());
+                return langFile;
+            }
+        }
+
+        // Fallback to base directory
+        File baseFile = findRelativeFileIgnoreCase(baseDirectory, relativePath);
+        if (baseFile != null && baseFile.exists()) {
+            Gdx.app.debug("FileUtils", "Using base file: " + baseFile.getAbsolutePath());
+        }
+
+        return baseFile;
+    }
+
     public static String resolveRelativePath(Variable variable, String filePath) {
         File resolvedFile;
+        String remainingPath = filePath;
 
+        // Handle $ prefix
         if (filePath.startsWith("$")) {
-            if (filePath.contains("$COMMON")) {
-                resolvedFile = variable.getContext().getGame().getCommonFolder();
-                filePath = filePath.replace("$COMMON", "");
-            } else if (filePath.contains("$WAVS")) {
-                resolvedFile = variable.getContext().getGame().getWavsFolder();
-                filePath = filePath.replace("$WAVS", "");
-            } else {
-                resolvedFile = variable.getContext().getGame().getDaneFolder().getParentFile();
-                filePath = filePath.replace("$", "");
-            }
-            filePath = filePath.trim();
-            if (!filePath.isEmpty()) {
-                resolvedFile = new File(resolvedFile, convertToPlatformPath(filePath));
+            // $ always maps to installation root (parent of dane folder)
+            resolvedFile = variable.getContext().getGame().getDaneFolder().getParentFile();
+
+            // Remove $ and optional separator
+            remainingPath = filePath.substring(1).replaceFirst("^[/\\\\]+", "");
+
+            if (!remainingPath.isEmpty()) {
+                resolvedFile = new File(resolvedFile, convertToPlatformPath(remainingPath));
             }
         } else {
+            // Determine base directory based on current context
             if (variable.getContext().getGame().getCurrentSceneFile() != null) {
                 resolvedFile = variable.getContext().getGame().getCurrentSceneFile();
             } else if (variable.getContext().getGame().getCurrentEpisodeFile() != null) {
@@ -89,10 +120,28 @@ public class FileUtils {
             } else {
                 resolvedFile = variable.getContext().getGame().getDaneFolder();
             }
-            resolvedFile = new File(resolvedFile, convertToPlatformPath(filePath));
+
+            remainingPath = filePath;
         }
 
-        File finalFile = findRelativeFileIgnoreCase(resolvedFile.getParentFile(), resolvedFile.getName());
-        return finalFile != null ? finalFile.getAbsolutePath() : resolvedFile.getAbsolutePath();
+        // Get language code from game
+        String langCode = null;
+        try {
+            langCode = variable.getContext().getGame().getLanguage();
+        } catch (NullPointerException ignored) {
+            // Game or language not available, skip language fallback
+        }
+
+        // Use language fallback mechanism
+        if (!remainingPath.isEmpty()) {
+            File parentDir = resolvedFile.getParentFile();
+            String fileName = resolvedFile.getName() + File.separator + remainingPath;
+
+            File finalFile = findRelativeFileWithLanguageFallback(parentDir, fileName, langCode);
+            return finalFile != null ? finalFile.getAbsolutePath() :
+                   new File(parentDir, convertToPlatformPath(fileName)).getAbsolutePath();
+        }
+
+        return resolvedFile.getAbsolutePath();
     }
 }
