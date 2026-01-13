@@ -2,6 +2,7 @@ package pl.genschu.bloomooemulator.interpreter.variable;
 
 import pl.genschu.bloomooemulator.annotations.InternalMutable;
 import pl.genschu.bloomooemulator.interpreter.values.Value;
+import pl.genschu.bloomooemulator.interpreter.variable.capabilities.CloneableVar;
 
 import java.util.List;
 import java.util.Map;
@@ -14,7 +15,7 @@ public record ArrayVariable(
     @InternalMutable
     List<Value> elements,
     Map<String, SignalHandler> signals
-) implements Variable {
+) implements Variable, CloneableVar {
 
     public ArrayVariable {
         if (name == null || name.isEmpty()) {
@@ -55,5 +56,15 @@ public record ArrayVariable(
     @Override
     public Variable withSignal(String signalName, SignalHandler handler) {
         throw new UnsupportedOperationException("TODO: Implement");
+    }
+
+    @Override
+    public List<Variable> getClones() {
+        return List.of();
+    }
+
+    @Override
+    public Variable withAddedClone(Variable clone) {
+        return null;
     }
 }

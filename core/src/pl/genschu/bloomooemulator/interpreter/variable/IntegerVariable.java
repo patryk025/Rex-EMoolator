@@ -1,8 +1,10 @@
 package pl.genschu.bloomooemulator.interpreter.variable;
 
 import pl.genschu.bloomooemulator.interpreter.values.*;
+import pl.genschu.bloomooemulator.interpreter.variable.capabilities.CloneableVar;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -12,7 +14,7 @@ public record IntegerVariable(
     String name,
     int intValue,
     Map<String, SignalHandler> signals
-) implements Variable {
+) implements Variable, CloneableVar {
 
     public IntegerVariable {
         if (name == null || name.isEmpty()) {
@@ -224,5 +226,15 @@ public record IntegerVariable(
     @Override
     public String toString() {
         return "IntVariable[" + name + "=" + intValue + "]";
+    }
+
+    @Override
+    public List<Variable> getClones() {
+        return List.of();
+    }
+
+    @Override
+    public Variable withAddedClone(Variable clone) {
+        return null;
     }
 }

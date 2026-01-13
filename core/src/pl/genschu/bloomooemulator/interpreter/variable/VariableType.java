@@ -25,7 +25,13 @@ public enum VariableType {
     KEYBOARD,
     CONDITION,
     CANVAS_OBSERVER,
-    WORLD;
+    WORLD,
+    DATABASE,
+    STRUCT,
+    DATABASE_CURSOR,
+    CLASS,
+    INSTANCE,
+    CNVLOADER;
 
     /**
      * Returns true if this is a primitive type.

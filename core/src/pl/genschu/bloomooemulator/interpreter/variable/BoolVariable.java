@@ -1,6 +1,7 @@
 package pl.genschu.bloomooemulator.interpreter.variable;
 
 import pl.genschu.bloomooemulator.interpreter.values.Value;
+import pl.genschu.bloomooemulator.interpreter.variable.capabilities.CloneableVar;
 
 import java.util.List;
 import java.util.Map;
@@ -12,7 +13,7 @@ public record BoolVariable(
     String name,
     boolean boolValue,
     Map<String, SignalHandler> signals
-) implements Variable {
+) implements Variable, CloneableVar {
 
     public BoolVariable {
         if (name == null || name.isEmpty()) {
@@ -52,5 +53,15 @@ public record BoolVariable(
     @Override
     public Variable withSignal(String signalName, SignalHandler handler) {
         throw new UnsupportedOperationException("TODO: Implement based on IntVariable");
+    }
+
+    @Override
+    public List<Variable> getClones() {
+        return List.of();
+    }
+
+    @Override
+    public Variable withAddedClone(Variable clone) {
+        return null;
     }
 }

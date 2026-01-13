@@ -11,7 +11,13 @@ public sealed interface Variable permits
         StringVariable,
         BoolVariable,
         BehaviourVariable,
-        ArrayVariable {
+        ArrayVariable,
+        DatabaseVariable,
+        StructVariable,
+        DatabaseCursorVariable,
+        ClassVariable,
+        InstanceVariable,
+        CNVLoaderVariable {
 
     /**
      * Returns the name of this variable.
