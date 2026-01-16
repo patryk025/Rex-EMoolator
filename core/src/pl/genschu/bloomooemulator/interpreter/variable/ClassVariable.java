@@ -1,12 +1,9 @@
 package pl.genschu.bloomooemulator.interpreter.variable;
 
-import pl.genschu.bloomooemulator.interpreter.context.ContextV2;
-import pl.genschu.bloomooemulator.interpreter.runtime.ExecutionContext;
 import pl.genschu.bloomooemulator.interpreter.values.StringValue;
 import pl.genschu.bloomooemulator.interpreter.values.Value;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -108,7 +105,7 @@ public record ClassVariable(
 
             // TODO: Implementation requires:
             // 1. Get parent context from somewhere (need context reference)
-            // 2. Create new ContextV2 with parent
+            // 2. Create new Context with parent
             // 3. Load .cnv file into new context using CNVParser
             // 4. Create InstanceVariable
             // 5. Store instance in parent context
@@ -116,7 +113,7 @@ public record ClassVariable(
 
             // For now, throw exception indicating this needs integration
             throw new UnsupportedOperationException(
-                "CLASS.NEW not yet integrated with CNVParser and ContextV2. " +
+                "CLASS.NEW not yet integrated with CNVParser and Context. " +
                 "Implementation requires: " +
                 "1. Context reference to store instance, " +
                 "2. CNVParser to load class definition, " +
@@ -140,7 +137,7 @@ public record ClassVariable(
 
             // For now, throw exception indicating this needs integration
             throw new UnsupportedOperationException(
-                "CLASS.DELETE not yet integrated with ContextV2. " +
+                "CLASS.DELETE not yet integrated with Context. " +
                 "Implementation requires: " +
                 "1. Context reference to remove instance, " +
                 "2. ExecutionContext to run DESTRUCTOR"

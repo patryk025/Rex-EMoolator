@@ -22,7 +22,7 @@ public class OriginalEngineQuirksHandler {
      *
      * @return Variable if quirk handled, null otherwise
      */
-    public Variable handle(String name, ContextV2 context) {
+    public Variable handle(String name, Context context) {
         // 1. Handle THIS
         if ("THIS".equals(name)) {
             return resolveThis(context);
@@ -47,7 +47,7 @@ public class OriginalEngineQuirksHandler {
      * TODO: Implement proper THIS resolution from ExecutionContext.
      * For now, returns null.
      */
-    private Variable resolveThis(ContextV2 context) {
+    private Variable resolveThis(Context context) {
         // Get from ExecutionContext (injected!)
         ExecutionContext exec = context.exec();
         if (exec == null) {
@@ -70,7 +70,7 @@ public class OriginalEngineQuirksHandler {
      *
      * Example: DATABASE_CURSOR -> DATABASE.getCursor()
      */
-    private Variable resolveCursor(String name, ContextV2 context) {
+    private Variable resolveCursor(String name, Context context) {
         String baseName = name.substring(0, name.length() - "_CURSOR".length());
         Variable baseVar = context.getVariable(baseName);
 
@@ -90,7 +90,7 @@ public class OriginalEngineQuirksHandler {
      *             If not, return SPRITE itself (unless SPRITE is STRING("SPRITE")).
      * - SPRITE_1+: Find in SPRITE.getClones()
      */
-    private Variable resolveClone(String name, ContextV2 context) {
+    private Variable resolveClone(String name, Context context) {
         int lastUnderscore = name.lastIndexOf('_');
         String baseName = name.substring(0, lastUnderscore);
         int cloneNumber;

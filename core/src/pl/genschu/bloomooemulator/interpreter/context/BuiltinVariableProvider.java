@@ -14,7 +14,7 @@ public interface BuiltinVariableProvider {
      * @param context Context requesting the builtin
      * @return Builtin variable, or null if not a builtin
      */
-    Variable get(String name, ContextV2 context);
+    Variable get(String name, Context context);
 
     /**
      * No builtins - always returns null.

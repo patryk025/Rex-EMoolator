@@ -7,7 +7,7 @@ import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.tree.TerminalNode;
 import pl.genschu.bloomooemulator.interpreter.ast.*;
-import pl.genschu.bloomooemulator.interpreter.v1.Context;
+import pl.genschu.bloomooemulator.interpreter.context.Context;
 import pl.genschu.bloomooemulator.interpreter.antlr.AidemMediaLexer;
 import pl.genschu.bloomooemulator.interpreter.antlr.AidemMediaParser;
 import pl.genschu.bloomooemulator.interpreter.antlr.AidemMediaParserBaseVisitor;
@@ -19,20 +19,48 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Modern AST builder using Java 21 features!
- *
- * Key improvements over old ASTBuilderVisitor:
- * - Returns ASTNode (v2) instead of Node (v1)
- * - All nodes have SourceLocation
- * - Uses pattern matching where possible
- * - Cleaner code with records
- * - No "asExpression" casts - everything is typed
+ * New AST tree builder using ANTLR v4.
  */
 public class ASTBuilder extends AidemMediaParserBaseVisitor<ASTNode> {
-    private final Context context;  // Legacy context - for now
+    private final Context context;  // Can be null for standalone parsing
 
+    /**
+     * Creates ASTBuilder with context (for resolving variables and accessing Game).
+     */
     public ASTBuilder(Context context) {
         this.context = context;
+    }
+
+    /**
+     * Creates ASTBuilder without context (for parsing inline code).
+     */
+    public ASTBuilder() {
+        this(null);
+    }
+
+    /**
+     * Static helper method to parse code string to AST.
+     *
+     * @param code Code to parse
+     * @param name Name for error messages
+     * @return Parsed AST
+     */
+    public static ASTNode parseCode(String code, String name) {
+        try {
+            CharStream input = CharStreams.fromString(code);
+            AidemMediaLexer lexer = new AidemMediaLexer(input);
+            CommonTokenStream tokens = new CommonTokenStream(lexer);
+            AidemMediaParser parser = new AidemMediaParser(tokens);
+
+            // Create builder without context
+            ASTBuilder builder = new ASTBuilder();
+
+            // Parse and return
+            return builder.visit(parser.script());
+        } catch (Exception e) {
+            // Return empty block on error
+            return new BlockNode(List.of(), SourceLocation.UNKNOWN);
+        }
     }
 
     // ========================================

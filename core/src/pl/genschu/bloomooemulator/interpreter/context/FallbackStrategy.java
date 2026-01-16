@@ -15,7 +15,7 @@ public interface FallbackStrategy {
      * @param context Context where lookup failed
      * @return Fallback variable, or null to indicate "not found"
      */
-    Variable createFallback(String name, ContextV2 context);
+    Variable createFallback(String name, Context context);
 
     /**
      * No fallback - returns null when variable not found.

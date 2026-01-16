@@ -2,24 +2,21 @@ package pl.genschu.bloomooemulator.loader;
 
 import com.badlogic.gdx.Gdx;
 import pl.genschu.bloomooemulator.encoding.ScriptDecypher;
-import pl.genschu.bloomooemulator.interpreter.v1.Context;
-import pl.genschu.bloomooemulator.interpreter.v1.exceptions.BreakException;
-import pl.genschu.bloomooemulator.interpreter.v1.exceptions.OneBreakException;
-import pl.genschu.bloomooemulator.interpreter.factories.LegacyVariableFactory;
-import pl.genschu.bloomooemulator.interpreter.v1.variable.Signal;
-import pl.genschu.bloomooemulator.interpreter.v1.variable.Variable;
-import pl.genschu.bloomooemulator.interpreter.v1.variable.types.BehaviourVariable;
-import pl.genschu.bloomooemulator.interpreter.v1.variable.types.ConditionVariable;
+import pl.genschu.bloomooemulator.interpreter.ast.ASTNode;
+import pl.genschu.bloomooemulator.interpreter.context.Context;
+import pl.genschu.bloomooemulator.interpreter.factories.VariableFactory;
+import pl.genschu.bloomooemulator.interpreter.values.Value;
+import pl.genschu.bloomooemulator.interpreter.variable.*;
+import pl.genschu.bloomooemulator.interpreter.variable.db.DatabaseState;
 
 import java.io.*;
 import java.util.*;
-import java.util.regex.Pattern;
-import java.util.stream.IntStream;
-
-import static pl.genschu.bloomooemulator.interpreter.v1.util.VariableHelper.getVariableFromObject;
 
 /**
- * CNVParserV2 - Improved CNV file parser with cleaner signal handling.
+ * CNVParser - Parses CNV files and populates Context.
+ *
+ * Status: WORK IN PROGRESS - Basic structure only
+ * TODO: Signal handling, BEHAVIOUR parsing, method initialization
  */
 public class CNVParser {
 
@@ -50,18 +47,18 @@ public class CNVParser {
             }
 
             if (decipher) {
-                Gdx.app.log("CNVParserV2", "Deciphering " + file.getName() + "...");
+                Gdx.app.log("CNVParser", "Deciphering " + file.getName() + "...");
                 parseString(ScriptDecypher.decode(content.toString(), offset), context);
             } else {
                 parseString(content.toString(), context);
             }
         } catch (FileNotFoundException e) {
-            Gdx.app.error("CNVParserV2", "File not found: " + file.getName());
+            Gdx.app.error("CNVParser", "File not found: " + file.getName());
             throw e;
         }
 
         assignSignals(context);
-        runOnInitOnVariables(context);
+        runOnInit(context);
     }
 
     /**
@@ -114,7 +111,7 @@ public class CNVParser {
                                    String objectName,
                                    Map<String, String> objectProperties) {
         if (objects.containsKey(objectName)) {
-            Gdx.app.log("CNVParserV2", "Redefinition of object: " + objectName + ". Merging properties...");
+            Gdx.app.log("CNVParser", "Redefinition of object: " + objectName + ". Merging properties...");
             Map<String, String> existing = objects.get(objectName);
             existing.putAll(objectProperties);
         } else {
@@ -128,22 +125,26 @@ public class CNVParser {
     private void processObject(String objectName, Map<String, String> properties, Context context) {
         String type = properties.get(objectName + ":TYPE");
         if (type == null) {
-            Gdx.app.error("CNVParserV2", "Missing TYPE for object " + objectName);
+            Gdx.app.error("CNVParser", "Missing TYPE for object " + objectName);
             return;
         }
 
-        Gdx.app.log("CNVParserV2", "Processing object " + objectName + " of type " + type);
+        Gdx.app.log("CNVParser", "Processing object " + objectName + " of type " + type);
 
-        Object value = extractValue(objectName, properties, type, context);
-        String iniSection = determineIniSection(objectName, context);
+        // Extract value (checking INI if needed)
+        Object rawValue = extractValue(objectName, properties, type, context);
 
+        // Store all attributes in context
+        storeAttributes(objectName, properties, context);
+
+        // Create variable
         try {
-            Variable variable = LegacyVariableFactory.createVariable(type, objectName, value, context);
-            applyProperties(variable, objectName, properties);
-            variable.setIniSection(iniSection);
-            context.setVariable(objectName, variable);
-        } catch (IllegalArgumentException e) {
-            Gdx.app.error("CNVParserV2", "Failed to create variable " + objectName + ": " + e.getMessage());
+            Variable variable = createVariable(type, objectName, rawValue, properties, context);
+            if (variable != null) {
+                context.setVariable(objectName, variable);
+            }
+        } catch (Exception e) {
+            Gdx.app.error("CNVParser", "Failed to create variable " + objectName + ": " + e.getMessage(), e);
         }
     }
 
@@ -152,264 +153,256 @@ public class CNVParser {
      */
     private Object extractValue(String objectName, Map<String, String> properties, String type, Context context) {
         // BEHAVIOUR uses CODE instead of VALUE
-        if (type.equals("BEHAVIOUR")) {
+        if (type.equalsIgnoreCase("BEHAVIOUR")) {
             return properties.get(objectName + ":CODE");
         }
 
         Object value = properties.get(objectName + ":VALUE");
 
-        // Check INI file for override
-        try {
-            if (context.getGame() != null && context.getGame().getGameINI() != null) {
-                String foundSection = context.getGame().findINISectionForVariable(objectName.toUpperCase());
-
-                if (foundSection != null) {
-                    String valueFromIni = context.getGame().getGameINI().get(foundSection, objectName.toUpperCase());
-
-                    if (valueFromIni != null) {
-                        // Store original value as INIT_VALUE
-                        properties.put(objectName + ":INIT_VALUE", properties.get(objectName + ":VALUE"));
-                        properties.put(objectName + ":VALUE", valueFromIni);
-                        value = valueFromIni;
-                        Gdx.app.log("CNVParserV2", "Loaded value for " + objectName + " from INI section " + foundSection);
-                    }
-                }
-            }
-        } catch (NullPointerException e) {
-            Gdx.app.error("CNVParserV2", "Error while checking INI for " + objectName, e);
-        }
+        // TODO: Check INI file for override (needs Game reference)
+        // For now, just return the value from CNV
 
         return value;
     }
 
     /**
-     * Determines the INI section for a variable.
+     * Stores all properties as attributes in context.
      */
-    private String determineIniSection(String objectName, Context context) {
-        try {
-            if (context.getGame() != null && context.getGame().getGameINI() != null) {
-                String foundSection = context.getGame().findINISectionForVariable(objectName.toUpperCase());
-                if (foundSection != null) {
-                    return foundSection;
-                }
-            }
-            // Default to current scene
-            if (context.getGame() != null && context.getGame().getCurrentScene() != null) {
-                return context.getGame().getCurrentScene().toUpperCase();
-            }
-        } catch (NullPointerException e) {
-            Gdx.app.error("CNVParserV2", "Error determining INI section for " + objectName, e);
-        }
-        return "DEFAULT";
-    }
-
-    /**
-     * Applies properties to a variable.
-     * Separates regular attributes from signal definitions.
-     */
-    private void applyProperties(Variable variable, String objectName, Map<String, String> properties) {
+    private void storeAttributes(String objectName, Map<String, String> properties, Context context) {
         for (Map.Entry<String, String> property : properties.entrySet()) {
             String key = property.getKey();
             String value = property.getValue();
 
-            // Skip TYPE property
+            // Skip TYPE property (already used)
             if (key.equals(objectName + ":TYPE")) {
                 continue;
             }
 
-            // Check if this is a signal (starts with ON)
-            if (key.startsWith(objectName + ":ON")) {
-                String signalName = key.replace(objectName + ":", "");
-                variable.addPendingSignal(signalName, value);
-            } else {
-                // Regular attribute
-                String attributeName = key.replace(objectName + ":", "");
-                variable.setAttribute(attributeName, value);
-            }
+            // Remove object prefix from attribute name
+            String attributeName = key.replace(objectName + ":", "");
+            context.setAttribute(objectName, attributeName, value);
         }
     }
 
     /**
-     * Assigns signals to variables.
+     * Creates a v2 Variable from type, name, value, and properties.
+     */
+    private Variable createVariable(String type, String objectName, Object rawValue,
+                                      Map<String, String> properties, Context context) {
+        String normalizedType = type.toUpperCase();
+
+        return switch (normalizedType) {
+            case "INTEGER", "INT" -> {
+                Value value = VariableFactory.createValueWithAutoType(objectName, rawValue);
+                yield VariableFactory.createVariable("INTEGER", objectName, value);
+            }
+            case "DOUBLE" -> {
+                Value value = VariableFactory.createValueWithAutoType(objectName, rawValue);
+                yield VariableFactory.createVariable("DOUBLE", objectName, value);
+            }
+            case "STRING" -> {
+                Value value = VariableFactory.createValueWithAutoType(objectName, rawValue);
+                yield VariableFactory.createVariable("STRING", objectName, value);
+            }
+            case "BOOLEAN", "BOOL" -> {
+                Value value = VariableFactory.createValueWithAutoType(objectName, rawValue);
+                yield VariableFactory.createVariable("BOOLEAN", objectName, value);
+            }
+            case "DATABASE" -> {
+                // Create DatabaseVariable with MODEL reference
+                String modelName = properties.get(objectName + ":MODEL");
+                DatabaseState state = new DatabaseState();
+                yield new DatabaseVariable(objectName, state);
+            }
+            case "STRUCT" -> {
+                // Create StructVariable
+                // TODO: Parse FIELDS attribute and create field list
+                yield new StructVariable(objectName, List.of());
+            }
+            case "CLASS" -> {
+                // Create ClassVariable with DEF path
+                String defPath = properties.get(objectName + ":DEF");
+                String basePath = properties.get(objectName + ":BASE");
+                yield new ClassVariable(objectName, defPath, basePath, Map.of());
+            }
+            case "CNVLOADER" -> {
+                yield new CNVLoaderVariable(objectName);
+            }
+            case "BEHAVIOUR" -> {
+                // Parse CODE attribute to AST
+                String code = (String) rawValue;
+                if (code == null || code.trim().isEmpty()) {
+                    Gdx.app.log("CNVParser", "Empty BEHAVIOUR code for: " + objectName);
+                    code = "{}";  // Empty block
+                }
+
+                ASTNode ast = BehaviourCodeParser.parseCode(code, objectName);
+                yield new BehaviourVariable(objectName, ast, Map.of());
+            }
+            case "ARRAY" -> {
+                // TODO: Create ArrayVariable
+                Gdx.app.log("CNVParser", "ARRAY type not yet fully implemented: " + objectName);
+                yield null;
+            }
+            default -> {
+                Gdx.app.error("CNVParser", "Unsupported variable type: " + type + " for " + objectName);
+                yield null;
+            }
+        };
+    }
+
+    // ========================================
+    // SIGNAL HANDLING
+    // ========================================
+
+    /**
+     * Assigns signals to all variables in context.
      *
-     * This is the IMPROVED version - cleaner than v1!
+     * Signals are stored as attributes with names starting with "ON"
+     * (e.g., ONINIT, ONCLICK, ONCHANGED).
      *
-     * Instead of creating messy closures with captured state,
-     * we use SignalDefinition and a cleaner handler pattern.
+     * Each signal points to either:
+     * - A BEHAVIOUR variable name (e.g., "MyBehaviour")
+     * - A BEHAVIOUR with parameters (e.g., "MyBehaviour(param1, param2)")
+     * - Inline code block (e.g., "{@RETURN("hello");}")
      */
     private void assignSignals(Context context) {
-        for (Variable variable : context.getVariables().values()) {
-            Map<String, String> pendingSignals = variable.getPendingSignals();
+        Map<String, Variable> variables = context.getVariables(false);
 
-            for (Map.Entry<String, String> entry : pendingSignals.entrySet()) {
-                String signalName = entry.getKey();
-                String signalCode = entry.getValue();
+        for (Map.Entry<String, Variable> entry : variables.entrySet()) {
+            String varName = entry.getKey();
+            Variable variable = entry.getValue();
 
-                try {
-                    SignalDefinition definition = parseSignalCode(signalName, signalCode, context);
-                    attachSignal(variable, definition, context);
-                } catch (Exception e) {
-                    Gdx.app.error("CNVParserV2", "Failed to attach signal " + signalName + " to " + variable.getName(), e);
+            // Get all attributes for this variable
+            Map<String, String> attrs = context.attributes().getAll(varName);
+
+            // Find signal attributes (starting with "ON")
+            for (Map.Entry<String, String> attr : attrs.entrySet()) {
+                String attrName = attr.getKey();
+                String attrValue = attr.getValue();
+
+                if (attrName.startsWith("ON")) {
+                    try {
+                        attachSignal(varName, variable, attrName, attrValue, context);
+                    } catch (Exception e) {
+                        Gdx.app.error("CNVParser", "Failed to attach signal " + attrName + " to " + varName, e);
+                    }
                 }
             }
         }
-    }
-
-    /**
-     * Parses signal code into a structured SignalDefinition.
-     *
-     * Examples:
-     * - "MyBehaviour" → SignalDefinition(name, MyBehaviour, null)
-     * - "MyBehaviour(p1, p2)" → SignalDefinition(name, MyBehaviour, [p1, p2])
-     * - "{@PRINT(\"hi\");}" → SignalDefinition(name, anonymous BehaviourVariable, null)
-     */
-    private SignalDefinition parseSignalCode(String signalName, String code, Context context) {
-        code = code.trim();
-
-        // Check if it's an inline code block
-        if (code.startsWith("{") && code.endsWith("}")) {
-            // Fix format if needed
-            if (code.endsWith(":}")) {
-                code = code.substring(0, code.length() - 2) + ";}";
-            }
-            BehaviourVariable anonymous = new BehaviourVariable("", code, context);
-            return new SignalDefinition(signalName, anonymous, null);
-        }
-
-        // Check if it has parameters
-        String[] params = null;
-        if (code.matches(".*\\(.*\\)")) {
-            String[] tmp = code.split("\\(", 2);
-            code = tmp[0];
-            String paramsString = tmp[1].substring(0, tmp[1].length() - 1);
-            if (!paramsString.isEmpty()) {
-                params = paramsString.split(",");
-                // Trim whitespace from params
-                for (int i = 0; i < params.length; i++) {
-                    params[i] = params[i].trim();
-                }
-            }
-        }
-
-        // Retrieve the behaviour variable
-        Variable behaviourVariable = context.getVariable(code);
-        if (behaviourVariable == null || !behaviourVariable.getType().equals("BEHAVIOUR")) {
-            throw new IllegalArgumentException("Variable " + code + " is not a BEHAVIOUR variable");
-        }
-
-        return new SignalDefinition(signalName, (BehaviourVariable) behaviourVariable, params);
     }
 
     /**
      * Attaches a signal handler to a variable.
      *
-     * This is CLEANER than v1 because:
-     * 1. SignalDefinition is explicit (not captured in closure)
-     * 2. Handler logic is in a separate method (not inline)
-     * 3. Easier to test and debug
+     * @param varName Variable name
+     * @param variable Variable instance
+     * @param signalName Signal name (e.g., "ONINIT")
+     * @param signalCode Signal code (behaviour name or inline code)
+     * @param context Context for resolving behaviours
      */
-    private void attachSignal(Variable variable, SignalDefinition definition, Context context) {
-        variable.setSignal(definition.signalName(), new Signal() {
-            @Override
-            public void execute(Object argument) {
-                executeSignal(variable, definition, context, argument);
+    private void attachSignal(String varName, Variable variable, String signalName,
+                               String signalCode, Context context) {
+        signalCode = signalCode.trim();
+
+        // Parse signal code
+        BehaviourVariable behaviour;
+        String[] params = null;
+
+        // Check if inline code block
+        if (signalCode.startsWith("{") && signalCode.endsWith("}")) {
+            // Inline anonymous behaviour
+            ASTNode ast = BehaviourCodeParser.parseCode(signalCode, varName + "." + signalName);
+            behaviour = new BehaviourVariable("", ast, Map.of());
+        } else {
+            // Reference to existing behaviour
+            // Check if has parameters: BehaviourName(param1, param2)
+            if (signalCode.contains("(") && signalCode.endsWith(")")) {
+                int parenIndex = signalCode.indexOf('(');
+                String behaviourName = signalCode.substring(0, parenIndex);
+                String paramsString = signalCode.substring(parenIndex + 1, signalCode.length() - 1);
+
+                if (!paramsString.isEmpty()) {
+                    params = paramsString.split(",");
+                    for (int i = 0; i < params.length; i++) {
+                        params[i] = params[i].trim();
+                    }
+                }
+
+                Variable behVar = context.getVariable(behaviourName);
+                if (behVar == null || behVar.type() != VariableType.BEHAVIOUR) {
+                    Gdx.app.error("CNVParser", "Signal " + signalName + " references non-existent BEHAVIOUR: " + behaviourName);
+                    return;
+                }
+                behaviour = (BehaviourVariable) behVar;
+            } else {
+                // Simple behaviour reference
+                Variable behVar = context.getVariable(signalCode);
+                if (behVar == null || behVar.type() != VariableType.BEHAVIOUR) {
+                    Gdx.app.error("CNVParser", "Signal " + signalName + " references non-existent BEHAVIOUR: " + signalCode);
+                    return;
+                }
+                behaviour = (BehaviourVariable) behVar;
             }
+        }
+
+        // Create signal handler
+        final BehaviourVariable finalBehaviour = behaviour;
+        final String[] finalParams = params;
+
+        SignalHandler handler = (var, signal, args) -> {
+            // TODO: Execute behaviour with proper context and arguments
+            // This requires ASTInterpreter integration
+            Gdx.app.log("CNVParser", "Signal " + signal + " triggered on " + var.name() + " - BEHAVIOUR execution not yet implemented");
+        };
+
+        // Attach handler to variable
+        Variable updatedVar = variable.withSignal(signalName, handler);
+        context.setVariable(varName, updatedVar);
+
+        Gdx.app.log("CNVParser", "Attached signal " + signalName + " to " + varName);
+    }
+
+    /**
+     * Runs ONINIT signal on all variables.
+     *
+     * Variables should be initialized in specific order to avoid dependency issues.
+     * Order: BEHAVIOUR -> primitives -> complex types
+     */
+    private void runOnInit(Context context) {
+        Map<String, Variable> variables = context.getVariables(false);
+
+        // Sort by type priority
+        List<Map.Entry<String, Variable>> sortedVars = new ArrayList<>(variables.entrySet());
+        sortedVars.sort((e1, e2) -> {
+            int p1 = getTypePriority(e1.getValue().type());
+            int p2 = getTypePriority(e2.getValue().type());
+            return Integer.compare(p1, p2);
         });
-    }
 
-    /**
-     * Executes a signal handler.
-     *
-     * Extracted from v1's anonymous class for clarity.
-     */
-    private void executeSignal(Variable targetVariable,
-                                SignalDefinition definition,
-                                Context context,
-                                Object argument) {
-        BehaviourVariable behaviour = definition.behaviourVariable();
+        // Emit ONINIT signals
+        for (Map.Entry<String, Variable> entry : sortedVars) {
+            String varName = entry.getKey();
+            Variable variable = entry.getValue();
 
-        // Prepare arguments
-        List<Object> arguments = new ArrayList<>();
-        if (definition.hasParams()) {
-            for (String param : definition.params()) {
-                arguments.add(getVariableFromObject(param, context));
-            }
-        }
-
-        // Save old 'this' context
-        Variable oldThis = behaviour.getContext().getThisVariable();
-
-        // Set 'this' to target variable (unless it's a ConditionVariable - little hack from v1)
-        if (!(targetVariable instanceof ConditionVariable)) {
-            behaviour.getContext().setThisVariable(targetVariable);
-        }
-
-        try {
-            // Determine which method to call (RUN or RUNC)
-            String methodName = behaviour.getAttribute("CONDITION") != null ? "RUNC" : "RUN";
-
-            // Execute the behaviour
-            behaviour.getMethod(methodName, Collections.singletonList("mixed"))
-                    .execute(behaviour, !arguments.isEmpty() ? arguments : null);
-
-        } catch (BreakException | OneBreakException e) {
-            // Silently ignore break exceptions in signal handlers (v1 behavior)
-        } finally {
-            // Restore old 'this' context
-            behaviour.getContext().setThisVariable(oldThis);
-            Gdx.app.log("Signal", "Signal " + definition.signalName() + " executed on " + targetVariable.getName());
-        }
-    }
-
-    /**
-     * Initializes variables and runs ONINIT signals.
-     *
-     * Variables are initialized in a specific order to avoid dependency issues.
-     */
-    private void runOnInitOnVariables(Context context) {
-        List<Variable> variables = new ArrayList<>(context.getVariables().values());
-
-        // Sort variables by type priority
-        variables.sort(new VariableTypeComparator());
-
-        // Initialize all variables
-        for (Variable variable : variables) {
-            variable.init();
-        }
-
-        // Then emit ONINIT signals
-        for (Variable variable : variables) {
-            Gdx.app.log("CNVParserV2", "ONINIT for " + variable.getName() + " (" + variable.getType() + ")");
+            Gdx.app.log("CNVParser", "ONINIT for " + varName + " (" + variable.type() + ")");
             variable.emitSignal("ONINIT");
         }
     }
 
     /**
-     * Comparator for sorting variables by type priority.
-     *
-     * Initialization order matters! Behaviours first, then primitives, then complex types.
+     * Returns initialization priority for a variable type.
+     * Lower number = initialized first.
      */
-    private static class VariableTypeComparator implements Comparator<Variable> {
-        private static final List<String> TYPE_ORDER = Arrays.asList(
-                "BEHAVIOUR",                                                      // 1. Procedures
-                "INTEGER|STRING|DOUBLE|BOOLEAN",                                  // 2. Primitives
-                "ARRAY|CONDITION",                                                // 3. Arrays and conditions
-                "ANIMO|IMAGE|SOUND|VECTOR|FONT",                                  // 4. Media types
-                "BUTTON|TEXT|SEQUENCE|GROUP|TIMER|MOUSE|KEYBOARD|CANVAS_OBSERVER" // 5. UI and input
-        );
-
-        @Override
-        public int compare(Variable v1, Variable v2) {
-            int index1 = findTypeIndex(v1.getType());
-            int index2 = findTypeIndex(v2.getType());
-            return Integer.compare(index1, index2);
-        }
-
-        private int findTypeIndex(String type) {
-            return IntStream.range(0, TYPE_ORDER.size())
-                    .filter(i -> Pattern.compile(TYPE_ORDER.get(i)).matcher(type).matches())
-                    .findFirst()
-                    .orElse(Integer.MAX_VALUE);
-        }
+    private int getTypePriority(VariableType type) {
+        return switch (type) {
+            case BEHAVIOUR -> 0;  // Behaviours first
+            case INTEGER, DOUBLE, STRING, BOOLEAN -> 1;  // Primitives
+            case ARRAY, CONDITION, COMPLEXCONDITION, DATABASE, EXPRESSION, MULTIARRAY, STRUCT -> 2;  // Logic and structures
+            case ANIMO, CLASS, FONT, IMAGE, SOUND, VIRTUALGRAPHICSOBJECT, VECTOR -> 3;  // Classes, sounds and graphics
+            case BUTTON, CANVAS_OBSERVER, FILTER, GROUP, JOYSTICK, KEYBOARD, MOUSE,
+                 PATTERN, SEQUENCE, STATICFILTER, TEXT, TIMER -> 4;  // UI and input
+            default -> 5;  // Everything else
+        };
     }
 }

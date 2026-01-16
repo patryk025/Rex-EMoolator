@@ -1,11 +1,10 @@
 package pl.genschu.bloomooemulator.interpreter.variable;
 
-import pl.genschu.bloomooemulator.interpreter.context.ContextV2;
+import pl.genschu.bloomooemulator.interpreter.context.Context;
 import pl.genschu.bloomooemulator.interpreter.values.StringValue;
 import pl.genschu.bloomooemulator.interpreter.values.Value;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -15,9 +14,9 @@ import java.util.Map;
  * merges loaded variables into the parent context.
  */
 public record CNVLoaderVariable(
-    String name,
-    Map<String, ContextV2> loadedContexts,  // Maps cnvFile path -> loaded ContextV2
-    Map<String, SignalHandler> signals
+        String name,
+        Map<String, Context> loadedContexts,  // Maps cnvFile path -> loaded Context
+        Map<String, SignalHandler> signals
 ) implements Variable {
 
     public CNVLoaderVariable {
@@ -85,8 +84,8 @@ public record CNVLoaderVariable(
      * @param context Loaded context
      * @return New CNVLoaderVariable with updated state
      */
-    public CNVLoaderVariable withLoadedContext(String cnvFile, ContextV2 context) {
-        Map<String, ContextV2> newLoaded = new HashMap<>(loadedContexts);
+    public CNVLoaderVariable withLoadedContext(String cnvFile, Context context) {
+        Map<String, Context> newLoaded = new HashMap<>(loadedContexts);
         newLoaded.put(cnvFile, context);
         return new CNVLoaderVariable(name, newLoaded, signals);
     }
@@ -98,7 +97,7 @@ public record CNVLoaderVariable(
      * @return New CNVLoaderVariable without that context
      */
     public CNVLoaderVariable withoutLoadedContext(String cnvFile) {
-        Map<String, ContextV2> newLoaded = new HashMap<>(loadedContexts);
+        Map<String, Context> newLoaded = new HashMap<>(loadedContexts);
         newLoaded.remove(cnvFile);
         return new CNVLoaderVariable(name, newLoaded, signals);
     }
@@ -119,7 +118,7 @@ public record CNVLoaderVariable(
      * @param cnvFile File path
      * @return Context or null
      */
-    public ContextV2 getLoadedContext(String cnvFile) {
+    public Context getLoadedContext(String cnvFile) {
         return loadedContexts.get(cnvFile);
     }
 
@@ -144,7 +143,7 @@ public record CNVLoaderVariable(
 
             // TODO: Implementation requires:
             // 1. Get parent context reference
-            // 2. Create new ContextV2 with parent
+            // 2. Create new Context with parent
             // 3. Resolve cnvFile path using FileUtils
             // 4. Parse .cnv file into new context using CNVParser
             // 5. Copy variables from loaded context to parent context
@@ -153,7 +152,7 @@ public record CNVLoaderVariable(
 
             // For now, throw exception indicating this needs integration
             throw new UnsupportedOperationException(
-                "CNVLOADER.LOAD not yet integrated with CNVParser and ContextV2. " +
+                "CNVLOADER.LOAD not yet integrated with CNVParser and Context. " +
                 "Implementation requires: " +
                 "1. Context reference to merge variables, " +
                 "2. CNVParser to load file, " +
@@ -184,7 +183,7 @@ public record CNVLoaderVariable(
 
             // For now, throw exception indicating this needs integration
             throw new UnsupportedOperationException(
-                "CNVLOADER.RELEASE not yet integrated with ContextV2. " +
+                "CNVLOADER.RELEASE not yet integrated with Context. " +
                 "Implementation requires: " +
                 "1. Context reference to remove variables, " +
                 "2. Loaded context tracking"

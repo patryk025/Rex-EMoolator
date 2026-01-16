@@ -9,13 +9,14 @@ import java.util.*;
 /**
  * Context v2 - clean implementation using composition.
  */
-public class ContextV2 {
+public class Context {
     private final ExecutionContext executionContext;
     private final VariableStore store;
     private final VariableResolver resolver;
+    private final AttributeStore attributes;
 
-    private ContextV2 parent;
-    private final List<ContextV2> additionalContexts = new ArrayList<>();
+    private Context parent;
+    private final List<Context> additionalContexts = new ArrayList<>();
 
     private Game game;
 
@@ -26,7 +27,7 @@ public class ContextV2 {
      *
      * @param executionContext Runtime context (must not be null)
      */
-    public ContextV2(ExecutionContext executionContext) {
+    public Context(ExecutionContext executionContext) {
         this(executionContext, null, null, VariableResolver.createDefault());
     }
 
@@ -36,7 +37,7 @@ public class ContextV2 {
      * @param executionContext Runtime context (must not be null)
      * @param parent Parent context (can be null)
      */
-    public ContextV2(ExecutionContext executionContext, ContextV2 parent) {
+    public Context(ExecutionContext executionContext, Context parent) {
         this(executionContext, parent, null, VariableResolver.createDefault());
     }
 
@@ -47,7 +48,7 @@ public class ContextV2 {
      * @param parent Parent context (can be null)
      * @param game Game instance (can be null)
      */
-    public ContextV2(ExecutionContext executionContext, ContextV2 parent, Game game) {
+    public Context(ExecutionContext executionContext, Context parent, Game game) {
         this(executionContext, parent, game, VariableResolver.createDefault());
     }
 
@@ -59,9 +60,9 @@ public class ContextV2 {
      * @param game Game instance (can be null)
      * @param resolver Variable resolver (must not be null)
      */
-    public ContextV2(
+    public Context(
         ExecutionContext executionContext,
-        ContextV2 parent,
+        Context parent,
         Game game,
         VariableResolver resolver
     ) {
@@ -75,6 +76,7 @@ public class ContextV2 {
         this.executionContext = executionContext;
         this.store = new VariableStore();
         this.resolver = resolver;
+        this.attributes = new AttributeStore();
         this.parent = parent;
         this.game = game;
     }
@@ -280,7 +282,7 @@ public class ContextV2 {
      *
      * @return Parent context or null
      */
-    public ContextV2 getParent() {
+    public Context getParent() {
         return parent;
     }
 
@@ -289,7 +291,7 @@ public class ContextV2 {
      *
      * @param parent Parent context
      */
-    public void setParent(ContextV2 parent) {
+    public void setParent(Context parent) {
         this.parent = parent;
     }
 
@@ -299,7 +301,7 @@ public class ContextV2 {
      *
      * @return List of additional contexts
      */
-    public List<ContextV2> getAdditionalContexts() {
+    public List<Context> getAdditionalContexts() {
         return Collections.unmodifiableList(additionalContexts);
     }
 
@@ -308,7 +310,7 @@ public class ContextV2 {
      *
      * @param context Additional context to add
      */
-    public void addAdditionalContext(ContextV2 context) {
+    public void addAdditionalContext(Context context) {
         additionalContexts.add(context);
     }
 
@@ -317,7 +319,7 @@ public class ContextV2 {
      *
      * @param context Additional context to remove
      */
-    public void removeAdditionalContext(ContextV2 context) {
+    public void removeAdditionalContext(Context context) {
         additionalContexts.remove(context);
     }
 
@@ -352,6 +354,41 @@ public class ContextV2 {
     }
 
     // ============================================================
+    // Attributes (for CNV parser)
+    // ============================================================
+
+    /**
+     * Returns the attribute store (for CNV parser access).
+     *
+     * @return Attribute store
+     */
+    public AttributeStore attributes() {
+        return attributes;
+    }
+
+    /**
+     * Sets an attribute for a variable.
+     *
+     * @param varName Variable name
+     * @param attributeName Attribute name
+     * @param attributeValue Attribute value
+     */
+    public void setAttribute(String varName, String attributeName, String attributeValue) {
+        attributes.set(varName, attributeName, attributeValue);
+    }
+
+    /**
+     * Gets an attribute for a variable.
+     *
+     * @param varName Variable name
+     * @param attributeName Attribute name
+     * @return Attribute value or null
+     */
+    public String getAttribute(String varName, String attributeName) {
+        return attributes.get(varName, attributeName);
+    }
+
+    // ============================================================
     // Utility methods
     // ============================================================
 
@@ -360,11 +397,12 @@ public class ContextV2 {
      */
     public void clear() {
         store.clear();
+        attributes.clear();
     }
 
     @Override
     public String toString() {
-        return "ContextV2[vars=" + store.size() +
+        return "Context[vars=" + store.size() +
                ", parent=" + (parent != null) +
                ", additional=" + additionalContexts.size() + "]";
     }

@@ -1,6 +1,6 @@
 package pl.genschu.bloomooemulator.interpreter.variable.capabilities;
 
-import pl.genschu.bloomooemulator.interpreter.context.ContextV2;
+import pl.genschu.bloomooemulator.interpreter.context.Context;
 
 /**
  * Used to collect graphics/buttons/etc. from class instances.
@@ -17,5 +17,5 @@ public interface HasInstanceContext {
      *
      * @return Instance context (never null)
      */
-    ContextV2 getInstanceContext();
+    Context getInstanceContext();
 }

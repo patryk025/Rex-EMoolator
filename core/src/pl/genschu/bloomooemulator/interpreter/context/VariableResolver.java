@@ -53,7 +53,7 @@ public class VariableResolver {
      * @param context Context to search from
      * @return Variable or null (depending on fallback strategy)
      */
-    public Variable resolve(String name, ContextV2 context) {
+    public Variable resolve(String name, Context context) {
         // 1. Legacy quirks (THIS, _CURSOR, _\d+)
         Variable quirk = quirksHandler.handle(name, context);
         if (quirk != null) {
@@ -95,35 +95,35 @@ public class VariableResolver {
      * @param context Context to collect from
      * @return Map of graphics variables (unmodifiable)
      */
-    public Map<String, Variable> collectGraphics(ContextV2 context) {
+    public Map<String, Variable> collectGraphics(Context context) {
         return collectByType(context, ctx -> ctx.store().getCacheIndex().getGraphics());
     }
 
     /**
      * Collects buttons from context hierarchy including additionalContexts and class instances.
      */
-    public Map<String, Variable> collectButtons(ContextV2 context) {
+    public Map<String, Variable> collectButtons(Context context) {
         return collectByType(context, ctx -> ctx.store().getCacheIndex().getButtons());
     }
 
     /**
      * Collects timers from context hierarchy including additionalContexts and class instances.
      */
-    public Map<String, Variable> collectTimers(ContextV2 context) {
+    public Map<String, Variable> collectTimers(Context context) {
         return collectByType(context, ctx -> ctx.store().getCacheIndex().getTimers());
     }
 
     /**
      * Collects texts from context hierarchy including additionalContexts and class instances.
      */
-    public Map<String, Variable> collectTexts(ContextV2 context) {
+    public Map<String, Variable> collectTexts(Context context) {
         return collectByType(context, ctx -> ctx.store().getCacheIndex().getTexts());
     }
 
     /**
      * Collects sounds from context hierarchy including additionalContexts and class instances.
      */
-    public Map<String, Variable> collectSounds(ContextV2 context) {
+    public Map<String, Variable> collectSounds(Context context) {
         return collectByType(context, ctx -> ctx.store().getCacheIndex().getSounds());
     }
 
@@ -133,15 +133,15 @@ public class VariableResolver {
      * Order: class instances → additional contexts → current → parent
      */
     private Map<String, Variable> collectByType(
-        ContextV2 context,
-        Function<ContextV2, Map<String, Variable>> extractor
+        Context context,
+        Function<Context, Map<String, Variable>> extractor
     ) {
         Map<String, Variable> result = new LinkedHashMap<>();
 
         // From class instances (getInstanceContext() on Variable)
         for (Variable var : context.store().getAll().values()) {
             if(var instanceof HasInstanceContext hic) {
-                ContextV2 instanceCtx = hic.getInstanceContext();
+                Context instanceCtx = hic.getInstanceContext();
                 if (instanceCtx != null) {
                     result.putAll(collectByType(instanceCtx, extractor));
                 }
@@ -149,7 +149,7 @@ public class VariableResolver {
         }
 
         // From additional contexts
-        for (ContextV2 additional : context.getAdditionalContexts()) {
+        for (Context additional : context.getAdditionalContexts()) {
             result.putAll(collectByType(additional, extractor));
         }
 
@@ -171,13 +171,13 @@ public class VariableResolver {
      * @param includeParent Whether to include parent contexts
      * @return Map of all variables (unmodifiable)
      */
-    public Map<String, Variable> collectAllVariables(ContextV2 context, boolean includeParent) {
+    public Map<String, Variable> collectAllVariables(Context context, boolean includeParent) {
         Map<String, Variable> result = new LinkedHashMap<>();
 
         // From class instances
         for (Variable var : context.store().getAll().values()) {
             if(var instanceof HasInstanceContext hic) {
-                ContextV2 instanceCtx = hic.getInstanceContext();
+                Context instanceCtx = hic.getInstanceContext();
                 if (instanceCtx != null) {
                     result.putAll(collectAllVariables(instanceCtx, false));
                 }
@@ -185,7 +185,7 @@ public class VariableResolver {
         }
 
         // From additional contexts
-        for (ContextV2 additional : context.getAdditionalContexts()) {
+        for (Context additional : context.getAdditionalContexts()) {
             result.putAll(collectAllVariables(additional, includeParent));
         }
 

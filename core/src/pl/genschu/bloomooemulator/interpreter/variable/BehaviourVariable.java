@@ -15,8 +15,8 @@ public record BehaviourVariable(
 ) implements Variable {
 
     public BehaviourVariable {
-        if (name == null || name.isEmpty()) {
-            throw new IllegalArgumentException("Variable name cannot be null or empty");
+        if (name == null) {
+            name = "";  // Allow empty name for anonymous behaviours
         }
         if (ast == null) {
             throw new IllegalArgumentException("AST cannot be null for behaviour");
@@ -50,6 +50,8 @@ public record BehaviourVariable(
 
     @Override
     public Variable withSignal(String signalName, SignalHandler handler) {
-        throw new UnsupportedOperationException("TODO: Implement");
+        Map<String, SignalHandler> newSignals = new java.util.HashMap<>(signals);
+        newSignals.put(signalName, handler);
+        return new BehaviourVariable(name, ast, newSignals);
     }
 }

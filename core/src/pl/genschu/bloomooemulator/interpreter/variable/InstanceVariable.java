@@ -1,6 +1,6 @@
 package pl.genschu.bloomooemulator.interpreter.variable;
 
-import pl.genschu.bloomooemulator.interpreter.context.ContextV2;
+import pl.genschu.bloomooemulator.interpreter.context.Context;
 import pl.genschu.bloomooemulator.interpreter.values.StringValue;
 import pl.genschu.bloomooemulator.interpreter.values.Value;
 import pl.genschu.bloomooemulator.interpreter.variable.capabilities.HasInstanceContext;
@@ -14,7 +14,7 @@ import java.util.Map;
  */
 public record InstanceVariable(
     String name,
-    ContextV2 instanceContext,
+    Context instanceContext,
     Map<String, SignalHandler> signals
 ) implements Variable, HasInstanceContext {
 
@@ -33,7 +33,7 @@ public record InstanceVariable(
     }
 
     // Convenience constructor without signals
-    public InstanceVariable(String name, ContextV2 instanceContext) {
+    public InstanceVariable(String name, Context instanceContext) {
         this(name, instanceContext, Map.of());
     }
 
@@ -101,7 +101,7 @@ public record InstanceVariable(
     // ========================================
 
     @Override
-    public ContextV2 getInstanceContext() {
+    public Context getInstanceContext() {
         return instanceContext;
     }
 

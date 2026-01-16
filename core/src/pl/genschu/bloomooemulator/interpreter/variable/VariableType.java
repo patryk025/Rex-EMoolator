@@ -2,36 +2,44 @@ package pl.genschu.bloomooemulator.interpreter.variable;
 
 /**
  * Enumeration of variable types.
- * Replaces string comparisons in v1.
+ * Replaces string comparisons in old interpreter.
  */
 public enum VariableType {
-    INTEGER,
-    DOUBLE,
-    STRING,
-    BOOLEAN,
-    BEHAVIOUR,
-    ARRAY,
     ANIMO,
-    IMAGE,
-    SOUND,
-    VECTOR,
-    FONT,
+    ARRAY,
+    BEHAVIOUR,
+    BOOLEAN,
     BUTTON,
-    TEXT,
-    SEQUENCE,
-    GROUP,
-    TIMER,
-    MOUSE,
-    KEYBOARD,
-    CONDITION,
     CANVAS_OBSERVER,
-    WORLD,
-    DATABASE,
-    STRUCT,
-    DATABASE_CURSOR,
     CLASS,
-    INSTANCE,
-    CNVLOADER;
+    CNVLOADER,
+    CONDITION,
+    COMPLEXCONDITION,
+    DATABASE,
+    DATABASE_CURSOR,
+    DOUBLE,
+    EXPRESSION,
+    FILTER,
+    FONT,
+    GROUP,
+    IMAGE,
+    INSTANCE, // artificial type for class instances
+    INTEGER,
+    JOYSTICK,
+    KEYBOARD,
+    MOUSE,
+    MULTIARRAY,
+    PATTERN,
+    SEQUENCE,
+    SOUND,
+    STATICFILTER,
+    STRING,
+    STRUCT,
+    TEXT,
+    TIMER,
+    VECTOR,
+    VIRTUALGRAPHICSOBJECT,
+    WORLD;
 
     /**
      * Returns true if this is a primitive type.
