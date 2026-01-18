@@ -9,7 +9,7 @@ import pl.genschu.bloomooemulator.interpreter.v1.variable.Attribute;
 import pl.genschu.bloomooemulator.interpreter.v1.variable.Method;
 import pl.genschu.bloomooemulator.interpreter.v1.variable.Parameter;
 import pl.genschu.bloomooemulator.interpreter.v1.variable.Variable;
-import pl.genschu.bloomooemulator.utils.ArgumentsHelper;
+import pl.genschu.bloomooemulator.utils.LegacyArgumentsHelper;
 import pl.genschu.bloomooemulator.utils.LangCodeConverter;
 
 import java.io.File;
@@ -64,8 +64,8 @@ public class ApplicationVariable extends Variable {
 			@Override
 			public Variable execute(Variable self, List<Object> arguments) {
 				Context context = self.getContext();
-				String varName = ArgumentsHelper.getString(arguments.get(0));
-				String methodName = ArgumentsHelper.getString(arguments.get(1));
+				String varName = LegacyArgumentsHelper.getString(arguments.get(0));
+				String methodName = LegacyArgumentsHelper.getString(arguments.get(1));
 				Object[] params = new Object[arguments.size() - 2];
 				for(int i = 2; i < arguments.size(); i++) {
 					params[i - 2] = arguments.get(i);
@@ -100,8 +100,8 @@ public class ApplicationVariable extends Variable {
 			public Variable execute(Variable self, List<Object> arguments) {
 				Context context = self.getContext();
 				// TODO: check what if scene is not loaded
-				String sceneName = ArgumentsHelper.getString(arguments.get(0));
-				String behaviourName = ArgumentsHelper.getString(arguments.get(1));
+				String sceneName = LegacyArgumentsHelper.getString(arguments.get(0));
+				String behaviourName = LegacyArgumentsHelper.getString(arguments.get(1));
 
 				if(sceneName.equals(context.getGame().getCurrentScene())) {
 					Variable behaviour = context.getGame().getCurrentSceneContext().getVariable(behaviourName); // we need to get current scene context because getContext() have only definition variables
@@ -120,7 +120,7 @@ public class ApplicationVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(Variable self, List<Object> arguments) {
-				String languageCode = ArgumentsHelper.getString(arguments.get(0));
+				String languageCode = LegacyArgumentsHelper.getString(arguments.get(0));
 				String isoCode = LangCodeConverter.lcidToIsoCode(languageCode);
 				((ApplicationVariable) self).setLanguage(isoCode);
 

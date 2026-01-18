@@ -2,7 +2,7 @@ package pl.genschu.bloomooemulator.engine.filters;
 
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Batch;
-import pl.genschu.bloomooemulator.utils.ArgumentsHelper;
+import pl.genschu.bloomooemulator.utils.LegacyArgumentsHelper;
 
 public class RotateFilter extends Filter {
     @Override
@@ -10,7 +10,7 @@ public class RotateFilter extends Filter {
         float angle = 0f;
         if (properties.containsKey("ANGLE")) {
             Object rotationAngle = getProperty("ANGLE");
-            angle = (float) ArgumentsHelper.getDouble(rotationAngle);
+            angle = (float) LegacyArgumentsHelper.getDouble(rotationAngle);
         }
 
         // TODO: support for CURRENTFRAME = TRUE

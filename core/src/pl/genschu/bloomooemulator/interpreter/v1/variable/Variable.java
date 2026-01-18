@@ -9,7 +9,7 @@ import pl.genschu.bloomooemulator.interpreter.v1.exceptions.ClassMethodNotImplem
 import pl.genschu.bloomooemulator.interpreter.v1.exceptions.VariableUnsupportedOperationException;
 import pl.genschu.bloomooemulator.interpreter.v1.variable.types.*;
 import pl.genschu.bloomooemulator.loader.v1.CNVParser;
-import pl.genschu.bloomooemulator.utils.ArgumentsHelper;
+import pl.genschu.bloomooemulator.utils.LegacyArgumentsHelper;
 import pl.genschu.bloomooemulator.utils.SignalAndParams;
 
 import java.util.*;
@@ -117,8 +117,8 @@ public abstract class Variable implements Cloneable {
 		) {
 			@Override
 			public Variable execute(Variable self, List<Object> arguments) {
-                String signalName = ArgumentsHelper.getString(arguments.get(0));
-				String behaviourName = ArgumentsHelper.getString(arguments.get(1));
+                String signalName = LegacyArgumentsHelper.getString(arguments.get(0));
+				String behaviourName = LegacyArgumentsHelper.getString(arguments.get(1));
 
 				if(signalName.contains("$")) {
 					signalName = signalName.replace("$", "^");
@@ -161,7 +161,7 @@ public abstract class Variable implements Cloneable {
 			public Variable execute(Variable self, List<Object> arguments) {
                 int amount = 1;
 				if(!arguments.isEmpty()) {
-					amount = ArgumentsHelper.getInteger(arguments.get(0));
+					amount = LegacyArgumentsHelper.getInteger(arguments.get(0));
 				}
 
 				for(int i = 0; i < amount; i++) {
@@ -202,7 +202,7 @@ public abstract class Variable implements Cloneable {
 		) {
 			@Override
 			public Variable execute(Variable self, List<Object> arguments) {
-                String behaviourName = ArgumentsHelper.getString(arguments.get(0));
+                String behaviourName = LegacyArgumentsHelper.getString(arguments.get(0));
 
 				self.removeSignal(behaviourName);
 				return null;
@@ -216,7 +216,7 @@ public abstract class Variable implements Cloneable {
 		) {
 			@Override
 			public Variable execute(Variable self, List<Object> arguments) {
-                String signal = ArgumentsHelper.getString(arguments.get(0));
+                String signal = LegacyArgumentsHelper.getString(arguments.get(0));
 
 				self.emitSignal("ONSIGNAL", signal);
 				return null;

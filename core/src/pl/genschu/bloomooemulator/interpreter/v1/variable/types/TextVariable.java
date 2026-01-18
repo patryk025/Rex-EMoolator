@@ -11,7 +11,7 @@ import pl.genschu.bloomooemulator.interpreter.v1.variable.Parameter;
 import pl.genschu.bloomooemulator.interpreter.v1.variable.Variable;
 import pl.genschu.bloomooemulator.objects.FontCropping;
 import pl.genschu.bloomooemulator.geometry.shapes.Box2D;
-import pl.genschu.bloomooemulator.utils.ArgumentsHelper;
+import pl.genschu.bloomooemulator.utils.LegacyArgumentsHelper;
 
 import java.util.Arrays;
 import java.util.List;
@@ -48,12 +48,12 @@ public class TextVariable extends Variable {
 			@Override
 			public Variable execute(Variable self, List<Object> arguments) {
 				TextVariable selfVar = (TextVariable) self;
-				int xLeft = ArgumentsHelper.getInteger(arguments.get(0));
-				int yLower = ArgumentsHelper.getInteger(arguments.get(1));
-				int xRight = ArgumentsHelper.getInteger(arguments.get(2));
-				int yUpper = ArgumentsHelper.getInteger(arguments.get(3));
-				String hJustify = ArgumentsHelper.getString(arguments.get(4));
-				String vJustify = ArgumentsHelper.getString(arguments.get(5));
+				int xLeft = LegacyArgumentsHelper.getInteger(arguments.get(0));
+				int yLower = LegacyArgumentsHelper.getInteger(arguments.get(1));
+				int xRight = LegacyArgumentsHelper.getInteger(arguments.get(2));
+				int yUpper = LegacyArgumentsHelper.getInteger(arguments.get(3));
+				String hJustify = LegacyArgumentsHelper.getString(arguments.get(4));
+				String vJustify = LegacyArgumentsHelper.getString(arguments.get(5));
 
 				selfVar.rect = new Box2D(xLeft, yLower, xRight, yUpper);
 				selfVar.sethJustify(hJustify);
@@ -70,7 +70,7 @@ public class TextVariable extends Variable {
 			@Override
 			public Variable execute(Variable self, List<Object> arguments) {
 				TextVariable selfVar = (TextVariable) self;
-				selfVar.priority = ArgumentsHelper.getInteger(arguments.get(0));
+				selfVar.priority = LegacyArgumentsHelper.getInteger(arguments.get(0));
 				selfVar.setAttribute("PRIORITY", new Attribute("INTEGER", selfVar.priority));
 				return null;
 			}
@@ -84,7 +84,7 @@ public class TextVariable extends Variable {
 			@Override
 			public Variable execute(Variable self, List<Object> arguments) {
 				TextVariable selfVar = (TextVariable) self;
-				String text = ArgumentsHelper.getString(arguments.get(0));
+				String text = LegacyArgumentsHelper.getString(arguments.get(0));
 				selfVar.setText(text);
 				return null;
 			}

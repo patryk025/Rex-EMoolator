@@ -21,7 +21,7 @@ import pl.genschu.bloomooemulator.objects.Event;
 import pl.genschu.bloomooemulator.objects.FrameData;
 import pl.genschu.bloomooemulator.objects.Image;
 import pl.genschu.bloomooemulator.geometry.shapes.Box2D;
-import pl.genschu.bloomooemulator.utils.ArgumentsHelper;
+import pl.genschu.bloomooemulator.utils.LegacyArgumentsHelper;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -98,7 +98,7 @@ public class AnimoVariable extends Variable implements Cloneable {
         ) {
             @Override
             public Variable execute(Variable self, List<Object> arguments) {
-                String arrayName = ArgumentsHelper.getString(arguments.get(0));
+                String arrayName = LegacyArgumentsHelper.getString(arguments.get(0));
                 Context context = self.getContext();
                 AnimoVariable selfVar = (AnimoVariable) self;
                 ArrayVariable array = (ArrayVariable) self.getContext().getVariable(arrayName);
@@ -189,7 +189,7 @@ public class AnimoVariable extends Variable implements Cloneable {
                 if(arguments.isEmpty()) {
                     return new StringVariable("", currentEvent.getName().toUpperCase(), context);
                 }
-                int eventIndex = ArgumentsHelper.getInteger(arguments.get(0));
+                int eventIndex = LegacyArgumentsHelper.getInteger(arguments.get(0));
                 if(eventIndex < 0 || eventIndex >= events.size()) {
                     return new StringVariable("", currentEvent.getName().toUpperCase(), context);
                 }
@@ -273,7 +273,7 @@ public class AnimoVariable extends Variable implements Cloneable {
             public Variable execute(Variable self, List<Object> arguments) {
                 Context context = self.getContext();
                 List<Event> events = ((AnimoVariable) self).getEvents();
-                String eventName = ArgumentsHelper.getString(arguments.get(0));
+                String eventName = LegacyArgumentsHelper.getString(arguments.get(0));
 
                 try {
                     int eventNumber = Integer.parseInt(eventName);
@@ -375,9 +375,9 @@ public class AnimoVariable extends Variable implements Cloneable {
         ) {
             @Override
             public Variable execute(Variable self, List<Object> arguments) {
-                int posX = ArgumentsHelper.getInteger(arguments.get(0));
-                int posY = ArgumentsHelper.getInteger(arguments.get(1));
-                boolean checkAlpha = ArgumentsHelper.getBoolean(arguments.get(2)); // TODO: check how it works
+                int posX = LegacyArgumentsHelper.getInteger(arguments.get(0));
+                int posY = LegacyArgumentsHelper.getInteger(arguments.get(1));
+                boolean checkAlpha = LegacyArgumentsHelper.getBoolean(arguments.get(2)); // TODO: check how it works
 
                 return new BoolVariable("", ((AnimoVariable) self).isAt(posX, posY), self.getContext());
             }
@@ -392,8 +392,8 @@ public class AnimoVariable extends Variable implements Cloneable {
             @Override
             public Variable execute(Variable self, List<Object> arguments) {
                 Context context = self.getContext();
-                String varAnimo = ArgumentsHelper.getString(arguments.get(0));
-                int iouThreshold = ArgumentsHelper.getInteger(arguments.get(1));
+                String varAnimo = LegacyArgumentsHelper.getString(arguments.get(0));
+                int iouThreshold = LegacyArgumentsHelper.getInteger(arguments.get(1));
 
                 Variable var = context.getVariable(varAnimo);
                 if(!(var instanceof AnimoVariable) && !(var instanceof ImageVariable)) {
@@ -423,7 +423,7 @@ public class AnimoVariable extends Variable implements Cloneable {
                 Context context = self.getContext();
                 AnimoVariable animoSelf = (AnimoVariable) self;
                 // TODO: check if it works correct
-                String eventName = arguments.isEmpty() ? null : ArgumentsHelper.getString(arguments.get(0));
+                String eventName = arguments.isEmpty() ? null : LegacyArgumentsHelper.getString(arguments.get(0));
                 if(eventName == null) {
                     return new BoolVariable("", animoSelf.isPlaying(), context);
                 }
@@ -448,7 +448,7 @@ public class AnimoVariable extends Variable implements Cloneable {
             @Override
             public Variable execute(Variable self, List<Object> arguments) {
                 AnimoVariable animoSelf = (AnimoVariable) self;
-                String path = ArgumentsHelper.getString(arguments.get(0));
+                String path = LegacyArgumentsHelper.getString(arguments.get(0));
                 animoSelf.setAttribute("FILENAME", path);
                 animoSelf.loadAnimo();
                 return null;
@@ -464,7 +464,7 @@ public class AnimoVariable extends Variable implements Cloneable {
             public Variable execute(Variable self, List<Object> arguments) {
                 AnimoVariable animoSelf = (AnimoVariable) self;
                 Context context = self.getContext();
-                boolean monitorAlpha = ArgumentsHelper.getBoolean(arguments.get(0));
+                boolean monitorAlpha = LegacyArgumentsHelper.getBoolean(arguments.get(0));
                 animoSelf.setAttribute("MONITORCOLLISION", "TRUE");
                 animoSelf.setAttribute("MONITORCOLLISIONALPHA", monitorAlpha ? "TRUE" : "FALSE");
 
@@ -487,8 +487,8 @@ public class AnimoVariable extends Variable implements Cloneable {
             public Variable execute(Variable self, List<Object> arguments) {
                 AnimoVariable animoSelf = (AnimoVariable) self;
                 Context context = self.getContext();
-                int offsetX = ArgumentsHelper.getInteger(arguments.get(0));
-                int offsetY = ArgumentsHelper.getInteger(arguments.get(1));
+                int offsetX = LegacyArgumentsHelper.getInteger(arguments.get(0));
+                int offsetY = LegacyArgumentsHelper.getInteger(arguments.get(1));
 
                 animoSelf.posX += offsetX;
                 animoSelf.posY += offsetY;
@@ -526,7 +526,7 @@ public class AnimoVariable extends Variable implements Cloneable {
             @Override
             public Variable execute(Variable self, List<Object> arguments) {
                 AnimoVariable animoSelf = (AnimoVariable) self;
-                int eventId = ArgumentsHelper.getInteger(arguments.get(0));
+                int eventId = LegacyArgumentsHelper.getInteger(arguments.get(0));
                 try {
                     List<Event> events = animoSelf.getEvents();
                     Event currentEvent = events.get(eventId);
@@ -586,7 +586,7 @@ public class AnimoVariable extends Variable implements Cloneable {
             @Override
             public Variable execute(Variable self, List<Object> arguments) {
                 AnimoVariable animoSelf = (AnimoVariable) self;
-                String eventName = ArgumentsHelper.getString(arguments.get(0), false);
+                String eventName = LegacyArgumentsHelper.getString(arguments.get(0), false);
                 List<Event> events = animoSelf.getEvents();
                 for(Event event : events) {
                     if(event.getName().equalsIgnoreCase(eventName)) {
@@ -661,7 +661,7 @@ public class AnimoVariable extends Variable implements Cloneable {
             @Override
             public Variable execute(Variable self, List<Object> arguments) {
                 AnimoVariable animoSelf = (AnimoVariable) self;
-                String anchor = ArgumentsHelper.getString(arguments.get(0), false);
+                String anchor = LegacyArgumentsHelper.getString(arguments.get(0), false);
                 Box2D rect = animoSelf.getRect();
 
                 switch (anchor) {
@@ -719,8 +719,8 @@ public class AnimoVariable extends Variable implements Cloneable {
             @Override
             public Variable execute(Variable self, List<Object> arguments) {
                 AnimoVariable animoSelf = (AnimoVariable) self;
-                animoSelf.anchorX = ArgumentsHelper.getInteger(arguments.get(0));
-                animoSelf.anchorY = ArgumentsHelper.getInteger(arguments.get(1));
+                animoSelf.anchorX = LegacyArgumentsHelper.getInteger(arguments.get(0));
+                animoSelf.anchorY = LegacyArgumentsHelper.getInteger(arguments.get(1));
                 return null;
             }
         });
@@ -734,8 +734,8 @@ public class AnimoVariable extends Variable implements Cloneable {
             @Override
             public Variable execute(Variable self, List<Object> arguments) {
                 AnimoVariable animoSelf = (AnimoVariable) self;
-                boolean enabled = ArgumentsHelper.getBoolean(arguments.get(0));
-                boolean changeCursor = ArgumentsHelper.getBoolean(arguments.get(1));
+                boolean enabled = LegacyArgumentsHelper.getBoolean(arguments.get(0));
+                boolean changeCursor = LegacyArgumentsHelper.getBoolean(arguments.get(1));
 
                 if (!enabled) {
                     animoSelf.changeButtonState(ButtonEvent.DISABLE);
@@ -775,7 +775,7 @@ public class AnimoVariable extends Variable implements Cloneable {
         ) {
             @Override
             public Variable execute(Variable self, List<Object> arguments) {
-                int fps = ArgumentsHelper.getInteger(arguments.get(0));
+                int fps = LegacyArgumentsHelper.getInteger(arguments.get(0));
                 ((AnimoVariable) self).setFps(fps);
                 return null;
             }
@@ -789,7 +789,7 @@ public class AnimoVariable extends Variable implements Cloneable {
             @Override
             public Variable execute(Variable self, List<Object> arguments) {
                 AnimoVariable animoSelf = (AnimoVariable) self;
-                int imageNumber = ArgumentsHelper.getInteger(arguments.get(0));
+                int imageNumber = LegacyArgumentsHelper.getInteger(arguments.get(0));
                 if(imageNumber >= animoSelf.getImagesCount()) {
                     Gdx.app.error("AnimoVariable", "SETFRAME tried to change image number which is out of range");
                     return null;
@@ -810,7 +810,7 @@ public class AnimoVariable extends Variable implements Cloneable {
             @Override
             public Variable execute(Variable self, List<Object> arguments) {
                 AnimoVariable animoSelf = (AnimoVariable) self;
-                String eventName = ArgumentsHelper.getString(arguments.get(0));
+                String eventName = LegacyArgumentsHelper.getString(arguments.get(0));
                 List<Event> events = animoSelf.getEvents();
                 for (Event event : events) {
                     if (event.getName().equalsIgnoreCase(eventName)) {
@@ -823,7 +823,7 @@ public class AnimoVariable extends Variable implements Cloneable {
                     }
                 }
 
-                animoSelf.setCurrentFrameNumber(ArgumentsHelper.getInteger(arguments.get(1)), true);
+                animoSelf.setCurrentFrameNumber(LegacyArgumentsHelper.getInteger(arguments.get(1)), true);
                 animoSelf.changeAnimoState(AnimoEvent.SET_FRAME);
                 return null;
             }
@@ -851,7 +851,7 @@ public class AnimoVariable extends Variable implements Cloneable {
             @Override
             public Variable execute(Variable self, List<Object> arguments) {
                 AnimoVariable animoSelf = (AnimoVariable) self;
-                int opacity = ArgumentsHelper.getInteger(arguments.get(0));
+                int opacity = LegacyArgumentsHelper.getInteger(arguments.get(0));
                 animoSelf.setOpacity(opacity);
                 animoSelf.setAttribute("OPACITY", new Attribute("INTEGER", opacity));
                 return null;
@@ -867,8 +867,8 @@ public class AnimoVariable extends Variable implements Cloneable {
             @Override
             public Variable execute(Variable self, List<Object> arguments) {
                 AnimoVariable animoSelf = (AnimoVariable) self;
-                animoSelf.posX = ArgumentsHelper.getInteger(arguments.get(0)) - animoSelf.getAnchorX();
-                animoSelf.posY = ArgumentsHelper.getInteger(arguments.get(1)) - animoSelf.getAnchorY();
+                animoSelf.posX = LegacyArgumentsHelper.getInteger(arguments.get(0)) - animoSelf.getAnchorX();
+                animoSelf.posY = LegacyArgumentsHelper.getInteger(arguments.get(1)) - animoSelf.getAnchorY();
                 //Gdx.app.log("updateRect()", "SETPOSITION");
                 animoSelf.updateRect();
                 return null;
@@ -883,7 +883,7 @@ public class AnimoVariable extends Variable implements Cloneable {
             @Override
             public Variable execute(Variable self, List<Object> arguments) {
                 AnimoVariable animoSelf = (AnimoVariable) self;
-                int priority = ArgumentsHelper.getInteger(arguments.get(0));
+                int priority = LegacyArgumentsHelper.getInteger(arguments.get(0));
                 animoSelf.setPriority(priority);
                 animoSelf.setAttribute("PRIORITY", new Attribute("INTEGER", priority));
                 return null;
@@ -912,7 +912,7 @@ public class AnimoVariable extends Variable implements Cloneable {
                 boolean emitSignal = arguments.isEmpty();
 
                 if(!emitSignal) {
-                    emitSignal = ArgumentsHelper.getBoolean(arguments.get(0));
+                    emitSignal = LegacyArgumentsHelper.getBoolean(arguments.get(0));
                 }
 
                 ((AnimoVariable) self).changeAnimoState(AnimoEvent.STOP, emitSignal);

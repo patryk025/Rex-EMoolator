@@ -9,7 +9,7 @@ import pl.genschu.bloomooemulator.interpreter.v1.variable.Attribute;
 import pl.genschu.bloomooemulator.interpreter.v1.variable.Method;
 import pl.genschu.bloomooemulator.interpreter.v1.variable.Parameter;
 import pl.genschu.bloomooemulator.interpreter.v1.variable.Variable;
-import pl.genschu.bloomooemulator.utils.ArgumentsHelper;
+import pl.genschu.bloomooemulator.utils.LegacyArgumentsHelper;
 
 import java.util.HashMap;
 import java.util.List;
@@ -43,7 +43,7 @@ public class StaticFilterVariable extends Variable {
 			@Override
 			public Variable execute(Variable self, List<Object> arguments) {
 				StaticFilterVariable selfVar = (StaticFilterVariable) self;
-				String propertyName = ArgumentsHelper.getString(arguments.get(0));
+				String propertyName = LegacyArgumentsHelper.getString(arguments.get(0));
 				Object propertyValue = arguments.get(1);
 
 				selfVar.properties.put(propertyName, propertyValue);
@@ -61,7 +61,7 @@ public class StaticFilterVariable extends Variable {
 			@Override
 			public Variable execute(Variable self, List<Object> arguments) {
 				StaticFilterVariable selfVar = (StaticFilterVariable) self;
-				String objectName = ArgumentsHelper.getString(arguments.get(0));
+				String objectName = LegacyArgumentsHelper.getString(arguments.get(0));
 				Variable object = selfVar.getContext().getVariable(objectName);
 
 				if (object == null) {
@@ -105,7 +105,7 @@ public class StaticFilterVariable extends Variable {
 			@Override
 			public Variable execute(Variable self, List<Object> arguments) {
 				StaticFilterVariable selfVar = (StaticFilterVariable) self;
-				String objectName = ArgumentsHelper.getString(arguments.get(0));
+				String objectName = LegacyArgumentsHelper.getString(arguments.get(0));
 				Variable object = selfVar.getContext().getVariable(objectName);
 
 				if (object == null) {

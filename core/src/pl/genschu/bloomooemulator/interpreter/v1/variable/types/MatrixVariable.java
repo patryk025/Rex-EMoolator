@@ -5,7 +5,7 @@ import pl.genschu.bloomooemulator.interpreter.v1.variable.Attribute;
 import pl.genschu.bloomooemulator.interpreter.v1.variable.Method;
 import pl.genschu.bloomooemulator.interpreter.v1.variable.Parameter;
 import pl.genschu.bloomooemulator.interpreter.v1.variable.Variable;
-import pl.genschu.bloomooemulator.utils.ArgumentsHelper;
+import pl.genschu.bloomooemulator.utils.LegacyArgumentsHelper;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -79,8 +79,8 @@ public class MatrixVariable extends Variable {
 			@Override
 			public Variable execute(Variable self, List<Object> arguments) {
 				MatrixVariable selfVar = (MatrixVariable) self;
-				int oldCell = ArgumentsHelper.getInteger(arguments.get(0));
-				int direction = ArgumentsHelper.getInteger(arguments.get(1));
+				int oldCell = LegacyArgumentsHelper.getInteger(arguments.get(0));
+				int direction = LegacyArgumentsHelper.getInteger(arguments.get(1));
 				int row = oldCell / selfVar.getWidth();
 				int col = oldCell % selfVar.getWidth();
 
@@ -130,8 +130,8 @@ public class MatrixVariable extends Variable {
 			@Override
 			public Variable execute(Variable self, List<Object> arguments) {
 				MatrixVariable selfVar = (MatrixVariable) self;
-				int oldCell = ArgumentsHelper.getInteger(arguments.get(0));
-				int oldDir = arguments.size() > 1 ? ArgumentsHelper.getInteger(arguments.get(1)) : 0;
+				int oldCell = LegacyArgumentsHelper.getInteger(arguments.get(0));
+				int oldDir = arguments.size() > 1 ? LegacyArgumentsHelper.getInteger(arguments.get(1)) : 0;
 
 				int row = oldCell / selfVar.getWidth();
 				int col = oldCell % selfVar.getWidth();
@@ -192,7 +192,7 @@ public class MatrixVariable extends Variable {
 			@Override
 			public Variable execute(Variable self, List<Object> arguments) {
 				MatrixVariable selfVar = (MatrixVariable) self;
-				int cellNo = ArgumentsHelper.getInteger(arguments.get(0));
+				int cellNo = LegacyArgumentsHelper.getInteger(arguments.get(0));
 
 				if (cellNo >= 0 && cellNo < selfVar.getData().getElements().size()) {
 					// check if there is no gate there
@@ -219,7 +219,7 @@ public class MatrixVariable extends Variable {
 			@Override
 			public Variable execute(Variable self, List<Object> arguments) {
 				MatrixVariable selfVar = (MatrixVariable) self;
-				int cellIndex = ArgumentsHelper.getInteger(arguments.get(0));
+				int cellIndex = LegacyArgumentsHelper.getInteger(arguments.get(0));
 				if (cellIndex >= 0 && cellIndex < selfVar.getWidth() * selfVar.getHeight()) {
 					return selfVar.getData().getElements().get(cellIndex);
 				}
@@ -236,8 +236,8 @@ public class MatrixVariable extends Variable {
 			@Override
 			public Variable execute(Variable self, List<Object> arguments) {
 				MatrixVariable selfVar = (MatrixVariable) self;
-				int x = ArgumentsHelper.getInteger(arguments.get(0));
-				int y = ArgumentsHelper.getInteger(arguments.get(1));
+				int x = LegacyArgumentsHelper.getInteger(arguments.get(0));
+				int y = LegacyArgumentsHelper.getInteger(arguments.get(1));
 
 				if (x >= 0 && x < selfVar.getWidth() && y >= 0 && y < selfVar.getHeight()) {
 					return new IntegerVariable("", y * selfVar.getWidth() + x, selfVar.getContext());
@@ -254,7 +254,7 @@ public class MatrixVariable extends Variable {
 			@Override
 			public Variable execute(Variable self, List<Object> arguments) {
 				MatrixVariable selfVar = (MatrixVariable) self;
-				int cellIndex = ArgumentsHelper.getInteger(arguments.get(0));
+				int cellIndex = LegacyArgumentsHelper.getInteger(arguments.get(0));
 				int col = cellIndex % selfVar.getWidth();
 				return new IntegerVariable("", selfVar.getBasePosX() + col * selfVar.getCellWidth(), selfVar.getContext());
 			}
@@ -268,7 +268,7 @@ public class MatrixVariable extends Variable {
 			@Override
 			public Variable execute(Variable self, List<Object> arguments) {
 				MatrixVariable selfVar = (MatrixVariable) self;
-				int cellIndex = ArgumentsHelper.getInteger(arguments.get(0));
+				int cellIndex = LegacyArgumentsHelper.getInteger(arguments.get(0));
 				int row = cellIndex / selfVar.getWidth();
 				return new IntegerVariable("", selfVar.getBasePosY() + row * selfVar.getCellHeight(), selfVar.getContext());
 			}
@@ -282,7 +282,7 @@ public class MatrixVariable extends Variable {
 			@Override
 			public Variable execute(Variable self, List<Object> arguments) {
 				MatrixVariable selfVar = (MatrixVariable) self;
-				int cellCode = ArgumentsHelper.getInteger(arguments.get(0));
+				int cellCode = LegacyArgumentsHelper.getInteger(arguments.get(0));
 				int count = 0;
 
 				for (Variable element : selfVar.getData().getElements()) {
@@ -303,7 +303,7 @@ public class MatrixVariable extends Variable {
 			@Override
 			public Variable execute(Variable self, List<Object> arguments) {
 				MatrixVariable selfVar = (MatrixVariable) self;
-				int cellIndex = ArgumentsHelper.getInteger(arguments.get(0));
+				int cellIndex = LegacyArgumentsHelper.getInteger(arguments.get(0));
 				int col = cellIndex % selfVar.getWidth();
 				return new IntegerVariable("", selfVar.getBasePosX() + col * selfVar.getCellWidth(), selfVar.getContext());
 			}
@@ -317,7 +317,7 @@ public class MatrixVariable extends Variable {
 			@Override
 			public Variable execute(Variable self, List<Object> arguments) {
 				MatrixVariable selfVar = (MatrixVariable) self;
-				int cellIndex = ArgumentsHelper.getInteger(arguments.get(0));
+				int cellIndex = LegacyArgumentsHelper.getInteger(arguments.get(0));
 				int row = cellIndex / selfVar.getWidth();
 				return new IntegerVariable("", selfVar.getBasePosY() + row * selfVar.getCellHeight(), selfVar.getContext());
 			}
@@ -332,8 +332,8 @@ public class MatrixVariable extends Variable {
 			@Override
 			public Variable execute(Variable self, List<Object> arguments) {
 				MatrixVariable selfVar = (MatrixVariable) self;
-				int x = ArgumentsHelper.getInteger(arguments.get(0));
-				int y = ArgumentsHelper.getInteger(arguments.get(1));
+				int x = LegacyArgumentsHelper.getInteger(arguments.get(0));
+				int y = LegacyArgumentsHelper.getInteger(arguments.get(1));
 
 				if (x >= 0 && x < selfVar.getWidth() && y >= 0 && y < selfVar.getHeight()) {
 					return new IntegerVariable("", y * selfVar.getWidth() + x, selfVar.getContext());
@@ -379,7 +379,7 @@ public class MatrixVariable extends Variable {
 					return new BoolVariable("", false, selfVar.getContext());
 				}
 
-				int cellIndex = ArgumentsHelper.getInteger(arguments.get(0));
+				int cellIndex = LegacyArgumentsHelper.getInteger(arguments.get(0));
 
 				return new BoolVariable("", selfVar.isInGate(cellIndex), selfVar.getContext());
 			}
@@ -394,8 +394,8 @@ public class MatrixVariable extends Variable {
 			@Override
 			public Variable execute(Variable self, List<Object> arguments) {
 				MatrixVariable selfVar = (MatrixVariable) self;
-				int srcCellIndex = ArgumentsHelper.getInteger(arguments.get(0));
-				int destCellIndex = ArgumentsHelper.getInteger(arguments.get(1));
+				int srcCellIndex = LegacyArgumentsHelper.getInteger(arguments.get(0));
+				int destCellIndex = LegacyArgumentsHelper.getInteger(arguments.get(1));
 
 				if (srcCellIndex >= 0 && srcCellIndex < selfVar.getWidth() * selfVar.getHeight() &&
 						destCellIndex >= 0 && destCellIndex < selfVar.getWidth() * selfVar.getHeight()) {
@@ -487,8 +487,8 @@ public class MatrixVariable extends Variable {
 			@Override
 			public Variable execute(Variable self, List<Object> arguments) {
 				MatrixVariable selfVar = (MatrixVariable) self;
-				int cellIndex = ArgumentsHelper.getInteger(arguments.get(0));
-				int cellCode = ArgumentsHelper.getInteger(arguments.get(1));
+				int cellIndex = LegacyArgumentsHelper.getInteger(arguments.get(0));
+				int cellCode = LegacyArgumentsHelper.getInteger(arguments.get(1));
 
 				if (cellIndex >= 0 && cellIndex < selfVar.getWidth() * selfVar.getHeight()) {
 					if (cellIndex >= selfVar.getData().getElements().size()) {
@@ -512,9 +512,9 @@ public class MatrixVariable extends Variable {
 			@Override
 			public Variable execute(Variable self, List<Object> arguments) {
 				MatrixVariable selfVar = (MatrixVariable) self;
-				int cellX = ArgumentsHelper.getInteger(arguments.get(0));
-				int cellY = ArgumentsHelper.getInteger(arguments.get(1));
-				int cellCode = ArgumentsHelper.getInteger(arguments.get(2));
+				int cellX = LegacyArgumentsHelper.getInteger(arguments.get(0));
+				int cellY = LegacyArgumentsHelper.getInteger(arguments.get(1));
+				int cellCode = LegacyArgumentsHelper.getInteger(arguments.get(2));
 
 				int cellIndex = cellY * selfVar.getWidth() + cellX;
 
@@ -541,10 +541,10 @@ public class MatrixVariable extends Variable {
 			@Override
 			public Variable execute(Variable self, List<Object> arguments) {
 				MatrixVariable selfVar = (MatrixVariable) self;
-				selfVar.startGateColumn = ArgumentsHelper.getInteger(arguments.get(0));
-				selfVar.startGateRow = ArgumentsHelper.getInteger(arguments.get(1));
-				selfVar.endGateColumn = ArgumentsHelper.getInteger(arguments.get(2));
-				selfVar.endGateRow = ArgumentsHelper.getInteger(arguments.get(3));
+				selfVar.startGateColumn = LegacyArgumentsHelper.getInteger(arguments.get(0));
+				selfVar.startGateRow = LegacyArgumentsHelper.getInteger(arguments.get(1));
+				selfVar.endGateColumn = LegacyArgumentsHelper.getInteger(arguments.get(2));
+				selfVar.endGateRow = LegacyArgumentsHelper.getInteger(arguments.get(3));
 				return null;
 			}
 		});
@@ -558,13 +558,13 @@ public class MatrixVariable extends Variable {
 			@Override
 			public Variable execute(Variable self, List<Object> arguments) {
 				MatrixVariable selfVar = (MatrixVariable) self;
-				int row = ArgumentsHelper.getInteger(arguments.get(0));
+				int row = LegacyArgumentsHelper.getInteger(arguments.get(0));
 
 				if (row >= 0 && row < selfVar.getHeight()) {
 					int startIndex = row * selfVar.getWidth();
 
 					for (int i = 1; i < arguments.size() && i - 1 < selfVar.getWidth(); i++) {
-						int cellCode = ArgumentsHelper.getInteger(arguments.get(i));
+						int cellCode = LegacyArgumentsHelper.getInteger(arguments.get(i));
 						int index = startIndex + (i - 1);
 
 						if (index >= selfVar.getData().getElements().size()) {

@@ -7,7 +7,7 @@ import pl.genschu.bloomooemulator.interpreter.v1.variable.Method;
 import pl.genschu.bloomooemulator.interpreter.v1.variable.Parameter;
 import pl.genschu.bloomooemulator.interpreter.v1.variable.Variable;
 import pl.genschu.bloomooemulator.loader.v1.CNVParser;
-import pl.genschu.bloomooemulator.utils.ArgumentsHelper;
+import pl.genschu.bloomooemulator.utils.LegacyArgumentsHelper;
 import pl.genschu.bloomooemulator.utils.FileUtils;
 
 import java.io.File;
@@ -60,7 +60,7 @@ public class ClassVariable extends Variable {
 					Gdx.app.error("Game", "Class definition " + className + " doesn't exist. Instance will be empty.");
 				}
 
-				String varName = ArgumentsHelper.getString(arguments.get(0));
+				String varName = LegacyArgumentsHelper.getString(arguments.get(0));
 				context.setVariable(varName, new InstanceVariable(varName, classContext));
 
 				Gdx.app.log("ClassVariable", "Class " + className + " loaded to variable " + varName + ". Running constructor...");
@@ -87,7 +87,7 @@ public class ClassVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(Variable self, List<Object> arguments) {
-				String varName = ArgumentsHelper.getString(arguments.get(0));
+				String varName = LegacyArgumentsHelper.getString(arguments.get(0));
 				InstanceVariable var = (InstanceVariable) context.getVariable(varName);
 
 				if (var == null) {

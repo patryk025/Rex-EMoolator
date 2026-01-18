@@ -6,7 +6,7 @@ import pl.genschu.bloomooemulator.interpreter.v1.variable.Attribute;
 import pl.genschu.bloomooemulator.interpreter.v1.variable.Method;
 import pl.genschu.bloomooemulator.interpreter.v1.variable.Parameter;
 import pl.genschu.bloomooemulator.interpreter.v1.variable.Variable;
-import pl.genschu.bloomooemulator.utils.ArgumentsHelper;
+import pl.genschu.bloomooemulator.utils.LegacyArgumentsHelper;
 
 import java.util.List;
 
@@ -47,7 +47,7 @@ public class VectorVariable extends Variable {
 					otherVector = (VectorVariable) arguments.get(0);
 				}
 				else if(arguments.get(0) instanceof StringVariable) {
-					String argString = ArgumentsHelper.getString(arguments.get(0));
+					String argString = LegacyArgumentsHelper.getString(arguments.get(0));
 					Variable var = selfVar.getContext().getVariable(argString);
 					if(!(var instanceof VectorVariable)) {
 						Gdx.app.error("VectorVariable", "Method ADD requires VECTOR argument, got " + arguments.get(0).getClass().getSimpleName() + " instead.");
@@ -88,7 +88,7 @@ public class VectorVariable extends Variable {
 				}
 
 				for (int i = 0; i < arguments.size(); i++) {
-					selfVar.components[i] = ArgumentsHelper.getDouble(arguments.get(i));
+					selfVar.components[i] = LegacyArgumentsHelper.getDouble(arguments.get(i));
 				}
 				return null;
 			}
@@ -102,7 +102,7 @@ public class VectorVariable extends Variable {
 			@Override
 			public Variable execute(Variable self, List<Object> arguments) {
 				VectorVariable selfVar = (VectorVariable) self;
-				int index = ArgumentsHelper.getInteger(arguments.get(0));
+				int index = LegacyArgumentsHelper.getInteger(arguments.get(0));
 
 				if (index >= 0 && index < selfVar.components.length) {
 					return new DoubleVariable("", selfVar.components[index], selfVar.getContext());
@@ -119,7 +119,7 @@ public class VectorVariable extends Variable {
 			@Override
 			public Variable execute(Variable self, List<Object> arguments) {
 				VectorVariable selfVar = (VectorVariable) self;
-				double scalar = ArgumentsHelper.getDouble(arguments.get(0));
+				double scalar = LegacyArgumentsHelper.getDouble(arguments.get(0));
 
 				for (int i = 0; i < selfVar.size; i++) {
 					selfVar.components[i] *= scalar;

@@ -2,7 +2,7 @@ package pl.genschu.bloomooemulator.interpreter.v1.variable.types;
 
 import pl.genschu.bloomooemulator.interpreter.v1.Context;
 import pl.genschu.bloomooemulator.interpreter.v1.variable.*;
-import pl.genschu.bloomooemulator.utils.ArgumentsHelper;
+import pl.genschu.bloomooemulator.utils.LegacyArgumentsHelper;
 
 import java.util.List;
 
@@ -96,8 +96,8 @@ public class MouseVariable extends GlobalVariable {
 			@Override
 			public Variable execute(Variable self, List<Object> arguments) {
 				MouseVariable selfVar = (MouseVariable) self;
-				int posX = ArgumentsHelper.getInteger(arguments.get(0));
-				int posY = ArgumentsHelper.getInteger(arguments.get(1));
+				int posX = LegacyArgumentsHelper.getInteger(arguments.get(0));
+				int posY = LegacyArgumentsHelper.getInteger(arguments.get(1));
 
 				posX = Math.max(0, Math.min(800, posX));
 				posY = Math.max(0, Math.min(600, posY));

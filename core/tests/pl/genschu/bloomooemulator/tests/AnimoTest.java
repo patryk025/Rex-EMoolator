@@ -7,7 +7,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 import pl.genschu.bloomooemulator.TestEnvironment;
-import pl.genschu.bloomooemulator.builders.ContextBuilder;
+import pl.genschu.bloomooemulator.builders.LegacyContextBuilder;
 import org.mockito.junit.jupiter.MockitoExtension;
 import pl.genschu.bloomooemulator.interpreter.v1.variable.Attribute;
 import pl.genschu.bloomooemulator.interpreter.v1.variable.Signal;
@@ -52,7 +52,7 @@ class AnimoTest {
 
     @Test
     void testPlayAnimo() {
-        Context ctx = new ContextBuilder()
+        Context ctx = new LegacyContextBuilder()
                 .withFactory("INTEGER", "LOOP_NO", 0)
                 .build();
         CapturingAnimo animo = new CapturingAnimo("ANIMOMLYNEK", ctx);
@@ -130,7 +130,7 @@ class AnimoTest {
 
     @Test
     void testPlayAnimo2() {
-        Context ctx = new ContextBuilder().build();
+        Context ctx = new LegacyContextBuilder().build();
         CapturingAnimo animo = new CapturingAnimo("ANNLAMPKI", ctx);
         ctx.setVariable("ANNLAMPKI", animo);
 
@@ -189,7 +189,7 @@ class AnimoTest {
 
     @Test
     void testPlayAnimo3() {
-        Context ctx = new ContextBuilder().build();
+        Context ctx = new LegacyContextBuilder().build();
         CapturingAnimo animo = new CapturingAnimo("STLIDLE0", ctx);
         ctx.setVariable("STLIDLE0", animo);
 
@@ -229,7 +229,7 @@ class AnimoTest {
     @Test
     void testPauseDuringRestartAnimo() {
         // S65_ZAMEK
-        Context ctx = new ContextBuilder()
+        Context ctx = new LegacyContextBuilder()
                 .withFactory("INTEGER", "VAROPACITY", 255)
                 .build();
         CapturingAnimo animo = new CapturingAnimo("ANNST2", ctx, 200);

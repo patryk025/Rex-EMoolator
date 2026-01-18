@@ -4,7 +4,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import pl.genschu.bloomooemulator.TestEnvironment;
-import pl.genschu.bloomooemulator.builders.ContextBuilder;
+import pl.genschu.bloomooemulator.builders.LegacyContextBuilder;
 import pl.genschu.bloomooemulator.interpreter.v1.Context;
 import pl.genschu.bloomooemulator.interpreter.v1.variable.Variable;
 import pl.genschu.bloomooemulator.interpreter.v1.variable.types.*;
@@ -22,7 +22,7 @@ class ArrayTest {
 
     @BeforeEach
     void setUp() {
-        ctx = new ContextBuilder().build();
+        ctx = new LegacyContextBuilder().build();
         arrayVar = new ArrayVariable("TEST_ARRAY", ctx);
     }
 

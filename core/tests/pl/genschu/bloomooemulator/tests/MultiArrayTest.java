@@ -7,7 +7,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 import pl.genschu.bloomooemulator.TestEnvironment;
-import pl.genschu.bloomooemulator.builders.ContextBuilder;
+import pl.genschu.bloomooemulator.builders.LegacyContextBuilder;
 import pl.genschu.bloomooemulator.interpreter.v1.Context;
 import pl.genschu.bloomooemulator.interpreter.v1.variable.Variable;
 import pl.genschu.bloomooemulator.interpreter.v1.variable.types.*;
@@ -33,7 +33,7 @@ class MultiArrayTest {
 
     @BeforeEach
     void setUp() {
-        ctx = new ContextBuilder().build();
+        ctx = new LegacyContextBuilder().build();
         multiArrayVar = new MultiArrayVariable("TEST_MULTIARRAY", ctx);
     }
 

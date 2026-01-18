@@ -4,7 +4,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.BeforeEach;
 import pl.genschu.bloomooemulator.TestEnvironment;
-import pl.genschu.bloomooemulator.builders.ContextBuilder;
+import pl.genschu.bloomooemulator.builders.LegacyContextBuilder;
 import pl.genschu.bloomooemulator.interpreter.v1.Context;
 import pl.genschu.bloomooemulator.interpreter.v1.exceptions.VariableUnsupportedOperationException;
 import pl.genschu.bloomooemulator.interpreter.factories.LegacyVariableFactory;
@@ -26,7 +26,7 @@ class VariableCoreTest {
 
     @BeforeEach
     void setUp() {
-        ctx = new ContextBuilder().build();
+        ctx = new LegacyContextBuilder().build();
     }
 
     @Test
@@ -111,7 +111,7 @@ class VariableCoreTest {
 
     @Test
     void testAddBehaviour() {
-        Context testCtx = new ContextBuilder()
+        Context testCtx = new LegacyContextBuilder()
                 .withFactory("STRING", "HOST", "A")
                 .withFactory("BEHAVIOUR", "B", "{}")
                 .build();
@@ -129,7 +129,7 @@ class VariableCoreTest {
 
     @Test
     void testAddBehaviourWithParameters() {
-        Context testCtx = new ContextBuilder()
+        Context testCtx = new LegacyContextBuilder()
                 .withFactory("STRING", "HOST", "test")
                 .withFactory("BEHAVIOUR", "B_WITH_PARAMS", "{@RETURN($1);}")
                 .build();
@@ -145,7 +145,7 @@ class VariableCoreTest {
 
     @Test
     void testRemoveBehaviour() {
-        Context testCtx = new ContextBuilder()
+        Context testCtx = new LegacyContextBuilder()
                 .withFactory("STRING", "HOST", "test")
                 .withFactory("BEHAVIOUR", "B", "{}")
                 .build();
@@ -165,7 +165,7 @@ class VariableCoreTest {
 
     @Test
     void testClone() {
-        ctx = new ContextBuilder().withFactory("INTEGER", "ORIG", 42).build();
+        ctx = new LegacyContextBuilder().withFactory("INTEGER", "ORIG", 42).build();
 
         Variable intVar = ctx.getVariable("ORIG");
 
@@ -191,7 +191,7 @@ class VariableCoreTest {
 
     @Test
     void testGetCloneIndex() {
-        ctx = new ContextBuilder().withFactory("INTEGER", "ORIG", 42).build();
+        ctx = new LegacyContextBuilder().withFactory("INTEGER", "ORIG", 42).build();
 
         Variable intVar = ctx.getVariable("ORIG");
 

@@ -8,7 +8,7 @@ import pl.genschu.bloomooemulator.interpreter.v1.variable.Parameter;
 import pl.genschu.bloomooemulator.interpreter.v1.variable.Variable;
 import pl.genschu.bloomooemulator.loader.DBLoader;
 import pl.genschu.bloomooemulator.saver.DBSaver;
-import pl.genschu.bloomooemulator.utils.ArgumentsHelper;
+import pl.genschu.bloomooemulator.utils.LegacyArgumentsHelper;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -37,9 +37,9 @@ public class DatabaseVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(Variable self, List<Object> arguments) {
-				String columnName = ArgumentsHelper.getString(arguments.get(0));
-				String columnValue = ArgumentsHelper.getString(arguments.get(1));
-				int defaultIndex = ArgumentsHelper.getInteger(arguments.get(2));
+				String columnName = LegacyArgumentsHelper.getString(arguments.get(0));
+				String columnValue = LegacyArgumentsHelper.getString(arguments.get(1));
+				int defaultIndex = LegacyArgumentsHelper.getInteger(arguments.get(2));
 
 				if(((DatabaseVariable) self).columns == null) {
 					Variable tmpColumns = self.getContext().getVariable(self.getAttribute("MODEL").getValue().toString());
@@ -73,7 +73,7 @@ public class DatabaseVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(Variable self, List<Object> arguments) {
-				String dtaName = ArgumentsHelper.getString(arguments.get(0));
+				String dtaName = LegacyArgumentsHelper.getString(arguments.get(0));
 				Gdx.app.log("DatabaseVariable", "Loading database " + dtaName);
 				DBLoader.loadDatabase(DatabaseVariable.this, dtaName);
 				return null;
@@ -105,7 +105,7 @@ public class DatabaseVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(Variable self, List<Object> arguments) {
-				DBSaver.saveDatabase(DatabaseVariable.this, ArgumentsHelper.getString(arguments.get(0)));
+				DBSaver.saveDatabase(DatabaseVariable.this, LegacyArgumentsHelper.getString(arguments.get(0)));
 				return null;
 			}
 		});
@@ -117,7 +117,7 @@ public class DatabaseVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(Variable self, List<Object> arguments) {
-				Variable rowIndex = self.getContext().getVariable(ArgumentsHelper.getString(arguments.get(0)));
+				Variable rowIndex = self.getContext().getVariable(LegacyArgumentsHelper.getString(arguments.get(0)));
 				if(rowIndex == null) {
 					((DatabaseVariable) self).select(0);
 				}

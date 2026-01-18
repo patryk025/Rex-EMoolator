@@ -5,7 +5,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import pl.genschu.bloomooemulator.TestEnvironment;
-import pl.genschu.bloomooemulator.builders.ContextBuilder;
+import pl.genschu.bloomooemulator.builders.LegacyContextBuilder;
 import pl.genschu.bloomooemulator.interpreter.v1.Context;
 import pl.genschu.bloomooemulator.interpreter.v1.logic.LogicSolver;
 import pl.genschu.bloomooemulator.interpreter.v1.variable.Variable;
@@ -31,7 +31,7 @@ public class ComparisonTest {
 
     @BeforeEach
     void setUp() {
-        ctx = new ContextBuilder().build();
+        ctx = new LegacyContextBuilder().build();
         initExpectedResults();
     }
 

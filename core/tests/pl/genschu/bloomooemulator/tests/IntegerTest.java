@@ -7,11 +7,14 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import pl.genschu.bloomooemulator.TestEnvironment;
 import pl.genschu.bloomooemulator.builders.ContextBuilder;
-import pl.genschu.bloomooemulator.interpreter.v1.Context;
-import pl.genschu.bloomooemulator.interpreter.v1.variable.types.DoubleVariable;
-import pl.genschu.bloomooemulator.interpreter.v1.variable.types.IntegerVariable;
+import pl.genschu.bloomooemulator.interpreter.context.Context;
+import pl.genschu.bloomooemulator.interpreter.variable.DoubleVariable;
+import pl.genschu.bloomooemulator.interpreter.variable.IntegerVariable;
+import pl.genschu.bloomooemulator.interpreter.values.DoubleValue;
+import pl.genschu.bloomooemulator.interpreter.values.IntValue;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -66,9 +69,9 @@ public class IntegerTest {
         IntegerVariable testVar;
         int result;
 
-        testVar = new IntegerVariable("TEST", testValue, ctx);
-        testVar.fireMethod("ABS", new IntegerVariable("", testValue, ctx));
-        result = testVar.GET();
+        testVar = new IntegerVariable("TEST", testValue);
+        testVar = (IntegerVariable) testVar.callMethod("ABS", List.of(new IntValue(testValue)));
+        result = testVar.get();
         assertEquals(parseInt(EXPECTED_RESULTS.get("ABS")[vectorIndex]), result,
                 "ABS failed for vector " + testValue);
     }
@@ -81,9 +84,9 @@ public class IntegerTest {
         IntegerVariable testVar;
         int result;
 
-        testVar = new IntegerVariable("TEST", testValue, ctx);
-        testVar.fireMethod("ADD", new IntegerVariable("", 5, ctx));
-        result = testVar.GET();
+        testVar = new IntegerVariable("TEST", testValue);
+        testVar = (IntegerVariable) testVar.callMethod("ADD", List.of(new IntValue(5)));
+        result = testVar.get();
         assertEquals(parseInt(EXPECTED_RESULTS.get("ADD")[vectorIndex]), result,
                 "ADD failed for vector " + testValue);
     }
@@ -96,9 +99,9 @@ public class IntegerTest {
         IntegerVariable testVar;
         int result;
 
-        testVar = new IntegerVariable("TEST", testValue, ctx);
-        testVar.fireMethod("AND", new IntegerVariable("", 555, ctx));
-        result = testVar.GET();
+        testVar = new IntegerVariable("TEST", testValue);
+        testVar = (IntegerVariable) testVar.callMethod("AND", List.of(new IntValue(555)));
+        result = testVar.get();
         assertEquals(parseInt(EXPECTED_RESULTS.get("AND")[vectorIndex]), result,
                 "AND failed for vector " + testValue);
 
@@ -112,9 +115,9 @@ public class IntegerTest {
         IntegerVariable testVar;
         int result;
 
-        testVar = new IntegerVariable("TEST", testValue, ctx);
-        testVar.fireMethod("CLAMP", new IntegerVariable("", 0, ctx), new IntegerVariable("", 50, ctx));
-        result = testVar.GET();
+        testVar = new IntegerVariable("TEST", testValue);
+        testVar = (IntegerVariable) testVar.callMethod("CLAMP", List.of(new IntValue(0), new IntValue(50)));
+        result = testVar.get();
         assertEquals(parseInt(EXPECTED_RESULTS.get("CLAMP")[vectorIndex]), result,
                 "CLAMP failed for vector " + testValue);
     }
@@ -126,9 +129,9 @@ public class IntegerTest {
         IntegerVariable testVar;
         int result;
 
-        testVar = new IntegerVariable("TEST", testValue, ctx);
-        testVar.fireMethod("CLEAR");
-        result = testVar.GET();
+        testVar = new IntegerVariable("TEST", testValue);
+        testVar = (IntegerVariable) testVar.callMethod("CLEAR", List.of());
+        result = testVar.get();
         assertEquals(0, result,
                 "CLEAR failed for vector " + testValue);
     }
@@ -141,9 +144,9 @@ public class IntegerTest {
         IntegerVariable testVar;
         int result;
 
-        testVar = new IntegerVariable("TEST", testValue, ctx);
-        testVar.fireMethod("DEC");
-        result = testVar.GET();
+        testVar = new IntegerVariable("TEST", testValue);
+        testVar = (IntegerVariable) testVar.callMethod("DEC", List.of());
+        result = testVar.get();
         assertEquals(parseInt(EXPECTED_RESULTS.get("DEC")[vectorIndex]), result,
                 "DEC failed for vector " + testValue);
     }
@@ -156,9 +159,9 @@ public class IntegerTest {
         IntegerVariable testVar;
         int result;
 
-        testVar = new IntegerVariable("TEST", testValue, ctx);
-        testVar.fireMethod("DIV", new IntegerVariable("", 5, ctx));
-        result = testVar.GET();
+        testVar = new IntegerVariable("TEST", testValue);
+        testVar = (IntegerVariable) testVar.callMethod("DIV", List.of(new IntValue(5)));
+        result = testVar.get();
         assertEquals(parseInt(EXPECTED_RESULTS.get("DIV")[vectorIndex]), result,
                 "DIV failed for vector " + testValue);
     }
@@ -171,9 +174,9 @@ public class IntegerTest {
         IntegerVariable testVar;
         int result;
 
-        testVar = new IntegerVariable("TEST", testValue, ctx);
-        testVar.fireMethod("INC");
-        result = testVar.GET();
+        testVar = new IntegerVariable("TEST", testValue);
+        testVar = (IntegerVariable) testVar.callMethod("INC", List.of());
+        result = testVar.get();
         assertEquals(parseInt(EXPECTED_RESULTS.get("INC")[vectorIndex]), result,
                 "INC failed for vector " + testValue);
     }
@@ -186,9 +189,9 @@ public class IntegerTest {
         IntegerVariable testVar;
         int result;
 
-        testVar = new IntegerVariable("TEST", testValue, ctx);
-        testVar.fireMethod("MOD", new IntegerVariable("", 5, ctx));
-        result = testVar.GET();
+        testVar = new IntegerVariable("TEST", testValue);
+        testVar = (IntegerVariable) testVar.callMethod("MOD", List.of(new IntValue(5)));
+        result = testVar.get();
         assertEquals(parseInt(EXPECTED_RESULTS.get("MOD")[vectorIndex]), result,
                 "MOD failed for vector " + testValue);
     }
@@ -201,9 +204,9 @@ public class IntegerTest {
         IntegerVariable testVar;
         int result;
 
-        testVar = new IntegerVariable("TEST", testValue, ctx);
-        testVar.fireMethod("MUL", new IntegerVariable("", 5, ctx));
-        result = testVar.GET();
+        testVar = new IntegerVariable("TEST", testValue);
+        testVar = (IntegerVariable) testVar.callMethod("MUL", List.of(new IntValue(5)));
+        result = testVar.get();
         assertEquals(parseInt(EXPECTED_RESULTS.get("MUL")[vectorIndex]), result,
                 "MUL failed for vector " + testValue);
     }
@@ -216,9 +219,9 @@ public class IntegerTest {
         IntegerVariable testVar;
         int result;
 
-        testVar = new IntegerVariable("TEST", testValue, ctx);
-        testVar.fireMethod("NOT", new IntegerVariable("", 555, ctx));
-        result = testVar.GET();
+        testVar = new IntegerVariable("TEST", testValue);
+        testVar = (IntegerVariable) testVar.callMethod("NOT", List.of());
+        result = testVar.get();
         assertEquals(parseInt(EXPECTED_RESULTS.get("NOT")[vectorIndex]), result,
                 "NOT failed for vector " + testValue);
     }
@@ -231,9 +234,9 @@ public class IntegerTest {
         IntegerVariable testVar;
         int result;
 
-        testVar = new IntegerVariable("TEST", testValue, ctx);
-        testVar.fireMethod("OR", new IntegerVariable("", 555, ctx));
-        result = testVar.GET();
+        testVar = new IntegerVariable("TEST", testValue);
+        testVar = (IntegerVariable) testVar.callMethod("OR", List.of(new IntValue(555)));
+        result = testVar.get();
         assertEquals(parseInt(EXPECTED_RESULTS.get("OR")[vectorIndex]), result,
                 "OR failed for vector " + testValue);
     }
@@ -246,9 +249,9 @@ public class IntegerTest {
         IntegerVariable testVar;
         int result;
 
-        testVar = new IntegerVariable("TEST", testValue, ctx);
-        testVar.fireMethod("POWER", new DoubleVariable("", 1.5, ctx));
-        result = testVar.GET();
+        testVar = new IntegerVariable("TEST", testValue);
+        testVar = (IntegerVariable) testVar.callMethod("POWER", List.of(new DoubleValue(1.5)));
+        result = testVar.get();
         assertEquals(parseInt(EXPECTED_RESULTS.get("POWER")[vectorIndex]), result,
                 "POWER failed for vector " + testValue);
     }
@@ -261,9 +264,9 @@ public class IntegerTest {
         IntegerVariable testVar;
         int result;
 
-        testVar = new IntegerVariable("TEST", testValue, ctx);
-        testVar.fireMethod("SUB", new IntegerVariable("", 5, ctx));
-        result = testVar.GET();
+        testVar = new IntegerVariable("TEST", testValue);
+        testVar = (IntegerVariable) testVar.callMethod("SUB", List.of(new IntValue(5)));
+        result = testVar.get();
         assertEquals(parseInt(EXPECTED_RESULTS.get("SUB")[vectorIndex]), result,
                 "SUB failed for vector " + testValue);
     }
@@ -276,9 +279,9 @@ public class IntegerTest {
         IntegerVariable testVar;
         int result;
 
-        testVar = new IntegerVariable("TEST", testValue, ctx);
-        testVar.fireMethod("XOR", new IntegerVariable("", 555, ctx));
-        result = testVar.GET();
+        testVar = new IntegerVariable("TEST", testValue);
+        testVar = (IntegerVariable) testVar.callMethod("XOR", List.of(new IntValue(555)));
+        result = testVar.get();
         assertEquals(parseInt(EXPECTED_RESULTS.get("XOR")[vectorIndex]), result,
                 "XOR failed for vector " + testValue);
     }
@@ -289,16 +292,14 @@ public class IntegerTest {
 
     @Test
     void testSwitch() {
-        IntegerVariable switchVar1 = new IntegerVariable("TEST", 0, ctx);
-        switchVar1.fireMethod("SWITCH",
-                new IntegerVariable("", 0, ctx),
-                new IntegerVariable("", 15, ctx));
-        assertEquals(15, switchVar1.GET(), 0.00001);
+        IntegerVariable switchVar1 = new IntegerVariable("TEST", 0);
+        switchVar1 = (IntegerVariable) switchVar1.callMethod("SWITCH",
+                List.of(new IntValue(0), new IntValue(15)));
+        assertEquals(15, switchVar1.get(), 0.00001);
 
-        IntegerVariable switchVar2 = new IntegerVariable("TEST", 5, ctx);
-        switchVar2.fireMethod("SWITCH",
-                new IntegerVariable("", 0, ctx),
-                new IntegerVariable("", 15, ctx));
-        assertEquals(0, switchVar2.GET(), 0.00001);
+        IntegerVariable switchVar2 = new IntegerVariable("TEST", 5);
+        switchVar2 = (IntegerVariable) switchVar2.callMethod("SWITCH",
+                List.of(new IntValue(0), new IntValue(15)));
+        assertEquals(0, switchVar2.get(), 0.00001);
     }
 }

@@ -9,7 +9,7 @@ import pl.genschu.bloomooemulator.interpreter.v1.variable.Method;
 import pl.genschu.bloomooemulator.interpreter.v1.variable.Parameter;
 import pl.genschu.bloomooemulator.interpreter.v1.variable.Variable;
 import pl.genschu.bloomooemulator.loader.SoundLoader;
-import pl.genschu.bloomooemulator.utils.ArgumentsHelper;
+import pl.genschu.bloomooemulator.utils.LegacyArgumentsHelper;
 
 import java.util.Collections;
 import java.util.List;
@@ -64,7 +64,7 @@ public class SoundVariable extends Variable {
                     selfVar.sound = null;
                 }
                 selfVar.isPlaying = false;
-                selfVar.setAttribute("FILENAME", new Attribute("STRING", ArgumentsHelper.getString(arguments.get(0))));
+                selfVar.setAttribute("FILENAME", new Attribute("STRING", LegacyArgumentsHelper.getString(arguments.get(0))));
                 selfVar.init();
                 return null;
             }
@@ -111,7 +111,7 @@ public class SoundVariable extends Variable {
             @Override
             public Variable execute(Variable self, List<Object> arguments) {
                 SoundVariable selfVar = (SoundVariable) self;
-                selfVar.currentSampleRate = ArgumentsHelper.getInteger(arguments.get(0));
+                selfVar.currentSampleRate = LegacyArgumentsHelper.getInteger(arguments.get(0));
                 selfVar.sound.setPitch(selfVar.soundId, (float) selfVar.currentSampleRate / selfVar.sampleRate);
                 return null;
             }
@@ -127,7 +127,7 @@ public class SoundVariable extends Variable {
                 SoundVariable selfVar = (SoundVariable) self;
                 boolean emitSignal = false;
                 if(!arguments.isEmpty()) {
-                    emitSignal = ArgumentsHelper.getBoolean(arguments.get(0));
+                    emitSignal = LegacyArgumentsHelper.getBoolean(arguments.get(0));
                 }
                 selfVar.stop(emitSignal);
                 return null;

@@ -14,7 +14,7 @@ import pl.genschu.bloomooemulator.interpreter.v1.variable.Variable;
 import pl.genschu.bloomooemulator.loader.ImageLoader;
 import pl.genschu.bloomooemulator.objects.Image;
 import pl.genschu.bloomooemulator.geometry.shapes.Box2D;
-import pl.genschu.bloomooemulator.utils.ArgumentsHelper;
+import pl.genschu.bloomooemulator.utils.LegacyArgumentsHelper;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -64,8 +64,8 @@ public class ImageVariable extends Variable implements Cloneable {
 		) {
 			@Override
 			public Variable execute(Variable self, List<Object> arguments) {
-				int posX = ArgumentsHelper.getInteger(arguments.get(0));
-				int posY = ArgumentsHelper.getInteger(arguments.get(1));
+				int posX = LegacyArgumentsHelper.getInteger(arguments.get(0));
+				int posY = LegacyArgumentsHelper.getInteger(arguments.get(1));
 
 				int alpha = ((ImageVariable) self).getAlpha(posX, posY);
 				return new IntegerVariable("", alpha, self.getContext());
@@ -110,8 +110,8 @@ public class ImageVariable extends Variable implements Cloneable {
 		) {
 			@Override
 			public Variable execute(Variable self, List<Object> arguments) {
-				int posX = ArgumentsHelper.getInteger(arguments.get(0));
-				int posY = ArgumentsHelper.getInteger(arguments.get(1));
+				int posX = LegacyArgumentsHelper.getInteger(arguments.get(0));
+				int posY = LegacyArgumentsHelper.getInteger(arguments.get(1));
 
 				if(((ImageVariable) self).image == null) return new IntegerVariable("", 0, self.getContext());
 
@@ -190,9 +190,9 @@ public class ImageVariable extends Variable implements Cloneable {
 		) {
 			@Override
 			public Variable execute(Variable self, List<Object> arguments) {
-				int posX = ArgumentsHelper.getInteger(arguments.get(0));
-				int posY = ArgumentsHelper.getInteger(arguments.get(1));
-				boolean checkAlpha = ArgumentsHelper.getBoolean(arguments.get(2)); // TODO: check how it works
+				int posX = LegacyArgumentsHelper.getInteger(arguments.get(0));
+				int posY = LegacyArgumentsHelper.getInteger(arguments.get(1));
+				boolean checkAlpha = LegacyArgumentsHelper.getBoolean(arguments.get(2)); // TODO: check how it works
 
 				return new BoolVariable("", ((ImageVariable) self).isAt(posX, posY), self.getContext());
 			}
@@ -205,7 +205,7 @@ public class ImageVariable extends Variable implements Cloneable {
 		) {
 			@Override
 			public Variable execute(Variable self, List<Object> arguments) {
-				String path = ArgumentsHelper.getString(arguments.get(0));
+				String path = LegacyArgumentsHelper.getString(arguments.get(0));
 				self.setAttribute("FILENAME", path);
 				ImageLoader.loadImage(ImageVariable.this);
 				((ImageVariable) self).updateRect();
@@ -223,9 +223,9 @@ public class ImageVariable extends Variable implements Cloneable {
 		) {
 			@Override
 			public Variable execute(Variable self, List<Object> arguments) {
-				int posX = ArgumentsHelper.getInteger(arguments.get(0));
-				int posY = ArgumentsHelper.getInteger(arguments.get(1));
-				String maskName = ArgumentsHelper.getString(arguments.get(2));
+				int posX = LegacyArgumentsHelper.getInteger(arguments.get(0));
+				int posY = LegacyArgumentsHelper.getInteger(arguments.get(1));
+				String maskName = LegacyArgumentsHelper.getString(arguments.get(2));
 
 				// Take the mask
 				Variable maskVar = self.getContext().getVariable(maskName);
@@ -258,7 +258,7 @@ public class ImageVariable extends Variable implements Cloneable {
 		) {
 			@Override
 			public Variable execute(Variable self, List<Object> arguments) {
-				boolean monitorAlpha = ArgumentsHelper.getBoolean(arguments.get(0));
+				boolean monitorAlpha = LegacyArgumentsHelper.getBoolean(arguments.get(0));
 				self.setAttribute("MONITORCOLLISION", "TRUE");
 				self.setAttribute("MONITORCOLLISIONALPHA", monitorAlpha ? "TRUE" : "FALSE");
 
@@ -279,8 +279,8 @@ public class ImageVariable extends Variable implements Cloneable {
 		) {
 			@Override
 			public Variable execute(Variable self, List<Object> arguments) {
-				int offsetX = ArgumentsHelper.getInteger(arguments.get(0));
-				int offsetY = ArgumentsHelper.getInteger(arguments.get(1));
+				int offsetX = LegacyArgumentsHelper.getInteger(arguments.get(0));
+				int offsetY = LegacyArgumentsHelper.getInteger(arguments.get(1));
 				((ImageVariable) self).posX += offsetX;
 				((ImageVariable) self).posY += offsetY;
 				((ImageVariable) self).updateRect();
@@ -314,10 +314,10 @@ public class ImageVariable extends Variable implements Cloneable {
 		) {
 			@Override
 			public Variable execute(Variable self, List<Object> arguments) {
-				int xLeft = ArgumentsHelper.getInteger(arguments.get(0));
-				int yBottom = ArgumentsHelper.getInteger(arguments.get(1));
-				int xRight = ArgumentsHelper.getInteger(arguments.get(2));
-				int yTop = ArgumentsHelper.getInteger(arguments.get(3));
+				int xLeft = LegacyArgumentsHelper.getInteger(arguments.get(0));
+				int yBottom = LegacyArgumentsHelper.getInteger(arguments.get(1));
+				int xRight = LegacyArgumentsHelper.getInteger(arguments.get(2));
+				int yTop = LegacyArgumentsHelper.getInteger(arguments.get(3));
 
 				((ImageVariable) self).clippingRect = new Box2D(xLeft, yBottom, xRight, yTop);
 				return null;
@@ -332,7 +332,7 @@ public class ImageVariable extends Variable implements Cloneable {
 			@Override
 			public Variable execute(Variable self, List<Object> arguments) {
 				if(!self.getContext().getGame().getCurrentScene().equals("S65_ZAMEK")) // Just testing
-					((ImageVariable) self).opacity = ArgumentsHelper.getInteger(arguments.get(0)) / 255.0f;
+					((ImageVariable) self).opacity = LegacyArgumentsHelper.getInteger(arguments.get(0)) / 255.0f;
 				return null;
 			}
 		});
@@ -345,8 +345,8 @@ public class ImageVariable extends Variable implements Cloneable {
 		) {
 			@Override
 			public Variable execute(Variable self, List<Object> arguments) {
-				((ImageVariable) self).posX = ArgumentsHelper.getInteger(arguments.get(0));
-				((ImageVariable) self).posY = ArgumentsHelper.getInteger(arguments.get(1));
+				((ImageVariable) self).posX = LegacyArgumentsHelper.getInteger(arguments.get(0));
+				((ImageVariable) self).posY = LegacyArgumentsHelper.getInteger(arguments.get(1));
 				((ImageVariable) self).updateRect();
 				return null;
 			}
@@ -359,7 +359,7 @@ public class ImageVariable extends Variable implements Cloneable {
 		) {
 			@Override
 			public Variable execute(Variable self, List<Object> arguments) {
-				self.setAttribute("PRIORITY", ""+ArgumentsHelper.getInteger(arguments.get(0)));
+				self.setAttribute("PRIORITY", ""+ LegacyArgumentsHelper.getInteger(arguments.get(0)));
 				return null;
 			}
 		});

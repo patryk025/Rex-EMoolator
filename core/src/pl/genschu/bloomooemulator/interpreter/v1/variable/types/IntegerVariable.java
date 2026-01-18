@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
-import pl.genschu.bloomooemulator.utils.ArgumentsHelper;
+import pl.genschu.bloomooemulator.utils.LegacyArgumentsHelper;
 
 public class IntegerVariable extends Variable {
 	private static final Map<String, List<Method>> METHOD_TEMPLATES = createMethodTemplates();
@@ -44,7 +44,7 @@ public class IntegerVariable extends Variable {
 			@Override
 			public Variable execute(Variable self, List<Object> arguments) {
 				IntegerVariable selfVar = (IntegerVariable) self;
-				int value = ArgumentsHelper.getInteger(arguments.get(0));
+				int value = LegacyArgumentsHelper.getInteger(arguments.get(0));
 				int result = Math.abs(value);
 				selfVar.set(result);
 				return selfVar;
@@ -59,7 +59,7 @@ public class IntegerVariable extends Variable {
 			@Override
 			public Variable execute(Variable self, List<Object> arguments) {
 				IntegerVariable selfVar = (IntegerVariable) self;
-				int result = selfVar.GET() + ArgumentsHelper.getInteger(arguments.get(0));
+				int result = selfVar.GET() + LegacyArgumentsHelper.getInteger(arguments.get(0));
 				selfVar.set(result);
 				return selfVar;
 			}
@@ -73,7 +73,7 @@ public class IntegerVariable extends Variable {
 			@Override
 			public Variable execute(Variable self, List<Object> arguments) {
 				IntegerVariable selfVar = (IntegerVariable) self;
-				int result = selfVar.GET() & ArgumentsHelper.getInteger(arguments.get(0));
+				int result = selfVar.GET() & LegacyArgumentsHelper.getInteger(arguments.get(0));
 				selfVar.set(result);
 				return selfVar;
 			}
@@ -89,8 +89,8 @@ public class IntegerVariable extends Variable {
 			public Variable execute(Variable self, List<Object> arguments) {
 				IntegerVariable selfVar = (IntegerVariable) self;
 				int currentValue = selfVar.GET();
-				int rangeMin = ArgumentsHelper.getInteger(arguments.get(0));
-				int rangeMax = ArgumentsHelper.getInteger(arguments.get(1));
+				int rangeMin = LegacyArgumentsHelper.getInteger(arguments.get(0));
+				int rangeMax = LegacyArgumentsHelper.getInteger(arguments.get(1));
 
 				if (currentValue < rangeMin) {
 					currentValue = rangeMin;
@@ -134,7 +134,7 @@ public class IntegerVariable extends Variable {
 			public Variable execute(Variable self, List<Object> arguments) {
 				IntegerVariable selfVar = (IntegerVariable) self;
 				try {
-					int result = selfVar.GET() / ArgumentsHelper.getInteger(arguments.get(0));
+					int result = selfVar.GET() / LegacyArgumentsHelper.getInteger(arguments.get(0));
 					selfVar.set(result);
 				} catch (ArithmeticException e) {
 					selfVar.set(0); // division by zero normally crashes engine
@@ -171,8 +171,8 @@ public class IntegerVariable extends Variable {
 			@Override
 			public Variable execute(Variable self, List<Object> arguments) {
 				IntegerVariable selfVar = (IntegerVariable) self;
-				int x = ArgumentsHelper.getInteger(arguments.get(0));
-				int y = ArgumentsHelper.getInteger(arguments.get(1));
+				int x = LegacyArgumentsHelper.getInteger(arguments.get(0));
+				int y = LegacyArgumentsHelper.getInteger(arguments.get(1));
 
 				int result = (int) Math.sqrt(x * x + y * y);
 				selfVar.set(result);
@@ -188,7 +188,7 @@ public class IntegerVariable extends Variable {
 			@Override
 			public Variable execute(Variable self, List<Object> arguments) {
 				IntegerVariable selfVar = (IntegerVariable) self;
-				int result = selfVar.GET() % (ArgumentsHelper.getInteger(arguments.get(0)));
+				int result = selfVar.GET() % (LegacyArgumentsHelper.getInteger(arguments.get(0)));
 				selfVar.set(result);
 				return selfVar;
 			}
@@ -202,7 +202,7 @@ public class IntegerVariable extends Variable {
 			@Override
 			public Variable execute(Variable self, List<Object> arguments) {
 				IntegerVariable selfVar = (IntegerVariable) self;
-				int result = selfVar.GET() * ArgumentsHelper.getInteger(arguments.get(0));
+				int result = selfVar.GET() * LegacyArgumentsHelper.getInteger(arguments.get(0));
 				selfVar.set(result);
 				return selfVar;
 			}
@@ -228,7 +228,7 @@ public class IntegerVariable extends Variable {
 			@Override
 			public Variable execute(Variable self, List<Object> arguments) {
 				IntegerVariable selfVar = (IntegerVariable) self;
-				int result = selfVar.GET() | ArgumentsHelper.getInteger(arguments.get(0));
+				int result = selfVar.GET() | LegacyArgumentsHelper.getInteger(arguments.get(0));
 				selfVar.set(result);
 				return selfVar;
 			}
@@ -242,7 +242,7 @@ public class IntegerVariable extends Variable {
 			@Override
 			public Variable execute(Variable self, List<Object> arguments) {
 				IntegerVariable selfVar = (IntegerVariable) self;
-				double result = Math.pow(selfVar.GET(), ArgumentsHelper.getInteger(arguments.get(0)));
+				double result = Math.pow(selfVar.GET(), LegacyArgumentsHelper.getInteger(arguments.get(0)));
 				if (result > 0) {
 					selfVar.set((int) Math.round(result));
 				} else {
@@ -263,13 +263,13 @@ public class IntegerVariable extends Variable {
 				IntegerVariable selfVar = (IntegerVariable) self;
 				if(arguments.size() == 1) {
 					Random random = new Random();
-					int bound = ArgumentsHelper.getInteger(arguments.get(0));
+					int bound = LegacyArgumentsHelper.getInteger(arguments.get(0));
 					int result = random.nextInt(bound);
 					selfVar.set(result);
 					return selfVar;
 				} else {
-					int min = ArgumentsHelper.getInteger(arguments.get(0));
-					int max = ArgumentsHelper.getInteger(arguments.get(1));
+					int min = LegacyArgumentsHelper.getInteger(arguments.get(0));
+					int max = LegacyArgumentsHelper.getInteger(arguments.get(1));
 					Random random = new Random();
 					int result = min + random.nextInt(max - min + 1);
 					selfVar.set(result);
@@ -304,7 +304,7 @@ public class IntegerVariable extends Variable {
 			@Override
 			public Variable execute(Variable self, List<Object> arguments) {
 				IntegerVariable selfVar = (IntegerVariable) self;
-				int value = ArgumentsHelper.getInteger(arguments.get(0));
+				int value = LegacyArgumentsHelper.getInteger(arguments.get(0));
 				selfVar.set(value);
 				return null;
 			}
@@ -318,7 +318,7 @@ public class IntegerVariable extends Variable {
 			@Override
 			public Variable execute(Variable self, List<Object> arguments) {
 				IntegerVariable selfVar = (IntegerVariable) self;
-				int result = selfVar.GET() - ArgumentsHelper.getInteger(arguments.get(0));
+				int result = selfVar.GET() - LegacyArgumentsHelper.getInteger(arguments.get(0));
 				selfVar.set(result);
 				return selfVar;
 			}
@@ -333,8 +333,8 @@ public class IntegerVariable extends Variable {
 			@Override
 			public Variable execute(Variable self, List<Object> arguments) {
 				IntegerVariable selfVar = (IntegerVariable) self;
-				int val1 = ArgumentsHelper.getInteger(arguments.get(0));
-				int val2 = ArgumentsHelper.getInteger(arguments.get(1));
+				int val1 = LegacyArgumentsHelper.getInteger(arguments.get(0));
+				int val2 = LegacyArgumentsHelper.getInteger(arguments.get(1));
 
 				if(selfVar.GET() == val1) {
 					selfVar.set(val2);
@@ -353,7 +353,7 @@ public class IntegerVariable extends Variable {
 			@Override
 			public Variable execute(Variable self, List<Object> arguments) {
 				IntegerVariable selfVar = (IntegerVariable) self;
-				int result = selfVar.GET() ^ ArgumentsHelper.getInteger(arguments.get(0));
+				int result = selfVar.GET() ^ LegacyArgumentsHelper.getInteger(arguments.get(0));
 				selfVar.set(result);
 				return selfVar;
 			}

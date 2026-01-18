@@ -7,7 +7,7 @@ import pl.genschu.bloomooemulator.interpreter.v1.variable.Attribute;
 import pl.genschu.bloomooemulator.interpreter.v1.variable.Method;
 import pl.genschu.bloomooemulator.interpreter.v1.variable.Parameter;
 import pl.genschu.bloomooemulator.interpreter.v1.variable.Variable;
-import pl.genschu.bloomooemulator.utils.ArgumentsHelper;
+import pl.genschu.bloomooemulator.utils.LegacyArgumentsHelper;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -66,7 +66,7 @@ public class EpisodeVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(Variable self, List<Object> arguments) {
-				String sceneName = ArgumentsHelper.getString(arguments.get(0));
+				String sceneName = LegacyArgumentsHelper.getString(arguments.get(0));
 				Gdx.app.log("EpisodeVariable", "Goto " + sceneName);
 				self.getContext().getGame().goTo(sceneName);
 				return null;

@@ -18,7 +18,7 @@ import pl.genschu.bloomooemulator.interpreter.v1.variable.Attribute;
 import pl.genschu.bloomooemulator.interpreter.v1.variable.Method;
 import pl.genschu.bloomooemulator.interpreter.v1.variable.Parameter;
 import pl.genschu.bloomooemulator.interpreter.v1.variable.Variable;
-import pl.genschu.bloomooemulator.utils.ArgumentsHelper;
+import pl.genschu.bloomooemulator.utils.LegacyArgumentsHelper;
 
 import java.util.HashMap;
 import java.util.List;
@@ -174,7 +174,7 @@ public class BehaviourVariable extends Variable {
 					}
 				}
 
-				boolean result = ArgumentsHelper.getBoolean(conditionResult);
+				boolean result = LegacyArgumentsHelper.getBoolean(conditionResult);
 
 				Gdx.app.log("BehaviourVariable", "RUNC in behaviour " + self.getName() + " condition result: " + result);
 
@@ -235,11 +235,11 @@ public class BehaviourVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(Variable self, List<Object> arguments) {
-				int startVal = ArgumentsHelper.getInteger(arguments.get(0));
-				int endDiff = ArgumentsHelper.getInteger(arguments.get(1));
+				int startVal = LegacyArgumentsHelper.getInteger(arguments.get(0));
+				int endDiff = LegacyArgumentsHelper.getInteger(arguments.get(1));
 				int incrementBy = 1;
 				if(arguments.size() > 2) {
-					incrementBy = ArgumentsHelper.getInteger(arguments.get(2));
+					incrementBy = LegacyArgumentsHelper.getInteger(arguments.get(2));
 				}
 
 				if(((BehaviourVariable) self).interpreter == null) {
@@ -297,7 +297,7 @@ public class BehaviourVariable extends Variable {
 						} else {
 							conditionResult = new BoolVariable("", true, self.getContext());
 						}
-						if (ArgumentsHelper.getBoolean(conditionResult)) {
+						if (LegacyArgumentsHelper.getBoolean(conditionResult)) {
 							self.getContext().setVariable("$1", new IntegerVariable("_I_", i, self.getContext()));
 							self.getContext().setVariable("$2", new IntegerVariable("_step_", incrementBy, self.getContext()));
 							((BehaviourVariable) self).interpreter.interpret();

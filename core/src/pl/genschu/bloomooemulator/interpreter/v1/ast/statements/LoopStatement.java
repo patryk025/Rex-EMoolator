@@ -6,7 +6,7 @@ import pl.genschu.bloomooemulator.interpreter.v1.ast.Expression;
 import pl.genschu.bloomooemulator.interpreter.v1.ast.expressions.ConstantExpression;
 import pl.genschu.bloomooemulator.interpreter.v1.variable.Variable;
 import pl.genschu.bloomooemulator.interpreter.v1.variable.types.IntegerVariable;
-import pl.genschu.bloomooemulator.utils.ArgumentsHelper;
+import pl.genschu.bloomooemulator.utils.LegacyArgumentsHelper;
 
 public class LoopStatement extends Statement {
     private final Expression body;
@@ -48,7 +48,7 @@ public class LoopStatement extends Statement {
             value = ((ConstantExpression) value).evaluate(context);
         }
         if (value instanceof Variable) {
-            return ArgumentsHelper.getInteger((Variable) value);
+            return LegacyArgumentsHelper.getInteger((Variable) value);
         }
         if (value instanceof Integer) {
             return (Integer) value;
@@ -63,7 +63,7 @@ public class LoopStatement extends Statement {
             } catch (NumberFormatException e) {
                 Variable var = context.getVariable(raw);
                 if (var != null) {
-                    return ArgumentsHelper.getInteger(var);
+                    return LegacyArgumentsHelper.getInteger(var);
                 }
             }
         }

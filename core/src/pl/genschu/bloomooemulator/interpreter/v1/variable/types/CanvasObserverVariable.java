@@ -13,7 +13,7 @@ import pl.genschu.bloomooemulator.interpreter.v1.variable.Variable;
 import pl.genschu.bloomooemulator.objects.Image;
 import pl.genschu.bloomooemulator.geometry.shapes.Box2D;
 import pl.genschu.bloomooemulator.saver.ImageSaver;
-import pl.genschu.bloomooemulator.utils.ArgumentsHelper;
+import pl.genschu.bloomooemulator.utils.LegacyArgumentsHelper;
 
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
@@ -73,12 +73,12 @@ public class CanvasObserverVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(Variable self, List<Object> arguments) {
-				int posX = ArgumentsHelper.getInteger(arguments.get(0));
-				int posY = ArgumentsHelper.getInteger(arguments.get(1));
-				boolean onlyVisible = arguments.size() > 2 && ArgumentsHelper.getBoolean(arguments.get(2));
-				int minZ = arguments.size() > 3 ? ArgumentsHelper.getInteger(arguments.get(3)) : Integer.MIN_VALUE;
-				int maxZ = arguments.size() > 4 ? ArgumentsHelper.getInteger(arguments.get(4)) : Integer.MAX_VALUE;
-				boolean includeAlpha = arguments.size() > 5 && ArgumentsHelper.getBoolean(arguments.get(5));
+				int posX = LegacyArgumentsHelper.getInteger(arguments.get(0));
+				int posY = LegacyArgumentsHelper.getInteger(arguments.get(1));
+				boolean onlyVisible = arguments.size() > 2 && LegacyArgumentsHelper.getBoolean(arguments.get(2));
+				int minZ = arguments.size() > 3 ? LegacyArgumentsHelper.getInteger(arguments.get(3)) : Integer.MIN_VALUE;
+				int maxZ = arguments.size() > 4 ? LegacyArgumentsHelper.getInteger(arguments.get(4)) : Integer.MAX_VALUE;
+				boolean includeAlpha = arguments.size() > 5 && LegacyArgumentsHelper.getBoolean(arguments.get(5));
 
 				List<Variable> drawList = new ArrayList<>(self.getContext().getGraphicsVariables().values());
 
@@ -202,7 +202,7 @@ public class CanvasObserverVariable extends Variable {
 			@Override
 			public Variable execute(Variable self, List<Object> arguments) {
                 for (Object argument : arguments) {
-                    String name = ArgumentsHelper.getString(argument);
+                    String name = LegacyArgumentsHelper.getString(argument);
                     Variable var = self.getContext().getVariable(name);
 
                     // I will simply hide it instead of removing it
@@ -227,9 +227,9 @@ public class CanvasObserverVariable extends Variable {
 			@Override
 			public Variable execute(Variable self, List<Object> arguments) {
 				// TODO: add scaling and cropping
-				String imgFileName = ArgumentsHelper.getString(arguments.get(0));
-				double xScaleFactor = ArgumentsHelper.getDouble(arguments.get(1));
-				double yScaleFactor = ArgumentsHelper.getDouble(arguments.get(2));
+				String imgFileName = LegacyArgumentsHelper.getString(arguments.get(0));
+				double xScaleFactor = LegacyArgumentsHelper.getDouble(arguments.get(1));
+				double yScaleFactor = LegacyArgumentsHelper.getDouble(arguments.get(2));
 				int xLeft = 0;
 				int yTop = 0;
 				int xRight = 800;
@@ -237,10 +237,10 @@ public class CanvasObserverVariable extends Variable {
 
 				// Sprawdzanie, czy są podane parametry przycięcia
 				if (arguments.size() == 7) {
-					xLeft = ArgumentsHelper.getInteger(arguments.get(3));
-					yTop = ArgumentsHelper.getInteger(arguments.get(4));
-					xRight = ArgumentsHelper.getInteger(arguments.get(5));
-					yBottom = ArgumentsHelper.getInteger(arguments.get(6));
+					xLeft = LegacyArgumentsHelper.getInteger(arguments.get(3));
+					yTop = LegacyArgumentsHelper.getInteger(arguments.get(4));
+					xRight = LegacyArgumentsHelper.getInteger(arguments.get(5));
+					yBottom = LegacyArgumentsHelper.getInteger(arguments.get(6));
 				}
 
 				Pixmap pixmap = self.getContext().getGame().getLastFrame();
@@ -280,7 +280,7 @@ public class CanvasObserverVariable extends Variable {
 			@Override
 			public Variable execute(Variable self, List<Object> arguments) {
 				// hacky way for now
-				String imageName = ArgumentsHelper.getString(arguments.get(0));
+				String imageName = LegacyArgumentsHelper.getString(arguments.get(0));
 				// check if it is not a variable
 				Variable var = self.getContext().getVariable(imageName);
 				if (var != null && var.getType().equals("IMAGE")) {

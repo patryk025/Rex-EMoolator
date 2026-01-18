@@ -7,7 +7,7 @@ import pl.genschu.bloomooemulator.interpreter.v1.variable.Attribute;
 import pl.genschu.bloomooemulator.interpreter.v1.variable.Method;
 import pl.genschu.bloomooemulator.interpreter.v1.variable.Parameter;
 import pl.genschu.bloomooemulator.interpreter.v1.variable.Variable;
-import pl.genschu.bloomooemulator.utils.ArgumentsHelper;
+import pl.genschu.bloomooemulator.utils.LegacyArgumentsHelper;
 import pl.genschu.bloomooemulator.utils.FileUtils;
 
 import java.io.File;
@@ -58,7 +58,7 @@ public class StringVariable extends Variable {
 			public Variable execute(Variable self, List<Object> arguments) {
 				StringVariable selfVar = (StringVariable) self;
 				String value = selfVar.GET();
-				selfVar.set(value + ArgumentsHelper.getString(arguments.get(0)));
+				selfVar.set(value + LegacyArgumentsHelper.getString(arguments.get(0)));
 				return selfVar;
 			}
 		});
@@ -74,8 +74,8 @@ public class StringVariable extends Variable {
 				StringVariable selfVar = (StringVariable) self;
 				//TODO: do sprawdzenia
 				String value = selfVar.GET();
-				int index = ArgumentsHelper.getInteger(arguments.get(0));
-				value = value.substring(0, index) + ArgumentsHelper.getString(arguments.get(1)) + value.substring(index + 1);
+				int index = LegacyArgumentsHelper.getInteger(arguments.get(0));
+				value = value.substring(0, index) + LegacyArgumentsHelper.getString(arguments.get(1)) + value.substring(index + 1);
 				selfVar.set(value);
 				return null;
 			}
@@ -90,8 +90,8 @@ public class StringVariable extends Variable {
 			@Override
 			public Variable execute(Variable self, List<Object> arguments) {
 				StringVariable selfVar = (StringVariable) self;
-				String sourcePathString = FileUtils.resolveRelativePath(selfVar, ArgumentsHelper.getString(arguments.get(0)));
-				String destinationPathString = FileUtils.resolveRelativePath(selfVar, ArgumentsHelper.getString(arguments.get(1)));
+				String sourcePathString = FileUtils.resolveRelativePath(selfVar, LegacyArgumentsHelper.getString(arguments.get(0)));
+				String destinationPathString = FileUtils.resolveRelativePath(selfVar, LegacyArgumentsHelper.getString(arguments.get(1)));
 
 				File sourceFile = new File(sourcePathString);
 				File destinationFile = new File(destinationPathString);
@@ -142,8 +142,8 @@ public class StringVariable extends Variable {
 			public Variable execute(Variable self, List<Object> arguments) {
 				StringVariable selfVar = (StringVariable) self;
 				String value = selfVar.GET();
-				int index = ArgumentsHelper.getInteger(arguments.get(0));
-				int length = ArgumentsHelper.getInteger(arguments.get(1));
+				int index = LegacyArgumentsHelper.getInteger(arguments.get(0));
+				int length = LegacyArgumentsHelper.getInteger(arguments.get(1));
 				value = value.substring(index, index + length);
 				selfVar.set(value);
 				return null;
@@ -160,10 +160,10 @@ public class StringVariable extends Variable {
 			public Variable execute(Variable self, List<Object> arguments) {
 				StringVariable selfVar = (StringVariable) self;
 				String value = selfVar.GET();
-				String needle = ArgumentsHelper.getString(arguments.get(0));
+				String needle = LegacyArgumentsHelper.getString(arguments.get(0));
 				int offset = 0;
 				if (arguments.size() > 1 && arguments.get(1) != null) {
-					offset = ArgumentsHelper.getInteger(arguments.get(1));
+					offset = LegacyArgumentsHelper.getInteger(arguments.get(1));
 				}
 				int index = value.indexOf(needle, offset);
 				return new IntegerVariable("", index, selfVar.context);
@@ -186,10 +186,10 @@ public class StringVariable extends Variable {
         ) {
             @Override
             public Variable execute(Variable self, List<Object> arguments) {
-                int index = ArgumentsHelper.getInteger(arguments.get(0));
+                int index = LegacyArgumentsHelper.getInteger(arguments.get(0));
                 int length = 1;
                 if(arguments.size() >= 2) {
-                    length = ArgumentsHelper.getInteger(arguments.get(1));
+                    length = LegacyArgumentsHelper.getInteger(arguments.get(1));
                 }
                 return new StringVariable("", ((StringVariable) self).GET().substring(index, index+length), self.getContext());
             }
@@ -216,9 +216,9 @@ public class StringVariable extends Variable {
 			public Variable execute(Variable self, List<Object> arguments) {
 				StringVariable selfVar = (StringVariable) self;
 				String value = selfVar.GET();
-				int index = ArgumentsHelper.getInteger(arguments.get(0));
-				int length = ArgumentsHelper.getInteger(arguments.get(1));
-				String replacement = ArgumentsHelper.getString(arguments.get(2));
+				int index = LegacyArgumentsHelper.getInteger(arguments.get(0));
+				int length = LegacyArgumentsHelper.getInteger(arguments.get(1));
+				String replacement = LegacyArgumentsHelper.getString(arguments.get(2));
 
 				value = value.substring(0, index) + replacement + value.substring(index + length);
 				selfVar.set(value);
@@ -252,7 +252,7 @@ public class StringVariable extends Variable {
 			@Override
 			public Variable execute(Variable self, List<Object> arguments) {
 				StringVariable selfVar = (StringVariable) self;
-				String value = ArgumentsHelper.getString(arguments.get(0));
+				String value = LegacyArgumentsHelper.getString(arguments.get(0));
 				selfVar.set(value);
 				return null;
 			}
@@ -268,8 +268,8 @@ public class StringVariable extends Variable {
 			public Variable execute(Variable self, List<Object> arguments) {
 				StringVariable selfVar = (StringVariable) self;
 				String value = selfVar.GET();
-				int index = ArgumentsHelper.getInteger(arguments.get(0));
-				int length = ArgumentsHelper.getInteger(arguments.get(1));
+				int index = LegacyArgumentsHelper.getInteger(arguments.get(0));
+				int length = LegacyArgumentsHelper.getInteger(arguments.get(1));
 
 				if (index < 0 || index > value.length()) {
 					throw new IndexOutOfBoundsException("Index out of bounds: " + index);

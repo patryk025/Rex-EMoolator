@@ -6,6 +6,7 @@ import pl.genschu.bloomooemulator.interpreter.variable.capabilities.CloneableVar
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 
 /**
  * IntegerVariable holds int value
@@ -81,6 +82,16 @@ public record IntegerVariable(
     // ========================================
 
     private static final Map<String, VariableMethod> METHODS = Map.ofEntries(
+        Map.entry("ABS", (self, args) -> {
+            IntegerVariable thisVar = (IntegerVariable) self;
+            if (args.isEmpty()) {
+                throw new IllegalArgumentException("ABS requires 1 argument");
+            }
+
+            int value = toInt(args.get(0));
+            return new IntegerVariable(thisVar.name, Math.abs(value), thisVar.signals);
+        }),
+
         Map.entry("ADD", (self, args) -> {
             IntegerVariable thisVar = (IntegerVariable) self;
             if (args.isEmpty()) {
@@ -91,24 +102,36 @@ public record IntegerVariable(
             return new IntegerVariable(thisVar.name, thisVar.intValue + addend, thisVar.signals);
         }),
 
-        Map.entry("SUB", (self, args) -> {
+        Map.entry("AND", (self, args) -> {
             IntegerVariable thisVar = (IntegerVariable) self;
             if (args.isEmpty()) {
-                throw new IllegalArgumentException("SUB requires 1 argument");
+                throw new IllegalArgumentException("AND requires 1 argument");
             }
 
-            int subtrahend = toInt(args.get(0));
-            return new IntegerVariable(thisVar.name, thisVar.intValue - subtrahend, thisVar.signals);
+            int value = toInt(args.get(0));
+            return new IntegerVariable(thisVar.name, thisVar.intValue & value, thisVar.signals);
         }),
 
-        Map.entry("MUL", (self, args) -> {
+        Map.entry("CLAMP", (self, args) -> {
             IntegerVariable thisVar = (IntegerVariable) self;
-            if (args.isEmpty()) {
-                throw new IllegalArgumentException("MUL requires 1 argument");
+            if (args.size() < 2) {
+                throw new IllegalArgumentException("AND requires 2 argument");
             }
 
-            int multiplier = toInt(args.get(0));
-            return new IntegerVariable(thisVar.name, thisVar.intValue * multiplier, thisVar.signals);
+            int rangeMin = toInt(args.get(0));
+            int rangeMax = toInt(args.get(1));
+            int clampedValue = Math.max(rangeMin, Math.min(rangeMax, thisVar.intValue));
+            return new IntegerVariable(thisVar.name, clampedValue, thisVar.signals);
+        }),
+
+        Map.entry("CLEAR", (self, args) -> {
+            IntegerVariable thisVar = (IntegerVariable) self;
+            return new IntegerVariable(thisVar.name, 0, thisVar.signals);
+        }),
+
+        Map.entry("DEC", (self, args) -> {
+            IntegerVariable thisVar = (IntegerVariable) self;
+            return new IntegerVariable(thisVar.name, thisVar.intValue - 1, thisVar.signals);
         }),
 
         Map.entry("DIV", (self, args) -> {
@@ -119,9 +142,28 @@ public record IntegerVariable(
 
             int divisor = toInt(args.get(0));
             if (divisor == 0) {
-                return thisVar;  // Division by zero = no change
+                return thisVar;  // Division by zero = no change, in original code crashes engine
             }
             return new IntegerVariable(thisVar.name, thisVar.intValue / divisor, thisVar.signals);
+        }),
+
+        Map.entry("GET", (self, args) -> self),
+
+        Map.entry("INC", (self, args) -> {
+            IntegerVariable thisVar = (IntegerVariable) self;
+            return new IntegerVariable(thisVar.name, thisVar.intValue + 1, thisVar.signals);
+        }),
+
+        Map.entry("LENGTH", (self, args) -> {
+            IntegerVariable thisVar = (IntegerVariable) self;
+            if (args.size() < 2) {
+                throw new IllegalArgumentException("LENGTH requires 2 argument");
+            }
+
+            int x = toInt(args.get(0));
+            int y = toInt(args.get(1));
+            int length = (int) Math.sqrt(x * x + y * y);
+            return new IntegerVariable(thisVar.name, length, thisVar.signals);
         }),
 
         Map.entry("MOD", (self, args) -> {
@@ -137,6 +179,76 @@ public record IntegerVariable(
             return new IntegerVariable(thisVar.name, thisVar.intValue % divisor, thisVar.signals);
         }),
 
+        Map.entry("MUL", (self, args) -> {
+            IntegerVariable thisVar = (IntegerVariable) self;
+            if (args.isEmpty()) {
+                throw new IllegalArgumentException("MUL requires 1 argument");
+            }
+
+            int multiplier = toInt(args.get(0));
+            return new IntegerVariable(thisVar.name, thisVar.intValue * multiplier, thisVar.signals);
+        }),
+
+        Map.entry("NOT", (self, args) -> {
+            IntegerVariable thisVar = (IntegerVariable) self;
+            return new IntegerVariable(thisVar.name, ~thisVar.intValue, thisVar.signals);
+        }),
+
+        Map.entry("OR", (self, args) -> {
+            IntegerVariable thisVar = (IntegerVariable) self;
+            if (args.isEmpty()) {
+                throw new IllegalArgumentException("OR requires 1 argument");
+            }
+
+            int value = toInt(args.get(0));
+            return new IntegerVariable(thisVar.name, thisVar.intValue | value, thisVar.signals);
+        }),
+
+        Map.entry("POWER", (self, args) -> {
+            IntegerVariable thisVar = (IntegerVariable) self;
+            if (args.isEmpty()) {
+                throw new IllegalArgumentException("POWER requires 1 argument");
+            }
+
+            int power = toInt(args.get(0));
+            double result = Math.pow(thisVar.intValue, power);
+            int value = 0;
+            if (result > 0) {
+                value = (int) Math.round(result);
+            } else {
+                value = (int) Math.ceil(result - 0.5);
+            }
+            return new IntegerVariable(thisVar.name, value, thisVar.signals);
+        }),
+
+        Map.entry("RANDOM", (self, args) -> {
+            IntegerVariable thisVar = (IntegerVariable) self;
+            if (args.isEmpty()) {
+                throw new IllegalArgumentException("RANDOM requires 1 or 2 arguments");
+            }
+
+            int result = 0;
+            if(args.size() == 1) {
+                Random random = new Random();
+                int bound = toInt(args.get(0));
+                result = random.nextInt(bound);
+            } else {
+                int min = toInt(args.get(0));
+                int max = toInt(args.get(1));
+                Random random = new Random();
+                result = min + random.nextInt(max - min + 1);
+            }
+            return new IntegerVariable(thisVar.name, result, thisVar.signals);
+        }),
+
+        Map.entry("RESETINI", (self, args) -> {
+            IntegerVariable thisVar = (IntegerVariable) self;
+
+            // TODO: Get DEFAULT value from INI file
+
+            return new IntegerVariable(thisVar.name, thisVar.intValue(), thisVar.signals);
+        }),
+
         Map.entry("SET", (self, args) -> {
             IntegerVariable thisVar = (IntegerVariable) self;
             if (args.isEmpty()) {
@@ -147,46 +259,36 @@ public record IntegerVariable(
             return new IntegerVariable(thisVar.name, newValue, thisVar.signals);
         }),
 
-        Map.entry("GET", (self, args) -> self),
-
-        Map.entry("INC", (self, args) -> {
-            IntegerVariable thisVar = (IntegerVariable) self;
-            return new IntegerVariable(thisVar.name, thisVar.intValue + 1, thisVar.signals);
-        }),
-
-        Map.entry("DEC", (self, args) -> {
-            IntegerVariable thisVar = (IntegerVariable) self;
-            return new IntegerVariable(thisVar.name, thisVar.intValue - 1, thisVar.signals);
-        }),
-
-        Map.entry("ABS", (self, args) -> {
-            IntegerVariable thisVar = (IntegerVariable) self;
-            return new IntegerVariable(thisVar.name, Math.abs(thisVar.intValue), thisVar.signals);
-        }),
-
-        Map.entry("NEG", (self, args) -> {
-            IntegerVariable thisVar = (IntegerVariable) self;
-            return new IntegerVariable(thisVar.name, -thisVar.intValue, thisVar.signals);
-        }),
-
-        Map.entry("MIN", (self, args) -> {
+        Map.entry("SUB", (self, args) -> {
             IntegerVariable thisVar = (IntegerVariable) self;
             if (args.isEmpty()) {
-                throw new IllegalArgumentException("MIN requires 1 argument");
+                throw new IllegalArgumentException("SUB requires 1 argument");
             }
 
-            int other = toInt(args.get(0));
-            return new IntegerVariable(thisVar.name, Math.min(thisVar.intValue, other), thisVar.signals);
+            int subtrahend = toInt(args.get(0));
+            return new IntegerVariable(thisVar.name, thisVar.intValue - subtrahend, thisVar.signals);
         }),
 
-        Map.entry("MAX", (self, args) -> {
+        Map.entry("SWITCH", (self, args) -> {
             IntegerVariable thisVar = (IntegerVariable) self;
-            if (args.isEmpty()) {
-                throw new IllegalArgumentException("MAX requires 1 argument");
+            if (args.size() < 2) {
+                throw new IllegalArgumentException("SWITCH requires 2 argument");
             }
 
-            int other = toInt(args.get(0));
-            return new IntegerVariable(thisVar.name, Math.max(thisVar.intValue, other), thisVar.signals);
+            int valueA = toInt(args.get(0));
+            int valueB = toInt(args.get(1));
+            int result = (thisVar.intValue == valueA) ? valueB : valueA;
+            return new IntegerVariable(thisVar.name, result, thisVar.signals);
+        }),
+
+        Map.entry("XOR", (self, args) -> {
+            IntegerVariable thisVar = (IntegerVariable) self;
+            if (args.isEmpty()) {
+                throw new IllegalArgumentException("XOR requires 1 argument");
+            }
+
+            int value = toInt(args.get(0));
+            return new IntegerVariable(thisVar.name, thisVar.intValue ^ value, thisVar.signals);
         })
     );
 

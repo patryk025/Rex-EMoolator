@@ -6,7 +6,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import pl.genschu.bloomooemulator.TestEnvironment;
-import pl.genschu.bloomooemulator.builders.ContextBuilder;
+import pl.genschu.bloomooemulator.builders.LegacyContextBuilder;
 import pl.genschu.bloomooemulator.interpreter.v1.Context;
 import pl.genschu.bloomooemulator.interpreter.v1.variable.types.DoubleVariable;
 import pl.genschu.bloomooemulator.interpreter.v1.variable.types.IntegerVariable;
@@ -63,7 +63,7 @@ class DoubleTest {
 
     @BeforeEach
     void setUp() {
-        ctx = new ContextBuilder().build();
+        ctx = new LegacyContextBuilder().build();
     }
 
     @ParameterizedTest

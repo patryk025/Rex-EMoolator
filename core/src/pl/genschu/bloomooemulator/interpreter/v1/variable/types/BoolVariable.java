@@ -5,7 +5,7 @@ import pl.genschu.bloomooemulator.interpreter.v1.variable.Attribute;
 import pl.genschu.bloomooemulator.interpreter.v1.variable.Method;
 import pl.genschu.bloomooemulator.interpreter.v1.variable.Parameter;
 import pl.genschu.bloomooemulator.interpreter.v1.variable.Variable;
-import pl.genschu.bloomooemulator.utils.ArgumentsHelper;
+import pl.genschu.bloomooemulator.utils.LegacyArgumentsHelper;
 
 import java.util.List;
 
@@ -67,7 +67,7 @@ public class BoolVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(Variable self, List<Object> arguments) {
-				boolean value = ArgumentsHelper.getBoolean(arguments.get(0));
+				boolean value = LegacyArgumentsHelper.getBoolean(arguments.get(0));
 				if(value)
 					set("TRUE");
 				else
@@ -84,8 +84,8 @@ public class BoolVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(Variable self, List<Object> arguments) {
-				boolean value1 = ArgumentsHelper.getBoolean(arguments.get(0));
-				boolean value2 = ArgumentsHelper.getBoolean(arguments.get(1));
+				boolean value1 = LegacyArgumentsHelper.getBoolean(arguments.get(0));
+				boolean value2 = LegacyArgumentsHelper.getBoolean(arguments.get(1));
 				if(GET() != value1) {
 					set(value2);
 				}

@@ -6,7 +6,7 @@ import pl.genschu.bloomooemulator.interpreter.v1.Context;
 import pl.genschu.bloomooemulator.interpreter.v1.variable.Attribute;
 import pl.genschu.bloomooemulator.interpreter.v1.variable.Method;
 import pl.genschu.bloomooemulator.interpreter.v1.variable.Parameter;
-import pl.genschu.bloomooemulator.utils.ArgumentsHelper;
+import pl.genschu.bloomooemulator.utils.LegacyArgumentsHelper;
 
 import java.util.List;
 
@@ -32,7 +32,7 @@ public class DatabaseCursorVariable extends Variable {
             ) {
                 @Override
                 public Variable execute(Variable self, List<Object> arguments) {
-                    Variable struct = getContext().getVariable(ArgumentsHelper.getString(arguments.get(0)));
+                    Variable struct = getContext().getVariable(LegacyArgumentsHelper.getString(arguments.get(0)));
                     if(struct != null) {
                         if(struct instanceof StructVariable) {
                             StructVariable structVariable = (StructVariable) struct;

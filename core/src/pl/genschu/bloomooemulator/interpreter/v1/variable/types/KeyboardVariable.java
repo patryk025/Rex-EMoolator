@@ -5,7 +5,7 @@ import pl.genschu.bloomooemulator.interpreter.v1.exceptions.ClassMethodNotImplem
 import pl.genschu.bloomooemulator.interpreter.v1.Context;
 import pl.genschu.bloomooemulator.interpreter.v1.util.KeyboardsKeysMapper;
 import pl.genschu.bloomooemulator.interpreter.v1.variable.*;
-import pl.genschu.bloomooemulator.utils.ArgumentsHelper;
+import pl.genschu.bloomooemulator.utils.LegacyArgumentsHelper;
 
 import java.util.List;
 
@@ -73,7 +73,7 @@ public class KeyboardVariable extends GlobalVariable {
 			@Override
 			public Variable execute(Variable self, List<Object> arguments) {
 				KeyboardVariable selfVar = (KeyboardVariable) self;
-				String key = ArgumentsHelper.getString(arguments.get(0));
+				String key = LegacyArgumentsHelper.getString(arguments.get(0));
 				int keyCode = KeyboardsKeysMapper.getKeyCode(key);
 				if (keyCode != -1) {
 					return new BoolVariable("", Gdx.input.isKeyPressed(keyCode), selfVar.getContext());
@@ -92,7 +92,7 @@ public class KeyboardVariable extends GlobalVariable {
 			@Override
 			public Variable execute(Variable self, List<Object> arguments) {
 				KeyboardVariable selfVar = (KeyboardVariable) self;
-				selfVar.setAutoRepeat(ArgumentsHelper.getBoolean(arguments.get(0)));
+				selfVar.setAutoRepeat(LegacyArgumentsHelper.getBoolean(arguments.get(0)));
 				return null;
 			}
 		});

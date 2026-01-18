@@ -3,7 +3,8 @@ package pl.genschu.bloomooemulator.utils;
 import pl.genschu.bloomooemulator.interpreter.v1.variable.Variable;
 import pl.genschu.bloomooemulator.interpreter.v1.variable.types.*;
 
-public class ArgumentsHelper {
+@Deprecated(forRemoval = true, since = "0.2.0-beta")
+public class LegacyArgumentsHelper {
     public static int getInteger(Object object) {
         return getInteger(object, true);
     }

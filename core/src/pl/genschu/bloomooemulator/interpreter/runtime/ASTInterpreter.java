@@ -352,109 +352,15 @@ public class ASTInterpreter {
     // === TODO: Implement these ===
 
     private ExecutionResult executeMethodCall(MethodCallNode node) {
-        // Step 1: Execute target to get the object
-        ExecutionResult targetResult = execute(node.target());
-        if (!targetResult.shouldContinue()) return targetResult;
+        // TODO: Implement v2 method call system
+        // For now, method calls are not supported in v2 interpreter
+        // Old v1 interpreter still handles this via Variable.fireMethod()
 
-        Value targetValue = targetResult.getValue();
-
-        // Step 2: Get the actual Variable object from context
-        // We need the Variable because it has the methods!
-        pl.genschu.bloomooemulator.interpreter.v1.variable.Variable targetVariable =
-            resolveVariableObject(node.target(), targetValue);
-
-        if (targetVariable == null) {
-            throw new InterpreterException(
-                "Cannot call method on " + targetValue.toDisplayString(),
-                context,
-                node.location()
-            );
-        }
-
-        // Step 3: Evaluate arguments
-        java.util.List<Object> methodArgs = new java.util.ArrayList<>();
-        for (ASTNode argNode : node.arguments()) {
-            ExecutionResult argResult = execute(argNode);
-            if (!argResult.shouldContinue()) return argResult;
-
-            // Convert Value to Variable for method call
-            Value argValue = argResult.getValue();
-            pl.genschu.bloomooemulator.interpreter.v1.variable.Variable argVariable =
-                VariableBridge.toVariable(
-                    argValue,
-                    "_arg_",
-                    context.getLegacyContext()
-                );
-            methodArgs.add(argVariable);
-        }
-
-        // Step 4: Call the method on the Variable
-        try {
-            pl.genschu.bloomooemulator.interpreter.v1.variable.Variable result =
-                targetVariable.fireMethod(node.methodName(), methodArgs.toArray());
-
-            // Step 5: Convert result back to Value
-            if (result == null) {
-                if (node.target() instanceof VariableNode varNode) {
-                    Value updated = VariableBridge.toValue(targetVariable);
-                    context.setVariableValue(varNode.name(), updated);
-                }
-                return new NormalResult(NullValue.INSTANCE);
-            }
-
-            Value resultValue = VariableBridge.toValue(result);
-            if (node.target() instanceof VariableNode varNode) {
-                context.setVariableValue(varNode.name(), resultValue);
-            }
-            return new NormalResult(resultValue);
-
-        } catch (Exception e) {
-            throw new InterpreterException(
-                "Method call failed: " + node.methodName() + " - " + e.getMessage(),
-                context,
-                node.location(),
-                e
-            );
-        }
-    }
-
-    /**
-     * Helper: Resolves a Variable object from target node and value.
-     *
-     * Why do we need this?
-     * - If target is a VariableNode, we look it up in context
-     * - If target evaluated to VariableRef, we look it up
-     * - Otherwise, we try to create a temporary Variable from the Value
-     */
-    private pl.genschu.bloomooemulator.interpreter.v1.variable.Variable resolveVariableObject(
-        ASTNode targetNode,
-        Value targetValue
-    ) {
-        if (context.getLegacyContext() == null) {
-            return null;
-        }
-
-        // If it's a VariableRef, look it up
-        if (targetValue instanceof VariableRef ref) {
-            return context.getLegacyVariable(ref.name());
-        }
-
-        // If target is a VariableNode, look it up directly
-        if (targetNode instanceof VariableNode varNode) {
-            return context.getLegacyVariable(varNode.name());
-        }
-
-        // Otherwise, create a temporary Variable from the Value
-        // (This handles cases like (5 + 3)^ADD(2))
-        try {
-            return VariableBridge.toVariable(
-                targetValue,
-                "_temp_",
-                context.getLegacyContext()
-            );
-        } catch (Exception e) {
-            return null;
-        }
+        throw new InterpreterException(
+            "Method calls not yet implemented in v2 interpreter: " + node.methodName(),
+            context,
+            node.location()
+        );
     }
 
     private ExecutionResult executePointerDeref(PointerDerefNode node) {

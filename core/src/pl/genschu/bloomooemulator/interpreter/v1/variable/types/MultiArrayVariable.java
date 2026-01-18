@@ -8,7 +8,7 @@ import pl.genschu.bloomooemulator.interpreter.v1.variable.Parameter;
 import pl.genschu.bloomooemulator.interpreter.v1.variable.Variable;
 import pl.genschu.bloomooemulator.loader.MultiArrayLoader;
 import pl.genschu.bloomooemulator.saver.MultiArraySaver;
-import pl.genschu.bloomooemulator.utils.ArgumentsHelper;
+import pl.genschu.bloomooemulator.utils.LegacyArgumentsHelper;
 
 import java.util.Arrays;
 import java.util.List;
@@ -101,7 +101,7 @@ public class MultiArrayVariable extends Variable {
         ) {
             @Override
             public Variable execute(Variable self, List<Object> arguments) {
-                String path = ArgumentsHelper.getString(arguments.get(0));
+                String path = LegacyArgumentsHelper.getString(arguments.get(0));
                 MultiArraySaver.saveMultiArray(MultiArrayVariable.this, path);
                 return null;
             }
@@ -115,7 +115,7 @@ public class MultiArrayVariable extends Variable {
         ) {
             @Override
             public Variable execute(Variable self, List<Object> arguments) {
-                String path = ArgumentsHelper.getString(arguments.get(0));
+                String path = LegacyArgumentsHelper.getString(arguments.get(0));
                 MultiArrayLoader.loadMultiArray(MultiArrayVariable.this, path);
                 return null;
             }
@@ -131,7 +131,7 @@ public class MultiArrayVariable extends Variable {
             public Variable execute(Variable self, List<Object> arguments) {
                 MultiArrayVariable selfVar = (MultiArrayVariable) self;
                 // Return size of one dimension
-                int dim = ArgumentsHelper.getInteger(arguments.get(0));
+                int dim = LegacyArgumentsHelper.getInteger(arguments.get(0));
                 if (dim < 0 || dim >= selfVar.getDimensions().length) {
                     Gdx.app.error("MultiArrayVariable", "Invalid dimension index: " + dim);
                     return new IntegerVariable("", 0, selfVar.getContext());
@@ -208,7 +208,7 @@ public class MultiArrayVariable extends Variable {
     private int[] parseIndices(List<Object> arguments) {
         int[] indices = new int[arguments.size()];
         for (int i = 0; i < arguments.size(); i++) {
-            indices[arguments.size() - i - 1] = ArgumentsHelper.getInteger(arguments.get(i));
+            indices[arguments.size() - i - 1] = LegacyArgumentsHelper.getInteger(arguments.get(i));
         }
         return indices;
     }

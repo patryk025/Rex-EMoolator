@@ -7,7 +7,7 @@ import pl.genschu.bloomooemulator.interpreter.v1.variable.Method;
 import pl.genschu.bloomooemulator.interpreter.v1.variable.Parameter;
 import pl.genschu.bloomooemulator.interpreter.v1.variable.Variable;
 import pl.genschu.bloomooemulator.loader.v1.CNVParser;
-import pl.genschu.bloomooemulator.utils.ArgumentsHelper;
+import pl.genschu.bloomooemulator.utils.LegacyArgumentsHelper;
 import pl.genschu.bloomooemulator.utils.FileUtils;
 
 import java.io.File;
@@ -40,7 +40,7 @@ public class CNVLoaderVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(Variable self, List<Object> arguments) {
-				String cnvFile = ArgumentsHelper.getString(arguments.get(0));
+				String cnvFile = LegacyArgumentsHelper.getString(arguments.get(0));
 				if (loadedContexts.containsKey(cnvFile)) { // TODO: check if stay intact or reload CNV
 					Gdx.app.log("CNVLoaderVariable", "CNV already loaded " + cnvFile);
 					return null;
@@ -79,7 +79,7 @@ public class CNVLoaderVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(Variable self, List<Object> arguments) {
-				String cnvFile = ArgumentsHelper.getString(arguments.get(0));
+				String cnvFile = LegacyArgumentsHelper.getString(arguments.get(0));
 				if (!loadedContexts.containsKey(cnvFile)) {
 					Gdx.app.log("CNVLoaderVariable", "CNV not loaded " + cnvFile);
 					return null;

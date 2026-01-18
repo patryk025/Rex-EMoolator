@@ -5,7 +5,7 @@ import pl.genschu.bloomooemulator.interpreter.v1.variable.Attribute;
 import pl.genschu.bloomooemulator.interpreter.v1.variable.Method;
 import pl.genschu.bloomooemulator.interpreter.v1.variable.Parameter;
 import pl.genschu.bloomooemulator.interpreter.v1.variable.Variable;
-import pl.genschu.bloomooemulator.utils.ArgumentsHelper;
+import pl.genschu.bloomooemulator.utils.LegacyArgumentsHelper;
 
 import java.util.List;
 
@@ -87,7 +87,7 @@ public class TimerVariable extends Variable {
 			@Override
 			public Variable execute(Variable self, List<Object> arguments) {
 				TimerVariable selfVar = (TimerVariable) self;
-				selfVar.setTicks(ArgumentsHelper.getInteger(arguments.get(0)));
+				selfVar.setTicks(LegacyArgumentsHelper.getInteger(arguments.get(0)));
 				return null;
 			}
 		});
@@ -100,7 +100,7 @@ public class TimerVariable extends Variable {
 			@Override
 			public Variable execute(Variable self, List<Object> arguments) {
 				TimerVariable selfVar = (TimerVariable) self;
-				selfVar.setElapse(ArgumentsHelper.getInteger(arguments.get(0)));
+				selfVar.setElapse(LegacyArgumentsHelper.getInteger(arguments.get(0)));
 				// reset timer
 				selfVar.setLastTickTime(System.currentTimeMillis());
 				return null;

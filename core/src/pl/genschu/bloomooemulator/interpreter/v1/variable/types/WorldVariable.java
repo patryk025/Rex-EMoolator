@@ -9,7 +9,7 @@ import pl.genschu.bloomooemulator.interpreter.v1.variable.Method;
 import pl.genschu.bloomooemulator.interpreter.v1.variable.Parameter;
 import pl.genschu.bloomooemulator.interpreter.v1.variable.Variable;
 import pl.genschu.bloomooemulator.loader.SEKLoader;
-import pl.genschu.bloomooemulator.utils.ArgumentsHelper;
+import pl.genschu.bloomooemulator.utils.LegacyArgumentsHelper;
 
 import java.util.List;
 
@@ -44,18 +44,18 @@ public class WorldVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(Variable self, List<Object> arguments) {
-				int objectId = ArgumentsHelper.getInteger(arguments.get(0));
-				double mass = ArgumentsHelper.getDouble(arguments.get(1));
-				double mu = ArgumentsHelper.getDouble(arguments.get(2));
-				double mu2 = ArgumentsHelper.getDouble(arguments.get(3));
-				double bounce = ArgumentsHelper.getDouble(arguments.get(4));
-				double bounceVel = ArgumentsHelper.getDouble(arguments.get(5));
-				double maxVel = ArgumentsHelper.getDouble(arguments.get(6));
-				int bodyType = ArgumentsHelper.getInteger(arguments.get(7));
-				int geomType = ArgumentsHelper.getInteger(arguments.get(8));
-				double dim0 = ArgumentsHelper.getDouble(arguments.get(9));
-				double dim1 = ArgumentsHelper.getDouble(arguments.get(10));
-				double dim2 = ArgumentsHelper.getDouble(arguments.get(11));
+				int objectId = LegacyArgumentsHelper.getInteger(arguments.get(0));
+				double mass = LegacyArgumentsHelper.getDouble(arguments.get(1));
+				double mu = LegacyArgumentsHelper.getDouble(arguments.get(2));
+				double mu2 = LegacyArgumentsHelper.getDouble(arguments.get(3));
+				double bounce = LegacyArgumentsHelper.getDouble(arguments.get(4));
+				double bounceVel = LegacyArgumentsHelper.getDouble(arguments.get(5));
+				double maxVel = LegacyArgumentsHelper.getDouble(arguments.get(6));
+				int bodyType = LegacyArgumentsHelper.getInteger(arguments.get(7));
+				int geomType = LegacyArgumentsHelper.getInteger(arguments.get(8));
+				double dim0 = LegacyArgumentsHelper.getDouble(arguments.get(9));
+				double dim1 = LegacyArgumentsHelper.getDouble(arguments.get(10));
+				double dim2 = LegacyArgumentsHelper.getDouble(arguments.get(11));
 
 				physicsEngine.createBody(objectId, mass, mu, mu2, bounce, bounceVel, maxVel, bodyType, geomType, dim0, dim1, dim2);
 
@@ -73,10 +73,10 @@ public class WorldVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(Variable self, List<Object> arguments) {
-				int objectId = ArgumentsHelper.getInteger(arguments.get(0));
-                double forceX = ArgumentsHelper.getDouble(arguments.get(1));
-                double forceY = ArgumentsHelper.getDouble(arguments.get(2));
-                double forceZ = arguments.size() > 3 ? ArgumentsHelper.getDouble(arguments.get(3)) : 0.0;
+				int objectId = LegacyArgumentsHelper.getInteger(arguments.get(0));
+                double forceX = LegacyArgumentsHelper.getDouble(arguments.get(1));
+                double forceY = LegacyArgumentsHelper.getDouble(arguments.get(2));
+                double forceZ = arguments.size() > 3 ? LegacyArgumentsHelper.getDouble(arguments.get(3)) : 0.0;
 
                 physicsEngine.addForce(objectId, forceX, forceY, forceZ);
 
@@ -111,13 +111,13 @@ public class WorldVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(Variable self, List<Object> arguments) {
-				int objectId = ArgumentsHelper.getInteger(arguments.get(0));
-				int pointObjectId = ArgumentsHelper.getInteger(arguments.get(1));
-				int targetX = ArgumentsHelper.getInteger(arguments.get(2));
-				int targetY = ArgumentsHelper.getInteger(arguments.get(3));
-				int targetZ = ArgumentsHelper.getInteger(arguments.get(4));
-				boolean saveIntermediates = ArgumentsHelper.getBoolean(arguments.get(5));
-				boolean unknown = arguments.size() > 6 && ArgumentsHelper.getBoolean(arguments.get(6));
+				int objectId = LegacyArgumentsHelper.getInteger(arguments.get(0));
+				int pointObjectId = LegacyArgumentsHelper.getInteger(arguments.get(1));
+				int targetX = LegacyArgumentsHelper.getInteger(arguments.get(2));
+				int targetY = LegacyArgumentsHelper.getInteger(arguments.get(3));
+				int targetZ = LegacyArgumentsHelper.getInteger(arguments.get(4));
+				boolean saveIntermediates = LegacyArgumentsHelper.getBoolean(arguments.get(5));
+				boolean unknown = arguments.size() > 6 && LegacyArgumentsHelper.getBoolean(arguments.get(6));
 
                 physicsEngine.findPath(objectId, pointObjectId, targetX, targetY, targetZ, saveIntermediates, unknown);
                 return null;
@@ -134,10 +134,10 @@ public class WorldVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(Variable self, List<Object> arguments) {
-				int objectId = ArgumentsHelper.getInteger(arguments.get(0));
-				int arrivalRadius = ArgumentsHelper.getInteger(arguments.get(1));
-				double turnClamp = ArgumentsHelper.getDouble(arguments.get(2));
-				double speed = ArgumentsHelper.getDouble(arguments.get(3));
+				int objectId = LegacyArgumentsHelper.getInteger(arguments.get(0));
+				int arrivalRadius = LegacyArgumentsHelper.getInteger(arguments.get(1));
+				double turnClamp = LegacyArgumentsHelper.getDouble(arguments.get(2));
+				double speed = LegacyArgumentsHelper.getDouble(arguments.get(3));
 
                 float outDist = physicsEngine.followPath(objectId, arrivalRadius, turnClamp, speed);
                 return new DoubleVariable("", outDist, WorldVariable.this.context);
@@ -151,7 +151,7 @@ public class WorldVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(Variable self, List<Object> arguments) {
-				int objectId = ArgumentsHelper.getInteger(arguments.get(0));
+				int objectId = LegacyArgumentsHelper.getInteger(arguments.get(0));
                 double angle = physicsEngine.getAngle(objectId);
                 return new DoubleVariable("", Math.toDegrees(angle), WorldVariable.this.context);
 			}
@@ -182,7 +182,7 @@ public class WorldVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(Variable self, List<Object> arguments) {
-                int objectId = ArgumentsHelper.getInteger(arguments.get(0));
+                int objectId = LegacyArgumentsHelper.getInteger(arguments.get(0));
 				return new DoubleVariable("", physicsEngine.getMoveDistance(objectId), WorldVariable.this.context);
 			}
 		});
@@ -194,7 +194,7 @@ public class WorldVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(Variable self, List<Object> arguments) {
-				int objectId = ArgumentsHelper.getInteger(arguments.get(0));
+				int objectId = LegacyArgumentsHelper.getInteger(arguments.get(0));
                 double[] position = physicsEngine.getPosition(objectId);
                 if (position == null || position.length < 3) {
                     throw new IllegalArgumentException("Object with ID " + objectId + " does not exist or has no position.");
@@ -210,7 +210,7 @@ public class WorldVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(Variable self, List<Object> arguments) {
-				int objectId = ArgumentsHelper.getInteger(arguments.get(0));
+				int objectId = LegacyArgumentsHelper.getInteger(arguments.get(0));
                 double[] position = physicsEngine.getPosition(objectId);
                 if (position == null || position.length < 3) {
                     throw new IllegalArgumentException("Object with ID " + objectId + " does not exist or has no position.");
@@ -226,7 +226,7 @@ public class WorldVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(Variable self, List<Object> arguments) {
-				int objectId = ArgumentsHelper.getInteger(arguments.get(0));
+				int objectId = LegacyArgumentsHelper.getInteger(arguments.get(0));
                 double[] position = physicsEngine.getPosition(objectId);
                 if (position == null || position.length < 3) {
                     throw new IllegalArgumentException("Object with ID " + objectId + " does not exist or has no position.");
@@ -242,7 +242,7 @@ public class WorldVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(Variable self, List<Object> arguments) {
-				int objectId = ArgumentsHelper.getInteger(arguments.get(0));
+				int objectId = LegacyArgumentsHelper.getInteger(arguments.get(0));
                 return new DoubleVariable("", Math.toDegrees(physicsEngine.getRotationZ(objectId)), WorldVariable.this.context);
 			}
 		});
@@ -254,7 +254,7 @@ public class WorldVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(Variable self, List<Object> arguments) {
-                int objectId = ArgumentsHelper.getInteger(arguments.get(0));
+                int objectId = LegacyArgumentsHelper.getInteger(arguments.get(0));
                 double[] speed = physicsEngine.getSpeed(objectId);
                 double v = Math.sqrt(speed[0]*speed[0] + speed[1]*speed[1] + speed[2]*speed[2]);
 				return new DoubleVariable("", v, WorldVariable.this.context);
@@ -278,17 +278,17 @@ public class WorldVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(Variable self, List<Object> arguments) {
-				int firstId = ArgumentsHelper.getInteger(arguments.get(0));
-                int secondId = ArgumentsHelper.getInteger(arguments.get(1));
-                double anchorX = ArgumentsHelper.getDouble(arguments.get(2));
-                double anchorY = ArgumentsHelper.getDouble(arguments.get(3));
-                double anchorZ = ArgumentsHelper.getDouble(arguments.get(4));
-                double limitMotor = ArgumentsHelper.getDouble(arguments.get(5));
-                double lowStop = ArgumentsHelper.getDouble(arguments.get(6));
-                double highStop = ArgumentsHelper.getDouble(arguments.get(7));
-                double hingeAxisX = (arguments.size() == 11) ? ArgumentsHelper.getDouble(arguments.get(8)) : 0;
-                double hingeAxisY = (arguments.size() == 11) ? ArgumentsHelper.getDouble(arguments.get(9)) : 0;
-                double hingeAxisZ = (arguments.size() == 11) ? ArgumentsHelper.getDouble(arguments.get(10)) : 1;
+				int firstId = LegacyArgumentsHelper.getInteger(arguments.get(0));
+                int secondId = LegacyArgumentsHelper.getInteger(arguments.get(1));
+                double anchorX = LegacyArgumentsHelper.getDouble(arguments.get(2));
+                double anchorY = LegacyArgumentsHelper.getDouble(arguments.get(3));
+                double anchorZ = LegacyArgumentsHelper.getDouble(arguments.get(4));
+                double limitMotor = LegacyArgumentsHelper.getDouble(arguments.get(5));
+                double lowStop = LegacyArgumentsHelper.getDouble(arguments.get(6));
+                double highStop = LegacyArgumentsHelper.getDouble(arguments.get(7));
+                double hingeAxisX = (arguments.size() == 11) ? LegacyArgumentsHelper.getDouble(arguments.get(8)) : 0;
+                double hingeAxisY = (arguments.size() == 11) ? LegacyArgumentsHelper.getDouble(arguments.get(9)) : 0;
+                double hingeAxisZ = (arguments.size() == 11) ? LegacyArgumentsHelper.getDouble(arguments.get(10)) : 1;
                 physicsEngine.addJoint(firstId, secondId, anchorX, anchorY, anchorZ, limitMotor, lowStop, highStop, hingeAxisX, hingeAxisY, hingeAxisZ);
                 return null;
 			}
@@ -302,8 +302,8 @@ public class WorldVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(Variable self, List<Object> arguments) {
-				int objectId = ArgumentsHelper.getInteger(arguments.get(0));
-                String objectName = ArgumentsHelper.getString(arguments.get(1));
+				int objectId = LegacyArgumentsHelper.getInteger(arguments.get(0));
+                String objectName = LegacyArgumentsHelper.getString(arguments.get(1));
 
                 Variable objectVariable = context.getVariable(objectName);
                 if (!(objectVariable instanceof AnimoVariable || objectVariable instanceof ImageVariable)) {
@@ -321,7 +321,7 @@ public class WorldVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(Variable self, List<Object> arguments) {
-				String filename = ArgumentsHelper.getString(arguments.get(0));
+				String filename = LegacyArgumentsHelper.getString(arguments.get(0));
 				getAttribute("FILENAME").setValue(filename);
                 physicsEngine.shutdown();
                 physicsEngine.init();
@@ -346,7 +346,7 @@ public class WorldVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(Variable self, List<Object> arguments) {
-				int objectId = ArgumentsHelper.getInteger(arguments.get(0));
+				int objectId = LegacyArgumentsHelper.getInteger(arguments.get(0));
 				physicsEngine.destroyBody(objectId);
 				return null;
 			}
@@ -361,9 +361,9 @@ public class WorldVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(Variable self, List<Object> arguments) {
-				int objectId = ArgumentsHelper.getInteger(arguments.get(0));
-                boolean active = ArgumentsHelper.getBoolean(arguments.get(1));
-                boolean collidable = ArgumentsHelper.getBoolean(arguments.get(2));
+				int objectId = LegacyArgumentsHelper.getInteger(arguments.get(0));
+                boolean active = LegacyArgumentsHelper.getBoolean(arguments.get(1));
+                boolean collidable = LegacyArgumentsHelper.getBoolean(arguments.get(2));
                 physicsEngine.setActive(objectId, active, collidable);
                 return null;
 			}
@@ -392,7 +392,7 @@ public class WorldVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(Variable self, List<Object> arguments) {
-				physicsEngine.setG(ArgumentsHelper.getInteger(arguments.get(0)), ArgumentsHelper.getDouble(arguments.get(1)));
+				physicsEngine.setG(LegacyArgumentsHelper.getInteger(arguments.get(0)), LegacyArgumentsHelper.getDouble(arguments.get(1)));
                 return null;
 			}
 		});
@@ -406,9 +406,9 @@ public class WorldVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(Variable self, List<Object> arguments) {
-				double gravityX = ArgumentsHelper.getDouble(arguments.get(0));
-                double gravityY = ArgumentsHelper.getDouble(arguments.get(1));
-                double gravityZ = ArgumentsHelper.getDouble(arguments.get(2));
+				double gravityX = LegacyArgumentsHelper.getDouble(arguments.get(0));
+                double gravityY = LegacyArgumentsHelper.getDouble(arguments.get(1));
+                double gravityZ = LegacyArgumentsHelper.getDouble(arguments.get(2));
                 physicsEngine.setGravity(gravityX, gravityY, gravityZ);
                 return null;
 			}
@@ -422,8 +422,8 @@ public class WorldVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(Variable self, List<Object> arguments) {
-				int objectId = ArgumentsHelper.getInteger(ArgumentsHelper.getInteger(arguments.get(0)));
-				boolean gravityCenter = ArgumentsHelper.getBoolean(ArgumentsHelper.getInteger(arguments.get(1)));
+				int objectId = LegacyArgumentsHelper.getInteger(LegacyArgumentsHelper.getInteger(arguments.get(0)));
+				boolean gravityCenter = LegacyArgumentsHelper.getBoolean(LegacyArgumentsHelper.getInteger(arguments.get(1)));
 				physicsEngine.setGravityCenter(objectId, gravityCenter);
 				return null;
 			}
@@ -442,13 +442,13 @@ public class WorldVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(Variable self, List<Object> arguments) {
-				int objectId = ArgumentsHelper.getInteger(arguments.get(0));
-                int minX = ArgumentsHelper.getInteger(arguments.get(1));
-                int minY = ArgumentsHelper.getInteger(arguments.get(2));
-                int minZ = ArgumentsHelper.getInteger(arguments.get(3));
-                int maxX = ArgumentsHelper.getInteger(arguments.get(4));
-                int maxY = ArgumentsHelper.getInteger(arguments.get(5));
-                int maxZ = ArgumentsHelper.getInteger(arguments.get(6));
+				int objectId = LegacyArgumentsHelper.getInteger(arguments.get(0));
+                int minX = LegacyArgumentsHelper.getInteger(arguments.get(1));
+                int minY = LegacyArgumentsHelper.getInteger(arguments.get(2));
+                int minZ = LegacyArgumentsHelper.getInteger(arguments.get(3));
+                int maxX = LegacyArgumentsHelper.getInteger(arguments.get(4));
+                int maxY = LegacyArgumentsHelper.getInteger(arguments.get(5));
+                int maxZ = LegacyArgumentsHelper.getInteger(arguments.get(6));
                 physicsEngine.setLimit(objectId, minX, minY, minZ, maxX, maxY, maxZ);
                 return null;
 			}
@@ -462,8 +462,8 @@ public class WorldVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(Variable self, List<Object> arguments) {
-				int objectId = ArgumentsHelper.getInteger(arguments.get(0));
-                int maxSpeed = ArgumentsHelper.getInteger(arguments.get(1));
+				int objectId = LegacyArgumentsHelper.getInteger(arguments.get(0));
+                int maxSpeed = LegacyArgumentsHelper.getInteger(arguments.get(1));
                 physicsEngine.setMaxVelocity(objectId, maxSpeed);
                 return null;
 			}
@@ -492,10 +492,10 @@ public class WorldVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(Variable self, List<Object> arguments) {
-				int objectId = ArgumentsHelper.getInteger(arguments.get(0));
-                double x = ArgumentsHelper.getDouble(arguments.get(1));
-                double y = ArgumentsHelper.getDouble(arguments.get(2));
-                double z = ArgumentsHelper.getDouble(arguments.get(3));
+				int objectId = LegacyArgumentsHelper.getInteger(arguments.get(0));
+                double x = LegacyArgumentsHelper.getDouble(arguments.get(1));
+                double y = LegacyArgumentsHelper.getDouble(arguments.get(2));
+                double z = LegacyArgumentsHelper.getDouble(arguments.get(3));
                 physicsEngine.setPosition(objectId, x-400, 300-y, z); // 400 and 300 are correction by half of screen size
                 return null;
 			}
@@ -508,7 +508,7 @@ public class WorldVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(Variable self, List<Object> arguments) {
-				int objectId = ArgumentsHelper.getInteger(arguments.get(0));
+				int objectId = LegacyArgumentsHelper.getInteger(arguments.get(0));
                 physicsEngine.setReferenceObjectId(objectId);
                 return null;
 			}
@@ -524,10 +524,10 @@ public class WorldVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(Variable self, List<Object> arguments) {
-				int objectId = ArgumentsHelper.getInteger(arguments.get(0));
-                double x = ArgumentsHelper.getDouble(arguments.get(1));
-                double y = ArgumentsHelper.getDouble(arguments.get(2));
-                double z = ArgumentsHelper.getDouble(arguments.get(3));
+				int objectId = LegacyArgumentsHelper.getInteger(arguments.get(0));
+                double x = LegacyArgumentsHelper.getDouble(arguments.get(1));
+                double y = LegacyArgumentsHelper.getDouble(arguments.get(2));
+                double z = LegacyArgumentsHelper.getDouble(arguments.get(3));
 
                 physicsEngine.setSpeed(objectId, x, y, z);
                 return null;
@@ -559,7 +559,7 @@ public class WorldVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(Variable self, List<Object> arguments) {
-				int objectId = ArgumentsHelper.getInteger(arguments.get(0));
+				int objectId = LegacyArgumentsHelper.getInteger(arguments.get(0));
                 physicsEngine.unlinkVariable(objectId);
                 return null;
 			}

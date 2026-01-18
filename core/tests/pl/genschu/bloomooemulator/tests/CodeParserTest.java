@@ -6,7 +6,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import pl.genschu.bloomooemulator.TestEnvironment;
-import pl.genschu.bloomooemulator.builders.ContextBuilder;
+import pl.genschu.bloomooemulator.builders.LegacyContextBuilder;
 import pl.genschu.bloomooemulator.interpreter.v1.Context;
 import pl.genschu.bloomooemulator.interpreter.factories.LegacyVariableFactory;
 import pl.genschu.bloomooemulator.interpreter.v1.variable.Variable;
@@ -30,7 +30,7 @@ public class CodeParserTest {
 
     @BeforeEach
     void setUp() {
-        ctx = new ContextBuilder()
+        ctx = new LegacyContextBuilder()
                 .withFactory("INTEGER", "TEST_NO", 1)
                 .withFactory("INTEGER", "TEST_VALUE_1", 5)
                 .withFactory("STRING", "TEST_VALUE_NAME", "TEST_VALUE_1")

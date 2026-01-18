@@ -3,7 +3,7 @@ package pl.genschu.bloomooemulator.interpreter.v1.variable.types;
 import com.badlogic.gdx.Gdx;
 import pl.genschu.bloomooemulator.interpreter.v1.Context;
 import pl.genschu.bloomooemulator.interpreter.v1.variable.*;
-import pl.genschu.bloomooemulator.utils.ArgumentsHelper;
+import pl.genschu.bloomooemulator.utils.LegacyArgumentsHelper;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -31,11 +31,11 @@ public class RandVariable extends GlobalVariable {
 				int offset = 0;
 				int range;
 				if(arguments.size() >= 2) {
-					offset = ArgumentsHelper.getInteger(arguments.get(0));
-					range = ArgumentsHelper.getInteger(arguments.get(1));
+					offset = LegacyArgumentsHelper.getInteger(arguments.get(0));
+					range = LegacyArgumentsHelper.getInteger(arguments.get(1));
 				}
 				else {
-					range = ArgumentsHelper.getInteger(arguments.get(0));
+					range = LegacyArgumentsHelper.getInteger(arguments.get(0));
 				}
 
 				return new IntegerVariable("", selfVar.getRandom(offset, range), selfVar.getContext());
@@ -54,11 +54,11 @@ public class RandVariable extends GlobalVariable {
 			@Override
 			public Variable execute(Variable self, List<Object> arguments) {
 				RandVariable selfVar = (RandVariable) self;
-				String targetArrayName = ArgumentsHelper.getString(arguments.get(0));
-				int count = ArgumentsHelper.getInteger(arguments.get(1));
-				int offset = ArgumentsHelper.getInteger(arguments.get(2));
-				int range = ArgumentsHelper.getInteger(arguments.get(3));
-				boolean onlyUnique = ArgumentsHelper.getBoolean(arguments.get(4));
+				String targetArrayName = LegacyArgumentsHelper.getString(arguments.get(0));
+				int count = LegacyArgumentsHelper.getInteger(arguments.get(1));
+				int offset = LegacyArgumentsHelper.getInteger(arguments.get(2));
+				int range = LegacyArgumentsHelper.getInteger(arguments.get(3));
+				boolean onlyUnique = LegacyArgumentsHelper.getBoolean(arguments.get(4));
 
 				Variable targetArray = selfVar.getContext().getVariable(targetArrayName);
 				if(!(targetArray instanceof ArrayVariable)) {

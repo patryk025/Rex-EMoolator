@@ -1,9 +1,7 @@
 package pl.genschu.bloomooemulator.interpreter.runtime;
 
-import pl.genschu.bloomooemulator.interpreter.v1.Context;
 import pl.genschu.bloomooemulator.interpreter.errors.SourceLocation;
 import pl.genschu.bloomooemulator.interpreter.values.Value;
-import pl.genschu.bloomooemulator.interpreter.v1.variable.Variable;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -11,26 +9,17 @@ import java.util.Map;
 /**
  * Execution context that manages the call stack and provides stack trace functionality.
  *
- * This wraps the old Context (for now) and adds v2 functionality on top.
- * Eventually, this will completely replace the old Context.
+ * This is the v2 execution context, completely independent from v1.
  */
 public class ExecutionContext {
-    private final Context legacyContext;  // Old context - temporary bridge
     private ExecutionFrame currentFrame;  // Current execution frame
     private int maxStackDepth = 1000;     // Maximum stack depth before overflow
     private final Map<String, Value> globalVariables = new HashMap<>();
 
-    public ExecutionContext(Context legacyContext) {
-        this.legacyContext = legacyContext;
+    public ExecutionContext() {
         this.currentFrame = null;
     }
 
-    /**
-     * Returns the legacy context (temporary - for migration).
-     */
-    public Context getLegacyContext() {
-        return legacyContext;
-    }
 
     /**
      * Returns the current execution frame.
@@ -135,37 +124,18 @@ public class ExecutionContext {
             frameWithLocal.setLocal(name, value);
         } else if (globalVariables.containsKey(name)) {
             setGlobal(name, value);
-            return;
         } else if (currentFrame != null) {
             currentFrame.setLocal(name, value);
         } else {
             setGlobal(name, value);
-            return;
         }
-
-        mirrorLegacyVariable(name, value);
     }
 
     /**
-     * Gets a variable value from locals or globals. If not found, falls back to legacy context
-     * and converts it to a v2 Value (also caching it as a global for subsequent reads).
+     * Gets a variable value from locals or globals.
      */
     public Value getVariableValue(String name) {
-        Value value = getLocalOrGlobal(name);
-        if (value != null) {
-            return value;
-        }
-
-        if (legacyContext != null) {
-            Variable legacyVariable = legacyContext.getVariable(name);
-            if (legacyVariable != null) {
-                Value bridged = VariableBridge.toValue(legacyVariable);
-                setGlobal(name, bridged);
-                return bridged;
-            }
-        }
-
-        return null;
+        return getLocalOrGlobal(name);
     }
 
     /**
@@ -180,24 +150,6 @@ public class ExecutionContext {
      */
     public void setGlobal(String name, Value value) {
         globalVariables.put(name, value);
-        mirrorLegacyVariable(name, value);
-    }
-
-    /**
-     * Returns a legacy Variable representation of a stored value if possible,
-     * otherwise falls back to the wrapped legacy context.
-     */
-    public Variable getLegacyVariable(String name) {
-        if (legacyContext == null) {
-            return null;
-        }
-
-        Value stored = getLocalOrGlobal(name);
-        if (stored != null) {
-            return VariableBridge.toVariable(stored, name, legacyContext);
-        }
-
-        return legacyContext.getVariable(name);
     }
 
     private Value getLocalOrGlobal(String name) {
@@ -217,19 +169,6 @@ public class ExecutionContext {
             frame = frame.getParent();
         }
         return null;
-    }
-
-    private void mirrorLegacyVariable(String name, Value value) {
-        if (legacyContext == null) {
-            return;
-        }
-
-        try {
-            Variable variable = VariableBridge.toVariable(value, name, legacyContext);
-            legacyContext.setVariable(name, variable);
-        } catch (Exception ignored) {
-            // Some values cannot be mirrored yet (e.g., behaviours without AST)
-        }
     }
 
     /**

@@ -7,7 +7,7 @@ import pl.genschu.bloomooemulator.interpreter.v1.variable.Attribute;
 import pl.genschu.bloomooemulator.interpreter.v1.variable.Method;
 import pl.genschu.bloomooemulator.interpreter.v1.variable.Parameter;
 import pl.genschu.bloomooemulator.interpreter.v1.variable.Variable;
-import pl.genschu.bloomooemulator.utils.ArgumentsHelper;
+import pl.genschu.bloomooemulator.utils.LegacyArgumentsHelper;
 
 import java.util.Collections;
 import java.util.List;
@@ -32,7 +32,7 @@ public class ConditionVariable extends Variable {
 			@Override
 			public Variable execute(Variable self, List<Object> arguments) {
 				boolean result = ((ConditionVariable) self).check();
-				boolean emitSignal = ArgumentsHelper.getBoolean(arguments.get(0));
+				boolean emitSignal = LegacyArgumentsHelper.getBoolean(arguments.get(0));
 				if(emitSignal) {
 					if(!result)
 						self.emitSignal("ONRUNTIMEFAILED");
@@ -54,7 +54,7 @@ public class ConditionVariable extends Variable {
 			@Override
 			public Variable execute(Variable self, List<Object> arguments) {
 				boolean result = ((ConditionVariable) self).check();
-				boolean emitSignal = ArgumentsHelper.getBoolean(arguments.get(0));
+				boolean emitSignal = LegacyArgumentsHelper.getBoolean(arguments.get(0));
 				if(emitSignal) {
 					if(!result)
 						self.emitSignal("ONRUNTIMEFAILED");
@@ -73,7 +73,7 @@ public class ConditionVariable extends Variable {
 			@Override
 			public Variable execute(Variable self, List<Object> arguments) {
 				boolean result = ((ConditionVariable) self).check();
-				boolean emitSignal = ArgumentsHelper.getBoolean(arguments.get(0));
+				boolean emitSignal = LegacyArgumentsHelper.getBoolean(arguments.get(0));
 				if(emitSignal) {
 					if(!result)
 						self.emitSignal("ONRUNTIMEFAILED");
@@ -92,7 +92,7 @@ public class ConditionVariable extends Variable {
 		behaviourVariable.getMethod("RUN", Collections.singletonList("mixed"))
 				.execute(behaviourVariable, null);
 		Object checkResult = behaviourVariable.getContext().getReturnValue();
-		return ArgumentsHelper.getBoolean(checkResult);
+		return LegacyArgumentsHelper.getBoolean(checkResult);
 	}
 
 	@Override

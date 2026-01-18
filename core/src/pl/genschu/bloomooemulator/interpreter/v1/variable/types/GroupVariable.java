@@ -8,7 +8,7 @@ import pl.genschu.bloomooemulator.interpreter.v1.variable.Attribute;
 import pl.genschu.bloomooemulator.interpreter.v1.variable.Method;
 import pl.genschu.bloomooemulator.interpreter.v1.variable.Parameter;
 import pl.genschu.bloomooemulator.interpreter.v1.variable.Variable;
-import pl.genschu.bloomooemulator.utils.ArgumentsHelper;
+import pl.genschu.bloomooemulator.utils.LegacyArgumentsHelper;
 
 import java.util.HashSet;
 import java.util.List;
@@ -37,7 +37,7 @@ public class GroupVariable extends Variable {
 			@Override
 			public Variable execute(Variable self, List<Object> arguments) {
 				for(Object argument : arguments) {
-					Variable variable = self.getContext().getVariable(ArgumentsHelper.getString(argument));
+					Variable variable = self.getContext().getVariable(LegacyArgumentsHelper.getString(argument));
 					((GroupVariable) self).variables.add(variable);
 				}
 				return null;
@@ -95,7 +95,7 @@ public class GroupVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(Variable self, List<Object> arguments) {
-				String varName = ArgumentsHelper.getString(arguments.get(0));
+				String varName = LegacyArgumentsHelper.getString(arguments.get(0));
 
 				for(Variable variable : ((GroupVariable) self).variables) {
 					if(variable.getName().equals(varName)) {

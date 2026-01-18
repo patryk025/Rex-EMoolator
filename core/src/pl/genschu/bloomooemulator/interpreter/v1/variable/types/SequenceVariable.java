@@ -5,7 +5,7 @@ import pl.genschu.bloomooemulator.interpreter.v1.Context;
 import pl.genschu.bloomooemulator.interpreter.v1.variable.*;
 import pl.genschu.bloomooemulator.loader.SEQParser;
 import pl.genschu.bloomooemulator.objects.Event;
-import pl.genschu.bloomooemulator.utils.ArgumentsHelper;
+import pl.genschu.bloomooemulator.utils.LegacyArgumentsHelper;
 
 import java.util.*;
 
@@ -182,7 +182,7 @@ public class SequenceVariable extends Variable {
 			@Override
 			public Variable execute(Variable self, List<Object> arguments) {
 				SequenceVariable selfVar = (SequenceVariable) self;
-				String eventName = ArgumentsHelper.getString(arguments.get(0));
+				String eventName = LegacyArgumentsHelper.getString(arguments.get(0));
 				selfVar.playEvent(eventName);
 				return null;
 			}
@@ -212,7 +212,7 @@ public class SequenceVariable extends Variable {
 			@Override
 			public Variable execute(Variable self, List<Object> arguments) {
 				SequenceVariable selfVar = (SequenceVariable) self;
-				boolean emitSignal = !arguments.isEmpty() && ArgumentsHelper.getBoolean(arguments.get(0));
+				boolean emitSignal = !arguments.isEmpty() && LegacyArgumentsHelper.getBoolean(arguments.get(0));
 				selfVar.stopSequence(emitSignal);
 				return null;
 			}

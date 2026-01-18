@@ -8,7 +8,7 @@ import pl.genschu.bloomooemulator.engine.decision.states.ButtonState;
 import pl.genschu.bloomooemulator.interpreter.v1.Context;
 import pl.genschu.bloomooemulator.interpreter.v1.variable.*;
 import pl.genschu.bloomooemulator.geometry.shapes.Box2D;
-import pl.genschu.bloomooemulator.utils.ArgumentsHelper;
+import pl.genschu.bloomooemulator.utils.LegacyArgumentsHelper;
 
 import java.util.List;
 
@@ -96,7 +96,7 @@ public class ButtonVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(Variable self, List<Object> arguments) {
-				String varName = ArgumentsHelper.getString(arguments.get(0));
+				String varName = LegacyArgumentsHelper.getString(arguments.get(0));
 
 				Variable variable = self.getContext().getVariable(varName);
 
@@ -152,7 +152,7 @@ public class ButtonVariable extends Variable {
 					return null;
 				}
 
-				String varName = ArgumentsHelper.getString(arguments.get(0));
+				String varName = LegacyArgumentsHelper.getString(arguments.get(0));
 
 				Variable variable = self.getContext().getVariable(varName);
 				if(variable instanceof AnimoVariable) {

@@ -9,7 +9,7 @@ import pl.genschu.bloomooemulator.interpreter.v1.variable.Attribute;
 import pl.genschu.bloomooemulator.interpreter.v1.variable.Method;
 import pl.genschu.bloomooemulator.interpreter.v1.variable.Parameter;
 import pl.genschu.bloomooemulator.interpreter.v1.variable.Variable;
-import pl.genschu.bloomooemulator.utils.ArgumentsHelper;
+import pl.genschu.bloomooemulator.utils.LegacyArgumentsHelper;
 import pl.genschu.bloomooemulator.utils.FileUtils;
 
 import java.io.File;
@@ -62,7 +62,7 @@ public class SceneVariable extends Variable {
 			@Override
 			public Variable execute(Variable self, List<Object> arguments) {
 				SceneVariable selfVar = (SceneVariable) self;
-				Variable groupVariable = selfVar.getContext().getVariable(ArgumentsHelper.getString(arguments.get(0)));
+				Variable groupVariable = selfVar.getContext().getVariable(LegacyArgumentsHelper.getString(arguments.get(0)));
 
 				if(groupVariable instanceof GroupVariable) {
 					GroupVariable group = (GroupVariable) groupVariable;
@@ -117,9 +117,9 @@ public class SceneVariable extends Variable {
 			@Override
 			public Variable execute(Variable self, List<Object> arguments) {
 				SceneVariable selfVar = (SceneVariable) self;
-				String varName = ArgumentsHelper.getString(arguments.get(0));
-				int firstId = ArgumentsHelper.getInteger(arguments.get(1));
-				int lastId = ArgumentsHelper.getInteger(arguments.get(2));
+				String varName = LegacyArgumentsHelper.getString(arguments.get(0));
+				int firstId = LegacyArgumentsHelper.getInteger(arguments.get(1));
+				int lastId = LegacyArgumentsHelper.getInteger(arguments.get(2));
 
 				Variable variable = selfVar.getContext().getVariable(varName);
 				if(variable == null) {
@@ -159,7 +159,7 @@ public class SceneVariable extends Variable {
 			@Override
 			public Variable execute(Variable self, List<Object> arguments) {
 				SceneVariable selfVar = (SceneVariable) self;
-				Variable groupVariable = selfVar.getContext().getVariable(ArgumentsHelper.getString(arguments.get(0)));
+				Variable groupVariable = selfVar.getContext().getVariable(LegacyArgumentsHelper.getString(arguments.get(0)));
 
 				if(groupVariable instanceof GroupVariable) {
 					GroupVariable group = (GroupVariable) groupVariable;
@@ -183,8 +183,8 @@ public class SceneVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(Variable self, List<Object> arguments) {
-				String varName = ArgumentsHelper.getString(arguments.get(0));
-				String methodName = ArgumentsHelper.getString(arguments.get(1));
+				String varName = LegacyArgumentsHelper.getString(arguments.get(0));
+				String methodName = LegacyArgumentsHelper.getString(arguments.get(1));
 				Object[] params = new Object[arguments.size() - 2];
 				for(int i = 2; i < arguments.size(); i++) {
 					params[i - 2] = arguments.get(i);
@@ -216,10 +216,10 @@ public class SceneVariable extends Variable {
 		) {
 			@Override
 			public Variable execute(Variable self, List<Object> arguments) {
-				String varName = ArgumentsHelper.getString(arguments.get(0));
-				int firstIndex = ArgumentsHelper.getInteger(arguments.get(1));
-				int lastIndex = ArgumentsHelper.getInteger(arguments.get(2));
-				String behaviourName = ArgumentsHelper.getString(arguments.get(3));
+				String varName = LegacyArgumentsHelper.getString(arguments.get(0));
+				int firstIndex = LegacyArgumentsHelper.getInteger(arguments.get(1));
+				int lastIndex = LegacyArgumentsHelper.getInteger(arguments.get(2));
+				String behaviourName = LegacyArgumentsHelper.getString(arguments.get(3));
 
 				Context variableContext = ((Variable) arguments.get(0)).getContext(); // we need to get context from argument, as Scene has only context from Application.def
 
@@ -264,7 +264,7 @@ public class SceneVariable extends Variable {
 			@Override
 			public Variable execute(Variable self, List<Object> arguments) {
 				SceneVariable selfVar = (SceneVariable) self;
-				int minHSPriority = ArgumentsHelper.getInteger(arguments.get(0));
+				int minHSPriority = LegacyArgumentsHelper.getInteger(arguments.get(0));
 				selfVar.setMinHotSpotZ(minHSPriority);
 				return null;
 			}
@@ -278,7 +278,7 @@ public class SceneVariable extends Variable {
 			@Override
 			public Variable execute(Variable self, List<Object> arguments) {
 				SceneVariable selfVar = (SceneVariable) self;
-				int maxHSPriority = ArgumentsHelper.getInteger(arguments.get(0));
+				int maxHSPriority = LegacyArgumentsHelper.getInteger(arguments.get(0));
 				selfVar.setMaxHotSpotZ(maxHSPriority);
 				return null;
 			}
@@ -292,7 +292,7 @@ public class SceneVariable extends Variable {
 			@Override
 			public Variable execute(Variable self, List<Object> arguments) {
 				SceneVariable selfVar = (SceneVariable) self;
-	            selfVar.musicVolume = ArgumentsHelper.getInteger(arguments.get(0));
+	            selfVar.musicVolume = LegacyArgumentsHelper.getInteger(arguments.get(0));
 				if(selfVar.music != null) {
 					selfVar.music.setVolume(selfVar.musicVolume / 1000.0f);
 				}
@@ -314,7 +314,7 @@ public class SceneVariable extends Variable {
 						selfVar.music = null;
 					}
 				}
-				selfVar.setAttribute("MUSIC", new Attribute("STRING", ArgumentsHelper.getString(arguments.get(0))));
+				selfVar.setAttribute("MUSIC", new Attribute("STRING", LegacyArgumentsHelper.getString(arguments.get(0))));
 				selfVar.getMusic();
 				selfVar.music.setLooping(true);
 				selfVar.music.setVolume(selfVar.musicVolume / 1000.0f);

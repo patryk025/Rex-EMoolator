@@ -7,7 +7,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.Arguments;
 
 import pl.genschu.bloomooemulator.TestEnvironment;
-import pl.genschu.bloomooemulator.builders.ContextBuilder;
+import pl.genschu.bloomooemulator.builders.LegacyContextBuilder;
 import pl.genschu.bloomooemulator.interpreter.v1.Context;
 import pl.genschu.bloomooemulator.interpreter.v1.variable.Attribute;
 import pl.genschu.bloomooemulator.interpreter.v1.variable.types.*;
@@ -26,7 +26,7 @@ class VectorTest {
 
     @BeforeEach
     void setUp() {
-        ctx    = new ContextBuilder().build();
+        ctx    = new LegacyContextBuilder().build();
         vector = new VectorVariable("TEST_VECTOR", ctx);
         vector.setAttribute("SIZE", new Attribute("INTEGER", 2));
     }
