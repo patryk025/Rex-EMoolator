@@ -1,18 +1,30 @@
 package pl.genschu.bloomooemulator.interpreter.runtime;
 
 import pl.genschu.bloomooemulator.interpreter.ast.*;
-import pl.genschu.bloomooemulator.interpreter.ast.*;
+import pl.genschu.bloomooemulator.interpreter.context.Context;
 import pl.genschu.bloomooemulator.interpreter.errors.InterpreterException;
+import pl.genschu.bloomooemulator.interpreter.errors.SourceLocation;
+import pl.genschu.bloomooemulator.interpreter.factories.VariableFactory;
 import pl.genschu.bloomooemulator.interpreter.values.*;
+import pl.genschu.bloomooemulator.interpreter.variable.MethodResult;
+import pl.genschu.bloomooemulator.interpreter.variable.Variable;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Interprets AST nodes and produces execution results.
  */
 public class ASTInterpreter {
-    private final ExecutionContext context;
+    private final Context context;
+    private final ExecutionContext exec;
 
-    public ASTInterpreter(ExecutionContext context) {
+    public ASTInterpreter(Context context) {
+        if (context == null) {
+            throw new IllegalArgumentException("Context cannot be null");
+        }
         this.context = context;
+        this.exec = context.exec();
     }
 
     /**
@@ -50,23 +62,23 @@ public class ASTInterpreter {
     // === VARIABLES ===
 
     private ExecutionResult executeVariable(VariableNode node) {
-        Value value = context.getVariableValue(node.name());
+        Variable variable = context.getVariable(node.name());
 
-        if (value == null) {
+        if (variable == null) {
             throw new InterpreterException(
                 "Variable not found: " + node.name(),
-                context,
+                exec,
                 node.location()
             );
         }
 
-        return new NormalResult(value);
+        return new NormalResult(variable.value());
     }
 
     // === BLOCKS ===
 
     private ExecutionResult executeBlock(BlockNode node) {
-        context.pushFrame("Block", "{...}", node.location());
+        exec.pushFrame("Block", "{...}", node.location());
         try {
             ExecutionResult lastResult = new NormalResult(NullValue.INSTANCE);
 
@@ -81,7 +93,7 @@ public class ASTInterpreter {
 
             return lastResult;
         } finally {
-            context.popFrame();
+            exec.popFrame();
         }
     }
 
@@ -228,7 +240,7 @@ public class ASTInterpreter {
     // === CONTROL FLOW ===
 
     private ExecutionResult executeIf(IfNode node) {
-        context.pushFrame("If", "@IF", node.location());
+        exec.pushFrame("If", "@IF", node.location());
         try {
             ExecutionResult condResult = execute(node.condition());
             if (!condResult.shouldContinue()) return condResult;
@@ -243,12 +255,12 @@ public class ASTInterpreter {
                 return new NormalResult(NullValue.INSTANCE);
             }
         } finally {
-            context.popFrame();
+            exec.popFrame();
         }
     }
 
     private ExecutionResult executeLoop(LoopNode node) {
-        context.pushFrame("Loop", "@LOOP", node.location());
+        exec.pushFrame("Loop", "@LOOP", node.location());
         try {
             // Evaluate loop bounds
             ExecutionResult startResult = execute(node.start());
@@ -285,12 +297,12 @@ public class ASTInterpreter {
 
             return new NormalResult(NullValue.INSTANCE);
         } finally {
-            context.popFrame();
+            exec.popFrame();
         }
     }
 
     private ExecutionResult executeWhile(WhileNode node) {
-        context.pushFrame("While", "@WHILE", node.location());
+        exec.pushFrame("While", "@WHILE", node.location());
         try {
             while (true) {
                 ExecutionResult condResult = execute(node.condition());
@@ -315,7 +327,7 @@ public class ASTInterpreter {
 
             return new NormalResult(NullValue.INSTANCE);
         } finally {
-            context.popFrame();
+            exec.popFrame();
         }
     }
 
@@ -352,15 +364,39 @@ public class ASTInterpreter {
     // === TODO: Implement these ===
 
     private ExecutionResult executeMethodCall(MethodCallNode node) {
-        // TODO: Implement v2 method call system
-        // For now, method calls are not supported in v2 interpreter
-        // Old v1 interpreter still handles this via Variable.fireMethod()
+        Variable target = resolveMethodTarget(node.target(), node.location());
 
-        throw new InterpreterException(
-            "Method calls not yet implemented in v2 interpreter: " + node.methodName(),
-            context,
-            node.location()
-        );
+        List<Value> arguments = new ArrayList<>(node.arguments().size());
+        for (ASTNode argNode : node.arguments()) {
+            ExecutionResult argResult = execute(argNode);
+            if (!argResult.shouldContinue()) return argResult;
+            arguments.add(argResult.getValue());
+        }
+
+        MethodResult result;
+        try {
+            result = target.callMethod(node.methodName(), arguments);
+        } catch (RuntimeException e) {
+            throw new InterpreterException(
+                "Method call failed: " + node.methodName(),
+                exec,
+                node.location(),
+                e
+            );
+        }
+
+        if (result.hasNewState()) {
+            boolean updated = context.updateVariableInHierarchy(target.name(), result.newSelf());
+            if (!updated) {
+                throw new InterpreterException(
+                    "Failed to update variable after method call: " + target.name(),
+                    exec,
+                    node.location()
+                );
+            }
+        }
+
+        return new NormalResult(result.getReturnValue());
     }
 
     private ExecutionResult executePointerDeref(PointerDerefNode node) {
@@ -380,9 +416,14 @@ public class ASTInterpreter {
 
         Value initialValue = valueResult.getValue();
 
-        context.setVariableValue(node.varName(), initialValue);
+        Variable variable = VariableFactory.createVariable(
+            node.varType(),
+            node.varName(),
+            initialValue
+        );
+        context.setVariable(node.varName(), variable);
 
-        return new NormalResult(initialValue);
+        return new NormalResult(variable.value());
     }
 
     private ExecutionResult executeConv(ConvNode node) {
@@ -393,5 +434,35 @@ public class ASTInterpreter {
         // Basic conversion for now
         Value value = varResult.getValue();
         return new NormalResult(value);
+    }
+
+    private Variable resolveMethodTarget(ASTNode target, SourceLocation location) {
+        if (target instanceof VariableNode variableNode) {
+            String name = variableNode.name();
+            if (!context.hasVariableInHierarchy(name)) {
+                throw new InterpreterException(
+                    "Variable not found: " + name,
+                    exec,
+                    location
+                );
+            }
+
+            Variable variable = context.getVariable(name);
+            if (variable == null) {
+                throw new InterpreterException(
+                    "Variable not found: " + name,
+                    exec,
+                    location
+                );
+            }
+
+            return variable;
+        }
+
+        throw new InterpreterException(
+            "Unsupported method call target: " + target.getClass().getSimpleName(),
+            exec,
+            location
+        );
     }
 }

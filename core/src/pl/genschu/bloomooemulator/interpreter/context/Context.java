@@ -1,6 +1,7 @@
 package pl.genschu.bloomooemulator.interpreter.context;
 
 import pl.genschu.bloomooemulator.engine.Game;
+import pl.genschu.bloomooemulator.interpreter.values.Value;
 import pl.genschu.bloomooemulator.interpreter.variable.Variable;
 import pl.genschu.bloomooemulator.interpreter.runtime.ExecutionContext;
 
@@ -92,6 +93,22 @@ public class Context {
         return executionContext;
     }
 
+    /**
+     * Resolves a Value by name, checking execution locals first, then variables.
+     *
+     * @param name Variable name
+     * @return Value or null if not found
+     */
+    public Value resolveValue(String name) {
+        Value local = executionContext.getLocal(name);
+        if (local != null) {
+            return local;
+        }
+
+        Variable variable = resolver.resolve(name, this);
+        return variable != null ? variable.value() : null;
+    }
+
     // ============================================================
     // Delegation to VariableStore (storage)
     // ============================================================
@@ -137,6 +154,44 @@ public class Context {
      */
     public boolean hasVariable(String name) {
         return store.has(name);
+    }
+
+    /**
+     * Checks if variable exists in this context or any parent context.
+     *
+     * @param name Variable name
+     * @return true if exists in hierarchy
+     */
+    public boolean hasVariableInHierarchy(String name) {
+        if (store.has(name)) {
+            return true;
+        }
+
+        if (parent != null) {
+            return parent.hasVariableInHierarchy(name);
+        }
+
+        return false;
+    }
+
+    /**
+     * Updates a variable in the context hierarchy.
+     *
+     * @param name Variable name
+     * @param var New variable instance
+     * @return true if variable was updated in any context
+     */
+    public boolean updateVariableInHierarchy(String name, Variable var) {
+        if (store.has(name)) {
+            store.set(name, var);
+            return true;
+        }
+
+        if (parent != null) {
+            return parent.updateVariableInHierarchy(name, var);
+        }
+
+        return false;
     }
 
     /**

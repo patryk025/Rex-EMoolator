@@ -2,6 +2,7 @@ package pl.genschu.bloomooemulator.interpreter.runtime;
 
 import pl.genschu.bloomooemulator.interpreter.errors.SourceLocation;
 import pl.genschu.bloomooemulator.interpreter.values.Value;
+import pl.genschu.bloomooemulator.interpreter.variable.Variable;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -20,7 +21,7 @@ public class ExecutionFrame {
 
     // Local variables in this frame (e.g., $1, $2 for behaviour arguments)
     private final Map<String, Value> locals;
-    private Value thisValue;
+    private Variable thisValue;
 
     public ExecutionFrame(
         String name,
@@ -74,11 +75,11 @@ public class ExecutionFrame {
         return locals.containsKey(name);
     }
 
-    public void setThis(Value value) {
+    public void setThis(Variable value) {
         this.thisValue = value;
     }
 
-    public Value getThis() {
+    public Variable getThis() {
         return thisValue;
     }
 

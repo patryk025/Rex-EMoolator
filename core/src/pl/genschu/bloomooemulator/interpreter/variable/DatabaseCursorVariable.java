@@ -55,12 +55,12 @@ public final class DatabaseCursorVariable implements Variable {
         Map<String, VariableMethod> m = new HashMap<>();
 
         m.put("SET", (self, args) -> {
-            if (args == null || args.isEmpty()) return self;
+            if (args == null || args.isEmpty()) return MethodResult.noChange(NullValue.INSTANCE);
 
             Value v = args.get(0);
 
             // TODO: implement setting from StructVariable
-            return self;
+            return MethodResult.noChange(NullValue.INSTANCE);
         });
 
         return Map.copyOf(m);

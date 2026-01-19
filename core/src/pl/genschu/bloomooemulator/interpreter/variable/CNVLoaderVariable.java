@@ -1,6 +1,7 @@
 package pl.genschu.bloomooemulator.interpreter.variable;
 
 import pl.genschu.bloomooemulator.interpreter.context.Context;
+import pl.genschu.bloomooemulator.interpreter.values.NullValue;
 import pl.genschu.bloomooemulator.interpreter.values.StringValue;
 import pl.genschu.bloomooemulator.interpreter.values.Value;
 
@@ -138,7 +139,7 @@ public record CNVLoaderVariable(
             // Check if already loaded
             if (thisVar.isLoaded(cnvFile)) {
                 // TODO: Log warning? For now, just return self
-                return thisVar;
+                return MethodResult.noChange(NullValue.INSTANCE);
             }
 
             // TODO: Implementation requires:
@@ -171,7 +172,7 @@ public record CNVLoaderVariable(
             // Check if loaded
             if (!thisVar.isLoaded(cnvFile)) {
                 // TODO: Log warning? For now, just return self
-                return thisVar;
+                return MethodResult.noChange(NullValue.INSTANCE);
             }
 
             // TODO: Implementation requires:

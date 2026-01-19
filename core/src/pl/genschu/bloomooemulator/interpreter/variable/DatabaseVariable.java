@@ -74,23 +74,23 @@ public final class DatabaseVariable implements Variable, HasCursor {
         Map<String, VariableMethod> m = new HashMap<>();
 
         m.put("GETROWSNO", (self, args) ->
-                new IntegerVariable("", state.rowsNo())
+                MethodResult.noChange(new IntValue(state.rowsNo()))
         );
 
         m.put("NEXT", (self, args) -> {
             state.next();
-            return self; // "void" => self
+            return MethodResult.noChange(NullValue.INSTANCE);
         });
 
         m.put("REMOVEALL", (self, args) -> {
             state.removeAll();
-            return self;
+            return MethodResult.noChange(NullValue.INSTANCE);
         });
 
         m.put("SELECT", (self, args) -> {
             int idx = asInt(args, 0, 0);
             state.select(idx);
-            return self;
+            return MethodResult.noChange(NullValue.INSTANCE);
         });
 
         m.put("FIND", (self, args) -> {
@@ -98,12 +98,12 @@ public final class DatabaseVariable implements Variable, HasCursor {
             String colValue = asString(args, 1, "");
             int def = asInt(args, 2, 0);
             int found = state.find(colName, colValue, def);
-            return new IntegerVariable("", found);
+            return MethodResult.noChange(new IntValue(found));
         });
 
         // TODO: IMPLEMENT LOAD/SAVE
-        m.put("LOAD", (self, args) -> self);
-        m.put("SAVE", (self, args) -> self);
+        m.put("LOAD", (self, args) -> MethodResult.noChange(NullValue.INSTANCE));
+        m.put("SAVE", (self, args) -> MethodResult.noChange(NullValue.INSTANCE));
 
         return Map.copyOf(m);
     }

@@ -80,7 +80,7 @@ public record InstanceVariable(
      * and call its RUN method.
      */
     @Override
-    public Variable callMethod(String methodName, List<Value> arguments) {
+    public MethodResult callMethod(String methodName, List<Value> arguments) {
         // Look for BEHAVIOUR variable with the method name in instance context
         Variable behaviour = instanceContext.getVariable(methodName);
 

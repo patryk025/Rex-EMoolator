@@ -3,8 +3,7 @@ package pl.genschu.bloomooemulator.interpreter.runtime;
 import pl.genschu.bloomooemulator.interpreter.errors.SourceLocation;
 import pl.genschu.bloomooemulator.interpreter.values.Value;
 
-import java.util.HashMap;
-import java.util.Map;
+import pl.genschu.bloomooemulator.interpreter.variable.Variable;
 
 /**
  * Execution context that manages the call stack and provides stack trace functionality.
@@ -12,7 +11,6 @@ import java.util.Map;
 public class ExecutionContext {
     private ExecutionFrame currentFrame;  // Current execution frame
     private int maxStackDepth = 1000;     // Maximum stack depth before overflow
-    private final Map<String, Value> globalVariables = new HashMap<>();
 
     public ExecutionContext() {
         this.currentFrame = null;
@@ -64,7 +62,7 @@ public class ExecutionContext {
     /**
      * Sets a "this" value on the current frame.
      */
-    public void setThis(Value value) {
+    public void setThis(Variable value) {
         if (currentFrame == null) {
             throw new IllegalStateException("No active execution frame");
         }
@@ -74,7 +72,7 @@ public class ExecutionContext {
     /**
      * Gets the nearest "this" value from the current frame upwards.
      */
-    public Value getThis() {
+    public Variable getThis() {
         ExecutionFrame frame = currentFrame;
         while (frame != null) {
             if (frame.hasThis()) {
@@ -106,63 +104,6 @@ public class ExecutionContext {
         while (frame != null) {
             if (frame.hasLocal(name)) {
                 return frame.getLocal(name);
-            }
-            frame = frame.getParent();
-        }
-        return null;
-    }
-
-    /**
-     * Sets a variable in the active scope. If a local exists, it is updated; otherwise
-     * the value is stored in the current frame (if present) or as a global.
-     */
-    public void setVariableValue(String name, Value value) {
-        ExecutionFrame frameWithLocal = findFrameWithLocal(name);
-        if (frameWithLocal != null) {
-            frameWithLocal.setLocal(name, value);
-        } else if (globalVariables.containsKey(name)) {
-            setGlobal(name, value);
-        } else if (currentFrame != null) {
-            currentFrame.setLocal(name, value);
-        } else {
-            setGlobal(name, value);
-        }
-    }
-
-    /**
-     * Gets a variable value from locals or globals.
-     */
-    public Value getVariableValue(String name) {
-        return getLocalOrGlobal(name);
-    }
-
-    /**
-     * Exposes the global variable map for reads.
-     */
-    public Value getGlobal(String name) {
-        return globalVariables.get(name);
-    }
-
-    /**
-     * Stores a global variable value.
-     */
-    public void setGlobal(String name, Value value) {
-        globalVariables.put(name, value);
-    }
-
-    private Value getLocalOrGlobal(String name) {
-        Value local = getLocal(name);
-        if (local != null) {
-            return local;
-        }
-        return globalVariables.get(name);
-    }
-
-    private ExecutionFrame findFrameWithLocal(String name) {
-        ExecutionFrame frame = currentFrame;
-        while (frame != null) {
-            if (frame.hasLocal(name)) {
-                return frame;
             }
             frame = frame.getParent();
         }

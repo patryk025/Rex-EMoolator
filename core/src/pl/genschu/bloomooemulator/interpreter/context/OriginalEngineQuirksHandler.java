@@ -2,7 +2,6 @@ package pl.genschu.bloomooemulator.interpreter.context;
 
 import pl.genschu.bloomooemulator.interpreter.variable.Variable;
 import pl.genschu.bloomooemulator.interpreter.variable.VariableType;
-import pl.genschu.bloomooemulator.interpreter.values.Value;
 import pl.genschu.bloomooemulator.interpreter.runtime.ExecutionContext;
 import pl.genschu.bloomooemulator.interpreter.variable.capabilities.CloneableVar;
 import pl.genschu.bloomooemulator.interpreter.variable.capabilities.HasCursor;
@@ -43,9 +42,6 @@ public class OriginalEngineQuirksHandler {
 
     /**
      * Resolves THIS from ExecutionContext.
-     *
-     * TODO: Implement proper THIS resolution from ExecutionContext.
-     * For now, returns null.
      */
     private Variable resolveThis(Context context) {
         // Get from ExecutionContext (injected!)
@@ -54,15 +50,7 @@ public class OriginalEngineQuirksHandler {
             return null;
         }
 
-        Value thisValue = exec.getThis();
-        if (thisValue == null) {
-            return null;
-        }
-
-        // TODO: Convert Value to Variable
-        // This requires bridge between Value and Variable
-        // For now, return null
-        return null;
+        return exec.getThis();
     }
 
     /**
