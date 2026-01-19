@@ -8,8 +8,6 @@ import java.util.Map;
 
 /**
  * Execution context that manages the call stack and provides stack trace functionality.
- *
- * This is the v2 execution context, completely independent from v1.
  */
 public class ExecutionContext {
     private ExecutionFrame currentFrame;  // Current execution frame

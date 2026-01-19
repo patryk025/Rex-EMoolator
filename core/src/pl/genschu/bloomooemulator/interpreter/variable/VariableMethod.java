@@ -8,8 +8,8 @@ import java.util.List;
  * Represents a method that can be called on a variable.
  *
  * Example:
- *   IntVariable.ADD(IntValue) -> IntVariable
- *   StringVariable.GET(IntValue, IntValue) -> StringVariable
+ *   IntVariable.ADD(IntValue) -> MethodResult(newVar, value)
+ *   StringVariable.GET(IntValue, IntValue) -> MethodResult(null, value)
  */
 @FunctionalInterface
 public interface VariableMethod {
@@ -18,7 +18,7 @@ public interface VariableMethod {
      *
      * @param self The variable this method is called on
      * @param arguments The arguments passed to the method
-     * @return The result (usually a new Variable)
+     * @return MethodResult containing new state and return value
      */
-    Variable execute(Variable self, List<Value> arguments);
+    MethodResult execute(Variable self, List<Value> arguments);
 }

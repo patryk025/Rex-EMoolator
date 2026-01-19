@@ -43,25 +43,31 @@ public record StringValue(String value) implements Value {
 
     /**
      * Attempts to convert this string to an integer.
-     * Returns null if the string is not a valid integer.
+     * Returns 0 if the string is not a valid integer.
      */
     public IntValue tryParseInt() {
         try {
-            return new IntValue(Integer.parseInt(value));
-        } catch (NumberFormatException e) {
-            return null;
+            String numericPrefix = value().replaceFirst("^([-+]?\\d*\\.?\\d+).*", "$1");
+            double value = Double.parseDouble(numericPrefix);
+            return new IntValue((int) value);
+        }
+        catch(NumberFormatException e) {
+            return new IntValue(0);
         }
     }
 
     /**
      * Attempts to convert this string to a double.
-     * Returns null if the string is not a valid double.
+     * Returns 0 if the string is not a valid double.
      */
     public DoubleValue tryParseDouble() {
         try {
-            return new DoubleValue(Double.parseDouble(value));
-        } catch (NumberFormatException e) {
-            return null;
+            String numericPrefix = value().replaceFirst("^([-+]?\\d*\\.?\\d+).*", "$1");
+            double value = Double.parseDouble(numericPrefix);
+            return new DoubleValue(value);
+        }
+        catch(NumberFormatException e) {
+            return new DoubleValue(0);
         }
     }
 

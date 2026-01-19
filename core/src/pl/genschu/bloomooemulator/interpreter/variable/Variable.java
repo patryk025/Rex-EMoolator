@@ -50,10 +50,11 @@ public sealed interface Variable permits
      *
      * Example:
      *   IntVariable x = new IntVariable("x", 10, ...);
-     *   Variable result = x.callMethod("ADD", List.of(new IntValue(5)));
-     *   // result is IntVariable("x", 15, ...)
+     *   MethodResult result = x.callMethod("ADD", List.of(new IntValue(5)));
+     *   // result.newSelf() is IntVariable("x", 15, ...)
+     *   // result.returnValue() is IntValue(15)
      */
-    default Variable callMethod(String methodName, List<Value> arguments) {
+    default MethodResult callMethod(String methodName, List<Value> arguments) {
         Map<String, VariableMethod> availableMethods = methods();
         VariableMethod method = availableMethods != null
                 ? availableMethods.get(methodName.toUpperCase())

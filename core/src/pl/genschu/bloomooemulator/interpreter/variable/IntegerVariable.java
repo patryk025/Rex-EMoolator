@@ -1,5 +1,6 @@
 package pl.genschu.bloomooemulator.interpreter.variable;
 
+import pl.genschu.bloomooemulator.interpreter.helpers.ArgumentHelper;
 import pl.genschu.bloomooemulator.interpreter.values.*;
 import pl.genschu.bloomooemulator.interpreter.variable.capabilities.CloneableVar;
 
@@ -88,8 +89,10 @@ public record IntegerVariable(
                 throw new IllegalArgumentException("ABS requires 1 argument");
             }
 
-            int value = toInt(args.get(0));
-            return new IntegerVariable(thisVar.name, Math.abs(value), thisVar.signals);
+            int value = ArgumentHelper.getInt(args.get(0));
+            return MethodResult.setsAndReturnsValue(
+                    new IntegerVariable(thisVar.name, Math.abs(value), thisVar.signals)
+            );
         }),
 
         Map.entry("ADD", (self, args) -> {
@@ -98,8 +101,10 @@ public record IntegerVariable(
                 throw new IllegalArgumentException("ADD requires 1 argument");
             }
 
-            int addend = toInt(args.get(0));
-            return new IntegerVariable(thisVar.name, thisVar.intValue + addend, thisVar.signals);
+            int addend = ArgumentHelper.getInt(args.get(0));
+            return MethodResult.setsAndReturnsValue(
+                    new IntegerVariable(thisVar.name, thisVar.intValue + addend, thisVar.signals)
+            );
         }),
 
         Map.entry("AND", (self, args) -> {
@@ -108,8 +113,10 @@ public record IntegerVariable(
                 throw new IllegalArgumentException("AND requires 1 argument");
             }
 
-            int value = toInt(args.get(0));
-            return new IntegerVariable(thisVar.name, thisVar.intValue & value, thisVar.signals);
+            int value = ArgumentHelper.getInt(args.get(0));
+            return MethodResult.setsAndReturnsValue(
+                    new IntegerVariable(thisVar.name, thisVar.intValue & value, thisVar.signals)
+            );
         }),
 
         Map.entry("CLAMP", (self, args) -> {
@@ -118,20 +125,26 @@ public record IntegerVariable(
                 throw new IllegalArgumentException("AND requires 2 argument");
             }
 
-            int rangeMin = toInt(args.get(0));
-            int rangeMax = toInt(args.get(1));
+            int rangeMin = ArgumentHelper.getInt(args.get(0));
+            int rangeMax = ArgumentHelper.getInt(args.get(1));
             int clampedValue = Math.max(rangeMin, Math.min(rangeMax, thisVar.intValue));
-            return new IntegerVariable(thisVar.name, clampedValue, thisVar.signals);
+            return MethodResult.setsAndReturnsValue(
+                    new IntegerVariable(thisVar.name, clampedValue, thisVar.signals)
+            );
         }),
 
         Map.entry("CLEAR", (self, args) -> {
             IntegerVariable thisVar = (IntegerVariable) self;
-            return new IntegerVariable(thisVar.name, 0, thisVar.signals);
+            return MethodResult.setsAndReturnsValue(
+                    new IntegerVariable(thisVar.name, 0, thisVar.signals)
+            );
         }),
 
         Map.entry("DEC", (self, args) -> {
             IntegerVariable thisVar = (IntegerVariable) self;
-            return new IntegerVariable(thisVar.name, thisVar.intValue - 1, thisVar.signals);
+            return MethodResult.setsAndReturnsValue(
+                    new IntegerVariable(thisVar.name, thisVar.intValue - 1, thisVar.signals)
+            );
         }),
 
         Map.entry("DIV", (self, args) -> {
@@ -140,18 +153,22 @@ public record IntegerVariable(
                 throw new IllegalArgumentException("DIV requires 1 argument");
             }
 
-            int divisor = toInt(args.get(0));
+            int divisor = ArgumentHelper.getInt(args.get(0));
             if (divisor == 0) {
-                return thisVar;  // Division by zero = no change, in original code crashes engine
+                return MethodResult.noChange(thisVar.value());  // Division by zero = no change, in original code crashes engine
             }
-            return new IntegerVariable(thisVar.name, thisVar.intValue / divisor, thisVar.signals);
+            return MethodResult.setsAndReturnsValue(
+                    new IntegerVariable(thisVar.name, thisVar.intValue / divisor, thisVar.signals)
+            );
         }),
 
-        Map.entry("GET", (self, args) -> self),
+        Map.entry("GET", (self, args) -> MethodResult.noChange(self.value())),
 
         Map.entry("INC", (self, args) -> {
             IntegerVariable thisVar = (IntegerVariable) self;
-            return new IntegerVariable(thisVar.name, thisVar.intValue + 1, thisVar.signals);
+            return MethodResult.setsAndReturnsValue(
+                    new IntegerVariable(thisVar.name, thisVar.intValue + 1, thisVar.signals)
+            );
         }),
 
         Map.entry("LENGTH", (self, args) -> {
@@ -160,10 +177,12 @@ public record IntegerVariable(
                 throw new IllegalArgumentException("LENGTH requires 2 argument");
             }
 
-            int x = toInt(args.get(0));
-            int y = toInt(args.get(1));
+            int x = ArgumentHelper.getInt(args.get(0));
+            int y = ArgumentHelper.getInt(args.get(1));
             int length = (int) Math.sqrt(x * x + y * y);
-            return new IntegerVariable(thisVar.name, length, thisVar.signals);
+            return MethodResult.setsAndReturnsValue(
+                    new IntegerVariable(thisVar.name, length, thisVar.signals)
+            );
         }),
 
         Map.entry("MOD", (self, args) -> {
@@ -172,11 +191,13 @@ public record IntegerVariable(
                 throw new IllegalArgumentException("MOD requires 1 argument");
             }
 
-            int divisor = toInt(args.get(0));
+            int divisor = ArgumentHelper.getInt(args.get(0));
             if (divisor == 0) {
-                return thisVar;
+                return MethodResult.noChange(thisVar.value());
             }
-            return new IntegerVariable(thisVar.name, thisVar.intValue % divisor, thisVar.signals);
+            return MethodResult.setsAndReturnsValue(
+                    new IntegerVariable(thisVar.name, thisVar.intValue % divisor, thisVar.signals)
+            );
         }),
 
         Map.entry("MUL", (self, args) -> {
@@ -185,13 +206,17 @@ public record IntegerVariable(
                 throw new IllegalArgumentException("MUL requires 1 argument");
             }
 
-            int multiplier = toInt(args.get(0));
-            return new IntegerVariable(thisVar.name, thisVar.intValue * multiplier, thisVar.signals);
+            int multiplier = ArgumentHelper.getInt(args.get(0));
+            return MethodResult.setsAndReturnsValue(
+                    new IntegerVariable(thisVar.name, thisVar.intValue * multiplier, thisVar.signals)
+            );
         }),
 
         Map.entry("NOT", (self, args) -> {
             IntegerVariable thisVar = (IntegerVariable) self;
-            return new IntegerVariable(thisVar.name, ~thisVar.intValue, thisVar.signals);
+            return MethodResult.setsAndReturnsValue(
+                    new IntegerVariable(thisVar.name, ~thisVar.intValue, thisVar.signals)
+            );
         }),
 
         Map.entry("OR", (self, args) -> {
@@ -200,8 +225,10 @@ public record IntegerVariable(
                 throw new IllegalArgumentException("OR requires 1 argument");
             }
 
-            int value = toInt(args.get(0));
-            return new IntegerVariable(thisVar.name, thisVar.intValue | value, thisVar.signals);
+            int value = ArgumentHelper.getInt(args.get(0));
+            return MethodResult.setsAndReturnsValue(
+                    new IntegerVariable(thisVar.name, thisVar.intValue | value, thisVar.signals)
+            );
         }),
 
         Map.entry("POWER", (self, args) -> {
@@ -210,7 +237,7 @@ public record IntegerVariable(
                 throw new IllegalArgumentException("POWER requires 1 argument");
             }
 
-            int power = toInt(args.get(0));
+            int power = ArgumentHelper.getInt(args.get(0));
             double result = Math.pow(thisVar.intValue, power);
             int value = 0;
             if (result > 0) {
@@ -218,7 +245,9 @@ public record IntegerVariable(
             } else {
                 value = (int) Math.ceil(result - 0.5);
             }
-            return new IntegerVariable(thisVar.name, value, thisVar.signals);
+            return MethodResult.setsAndReturnsValue(
+                    new IntegerVariable(thisVar.name, value, thisVar.signals)
+            );
         }),
 
         Map.entry("RANDOM", (self, args) -> {
@@ -230,15 +259,17 @@ public record IntegerVariable(
             int result = 0;
             if(args.size() == 1) {
                 Random random = new Random();
-                int bound = toInt(args.get(0));
+                int bound = ArgumentHelper.getInt(args.get(0));
                 result = random.nextInt(bound);
             } else {
-                int min = toInt(args.get(0));
-                int max = toInt(args.get(1));
+                int min = ArgumentHelper.getInt(args.get(0));
+                int max = ArgumentHelper.getInt(args.get(1));
                 Random random = new Random();
                 result = min + random.nextInt(max - min + 1);
             }
-            return new IntegerVariable(thisVar.name, result, thisVar.signals);
+            return MethodResult.setsAndReturnsValue(
+                    new IntegerVariable(thisVar.name, result, thisVar.signals)
+            );
         }),
 
         Map.entry("RESETINI", (self, args) -> {
@@ -246,7 +277,9 @@ public record IntegerVariable(
 
             // TODO: Get DEFAULT value from INI file
 
-            return new IntegerVariable(thisVar.name, thisVar.intValue(), thisVar.signals);
+            return MethodResult.setsAndReturnsValue(
+                    new IntegerVariable(thisVar.name, thisVar.intValue(), thisVar.signals)
+            );
         }),
 
         Map.entry("SET", (self, args) -> {
@@ -255,8 +288,10 @@ public record IntegerVariable(
                 throw new IllegalArgumentException("SET requires 1 argument");
             }
 
-            int newValue = toInt(args.get(0));
-            return new IntegerVariable(thisVar.name, newValue, thisVar.signals);
+            int newValue = ArgumentHelper.getInt(args.get(0));
+            return MethodResult.setsAndReturnsValue(
+                    new IntegerVariable(thisVar.name, newValue, thisVar.signals)
+            );
         }),
 
         Map.entry("SUB", (self, args) -> {
@@ -265,8 +300,10 @@ public record IntegerVariable(
                 throw new IllegalArgumentException("SUB requires 1 argument");
             }
 
-            int subtrahend = toInt(args.get(0));
-            return new IntegerVariable(thisVar.name, thisVar.intValue - subtrahend, thisVar.signals);
+            int subtrahend = ArgumentHelper.getInt(args.get(0));
+            return MethodResult.setsAndReturnsValue(
+                    new IntegerVariable(thisVar.name, thisVar.intValue - subtrahend, thisVar.signals)
+            );
         }),
 
         Map.entry("SWITCH", (self, args) -> {
@@ -275,10 +312,12 @@ public record IntegerVariable(
                 throw new IllegalArgumentException("SWITCH requires 2 argument");
             }
 
-            int valueA = toInt(args.get(0));
-            int valueB = toInt(args.get(1));
+            int valueA = ArgumentHelper.getInt(args.get(0));
+            int valueB = ArgumentHelper.getInt(args.get(1));
             int result = (thisVar.intValue == valueA) ? valueB : valueA;
-            return new IntegerVariable(thisVar.name, result, thisVar.signals);
+            return MethodResult.setsAndReturnsValue(
+                    new IntegerVariable(thisVar.name, result, thisVar.signals)
+            );
         }),
 
         Map.entry("XOR", (self, args) -> {
@@ -287,31 +326,12 @@ public record IntegerVariable(
                 throw new IllegalArgumentException("XOR requires 1 argument");
             }
 
-            int value = toInt(args.get(0));
-            return new IntegerVariable(thisVar.name, thisVar.intValue ^ value, thisVar.signals);
+            int value = ArgumentHelper.getInt(args.get(0));
+            return MethodResult.setsAndReturnsValue(
+                    new IntegerVariable(thisVar.name, thisVar.intValue ^ value, thisVar.signals)
+            );
         })
     );
-
-    // ========================================
-    // HELPER METHODS
-    // ========================================
-
-    /**
-     * Converts Value to int with type coercion.
-     * Helper for method implementations.
-     */
-    private static int toInt(Value value) {
-        return switch (value) {
-            case IntValue v -> v.value();
-            case DoubleValue v -> (int) v.value();
-            case StringValue v -> {
-                IntValue parsed = v.tryParseInt();
-                yield parsed != null ? parsed.value() : 0;
-            }
-            case BoolValue v -> v.value() ? 1 : 0;
-            default -> 0;
-        };
-    }
 
     // ========================================
     // CONVENIENT ACCESSORS

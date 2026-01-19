@@ -41,6 +41,13 @@ public record BoolValue(boolean value) implements Value {
     }
 
     /**
+     * Converts this boolean to an double (true = 1.0, false = 0.0).
+     */
+    public DoubleValue toDouble() {
+        return new DoubleValue(value ? 1.0 : 0.0);
+    }
+
+    /**
      * Converts this boolean to a string ("TRUE" or "FALSE").
      */
     public StringValue toStringValue() {
