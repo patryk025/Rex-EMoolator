@@ -6,6 +6,7 @@ package pl.genschu.bloomooemulator.interpreter.variable;
  */
 public enum VariableType {
     ANIMO,
+    APPLICATION,
     ARRAY,
     BEHAVIOUR,
     BOOLEAN,
@@ -18,6 +19,7 @@ public enum VariableType {
     DATABASE,
     DATABASE_CURSOR,
     DOUBLE,
+    EPISODE,
     EXPRESSION,
     FILTER,
     FONT,
@@ -30,6 +32,8 @@ public enum VariableType {
     MOUSE,
     MULTIARRAY,
     PATTERN,
+    RAND,
+    SCENE,
     SEQUENCE,
     SOUND,
     STATICFILTER,

@@ -45,6 +45,7 @@ public record BehaviourVariable(
 
     @Override
     public Map<String, VariableMethod> methods() {
+        // TODO: Implement RUN, RUNC and RUNLOOPED methods (connect interpreter baby)
         throw new UnsupportedOperationException("TODO: Implement");
     }
 

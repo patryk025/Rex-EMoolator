@@ -17,7 +17,17 @@ public sealed interface Variable permits
         DatabaseCursorVariable,
         ClassVariable,
         InstanceVariable,
-        CNVLoaderVariable {
+        CNVLoaderVariable,
+        TimerVariable,
+        VectorVariable,
+        RandVariable,
+        GroupVariable,
+        ExpressionVariable,
+        ConditionVariable,
+        ComplexConditionVariable,
+        ApplicationVariable,
+        EpisodeVariable,
+        SceneVariable {
 
     /**
      * Returns the name of this variable.
