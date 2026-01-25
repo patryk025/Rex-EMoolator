@@ -13,6 +13,7 @@ public class ArgumentHelper {
             case DoubleValue v -> v.toInt().value();
             case StringValue v -> v.tryParseInt().value();
             case BoolValue v -> v.toInt().value();
+            case VariableValue v -> getInt(v.variable().value());
             default -> 0;
         };
     }
@@ -27,6 +28,7 @@ public class ArgumentHelper {
             case DoubleValue v -> v.toBool().value();
             case StringValue v -> v.toBool().value();
             case BoolValue v -> v.value();
+            case VariableValue v -> getBoolean(v.variable().value());
             default -> false;
         };
     }
@@ -41,6 +43,7 @@ public class ArgumentHelper {
             case DoubleValue v -> v.value();
             case StringValue v -> v.tryParseDouble().value();
             case BoolValue v -> v.toDouble().value();
+            case VariableValue v -> getDouble(v.variable().value());
             default -> 0.0;
         };
     }
@@ -55,6 +58,7 @@ public class ArgumentHelper {
             case DoubleValue v -> v.toStringValue().value();
             case StringValue v -> v.value();
             case BoolValue v -> v.toStringValue().value();
+            case VariableValue v -> getString(v.variable().value());
             default -> "";
         };
     }

@@ -1,6 +1,9 @@
 package pl.genschu.bloomooemulator.interpreter.variable;
 
 import pl.genschu.bloomooemulator.interpreter.helpers.ArgumentHelper;
+import pl.genschu.bloomooemulator.interpreter.runtime.effects.ExitGameEffect;
+import pl.genschu.bloomooemulator.interpreter.runtime.effects.RunEnvEffect;
+import pl.genschu.bloomooemulator.interpreter.runtime.effects.RunMethodEffect;
 import pl.genschu.bloomooemulator.interpreter.values.*;
 
 import java.util.*;
@@ -66,6 +69,11 @@ public record ApplicationVariable(
     }
 
     @Override
+    public Map<String, MethodSpec> methodSpecs() {
+        return METHOD_SPECS;
+    }
+
+    @Override
     public Variable withSignal(String signalName, SignalHandler handler) {
         Map<String, SignalHandler> newSignals = new HashMap<>(signals);
         newSignals.put(signalName, handler);
@@ -85,10 +93,7 @@ public record ApplicationVariable(
     // ========================================
 
     private static final Map<String, VariableMethod> METHODS = Map.ofEntries(
-        Map.entry("EXIT", (self, args) -> {
-            // Actual exit handled by interpreter/game
-            return MethodResult.noChange(NullValue.INSTANCE);
-        }),
+        Map.entry("EXIT", (self, args) -> MethodResult.effects(List.of(new ExitGameEffect()))),
 
         Map.entry("GETLANGUAGE", (self, args) -> {
             ApplicationVariable thisVar = (ApplicationVariable) self;
@@ -96,17 +101,22 @@ public record ApplicationVariable(
         }),
 
         Map.entry("RUN", (self, args) -> {
-            // TODO: maybe send signal to interpreter to run?
-            // Requires context - handled by interpreter
-            // Arguments: varName, methodName, param1...paramN
-            return MethodResult.noChange(NullValue.INSTANCE);
+            if (args.size() < 2) {
+                throw new IllegalArgumentException("RUN requires at least 2 arguments");
+            }
+            String varName = ArgumentHelper.getString(args.get(0));
+            String methodName = ArgumentHelper.getString(args.get(1));
+            List<Value> params = args.size() > 2 ? args.subList(2, args.size()) : List.of();
+            return MethodResult.effects(List.of(new RunMethodEffect(varName, methodName, params)));
         }),
 
         Map.entry("RUNENV", (self, args) -> {
-            // TODO: maybe send signal to interpreter to run?
-            // Requires context - handled by interpreter
-            // Arguments: sceneName, behaviourName
-            return MethodResult.noChange(NullValue.INSTANCE);
+            if (args.size() < 2) {
+                throw new IllegalArgumentException("RUNENV requires 2 arguments");
+            }
+            String sceneName = ArgumentHelper.getString(args.get(0));
+            String behaviourName = ArgumentHelper.getString(args.get(1));
+            return MethodResult.effects(List.of(new RunEnvEffect(sceneName, behaviourName)));
         }),
 
         Map.entry("SETLANGUAGE", (self, args) -> {
@@ -118,6 +128,14 @@ public record ApplicationVariable(
             String newLanguage = ArgumentHelper.getString(args.get(0));
             return MethodResult.sets(thisVar.withLanguage(newLanguage));
         })
+    );
+
+    private static final Map<String, MethodSpec> METHOD_SPECS = Map.ofEntries(
+        Map.entry("EXIT", MethodSpec.of(METHODS.get("EXIT"))),
+        Map.entry("GETLANGUAGE", MethodSpec.of(METHODS.get("GETLANGUAGE"))),
+        Map.entry("RUN", MethodSpec.of(METHODS.get("RUN"), ArgKind.VALUE, ArgKind.VALUE)),
+        Map.entry("RUNENV", MethodSpec.of(METHODS.get("RUNENV"), ArgKind.VALUE, ArgKind.VALUE)),
+        Map.entry("SETLANGUAGE", MethodSpec.of(METHODS.get("SETLANGUAGE"), ArgKind.VALUE))
     );
 
     @Override

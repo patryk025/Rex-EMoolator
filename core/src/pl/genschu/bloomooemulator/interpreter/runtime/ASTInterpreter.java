@@ -6,7 +6,10 @@ import pl.genschu.bloomooemulator.interpreter.errors.InterpreterException;
 import pl.genschu.bloomooemulator.interpreter.errors.SourceLocation;
 import pl.genschu.bloomooemulator.interpreter.factories.VariableFactory;
 import pl.genschu.bloomooemulator.interpreter.values.*;
+import pl.genschu.bloomooemulator.interpreter.runtime.effects.Effect;
+import pl.genschu.bloomooemulator.interpreter.variable.ArgKind;
 import pl.genschu.bloomooemulator.interpreter.variable.MethodResult;
+import pl.genschu.bloomooemulator.interpreter.variable.MethodSpec;
 import pl.genschu.bloomooemulator.interpreter.variable.Variable;
 
 import java.util.ArrayList;
@@ -366,16 +369,42 @@ public class ASTInterpreter {
     private ExecutionResult executeMethodCall(MethodCallNode node) {
         Variable target = resolveMethodTarget(node.target(), node.location());
 
+        MethodSpec spec = resolveMethodSpec(target, node.methodName(), node.location());
+
         List<Value> arguments = new ArrayList<>(node.arguments().size());
-        for (ASTNode argNode : node.arguments()) {
+        for (int i = 0; i < node.arguments().size(); i++) {
+            ASTNode argNode = node.arguments().get(i);
+            ArgKind argKind = spec.kindAt(i);
+
+            if (argKind == ArgKind.VAR || argKind == ArgKind.VAR_REF) {
+                if (argNode instanceof VariableNode variableNode) {
+                    Variable resolved = context.getVariable(variableNode.name());
+                    if (resolved == null) {
+                        throw new InterpreterException(
+                            "Variable not found: " + variableNode.name(),
+                            exec,
+                            node.location()
+                        );
+                    }
+                    arguments.add(new VariableValue(resolved));
+                    continue;
+                }
+            }
+
             ExecutionResult argResult = execute(argNode);
             if (!argResult.shouldContinue()) return argResult;
-            arguments.add(argResult.getValue());
+            Value argValue = argResult.getValue();
+
+            if (argKind == ArgKind.VAR || argKind == ArgKind.VAR_REF) {
+                arguments.add(resolveVariableArgument(argValue, argKind, node.location()));
+            } else {
+                arguments.add(argValue);
+            }
         }
 
         MethodResult result;
         try {
-            result = target.callMethod(node.methodName(), arguments);
+            result = spec.method().execute(target, arguments);
         } catch (RuntimeException e) {
             throw new InterpreterException(
                 "Method call failed: " + node.methodName(),
@@ -396,7 +425,24 @@ public class ASTInterpreter {
             }
         }
 
-        return new NormalResult(result.getReturnValue());
+        Value returnValue = result.getReturnValue();
+        for (Effect effect : result.effects()) {
+            try {
+                Value effectValue = effect.apply(context, target, arguments);
+                if (effectValue != null) {
+                    returnValue = effectValue;
+                }
+            } catch (RuntimeException e) {
+                throw new InterpreterException(
+                    "Effect failed after method call: " + node.methodName(),
+                    exec,
+                    node.location(),
+                    e
+                );
+            }
+        }
+
+        return new NormalResult(returnValue);
     }
 
     private ExecutionResult executePointerDeref(PointerDerefNode node) {
@@ -464,5 +510,55 @@ public class ASTInterpreter {
             exec,
             location
         );
+    }
+
+    private MethodSpec resolveMethodSpec(Variable target, String methodName, SourceLocation location) {
+        MethodSpec spec = target.methodSpecs().get(methodName.toUpperCase());
+        if (spec == null || spec.method() == null) {
+            throw new InterpreterException(
+                "Method not found: " + methodName + " on " + target.type(),
+                exec,
+                location
+            );
+        }
+        return spec;
+    }
+
+    private Value resolveVariableArgument(Value argValue, ArgKind argKind, SourceLocation location) {
+        if (argValue instanceof VariableValue) {
+            return argValue;
+        }
+        if (argValue instanceof VariableRef ref) {
+            Variable resolved = context.getVariable(ref.name());
+            if (resolved == null) {
+                throw new InterpreterException(
+                    "Variable not found: " + ref.name(),
+                    exec,
+                    location
+                );
+            }
+            return new VariableValue(resolved);
+        }
+        if (argValue instanceof StringValue str) {
+            if (argKind == ArgKind.VAR_REF) {
+                Variable resolved = context.getVariable(str.value());
+                if (resolved == null) {
+                    throw new InterpreterException(
+                        "Variable not found: " + str.value(),
+                        exec,
+                        location
+                    );
+                }
+                return new VariableValue(resolved);
+            }
+        }
+        if (argKind == ArgKind.VAR) {
+            throw new InterpreterException(
+                "Expected variable reference argument",
+                exec,
+                location
+            );
+        }
+        return argValue;
     }
 }

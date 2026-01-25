@@ -14,6 +14,7 @@ public sealed interface Value permits
     BoolValue,
     NullValue,
     VariableRef,
+    VariableValue,
     BehaviourValue {
 
     /**

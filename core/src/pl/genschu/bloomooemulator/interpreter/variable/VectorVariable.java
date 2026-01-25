@@ -1,6 +1,7 @@
 package pl.genschu.bloomooemulator.interpreter.variable;
 
 import pl.genschu.bloomooemulator.interpreter.helpers.ArgumentHelper;
+import pl.genschu.bloomooemulator.interpreter.runtime.effects.UpdateVariableEffect;
 import pl.genschu.bloomooemulator.interpreter.values.*;
 
 import java.util.ArrayList;
@@ -105,7 +106,7 @@ public record VectorVariable(
 
     @Override
     public Map<String, VariableMethod> methods() {
-        return METHODS;
+        return MethodSpec.toMethodMap(METHOD_SPECS);
     }
 
     @Override
@@ -148,9 +149,134 @@ public record VectorVariable(
     // METHODS DEFINITION
     // ========================================
 
-    private static final Map<String, VariableMethod> METHODS = Map.ofEntries(
+    private static final Map<String, MethodSpec> METHOD_SPECS = Map.ofEntries(
+        Map.entry("ADD", MethodSpec.of((self, args) -> {
+            if (args.isEmpty()) {
+                throw new IllegalArgumentException("ADD requires 1 argument");
+            }
+            VectorVariable thisVar = (VectorVariable) self;
+            VectorVariable other = requireVector(args.get(0), "ADD");
 
+            List<Double> newComponents = new ArrayList<>(thisVar.components);
+            while (newComponents.size() < thisVar.size) {
+                newComponents.add(0.0);
+            }
+
+            for (int i = 0; i < thisVar.size; i++) {
+                double a = newComponents.get(i);
+                double b = i < other.components.size() ? other.components.get(i) : 0.0;
+                newComponents.set(i, a + b);
+            }
+
+            return MethodResult.sets(thisVar.withComponents(newComponents));
+        }, ArgKind.VAR_REF)),
+
+        Map.entry("ASSIGN", MethodSpec.of((self, args) -> {
+            VectorVariable thisVar = (VectorVariable) self;
+            List<Double> newComponents = new ArrayList<>(thisVar.components);
+            int targetSize = Math.max(newComponents.size(), args.size());
+            while (newComponents.size() < targetSize) {
+                newComponents.add(0.0);
+            }
+            for (int i = 0; i < args.size(); i++) {
+                newComponents.set(i, ArgumentHelper.getDouble(args.get(i)));
+            }
+            return MethodResult.sets(thisVar.withComponents(newComponents));
+        })),
+
+        Map.entry("GET", MethodSpec.of((self, args) -> {
+            if (args.isEmpty()) {
+                throw new IllegalArgumentException("GET requires 1 argument");
+            }
+            VectorVariable thisVar = (VectorVariable) self;
+            int index = ArgumentHelper.getInt(args.get(0));
+            if (index >= 0 && index < thisVar.components.size()) {
+                return MethodResult.noChange(new DoubleValue(thisVar.components.get(index)));
+            }
+            return MethodResult.noChange(new DoubleValue(0.0));
+        })),
+
+        Map.entry("MUL", MethodSpec.of((self, args) -> {
+            if (args.isEmpty()) {
+                throw new IllegalArgumentException("MUL requires 1 argument");
+            }
+            VectorVariable thisVar = (VectorVariable) self;
+            double scalar = ArgumentHelper.getDouble(args.get(0));
+            List<Double> newComponents = new ArrayList<>(thisVar.components);
+            while (newComponents.size() < thisVar.size) {
+                newComponents.add(0.0);
+            }
+            for (int i = 0; i < thisVar.size; i++) {
+                newComponents.set(i, newComponents.get(i) * scalar);
+            }
+            return MethodResult.sets(thisVar.withComponents(newComponents));
+        })),
+
+        Map.entry("NORMALIZE", MethodSpec.of((self, args) -> {
+            VectorVariable thisVar = (VectorVariable) self;
+            double length = thisVar.length();
+            if (length <= 0.0) {
+                return MethodResult.noChange(NullValue.INSTANCE);
+            }
+            List<Double> newComponents = new ArrayList<>(thisVar.components);
+            while (newComponents.size() < thisVar.size) {
+                newComponents.add(0.0);
+            }
+            for (int i = 0; i < thisVar.size; i++) {
+                newComponents.set(i, newComponents.get(i) / length);
+            }
+            return MethodResult.sets(thisVar.withComponents(newComponents));
+        })),
+
+        Map.entry("LEN", MethodSpec.of((self, args) -> {
+            VectorVariable thisVar = (VectorVariable) self;
+            return MethodResult.noChange(new DoubleValue(thisVar.length()));
+        })),
+
+        Map.entry("REFLECT", MethodSpec.of((self, args) -> {
+            if (args.size() < 2) {
+                throw new IllegalArgumentException("REFLECT requires 2 arguments");
+            }
+            VectorVariable thisVar = (VectorVariable) self;
+            VectorVariable normalVector = requireVector(args.get(0), "REFLECT");
+            VectorVariable resultVector = requireVector(args.get(1), "REFLECT");
+
+            double dotProduct = 0.0;
+            for (int i = 0; i < thisVar.size; i++) {
+                double a = i < thisVar.components.size() ? thisVar.components.get(i) : 0.0;
+                double b = i < normalVector.components.size() ? normalVector.components.get(i) : 0.0;
+                dotProduct += a * b;
+            }
+            List<Double> resultComponents = new ArrayList<>(resultVector.components);
+
+            VectorVariable newResult = new VectorVariable(
+                resultVector.name(),
+                resultVector.size,
+                resultComponents,
+                resultVector.signals()
+            );
+            for (int i = 0; i < thisVar.size; i++) {
+                double a = i < thisVar.components.size() ? thisVar.components.get(i) : 0.0;
+                double b = i < normalVector.components.size() ? normalVector.components.get(i) : 0.0;
+                if (i < resultComponents.size()) {
+                    resultComponents.set(i, 2 * dotProduct * b - a);
+                }
+            }
+            return MethodResult.effects(List.of(new UpdateVariableEffect(resultVector.name(), newResult)));
+        }, ArgKind.VAR_REF, ArgKind.VAR_REF))
     );
+
+    @Override
+    public Map<String, MethodSpec> methodSpecs() {
+        return METHOD_SPECS;
+    }
+
+    private static VectorVariable requireVector(Value value, String methodName) {
+        if (value instanceof VariableValue(Variable variable) && variable instanceof VectorVariable v) {
+            return v;
+        }
+        throw new IllegalArgumentException(methodName + " requires VECTOR argument");
+    }
 
     // ========================================
     // CONVENIENT ACCESSORS

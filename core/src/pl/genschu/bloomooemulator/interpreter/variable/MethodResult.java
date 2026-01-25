@@ -1,7 +1,10 @@
 package pl.genschu.bloomooemulator.interpreter.variable;
 
+import pl.genschu.bloomooemulator.interpreter.runtime.effects.Effect;
 import pl.genschu.bloomooemulator.interpreter.values.NullValue;
 import pl.genschu.bloomooemulator.interpreter.values.Value;
+
+import java.util.List;
 
 /**
  * Result of a method call on a Variable.
@@ -12,14 +15,20 @@ import pl.genschu.bloomooemulator.interpreter.values.Value;
  */
 public record MethodResult(
     Variable newSelf,    // null = no change to variable
-    Value returnValue    // null => NullValue.INSTANCE
+    Value returnValue,   // null => NullValue.INSTANCE
+    List<Effect> effects // side effects requested by method
 ) {
+    public MethodResult {
+        if (effects == null) {
+            effects = List.of();
+        }
+    }
     /**
      * Method doesn't change the variable, just returns a value.
      * Example: GET()
      */
     public static MethodResult noChange(Value v) {
-        return new MethodResult(null, v);
+        return new MethodResult(null, v, List.of());
     }
 
     /**
@@ -27,7 +36,7 @@ public record MethodResult(
      * Example: CLEAR()
      */
     public static MethodResult sets(Variable v) {
-        return new MethodResult(v, NullValue.INSTANCE);
+        return new MethodResult(v, NullValue.INSTANCE, List.of());
     }
 
     /**
@@ -35,7 +44,7 @@ public record MethodResult(
      * Example: ADD(5) - changes X to X+5 and returns X+5
      */
     public static MethodResult setsAndReturns(Variable v, Value ret) {
-        return new MethodResult(v, ret);
+        return new MethodResult(v, ret, List.of());
     }
 
     /**
@@ -43,7 +52,14 @@ public record MethodResult(
      * Most common case for arithmetic operations.
      */
     public static MethodResult setsAndReturnsValue(Variable v) {
-        return new MethodResult(v, v.value());
+        return new MethodResult(v, v.value(), List.of());
+    }
+
+    /**
+     * Method doesn't change the variable, just requests side effects.
+     */
+    public static MethodResult effects(List<Effect> effects) {
+        return new MethodResult(null, NullValue.INSTANCE, effects);
     }
 
     /**

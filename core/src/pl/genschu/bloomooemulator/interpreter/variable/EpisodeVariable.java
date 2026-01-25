@@ -1,6 +1,10 @@
 package pl.genschu.bloomooemulator.interpreter.variable;
 
 import pl.genschu.bloomooemulator.interpreter.helpers.ArgumentHelper;
+import pl.genschu.bloomooemulator.interpreter.runtime.effects.BackSceneEffect;
+import pl.genschu.bloomooemulator.interpreter.runtime.effects.GetCurrentSceneEffect;
+import pl.genschu.bloomooemulator.interpreter.runtime.effects.GetPreviousSceneEffect;
+import pl.genschu.bloomooemulator.interpreter.runtime.effects.GotoSceneEffect;
 import pl.genschu.bloomooemulator.interpreter.values.*;
 
 import java.util.*;
@@ -76,29 +80,23 @@ public record EpisodeVariable(
 
     private static final Map<String, VariableMethod> METHODS = Map.ofEntries(
         Map.entry("BACK", (self, args) -> {
-            // Go to previous scene - handled by interpreter/game
-            return MethodResult.noChange(NullValue.INSTANCE);
+            return MethodResult.effects(List.of(new BackSceneEffect()));
         }),
 
         Map.entry("GETCURRENTSCENE", (self, args) -> {
-            // Requires game context - handled by interpreter
-            // Returns placeholder - interpreter should override
-            return MethodResult.noChange(new StringValue(""));
+            return new MethodResult(null, NullValue.INSTANCE, List.of(new GetCurrentSceneEffect()));
         }),
 
         Map.entry("GETLATESTSCENE", (self, args) -> {
-            // Requires game context - handled by interpreter
-            // Returns placeholder - interpreter should override
-            return MethodResult.noChange(new StringValue(""));
+            return new MethodResult(null, NullValue.INSTANCE, List.of(new GetPreviousSceneEffect()));
         }),
 
         Map.entry("GOTO", (self, args) -> {
-            // Go to specified scene - handled by interpreter/game
             if (args.isEmpty()) {
                 throw new IllegalArgumentException("GOTO requires 1 argument");
             }
-            // The actual navigation is handled by interpreter
-            return MethodResult.noChange(NullValue.INSTANCE);
+            String sceneName = ArgumentHelper.getString(args.get(0));
+            return MethodResult.effects(List.of(new GotoSceneEffect(sceneName)));
         })
     );
 

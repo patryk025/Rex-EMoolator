@@ -11,6 +11,7 @@ public enum ValueType {
     BOOL,
     NULL,
     VARIABLE_REF,
+    VARIABLE,
     BEHAVIOUR;
 
     /**

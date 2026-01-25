@@ -120,6 +120,6 @@ public record RandVariable(
 
     @Override
     public String toString() {
-        return "RandVariable[" + name + ", seed=" + seed + "]";
+        return "RandVariable[" + name + "]";
     }
 }

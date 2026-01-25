@@ -65,22 +65,38 @@ public sealed interface Variable permits
      *   // result.returnValue() is IntValue(15)
      */
     default MethodResult callMethod(String methodName, List<Value> arguments) {
-        Map<String, VariableMethod> availableMethods = methods();
-        VariableMethod method = availableMethods != null
+        Map<String, MethodSpec> availableMethods = methodSpecs();
+        MethodSpec spec = availableMethods != null
                 ? availableMethods.get(methodName.toUpperCase())
                 : null;
 
-        if (method == null) {
+        if (spec == null || spec.method() == null) {
             throw new IllegalArgumentException("Method not found: " + methodName + " on " + type() + " variable");
         }
 
-        return method.execute(this, arguments == null ? List.of() : arguments);
+        return spec.method().execute(this, arguments == null ? List.of() : arguments);
     }
 
     /**
      * Returns available methods for this variable type.
      */
     Map<String, VariableMethod> methods();
+
+    /**
+     * Returns available method specs with argument kinds.
+     */
+    default Map<String, MethodSpec> methodSpecs() {
+        Map<String, VariableMethod> availableMethods = methods();
+        if (availableMethods == null || availableMethods.isEmpty()) {
+            return Map.of();
+        }
+
+        Map<String, MethodSpec> specs = new java.util.HashMap<>();
+        for (Map.Entry<String, VariableMethod> entry : availableMethods.entrySet()) {
+            specs.put(entry.getKey(), MethodSpec.of(entry.getValue()));
+        }
+        return Map.copyOf(specs);
+    }
 
     /**
      * Returns signal handlers attached to this variable.
