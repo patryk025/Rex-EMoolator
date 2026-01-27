@@ -3,8 +3,6 @@ package pl.genschu.bloomooemulator.interpreter.variable;
 import pl.genschu.bloomooemulator.annotations.InternalMutable;
 import pl.genschu.bloomooemulator.interpreter.helpers.ArgumentHelper;
 import pl.genschu.bloomooemulator.interpreter.values.*;
-import pl.genschu.bloomooemulator.interpreter.variable.capabilities.CloneableVar;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -18,7 +16,7 @@ public record ArrayVariable(
     //@InternalMutable (testing performance impact of copy-on-write)
     List<Value> elements,
     Map<String, SignalHandler> signals
-) implements Variable, CloneableVar {
+) implements Variable {
 
     public ArrayVariable {
         if (name == null || name.isEmpty()) {
@@ -398,13 +396,4 @@ public record ArrayVariable(
         return "ArrayVariable[" + name + ", size=" + elements.size() + "]";
     }
 
-    @Override
-    public List<Variable> getClones() {
-        return List.of();
-    }
-
-    @Override
-    public Variable withAddedClone(Variable clone) {
-        return null;
-    }
 }

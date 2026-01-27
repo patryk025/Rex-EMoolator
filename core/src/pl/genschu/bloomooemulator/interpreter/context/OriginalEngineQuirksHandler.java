@@ -3,7 +3,6 @@ package pl.genschu.bloomooemulator.interpreter.context;
 import pl.genschu.bloomooemulator.interpreter.variable.Variable;
 import pl.genschu.bloomooemulator.interpreter.variable.VariableType;
 import pl.genschu.bloomooemulator.interpreter.runtime.ExecutionContext;
-import pl.genschu.bloomooemulator.interpreter.variable.capabilities.CloneableVar;
 import pl.genschu.bloomooemulator.interpreter.variable.capabilities.HasCursor;
 
 /**
@@ -71,7 +70,7 @@ public class OriginalEngineQuirksHandler {
     }
 
     /**
-     * Resolves clone using CloneableVar capability.
+     * Resolves clone using the context clone registry.
      *
      * Logic (from v1):
      * - SPRITE_0: First check if "SPRITE_0" exists as variable.
@@ -114,16 +113,9 @@ public class OriginalEngineQuirksHandler {
             return baseVar;
         } else {
             // _1+: Find in clones list (using capability)
-            Variable baseVar = context.store().get(baseName);
-            if (baseVar == null) {
-                return null;
-            }
-
-            if (baseVar instanceof CloneableVar cv) {
-                for (Variable clone : cv.getClones()) {
-                    if (clone.name().equals(name)) {
-                        return clone;
-                    }
+            for (String cloneName : context.clones().getCloneNames(baseName)) {
+                if (cloneName.equals(name)) {
+                    return context.getVariable(cloneName);
                 }
             }
 

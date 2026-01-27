@@ -15,6 +15,7 @@ public class Context {
     private final VariableStore store;
     private final VariableResolver resolver;
     private final AttributeStore attributes;
+    private final CloneRegistry clones;
 
     private Context parent;
     private final List<Context> additionalContexts = new ArrayList<>();
@@ -78,6 +79,7 @@ public class Context {
         this.store = new VariableStore();
         this.resolver = resolver;
         this.attributes = new AttributeStore();
+        this.clones = new CloneRegistry();
         this.parent = parent;
         this.game = game;
     }
@@ -422,6 +424,13 @@ public class Context {
     }
 
     /**
+     * Returns clone registry for this context.
+     */
+    public CloneRegistry clones() {
+        return clones;
+    }
+
+    /**
      * Sets an attribute for a variable.
      *
      * @param varName Variable name
@@ -453,6 +462,7 @@ public class Context {
     public void clear() {
         store.clear();
         attributes.clear();
+        clones.clear();
     }
 
     @Override
