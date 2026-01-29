@@ -5,12 +5,9 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import pl.genschu.bloomooemulator.TestEnvironment;
-import pl.genschu.bloomooemulator.builders.ContextBuilder;
 import pl.genschu.bloomooemulator.interpreter.ast.ArithmeticNode;
-import pl.genschu.bloomooemulator.interpreter.context.Context;
 import pl.genschu.bloomooemulator.interpreter.helpers.ArgumentHelper;
 import pl.genschu.bloomooemulator.interpreter.ops.ValueOps;
-import pl.genschu.bloomooemulator.interpreter.v1.arithmetic.ArithmeticSolver;
 import pl.genschu.bloomooemulator.interpreter.values.*;
 import pl.genschu.bloomooemulator.interpreter.variable.Variable;
 import pl.genschu.bloomooemulator.interpreter.v1.variable.types.*;
@@ -169,36 +166,22 @@ public class ArithmeticTest {
 
     private Value createVariable(String type, Object value) {
         try {
-            switch (type) {
-                case "S":
-                    return new StringValue((String) value);
-                case "I":
-                    return new IntValue((Integer) value);
-                case "D":
-                    return new DoubleValue((Double) value);
-                case "B":
-                    return new BoolValue((Boolean) value);
-                default:
-                    throw new IllegalArgumentException("Unknown type: " + type);
-            }
-        } catch (ClassCastException e) {
-            String expectedType;
-            switch (type) {
-                case "S":
-                    expectedType = "String";
-                    break;
-                case "I":
-                    expectedType = "Integer";
-                    break;
-                case "D":
-                    expectedType = "Double";
-                    break;
-                case "B":
-                    expectedType = "Boolean";
-                    break;
-                default:
-                    expectedType = type;
+            return switch (type) {
+                case "S" -> new StringValue((String) value);
+                case "I" -> new IntValue((Integer) value);
+                case "D" -> new DoubleValue((Double) value);
+                case "B" -> new BoolValue((Boolean) value);
+                default -> throw new IllegalArgumentException("Unknown type: " + type);
             };
+        } catch (ClassCastException e) {
+            String expectedType = switch (type) {
+                case "S" -> "String";
+                case "I" -> "Integer";
+                case "D" -> "Double";
+                case "B" -> "Boolean";
+                default -> type;
+            };
+            ;
             throw new IllegalArgumentException("Value " + value + " of type " + value.getClass().getName() + " does not match type " + expectedType, e);
         }
     }
@@ -317,10 +300,5 @@ public class ArithmeticTest {
                 }
             }
         }
-    }
-
-    @FunctionalInterface
-    interface ArithmeticOperation {
-        Variable apply(Variable a, Variable b);
     }
 }
