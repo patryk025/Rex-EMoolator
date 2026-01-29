@@ -66,8 +66,8 @@ public record ArrayVariable(
     }
 
     @Override
-    public Map<String, VariableMethod> methods() {
-        return METHODS;
+    public Map<String, MethodSpec> methods() {
+        return METHODS_SPECS;
     }
 
     @Override
@@ -89,8 +89,8 @@ public record ArrayVariable(
     // METHODS DEFINITION
     // ========================================
 
-    private static final Map<String, VariableMethod> METHODS = Map.ofEntries(
-        Map.entry("ADD", (self, args) -> {
+    private static final Map<String, MethodSpec> METHODS_SPECS = Map.ofEntries(
+        Map.entry("ADD", MethodSpec.of((self, args) -> {
             ArrayVariable thisVar = (ArrayVariable) self;
             if (args.isEmpty()) {
                 throw new IllegalArgumentException("ADD requires at least 1 argument");
@@ -99,9 +99,9 @@ public record ArrayVariable(
             List<Value> newElements = new ArrayList<>(thisVar.elements);
             newElements.addAll(args);
             return MethodResult.sets(thisVar.withElements(newElements));
-        }),
+        })),
 
-        Map.entry("ADDAT", (self, args) -> {
+        Map.entry("ADDAT", MethodSpec.of((self, args) -> {
             ArrayVariable thisVar = (ArrayVariable) self;
             if (args.size() < 2) {
                 throw new IllegalArgumentException("ADDAT requires 2 arguments");
@@ -118,9 +118,9 @@ public record ArrayVariable(
             List<Value> newElements = new ArrayList<>(thisVar.elements);
             newElements.set(index, new DoubleValue(current + addend));
             return MethodResult.sets(thisVar.withElements(newElements));
-        }),
+        })),
 
-        Map.entry("CHANGEAT", (self, args) -> {
+        Map.entry("CHANGEAT", MethodSpec.of((self, args) -> {
             ArrayVariable thisVar = (ArrayVariable) self;
             if (args.size() < 2) {
                 throw new IllegalArgumentException("CHANGEAT requires 2 arguments");
@@ -136,9 +136,9 @@ public record ArrayVariable(
             List<Value> newElements = new ArrayList<>(thisVar.elements);
             newElements.set(index, newValue);
             return MethodResult.sets(thisVar.withElements(newElements));
-        }),
+        })),
 
-        Map.entry("CLAMPAT", (self, args) -> {
+        Map.entry("CLAMPAT", MethodSpec.of((self, args) -> {
             ArrayVariable thisVar = (ArrayVariable) self;
             if (args.size() < 3) {
                 throw new IllegalArgumentException("CLAMPAT requires 3 arguments");
@@ -175,9 +175,9 @@ public record ArrayVariable(
                     return MethodResult.noChange(NullValue.INSTANCE);
                 }
             }
-        }),
+        })),
 
-        Map.entry("CONTAINS", (self, args) -> {
+        Map.entry("CONTAINS", MethodSpec.of((self, args) -> {
             ArrayVariable thisVar = (ArrayVariable) self;
             if (args.isEmpty()) {
                 throw new IllegalArgumentException("CONTAINS requires 1 argument");
@@ -190,11 +190,11 @@ public record ArrayVariable(
                 }
             }
             return MethodResult.noChange(BoolValue.FALSE);
-        }),
+        })),
 
         // TODO: implement COPYTO (needs context?)
 
-        Map.entry("FIND", (self, args) -> {
+        Map.entry("FIND", MethodSpec.of((self, args) -> {
             ArrayVariable thisVar = (ArrayVariable) self;
             if (args.isEmpty()) {
                 throw new IllegalArgumentException("FIND requires 1 argument");
@@ -207,9 +207,9 @@ public record ArrayVariable(
                 }
             }
             return MethodResult.noChange(new IntValue(-1));
-        }),
+        })),
 
-        Map.entry("GET", (self, args) -> {
+        Map.entry("GET", MethodSpec.of((self, args) -> {
             ArrayVariable thisVar = (ArrayVariable) self;
             if (args.isEmpty()) {
                 throw new IllegalArgumentException("GET requires at least 1 argument");
@@ -220,23 +220,23 @@ public record ArrayVariable(
                 return MethodResult.noChange(NullValue.INSTANCE);
             }
             return MethodResult.noChange(thisVar.elements.get(index));
-        }),
+        })),
 
-        Map.entry("GETSIZE", (self, args) -> {
+        Map.entry("GETSIZE", MethodSpec.of((self, args) -> {
             ArrayVariable thisVar = (ArrayVariable) self;
             return MethodResult.noChange(new IntValue(thisVar.elements.size()));
-        }),
+        })),
 
-        Map.entry("GETSUMVALUE", (self, args) -> {
+        Map.entry("GETSUMVALUE", MethodSpec.of((self, args) -> {
             ArrayVariable thisVar = (ArrayVariable) self;
             double sum = 0.0;
             for (Value element : thisVar.elements) {
                 sum += ArgumentHelper.getDouble(element);
             }
             return MethodResult.noChange(new DoubleValue(sum));
-        }),
+        })),
 
-        Map.entry("INSERTAT", (self, args) -> {
+        Map.entry("INSERTAT", MethodSpec.of((self, args) -> {
             ArrayVariable thisVar = (ArrayVariable) self;
             if (args.size() < 2) {
                 throw new IllegalArgumentException("INSERTAT requires 2 arguments");
@@ -252,11 +252,11 @@ public record ArrayVariable(
             List<Value> newElements = new ArrayList<>(thisVar.elements);
             newElements.add(index, value);
             return MethodResult.sets(thisVar.withElements(newElements));
-        }),
+        })),
 
         // TODO: implement LOAD and LOADINI
 
-        Map.entry("MODAT", (self, args) -> {
+        Map.entry("MODAT", MethodSpec.of((self, args) -> {
             ArrayVariable thisVar = (ArrayVariable) self;
             if (args.size() < 2) {
                 throw new IllegalArgumentException("MODAT requires 2 arguments");
@@ -277,9 +277,9 @@ public record ArrayVariable(
             List<Value> newElements = new ArrayList<>(thisVar.elements);
             newElements.set(index, new DoubleValue(current % divisor));
             return MethodResult.sets(thisVar.withElements(newElements));
-        }),
+        })),
 
-        Map.entry("MULAT", (self, args) -> {
+        Map.entry("MULAT", MethodSpec.of((self, args) -> {
             ArrayVariable thisVar = (ArrayVariable) self;
             if (args.size() < 2) {
                 throw new IllegalArgumentException("MULAT requires 2 arguments");
@@ -296,14 +296,14 @@ public record ArrayVariable(
             List<Value> newElements = new ArrayList<>(thisVar.elements);
             newElements.set(index, new DoubleValue(current * multiplier));
             return MethodResult.sets(thisVar.withElements(newElements));
-        }),
+        })),
 
-        Map.entry("REMOVEALL", (self, args) -> {
+        Map.entry("REMOVEALL", MethodSpec.of((self, args) -> {
             ArrayVariable thisVar = (ArrayVariable) self;
             return MethodResult.sets(thisVar.withElements(List.of()));
-        }),
+        })),
 
-        Map.entry("REMOVEAT", (self, args) -> {
+        Map.entry("REMOVEAT", MethodSpec.of((self, args) -> {
             ArrayVariable thisVar = (ArrayVariable) self;
             if (args.isEmpty()) {
                 throw new IllegalArgumentException("REMOVEAT requires 1 argument");
@@ -317,9 +317,9 @@ public record ArrayVariable(
             List<Value> newElements = new ArrayList<>(thisVar.elements);
             newElements.remove(index);
             return MethodResult.sets(thisVar.withElements(newElements));
-        }),
+        })),
 
-        Map.entry("REVERSEFIND", (self, args) -> {
+        Map.entry("REVERSEFIND", MethodSpec.of((self, args) -> {
             ArrayVariable thisVar = (ArrayVariable) self;
             if (args.isEmpty()) {
                 throw new IllegalArgumentException("REVERSEFIND requires 1 argument");
@@ -332,11 +332,11 @@ public record ArrayVariable(
                 }
             }
             return MethodResult.noChange(new IntValue(-1));
-        }),
+        })),
 
         // TODO: implement SAVE and SAVEINI
 
-        Map.entry("SUB", (self, args) -> {
+        Map.entry("SUB", MethodSpec.of((self, args) -> {
             ArrayVariable thisVar = (ArrayVariable) self;
             if (args.isEmpty()) {
                 throw new IllegalArgumentException("SUB requires 1 argument");
@@ -349,9 +349,9 @@ public record ArrayVariable(
                 newElements.add(new DoubleValue(result));
             }
             return MethodResult.sets(thisVar.withElements(newElements));
-        }),
+        })),
 
-        Map.entry("SUBAT", (self, args) -> {
+        Map.entry("SUBAT", MethodSpec.of((self, args) -> {
             ArrayVariable thisVar = (ArrayVariable) self;
             if (args.size() < 2) {
                 throw new IllegalArgumentException("SUBAT requires 2 arguments");
@@ -368,9 +368,9 @@ public record ArrayVariable(
             List<Value> newElements = new ArrayList<>(thisVar.elements);
             newElements.set(index, new DoubleValue(current - subtrahend));
             return MethodResult.sets(thisVar.withElements(newElements));
-        }),
+        })),
 
-        Map.entry("SUM", (self, args) -> {
+        Map.entry("SUM", MethodSpec.of((self, args) -> {
             ArrayVariable thisVar = (ArrayVariable) self;
             if (args.isEmpty()) {
                 throw new IllegalArgumentException("SUM requires 1 argument");
@@ -383,7 +383,7 @@ public record ArrayVariable(
                 newElements.add(new DoubleValue(result));
             }
             return MethodResult.sets(thisVar.withElements(newElements));
-        })
+        }))
     );
 
     // ========================================

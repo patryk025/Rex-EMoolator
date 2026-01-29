@@ -2,6 +2,7 @@ package pl.genschu.bloomooemulator.interpreter.variable;
 
 import pl.genschu.bloomooemulator.interpreter.helpers.ArgumentHelper;
 import pl.genschu.bloomooemulator.interpreter.values.*;
+import pl.genschu.bloomooemulator.utils.LegacyArgumentsHelper;
 
 import java.util.*;
 
@@ -55,7 +56,7 @@ public record RandVariable(
     }
 
     @Override
-    public Map<String, VariableMethod> methods() {
+    public Map<String, MethodSpec> methods() {
         return METHODS;
     }
 
@@ -91,8 +92,8 @@ public record RandVariable(
     // METHODS DEFINITION
     // ========================================
 
-    private static final Map<String, VariableMethod> METHODS = Map.ofEntries(
-        Map.entry("GET", (self, args) -> {
+    private static final Map<String, MethodSpec> METHODS = Map.ofEntries(
+        Map.entry("GET", MethodSpec.of((self, args) -> {
             if (args.isEmpty()) {
                 throw new IllegalArgumentException("GET requires at least 1 argument");
             }
@@ -108,10 +109,7 @@ public record RandVariable(
 
             int result = getRandom(offset, range);
             return MethodResult.noChange(new IntValue(result));
-        })
-
-        // NOTE: GETPLENTY requires context to access target ArrayVariable
-        // and should be handled at a higher level
+        }))
     );
 
     // ========================================

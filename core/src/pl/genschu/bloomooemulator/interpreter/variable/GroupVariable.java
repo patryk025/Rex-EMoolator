@@ -61,7 +61,7 @@ public record GroupVariable(
     }
 
     @Override
-    public Map<String, VariableMethod> methods() {
+    public Map<String, MethodSpec> methods() {
         return METHODS;
     }
 
@@ -90,8 +90,8 @@ public record GroupVariable(
     // METHODS DEFINITION
     // ========================================
 
-    private static final Map<String, VariableMethod> METHODS = Map.ofEntries(
-        Map.entry("ADD", (self, args) -> {
+    private static final Map<String, MethodSpec> METHODS = Map.ofEntries(
+        Map.entry("ADD", MethodSpec.of((self, args) -> {
             GroupVariable thisVar = (GroupVariable) self;
             if (args.isEmpty()) {
                 throw new IllegalArgumentException("ADD requires at least 1 argument");
@@ -105,17 +105,17 @@ public record GroupVariable(
                 }
             }
             return MethodResult.sets(thisVar.withVariableNames(newNames));
-        }),
+        })),
 
         // NOTE: ADDCLONES requires context access to resolve variable clones
         // and should be handled at a higher level
 
-        Map.entry("GETSIZE", (self, args) -> {
+        Map.entry("GETSIZE", MethodSpec.of((self, args) -> {
             GroupVariable thisVar = (GroupVariable) self;
             return MethodResult.noChange(new IntValue(thisVar.variableNames.size()));
-        }),
+        })),
 
-        Map.entry("NEXT", (self, args) -> {
+        Map.entry("NEXT", MethodSpec.of((self, args) -> {
             GroupVariable thisVar = (GroupVariable) self;
             if (thisVar.variableNames.isEmpty()) {
                 return MethodResult.noChange(NullValue.INSTANCE);
@@ -127,9 +127,9 @@ public record GroupVariable(
                     thisVar.withMarker(newMarker),
                     new StringValue(varName)
             );
-        }),
+        })),
 
-        Map.entry("PREV", (self, args) -> {
+        Map.entry("PREV", MethodSpec.of((self, args) -> {
             GroupVariable thisVar = (GroupVariable) self;
             if (thisVar.variableNames.isEmpty()) {
                 return MethodResult.noChange(NullValue.INSTANCE);
@@ -141,9 +141,9 @@ public record GroupVariable(
                     thisVar.withMarker(newMarker),
                     new StringValue(varName)
             );
-        }),
+        })),
 
-        Map.entry("REMOVE", (self, args) -> {
+        Map.entry("REMOVE", MethodSpec.of((self, args) -> {
             GroupVariable thisVar = (GroupVariable) self;
             if (args.isEmpty()) {
                 throw new IllegalArgumentException("REMOVE requires 1 argument");
@@ -153,18 +153,18 @@ public record GroupVariable(
             List<String> newNames = new ArrayList<>(thisVar.variableNames);
             newNames.remove(varName);
             return MethodResult.sets(thisVar.withVariableNames(newNames));
-        }),
+        })),
 
-        Map.entry("REMOVEALL", (self, args) -> {
+        Map.entry("REMOVEALL", MethodSpec.of((self, args) -> {
             GroupVariable thisVar = (GroupVariable) self;
             return MethodResult.sets(new GroupVariable(thisVar.name, List.of(), -1, thisVar.signals));
-        }),
+        })),
 
-        Map.entry("RESETMARKER", (self, args) -> {
+        Map.entry("RESETMARKER", MethodSpec.of((self, args) -> {
             GroupVariable thisVar = (GroupVariable) self;
             int newMarker = thisVar.variableNames.isEmpty() ? -1 : 0;
             return MethodResult.sets(thisVar.withMarker(newMarker));
-        })
+        }))
     );
 
     // ========================================

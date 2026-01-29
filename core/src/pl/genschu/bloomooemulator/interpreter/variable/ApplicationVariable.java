@@ -64,13 +64,8 @@ public record ApplicationVariable(
     }
 
     @Override
-    public Map<String, VariableMethod> methods() {
+    public Map<String, MethodSpec> methods() {
         return METHODS;
-    }
-
-    @Override
-    public Map<String, MethodSpec> methodSpecs() {
-        return METHOD_SPECS;
     }
 
     @Override
@@ -92,15 +87,15 @@ public record ApplicationVariable(
     // METHODS DEFINITION
     // ========================================
 
-    private static final Map<String, VariableMethod> METHODS = Map.ofEntries(
-        Map.entry("EXIT", (self, args) -> MethodResult.effects(List.of(new ExitGameEffect()))),
+    private static final Map<String, MethodSpec> METHODS = Map.ofEntries(
+        Map.entry("EXIT", MethodSpec.of((self, args) -> MethodResult.effects(List.of(new ExitGameEffect())))),
 
-        Map.entry("GETLANGUAGE", (self, args) -> {
+        Map.entry("GETLANGUAGE", MethodSpec.of((self, args) -> {
             ApplicationVariable thisVar = (ApplicationVariable) self;
             return MethodResult.noChange(new StringValue(thisVar.language));
-        }),
+        })),
 
-        Map.entry("RUN", (self, args) -> {
+        Map.entry("RUN", MethodSpec.of((self, args) -> {
             if (args.size() < 2) {
                 throw new IllegalArgumentException("RUN requires at least 2 arguments");
             }
@@ -108,18 +103,18 @@ public record ApplicationVariable(
             String methodName = ArgumentHelper.getString(args.get(1));
             List<Value> params = args.size() > 2 ? args.subList(2, args.size()) : List.of();
             return MethodResult.effects(List.of(new RunMethodEffect(varName, methodName, params)));
-        }),
+        })),
 
-        Map.entry("RUNENV", (self, args) -> {
+        Map.entry("RUNENV", MethodSpec.of((self, args) -> {
             if (args.size() < 2) {
                 throw new IllegalArgumentException("RUNENV requires 2 arguments");
             }
             String sceneName = ArgumentHelper.getString(args.get(0));
             String behaviourName = ArgumentHelper.getString(args.get(1));
             return MethodResult.effects(List.of(new RunEnvEffect(sceneName, behaviourName)));
-        }),
+        })),
 
-        Map.entry("SETLANGUAGE", (self, args) -> {
+        Map.entry("SETLANGUAGE", MethodSpec.of((self, args) -> {
             ApplicationVariable thisVar = (ApplicationVariable) self;
             if (args.isEmpty()) {
                 throw new IllegalArgumentException("SETLANGUAGE requires 1 argument");
@@ -127,15 +122,7 @@ public record ApplicationVariable(
 
             String newLanguage = ArgumentHelper.getString(args.get(0));
             return MethodResult.sets(thisVar.withLanguage(newLanguage));
-        })
-    );
-
-    private static final Map<String, MethodSpec> METHOD_SPECS = Map.ofEntries(
-        Map.entry("EXIT", MethodSpec.of(METHODS.get("EXIT"))),
-        Map.entry("GETLANGUAGE", MethodSpec.of(METHODS.get("GETLANGUAGE"))),
-        Map.entry("RUN", MethodSpec.of(METHODS.get("RUN"), ArgKind.VALUE, ArgKind.VALUE)),
-        Map.entry("RUNENV", MethodSpec.of(METHODS.get("RUNENV"), ArgKind.VALUE, ArgKind.VALUE)),
-        Map.entry("SETLANGUAGE", MethodSpec.of(METHODS.get("SETLANGUAGE"), ArgKind.VALUE))
+        }))
     );
 
     @Override

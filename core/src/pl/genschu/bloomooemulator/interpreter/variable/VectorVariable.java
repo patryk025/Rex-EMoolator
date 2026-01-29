@@ -105,8 +105,8 @@ public record VectorVariable(
     }
 
     @Override
-    public Map<String, VariableMethod> methods() {
-        return MethodSpec.toMethodMap(METHOD_SPECS);
+    public Map<String, MethodSpec> methods() {
+        return METHOD;
     }
 
     @Override
@@ -149,7 +149,7 @@ public record VectorVariable(
     // METHODS DEFINITION
     // ========================================
 
-    private static final Map<String, MethodSpec> METHOD_SPECS = Map.ofEntries(
+    private static final Map<String, MethodSpec> METHOD = Map.ofEntries(
         Map.entry("ADD", MethodSpec.of((self, args) -> {
             if (args.isEmpty()) {
                 throw new IllegalArgumentException("ADD requires 1 argument");
@@ -265,11 +265,6 @@ public record VectorVariable(
             return MethodResult.effects(List.of(new UpdateVariableEffect(resultVector.name(), newResult)));
         }, ArgKind.VAR_REF, ArgKind.VAR_REF))
     );
-
-    @Override
-    public Map<String, MethodSpec> methodSpecs() {
-        return METHOD_SPECS;
-    }
 
     private static VectorVariable requireVector(Value value, String methodName) {
         if (value instanceof VariableValue(Variable variable) && variable instanceof VectorVariable v) {

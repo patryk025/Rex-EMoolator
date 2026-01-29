@@ -37,7 +37,7 @@ public final class RunEnvEffect implements Effect {
             return null;
         }
 
-        MethodSpec spec = behaviour.methodSpecs().get("RUN");
+        MethodSpec spec = behaviour.methods().get("RUN");
         if (spec == null || spec.method() == null) {
             return null;
         }

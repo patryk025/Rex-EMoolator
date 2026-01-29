@@ -60,7 +60,7 @@ public record InstanceVariable(
     }
 
     @Override
-    public Map<String, VariableMethod> methods() {
+    public Map<String, MethodSpec> methods() {
         // Instance methods are dynamically resolved from the instance context
         // Return empty map - method calls are handled by callMethod() override
         return Map.of();

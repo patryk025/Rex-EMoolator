@@ -1,7 +1,10 @@
 package pl.genschu.bloomooemulator.interpreter.variable;
 
 import pl.genschu.bloomooemulator.interpreter.helpers.ArgumentHelper;
+import pl.genschu.bloomooemulator.interpreter.runtime.effects.RunMethodEffect;
 import pl.genschu.bloomooemulator.interpreter.values.*;
+import pl.genschu.bloomooemulator.interpreter.variable.ArgKind;
+import pl.genschu.bloomooemulator.interpreter.variable.MethodSpec;
 
 import java.util.*;
 
@@ -58,7 +61,7 @@ public record SceneVariable(
     }
 
     @Override
-    public Map<String, VariableMethod> methods() {
+    public Map<String, MethodSpec> methods() {
         return METHODS;
     }
 
@@ -93,53 +96,58 @@ public record SceneVariable(
     // METHODS DEFINITION
     // ========================================
 
-    private static final Map<String, VariableMethod> METHODS = Map.ofEntries(
-        Map.entry("GETMINHSPRIORITY", (self, args) -> {
+    private static final Map<String, MethodSpec> METHODS = Map.ofEntries(
+        Map.entry("GETMINHSPRIORITY", MethodSpec.of((self, args) -> {
             SceneVariable thisVar = (SceneVariable) self;
             return MethodResult.noChange(new IntValue(thisVar.minHotSpotZ));
-        }),
+        })),
 
-        Map.entry("GETMAXHSPRIORITY", (self, args) -> {
+        Map.entry("GETMAXHSPRIORITY", MethodSpec.of((self, args) -> {
             SceneVariable thisVar = (SceneVariable) self;
             return MethodResult.noChange(new IntValue(thisVar.maxHotSpotZ));
-        }),
+        })),
 
-        Map.entry("GETPLAYINGANIMO", (self, args) -> {
+        Map.entry("GETPLAYINGANIMO", MethodSpec.of((self, args) -> {
             // Get playing animations into group - handled by interpreter
             return MethodResult.noChange(NullValue.INSTANCE);
-        }),
+        })),
 
-        Map.entry("PAUSE", (self, args) -> {
+        Map.entry("PAUSE", MethodSpec.of((self, args) -> {
             // Pause scene - handled by interpreter/game
             return MethodResult.noChange(NullValue.INSTANCE);
-        }),
+        })),
 
-        Map.entry("REMOVECLONES", (self, args) -> {
+        Map.entry("REMOVECLONES", MethodSpec.of((self, args) -> {
             // Remove clones - handled by interpreter
             return MethodResult.noChange(NullValue.INSTANCE);
-        }),
+        })),
 
-        Map.entry("RESUME", (self, args) -> {
+        Map.entry("RESUME", MethodSpec.of((self, args) -> {
             // Resume scene - handled by interpreter/game
             return MethodResult.noChange(NullValue.INSTANCE);
-        }),
+        })),
 
-        Map.entry("RESUMEONLY", (self, args) -> {
+        Map.entry("RESUMEONLY", MethodSpec.of((self, args) -> {
             // Resume only specified group - handled by interpreter/game
             return MethodResult.noChange(NullValue.INSTANCE);
-        }),
+        })),
 
-        Map.entry("RUN", (self, args) -> {
-            // Run method on variable - handled by interpreter
-            return MethodResult.noChange(NullValue.INSTANCE);
-        }),
+        Map.entry("RUN", MethodSpec.of((self, args) -> {
+            if (args.size() < 2) {
+                throw new IllegalArgumentException("RUN requires at least 2 arguments");
+            }
+            String varName = ArgumentHelper.getString(args.get(0));
+            String methodName = ArgumentHelper.getString(args.get(1));
+            List<Value> params = args.size() > 2 ? args.subList(2, args.size()) : List.of();
+            return MethodResult.effects(List.of(new RunMethodEffect(varName, methodName, params)));
+        })),
 
-        Map.entry("RUNCLONES", (self, args) -> {
+        Map.entry("RUNCLONES", MethodSpec.of((self, args) -> {
             // Run behaviour on clones - handled by interpreter
             return MethodResult.noChange(NullValue.INSTANCE);
-        }),
+        })),
 
-        Map.entry("SETMINHSPRIORITY", (self, args) -> {
+        Map.entry("SETMINHSPRIORITY", MethodSpec.of((self, args) -> {
             SceneVariable thisVar = (SceneVariable) self;
             if (args.isEmpty()) {
                 throw new IllegalArgumentException("SETMINHSPRIORITY requires 1 argument");
@@ -147,9 +155,9 @@ public record SceneVariable(
 
             int newMin = ArgumentHelper.getInt(args.get(0));
             return MethodResult.sets(thisVar.withMinHotSpotZ(newMin));
-        }),
+        })),
 
-        Map.entry("SETMAXHSPRIORITY", (self, args) -> {
+        Map.entry("SETMAXHSPRIORITY", MethodSpec.of((self, args) -> {
             SceneVariable thisVar = (SceneVariable) self;
             if (args.isEmpty()) {
                 throw new IllegalArgumentException("SETMAXHSPRIORITY requires 1 argument");
@@ -157,9 +165,9 @@ public record SceneVariable(
 
             int newMax = ArgumentHelper.getInt(args.get(0));
             return MethodResult.sets(thisVar.withMaxHotSpotZ(newMax));
-        }),
+        })),
 
-        Map.entry("SETMUSICVOLUME", (self, args) -> {
+        Map.entry("SETMUSICVOLUME", MethodSpec.of((self, args) -> {
             SceneVariable thisVar = (SceneVariable) self;
             if (args.isEmpty()) {
                 throw new IllegalArgumentException("SETMUSICVOLUME requires 1 argument");
@@ -168,9 +176,9 @@ public record SceneVariable(
             int newVolume = ArgumentHelper.getInt(args.get(0));
             // Actual music volume change handled by game
             return MethodResult.sets(thisVar.withMusicVolume(newVolume));
-        }),
+        })),
 
-        Map.entry("STARTMUSIC", (self, args) -> {
+        Map.entry("STARTMUSIC", MethodSpec.of((self, args) -> {
             SceneVariable thisVar = (SceneVariable) self;
             if (args.isEmpty()) {
                 throw new IllegalArgumentException("STARTMUSIC requires 1 argument");
@@ -179,7 +187,7 @@ public record SceneVariable(
             String musicFile = ArgumentHelper.getString(args.get(0));
             // Actual music playback handled by game
             return MethodResult.sets(thisVar.withMusic(musicFile));
-        })
+        }))
     );
 
     // ========================================

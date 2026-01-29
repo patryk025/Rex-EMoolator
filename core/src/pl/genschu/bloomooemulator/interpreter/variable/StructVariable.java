@@ -7,10 +7,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-public final class StructVariable implements Variable {
-    private final String name;
-    private final List<Variable> valuesInOrder; // or maybe List<Value> will be better option?
-
+/**
+ * StructVariable represents a struct with ordered values.
+ **/
+public record StructVariable (
+    String name,
+    List<Variable> valuesInOrder  // or maybe List<Value> will be better option?
+) implements Variable {
     public StructVariable(String name, List<Variable> valuesInOrder) {
         this.name = name;
         this.valuesInOrder = valuesInOrder != null ? List.copyOf(valuesInOrder) : List.of();
@@ -21,7 +24,7 @@ public final class StructVariable implements Variable {
     @Override public VariableType type() { return VariableType.STRUCT; }
     @Override public Variable withValue(Value newValue) { return this; }
 
-    @Override public Map<String, VariableMethod> methods() { return Map.of(); }
+    @Override public Map<String, MethodSpec> methods() { return Map.of(); }
     @Override public Map<String, SignalHandler> signals() { return Map.of(); }
     @Override public Variable withSignal(String signalName, SignalHandler handler) { return this; }
 

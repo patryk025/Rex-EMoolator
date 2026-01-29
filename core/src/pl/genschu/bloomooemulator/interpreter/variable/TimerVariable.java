@@ -67,7 +67,7 @@ public record TimerVariable(
     }
 
     @Override
-    public Map<String, VariableMethod> methods() {
+    public Map<String, MethodSpec> methods() {
         return METHODS;
     }
 
@@ -134,37 +134,37 @@ public record TimerVariable(
     // METHODS DEFINITION
     // ========================================
 
-    private static final Map<String, VariableMethod> METHODS = Map.ofEntries(
-        Map.entry("DISABLE", (self, args) -> {
+    private static final Map<String, MethodSpec> METHODS = Map.ofEntries(
+        Map.entry("DISABLE", MethodSpec.of((self, args) -> {
             TimerVariable thisVar = (TimerVariable) self;
             return MethodResult.sets(new TimerVariable(
                 thisVar.name, thisVar.elapse, false, thisVar.ticks,
                 thisVar.lastTickTime, thisVar.currentTickCount, thisVar.signals
             ));
-        }),
+        })),
 
-        Map.entry("ENABLE", (self, args) -> {
+        Map.entry("ENABLE", MethodSpec.of((self, args) -> {
             TimerVariable thisVar = (TimerVariable) self;
             return MethodResult.sets(new TimerVariable(
                 thisVar.name, thisVar.elapse, true, thisVar.ticks,
                 System.currentTimeMillis(), thisVar.currentTickCount, thisVar.signals
             ));
-        }),
+        })),
 
-        Map.entry("GETTICKS", (self, args) -> {
+        Map.entry("GETTICKS", MethodSpec.of((self, args) -> {
             TimerVariable thisVar = (TimerVariable) self;
             return MethodResult.noChange(new IntValue(thisVar.currentTickCount));
-        }),
+        })),
 
-        Map.entry("RESET", (self, args) -> {
+        Map.entry("RESET", MethodSpec.of((self, args) -> {
             TimerVariable thisVar = (TimerVariable) self;
             return MethodResult.sets(new TimerVariable(
                 thisVar.name, thisVar.elapse, thisVar.enabled, thisVar.ticks,
                 System.currentTimeMillis(), 0, thisVar.signals
             ));
-        }),
+        })),
 
-        Map.entry("SET", (self, args) -> {
+        Map.entry("SET", MethodSpec.of((self, args) -> {
             TimerVariable thisVar = (TimerVariable) self;
             if (args.isEmpty()) {
                 throw new IllegalArgumentException("SET requires 1 argument");
@@ -175,9 +175,9 @@ public record TimerVariable(
                 thisVar.name, thisVar.elapse, thisVar.enabled, newTicks,
                 thisVar.lastTickTime, thisVar.currentTickCount, thisVar.signals
             ));
-        }),
+        })),
 
-        Map.entry("SETELAPSE", (self, args) -> {
+        Map.entry("SETELAPSE", MethodSpec.of((self, args) -> {
             TimerVariable thisVar = (TimerVariable) self;
             if (args.isEmpty()) {
                 throw new IllegalArgumentException("SETELAPSE requires 1 argument");
@@ -188,7 +188,7 @@ public record TimerVariable(
                 thisVar.name, newElapse, thisVar.enabled, thisVar.ticks,
                 System.currentTimeMillis(), thisVar.currentTickCount, thisVar.signals
             ));
-        })
+        }))
     );
 
     // ========================================

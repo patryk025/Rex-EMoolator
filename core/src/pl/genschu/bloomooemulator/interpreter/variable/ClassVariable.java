@@ -55,7 +55,7 @@ public record ClassVariable(
     }
 
     @Override
-    public Map<String, VariableMethod> methods() {
+    public Map<String, MethodSpec> methods() {
         return METHODS;
     }
 
@@ -94,8 +94,8 @@ public record ClassVariable(
     // METHODS DEFINITION
     // ========================================
 
-    private static final Map<String, VariableMethod> METHODS = Map.ofEntries(
-        Map.entry("NEW", (self, args) -> {
+    private static final Map<String, MethodSpec> METHODS = Map.ofEntries(
+        Map.entry("NEW", MethodSpec.of((self, args) -> {
             ClassVariable thisVar = (ClassVariable) self;
             if (args.isEmpty()) {
                 throw new IllegalArgumentException("NEW requires at least 1 argument (varName)");
@@ -119,9 +119,9 @@ public record ClassVariable(
                 "2. CNVParser to load class definition, " +
                 "3. ExecutionContext to run CONSTRUCTOR"
             );
-        }),
+        })),
 
-        Map.entry("DELETE", (self, args) -> {
+        Map.entry("DELETE", MethodSpec.of((self, args) -> {
             ClassVariable thisVar = (ClassVariable) self;
             if (args.isEmpty()) {
                 throw new IllegalArgumentException("DELETE requires at least 1 argument (varName)");
@@ -142,7 +142,7 @@ public record ClassVariable(
                 "1. Context reference to remove instance, " +
                 "2. ExecutionContext to run DESTRUCTOR"
             );
-        })
+        }))
     );
 
     @Override

@@ -10,8 +10,6 @@ import java.util.Map;
  * ConditionVariable represents a conditional check with two operands and a comparison operator.
  *
  * Supported operators: EQUAL, NOTEQUAL, LESS, GREATER, LESSEQUAL, GREATEREQUAL
- *
- * The actual check() logic must be performed by the interpreter with access to the context.
  **/
 public record ConditionVariable(
     String name,
@@ -65,7 +63,7 @@ public record ConditionVariable(
     }
 
     @Override
-    public Map<String, VariableMethod> methods() {
+    public Map<String, MethodSpec> methods() {
         return METHODS;
     }
 
@@ -99,26 +97,8 @@ public record ConditionVariable(
     // METHODS DEFINITION
     // ========================================
 
-    private static final Map<String, VariableMethod> METHODS = Map.ofEntries(
-        Map.entry("CHECK", (self, args) -> {
-            // The actual check requires context to resolve operands
-            // Return false as placeholder - interpreter should override
-            boolean emitSignal = !args.isEmpty() && ArgumentHelper.getBoolean(args.get(0));
-            // Emit signals would be handled by interpreter
-            return MethodResult.noChange(BoolValue.FALSE);
-        }),
-
-        Map.entry("BREAK", (self, args) -> {
-            // The actual check requires context to resolve operands
-            // Interpreter should handle this
-            return MethodResult.noChange(NullValue.INSTANCE);
-        }),
-
-        Map.entry("ONE_BREAK", (self, args) -> {
-            // The actual check requires context to resolve operands
-            // Interpreter should handle this
-            return MethodResult.noChange(NullValue.INSTANCE);
-        })
+    private static final Map<String, MethodSpec> METHODS = Map.ofEntries(
+        /* These are implemented in ASTInterpreter */
     );
 
     // ========================================

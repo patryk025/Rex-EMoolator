@@ -52,7 +52,7 @@ public record BoolVariable(
     }
 
     @Override
-    public Map<String, VariableMethod> methods() {
+    public Map<String, MethodSpec> methods() {
         return METHODS;
     }
 
@@ -67,18 +67,18 @@ public record BoolVariable(
     // METHODS DEFINITION
     // ========================================
 
-    private static final Map<String, VariableMethod> METHODS = Map.ofEntries(
-        Map.entry("GET", (self, args) -> MethodResult.noChange(self.value())),
+    private static final Map<String, MethodSpec> METHODS = Map.ofEntries(
+        Map.entry("GET", MethodSpec.of((self, args) -> MethodResult.noChange(self.value()))),
 
-        Map.entry("RESETINI", (self, args) -> {
+        Map.entry("RESETINI", MethodSpec.of((self, args) -> {
             BoolVariable thisVar = (BoolVariable) self;
             // TODO: Get DEFAULT value from INI file
             return MethodResult.setsAndReturnsValue(
                     new BoolVariable(thisVar.name, thisVar.boolValue, thisVar.signals)
             );
-        }),
+        })),
 
-        Map.entry("SET", (self, args) -> {
+        Map.entry("SET", MethodSpec.of((self, args) -> {
             BoolVariable thisVar = (BoolVariable) self;
             if (args.isEmpty()) {
                 throw new IllegalArgumentException("SET requires 1 argument");
@@ -88,9 +88,9 @@ public record BoolVariable(
             return MethodResult.setsAndReturnsValue(
                     new BoolVariable(thisVar.name, newValue, thisVar.signals)
             );
-        }),
+        })),
 
-        Map.entry("SWITCH", (self, args) -> {
+        Map.entry("SWITCH", MethodSpec.of((self, args) -> {
             BoolVariable thisVar = (BoolVariable) self;
             if (args.size() < 2) {
                 throw new IllegalArgumentException("SWITCH requires 2 arguments");
@@ -104,7 +104,7 @@ public record BoolVariable(
             return MethodResult.setsAndReturnsValue(
                     new BoolVariable(thisVar.name, result, thisVar.signals)
             );
-        })
+        }))
     );
 
     // ========================================

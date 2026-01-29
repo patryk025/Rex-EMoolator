@@ -63,7 +63,7 @@ public record CNVLoaderVariable(
     }
 
     @Override
-    public Map<String, VariableMethod> methods() {
+    public Map<String, MethodSpec> methods() {
         return METHODS;
     }
 
@@ -127,8 +127,8 @@ public record CNVLoaderVariable(
     // METHODS DEFINITION
     // ========================================
 
-    private static final Map<String, VariableMethod> METHODS = Map.ofEntries(
-        Map.entry("LOAD", (self, args) -> {
+    private static final Map<String, MethodSpec> METHODS = Map.ofEntries(
+        Map.entry("LOAD", MethodSpec.of((self, args) -> {
             CNVLoaderVariable thisVar = (CNVLoaderVariable) self;
             if (args.isEmpty()) {
                 throw new IllegalArgumentException("LOAD requires 1 argument (cnvFile)");
@@ -159,9 +159,9 @@ public record CNVLoaderVariable(
                 "2. CNVParser to load file, " +
                 "3. FileUtils to resolve path"
             );
-        }),
+        })),
 
-        Map.entry("RELEASE", (self, args) -> {
+        Map.entry("RELEASE", MethodSpec.of((self, args) -> {
             CNVLoaderVariable thisVar = (CNVLoaderVariable) self;
             if (args.isEmpty()) {
                 throw new IllegalArgumentException("RELEASE requires 1 argument (cnvFile)");
@@ -189,7 +189,7 @@ public record CNVLoaderVariable(
                 "1. Context reference to remove variables, " +
                 "2. Loaded context tracking"
             );
-        })
+        }))
     );
 
     @Override

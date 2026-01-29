@@ -1,5 +1,6 @@
 package pl.genschu.bloomooemulator.interpreter.variable;
 
+import pl.genschu.bloomooemulator.interpreter.v1.variable.Method;
 import pl.genschu.bloomooemulator.interpreter.values.*;
 
 import java.util.HashMap;
@@ -64,7 +65,7 @@ public record ExpressionVariable(
     }
 
     @Override
-    public Map<String, VariableMethod> methods() {
+    public Map<String, MethodSpec> methods() {
         return METHODS;
     }
 
@@ -79,8 +80,8 @@ public record ExpressionVariable(
     // METHODS DEFINITION
     // ========================================
 
-    // EXPRESSION doesn't expose any specific methods
-    private static final Map<String, VariableMethod> METHODS = Map.of();
+    // EXPRESSION doesn't expose any specific methods (it's evaluated at runtime)
+    private static final Map<String, MethodSpec> METHODS = Map.of();
 
     // ========================================
     // CONVENIENT ACCESSORS

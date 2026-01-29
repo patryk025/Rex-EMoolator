@@ -12,8 +12,6 @@ import java.util.*;
 /**
  * EpisodeVariable represents an episode in the game.
  * Contains scenes and episode-level settings.
- *
- * Most methods require access to game context and should be handled by the interpreter.
  **/
 public record EpisodeVariable(
     String name,
@@ -63,7 +61,7 @@ public record EpisodeVariable(
     }
 
     @Override
-    public Map<String, VariableMethod> methods() {
+    public Map<String, MethodSpec> methods() {
         return METHODS;
     }
 
@@ -78,27 +76,27 @@ public record EpisodeVariable(
     // METHODS DEFINITION
     // ========================================
 
-    private static final Map<String, VariableMethod> METHODS = Map.ofEntries(
-        Map.entry("BACK", (self, args) -> {
+    private static final Map<String, MethodSpec> METHODS = Map.ofEntries(
+        Map.entry("BACK", MethodSpec.of((self, args) -> {
             return MethodResult.effects(List.of(new BackSceneEffect()));
-        }),
+        })),
 
-        Map.entry("GETCURRENTSCENE", (self, args) -> {
+        Map.entry("GETCURRENTSCENE", MethodSpec.of((self, args) -> {
             return new MethodResult(null, NullValue.INSTANCE, List.of(new GetCurrentSceneEffect()));
-        }),
+        })),
 
-        Map.entry("GETLATESTSCENE", (self, args) -> {
+        Map.entry("GETLATESTSCENE", MethodSpec.of((self, args) -> {
             return new MethodResult(null, NullValue.INSTANCE, List.of(new GetPreviousSceneEffect()));
-        }),
+        })),
 
-        Map.entry("GOTO", (self, args) -> {
+        Map.entry("GOTO", MethodSpec.of((self, args) -> {
             if (args.isEmpty()) {
                 throw new IllegalArgumentException("GOTO requires 1 argument");
             }
             String sceneName = ArgumentHelper.getString(args.get(0));
             return MethodResult.effects(List.of(new GotoSceneEffect(sceneName)));
         })
-    );
+    ));
 
     // ========================================
     // CONVENIENT ACCESSORS

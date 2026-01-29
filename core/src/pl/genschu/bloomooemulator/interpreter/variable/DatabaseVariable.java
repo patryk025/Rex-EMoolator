@@ -8,18 +8,19 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+// TODO: maybe it should be record as well?
+/**
+ * DatabaseVariable represents a database with rows and columns.
+ **/
 public final class DatabaseVariable implements Variable, HasCursor {
-    private final String name;
-    private final DatabaseState state;
+    private String name;
+    private DatabaseState state;
 
     private DatabaseCursorVariable cursor;
-
-    private final Map<String, VariableMethod> methods;
 
     public DatabaseVariable(String name, DatabaseState state) {
         this.name = name;
         this.state = (state != null) ? state : new DatabaseState();
-        this.methods = buildMethods();
     }
 
     public DatabaseState state() {
@@ -47,8 +48,8 @@ public final class DatabaseVariable implements Variable, HasCursor {
     }
 
     @Override
-    public Map<String, VariableMethod> methods() {
-        return methods;
+    public Map<String, MethodSpec> methods() {
+        return METHODS;
     }
 
     @Override
@@ -70,43 +71,40 @@ public final class DatabaseVariable implements Variable, HasCursor {
         return cursor;
     }
 
-    private Map<String, VariableMethod> buildMethods() {
-        Map<String, VariableMethod> m = new HashMap<>();
-
-        m.put("GETROWSNO", (self, args) ->
+    private final Map<String, MethodSpec> METHODS = Map.ofEntries(
+        Map.entry("GETROWSNO", MethodSpec.of((self, args) ->
                 MethodResult.noChange(new IntValue(state.rowsNo()))
-        );
+        )),
 
-        m.put("NEXT", (self, args) -> {
+        Map.entry("NEXT", MethodSpec.of((self, args) -> {
             state.next();
             return MethodResult.noChange(NullValue.INSTANCE);
-        });
+        })),
 
-        m.put("REMOVEALL", (self, args) -> {
+        Map.entry("REMOVEALL", MethodSpec.of((self, args) -> {
             state.removeAll();
             return MethodResult.noChange(NullValue.INSTANCE);
-        });
+        })),
 
-        m.put("SELECT", (self, args) -> {
+        Map.entry("SELECT", MethodSpec.of((self, args) -> {
             int idx = asInt(args, 0, 0);
             state.select(idx);
             return MethodResult.noChange(NullValue.INSTANCE);
-        });
+        })),
 
-        m.put("FIND", (self, args) -> {
+        Map.entry("FIND", MethodSpec.of((self, args) -> {
             String colName = asString(args, 0, "");
             String colValue = asString(args, 1, "");
             int def = asInt(args, 2, 0);
             int found = state.find(colName, colValue, def);
             return MethodResult.noChange(new IntValue(found));
-        });
+        })),
 
         // TODO: IMPLEMENT LOAD/SAVE
-        m.put("LOAD", (self, args) -> MethodResult.noChange(NullValue.INSTANCE));
-        m.put("SAVE", (self, args) -> MethodResult.noChange(NullValue.INSTANCE));
+        Map.entry("LOAD", MethodSpec.of((self, args) -> MethodResult.noChange(NullValue.INSTANCE))),
+        Map.entry("SAVE", MethodSpec.of((self, args) -> MethodResult.noChange(NullValue.INSTANCE)))
+    );
 
-        return Map.copyOf(m);
-    }
 
     private static int asInt(List<Value> args, int index, int def) {
         if (args == null || index >= args.size() || args.get(index) == null) return def;

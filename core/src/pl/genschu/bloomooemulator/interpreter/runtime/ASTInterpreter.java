@@ -321,6 +321,9 @@ public class ASTInterpreter {
         Variable target = resolveMethodTarget(node.target(), node.location());
         String methodName = node.methodName().toUpperCase();
 
+        // I implemented CONDITION and COMPLEXCONDITION method handling here
+        // because it needs sometimes go deep into evaluating the condition,
+        // which would be cumbersome to do in the variable method itself.
         if (target instanceof ConditionVariable cond) {
             ExecutionResult handled = handleConditionMethod(cond, methodName, node);
             if (handled != null) {
@@ -381,6 +384,7 @@ public class ASTInterpreter {
 
         if (result.hasNewState()) {
             boolean updated = context.updateVariableInHierarchy(target.name(), result.newSelf());
+            target = context.getVariable(target.name()); // Refresh target reference
             if (!updated) {
                 throw new InterpreterException(
                     "Failed to update variable after method call: " + target.name(),
@@ -478,7 +482,7 @@ public class ASTInterpreter {
     }
 
     private MethodSpec resolveMethodSpec(Variable target, String methodName, SourceLocation location) {
-        MethodSpec spec = target.methodSpecs().get(methodName.toUpperCase());
+        MethodSpec spec = target.methods().get(methodName.toUpperCase());
         if (spec == null || spec.method() == null) {
             MethodSpec global = target.globalMethods().get(methodName);
             if (global == null || global.method() == null) {
@@ -497,8 +501,9 @@ public class ASTInterpreter {
         BoolValue result = evaluateCondition(cond, node.location());
         boolean emitSignal = false;
         if (!node.arguments().isEmpty()) {
-            Value argValue = execute(node.arguments().get(0)).getValue();
-            emitSignal = ArgumentHelper.getBoolean(argValue);
+            ExecutionResult argRes = execute(node.arguments().get(0));
+            if (!argRes.shouldContinue()) return argRes;
+            emitSignal = ArgumentHelper.getBoolean(argRes.getValue());
         }
         if (emitSignal) {
             cond.emitSignal(result.value() ? "ONRUNTIMESUCCESS" : "ONRUNTIMEFAILED");
@@ -547,6 +552,7 @@ public class ASTInterpreter {
         return null;
     }
 
+    // TODO: Add safe checks for infinite recursion (but how to handle it? Original probably just freezes)
     private BoolValue evaluateComplexCondition(ComplexConditionVariable cond, SourceLocation location) {
         Value left = resolveConditionValue(cond.condition1Name(), location);
         Value right = resolveConditionValue(cond.condition2Name(), location);

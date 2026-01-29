@@ -63,7 +63,7 @@ public record ComplexConditionVariable(
     }
 
     @Override
-    public Map<String, VariableMethod> methods() {
+    public Map<String, MethodSpec> methods() {
         return METHODS;
     }
 
@@ -78,25 +78,8 @@ public record ComplexConditionVariable(
     // METHODS DEFINITION
     // ========================================
 
-    private static final Map<String, VariableMethod> METHODS = Map.ofEntries(
-        Map.entry("CHECK", (self, args) -> {
-            // The actual check requires context to resolve conditions
-            // Return false as placeholder - interpreter should override
-            boolean emitSignal = !args.isEmpty() && ArgumentHelper.getBoolean(args.get(0));
-            return MethodResult.noChange(BoolValue.FALSE);
-        }),
-
-        Map.entry("BREAK", (self, args) -> {
-            // The actual check requires context to resolve conditions
-            // Interpreter should handle this
-            return MethodResult.noChange(NullValue.INSTANCE);
-        }),
-
-        Map.entry("ONE_BREAK", (self, args) -> {
-            // The actual check requires context to resolve conditions
-            // Interpreter should handle this
-            return MethodResult.noChange(NullValue.INSTANCE);
-        })
+    private static final Map<String, MethodSpec> METHODS = Map.ofEntries(
+        /* These are implemented in ASTInterpreter */
     );
 
     // ========================================

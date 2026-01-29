@@ -52,7 +52,7 @@ public record DoubleVariable(
     }
 
     @Override
-    public Map<String, VariableMethod> methods() {
+    public Map<String, MethodSpec> methods() {
         return METHODS;
     }
 
@@ -67,8 +67,8 @@ public record DoubleVariable(
     // METHODS DEFINITION
     // ========================================
 
-    private static final Map<String, VariableMethod> METHODS = Map.ofEntries(
-        Map.entry("ABS", (self, args) -> {
+    private static final Map<String, MethodSpec> METHODS = Map.ofEntries(
+        Map.entry("ABS", MethodSpec.of((self, args) -> {
             DoubleVariable thisVar = (DoubleVariable) self;
             if (args.isEmpty()) {
                 throw new IllegalArgumentException("ABS requires 1 argument");
@@ -78,9 +78,9 @@ public record DoubleVariable(
             return MethodResult.setsAndReturnsValue(
                     new DoubleVariable(thisVar.name, Math.abs(value), thisVar.signals)
             );
-        }),
+        })),
 
-        Map.entry("ADD", (self, args) -> {
+        Map.entry("ADD", MethodSpec.of((self, args) -> {
             DoubleVariable thisVar = (DoubleVariable) self;
             if (args.isEmpty()) {
                 throw new IllegalArgumentException("ADD requires 1 argument");
@@ -90,9 +90,9 @@ public record DoubleVariable(
             return MethodResult.setsAndReturnsValue(
                     new DoubleVariable(thisVar.name, thisVar.doubleValue + addend, thisVar.signals)
             );
-        }),
+        })),
 
-        Map.entry("ARCTAN", (self, args) -> {
+        Map.entry("ARCTAN", MethodSpec.of((self, args) -> {
             DoubleVariable thisVar = (DoubleVariable) self;
             if (args.isEmpty()) {
                 throw new IllegalArgumentException("ARCTAN requires 1 argument");
@@ -105,9 +105,9 @@ public record DoubleVariable(
             return MethodResult.setsAndReturnsValue(
                     new DoubleVariable(thisVar.name, atanDegrees, thisVar.signals)
             );
-        }),
+        })),
 
-        Map.entry("ARCTANEX", (self, args) -> {
+        Map.entry("ARCTANEX", MethodSpec.of((self, args) -> {
             DoubleVariable thisVar = (DoubleVariable) self;
             if (args.size() < 2) {
                 throw new IllegalArgumentException("ARCTANEX requires 2 arguments");
@@ -121,9 +121,9 @@ public record DoubleVariable(
             return MethodResult.setsAndReturnsValue(
                     new DoubleVariable(thisVar.name, atanDegrees, thisVar.signals)
             );
-        }),
+        })),
 
-        Map.entry("CLAMP", (self, args) -> {
+        Map.entry("CLAMP", MethodSpec.of((self, args) -> {
             DoubleVariable thisVar = (DoubleVariable) self;
             if (args.size() < 2) {
                 throw new IllegalArgumentException("CLAMP requires 2 arguments");
@@ -136,16 +136,16 @@ public record DoubleVariable(
             return MethodResult.setsAndReturnsValue(
                     new DoubleVariable(thisVar.name, clampedValue, thisVar.signals)
             );
-        }),
+        })),
 
-        Map.entry("CLEAR", (self, args) -> {
+        Map.entry("CLEAR", MethodSpec.of((self, args) -> {
             DoubleVariable thisVar = (DoubleVariable) self;
             return MethodResult.setsAndReturnsValue(
                     new DoubleVariable(thisVar.name, 0.0, thisVar.signals)
             );
-        }),
+        })),
 
-        Map.entry("COSINUS", (self, args) -> {
+        Map.entry("COSINUS", MethodSpec.of((self, args) -> {
             DoubleVariable thisVar = (DoubleVariable) self;
             if (args.isEmpty()) {
                 throw new IllegalArgumentException("COSINUS requires 1 argument");
@@ -157,16 +157,16 @@ public record DoubleVariable(
             return MethodResult.setsAndReturnsValue(
                     new DoubleVariable(thisVar.name, cosValue, thisVar.signals)
             );
-        }),
+        })),
 
-        Map.entry("DEC", (self, args) -> {
+        Map.entry("DEC", MethodSpec.of((self, args) -> {
             DoubleVariable thisVar = (DoubleVariable) self;
             return MethodResult.setsAndReturnsValue(
                     new DoubleVariable(thisVar.name, thisVar.doubleValue - 1.0, thisVar.signals)
             );
-        }),
+        })),
 
-        Map.entry("DIV", (self, args) -> {
+        Map.entry("DIV", MethodSpec.of((self, args) -> {
             DoubleVariable thisVar = (DoubleVariable) self;
             if (args.isEmpty()) {
                 throw new IllegalArgumentException("DIV requires 1 argument");
@@ -179,18 +179,18 @@ public record DoubleVariable(
             return MethodResult.setsAndReturnsValue(
                     new DoubleVariable(thisVar.name, thisVar.doubleValue / divisor, thisVar.signals)
             );
-        }),
+        })),
 
-        Map.entry("GET", (self, args) -> MethodResult.noChange(self.value())),
+        Map.entry("GET", MethodSpec.of((self, args) -> MethodResult.noChange(self.value()))),
 
-        Map.entry("INC", (self, args) -> {
+        Map.entry("INC", MethodSpec.of((self, args) -> {
             DoubleVariable thisVar = (DoubleVariable) self;
             return MethodResult.setsAndReturnsValue(
                     new DoubleVariable(thisVar.name, thisVar.doubleValue + 1.0, thisVar.signals)
             );
-        }),
+        })),
 
-        Map.entry("LENGTH", (self, args) -> {
+        Map.entry("LENGTH", MethodSpec.of((self, args) -> {
             DoubleVariable thisVar = (DoubleVariable) self;
             if (args.size() < 2) {
                 throw new IllegalArgumentException("LENGTH requires 2 arguments");
@@ -203,9 +203,9 @@ public record DoubleVariable(
             return MethodResult.setsAndReturnsValue(
                     new DoubleVariable(thisVar.name, length, thisVar.signals)
             );
-        }),
+        })),
 
-        Map.entry("LOG", (self, args) -> {
+        Map.entry("LOG", MethodSpec.of((self, args) -> {
             DoubleVariable thisVar = (DoubleVariable) self;
             if (args.isEmpty()) {
                 throw new IllegalArgumentException("LOG requires 1 argument");
@@ -215,9 +215,9 @@ public record DoubleVariable(
             return MethodResult.setsAndReturnsValue(
                     new DoubleVariable(thisVar.name, Math.log(value), thisVar.signals)
             );
-        }),
+        })),
 
-        Map.entry("MOD", (self, args) -> {
+        Map.entry("MOD", MethodSpec.of((self, args) -> {
             DoubleVariable thisVar = (DoubleVariable) self;
             if (args.isEmpty()) {
                 throw new IllegalArgumentException("MOD requires 1 argument");
@@ -232,9 +232,9 @@ public record DoubleVariable(
             return MethodResult.setsAndReturnsValue(
                     new DoubleVariable(thisVar.name, result, thisVar.signals)
             );
-        }),
+        })),
 
-        Map.entry("MAXA", (self, args) -> {
+        Map.entry("MAXA", MethodSpec.of((self, args) -> {
             DoubleVariable thisVar = (DoubleVariable) self;
             if (args.isEmpty()) {
                 throw new IllegalArgumentException("MAXA requires at least 1 argument");
@@ -251,9 +251,9 @@ public record DoubleVariable(
             return MethodResult.setsAndReturnsValue(
                     new DoubleVariable(thisVar.name, max, thisVar.signals)
             );
-        }),
+        })),
 
-        Map.entry("MINA", (self, args) -> {
+        Map.entry("MINA", MethodSpec.of((self, args) -> {
             DoubleVariable thisVar = (DoubleVariable) self;
             if (args.isEmpty()) {
                 throw new IllegalArgumentException("MINA requires at least 1 argument");
@@ -270,9 +270,9 @@ public record DoubleVariable(
             return MethodResult.setsAndReturnsValue(
                     new DoubleVariable(thisVar.name, min, thisVar.signals)
             );
-        }),
+        })),
 
-        Map.entry("MUL", (self, args) -> {
+        Map.entry("MUL", MethodSpec.of((self, args) -> {
             DoubleVariable thisVar = (DoubleVariable) self;
             if (args.isEmpty()) {
                 throw new IllegalArgumentException("MUL requires 1 argument");
@@ -282,17 +282,17 @@ public record DoubleVariable(
             return MethodResult.setsAndReturnsValue(
                     new DoubleVariable(thisVar.name, thisVar.doubleValue * multiplier, thisVar.signals)
             );
-        }),
+        })),
 
-        Map.entry("RESETINI", (self, args) -> {
+        Map.entry("RESETINI", MethodSpec.of((self, args) -> {
             DoubleVariable thisVar = (DoubleVariable) self;
             // TODO: Get DEFAULT value from INI file
             return MethodResult.setsAndReturnsValue(
                     new DoubleVariable(thisVar.name, thisVar.doubleValue, thisVar.signals)
             );
-        }),
+        })),
 
-        Map.entry("SET", (self, args) -> {
+        Map.entry("SET", MethodSpec.of((self, args) -> {
             DoubleVariable thisVar = (DoubleVariable) self;
             if (args.isEmpty()) {
                 throw new IllegalArgumentException("SET requires 1 argument");
@@ -302,9 +302,9 @@ public record DoubleVariable(
             return MethodResult.setsAndReturnsValue(
                     new DoubleVariable(thisVar.name, newValue, thisVar.signals)
             );
-        }),
+        })),
 
-        Map.entry("SGN", (self, args) -> {
+        Map.entry("SGN", MethodSpec.of((self, args) -> {
             DoubleVariable thisVar = (DoubleVariable) self;
             int sgn = 0;
             if (thisVar.doubleValue > 0) {
@@ -314,9 +314,9 @@ public record DoubleVariable(
             }
             // SGN returns int, does not change the variable
             return MethodResult.noChange(new IntValue(sgn));
-        }),
+        })),
 
-        Map.entry("SINUS", (self, args) -> {
+        Map.entry("SINUS", MethodSpec.of((self, args) -> {
             DoubleVariable thisVar = (DoubleVariable) self;
             if (args.isEmpty()) {
                 throw new IllegalArgumentException("SINUS requires 1 argument");
@@ -328,17 +328,17 @@ public record DoubleVariable(
             return MethodResult.setsAndReturnsValue(
                     new DoubleVariable(thisVar.name, sinValue, thisVar.signals)
             );
-        }),
+        })),
 
-        Map.entry("SQRT", (self, args) -> {
+        Map.entry("SQRT", MethodSpec.of((self, args) -> {
             DoubleVariable thisVar = (DoubleVariable) self;
             double value = args.isEmpty() ? thisVar.doubleValue : ArgumentHelper.getDouble(args.get(0));
             return MethodResult.setsAndReturnsValue(
                     new DoubleVariable(thisVar.name, Math.sqrt(value), thisVar.signals)
             );
-        }),
+        })),
 
-        Map.entry("SUB", (self, args) -> {
+        Map.entry("SUB", MethodSpec.of((self, args) -> {
             DoubleVariable thisVar = (DoubleVariable) self;
             if (args.isEmpty()) {
                 throw new IllegalArgumentException("SUB requires 1 argument");
@@ -348,9 +348,9 @@ public record DoubleVariable(
             return MethodResult.setsAndReturnsValue(
                     new DoubleVariable(thisVar.name, thisVar.doubleValue - subtrahend, thisVar.signals)
             );
-        }),
+        })),
 
-        Map.entry("SWITCH", (self, args) -> {
+        Map.entry("SWITCH", MethodSpec.of((self, args) -> {
             DoubleVariable thisVar = (DoubleVariable) self;
             if (args.size() < 2) {
                 throw new IllegalArgumentException("SWITCH requires 2 arguments");
@@ -363,7 +363,7 @@ public record DoubleVariable(
             return MethodResult.setsAndReturnsValue(
                     new DoubleVariable(thisVar.name, result, thisVar.signals)
             );
-        })
+        }))
     );
 
     // ========================================

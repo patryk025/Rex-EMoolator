@@ -68,7 +68,7 @@ public sealed interface Variable permits
      *   // result.returnValue() is IntValue(15)
      */
     default MethodResult callMethod(String methodName, List<Value> arguments) {
-        Map<String, MethodSpec> availableMethods = methodSpecs();
+        Map<String, MethodSpec> availableMethods = methods();
         MethodSpec spec = availableMethods != null
                 ? availableMethods.get(methodName.toUpperCase())
                 : null;
@@ -114,29 +114,13 @@ public sealed interface Variable permits
     /**
      * Returns available methods for this variable type.
      */
-    Map<String, VariableMethod> methods();
+    Map<String, MethodSpec> methods();
 
     /**
      * Returns available global methods for all variable types.
      */
     default Map<String, MethodSpec> globalMethods() {
         return GLOBAL_METHODS;
-    }
-
-    /**
-     * Returns available method specs with argument kinds.
-     */
-    default Map<String, MethodSpec> methodSpecs() {
-        Map<String, VariableMethod> availableMethods = methods();
-        if (availableMethods == null || availableMethods.isEmpty()) {
-            return Map.of();
-        }
-
-        Map<String, MethodSpec> specs = new java.util.HashMap<>();
-        for (Map.Entry<String, VariableMethod> entry : availableMethods.entrySet()) {
-            specs.put(entry.getKey(), MethodSpec.of(entry.getValue()));
-        }
-        return Map.copyOf(specs);
     }
 
     /**

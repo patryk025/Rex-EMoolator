@@ -10,7 +10,7 @@ import java.util.Map;
  **/
 public record BehaviourVariable(
     String name,
-    ASTNode ast,  // The compiled code!
+    ASTNode ast,
     Map<String, SignalHandler> signals
 ) implements Variable {
 
@@ -44,7 +44,7 @@ public record BehaviourVariable(
     }
 
     @Override
-    public Map<String, VariableMethod> methods() {
+    public Map<String, MethodSpec> methods() {
         // TODO: Implement RUN, RUNC and RUNLOOPED methods (connect interpreter baby)
         throw new UnsupportedOperationException("TODO: Implement");
     }

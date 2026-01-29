@@ -7,14 +7,12 @@ import pl.genschu.bloomooemulator.interpreter.values.VariableRef;
 import java.util.HashMap;
 import java.util.Map;
 
-public final class DatabaseCursorVariable implements Variable {
-    private final DatabaseVariable db;
-    private final Map<String, VariableMethod> methods;
-
-    public DatabaseCursorVariable(DatabaseVariable db) {
-        this.db = db;
-        this.methods = buildMethods();
-    }
+/**
+ * DatabaseCursorVariable represents a cursor for iterating over database query results.
+ */
+public record DatabaseCursorVariable (
+    DatabaseVariable db
+) implements Variable {
 
     @Override
     public String name() {
@@ -37,8 +35,8 @@ public final class DatabaseCursorVariable implements Variable {
     }
 
     @Override
-    public Map<String, VariableMethod> methods() {
-        return methods;
+    public Map<String, MethodSpec> methods() {
+        return METHODS;
     }
 
     @Override
@@ -51,20 +49,17 @@ public final class DatabaseCursorVariable implements Variable {
         return this;
     }
 
-    private Map<String, VariableMethod> buildMethods() {
-        Map<String, VariableMethod> m = new HashMap<>();
-
-        m.put("SET", (self, args) -> {
+    private static final Map<String, MethodSpec> METHODS = Map.ofEntries(
+        Map.entry("SET", MethodSpec.of((self, args) -> {
             if (args == null || args.isEmpty()) return MethodResult.noChange(NullValue.INSTANCE);
 
             Value v = args.get(0);
 
             // TODO: implement setting from StructVariable
             return MethodResult.noChange(NullValue.INSTANCE);
-        });
+        }))
+    );
 
-        return Map.copyOf(m);
-    }
     public void setFromStruct(StructVariable struct) {
         if (struct == null) return;
         db.state().updateCurrentRow(struct.toRowStrings());

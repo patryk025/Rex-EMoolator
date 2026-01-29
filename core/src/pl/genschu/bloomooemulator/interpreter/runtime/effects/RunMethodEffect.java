@@ -34,7 +34,7 @@ public final class RunMethodEffect implements Effect {
             throw new IllegalArgumentException("Variable not found: " + variableName);
         }
 
-        MethodSpec spec = target.methodSpecs().get(methodName.toUpperCase());
+        MethodSpec spec = target.methods().get(methodName.toUpperCase());
         if (spec == null || spec.method() == null) {
             throw new IllegalArgumentException("Method not found: " + methodName + " on " + target.type());
         }

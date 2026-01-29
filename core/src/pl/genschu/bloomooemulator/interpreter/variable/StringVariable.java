@@ -55,7 +55,7 @@ public record StringVariable(
     }
 
     @Override
-    public Map<String, VariableMethod> methods() {
+    public Map<String, MethodSpec> methods() {
         return METHODS;
     }
 
@@ -70,8 +70,8 @@ public record StringVariable(
     // METHODS DEFINITION
     // ========================================
 
-    private static final Map<String, VariableMethod> METHODS = Map.ofEntries(
-        Map.entry("ADD", (self, args) -> {
+    private static final Map<String, MethodSpec> METHODS = Map.ofEntries(
+        Map.entry("ADD", MethodSpec.of((self, args) -> {
             StringVariable thisVar = (StringVariable) self;
             if (args.isEmpty()) {
                 throw new IllegalArgumentException("ADD requires 1 argument");
@@ -81,11 +81,11 @@ public record StringVariable(
             return MethodResult.setsAndReturnsValue(
                     new StringVariable(thisVar.name, thisVar.stringValue + addition, thisVar.signals)
             );
-        }),
+        })),
 
         // TODO: Implement COPYFILE method if file system access is available
 
-        Map.entry("CHANGEAT", (self, args) -> {
+        Map.entry("CHANGEAT", MethodSpec.of((self, args) -> {
             StringVariable thisVar = (StringVariable) self;
             if (args.size() < 2) {
                 throw new IllegalArgumentException("CHANGEAT requires 2 arguments");
@@ -103,9 +103,9 @@ public record StringVariable(
             return MethodResult.setsAndReturnsValue(
                     new StringVariable(thisVar.name, newValue, thisVar.signals)
             );
-        }),
+        })),
 
-        Map.entry("CUT", (self, args) -> {
+        Map.entry("CUT", MethodSpec.of((self, args) -> {
             StringVariable thisVar = (StringVariable) self;
             if (args.size() < 2) {
                 throw new IllegalArgumentException("CUT requires 2 arguments");
@@ -126,9 +126,9 @@ public record StringVariable(
             return MethodResult.setsAndReturnsValue(
                     new StringVariable(thisVar.name, newValue, thisVar.signals)
             );
-        }),
+        })),
 
-        Map.entry("FIND", (self, args) -> {
+        Map.entry("FIND", MethodSpec.of((self, args) -> {
             StringVariable thisVar = (StringVariable) self;
             if (args.isEmpty()) {
                 throw new IllegalArgumentException("FIND requires at least 1 argument");
@@ -139,9 +139,9 @@ public record StringVariable(
             int index = thisVar.stringValue.indexOf(needle, offset);
 
             return MethodResult.noChange(new IntValue(index));
-        }),
+        })),
 
-        Map.entry("GET", (self, args) -> {
+        Map.entry("GET", MethodSpec.of((self, args) -> {
             StringVariable thisVar = (StringVariable) self;
             if (args.isEmpty()) {
                 return MethodResult.noChange(self.value());
@@ -156,14 +156,14 @@ public record StringVariable(
             }
             int endIndex = Math.min(index + length, value.length());
             return MethodResult.noChange(new StringValue(value.substring(index, endIndex)));
-        }),
+        })),
 
-        Map.entry("LENGTH", (self, args) -> {
+        Map.entry("LENGTH", MethodSpec.of((self, args) -> {
             StringVariable thisVar = (StringVariable) self;
             return MethodResult.noChange(new IntValue(thisVar.stringValue.length()));
-        }),
+        })),
 
-        Map.entry("REPLACEAT", (self, args) -> {
+        Map.entry("REPLACEAT", MethodSpec.of((self, args) -> {
             StringVariable thisVar = (StringVariable) self;
             if (args.size() < 3) {
                 throw new IllegalArgumentException("REPLACEAT requires 3 arguments");
@@ -183,17 +183,17 @@ public record StringVariable(
             return MethodResult.setsAndReturnsValue(
                     new StringVariable(thisVar.name, newValue, thisVar.signals)
             );
-        }),
+        })),
 
-        Map.entry("RESETINI", (self, args) -> {
+        Map.entry("RESETINI", MethodSpec.of((self, args) -> {
             StringVariable thisVar = (StringVariable) self;
             // TODO: Get DEFAULT value from INI file
             return MethodResult.setsAndReturnsValue(
                     new StringVariable(thisVar.name, thisVar.stringValue, thisVar.signals)
             );
-        }),
+        })),
 
-        Map.entry("SET", (self, args) -> {
+        Map.entry("SET", MethodSpec.of((self, args) -> {
             StringVariable thisVar = (StringVariable) self;
             if (args.isEmpty()) {
                 throw new IllegalArgumentException("SET requires 1 argument");
@@ -203,9 +203,9 @@ public record StringVariable(
             return MethodResult.setsAndReturnsValue(
                     new StringVariable(thisVar.name, newValue, thisVar.signals)
             );
-        }),
+        })),
 
-        Map.entry("SUB", (self, args) -> {
+        Map.entry("SUB", MethodSpec.of((self, args) -> {
             StringVariable thisVar = (StringVariable) self;
             if (args.size() < 2) {
                 throw new IllegalArgumentException("SUB requires 2 arguments");
@@ -224,21 +224,21 @@ public record StringVariable(
             return MethodResult.setsAndReturnsValue(
                     new StringVariable(thisVar.name, newValue, thisVar.signals)
             );
-        }),
+        })),
 
-        Map.entry("UPPER", (self, args) -> {
+        Map.entry("UPPER", MethodSpec.of((self, args) -> {
             StringVariable thisVar = (StringVariable) self;
             return MethodResult.setsAndReturnsValue(
                     new StringVariable(thisVar.name, thisVar.stringValue.toUpperCase(), thisVar.signals)
             );
-        }),
+        })),
 
-        Map.entry("LOWER", (self, args) -> {
+        Map.entry("LOWER", MethodSpec.of((self, args) -> {
             StringVariable thisVar = (StringVariable) self;
             return MethodResult.setsAndReturnsValue(
                     new StringVariable(thisVar.name, thisVar.stringValue.toLowerCase(), thisVar.signals)
             );
-        })
+        }))
     );
 
     // ========================================
