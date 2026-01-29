@@ -5,12 +5,17 @@ import pl.genschu.bloomooemulator.interpreter.context.Context;
 import pl.genschu.bloomooemulator.interpreter.errors.InterpreterException;
 import pl.genschu.bloomooemulator.interpreter.errors.SourceLocation;
 import pl.genschu.bloomooemulator.interpreter.factories.VariableFactory;
+import pl.genschu.bloomooemulator.interpreter.helpers.ArgumentHelper;
 import pl.genschu.bloomooemulator.interpreter.values.*;
+import pl.genschu.bloomooemulator.interpreter.ops.ValueOps;
 import pl.genschu.bloomooemulator.interpreter.runtime.effects.Effect;
 import pl.genschu.bloomooemulator.interpreter.variable.ArgKind;
 import pl.genschu.bloomooemulator.interpreter.variable.MethodResult;
 import pl.genschu.bloomooemulator.interpreter.variable.MethodSpec;
 import pl.genschu.bloomooemulator.interpreter.variable.Variable;
+import pl.genschu.bloomooemulator.interpreter.variable.ConditionVariable;
+import pl.genschu.bloomooemulator.interpreter.variable.ComplexConditionVariable;
+import pl.genschu.bloomooemulator.interpreter.variable.ExpressionVariable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -75,6 +80,16 @@ public class ASTInterpreter {
             );
         }
 
+        if (variable instanceof ExpressionVariable expr) {
+            return new NormalResult(evaluateExpression(expr, node.location()));
+        }
+        if (variable instanceof ConditionVariable cond) {
+            return new NormalResult(evaluateCondition(cond, node.location()));
+        }
+        if (variable instanceof ComplexConditionVariable complex) {
+            return new NormalResult(evaluateComplexCondition(complex, node.location()));
+        }
+
         return new NormalResult(variable.value());
     }
 
@@ -109,7 +124,7 @@ public class ASTInterpreter {
         ExecutionResult rightResult = execute(node.right());
         if (!rightResult.shouldContinue()) return rightResult;
 
-        Value result = performArithmetic(
+        Value result = ValueOps.arithmetic(
             leftResult.getValue(),
             rightResult.getValue(),
             node.operator()
@@ -118,42 +133,6 @@ public class ASTInterpreter {
         return new NormalResult(result);
     }
 
-    private Value performArithmetic(Value left, Value right, ArithmeticNode.ArithmeticOp op) {
-        // Handle int + int
-        if (left instanceof IntValue(int value) && right instanceof IntValue(int value1)) {
-            return switch (op) {
-                case ADD -> new IntValue(value + value1);
-                case SUBTRACT -> new IntValue(value - value1);
-                case MULTIPLY -> new IntValue(value * value1);
-                case DIVIDE -> new IntValue(value1 != 0 ? value / value1 : 0);
-                case MODULO -> new IntValue(value1 != 0 ? value % value1 : 0);
-            };
-        }
-
-        // Handle double operations (convert if needed)
-        double leftVal = toDouble(left);
-        double rightVal = toDouble(right);
-
-        return switch (op) {
-            case ADD -> new DoubleValue(leftVal + rightVal);
-            case SUBTRACT -> new DoubleValue(leftVal - rightVal);
-            case MULTIPLY -> new DoubleValue(leftVal * rightVal);
-            case DIVIDE -> new DoubleValue(rightVal != 0 ? leftVal / rightVal : 0.0);
-            case MODULO -> new DoubleValue(rightVal != 0 ? leftVal % rightVal : 0.0);
-        };
-    }
-
-    private double toDouble(Value value) {
-        return switch (value) {
-            case IntValue v -> v.value();
-            case DoubleValue v -> v.value();
-            case StringValue v -> {
-                DoubleValue d = v.tryParseDouble();
-                yield d != null ? d.value() : 0.0;
-            }
-            default -> 0.0;
-        };
-    }
 
     // === COMPARISON ===
 
@@ -164,41 +143,13 @@ public class ASTInterpreter {
         ExecutionResult rightResult = execute(node.right());
         if (!rightResult.shouldContinue()) return rightResult;
 
-        boolean result = performComparison(
+        BoolValue result = ValueOps.compare(
             leftResult.getValue(),
             rightResult.getValue(),
             node.operator()
         );
 
-        return new NormalResult(BoolValue.of(result));
-    }
-
-    private boolean performComparison(Value left, Value right, ComparisonNode.ComparisonOp op) {
-        // String comparison
-        if (left instanceof StringValue(String value) && right instanceof StringValue(String value1)) {
-            int cmp = value.compareTo(value1);
-            return switch (op) {
-                case EQUAL -> cmp == 0;
-                case NOT_EQUAL -> cmp != 0;
-                case LESS -> cmp < 0;
-                case LESS_EQUAL -> cmp <= 0;
-                case GREATER -> cmp > 0;
-                case GREATER_EQUAL -> cmp >= 0;
-            };
-        }
-
-        // Numeric comparison
-        double leftVal = toDouble(left);
-        double rightVal = toDouble(right);
-
-        return switch (op) {
-            case EQUAL -> leftVal == rightVal;
-            case NOT_EQUAL -> leftVal != rightVal;
-            case LESS -> leftVal < rightVal;
-            case LESS_EQUAL -> leftVal <= rightVal;
-            case GREATER -> leftVal > rightVal;
-            case GREATER_EQUAL -> leftVal >= rightVal;
-        };
+        return new NormalResult(result);
     }
 
     // === LOGICAL ===
@@ -207,7 +158,16 @@ public class ASTInterpreter {
         ExecutionResult leftResult = execute(node.left());
         if (!leftResult.shouldContinue()) return leftResult;
 
-        boolean leftBool = toBool(leftResult.getValue());
+        Value leftValue = leftResult.getValue();
+        if (!(leftValue instanceof BoolValue leftBoolValue)) {
+            throw new InterpreterException(
+                "Logical operation requires BOOL operands",
+                exec,
+                node.location()
+            );
+        }
+
+        boolean leftBool = leftBoolValue.value();
 
         // Short-circuit evaluation
         if (node.operator() == LogicalNode.LogicalOp.AND && !leftBool) {
@@ -220,24 +180,18 @@ public class ASTInterpreter {
         ExecutionResult rightResult = execute(node.right());
         if (!rightResult.shouldContinue()) return rightResult;
 
-        boolean rightBool = toBool(rightResult.getValue());
+        Value rightValue = rightResult.getValue();
+        if (!(rightValue instanceof BoolValue)) {
+            throw new InterpreterException(
+                "Logical operation requires BOOL operands",
+                exec,
+                node.location()
+            );
+        }
 
-        boolean result = switch (node.operator()) {
-            case AND -> leftBool && rightBool;
-            case OR -> leftBool || rightBool;
-        };
+        BoolValue result = ValueOps.logical(leftValue, rightValue, node.operator());
 
-        return new NormalResult(BoolValue.of(result));
-    }
-
-    private boolean toBool(Value value) {
-        return switch (value) {
-            case BoolValue v -> v.value();
-            case IntValue v -> v.value() != 0;
-            case DoubleValue v -> v.value() != 0.0;
-            case StringValue v -> v.value().equalsIgnoreCase("TRUE");
-            default -> false;
-        };
+        return new NormalResult(result);
     }
 
     // === CONTROL FLOW ===
@@ -248,7 +202,7 @@ public class ASTInterpreter {
             ExecutionResult condResult = execute(node.condition());
             if (!condResult.shouldContinue()) return condResult;
 
-            boolean condition = toBool(condResult.getValue());
+            boolean condition = ArgumentHelper.getBoolean(condResult.getValue());
 
             if (condition) {
                 return execute(node.thenBranch());
@@ -311,7 +265,7 @@ public class ASTInterpreter {
                 ExecutionResult condResult = execute(node.condition());
                 if (!condResult.shouldContinue()) return condResult;
 
-                if (!toBool(condResult.getValue())) {
+                if (!ArgumentHelper.getBoolean(condResult.getValue())) {
                     break;
                 }
 
@@ -338,10 +292,7 @@ public class ASTInterpreter {
         return switch (value) {
             case IntValue v -> v.value();
             case DoubleValue v -> (int) v.value();
-            case StringValue v -> {
-                IntValue i = v.tryParseInt();
-                yield i != null ? i.value() : 0;
-            }
+            case StringValue v -> v.tryParseInt().value();
             default -> 0;
         };
     }
@@ -368,6 +319,20 @@ public class ASTInterpreter {
 
     private ExecutionResult executeMethodCall(MethodCallNode node) {
         Variable target = resolveMethodTarget(node.target(), node.location());
+        String methodName = node.methodName().toUpperCase();
+
+        if (target instanceof ConditionVariable cond) {
+            ExecutionResult handled = handleConditionMethod(cond, methodName, node);
+            if (handled != null) {
+                return handled;
+            }
+        }
+        if (target instanceof ComplexConditionVariable complex) {
+            ExecutionResult handled = handleComplexConditionMethod(complex, methodName, node);
+            if (handled != null) {
+                return handled;
+            }
+        }
 
         MethodSpec spec = resolveMethodSpec(target, node.methodName(), node.location());
 
@@ -515,15 +480,191 @@ public class ASTInterpreter {
     private MethodSpec resolveMethodSpec(Variable target, String methodName, SourceLocation location) {
         MethodSpec spec = target.methodSpecs().get(methodName.toUpperCase());
         if (spec == null || spec.method() == null) {
-            throw new InterpreterException(
-                "Method not found: " + methodName + " on " + target.type(),
-                exec,
-                location
-            );
+            MethodSpec global = target.globalMethods().get(methodName);
+            if (global == null || global.method() == null) {
+                throw new InterpreterException(
+                    "Method not found: " + methodName + " on " + target.type(),
+                    exec,
+                    location
+                );
+            }
+            return global;
         }
         return spec;
     }
 
+    private ExecutionResult handleConditionMethod(ConditionVariable cond, String methodName, MethodCallNode node) {
+        BoolValue result = evaluateCondition(cond, node.location());
+        boolean emitSignal = false;
+        if (!node.arguments().isEmpty()) {
+            Value argValue = execute(node.arguments().get(0)).getValue();
+            emitSignal = ArgumentHelper.getBoolean(argValue);
+        }
+        if (emitSignal) {
+            cond.emitSignal(result.value() ? "ONRUNTIMESUCCESS" : "ONRUNTIMEFAILED");
+        }
+
+        switch (methodName) {
+            case "CHECK" -> {
+                return new NormalResult(result);
+            }
+            case "BREAK" -> {
+                return result.value() ? BreakResult.INSTANCE : new NormalResult(NullValue.INSTANCE);
+            }
+            case "ONE_BREAK" -> {
+                return result.value() ? OneBreakResult.INSTANCE : new NormalResult(NullValue.INSTANCE);
+            }
+            default -> {}
+        }
+
+        return null;
+    }
+
+    private ExecutionResult handleComplexConditionMethod(ComplexConditionVariable cond, String methodName, MethodCallNode node) {
+        BoolValue result = evaluateComplexCondition(cond, node.location());
+        boolean emitSignal = false;
+        if (!node.arguments().isEmpty()) {
+            Value argValue = execute(node.arguments().get(0)).getValue();
+            emitSignal = ArgumentHelper.getBoolean(argValue);
+        }
+        if (emitSignal) {
+            cond.emitSignal(result.value() ? "ONRUNTIMESUCCESS" : "ONRUNTIMEFAILED");
+        }
+
+        switch (methodName) {
+            case "CHECK" -> {
+                return new NormalResult(result);
+            }
+            case "BREAK" -> {
+                return result.value() ? BreakResult.INSTANCE : new NormalResult(NullValue.INSTANCE);
+            }
+            case "ONE_BREAK" -> {
+                return result.value() ? OneBreakResult.INSTANCE : new NormalResult(NullValue.INSTANCE);
+            }
+            default -> {}
+        }
+
+        return null;
+    }
+
+    private BoolValue evaluateComplexCondition(ComplexConditionVariable cond, SourceLocation location) {
+        Value left = resolveConditionValue(cond.condition1Name(), location);
+        Value right = resolveConditionValue(cond.condition2Name(), location);
+
+        if (!(left instanceof BoolValue) || !(right instanceof BoolValue)) {
+            throw new InterpreterException(
+                "ComplexCondition operands must be BOOL",
+                exec,
+                location
+            );
+        }
+
+        LogicalNode.LogicalOp op = cond.isAnd()
+            ? LogicalNode.LogicalOp.AND
+            : LogicalNode.LogicalOp.OR;
+
+        return ValueOps.logical(left, right, op);
+    }
+
+    private Value resolveConditionValue(String name, SourceLocation location) {
+        Variable var = context.getVariable(name);
+        if (var == null) {
+            throw new InterpreterException("Variable not found: " + name, exec, location);
+        }
+        if (var instanceof ConditionVariable cond) {
+            return evaluateCondition(cond, location);
+        }
+        if (var instanceof ComplexConditionVariable complex) {
+            return evaluateComplexCondition(complex, location);
+        }
+        return var.value();
+    }
+
+    private BoolValue evaluateCondition(ConditionVariable cond, SourceLocation location) {
+        Value left = resolveOperandValue(cond.operand1(), location);
+        Value right = resolveOperandValue(cond.operand2(), location);
+
+        ComparisonNode.ComparisonOp op = switch (cond.operator().toUpperCase()) {
+            case "EQUAL" -> ComparisonNode.ComparisonOp.EQUAL;
+            case "NOTEQUAL" -> ComparisonNode.ComparisonOp.NOT_EQUAL;
+            case "LESS" -> ComparisonNode.ComparisonOp.LESS;
+            case "GREATER" -> ComparisonNode.ComparisonOp.GREATER;
+            case "LESSEQUAL" -> ComparisonNode.ComparisonOp.LESS_EQUAL;
+            case "GREATEREQUAL" -> ComparisonNode.ComparisonOp.GREATER_EQUAL;
+            default -> ComparisonNode.ComparisonOp.EQUAL;
+        };
+
+        return ValueOps.compare(left, right, op);
+    }
+
+    private Value evaluateExpression(ExpressionVariable expr, SourceLocation location) {
+        Value left = resolveOperandValue(expr.operand1(), location);
+        Value right = resolveOperandValue(expr.operand2(), location);
+
+        ArithmeticNode.ArithmeticOp op = switch (expr.operator().toUpperCase()) {
+            case "ADD" -> ArithmeticNode.ArithmeticOp.ADD;
+            case "SUB" -> ArithmeticNode.ArithmeticOp.SUBTRACT;
+            case "MUL" -> ArithmeticNode.ArithmeticOp.MULTIPLY;
+            case "DIV" -> ArithmeticNode.ArithmeticOp.DIVIDE;
+            case "MOD" -> ArithmeticNode.ArithmeticOp.MODULO;
+            default -> ArithmeticNode.ArithmeticOp.ADD;
+        };
+
+        return ValueOps.arithmetic(left, right, op);
+    }
+
+    private Value resolveOperandValue(String operand, SourceLocation location) {
+        if (operand == null) {
+            return NullValue.INSTANCE;
+        }
+
+        String trimmed = operand.trim();
+        if (trimmed.isEmpty()) {
+            return new StringValue("");
+        }
+
+        if ((trimmed.startsWith("\"") && trimmed.endsWith("\"")) ||
+            (trimmed.startsWith("'") && trimmed.endsWith("'"))) {
+            return new StringValue(trimmed.substring(1, trimmed.length() - 1));
+        }
+
+        if ("TRUE".equalsIgnoreCase(trimmed)) {
+            return BoolValue.TRUE;
+        }
+        if ("FALSE".equalsIgnoreCase(trimmed)) {
+            return BoolValue.FALSE;
+        }
+
+        if (trimmed.matches("[-+]?\\d+")) {
+            try {
+                return new IntValue(Integer.parseInt(trimmed));
+            } catch (NumberFormatException ignored) {
+            }
+        }
+        if (trimmed.matches("[-+]?\\d*\\.\\d+")) {
+            try {
+                return new DoubleValue(Double.parseDouble(trimmed));
+            } catch (NumberFormatException ignored) {
+            }
+        }
+
+        Variable var = context.getVariable(trimmed);
+        if (var == null) {
+            throw new InterpreterException("Variable not found: " + trimmed, exec, location);
+        }
+
+        if (var instanceof ExpressionVariable expr) {
+            return evaluateExpression(expr, location);
+        }
+        if (var instanceof ConditionVariable cond) {
+            return evaluateCondition(cond, location);
+        }
+        if (var instanceof ComplexConditionVariable complex) {
+            return evaluateComplexCondition(complex, location);
+        }
+
+        return var.value();
+    }
     private Value resolveVariableArgument(Value argValue, ArgKind argKind, SourceLocation location) {
         if (argValue instanceof VariableValue) {
             return argValue;

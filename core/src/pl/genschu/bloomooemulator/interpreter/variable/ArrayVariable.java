@@ -1,7 +1,9 @@
 package pl.genschu.bloomooemulator.interpreter.variable;
 
 import pl.genschu.bloomooemulator.annotations.InternalMutable;
+import pl.genschu.bloomooemulator.interpreter.ast.ComparisonNode;
 import pl.genschu.bloomooemulator.interpreter.helpers.ArgumentHelper;
+import pl.genschu.bloomooemulator.interpreter.ops.ValueOps;
 import pl.genschu.bloomooemulator.interpreter.values.*;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -147,14 +149,32 @@ public record ArrayVariable(
                 return MethodResult.noChange(NullValue.INSTANCE);
             }
 
-            double rangeMin = ArgumentHelper.getDouble(args.get(1));
-            double rangeMax = ArgumentHelper.getDouble(args.get(2));
-            double current = ArgumentHelper.getDouble(thisVar.elements.get(index));
-            double clamped = Math.max(rangeMin, Math.min(rangeMax, current));
+            Value current = thisVar.elements.get(index);
 
-            List<Value> newElements = new ArrayList<>(thisVar.elements);
-            newElements.set(index, new DoubleValue(clamped));
-            return MethodResult.sets(thisVar.withElements(newElements));
+            switch(current) {
+                case IntValue iv -> {
+                    int rangeMin = ArgumentHelper.getInt(args.get(1));
+                    int rangeMax = ArgumentHelper.getInt(args.get(2));
+                    int clamped = Math.max(rangeMin, Math.min(rangeMax, iv.value()));
+
+                    List<Value> newElements = new ArrayList<>(thisVar.elements);
+                    newElements.set(index, new IntValue(clamped));
+                    return MethodResult.sets(thisVar.withElements(newElements));
+                }
+                case DoubleValue dv -> {
+                    double rangeMin = ArgumentHelper.getDouble(args.get(1));
+                    double rangeMax = ArgumentHelper.getDouble(args.get(2));
+                    double clamped = Math.max(rangeMin, Math.min(rangeMax, dv.value()));
+
+                    List<Value> newElements = new ArrayList<>(thisVar.elements);
+                    newElements.set(index, new DoubleValue(clamped));
+                    return MethodResult.sets(thisVar.withElements(newElements));
+                }
+                default -> {
+                    /* no adjustment possible */
+                    return MethodResult.noChange(NullValue.INSTANCE);
+                }
+            }
         }),
 
         Map.entry("CONTAINS", (self, args) -> {
@@ -180,9 +200,9 @@ public record ArrayVariable(
                 throw new IllegalArgumentException("FIND requires 1 argument");
             }
 
-            String needle = ArgumentHelper.getString(args.get(0));
+            Value needle = args.get(0);
             for (int i = 0; i < thisVar.elements.size(); i++) {
-                if (thisVar.elements.get(i).toDisplayString().equals(needle)) {
+                if(ValueOps.compare(thisVar.elements().get(i), needle, ComparisonNode.ComparisonOp.EQUAL).value()) {
                     return MethodResult.noChange(new IntValue(i));
                 }
             }
@@ -197,10 +217,6 @@ public record ArrayVariable(
 
             int index = ArgumentHelper.getInt(args.get(0));
             if (index < 0 || index >= thisVar.elements.size()) {
-                // Return default if provided, else NULL
-                if (args.size() > 1) {
-                    return MethodResult.noChange(args.get(1));
-                }
                 return MethodResult.noChange(NullValue.INSTANCE);
             }
             return MethodResult.noChange(thisVar.elements.get(index));
@@ -309,9 +325,9 @@ public record ArrayVariable(
                 throw new IllegalArgumentException("REVERSEFIND requires 1 argument");
             }
 
-            String needle = ArgumentHelper.getString(args.get(0));
+            Value needle = args.get(0);
             for (int i = thisVar.elements.size() - 1; i >= 0; i--) {
-                if (thisVar.elements.get(i).toDisplayString().equals(needle)) {
+                if(ValueOps.compare(thisVar.elements().get(i), needle, ComparisonNode.ComparisonOp.EQUAL).value()) {
                     return MethodResult.noChange(new IntValue(i));
                 }
             }
