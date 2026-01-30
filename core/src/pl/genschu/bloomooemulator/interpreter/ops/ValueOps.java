@@ -23,14 +23,14 @@ public final class ValueOps {
             case DIVIDE -> {
                 try {
                     yield divide(a, b);
-                } catch (ArithmeticException e) {
+                } catch (ArithmeticException e) { // Division by zero
                     yield new StringValue("NULL");
                 }
             }
             case MODULO -> {
                 try {
                     yield modulo(a, b);
-                } catch (ArithmeticException e) {
+                } catch (ArithmeticException e) { // Division by zero
                     yield new StringValue("NULL");
                 }
             }
@@ -54,13 +54,13 @@ public final class ValueOps {
         Value a = toPrimitive(left);
         Value b = toPrimitive(right);
 
-        if (!(a instanceof BoolValue ba) || !(b instanceof BoolValue bb)) {
+        if (!(a instanceof BoolValue(boolean value)) || !(b instanceof BoolValue(boolean value1))) {
             throw new UnsupportedOperationException("Logical operation requires BOOL operands");
         }
 
         return switch (op) {
-            case AND -> BoolValue.of(ba.value() && bb.value());
-            case OR -> BoolValue.of(ba.value() || bb.value());
+            case AND -> BoolValue.of(value && value1);
+            case OR -> BoolValue.of(value || value1);
         };
     }
 
@@ -82,7 +82,7 @@ public final class ValueOps {
             };
             case DoubleValue da -> switch (b) {
                 case StringValue sb -> new DoubleValue(da.value() + sb.tryParseDouble().value());
-                case IntValue ib -> new DoubleValue(da.value() + ib.value());
+                case IntValue ib -> new DoubleValue(da.value() + ib.toDouble().value());
                 case DoubleValue db -> new DoubleValue(da.value() + db.value());
                 case BoolValue bb -> new DoubleValue(da.value() + bb.toDouble().value());
                 default -> da;
@@ -90,8 +90,6 @@ public final class ValueOps {
             case BoolValue ba -> switch (b) {
                 case StringValue sb -> BoolValue.FALSE;
                 case BoolValue bb -> BoolValue.of(ba.value() && bb.value());
-                case IntValue ib -> ba;
-                case DoubleValue db -> ba;
                 default -> ba;
             };
             default -> a;
@@ -110,7 +108,7 @@ public final class ValueOps {
             };
             case DoubleValue da -> switch (b) {
                 case StringValue sb -> new DoubleValue(da.value() - sb.tryParseDouble().value());
-                case IntValue ib -> new DoubleValue(da.value() - ib.value());
+                case IntValue ib -> new DoubleValue(da.value() - ib.toDouble().value());
                 case DoubleValue db -> new DoubleValue(da.value() - db.value());
                 case BoolValue bb -> new DoubleValue(da.value() - bb.toDouble().value());
                 default -> da;
@@ -132,7 +130,7 @@ public final class ValueOps {
             };
             case DoubleValue da -> switch (b) {
                 case StringValue sb -> new DoubleValue(da.value() * sb.tryParseDouble().value());
-                case IntValue ib -> new DoubleValue(da.value() * ib.value());
+                case IntValue ib -> new DoubleValue(da.value() * ib.toDouble().value());
                 case DoubleValue db -> new DoubleValue(da.value() * db.value());
                 case BoolValue bb -> new DoubleValue(da.value() * bb.toDouble().value());
                 default -> da;
@@ -184,7 +182,7 @@ public final class ValueOps {
                 }
                 case IntValue ib -> {
                     if (ib.value() == 0) throw new ArithmeticException("Division by zero");
-                    yield new DoubleValue(da.value() / ib.value());
+                    yield new DoubleValue(da.value() / ib.toDouble().value());
                 }
                 case DoubleValue db -> {
                     if (db.value() == 0.0) throw new ArithmeticException("Division by zero");
@@ -243,7 +241,7 @@ public final class ValueOps {
                 }
                 case IntValue ib -> {
                     if (ib.value() == 0) throw new ArithmeticException("Division by zero");
-                    yield new DoubleValue((int) (da.value() % ib.value()));
+                    yield new DoubleValue((int) (da.value() % ib.toDouble().value()));
                 }
                 case DoubleValue db -> {
                     if (db.value() == 0.0) throw new ArithmeticException("Division by zero");
@@ -311,7 +309,7 @@ public final class ValueOps {
             case IntValue ia -> switch (b) {
                 case StringValue sb -> BoolValue.of(ia.value() > sb.tryParseInt().value());
                 case IntValue ib -> BoolValue.of(ia.value() > ib.value());
-                case DoubleValue db -> BoolValue.of(ia.value() > db.value());
+                case DoubleValue db -> BoolValue.of(ia.value() > db.toInt().value());
                 case BoolValue bb -> BoolValue.of(ia.value() > bb.toInt().value());
                 default -> BoolValue.FALSE;
             };
@@ -345,7 +343,7 @@ public final class ValueOps {
             case IntValue ia -> switch (b) {
                 case StringValue sb -> BoolValue.of(ia.value() < sb.tryParseInt().value());
                 case IntValue ib -> BoolValue.of(ia.value() < ib.value());
-                case DoubleValue db -> BoolValue.of(ia.value() < db.value());
+                case DoubleValue db -> BoolValue.of(ia.value() < db.toInt().value());
                 case BoolValue bb -> BoolValue.of(ia.value() < bb.toInt().value());
                 default -> BoolValue.FALSE;
             };
