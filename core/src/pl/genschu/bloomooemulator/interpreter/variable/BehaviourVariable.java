@@ -1,8 +1,11 @@
 package pl.genschu.bloomooemulator.interpreter.variable;
 
 import pl.genschu.bloomooemulator.interpreter.ast.ASTNode;
+import pl.genschu.bloomooemulator.interpreter.runtime.effects.RunBehaviourEffect;
+import pl.genschu.bloomooemulator.interpreter.values.NullValue;
 import pl.genschu.bloomooemulator.interpreter.values.Value;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -30,7 +33,7 @@ public record BehaviourVariable(
 
     @Override
     public Value value() {
-        throw new UnsupportedOperationException("TODO: Implement");
+        return NullValue.INSTANCE;
     }
 
     @Override
@@ -45,9 +48,29 @@ public record BehaviourVariable(
 
     @Override
     public Map<String, MethodSpec> methods() {
-        // TODO: Implement RUN, RUNC and RUNLOOPED methods (connect interpreter baby)
-        throw new UnsupportedOperationException("TODO: Implement");
+        return METHODS;
     }
+
+    // ========================================
+    // METHODS DEFINITION
+    // ========================================
+
+    private static final Map<String, MethodSpec> METHODS = Map.ofEntries(
+        Map.entry("RUN", MethodSpec.of((self, args) -> {
+            return MethodResult.effects(List.of(new RunBehaviourEffect(false)));
+        })),
+
+        Map.entry("RUNC", MethodSpec.of((self, args) -> {
+            // RUNC checks CONDITION attribute before running
+            return MethodResult.effects(List.of(new RunBehaviourEffect(true)));
+        })),
+
+        Map.entry("RUNLOOPED", MethodSpec.of((self, args) -> {
+            // TODO: Implement looped execution
+            // RUNLOOPED runs the behaviour in a loop until break/return
+            return MethodResult.effects(List.of(new RunBehaviourEffect(false)));
+        }))
+    );
 
     @Override
     public Variable withSignal(String signalName, SignalHandler handler) {

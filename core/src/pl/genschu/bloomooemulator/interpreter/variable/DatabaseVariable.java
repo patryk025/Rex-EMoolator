@@ -4,7 +4,6 @@ import pl.genschu.bloomooemulator.interpreter.values.*;
 import pl.genschu.bloomooemulator.interpreter.variable.capabilities.HasCursor;
 import pl.genschu.bloomooemulator.interpreter.variable.db.DatabaseState;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -112,7 +111,7 @@ public final class DatabaseVariable implements Variable, HasCursor {
         return switch (v) {
             case IntValue iv -> iv.value();
             case StringValue sv -> {
-                IntValue parsed = sv.tryParseInt();
+                IntValue parsed = sv.toInt();
                 yield parsed != null ? parsed.value() : def;
             }
             default -> def;

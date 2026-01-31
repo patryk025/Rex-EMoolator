@@ -45,7 +45,8 @@ public record StringValue(String value) implements Value {
      * Attempts to convert this string to an integer.
      * Returns 0 if the string is not a valid integer.
      */
-    public IntValue tryParseInt() {
+    @Override
+    public IntValue toInt() {
         try {
             String numericPrefix = value().replaceFirst("^([-+]?\\d*\\.?\\d+).*", "$1");
             double value = Double.parseDouble(numericPrefix);
@@ -60,7 +61,8 @@ public record StringValue(String value) implements Value {
      * Attempts to convert this string to a double.
      * Returns 0 if the string is not a valid double.
      */
-    public DoubleValue tryParseDouble() {
+    @Override
+    public DoubleValue toDouble() {
         try {
             String numericPrefix = value().replaceFirst("^([-+]?\\d*\\.?\\d+).*", "$1");
             double value = Double.parseDouble(numericPrefix);

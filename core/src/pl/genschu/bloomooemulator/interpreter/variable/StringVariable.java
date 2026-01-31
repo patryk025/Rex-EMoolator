@@ -62,7 +62,11 @@ public record StringVariable(
     @Override
     public Variable withSignal(String signalName, SignalHandler handler) {
         Map<String, SignalHandler> newSignals = new HashMap<>(signals);
-        newSignals.put(signalName, handler);
+        if (handler == null) {
+            newSignals.remove(signalName);
+        } else {
+            newSignals.put(signalName, handler);
+        }
         return new StringVariable(name, stringValue, newSignals);
     }
 
@@ -258,4 +262,8 @@ public record StringVariable(
         return "StringVariable[" + name + "=\"" + stringValue + "\"]";
     }
 
+    @Override
+    public Variable copyAs(String newName) {
+        return new StringVariable(newName, this.stringValue, this.signals);
+    }
 }

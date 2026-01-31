@@ -1,6 +1,8 @@
 package pl.genschu.bloomooemulator.builders;
 
+import pl.genschu.bloomooemulator.interpreter.ast.ASTNode;
 import pl.genschu.bloomooemulator.interpreter.context.Context;
+import pl.genschu.bloomooemulator.interpreter.parser.ASTBuilder;
 import pl.genschu.bloomooemulator.interpreter.runtime.ExecutionContext;
 import pl.genschu.bloomooemulator.interpreter.variable.*;
 
@@ -64,14 +66,19 @@ public final class ContextBuilder {
 
     /**
      * Creates a new Variable from type string and value.
-     * Supports basic types: INTEGER, DOUBLE, STRING, BOOLEAN
+     * Supports basic types: INTEGER, DOUBLE, STRING, BOOLEAN, BOOL, BEHAVIOUR
      */
     private Variable createVariable(String type, String name, Object value) {
         return switch (type.toUpperCase()) {
             case "INTEGER" -> new IntegerVariable(name, ((Number) value).intValue());
             case "DOUBLE" -> new DoubleVariable(name, ((Number) value).doubleValue());
             case "STRING" -> new StringVariable(name, value.toString());
-            case "BOOLEAN" -> new BoolVariable(name, (Boolean) value);
+            case "BOOLEAN", "BOOL" -> new BoolVariable(name, (Boolean) value);
+            case "BEHAVIOUR" -> {
+                String code = value.toString();
+                ASTNode ast = ASTBuilder.parseCode(code, name);
+                yield new BehaviourVariable(name, ast, java.util.Map.of());
+            }
             default -> throw new IllegalArgumentException("Unsupported type: " + type);
         };
     }

@@ -292,7 +292,7 @@ public class ASTInterpreter {
         return switch (value) {
             case IntValue v -> v.value();
             case DoubleValue v -> (int) v.value();
-            case StringValue v -> v.tryParseInt().value();
+            case StringValue v -> v.toInt().value();
             default -> 0;
         };
     }

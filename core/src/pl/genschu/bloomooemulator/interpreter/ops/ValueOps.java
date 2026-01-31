@@ -74,14 +74,14 @@ public final class ValueOps {
                 default -> sa;
             };
             case IntValue ia -> switch (b) {
-                case StringValue sb -> new IntValue(ia.value() + sb.tryParseInt().value());
+                case StringValue sb -> new IntValue(ia.value() + sb.toInt().value());
                 case IntValue ib -> new IntValue(ia.value() + ib.value());
                 case DoubleValue db -> new IntValue(ia.value() + db.toInt().value());
                 case BoolValue bb -> new IntValue(ia.value() + bb.toInt().value());
                 default -> ia;
             };
             case DoubleValue da -> switch (b) {
-                case StringValue sb -> new DoubleValue(da.value() + sb.tryParseDouble().value());
+                case StringValue sb -> new DoubleValue(da.value() + sb.toDouble().value());
                 case IntValue ib -> new DoubleValue(da.value() + ib.toDouble().value());
                 case DoubleValue db -> new DoubleValue(da.value() + db.value());
                 case BoolValue bb -> new DoubleValue(da.value() + bb.toDouble().value());
@@ -100,14 +100,14 @@ public final class ValueOps {
         return switch (a) {
             case StringValue sa -> sa;
             case IntValue ia -> switch (b) {
-                case StringValue sb -> new IntValue(ia.value() - sb.tryParseInt().value());
+                case StringValue sb -> new IntValue(ia.value() - sb.toInt().value());
                 case IntValue ib -> new IntValue(ia.value() - ib.value());
                 case DoubleValue db -> new IntValue(ia.value() - db.toInt().value());
                 case BoolValue bb -> new IntValue(ia.value() - bb.toInt().value());
                 default -> ia;
             };
             case DoubleValue da -> switch (b) {
-                case StringValue sb -> new DoubleValue(da.value() - sb.tryParseDouble().value());
+                case StringValue sb -> new DoubleValue(da.value() - sb.toDouble().value());
                 case IntValue ib -> new DoubleValue(da.value() - ib.toDouble().value());
                 case DoubleValue db -> new DoubleValue(da.value() - db.value());
                 case BoolValue bb -> new DoubleValue(da.value() - bb.toDouble().value());
@@ -122,14 +122,14 @@ public final class ValueOps {
         return switch (a) {
             case StringValue sa -> sa;
             case IntValue ia -> switch (b) {
-                case StringValue sb -> new IntValue(ia.value() * sb.tryParseInt().value());
+                case StringValue sb -> new IntValue(ia.value() * sb.toInt().value());
                 case IntValue ib -> new IntValue(ia.value() * ib.value());
                 case DoubleValue db -> new IntValue(ia.value() * db.toInt().value());
                 case BoolValue bb -> new IntValue(ia.value() * bb.toInt().value());
                 default -> ia;
             };
             case DoubleValue da -> switch (b) {
-                case StringValue sb -> new DoubleValue(da.value() * sb.tryParseDouble().value());
+                case StringValue sb -> new DoubleValue(da.value() * sb.toDouble().value());
                 case IntValue ib -> new DoubleValue(da.value() * ib.toDouble().value());
                 case DoubleValue db -> new DoubleValue(da.value() * db.value());
                 case BoolValue bb -> new DoubleValue(da.value() * bb.toDouble().value());
@@ -154,7 +154,7 @@ public final class ValueOps {
             }
             case IntValue ia -> switch (b) {
                 case StringValue sb -> {
-                    int divisor = sb.tryParseInt().value();
+                    int divisor = sb.toInt().value();
                     if (divisor == 0) throw new ArithmeticException("Division by zero");
                     yield new IntValue(ia.value() / divisor);
                 }
@@ -176,7 +176,7 @@ public final class ValueOps {
             };
             case DoubleValue da -> switch (b) {
                 case StringValue sb -> {
-                    double divisor = sb.tryParseDouble().value();
+                    double divisor = sb.toDouble().value();
                     if (divisor == 0.0) throw new ArithmeticException("Division by zero");
                     yield new DoubleValue(da.value() / divisor);
                 }
@@ -213,7 +213,7 @@ public final class ValueOps {
             }
             case IntValue ia -> switch (b) {
                 case StringValue sb -> {
-                    int divisor = sb.tryParseInt().value();
+                    int divisor = sb.toInt().value();
                     if (divisor == 0) throw new ArithmeticException("Division by zero");
                     yield new IntValue(ia.value() % divisor);
                 }
@@ -235,7 +235,7 @@ public final class ValueOps {
             };
             case DoubleValue da -> switch (b) {
                 case StringValue sb -> {
-                    double divisor = sb.tryParseDouble().value();
+                    double divisor = sb.toDouble().value();
                     if (divisor == 0.0) throw new ArithmeticException("Division by zero");
                     yield new DoubleValue((int) (da.value() % divisor));
                 }
@@ -273,14 +273,14 @@ public final class ValueOps {
                 default -> BoolValue.FALSE;
             };
             case IntValue ia -> switch (b) {
-                case StringValue sb -> BoolValue.of(ia.value() == sb.tryParseInt().value());
+                case StringValue sb -> BoolValue.of(ia.value() == sb.toInt().value());
                 case IntValue ib -> BoolValue.of(ia.value() == ib.value());
                 case DoubleValue db -> BoolValue.of(ia.value() == db.toInt().value());
                 case BoolValue bb -> BoolValue.of(ia.value() == bb.toInt().value());
                 default -> BoolValue.FALSE;
             };
             case DoubleValue da -> switch (b) {
-                case StringValue sb -> BoolValue.of(da.value() == sb.tryParseDouble().value());
+                case StringValue sb -> BoolValue.of(da.value() == sb.toDouble().value());
                 case IntValue ib -> BoolValue.of(da.value() == ib.toDouble().value());
                 case DoubleValue db -> BoolValue.of(da.value() == db.value());
                 case BoolValue bb -> BoolValue.of(da.value() == bb.toDouble().value());
@@ -307,14 +307,14 @@ public final class ValueOps {
                 default -> BoolValue.FALSE;
             };
             case IntValue ia -> switch (b) {
-                case StringValue sb -> BoolValue.of(ia.value() > sb.tryParseInt().value());
+                case StringValue sb -> BoolValue.of(ia.value() > sb.toInt().value());
                 case IntValue ib -> BoolValue.of(ia.value() > ib.value());
                 case DoubleValue db -> BoolValue.of(ia.value() > db.toInt().value());
                 case BoolValue bb -> BoolValue.of(ia.value() > bb.toInt().value());
                 default -> BoolValue.FALSE;
             };
             case DoubleValue da -> switch (b) {
-                case StringValue sb -> BoolValue.of(da.value() > sb.tryParseDouble().value());
+                case StringValue sb -> BoolValue.of(da.value() > sb.toDouble().value());
                 case IntValue ib -> BoolValue.of(da.value() > ib.toDouble().value());
                 case DoubleValue db -> BoolValue.of(da.value() > db.value());
                 case BoolValue bb -> BoolValue.of(da.value() > bb.toDouble().value());
@@ -341,14 +341,14 @@ public final class ValueOps {
                 default -> BoolValue.FALSE;
             };
             case IntValue ia -> switch (b) {
-                case StringValue sb -> BoolValue.of(ia.value() < sb.tryParseInt().value());
+                case StringValue sb -> BoolValue.of(ia.value() < sb.toInt().value());
                 case IntValue ib -> BoolValue.of(ia.value() < ib.value());
                 case DoubleValue db -> BoolValue.of(ia.value() < db.toInt().value());
                 case BoolValue bb -> BoolValue.of(ia.value() < bb.toInt().value());
                 default -> BoolValue.FALSE;
             };
             case DoubleValue da -> switch (b) {
-                case StringValue sb -> BoolValue.of(da.value() < sb.tryParseDouble().value());
+                case StringValue sb -> BoolValue.of(da.value() < sb.toDouble().value());
                 case IntValue ib -> BoolValue.of(da.value() < ib.toDouble().value());
                 case DoubleValue db -> BoolValue.of(da.value() < db.value());
                 case BoolValue bb -> BoolValue.of(da.value() < bb.toDouble().value());

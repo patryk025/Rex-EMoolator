@@ -98,24 +98,13 @@ public class OriginalEngineQuirksHandler {
             }
 
             // Then check base variable
-            Variable baseVar = context.getVariable(baseName);
-            if (baseVar == null) {
-                return null;
-            }
-
-            // v1 quirk: if base is STRING and its value equals its name,
-            // don't return it as _0 (it's a fallback string, not real variable)
-            if (baseVar.type() == VariableType.STRING) {
-                // TODO: Check if value().toDisplayString().equals(baseName)
-                // For now, return it anyway
-            }
-
-            return baseVar;
+            return context.getVariable(baseName);
         } else {
             // _1+: Find in clones list (using capability)
+            // Use store().get() directly to avoid infinite recursion through getVariable()
             for (String cloneName : context.clones().getCloneNames(baseName)) {
                 if (cloneName.equals(name)) {
-                    return context.getVariable(cloneName);
+                    return context.store().get(cloneName);
                 }
             }
 

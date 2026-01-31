@@ -3,7 +3,6 @@ package pl.genschu.bloomooemulator.interpreter.variable;
 import pl.genschu.bloomooemulator.interpreter.helpers.ArgumentHelper;
 import pl.genschu.bloomooemulator.interpreter.values.*;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
@@ -53,7 +52,7 @@ public record IntegerVariable(
             case IntValue v -> v.value();
             case DoubleValue v -> (int) v.value();
             case StringValue v -> {
-                IntValue parsed = v.tryParseInt();
+                IntValue parsed = v.toInt();
                 yield parsed != null ? parsed.value() : 0;
             }
             case BoolValue v -> v.value() ? 1 : 0;
@@ -348,4 +347,8 @@ public record IntegerVariable(
         return "IntVariable[" + name + "=" + intValue + "]";
     }
 
+    @Override
+    public Variable copyAs(String newName) {
+        return new IntegerVariable(newName, this.intValue, this.signals);
+    }
 }

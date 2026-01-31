@@ -11,7 +11,7 @@ public class ArgumentHelper {
         return switch (value) {
             case IntValue v -> v.value();
             case DoubleValue v -> v.toInt().value();
-            case StringValue v -> v.tryParseInt().value();
+            case StringValue v -> v.toInt().value();
             case BoolValue v -> v.toInt().value();
             case VariableValue v -> getInt(v.variable().value());
             default -> 0;
@@ -41,7 +41,7 @@ public class ArgumentHelper {
         return switch (value) {
             case IntValue v -> v.toDouble().value();
             case DoubleValue v -> v.value();
-            case StringValue v -> v.tryParseDouble().value();
+            case StringValue v -> v.toDouble().value();
             case BoolValue v -> v.toDouble().value();
             case VariableValue v -> getDouble(v.variable().value());
             default -> 0.0;

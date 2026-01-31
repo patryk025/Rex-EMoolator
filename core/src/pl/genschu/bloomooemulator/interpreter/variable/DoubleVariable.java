@@ -383,4 +383,8 @@ public record DoubleVariable(
         return "DoubleVariable[" + name + "=" + doubleValue + "]";
     }
 
+    @Override
+    public Variable copyAs(String newName) {
+        return new DoubleVariable(newName, this.doubleValue, this.signals);
+    }
 }

@@ -124,4 +124,8 @@ public record BoolVariable(
         return "BoolVariable[" + name + "=" + (boolValue ? "TRUE" : "FALSE") + "]";
     }
 
+    @Override
+    public Variable copyAs(String newName) {
+        return new BoolVariable(newName, this.boolValue, this.signals);
+    }
 }

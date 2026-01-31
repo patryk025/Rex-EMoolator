@@ -1,7 +1,9 @@
 package pl.genschu.bloomooemulator.interpreter.variable;
 
 import pl.genschu.bloomooemulator.interpreter.helpers.ArgumentHelper;
+import pl.genschu.bloomooemulator.interpreter.runtime.effects.AddBehaviourEffect;
 import pl.genschu.bloomooemulator.interpreter.runtime.effects.CloneEffect;
+import pl.genschu.bloomooemulator.interpreter.runtime.effects.RemoveBehaviourEffect;
 import pl.genschu.bloomooemulator.interpreter.values.*;
 
 import java.util.List;
@@ -92,6 +94,15 @@ public sealed interface Variable permits
      * Global methods available on all variable types.
      */
     Map<String, MethodSpec> GLOBAL_METHODS = Map.ofEntries(
+            Map.entry("ADDBEHAVIOUR", MethodSpec.of((self, args) -> {
+                if (args == null || args.size() < 2) {
+                    throw new IllegalArgumentException("ADDBEHAVIOUR requires 2 arguments: signalName, behaviourName");
+                }
+                String signalName = ArgumentHelper.getString(args.get(0));
+                String behaviourSpec = ArgumentHelper.getString(args.get(1));
+                return MethodResult.effects(List.of(new AddBehaviourEffect(signalName, behaviourSpec)));
+            })),
+
             Map.entry("CLONE", MethodSpec.of((self, args) -> {
                 int amount = 1;
                 if (args != null && !args.isEmpty()) {
@@ -112,6 +123,23 @@ public sealed interface Variable permits
                     }
                 }
                 return MethodResult.noChange(new IntValue(idx));
+            })),
+
+            Map.entry("REMOVEBEHAVIOUR", MethodSpec.of((self, args) -> {
+                if (args == null || args.isEmpty()) {
+                    throw new IllegalArgumentException("REMOVEBEHAVIOUR requires 1 argument: signalName");
+                }
+                String signalName = ArgumentHelper.getString(args.get(0));
+                return MethodResult.effects(List.of(new RemoveBehaviourEffect(signalName)));
+            })),
+
+            Map.entry("SEND", MethodSpec.of((self, args) -> {
+                if (args == null || args.isEmpty()) {
+                    throw new IllegalArgumentException("SEND requires 1 argument: signal");
+                }
+                String signal = ArgumentHelper.getString(args.get(0));
+                self.emitSignal("ONSIGNAL", new StringValue(signal));
+                return MethodResult.noChange(NullValue.INSTANCE);
             }))
     );
 
@@ -133,9 +161,26 @@ public sealed interface Variable permits
     Map<String, SignalHandler> signals();
 
     /**
+     * Gets a signal handler by name.
+     * Convenience method for signals().get(signalName).
+     */
+    default SignalHandler getSignal(String signalName) {
+        Map<String, SignalHandler> registeredSignals = signals();
+        return registeredSignals != null ? registeredSignals.get(signalName) : null;
+    }
+
+    /**
      * Creates a new Variable with an additional signal handler.
+     * If handler is null, removes the signal.
      */
     Variable withSignal(String signalName, SignalHandler handler);
+
+    /**
+     * Creates a new Variable without the specified signal.
+     */
+    default Variable withoutSignal(String signalName) {
+        return withSignal(signalName, null);
+    }
 
     /**
      * Emits a signal on this variable.
@@ -163,7 +208,6 @@ public sealed interface Variable permits
             "INTEGER", (name, val) -> new IntegerVariable(name, val.toInt().value()),
             "DOUBLE",  (name, val) -> new DoubleVariable(name, val.toDouble().value()),
             "STRING",  (name, val) -> new StringVariable(name, val.toStringValue().value()),
-            "BOOL",    (name, val) -> new BoolVariable(name, val.toBool().value()),
             "BOOLEAN", (name, val) -> new BoolVariable(name, val.toBool().value())
     );
 
@@ -174,6 +218,10 @@ public sealed interface Variable permits
         String target = targetType.toUpperCase();
         if (type().name().equals(target)) {
             return this;
+        }
+
+        if(!type().isPrimitive()) {
+            throw new UnsupportedOperationException("Conversion from non-primitive type " + type() + " is not supported");
         }
 
         var factory = CONVERTERS.get(target);
