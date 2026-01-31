@@ -138,7 +138,9 @@ public sealed interface Variable permits
                     throw new IllegalArgumentException("SEND requires 1 argument: signal");
                 }
                 String signal = ArgumentHelper.getString(args.get(0));
-                self.emitSignal("ONSIGNAL", new StringValue(signal));
+
+                // TODO: consider passing arguments not as part of signal name but separately
+                self.emitSignal("ONSIGNAL^" + signal);
                 return MethodResult.noChange(NullValue.INSTANCE);
             }))
     );
@@ -186,6 +188,7 @@ public sealed interface Variable permits
      * Emits a signal on this variable.
      * This executes the signal handler if one is registered.
      */
+    // TODO: arguments technically should be as part of signalName, separated by ^, but for now we keep it like this, as ONNEXT and ONLATEST in MATRIX probably doesn't use ^ in signals and passes arguments separately.
     default void emitSignal(String signalName, Value... arguments) {
         Map<String, SignalHandler> registeredSignals = signals();
         SignalHandler handler = registeredSignals != null ? registeredSignals.get(signalName) : null;

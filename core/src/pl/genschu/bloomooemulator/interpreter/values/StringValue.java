@@ -59,14 +59,20 @@ public record StringValue(String value) implements Value {
 
     /**
      * Attempts to convert this string to a double.
+     * Supports scientific notation with e/E/d/D (yeah, for nobody knows reason "d" is also correct).
+     * Examples: "123.55e12", "123.55D12", "1.5d-3"
      * Returns 0 if the string is not a valid double.
      */
     @Override
     public DoubleValue toDouble() {
         try {
-            String numericPrefix = value().replaceFirst("^([-+]?\\d*\\.?\\d+).*", "$1");
-            double value = Double.parseDouble(numericPrefix);
-            return new DoubleValue(value);
+            // Match number with optional scientific notation (e/E/d/D)
+            String numericPrefix = value().replaceFirst(
+                "^([-+]?\\d*\\.?\\d+([eEdD][-+]?\\d+)?).*", "$1");
+            // Replace 'd' or 'D' with 'e' for Java's parseDouble
+            String normalized = numericPrefix.replaceAll("[dD]", "e");
+            double result = Double.parseDouble(normalized);
+            return new DoubleValue(result);
         }
         catch(NumberFormatException e) {
             return new DoubleValue(0);
