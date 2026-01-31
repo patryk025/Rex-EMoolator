@@ -2,11 +2,11 @@ package pl.genschu.bloomooemulator.interpreter.variable;
 
 import pl.genschu.bloomooemulator.interpreter.helpers.ArgumentHelper;
 import pl.genschu.bloomooemulator.interpreter.runtime.effects.CloneEffect;
-import pl.genschu.bloomooemulator.interpreter.values.IntValue;
-import pl.genschu.bloomooemulator.interpreter.values.Value;
+import pl.genschu.bloomooemulator.interpreter.values.*;
 
 import java.util.List;
 import java.util.Map;
+import java.util.function.BiFunction;
 
 public sealed interface Variable permits
         IntegerVariable,
@@ -67,6 +67,10 @@ public sealed interface Variable permits
      *   // result.newSelf() is IntVariable("x", 15, ...)
      *   // result.returnValue() is IntValue(15)
      */
+    default MethodResult callMethod(String methodName, Value... arguments) {
+        return callMethod(methodName, arguments != null ? List.of(arguments) : List.of());
+    }
+
     default MethodResult callMethod(String methodName, List<Value> arguments) {
         Map<String, MethodSpec> availableMethods = methods();
         MethodSpec spec = availableMethods != null
@@ -150,5 +154,37 @@ public sealed interface Variable permits
      */
     default Variable copyAs(String newName) {
         throw new UnsupportedOperationException("copyAs not implemented for " + type() + " variable");
+    }
+
+    /**
+     * Map of converters from Value to Variable by target type name.
+     */
+    Map<String, BiFunction<String, Value, Variable>> CONVERTERS = Map.of(
+            "INTEGER", (name, val) -> new IntegerVariable(name, val.toInt().value()),
+            "DOUBLE",  (name, val) -> new DoubleVariable(name, val.toDouble().value()),
+            "STRING",  (name, val) -> new StringVariable(name, val.toStringValue().value()),
+            "BOOL",    (name, val) -> new BoolVariable(name, val.toBool().value()),
+            "BOOLEAN", (name, val) -> new BoolVariable(name, val.toBool().value())
+    );
+
+    /**
+     * Converts this variable to another type.
+     */
+    default Variable convertTo(String targetType) {
+        String target = targetType.toUpperCase();
+        if (type().name().equals(target)) {
+            return this;
+        }
+
+        var factory = CONVERTERS.get(target);
+        if (factory == null) {
+            throw new UnsupportedOperationException("Unsupported target type: " + target);
+        }
+
+        try {
+            return factory.apply(name(), value());
+        } catch (Exception e) {
+            throw new RuntimeException("Conversion failed to " + target, e);
+        }
     }
 }

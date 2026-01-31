@@ -31,5 +31,41 @@ public sealed interface Value permits
     /**
      * Returns a string representation suitable for display/debugging.
      */
-    String toDisplayString();
+    default String toDisplayString() {
+        return String.valueOf(unwrap());
+    }
+
+    /**
+     * Converts value to a double value.
+     */
+    default DoubleValue toDouble() {
+        throw new UnsupportedOperationException(
+            "toDouble() not implemented for type: " + getType()
+        );
+    }
+
+    /**
+     * Converts value to an int value.
+     */
+    default IntValue toInt() {
+        throw new UnsupportedOperationException(
+            "toInt() not implemented for type: " + getType()
+        );
+    }
+
+    /**
+     * Converts value to a bool value.
+     */
+    default BoolValue toBool() {
+        throw new UnsupportedOperationException(
+            "toBool() not implemented for type: " + getType()
+        );
+    }
+
+    /**
+     * Converts value to a string value.
+     */
+    default StringValue toStringValue() {
+        return new StringValue(toDisplayString());
+    }
 }

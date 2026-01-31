@@ -24,7 +24,7 @@ public record DoubleValue(double value) implements Value {
 
     @Override
     public String toDisplayString() {
-        return String.valueOf(value);
+        return toStringValue().value();
     }
 
     /**
@@ -110,5 +110,12 @@ public record DoubleValue(double value) implements Value {
      */
     public BoolValue toBool() {
         return new BoolValue(value != 0.0);
+    }
+
+    /**
+     * Converts this double to a double value (no-op).
+     */
+    public DoubleValue toDouble() {
+        return this;
     }
 }

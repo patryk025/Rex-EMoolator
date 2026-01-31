@@ -30,6 +30,7 @@ public class ArithmeticTest {
     }
 
     private void initExpectedResults() {
+        // TODO: Simplify this mess. Geez, partially unreadable soup of 3D arrays...
         // Format: [type, value] - "S"=String, "I"=Integer, "D"=Double, "B"=Boolean
         expectedResults = Map.of(
                 "ADDITION", new Object[][][] {

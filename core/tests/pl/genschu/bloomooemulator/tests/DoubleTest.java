@@ -6,19 +6,19 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import pl.genschu.bloomooemulator.TestEnvironment;
-import pl.genschu.bloomooemulator.builders.LegacyContextBuilder;
-import pl.genschu.bloomooemulator.interpreter.v1.Context;
-import pl.genschu.bloomooemulator.interpreter.v1.variable.types.DoubleVariable;
-import pl.genschu.bloomooemulator.interpreter.v1.variable.types.IntegerVariable;
+import pl.genschu.bloomooemulator.interpreter.values.DoubleValue;
+import pl.genschu.bloomooemulator.interpreter.values.IntValue;
+import pl.genschu.bloomooemulator.interpreter.variable.DoubleVariable;
+import pl.genschu.bloomooemulator.interpreter.variable.IntegerVariable;
 
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 class DoubleTest {
-    private Context ctx;
 
     private static final double[] TEST_VECTORS = {
             -4.65000, 0.00000, 2.90000, 90.00000, 421.00000, -176.00000, 0.00001
@@ -61,11 +61,6 @@ class DoubleTest {
         EXPECTED_RESULTS.put("<TO_STRING>", new String[]{"2.50000", "00000", "0.01235", "-123.45000", "0.-12415", "0.000000", "123456789.98765", "1.00000", "0.09999", "0.000000", "0.-0", "1.00000"});
     }
 
-    @BeforeEach
-    void setUp() {
-        ctx = new LegacyContextBuilder().build();
-    }
-
     @ParameterizedTest
     @ValueSource(ints = {0, 1, 2, 3, 4, 5, 6})
     void testAdd(int vectorIndex) {
@@ -74,9 +69,9 @@ class DoubleTest {
         DoubleVariable testVar;
         double result;
 
-        testVar = new DoubleVariable("TEST", testValue, ctx);
-        testVar.fireMethod("ADD", new DoubleVariable("", 5.0, ctx));
-        result = testVar.GET();
+        testVar = new DoubleVariable("TEST", testValue);
+        testVar = (DoubleVariable) testVar.callMethod("ADD", List.of(new DoubleValue(5.0))).newSelf();
+        result = testVar.get();
         assertEquals(parseDoubleOrSpecial(EXPECTED_RESULTS.get("ADD")[vectorIndex]), result, 0.00001,
                 "ADD failed for vector " + testValue);
     }
@@ -89,9 +84,9 @@ class DoubleTest {
         DoubleVariable testVar;
         double result;
 
-        testVar = new DoubleVariable("TEST", testValue, ctx);
-        testVar.fireMethod("ARCTAN", new DoubleVariable("", testValue, ctx));
-        result = testVar.GET();
+        testVar = new DoubleVariable("TEST", testValue);
+        testVar = (DoubleVariable) testVar.callMethod("ARCTAN", List.of(new DoubleValue(testValue))).newSelf();
+        result = testVar.get();
         assertEquals(parseDoubleOrSpecial(EXPECTED_RESULTS.get("ARCTAN")[vectorIndex]), result, 0.00001,
                 "ARCTAN failed for vector " + testValue);
 
@@ -102,9 +97,9 @@ class DoubleTest {
         DoubleVariable testVar;
         double result;
 
-        testVar = new DoubleVariable("TEST", 0, ctx);
-        testVar.fireMethod("ARCTANEX", new DoubleVariable("", 4.0, ctx), new DoubleVariable("", 5.0, ctx));
-        result = testVar.GET();
+        testVar = new DoubleVariable("TEST", 0);
+        testVar = (DoubleVariable) testVar.callMethod("ARCTANEX", List.of(new DoubleValue(4.0), new DoubleValue(5.0))).newSelf();
+        result = testVar.get();
         assertEquals(parseDoubleOrSpecial(EXPECTED_RESULTS.get("ARCTANEX")[0]), result, 0.00001,
                 "ARCTANEX failed for vector (4,5)");
     }
@@ -117,9 +112,9 @@ class DoubleTest {
         DoubleVariable testVar;
         double result;
 
-        testVar = new DoubleVariable("TEST", testValue, ctx);
-        testVar.fireMethod("CLAMP", new DoubleVariable("", 0.0, ctx), new DoubleVariable("", 20.0, ctx));
-        result = testVar.GET();
+        testVar = new DoubleVariable("TEST", testValue);
+        testVar = (DoubleVariable) testVar.callMethod("CLAMP", List.of(new DoubleValue(0.0), new DoubleValue(20.0))).newSelf();
+        result = testVar.get();
         assertEquals(parseDoubleOrSpecial(EXPECTED_RESULTS.get("CLAMP")[vectorIndex]), result, 0.00001,
                 "CLAMP failed for vector " + testValue);
     }
@@ -131,9 +126,9 @@ class DoubleTest {
         DoubleVariable testVar;
         double result;
 
-        testVar = new DoubleVariable("TEST", testValue, ctx);
-        testVar.fireMethod("CLEAR");
-        result = testVar.GET();
+        testVar = new DoubleVariable("TEST", testValue);
+        testVar = (DoubleVariable) testVar.callMethod("CLEAR", List.of()).newSelf();
+        result = testVar.get();
         assertEquals(0, result, 0.00001,
                 "CLEAR failed for vector " + testValue);
     }
@@ -146,9 +141,9 @@ class DoubleTest {
         DoubleVariable testVar;
         double result;
 
-        testVar = new DoubleVariable("TEST", testValue, ctx);
-        testVar.fireMethod("COSINUS", new DoubleVariable("", testValue, ctx));
-        result = testVar.GET();
+        testVar = new DoubleVariable("TEST", testValue);
+        testVar = (DoubleVariable) testVar.callMethod("COSINUS", List.of(new DoubleValue(testValue))).newSelf();
+        result = testVar.get();
         assertEquals(parseDoubleOrSpecial(EXPECTED_RESULTS.get("COSINUS")[vectorIndex]), result, 0.00001,
                 "COSINUS failed for vector " + testValue);
     }
@@ -161,9 +156,9 @@ class DoubleTest {
         DoubleVariable testVar;
         double result;
 
-        testVar = new DoubleVariable("TEST", testValue, ctx);
-        testVar.fireMethod("DEC");
-        result = testVar.GET();
+        testVar = new DoubleVariable("TEST", testValue);
+        testVar = (DoubleVariable) testVar.callMethod("DEC", List.of()).newSelf();
+        result = testVar.get();
         assertEquals(parseDoubleOrSpecial(EXPECTED_RESULTS.get("DEC")[vectorIndex]), result, 0.00001,
                 "DEC failed for vector " + testValue);
     }
@@ -176,9 +171,9 @@ class DoubleTest {
         DoubleVariable testVar;
         double result;
 
-        testVar = new DoubleVariable("TEST", testValue, ctx);
-        testVar.fireMethod("DIV", new DoubleVariable("", 5.0, ctx));
-        result = testVar.GET();
+        testVar = new DoubleVariable("TEST", testValue);
+        testVar = (DoubleVariable) testVar.callMethod("DIV", List.of(new DoubleValue(5.0))).newSelf();
+        result = testVar.get();
         assertEquals(parseDoubleOrSpecial(EXPECTED_RESULTS.get("DIV")[vectorIndex]), result, 0.00001,
                 "DIV failed for vector " + testValue);
     }
@@ -191,9 +186,9 @@ class DoubleTest {
         DoubleVariable testVar;
         double result;
 
-        testVar = new DoubleVariable("TEST", testValue, ctx);
-        testVar.fireMethod("INC");
-        result = testVar.GET();
+        testVar = new DoubleVariable("TEST", testValue);
+        testVar = (DoubleVariable) testVar.callMethod("INC", List.of()).newSelf();
+        result = testVar.get();
         assertEquals(parseDoubleOrSpecial(EXPECTED_RESULTS.get("INC")[vectorIndex]), result, 0.00001,
                 "INC failed for vector " + testValue);
     }
@@ -203,9 +198,9 @@ class DoubleTest {
         DoubleVariable testVar;
         double result;
 
-        testVar = new DoubleVariable("TEST", 0, ctx);
-        testVar.fireMethod("LENGTH", new DoubleVariable("", 4.0, ctx), new DoubleVariable("", 5.0, ctx));
-        result = testVar.GET();
+        testVar = new DoubleVariable("TEST", 0);
+        testVar = (DoubleVariable) testVar.callMethod("LENGTH", List.of(new DoubleValue(4.0), new DoubleValue(5.0))).newSelf();
+        result = testVar.get();
         assertEquals(parseDoubleOrSpecial(EXPECTED_RESULTS.get("LENGTH")[0]), result, 0.00001,
                 "LENGTH failed for vector (4,5)");
     }
@@ -218,9 +213,9 @@ class DoubleTest {
         DoubleVariable testVar;
         double result;
 
-        testVar = new DoubleVariable("TEST", testValue, ctx);
-        testVar.fireMethod("LOG", new DoubleVariable("", testValue, ctx));
-        result = testVar.GET();
+        testVar = new DoubleVariable("TEST", testValue);
+        testVar = (DoubleVariable) testVar.callMethod("LOG", List.of(new DoubleValue(testValue))).newSelf();
+        result = testVar.get();
         if (EXPECTED_RESULTS.get("LOG")[vectorIndex].contains("IND")) {
             assertTrue(Double.isNaN(result), "LOG should return NaN for vector " + testValue);
         } else if (EXPECTED_RESULTS.get("LOG")[vectorIndex].contains("INF")) {
@@ -236,16 +231,16 @@ class DoubleTest {
         DoubleVariable testVar;
         double result;
 
-        testVar = new DoubleVariable("TEST", 0, ctx);
-        testVar.fireMethod("MAXA",
-                new DoubleVariable("", -4.65, ctx),
-                new DoubleVariable("", 0.0, ctx),
-                new DoubleVariable("", 2.9, ctx),
-                new DoubleVariable("", 90.0, ctx),
-                new DoubleVariable("", 421.0, ctx),
-                new DoubleVariable("", -176.0, ctx),
-                new DoubleVariable("", 0.00001, ctx));
-        result = testVar.GET();
+        testVar = new DoubleVariable("TEST", 0);
+        testVar = (DoubleVariable) testVar.callMethod("MAXA", List.of(
+                new DoubleValue(-4.65),
+                new DoubleValue(0.0),
+                new DoubleValue(2.9),
+                new DoubleValue(90.0),
+                new DoubleValue(421.0),
+                new DoubleValue(-176.0),
+                new DoubleValue(0.00001))).newSelf();
+        result = testVar.get();
         assertEquals(parseDoubleOrSpecial(EXPECTED_RESULTS.get("MAXA")[0]), result, 0.00001,
                 "MAXA failed for vector " + Arrays.toString(TEST_VECTORS));
     }
@@ -255,16 +250,16 @@ class DoubleTest {
         DoubleVariable testVar;
         double result;
 
-        testVar = new DoubleVariable("TEST", 0, ctx);
-        testVar.fireMethod("MINA",
-                new DoubleVariable("", -4.65, ctx),
-                new DoubleVariable("", 0.0, ctx),
-                new DoubleVariable("", 2.9, ctx),
-                new DoubleVariable("", 90.0, ctx),
-                new DoubleVariable("", 421.0, ctx),
-                new DoubleVariable("", -176.0, ctx),
-                new DoubleVariable("", 0.00001, ctx));
-        result = testVar.GET();
+        testVar = new DoubleVariable("TEST", 0);
+        testVar = (DoubleVariable) testVar.callMethod("MINA", List.of(
+                new DoubleValue(-4.65),
+                new DoubleValue(0.0),
+                new DoubleValue(2.9),
+                new DoubleValue(90.0),
+                new DoubleValue(421.0),
+                new DoubleValue(-176.0),
+                new DoubleValue(0.00001))).newSelf();
+        result = testVar.get();
         assertEquals(parseDoubleOrSpecial(EXPECTED_RESULTS.get("MINA")[0]), result, 0.00001,
                 "MINA failed for vector " + Arrays.toString(TEST_VECTORS));
     }
@@ -277,9 +272,9 @@ class DoubleTest {
         DoubleVariable testVar;
         double result;
 
-        testVar = new DoubleVariable("TEST", testValue, ctx);
-        testVar.fireMethod("MOD", new DoubleVariable("", 5.0, ctx));
-        result = testVar.GET();
+        testVar = new DoubleVariable("TEST", testValue);
+        testVar = (DoubleVariable) testVar.callMethod("MOD", List.of(new DoubleValue(5.0))).newSelf();
+        result = testVar.get();
         assertEquals(parseDoubleOrSpecial(EXPECTED_RESULTS.get("MOD")[vectorIndex]), result, 0.00001,
                 "MOD failed for vector " + testValue);
     }
@@ -292,9 +287,9 @@ class DoubleTest {
         DoubleVariable testVar;
         double result;
 
-        testVar = new DoubleVariable("TEST", testValue, ctx);
-        testVar.fireMethod("MUL", new DoubleVariable("", 5.0, ctx));
-        result = testVar.GET();
+        testVar = new DoubleVariable("TEST", testValue);
+        testVar = (DoubleVariable) testVar.callMethod("MUL", List.of(new DoubleValue(5.0))).newSelf();
+        result = testVar.get();
         assertEquals(parseDoubleOrSpecial(EXPECTED_RESULTS.get("MUL")[vectorIndex]), result, 0.00001,
                 "MUL failed for vector " + testValue);
     }
@@ -307,9 +302,9 @@ class DoubleTest {
         DoubleVariable testVar;
         double result;
 
-        testVar = new DoubleVariable("TEST", testValue, ctx);
-        IntegerVariable varResult = (IntegerVariable) testVar.fireMethod("SGN", new DoubleVariable("", testValue, ctx));
-        result = varResult.GET();
+        testVar = new DoubleVariable("TEST", testValue);
+        IntValue varResult = (IntValue) testVar.callMethod("SGN", List.of(new DoubleValue(testValue))).getReturnValue();
+        result = varResult.value();
         assertEquals(parseDoubleOrSpecial(EXPECTED_RESULTS.get("SGN")[vectorIndex]), result, 0.00001,
                 "SGN failed for vector " + testValue);
     }
@@ -322,9 +317,9 @@ class DoubleTest {
         DoubleVariable testVar;
         double result;
 
-        testVar = new DoubleVariable("TEST", testValue, ctx);
-        testVar.fireMethod("SINUS", new DoubleVariable("", testValue, ctx));
-        result = testVar.GET();
+        testVar = new DoubleVariable("TEST", testValue);
+        testVar = (DoubleVariable) testVar.callMethod("SINUS", List.of(new DoubleValue(testValue))).newSelf();
+        result = testVar.get();
         assertEquals(parseDoubleOrSpecial(EXPECTED_RESULTS.get("SINUS")[vectorIndex]), result, 0.00001,
                 "SINUS failed for vector " + testValue);
     }
@@ -337,9 +332,9 @@ class DoubleTest {
         DoubleVariable testVar;
         double result;
 
-        testVar = new DoubleVariable("TEST", testValue, ctx);
-        testVar.fireMethod("SQRT");
-        result = testVar.GET();
+        testVar = new DoubleVariable("TEST", testValue);
+        testVar = (DoubleVariable) testVar.callMethod("SQRT", List.of()).newSelf();
+        result = testVar.get();
         if (EXPECTED_RESULTS.get("SQRT")[vectorIndex].contains("IND")) {
             assertTrue(Double.isNaN(result), "SQRT should return NaN for vector " + testValue);
         } else {
@@ -356,9 +351,9 @@ class DoubleTest {
         DoubleVariable testVar;
         double result;
 
-        testVar = new DoubleVariable("TEST", testValue, ctx);
-        testVar.fireMethod("SUB", new DoubleVariable("", 5.0, ctx));
-        result = testVar.GET();
+        testVar = new DoubleVariable("TEST", testValue);
+        testVar = (DoubleVariable) testVar.callMethod("SUB", List.of(new DoubleValue(5.0))).newSelf();
+        result = testVar.get();
         assertEquals(parseDoubleOrSpecial(EXPECTED_RESULTS.get("SUB")[vectorIndex]), result, 0.00001,
                 "SUB failed for vector " + testValue);
     }
@@ -375,17 +370,17 @@ class DoubleTest {
 
     @Test
     void testSwitch() {
-        DoubleVariable switchVar1 = new DoubleVariable("TEST", 0, ctx);
-        switchVar1.fireMethod("SWITCH",
-                new DoubleVariable("", 0, ctx),
-                new DoubleVariable("", 15, ctx));
-        assertEquals(15, switchVar1.GET(), 0.00001);
+        DoubleVariable switchVar1 = new DoubleVariable("TEST", 0);
+        switchVar1 = (DoubleVariable) switchVar1.callMethod("SWITCH", List.of(
+                new DoubleValue(0),
+                new DoubleValue(15))).newSelf();
+        assertEquals(15, switchVar1.get(), 0.00001);
 
-        DoubleVariable switchVar2 = new DoubleVariable("TEST", 5, ctx);
-        switchVar2.fireMethod("SWITCH",
-                new DoubleVariable("", 0, ctx),
-                new DoubleVariable("", 15, ctx));
-        assertEquals(0, switchVar2.GET(), 0.00001);
+        DoubleVariable switchVar2 = new DoubleVariable("TEST", 5);
+        switchVar2 = (DoubleVariable) switchVar2.callMethod("SWITCH", List.of(
+                new DoubleValue(0),
+                new DoubleValue(15))).newSelf();
+        assertEquals(0, switchVar2.get(), 0.00001);
     }
 
     @ParameterizedTest
@@ -394,8 +389,8 @@ class DoubleTest {
         double testValue = TEST_STRING_VECTORS[vectorIndex];
         DoubleVariable testVar;
         String result;
-        testVar = new DoubleVariable("TEST", testValue, ctx);
-        result = testVar.toString();
+        testVar = new DoubleVariable("TEST", testValue);
+        result = testVar.value().toDisplayString();
         assertEquals(EXPECTED_RESULTS.get("<TO_STRING>")[vectorIndex], result,
                 "conversion failed for vector " + testValue);
     }

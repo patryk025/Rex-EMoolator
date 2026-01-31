@@ -48,7 +48,7 @@ public final class ContextBuilder {
      *
      * @deprecated Use {@link #withVariable(String, String, Object)} instead
      */
-    @Deprecated(since = "2.0", forRemoval = true)
+    @Deprecated(since = "0.2", forRemoval = true)
     public ContextBuilder withFactory(String type, String name, Object value) {
         return withVariable(type, name, value);
     }

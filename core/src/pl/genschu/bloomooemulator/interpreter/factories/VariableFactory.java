@@ -1,6 +1,7 @@
 package pl.genschu.bloomooemulator.interpreter.factories;
 
 import pl.genschu.bloomooemulator.interpreter.ast.ASTNode;
+import pl.genschu.bloomooemulator.interpreter.helpers.ArgumentHelper;
 import pl.genschu.bloomooemulator.interpreter.values.*;
 import pl.genschu.bloomooemulator.interpreter.variable.*;
 
@@ -32,10 +33,10 @@ public final class VariableFactory {
         String normalized = normalize(type);
 
         return switch (normalized) {
-            case "INT", "INTEGER" -> new IntegerVariable(name, valueAsInt(value));
-            case "DOUBLE" -> new DoubleVariable(name, valueAsDouble(value));
-            case "STRING" -> new StringVariable(name, value.toDisplayString());
-            case "BOOL", "BOOLEAN" -> new BoolVariable(name, valueAsBool(value));
+            case "INT", "INTEGER" -> new IntegerVariable(name, ArgumentHelper.getInt(value));
+            case "DOUBLE" -> new DoubleVariable(name, ArgumentHelper.getDouble(value));
+            case "STRING" -> new StringVariable(name, ArgumentHelper.getString(value));
+            case "BOOL", "BOOLEAN" -> new BoolVariable(name, ArgumentHelper.getBoolean(value));
             default -> throw new IllegalArgumentException("Unsupported variable type: " + normalized);
         };
     }
@@ -72,41 +73,5 @@ public final class VariableFactory {
 
     private static String normalize(String type) {
         return type == null ? "" : type.trim().toUpperCase(Locale.ROOT);
-    }
-
-    private static int valueAsInt(Value value) {
-        return switch (value) {
-            case IntValue v -> v.value();
-            case DoubleValue v -> (int) v.value();
-            case StringValue v -> {
-                IntValue parsed = v.tryParseInt();
-                yield parsed != null ? parsed.value() : 0;
-            }
-            case BoolValue v -> v.value() ? 1 : 0;
-            default -> 0;
-        };
-    }
-
-    private static double valueAsDouble(Value value) {
-        return switch (value) {
-            case IntValue v -> v.value();
-            case DoubleValue v -> v.value();
-            case StringValue v -> {
-                DoubleValue parsed = v.tryParseDouble();
-                yield parsed != null ? parsed.value() : 0.0;
-            }
-            case BoolValue v -> v.value() ? 1.0 : 0.0;
-            default -> 0.0;
-        };
-    }
-
-    private static boolean valueAsBool(Value value) {
-        return switch (value) {
-            case BoolValue v -> v.value();
-            case IntValue v -> v.value() != 0;
-            case DoubleValue v -> v.value() != 0.0;
-            case StringValue v -> v.value().equalsIgnoreCase("TRUE");
-            default -> false;
-        };
     }
 }

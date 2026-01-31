@@ -55,6 +55,13 @@ public record BoolValue(boolean value) implements Value {
     }
 
     /**
+     * Converts this boolean to a boolean (no-op).
+     */
+    public BoolValue toBool() {
+        return this;
+    }
+
+    /**
      * Logical AND operation.
      */
     public BoolValue and(BoolValue other) {

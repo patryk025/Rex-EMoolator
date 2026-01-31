@@ -21,8 +21,6 @@ import java.util.Map;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class IntegerTest {
-    private Context ctx;
-
     private static final int[] TEST_VECTORS = {
             -5, 0, 3, 90, 421, -176, -348, 15181818, -54867938
     };
@@ -55,11 +53,6 @@ public class IntegerTest {
         EXPECTED_RESULTS.put("SUB", new String[]{"-10", "-5", "-2", "85", "416", "-181", "-353", "15181813", "-54867943"});
         EXPECTED_RESULTS.put("SWITCH", new String[]{"0", "15", "0", "0", "0", "0", "0", "0", "0"});
         EXPECTED_RESULTS.put("XOR", new String[]{"-560", "555", "552", "625", "910", "-645", "-881", "15181265", "-54867403"});
-    }
-
-    @BeforeEach
-    void setUp() {
-        ctx = new ContextBuilder().build();
     }
 
     @ParameterizedTest

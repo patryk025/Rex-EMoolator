@@ -29,6 +29,7 @@ public class ComparisonTest {
     }
 
     private void initExpectedResults() {
+        // TODO: And here... we need to pack it into a more manageable form.
         // Format: [type, value] - "S"=String, "I"=Integer, "D"=Double, "B"=Boolean
         expectedResults = Map.of(
                 "EQUALS", new Object[][][] {

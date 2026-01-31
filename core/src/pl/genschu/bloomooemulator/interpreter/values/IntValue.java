@@ -40,4 +40,11 @@ public record IntValue(int value) implements Value {
     public BoolValue toBool() {
         return new BoolValue(value != 0);
     }
+
+    /**
+     * Converts this int to a int value (no-op).
+     */
+    public IntValue toInt() {
+        return this;
+    }
 }

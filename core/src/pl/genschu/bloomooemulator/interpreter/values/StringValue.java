@@ -78,4 +78,11 @@ public record StringValue(String value) implements Value {
     public BoolValue toBool() {
         return new BoolValue(value.equalsIgnoreCase("TRUE"));
     }
+
+    /**
+     * Converts this string to a string value (no-op).
+     */
+    public StringValue toStringValue() {
+        return this;
+    }
 }

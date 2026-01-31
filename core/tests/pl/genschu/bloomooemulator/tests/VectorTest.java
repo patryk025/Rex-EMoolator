@@ -7,11 +7,14 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.Arguments;
 
 import pl.genschu.bloomooemulator.TestEnvironment;
-import pl.genschu.bloomooemulator.builders.LegacyContextBuilder;
-import pl.genschu.bloomooemulator.interpreter.v1.Context;
-import pl.genschu.bloomooemulator.interpreter.v1.variable.Attribute;
-import pl.genschu.bloomooemulator.interpreter.v1.variable.types.*;
+import pl.genschu.bloomooemulator.builders.ContextBuilder;
+import pl.genschu.bloomooemulator.interpreter.context.Context;
+import pl.genschu.bloomooemulator.interpreter.values.DoubleValue;
+import pl.genschu.bloomooemulator.interpreter.values.IntValue;
+import pl.genschu.bloomooemulator.interpreter.values.VariableValue;
+import pl.genschu.bloomooemulator.interpreter.variable.VectorVariable;
 
+import java.util.List;
 import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -26,9 +29,8 @@ class VectorTest {
 
     @BeforeEach
     void setUp() {
-        ctx    = new LegacyContextBuilder().build();
-        vector = new VectorVariable("TEST_VECTOR", ctx);
-        vector.setAttribute("SIZE", new Attribute("INTEGER", 2));
+        ctx    = new ContextBuilder().build();
+        vector = (VectorVariable) new VectorVariable("TEST_VECTOR").withSize(2);
     }
 
     private static Stream<Arguments> assignProvider() {
@@ -89,68 +91,66 @@ class VectorTest {
     @ParameterizedTest(name = "assign({0}, {1}) → get" )
     @MethodSource("assignProvider")
     void testAssignAndGet(double x, double y) {
-        vector.fireMethod("ASSIGN", new DoubleVariable("", x, ctx), new DoubleVariable("", y, ctx));
-        assertEquals(x, ((DoubleVariable) vector.fireMethod("GET", new IntegerVariable("", 0, ctx))).GET());
-        assertEquals(y, ((DoubleVariable) vector.fireMethod("GET", new IntegerVariable("", 1, ctx))).GET());
+        vector = (VectorVariable) vector.callMethod("ASSIGN", List.of(new DoubleValue(x), new DoubleValue(y))).newSelf();
+        assertEquals(x, vector.callMethod("GET", new IntValue(0)).getReturnValue().toDouble().value());
+        assertEquals(y, vector.callMethod("GET", new IntValue(1)).getReturnValue().toDouble().value());
     }
 
     @ParameterizedTest(name = "({0}, {1}) + ({2}, {3})")
     @MethodSource("addProvider")
     void testAdd(double x1, double y1, double x2, double y2) {
-        vector.fireMethod("ASSIGN", new DoubleVariable("", x1, ctx), new DoubleVariable("", y1, ctx));
-        VectorVariable other = new VectorVariable("OTHER", ctx);
-        other.fireMethod("ASSIGN", new DoubleVariable("", x2, ctx), new DoubleVariable("", y2, ctx));
+        vector = (VectorVariable) vector.callMethod("ASSIGN", new DoubleValue(x1), new DoubleValue(y1)).newSelf();
+        VectorVariable other = new VectorVariable("OTHER");
+        other.callMethod("ASSIGN", new DoubleValue(x2), new DoubleValue(y2));
 
-        vector.fireMethod("ADD", other);
+        vector = (VectorVariable) vector.callMethod("ADD", new VariableValue(other)).newSelf();
 
-        assertEquals(x1 + x2, ((DoubleVariable) vector.fireMethod("GET", new IntegerVariable("", 0, ctx))).GET());
-        assertEquals(y1 + y2, ((DoubleVariable) vector.fireMethod("GET", new IntegerVariable("", 1, ctx))).GET());
+        assertEquals(x1 + x2, vector.callMethod("GET", new IntValue(0)).getReturnValue().toDouble().value());
+        assertEquals(y1 + y2, vector.callMethod("GET", new IntValue(1)).getReturnValue().toDouble().value());
     }
 
     @ParameterizedTest(name = "({0}, {1}) * {2}")
     @MethodSource("mulProvider")
     void testMul(double x, double y, double scalar) {
-        vector.fireMethod("ASSIGN", new DoubleVariable("", x, ctx), new DoubleVariable("", y, ctx));
-        vector.fireMethod("MUL", new DoubleVariable("", scalar, ctx));
+        vector = (VectorVariable) vector.callMethod("ASSIGN", new DoubleValue(x), new DoubleValue(y)).newSelf();
+        vector = (VectorVariable) vector.callMethod("MUL", new DoubleValue(scalar)).newSelf();
 
-        assertEquals(x * scalar, ((DoubleVariable) vector.fireMethod("GET", new IntegerVariable("", 0, ctx))).GET());
-        assertEquals(y * scalar, ((DoubleVariable) vector.fireMethod("GET", new IntegerVariable("", 1, ctx))).GET());
+        assertEquals(x * scalar, vector.callMethod("GET", new IntValue(0)).getReturnValue().toDouble().value());
+        assertEquals(y * scalar, vector.callMethod("GET", new IntValue(1)).getReturnValue().toDouble().value());
     }
 
     @ParameterizedTest(name = "len(({0}, {1})) ≈ {2}")
     @MethodSource("lenProvider")
     void testLen(double x, double y, double expected) {
-        vector.fireMethod("ASSIGN", new DoubleVariable("", x, ctx), new DoubleVariable("", y, ctx));
-        double len = ((DoubleVariable) vector.fireMethod("LEN")).GET();
+        vector = (VectorVariable) vector.callMethod("ASSIGN", new DoubleValue(x), new DoubleValue(y)).newSelf();
+        double len = vector.callMethod("LEN").getReturnValue().toDouble().value();
         assertEquals(expected, len, 1e-5);
     }
 
     @ParameterizedTest(name = "normalize({0}, {1}) → ({2}, {3})")
     @MethodSource("normalizeProvider")
     void testNormalize(double x, double y, double expectedRx, double expectedRy) {
-        vector.fireMethod("ASSIGN", new DoubleVariable("", x, ctx), new DoubleVariable("", y, ctx));
-        vector.fireMethod("NORMALIZE");
+        vector = (VectorVariable) vector.callMethod("ASSIGN", new DoubleValue(x), new DoubleValue(y)).newSelf();
+        vector = (VectorVariable) vector.callMethod("NORMALIZE").newSelf();
 
-        double len = ((DoubleVariable) vector.fireMethod("LEN")).GET();
+        double len = vector.callMethod("LEN").getReturnValue().toDouble().value();
         assertEquals(1.0, len, 1e-5);
-        assertEquals(expectedRx, ((DoubleVariable) vector.fireMethod("GET", new IntegerVariable("", 0, ctx))).GET(), 1e-5);
-        assertEquals(expectedRy, ((DoubleVariable) vector.fireMethod("GET", new IntegerVariable("", 1, ctx))).GET(), 1e-5);
+        assertEquals(expectedRx, vector.callMethod("GET", new IntValue(0)).getReturnValue().toDouble().value(), 1e-5);
+        assertEquals(expectedRy, vector.callMethod("GET", new IntValue(1)).getReturnValue().toDouble().value(), 1e-5);
     }
 
     @ParameterizedTest(name = "reflect(({0}, {1})) by ({2}, {3}) → ({4}, {5})")
     @MethodSource("reflectProvider")
     void testReflect(double vx, double vy, double nx, double ny, double expectedRx, double expectedRy) {
-        vector.fireMethod("ASSIGN", new DoubleVariable("", vx, ctx), new DoubleVariable("", vy, ctx));
+        vector = (VectorVariable) vector.callMethod("ASSIGN", new DoubleValue(vx), new DoubleValue(vy)).newSelf();
 
-        VectorVariable normal = new VectorVariable("N", ctx);
-        normal.setAttribute("SIZE", new Attribute("INTEGER", 2));
-        normal.fireMethod("ASSIGN", new DoubleVariable("", nx, ctx), new DoubleVariable("", ny, ctx));
+        VectorVariable normal = (VectorVariable) new VectorVariable("N").withSize(2);
+        normal = (VectorVariable) normal.callMethod("ASSIGN", new DoubleValue(nx), new DoubleValue(ny)).newSelf();
 
-        VectorVariable result = new VectorVariable("R", ctx);
-        result.setAttribute("SIZE", new Attribute("INTEGER", 2));
-        vector.fireMethod("REFLECT", normal, result);
+        VectorVariable result = (VectorVariable) new VectorVariable("R").withSize(2);
+        vector = (VectorVariable) vector.callMethod("REFLECT", new VariableValue(normal), new VariableValue(result)).newSelf();
 
-        assertEquals(expectedRx, ((DoubleVariable) result.fireMethod("GET", new IntegerVariable("", 0, ctx))).GET(), 1e-5);
-        assertEquals(expectedRy, ((DoubleVariable) result.fireMethod("GET", new IntegerVariable("", 1, ctx))).GET(), 1e-5);
+        assertEquals(expectedRx, result.callMethod("GET", new IntValue(0)).getReturnValue().toDouble().value(), 1e-5);
+        assertEquals(expectedRy, result.callMethod("GET", new IntValue(1)).getReturnValue().toDouble().value(), 1e-5);
     }
 }
