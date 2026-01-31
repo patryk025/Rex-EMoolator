@@ -9,9 +9,11 @@ import org.junit.jupiter.params.provider.Arguments;
 import pl.genschu.bloomooemulator.TestEnvironment;
 import pl.genschu.bloomooemulator.builders.ContextBuilder;
 import pl.genschu.bloomooemulator.interpreter.context.Context;
+import pl.genschu.bloomooemulator.interpreter.runtime.effects.Effect;
 import pl.genschu.bloomooemulator.interpreter.values.DoubleValue;
 import pl.genschu.bloomooemulator.interpreter.values.IntValue;
 import pl.genschu.bloomooemulator.interpreter.values.VariableValue;
+import pl.genschu.bloomooemulator.interpreter.variable.MethodResult;
 import pl.genschu.bloomooemulator.interpreter.variable.VectorVariable;
 
 import java.util.List;
@@ -20,8 +22,6 @@ import java.util.stream.Stream;
 import static org.junit.jupiter.api.Assertions.*;
 
 class VectorTest {
-
-    private Context ctx;
     private VectorVariable vector;
 
     @BeforeAll
@@ -29,7 +29,6 @@ class VectorTest {
 
     @BeforeEach
     void setUp() {
-        ctx    = new ContextBuilder().build();
         vector = (VectorVariable) new VectorVariable("TEST_VECTOR").withSize(2);
     }
 
@@ -101,7 +100,7 @@ class VectorTest {
     void testAdd(double x1, double y1, double x2, double y2) {
         vector = (VectorVariable) vector.callMethod("ASSIGN", new DoubleValue(x1), new DoubleValue(y1)).newSelf();
         VectorVariable other = new VectorVariable("OTHER");
-        other.callMethod("ASSIGN", new DoubleValue(x2), new DoubleValue(y2));
+        other = (VectorVariable) other.callMethod("ASSIGN", new DoubleValue(x2), new DoubleValue(y2)).newSelf();
 
         vector = (VectorVariable) vector.callMethod("ADD", new VariableValue(other)).newSelf();
 
@@ -148,7 +147,15 @@ class VectorTest {
         normal = (VectorVariable) normal.callMethod("ASSIGN", new DoubleValue(nx), new DoubleValue(ny)).newSelf();
 
         VectorVariable result = (VectorVariable) new VectorVariable("R").withSize(2);
-        vector = (VectorVariable) vector.callMethod("REFLECT", new VariableValue(normal), new VariableValue(result)).newSelf();
+        MethodResult methodResult = vector.callMethod("REFLECT", new VariableValue(normal), new VariableValue(result));
+
+        // Just little hack to apply the effect that updates 'result' variable
+        Context context = new ContextBuilder().build();
+        Effect effect = methodResult.effects().get(0);
+        context.setVariable("R", result);
+        effect.apply(context, result, List.of());
+
+        result = (VectorVariable) context.getVariable("R");
 
         assertEquals(expectedRx, result.callMethod("GET", new IntValue(0)).getReturnValue().toDouble().value(), 1e-5);
         assertEquals(expectedRy, result.callMethod("GET", new IntValue(1)).getReturnValue().toDouble().value(), 1e-5);

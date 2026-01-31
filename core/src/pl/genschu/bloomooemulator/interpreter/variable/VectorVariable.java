@@ -248,13 +248,6 @@ public record VectorVariable(
                 dotProduct += a * b;
             }
             List<Double> resultComponents = new ArrayList<>(resultVector.components);
-
-            VectorVariable newResult = new VectorVariable(
-                resultVector.name(),
-                resultVector.size,
-                resultComponents,
-                resultVector.signals()
-            );
             for (int i = 0; i < thisVar.size; i++) {
                 double a = i < thisVar.components.size() ? thisVar.components.get(i) : 0.0;
                 double b = i < normalVector.components.size() ? normalVector.components.get(i) : 0.0;
@@ -262,6 +255,13 @@ public record VectorVariable(
                     resultComponents.set(i, 2 * dotProduct * b - a);
                 }
             }
+
+            VectorVariable newResult = new VectorVariable(
+                    resultVector.name(),
+                    resultVector.size,
+                    resultComponents,
+                    resultVector.signals()
+            );
             return MethodResult.effects(List.of(new UpdateVariableEffect(resultVector.name(), newResult)));
         }, ArgKind.VAR_REF, ArgKind.VAR_REF))
     );
