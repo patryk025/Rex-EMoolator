@@ -4,6 +4,7 @@ import pl.genschu.bloomooemulator.interpreter.ast.ASTNode;
 import pl.genschu.bloomooemulator.interpreter.runtime.effects.RunBehaviourEffect;
 import pl.genschu.bloomooemulator.interpreter.values.NullValue;
 import pl.genschu.bloomooemulator.interpreter.values.Value;
+import pl.genschu.bloomooemulator.loader.BehaviourCodeParser;
 
 import java.util.List;
 import java.util.Map;
@@ -44,6 +45,12 @@ public record BehaviourVariable(
     @Override
     public Variable withValue(Value newValue) {
         throw new UnsupportedOperationException("Cannot set value on BEHAVIOUR");
+    }
+
+    public Variable withScript(String code) {
+        // fire up a parser to create a new AST from the script
+        ASTNode ast = BehaviourCodeParser.parseCode(code, name());
+        return new BehaviourVariable(name, ast, signals);
     }
 
     @Override
