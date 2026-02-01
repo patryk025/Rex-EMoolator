@@ -62,4 +62,44 @@ public class ArgumentHelper {
             default -> "";
         };
     }
+
+    /**
+     * Gets int from argument list at index, or default if not present.
+     */
+    public static int getInt(java.util.List<Value> args, int index, int defaultValue) {
+        if (args == null || index < 0 || index >= args.size() || args.get(index) == null) {
+            return defaultValue;
+        }
+        return getInt(args.get(index));
+    }
+
+    /**
+     * Gets String from argument list at index, or default if not present.
+     */
+    public static String getString(java.util.List<Value> args, int index, String defaultValue) {
+        if (args == null || index < 0 || index >= args.size() || args.get(index) == null) {
+            return defaultValue;
+        }
+        return getString(args.get(index));
+    }
+
+    /**
+     * Gets double from argument list at index, or default if not present.
+     */
+    public static double getDouble(java.util.List<Value> args, int index, double defaultValue) {
+        if (args == null || index < 0 || index >= args.size() || args.get(index) == null) {
+            return defaultValue;
+        }
+        return getDouble(args.get(index));
+    }
+
+    /**
+     * Gets boolean from argument list at index, or default if not present.
+     */
+    public static boolean getBoolean(java.util.List<Value> args, int index, boolean defaultValue) {
+        if (args == null || index < 0 || index >= args.size() || args.get(index) == null) {
+            return defaultValue;
+        }
+        return getBoolean(args.get(index));
+    }
 }

@@ -11,6 +11,8 @@ import pl.genschu.bloomooemulator.interpreter.variable.db.DatabaseState;
 
 import java.io.*;
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * CNVParser - Parses CNV files and populates Context.
@@ -212,12 +214,25 @@ public class CNVParser {
                 // Create DatabaseVariable with MODEL reference
                 String modelName = properties.get(objectName + ":MODEL");
                 DatabaseState state = new DatabaseState();
-                yield new DatabaseVariable(objectName, state);
+                yield new DatabaseVariable(objectName, modelName, state);
             }
             case "STRUCT" -> {
-                // Create StructVariable
-                // TODO: Parse FIELDS attribute and create field list
-                yield new StructVariable(objectName, List.of());
+                // Create StructVariable from FIELDS attribute
+                String fieldsAttr = properties.get(objectName + ":FIELDS");
+                List<String> fields = new ArrayList<>();
+                List<String> types = new ArrayList<>();
+
+                if (fieldsAttr != null && !fieldsAttr.isEmpty()) {
+                    // Parse format: "NAME<STRING>AGE<INTEGER>SCORE<DOUBLE>"
+                    Pattern pattern = Pattern.compile("([A-Z0-9_]+)<([A-Z]+)>");
+                    Matcher matcher = pattern.matcher(fieldsAttr);
+                    while (matcher.find()) {
+                        fields.add(matcher.group(1));
+                        types.add(matcher.group(2));
+                    }
+                }
+
+                yield StructVariable.withSchema(objectName, fields, types);
             }
             case "CLASS" -> {
                 // Create ClassVariable with DEF path
@@ -364,10 +379,10 @@ public class CNVParser {
     }
 
     /**
-     * Runs ONINIT signal on all variables.
+     * Initializes variables and runs ONINIT signals.
      *
      * Variables should be initialized in specific order to avoid dependency issues.
-     * Order: BEHAVIOUR -> primitives -> complex types
+     * Order: BEHAVIOUR -> primitives -> STRUCT -> DATABASE -> complex types
      */
     private void runOnInit(Context context) {
         Map<String, Variable> variables = context.getVariables(false);
@@ -380,7 +395,16 @@ public class CNVParser {
             return Integer.compare(p1, p2);
         });
 
-        // Emit ONINIT signals
+        // First pass: call init() on Initializable variables
+        for (Map.Entry<String, Variable> entry : sortedVars) {
+            Variable variable = entry.getValue();
+            if (variable instanceof pl.genschu.bloomooemulator.interpreter.variable.capabilities.Initializable init) {
+                Gdx.app.debug("CNVParser", "Initializing " + entry.getKey() + " (" + variable.type() + ")");
+                init.init(context);
+            }
+        }
+
+        // Second pass: emit ONINIT signals
         for (Map.Entry<String, Variable> entry : sortedVars) {
             String varName = entry.getKey();
             Variable variable = entry.getValue();
@@ -393,6 +417,8 @@ public class CNVParser {
     /**
      * Returns initialization priority for a variable type.
      * Lower number = initialized first.
+     *
+     * Important: STRUCT must be before DATABASE (DATABASE.init() needs STRUCT for schema)
      */
     private int getTypePriority(VariableType type) {
         return switch (type) {

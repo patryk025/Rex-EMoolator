@@ -1,101 +1,125 @@
 package pl.genschu.bloomooemulator.interpreter.variable;
 
+import com.badlogic.gdx.Gdx;
+import pl.genschu.bloomooemulator.annotations.InternalMutable;
+import pl.genschu.bloomooemulator.interpreter.context.Context;
+import pl.genschu.bloomooemulator.interpreter.helpers.ArgumentHelper;
 import pl.genschu.bloomooemulator.interpreter.values.*;
 import pl.genschu.bloomooemulator.interpreter.variable.capabilities.HasCursor;
+import pl.genschu.bloomooemulator.interpreter.variable.capabilities.Initializable;
 import pl.genschu.bloomooemulator.interpreter.variable.db.DatabaseState;
 
-import java.util.List;
 import java.util.Map;
 
-// TODO: maybe it should be record as well?
 /**
  * DatabaseVariable represents a database with rows and columns.
- **/
-public final class DatabaseVariable implements Variable, HasCursor {
-    private String name;
-    private DatabaseState state;
+ * Optionally linked to a STRUCT via modelName for schema definition.
+ */
+public record DatabaseVariable(
+    String name,
+    String modelName, // nullable - name of STRUCT defining schema (columns/types)
+    @InternalMutable
+    DatabaseState state, // DatabaseState is mutable for performance reasons
+    DatabaseCursorVariable cursor
+) implements Variable, HasCursor, Initializable {
 
-    private DatabaseCursorVariable cursor;
+    public DatabaseVariable(String name, String modelName, DatabaseState state, DatabaseCursorVariable cursor) {
+        this.name = name;
+        this.modelName = modelName;
+        this.state = (state != null) ? state : new DatabaseState();
+        this.cursor = cursor;
+    }
+
+    public DatabaseVariable(String name, String modelName, DatabaseState state) {
+        this(name, modelName, state, null);
+    }
 
     public DatabaseVariable(String name, DatabaseState state) {
-        this.name = name;
-        this.state = (state != null) ? state : new DatabaseState();
+        this(name, null, state, null);
     }
 
-    public DatabaseState state() {
-        return state;
+    public DatabaseVariable(String name) {
+        this(name, null, new DatabaseState(), null);
     }
 
-    @Override
-    public String name() {
-        return name;
-    }
-
-    @Override
-    public Value value() {
-        return NullValue.INSTANCE;
-    }
-
-    @Override
-    public VariableType type() {
-        return VariableType.DATABASE;
-    }
-
-    @Override
-    public Variable withValue(Value newValue) {
-        return this;
-    }
+    @Override public String name() { return name; }
+    @Override public Value value() { return NullValue.INSTANCE; }
+    @Override public VariableType type() { return VariableType.DATABASE; }
+    @Override public Variable withValue(Value newValue) { return this; }
 
     @Override
     public Map<String, MethodSpec> methods() {
         return METHODS;
     }
 
-    @Override
-    public Map<String, SignalHandler> signals() {
-        return Map.of();
-    }
+    @Override public Map<String, SignalHandler> signals() { return Map.of(); }
+    @Override public Variable withSignal(String signalName, SignalHandler handler) { return this; }
 
-    @Override
-    public Variable withSignal(String signalName, SignalHandler handler) {
-        return this;
-    }
-
-    // ===== Legacy capability: _CURSOR =====
     @Override
     public Variable getCursor() {
         if (cursor == null) {
-            cursor = new DatabaseCursorVariable(this);
+            return new DatabaseCursorVariable(this);
         }
         return cursor;
     }
 
-    private final Map<String, MethodSpec> METHODS = Map.ofEntries(
-        Map.entry("GETROWSNO", MethodSpec.of((self, args) ->
-                MethodResult.noChange(new IntValue(state.rowsNo()))
-        )),
+    /**
+     * Initialize database by resolving MODEL -> STRUCT and copying column schema.
+     */
+    @Override
+    public void init(Context context) {
+        if (modelName == null || modelName.isEmpty()) {
+            Gdx.app.debug("DatabaseVariable", name + ": No MODEL defined, skipping schema init");
+            return;
+        }
+
+        Variable modelVar = context.getVariable(modelName);
+        if (modelVar == null) {
+            Gdx.app.error("DatabaseVariable", name + ": MODEL '" + modelName + "' not found in context");
+            return;
+        }
+
+        if (!(modelVar instanceof StructVariable struct)) {
+            Gdx.app.error("DatabaseVariable", name + ": MODEL '" + modelName + "' is not a STRUCT (got " + modelVar.type() + ")");
+            return;
+        }
+
+        // Copy column names from STRUCT fields to DatabaseState
+        state.setColumns(struct.fields());
+        Gdx.app.debug("DatabaseVariable", name + ": Initialized with " + struct.fields().size() + " columns from " + modelName);
+    }
+
+    private static final Map<String, MethodSpec> METHODS = Map.ofEntries(
+        Map.entry("GETROWSNO", MethodSpec.of((self, args) -> {
+            DatabaseVariable thisVar = (DatabaseVariable) self;
+            return MethodResult.noChange(new IntValue(thisVar.state.rowsNo()));
+        })),
 
         Map.entry("NEXT", MethodSpec.of((self, args) -> {
-            state.next();
+            DatabaseVariable thisVar = (DatabaseVariable) self;
+            thisVar.state.next();
             return MethodResult.noChange(NullValue.INSTANCE);
         })),
 
         Map.entry("REMOVEALL", MethodSpec.of((self, args) -> {
-            state.removeAll();
+            DatabaseVariable thisVar = (DatabaseVariable) self;
+            thisVar.state.removeAll();
             return MethodResult.noChange(NullValue.INSTANCE);
         })),
 
         Map.entry("SELECT", MethodSpec.of((self, args) -> {
-            int idx = asInt(args, 0, 0);
-            state.select(idx);
+            DatabaseVariable thisVar = (DatabaseVariable) self;
+            int idx = ArgumentHelper.getInt(args, 0, 0);
+            thisVar.state.select(idx);
             return MethodResult.noChange(NullValue.INSTANCE);
         })),
 
         Map.entry("FIND", MethodSpec.of((self, args) -> {
-            String colName = asString(args, 0, "");
-            String colValue = asString(args, 1, "");
-            int def = asInt(args, 2, 0);
-            int found = state.find(colName, colValue, def);
+            DatabaseVariable thisVar = (DatabaseVariable) self;
+            String colName = ArgumentHelper.getString(args, 0, "");
+            String colValue = ArgumentHelper.getString(args, 1, "");
+            int def = ArgumentHelper.getInt(args, 2, 0);
+            int found = thisVar.state.find(colName, colValue, def);
             return MethodResult.noChange(new IntValue(found));
         })),
 
@@ -103,27 +127,4 @@ public final class DatabaseVariable implements Variable, HasCursor {
         Map.entry("LOAD", MethodSpec.of((self, args) -> MethodResult.noChange(NullValue.INSTANCE))),
         Map.entry("SAVE", MethodSpec.of((self, args) -> MethodResult.noChange(NullValue.INSTANCE)))
     );
-
-
-    private static int asInt(List<Value> args, int index, int def) {
-        if (args == null || index >= args.size() || args.get(index) == null) return def;
-        Value v = args.get(index);
-        return switch (v) {
-            case IntValue iv -> iv.value();
-            case StringValue sv -> {
-                IntValue parsed = sv.toInt();
-                yield parsed != null ? parsed.value() : def;
-            }
-            default -> def;
-        };
-    }
-
-    private static String asString(List<Value> args, int index, String def) {
-        if (args == null || index >= args.size() || args.get(index) == null) return def;
-        Value v = args.get(index);
-        return switch (v) {
-            case StringValue sv -> sv.value();
-            default -> v.toDisplayString();
-        };
-    }
 }

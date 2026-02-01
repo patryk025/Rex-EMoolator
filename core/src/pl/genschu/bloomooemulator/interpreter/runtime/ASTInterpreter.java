@@ -229,9 +229,9 @@ public class ASTInterpreter {
             ExecutionResult stepResult = execute(node.step());
             if (!stepResult.shouldContinue()) return stepResult;
 
-            int start = toInt(startResult.getValue());
-            int diff = toInt(diffResult.getValue());
-            int step = toInt(stepResult.getValue());
+            int start = ArgumentHelper.getInt(startResult.getValue());
+            int diff = ArgumentHelper.getInt(diffResult.getValue());
+            int step = ArgumentHelper.getInt(stepResult.getValue());
 
             // Execute loop
             for (int i = start; i < start + diff; i += step) {
@@ -286,15 +286,6 @@ public class ASTInterpreter {
         } finally {
             exec.popFrame();
         }
-    }
-
-    private int toInt(Value value) {
-        return switch (value) {
-            case IntValue v -> v.value();
-            case DoubleValue v -> (int) v.value();
-            case StringValue v -> v.toInt().value();
-            default -> 0;
-        };
     }
 
     private ExecutionResult executeBreak(BreakNode node) {
