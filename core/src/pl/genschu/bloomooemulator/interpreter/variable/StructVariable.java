@@ -1,5 +1,6 @@
 package pl.genschu.bloomooemulator.interpreter.variable;
 
+import pl.genschu.bloomooemulator.annotations.InternalMutable;
 import pl.genschu.bloomooemulator.interpreter.helpers.ArgumentHelper;
 import pl.genschu.bloomooemulator.interpreter.values.*;
 
@@ -15,19 +16,17 @@ public record StructVariable(
     String name,
     List<String> fields,    // field names (e.g., "NAME", "AGE", "SCORE")
     List<String> types,     // field types (e.g., "STRING", "INTEGER", "DOUBLE")
-    List<Value> values      // field values
+    @InternalMutable
+    List<Value> values      // field values (mutable)
 ) implements Variable {
 
     public StructVariable(String name, List<String> fields, List<String> types, List<Value> values) {
         this.name = name;
         this.fields = fields != null ? List.copyOf(fields) : List.of();
         this.types = types != null ? List.copyOf(types) : List.of();
-        this.values = values != null ? List.copyOf(values) : List.of();
+        this.values = values != null ? new ArrayList<>(values) : new ArrayList<>();
     }
 
-    /**
-     * Creates a struct with fields/types but empty (null) values.
-     */
     public static StructVariable withSchema(String name, List<String> fields, List<String> types) {
         List<Value> emptyValues = new ArrayList<>(fields.size());
         for (int i = 0; i < fields.size(); i++) {
@@ -49,9 +48,6 @@ public record StructVariable(
     @Override public Map<String, SignalHandler> signals() { return Map.of(); }
     @Override public Variable withSignal(String signalName, SignalHandler handler) { return this; }
 
-    /**
-     * Returns the value at given field index.
-     */
     public Value getFieldByIndex(int index) {
         if (index >= 0 && index < values.size()) {
             return values.get(index);
@@ -59,17 +55,11 @@ public record StructVariable(
         return NullValue.INSTANCE;
     }
 
-    /**
-     * Returns the value for given field name (case-insensitive).
-     */
     public Value getFieldByName(String fieldName) {
         int idx = getFieldIndex(fieldName);
         return idx >= 0 ? values.get(idx) : NullValue.INSTANCE;
     }
 
-    /**
-     * Returns the index of a field by name (case-insensitive), or -1 if not found.
-     */
     public int getFieldIndex(String fieldName) {
         if (fieldName == null) return -1;
         for (int i = 0; i < fields.size(); i++) {
@@ -80,28 +70,20 @@ public record StructVariable(
         return -1;
     }
 
-    /**
-     * Returns a new StructVariable with updated value at given index.
-     */
     public StructVariable withValueAt(int index, Value newValue) {
         if (index < 0 || index >= values.size()) {
             return this;
         }
-        List<Value> newValues = new ArrayList<>(values);
-        newValues.set(index, newValue);
-        return new StructVariable(name, fields, types, newValues);
+        values.set(index, newValue);
+        return this;
     }
 
-    /**
-     * Returns a new StructVariable with all values replaced.
-     */
     public StructVariable withValues(List<Value> newValues) {
-        return new StructVariable(name, fields, types, newValues);
+        values.clear();
+        values.addAll(newValues);
+        return this;
     }
 
-    /**
-     * Converts values to a list of strings (for database row updates).
-     */
     public List<String> toRowStrings() {
         List<String> out = new ArrayList<>(values.size());
         for (Value v : values) {
@@ -114,13 +96,13 @@ public record StructVariable(
         Map.entry("GETFIELD", MethodSpec.of((self, args) -> {
             StructVariable thisVar = (StructVariable) self;
             int idx = ArgumentHelper.getInt(args, 0, 0);
-            return MethodResult.noChange(thisVar.getFieldByIndex(idx));
+            return MethodResult.returns(thisVar.getFieldByIndex(idx));
         })),
 
         Map.entry("SET", MethodSpec.of((self, args) -> {
             StructVariable thisVar = (StructVariable) self;
             if (args == null || args.isEmpty()) {
-                return MethodResult.noChange(NullValue.INSTANCE);
+                return MethodResult.noReturn();
             }
             Value cursorRef = args.get(0);
 
@@ -139,18 +121,16 @@ public record StructVariable(
                         case "INTEGER" -> converted = rawStringValue.toInt();
                         case "DOUBLE" -> converted = rawStringValue.toDouble();
                         case "BOOLEAN" -> converted = rawStringValue.toBool();
-                        default -> converted = rawStringValue; // Fallback to string
+                        default -> converted = rawStringValue;
                     }
                     newValues.add(converted);
                 }
 
-                // Update the struct in context with new values
-                StructVariable updatedStruct = thisVar.withValues(newValues);
-                return MethodResult.sets(updatedStruct);
+                thisVar.withValues(newValues);
+                return MethodResult.noReturn();
             }
 
-            //return MethodResult.effects(List.of(new StructSetFromCursorEffect(thisVar, cursorRef)));
-            return MethodResult.noChange(NullValue.INSTANCE);
+            return MethodResult.noReturn();
         }, ArgKind.VAR_REF))
     );
 }

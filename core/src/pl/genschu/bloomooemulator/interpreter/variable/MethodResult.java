@@ -8,13 +8,8 @@ import java.util.List;
 
 /**
  * Result of a method call on a Variable.
- *
- * Separates two concerns:
- * - newSelf: the new state of the variable (null = no change)
- * - returnValue: the value returned to the expression (null => NullValue.INSTANCE)
  */
 public record MethodResult(
-    Variable newSelf,    // null = no change to variable
     Value returnValue,   // null => NullValue.INSTANCE
     List<Effect> effects // side effects requested by method
 ) {
@@ -23,43 +18,28 @@ public record MethodResult(
             effects = List.of();
         }
     }
+
     /**
-     * Method doesn't change the variable, just returns a value.
-     * Example: GET()
+     * Method returns a value (most common case).
+     * Use for both read-only methods (GET) and mutating methods (ADD, SET, etc.).
      */
-    public static MethodResult noChange(Value v) {
-        return new MethodResult(null, v, List.of());
+    public static MethodResult returns(Value v) {
+        return new MethodResult(v, List.of());
     }
 
     /**
-     * Method changes the variable but doesn't return anything meaningful.
-     * Example: CLEAR()
+     * Method doesn't return anything meaningful.
+     * Use for void-style mutating methods.
      */
-    public static MethodResult sets(Variable v) {
-        return new MethodResult(v, NullValue.INSTANCE, List.of());
-    }
-
-    /**
-     * Method changes the variable AND returns a value.
-     * Example: ADD(5) - changes X to X+5 and returns X+5
-     */
-    public static MethodResult setsAndReturns(Variable v, Value ret) {
-        return new MethodResult(v, ret, List.of());
-    }
-
-    /**
-     * Convenience: sets variable and returns its value.
-     * Most common case for arithmetic operations.
-     */
-    public static MethodResult setsAndReturnsValue(Variable v) {
-        return new MethodResult(v, v.value(), List.of());
+    public static MethodResult noReturn() {
+        return new MethodResult(NullValue.INSTANCE, List.of());
     }
 
     /**
      * Method doesn't change the variable, just requests side effects.
      */
     public static MethodResult effects(List<Effect> effects) {
-        return new MethodResult(null, NullValue.INSTANCE, effects);
+        return new MethodResult(NullValue.INSTANCE, effects);
     }
 
     /**
@@ -67,12 +47,5 @@ public record MethodResult(
      */
     public Value getReturnValue() {
         return returnValue != null ? returnValue : NullValue.INSTANCE;
-    }
-
-    /**
-     * Returns true if the variable should be updated in context.
-     */
-    public boolean hasNewState() {
-        return newSelf != null;
     }
 }

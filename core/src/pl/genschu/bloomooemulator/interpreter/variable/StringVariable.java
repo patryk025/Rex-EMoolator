@@ -1,5 +1,6 @@
 package pl.genschu.bloomooemulator.interpreter.variable;
 
+import pl.genschu.bloomooemulator.annotations.InternalMutable;
 import pl.genschu.bloomooemulator.interpreter.helpers.ArgumentHelper;
 import pl.genschu.bloomooemulator.interpreter.values.*;
 import java.util.HashMap;
@@ -11,7 +12,7 @@ import java.util.Map;
  **/
 public record StringVariable(
     String name,
-    String stringValue,
+    @InternalMutable MutableValue holder,
     Map<String, SignalHandler> signals
 ) implements Variable {
 
@@ -19,8 +20,8 @@ public record StringVariable(
         if (name == null || name.isEmpty()) {
             throw new IllegalArgumentException("Variable name cannot be null or empty");
         }
-        if (stringValue == null) {
-            stringValue = "";
+        if (holder == null) {
+            holder = new MutableValue(new StringValue(""));
         }
         if (signals == null) {
             signals = Map.of();
@@ -29,8 +30,13 @@ public record StringVariable(
         }
     }
 
+    // Convenience constructors
     public StringVariable(String name, String stringValue) {
-        this(name, stringValue, Map.of());
+        this(name, new MutableValue(new StringValue(stringValue != null ? stringValue : "")), Map.of());
+    }
+
+    public StringVariable(String name, String stringValue, Map<String, SignalHandler> signals) {
+        this(name, new MutableValue(new StringValue(stringValue != null ? stringValue : "")), signals);
     }
 
     // ========================================
@@ -39,7 +45,7 @@ public record StringVariable(
 
     @Override
     public Value value() {
-        return new StringValue(stringValue);
+        return holder.get();
     }
 
     @Override
@@ -50,8 +56,8 @@ public record StringVariable(
     @Override
     public Variable withValue(Value newValue) {
         String newString = ArgumentHelper.getString(newValue);
-
-        return new StringVariable(name, newString, signals);
+        holder.set(new StringValue(newString));
+        return this;
     }
 
     @Override
@@ -67,7 +73,19 @@ public record StringVariable(
         } else {
             newSignals.put(signalName, handler);
         }
-        return new StringVariable(name, stringValue, newSignals);
+        return new StringVariable(name, holder, newSignals);
+    }
+
+    // ========================================
+    // CONVENIENT ACCESSORS
+    // ========================================
+
+    public String getString() {
+        return ((StringValue) holder.get()).value();
+    }
+
+    public String get() {
+        return getString();
     }
 
     // ========================================
@@ -80,33 +98,27 @@ public record StringVariable(
             if (args.isEmpty()) {
                 throw new IllegalArgumentException("ADD requires 1 argument");
             }
-
             String addition = ArgumentHelper.getString(args.get(0));
-            return MethodResult.setsAndReturnsValue(
-                    new StringVariable(thisVar.name, thisVar.stringValue + addition, thisVar.signals)
-            );
+            StringValue result = new StringValue(thisVar.getString() + addition);
+            thisVar.holder().set(result);
+            return MethodResult.returns(result);
         })),
-
-        // TODO: Implement COPYFILE method if file system access is available
 
         Map.entry("CHANGEAT", MethodSpec.of((self, args) -> {
             StringVariable thisVar = (StringVariable) self;
             if (args.size() < 2) {
                 throw new IllegalArgumentException("CHANGEAT requires 2 arguments");
             }
-
             int index = ArgumentHelper.getInt(args.get(0));
             String replacement = ArgumentHelper.getString(args.get(1));
-            String value = thisVar.stringValue;
-
+            String value = thisVar.getString();
             if (index < 0 || index >= value.length()) {
-                return MethodResult.noChange(thisVar.value());
+                return MethodResult.returns(thisVar.value());
             }
-
             String newValue = value.substring(0, index) + replacement + value.substring(index + 1);
-            return MethodResult.setsAndReturnsValue(
-                    new StringVariable(thisVar.name, newValue, thisVar.signals)
-            );
+            StringValue result = new StringValue(newValue);
+            thisVar.holder().set(result);
+            return MethodResult.returns(result);
         })),
 
         Map.entry("CUT", MethodSpec.of((self, args) -> {
@@ -114,22 +126,18 @@ public record StringVariable(
             if (args.size() < 2) {
                 throw new IllegalArgumentException("CUT requires 2 arguments");
             }
-
             int index = ArgumentHelper.getInt(args.get(0));
             int length = ArgumentHelper.getInt(args.get(1));
-            String value = thisVar.stringValue;
-
+            String value = thisVar.getString();
             if (index < 0 || index >= value.length()) {
-                return MethodResult.setsAndReturnsValue(
-                        new StringVariable(thisVar.name, "", thisVar.signals)
-                );
+                StringValue result = new StringValue("");
+                thisVar.holder().set(result);
+                return MethodResult.returns(result);
             }
-
             int endIndex = Math.min(index + length, value.length());
-            String newValue = value.substring(index, endIndex);
-            return MethodResult.setsAndReturnsValue(
-                    new StringVariable(thisVar.name, newValue, thisVar.signals)
-            );
+            StringValue result = new StringValue(value.substring(index, endIndex));
+            thisVar.holder().set(result);
+            return MethodResult.returns(result);
         })),
 
         Map.entry("FIND", MethodSpec.of((self, args) -> {
@@ -137,34 +145,30 @@ public record StringVariable(
             if (args.isEmpty()) {
                 throw new IllegalArgumentException("FIND requires at least 1 argument");
             }
-
             String needle = ArgumentHelper.getString(args.get(0));
             int offset = args.size() > 1 ? ArgumentHelper.getInt(args.get(1)) : 0;
-            int index = thisVar.stringValue.indexOf(needle, offset);
-
-            return MethodResult.noChange(new IntValue(index));
+            int index = thisVar.getString().indexOf(needle, offset);
+            return MethodResult.returns(new IntValue(index));
         })),
 
         Map.entry("GET", MethodSpec.of((self, args) -> {
             StringVariable thisVar = (StringVariable) self;
             if (args.isEmpty()) {
-                return MethodResult.noChange(self.value());
+                return MethodResult.returns(self.value());
             }
-            // GET(index) or GET(index, length)
             int index = ArgumentHelper.getInt(args.get(0));
             int length = args.size() >= 2 ? ArgumentHelper.getInt(args.get(1)) : 1;
-
-            String value = thisVar.stringValue;
+            String value = thisVar.getString();
             if (index < 0 || index >= value.length()) {
-                return MethodResult.noChange(new StringValue(""));
+                return MethodResult.returns(new StringValue(""));
             }
             int endIndex = Math.min(index + length, value.length());
-            return MethodResult.noChange(new StringValue(value.substring(index, endIndex)));
+            return MethodResult.returns(new StringValue(value.substring(index, endIndex)));
         })),
 
         Map.entry("LENGTH", MethodSpec.of((self, args) -> {
             StringVariable thisVar = (StringVariable) self;
-            return MethodResult.noChange(new IntValue(thisVar.stringValue.length()));
+            return MethodResult.returns(new IntValue(thisVar.getString().length()));
         })),
 
         Map.entry("REPLACEAT", MethodSpec.of((self, args) -> {
@@ -172,29 +176,24 @@ public record StringVariable(
             if (args.size() < 3) {
                 throw new IllegalArgumentException("REPLACEAT requires 3 arguments");
             }
-
             int index = ArgumentHelper.getInt(args.get(0));
             int length = ArgumentHelper.getInt(args.get(1));
             String replacement = ArgumentHelper.getString(args.get(2));
-            String value = thisVar.stringValue;
-
+            String value = thisVar.getString();
             if (index < 0 || index > value.length()) {
-                return MethodResult.noChange(thisVar.value());
+                return MethodResult.returns(thisVar.value());
             }
-
             int endIndex = Math.min(index + length, value.length());
             String newValue = value.substring(0, index) + replacement + value.substring(endIndex);
-            return MethodResult.setsAndReturnsValue(
-                    new StringVariable(thisVar.name, newValue, thisVar.signals)
-            );
+            StringValue result = new StringValue(newValue);
+            thisVar.holder().set(result);
+            return MethodResult.returns(result);
         })),
 
         Map.entry("RESETINI", MethodSpec.of((self, args) -> {
             StringVariable thisVar = (StringVariable) self;
             // TODO: Get DEFAULT value from INI file
-            return MethodResult.setsAndReturnsValue(
-                    new StringVariable(thisVar.name, thisVar.stringValue, thisVar.signals)
-            );
+            return MethodResult.returns(thisVar.value());
         })),
 
         Map.entry("SET", MethodSpec.of((self, args) -> {
@@ -202,11 +201,10 @@ public record StringVariable(
             if (args.isEmpty()) {
                 throw new IllegalArgumentException("SET requires 1 argument");
             }
-
             String newValue = ArgumentHelper.getString(args.get(0));
-            return MethodResult.setsAndReturnsValue(
-                    new StringVariable(thisVar.name, newValue, thisVar.signals)
-            );
+            StringValue result = new StringValue(newValue);
+            thisVar.holder().set(result);
+            return MethodResult.returns(result);
         })),
 
         Map.entry("SUB", MethodSpec.of((self, args) -> {
@@ -214,56 +212,41 @@ public record StringVariable(
             if (args.size() < 2) {
                 throw new IllegalArgumentException("SUB requires 2 arguments");
             }
-
             int index = ArgumentHelper.getInt(args.get(0));
             int length = ArgumentHelper.getInt(args.get(1));
-            String value = thisVar.stringValue;
-
+            String value = thisVar.getString();
             if (index < 0 || index > value.length()) {
-                return MethodResult.noChange(thisVar.value());
+                return MethodResult.returns(thisVar.value());
             }
-
             int endIndex = Math.min(index + length, value.length());
             String newValue = value.substring(0, index) + value.substring(endIndex);
-            return MethodResult.setsAndReturnsValue(
-                    new StringVariable(thisVar.name, newValue, thisVar.signals)
-            );
+            StringValue result = new StringValue(newValue);
+            thisVar.holder().set(result);
+            return MethodResult.returns(result);
         })),
 
         Map.entry("UPPER", MethodSpec.of((self, args) -> {
             StringVariable thisVar = (StringVariable) self;
-            return MethodResult.setsAndReturnsValue(
-                    new StringVariable(thisVar.name, thisVar.stringValue.toUpperCase(), thisVar.signals)
-            );
+            StringValue result = new StringValue(thisVar.getString().toUpperCase());
+            thisVar.holder().set(result);
+            return MethodResult.returns(result);
         })),
 
         Map.entry("LOWER", MethodSpec.of((self, args) -> {
             StringVariable thisVar = (StringVariable) self;
-            return MethodResult.setsAndReturnsValue(
-                    new StringVariable(thisVar.name, thisVar.stringValue.toLowerCase(), thisVar.signals)
-            );
+            StringValue result = new StringValue(thisVar.getString().toLowerCase());
+            thisVar.holder().set(result);
+            return MethodResult.returns(result);
         }))
     );
 
-    // ========================================
-    // CONVENIENT ACCESSORS
-    // ========================================
-
-    /**
-     * Gets the string value directly.
-     * Convenience method to avoid value().unwrap().
-     */
-    public String get() {
-        return stringValue;
-    }
-
     @Override
     public String toString() {
-        return "StringVariable[" + name + "=\"" + stringValue + "\"]";
+        return "StringVariable[" + name + "=\"" + getString() + "\"]";
     }
 
     @Override
     public Variable copyAs(String newName) {
-        return new StringVariable(newName, this.stringValue, this.signals);
+        return new StringVariable(newName, this.getString(), this.signals);
     }
 }

@@ -50,23 +50,24 @@ public sealed interface Variable permits
     VariableType type();
 
     /**
-     * Creates a new Variable with the given value.
-     * This is the PRIMARY way to "change" a variable (returns new instance).
+     * Sets the value of this variable in-place (mutates via MutableValue holder).
+     * Returns this variable for chaining.
      *
      * Example:
      *   IntVariable x = new IntVariable("x", 10, ...);
-     *   IntVariable x2 = (IntVariable) x.withValue(new IntValue(20));
-     *   // x still has value 10, x2 has value 20!
+     *   x.withValue(new IntValue(20));
+     *   // x now has value 20
      */
     Variable withValue(Value newValue);
 
     /**
      * Calls a method on this variable and returns the result.
+     * Methods mutate the variable in-place via MutableValue holders.
      *
      * Example:
      *   IntVariable x = new IntVariable("x", 10, ...);
      *   MethodResult result = x.callMethod("ADD", List.of(new IntValue(5)));
-     *   // result.newSelf() is IntVariable("x", 15, ...)
+     *   // x.value() is now IntValue(15)
      *   // result.returnValue() is IntValue(15)
      */
     default MethodResult callMethod(String methodName, Value... arguments) {
@@ -122,7 +123,7 @@ public sealed interface Variable permits
                         idx = 0;
                     }
                 }
-                return MethodResult.noChange(new IntValue(idx));
+                return MethodResult.returns(new IntValue(idx));
             })),
 
             Map.entry("REMOVEBEHAVIOUR", MethodSpec.of((self, args) -> {
@@ -141,7 +142,7 @@ public sealed interface Variable permits
 
                 // TODO: consider passing arguments not as part of signal name but separately
                 self.emitSignal("ONSIGNAL^" + signal);
-                return MethodResult.noChange(NullValue.INSTANCE);
+                return MethodResult.noReturn();
             }))
     );
 

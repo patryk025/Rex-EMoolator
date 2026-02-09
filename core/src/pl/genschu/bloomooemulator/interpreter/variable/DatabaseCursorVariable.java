@@ -35,7 +35,7 @@ public record DatabaseCursorVariable(
         Map.entry("SET", MethodSpec.of((self, args) -> {
             DatabaseCursorVariable thisVar = (DatabaseCursorVariable) self;
             if (args == null || args.isEmpty()) {
-                return MethodResult.noChange(NullValue.INSTANCE);
+                return MethodResult.noReturn();
             }
 
             Value v = args.get(0);
@@ -43,7 +43,7 @@ public record DatabaseCursorVariable(
             // If the argument is a VariableValue wrapping a StructVariable
             if (v instanceof VariableValue(Variable variable) && variable instanceof StructVariable struct) {
                 thisVar.setFromStruct(struct);
-                return MethodResult.noChange(NullValue.INSTANCE);
+                return MethodResult.noReturn();
             }
 
             // Otherwise, this is an incorrect situation, as variable should be already .

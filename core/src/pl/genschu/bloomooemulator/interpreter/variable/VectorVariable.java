@@ -1,5 +1,6 @@
 package pl.genschu.bloomooemulator.interpreter.variable;
 
+import pl.genschu.bloomooemulator.annotations.InternalMutable;
 import pl.genschu.bloomooemulator.interpreter.helpers.ArgumentHelper;
 import pl.genschu.bloomooemulator.interpreter.runtime.effects.UpdateVariableEffect;
 import pl.genschu.bloomooemulator.interpreter.values.*;
@@ -16,6 +17,7 @@ import java.util.Map;
 public record VectorVariable(
     String name,
     int size,
+    @InternalMutable
     List<Double> components,
     Map<String, SignalHandler> signals
 ) implements Variable {
@@ -25,9 +27,9 @@ public record VectorVariable(
             throw new IllegalArgumentException("Variable name cannot be null or empty");
         }
         if (components == null) {
-            components = List.of();
-        } else {
-            components = List.copyOf(components);  // Immutable
+            components = new ArrayList<>();
+        } else if (!(components instanceof ArrayList)) {
+            components = new ArrayList<>(components);  // Ensure mutable
         }
         if (signals == null) {
             signals = Map.of();
@@ -70,7 +72,6 @@ public record VectorVariable(
 
     @Override
     public Value value() {
-        // Return length as the "value" of the vector
         return new DoubleValue(length());
     }
 
@@ -81,27 +82,24 @@ public record VectorVariable(
 
     @Override
     public Variable withValue(Value newValue) {
-        // Setting value on vector sets all components to that value
         double val = ArgumentHelper.getDouble(newValue);
-        List<Double> newComponents = new ArrayList<>();
         for (int i = 0; i < components.size(); i++) {
-            newComponents.add(val);
+            components.set(i, val);
         }
-        return new VectorVariable(name, size, newComponents, signals);
+        return this;
     }
 
     public Variable withSize(int newSize) {
-        List<Double> newComponents = new ArrayList<>(components);
         if (newSize > components.size()) {
-            // Extend with zeros
             for (int i = components.size(); i < newSize; i++) {
-                newComponents.add(0.0);
+                components.add(0.0);
             }
         } else if (newSize < components.size()) {
-            // Truncate
-            newComponents = newComponents.subList(0, newSize);
+            while (components.size() > newSize) {
+                components.remove(components.size() - 1);
+            }
         }
-        return new VectorVariable(name, newSize, newComponents, signals);
+        return new VectorVariable(name, newSize, components, signals);
     }
 
     @Override
@@ -120,13 +118,6 @@ public record VectorVariable(
     // HELPER METHODS
     // ========================================
 
-    private VectorVariable withComponents(List<Double> newComponents) {
-        return new VectorVariable(name, size, newComponents, signals);
-    }
-
-    /**
-     * Calculates the length (magnitude) of this vector.
-     */
     public double length() {
         double sum = 0;
         for (double component : components) {
@@ -135,14 +126,17 @@ public record VectorVariable(
         return Math.sqrt(sum);
     }
 
-    /**
-     * Gets component at index or 0.0 if out of bounds.
-     */
     public double getComponent(int index) {
         if (index >= 0 && index < components.size()) {
             return components.get(index);
         }
         return 0.0;
+    }
+
+    private void ensureSize() {
+        while (components.size() < size) {
+            components.add(0.0);
+        }
     }
 
     // ========================================
@@ -157,31 +151,25 @@ public record VectorVariable(
             VectorVariable thisVar = (VectorVariable) self;
             VectorVariable other = requireVector(args.get(0), "ADD");
 
-            List<Double> newComponents = new ArrayList<>(thisVar.components);
-            while (newComponents.size() < thisVar.size) {
-                newComponents.add(0.0);
-            }
-
+            thisVar.ensureSize();
             for (int i = 0; i < thisVar.size; i++) {
-                double a = newComponents.get(i);
+                double a = thisVar.components.get(i);
                 double b = i < other.components.size() ? other.components.get(i) : 0.0;
-                newComponents.set(i, a + b);
+                thisVar.components.set(i, a + b);
             }
-
-            return MethodResult.sets(thisVar.withComponents(newComponents));
+            return MethodResult.noReturn();
         }, ArgKind.VAR_REF)),
 
         Map.entry("ASSIGN", MethodSpec.of((self, args) -> {
             VectorVariable thisVar = (VectorVariable) self;
-            List<Double> newComponents = new ArrayList<>(thisVar.components);
-            int targetSize = Math.max(newComponents.size(), args.size());
-            while (newComponents.size() < targetSize) {
-                newComponents.add(0.0);
+            int targetSize = Math.max(thisVar.components.size(), args.size());
+            while (thisVar.components.size() < targetSize) {
+                thisVar.components.add(0.0);
             }
             for (int i = 0; i < args.size(); i++) {
-                newComponents.set(i, ArgumentHelper.getDouble(args.get(i)));
+                thisVar.components.set(i, ArgumentHelper.getDouble(args.get(i)));
             }
-            return MethodResult.sets(thisVar.withComponents(newComponents));
+            return MethodResult.noReturn();
         })),
 
         Map.entry("GET", MethodSpec.of((self, args) -> {
@@ -191,9 +179,9 @@ public record VectorVariable(
             VectorVariable thisVar = (VectorVariable) self;
             int index = ArgumentHelper.getInt(args.get(0));
             if (index >= 0 && index < thisVar.components.size()) {
-                return MethodResult.noChange(new DoubleValue(thisVar.components.get(index)));
+                return MethodResult.returns(new DoubleValue(thisVar.components.get(index)));
             }
-            return MethodResult.noChange(new DoubleValue(0.0));
+            return MethodResult.returns(new DoubleValue(0.0));
         })),
 
         Map.entry("MUL", MethodSpec.of((self, args) -> {
@@ -202,35 +190,29 @@ public record VectorVariable(
             }
             VectorVariable thisVar = (VectorVariable) self;
             double scalar = ArgumentHelper.getDouble(args.get(0));
-            List<Double> newComponents = new ArrayList<>(thisVar.components);
-            while (newComponents.size() < thisVar.size) {
-                newComponents.add(0.0);
-            }
+            thisVar.ensureSize();
             for (int i = 0; i < thisVar.size; i++) {
-                newComponents.set(i, newComponents.get(i) * scalar);
+                thisVar.components.set(i, thisVar.components.get(i) * scalar);
             }
-            return MethodResult.sets(thisVar.withComponents(newComponents));
+            return MethodResult.noReturn();
         })),
 
         Map.entry("NORMALIZE", MethodSpec.of((self, args) -> {
             VectorVariable thisVar = (VectorVariable) self;
-            double length = thisVar.length();
-            if (length <= 0.0) {
-                return MethodResult.noChange(NullValue.INSTANCE);
+            double len = thisVar.length();
+            if (len <= 0.0) {
+                return MethodResult.returns(NullValue.INSTANCE);
             }
-            List<Double> newComponents = new ArrayList<>(thisVar.components);
-            while (newComponents.size() < thisVar.size) {
-                newComponents.add(0.0);
-            }
+            thisVar.ensureSize();
             for (int i = 0; i < thisVar.size; i++) {
-                newComponents.set(i, newComponents.get(i) / length);
+                thisVar.components.set(i, thisVar.components.get(i) / len);
             }
-            return MethodResult.sets(thisVar.withComponents(newComponents));
+            return MethodResult.noReturn();
         })),
 
         Map.entry("LEN", MethodSpec.of((self, args) -> {
             VectorVariable thisVar = (VectorVariable) self;
-            return MethodResult.noChange(new DoubleValue(thisVar.length()));
+            return MethodResult.returns(new DoubleValue(thisVar.length()));
         })),
 
         Map.entry("REFLECT", MethodSpec.of((self, args) -> {
@@ -247,22 +229,15 @@ public record VectorVariable(
                 double b = i < normalVector.components.size() ? normalVector.components.get(i) : 0.0;
                 dotProduct += a * b;
             }
-            List<Double> resultComponents = new ArrayList<>(resultVector.components);
             for (int i = 0; i < thisVar.size; i++) {
                 double a = i < thisVar.components.size() ? thisVar.components.get(i) : 0.0;
                 double b = i < normalVector.components.size() ? normalVector.components.get(i) : 0.0;
-                if (i < resultComponents.size()) {
-                    resultComponents.set(i, 2 * dotProduct * b - a);
+                if (i < resultVector.components.size()) {
+                    resultVector.components.set(i, 2 * dotProduct * b - a);
                 }
             }
 
-            VectorVariable newResult = new VectorVariable(
-                    resultVector.name(),
-                    resultVector.size,
-                    resultComponents,
-                    resultVector.signals()
-            );
-            return MethodResult.effects(List.of(new UpdateVariableEffect(resultVector.name(), newResult)));
+            return MethodResult.effects(List.of(new UpdateVariableEffect(resultVector.name(), resultVector)));
         }, ArgKind.VAR_REF, ArgKind.VAR_REF))
     );
 
@@ -277,23 +252,14 @@ public record VectorVariable(
     // CONVENIENT ACCESSORS
     // ========================================
 
-    /**
-     * Gets X component (index 0) or 0.0 if not set.
-     */
     public double x() {
         return getComponent(0);
     }
 
-    /**
-     * Gets Y component (index 1) or 0.0 if not set.
-     */
     public double y() {
         return getComponent(1);
     }
 
-    /**
-     * Gets Z component (index 2) or 0.0 if not set.
-     */
     public double z() {
         return getComponent(2);
     }

@@ -26,11 +26,11 @@ class ArrayTest {
 
     @Test
     void testAdd() {
-        arrayVar = (ArrayVariable) arrayVar.callMethod("ADD",
+        arrayVar.callMethod("ADD",
                 List.of(new IntValue(1),
                 new DoubleValue(2.5),
                 new StringValue("text"),
-                new BoolValue(true))).newSelf();
+                new BoolValue(true)));
 
         assertEquals(4, arrayVar.elements().size());
 
@@ -49,10 +49,10 @@ class ArrayTest {
 
     @Test
     void testGet() {
-        arrayVar = (ArrayVariable) arrayVar.callMethod("ADD",
+        arrayVar.callMethod("ADD",
                 List.of(new IntValue(10),
                 new StringValue("Hello"),
-                new DoubleValue(3.14))).newSelf();
+                new DoubleValue(3.14)));
 
         Value element0 = arrayVar.callMethod("GET", List.of(new IntValue(0))).getReturnValue();
         Value element1 = arrayVar.callMethod("GET", List.of(new IntValue(1))).getReturnValue();
@@ -74,7 +74,7 @@ class ArrayTest {
 
     @Test
     void testGetWithUnknownField() {
-        arrayVar = (ArrayVariable) arrayVar.callMethod("ADD", List.of(new IntValue(10))).newSelf();
+        arrayVar.callMethod("ADD", List.of(new IntValue(10)));
 
         Value result = arrayVar.callMethod("GET",
                 List.of(new IntValue(5),
@@ -86,26 +86,26 @@ class ArrayTest {
 
     @Test
     void testChangeAt() {
-        arrayVar = (ArrayVariable) arrayVar.callMethod("ADD",
+        arrayVar.callMethod("ADD",
                 List.of(new IntValue(1),
-                new StringValue("old"))).newSelf();
+                new StringValue("old")));
 
-        arrayVar = (ArrayVariable) arrayVar.callMethod("CHANGEAT",
+        arrayVar.callMethod("CHANGEAT",
                 List.of(new IntValue(1),
-                new StringValue("new"))).newSelf();
+                new StringValue("new")));
 
         assertEquals("new", ((StringValue) arrayVar.elements().get(1)).value());
     }
 
     @Test
     void testInsertAt() {
-        arrayVar = (ArrayVariable) arrayVar.callMethod("ADD",
+        arrayVar.callMethod("ADD",
                 List.of(new IntValue(1),
-                new IntValue(3))).newSelf();
+                new IntValue(3)));
 
-        arrayVar = (ArrayVariable) arrayVar.callMethod("INSERTAT",
+        arrayVar.callMethod("INSERTAT",
                 List.of(new IntValue(1),
-                new IntValue(2))).newSelf();
+                new IntValue(2)));
 
         assertEquals(3, arrayVar.elements().size());
         assertEquals(2, ((IntValue) arrayVar.elements().get(1)).value());
@@ -114,12 +114,12 @@ class ArrayTest {
 
     @Test
     void testRemoveAt() {
-        arrayVar = (ArrayVariable) arrayVar.callMethod("ADD",
+        arrayVar.callMethod("ADD",
                 List.of(new IntValue(1),
                 new IntValue(2),
-                new IntValue(3))).newSelf();
+                new IntValue(3)));
 
-        arrayVar = (ArrayVariable) arrayVar.callMethod("REMOVEAT", List.of(new IntValue(1))).newSelf();
+        arrayVar.callMethod("REMOVEAT", List.of(new IntValue(1)));
 
         assertEquals(2, arrayVar.elements().size());
         assertEquals(1, ((IntValue) arrayVar.elements().get(0)).value());
@@ -128,21 +128,21 @@ class ArrayTest {
 
     @Test
     void testRemoveAll() {
-        arrayVar = (ArrayVariable) arrayVar.callMethod("ADD",
+        arrayVar.callMethod("ADD",
                 List.of(new IntValue(1),
-                new IntValue(2))).newSelf();
+                new IntValue(2)));
 
-        arrayVar = (ArrayVariable) arrayVar.callMethod("REMOVEALL", List.of()).newSelf();
+        arrayVar.callMethod("REMOVEALL", List.of());
 
         assertEquals(0, arrayVar.elements().size());
     }
 
     @Test
     void testGetSize() {
-        arrayVar = (ArrayVariable) arrayVar.callMethod("ADD",
+        arrayVar.callMethod("ADD",
                 List.of(new IntValue(1),
                 new IntValue(2),
-                new IntValue(3))).newSelf();
+                new IntValue(3)));
 
         IntValue result = (IntValue) arrayVar.callMethod("GETSIZE", List.of()).getReturnValue();
 
@@ -151,10 +151,10 @@ class ArrayTest {
 
     @Test
     void testFindExactMatch() {
-        arrayVar = (ArrayVariable) arrayVar.callMethod("ADD",
+        arrayVar.callMethod("ADD",
                 List.of(new IntValue(1),
                 new StringValue("test"),
-                new DoubleValue(3.14))).newSelf();
+                new DoubleValue(3.14)));
 
         IntValue result1 = (IntValue) arrayVar.callMethod("FIND",
                 List.of(new IntValue(1))).getReturnValue();
@@ -172,9 +172,9 @@ class ArrayTest {
 
     @Test
     void testFindNoMatch() {
-        arrayVar = (ArrayVariable) arrayVar.callMethod("ADD",
+        arrayVar.callMethod("ADD",
                 List.of(new IntValue(1),
-                new StringValue("test"))).newSelf();
+                new StringValue("test")));
 
         IntValue result = (IntValue) arrayVar.callMethod("FIND",
                 List.of(new DoubleValue(3.14))).getReturnValue();
@@ -184,10 +184,10 @@ class ArrayTest {
 
     @Test
     void testFindSimilarValues() {
-        arrayVar = (ArrayVariable) arrayVar.callMethod("ADD",
+        arrayVar.callMethod("ADD",
                 List.of(new IntValue(4),
                 new DoubleValue(4.0),
-                new StringValue("4"))).newSelf();
+                new StringValue("4")));
 
         IntValue result1 = (IntValue) arrayVar.callMethod("FIND",
                 List.of(new IntValue(4))).getReturnValue();
@@ -206,9 +206,9 @@ class ArrayTest {
 
     @Test
     void testContains() {
-        arrayVar = (ArrayVariable) arrayVar.callMethod("ADD",
+        arrayVar.callMethod("ADD",
                 List.of(new IntValue(1),
-                new StringValue("test"))).newSelf();
+                new StringValue("test")));
 
         BoolValue result1 = (BoolValue) arrayVar.callMethod("CONTAINS",
                 List.of(new StringValue("test"))).getReturnValue();
@@ -222,10 +222,10 @@ class ArrayTest {
 
     @Test
     void testReverseFind() {
-        arrayVar = (ArrayVariable) arrayVar.callMethod("ADD",
+        arrayVar.callMethod("ADD",
                 List.of(new IntValue(5),
                 new StringValue("test"),
-                new IntValue(5))).newSelf();
+                new IntValue(5)));
 
         IntValue result = (IntValue) arrayVar.callMethod("REVERSEFIND",
                 List.of(new IntValue(5))).getReturnValue();

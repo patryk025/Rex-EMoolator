@@ -15,7 +15,7 @@ import java.util.Map;
  **/
 public record ArrayVariable(
     String name,
-    //@InternalMutable (testing performance impact of copy-on-write)
+    @InternalMutable
     List<Value> elements,
     Map<String, SignalHandler> signals
 ) implements Variable {
@@ -25,9 +25,9 @@ public record ArrayVariable(
             throw new IllegalArgumentException("Variable name cannot be null or empty");
         }
         if (elements == null) {
-            elements = List.of();
-        } else {
-            elements = List.copyOf(elements);  // Immutable
+            elements = new ArrayList<>();
+        } else if (!(elements instanceof ArrayList)) {
+            elements = new ArrayList<>(elements);  // Ensure mutable
         }
         if (signals == null) {
             signals = Map.of();
@@ -37,7 +37,7 @@ public record ArrayVariable(
     }
 
     public ArrayVariable(String name) {
-        this(name, List.of(), Map.of());
+        this(name, new ArrayList<>(), Map.of());
     }
 
     public ArrayVariable(String name, List<Value> elements) {
@@ -50,7 +50,6 @@ public record ArrayVariable(
 
     @Override
     public Value value() {
-        // Return size as the "value" of the array (useful for conditions)
         return new IntValue(elements.size());
     }
 
@@ -61,8 +60,9 @@ public record ArrayVariable(
 
     @Override
     public Variable withValue(Value newValue) {
-        // Setting value on array clears it and adds the single value
-        return new ArrayVariable(name, List.of(newValue), signals);
+        elements.clear();
+        elements.add(newValue);
+        return this;
     }
 
     @Override
@@ -78,14 +78,6 @@ public record ArrayVariable(
     }
 
     // ========================================
-    // HELPER METHODS
-    // ========================================
-
-    private ArrayVariable withElements(List<Value> newElements) {
-        return new ArrayVariable(name, newElements, signals);
-    }
-
-    // ========================================
     // METHODS DEFINITION
     // ========================================
 
@@ -95,10 +87,8 @@ public record ArrayVariable(
             if (args.isEmpty()) {
                 throw new IllegalArgumentException("ADD requires at least 1 argument");
             }
-
-            List<Value> newElements = new ArrayList<>(thisVar.elements);
-            newElements.addAll(args);
-            return MethodResult.sets(thisVar.withElements(newElements));
+            thisVar.elements.addAll(args);
+            return MethodResult.noReturn();
         })),
 
         Map.entry("ADDAT", MethodSpec.of((self, args) -> {
@@ -106,18 +96,14 @@ public record ArrayVariable(
             if (args.size() < 2) {
                 throw new IllegalArgumentException("ADDAT requires 2 arguments");
             }
-
             int index = ArgumentHelper.getInt(args.get(0));
             if (index < 0 || index >= thisVar.elements.size()) {
-                return MethodResult.noChange(NullValue.INSTANCE);
+                return MethodResult.returns(NullValue.INSTANCE);
             }
-
             double addend = ArgumentHelper.getDouble(args.get(1));
             double current = ArgumentHelper.getDouble(thisVar.elements.get(index));
-
-            List<Value> newElements = new ArrayList<>(thisVar.elements);
-            newElements.set(index, new DoubleValue(current + addend));
-            return MethodResult.sets(thisVar.withElements(newElements));
+            thisVar.elements.set(index, new DoubleValue(current + addend));
+            return MethodResult.noReturn();
         })),
 
         Map.entry("CHANGEAT", MethodSpec.of((self, args) -> {
@@ -125,17 +111,13 @@ public record ArrayVariable(
             if (args.size() < 2) {
                 throw new IllegalArgumentException("CHANGEAT requires 2 arguments");
             }
-
             int index = ArgumentHelper.getInt(args.get(0));
             Value newValue = args.get(1);
-
             if (index < 0 || index >= thisVar.elements.size()) {
-                return MethodResult.noChange(NullValue.INSTANCE);
+                return MethodResult.returns(NullValue.INSTANCE);
             }
-
-            List<Value> newElements = new ArrayList<>(thisVar.elements);
-            newElements.set(index, newValue);
-            return MethodResult.sets(thisVar.withElements(newElements));
+            thisVar.elements.set(index, newValue);
+            return MethodResult.noReturn();
         })),
 
         Map.entry("CLAMPAT", MethodSpec.of((self, args) -> {
@@ -143,36 +125,28 @@ public record ArrayVariable(
             if (args.size() < 3) {
                 throw new IllegalArgumentException("CLAMPAT requires 3 arguments");
             }
-
             int index = ArgumentHelper.getInt(args.get(0));
             if (index < 0 || index >= thisVar.elements.size()) {
-                return MethodResult.noChange(NullValue.INSTANCE);
+                return MethodResult.returns(NullValue.INSTANCE);
             }
-
             Value current = thisVar.elements.get(index);
-
-            switch(current) {
+            switch (current) {
                 case IntValue iv -> {
                     int rangeMin = ArgumentHelper.getInt(args.get(1));
                     int rangeMax = ArgumentHelper.getInt(args.get(2));
                     int clamped = Math.max(rangeMin, Math.min(rangeMax, iv.value()));
-
-                    List<Value> newElements = new ArrayList<>(thisVar.elements);
-                    newElements.set(index, new IntValue(clamped));
-                    return MethodResult.sets(thisVar.withElements(newElements));
+                    thisVar.elements.set(index, new IntValue(clamped));
+                    return MethodResult.noReturn();
                 }
                 case DoubleValue dv -> {
                     double rangeMin = ArgumentHelper.getDouble(args.get(1));
                     double rangeMax = ArgumentHelper.getDouble(args.get(2));
                     double clamped = Math.max(rangeMin, Math.min(rangeMax, dv.value()));
-
-                    List<Value> newElements = new ArrayList<>(thisVar.elements);
-                    newElements.set(index, new DoubleValue(clamped));
-                    return MethodResult.sets(thisVar.withElements(newElements));
+                    thisVar.elements.set(index, new DoubleValue(clamped));
+                    return MethodResult.noReturn();
                 }
                 default -> {
-                    /* no adjustment possible */
-                    return MethodResult.noChange(NullValue.INSTANCE);
+                    return MethodResult.returns(NullValue.INSTANCE);
                 }
             }
         })),
@@ -182,31 +156,27 @@ public record ArrayVariable(
             if (args.isEmpty()) {
                 throw new IllegalArgumentException("CONTAINS requires 1 argument");
             }
-
             String needle = ArgumentHelper.getString(args.get(0));
             for (Value element : thisVar.elements) {
                 if (element.toDisplayString().equals(needle)) {
-                    return MethodResult.noChange(BoolValue.TRUE);
+                    return MethodResult.returns(BoolValue.TRUE);
                 }
             }
-            return MethodResult.noChange(BoolValue.FALSE);
+            return MethodResult.returns(BoolValue.FALSE);
         })),
-
-        // TODO: implement COPYTO (needs context?)
 
         Map.entry("FIND", MethodSpec.of((self, args) -> {
             ArrayVariable thisVar = (ArrayVariable) self;
             if (args.isEmpty()) {
                 throw new IllegalArgumentException("FIND requires 1 argument");
             }
-
             Value needle = args.get(0);
             for (int i = 0; i < thisVar.elements.size(); i++) {
-                if(ValueOps.compare(thisVar.elements().get(i), needle, ComparisonNode.ComparisonOp.EQUAL).value()) {
-                    return MethodResult.noChange(new IntValue(i));
+                if (ValueOps.compare(thisVar.elements.get(i), needle, ComparisonNode.ComparisonOp.EQUAL).value()) {
+                    return MethodResult.returns(new IntValue(i));
                 }
             }
-            return MethodResult.noChange(new IntValue(-1));
+            return MethodResult.returns(new IntValue(-1));
         })),
 
         Map.entry("GET", MethodSpec.of((self, args) -> {
@@ -214,17 +184,16 @@ public record ArrayVariable(
             if (args.isEmpty()) {
                 throw new IllegalArgumentException("GET requires at least 1 argument");
             }
-
             int index = ArgumentHelper.getInt(args.get(0));
             if (index < 0 || index >= thisVar.elements.size()) {
-                return MethodResult.noChange(NullValue.INSTANCE);
+                return MethodResult.returns(NullValue.INSTANCE);
             }
-            return MethodResult.noChange(thisVar.elements.get(index));
+            return MethodResult.returns(thisVar.elements.get(index));
         })),
 
         Map.entry("GETSIZE", MethodSpec.of((self, args) -> {
             ArrayVariable thisVar = (ArrayVariable) self;
-            return MethodResult.noChange(new IntValue(thisVar.elements.size()));
+            return MethodResult.returns(new IntValue(thisVar.elements.size()));
         })),
 
         Map.entry("GETSUMVALUE", MethodSpec.of((self, args) -> {
@@ -233,7 +202,7 @@ public record ArrayVariable(
             for (Value element : thisVar.elements) {
                 sum += ArgumentHelper.getDouble(element);
             }
-            return MethodResult.noChange(new DoubleValue(sum));
+            return MethodResult.returns(new DoubleValue(sum));
         })),
 
         Map.entry("INSERTAT", MethodSpec.of((self, args) -> {
@@ -241,42 +210,31 @@ public record ArrayVariable(
             if (args.size() < 2) {
                 throw new IllegalArgumentException("INSERTAT requires 2 arguments");
             }
-
             int index = ArgumentHelper.getInt(args.get(0));
             Value value = args.get(1);
-
             if (index < 0 || index > thisVar.elements.size()) {
-                return MethodResult.noChange(NullValue.INSTANCE);
+                return MethodResult.returns(NullValue.INSTANCE);
             }
-
-            List<Value> newElements = new ArrayList<>(thisVar.elements);
-            newElements.add(index, value);
-            return MethodResult.sets(thisVar.withElements(newElements));
+            thisVar.elements.add(index, value);
+            return MethodResult.noReturn();
         })),
-
-        // TODO: implement LOAD and LOADINI
 
         Map.entry("MODAT", MethodSpec.of((self, args) -> {
             ArrayVariable thisVar = (ArrayVariable) self;
             if (args.size() < 2) {
                 throw new IllegalArgumentException("MODAT requires 2 arguments");
             }
-
             int index = ArgumentHelper.getInt(args.get(0));
             if (index < 0 || index >= thisVar.elements.size()) {
-                return MethodResult.noChange(NullValue.INSTANCE);
+                return MethodResult.returns(NullValue.INSTANCE);
             }
-
             double divisor = ArgumentHelper.getDouble(args.get(1));
             if (divisor == 0.0) {
-                return MethodResult.noChange(NullValue.INSTANCE);
+                return MethodResult.returns(NullValue.INSTANCE);
             }
-
             double current = ArgumentHelper.getDouble(thisVar.elements.get(index));
-
-            List<Value> newElements = new ArrayList<>(thisVar.elements);
-            newElements.set(index, new DoubleValue(current % divisor));
-            return MethodResult.sets(thisVar.withElements(newElements));
+            thisVar.elements.set(index, new DoubleValue(current % divisor));
+            return MethodResult.noReturn();
         })),
 
         Map.entry("MULAT", MethodSpec.of((self, args) -> {
@@ -284,23 +242,20 @@ public record ArrayVariable(
             if (args.size() < 2) {
                 throw new IllegalArgumentException("MULAT requires 2 arguments");
             }
-
             int index = ArgumentHelper.getInt(args.get(0));
             if (index < 0 || index >= thisVar.elements.size()) {
-                return MethodResult.noChange(NullValue.INSTANCE);
+                return MethodResult.returns(NullValue.INSTANCE);
             }
-
             double multiplier = ArgumentHelper.getDouble(args.get(1));
             double current = ArgumentHelper.getDouble(thisVar.elements.get(index));
-
-            List<Value> newElements = new ArrayList<>(thisVar.elements);
-            newElements.set(index, new DoubleValue(current * multiplier));
-            return MethodResult.sets(thisVar.withElements(newElements));
+            thisVar.elements.set(index, new DoubleValue(current * multiplier));
+            return MethodResult.noReturn();
         })),
 
         Map.entry("REMOVEALL", MethodSpec.of((self, args) -> {
             ArrayVariable thisVar = (ArrayVariable) self;
-            return MethodResult.sets(thisVar.withElements(List.of()));
+            thisVar.elements.clear();
+            return MethodResult.noReturn();
         })),
 
         Map.entry("REMOVEAT", MethodSpec.of((self, args) -> {
@@ -308,15 +263,12 @@ public record ArrayVariable(
             if (args.isEmpty()) {
                 throw new IllegalArgumentException("REMOVEAT requires 1 argument");
             }
-
             int index = ArgumentHelper.getInt(args.get(0));
             if (index < 0 || index >= thisVar.elements.size()) {
-                return MethodResult.noChange(NullValue.INSTANCE);
+                return MethodResult.returns(NullValue.INSTANCE);
             }
-
-            List<Value> newElements = new ArrayList<>(thisVar.elements);
-            newElements.remove(index);
-            return MethodResult.sets(thisVar.withElements(newElements));
+            thisVar.elements.remove(index);
+            return MethodResult.noReturn();
         })),
 
         Map.entry("REVERSEFIND", MethodSpec.of((self, args) -> {
@@ -324,31 +276,26 @@ public record ArrayVariable(
             if (args.isEmpty()) {
                 throw new IllegalArgumentException("REVERSEFIND requires 1 argument");
             }
-
             Value needle = args.get(0);
             for (int i = thisVar.elements.size() - 1; i >= 0; i--) {
-                if(ValueOps.compare(thisVar.elements().get(i), needle, ComparisonNode.ComparisonOp.EQUAL).value()) {
-                    return MethodResult.noChange(new IntValue(i));
+                if (ValueOps.compare(thisVar.elements.get(i), needle, ComparisonNode.ComparisonOp.EQUAL).value()) {
+                    return MethodResult.returns(new IntValue(i));
                 }
             }
-            return MethodResult.noChange(new IntValue(-1));
+            return MethodResult.returns(new IntValue(-1));
         })),
-
-        // TODO: implement SAVE and SAVEINI
 
         Map.entry("SUB", MethodSpec.of((self, args) -> {
             ArrayVariable thisVar = (ArrayVariable) self;
             if (args.isEmpty()) {
                 throw new IllegalArgumentException("SUB requires 1 argument");
             }
-
             double subtrahend = ArgumentHelper.getDouble(args.get(0));
-            List<Value> newElements = new ArrayList<>();
-            for (Value element : thisVar.elements) {
-                double result = ArgumentHelper.getDouble(element) - subtrahend;
-                newElements.add(new DoubleValue(result));
+            for (int i = 0; i < thisVar.elements.size(); i++) {
+                double result = ArgumentHelper.getDouble(thisVar.elements.get(i)) - subtrahend;
+                thisVar.elements.set(i, new DoubleValue(result));
             }
-            return MethodResult.sets(thisVar.withElements(newElements));
+            return MethodResult.noReturn();
         })),
 
         Map.entry("SUBAT", MethodSpec.of((self, args) -> {
@@ -356,18 +303,14 @@ public record ArrayVariable(
             if (args.size() < 2) {
                 throw new IllegalArgumentException("SUBAT requires 2 arguments");
             }
-
             int index = ArgumentHelper.getInt(args.get(0));
             if (index < 0 || index >= thisVar.elements.size()) {
-                return MethodResult.noChange(NullValue.INSTANCE);
+                return MethodResult.returns(NullValue.INSTANCE);
             }
-
             double subtrahend = ArgumentHelper.getDouble(args.get(1));
             double current = ArgumentHelper.getDouble(thisVar.elements.get(index));
-
-            List<Value> newElements = new ArrayList<>(thisVar.elements);
-            newElements.set(index, new DoubleValue(current - subtrahend));
-            return MethodResult.sets(thisVar.withElements(newElements));
+            thisVar.elements.set(index, new DoubleValue(current - subtrahend));
+            return MethodResult.noReturn();
         })),
 
         Map.entry("SUM", MethodSpec.of((self, args) -> {
@@ -375,14 +318,12 @@ public record ArrayVariable(
             if (args.isEmpty()) {
                 throw new IllegalArgumentException("SUM requires 1 argument");
             }
-
             double addend = ArgumentHelper.getDouble(args.get(0));
-            List<Value> newElements = new ArrayList<>();
-            for (Value element : thisVar.elements) {
-                double result = ArgumentHelper.getDouble(element) + addend;
-                newElements.add(new DoubleValue(result));
+            for (int i = 0; i < thisVar.elements.size(); i++) {
+                double result = ArgumentHelper.getDouble(thisVar.elements.get(i)) + addend;
+                thisVar.elements.set(i, new DoubleValue(result));
             }
-            return MethodResult.sets(thisVar.withElements(newElements));
+            return MethodResult.noReturn();
         }))
     );
 
@@ -390,16 +331,10 @@ public record ArrayVariable(
     // CONVENIENT ACCESSORS
     // ========================================
 
-    /**
-     * Gets the size of the array.
-     */
     public int size() {
         return elements.size();
     }
 
-    /**
-     * Gets element at index or null if out of bounds.
-     */
     public Value get(int index) {
         if (index < 0 || index >= elements.size()) {
             return null;
@@ -411,5 +346,4 @@ public record ArrayVariable(
     public String toString() {
         return "ArrayVariable[" + name + ", size=" + elements.size() + "]";
     }
-
 }

@@ -77,17 +77,11 @@ public record EpisodeVariable(
     // ========================================
 
     private static final Map<String, MethodSpec> METHODS = Map.ofEntries(
-        Map.entry("BACK", MethodSpec.of((self, args) -> {
-            return MethodResult.effects(List.of(new BackSceneEffect()));
-        })),
+        Map.entry("BACK", MethodSpec.of((self, args) -> MethodResult.effects(List.of(new BackSceneEffect())))),
 
-        Map.entry("GETCURRENTSCENE", MethodSpec.of((self, args) -> {
-            return new MethodResult(null, NullValue.INSTANCE, List.of(new GetCurrentSceneEffect()));
-        })),
+        Map.entry("GETCURRENTSCENE", MethodSpec.of((self, args) -> new MethodResult(NullValue.INSTANCE, List.of(new GetCurrentSceneEffect())))),
 
-        Map.entry("GETLATESTSCENE", MethodSpec.of((self, args) -> {
-            return new MethodResult(null, NullValue.INSTANCE, List.of(new GetPreviousSceneEffect()));
-        })),
+        Map.entry("GETLATESTSCENE", MethodSpec.of((self, args) -> new MethodResult(NullValue.INSTANCE, List.of(new GetPreviousSceneEffect())))),
 
         Map.entry("GOTO", MethodSpec.of((self, args) -> {
             if (args.isEmpty()) {

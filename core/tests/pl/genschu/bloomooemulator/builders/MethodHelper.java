@@ -31,10 +31,7 @@ public final class MethodHelper {
     public static Value callWithEffects(Context context, Variable variable, String methodName, Value... arguments) {
         MethodResult result = variable.callMethod(methodName, arguments);
 
-        // Update variable if changed
-        if (result.hasNewState()) {
-            context.updateVariableInHierarchy(variable.name(), result.newSelf());
-        }
+        // Variable is mutated in-place via MutableValue holders, no need to update context.
 
         // Execute effects
         Value returnValue = result.getReturnValue();

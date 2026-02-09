@@ -1,5 +1,6 @@
 package pl.genschu.bloomooemulator.interpreter.variable;
 
+import pl.genschu.bloomooemulator.annotations.InternalMutable;
 import pl.genschu.bloomooemulator.interpreter.helpers.ArgumentHelper;
 import pl.genschu.bloomooemulator.interpreter.values.*;
 import java.util.HashMap;
@@ -11,13 +12,16 @@ import java.util.Map;
  **/
 public record BoolVariable(
     String name,
-    boolean boolValue,
+    @InternalMutable MutableValue holder,
     Map<String, SignalHandler> signals
 ) implements Variable {
 
     public BoolVariable {
         if (name == null || name.isEmpty()) {
             throw new IllegalArgumentException("Variable name cannot be null or empty");
+        }
+        if (holder == null) {
+            holder = new MutableValue(BoolValue.FALSE);
         }
         if (signals == null) {
             signals = Map.of();
@@ -26,8 +30,13 @@ public record BoolVariable(
         }
     }
 
+    // Convenience constructors
     public BoolVariable(String name, boolean boolValue) {
-        this(name, boolValue, Map.of());
+        this(name, new MutableValue(BoolValue.of(boolValue)), Map.of());
+    }
+
+    public BoolVariable(String name, boolean boolValue, Map<String, SignalHandler> signals) {
+        this(name, new MutableValue(BoolValue.of(boolValue)), signals);
     }
 
     // ========================================
@@ -36,7 +45,7 @@ public record BoolVariable(
 
     @Override
     public Value value() {
-        return BoolValue.of(boolValue);
+        return holder.get();
     }
 
     @Override
@@ -47,8 +56,8 @@ public record BoolVariable(
     @Override
     public Variable withValue(Value newValue) {
         boolean newBool = ArgumentHelper.getBoolean(newValue);
-
-        return new BoolVariable(name, newBool, signals);
+        holder.set(BoolValue.of(newBool));
+        return this;
     }
 
     @Override
@@ -60,7 +69,19 @@ public record BoolVariable(
     public Variable withSignal(String signalName, SignalHandler handler) {
         Map<String, SignalHandler> newSignals = new HashMap<>(signals);
         newSignals.put(signalName, handler);
-        return new BoolVariable(name, boolValue, newSignals);
+        return new BoolVariable(name, holder, newSignals);
+    }
+
+    // ========================================
+    // CONVENIENT ACCESSORS
+    // ========================================
+
+    public boolean getBool() {
+        return ((BoolValue) holder.get()).value();
+    }
+
+    public boolean get() {
+        return getBool();
     }
 
     // ========================================
@@ -68,14 +89,12 @@ public record BoolVariable(
     // ========================================
 
     private static final Map<String, MethodSpec> METHODS = Map.ofEntries(
-        Map.entry("GET", MethodSpec.of((self, args) -> MethodResult.noChange(self.value()))),
+        Map.entry("GET", MethodSpec.of((self, args) -> MethodResult.returns(self.value()))),
 
         Map.entry("RESETINI", MethodSpec.of((self, args) -> {
             BoolVariable thisVar = (BoolVariable) self;
             // TODO: Get DEFAULT value from INI file
-            return MethodResult.setsAndReturnsValue(
-                    new BoolVariable(thisVar.name, thisVar.boolValue, thisVar.signals)
-            );
+            return MethodResult.noReturn();
         })),
 
         Map.entry("SET", MethodSpec.of((self, args) -> {
@@ -83,11 +102,10 @@ public record BoolVariable(
             if (args.isEmpty()) {
                 throw new IllegalArgumentException("SET requires 1 argument");
             }
-
             boolean newValue = ArgumentHelper.getBoolean(args.get(0));
-            return MethodResult.setsAndReturnsValue(
-                    new BoolVariable(thisVar.name, newValue, thisVar.signals)
-            );
+            BoolValue result = BoolValue.of(newValue);
+            thisVar.holder().set(result);
+            return MethodResult.returns(result);
         })),
 
         Map.entry("SWITCH", MethodSpec.of((self, args) -> {
@@ -95,37 +113,22 @@ public record BoolVariable(
             if (args.size() < 2) {
                 throw new IllegalArgumentException("SWITCH requires 2 arguments");
             }
-
             boolean value1 = ArgumentHelper.getBoolean(args.get(0));
             boolean value2 = ArgumentHelper.getBoolean(args.get(1));
-            // If current != value1 then use value2, else value1
-            boolean result = (thisVar.boolValue != value1) ? value2 : value1;
-
-            return MethodResult.setsAndReturnsValue(
-                    new BoolVariable(thisVar.name, result, thisVar.signals)
-            );
+            boolean switched = (thisVar.getBool() != value1) ? value2 : value1;
+            BoolValue result = BoolValue.of(switched);
+            thisVar.holder().set(result);
+            return MethodResult.returns(result);
         }))
     );
 
-    // ========================================
-    // CONVENIENT ACCESSORS
-    // ========================================
-
-    /**
-     * Gets the boolean value directly.
-     * Convenience method to avoid value().unwrap().
-     */
-    public boolean get() {
-        return boolValue;
-    }
-
     @Override
     public String toString() {
-        return "BoolVariable[" + name + "=" + (boolValue ? "TRUE" : "FALSE") + "]";
+        return "BoolVariable[" + name + "=" + (getBool() ? "TRUE" : "FALSE") + "]";
     }
 
     @Override
     public Variable copyAs(String newName) {
-        return new BoolVariable(newName, this.boolValue, this.signals);
+        return new BoolVariable(newName, this.getBool(), this.signals);
     }
 }

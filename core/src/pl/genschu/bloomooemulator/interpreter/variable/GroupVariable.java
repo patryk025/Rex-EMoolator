@@ -1,5 +1,6 @@
 package pl.genschu.bloomooemulator.interpreter.variable;
 
+import pl.genschu.bloomooemulator.annotations.InternalMutable;
 import pl.genschu.bloomooemulator.interpreter.helpers.ArgumentHelper;
 import pl.genschu.bloomooemulator.interpreter.values.*;
 
@@ -11,8 +12,10 @@ import java.util.*;
  **/
 public record GroupVariable(
     String name,
+    @InternalMutable
     List<String> variableNames,
-    int marker,
+    @InternalMutable
+    int[] markerHolder,  // single-element array for mutable marker... yeah, but it works without needing a separate mutable wrapper class
     Map<String, SignalHandler> signals
 ) implements Variable {
 
@@ -21,9 +24,12 @@ public record GroupVariable(
             throw new IllegalArgumentException("Variable name cannot be null or empty");
         }
         if (variableNames == null) {
-            variableNames = List.of();
-        } else {
-            variableNames = List.copyOf(variableNames);
+            variableNames = new ArrayList<>();
+        } else if (!(variableNames instanceof ArrayList)) {
+            variableNames = new ArrayList<>(variableNames);
+        }
+        if (markerHolder == null) {
+            markerHolder = new int[]{variableNames.isEmpty() ? -1 : 0};
         }
         if (signals == null) {
             signals = Map.of();
@@ -33,16 +39,23 @@ public record GroupVariable(
     }
 
     public GroupVariable(String name) {
-        this(name, List.of(), -1, Map.of());
+        this(name, new ArrayList<>(), new int[]{-1}, Map.of());
     }
 
     public GroupVariable(String name, List<String> variableNames) {
-        this(name, variableNames, variableNames.isEmpty() ? -1 : 0, Map.of());
+        this(name, variableNames, new int[]{variableNames.isEmpty() ? -1 : 0}, Map.of());
+    }
+
+    // Legacy compat: marker as int
+    public GroupVariable(String name, List<String> variableNames, int marker, Map<String, SignalHandler> signals) {
+        this(name, variableNames, new int[]{marker}, signals);
     }
 
     // ========================================
     // INTERFACE IMPLEMENTATION
     // ========================================
+
+    public int marker() { return markerHolder[0]; }
 
     @Override
     public Value value() {
@@ -56,7 +69,6 @@ public record GroupVariable(
 
     @Override
     public Variable withValue(Value newValue) {
-        // Cannot set value directly on group
         return this;
     }
 
@@ -69,21 +81,7 @@ public record GroupVariable(
     public Variable withSignal(String signalName, SignalHandler handler) {
         Map<String, SignalHandler> newSignals = new HashMap<>(signals);
         newSignals.put(signalName, handler);
-        return new GroupVariable(name, variableNames, marker, newSignals);
-    }
-
-    // ========================================
-    // HELPER METHODS
-    // ========================================
-
-    private GroupVariable withVariableNames(List<String> newNames) {
-        int newMarker = newNames.isEmpty() ? -1 : Math.min(marker, newNames.size() - 1);
-        if (newMarker < 0 && !newNames.isEmpty()) newMarker = 0;
-        return new GroupVariable(name, newNames, newMarker, signals);
-    }
-
-    private GroupVariable withMarker(int newMarker) {
-        return new GroupVariable(name, variableNames, newMarker, signals);
+        return new GroupVariable(name, variableNames, markerHolder, newSignals);
     }
 
     // ========================================
@@ -96,51 +94,43 @@ public record GroupVariable(
             if (args.isEmpty()) {
                 throw new IllegalArgumentException("ADD requires at least 1 argument");
             }
-
-            List<String> newNames = new ArrayList<>(thisVar.variableNames);
             for (Value arg : args) {
                 String varName = ArgumentHelper.getString(arg);
-                if (!newNames.contains(varName)) {
-                    newNames.add(varName);
+                if (!thisVar.variableNames.contains(varName)) {
+                    thisVar.variableNames.add(varName);
                 }
             }
-            return MethodResult.sets(thisVar.withVariableNames(newNames));
+            if (thisVar.markerHolder[0] < 0) {
+                thisVar.markerHolder[0] = 0;
+            }
+            return MethodResult.noReturn();
         })),
-
-        // NOTE: ADDCLONES requires context access to resolve variable clones
-        // and should be handled at a higher level
 
         Map.entry("GETSIZE", MethodSpec.of((self, args) -> {
             GroupVariable thisVar = (GroupVariable) self;
-            return MethodResult.noChange(new IntValue(thisVar.variableNames.size()));
+            return MethodResult.returns(new IntValue(thisVar.variableNames.size()));
         })),
 
         Map.entry("NEXT", MethodSpec.of((self, args) -> {
             GroupVariable thisVar = (GroupVariable) self;
             if (thisVar.variableNames.isEmpty()) {
-                return MethodResult.noChange(NullValue.INSTANCE);
+                return MethodResult.noReturn();
             }
-
-            int newMarker = Math.min(thisVar.marker + 1, thisVar.variableNames.size() - 1);
+            int newMarker = Math.min(thisVar.markerHolder[0] + 1, thisVar.variableNames.size() - 1);
+            thisVar.markerHolder[0] = newMarker;
             String varName = thisVar.variableNames.get(newMarker);
-            return MethodResult.setsAndReturns(
-                    thisVar.withMarker(newMarker),
-                    new StringValue(varName)
-            );
+            return MethodResult.returns(new StringValue(varName));
         })),
 
         Map.entry("PREV", MethodSpec.of((self, args) -> {
             GroupVariable thisVar = (GroupVariable) self;
             if (thisVar.variableNames.isEmpty()) {
-                return MethodResult.noChange(NullValue.INSTANCE);
+                return MethodResult.noReturn();
             }
-
-            int newMarker = Math.max(thisVar.marker - 1, 0);
+            int newMarker = Math.max(thisVar.markerHolder[0] - 1, 0);
+            thisVar.markerHolder[0] = newMarker;
             String varName = thisVar.variableNames.get(newMarker);
-            return MethodResult.setsAndReturns(
-                    thisVar.withMarker(newMarker),
-                    new StringValue(varName)
-            );
+            return MethodResult.returns(new StringValue(varName));
         })),
 
         Map.entry("REMOVE", MethodSpec.of((self, args) -> {
@@ -148,22 +138,27 @@ public record GroupVariable(
             if (args.isEmpty()) {
                 throw new IllegalArgumentException("REMOVE requires 1 argument");
             }
-
             String varName = ArgumentHelper.getString(args.get(0));
-            List<String> newNames = new ArrayList<>(thisVar.variableNames);
-            newNames.remove(varName);
-            return MethodResult.sets(thisVar.withVariableNames(newNames));
+            thisVar.variableNames.remove(varName);
+            if (thisVar.variableNames.isEmpty()) {
+                thisVar.markerHolder[0] = -1;
+            } else {
+                thisVar.markerHolder[0] = Math.min(thisVar.markerHolder[0], thisVar.variableNames.size() - 1);
+            }
+            return MethodResult.noReturn();
         })),
 
         Map.entry("REMOVEALL", MethodSpec.of((self, args) -> {
             GroupVariable thisVar = (GroupVariable) self;
-            return MethodResult.sets(new GroupVariable(thisVar.name, List.of(), -1, thisVar.signals));
+            thisVar.variableNames.clear();
+            thisVar.markerHolder[0] = -1;
+            return MethodResult.noReturn();
         })),
 
         Map.entry("RESETMARKER", MethodSpec.of((self, args) -> {
             GroupVariable thisVar = (GroupVariable) self;
-            int newMarker = thisVar.variableNames.isEmpty() ? -1 : 0;
-            return MethodResult.sets(thisVar.withMarker(newMarker));
+            thisVar.markerHolder[0] = thisVar.variableNames.isEmpty() ? -1 : 0;
+            return MethodResult.noReturn();
         }))
     );
 
@@ -171,15 +166,12 @@ public record GroupVariable(
     // CONVENIENT ACCESSORS
     // ========================================
 
-    /**
-     * Gets the size of the group.
-     */
     public int size() {
         return variableNames.size();
     }
 
     @Override
     public String toString() {
-        return "GroupVariable[" + name + ", size=" + variableNames.size() + ", marker=" + marker + "]";
+        return "GroupVariable[" + name + ", size=" + variableNames.size() + ", marker=" + markerHolder[0] + "]";
     }
 }

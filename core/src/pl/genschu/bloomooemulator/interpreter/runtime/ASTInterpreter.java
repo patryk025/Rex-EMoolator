@@ -9,13 +9,7 @@ import pl.genschu.bloomooemulator.interpreter.helpers.ArgumentHelper;
 import pl.genschu.bloomooemulator.interpreter.values.*;
 import pl.genschu.bloomooemulator.interpreter.ops.ValueOps;
 import pl.genschu.bloomooemulator.interpreter.runtime.effects.Effect;
-import pl.genschu.bloomooemulator.interpreter.variable.ArgKind;
-import pl.genschu.bloomooemulator.interpreter.variable.MethodResult;
-import pl.genschu.bloomooemulator.interpreter.variable.MethodSpec;
-import pl.genschu.bloomooemulator.interpreter.variable.Variable;
-import pl.genschu.bloomooemulator.interpreter.variable.ConditionVariable;
-import pl.genschu.bloomooemulator.interpreter.variable.ComplexConditionVariable;
-import pl.genschu.bloomooemulator.interpreter.variable.ExpressionVariable;
+import pl.genschu.bloomooemulator.interpreter.variable.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -367,18 +361,6 @@ public class ASTInterpreter {
             );
         }
 
-        if (result.hasNewState()) {
-            boolean updated = context.updateVariableInHierarchy(target.name(), result.newSelf());
-            target = context.getVariable(target.name()); // Refresh target reference
-            if (!updated) {
-                throw new InterpreterException(
-                    "Failed to update variable after method call: " + target.name(),
-                    exec,
-                    node.location()
-                );
-            }
-        }
-
         Value returnValue = result.getReturnValue();
         for (Effect effect : result.effects()) {
             try {
@@ -400,13 +382,38 @@ public class ASTInterpreter {
     }
 
     private ExecutionResult executePointerDeref(PointerDerefNode node) {
-        // TODO: Implement pointer dereferencing
-        return execute(node.expression());
+        ExecutionResult exprResult = execute(node.expression());
+        if (!exprResult.shouldContinue()) return exprResult;
+
+        String varName = ArgumentHelper.getString(exprResult.getValue());
+        Variable resolved = context.getVariable(varName);
+        if (resolved == null) {
+            throw new InterpreterException(
+                "Pointer dereference: variable not found: " + varName,
+                exec,
+                node.location()
+            );
+        }
+        return new NormalResult(resolved.value());
     }
 
     private ExecutionResult executeStructAccess(StructAccessNode node) {
-        // TODO: Implement struct field access
-        return new NormalResult(NullValue.INSTANCE);
+        Variable structVar = context.getVariable(node.structName());
+        if (structVar == null) {
+            throw new InterpreterException(
+                "Struct not found: " + node.structName(),
+                exec,
+                node.location()
+            );
+        }
+        if (!(structVar instanceof StructVariable struct)) {
+            throw new InterpreterException(
+                node.structName() + " is not a STRUCT",
+                exec,
+                node.location()
+            );
+        }
+        return new NormalResult(struct.getFieldByName(node.fieldName()));
     }
 
     private ExecutionResult executeVarDef(VarDefNode node) {
@@ -427,13 +434,21 @@ public class ASTInterpreter {
     }
 
     private ExecutionResult executeConv(ConvNode node) {
-        // TODO: Implement type conversion
         ExecutionResult varResult = execute(node.variable());
         if (!varResult.shouldContinue()) return varResult;
 
-        // Basic conversion for now
         Value value = varResult.getValue();
-        return new NormalResult(value);
+        String targetType = node.targetType().toUpperCase();
+
+        Value converted = switch (targetType) {
+            case "INT", "INTEGER"  -> value.toInt();
+            case "DOUBLE"          -> value.toDouble();
+            case "STRING"          -> value.toStringValue();
+            case "BOOL", "BOOLEAN" -> value.toBool();
+            default                -> value;
+        };
+
+        return new NormalResult(converted);
     }
 
     private Variable resolveMethodTarget(ASTNode target, SourceLocation location) {

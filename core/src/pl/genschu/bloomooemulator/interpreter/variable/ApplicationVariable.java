@@ -4,6 +4,7 @@ import pl.genschu.bloomooemulator.interpreter.helpers.ArgumentHelper;
 import pl.genschu.bloomooemulator.interpreter.runtime.effects.ExitGameEffect;
 import pl.genschu.bloomooemulator.interpreter.runtime.effects.RunEnvEffect;
 import pl.genschu.bloomooemulator.interpreter.runtime.effects.RunMethodEffect;
+import pl.genschu.bloomooemulator.interpreter.runtime.effects.UpdateVariableEffect;
 import pl.genschu.bloomooemulator.interpreter.values.*;
 
 import java.util.*;
@@ -92,7 +93,7 @@ public record ApplicationVariable(
 
         Map.entry("GETLANGUAGE", MethodSpec.of((self, args) -> {
             ApplicationVariable thisVar = (ApplicationVariable) self;
-            return MethodResult.noChange(new StringValue(thisVar.language));
+            return MethodResult.returns(new StringValue(thisVar.language));
         })),
 
         Map.entry("RUN", MethodSpec.of((self, args) -> {
@@ -121,7 +122,10 @@ public record ApplicationVariable(
             }
 
             String newLanguage = ArgumentHelper.getString(args.get(0));
-            return MethodResult.sets(thisVar.withLanguage(newLanguage));
+            return MethodResult.effects(List.of(
+                new UpdateVariableEffect(
+                    thisVar.name(), thisVar.withLanguage(newLanguage))
+            ));
         }))
     );
 

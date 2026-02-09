@@ -245,11 +245,10 @@ class DatabaseStructIntegrationTest {
         StructVariable struct = new StructVariable("TEST", fields, types, values);
         StructVariable updated = struct.withValueAt(0, new IntValue(100));
 
-        // Original unchanged
-        assertEquals(1, struct.getFieldByIndex(0).toInt().value());
-        // New instance has updated value
-        assertEquals(100, updated.getFieldByIndex(0).toInt().value());
-        assertEquals(2, updated.getFieldByIndex(1).toInt().value());
+        assertSame(struct, updated);
+        // Value is updated
+        assertEquals(100, struct.getFieldByIndex(0).toInt().value());
+        assertEquals(2, struct.getFieldByIndex(1).toInt().value());
     }
 
     @Test

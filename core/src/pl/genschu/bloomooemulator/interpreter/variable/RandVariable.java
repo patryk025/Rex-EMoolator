@@ -108,7 +108,7 @@ public record RandVariable(
             }
 
             int result = getRandom(offset, range);
-            return MethodResult.noChange(new IntValue(result));
+            return MethodResult.returns(new IntValue(result));
         }))
     );
 

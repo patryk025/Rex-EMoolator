@@ -42,13 +42,6 @@ public final class RunMethodEffect implements Effect {
         List<Value> resolvedArgs = resolveArguments(context, spec, arguments);
         MethodResult result = spec.method().execute(target, resolvedArgs);
 
-        if (result.hasNewState()) {
-            boolean updated = context.updateVariableInHierarchy(target.name(), result.newSelf());
-            if (!updated) {
-                throw new IllegalStateException("Failed to update variable after method call: " + target.name());
-            }
-        }
-
         Value returnValue = result.getReturnValue();
         for (Effect effect : result.effects()) {
             Value effectValue = effect.apply(context, target, resolvedArgs);

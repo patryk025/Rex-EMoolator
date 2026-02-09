@@ -139,7 +139,7 @@ public record CNVLoaderVariable(
             // Check if already loaded
             if (thisVar.isLoaded(cnvFile)) {
                 // TODO: Log warning? For now, just return self
-                return MethodResult.noChange(NullValue.INSTANCE);
+                return MethodResult.noReturn();
             }
 
             // TODO: Implementation requires:
@@ -172,7 +172,7 @@ public record CNVLoaderVariable(
             // Check if loaded
             if (!thisVar.isLoaded(cnvFile)) {
                 // TODO: Log warning? For now, just return self
-                return MethodResult.noChange(NullValue.INSTANCE);
+                return MethodResult.noReturn();
             }
 
             // TODO: Implementation requires:

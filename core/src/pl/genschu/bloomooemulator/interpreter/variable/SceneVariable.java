@@ -2,6 +2,7 @@ package pl.genschu.bloomooemulator.interpreter.variable;
 
 import pl.genschu.bloomooemulator.interpreter.helpers.ArgumentHelper;
 import pl.genschu.bloomooemulator.interpreter.runtime.effects.RunMethodEffect;
+import pl.genschu.bloomooemulator.interpreter.runtime.effects.UpdateVariableEffect;
 import pl.genschu.bloomooemulator.interpreter.values.*;
 import pl.genschu.bloomooemulator.interpreter.variable.ArgKind;
 import pl.genschu.bloomooemulator.interpreter.variable.MethodSpec;
@@ -99,37 +100,37 @@ public record SceneVariable(
     private static final Map<String, MethodSpec> METHODS = Map.ofEntries(
         Map.entry("GETMINHSPRIORITY", MethodSpec.of((self, args) -> {
             SceneVariable thisVar = (SceneVariable) self;
-            return MethodResult.noChange(new IntValue(thisVar.minHotSpotZ));
+            return MethodResult.returns(new IntValue(thisVar.minHotSpotZ));
         })),
 
         Map.entry("GETMAXHSPRIORITY", MethodSpec.of((self, args) -> {
             SceneVariable thisVar = (SceneVariable) self;
-            return MethodResult.noChange(new IntValue(thisVar.maxHotSpotZ));
+            return MethodResult.returns(new IntValue(thisVar.maxHotSpotZ));
         })),
 
         Map.entry("GETPLAYINGANIMO", MethodSpec.of((self, args) -> {
             // Get playing animations into group - handled by interpreter
-            return MethodResult.noChange(NullValue.INSTANCE);
+            return MethodResult.noReturn();
         })),
 
         Map.entry("PAUSE", MethodSpec.of((self, args) -> {
             // Pause scene - handled by interpreter/game
-            return MethodResult.noChange(NullValue.INSTANCE);
+            return MethodResult.noReturn();
         })),
 
         Map.entry("REMOVECLONES", MethodSpec.of((self, args) -> {
             // Remove clones - handled by interpreter
-            return MethodResult.noChange(NullValue.INSTANCE);
+            return MethodResult.noReturn();
         })),
 
         Map.entry("RESUME", MethodSpec.of((self, args) -> {
             // Resume scene - handled by interpreter/game
-            return MethodResult.noChange(NullValue.INSTANCE);
+            return MethodResult.noReturn();
         })),
 
         Map.entry("RESUMEONLY", MethodSpec.of((self, args) -> {
             // Resume only specified group - handled by interpreter/game
-            return MethodResult.noChange(NullValue.INSTANCE);
+            return MethodResult.noReturn();
         })),
 
         Map.entry("RUN", MethodSpec.of((self, args) -> {
@@ -144,7 +145,7 @@ public record SceneVariable(
 
         Map.entry("RUNCLONES", MethodSpec.of((self, args) -> {
             // Run behaviour on clones - handled by interpreter
-            return MethodResult.noChange(NullValue.INSTANCE);
+            return MethodResult.noReturn();
         })),
 
         Map.entry("SETMINHSPRIORITY", MethodSpec.of((self, args) -> {
@@ -152,9 +153,9 @@ public record SceneVariable(
             if (args.isEmpty()) {
                 throw new IllegalArgumentException("SETMINHSPRIORITY requires 1 argument");
             }
-
             int newMin = ArgumentHelper.getInt(args.get(0));
-            return MethodResult.sets(thisVar.withMinHotSpotZ(newMin));
+            return MethodResult.effects(List.of(new UpdateVariableEffect(
+                thisVar.name(), thisVar.withMinHotSpotZ(newMin))));
         })),
 
         Map.entry("SETMAXHSPRIORITY", MethodSpec.of((self, args) -> {
@@ -162,9 +163,9 @@ public record SceneVariable(
             if (args.isEmpty()) {
                 throw new IllegalArgumentException("SETMAXHSPRIORITY requires 1 argument");
             }
-
             int newMax = ArgumentHelper.getInt(args.get(0));
-            return MethodResult.sets(thisVar.withMaxHotSpotZ(newMax));
+            return MethodResult.effects(List.of(new UpdateVariableEffect(
+                thisVar.name(), thisVar.withMaxHotSpotZ(newMax))));
         })),
 
         Map.entry("SETMUSICVOLUME", MethodSpec.of((self, args) -> {
@@ -172,10 +173,9 @@ public record SceneVariable(
             if (args.isEmpty()) {
                 throw new IllegalArgumentException("SETMUSICVOLUME requires 1 argument");
             }
-
             int newVolume = ArgumentHelper.getInt(args.get(0));
-            // Actual music volume change handled by game
-            return MethodResult.sets(thisVar.withMusicVolume(newVolume));
+            return MethodResult.effects(List.of(new UpdateVariableEffect(
+                thisVar.name(), thisVar.withMusicVolume(newVolume))));
         })),
 
         Map.entry("STARTMUSIC", MethodSpec.of((self, args) -> {
@@ -183,10 +183,9 @@ public record SceneVariable(
             if (args.isEmpty()) {
                 throw new IllegalArgumentException("STARTMUSIC requires 1 argument");
             }
-
             String musicFile = ArgumentHelper.getString(args.get(0));
-            // Actual music playback handled by game
-            return MethodResult.sets(thisVar.withMusic(musicFile));
+            return MethodResult.effects(List.of(new UpdateVariableEffect(
+                thisVar.name(), thisVar.withMusic(musicFile))));
         }))
     );
 

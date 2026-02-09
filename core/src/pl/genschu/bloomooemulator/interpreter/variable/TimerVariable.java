@@ -1,5 +1,6 @@
 package pl.genschu.bloomooemulator.interpreter.variable;
 
+import pl.genschu.bloomooemulator.annotations.InternalMutable;
 import pl.genschu.bloomooemulator.interpreter.helpers.ArgumentHelper;
 import pl.genschu.bloomooemulator.interpreter.values.*;
 
@@ -10,26 +11,47 @@ import java.util.Map;
  * TimerVariable handles time-based events.
  * Emits ONTICK signal at regular intervals.
  *
- * Fields:
- * - elapse: interval in milliseconds between ticks
- * - enabled: whether the timer is active
- * - ticks: maximum number of ticks (0 = unlimited)
- * - lastTickTime: timestamp of last tick
- * - currentTickCount: number of ticks since reset
+ * Uses a mutable TimerState to avoid recreating the record on every tick.
  **/
 public record TimerVariable(
     String name,
-    long elapse,
-    boolean enabled,
-    int ticks,
-    long lastTickTime,
-    int currentTickCount,
+    @InternalMutable TimerState state,
     Map<String, SignalHandler> signals
 ) implements Variable {
+
+    /**
+     * Mutable internal state for timer.
+     */
+    public static final class TimerState {
+        public long elapse;
+        public boolean enabled;
+        public int ticks;
+        public long lastTickTime;
+        public int currentTickCount;
+
+        public TimerState(long elapse, boolean enabled, int ticks, long lastTickTime, int currentTickCount) {
+            this.elapse = elapse;
+            this.enabled = enabled;
+            this.ticks = ticks;
+            this.lastTickTime = lastTickTime;
+            this.currentTickCount = currentTickCount;
+        }
+
+        public TimerState() {
+            this(0L, true, 0, System.currentTimeMillis(), 0);
+        }
+
+        public TimerState copy() {
+            return new TimerState(elapse, enabled, ticks, lastTickTime, currentTickCount);
+        }
+    }
 
     public TimerVariable {
         if (name == null || name.isEmpty()) {
             throw new IllegalArgumentException("Variable name cannot be null or empty");
+        }
+        if (state == null) {
+            state = new TimerState();
         }
         if (signals == null) {
             signals = Map.of();
@@ -39,11 +61,17 @@ public record TimerVariable(
     }
 
     public TimerVariable(String name) {
-        this(name, 0L, true, 0, System.currentTimeMillis(), 0, Map.of());
+        this(name, new TimerState(), Map.of());
     }
 
     public TimerVariable(String name, long elapse) {
-        this(name, elapse, true, 0, System.currentTimeMillis(), 0, Map.of());
+        this(name, new TimerState(elapse, true, 0, System.currentTimeMillis(), 0), Map.of());
+    }
+
+    // Legacy-compatible constructor
+    public TimerVariable(String name, long elapse, boolean enabled, int ticks,
+                         long lastTickTime, int currentTickCount, Map<String, SignalHandler> signals) {
+        this(name, new TimerState(elapse, enabled, ticks, lastTickTime, currentTickCount), signals);
     }
 
     // ========================================
@@ -52,7 +80,7 @@ public record TimerVariable(
 
     @Override
     public Value value() {
-        return new IntValue(currentTickCount);
+        return new IntValue(state.currentTickCount);
     }
 
     @Override
@@ -62,8 +90,8 @@ public record TimerVariable(
 
     @Override
     public Variable withValue(Value newValue) {
-        int newTickCount = ArgumentHelper.getInt(newValue);
-        return new TimerVariable(name, elapse, enabled, ticks, lastTickTime, newTickCount, signals);
+        state.currentTickCount = ArgumentHelper.getInt(newValue);
+        return this;
     }
 
     @Override
@@ -75,59 +103,46 @@ public record TimerVariable(
     public Variable withSignal(String signalName, SignalHandler handler) {
         Map<String, SignalHandler> newSignals = new HashMap<>(signals);
         newSignals.put(signalName, handler);
-        return new TimerVariable(name, elapse, enabled, ticks, lastTickTime, currentTickCount, newSignals);
+        return new TimerVariable(name, state, newSignals);
     }
 
     // ========================================
     // TIMER-SPECIFIC METHODS
     // ========================================
 
-    /**
-     * Updates the timer based on current time.
-     * Returns a new TimerVariable with updated state.
-     * Call this from your game loop.
-     *
-     * @return UpdateResult containing new timer state and whether a tick occurred
-     */
+    // Accessors for common fields
+    public long elapse() { return state.elapse; }
+    public boolean enabled() { return state.enabled; }
+    public int ticks() { return state.ticks; }
+    public long lastTickTime() { return state.lastTickTime; }
+    public int currentTickCount() { return state.currentTickCount; }
+
     public UpdateResult update() {
         return update(System.currentTimeMillis());
     }
 
-    /**
-     * Updates the timer with a specific timestamp (useful for testing).
-     *
-     * @param currentTime the current timestamp in milliseconds
-     * @return UpdateResult containing new timer state and whether a tick occurred
-     */
     public UpdateResult update(long currentTime) {
-        if (!enabled || elapse <= 0) {
+        if (!state.enabled || state.elapse <= 0) {
             return new UpdateResult(this, false);
         }
 
-        if (currentTime - lastTickTime >= elapse) {
-            int newTickCount = currentTickCount + 1;
-            boolean shouldDisable = (ticks != 0 && newTickCount >= ticks);
+        if (currentTime - state.lastTickTime >= state.elapse) {
+            state.currentTickCount++;
+            state.lastTickTime = currentTime;
 
-            TimerVariable newTimer = new TimerVariable(
-                name, elapse, !shouldDisable, ticks,
-                currentTime, newTickCount, signals
-            );
-            return new UpdateResult(newTimer, true);
+            if (state.ticks != 0 && state.currentTickCount >= state.ticks) {
+                state.enabled = false;
+            }
+            return new UpdateResult(this, true);
         }
 
         return new UpdateResult(this, false);
     }
 
-    /**
-     * Result of timer update operation.
-     */
     public record UpdateResult(TimerVariable timer, boolean tickOccurred) {}
 
-    /**
-     * Gets time elapsed since last tick in milliseconds.
-     */
     public int getTimeFromLastTick() {
-        return (int) (System.currentTimeMillis() - lastTickTime);
+        return (int) (System.currentTimeMillis() - state.lastTickTime);
     }
 
     // ========================================
@@ -137,31 +152,27 @@ public record TimerVariable(
     private static final Map<String, MethodSpec> METHODS = Map.ofEntries(
         Map.entry("DISABLE", MethodSpec.of((self, args) -> {
             TimerVariable thisVar = (TimerVariable) self;
-            return MethodResult.sets(new TimerVariable(
-                thisVar.name, thisVar.elapse, false, thisVar.ticks,
-                thisVar.lastTickTime, thisVar.currentTickCount, thisVar.signals
-            ));
+            thisVar.state.enabled = false;
+            return MethodResult.noReturn();
         })),
 
         Map.entry("ENABLE", MethodSpec.of((self, args) -> {
             TimerVariable thisVar = (TimerVariable) self;
-            return MethodResult.sets(new TimerVariable(
-                thisVar.name, thisVar.elapse, true, thisVar.ticks,
-                System.currentTimeMillis(), thisVar.currentTickCount, thisVar.signals
-            ));
+            thisVar.state.enabled = true;
+            thisVar.state.lastTickTime = System.currentTimeMillis();
+            return MethodResult.noReturn();
         })),
 
         Map.entry("GETTICKS", MethodSpec.of((self, args) -> {
             TimerVariable thisVar = (TimerVariable) self;
-            return MethodResult.noChange(new IntValue(thisVar.currentTickCount));
+            return MethodResult.returns(new IntValue(thisVar.state.currentTickCount));
         })),
 
         Map.entry("RESET", MethodSpec.of((self, args) -> {
             TimerVariable thisVar = (TimerVariable) self;
-            return MethodResult.sets(new TimerVariable(
-                thisVar.name, thisVar.elapse, thisVar.enabled, thisVar.ticks,
-                System.currentTimeMillis(), 0, thisVar.signals
-            ));
+            thisVar.state.currentTickCount = 0;
+            thisVar.state.lastTickTime = System.currentTimeMillis();
+            return MethodResult.noReturn();
         })),
 
         Map.entry("SET", MethodSpec.of((self, args) -> {
@@ -169,12 +180,8 @@ public record TimerVariable(
             if (args.isEmpty()) {
                 throw new IllegalArgumentException("SET requires 1 argument");
             }
-
-            int newTicks = ArgumentHelper.getInt(args.get(0));
-            return MethodResult.sets(new TimerVariable(
-                thisVar.name, thisVar.elapse, thisVar.enabled, newTicks,
-                thisVar.lastTickTime, thisVar.currentTickCount, thisVar.signals
-            ));
+            thisVar.state.ticks = ArgumentHelper.getInt(args.get(0));
+            return MethodResult.noReturn();
         })),
 
         Map.entry("SETELAPSE", MethodSpec.of((self, args) -> {
@@ -182,22 +189,15 @@ public record TimerVariable(
             if (args.isEmpty()) {
                 throw new IllegalArgumentException("SETELAPSE requires 1 argument");
             }
-
-            long newElapse = ArgumentHelper.getInt(args.get(0));
-            return MethodResult.sets(new TimerVariable(
-                thisVar.name, newElapse, thisVar.enabled, thisVar.ticks,
-                System.currentTimeMillis(), thisVar.currentTickCount, thisVar.signals
-            ));
+            thisVar.state.elapse = ArgumentHelper.getInt(args.get(0));
+            thisVar.state.lastTickTime = System.currentTimeMillis();
+            return MethodResult.noReturn();
         }))
     );
 
-    // ========================================
-    // CONVENIENT ACCESSORS
-    // ========================================
-
     @Override
     public String toString() {
-        return "TimerVariable[" + name + ", elapse=" + elapse + "ms, enabled=" + enabled +
-               ", ticks=" + currentTickCount + "/" + (ticks == 0 ? "∞" : ticks) + "]";
+        return "TimerVariable[" + name + ", elapse=" + state.elapse + "ms, enabled=" + state.enabled +
+               ", ticks=" + state.currentTickCount + "/" + (state.ticks == 0 ? "\u221e" : state.ticks) + "]";
     }
 }

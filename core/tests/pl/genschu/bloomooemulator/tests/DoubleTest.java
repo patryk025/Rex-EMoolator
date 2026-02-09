@@ -70,7 +70,7 @@ class DoubleTest {
         double result;
 
         testVar = new DoubleVariable("TEST", testValue);
-        testVar = (DoubleVariable) testVar.callMethod("ADD", List.of(new DoubleValue(5.0))).newSelf();
+        testVar.callMethod("ADD", List.of(new DoubleValue(5.0)));
         result = testVar.get();
         assertEquals(parseDoubleOrSpecial(EXPECTED_RESULTS.get("ADD")[vectorIndex]), result, 0.00001,
                 "ADD failed for vector " + testValue);
@@ -85,7 +85,7 @@ class DoubleTest {
         double result;
 
         testVar = new DoubleVariable("TEST", testValue);
-        testVar = (DoubleVariable) testVar.callMethod("ARCTAN", List.of(new DoubleValue(testValue))).newSelf();
+        testVar.callMethod("ARCTAN", List.of(new DoubleValue(testValue)));
         result = testVar.get();
         assertEquals(parseDoubleOrSpecial(EXPECTED_RESULTS.get("ARCTAN")[vectorIndex]), result, 0.00001,
                 "ARCTAN failed for vector " + testValue);
@@ -98,7 +98,7 @@ class DoubleTest {
         double result;
 
         testVar = new DoubleVariable("TEST", 0);
-        testVar = (DoubleVariable) testVar.callMethod("ARCTANEX", List.of(new DoubleValue(4.0), new DoubleValue(5.0))).newSelf();
+        testVar.callMethod("ARCTANEX", List.of(new DoubleValue(4.0), new DoubleValue(5.0)));
         result = testVar.get();
         assertEquals(parseDoubleOrSpecial(EXPECTED_RESULTS.get("ARCTANEX")[0]), result, 0.00001,
                 "ARCTANEX failed for vector (4,5)");
@@ -113,7 +113,7 @@ class DoubleTest {
         double result;
 
         testVar = new DoubleVariable("TEST", testValue);
-        testVar = (DoubleVariable) testVar.callMethod("CLAMP", List.of(new DoubleValue(0.0), new DoubleValue(20.0))).newSelf();
+        testVar.callMethod("CLAMP", List.of(new DoubleValue(0.0), new DoubleValue(20.0)));
         result = testVar.get();
         assertEquals(parseDoubleOrSpecial(EXPECTED_RESULTS.get("CLAMP")[vectorIndex]), result, 0.00001,
                 "CLAMP failed for vector " + testValue);
@@ -127,7 +127,7 @@ class DoubleTest {
         double result;
 
         testVar = new DoubleVariable("TEST", testValue);
-        testVar = (DoubleVariable) testVar.callMethod("CLEAR", List.of()).newSelf();
+        testVar.callMethod("CLEAR", List.of());
         result = testVar.get();
         assertEquals(0, result, 0.00001,
                 "CLEAR failed for vector " + testValue);
@@ -142,7 +142,7 @@ class DoubleTest {
         double result;
 
         testVar = new DoubleVariable("TEST", testValue);
-        testVar = (DoubleVariable) testVar.callMethod("COSINUS", List.of(new DoubleValue(testValue))).newSelf();
+        testVar.callMethod("COSINUS", List.of(new DoubleValue(testValue)));
         result = testVar.get();
         assertEquals(parseDoubleOrSpecial(EXPECTED_RESULTS.get("COSINUS")[vectorIndex]), result, 0.00001,
                 "COSINUS failed for vector " + testValue);
@@ -157,7 +157,7 @@ class DoubleTest {
         double result;
 
         testVar = new DoubleVariable("TEST", testValue);
-        testVar = (DoubleVariable) testVar.callMethod("DEC", List.of()).newSelf();
+        testVar.callMethod("DEC", List.of());
         result = testVar.get();
         assertEquals(parseDoubleOrSpecial(EXPECTED_RESULTS.get("DEC")[vectorIndex]), result, 0.00001,
                 "DEC failed for vector " + testValue);
@@ -172,7 +172,7 @@ class DoubleTest {
         double result;
 
         testVar = new DoubleVariable("TEST", testValue);
-        testVar = (DoubleVariable) testVar.callMethod("DIV", List.of(new DoubleValue(5.0))).newSelf();
+        testVar.callMethod("DIV", List.of(new DoubleValue(5.0)));
         result = testVar.get();
         assertEquals(parseDoubleOrSpecial(EXPECTED_RESULTS.get("DIV")[vectorIndex]), result, 0.00001,
                 "DIV failed for vector " + testValue);
@@ -187,7 +187,7 @@ class DoubleTest {
         double result;
 
         testVar = new DoubleVariable("TEST", testValue);
-        testVar = (DoubleVariable) testVar.callMethod("INC", List.of()).newSelf();
+        testVar.callMethod("INC", List.of());
         result = testVar.get();
         assertEquals(parseDoubleOrSpecial(EXPECTED_RESULTS.get("INC")[vectorIndex]), result, 0.00001,
                 "INC failed for vector " + testValue);
@@ -199,7 +199,7 @@ class DoubleTest {
         double result;
 
         testVar = new DoubleVariable("TEST", 0);
-        testVar = (DoubleVariable) testVar.callMethod("LENGTH", List.of(new DoubleValue(4.0), new DoubleValue(5.0))).newSelf();
+        testVar.callMethod("LENGTH", List.of(new DoubleValue(4.0), new DoubleValue(5.0)));
         result = testVar.get();
         assertEquals(parseDoubleOrSpecial(EXPECTED_RESULTS.get("LENGTH")[0]), result, 0.00001,
                 "LENGTH failed for vector (4,5)");
@@ -214,7 +214,7 @@ class DoubleTest {
         double result;
 
         testVar = new DoubleVariable("TEST", testValue);
-        testVar = (DoubleVariable) testVar.callMethod("LOG", List.of(new DoubleValue(testValue))).newSelf();
+        testVar.callMethod("LOG", List.of(new DoubleValue(testValue)));
         result = testVar.get();
         if (EXPECTED_RESULTS.get("LOG")[vectorIndex].contains("IND")) {
             assertTrue(Double.isNaN(result), "LOG should return NaN for vector " + testValue);
@@ -232,14 +232,14 @@ class DoubleTest {
         double result;
 
         testVar = new DoubleVariable("TEST", 0);
-        testVar = (DoubleVariable) testVar.callMethod("MAXA", List.of(
+        testVar.callMethod("MAXA", List.of(
                 new DoubleValue(-4.65),
                 new DoubleValue(0.0),
                 new DoubleValue(2.9),
                 new DoubleValue(90.0),
                 new DoubleValue(421.0),
                 new DoubleValue(-176.0),
-                new DoubleValue(0.00001))).newSelf();
+                new DoubleValue(0.00001)));
         result = testVar.get();
         assertEquals(parseDoubleOrSpecial(EXPECTED_RESULTS.get("MAXA")[0]), result, 0.00001,
                 "MAXA failed for vector " + Arrays.toString(TEST_VECTORS));
@@ -251,14 +251,14 @@ class DoubleTest {
         double result;
 
         testVar = new DoubleVariable("TEST", 0);
-        testVar = (DoubleVariable) testVar.callMethod("MINA", List.of(
+        testVar.callMethod("MINA", List.of(
                 new DoubleValue(-4.65),
                 new DoubleValue(0.0),
                 new DoubleValue(2.9),
                 new DoubleValue(90.0),
                 new DoubleValue(421.0),
                 new DoubleValue(-176.0),
-                new DoubleValue(0.00001))).newSelf();
+                new DoubleValue(0.00001)));
         result = testVar.get();
         assertEquals(parseDoubleOrSpecial(EXPECTED_RESULTS.get("MINA")[0]), result, 0.00001,
                 "MINA failed for vector " + Arrays.toString(TEST_VECTORS));
@@ -273,7 +273,7 @@ class DoubleTest {
         double result;
 
         testVar = new DoubleVariable("TEST", testValue);
-        testVar = (DoubleVariable) testVar.callMethod("MOD", List.of(new DoubleValue(5.0))).newSelf();
+        testVar.callMethod("MOD", List.of(new DoubleValue(5.0)));
         result = testVar.get();
         assertEquals(parseDoubleOrSpecial(EXPECTED_RESULTS.get("MOD")[vectorIndex]), result, 0.00001,
                 "MOD failed for vector " + testValue);
@@ -288,7 +288,7 @@ class DoubleTest {
         double result;
 
         testVar = new DoubleVariable("TEST", testValue);
-        testVar = (DoubleVariable) testVar.callMethod("MUL", List.of(new DoubleValue(5.0))).newSelf();
+        testVar.callMethod("MUL", List.of(new DoubleValue(5.0)));
         result = testVar.get();
         assertEquals(parseDoubleOrSpecial(EXPECTED_RESULTS.get("MUL")[vectorIndex]), result, 0.00001,
                 "MUL failed for vector " + testValue);
@@ -318,7 +318,7 @@ class DoubleTest {
         double result;
 
         testVar = new DoubleVariable("TEST", testValue);
-        testVar = (DoubleVariable) testVar.callMethod("SINUS", List.of(new DoubleValue(testValue))).newSelf();
+        testVar.callMethod("SINUS", List.of(new DoubleValue(testValue)));
         result = testVar.get();
         assertEquals(parseDoubleOrSpecial(EXPECTED_RESULTS.get("SINUS")[vectorIndex]), result, 0.00001,
                 "SINUS failed for vector " + testValue);
@@ -333,7 +333,7 @@ class DoubleTest {
         double result;
 
         testVar = new DoubleVariable("TEST", testValue);
-        testVar = (DoubleVariable) testVar.callMethod("SQRT", List.of()).newSelf();
+        testVar.callMethod("SQRT", List.of());
         result = testVar.get();
         if (EXPECTED_RESULTS.get("SQRT")[vectorIndex].contains("IND")) {
             assertTrue(Double.isNaN(result), "SQRT should return NaN for vector " + testValue);
@@ -352,7 +352,7 @@ class DoubleTest {
         double result;
 
         testVar = new DoubleVariable("TEST", testValue);
-        testVar = (DoubleVariable) testVar.callMethod("SUB", List.of(new DoubleValue(5.0))).newSelf();
+        testVar.callMethod("SUB", List.of(new DoubleValue(5.0)));
         result = testVar.get();
         assertEquals(parseDoubleOrSpecial(EXPECTED_RESULTS.get("SUB")[vectorIndex]), result, 0.00001,
                 "SUB failed for vector " + testValue);
@@ -371,15 +371,15 @@ class DoubleTest {
     @Test
     void testSwitch() {
         DoubleVariable switchVar1 = new DoubleVariable("TEST", 0);
-        switchVar1 = (DoubleVariable) switchVar1.callMethod("SWITCH", List.of(
+        switchVar1.callMethod("SWITCH", List.of(
                 new DoubleValue(0),
-                new DoubleValue(15))).newSelf();
+                new DoubleValue(15)));
         assertEquals(15, switchVar1.get(), 0.00001);
 
         DoubleVariable switchVar2 = new DoubleVariable("TEST", 5);
-        switchVar2 = (DoubleVariable) switchVar2.callMethod("SWITCH", List.of(
+        switchVar2.callMethod("SWITCH", List.of(
                 new DoubleValue(0),
-                new DoubleValue(15))).newSelf();
+                new DoubleValue(15)));
         assertEquals(0, switchVar2.get(), 0.00001);
     }
 

@@ -13,7 +13,7 @@ import java.util.Map;
 
 /**
  * DatabaseVariable represents a database with rows and columns.
- * Optionally linked to a STRUCT via modelName for schema definition.
+ * Linked to a STRUCT via modelName for schema definition.
  */
 public record DatabaseVariable(
     String name,
@@ -92,26 +92,26 @@ public record DatabaseVariable(
     private static final Map<String, MethodSpec> METHODS = Map.ofEntries(
         Map.entry("GETROWSNO", MethodSpec.of((self, args) -> {
             DatabaseVariable thisVar = (DatabaseVariable) self;
-            return MethodResult.noChange(new IntValue(thisVar.state.rowsNo()));
+            return MethodResult.returns(new IntValue(thisVar.state.rowsNo()));
         })),
 
         Map.entry("NEXT", MethodSpec.of((self, args) -> {
             DatabaseVariable thisVar = (DatabaseVariable) self;
             thisVar.state.next();
-            return MethodResult.noChange(NullValue.INSTANCE);
+            return MethodResult.noReturn();
         })),
 
         Map.entry("REMOVEALL", MethodSpec.of((self, args) -> {
             DatabaseVariable thisVar = (DatabaseVariable) self;
             thisVar.state.removeAll();
-            return MethodResult.noChange(NullValue.INSTANCE);
+            return MethodResult.noReturn();
         })),
 
         Map.entry("SELECT", MethodSpec.of((self, args) -> {
             DatabaseVariable thisVar = (DatabaseVariable) self;
             int idx = ArgumentHelper.getInt(args, 0, 0);
             thisVar.state.select(idx);
-            return MethodResult.noChange(NullValue.INSTANCE);
+            return MethodResult.noReturn();
         })),
 
         Map.entry("FIND", MethodSpec.of((self, args) -> {
@@ -120,11 +120,11 @@ public record DatabaseVariable(
             String colValue = ArgumentHelper.getString(args, 1, "");
             int def = ArgumentHelper.getInt(args, 2, 0);
             int found = thisVar.state.find(colName, colValue, def);
-            return MethodResult.noChange(new IntValue(found));
+            return MethodResult.returns(new IntValue(found));
         })),
 
         // TODO: IMPLEMENT LOAD/SAVE
-        Map.entry("LOAD", MethodSpec.of((self, args) -> MethodResult.noChange(NullValue.INSTANCE))),
-        Map.entry("SAVE", MethodSpec.of((self, args) -> MethodResult.noChange(NullValue.INSTANCE)))
+        Map.entry("LOAD", MethodSpec.of((self, args) -> MethodResult.noReturn())),
+        Map.entry("SAVE", MethodSpec.of((self, args) -> MethodResult.noReturn()))
     );
 }
