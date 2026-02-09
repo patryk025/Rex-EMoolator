@@ -72,25 +72,19 @@ public class ASTInterpreter {
     private ExecutionResult executeVariable(VariableNode node) {
         Variable variable = context.getVariable(node.name());
 
-        if (variable == null) {
-            throw new InterpreterException(
-                "Variable not found: " + node.name(),
-                exec,
-                node.location()
+        return switch (variable) {
+            case null -> throw new InterpreterException(
+                    "Variable not found: " + node.name(),
+                    exec,
+                    node.location()
             );
-        }
+            case ExpressionVariable expr -> new NormalResult(evaluateExpression(expr, node.location()));
+            case ConditionVariable cond -> new NormalResult(evaluateCondition(cond, node.location()));
+            case ComplexConditionVariable complex ->
+                    new NormalResult(evaluateComplexCondition(complex, node.location()));
+            default -> new NormalResult(variable.value());
+        };
 
-        if (variable instanceof ExpressionVariable expr) {
-            return new NormalResult(evaluateExpression(expr, node.location()));
-        }
-        if (variable instanceof ConditionVariable cond) {
-            return new NormalResult(evaluateCondition(cond, node.location()));
-        }
-        if (variable instanceof ComplexConditionVariable complex) {
-            return new NormalResult(evaluateComplexCondition(complex, node.location()));
-        }
-
-        return new NormalResult(variable.value());
     }
 
     // === BLOCKS ===
@@ -159,15 +153,13 @@ public class ASTInterpreter {
         if (!leftResult.shouldContinue()) return leftResult;
 
         Value leftValue = leftResult.getValue();
-        if (!(leftValue instanceof BoolValue leftBoolValue)) {
+        if (!(leftValue instanceof BoolValue(boolean leftBool))) {
             throw new InterpreterException(
                 "Logical operation requires BOOL operands",
                 exec,
                 node.location()
             );
         }
-
-        boolean leftBool = leftBoolValue.value();
 
         // Short-circuit evaluation
         if (node.operator() == LogicalNode.LogicalOp.AND && !leftBool) {
@@ -235,8 +227,10 @@ public class ASTInterpreter {
 
             // Execute loop
             for (int i = start; i < start + diff; i += step) {
-                // Set _I_ variable (TODO: implement properly)
+                exec.pushFrame("_I_ == "+i, "@LOOP", node.location());
+                exec.setLocal("_I_", new IntValue(i));
                 ExecutionResult bodyResult = execute(node.body());
+                exec.popFrame();
 
                 if (bodyResult instanceof OneBreakResult) {
                     // Break this loop only
@@ -588,7 +582,7 @@ public class ASTInterpreter {
             case "GREATER" -> ComparisonNode.ComparisonOp.GREATER;
             case "LESSEQUAL" -> ComparisonNode.ComparisonOp.LESS_EQUAL;
             case "GREATEREQUAL" -> ComparisonNode.ComparisonOp.GREATER_EQUAL;
-            default -> ComparisonNode.ComparisonOp.EQUAL;
+            default -> throw new IllegalArgumentException("Unknown condition operator: " + cond.operator());
         };
 
         return ValueOps.compare(left, right, op);
@@ -604,7 +598,7 @@ public class ASTInterpreter {
             case "MUL" -> ArithmeticNode.ArithmeticOp.MULTIPLY;
             case "DIV" -> ArithmeticNode.ArithmeticOp.DIVIDE;
             case "MOD" -> ArithmeticNode.ArithmeticOp.MODULO;
-            default -> ArithmeticNode.ArithmeticOp.ADD;
+            default -> throw new IllegalArgumentException("Unknown expression operator: " + expr.operator());
         };
 
         return ValueOps.arithmetic(left, right, op);
