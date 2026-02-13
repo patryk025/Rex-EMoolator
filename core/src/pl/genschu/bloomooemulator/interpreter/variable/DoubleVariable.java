@@ -56,7 +56,7 @@ public record DoubleVariable(
     @Override
     public Variable withValue(Value newValue) {
         double newDouble = ArgumentHelper.getDouble(newValue);
-        holder.set(new DoubleValue(newDouble));
+        setValue(new DoubleValue(newDouble));
         return this;
     }
 
@@ -84,6 +84,24 @@ public record DoubleVariable(
         return getDouble();
     }
 
+    /**
+     * Sets the value and emits appropriate signals.
+     * Always emits ONBRUTALCHANGED, emits ONCHANGED only if value actually changed.
+     */
+    public void setValue(DoubleValue newValue) {
+        double oldVal = getDouble();
+        double newVal = newValue.value();
+        holder.set(newValue);
+
+        // Always emit ONBRUTALCHANGED
+        emitSignal("ONBRUTALCHANGED", new DoubleValue(newVal));
+
+        // Emit ONCHANGED only if value actually changed
+        if (oldVal != newVal) {
+            emitSignal("ONCHANGED", new DoubleValue(newVal));
+        }
+    }
+
     // ========================================
     // METHODS DEFINITION
     // ========================================
@@ -96,7 +114,7 @@ public record DoubleVariable(
             }
             double value = ArgumentHelper.getDouble(args.get(0));
             DoubleValue result = new DoubleValue(Math.abs(value));
-            thisVar.holder().set(result);
+            thisVar.setValue(result);
             return MethodResult.returns(result);
         })),
 
@@ -107,7 +125,7 @@ public record DoubleVariable(
             }
             double addend = ArgumentHelper.getDouble(args.get(0));
             DoubleValue result = new DoubleValue(thisVar.getDouble() + addend);
-            thisVar.holder().set(result);
+            thisVar.setValue(result);
             return MethodResult.returns(result);
         })),
 
@@ -119,7 +137,7 @@ public record DoubleVariable(
             double angle = ArgumentHelper.getDouble(args.get(0));
             double atanDegrees = Math.toDegrees(Math.atan(angle));
             DoubleValue result = new DoubleValue(atanDegrees);
-            thisVar.holder().set(result);
+            thisVar.setValue(result);
             return MethodResult.returns(result);
         })),
 
@@ -132,7 +150,7 @@ public record DoubleVariable(
             double x = ArgumentHelper.getDouble(args.get(1));
             double atanDegrees = Math.toDegrees(Math.atan2(y, x));
             DoubleValue result = new DoubleValue(atanDegrees);
-            thisVar.holder().set(result);
+            thisVar.setValue(result);
             return MethodResult.returns(result);
         })),
 
@@ -145,14 +163,14 @@ public record DoubleVariable(
             double rangeMax = ArgumentHelper.getDouble(args.get(1));
             double clampedValue = Math.max(rangeMin, Math.min(rangeMax, thisVar.getDouble()));
             DoubleValue result = new DoubleValue(clampedValue);
-            thisVar.holder().set(result);
+            thisVar.setValue(result);
             return MethodResult.returns(result);
         })),
 
         Map.entry("CLEAR", MethodSpec.of((self, args) -> {
             DoubleVariable thisVar = (DoubleVariable) self;
             DoubleValue result = new DoubleValue(0.0);
-            thisVar.holder().set(result);
+            thisVar.setValue(result);
             return MethodResult.returns(result);
         })),
 
@@ -164,14 +182,14 @@ public record DoubleVariable(
             double angle = ArgumentHelper.getDouble(args.get(0));
             double cosValue = Math.cos(Math.toRadians(angle));
             DoubleValue result = new DoubleValue(cosValue);
-            thisVar.holder().set(result);
+            thisVar.setValue(result);
             return MethodResult.returns(result);
         })),
 
         Map.entry("DEC", MethodSpec.of((self, args) -> {
             DoubleVariable thisVar = (DoubleVariable) self;
             DoubleValue result = new DoubleValue(thisVar.getDouble() - 1.0);
-            thisVar.holder().set(result);
+            thisVar.setValue(result);
             return MethodResult.returns(result);
         })),
 
@@ -185,7 +203,7 @@ public record DoubleVariable(
                 return MethodResult.returns(thisVar.value());  // Division by zero = no change
             }
             DoubleValue result = new DoubleValue(thisVar.getDouble() / divisor);
-            thisVar.holder().set(result);
+            thisVar.setValue(result);
             return MethodResult.returns(result);
         })),
 
@@ -194,7 +212,7 @@ public record DoubleVariable(
         Map.entry("INC", MethodSpec.of((self, args) -> {
             DoubleVariable thisVar = (DoubleVariable) self;
             DoubleValue result = new DoubleValue(thisVar.getDouble() + 1.0);
-            thisVar.holder().set(result);
+            thisVar.setValue(result);
             return MethodResult.returns(result);
         })),
 
@@ -207,7 +225,7 @@ public record DoubleVariable(
             double y = ArgumentHelper.getDouble(args.get(1));
             double length = Math.sqrt(x * x + y * y);
             DoubleValue result = new DoubleValue(length);
-            thisVar.holder().set(result);
+            thisVar.setValue(result);
             return MethodResult.returns(result);
         })),
 
@@ -218,7 +236,7 @@ public record DoubleVariable(
             }
             double value = ArgumentHelper.getDouble(args.get(0));
             DoubleValue result = new DoubleValue(Math.log(value));
-            thisVar.holder().set(result);
+            thisVar.setValue(result);
             return MethodResult.returns(result);
         })),
 
@@ -234,7 +252,7 @@ public record DoubleVariable(
             // Modulo cuts off decimal part in original engine
             double modResult = (int) (thisVar.getDouble() % divisor);
             DoubleValue result = new DoubleValue(modResult);
-            thisVar.holder().set(result);
+            thisVar.setValue(result);
             return MethodResult.returns(result);
         })),
 
@@ -251,7 +269,7 @@ public record DoubleVariable(
                 }
             }
             DoubleValue result = new DoubleValue(max);
-            thisVar.holder().set(result);
+            thisVar.setValue(result);
             return MethodResult.returns(result);
         })),
 
@@ -268,7 +286,7 @@ public record DoubleVariable(
                 }
             }
             DoubleValue result = new DoubleValue(min);
-            thisVar.holder().set(result);
+            thisVar.setValue(result);
             return MethodResult.returns(result);
         })),
 
@@ -279,7 +297,7 @@ public record DoubleVariable(
             }
             double multiplier = ArgumentHelper.getDouble(args.get(0));
             DoubleValue result = new DoubleValue(thisVar.getDouble() * multiplier);
-            thisVar.holder().set(result);
+            thisVar.setValue(result);
             return MethodResult.returns(result);
         })),
 
@@ -296,7 +314,7 @@ public record DoubleVariable(
             }
             double newValue = ArgumentHelper.getDouble(args.get(0));
             DoubleValue result = new DoubleValue(newValue);
-            thisVar.holder().set(result);
+            thisVar.setValue(result);
             return MethodResult.returns(result);
         })),
 
@@ -320,7 +338,7 @@ public record DoubleVariable(
             double angle = ArgumentHelper.getDouble(args.get(0));
             double sinValue = Math.sin(Math.toRadians(angle));
             DoubleValue result = new DoubleValue(sinValue);
-            thisVar.holder().set(result);
+            thisVar.setValue(result);
             return MethodResult.returns(result);
         })),
 
@@ -328,7 +346,7 @@ public record DoubleVariable(
             DoubleVariable thisVar = (DoubleVariable) self;
             double value = args.isEmpty() ? thisVar.getDouble() : ArgumentHelper.getDouble(args.get(0));
             DoubleValue result = new DoubleValue(Math.sqrt(value));
-            thisVar.holder().set(result);
+            thisVar.setValue(result);
             return MethodResult.returns(result);
         })),
 
@@ -339,7 +357,7 @@ public record DoubleVariable(
             }
             double subtrahend = ArgumentHelper.getDouble(args.get(0));
             DoubleValue result = new DoubleValue(thisVar.getDouble() - subtrahend);
-            thisVar.holder().set(result);
+            thisVar.setValue(result);
             return MethodResult.returns(result);
         })),
 
@@ -352,7 +370,7 @@ public record DoubleVariable(
             double valueB = ArgumentHelper.getDouble(args.get(1));
             double switched = (thisVar.getDouble() == valueA) ? valueB : valueA;
             DoubleValue result = new DoubleValue(switched);
-            thisVar.holder().set(result);
+            thisVar.setValue(result);
             return MethodResult.returns(result);
         }))
     );

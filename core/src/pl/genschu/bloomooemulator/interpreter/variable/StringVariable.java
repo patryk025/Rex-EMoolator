@@ -56,7 +56,7 @@ public record StringVariable(
     @Override
     public Variable withValue(Value newValue) {
         String newString = ArgumentHelper.getString(newValue);
-        holder.set(new StringValue(newString));
+        setValue(new StringValue(newString));
         return this;
     }
 
@@ -88,6 +88,24 @@ public record StringVariable(
         return getString();
     }
 
+    /**
+     * Sets the value and emits appropriate signals.
+     * Always emits ONBRUTALCHANGED, emits ONCHANGED only if value actually changed.
+     */
+    public void setValue(StringValue newValue) {
+        String oldVal = getString();
+        String newVal = newValue.value();
+        holder.set(newValue);
+
+        // Always emit ONBRUTALCHANGED
+        emitSignal("ONBRUTALCHANGED", newValue);
+
+        // Emit ONCHANGED only if value actually changed
+        if (!oldVal.equals(newVal)) {
+            emitSignal("ONCHANGED", newValue);
+        }
+    }
+
     // ========================================
     // METHODS DEFINITION
     // ========================================
@@ -100,7 +118,7 @@ public record StringVariable(
             }
             String addition = ArgumentHelper.getString(args.get(0));
             StringValue result = new StringValue(thisVar.getString() + addition);
-            thisVar.holder().set(result);
+            thisVar.setValue(result);
             return MethodResult.returns(result);
         })),
 
@@ -117,7 +135,7 @@ public record StringVariable(
             }
             String newValue = value.substring(0, index) + replacement + value.substring(index + 1);
             StringValue result = new StringValue(newValue);
-            thisVar.holder().set(result);
+            thisVar.setValue(result);
             return MethodResult.returns(result);
         })),
 
@@ -131,12 +149,12 @@ public record StringVariable(
             String value = thisVar.getString();
             if (index < 0 || index >= value.length()) {
                 StringValue result = new StringValue("");
-                thisVar.holder().set(result);
+                thisVar.setValue(result);
                 return MethodResult.returns(result);
             }
             int endIndex = Math.min(index + length, value.length());
             StringValue result = new StringValue(value.substring(index, endIndex));
-            thisVar.holder().set(result);
+            thisVar.setValue(result);
             return MethodResult.returns(result);
         })),
 
@@ -186,7 +204,7 @@ public record StringVariable(
             int endIndex = Math.min(index + length, value.length());
             String newValue = value.substring(0, index) + replacement + value.substring(endIndex);
             StringValue result = new StringValue(newValue);
-            thisVar.holder().set(result);
+            thisVar.setValue(result);
             return MethodResult.returns(result);
         })),
 
@@ -203,7 +221,7 @@ public record StringVariable(
             }
             String newValue = ArgumentHelper.getString(args.get(0));
             StringValue result = new StringValue(newValue);
-            thisVar.holder().set(result);
+            thisVar.setValue(result);
             return MethodResult.returns(result);
         })),
 
@@ -221,21 +239,21 @@ public record StringVariable(
             int endIndex = Math.min(index + length, value.length());
             String newValue = value.substring(0, index) + value.substring(endIndex);
             StringValue result = new StringValue(newValue);
-            thisVar.holder().set(result);
+            thisVar.setValue(result);
             return MethodResult.returns(result);
         })),
 
         Map.entry("UPPER", MethodSpec.of((self, args) -> {
             StringVariable thisVar = (StringVariable) self;
             StringValue result = new StringValue(thisVar.getString().toUpperCase());
-            thisVar.holder().set(result);
+            thisVar.setValue(result);
             return MethodResult.returns(result);
         })),
 
         Map.entry("LOWER", MethodSpec.of((self, args) -> {
             StringVariable thisVar = (StringVariable) self;
             StringValue result = new StringValue(thisVar.getString().toLowerCase());
-            thisVar.holder().set(result);
+            thisVar.setValue(result);
             return MethodResult.returns(result);
         }))
     );

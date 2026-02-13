@@ -65,7 +65,7 @@ public record IntegerVariable(
             case BoolValue v -> v.value() ? 1 : 0;
             default -> 0;
         };
-        holder.set(new IntValue(newInt));
+        setValue(new IntValue(newInt));
         return this;
     }
 
@@ -96,6 +96,24 @@ public record IntegerVariable(
         return getInt();
     }
 
+    /**
+     * Sets the value and emits appropriate signals.
+     * Always emits ONBRUTALCHANGED, emits ONCHANGED only if value actually changed.
+     */
+    public void setValue(IntValue newValue) {
+        int oldVal = getInt();
+        int newVal = newValue.value();
+        holder.set(newValue);
+
+        // Always emit ONBRUTALCHANGED
+        emitSignal("ONBRUTALCHANGED", new IntValue(newVal));
+
+        // Emit ONCHANGED only if value actually changed
+        if (oldVal != newVal) {
+            emitSignal("ONCHANGED", new IntValue(newVal));
+        }
+    }
+
     // ========================================
     // METHODS DEFINITION
     // ========================================
@@ -108,7 +126,7 @@ public record IntegerVariable(
             }
             int value = ArgumentHelper.getInt(args.get(0));
             IntValue result = new IntValue(Math.abs(value));
-            thisVar.holder().set(result);
+            thisVar.setValue(result);
             return MethodResult.returns(result);
         })),
 
@@ -119,7 +137,7 @@ public record IntegerVariable(
             }
             int addend = ArgumentHelper.getInt(args.get(0));
             IntValue result = new IntValue(thisVar.getInt() + addend);
-            thisVar.holder().set(result);
+            thisVar.setValue(result);
             return MethodResult.returns(result);
         })),
 
@@ -130,7 +148,7 @@ public record IntegerVariable(
             }
             int value = ArgumentHelper.getInt(args.get(0));
             IntValue result = new IntValue(thisVar.getInt() & value);
-            thisVar.holder().set(result);
+            thisVar.setValue(result);
             return MethodResult.returns(result);
         })),
 
@@ -143,21 +161,21 @@ public record IntegerVariable(
             int rangeMax = ArgumentHelper.getInt(args.get(1));
             int clampedValue = Math.max(rangeMin, Math.min(rangeMax, thisVar.getInt()));
             IntValue result = new IntValue(clampedValue);
-            thisVar.holder().set(result);
+            thisVar.setValue(result);
             return MethodResult.returns(result);
         })),
 
         Map.entry("CLEAR", MethodSpec.of((self, args) -> {
             IntegerVariable thisVar = (IntegerVariable) self;
             IntValue result = new IntValue(0);
-            thisVar.holder().set(result);
+            thisVar.setValue(result);
             return MethodResult.returns(result);
         })),
 
         Map.entry("DEC", MethodSpec.of((self, args) -> {
             IntegerVariable thisVar = (IntegerVariable) self;
             IntValue result = new IntValue(thisVar.getInt() - 1);
-            thisVar.holder().set(result);
+            thisVar.setValue(result);
             return MethodResult.returns(result);
         })),
 
@@ -171,7 +189,7 @@ public record IntegerVariable(
                 return MethodResult.returns(thisVar.value());  // Division by zero = no change
             }
             IntValue result = new IntValue(thisVar.getInt() / divisor);
-            thisVar.holder().set(result);
+            thisVar.setValue(result);
             return MethodResult.returns(result);
         })),
 
@@ -180,7 +198,7 @@ public record IntegerVariable(
         Map.entry("INC", MethodSpec.of((self, args) -> {
             IntegerVariable thisVar = (IntegerVariable) self;
             IntValue result = new IntValue(thisVar.getInt() + 1);
-            thisVar.holder().set(result);
+            thisVar.setValue(result);
             return MethodResult.returns(result);
         })),
 
@@ -193,7 +211,7 @@ public record IntegerVariable(
             int y = ArgumentHelper.getInt(args.get(1));
             int length = (int) Math.sqrt(x * x + y * y);
             IntValue result = new IntValue(length);
-            thisVar.holder().set(result);
+            thisVar.setValue(result);
             return MethodResult.returns(result);
         })),
 
@@ -207,7 +225,7 @@ public record IntegerVariable(
                 return MethodResult.returns(thisVar.value());
             }
             IntValue result = new IntValue(thisVar.getInt() % divisor);
-            thisVar.holder().set(result);
+            thisVar.setValue(result);
             return MethodResult.returns(result);
         })),
 
@@ -218,14 +236,14 @@ public record IntegerVariable(
             }
             int multiplier = ArgumentHelper.getInt(args.get(0));
             IntValue result = new IntValue(thisVar.getInt() * multiplier);
-            thisVar.holder().set(result);
+            thisVar.setValue(result);
             return MethodResult.returns(result);
         })),
 
         Map.entry("NOT", MethodSpec.of((self, args) -> {
             IntegerVariable thisVar = (IntegerVariable) self;
             IntValue result = new IntValue(~thisVar.getInt());
-            thisVar.holder().set(result);
+            thisVar.setValue(result);
             return MethodResult.returns(result);
         })),
 
@@ -236,7 +254,7 @@ public record IntegerVariable(
             }
             int value = ArgumentHelper.getInt(args.get(0));
             IntValue result = new IntValue(thisVar.getInt() | value);
-            thisVar.holder().set(result);
+            thisVar.setValue(result);
             return MethodResult.returns(result);
         })),
 
@@ -254,7 +272,7 @@ public record IntegerVariable(
                 value = (int) Math.ceil(pow - 0.5);
             }
             IntValue result = new IntValue(value);
-            thisVar.holder().set(result);
+            thisVar.setValue(result);
             return MethodResult.returns(result);
         })),
 
@@ -275,7 +293,7 @@ public record IntegerVariable(
                 rand = min + random.nextInt(max - min + 1);
             }
             IntValue result = new IntValue(rand);
-            thisVar.holder().set(result);
+            thisVar.setValue(result);
             return MethodResult.returns(result);
         })),
 
@@ -292,7 +310,7 @@ public record IntegerVariable(
             }
             int newValue = ArgumentHelper.getInt(args.get(0));
             IntValue result = new IntValue(newValue);
-            thisVar.holder().set(result);
+            thisVar.setValue(result);
             return MethodResult.returns(result);
         })),
 
@@ -303,7 +321,7 @@ public record IntegerVariable(
             }
             int subtrahend = ArgumentHelper.getInt(args.get(0));
             IntValue result = new IntValue(thisVar.getInt() - subtrahend);
-            thisVar.holder().set(result);
+            thisVar.setValue(result);
             return MethodResult.returns(result);
         })),
 
@@ -316,7 +334,7 @@ public record IntegerVariable(
             int valueB = ArgumentHelper.getInt(args.get(1));
             int switched = (thisVar.getInt() == valueA) ? valueB : valueA;
             IntValue result = new IntValue(switched);
-            thisVar.holder().set(result);
+            thisVar.setValue(result);
             return MethodResult.returns(result);
         })),
 
@@ -327,7 +345,7 @@ public record IntegerVariable(
             }
             int value = ArgumentHelper.getInt(args.get(0));
             IntValue result = new IntValue(thisVar.getInt() ^ value);
-            thisVar.holder().set(result);
+            thisVar.setValue(result);
             return MethodResult.returns(result);
         }))
     );

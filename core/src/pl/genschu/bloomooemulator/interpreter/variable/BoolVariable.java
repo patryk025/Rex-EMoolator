@@ -56,7 +56,7 @@ public record BoolVariable(
     @Override
     public Variable withValue(Value newValue) {
         boolean newBool = ArgumentHelper.getBoolean(newValue);
-        holder.set(BoolValue.of(newBool));
+        setValue(BoolValue.of(newBool));
         return this;
     }
 
@@ -84,6 +84,24 @@ public record BoolVariable(
         return getBool();
     }
 
+    /**
+     * Sets the value and emits appropriate signals.
+     * Always emits ONBRUTALCHANGED, emits ONCHANGED only if value actually changed.
+     */
+    public void setValue(BoolValue newValue) {
+        boolean oldVal = getBool();
+        boolean newVal = newValue.value();
+        holder.set(newValue);
+
+        // Always emit ONBRUTALCHANGED
+        emitSignal("ONBRUTALCHANGED", new BoolValue(newVal));
+
+        // Emit ONCHANGED only if value actually changed
+        if (oldVal != newVal) {
+            emitSignal("ONCHANGED", new BoolValue(newVal));
+        }
+    }
+
     // ========================================
     // METHODS DEFINITION
     // ========================================
@@ -104,7 +122,7 @@ public record BoolVariable(
             }
             boolean newValue = ArgumentHelper.getBoolean(args.get(0));
             BoolValue result = BoolValue.of(newValue);
-            thisVar.holder().set(result);
+            thisVar.setValue(result);
             return MethodResult.returns(result);
         })),
 
@@ -117,7 +135,7 @@ public record BoolVariable(
             boolean value2 = ArgumentHelper.getBoolean(args.get(1));
             boolean switched = (thisVar.getBool() != value1) ? value2 : value1;
             BoolValue result = BoolValue.of(switched);
-            thisVar.holder().set(result);
+            thisVar.setValue(result);
             return MethodResult.returns(result);
         }))
     );

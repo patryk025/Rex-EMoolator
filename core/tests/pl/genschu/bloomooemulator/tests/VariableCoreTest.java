@@ -9,16 +9,16 @@ import pl.genschu.bloomooemulator.builders.MethodHelper;
 import pl.genschu.bloomooemulator.interpreter.context.Context;
 import pl.genschu.bloomooemulator.interpreter.v1.exceptions.VariableUnsupportedOperationException;
 import pl.genschu.bloomooemulator.interpreter.factories.VariableFactory;
-import pl.genschu.bloomooemulator.interpreter.values.IntValue;
-import pl.genschu.bloomooemulator.interpreter.values.StringValue;
-import pl.genschu.bloomooemulator.interpreter.values.Value;
+import pl.genschu.bloomooemulator.interpreter.values.*;
 import pl.genschu.bloomooemulator.interpreter.variable.MethodResult;
 import pl.genschu.bloomooemulator.interpreter.variable.RandVariable;
 import pl.genschu.bloomooemulator.interpreter.variable.SignalHandler;
 import pl.genschu.bloomooemulator.interpreter.variable.Variable;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -288,11 +288,281 @@ class VariableCoreTest {
         testCtx.setVariable("FLAG", flagWithSignal);
 
         // Change value to true - should trigger signal
-        // Note: In full implementation, SET would emit ONBRUTALCHANGED
-        // For this test, we manually emit the signal
         flag = testCtx.getVariable("FLAG");
-        flag.emitSignal("ONBRUTALCHANGED^TRUE");
+        flag.callMethod("SET", BoolValue.TRUE);
 
         assertTrue(changedToTrue.get());
+    }
+
+    // ========================================
+    // ONCHANGED / ONBRUTALCHANGED SIGNAL TESTS
+    // ========================================
+
+    @Test
+    void testIntegerVariableSignalsOnSet() {
+        AtomicInteger brutalChangedCount = new AtomicInteger(0);
+        AtomicInteger changedCount = new AtomicInteger(0);
+        List<String> brutalValues = new ArrayList<>();
+        List<String> changedValues = new ArrayList<>();
+
+        Context testCtx = new ContextBuilder()
+                .withVariable("INTEGER", "NUM", 10)
+                .build();
+
+        Variable num = testCtx.getVariable("NUM");
+        num = num.withSignal("ONBRUTALCHANGED", (var, signal, args) -> {
+            brutalChangedCount.incrementAndGet();
+        });
+        num = num.withSignal("ONCHANGED", (var, signal, args) -> {
+            changedCount.incrementAndGet();
+        });
+        testCtx.setVariable("NUM", num);
+
+        // SET to different value - both signals should fire
+        num = testCtx.getVariable("NUM");
+        num.callMethod("SET", List.of(new IntValue(20)));
+
+        assertEquals(1, brutalChangedCount.get());
+        assertEquals(1, changedCount.get());
+
+        // SET to same value - only ONBRUTALCHANGED should fire
+        num.callMethod("SET", List.of(new IntValue(20)));
+
+        assertEquals(2, brutalChangedCount.get());
+        assertEquals(1, changedCount.get()); // unchanged!
+    }
+
+    @Test
+    void testIntegerVariableSignalsWithParamOnSet() {
+        AtomicInteger brutalChangedCount = new AtomicInteger(0);
+        AtomicInteger changedCount = new AtomicInteger(0);
+
+        Context testCtx = new ContextBuilder()
+                .withVariable("INTEGER", "NUM", 10)
+                .build();
+
+        Variable num = testCtx.getVariable("NUM");
+        num = num.withSignal("ONBRUTALCHANGED", (var, signal, args) -> {
+            brutalChangedCount.incrementAndGet();
+        }).withSignal("ONBRUTALCHANGED^20", (var, signal, args) -> {
+            brutalChangedCount.addAndGet(2); // count this signal as 2 changes to distinguish it
+        });
+        num = num.withSignal("ONCHANGED", (var, signal, args) -> {
+            changedCount.incrementAndGet();
+        });
+        testCtx.setVariable("NUM", num);
+
+        // SET to different value - both signals should fire
+        num = testCtx.getVariable("NUM");
+        num.callMethod("SET", List.of(new IntValue(20)));
+
+        assertEquals(2, brutalChangedCount.get());
+        assertEquals(1, changedCount.get());
+
+        // SET to same value - only ONBRUTALCHANGED should fire
+        num.callMethod("SET", List.of(new IntValue(20)));
+
+        assertEquals(4, brutalChangedCount.get());
+        assertEquals(1, changedCount.get()); // unchanged!
+    }
+
+    @Test
+    void testIntegerVariableSignalsOnAdd() {
+        AtomicInteger brutalChangedCount = new AtomicInteger(0);
+        AtomicInteger changedCount = new AtomicInteger(0);
+
+        Context testCtx = new ContextBuilder()
+                .withVariable("INTEGER", "NUM", 10)
+                .build();
+
+        Variable num = testCtx.getVariable("NUM");
+        num = num.withSignal("ONBRUTALCHANGED", (var, signal, args) -> brutalChangedCount.incrementAndGet());
+        num = num.withSignal("ONCHANGED", (var, signal, args) -> changedCount.incrementAndGet());
+        testCtx.setVariable("NUM", num);
+
+        // ADD 5 - value changes from 10 to 15
+        num = testCtx.getVariable("NUM");
+        num.callMethod("ADD", List.of(new IntValue(5)));
+
+        assertEquals(1, brutalChangedCount.get());
+        assertEquals(1, changedCount.get());
+        assertEquals(15, num.value().toInt().value());
+
+        // ADD 0 - value stays 15, only ONBRUTALCHANGED fires
+        num.callMethod("ADD", List.of(new IntValue(0)));
+
+        assertEquals(2, brutalChangedCount.get());
+        assertEquals(1, changedCount.get()); // unchanged!
+    }
+
+    @Test
+    void testDoubleVariableSignalsOnSet() {
+        AtomicInteger brutalChangedCount = new AtomicInteger(0);
+        AtomicInteger changedCount = new AtomicInteger(0);
+
+        Context testCtx = new ContextBuilder()
+                .withVariable("DOUBLE", "NUM", 10.5)
+                .build();
+
+        Variable num = testCtx.getVariable("NUM");
+        num = num.withSignal("ONBRUTALCHANGED", (var, signal, args) -> brutalChangedCount.incrementAndGet());
+        num = num.withSignal("ONCHANGED", (var, signal, args) -> changedCount.incrementAndGet());
+        testCtx.setVariable("NUM", num);
+
+        // SET to different value
+        num = testCtx.getVariable("NUM");
+        num.callMethod("SET", List.of(new DoubleValue(20.5)));
+
+        assertEquals(1, brutalChangedCount.get());
+        assertEquals(1, changedCount.get());
+
+        // SET to same value - only ONBRUTALCHANGED should fire
+        num.callMethod("SET", List.of(new DoubleValue(20.5)));
+
+        assertEquals(2, brutalChangedCount.get());
+        assertEquals(1, changedCount.get()); // unchanged!
+    }
+
+    @Test
+    void testStringVariableSignalsOnSet() {
+        AtomicInteger brutalChangedCount = new AtomicInteger(0);
+        AtomicInteger changedCount = new AtomicInteger(0);
+
+        Context testCtx = new ContextBuilder()
+                .withVariable("STRING", "TEXT", "hello")
+                .build();
+
+        Variable text = testCtx.getVariable("TEXT");
+        text = text.withSignal("ONBRUTALCHANGED", (var, signal, args) -> brutalChangedCount.incrementAndGet());
+        text = text.withSignal("ONCHANGED", (var, signal, args) -> {
+            changedCount.incrementAndGet();
+        });
+        testCtx.setVariable("TEXT", text);
+
+        // SET to different value
+        text = testCtx.getVariable("TEXT");
+        text.callMethod("SET", List.of(new StringValue("world")));
+
+        assertEquals(1, brutalChangedCount.get());
+        assertEquals(1, changedCount.get());
+
+        // SET to same value - only ONBRUTALCHANGED should fire
+        text.callMethod("SET", List.of(new StringValue("world")));
+
+        assertEquals(2, brutalChangedCount.get());
+    }
+
+    @Test
+    void testStringVariableSignalsOnAdd() {
+        AtomicInteger brutalChangedCount = new AtomicInteger(0);
+        AtomicInteger changedCount = new AtomicInteger(0);
+
+        Context testCtx = new ContextBuilder()
+                .withVariable("STRING", "TEXT", "hello")
+                .build();
+
+        Variable text = testCtx.getVariable("TEXT");
+        text = text.withSignal("ONBRUTALCHANGED", (var, signal, args) -> brutalChangedCount.incrementAndGet());
+        text = text.withSignal("ONCHANGED", (var, signal, args) -> changedCount.incrementAndGet());
+        testCtx.setVariable("TEXT", text);
+
+        // ADD " world" - value changes
+        text = testCtx.getVariable("TEXT");
+        text.callMethod("ADD", List.of(new StringValue(" world")));
+
+        assertEquals(1, brutalChangedCount.get());
+        assertEquals(1, changedCount.get());
+        assertEquals("hello world", text.value().toDisplayString());
+
+        // ADD "" (empty string) - value stays the same, only ONBRUTALCHANGED fires
+        text.callMethod("ADD", List.of(new StringValue("")));
+
+        assertEquals(2, brutalChangedCount.get());
+        assertEquals(1, changedCount.get()); // unchanged!
+    }
+
+    @Test
+    void testBoolVariableSignalsOnSet() {
+        AtomicInteger brutalChangedCount = new AtomicInteger(0);
+        AtomicInteger changedCount = new AtomicInteger(0);
+
+        Context testCtx = new ContextBuilder()
+                .withVariable("BOOLEAN", "FLAG", false)
+                .build();
+
+        Variable flag = testCtx.getVariable("FLAG");
+        flag = flag.withSignal("ONBRUTALCHANGED", (var, signal, args) -> brutalChangedCount.incrementAndGet());
+        flag = flag.withSignal("ONCHANGED", (var, signal, args) -> {
+            changedCount.incrementAndGet();
+        });
+        testCtx.setVariable("FLAG", flag);
+
+        // SET to true - value changes
+        flag = testCtx.getVariable("FLAG");
+        flag.callMethod("SET", List.of(new BoolValue(true)));
+
+        assertEquals(1, brutalChangedCount.get());
+        assertEquals(1, changedCount.get());
+
+        // SET to true again - only ONBRUTALCHANGED should fire
+        flag.callMethod("SET", List.of(new BoolValue(true)));
+
+        assertEquals(2, brutalChangedCount.get());
+        assertEquals(1, changedCount.get()); // unchanged!
+    }
+
+    @Test
+    void testBoolVariableSignalsOnSwitch() {
+        AtomicInteger brutalChangedCount = new AtomicInteger(0);
+        AtomicInteger changedCount = new AtomicInteger(0);
+
+        Context testCtx = new ContextBuilder()
+                .withVariable("BOOLEAN", "FLAG", true)
+                .build();
+
+        Variable flag = testCtx.getVariable("FLAG");
+        flag = flag.withSignal("ONBRUTALCHANGED", (var, signal, args) -> brutalChangedCount.incrementAndGet());
+        flag = flag.withSignal("ONCHANGED", (var, signal, args) -> changedCount.incrementAndGet());
+        testCtx.setVariable("FLAG", flag);
+
+        flag = testCtx.getVariable("FLAG");
+        flag.callMethod("SWITCH", List.of(
+                new BoolValue(false),
+                new BoolValue(false)
+        ));
+
+        assertEquals(1, brutalChangedCount.get());
+        assertEquals(1, changedCount.get());
+        assertFalse(flag.value().toBool().value());
+    }
+
+    @Test
+    void testIntegerVariableSignalsOnIncDec() {
+        AtomicInteger brutalChangedCount = new AtomicInteger(0);
+        AtomicInteger changedCount = new AtomicInteger(0);
+
+        Context testCtx = new ContextBuilder()
+                .withVariable("INTEGER", "NUM", 10)
+                .build();
+
+        Variable num = testCtx.getVariable("NUM");
+        num = num.withSignal("ONBRUTALCHANGED", (var, signal, args) -> brutalChangedCount.incrementAndGet());
+        num = num.withSignal("ONCHANGED", (var, signal, args) -> changedCount.incrementAndGet());
+        testCtx.setVariable("NUM", num);
+
+        // INC - value changes from 10 to 11
+        num = testCtx.getVariable("NUM");
+        num.callMethod("INC", List.of());
+
+        assertEquals(1, brutalChangedCount.get());
+        assertEquals(1, changedCount.get());
+        assertEquals(11, num.value().toInt().value());
+
+        // DEC - value changes from 11 to 10
+        num.callMethod("DEC", List.of());
+
+        assertEquals(2, brutalChangedCount.get());
+        assertEquals(2, changedCount.get());
+        assertEquals(10, num.value().toInt().value());
     }
 }
