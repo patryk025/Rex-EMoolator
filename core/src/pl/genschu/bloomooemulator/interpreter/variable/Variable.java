@@ -197,15 +197,13 @@ public sealed interface Variable permits
     default void emitSignal(String signalName, Value newValue, Value... arguments) {
         Map<String, SignalHandler> registeredSignals = signals();
         String fullSignalName = signalName + (newValue != null ? "^" + newValue.toDisplayString() : "");
-        String targetSignalName = fullSignalName;
         if(registeredSignals != null) {
             SignalHandler handler = registeredSignals.get(fullSignalName);
             if (handler == null) {
                 handler = registeredSignals.get(signalName);
-                targetSignalName = signalName;
             }
             if (handler != null) {
-                handler.handle(this, targetSignalName, arguments);
+                handler.handle(this, fullSignalName, arguments);
             }
         }
     }

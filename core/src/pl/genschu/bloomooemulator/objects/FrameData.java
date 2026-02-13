@@ -11,6 +11,7 @@ public class FrameData {
     private int sfxRandomSeed; // i guess?
     private int opacity;
     private String name;
+    private String sfxDescription;
     private List<Music> sfxAudio;
 
     public byte[] getStartingBytes() {
@@ -59,6 +60,14 @@ public class FrameData {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public String getSfxDescription() {
+        return sfxDescription;
+    }
+
+    public void setSfxDescription(String sfxDescription) {
+        this.sfxDescription = sfxDescription;
     }
 
     public List<Music> getSfxAudio() {

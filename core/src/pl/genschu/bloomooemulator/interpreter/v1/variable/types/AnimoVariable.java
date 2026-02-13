@@ -16,7 +16,7 @@ import pl.genschu.bloomooemulator.interpreter.v1.variable.Attribute;
 import pl.genschu.bloomooemulator.interpreter.v1.variable.Method;
 import pl.genschu.bloomooemulator.interpreter.v1.variable.Parameter;
 import pl.genschu.bloomooemulator.interpreter.v1.variable.Variable;
-import pl.genschu.bloomooemulator.loader.AnimoLoader;
+import pl.genschu.bloomooemulator.loader.v1.AnimoLoader;
 import pl.genschu.bloomooemulator.objects.Event;
 import pl.genschu.bloomooemulator.objects.FrameData;
 import pl.genschu.bloomooemulator.objects.Image;

@@ -1,6 +1,7 @@
 package pl.genschu.bloomooemulator.utils;
 
 import com.badlogic.gdx.Gdx;
+import pl.genschu.bloomooemulator.engine.Game;
 import pl.genschu.bloomooemulator.interpreter.v1.variable.Variable;
 import java.io.File;
 import java.nio.file.Files;
@@ -95,13 +96,17 @@ public class FileUtils {
     }
 
     public static String resolveRelativePath(Variable variable, String filePath) {
+        return resolveRelativePath(variable.getContext().getGame(), filePath);
+    }
+
+    public static String resolveRelativePath(Game game, String filePath) {
         File resolvedFile;
         String remainingPath = filePath;
 
         // Handle $ prefix
         if (filePath.startsWith("$")) {
             // $ always maps to installation root (parent of dane folder)
-            resolvedFile = variable.getContext().getGame().getDaneFolder().getParentFile();
+            resolvedFile = game.getDaneFolder().getParentFile();
 
             // Remove $ and optional separator
             remainingPath = filePath.substring(1).replaceFirst("^[/\\\\]+", "");
@@ -111,14 +116,14 @@ public class FileUtils {
             }
         } else {
             // Determine base directory based on current context
-            if (variable.getContext().getGame().getCurrentSceneFile() != null) {
-                resolvedFile = variable.getContext().getGame().getCurrentSceneFile();
-            } else if (variable.getContext().getGame().getCurrentEpisodeFile() != null) {
-                resolvedFile = variable.getContext().getGame().getCurrentEpisodeFile();
-            } else if (variable.getContext().getGame().getCurrentApplicationFile() != null) {
-                resolvedFile = variable.getContext().getGame().getCurrentApplicationFile();
+            if (game.getCurrentSceneFile() != null) {
+                resolvedFile = game.getCurrentSceneFile();
+            } else if (game.getCurrentEpisodeFile() != null) {
+                resolvedFile = game.getCurrentEpisodeFile();
+            } else if (game.getCurrentApplicationFile() != null) {
+                resolvedFile = game.getCurrentApplicationFile();
             } else {
-                resolvedFile = variable.getContext().getGame().getDaneFolder();
+                resolvedFile = game.getDaneFolder();
             }
 
             remainingPath = filePath;
@@ -127,7 +132,7 @@ public class FileUtils {
         // Get language code from game
         String langCode = null;
         try {
-            langCode = variable.getContext().getGame().getLanguage();
+            langCode = game.getLanguage();
         } catch (NullPointerException ignored) {
             // Game or language not available, skip language fallback
         }
