@@ -1,5 +1,6 @@
 package pl.genschu.bloomooemulator.interpreter.values;
 
+import pl.genschu.bloomooemulator.engine.config.EngineConfig;
 import pl.genschu.bloomooemulator.utils.DoubleUtils;
 
 import java.text.DecimalFormat;
@@ -42,8 +43,7 @@ public record DoubleValue(double value) implements Value {
      * Converts this double to a string value.
      */
     public StringValue toStringValue() {
-        // TODO: Create access to EngineConfig by static singleton
-        if(/*context.getConfig().isUseOriginalDoubleRepresentation()*/ true) {
+        if(EngineConfig.getInstance().isUseOriginalDoubleRepresentation()) {
             // Reconstruction of algorithm from Piklib library
             double value = value();
             DoubleUtils.FcvtResult result = fcvt(value, 5);
