@@ -6,12 +6,18 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import pl.genschu.bloomooemulator.TestEnvironment;
-import pl.genschu.bloomooemulator.builders.LegacyContextBuilder;
-import pl.genschu.bloomooemulator.interpreter.v1.Context;
-import pl.genschu.bloomooemulator.interpreter.factories.LegacyVariableFactory;
-import pl.genschu.bloomooemulator.interpreter.v1.variable.Variable;
-import pl.genschu.bloomooemulator.interpreter.v1.variable.types.BehaviourVariable;
-import pl.genschu.bloomooemulator.interpreter.v1.variable.types.StructVariable;
+import pl.genschu.bloomooemulator.builders.ContextBuilder;
+import pl.genschu.bloomooemulator.interpreter.ast.BlockNode;
+import pl.genschu.bloomooemulator.interpreter.context.Context;
+import pl.genschu.bloomooemulator.interpreter.errors.SourceLocation;
+import pl.genschu.bloomooemulator.interpreter.factories.VariableFactory;
+import pl.genschu.bloomooemulator.interpreter.values.IntValue;
+import pl.genschu.bloomooemulator.interpreter.values.StringValue;
+import pl.genschu.bloomooemulator.interpreter.values.Value;
+import pl.genschu.bloomooemulator.interpreter.variable.BehaviourVariable;
+import pl.genschu.bloomooemulator.interpreter.variable.MethodResult;
+import pl.genschu.bloomooemulator.interpreter.variable.StructVariable;
+import pl.genschu.bloomooemulator.interpreter.variable.Variable;
 
 import java.util.List;
 import java.util.stream.Stream;
@@ -25,34 +31,32 @@ public class CodeParserTest {
     @BeforeAll
     static void boot() {
         TestEnvironment.init();
-        TestEnvironment.enableLogs();
+        //TestEnvironment.enableLogs();
     }
 
     @BeforeEach
     void setUp() {
-        ctx = new LegacyContextBuilder()
-                .withFactory("INTEGER", "TEST_NO", 1)
-                .withFactory("INTEGER", "TEST_VALUE_1", 5)
-                .withFactory("STRING", "TEST_VALUE_NAME", "TEST_VALUE_1")
+        ctx = new ContextBuilder()
+                .withVariable("INTEGER", "TEST_NO", 1)
+                .withVariable("INTEGER", "TEST_VALUE_1", 5)
+                .withVariable("STRING", "TEST_VALUE_NAME", "TEST_VALUE_1")
                 .build();
 
-        BehaviourVariable behaviour = new BehaviourVariable("TEST_BEH", "{@RETURN(2);}", ctx);
+        BehaviourVariable behaviour = (BehaviourVariable) new BehaviourVariable("TEST_BEH", new BlockNode(List.of(), SourceLocation.UNKNOWN), null)
+                .withScript("{@RETURN(2);}");
         ctx.setVariable("TEST_BEH", behaviour);
 
-        StructVariable struct = new StructVariable("TEST_STRUCT", ctx);
-        ctx.setVariable("TEST_STRUCT", struct);
-        struct.setFields(List.of(
+        StructVariable struct = new StructVariable("TEST_STRUCT", List.of(
                 "NAME",
                 "VAL"
-        ));
-        struct.setTypes(List.of(
+        ), List.of(
                 "STRING",
                 "INTEGER"
+        ), List.of(
+                new StringValue("PIERWSZA"),
+                new IntValue(5)
         ));
-        struct.setValues(List.of(
-                LegacyVariableFactory.createVariable("STRING", null, "PIERWSZA", ctx),
-                LegacyVariableFactory.createVariable("INTEGER", null, 5, ctx)
-        ));
+        ctx.setVariable("TEST_STRUCT", struct);
     }
 
     static Stream<Arguments> cases() {
@@ -190,9 +194,13 @@ public class CodeParserTest {
     @ParameterizedTest(name = "{index} ⇒ {0}")
     @MethodSource("cases")
     void evals(String script, Object expected) {
-        BehaviourVariable behaviour = new BehaviourVariable("SCRIPT", script, ctx);
-        Variable result = behaviour.fireMethod("RUN");
+        // TODO: Fix BehaviourVariable, as currently it retuns null for any method call, so all tests with method calls will fail. It sends effect no result
+        BehaviourVariable behaviour = (BehaviourVariable) new BehaviourVariable("SCRIPT", new BlockNode(List.of(), SourceLocation.UNKNOWN), null)
+                .withScript(script);
+        MethodResult result = behaviour.callMethod("RUN");
 
-        assertEquals(expected, result.getValue());
+        Value returnValue = result.returnValue();
+
+        assertEquals(expected, returnValue.unwrap());
     }
 }
