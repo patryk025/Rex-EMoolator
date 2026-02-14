@@ -94,7 +94,7 @@ class AnimoTest {
         capture.addHandler("ONFINISHED^B", (var, signal, args) -> {
             loopNo.callMethod("INC");
             if (loopNo.value().toInt().value() < 2) {
-                ((AnimoVariable) var).callMethod("PLAY", new StringValue("B"));
+                var.callMethod("PLAY", new StringValue("B"));
             }
         });
 
@@ -165,12 +165,8 @@ class AnimoTest {
 
         // Set up signal handlers
         capture.addHandler("ONFINISHED^PLAY", (var, signal, args) -> {
-            ((AnimoVariable) var).callMethod("HIDE");
+            var.callMethod("HIDE");
         });
-
-        // ONINIT handler is called during init, we simulate it by calling HIDE and SETFPS
-        animo.callMethod("HIDE");
-        animo.callMethod("SETFPS", new IntValue(1));
 
         animo = capture.wrapAnimo(animo);
         ctx.setVariable("ANNLAMPKI", animo);
@@ -248,6 +244,8 @@ class AnimoTest {
     void testPauseDuringRestartAnimo() throws Exception {
         // This test simulates the S65_ZAMEK scenario where animation restarts in a loop
         // and is paused when a counter reaches a threshold
+        // Scene S65_ZAMEK with bugged SETOPACITY implementation
+        // (need INVALIDATE method call for proper opacity reset)
 
         // Load animation data
         String filename = "st2.ann";
@@ -261,10 +259,13 @@ class AnimoTest {
         AnimoVariable animo = new AnimoVariable("ANNST2");
         animo = animo.withData(data);
 
-        // Use a simple counter instead of IntegerVariable with signals
-        // (v2 IntegerVariable doesn't auto-emit ONCHANGED signals like v1)
-        final int[] opacity = {255};
-        final int[] loopCount = {0};
+        AnimoVariable finalAnimo = animo;
+        IntegerVariable opacity = (IntegerVariable) new IntegerVariable("OPACITY", 255)
+                .withSignal("ONCHANGED^0", (var, signal, args) -> finalAnimo.callMethod("PAUSE"))
+                .withSignal("ONCHANGED^-1", (var, signal, args) -> finalAnimo.callMethod("PAUSE"))
+                .withSignal("ONCHANGED^-2", (var, signal, args) -> finalAnimo.callMethod("PAUSE"))
+                .withSignal("ONCHANGED^-3", (var, signal, args) -> finalAnimo.callMethod("PAUSE"))
+                .withSignal("ONCHANGED^-4", (var, signal, args) -> finalAnimo.callMethod("PAUSE"));
 
         // Set up signal handlers for animation restart loop
         capture.addHandler("ONFINISHED^ELAPSE", (var, signal, args) -> {
@@ -272,11 +273,7 @@ class AnimoTest {
         });
 
         capture.addHandler("ONFRAMECHANGED^ELAPSE", (var, signal, args) -> {
-            opacity[0] -= 4;
-            // When opacity <= 0, pause the animation (simulating original behavior)
-            if (opacity[0] <= 0) {
-                var.callMethod("PAUSE");
-            }
+            opacity.callMethod("SUB", new IntValue(4));
         });
 
         animo = capture.wrapAnimo(animo);
