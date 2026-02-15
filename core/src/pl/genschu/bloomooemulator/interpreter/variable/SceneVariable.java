@@ -1,11 +1,7 @@
 package pl.genschu.bloomooemulator.interpreter.variable;
 
 import pl.genschu.bloomooemulator.interpreter.helpers.ArgumentHelper;
-import pl.genschu.bloomooemulator.interpreter.runtime.effects.RunMethodEffect;
-import pl.genschu.bloomooemulator.interpreter.runtime.effects.UpdateVariableEffect;
 import pl.genschu.bloomooemulator.interpreter.values.*;
-import pl.genschu.bloomooemulator.interpreter.variable.ArgKind;
-import pl.genschu.bloomooemulator.interpreter.variable.MethodSpec;
 
 import java.util.*;
 
@@ -98,94 +94,95 @@ public record SceneVariable(
     // ========================================
 
     private static final Map<String, MethodSpec> METHODS = Map.ofEntries(
-        Map.entry("GETMINHSPRIORITY", MethodSpec.of((self, args) -> {
+        Map.entry("GETMINHSPRIORITY", MethodSpec.of((self, args, ctx) -> {
             SceneVariable thisVar = (SceneVariable) self;
             return MethodResult.returns(new IntValue(thisVar.minHotSpotZ));
         })),
 
-        Map.entry("GETMAXHSPRIORITY", MethodSpec.of((self, args) -> {
+        Map.entry("GETMAXHSPRIORITY", MethodSpec.of((self, args, ctx) -> {
             SceneVariable thisVar = (SceneVariable) self;
             return MethodResult.returns(new IntValue(thisVar.maxHotSpotZ));
         })),
 
-        Map.entry("GETPLAYINGANIMO", MethodSpec.of((self, args) -> {
+        Map.entry("GETPLAYINGANIMO", MethodSpec.of((self, args, ctx) -> {
             // Get playing animations into group - handled by interpreter
             return MethodResult.noReturn();
         })),
 
-        Map.entry("PAUSE", MethodSpec.of((self, args) -> {
+        Map.entry("PAUSE", MethodSpec.of((self, args, ctx) -> {
             // Pause scene - handled by interpreter/game
             return MethodResult.noReturn();
         })),
 
-        Map.entry("REMOVECLONES", MethodSpec.of((self, args) -> {
+        Map.entry("REMOVECLONES", MethodSpec.of((self, args, ctx) -> {
             // Remove clones - handled by interpreter
             return MethodResult.noReturn();
         })),
 
-        Map.entry("RESUME", MethodSpec.of((self, args) -> {
+        Map.entry("RESUME", MethodSpec.of((self, args, ctx) -> {
             // Resume scene - handled by interpreter/game
             return MethodResult.noReturn();
         })),
 
-        Map.entry("RESUMEONLY", MethodSpec.of((self, args) -> {
+        Map.entry("RESUMEONLY", MethodSpec.of((self, args, ctx) -> {
             // Resume only specified group - handled by interpreter/game
             return MethodResult.noReturn();
         })),
 
-        Map.entry("RUN", MethodSpec.of((self, args) -> {
+        Map.entry("RUN", MethodSpec.of((self, args, ctx) -> {
             if (args.size() < 2) {
                 throw new IllegalArgumentException("RUN requires at least 2 arguments");
             }
             String varName = ArgumentHelper.getString(args.get(0));
             String methodName = ArgumentHelper.getString(args.get(1));
             List<Value> params = args.size() > 2 ? args.subList(2, args.size()) : List.of();
-            return MethodResult.effects(List.of(new RunMethodEffect(varName, methodName, params)));
+            Variable target = ctx.getVariable(varName);
+            return target.callMethod(methodName, params, ctx);
         })),
 
-        Map.entry("RUNCLONES", MethodSpec.of((self, args) -> {
+        Map.entry("RUNCLONES", MethodSpec.of((self, args, ctx) -> {
             // Run behaviour on clones - handled by interpreter
             return MethodResult.noReturn();
         })),
 
-        Map.entry("SETMINHSPRIORITY", MethodSpec.of((self, args) -> {
+        Map.entry("SETMINHSPRIORITY", MethodSpec.of((self, args, ctx) -> {
             SceneVariable thisVar = (SceneVariable) self;
             if (args.isEmpty()) {
                 throw new IllegalArgumentException("SETMINHSPRIORITY requires 1 argument");
             }
             int newMin = ArgumentHelper.getInt(args.get(0));
-            return MethodResult.effects(List.of(new UpdateVariableEffect(
-                thisVar.name(), thisVar.withMinHotSpotZ(newMin))));
+            ctx.updateVariable(thisVar.name(), thisVar.withMinHotSpotZ(newMin));
+            return MethodResult.noReturn();
         })),
 
-        Map.entry("SETMAXHSPRIORITY", MethodSpec.of((self, args) -> {
+        Map.entry("SETMAXHSPRIORITY", MethodSpec.of((self, args, ctx) -> {
             SceneVariable thisVar = (SceneVariable) self;
             if (args.isEmpty()) {
                 throw new IllegalArgumentException("SETMAXHSPRIORITY requires 1 argument");
             }
             int newMax = ArgumentHelper.getInt(args.get(0));
-            return MethodResult.effects(List.of(new UpdateVariableEffect(
-                thisVar.name(), thisVar.withMaxHotSpotZ(newMax))));
+            ctx.updateVariable(thisVar.name(), thisVar.withMaxHotSpotZ(newMax));
+            return MethodResult.noReturn();
         })),
 
-        Map.entry("SETMUSICVOLUME", MethodSpec.of((self, args) -> {
+        Map.entry("SETMUSICVOLUME", MethodSpec.of((self, args, ctx) -> {
             SceneVariable thisVar = (SceneVariable) self;
             if (args.isEmpty()) {
                 throw new IllegalArgumentException("SETMUSICVOLUME requires 1 argument");
             }
             int newVolume = ArgumentHelper.getInt(args.get(0));
-            return MethodResult.effects(List.of(new UpdateVariableEffect(
-                thisVar.name(), thisVar.withMusicVolume(newVolume))));
+            ctx.updateVariable(thisVar.name(), thisVar.withMusicVolume(newVolume));
+            return MethodResult.noReturn();
         })),
 
-        Map.entry("STARTMUSIC", MethodSpec.of((self, args) -> {
+        Map.entry("STARTMUSIC", MethodSpec.of((self, args, ctx) -> {
             SceneVariable thisVar = (SceneVariable) self;
             if (args.isEmpty()) {
                 throw new IllegalArgumentException("STARTMUSIC requires 1 argument");
             }
             String musicFile = ArgumentHelper.getString(args.get(0));
-            return MethodResult.effects(List.of(new UpdateVariableEffect(
-                thisVar.name(), thisVar.withMusic(musicFile))));
+            ctx.updateVariable(thisVar.name(), thisVar.withMusic(musicFile));
+            return MethodResult.noReturn();
         }))
     );
 

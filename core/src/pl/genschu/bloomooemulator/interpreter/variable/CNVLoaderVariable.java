@@ -128,7 +128,7 @@ public record CNVLoaderVariable(
     // ========================================
 
     private static final Map<String, MethodSpec> METHODS = Map.ofEntries(
-        Map.entry("LOAD", MethodSpec.of((self, args) -> {
+        Map.entry("LOAD", MethodSpec.of((self, args, ctx) -> {
             CNVLoaderVariable thisVar = (CNVLoaderVariable) self;
             if (args.isEmpty()) {
                 throw new IllegalArgumentException("LOAD requires 1 argument (cnvFile)");
@@ -161,7 +161,7 @@ public record CNVLoaderVariable(
             );
         })),
 
-        Map.entry("RELEASE", MethodSpec.of((self, args) -> {
+        Map.entry("RELEASE", MethodSpec.of((self, args, ctx) -> {
             CNVLoaderVariable thisVar = (CNVLoaderVariable) self;
             if (args.isEmpty()) {
                 throw new IllegalArgumentException("RELEASE requires 1 argument (cnvFile)");

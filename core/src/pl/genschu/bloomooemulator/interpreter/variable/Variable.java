@@ -1,11 +1,9 @@
 package pl.genschu.bloomooemulator.interpreter.variable;
 
 import pl.genschu.bloomooemulator.interpreter.helpers.ArgumentHelper;
-import pl.genschu.bloomooemulator.interpreter.runtime.effects.AddBehaviourEffect;
-import pl.genschu.bloomooemulator.interpreter.runtime.effects.CloneEffect;
-import pl.genschu.bloomooemulator.interpreter.runtime.effects.RemoveBehaviourEffect;
 import pl.genschu.bloomooemulator.interpreter.values.*;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.function.BiFunction;
@@ -54,67 +52,107 @@ public sealed interface Variable permits
     /**
      * Sets the value of this variable in-place (mutates via MutableValue holder).
      * Returns this variable for chaining.
-     *
-     * Example:
-     *   IntVariable x = new IntVariable("x", 10, ...);
-     *   x.withValue(new IntValue(20));
-     *   // x now has value 20
      */
     Variable withValue(Value newValue);
 
     /**
-     * Calls a method on this variable and returns the result.
-     * Methods mutate the variable in-place via MutableValue holders.
-     *
-     * Example:
-     *   IntVariable x = new IntVariable("x", 10, ...);
-     *   MethodResult result = x.callMethod("ADD", List.of(new IntValue(5)));
-     *   // x.value() is now IntValue(15)
-     *   // result.returnValue() is IntValue(15)
+     * Calls a method on this variable with context access.
+     * This is the primary overload used by the interpreter.
      */
-    default MethodResult callMethod(String methodName, Value... arguments) {
-        return callMethod(methodName, arguments != null ? List.of(arguments) : List.of());
-    }
-
-    default MethodResult callMethod(String methodName, List<Value> arguments) {
+    default MethodResult callMethod(String methodName, List<Value> arguments, MethodContext ctx) {
         Map<String, MethodSpec> availableMethods = methods();
         MethodSpec spec = availableMethods != null
                 ? availableMethods.get(methodName.toUpperCase())
                 : null;
 
         if (spec == null || spec.method() == null) {
-            MethodSpec global = globalMethods().get(methodName);
+            MethodSpec global = globalMethods().get(methodName.toUpperCase());
             if (global == null || global.method() == null) {
                 throw new IllegalArgumentException("Method not found: " + methodName + " on " + type() + " variable");
             }
-            return global.method().execute(this, arguments == null ? List.of() : arguments);
+            return global.method().execute(this, arguments == null ? List.of() : arguments, ctx);
         }
 
-        return spec.method().execute(this, arguments == null ? List.of() : arguments);
+        return spec.method().execute(this, arguments == null ? List.of() : arguments, ctx);
+    }
+
+    /**
+     * Calls a method without context (convenience for tests and internal variable calls).
+     */
+    default MethodResult callMethod(String methodName, List<Value> arguments) {
+        return callMethod(methodName, arguments, null);
+    }
+
+    /**
+     * Calls a method without context (varargs convenience).
+     */
+    default MethodResult callMethod(String methodName, Value... arguments) {
+        return callMethod(methodName, arguments != null ? List.of(arguments) : List.of(), null);
     }
 
     /**
      * Global methods available on all variable types.
      */
     Map<String, MethodSpec> GLOBAL_METHODS = Map.ofEntries(
-            Map.entry("ADDBEHAVIOUR", MethodSpec.of((self, args) -> {
+            Map.entry("ADDBEHAVIOUR", MethodSpec.of((self, args, ctx) -> {
                 if (args == null || args.size() < 2) {
                     throw new IllegalArgumentException("ADDBEHAVIOUR requires 2 arguments: signalName, behaviourName");
                 }
-                String signalName = ArgumentHelper.getString(args.get(0));
+                String rawSignalName = ArgumentHelper.getString(args.get(0));
+                String signalName = rawSignalName.replace("$", "^");
                 String behaviourSpec = ArgumentHelper.getString(args.get(1));
-                return MethodResult.effects(List.of(new AddBehaviourEffect(signalName, behaviourSpec)));
+
+                // Parse behaviour spec - may have parameters like "MYBEHAVIOUR(\"param1\", VAR)"
+                String behaviourName = behaviourSpec;
+                String[] params = null;
+                if (behaviourSpec.contains("(") && behaviourSpec.endsWith(")")) {
+                    int parenStart = behaviourSpec.indexOf('(');
+                    behaviourName = behaviourSpec.substring(0, parenStart).trim();
+                    String paramStr = behaviourSpec.substring(parenStart + 1, behaviourSpec.length() - 1);
+                    if (!paramStr.isEmpty()) {
+                        params = paramStr.split(",");
+                        for (int i = 0; i < params.length; i++) {
+                            params[i] = params[i].trim();
+                        }
+                    }
+                }
+
+                Variable behaviourVar = ctx.getVariable(behaviourName.trim());
+                if (!(behaviourVar instanceof BehaviourVariable behaviour)) {
+                    return MethodResult.noReturn();
+                }
+
+                final String[] finalParams = params;
+                SignalHandler handler = (variable, signal, signalArgs) -> {
+                    List<Value> resolvedParams = resolveSignalParams(finalParams, ctx);
+                    ctx.runBehaviour("Signal:" + signal, variable, behaviour, resolvedParams);
+                };
+
+                Variable updated = self.withSignal(signalName, handler);
+                ctx.updateVariable(self.name(), updated);
+                return MethodResult.noReturn();
             })),
 
-            Map.entry("CLONE", MethodSpec.of((self, args) -> {
+            Map.entry("CLONE", MethodSpec.of((self, args, ctx) -> {
                 int amount = 1;
                 if (args != null && !args.isEmpty()) {
                     amount = ArgumentHelper.getInt(args.get(0));
                 }
-                return MethodResult.effects(List.of(new CloneEffect(amount)));
+                int count = Math.max(0, amount);
+                if (count > 0) {
+                    String baseName = self.name();
+                    int existing = ctx.clones().getCloneNames(baseName).size();
+                    for (int i = 0; i < count; i++) {
+                        String cloneName = baseName + "_" + (existing + i + 1);
+                        Variable clone = self.copyAs(cloneName);
+                        ctx.setVariable(cloneName, clone);
+                        ctx.clones().registerClone(baseName, cloneName);
+                    }
+                }
+                return MethodResult.noReturn();
             })),
 
-            Map.entry("GETCLONEINDEX", MethodSpec.of((self, args) -> {
+            Map.entry("GETCLONEINDEX", MethodSpec.of((self, args, ctx) -> {
                 String name = self.name();
                 int idx = 0;
                 int pos = name.lastIndexOf('_');
@@ -128,20 +166,22 @@ public sealed interface Variable permits
                 return MethodResult.returns(new IntValue(idx));
             })),
 
-            Map.entry("REMOVEBEHAVIOUR", MethodSpec.of((self, args) -> {
+            Map.entry("REMOVEBEHAVIOUR", MethodSpec.of((self, args, ctx) -> {
                 if (args == null || args.isEmpty()) {
                     throw new IllegalArgumentException("REMOVEBEHAVIOUR requires 1 argument: signalName");
                 }
-                String signalName = ArgumentHelper.getString(args.get(0));
-                return MethodResult.effects(List.of(new RemoveBehaviourEffect(signalName)));
+                String rawSignalName = ArgumentHelper.getString(args.get(0));
+                String signalName = rawSignalName.replace("$", "^");
+                Variable updated = self.withSignal(signalName, null);
+                ctx.updateVariable(self.name(), updated);
+                return MethodResult.noReturn();
             })),
 
-            Map.entry("SEND", MethodSpec.of((self, args) -> {
+            Map.entry("SEND", MethodSpec.of((self, args, ctx) -> {
                 if (args == null || args.isEmpty()) {
                     throw new IllegalArgumentException("SEND requires 1 argument: signal");
                 }
                 String signal = ArgumentHelper.getString(args.get(0));
-
                 self.emitSignal("ONSIGNAL", new StringValue(signal));
                 return MethodResult.noReturn();
             }))
@@ -248,5 +288,28 @@ public sealed interface Variable permits
         } catch (Exception e) {
             throw new RuntimeException("Conversion failed to " + target, e);
         }
+    }
+
+    // ========================================
+    // PRIVATE HELPERS FOR GLOBAL METHODS
+    // ========================================
+
+    private static List<Value> resolveSignalParams(String[] params, MethodContext ctx) {
+        if (params == null) return List.of();
+        List<Value> resolved = new ArrayList<>(params.length);
+        for (String param : params) {
+            if (param.startsWith("\"") && param.endsWith("\"")) {
+                param = param.substring(1, param.length() - 1);
+                resolved.add(new StringValue(param));
+                continue;
+            }
+            Variable paramVar = ctx.getVariable(param.substring(1));
+            if (paramVar != null) {
+                resolved.add(paramVar.value());
+                continue;
+            }
+            resolved.add(new StringValue(param));
+        }
+        return resolved;
     }
 }

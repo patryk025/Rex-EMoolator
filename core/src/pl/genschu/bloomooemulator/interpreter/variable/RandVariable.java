@@ -2,7 +2,6 @@ package pl.genschu.bloomooemulator.interpreter.variable;
 
 import pl.genschu.bloomooemulator.interpreter.helpers.ArgumentHelper;
 import pl.genschu.bloomooemulator.interpreter.values.*;
-import pl.genschu.bloomooemulator.utils.LegacyArgumentsHelper;
 
 import java.util.*;
 
@@ -93,7 +92,7 @@ public record RandVariable(
     // ========================================
 
     private static final Map<String, MethodSpec> METHODS = Map.ofEntries(
-        Map.entry("GET", MethodSpec.of((self, args) -> {
+        Map.entry("GET", MethodSpec.of((self, args, ctx) -> {
             if (args.isEmpty()) {
                 throw new IllegalArgumentException("GET requires at least 1 argument");
             }

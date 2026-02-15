@@ -107,15 +107,15 @@ public record BoolVariable(
     // ========================================
 
     private static final Map<String, MethodSpec> METHODS = Map.ofEntries(
-        Map.entry("GET", MethodSpec.of((self, args) -> MethodResult.returns(self.value()))),
+        Map.entry("GET", MethodSpec.of((self, args, ctx) -> MethodResult.returns(self.value()))),
 
-        Map.entry("RESETINI", MethodSpec.of((self, args) -> {
+        Map.entry("RESETINI", MethodSpec.of((self, args, ctx) -> {
             BoolVariable thisVar = (BoolVariable) self;
             // TODO: Get DEFAULT value from INI file
             return MethodResult.noReturn();
         })),
 
-        Map.entry("SET", MethodSpec.of((self, args) -> {
+        Map.entry("SET", MethodSpec.of((self, args, ctx) -> {
             BoolVariable thisVar = (BoolVariable) self;
             if (args.isEmpty()) {
                 throw new IllegalArgumentException("SET requires 1 argument");
@@ -126,7 +126,7 @@ public record BoolVariable(
             return MethodResult.returns(result);
         })),
 
-        Map.entry("SWITCH", MethodSpec.of((self, args) -> {
+        Map.entry("SWITCH", MethodSpec.of((self, args, ctx) -> {
             BoolVariable thisVar = (BoolVariable) self;
             if (args.size() < 2) {
                 throw new IllegalArgumentException("SWITCH requires 2 arguments");

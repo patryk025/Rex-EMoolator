@@ -8,12 +8,11 @@ import org.junit.jupiter.params.provider.Arguments;
 
 import pl.genschu.bloomooemulator.TestEnvironment;
 import pl.genschu.bloomooemulator.builders.ContextBuilder;
+import pl.genschu.bloomooemulator.builders.MethodHelper;
 import pl.genschu.bloomooemulator.interpreter.context.Context;
-import pl.genschu.bloomooemulator.interpreter.runtime.effects.Effect;
 import pl.genschu.bloomooemulator.interpreter.values.DoubleValue;
 import pl.genschu.bloomooemulator.interpreter.values.IntValue;
 import pl.genschu.bloomooemulator.interpreter.values.VariableValue;
-import pl.genschu.bloomooemulator.interpreter.variable.MethodResult;
 import pl.genschu.bloomooemulator.interpreter.variable.VectorVariable;
 
 import java.util.List;
@@ -147,13 +146,13 @@ class VectorTest {
         normal.callMethod("ASSIGN", new DoubleValue(nx), new DoubleValue(ny));
 
         VectorVariable result = (VectorVariable) new VectorVariable("R").withSize(2);
-        MethodResult methodResult = vector.callMethod("REFLECT", new VariableValue(normal), new VariableValue(result));
 
-        // Just little hack to apply the effect that updates 'result' variable
+        // Set up context with the result variable so REFLECT can update it via ctx
         Context context = new ContextBuilder().build();
-        Effect effect = methodResult.effects().get(0);
         context.setVariable("R", result);
-        effect.apply(context, result, List.of());
+
+        MethodHelper.callWithContext(context, vector, "REFLECT",
+                new VariableValue(normal), new VariableValue(result));
 
         result = (VectorVariable) context.getVariable("R");
 

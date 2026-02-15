@@ -93,36 +93,28 @@ public record StructVariable(
     }
 
     private static final Map<String, MethodSpec> METHODS = Map.ofEntries(
-        Map.entry("GETFIELD", MethodSpec.of((self, args) -> {
+        Map.entry("GETFIELD", MethodSpec.of((self, args, ctx) -> {
             StructVariable thisVar = (StructVariable) self;
             int idx = ArgumentHelper.getInt(args, 0, 0);
             return MethodResult.returns(thisVar.getFieldByIndex(idx));
         })),
 
-        Map.entry("SET", MethodSpec.of((self, args) -> {
+        Map.entry("SET", MethodSpec.of((self, args, ctx) -> {
             StructVariable thisVar = (StructVariable) self;
             if (args == null || args.isEmpty()) {
                 return MethodResult.noReturn();
             }
             Value cursorRef = args.get(0);
 
-            if (cursorRef instanceof VariableValue(Variable variable) && variable instanceof DatabaseCursorVariable(DatabaseVariable dbVar)) {
+            DatabaseCursorVariable cursor = resolveCursor(cursorRef, ctx);
+            if (cursor != null) {
+                DatabaseVariable dbVar = cursor.db();
                 List<String> currentRow = dbVar.state().currentRow();
                 List<String> types = thisVar.types();
                 List<Value> newValues = new ArrayList<>(thisVar.fields().size());
 
                 for (int i = 0; i < thisVar.fields().size(); i++) {
-                    String rawValue = (i < currentRow.size()) ? currentRow.get(i) : "";
-                    String type = (i < types.size()) ? types.get(i).toUpperCase() : "STRING";
-
-                    StringValue rawStringValue = new StringValue(rawValue);
-                    Value converted;
-                    switch (type) {
-                        case "INTEGER" -> converted = rawStringValue.toInt();
-                        case "DOUBLE" -> converted = rawStringValue.toDouble();
-                        case "BOOLEAN" -> converted = rawStringValue.toBool();
-                        default -> converted = rawStringValue;
-                    }
+                    Value converted = getValue(i, currentRow, types);
                     newValues.add(converted);
                 }
 
@@ -131,6 +123,32 @@ public record StructVariable(
             }
 
             return MethodResult.noReturn();
-        }, ArgKind.VAR_REF))
+        }))
     );
+
+    private static Value getValue(int i, List<String> currentRow, List<String> types) {
+        String rawValue = (i < currentRow.size()) ? currentRow.get(i) : "";
+        String type = (i < types.size()) ? types.get(i).toUpperCase() : "STRING";
+
+        StringValue rawStringValue = new StringValue(rawValue);
+        Value converted;
+        switch (type) {
+            case "INTEGER" -> converted = rawStringValue.toInt();
+            case "DOUBLE" -> converted = rawStringValue.toDouble();
+            case "BOOLEAN" -> converted = rawStringValue.toBool();
+            default -> converted = rawStringValue;
+        }
+        return converted;
+    }
+
+    private static DatabaseCursorVariable resolveCursor(Value value, MethodContext ctx) {
+        if (value instanceof VariableValue(Variable variable) && variable instanceof DatabaseCursorVariable cursor) {
+            return cursor;
+        }
+        if (value instanceof StringValue(String value1) && ctx != null) {
+            Variable resolved = ctx.getVariable(value1);
+            if (resolved instanceof DatabaseCursorVariable cursor) return cursor;
+        }
+        return null;
+    }
 }

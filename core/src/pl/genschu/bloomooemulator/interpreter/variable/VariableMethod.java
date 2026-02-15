@@ -18,7 +18,8 @@ public interface VariableMethod {
      *
      * @param self The variable this method is called on
      * @param arguments The arguments passed to the method
-     * @return MethodResult containing new state and return value
+     * @param ctx The method context for runtime access (may be null when called outside interpreter)
+     * @return MethodResult containing return value
      */
-    MethodResult execute(Variable self, List<Value> arguments);
+    MethodResult execute(Variable self, List<Value> arguments, MethodContext ctx);
 }

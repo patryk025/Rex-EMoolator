@@ -95,7 +95,7 @@ public record ClassVariable(
     // ========================================
 
     private static final Map<String, MethodSpec> METHODS = Map.ofEntries(
-        Map.entry("NEW", MethodSpec.of((self, args) -> {
+        Map.entry("NEW", MethodSpec.of((self, args, ctx) -> {
             ClassVariable thisVar = (ClassVariable) self;
             if (args.isEmpty()) {
                 throw new IllegalArgumentException("NEW requires at least 1 argument (varName)");
@@ -121,7 +121,7 @@ public record ClassVariable(
             );
         })),
 
-        Map.entry("DELETE", MethodSpec.of((self, args) -> {
+        Map.entry("DELETE", MethodSpec.of((self, args, ctx) -> {
             ClassVariable thisVar = (ClassVariable) self;
             if (args.isEmpty()) {
                 throw new IllegalArgumentException("DELETE requires at least 1 argument (varName)");

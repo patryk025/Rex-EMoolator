@@ -119,7 +119,7 @@ public record IntegerVariable(
     // ========================================
 
     private static final Map<String, MethodSpec> METHODS = Map.ofEntries(
-        Map.entry("ABS", MethodSpec.of((self, args) -> {
+        Map.entry("ABS", MethodSpec.of((self, args, ctx) -> {
             IntegerVariable thisVar = (IntegerVariable) self;
             if (args.isEmpty()) {
                 throw new IllegalArgumentException("ABS requires 1 argument");
@@ -130,7 +130,7 @@ public record IntegerVariable(
             return MethodResult.returns(result);
         })),
 
-        Map.entry("ADD", MethodSpec.of((self, args) -> {
+        Map.entry("ADD", MethodSpec.of((self, args, ctx) -> {
             IntegerVariable thisVar = (IntegerVariable) self;
             if (args.isEmpty()) {
                 throw new IllegalArgumentException("ADD requires 1 argument");
@@ -141,7 +141,7 @@ public record IntegerVariable(
             return MethodResult.returns(result);
         })),
 
-        Map.entry("AND", MethodSpec.of((self, args) -> {
+        Map.entry("AND", MethodSpec.of((self, args, ctx) -> {
             IntegerVariable thisVar = (IntegerVariable) self;
             if (args.isEmpty()) {
                 throw new IllegalArgumentException("AND requires 1 argument");
@@ -152,7 +152,7 @@ public record IntegerVariable(
             return MethodResult.returns(result);
         })),
 
-        Map.entry("CLAMP", MethodSpec.of((self, args) -> {
+        Map.entry("CLAMP", MethodSpec.of((self, args, ctx) -> {
             IntegerVariable thisVar = (IntegerVariable) self;
             if (args.size() < 2) {
                 throw new IllegalArgumentException("CLAMP requires 2 arguments");
@@ -165,21 +165,21 @@ public record IntegerVariable(
             return MethodResult.returns(result);
         })),
 
-        Map.entry("CLEAR", MethodSpec.of((self, args) -> {
+        Map.entry("CLEAR", MethodSpec.of((self, args, ctx) -> {
             IntegerVariable thisVar = (IntegerVariable) self;
             IntValue result = new IntValue(0);
             thisVar.setValue(result);
             return MethodResult.returns(result);
         })),
 
-        Map.entry("DEC", MethodSpec.of((self, args) -> {
+        Map.entry("DEC", MethodSpec.of((self, args, ctx) -> {
             IntegerVariable thisVar = (IntegerVariable) self;
             IntValue result = new IntValue(thisVar.getInt() - 1);
             thisVar.setValue(result);
             return MethodResult.returns(result);
         })),
 
-        Map.entry("DIV", MethodSpec.of((self, args) -> {
+        Map.entry("DIV", MethodSpec.of((self, args, ctx) -> {
             IntegerVariable thisVar = (IntegerVariable) self;
             if (args.isEmpty()) {
                 throw new IllegalArgumentException("DIV requires 1 argument");
@@ -193,16 +193,16 @@ public record IntegerVariable(
             return MethodResult.returns(result);
         })),
 
-        Map.entry("GET", MethodSpec.of((self, args) -> MethodResult.returns(self.value()))),
+        Map.entry("GET", MethodSpec.of((self, args, ctx) -> MethodResult.returns(self.value()))),
 
-        Map.entry("INC", MethodSpec.of((self, args) -> {
+        Map.entry("INC", MethodSpec.of((self, args, ctx) -> {
             IntegerVariable thisVar = (IntegerVariable) self;
             IntValue result = new IntValue(thisVar.getInt() + 1);
             thisVar.setValue(result);
             return MethodResult.returns(result);
         })),
 
-        Map.entry("LENGTH", MethodSpec.of((self, args) -> {
+        Map.entry("LENGTH", MethodSpec.of((self, args, ctx) -> {
             IntegerVariable thisVar = (IntegerVariable) self;
             if (args.size() < 2) {
                 throw new IllegalArgumentException("LENGTH requires 2 arguments");
@@ -215,7 +215,7 @@ public record IntegerVariable(
             return MethodResult.returns(result);
         })),
 
-        Map.entry("MOD", MethodSpec.of((self, args) -> {
+        Map.entry("MOD", MethodSpec.of((self, args, ctx) -> {
             IntegerVariable thisVar = (IntegerVariable) self;
             if (args.isEmpty()) {
                 throw new IllegalArgumentException("MOD requires 1 argument");
@@ -229,7 +229,7 @@ public record IntegerVariable(
             return MethodResult.returns(result);
         })),
 
-        Map.entry("MUL", MethodSpec.of((self, args) -> {
+        Map.entry("MUL", MethodSpec.of((self, args, ctx) -> {
             IntegerVariable thisVar = (IntegerVariable) self;
             if (args.isEmpty()) {
                 throw new IllegalArgumentException("MUL requires 1 argument");
@@ -240,14 +240,14 @@ public record IntegerVariable(
             return MethodResult.returns(result);
         })),
 
-        Map.entry("NOT", MethodSpec.of((self, args) -> {
+        Map.entry("NOT", MethodSpec.of((self, args, ctx) -> {
             IntegerVariable thisVar = (IntegerVariable) self;
             IntValue result = new IntValue(~thisVar.getInt());
             thisVar.setValue(result);
             return MethodResult.returns(result);
         })),
 
-        Map.entry("OR", MethodSpec.of((self, args) -> {
+        Map.entry("OR", MethodSpec.of((self, args, ctx) -> {
             IntegerVariable thisVar = (IntegerVariable) self;
             if (args.isEmpty()) {
                 throw new IllegalArgumentException("OR requires 1 argument");
@@ -258,7 +258,7 @@ public record IntegerVariable(
             return MethodResult.returns(result);
         })),
 
-        Map.entry("POWER", MethodSpec.of((self, args) -> {
+        Map.entry("POWER", MethodSpec.of((self, args, ctx) -> {
             IntegerVariable thisVar = (IntegerVariable) self;
             if (args.isEmpty()) {
                 throw new IllegalArgumentException("POWER requires 1 argument");
@@ -276,7 +276,7 @@ public record IntegerVariable(
             return MethodResult.returns(result);
         })),
 
-        Map.entry("RANDOM", MethodSpec.of((self, args) -> {
+        Map.entry("RANDOM", MethodSpec.of((self, args, ctx) -> {
             IntegerVariable thisVar = (IntegerVariable) self;
             if (args.isEmpty()) {
                 throw new IllegalArgumentException("RANDOM requires 1 or 2 arguments");
@@ -297,13 +297,13 @@ public record IntegerVariable(
             return MethodResult.returns(result);
         })),
 
-        Map.entry("RESETINI", MethodSpec.of((self, args) -> {
+        Map.entry("RESETINI", MethodSpec.of((self, args, ctx) -> {
             IntegerVariable thisVar = (IntegerVariable) self;
             // TODO: Get DEFAULT value from INI file
             return MethodResult.returns(thisVar.value());
         })),
 
-        Map.entry("SET", MethodSpec.of((self, args) -> {
+        Map.entry("SET", MethodSpec.of((self, args, ctx) -> {
             IntegerVariable thisVar = (IntegerVariable) self;
             if (args.isEmpty()) {
                 throw new IllegalArgumentException("SET requires 1 argument");
@@ -314,7 +314,7 @@ public record IntegerVariable(
             return MethodResult.returns(result);
         })),
 
-        Map.entry("SUB", MethodSpec.of((self, args) -> {
+        Map.entry("SUB", MethodSpec.of((self, args, ctx) -> {
             IntegerVariable thisVar = (IntegerVariable) self;
             if (args.isEmpty()) {
                 throw new IllegalArgumentException("SUB requires 1 argument");
@@ -325,7 +325,7 @@ public record IntegerVariable(
             return MethodResult.returns(result);
         })),
 
-        Map.entry("SWITCH", MethodSpec.of((self, args) -> {
+        Map.entry("SWITCH", MethodSpec.of((self, args, ctx) -> {
             IntegerVariable thisVar = (IntegerVariable) self;
             if (args.size() < 2) {
                 throw new IllegalArgumentException("SWITCH requires 2 arguments");
@@ -338,7 +338,7 @@ public record IntegerVariable(
             return MethodResult.returns(result);
         })),
 
-        Map.entry("XOR", MethodSpec.of((self, args) -> {
+        Map.entry("XOR", MethodSpec.of((self, args, ctx) -> {
             IntegerVariable thisVar = (IntegerVariable) self;
             if (args.isEmpty()) {
                 throw new IllegalArgumentException("XOR requires 1 argument");

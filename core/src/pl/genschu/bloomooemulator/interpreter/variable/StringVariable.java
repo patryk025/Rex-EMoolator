@@ -111,7 +111,7 @@ public record StringVariable(
     // ========================================
 
     private static final Map<String, MethodSpec> METHODS = Map.ofEntries(
-        Map.entry("ADD", MethodSpec.of((self, args) -> {
+        Map.entry("ADD", MethodSpec.of((self, args, ctx) -> {
             StringVariable thisVar = (StringVariable) self;
             if (args.isEmpty()) {
                 throw new IllegalArgumentException("ADD requires 1 argument");
@@ -122,7 +122,7 @@ public record StringVariable(
             return MethodResult.returns(result);
         })),
 
-        Map.entry("CHANGEAT", MethodSpec.of((self, args) -> {
+        Map.entry("CHANGEAT", MethodSpec.of((self, args, ctx) -> {
             StringVariable thisVar = (StringVariable) self;
             if (args.size() < 2) {
                 throw new IllegalArgumentException("CHANGEAT requires 2 arguments");
@@ -139,7 +139,7 @@ public record StringVariable(
             return MethodResult.returns(result);
         })),
 
-        Map.entry("CUT", MethodSpec.of((self, args) -> {
+        Map.entry("CUT", MethodSpec.of((self, args, ctx) -> {
             StringVariable thisVar = (StringVariable) self;
             if (args.size() < 2) {
                 throw new IllegalArgumentException("CUT requires 2 arguments");
@@ -158,7 +158,7 @@ public record StringVariable(
             return MethodResult.returns(result);
         })),
 
-        Map.entry("FIND", MethodSpec.of((self, args) -> {
+        Map.entry("FIND", MethodSpec.of((self, args, ctx) -> {
             StringVariable thisVar = (StringVariable) self;
             if (args.isEmpty()) {
                 throw new IllegalArgumentException("FIND requires at least 1 argument");
@@ -169,7 +169,7 @@ public record StringVariable(
             return MethodResult.returns(new IntValue(index));
         })),
 
-        Map.entry("GET", MethodSpec.of((self, args) -> {
+        Map.entry("GET", MethodSpec.of((self, args, ctx) -> {
             StringVariable thisVar = (StringVariable) self;
             if (args.isEmpty()) {
                 return MethodResult.returns(self.value());
@@ -184,12 +184,12 @@ public record StringVariable(
             return MethodResult.returns(new StringValue(value.substring(index, endIndex)));
         })),
 
-        Map.entry("LENGTH", MethodSpec.of((self, args) -> {
+        Map.entry("LENGTH", MethodSpec.of((self, args, ctx) -> {
             StringVariable thisVar = (StringVariable) self;
             return MethodResult.returns(new IntValue(thisVar.getString().length()));
         })),
 
-        Map.entry("REPLACEAT", MethodSpec.of((self, args) -> {
+        Map.entry("REPLACEAT", MethodSpec.of((self, args, ctx) -> {
             StringVariable thisVar = (StringVariable) self;
             if (args.size() < 3) {
                 throw new IllegalArgumentException("REPLACEAT requires 3 arguments");
@@ -208,13 +208,13 @@ public record StringVariable(
             return MethodResult.returns(result);
         })),
 
-        Map.entry("RESETINI", MethodSpec.of((self, args) -> {
+        Map.entry("RESETINI", MethodSpec.of((self, args, ctx) -> {
             StringVariable thisVar = (StringVariable) self;
             // TODO: Get DEFAULT value from INI file
             return MethodResult.returns(thisVar.value());
         })),
 
-        Map.entry("SET", MethodSpec.of((self, args) -> {
+        Map.entry("SET", MethodSpec.of((self, args, ctx) -> {
             StringVariable thisVar = (StringVariable) self;
             if (args.isEmpty()) {
                 throw new IllegalArgumentException("SET requires 1 argument");
@@ -225,7 +225,7 @@ public record StringVariable(
             return MethodResult.returns(result);
         })),
 
-        Map.entry("SUB", MethodSpec.of((self, args) -> {
+        Map.entry("SUB", MethodSpec.of((self, args, ctx) -> {
             StringVariable thisVar = (StringVariable) self;
             if (args.size() < 2) {
                 throw new IllegalArgumentException("SUB requires 2 arguments");
@@ -243,14 +243,14 @@ public record StringVariable(
             return MethodResult.returns(result);
         })),
 
-        Map.entry("UPPER", MethodSpec.of((self, args) -> {
+        Map.entry("UPPER", MethodSpec.of((self, args, ctx) -> {
             StringVariable thisVar = (StringVariable) self;
             StringValue result = new StringValue(thisVar.getString().toUpperCase());
             thisVar.setValue(result);
             return MethodResult.returns(result);
         })),
 
-        Map.entry("LOWER", MethodSpec.of((self, args) -> {
+        Map.entry("LOWER", MethodSpec.of((self, args, ctx) -> {
             StringVariable thisVar = (StringVariable) self;
             StringValue result = new StringValue(thisVar.getString().toLowerCase());
             thisVar.setValue(result);

@@ -1,12 +1,10 @@
 package pl.genschu.bloomooemulator.interpreter.variable;
 
 import pl.genschu.bloomooemulator.interpreter.ast.ASTNode;
-import pl.genschu.bloomooemulator.interpreter.runtime.effects.RunBehaviourEffect;
 import pl.genschu.bloomooemulator.interpreter.values.NullValue;
 import pl.genschu.bloomooemulator.interpreter.values.Value;
 import pl.genschu.bloomooemulator.loader.BehaviourCodeParser;
 
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -63,19 +61,24 @@ public record BehaviourVariable(
     // ========================================
 
     private static final Map<String, MethodSpec> METHODS = Map.ofEntries(
-        Map.entry("RUN", MethodSpec.of((self, args) -> {
-            return MethodResult.effects(List.of(new RunBehaviourEffect(false)));
+        Map.entry("RUN", MethodSpec.of((self, args, ctx) -> {
+            BehaviourVariable behaviour = (BehaviourVariable) self;
+            Value result = ctx.runBehaviour("RUN:" + behaviour.name(), null, behaviour, args);
+            return MethodResult.returns(result);
         })),
 
-        Map.entry("RUNC", MethodSpec.of((self, args) -> {
-            // RUNC checks CONDITION attribute before running
-            return MethodResult.effects(List.of(new RunBehaviourEffect(true)));
+        Map.entry("RUNC", MethodSpec.of((self, args, ctx) -> {
+            // TODO: Check CONDITION attribute before running
+            BehaviourVariable behaviour = (BehaviourVariable) self;
+            Value result = ctx.runBehaviour("RUNC:" + behaviour.name(), null, behaviour, args);
+            return MethodResult.returns(result);
         })),
 
-        Map.entry("RUNLOOPED", MethodSpec.of((self, args) -> {
-            // TODO: Implement looped execution
-            // RUNLOOPED runs the behaviour in a loop until break/return
-            return MethodResult.effects(List.of(new RunBehaviourEffect(false)));
+        Map.entry("RUNLOOPED", MethodSpec.of((self, args, ctx) -> {
+            // TODO: Implement looped execution (run in a loop until break/return)
+            BehaviourVariable behaviour = (BehaviourVariable) self;
+            Value result = ctx.runBehaviour("RUNLOOPED:" + behaviour.name(), null, behaviour, args);
+            return MethodResult.returns(result);
         }))
     );
 

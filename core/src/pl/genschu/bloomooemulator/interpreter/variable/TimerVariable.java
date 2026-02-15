@@ -150,32 +150,32 @@ public record TimerVariable(
     // ========================================
 
     private static final Map<String, MethodSpec> METHODS = Map.ofEntries(
-        Map.entry("DISABLE", MethodSpec.of((self, args) -> {
+        Map.entry("DISABLE", MethodSpec.of((self, args, ctx) -> {
             TimerVariable thisVar = (TimerVariable) self;
             thisVar.state.enabled = false;
             return MethodResult.noReturn();
         })),
 
-        Map.entry("ENABLE", MethodSpec.of((self, args) -> {
+        Map.entry("ENABLE", MethodSpec.of((self, args, ctx) -> {
             TimerVariable thisVar = (TimerVariable) self;
             thisVar.state.enabled = true;
             thisVar.state.lastTickTime = System.currentTimeMillis();
             return MethodResult.noReturn();
         })),
 
-        Map.entry("GETTICKS", MethodSpec.of((self, args) -> {
+        Map.entry("GETTICKS", MethodSpec.of((self, args, ctx) -> {
             TimerVariable thisVar = (TimerVariable) self;
             return MethodResult.returns(new IntValue(thisVar.state.currentTickCount));
         })),
 
-        Map.entry("RESET", MethodSpec.of((self, args) -> {
+        Map.entry("RESET", MethodSpec.of((self, args, ctx) -> {
             TimerVariable thisVar = (TimerVariable) self;
             thisVar.state.currentTickCount = 0;
             thisVar.state.lastTickTime = System.currentTimeMillis();
             return MethodResult.noReturn();
         })),
 
-        Map.entry("SET", MethodSpec.of((self, args) -> {
+        Map.entry("SET", MethodSpec.of((self, args, ctx) -> {
             TimerVariable thisVar = (TimerVariable) self;
             if (args.isEmpty()) {
                 throw new IllegalArgumentException("SET requires 1 argument");
@@ -184,7 +184,7 @@ public record TimerVariable(
             return MethodResult.noReturn();
         })),
 
-        Map.entry("SETELAPSE", MethodSpec.of((self, args) -> {
+        Map.entry("SETELAPSE", MethodSpec.of((self, args, ctx) -> {
             TimerVariable thisVar = (TimerVariable) self;
             if (args.isEmpty()) {
                 throw new IllegalArgumentException("SETELAPSE requires 1 argument");

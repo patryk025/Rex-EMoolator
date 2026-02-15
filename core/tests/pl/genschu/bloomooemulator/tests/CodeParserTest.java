@@ -15,6 +15,7 @@ import pl.genschu.bloomooemulator.interpreter.values.IntValue;
 import pl.genschu.bloomooemulator.interpreter.values.StringValue;
 import pl.genschu.bloomooemulator.interpreter.values.Value;
 import pl.genschu.bloomooemulator.interpreter.variable.BehaviourVariable;
+import pl.genschu.bloomooemulator.interpreter.variable.MethodContext;
 import pl.genschu.bloomooemulator.interpreter.variable.MethodResult;
 import pl.genschu.bloomooemulator.interpreter.variable.StructVariable;
 import pl.genschu.bloomooemulator.interpreter.variable.Variable;
@@ -194,10 +195,10 @@ public class CodeParserTest {
     @ParameterizedTest(name = "{index} ⇒ {0}")
     @MethodSource("cases")
     void evals(String script, Object expected) {
-        // TODO: Fix BehaviourVariable, as currently it retuns null for any method call, so all tests with method calls will fail. It sends effect no result
         BehaviourVariable behaviour = (BehaviourVariable) new BehaviourVariable("SCRIPT", new BlockNode(List.of(), SourceLocation.UNKNOWN), null)
                 .withScript(script);
-        MethodResult result = behaviour.callMethod("RUN");
+        MethodContext methodCtx = pl.genschu.bloomooemulator.builders.MethodHelper.createMethodContext(ctx);
+        MethodResult result = behaviour.callMethod("RUN", List.of(), methodCtx);
 
         Value returnValue = result.returnValue();
 

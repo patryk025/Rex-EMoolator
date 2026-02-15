@@ -654,7 +654,7 @@ public record AnimoVariable(
 
     private static final Map<String, MethodSpec> METHODS = Map.ofEntries(
         // PLAYBACK METHODS
-        Map.entry("PLAY", MethodSpec.of((self, args) -> {
+        Map.entry("PLAY", MethodSpec.of((self, args, ctx) -> {
             AnimoVariable thisVar = (AnimoVariable) self;
             if (args.isEmpty()) {
                 // PLAY() - play current event
@@ -690,7 +690,7 @@ public record AnimoVariable(
             return MethodResult.noReturn();
         })),
 
-        Map.entry("NPLAY", MethodSpec.of((self, args) -> {
+        Map.entry("NPLAY", MethodSpec.of((self, args, ctx) -> {
             AnimoVariable thisVar = (AnimoVariable) self;
             if (args.isEmpty()) {
                 throw new IllegalArgumentException("NPLAY requires 1 argument");
@@ -715,26 +715,26 @@ public record AnimoVariable(
             return MethodResult.noReturn();
         })),
 
-        Map.entry("PAUSE", MethodSpec.of((self, args) -> {
+        Map.entry("PAUSE", MethodSpec.of((self, args, ctx) -> {
             AnimoVariable thisVar = (AnimoVariable) self;
             thisVar.changeAnimoState(AnimoEvent.PAUSE);
             return MethodResult.noReturn();
         })),
 
-        Map.entry("RESUME", MethodSpec.of((self, args) -> {
+        Map.entry("RESUME", MethodSpec.of((self, args, ctx) -> {
             AnimoVariable thisVar = (AnimoVariable) self;
             thisVar.changeAnimoState(AnimoEvent.PLAY);
             return MethodResult.noReturn();
         })),
 
-        Map.entry("STOP", MethodSpec.of((self, args) -> {
+        Map.entry("STOP", MethodSpec.of((self, args, ctx) -> {
             AnimoVariable thisVar = (AnimoVariable) self;
             boolean emitSignal = args.isEmpty() || ArgumentHelper.getBoolean(args.get(0));
             thisVar.changeAnimoState(AnimoEvent.STOP, emitSignal);
             return MethodResult.noReturn();
         })),
 
-        Map.entry("NEXTFRAME", MethodSpec.of((self, args) -> {
+        Map.entry("NEXTFRAME", MethodSpec.of((self, args, ctx) -> {
             AnimoVariable thisVar = (AnimoVariable) self;
             if (thisVar.state.currentEvent == null) return MethodResult.noReturn();
             int nextFrame = thisVar.state.currentFrameNumber + 1;
@@ -746,7 +746,7 @@ public record AnimoVariable(
             return MethodResult.noReturn();
         })),
 
-        Map.entry("PREVFRAME", MethodSpec.of((self, args) -> {
+        Map.entry("PREVFRAME", MethodSpec.of((self, args, ctx) -> {
             AnimoVariable thisVar = (AnimoVariable) self;
             if (thisVar.state.currentEvent == null) return MethodResult.noReturn();
             int prevFrame = thisVar.state.currentFrameNumber - 1;
@@ -759,7 +759,7 @@ public record AnimoVariable(
         })),
 
         // FRAME METHODS
-        Map.entry("SETFRAME", MethodSpec.of((self, args) -> {
+        Map.entry("SETFRAME", MethodSpec.of((self, args, ctx) -> {
             AnimoVariable thisVar = (AnimoVariable) self;
             if (args.isEmpty()) {
                 throw new IllegalArgumentException("SETFRAME requires at least 1 argument");
@@ -789,17 +789,17 @@ public record AnimoVariable(
             return MethodResult.noReturn();
         })),
 
-        Map.entry("GETFRAME", MethodSpec.of((self, args) -> {
+        Map.entry("GETFRAME", MethodSpec.of((self, args, ctx) -> {
             AnimoVariable thisVar = (AnimoVariable) self;
             return MethodResult.returns(new IntValue(thisVar.state.currentImageNumber));
         })),
 
-        Map.entry("GETCFRAMEINEVENT", MethodSpec.of((self, args) -> {
+        Map.entry("GETCFRAMEINEVENT", MethodSpec.of((self, args, ctx) -> {
             AnimoVariable thisVar = (AnimoVariable) self;
             return MethodResult.returns(new IntValue(thisVar.state.currentFrameNumber));
         })),
 
-        Map.entry("GETNOFINEVENT", MethodSpec.of((self, args) -> {
+        Map.entry("GETNOFINEVENT", MethodSpec.of((self, args, ctx) -> {
             AnimoVariable thisVar = (AnimoVariable) self;
             if (args.isEmpty()) {
                 throw new IllegalArgumentException("GETNOFINEVENT requires 1 argument");
@@ -820,7 +820,7 @@ public record AnimoVariable(
             return MethodResult.returns(new IntValue(0));
         })),
 
-        Map.entry("GETFRAMENAME", MethodSpec.of((self, args) -> {
+        Map.entry("GETFRAMENAME", MethodSpec.of((self, args, ctx) -> {
             AnimoVariable thisVar = (AnimoVariable) self;
             Event currentEvent = thisVar.state.currentEvent;
             if (currentEvent != null && !currentEvent.getFrameData().isEmpty()) {
@@ -831,7 +831,7 @@ public record AnimoVariable(
         })),
 
         // POSITION METHODS
-        Map.entry("SETPOSITION", MethodSpec.of((self, args) -> {
+        Map.entry("SETPOSITION", MethodSpec.of((self, args, ctx) -> {
             AnimoVariable thisVar = (AnimoVariable) self;
             if (args.size() < 2) {
                 throw new IllegalArgumentException("SETPOSITION requires 2 arguments");
@@ -842,7 +842,7 @@ public record AnimoVariable(
             return MethodResult.noReturn();
         })),
 
-        Map.entry("GETPOSITIONX", MethodSpec.of((self, args) -> {
+        Map.entry("GETPOSITIONX", MethodSpec.of((self, args, ctx) -> {
             AnimoVariable thisVar = (AnimoVariable) self;
             boolean absolute = !args.isEmpty();
             if (absolute) {
@@ -851,7 +851,7 @@ public record AnimoVariable(
             return MethodResult.returns(new IntValue(thisVar.state.rect.getXLeft()));
         })),
 
-        Map.entry("GETPOSITIONY", MethodSpec.of((self, args) -> {
+        Map.entry("GETPOSITIONY", MethodSpec.of((self, args, ctx) -> {
             AnimoVariable thisVar = (AnimoVariable) self;
             boolean absolute = !args.isEmpty();
             if (absolute) {
@@ -860,7 +860,7 @@ public record AnimoVariable(
             return MethodResult.returns(new IntValue(thisVar.state.rect.getYTop()));
         })),
 
-        Map.entry("MOVE", MethodSpec.of((self, args) -> {
+        Map.entry("MOVE", MethodSpec.of((self, args, ctx) -> {
             AnimoVariable thisVar = (AnimoVariable) self;
             if (args.size() < 2) {
                 throw new IllegalArgumentException("MOVE requires 2 arguments");
@@ -871,7 +871,7 @@ public record AnimoVariable(
             return MethodResult.noReturn();
         })),
 
-        Map.entry("SETANCHOR", MethodSpec.of((self, args) -> {
+        Map.entry("SETANCHOR", MethodSpec.of((self, args, ctx) -> {
             AnimoVariable thisVar = (AnimoVariable) self;
             if (args.isEmpty()) {
                 throw new IllegalArgumentException("SETANCHOR requires arguments");
@@ -927,15 +927,15 @@ public record AnimoVariable(
             return MethodResult.noReturn();
         })),
 
-        Map.entry("GETANCHOR", MethodSpec.of((self, args) -> {
+        Map.entry("GETANCHOR", MethodSpec.of((self, args, ctx) -> {
             AnimoVariable thisVar = (AnimoVariable) self;
             // Returns anchor into array - this requires effect
             // For now, just return the X coordinate
             return MethodResult.returns(new IntValue(thisVar.state.anchorX));
-        }, ArgKind.VAR_REF)),
+        })),
 
         // DIMENSION METHODS
-        Map.entry("GETWIDTH", MethodSpec.of((self, args) -> {
+        Map.entry("GETWIDTH", MethodSpec.of((self, args, ctx) -> {
             AnimoVariable thisVar = (AnimoVariable) self;
             if (thisVar.state.currentImage != null) {
                 return MethodResult.returns(new IntValue(thisVar.state.currentImage.width));
@@ -943,7 +943,7 @@ public record AnimoVariable(
             return MethodResult.returns(new IntValue(0));
         })),
 
-        Map.entry("GETHEIGHT", MethodSpec.of((self, args) -> {
+        Map.entry("GETHEIGHT", MethodSpec.of((self, args, ctx) -> {
             AnimoVariable thisVar = (AnimoVariable) self;
             if (thisVar.state.currentImage != null) {
                 return MethodResult.returns(new IntValue(thisVar.state.currentImage.height));
@@ -951,41 +951,41 @@ public record AnimoVariable(
             return MethodResult.returns(new IntValue(0));
         })),
 
-        Map.entry("GETMAXWIDTH", MethodSpec.of((self, args) -> {
+        Map.entry("GETMAXWIDTH", MethodSpec.of((self, args, ctx) -> {
             AnimoVariable thisVar = (AnimoVariable) self;
             return MethodResult.returns(new IntValue(thisVar.data.maxWidth()));
         })),
 
-        Map.entry("GETMAXHEIGHT", MethodSpec.of((self, args) -> {
+        Map.entry("GETMAXHEIGHT", MethodSpec.of((self, args, ctx) -> {
             AnimoVariable thisVar = (AnimoVariable) self;
             return MethodResult.returns(new IntValue(thisVar.data.maxHeight()));
         })),
 
-        Map.entry("GETCENTERX", MethodSpec.of((self, args) -> {
+        Map.entry("GETCENTERX", MethodSpec.of((self, args, ctx) -> {
             AnimoVariable thisVar = (AnimoVariable) self;
             Box2D rect = thisVar.state.rect;
             return MethodResult.returns(new IntValue(rect.getXLeft() + rect.getWidth() / 2));
         })),
 
-        Map.entry("GETCENTERY", MethodSpec.of((self, args) -> {
+        Map.entry("GETCENTERY", MethodSpec.of((self, args, ctx) -> {
             AnimoVariable thisVar = (AnimoVariable) self;
             Box2D rect = thisVar.state.rect;
             return MethodResult.returns(new IntValue(rect.getYTop() + rect.getHeight() / 2));
         })),
 
-        Map.entry("GETENDX", MethodSpec.of((self, args) -> {
+        Map.entry("GETENDX", MethodSpec.of((self, args, ctx) -> {
             AnimoVariable thisVar = (AnimoVariable) self;
             Box2D rect = thisVar.state.rect;
             return MethodResult.returns(new IntValue(rect.getXLeft() + rect.getWidth()));
         })),
 
-        Map.entry("GETENDY", MethodSpec.of((self, args) -> {
+        Map.entry("GETENDY", MethodSpec.of((self, args, ctx) -> {
             AnimoVariable thisVar = (AnimoVariable) self;
             Box2D rect = thisVar.state.rect;
             return MethodResult.returns(new IntValue(rect.getYTop() + rect.getHeight()));
         })),
 
-        Map.entry("GETCURRFRAMEPOSX", MethodSpec.of((self, args) -> {
+        Map.entry("GETCURRFRAMEPOSX", MethodSpec.of((self, args, ctx) -> {
             AnimoVariable thisVar = (AnimoVariable) self;
             if (thisVar.state.currentImage != null) {
                 return MethodResult.returns(new IntValue(thisVar.state.currentImage.offsetX));
@@ -993,7 +993,7 @@ public record AnimoVariable(
             return MethodResult.returns(new IntValue(0));
         })),
 
-        Map.entry("GETCURRFRAMEPOSY", MethodSpec.of((self, args) -> {
+        Map.entry("GETCURRFRAMEPOSY", MethodSpec.of((self, args, ctx) -> {
             AnimoVariable thisVar = (AnimoVariable) self;
             if (thisVar.state.currentImage != null) {
                 return MethodResult.returns(new IntValue(thisVar.state.currentImage.offsetY));
@@ -1002,24 +1002,24 @@ public record AnimoVariable(
         })),
 
         // VISIBILITY METHODS
-        Map.entry("SHOW", MethodSpec.of((self, args) -> {
+        Map.entry("SHOW", MethodSpec.of((self, args, ctx) -> {
             AnimoVariable thisVar = (AnimoVariable) self;
             thisVar.setVisible(true);
             return MethodResult.noReturn();
         })),
 
-        Map.entry("HIDE", MethodSpec.of((self, args) -> {
+        Map.entry("HIDE", MethodSpec.of((self, args, ctx) -> {
             AnimoVariable thisVar = (AnimoVariable) self;
             thisVar.setVisible(false);
             return MethodResult.noReturn();
         })),
 
-        Map.entry("ISVISIBLE", MethodSpec.of((self, args) -> {
+        Map.entry("ISVISIBLE", MethodSpec.of((self, args, ctx) -> {
             AnimoVariable thisVar = (AnimoVariable) self;
             return MethodResult.returns(new BoolValue(thisVar.state.visible));
         })),
 
-        Map.entry("SETOPACITY", MethodSpec.of((self, args) -> {
+        Map.entry("SETOPACITY", MethodSpec.of((self, args, ctx) -> {
             AnimoVariable thisVar = (AnimoVariable) self;
             if (args.isEmpty()) {
                 throw new IllegalArgumentException("SETOPACITY requires 1 argument");
@@ -1029,7 +1029,7 @@ public record AnimoVariable(
         })),
 
         // OTHER METHODS
-        Map.entry("SETFPS", MethodSpec.of((self, args) -> {
+        Map.entry("SETFPS", MethodSpec.of((self, args, ctx) -> {
             AnimoVariable thisVar = (AnimoVariable) self;
             if (args.isEmpty()) {
                 throw new IllegalArgumentException("SETFPS requires 1 argument");
@@ -1038,7 +1038,7 @@ public record AnimoVariable(
             return MethodResult.noReturn();
         })),
 
-        Map.entry("SETPRIORITY", MethodSpec.of((self, args) -> {
+        Map.entry("SETPRIORITY", MethodSpec.of((self, args, ctx) -> {
             AnimoVariable thisVar = (AnimoVariable) self;
             if (args.isEmpty()) {
                 throw new IllegalArgumentException("SETPRIORITY requires 1 argument");
@@ -1047,12 +1047,12 @@ public record AnimoVariable(
             return MethodResult.noReturn();
         })),
 
-        Map.entry("GETPRIORITY", MethodSpec.of((self, args) -> {
+        Map.entry("GETPRIORITY", MethodSpec.of((self, args, ctx) -> {
             AnimoVariable thisVar = (AnimoVariable) self;
             return MethodResult.returns(new IntValue(thisVar.state.priority));
         })),
 
-        Map.entry("SETASBUTTON", MethodSpec.of((self, args) -> {
+        Map.entry("SETASBUTTON", MethodSpec.of((self, args, ctx) -> {
             AnimoVariable thisVar = (AnimoVariable) self;
             if (args.size() < 2) {
                 throw new IllegalArgumentException("SETASBUTTON requires 2 arguments");
@@ -1068,19 +1068,19 @@ public record AnimoVariable(
             return MethodResult.noReturn();
         })),
 
-        Map.entry("SETFORWARD", MethodSpec.of((self, args) -> {
+        Map.entry("SETFORWARD", MethodSpec.of((self, args, ctx) -> {
             AnimoVariable thisVar = (AnimoVariable) self;
             thisVar.setDirection(1);
             return MethodResult.noReturn();
         })),
 
-        Map.entry("SETBACKWARD", MethodSpec.of((self, args) -> {
+        Map.entry("SETBACKWARD", MethodSpec.of((self, args, ctx) -> {
             AnimoVariable thisVar = (AnimoVariable) self;
             thisVar.setDirection(-1);
             return MethodResult.noReturn();
         })),
 
-        Map.entry("ISAT", MethodSpec.of((self, args) -> {
+        Map.entry("ISAT", MethodSpec.of((self, args, ctx) -> {
             AnimoVariable thisVar = (AnimoVariable) self;
             if (args.size() < 3) {
                 throw new IllegalArgumentException("ISAT requires 3 arguments");
@@ -1091,7 +1091,7 @@ public record AnimoVariable(
             return MethodResult.returns(new BoolValue(thisVar.isAt(posX, posY)));
         })),
 
-        Map.entry("ISNEAR", MethodSpec.of((self, args) -> {
+        Map.entry("ISNEAR", MethodSpec.of((self, args, ctx) -> {
             AnimoVariable thisVar = (AnimoVariable) self;
             if (args.size() < 2) {
                 throw new IllegalArgumentException("ISNEAR requires 2 arguments");
@@ -1099,9 +1099,9 @@ public record AnimoVariable(
             // This method requires context to get the other variable
             // For now, return false - the interpreter should handle this
             return MethodResult.returns(new BoolValue(false));
-        }, ArgKind.VAR_REF, ArgKind.VALUE)),
+        })),
 
-        Map.entry("ISPLAYING", MethodSpec.of((self, args) -> {
+        Map.entry("ISPLAYING", MethodSpec.of((self, args, ctx) -> {
             AnimoVariable thisVar = (AnimoVariable) self;
             if (args.isEmpty()) {
                 return MethodResult.returns(new BoolValue(thisVar.isPlaying()));
@@ -1112,7 +1112,7 @@ public record AnimoVariable(
                 currentEvent != null && currentEvent.getName().equalsIgnoreCase(eventName) && thisVar.isPlaying()));
         })),
 
-        Map.entry("MONITORCOLLISION", MethodSpec.of((self, args) -> {
+        Map.entry("MONITORCOLLISION", MethodSpec.of((self, args, ctx) -> {
             AnimoVariable thisVar = (AnimoVariable) self;
             // boolean monitorAlpha = !args.isEmpty() && ArgumentHelper.getBoolean(args.get(0));
             thisVar.state.monitorCollision = true;
@@ -1120,14 +1120,14 @@ public record AnimoVariable(
             return MethodResult.noReturn();
         })),
 
-        Map.entry("REMOVEMONITORCOLLISION", MethodSpec.of((self, args) -> {
+        Map.entry("REMOVEMONITORCOLLISION", MethodSpec.of((self, args, ctx) -> {
             AnimoVariable thisVar = (AnimoVariable) self;
             thisVar.state.monitorCollision = false;
             // Actual removal from QuadTree is done by the interpreter
             return MethodResult.noReturn();
         })),
 
-        Map.entry("LOAD", MethodSpec.of((self, args) -> {
+        Map.entry("LOAD", MethodSpec.of((self, args, ctx) -> {
             AnimoVariable thisVar = (AnimoVariable) self;
             if (args.isEmpty()) {
                 throw new IllegalArgumentException("LOAD requires 1 argument");
@@ -1137,22 +1137,22 @@ public record AnimoVariable(
             return MethodResult.noReturn();
         })),
 
-        Map.entry("GETNAME", MethodSpec.of((self, args) -> {
+        Map.entry("GETNAME", MethodSpec.of((self, args, ctx) -> {
             AnimoVariable thisVar = (AnimoVariable) self;
             return MethodResult.returns(new StringValue(thisVar.name()));
         })),
 
-        Map.entry("GETNOE", MethodSpec.of((self, args) -> {
+        Map.entry("GETNOE", MethodSpec.of((self, args, ctx) -> {
             AnimoVariable thisVar = (AnimoVariable) self;
             return MethodResult.returns(new IntValue(thisVar.data.eventsCount()));
         })),
 
-        Map.entry("GETNOF", MethodSpec.of((self, args) -> {
+        Map.entry("GETNOF", MethodSpec.of((self, args, ctx) -> {
             AnimoVariable thisVar = (AnimoVariable) self;
             return MethodResult.returns(new IntValue(thisVar.data.imagesCount()));
         })),
 
-        Map.entry("GETEVENTNAME", MethodSpec.of((self, args) -> {
+        Map.entry("GETEVENTNAME", MethodSpec.of((self, args, ctx) -> {
             AnimoVariable thisVar = (AnimoVariable) self;
             if (args.isEmpty()) {
                 Event currentEvent = thisVar.state.currentEvent;
@@ -1170,12 +1170,12 @@ public record AnimoVariable(
             return MethodResult.returns(new StringValue(currentEvent != null ? currentEvent.getName().toUpperCase() : ""));
         })),
 
-        Map.entry("TOP", MethodSpec.of((self, args) -> {
+        Map.entry("TOP", MethodSpec.of((self, args, ctx) -> {
             // TODO: implement this method
             return MethodResult.noReturn();
         })),
 
-        Map.entry("SETFRAMENAME", MethodSpec.of((self, args) -> {
+        Map.entry("SETFRAMENAME", MethodSpec.of((self, args, ctx) -> {
             // TODO: implement this method
             throw new UnsupportedOperationException("SETFRAMENAME is not implemented yet");
         }))

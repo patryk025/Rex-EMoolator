@@ -89,7 +89,7 @@ public record GroupVariable(
     // ========================================
 
     private static final Map<String, MethodSpec> METHODS = Map.ofEntries(
-        Map.entry("ADD", MethodSpec.of((self, args) -> {
+        Map.entry("ADD", MethodSpec.of((self, args, ctx) -> {
             GroupVariable thisVar = (GroupVariable) self;
             if (args.isEmpty()) {
                 throw new IllegalArgumentException("ADD requires at least 1 argument");
@@ -106,12 +106,12 @@ public record GroupVariable(
             return MethodResult.noReturn();
         })),
 
-        Map.entry("GETSIZE", MethodSpec.of((self, args) -> {
+        Map.entry("GETSIZE", MethodSpec.of((self, args, ctx) -> {
             GroupVariable thisVar = (GroupVariable) self;
             return MethodResult.returns(new IntValue(thisVar.variableNames.size()));
         })),
 
-        Map.entry("NEXT", MethodSpec.of((self, args) -> {
+        Map.entry("NEXT", MethodSpec.of((self, args, ctx) -> {
             GroupVariable thisVar = (GroupVariable) self;
             if (thisVar.variableNames.isEmpty()) {
                 return MethodResult.noReturn();
@@ -122,7 +122,7 @@ public record GroupVariable(
             return MethodResult.returns(new StringValue(varName));
         })),
 
-        Map.entry("PREV", MethodSpec.of((self, args) -> {
+        Map.entry("PREV", MethodSpec.of((self, args, ctx) -> {
             GroupVariable thisVar = (GroupVariable) self;
             if (thisVar.variableNames.isEmpty()) {
                 return MethodResult.noReturn();
@@ -133,7 +133,7 @@ public record GroupVariable(
             return MethodResult.returns(new StringValue(varName));
         })),
 
-        Map.entry("REMOVE", MethodSpec.of((self, args) -> {
+        Map.entry("REMOVE", MethodSpec.of((self, args, ctx) -> {
             GroupVariable thisVar = (GroupVariable) self;
             if (args.isEmpty()) {
                 throw new IllegalArgumentException("REMOVE requires 1 argument");
@@ -148,14 +148,14 @@ public record GroupVariable(
             return MethodResult.noReturn();
         })),
 
-        Map.entry("REMOVEALL", MethodSpec.of((self, args) -> {
+        Map.entry("REMOVEALL", MethodSpec.of((self, args, ctx) -> {
             GroupVariable thisVar = (GroupVariable) self;
             thisVar.variableNames.clear();
             thisVar.markerHolder[0] = -1;
             return MethodResult.noReturn();
         })),
 
-        Map.entry("RESETMARKER", MethodSpec.of((self, args) -> {
+        Map.entry("RESETMARKER", MethodSpec.of((self, args, ctx) -> {
             GroupVariable thisVar = (GroupVariable) self;
             thisVar.markerHolder[0] = thisVar.variableNames.isEmpty() ? -1 : 0;
             return MethodResult.noReturn();

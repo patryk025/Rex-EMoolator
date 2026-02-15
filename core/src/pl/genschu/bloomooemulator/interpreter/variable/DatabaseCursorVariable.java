@@ -1,6 +1,7 @@
 package pl.genschu.bloomooemulator.interpreter.variable;
 
 import pl.genschu.bloomooemulator.interpreter.values.NullValue;
+import pl.genschu.bloomooemulator.interpreter.values.StringValue;
 import pl.genschu.bloomooemulator.interpreter.values.Value;
 import pl.genschu.bloomooemulator.interpreter.values.VariableValue;
 
@@ -32,7 +33,7 @@ public record DatabaseCursorVariable(
     @Override public Variable withSignal(String signalName, SignalHandler handler) { return this; }
 
     private static final Map<String, MethodSpec> METHODS = Map.ofEntries(
-        Map.entry("SET", MethodSpec.of((self, args) -> {
+        Map.entry("SET", MethodSpec.of((self, args, ctx) -> {
             DatabaseCursorVariable thisVar = (DatabaseCursorVariable) self;
             if (args == null || args.isEmpty()) {
                 return MethodResult.noReturn();
@@ -40,16 +41,26 @@ public record DatabaseCursorVariable(
 
             Value v = args.get(0);
 
-            // If the argument is a VariableValue wrapping a StructVariable
-            if (v instanceof VariableValue(Variable variable) && variable instanceof StructVariable struct) {
+            StructVariable struct = resolveStruct(v, ctx);
+            if (struct != null) {
                 thisVar.setFromStruct(struct);
                 return MethodResult.noReturn();
             }
 
-            // Otherwise, this is an incorrect situation, as variable should be already .
             throw new IllegalArgumentException("SET method requires a StructVariable argument");
-        }, ArgKind.VAR_REF))
+        }))
     );
+
+    private static StructVariable resolveStruct(Value value, MethodContext ctx) {
+        if (value instanceof VariableValue(Variable variable) && variable instanceof StructVariable struct) {
+            return struct;
+        }
+        if (value instanceof StringValue(String value1) && ctx != null) {
+            Variable resolved = ctx.getVariable(value1);
+            if (resolved instanceof StructVariable struct) return struct;
+        }
+        return null;
+    }
 
     /**
      * Updates the current database row with values from the struct.

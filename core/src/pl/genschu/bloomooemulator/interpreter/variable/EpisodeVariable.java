@@ -1,10 +1,6 @@
 package pl.genschu.bloomooemulator.interpreter.variable;
 
 import pl.genschu.bloomooemulator.interpreter.helpers.ArgumentHelper;
-import pl.genschu.bloomooemulator.interpreter.runtime.effects.BackSceneEffect;
-import pl.genschu.bloomooemulator.interpreter.runtime.effects.GetCurrentSceneEffect;
-import pl.genschu.bloomooemulator.interpreter.runtime.effects.GetPreviousSceneEffect;
-import pl.genschu.bloomooemulator.interpreter.runtime.effects.GotoSceneEffect;
 import pl.genschu.bloomooemulator.interpreter.values.*;
 
 import java.util.*;
@@ -77,20 +73,24 @@ public record EpisodeVariable(
     // ========================================
 
     private static final Map<String, MethodSpec> METHODS = Map.ofEntries(
-        Map.entry("BACK", MethodSpec.of((self, args) -> MethodResult.effects(List.of(new BackSceneEffect())))),
+        Map.entry("BACK", MethodSpec.of((self, args, ctx) -> {
+            ctx.getGame().goToPreviousScene();
+            return MethodResult.noReturn();
+        })),
 
-        Map.entry("GETCURRENTSCENE", MethodSpec.of((self, args) -> new MethodResult(NullValue.INSTANCE, List.of(new GetCurrentSceneEffect())))),
+        Map.entry("GETCURRENTSCENE", MethodSpec.of((self, args, ctx) -> MethodResult.returns(new StringValue(ctx.getGame().getCurrentScene())))),
 
-        Map.entry("GETLATESTSCENE", MethodSpec.of((self, args) -> new MethodResult(NullValue.INSTANCE, List.of(new GetPreviousSceneEffect())))),
+        Map.entry("GETLATESTSCENE", MethodSpec.of((self, args, ctx) -> MethodResult.returns(new StringValue(ctx.getGame().getPreviousScene())))),
 
-        Map.entry("GOTO", MethodSpec.of((self, args) -> {
+        Map.entry("GOTO", MethodSpec.of((self, args, ctx) -> {
             if (args.isEmpty()) {
                 throw new IllegalArgumentException("GOTO requires 1 argument");
             }
             String sceneName = ArgumentHelper.getString(args.get(0));
-            return MethodResult.effects(List.of(new GotoSceneEffect(sceneName)));
-        })
-    ));
+            ctx.getGame().goTo(sceneName);
+            return MethodResult.noReturn();
+        }))
+    );
 
     // ========================================
     // CONVENIENT ACCESSORS

@@ -90,31 +90,31 @@ public record DatabaseVariable(
     }
 
     private static final Map<String, MethodSpec> METHODS = Map.ofEntries(
-        Map.entry("GETROWSNO", MethodSpec.of((self, args) -> {
+        Map.entry("GETROWSNO", MethodSpec.of((self, args, ctx) -> {
             DatabaseVariable thisVar = (DatabaseVariable) self;
             return MethodResult.returns(new IntValue(thisVar.state.rowsNo()));
         })),
 
-        Map.entry("NEXT", MethodSpec.of((self, args) -> {
+        Map.entry("NEXT", MethodSpec.of((self, args, ctx) -> {
             DatabaseVariable thisVar = (DatabaseVariable) self;
             thisVar.state.next();
             return MethodResult.noReturn();
         })),
 
-        Map.entry("REMOVEALL", MethodSpec.of((self, args) -> {
+        Map.entry("REMOVEALL", MethodSpec.of((self, args, ctx) -> {
             DatabaseVariable thisVar = (DatabaseVariable) self;
             thisVar.state.removeAll();
             return MethodResult.noReturn();
         })),
 
-        Map.entry("SELECT", MethodSpec.of((self, args) -> {
+        Map.entry("SELECT", MethodSpec.of((self, args, ctx) -> {
             DatabaseVariable thisVar = (DatabaseVariable) self;
             int idx = ArgumentHelper.getInt(args, 0, 0);
             thisVar.state.select(idx);
             return MethodResult.noReturn();
         })),
 
-        Map.entry("FIND", MethodSpec.of((self, args) -> {
+        Map.entry("FIND", MethodSpec.of((self, args, ctx) -> {
             DatabaseVariable thisVar = (DatabaseVariable) self;
             String colName = ArgumentHelper.getString(args, 0, "");
             String colValue = ArgumentHelper.getString(args, 1, "");
@@ -124,7 +124,7 @@ public record DatabaseVariable(
         })),
 
         // TODO: IMPLEMENT LOAD/SAVE
-        Map.entry("LOAD", MethodSpec.of((self, args) -> MethodResult.noReturn())),
-        Map.entry("SAVE", MethodSpec.of((self, args) -> MethodResult.noReturn()))
+        Map.entry("LOAD", MethodSpec.of((self, args, ctx) -> MethodResult.noReturn())),
+        Map.entry("SAVE", MethodSpec.of((self, args, ctx) -> MethodResult.noReturn()))
     );
 }

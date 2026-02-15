@@ -1,6 +1,8 @@
 package pl.genschu.bloomooemulator.interpreter.runtime;
 
+import pl.genschu.bloomooemulator.engine.Game;
 import pl.genschu.bloomooemulator.interpreter.ast.*;
+import pl.genschu.bloomooemulator.interpreter.context.CloneRegistry;
 import pl.genschu.bloomooemulator.interpreter.context.Context;
 import pl.genschu.bloomooemulator.interpreter.errors.InterpreterException;
 import pl.genschu.bloomooemulator.interpreter.errors.SourceLocation;
@@ -8,7 +10,6 @@ import pl.genschu.bloomooemulator.interpreter.factories.VariableFactory;
 import pl.genschu.bloomooemulator.interpreter.helpers.ArgumentHelper;
 import pl.genschu.bloomooemulator.interpreter.values.*;
 import pl.genschu.bloomooemulator.interpreter.ops.ValueOps;
-import pl.genschu.bloomooemulator.interpreter.runtime.effects.Effect;
 import pl.genschu.bloomooemulator.interpreter.variable.*;
 
 import java.util.ArrayList;
@@ -20,6 +21,7 @@ import java.util.List;
 public class ASTInterpreter {
     private final Context context;
     private final ExecutionContext exec;
+    private final MethodContext methodContext;
 
     public ASTInterpreter(Context context) {
         if (context == null) {
@@ -27,13 +29,66 @@ public class ASTInterpreter {
         }
         this.context = context;
         this.exec = context.exec();
+        this.methodContext = createMethodContext();
+    }
+
+    private MethodContext createMethodContext() {
+        return new MethodContext() {
+            @Override
+            public Variable getVariable(String name) {
+                return context.getVariable(name);
+            }
+
+            @Override
+            public void setVariable(String name, Variable variable) {
+                context.setVariable(name, variable);
+            }
+
+            @Override
+            public boolean updateVariable(String name, Variable variable) {
+                return context.updateVariableInHierarchy(name, variable);
+            }
+
+            @Override
+            public Game getGame() {
+                return context.getGame();
+            }
+
+            @Override
+            public Value runBehaviour(String frameName, Variable thisVar,
+                                      BehaviourVariable behaviour, List<Value> args) {
+                exec.pushFrame(frameName, behaviour.name(), null);
+                try {
+                    if (args != null && !args.isEmpty()) {
+                        for (int i = 0; i < args.size(); i++) {
+                            exec.setLocal("$" + (i + 1), args.get(i));
+                        }
+                    }
+                    if (thisVar != null) {
+                        exec.setThis(thisVar);
+                    }
+                    ASTInterpreter interpreter = new ASTInterpreter(context);
+                    ExecutionResult result = interpreter.execute(behaviour.ast());
+                    if (result instanceof ReturnResult returnResult) {
+                        return returnResult.getValue();
+                    }
+                    return result.getValue();
+                } finally {
+                    exec.popFrame();
+                }
+            }
+
+            @Override
+            public CloneRegistry clones() {
+                return context.clones();
+            }
+        };
     }
 
     /**
      * Executes an AST node and returns the result.
      */
     public ExecutionResult execute(ASTNode node) {
-        // Pattern matching magic! No more instanceof chains! :D
         return switch (node) {
             case LiteralNode n -> executeLiteral(n);
             case VariableNode n -> executeVariable(n);
@@ -294,15 +349,14 @@ public class ASTInterpreter {
         }
     }
 
-    // === TODO: Implement these ===
+    // === METHOD CALLS ===
 
     private ExecutionResult executeMethodCall(MethodCallNode node) {
         Variable target = resolveMethodTarget(node.target(), node.location());
         String methodName = node.methodName().toUpperCase();
 
-        // I implemented CONDITION and COMPLEXCONDITION method handling here
-        // because it needs sometimes go deep into evaluating the condition,
-        // which would be cumbersome to do in the variable method itself.
+        // ConditionVariable and ComplexConditionVariable are handled here
+        // because evaluation requires deep context access (recursive operand resolution)
         if (target instanceof ConditionVariable cond) {
             ExecutionResult handled = handleConditionMethod(cond, methodName, node);
             if (handled != null) {
@@ -318,40 +372,18 @@ public class ASTInterpreter {
 
         MethodSpec spec = resolveMethodSpec(target, node.methodName(), node.location());
 
+        // Evaluate all arguments normally
         List<Value> arguments = new ArrayList<>(node.arguments().size());
-        for (int i = 0; i < node.arguments().size(); i++) {
-            ASTNode argNode = node.arguments().get(i);
-            ArgKind argKind = spec.kindAt(i);
-
-            if (argKind == ArgKind.VAR || argKind == ArgKind.VAR_REF) {
-                if (argNode instanceof VariableNode variableNode) {
-                    Variable resolved = context.getVariable(variableNode.name());
-                    if (resolved == null) {
-                        throw new InterpreterException(
-                            "Variable not found: " + variableNode.name(),
-                            exec,
-                            node.location()
-                        );
-                    }
-                    arguments.add(new VariableValue(resolved));
-                    continue;
-                }
-            }
-
+        for (ASTNode argNode : node.arguments()) {
             ExecutionResult argResult = execute(argNode);
             if (!argResult.shouldContinue()) return argResult;
-            Value argValue = argResult.getValue();
-
-            if (argKind == ArgKind.VAR || argKind == ArgKind.VAR_REF) {
-                arguments.add(resolveVariableArgument(argValue, argKind, node.location()));
-            } else {
-                arguments.add(argValue);
-            }
+            arguments.add(argResult.getValue());
         }
 
+        // Execute method with MethodContext
         MethodResult result;
         try {
-            result = spec.method().execute(target, arguments);
+            result = spec.method().execute(target, arguments, methodContext);
         } catch (RuntimeException e) {
             throw new InterpreterException(
                 "Method call failed: " + node.methodName(),
@@ -361,24 +393,7 @@ public class ASTInterpreter {
             );
         }
 
-        Value returnValue = result.getReturnValue();
-        for (Effect effect : result.effects()) {
-            try {
-                Value effectValue = effect.apply(context, target, arguments);
-                if (effectValue != null) {
-                    returnValue = effectValue;
-                }
-            } catch (RuntimeException e) {
-                throw new InterpreterException(
-                    "Effect failed after method call: " + node.methodName(),
-                    exec,
-                    node.location(),
-                    e
-                );
-            }
-        }
-
-        return new NormalResult(returnValue);
+        return new NormalResult(result.getReturnValue());
     }
 
     private ExecutionResult executePointerDeref(PointerDerefNode node) {
@@ -484,7 +499,7 @@ public class ASTInterpreter {
     private MethodSpec resolveMethodSpec(Variable target, String methodName, SourceLocation location) {
         MethodSpec spec = target.methods().get(methodName.toUpperCase());
         if (spec == null || spec.method() == null) {
-            MethodSpec global = target.globalMethods().get(methodName);
+            MethodSpec global = target.globalMethods().get(methodName.toUpperCase());
             if (global == null || global.method() == null) {
                 throw new InterpreterException(
                     "Method not found: " + methodName + " on " + target.type(),
@@ -670,42 +685,5 @@ public class ASTInterpreter {
         }
 
         return var.value();
-    }
-    private Value resolveVariableArgument(Value argValue, ArgKind argKind, SourceLocation location) {
-        if (argValue instanceof VariableValue) {
-            return argValue;
-        }
-        if (argValue instanceof VariableRef ref) {
-            Variable resolved = context.getVariable(ref.name());
-            if (resolved == null) {
-                throw new InterpreterException(
-                    "Variable not found: " + ref.name(),
-                    exec,
-                    location
-                );
-            }
-            return new VariableValue(resolved);
-        }
-        if (argValue instanceof StringValue str) {
-            if (argKind == ArgKind.VAR_REF) {
-                Variable resolved = context.getVariable(str.value());
-                if (resolved == null) {
-                    throw new InterpreterException(
-                        "Variable not found: " + str.value(),
-                        exec,
-                        location
-                    );
-                }
-                return new VariableValue(resolved);
-            }
-        }
-        if (argKind == ArgKind.VAR) {
-            throw new InterpreterException(
-                "Expected variable reference argument",
-                exec,
-                location
-            );
-        }
-        return argValue;
     }
 }

@@ -2,7 +2,6 @@ package pl.genschu.bloomooemulator.interpreter.variable;
 
 import pl.genschu.bloomooemulator.annotations.InternalMutable;
 import pl.genschu.bloomooemulator.interpreter.helpers.ArgumentHelper;
-import pl.genschu.bloomooemulator.interpreter.runtime.effects.UpdateVariableEffect;
 import pl.genschu.bloomooemulator.interpreter.values.*;
 
 import java.util.ArrayList;
@@ -83,9 +82,7 @@ public record VectorVariable(
     @Override
     public Variable withValue(Value newValue) {
         double val = ArgumentHelper.getDouble(newValue);
-        for (int i = 0; i < components.size(); i++) {
-            components.set(i, val);
-        }
+        components.replaceAll(ignored -> val);
         return this;
     }
 
@@ -144,12 +141,12 @@ public record VectorVariable(
     // ========================================
 
     private static final Map<String, MethodSpec> METHOD = Map.ofEntries(
-        Map.entry("ADD", MethodSpec.of((self, args) -> {
+        Map.entry("ADD", MethodSpec.of((self, args, ctx) -> {
             if (args.isEmpty()) {
                 throw new IllegalArgumentException("ADD requires 1 argument");
             }
             VectorVariable thisVar = (VectorVariable) self;
-            VectorVariable other = requireVector(args.get(0), "ADD");
+            VectorVariable other = resolveVector(args.get(0), "ADD", ctx);
 
             thisVar.ensureSize();
             for (int i = 0; i < thisVar.size; i++) {
@@ -158,9 +155,9 @@ public record VectorVariable(
                 thisVar.components.set(i, a + b);
             }
             return MethodResult.noReturn();
-        }, ArgKind.VAR_REF)),
+        })),
 
-        Map.entry("ASSIGN", MethodSpec.of((self, args) -> {
+        Map.entry("ASSIGN", MethodSpec.of((self, args, ctx) -> {
             VectorVariable thisVar = (VectorVariable) self;
             int targetSize = Math.max(thisVar.components.size(), args.size());
             while (thisVar.components.size() < targetSize) {
@@ -172,7 +169,7 @@ public record VectorVariable(
             return MethodResult.noReturn();
         })),
 
-        Map.entry("GET", MethodSpec.of((self, args) -> {
+        Map.entry("GET", MethodSpec.of((self, args, ctx) -> {
             if (args.isEmpty()) {
                 throw new IllegalArgumentException("GET requires 1 argument");
             }
@@ -184,7 +181,7 @@ public record VectorVariable(
             return MethodResult.returns(new DoubleValue(0.0));
         })),
 
-        Map.entry("MUL", MethodSpec.of((self, args) -> {
+        Map.entry("MUL", MethodSpec.of((self, args, ctx) -> {
             if (args.isEmpty()) {
                 throw new IllegalArgumentException("MUL requires 1 argument");
             }
@@ -197,7 +194,7 @@ public record VectorVariable(
             return MethodResult.noReturn();
         })),
 
-        Map.entry("NORMALIZE", MethodSpec.of((self, args) -> {
+        Map.entry("NORMALIZE", MethodSpec.of((self, args, ctx) -> {
             VectorVariable thisVar = (VectorVariable) self;
             double len = thisVar.length();
             if (len <= 0.0) {
@@ -210,18 +207,18 @@ public record VectorVariable(
             return MethodResult.noReturn();
         })),
 
-        Map.entry("LEN", MethodSpec.of((self, args) -> {
+        Map.entry("LEN", MethodSpec.of((self, args, ctx) -> {
             VectorVariable thisVar = (VectorVariable) self;
             return MethodResult.returns(new DoubleValue(thisVar.length()));
         })),
 
-        Map.entry("REFLECT", MethodSpec.of((self, args) -> {
+        Map.entry("REFLECT", MethodSpec.of((self, args, ctx) -> {
             if (args.size() < 2) {
                 throw new IllegalArgumentException("REFLECT requires 2 arguments");
             }
             VectorVariable thisVar = (VectorVariable) self;
-            VectorVariable normalVector = requireVector(args.get(0), "REFLECT");
-            VectorVariable resultVector = requireVector(args.get(1), "REFLECT");
+            VectorVariable normalVector = resolveVector(args.get(0), "REFLECT", ctx);
+            VectorVariable resultVector = resolveVector(args.get(1), "REFLECT", ctx);
 
             double dotProduct = 0.0;
             for (int i = 0; i < thisVar.size; i++) {
@@ -237,13 +234,18 @@ public record VectorVariable(
                 }
             }
 
-            return MethodResult.effects(List.of(new UpdateVariableEffect(resultVector.name(), resultVector)));
-        }, ArgKind.VAR_REF, ArgKind.VAR_REF))
+            ctx.updateVariable(resultVector.name(), resultVector);
+            return MethodResult.noReturn();
+        }))
     );
 
-    private static VectorVariable requireVector(Value value, String methodName) {
+    private static VectorVariable resolveVector(Value value, String methodName, MethodContext ctx) {
         if (value instanceof VariableValue(Variable variable) && variable instanceof VectorVariable v) {
             return v;
+        }
+        if (value instanceof StringValue(String value1) && ctx != null) {
+            Variable resolved = ctx.getVariable(value1);
+            if (resolved instanceof VectorVariable v) return v;
         }
         throw new IllegalArgumentException(methodName + " requires VECTOR argument");
     }

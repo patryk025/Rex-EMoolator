@@ -1,10 +1,7 @@
 package pl.genschu.bloomooemulator.interpreter.variable;
 
+import com.badlogic.gdx.Gdx;
 import pl.genschu.bloomooemulator.interpreter.helpers.ArgumentHelper;
-import pl.genschu.bloomooemulator.interpreter.runtime.effects.ExitGameEffect;
-import pl.genschu.bloomooemulator.interpreter.runtime.effects.RunEnvEffect;
-import pl.genschu.bloomooemulator.interpreter.runtime.effects.RunMethodEffect;
-import pl.genschu.bloomooemulator.interpreter.runtime.effects.UpdateVariableEffect;
 import pl.genschu.bloomooemulator.interpreter.values.*;
 
 import java.util.*;
@@ -12,8 +9,6 @@ import java.util.*;
 /**
  * ApplicationVariable represents the top-level application/game container.
  * Contains episodes and application-level settings.
- *
- * Most methods require access to Game context and should be handled by the interpreter.
  **/
 public record ApplicationVariable(
     String name,
@@ -89,43 +84,53 @@ public record ApplicationVariable(
     // ========================================
 
     private static final Map<String, MethodSpec> METHODS = Map.ofEntries(
-        Map.entry("EXIT", MethodSpec.of((self, args) -> MethodResult.effects(List.of(new ExitGameEffect())))),
+        Map.entry("EXIT", MethodSpec.of((self, args, ctx) -> {
+            Gdx.app.exit();
+            return MethodResult.noReturn();
+        })),
 
-        Map.entry("GETLANGUAGE", MethodSpec.of((self, args) -> {
+        Map.entry("GETLANGUAGE", MethodSpec.of((self, args, ctx) -> {
             ApplicationVariable thisVar = (ApplicationVariable) self;
             return MethodResult.returns(new StringValue(thisVar.language));
         })),
 
-        Map.entry("RUN", MethodSpec.of((self, args) -> {
+        Map.entry("RUN", MethodSpec.of((self, args, ctx) -> {
             if (args.size() < 2) {
                 throw new IllegalArgumentException("RUN requires at least 2 arguments");
             }
             String varName = ArgumentHelper.getString(args.get(0));
             String methodName = ArgumentHelper.getString(args.get(1));
             List<Value> params = args.size() > 2 ? args.subList(2, args.size()) : List.of();
-            return MethodResult.effects(List.of(new RunMethodEffect(varName, methodName, params)));
+            Variable target = ctx.getVariable(varName);
+            return target.callMethod(methodName, params, ctx);
         })),
 
-        Map.entry("RUNENV", MethodSpec.of((self, args) -> {
+        Map.entry("RUNENV", MethodSpec.of((self, args, ctx) -> {
             if (args.size() < 2) {
                 throw new IllegalArgumentException("RUNENV requires 2 arguments");
             }
             String sceneName = ArgumentHelper.getString(args.get(0));
             String behaviourName = ArgumentHelper.getString(args.get(1));
-            return MethodResult.effects(List.of(new RunEnvEffect(sceneName, behaviourName)));
+            String currentScene = ctx.getGame().getCurrentScene();
+            if (!sceneName.equalsIgnoreCase(currentScene)) {
+                return MethodResult.noReturn();
+            }
+            Variable behaviourVar = ctx.getVariable(behaviourName);
+            if (behaviourVar instanceof BehaviourVariable behaviour) {
+                Value result = ctx.runBehaviour("RUNENV:" + behaviourName, null, behaviour, List.of());
+                return MethodResult.returns(result);
+            }
+            return MethodResult.noReturn();
         })),
 
-        Map.entry("SETLANGUAGE", MethodSpec.of((self, args) -> {
+        Map.entry("SETLANGUAGE", MethodSpec.of((self, args, ctx) -> {
             ApplicationVariable thisVar = (ApplicationVariable) self;
             if (args.isEmpty()) {
                 throw new IllegalArgumentException("SETLANGUAGE requires 1 argument");
             }
-
             String newLanguage = ArgumentHelper.getString(args.get(0));
-            return MethodResult.effects(List.of(
-                new UpdateVariableEffect(
-                    thisVar.name(), thisVar.withLanguage(newLanguage))
-            ));
+            ctx.updateVariable(thisVar.name(), thisVar.withLanguage(newLanguage));
+            return MethodResult.noReturn();
         }))
     );
 

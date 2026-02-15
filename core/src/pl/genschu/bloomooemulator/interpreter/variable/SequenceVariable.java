@@ -757,14 +757,13 @@ public record SequenceVariable(
     // ========================================
 
     private static final Map<String, MethodSpec> METHODS = Map.ofEntries(
-        Map.entry("PLAY", MethodSpec.of((self, args) -> {
+        Map.entry("PLAY", MethodSpec.of((self, args, ctx) -> {
             SequenceVariable thisVar = (SequenceVariable) self;
             if (args.isEmpty()) {
                 throw new IllegalArgumentException("PLAY requires 1 argument");
             }
             String eventName = ArgumentHelper.getString(args.get(0));
-            // Note: Context is needed - this should be handled by interpreter
-            // For now, the method just records the event name
+
             SequenceEvent event = thisVar.eventsByName.get(eventName);
             if (event != null) {
                 thisVar.state.currentEvent = event;
@@ -774,19 +773,19 @@ public record SequenceVariable(
             return MethodResult.noReturn();
         })),
 
-        Map.entry("PAUSE", MethodSpec.of((self, args) -> {
+        Map.entry("PAUSE", MethodSpec.of((self, args, ctx) -> {
             SequenceVariable thisVar = (SequenceVariable) self;
             thisVar.state.isPaused = true;
             return MethodResult.noReturn();
         })),
 
-        Map.entry("RESUME", MethodSpec.of((self, args) -> {
+        Map.entry("RESUME", MethodSpec.of((self, args, ctx) -> {
             SequenceVariable thisVar = (SequenceVariable) self;
             thisVar.state.isPaused = false;
             return MethodResult.noReturn();
         })),
 
-        Map.entry("STOP", MethodSpec.of((self, args) -> {
+        Map.entry("STOP", MethodSpec.of((self, args, ctx) -> {
             SequenceVariable thisVar = (SequenceVariable) self;
             boolean emitSignal = args.isEmpty() || ArgumentHelper.getBoolean(args.get(0));
             if (thisVar.state.currentEvent != null) {
@@ -800,22 +799,22 @@ public record SequenceVariable(
             return MethodResult.noReturn();
         })),
 
-        Map.entry("SHOW", MethodSpec.of((self, args) -> {
+        Map.entry("SHOW", MethodSpec.of((self, args, ctx) -> {
             // Handled by interpreter - needs context
             return MethodResult.noReturn();
         })),
 
-        Map.entry("HIDE", MethodSpec.of((self, args) -> {
+        Map.entry("HIDE", MethodSpec.of((self, args, ctx) -> {
             // Handled by interpreter - needs context
             return MethodResult.noReturn();
         })),
 
-        Map.entry("ISPLAYING", MethodSpec.of((self, args) -> {
+        Map.entry("ISPLAYING", MethodSpec.of((self, args, ctx) -> {
             SequenceVariable thisVar = (SequenceVariable) self;
             return MethodResult.returns(new BoolValue(thisVar.isPlaying()));
         })),
 
-        Map.entry("GETEVENTNAME", MethodSpec.of((self, args) -> {
+        Map.entry("GETEVENTNAME", MethodSpec.of((self, args, ctx) -> {
             SequenceVariable thisVar = (SequenceVariable) self;
             return MethodResult.returns(new StringValue(thisVar.getCurrentEventName()));
         }))

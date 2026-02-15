@@ -1,64 +1,114 @@
 package pl.genschu.bloomooemulator.builders;
 
 import pl.genschu.bloomooemulator.interpreter.context.Context;
-import pl.genschu.bloomooemulator.interpreter.runtime.effects.Effect;
+import pl.genschu.bloomooemulator.interpreter.runtime.ASTInterpreter;
+import pl.genschu.bloomooemulator.interpreter.runtime.ExecutionContext;
+import pl.genschu.bloomooemulator.interpreter.runtime.ExecutionResult;
+import pl.genschu.bloomooemulator.interpreter.runtime.ReturnResult;
 import pl.genschu.bloomooemulator.interpreter.values.Value;
-import pl.genschu.bloomooemulator.interpreter.variable.MethodResult;
-import pl.genschu.bloomooemulator.interpreter.variable.Variable;
+import pl.genschu.bloomooemulator.interpreter.variable.*;
 
 import java.util.List;
 
 /**
- * Helper class for executing methods with effects in tests.
+ * Helper class for executing variable methods with context in tests.
  *
- * Since Variable.callMethod() returns a MethodResult with effects that are normally
- * executed by ASTInterpreter, this helper provides a way to execute those effects
- * in unit tests.
+ * Creates a MethodContext from a Context and passes it to the variable's callMethod.
  */
 public final class MethodHelper {
 
     private MethodHelper() {}
 
     /**
-     * Calls a method on a variable and executes all resulting effects.
-     *
-     * @param context The context to execute effects in
-     * @param variable The variable to call the method on
-     * @param methodName The method name
-     * @param arguments The method arguments
-     * @return The return value from the method
+     * Creates a MethodContext adapter from a Context for test use.
      */
-    public static Value callWithEffects(Context context, Variable variable, String methodName, Value... arguments) {
-        MethodResult result = variable.callMethod(methodName, arguments);
-
-        // Variable is mutated in-place via MutableValue holders, no need to update context.
-
-        // Execute effects
-        Value returnValue = result.getReturnValue();
-        for (Effect effect : result.effects()) {
-            Value effectValue = effect.apply(context, variable, arguments != null ? List.of(arguments) : List.of());
-            if (effectValue != null) {
-                returnValue = effectValue;
+    public static MethodContext createMethodContext(Context context) {
+        return new MethodContext() {
+            @Override
+            public Variable getVariable(String name) {
+                return context.getVariable(name);
             }
-        }
 
-        return returnValue;
+            @Override
+            public void setVariable(String name, Variable variable) {
+                context.setVariable(name, variable);
+            }
+
+            @Override
+            public boolean updateVariable(String name, Variable variable) {
+                return context.updateVariableInHierarchy(name, variable);
+            }
+
+            @Override
+            public pl.genschu.bloomooemulator.engine.Game getGame() {
+                return context.getGame();
+            }
+
+            @Override
+            public Value runBehaviour(String frameName, Variable thisVar, BehaviourVariable behaviour, List<Value> args) {
+                ExecutionContext exec = context.exec();
+                exec.pushFrame(frameName, behaviour.name(), null);
+                try {
+                    if (args != null && !args.isEmpty()) {
+                        for (int i = 0; i < args.size(); i++) {
+                            exec.setLocal("$" + (i + 1), args.get(i));
+                        }
+                    }
+                    if (thisVar != null) {
+                        exec.setThis(thisVar);
+                    }
+                    ASTInterpreter interpreter = new ASTInterpreter(context);
+                    ExecutionResult result = interpreter.execute(behaviour.ast());
+                    if (result instanceof ReturnResult returnResult) {
+                        return returnResult.getValue();
+                    }
+                    return result.getValue();
+                } finally {
+                    exec.popFrame();
+                }
+            }
+
+            @Override
+            public pl.genschu.bloomooemulator.interpreter.context.CloneRegistry clones() {
+                return context.clones();
+            }
+        };
     }
 
     /**
-     * Calls a method on a variable and executes all resulting effects.
-     *
-     * @param context The context to execute effects in
-     * @param variableName The name of the variable in context
-     * @param methodName The method name
-     * @param arguments The method arguments
-     * @return The return value from the method
+     * Calls a method on a variable with a MethodContext created from Context.
      */
-    public static Value callWithEffects(Context context, String variableName, String methodName, Value... arguments) {
+    public static Value callWithContext(Context context, Variable variable, String methodName, Value... arguments) {
+        MethodContext ctx = createMethodContext(context);
+        MethodResult result = variable.callMethod(methodName,
+                arguments != null ? List.of(arguments) : List.of(), ctx);
+        return result.getReturnValue();
+    }
+
+    /**
+     * Calls a method on a named variable with a MethodContext created from Context.
+     */
+    public static Value callWithContext(Context context, String variableName, String methodName, Value... arguments) {
         Variable variable = context.getVariable(variableName);
         if (variable == null) {
             throw new IllegalArgumentException("Variable not found: " + variableName);
         }
-        return callWithEffects(context, variable, methodName, arguments);
+        return callWithContext(context, variable, methodName, arguments);
+    }
+
+    /**
+     * @deprecated Use {@link #callWithContext(Context, Variable, String, Value...)} instead.
+     */
+    @Deprecated
+    public static Value callWithEffects(Context context, Variable variable, String methodName, Value... arguments) {
+        return callWithContext(context, variable, methodName, arguments);
+    }
+
+    /**
+     * @deprecated Use {@link #callWithContext(Context, String, String, Value...)} instead.
+     */
+    @Deprecated
+    public static Value callWithEffects(Context context, String variableName, String methodName, Value... arguments) {
+        return callWithContext(context, variableName, methodName, arguments);
     }
 }
