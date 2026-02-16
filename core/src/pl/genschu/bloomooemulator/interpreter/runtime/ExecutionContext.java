@@ -111,6 +111,24 @@ public class ExecutionContext {
     }
 
     /**
+     * Updates a local variable in the frame where it was originally defined.
+     * Searches from the current frame upwards.
+     *
+     * @return true if the variable was found and updated
+     */
+    public boolean updateLocal(String name, Value value) {
+        ExecutionFrame frame = currentFrame;
+        while (frame != null) {
+            if (frame.hasLocal(name)) {
+                frame.setLocal(name, value);
+                return true;
+            }
+            frame = frame.getParent();
+        }
+        return false;
+    }
+
+    /**
      * Generates a full stack trace as a string.
      * This is like Java stack traces but for AidemMedia code!
      */

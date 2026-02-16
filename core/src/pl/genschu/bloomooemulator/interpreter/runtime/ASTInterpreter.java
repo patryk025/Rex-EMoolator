@@ -438,14 +438,16 @@ public class ASTInterpreter {
 
         Value initialValue = valueResult.getValue();
 
-        Variable variable = VariableFactory.createVariable(
-            node.varType(),
-            node.varName(),
-            initialValue
-        );
-        context.setVariable(node.varName(), variable);
+        // Check if variable already exists in current scope
+        if(exec.getLocal(node.varName()) != null) {
+            // Variable already exists - skip creation without error
+            return new NormalResult(null);
+        }
 
-        return new NormalResult(variable.value());
+        // Create variable in local scope
+        exec.setLocal(node.varName(), initialValue);
+
+        return new NormalResult(null);
     }
 
     private ExecutionResult executeConv(ConvNode node) {

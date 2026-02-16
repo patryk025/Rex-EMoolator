@@ -1,8 +1,8 @@
 package pl.genschu.bloomooemulator.interpreter.context;
 
 import pl.genschu.bloomooemulator.engine.Game;
-import pl.genschu.bloomooemulator.interpreter.values.Value;
-import pl.genschu.bloomooemulator.interpreter.variable.Variable;
+import pl.genschu.bloomooemulator.interpreter.values.*;
+import pl.genschu.bloomooemulator.interpreter.variable.*;
 import pl.genschu.bloomooemulator.interpreter.runtime.ExecutionContext;
 
 import java.util.*;
@@ -130,11 +130,16 @@ public class Context {
      * Gets a variable by name (full lookup chain).
      *
      * This is the main entry point for variable access.
+     * Checks execution locals first (from VarDef), then falls back to resolver.
      *
      * @param name Variable name
      * @return Variable or null (depending on fallback strategy)
      */
     public Variable getVariable(String name) {
+        Value local = executionContext.getLocal(name);
+        if (local != null) {
+            return localToVariable(name, local);
+        }
         return resolver.resolve(name, this);
     }
 
@@ -149,22 +154,30 @@ public class Context {
     }
 
     /**
-     * Checks if variable exists in this context only.
+     * Checks if variable exists in this context only (store or execution locals).
      *
      * @param name Variable name
      * @return true if exists in this context
      */
     public boolean hasVariable(String name) {
+        if (executionContext.getLocal(name) != null) {
+            return true;
+        }
         return store.has(name);
     }
 
     /**
      * Checks if variable exists in this context or any parent context.
+     * Also checks execution locals.
      *
      * @param name Variable name
      * @return true if exists in hierarchy
      */
     public boolean hasVariableInHierarchy(String name) {
+        if (executionContext.getLocal(name) != null) {
+            return true;
+        }
+
         if (store.has(name)) {
             return true;
         }
@@ -178,12 +191,17 @@ public class Context {
 
     /**
      * Updates a variable in the context hierarchy.
+     * Checks execution locals first, then store, then parent.
      *
      * @param name Variable name
      * @param var New variable instance
      * @return true if variable was updated in any context
      */
     public boolean updateVariableInHierarchy(String name, Variable var) {
+        if (executionContext.updateLocal(name, var.value())) {
+            return true;
+        }
+
         if (store.has(name)) {
             store.set(name, var);
             return true;
@@ -463,6 +481,24 @@ public class Context {
         store.clear();
         attributes.clear();
         clones.clear();
+    }
+
+    // ============================================================
+    // Private helpers
+    // ============================================================
+
+    /**
+     * Wraps a local Value as a Variable for getVariable() compatibility.
+     * Supports primitive types created by VarDef (@INT, @STRING, @DOUBLE, @BOOL).
+     */
+    private Variable localToVariable(String name, Value value) {
+        return switch (value) {
+            case IntValue v -> new IntegerVariable(name, v.value());
+            case DoubleValue v -> new DoubleVariable(name, v.value());
+            case StringValue v -> new StringVariable(name, v.value());
+            case BoolValue v -> new BoolVariable(name, v.value());
+            default -> new StringVariable(name, value.toDisplayString());
+        };
     }
 
     @Override

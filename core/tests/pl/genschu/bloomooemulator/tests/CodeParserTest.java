@@ -25,6 +25,7 @@ import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
+import static pl.genschu.bloomooemulator.builders.MethodHelper.createMethodContext;
 
 public class CodeParserTest {
     private Context ctx;
@@ -197,7 +198,7 @@ public class CodeParserTest {
     void evals(String script, Object expected) {
         BehaviourVariable behaviour = (BehaviourVariable) new BehaviourVariable("SCRIPT", new BlockNode(List.of(), SourceLocation.UNKNOWN), null)
                 .withScript(script);
-        MethodContext methodCtx = pl.genschu.bloomooemulator.builders.MethodHelper.createMethodContext(ctx);
+        MethodContext methodCtx = createMethodContext(ctx);
         MethodResult result = behaviour.callMethod("RUN", List.of(), methodCtx);
 
         Value returnValue = result.returnValue();
