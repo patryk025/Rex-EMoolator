@@ -271,12 +271,12 @@ public class ASTBuilder extends AidemMediaParserBaseVisitor<ASTNode> {
             String operator = evaluateToString(args.get(1));
             ASTNode right = args.get(2);
 
-            condition = new ComparisonNode(
-                left,
-                right,
-                ComparisonNode.ComparisonOp.fromString(operator),
-                location
-            );
+            String simpleCondition = evaluateToString(left)
+                    + operator.replace("_", "'")
+                    + evaluateToString(right);
+            LiteralNode combined = new LiteralNode(new StringValue(simpleCondition), location);
+
+            condition = parseConditionArg(combined);
             trueBranch = parseCodeArg(args.get(3));
             falseBranch = parseCodeArg(args.get(4));
         }
