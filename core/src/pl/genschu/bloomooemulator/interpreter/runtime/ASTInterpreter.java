@@ -483,13 +483,6 @@ public class ASTInterpreter {
     private Variable resolveMethodTarget(ASTNode target, SourceLocation location) {
         if (target instanceof VariableNode variableNode) {
             String name = variableNode.name();
-            if (!context.hasVariableInHierarchy(name)) {
-                throw new InterpreterException(
-                    "Variable not found: " + name,
-                    exec,
-                    location
-                );
-            }
 
             Variable variable = context.getVariable(name);
             if (variable == null) {
@@ -504,14 +497,8 @@ public class ASTInterpreter {
         }
 
         if (target instanceof PointerDerefNode pointerDerefNode) {
-            ExecutionResult result = execute(pointerDerefNode);
-            if (!result.shouldContinue())
-                throw new InterpreterException(
-                    "Pointer dereference failed",
-                    exec,
-                    location
-                );
-            return resolveMethodTarget(pointerDerefNode.expression(), location);
+            ExecutionResult result = execute(pointerDerefNode.expression());
+            return resolveMethodTarget(new VariableNode(result.getValue().toDisplayString(), location), location);
         }
 
         throw new InterpreterException(
