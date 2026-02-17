@@ -23,6 +23,10 @@ public class ASTInterpreter {
     private final ExecutionContext exec;
     private final MethodContext methodContext;
 
+    // @RETURN does not exit the behaviour — it stores the value here.
+    // Each subsequent @RETURN overrides the previous value.
+    private Value pendingReturnValue;
+
     public ASTInterpreter(Context context) {
         if (context == null) {
             throw new IllegalArgumentException("Context cannot be null");
@@ -30,6 +34,13 @@ public class ASTInterpreter {
         this.context = context;
         this.exec = context.exec();
         this.methodContext = createMethodContext();
+    }
+
+    /**
+     * Returns the pending return value set by @RETURN, or null if none was set.
+     */
+    public Value getPendingReturnValue() {
+        return pendingReturnValue;
     }
 
     private MethodContext createMethodContext() {
@@ -68,11 +79,11 @@ public class ASTInterpreter {
                         exec.setThis(thisVar);
                     }
                     ASTInterpreter interpreter = new ASTInterpreter(context);
-                    ExecutionResult result = interpreter.execute(behaviour.ast());
-                    if (result instanceof ReturnResult returnResult) {
-                        return returnResult.getValue();
+                    interpreter.execute(behaviour.ast());
+                    if (interpreter.getPendingReturnValue() != null) {
+                        return interpreter.getPendingReturnValue();
                     }
-                    return result.getValue();
+                    return NullValue.INSTANCE;
                 } finally {
                     exec.popFrame();
                 }
@@ -289,10 +300,6 @@ public class ASTInterpreter {
                     // Break all loops - propagate up
                     return bodyResult;
                 }
-                if (bodyResult.isReturn()) {
-                    // Propagate return
-                    return bodyResult;
-                }
             }
 
             return new NormalResult(NullValue.INSTANCE);
@@ -320,9 +327,6 @@ public class ASTInterpreter {
                 if (bodyResult instanceof BreakResult) {
                     return bodyResult;
                 }
-                if (bodyResult.isReturn()) {
-                    return bodyResult;
-                }
             }
 
             return new NormalResult(NullValue.INSTANCE);
@@ -343,10 +347,11 @@ public class ASTInterpreter {
         if (node.hasValue()) {
             ExecutionResult valueResult = execute(node.value());
             if (!valueResult.shouldContinue()) return valueResult;
-            return new ReturnResult(valueResult.getValue());
+            pendingReturnValue = valueResult.getValue();
         } else {
-            return new ReturnResult(NullValue.INSTANCE);
+            pendingReturnValue = NullValue.INSTANCE;
         }
+        return new NormalResult(pendingReturnValue);
     }
 
     // === METHOD CALLS ===

@@ -3,8 +3,6 @@ package pl.genschu.bloomooemulator.builders;
 import pl.genschu.bloomooemulator.interpreter.context.Context;
 import pl.genschu.bloomooemulator.interpreter.runtime.ASTInterpreter;
 import pl.genschu.bloomooemulator.interpreter.runtime.ExecutionContext;
-import pl.genschu.bloomooemulator.interpreter.runtime.ExecutionResult;
-import pl.genschu.bloomooemulator.interpreter.runtime.ReturnResult;
 import pl.genschu.bloomooemulator.interpreter.values.*;
 import pl.genschu.bloomooemulator.interpreter.variable.*;
 
@@ -58,11 +56,11 @@ public final class MethodHelper {
                         exec.setThis(thisVar);
                     }
                     ASTInterpreter interpreter = new ASTInterpreter(context);
-                    ExecutionResult result = interpreter.execute(behaviour.ast());
-                    if (result instanceof ReturnResult returnResult) {
-                        return returnResult.getValue();
+                    interpreter.execute(behaviour.ast());
+                    if (interpreter.getPendingReturnValue() != null) {
+                        return interpreter.getPendingReturnValue();
                     }
-                    return result.getValue();
+                    return NullValue.INSTANCE;
                 } finally {
                     exec.popFrame();
                 }
