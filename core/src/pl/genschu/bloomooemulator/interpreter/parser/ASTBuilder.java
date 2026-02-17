@@ -400,7 +400,6 @@ public class ASTBuilder extends AidemMediaParserBaseVisitor<ASTNode> {
 
     /**
      * Parses a condition string (like "x > 5 && y < 10") into an AST.
-     * This is more complex - for now, just try to parse as expression.
      */
     private ASTNode parseConditionString(String condText, SourceLocation originalLocation) {
         try {
@@ -409,10 +408,10 @@ public class ASTBuilder extends AidemMediaParserBaseVisitor<ASTNode> {
             CommonTokenStream tokens = new CommonTokenStream(lexer);
             AidemMediaParser parser = new AidemMediaParser(tokens);
 
-            AidemMediaParser.ExprContext exprCtx = parser.expr();
+            AidemMediaParser.IfConditionContext ifCondCtx = parser.ifCondition();
 
             ASTBuilder nested = new ASTBuilder(this.context);
-            return nested.visit(exprCtx);
+            return nested.visit(ifCondCtx);
         } catch (Exception e) {
             throw new ParseException(
                 "Failed to parse condition: " + e.getMessage(),
@@ -422,16 +421,43 @@ public class ASTBuilder extends AidemMediaParserBaseVisitor<ASTNode> {
     }
 
     // ========================================
+    // IF CONDITION (for parsing @IF conditions)
+    // ========================================
+
+    @Override
+    public ASTNode visitIfCondition(AidemMediaParser.IfConditionContext ctx) {
+        ASTNode left = visit(ctx.left);
+        String operator = ctx.op.getText();
+        ASTNode right = visit(ctx.right);
+
+        return new LogicalNode(
+            left,
+            right,
+            LogicalNode.LogicalOp.fromString(operator),
+            loc(ctx)
+        );
+    }
+
+    @Override
+    public ASTNode visitIfSimpleCondition(AidemMediaParser.IfSimpleConditionContext ctx) {
+        ASTNode left = visit(ctx.left);
+        String operator = ctx.op.getText();
+        ASTNode right = visit(ctx.right);
+
+        return new ComparisonNode(
+            left,
+            right,
+            ComparisonNode.ComparisonOp.fromString(operator),
+            loc(ctx)
+        );
+    }
+
+    // ========================================
     // EXPRESSIONS
     // ========================================
 
     @Override
     public ASTNode visitExpr(AidemMediaParser.ExprContext ctx) {
-        return visit(ctx.arithmeticExpr());
-    }
-
-    @Override
-    public ASTNode visitArithmeticExpr(AidemMediaParser.ArithmeticExprContext ctx) {
         // Left-to-right evaluation: left op right op right op right ...
         // Yeah, it's not a bug...
         ASTNode result = visit(ctx.left);

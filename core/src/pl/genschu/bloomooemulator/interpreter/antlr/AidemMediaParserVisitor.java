@@ -65,11 +65,17 @@ public interface AidemMediaParserVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitExpr(AidemMediaParser.ExprContext ctx);
 	/**
-	 * Visit a parse tree produced by {@link AidemMediaParser#arithmeticExpr}.
+	 * Visit a parse tree produced by {@link AidemMediaParser#ifCondition}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
-	T visitArithmeticExpr(AidemMediaParser.ArithmeticExprContext ctx);
+	T visitIfCondition(AidemMediaParser.IfConditionContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link AidemMediaParser#ifSimpleCondition}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitIfSimpleCondition(AidemMediaParser.IfSimpleConditionContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link AidemMediaParser#unaryExpr}.
 	 * @param ctx the parse tree

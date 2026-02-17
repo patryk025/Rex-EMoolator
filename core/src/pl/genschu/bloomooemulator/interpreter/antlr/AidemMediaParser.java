@@ -19,16 +19,19 @@ public class AidemMediaParser extends Parser {
 	public static final int
 		TRUE=1, FALSE=2, NUMBER=3, STRING=4, CODE_BLOCK=5, AT=6, CARET=7, LPAREN=8, 
 		RPAREN=9, LBRACK=10, RBRACK=11, COMMA=12, SEMI=13, STAR=14, PLUS=15, MINUS=16, 
-		PERC=17, PIPE=18, LBRACE=19, RBRACE=20, MISSING_CLOSE_QUOTE=21, IDENT=22, 
-		LINE_COMMENT=23, WS=24;
+		PERC=17, PIPE=18, LBRACE=19, RBRACE=20, MISSING_CLOSE_QUOTE=21, OR=22, 
+		AND=23, LESS=24, GREATER=25, EQUAL=26, NOT_EQUAL=27, GREATER_EQUAL=28, 
+		LESS_EQUAL=29, IDENT=30, LINE_COMMENT=31, WS=32;
 	public static final int
 		RULE_script = 0, RULE_statement = 1, RULE_specialCall = 2, RULE_methodCall = 3, 
 		RULE_objectName = 4, RULE_objectReference = 5, RULE_argListOpt = 6, RULE_arg = 7, 
-		RULE_expr = 8, RULE_arithmeticExpr = 9, RULE_unaryExpr = 10, RULE_primary = 11;
+		RULE_expr = 8, RULE_ifCondition = 9, RULE_ifSimpleCondition = 10, RULE_unaryExpr = 11, 
+		RULE_primary = 12;
 	private static String[] makeRuleNames() {
 		return new String[] {
 			"script", "statement", "specialCall", "methodCall", "objectName", "objectReference", 
-			"argListOpt", "arg", "expr", "arithmeticExpr", "unaryExpr", "primary"
+			"argListOpt", "arg", "expr", "ifCondition", "ifSimpleCondition", "unaryExpr", 
+			"primary"
 		};
 	}
 	public static final String[] ruleNames = makeRuleNames();
@@ -37,7 +40,7 @@ public class AidemMediaParser extends Parser {
 		return new String[] {
 			null, "'TRUE'", "'FALSE'", null, null, null, "'@'", "'^'", "'('", "')'", 
 			"'['", "']'", "','", "';'", "'*'", "'+'", "'-'", "'%'", "'|'", "'{'", 
-			"'}'"
+			"'}'", null, "'||'", "'&&'", "'<'", "'>'", "'''", "'!''", "'>''", "'<''"
 		};
 	}
 	private static final String[] _LITERAL_NAMES = makeLiteralNames();
@@ -45,8 +48,9 @@ public class AidemMediaParser extends Parser {
 		return new String[] {
 			null, "TRUE", "FALSE", "NUMBER", "STRING", "CODE_BLOCK", "AT", "CARET", 
 			"LPAREN", "RPAREN", "LBRACK", "RBRACK", "COMMA", "SEMI", "STAR", "PLUS", 
-			"MINUS", "PERC", "PIPE", "LBRACE", "RBRACE", "MISSING_CLOSE_QUOTE", "IDENT", 
-			"LINE_COMMENT", "WS"
+			"MINUS", "PERC", "PIPE", "LBRACE", "RBRACE", "MISSING_CLOSE_QUOTE", "OR", 
+			"AND", "LESS", "GREATER", "EQUAL", "NOT_EQUAL", "GREATER_EQUAL", "LESS_EQUAL", 
+			"IDENT", "LINE_COMMENT", "WS"
 		};
 	}
 	private static final String[] _SYMBOLIC_NAMES = makeSymbolicNames();
@@ -147,17 +151,17 @@ public class AidemMediaParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(24);
+			setState(26);
 			match(LBRACE);
-			setState(30);
+			setState(32);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
-			while ((((_la) & ~0x3f) == 0 && ((1L << _la) & 4310142L) != 0)) {
+			while ((((_la) & ~0x3f) == 0 && ((1L << _la) & 1073857662L) != 0)) {
 				{
 				{
-				setState(25);
+				setState(27);
 				statement();
-				setState(26);
+				setState(28);
 				_la = _input.LA(1);
 				if ( !(((((_la - -1)) & ~0x3f) == 0 && ((1L << (_la - -1)) & 2113537L) != 0)) ) {
 				_errHandler.recoverInline(this);
@@ -169,11 +173,11 @@ public class AidemMediaParser extends Parser {
 				}
 				}
 				}
-				setState(32);
+				setState(34);
 				_errHandler.sync(this);
 				_la = _input.LA(1);
 			}
-			setState(33);
+			setState(35);
 			_la = _input.LA(1);
 			if ( !(_la==EOF || _la==RBRACE) ) {
 			_errHandler.recoverInline(this);
@@ -230,27 +234,27 @@ public class AidemMediaParser extends Parser {
 		StatementContext _localctx = new StatementContext(_ctx, getState());
 		enterRule(_localctx, 2, RULE_statement);
 		try {
-			setState(38);
+			setState(40);
 			_errHandler.sync(this);
 			switch ( getInterpreter().adaptivePredict(_input,1,_ctx) ) {
 			case 1:
 				enterOuterAlt(_localctx, 1);
 				{
-				setState(35);
+				setState(37);
 				specialCall();
 				}
 				break;
 			case 2:
 				enterOuterAlt(_localctx, 2);
 				{
-				setState(36);
+				setState(38);
 				methodCall();
 				}
 				break;
 			case 3:
 				enterOuterAlt(_localctx, 3);
 				{
-				setState(37);
+				setState(39);
 				expr();
 				}
 				break;
@@ -302,15 +306,15 @@ public class AidemMediaParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(40);
-			match(AT);
-			setState(41);
-			((SpecialCallContext)_localctx).name = match(IDENT);
 			setState(42);
-			match(LPAREN);
+			match(AT);
 			setState(43);
-			argListOpt();
+			((SpecialCallContext)_localctx).name = match(IDENT);
 			setState(44);
+			match(LPAREN);
+			setState(45);
+			argListOpt();
+			setState(46);
 			match(RPAREN);
 			}
 		}
@@ -366,33 +370,33 @@ public class AidemMediaParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(48);
+			setState(50);
 			_errHandler.sync(this);
 			switch (_input.LA(1)) {
 			case IDENT:
 				{
-				setState(46);
+				setState(48);
 				objectName();
 				}
 				break;
 			case STAR:
 				{
-				setState(47);
+				setState(49);
 				objectReference();
 				}
 				break;
 			default:
 				throw new NoViableAltException(this);
 			}
-			setState(50);
-			match(CARET);
-			setState(51);
-			((MethodCallContext)_localctx).method = match(IDENT);
 			setState(52);
-			match(LPAREN);
+			match(CARET);
 			setState(53);
-			argListOpt();
+			((MethodCallContext)_localctx).method = match(IDENT);
 			setState(54);
+			match(LPAREN);
+			setState(55);
+			argListOpt();
+			setState(56);
 			match(RPAREN);
 			}
 		}
@@ -442,16 +446,16 @@ public class AidemMediaParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(56);
+			setState(58);
 			((ObjectNameContext)_localctx).name = match(IDENT);
-			setState(59);
+			setState(61);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
 			if (_la==PIPE) {
 				{
-				setState(57);
+				setState(59);
 				match(PIPE);
-				setState(58);
+				setState(60);
 				((ObjectNameContext)_localctx).field = match(IDENT);
 				}
 			}
@@ -500,9 +504,9 @@ public class AidemMediaParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(61);
+			setState(63);
 			match(STAR);
-			setState(62);
+			setState(64);
 			primary();
 			}
 		}
@@ -555,26 +559,26 @@ public class AidemMediaParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(72);
+			setState(74);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
-			if ((((_la) & ~0x3f) == 0 && ((1L << _la) & 6407230L) != 0)) {
+			if ((((_la) & ~0x3f) == 0 && ((1L << _la) & 1075954750L) != 0)) {
 				{
-				setState(64);
+				setState(66);
 				arg();
-				setState(69);
+				setState(71);
 				_errHandler.sync(this);
 				_la = _input.LA(1);
 				while (_la==COMMA) {
 					{
 					{
-					setState(65);
+					setState(67);
 					match(COMMA);
-					setState(66);
+					setState(68);
 					arg();
 					}
 					}
-					setState(71);
+					setState(73);
 					_errHandler.sync(this);
 					_la = _input.LA(1);
 				}
@@ -624,7 +628,7 @@ public class AidemMediaParser extends Parser {
 		ArgContext _localctx = new ArgContext(_ctx, getState());
 		enterRule(_localctx, 14, RULE_arg);
 		try {
-			setState(76);
+			setState(78);
 			_errHandler.sync(this);
 			switch (_input.LA(1)) {
 			case TRUE:
@@ -639,14 +643,14 @@ public class AidemMediaParser extends Parser {
 			case IDENT:
 				enterOuterAlt(_localctx, 1);
 				{
-				setState(74);
+				setState(76);
 				expr();
 				}
 				break;
 			case MISSING_CLOSE_QUOTE:
 				enterOuterAlt(_localctx, 2);
 				{
-				setState(75);
+				setState(77);
 				((ArgContext)_localctx).missing_quote = match(MISSING_CLOSE_QUOTE);
 				}
 				break;
@@ -667,51 +671,6 @@ public class AidemMediaParser extends Parser {
 
 	@SuppressWarnings("CheckReturnValue")
 	public static class ExprContext extends ParserRuleContext {
-		public ArithmeticExprContext arithmeticExpr() {
-			return getRuleContext(ArithmeticExprContext.class,0);
-		}
-		public ExprContext(ParserRuleContext parent, int invokingState) {
-			super(parent, invokingState);
-		}
-		@Override public int getRuleIndex() { return RULE_expr; }
-		@Override
-		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof AidemMediaParserListener ) ((AidemMediaParserListener)listener).enterExpr(this);
-		}
-		@Override
-		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof AidemMediaParserListener ) ((AidemMediaParserListener)listener).exitExpr(this);
-		}
-		@Override
-		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof AidemMediaParserVisitor ) return ((AidemMediaParserVisitor<? extends T>)visitor).visitExpr(this);
-			else return visitor.visitChildren(this);
-		}
-	}
-
-	public final ExprContext expr() throws RecognitionException {
-		ExprContext _localctx = new ExprContext(_ctx, getState());
-		enterRule(_localctx, 16, RULE_expr);
-		try {
-			enterOuterAlt(_localctx, 1);
-			{
-			setState(78);
-			arithmeticExpr();
-			}
-		}
-		catch (RecognitionException re) {
-			_localctx.exception = re;
-			_errHandler.reportError(this, re);
-			_errHandler.recover(this, re);
-		}
-		finally {
-			exitRule();
-		}
-		return _localctx;
-	}
-
-	@SuppressWarnings("CheckReturnValue")
-	public static class ArithmeticExprContext extends ParserRuleContext {
 		public UnaryExprContext left;
 		public Token op;
 		public UnaryExprContext right;
@@ -741,34 +700,34 @@ public class AidemMediaParser extends Parser {
 		public TerminalNode PERC(int i) {
 			return getToken(AidemMediaParser.PERC, i);
 		}
-		public ArithmeticExprContext(ParserRuleContext parent, int invokingState) {
+		public ExprContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
 		}
-		@Override public int getRuleIndex() { return RULE_arithmeticExpr; }
+		@Override public int getRuleIndex() { return RULE_expr; }
 		@Override
 		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof AidemMediaParserListener ) ((AidemMediaParserListener)listener).enterArithmeticExpr(this);
+			if ( listener instanceof AidemMediaParserListener ) ((AidemMediaParserListener)listener).enterExpr(this);
 		}
 		@Override
 		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof AidemMediaParserListener ) ((AidemMediaParserListener)listener).exitArithmeticExpr(this);
+			if ( listener instanceof AidemMediaParserListener ) ((AidemMediaParserListener)listener).exitExpr(this);
 		}
 		@Override
 		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof AidemMediaParserVisitor ) return ((AidemMediaParserVisitor<? extends T>)visitor).visitArithmeticExpr(this);
+			if ( visitor instanceof AidemMediaParserVisitor ) return ((AidemMediaParserVisitor<? extends T>)visitor).visitExpr(this);
 			else return visitor.visitChildren(this);
 		}
 	}
 
-	public final ArithmeticExprContext arithmeticExpr() throws RecognitionException {
-		ArithmeticExprContext _localctx = new ArithmeticExprContext(_ctx, getState());
-		enterRule(_localctx, 18, RULE_arithmeticExpr);
+	public final ExprContext expr() throws RecognitionException {
+		ExprContext _localctx = new ExprContext(_ctx, getState());
+		enterRule(_localctx, 16, RULE_expr);
 		int _la;
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
 			setState(80);
-			((ArithmeticExprContext)_localctx).left = unaryExpr();
+			((ExprContext)_localctx).left = unaryExpr();
 			setState(85);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
@@ -776,10 +735,10 @@ public class AidemMediaParser extends Parser {
 				{
 				{
 				setState(81);
-				((ArithmeticExprContext)_localctx).op = _input.LT(1);
+				((ExprContext)_localctx).op = _input.LT(1);
 				_la = _input.LA(1);
 				if ( !((((_la) & ~0x3f) == 0 && ((1L << _la) & 245824L) != 0)) ) {
-					((ArithmeticExprContext)_localctx).op = (Token)_errHandler.recoverInline(this);
+					((ExprContext)_localctx).op = (Token)_errHandler.recoverInline(this);
 				}
 				else {
 					if ( _input.LA(1)==Token.EOF ) matchedEOF = true;
@@ -787,13 +746,175 @@ public class AidemMediaParser extends Parser {
 					consume();
 				}
 				setState(82);
-				((ArithmeticExprContext)_localctx).right = unaryExpr();
+				((ExprContext)_localctx).right = unaryExpr();
 				}
 				}
 				setState(87);
 				_errHandler.sync(this);
 				_la = _input.LA(1);
 			}
+			}
+		}
+		catch (RecognitionException re) {
+			_localctx.exception = re;
+			_errHandler.reportError(this, re);
+			_errHandler.recover(this, re);
+		}
+		finally {
+			exitRule();
+		}
+		return _localctx;
+	}
+
+	@SuppressWarnings("CheckReturnValue")
+	public static class IfConditionContext extends ParserRuleContext {
+		public IfSimpleConditionContext left;
+		public Token op;
+		public IfConditionContext right;
+		public IfSimpleConditionContext ifSimpleCondition() {
+			return getRuleContext(IfSimpleConditionContext.class,0);
+		}
+		public List<IfConditionContext> ifCondition() {
+			return getRuleContexts(IfConditionContext.class);
+		}
+		public IfConditionContext ifCondition(int i) {
+			return getRuleContext(IfConditionContext.class,i);
+		}
+		public List<TerminalNode> OR() { return getTokens(AidemMediaParser.OR); }
+		public TerminalNode OR(int i) {
+			return getToken(AidemMediaParser.OR, i);
+		}
+		public List<TerminalNode> AND() { return getTokens(AidemMediaParser.AND); }
+		public TerminalNode AND(int i) {
+			return getToken(AidemMediaParser.AND, i);
+		}
+		public IfConditionContext(ParserRuleContext parent, int invokingState) {
+			super(parent, invokingState);
+		}
+		@Override public int getRuleIndex() { return RULE_ifCondition; }
+		@Override
+		public void enterRule(ParseTreeListener listener) {
+			if ( listener instanceof AidemMediaParserListener ) ((AidemMediaParserListener)listener).enterIfCondition(this);
+		}
+		@Override
+		public void exitRule(ParseTreeListener listener) {
+			if ( listener instanceof AidemMediaParserListener ) ((AidemMediaParserListener)listener).exitIfCondition(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof AidemMediaParserVisitor ) return ((AidemMediaParserVisitor<? extends T>)visitor).visitIfCondition(this);
+			else return visitor.visitChildren(this);
+		}
+	}
+
+	public final IfConditionContext ifCondition() throws RecognitionException {
+		IfConditionContext _localctx = new IfConditionContext(_ctx, getState());
+		enterRule(_localctx, 18, RULE_ifCondition);
+		int _la;
+		try {
+			int _alt;
+			enterOuterAlt(_localctx, 1);
+			{
+			setState(88);
+			((IfConditionContext)_localctx).left = ifSimpleCondition();
+			setState(93);
+			_errHandler.sync(this);
+			_alt = getInterpreter().adaptivePredict(_input,8,_ctx);
+			while ( _alt!=2 && _alt!=org.antlr.v4.runtime.atn.ATN.INVALID_ALT_NUMBER ) {
+				if ( _alt==1 ) {
+					{
+					{
+					setState(89);
+					((IfConditionContext)_localctx).op = _input.LT(1);
+					_la = _input.LA(1);
+					if ( !(_la==OR || _la==AND) ) {
+						((IfConditionContext)_localctx).op = (Token)_errHandler.recoverInline(this);
+					}
+					else {
+						if ( _input.LA(1)==Token.EOF ) matchedEOF = true;
+						_errHandler.reportMatch(this);
+						consume();
+					}
+					setState(90);
+					((IfConditionContext)_localctx).right = ifCondition();
+					}
+					} 
+				}
+				setState(95);
+				_errHandler.sync(this);
+				_alt = getInterpreter().adaptivePredict(_input,8,_ctx);
+			}
+			}
+		}
+		catch (RecognitionException re) {
+			_localctx.exception = re;
+			_errHandler.reportError(this, re);
+			_errHandler.recover(this, re);
+		}
+		finally {
+			exitRule();
+		}
+		return _localctx;
+	}
+
+	@SuppressWarnings("CheckReturnValue")
+	public static class IfSimpleConditionContext extends ParserRuleContext {
+		public ExprContext left;
+		public Token op;
+		public ExprContext right;
+		public List<ExprContext> expr() {
+			return getRuleContexts(ExprContext.class);
+		}
+		public ExprContext expr(int i) {
+			return getRuleContext(ExprContext.class,i);
+		}
+		public TerminalNode LESS() { return getToken(AidemMediaParser.LESS, 0); }
+		public TerminalNode GREATER() { return getToken(AidemMediaParser.GREATER, 0); }
+		public TerminalNode EQUAL() { return getToken(AidemMediaParser.EQUAL, 0); }
+		public TerminalNode NOT_EQUAL() { return getToken(AidemMediaParser.NOT_EQUAL, 0); }
+		public TerminalNode GREATER_EQUAL() { return getToken(AidemMediaParser.GREATER_EQUAL, 0); }
+		public TerminalNode LESS_EQUAL() { return getToken(AidemMediaParser.LESS_EQUAL, 0); }
+		public IfSimpleConditionContext(ParserRuleContext parent, int invokingState) {
+			super(parent, invokingState);
+		}
+		@Override public int getRuleIndex() { return RULE_ifSimpleCondition; }
+		@Override
+		public void enterRule(ParseTreeListener listener) {
+			if ( listener instanceof AidemMediaParserListener ) ((AidemMediaParserListener)listener).enterIfSimpleCondition(this);
+		}
+		@Override
+		public void exitRule(ParseTreeListener listener) {
+			if ( listener instanceof AidemMediaParserListener ) ((AidemMediaParserListener)listener).exitIfSimpleCondition(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof AidemMediaParserVisitor ) return ((AidemMediaParserVisitor<? extends T>)visitor).visitIfSimpleCondition(this);
+			else return visitor.visitChildren(this);
+		}
+	}
+
+	public final IfSimpleConditionContext ifSimpleCondition() throws RecognitionException {
+		IfSimpleConditionContext _localctx = new IfSimpleConditionContext(_ctx, getState());
+		enterRule(_localctx, 20, RULE_ifSimpleCondition);
+		int _la;
+		try {
+			enterOuterAlt(_localctx, 1);
+			{
+			setState(96);
+			((IfSimpleConditionContext)_localctx).left = expr();
+			setState(97);
+			((IfSimpleConditionContext)_localctx).op = _input.LT(1);
+			_la = _input.LA(1);
+			if ( !((((_la) & ~0x3f) == 0 && ((1L << _la) & 1056964608L) != 0)) ) {
+				((IfSimpleConditionContext)_localctx).op = (Token)_errHandler.recoverInline(this);
+			}
+			else {
+				if ( _input.LA(1)==Token.EOF ) matchedEOF = true;
+				_errHandler.reportMatch(this);
+				consume();
+			}
+			setState(98);
+			((IfSimpleConditionContext)_localctx).right = expr();
 			}
 		}
 		catch (RecognitionException re) {
@@ -840,16 +961,16 @@ public class AidemMediaParser extends Parser {
 
 	public final UnaryExprContext unaryExpr() throws RecognitionException {
 		UnaryExprContext _localctx = new UnaryExprContext(_ctx, getState());
-		enterRule(_localctx, 20, RULE_unaryExpr);
+		enterRule(_localctx, 22, RULE_unaryExpr);
 		int _la;
 		try {
-			setState(91);
+			setState(103);
 			_errHandler.sync(this);
-			switch ( getInterpreter().adaptivePredict(_input,8,_ctx) ) {
+			switch ( getInterpreter().adaptivePredict(_input,9,_ctx) ) {
 			case 1:
 				enterOuterAlt(_localctx, 1);
 				{
-				setState(88);
+				setState(100);
 				((UnaryExprContext)_localctx).op = _input.LT(1);
 				_la = _input.LA(1);
 				if ( !((((_la) & ~0x3f) == 0 && ((1L << _la) & 114688L) != 0)) ) {
@@ -860,14 +981,14 @@ public class AidemMediaParser extends Parser {
 					_errHandler.reportMatch(this);
 					consume();
 				}
-				setState(89);
+				setState(101);
 				unaryExpr();
 				}
 				break;
 			case 2:
 				enterOuterAlt(_localctx, 2);
 				{
-				setState(90);
+				setState(102);
 				primary();
 				}
 				break;
@@ -923,68 +1044,68 @@ public class AidemMediaParser extends Parser {
 
 	public final PrimaryContext primary() throws RecognitionException {
 		PrimaryContext _localctx = new PrimaryContext(_ctx, getState());
-		enterRule(_localctx, 22, RULE_primary);
+		enterRule(_localctx, 24, RULE_primary);
 		try {
-			setState(104);
+			setState(116);
 			_errHandler.sync(this);
-			switch ( getInterpreter().adaptivePredict(_input,9,_ctx) ) {
+			switch ( getInterpreter().adaptivePredict(_input,10,_ctx) ) {
 			case 1:
 				enterOuterAlt(_localctx, 1);
 				{
-				setState(93);
+				setState(105);
 				match(NUMBER);
 				}
 				break;
 			case 2:
 				enterOuterAlt(_localctx, 2);
 				{
-				setState(94);
+				setState(106);
 				match(TRUE);
 				}
 				break;
 			case 3:
 				enterOuterAlt(_localctx, 3);
 				{
-				setState(95);
+				setState(107);
 				match(FALSE);
 				}
 				break;
 			case 4:
 				enterOuterAlt(_localctx, 4);
 				{
-				setState(96);
+				setState(108);
 				match(STRING);
 				}
 				break;
 			case 5:
 				enterOuterAlt(_localctx, 5);
 				{
-				setState(97);
+				setState(109);
 				match(CODE_BLOCK);
 				}
 				break;
 			case 6:
 				enterOuterAlt(_localctx, 6);
 				{
-				setState(98);
+				setState(110);
 				methodCall();
 				}
 				break;
 			case 7:
 				enterOuterAlt(_localctx, 7);
 				{
-				setState(99);
+				setState(111);
 				objectName();
 				}
 				break;
 			case 8:
 				enterOuterAlt(_localctx, 8);
 				{
-				setState(100);
+				setState(112);
 				match(LBRACK);
-				setState(101);
+				setState(113);
 				expr();
-				setState(102);
+				setState(114);
 				match(RBRACK);
 				}
 				break;
@@ -1002,68 +1123,73 @@ public class AidemMediaParser extends Parser {
 	}
 
 	public static final String _serializedATN =
-		"\u0004\u0001\u0018k\u0002\u0000\u0007\u0000\u0002\u0001\u0007\u0001\u0002"+
-		"\u0002\u0007\u0002\u0002\u0003\u0007\u0003\u0002\u0004\u0007\u0004\u0002"+
-		"\u0005\u0007\u0005\u0002\u0006\u0007\u0006\u0002\u0007\u0007\u0007\u0002"+
-		"\b\u0007\b\u0002\t\u0007\t\u0002\n\u0007\n\u0002\u000b\u0007\u000b\u0001"+
-		"\u0000\u0001\u0000\u0001\u0000\u0001\u0000\u0005\u0000\u001d\b\u0000\n"+
-		"\u0000\f\u0000 \t\u0000\u0001\u0000\u0001\u0000\u0001\u0001\u0001\u0001"+
-		"\u0001\u0001\u0003\u0001\'\b\u0001\u0001\u0002\u0001\u0002\u0001\u0002"+
-		"\u0001\u0002\u0001\u0002\u0001\u0002\u0001\u0003\u0001\u0003\u0003\u0003"+
-		"1\b\u0003\u0001\u0003\u0001\u0003\u0001\u0003\u0001\u0003\u0001\u0003"+
-		"\u0001\u0003\u0001\u0004\u0001\u0004\u0001\u0004\u0003\u0004<\b\u0004"+
-		"\u0001\u0005\u0001\u0005\u0001\u0005\u0001\u0006\u0001\u0006\u0001\u0006"+
-		"\u0005\u0006D\b\u0006\n\u0006\f\u0006G\t\u0006\u0003\u0006I\b\u0006\u0001"+
-		"\u0007\u0001\u0007\u0003\u0007M\b\u0007\u0001\b\u0001\b\u0001\t\u0001"+
-		"\t\u0001\t\u0005\tT\b\t\n\t\f\tW\t\t\u0001\n\u0001\n\u0001\n\u0003\n\\"+
-		"\b\n\u0001\u000b\u0001\u000b\u0001\u000b\u0001\u000b\u0001\u000b\u0001"+
-		"\u000b\u0001\u000b\u0001\u000b\u0001\u000b\u0001\u000b\u0001\u000b\u0003"+
-		"\u000bi\b\u000b\u0001\u000b\u0000\u0000\f\u0000\u0002\u0004\u0006\b\n"+
-		"\f\u000e\u0010\u0012\u0014\u0016\u0000\u0004\u0002\u0001\r\r\u0014\u0014"+
-		"\u0001\u0001\u0014\u0014\u0002\u0000\u0006\u0006\u000e\u0011\u0001\u0000"+
-		"\u000e\u0010o\u0000\u0018\u0001\u0000\u0000\u0000\u0002&\u0001\u0000\u0000"+
-		"\u0000\u0004(\u0001\u0000\u0000\u0000\u00060\u0001\u0000\u0000\u0000\b"+
-		"8\u0001\u0000\u0000\u0000\n=\u0001\u0000\u0000\u0000\fH\u0001\u0000\u0000"+
-		"\u0000\u000eL\u0001\u0000\u0000\u0000\u0010N\u0001\u0000\u0000\u0000\u0012"+
-		"P\u0001\u0000\u0000\u0000\u0014[\u0001\u0000\u0000\u0000\u0016h\u0001"+
-		"\u0000\u0000\u0000\u0018\u001e\u0005\u0013\u0000\u0000\u0019\u001a\u0003"+
-		"\u0002\u0001\u0000\u001a\u001b\u0007\u0000\u0000\u0000\u001b\u001d\u0001"+
-		"\u0000\u0000\u0000\u001c\u0019\u0001\u0000\u0000\u0000\u001d \u0001\u0000"+
-		"\u0000\u0000\u001e\u001c\u0001\u0000\u0000\u0000\u001e\u001f\u0001\u0000"+
-		"\u0000\u0000\u001f!\u0001\u0000\u0000\u0000 \u001e\u0001\u0000\u0000\u0000"+
-		"!\"\u0007\u0001\u0000\u0000\"\u0001\u0001\u0000\u0000\u0000#\'\u0003\u0004"+
-		"\u0002\u0000$\'\u0003\u0006\u0003\u0000%\'\u0003\u0010\b\u0000&#\u0001"+
-		"\u0000\u0000\u0000&$\u0001\u0000\u0000\u0000&%\u0001\u0000\u0000\u0000"+
-		"\'\u0003\u0001\u0000\u0000\u0000()\u0005\u0006\u0000\u0000)*\u0005\u0016"+
-		"\u0000\u0000*+\u0005\b\u0000\u0000+,\u0003\f\u0006\u0000,-\u0005\t\u0000"+
-		"\u0000-\u0005\u0001\u0000\u0000\u0000.1\u0003\b\u0004\u0000/1\u0003\n"+
-		"\u0005\u00000.\u0001\u0000\u0000\u00000/\u0001\u0000\u0000\u000012\u0001"+
-		"\u0000\u0000\u000023\u0005\u0007\u0000\u000034\u0005\u0016\u0000\u0000"+
-		"45\u0005\b\u0000\u000056\u0003\f\u0006\u000067\u0005\t\u0000\u00007\u0007"+
-		"\u0001\u0000\u0000\u00008;\u0005\u0016\u0000\u00009:\u0005\u0012\u0000"+
-		"\u0000:<\u0005\u0016\u0000\u0000;9\u0001\u0000\u0000\u0000;<\u0001\u0000"+
-		"\u0000\u0000<\t\u0001\u0000\u0000\u0000=>\u0005\u000e\u0000\u0000>?\u0003"+
-		"\u0016\u000b\u0000?\u000b\u0001\u0000\u0000\u0000@E\u0003\u000e\u0007"+
-		"\u0000AB\u0005\f\u0000\u0000BD\u0003\u000e\u0007\u0000CA\u0001\u0000\u0000"+
-		"\u0000DG\u0001\u0000\u0000\u0000EC\u0001\u0000\u0000\u0000EF\u0001\u0000"+
-		"\u0000\u0000FI\u0001\u0000\u0000\u0000GE\u0001\u0000\u0000\u0000H@\u0001"+
-		"\u0000\u0000\u0000HI\u0001\u0000\u0000\u0000I\r\u0001\u0000\u0000\u0000"+
-		"JM\u0003\u0010\b\u0000KM\u0005\u0015\u0000\u0000LJ\u0001\u0000\u0000\u0000"+
-		"LK\u0001\u0000\u0000\u0000M\u000f\u0001\u0000\u0000\u0000NO\u0003\u0012"+
-		"\t\u0000O\u0011\u0001\u0000\u0000\u0000PU\u0003\u0014\n\u0000QR\u0007"+
-		"\u0002\u0000\u0000RT\u0003\u0014\n\u0000SQ\u0001\u0000\u0000\u0000TW\u0001"+
-		"\u0000\u0000\u0000US\u0001\u0000\u0000\u0000UV\u0001\u0000\u0000\u0000"+
-		"V\u0013\u0001\u0000\u0000\u0000WU\u0001\u0000\u0000\u0000XY\u0007\u0003"+
-		"\u0000\u0000Y\\\u0003\u0014\n\u0000Z\\\u0003\u0016\u000b\u0000[X\u0001"+
-		"\u0000\u0000\u0000[Z\u0001\u0000\u0000\u0000\\\u0015\u0001\u0000\u0000"+
-		"\u0000]i\u0005\u0003\u0000\u0000^i\u0005\u0001\u0000\u0000_i\u0005\u0002"+
-		"\u0000\u0000`i\u0005\u0004\u0000\u0000ai\u0005\u0005\u0000\u0000bi\u0003"+
-		"\u0006\u0003\u0000ci\u0003\b\u0004\u0000de\u0005\n\u0000\u0000ef\u0003"+
-		"\u0010\b\u0000fg\u0005\u000b\u0000\u0000gi\u0001\u0000\u0000\u0000h]\u0001"+
-		"\u0000\u0000\u0000h^\u0001\u0000\u0000\u0000h_\u0001\u0000\u0000\u0000"+
-		"h`\u0001\u0000\u0000\u0000ha\u0001\u0000\u0000\u0000hb\u0001\u0000\u0000"+
-		"\u0000hc\u0001\u0000\u0000\u0000hd\u0001\u0000\u0000\u0000i\u0017\u0001"+
-		"\u0000\u0000\u0000\n\u001e&0;EHLU[h";
+		"\u0004\u0001 w\u0002\u0000\u0007\u0000\u0002\u0001\u0007\u0001\u0002\u0002"+
+		"\u0007\u0002\u0002\u0003\u0007\u0003\u0002\u0004\u0007\u0004\u0002\u0005"+
+		"\u0007\u0005\u0002\u0006\u0007\u0006\u0002\u0007\u0007\u0007\u0002\b\u0007"+
+		"\b\u0002\t\u0007\t\u0002\n\u0007\n\u0002\u000b\u0007\u000b\u0002\f\u0007"+
+		"\f\u0001\u0000\u0001\u0000\u0001\u0000\u0001\u0000\u0005\u0000\u001f\b"+
+		"\u0000\n\u0000\f\u0000\"\t\u0000\u0001\u0000\u0001\u0000\u0001\u0001\u0001"+
+		"\u0001\u0001\u0001\u0003\u0001)\b\u0001\u0001\u0002\u0001\u0002\u0001"+
+		"\u0002\u0001\u0002\u0001\u0002\u0001\u0002\u0001\u0003\u0001\u0003\u0003"+
+		"\u00033\b\u0003\u0001\u0003\u0001\u0003\u0001\u0003\u0001\u0003\u0001"+
+		"\u0003\u0001\u0003\u0001\u0004\u0001\u0004\u0001\u0004\u0003\u0004>\b"+
+		"\u0004\u0001\u0005\u0001\u0005\u0001\u0005\u0001\u0006\u0001\u0006\u0001"+
+		"\u0006\u0005\u0006F\b\u0006\n\u0006\f\u0006I\t\u0006\u0003\u0006K\b\u0006"+
+		"\u0001\u0007\u0001\u0007\u0003\u0007O\b\u0007\u0001\b\u0001\b\u0001\b"+
+		"\u0005\bT\b\b\n\b\f\bW\t\b\u0001\t\u0001\t\u0001\t\u0005\t\\\b\t\n\t\f"+
+		"\t_\t\t\u0001\n\u0001\n\u0001\n\u0001\n\u0001\u000b\u0001\u000b\u0001"+
+		"\u000b\u0003\u000bh\b\u000b\u0001\f\u0001\f\u0001\f\u0001\f\u0001\f\u0001"+
+		"\f\u0001\f\u0001\f\u0001\f\u0001\f\u0001\f\u0003\fu\b\f\u0001\f\u0000"+
+		"\u0000\r\u0000\u0002\u0004\u0006\b\n\f\u000e\u0010\u0012\u0014\u0016\u0018"+
+		"\u0000\u0006\u0002\u0001\r\r\u0014\u0014\u0001\u0001\u0014\u0014\u0002"+
+		"\u0000\u0006\u0006\u000e\u0011\u0001\u0000\u0016\u0017\u0001\u0000\u0018"+
+		"\u001d\u0001\u0000\u000e\u0010{\u0000\u001a\u0001\u0000\u0000\u0000\u0002"+
+		"(\u0001\u0000\u0000\u0000\u0004*\u0001\u0000\u0000\u0000\u00062\u0001"+
+		"\u0000\u0000\u0000\b:\u0001\u0000\u0000\u0000\n?\u0001\u0000\u0000\u0000"+
+		"\fJ\u0001\u0000\u0000\u0000\u000eN\u0001\u0000\u0000\u0000\u0010P\u0001"+
+		"\u0000\u0000\u0000\u0012X\u0001\u0000\u0000\u0000\u0014`\u0001\u0000\u0000"+
+		"\u0000\u0016g\u0001\u0000\u0000\u0000\u0018t\u0001\u0000\u0000\u0000\u001a"+
+		" \u0005\u0013\u0000\u0000\u001b\u001c\u0003\u0002\u0001\u0000\u001c\u001d"+
+		"\u0007\u0000\u0000\u0000\u001d\u001f\u0001\u0000\u0000\u0000\u001e\u001b"+
+		"\u0001\u0000\u0000\u0000\u001f\"\u0001\u0000\u0000\u0000 \u001e\u0001"+
+		"\u0000\u0000\u0000 !\u0001\u0000\u0000\u0000!#\u0001\u0000\u0000\u0000"+
+		"\" \u0001\u0000\u0000\u0000#$\u0007\u0001\u0000\u0000$\u0001\u0001\u0000"+
+		"\u0000\u0000%)\u0003\u0004\u0002\u0000&)\u0003\u0006\u0003\u0000\')\u0003"+
+		"\u0010\b\u0000(%\u0001\u0000\u0000\u0000(&\u0001\u0000\u0000\u0000(\'"+
+		"\u0001\u0000\u0000\u0000)\u0003\u0001\u0000\u0000\u0000*+\u0005\u0006"+
+		"\u0000\u0000+,\u0005\u001e\u0000\u0000,-\u0005\b\u0000\u0000-.\u0003\f"+
+		"\u0006\u0000./\u0005\t\u0000\u0000/\u0005\u0001\u0000\u0000\u000003\u0003"+
+		"\b\u0004\u000013\u0003\n\u0005\u000020\u0001\u0000\u0000\u000021\u0001"+
+		"\u0000\u0000\u000034\u0001\u0000\u0000\u000045\u0005\u0007\u0000\u0000"+
+		"56\u0005\u001e\u0000\u000067\u0005\b\u0000\u000078\u0003\f\u0006\u0000"+
+		"89\u0005\t\u0000\u00009\u0007\u0001\u0000\u0000\u0000:=\u0005\u001e\u0000"+
+		"\u0000;<\u0005\u0012\u0000\u0000<>\u0005\u001e\u0000\u0000=;\u0001\u0000"+
+		"\u0000\u0000=>\u0001\u0000\u0000\u0000>\t\u0001\u0000\u0000\u0000?@\u0005"+
+		"\u000e\u0000\u0000@A\u0003\u0018\f\u0000A\u000b\u0001\u0000\u0000\u0000"+
+		"BG\u0003\u000e\u0007\u0000CD\u0005\f\u0000\u0000DF\u0003\u000e\u0007\u0000"+
+		"EC\u0001\u0000\u0000\u0000FI\u0001\u0000\u0000\u0000GE\u0001\u0000\u0000"+
+		"\u0000GH\u0001\u0000\u0000\u0000HK\u0001\u0000\u0000\u0000IG\u0001\u0000"+
+		"\u0000\u0000JB\u0001\u0000\u0000\u0000JK\u0001\u0000\u0000\u0000K\r\u0001"+
+		"\u0000\u0000\u0000LO\u0003\u0010\b\u0000MO\u0005\u0015\u0000\u0000NL\u0001"+
+		"\u0000\u0000\u0000NM\u0001\u0000\u0000\u0000O\u000f\u0001\u0000\u0000"+
+		"\u0000PU\u0003\u0016\u000b\u0000QR\u0007\u0002\u0000\u0000RT\u0003\u0016"+
+		"\u000b\u0000SQ\u0001\u0000\u0000\u0000TW\u0001\u0000\u0000\u0000US\u0001"+
+		"\u0000\u0000\u0000UV\u0001\u0000\u0000\u0000V\u0011\u0001\u0000\u0000"+
+		"\u0000WU\u0001\u0000\u0000\u0000X]\u0003\u0014\n\u0000YZ\u0007\u0003\u0000"+
+		"\u0000Z\\\u0003\u0012\t\u0000[Y\u0001\u0000\u0000\u0000\\_\u0001\u0000"+
+		"\u0000\u0000][\u0001\u0000\u0000\u0000]^\u0001\u0000\u0000\u0000^\u0013"+
+		"\u0001\u0000\u0000\u0000_]\u0001\u0000\u0000\u0000`a\u0003\u0010\b\u0000"+
+		"ab\u0007\u0004\u0000\u0000bc\u0003\u0010\b\u0000c\u0015\u0001\u0000\u0000"+
+		"\u0000de\u0007\u0005\u0000\u0000eh\u0003\u0016\u000b\u0000fh\u0003\u0018"+
+		"\f\u0000gd\u0001\u0000\u0000\u0000gf\u0001\u0000\u0000\u0000h\u0017\u0001"+
+		"\u0000\u0000\u0000iu\u0005\u0003\u0000\u0000ju\u0005\u0001\u0000\u0000"+
+		"ku\u0005\u0002\u0000\u0000lu\u0005\u0004\u0000\u0000mu\u0005\u0005\u0000"+
+		"\u0000nu\u0003\u0006\u0003\u0000ou\u0003\b\u0004\u0000pq\u0005\n\u0000"+
+		"\u0000qr\u0003\u0010\b\u0000rs\u0005\u000b\u0000\u0000su\u0001\u0000\u0000"+
+		"\u0000ti\u0001\u0000\u0000\u0000tj\u0001\u0000\u0000\u0000tk\u0001\u0000"+
+		"\u0000\u0000tl\u0001\u0000\u0000\u0000tm\u0001\u0000\u0000\u0000tn\u0001"+
+		"\u0000\u0000\u0000to\u0001\u0000\u0000\u0000tp\u0001\u0000\u0000\u0000"+
+		"u\u0019\u0001\u0000\u0000\u0000\u000b (2=GJNU]gt";
 	public static final ATN _ATN =
 		new ATNDeserializer().deserialize(_serializedATN.toCharArray());
 	static {

@@ -273,13 +273,7 @@ public class ASTBuilderVisitor extends AidemMediaParserBaseVisitor<Node> {
 
     @Override
     public Node visitExpr(AidemMediaParser.ExprContext ctx) {
-        // expr: arithmeticExpr
-        return visit(ctx.arithmeticExpr());
-    }
-
-    @Override
-    public Node visitArithmeticExpr(AidemMediaParser.ArithmeticExprContext ctx) {
-        // arithmeticExpr: left=unaryExpr (op=(PLUS|MINUS|STAR|AT|PERC) right=unaryExpr)* ;
+        // expr: left=unaryExpr (op=(PLUS|MINUS|STAR|AT|PERC) right=unaryExpr)* ;
         Expression result = asExpression(visit(ctx.left));
 
         int childCount = ctx.getChildCount();

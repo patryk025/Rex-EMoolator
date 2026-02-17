@@ -46,11 +46,15 @@ public record ComparisonNode(
         public static ComparisonOp fromString(String s) {
             return switch (s) {
                 case "'" -> EQUAL;
+                case "_" -> EQUAL;  // _ is in simple conditions
                 case "!'" -> NOT_EQUAL;
+                case "!_" -> NOT_EQUAL;  // !_ is in simple conditions
                 case "<" -> LESS;
                 case "<'" -> LESS_EQUAL;
+                case "<_" -> LESS_EQUAL;  // <_ is in simple conditions
                 case ">" -> GREATER;
                 case ">'" -> GREATER_EQUAL;
+                case ">_" -> GREATER_EQUAL;  // >_ is in simple conditions
                 default -> throw new IllegalArgumentException("Unknown operator: " + s);
             };
         }

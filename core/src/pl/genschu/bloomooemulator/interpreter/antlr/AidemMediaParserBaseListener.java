@@ -125,13 +125,25 @@ public class AidemMediaParserBaseListener implements AidemMediaParserListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterArithmeticExpr(AidemMediaParser.ArithmeticExprContext ctx) { }
+	@Override public void enterIfCondition(AidemMediaParser.IfConditionContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitArithmeticExpr(AidemMediaParser.ArithmeticExprContext ctx) { }
+	@Override public void exitIfCondition(AidemMediaParser.IfConditionContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterIfSimpleCondition(AidemMediaParser.IfSimpleConditionContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitIfSimpleCondition(AidemMediaParser.IfSimpleConditionContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *

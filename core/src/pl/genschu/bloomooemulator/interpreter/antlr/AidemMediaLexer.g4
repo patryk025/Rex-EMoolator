@@ -31,6 +31,16 @@ LBRACE: '{';
 RBRACE: '}';
 MISSING_CLOSE_QUOTE: '"' ~[",)]+ ;
 
+// condition operators
+OR : '||' ;
+AND : '&&' ;
+LESS : '<' ;
+GREATER : '>' ;
+EQUAL : '\'' ;
+NOT_EQUAL : '!\'' ;
+GREATER_EQUAL : '>\'' ;
+LESS_EQUAL : '<\'' ;
+
 // variable name/method
 IDENT : [A-Za-z_$][A-Za-z0-9_$./?]* ;
 

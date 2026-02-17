@@ -32,9 +32,11 @@ arg
   ;
 
 // math
-expr        : arithmeticExpr ;
+expr        : left=unaryExpr (op=(PLUS|MINUS|STAR|AT|PERC) right=unaryExpr)* ;
 
-arithmeticExpr     : left=unaryExpr (op=(PLUS|MINUS|STAR|AT|PERC) right=unaryExpr)* ;
+ifCondition : left=ifSimpleCondition (op=(OR|AND) right=ifCondition)* ;
+
+ifSimpleCondition : left=expr op=(LESS|GREATER|EQUAL|NOT_EQUAL|GREATER_EQUAL|LESS_EQUAL) right=expr ;
 
 unaryExpr   : op=(PLUS|MINUS|STAR) unaryExpr
             | primary;
