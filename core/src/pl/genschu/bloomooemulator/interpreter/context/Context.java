@@ -102,9 +102,9 @@ public class Context {
      * @return Value or null if not found
      */
     public Value resolveValue(String name) {
-        Value local = executionContext.getLocal(name);
+        Variable local = executionContext.getLocal(name);
         if (local != null) {
-            return local;
+            return local.value();
         }
 
         Variable variable = resolver.resolve(name, this);
@@ -136,9 +136,9 @@ public class Context {
      * @return Variable or null (depending on fallback strategy)
      */
     public Variable getVariable(String name) {
-        Value local = executionContext.getLocal(name);
+        Variable local = executionContext.getLocal(name);
         if (local != null) {
-            return localToVariable(name, local);
+            return local;
         }
         return resolver.resolve(name, this);
     }
@@ -198,7 +198,7 @@ public class Context {
      * @return true if variable was updated in any context
      */
     public boolean updateVariableInHierarchy(String name, Variable var) {
-        if (executionContext.updateLocal(name, var.value())) {
+        if (executionContext.updateLocal(name, var)) {
             return true;
         }
 
@@ -481,24 +481,6 @@ public class Context {
         store.clear();
         attributes.clear();
         clones.clear();
-    }
-
-    // ============================================================
-    // Private helpers
-    // ============================================================
-
-    /**
-     * Wraps a local Value as a Variable for getVariable() compatibility.
-     * Supports primitive types created by VarDef (@INT, @STRING, @DOUBLE, @BOOL).
-     */
-    private Variable localToVariable(String name, Value value) {
-        return switch (value) {
-            case IntValue v -> new IntegerVariable(name, v.value());
-            case DoubleValue v -> new DoubleVariable(name, v.value());
-            case StringValue v -> new StringVariable(name, v.value());
-            case BoolValue v -> new BoolVariable(name, v.value());
-            default -> new StringVariable(name, value.toDisplayString());
-        };
     }
 
     @Override

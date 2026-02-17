@@ -1,8 +1,6 @@
 package pl.genschu.bloomooemulator.interpreter.runtime;
 
 import pl.genschu.bloomooemulator.interpreter.errors.SourceLocation;
-import pl.genschu.bloomooemulator.interpreter.values.Value;
-
 import pl.genschu.bloomooemulator.interpreter.variable.Variable;
 
 /**
@@ -88,18 +86,18 @@ public class ExecutionContext {
      *
      * @throws IllegalStateException if no frame is active
      */
-    public void setLocal(String name, Value value) {
+    public void setLocal(String name, Variable variable) {
         if (currentFrame == null) {
             throw new IllegalStateException("No active execution frame");
         }
-        currentFrame.setLocal(name, value);
+        currentFrame.setLocal(name, variable);
     }
 
     /**
      * Gets a local variable from the current frame or any parent frame.
      * Returns null if not found.
      */
-    public Value getLocal(String name) {
+    public Variable getLocal(String name) {
         ExecutionFrame frame = currentFrame;
         while (frame != null) {
             if (frame.hasLocal(name)) {
@@ -116,11 +114,11 @@ public class ExecutionContext {
      *
      * @return true if the variable was found and updated
      */
-    public boolean updateLocal(String name, Value value) {
+    public boolean updateLocal(String name, Variable variable) {
         ExecutionFrame frame = currentFrame;
         while (frame != null) {
             if (frame.hasLocal(name)) {
-                frame.setLocal(name, value);
+                frame.setLocal(name, variable);
                 return true;
             }
             frame = frame.getParent();

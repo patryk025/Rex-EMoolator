@@ -61,7 +61,7 @@ public class ASTInterpreter {
                 try {
                     if (args != null && !args.isEmpty()) {
                         for (int i = 0; i < args.size(); i++) {
-                            exec.setLocal("$" + (i + 1), args.get(i));
+                            exec.setLocal("$" + (i + 1), valueToVariable("$" + (i + 1), args.get(i)));
                         }
                     }
                     if (thisVar != null) {
@@ -277,7 +277,7 @@ public class ASTInterpreter {
             // Execute loop
             for (int i = start; i < start + diff; i += step) {
                 exec.pushFrame("_I_ == "+i, "@LOOP", node.location());
-                exec.setLocal("_I_", new IntValue(i));
+                exec.setLocal("_I_", new IntegerVariable("_I_", i));
                 ExecutionResult bodyResult = execute(node.body());
                 exec.popFrame();
 
@@ -439,13 +439,20 @@ public class ASTInterpreter {
         Value initialValue = valueResult.getValue();
 
         // Check if variable already exists in current scope
-        if(exec.getLocal(node.varName()) != null) {
+        if (exec.getLocal(node.varName()) != null) {
             // Variable already exists - skip creation without error
             return new NormalResult(null);
         }
 
-        // Create variable in local scope
-        exec.setLocal(node.varName(), initialValue);
+        // Create Variable in local scope so mutations are visible
+        Variable variable = switch (node.varType().toUpperCase()) {
+            case "INT"    -> new IntegerVariable(node.varName(), initialValue.toInt().value());
+            case "DOUBLE" -> new DoubleVariable(node.varName(), initialValue.toDouble().value());
+            case "STRING" -> new StringVariable(node.varName(), initialValue.toDisplayString());
+            case "BOOL"   -> new BoolVariable(node.varName(), initialValue.toBool().value());
+            default       -> new StringVariable(node.varName(), initialValue.toDisplayString());
+        };
+        exec.setLocal(node.varName(), variable);
 
         return new NormalResult(null);
     }
@@ -489,6 +496,17 @@ public class ASTInterpreter {
             }
 
             return variable;
+        }
+
+        if (target instanceof PointerDerefNode pointerDerefNode) {
+            ExecutionResult result = execute(pointerDerefNode);
+            if (!result.shouldContinue())
+                throw new InterpreterException(
+                    "Pointer dereference failed",
+                    exec,
+                    location
+                );
+            return resolveMethodTarget(pointerDerefNode.expression(), location);
         }
 
         throw new InterpreterException(
@@ -687,5 +705,15 @@ public class ASTInterpreter {
         }
 
         return var.value();
+    }
+
+    private static Variable valueToVariable(String name, Value value) {
+        return switch (value) {
+            case IntValue v    -> new IntegerVariable(name, v.value());
+            case DoubleValue v -> new DoubleVariable(name, v.value());
+            case StringValue v -> new StringVariable(name, v.value());
+            case BoolValue v   -> new BoolVariable(name, v.value());
+            default            -> new StringVariable(name, value.toDisplayString());
+        };
     }
 }

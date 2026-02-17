@@ -426,6 +426,9 @@ public class ASTBuilder extends AidemMediaParserBaseVisitor<ASTNode> {
 
     @Override
     public ASTNode visitIfCondition(AidemMediaParser.IfConditionContext ctx) {
+        if(ctx.op == null) {
+            return visit(ctx.left);
+        }
         ASTNode left = visit(ctx.left);
         String operator = ctx.op.getText();
         ASTNode right = visit(ctx.right);

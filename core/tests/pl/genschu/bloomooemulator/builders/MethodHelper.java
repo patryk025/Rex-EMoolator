@@ -5,7 +5,7 @@ import pl.genschu.bloomooemulator.interpreter.runtime.ASTInterpreter;
 import pl.genschu.bloomooemulator.interpreter.runtime.ExecutionContext;
 import pl.genschu.bloomooemulator.interpreter.runtime.ExecutionResult;
 import pl.genschu.bloomooemulator.interpreter.runtime.ReturnResult;
-import pl.genschu.bloomooemulator.interpreter.values.Value;
+import pl.genschu.bloomooemulator.interpreter.values.*;
 import pl.genschu.bloomooemulator.interpreter.variable.*;
 
 import java.util.List;
@@ -51,7 +51,7 @@ public final class MethodHelper {
                 try {
                     if (args != null && !args.isEmpty()) {
                         for (int i = 0; i < args.size(); i++) {
-                            exec.setLocal("$" + (i + 1), args.get(i));
+                            exec.setLocal("$" + (i + 1), valueToVariable("$" + (i + 1), args.get(i)));
                         }
                     }
                     if (thisVar != null) {
@@ -94,6 +94,16 @@ public final class MethodHelper {
             throw new IllegalArgumentException("Variable not found: " + variableName);
         }
         return callWithContext(context, variable, methodName, arguments);
+    }
+
+    private static Variable valueToVariable(String name, Value value) {
+        return switch (value) {
+            case IntValue v    -> new IntegerVariable(name, v.value());
+            case DoubleValue v -> new DoubleVariable(name, v.value());
+            case StringValue v -> new StringVariable(name, v.value());
+            case BoolValue v   -> new BoolVariable(name, v.value());
+            default            -> new StringVariable(name, value.toDisplayString());
+        };
     }
 
     /**
