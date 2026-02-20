@@ -55,27 +55,45 @@ public class IfConditionTest {
 
     static Stream<Arguments> cases() {
         return Stream.of(
+                // precedence tests
                 arguments("{@IF(\"1'1||1'2&&1'2\",\"{@RETURN(\"TRUE\");}\",\"{@RETURN(\"FALSE\");}\");}", true, ""),
                 arguments("{@IF(\"1'1||1'1&&1'2\",\"{@RETURN(\"TRUE\");}\",\"{@RETURN(\"FALSE\");}\");}", true, ""),
                 arguments("{@IF(\"1'2&&1'1||1'1\",\"{@RETURN(\"TRUE\");}\",\"{@RETURN(\"FALSE\");}\");}", true, ""),
                 arguments("{@IF(\"1'2||1'1&&1'1\",\"{@RETURN(\"TRUE\");}\",\"{@RETURN(\"FALSE\");}\");}", true, ""),
+
+                // short-circuit tests
                 arguments("{@IF(\"1'1||METODA_ZMIENIAJACA_LICZNIK^RUN()'1\",\"{@RETURN(\"TRUE\");}\",\"{@RETURN(\"FALSE\");}\");}", true, ""),
                 arguments("{@IF(\"1'2&&METODA_ZMIENIAJACA_LICZNIK^RUN()'1\",\"{@RETURN(\"TRUE\");}\",\"{@RETURN(\"FALSE\");}\");}", false, ""),
                 arguments("{@IF(\"1'2||METODA_ZMIENIAJACA_LICZNIK^RUN()'1\",\"{@RETURN(\"TRUE\");}\",\"{@RETURN(\"FALSE\");}\");}", true, "v"),
                 arguments("{@IF(\"1'1&&METODA_ZMIENIAJACA_LICZNIK^RUN()'1\",\"{@RETURN(\"TRUE\");}\",\"{@RETURN(\"FALSE\");}\");}", true, "v"),
+
+                // mixed arithmetic and logical tests
                 arguments("{@IF(\"2+3*4'20&&1'1\",\"{@RETURN(\"TRUE\");}\",\"{@RETURN(\"FALSE\");}\");}", false, ""),
                 arguments("{@IF(\"2+3*4'14&&1'1\",\"{@RETURN(\"TRUE\");}\",\"{@RETURN(\"FALSE\");}\");}", false, ""),
                 arguments("{@IF(\"[2+3*4]'20&&1'1\",\"{@RETURN(\"TRUE\");}\",\"{@RETURN(\"FALSE\");}\");}", true, ""),
                 arguments("{@IF(\"[2+3*4]'14&&1'1\",\"{@RETURN(\"TRUE\");}\",\"{@RETURN(\"FALSE\");}\");}", false, ""),
                 arguments("{@IF(\"5+5*2'20||1'2&&1'1\",\"{@RETURN(\"TRUE\");}\",\"{@RETURN(\"FALSE\");}\");}", true, ""),
+
+                // test, what happens when we pass arithmetic expressions without brackets to IF - they are cast to string
+                arguments("{@IF(\"2+2'4\",\"{@RETURN(\"TRUE\");}\",\"{@RETURN(\"FALSE\");}\");}", false, ""),
+                arguments("{@IF(\"2+2'2\",\"{@RETURN(\"TRUE\");}\",\"{@RETURN(\"FALSE\");}\");}", false, ""),
+                arguments("{@IF(\"2+2'\"2+2\"\",\"{@RETURN(\"TRUE\");}\",\"{@RETURN(\"FALSE\");}\");}", true, ""),
+
+                // comparison tests
                 arguments("{@IF(\"10>'5&&3<'10||1'2\",\"{@RETURN(\"TRUE\");}\",\"{@RETURN(\"FALSE\");}\");}", true, ""),
                 arguments("{@IF(\"5!'5||8>'10&&1'1\",\"{@RETURN(\"TRUE\");}\",\"{@RETURN(\"FALSE\");}\");}", true, ""),
                 arguments("{@IF(\"1'1&&2<'3||4>'5\",\"{@RETURN(\"TRUE\");}\",\"{@RETURN(\"FALSE\");}\");}", true, ""),
+
+                // method call results in conditions
                 arguments("{@IF(\"OBJ^GET()'42&&1'1\",\"{@RETURN(\"TRUE\");}\",\"{@RETURN(\"FALSE\");}\");}", false, ""),
                 arguments("{@IF(\"1'1||OBJ^SET(999)'1\",\"{@RETURN(\"TRUE\");}\",\"{@RETURN(\"FALSE\");}\");}", true, ""),
                 arguments("{@IF(\"OBJ^GET()'OBJ2^GET()&&1'1\",\"{@RETURN(\"TRUE\");}\",\"{@RETURN(\"FALSE\");}\");}", false, ""),
+
+                // more complex conditions
                 arguments("{@IF(\"1'1||1'2&&1'3||1'4\",\"{@RETURN(\"TRUE\");}\",\"{@RETURN(\"FALSE\");}\");}", true, ""),
                 arguments("{@IF(\"1'2&&1'3||1'4&&1'5\",\"{@RETURN(\"TRUE\");}\",\"{@RETURN(\"FALSE\");}\");}", false, ""),
+
+                // order of method calls in conditions
                 arguments("{@IF(\"T^RUN(\"A\")'1||T^RUN(\"B\")'1||T^RUN(\"C\")'1\",\"{@RETURN(\"TRUE\");}\",\"{@RETURN(\"FALSE\");}\");}", true, "A"),
                 arguments("{@IF(\"F^RUN(\"A\")'0&&F^RUN(\"B\")'0&&F^RUN(\"C\")'0\",\"{@RETURN(\"TRUE\");}\",\"{@RETURN(\"FALSE\");}\");}", true, "ABC"),
                 arguments("{@IF(\"F^RUN(\"A\")'0||T^RUN(\"B\")'1||T^RUN(\"C\")'1\",\"{@RETURN(\"TRUE\");}\",\"{@RETURN(\"FALSE\");}\");}", true, "A"),
