@@ -32,7 +32,8 @@ public sealed interface Variable permits
         EpisodeVariable,
         SceneVariable,
         AnimoVariable,
-        SequenceVariable {
+        SequenceVariable,
+        MultiArrayVariable {
 
     /**
      * Returns the name of this variable.

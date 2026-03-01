@@ -3,6 +3,7 @@ package pl.genschu.bloomooemulator.saver;
 import com.badlogic.gdx.Gdx;
 import pl.genschu.bloomooemulator.interpreter.v1.variable.Variable;
 import pl.genschu.bloomooemulator.interpreter.v1.variable.types.*;
+import pl.genschu.bloomooemulator.interpreter.values.*;
 import pl.genschu.bloomooemulator.utils.FileUtils;
 
 import java.io.FileOutputStream;
@@ -59,6 +60,53 @@ public class MultiArraySaver {
             writeMultiArray(variable, f);
         } catch (IOException e) {
             Gdx.app.error("MultiArraySaver", "Error while saving multi-array: " + e.getMessage());
+        }
+    }
+
+    // ========================================
+    // v2 overload
+    // ========================================
+
+    public static void saveMultiArray(pl.genschu.bloomooemulator.interpreter.variable.MultiArrayVariable variable, String absolutePath) {
+        try (FileOutputStream f = new FileOutputStream(absolutePath)) {
+            writeMultiArrayV2(variable, f);
+        } catch (IOException e) {
+            Gdx.app.error("MultiArraySaver", "Error while saving multi-array: " + e.getMessage());
+        }
+    }
+
+    private static void writeMultiArrayV2(pl.genschu.bloomooemulator.interpreter.variable.MultiArrayVariable variable, FileOutputStream f) throws IOException {
+        int[] dimensions = variable.getDimensions();
+        pl.genschu.bloomooemulator.interpreter.values.Value[] data = variable.getData();
+        int totalElements = variable.getTotalElements();
+
+        writeInt(f, dimensions.length);
+        for (int dimension : dimensions) {
+            writeInt(f, dimension);
+        }
+
+        int savedCount = 0;
+        for (int i = 0; i < totalElements; i++) {
+            if (data[i] != null) {
+                writeInt(f, i);
+                writeValue(f, data[i]);
+                savedCount++;
+            }
+        }
+
+        writeInt(f, totalElements);
+
+        Gdx.app.log("MultiArraySaver", String.format(Locale.getDefault(), "Saved %d/%d elements (%.1f%% filled) to multi-array",
+                savedCount, totalElements, 100.0 * savedCount / totalElements));
+    }
+
+    private static void writeValue(FileOutputStream f, pl.genschu.bloomooemulator.interpreter.values.Value value) throws IOException {
+        switch (value) {
+            case IntValue iv -> { writeInt(f, 1); writeInt(f, iv.value()); }
+            case DoubleValue dv -> { writeInt(f, 4); writeDouble(f, dv.value()); }
+            case StringValue sv -> { writeInt(f, 2); writeString(f, sv.value()); }
+            case BoolValue bv -> { writeInt(f, 3); writeBoolean(f, bv.value()); }
+            default -> throw new IllegalArgumentException("Unsupported data type: " + value.getType());
         }
     }
 
