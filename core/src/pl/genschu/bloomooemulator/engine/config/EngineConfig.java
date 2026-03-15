@@ -37,6 +37,7 @@ public class EngineConfig {
 
     // engine specific settings
     private boolean useOriginalDoubleRepresentation = true; // enables bugged double to string algorithm used in original engine
+    private boolean fixScriptsOnLoad = false; // add missing semicolons, parentheses, etc.
 
     public EngineConfig() {}
 
@@ -206,6 +207,14 @@ public class EngineConfig {
 
     public void setUseOriginalDoubleRepresentation(boolean useOriginalDoubleRepresentation) {
         this.useOriginalDoubleRepresentation = useOriginalDoubleRepresentation;
+    }
+
+    public boolean isFixScriptsOnLoad() {
+        return fixScriptsOnLoad;
+    }
+
+    public void setFixScriptsOnLoad(boolean fixScriptsOnLoad) {
+        this.fixScriptsOnLoad = fixScriptsOnLoad;
     }
 
     /**

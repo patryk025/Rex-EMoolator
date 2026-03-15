@@ -4,14 +4,13 @@ import com.badlogic.gdx.Gdx;
 import pl.genschu.bloomooemulator.interpreter.ast.ASTNode;
 import pl.genschu.bloomooemulator.interpreter.ast.BlockNode;
 import pl.genschu.bloomooemulator.interpreter.errors.SourceLocation;
-import pl.genschu.bloomooemulator.interpreter.parser.ASTBuilder;
+import pl.genschu.bloomooemulator.interpreter.parser.CodeParser;
 
 import java.util.List;
 
 /**
  * Helper class for parsing BEHAVIOUR code to v2 ASTNode.
  *
- * Uses ASTBuilder to parse code with ANTLR.
  * Handles errors gracefully by returning empty block on failure.
  */
 public class BehaviourCodeParser {
@@ -31,7 +30,7 @@ public class BehaviourCodeParser {
 
         try {
             Gdx.app.log("BehaviourCodeParser", "Parsing code for " + name + " (length=" + code.length() + ")");
-            ASTNode ast = ASTBuilder.parseCode(code, name);
+            ASTNode ast = CodeParser.parseCode(code);
 
             if (ast == null) {
                 Gdx.app.error("BehaviourCodeParser", "Parser returned null for " + name);
