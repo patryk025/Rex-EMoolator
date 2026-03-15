@@ -14,10 +14,8 @@ tasks.register('run', JavaExec) {
     workingDir = project.assetsDir
     ignoreExitValue = true
 
-    if (OperatingSystem.current() == OperatingSystem.MAC_OS) {
-        // Required to run on macOS
-        jvmArgs += "-XstartOnFirstThread"
-    }
+    // Note: -XstartOnFirstThread is NOT set here for the Swing launcher.
+    // On macOS, LibGDX is launched as a subprocess with that flag from RunButton.
 }
 
 tasks.register('debug', JavaExec) {
