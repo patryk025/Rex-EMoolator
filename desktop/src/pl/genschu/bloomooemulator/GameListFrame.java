@@ -95,9 +95,9 @@ public class GameListFrame extends JFrame {
         if (osName.contains("win")) {
             return System.getenv("USERPROFILE") + "\\.rexemoolator";
         } else if (osName.contains("mac") || osName.contains("nix") || osName.contains("nux")) {
-            return userHome + "/.rexemoolator/games.json";
+            return userHome + "/.rexemoolator";
         } else {
-            return userHome + "/.rexemoolator/games.json";
+            return userHome + "/.rexemoolator";
         }
     }
 
