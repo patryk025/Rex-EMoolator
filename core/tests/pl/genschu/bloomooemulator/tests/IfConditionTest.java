@@ -97,7 +97,11 @@ public class IfConditionTest {
                 arguments("{@IF(\"T^RUN(\"A\")'1||T^RUN(\"B\")'1||T^RUN(\"C\")'1\",\"{@RETURN(\"TRUE\");}\",\"{@RETURN(\"FALSE\");}\");}", true, "A"),
                 arguments("{@IF(\"F^RUN(\"A\")'0&&F^RUN(\"B\")'0&&F^RUN(\"C\")'0\",\"{@RETURN(\"TRUE\");}\",\"{@RETURN(\"FALSE\");}\");}", true, "ABC"),
                 arguments("{@IF(\"F^RUN(\"A\")'0||T^RUN(\"B\")'1||T^RUN(\"C\")'1\",\"{@RETURN(\"TRUE\");}\",\"{@RETURN(\"FALSE\");}\");}", true, "A"),
-                arguments("{@IF(\"T^RUN(\"A\")'1&&F^RUN(\"B\")'0&&T^RUN(\"C\")'1\",\"{@RETURN(\"TRUE\");}\",\"{@RETURN(\"FALSE\");}\");}", true, "ABC")
+                arguments("{@IF(\"T^RUN(\"A\")'1&&F^RUN(\"B\")'0&&T^RUN(\"C\")'1\",\"{@RETURN(\"TRUE\");}\",\"{@RETURN(\"FALSE\");}\");}", true, "ABC"),
+
+                // INSTANCEOF comparison
+                arguments("{@IF(\"OBJ?INTEGER\",\"{@RETURN(\"TRUE\");}\",\"{@RETURN(\"FALSE\");}\");}", true, ""),
+                arguments("{@IF(\"OBJ?\"INTEGER\"\",\"{@RETURN(\"TRUE\");}\",\"{@RETURN(\"FALSE\");}\");}", false, "") // here is comparison INTEGER == "INTEGER"
         );
     }
 

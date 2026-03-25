@@ -5,7 +5,7 @@ package pl.genschu.bloomooemulator.interpreter.values;
  * This makes type checking explicit and avoids string comparisons.
  */
 public enum ValueType {
-    INT,
+    INTEGER,
     DOUBLE,
     STRING,
     BOOL,
@@ -18,13 +18,13 @@ public enum ValueType {
      * Returns true if this is a primitive type (int, double, string, bool).
      */
     public boolean isPrimitive() {
-        return this == INT || this == DOUBLE || this == STRING || this == BOOL;
+        return this == INTEGER || this == DOUBLE || this == STRING || this == BOOL;
     }
 
     /**
      * Returns true if this is a numeric type (int or double).
      */
     public boolean isNumeric() {
-        return this == INT || this == DOUBLE;
+        return this == INTEGER || this == DOUBLE;
     }
 }

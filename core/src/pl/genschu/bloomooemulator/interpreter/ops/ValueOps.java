@@ -47,6 +47,7 @@ public final class ValueOps {
             case GREATER_EQUAL -> BoolValue.of(greaterOp(a, b).value() || equalsOp(a, b).value());
             case LESS -> lessOp(a, b);
             case LESS_EQUAL -> BoolValue.of(lessOp(a, b).value() || equalsOp(a, b).value());
+            case INSTANCE_OF -> a.getType().toString().equals(b.toDisplayString()) ? BoolValue.TRUE : BoolValue.FALSE;
         };
     }
 

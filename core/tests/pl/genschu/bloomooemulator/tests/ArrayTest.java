@@ -34,7 +34,7 @@ class ArrayTest {
 
         assertEquals(4, arrayVar.elements().size());
 
-        assertEquals("INT", arrayVar.elements().get(0).getType().name());
+        assertEquals("INTEGER", arrayVar.elements().get(0).getType().name());
         assertEquals(1, ((IntValue) arrayVar.elements().get(0)).value());
 
         assertEquals("DOUBLE", arrayVar.elements().get(1).getType().name());
@@ -59,7 +59,7 @@ class ArrayTest {
         Value element2 = arrayVar.callMethod("GET", List.of(new IntValue(2))).getReturnValue();
         Value element3 = arrayVar.callMethod("GET", List.of(new IntValue(3))).getReturnValue();
 
-        assertEquals("INT", element0.getType().name());
+        assertEquals("INTEGER", element0.getType().name());
         assertEquals(10, ((IntValue) element0).value());
 
         assertEquals("STRING", element1.getType().name());

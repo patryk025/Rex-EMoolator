@@ -7,7 +7,7 @@ public record IntValue(int value) implements Value {
 
     @Override
     public ValueType getType() {
-        return ValueType.INT;
+        return ValueType.INTEGER;
     }
 
     @Override

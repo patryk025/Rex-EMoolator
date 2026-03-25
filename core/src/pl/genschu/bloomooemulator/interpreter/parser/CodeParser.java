@@ -362,10 +362,6 @@ public class CodeParser {
     }
 
     private static ASTNode parseBracketExpression(SourceSpan normalizedLine) {
-        String compact = normalizedLine.compactText();
-        if (compact.contains("$")) {
-            return new LiteralNode(new StringValue(compact), loc(normalizedLine));
-        }
         return parseExpression(stripOuterDelimiters(normalizedLine, '[', ']'));
     }
 

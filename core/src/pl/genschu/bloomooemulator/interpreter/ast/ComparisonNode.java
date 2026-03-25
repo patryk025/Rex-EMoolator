@@ -31,7 +31,8 @@ public record ComparisonNode(
         LESS("<"),
         LESS_EQUAL("<'"),
         GREATER(">"),
-        GREATER_EQUAL(">'");
+        GREATER_EQUAL(">'"),
+        INSTANCE_OF("?");
 
         private final String symbol;
 
@@ -49,12 +50,14 @@ public record ComparisonNode(
                 case "_" -> EQUAL;  // _ is in simple conditions
                 case "!'" -> NOT_EQUAL;
                 case "!_" -> NOT_EQUAL;  // !_ is in simple conditions
+                case "<>" -> NOT_EQUAL;  // alias for !'
                 case "<" -> LESS;
                 case "<'" -> LESS_EQUAL;
                 case "<_" -> LESS_EQUAL;  // <_ is in simple conditions
                 case ">" -> GREATER;
                 case ">'" -> GREATER_EQUAL;
                 case ">_" -> GREATER_EQUAL;  // >_ is in simple conditions
+                case "?" -> INSTANCE_OF;
                 default -> throw new IllegalArgumentException("Unknown operator: " + s);
             };
         }
