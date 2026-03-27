@@ -16,28 +16,28 @@ public class GlobalVariables {
 
     private static MouseVariable getMouseVariable(Context context) {
         if (globalMouse == null) {
-            globalMouse = new MouseVariable("MOUSE", context.getGame().getCurrentApplicationContext());
+            globalMouse = new MouseVariable("MOUSE", (Context) context.getGame().getCurrentApplicationContext());
         }
         return globalMouse;
     }
 
     private static KeyboardVariable getKeyboardVariable(Context context) {
         if (globalKeyboard == null) {
-            globalKeyboard = new KeyboardVariable("KEYBOARD", context.getGame().getCurrentApplicationContext());
+            globalKeyboard = new KeyboardVariable("KEYBOARD", (Context) context.getGame().getCurrentApplicationContext());
         }
         return globalKeyboard;
     }
 
     private static RandVariable getRandomVariable(Context context) {
         if (globalRandom == null) {
-            globalRandom = new RandVariable("RAND", context.getGame().getCurrentApplicationContext());
+            globalRandom = new RandVariable("RAND", (Context) context.getGame().getCurrentApplicationContext());
         }
         return globalRandom;
     }
 
     private static SystemVariable getSystemVariable(Context context) {
         if (globalSystem == null) {
-            globalSystem = new SystemVariable("SYSTEM", context.getGame().getCurrentApplicationContext());
+            globalSystem = new SystemVariable("SYSTEM", (Context) context.getGame().getCurrentApplicationContext());
         }
         return globalSystem;
     }

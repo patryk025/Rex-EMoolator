@@ -3,7 +3,8 @@ package pl.genschu.bloomooemulator.engine.update;
 import com.badlogic.gdx.utils.Disposable;
 import pl.genschu.bloomooemulator.engine.Game;
 import pl.genschu.bloomooemulator.engine.config.EngineConfig;
-import pl.genschu.bloomooemulator.interpreter.v1.Context;
+import pl.genschu.bloomooemulator.engine.context.EngineVariable;
+import pl.genschu.bloomooemulator.engine.context.GameContext;
 import pl.genschu.bloomooemulator.interpreter.v1.exceptions.BreakException;
 import pl.genschu.bloomooemulator.interpreter.v1.variable.Variable;
 import pl.genschu.bloomooemulator.interpreter.v1.variable.types.*;
@@ -33,7 +34,7 @@ public class UpdateManager implements Disposable {
     }
 
     public void update(float deltaTime) {
-        Context context = game.getCurrentSceneContext();
+        GameContext context = game.getCurrentSceneContext();
 
         // update timers
         updateTimers();
@@ -126,8 +127,8 @@ public class UpdateManager implements Disposable {
         }
 
         public void updateTimers() {
-            Context context = game.getCurrentSceneContext();
-            for (Variable variable : new ArrayList<>(context.getTimerVariables().values())) {
+            GameContext context = game.getCurrentSceneContext();
+            for (EngineVariable variable : new ArrayList<>(context.getTimerVariables().values())) {
                 TimerVariable timer = (TimerVariable) variable;
                 try {
                     timer.update();
@@ -152,12 +153,11 @@ public class UpdateManager implements Disposable {
         }
 
         public void updateAnimations(float deltaTime) {
-            Context context = game.getCurrentSceneContext();
-            List<Variable> graphicsVariables = new ArrayList<>(context.getGraphicsVariables().values());
+            GameContext context = game.getCurrentSceneContext();
+            List<? extends EngineVariable> graphicsVariables = new ArrayList<>(context.getGraphicsVariables().values());
 
-            for (Variable variable : graphicsVariables) {
-                if (variable instanceof AnimoVariable) {
-                    AnimoVariable animoVariable = (AnimoVariable) variable;
+            for (EngineVariable variable : graphicsVariables) {
+                if (variable instanceof AnimoVariable animoVariable) {
                     if (animoVariable.isPlaying()) {
                         animoVariable.updateAnimation(deltaTime);
                     }

@@ -70,7 +70,7 @@ public class ApplicationVariable extends Variable {
 				for(int i = 2; i < arguments.size(); i++) {
 					params[i - 2] = arguments.get(i);
 				}
-				Context variableContext = context.getGame().getCurrentSceneContext(); // we need to get current scene context
+				Context variableContext = (Context) context.getGame().getCurrentSceneContext(); // we need to get current scene context
 
 				Variable var = variableContext.getVariable(varName);
 				if(var == null) {
@@ -104,7 +104,7 @@ public class ApplicationVariable extends Variable {
 				String behaviourName = LegacyArgumentsHelper.getString(arguments.get(1));
 
 				if(sceneName.equals(context.getGame().getCurrentScene())) {
-					Variable behaviour = context.getGame().getCurrentSceneContext().getVariable(behaviourName); // we need to get current scene context because getContext() have only definition variables
+					Variable behaviour = (Variable) context.getGame().getCurrentSceneContext().getVariable(behaviourName); // we need to get current scene context because getContext() have only definition variables
 					if(behaviour instanceof BehaviourVariable) {
 						behaviour.fireMethod(behaviour.getAttribute("CONDITION") != null ? "RUNC" : "RUN", new StringVariable("", behaviourName, context));
 					}

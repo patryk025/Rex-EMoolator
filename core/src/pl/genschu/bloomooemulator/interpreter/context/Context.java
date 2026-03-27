@@ -1,6 +1,8 @@
 package pl.genschu.bloomooemulator.interpreter.context;
 
 import pl.genschu.bloomooemulator.engine.Game;
+import pl.genschu.bloomooemulator.engine.context.EngineVariable;
+import pl.genschu.bloomooemulator.engine.context.GameContext;
 import pl.genschu.bloomooemulator.interpreter.values.*;
 import pl.genschu.bloomooemulator.interpreter.variable.*;
 import pl.genschu.bloomooemulator.interpreter.runtime.ExecutionContext;
@@ -10,7 +12,7 @@ import java.util.*;
 /**
  * Context v2 - clean implementation using composition.
  */
-public class Context {
+public class Context implements GameContext {
     private final ExecutionContext executionContext;
     private final VariableStore store;
     private final VariableResolver resolver;
@@ -154,26 +156,14 @@ public class Context {
     }
 
     /**
-     * Checks if variable exists in this context only (store or execution locals).
-     *
-     * @param name Variable name
-     * @return true if exists in this context
-     */
-    public boolean hasVariable(String name) {
-        if (executionContext.getLocal(name) != null) {
-            return true;
-        }
-        return store.has(name);
-    }
-
-    /**
      * Checks if variable exists in this context or any parent context.
-     * Also checks execution locals.
+     * Also checks execution locals and additional contexts.
      *
      * @param name Variable name
      * @return true if exists in hierarchy
      */
-    public boolean hasVariableInHierarchy(String name) {
+    @Override
+    public boolean hasVariable(String name) {
         if (executionContext.getLocal(name) != null) {
             return true;
         }
@@ -182,11 +172,30 @@ public class Context {
             return true;
         }
 
+        for (Context ctx : additionalContexts) {
+            if (ctx.hasVariable(name)) {
+                return true;
+            }
+        }
+
         if (parent != null) {
-            return parent.hasVariableInHierarchy(name);
+            return parent.hasVariable(name);
         }
 
         return false;
+    }
+
+    /**
+     * Checks if variable exists only in this context's local scope (store or execution locals).
+     *
+     * @param name Variable name
+     * @return true if exists locally
+     */
+    public boolean hasLocalVariable(String name) {
+        if (executionContext.getLocal(name) != null) {
+            return true;
+        }
+        return store.has(name);
     }
 
     /**

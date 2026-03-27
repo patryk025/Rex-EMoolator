@@ -15,7 +15,8 @@ import com.badlogic.gdx.utils.ObjectMap;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import pl.genschu.bloomooemulator.engine.Game;
 import pl.genschu.bloomooemulator.engine.config.EngineConfig;
-import pl.genschu.bloomooemulator.interpreter.v1.Context;
+import pl.genschu.bloomooemulator.engine.context.EngineVariable;
+import pl.genschu.bloomooemulator.engine.context.GameContext;
 import pl.genschu.bloomooemulator.interpreter.v1.variable.Signal;
 import pl.genschu.bloomooemulator.interpreter.v1.variable.Variable;
 import pl.genschu.bloomooemulator.interpreter.v1.variable.types.*;
@@ -38,7 +39,7 @@ public class InputManager implements Disposable {
     private final Vector2 mousePosition = new Vector2();
     private boolean mousePressed = false;
     private boolean mousePrevPressed = false;
-    private Context lastMouseClickContext = null;
+    private GameContext lastMouseClickContext = null;
     private boolean mouseVisible = true;
 
     // Keyboard state
@@ -63,11 +64,11 @@ public class InputManager implements Disposable {
     }
 
     public void processInput(float deltaTime) {
-        Context context = game.getCurrentSceneContext();
+        GameContext context = game.getCurrentSceneContext();
 
         // Get mouse and keyboard variables from the current context
-        MouseVariable mouseVariable = context.getMouseVariable();
-        KeyboardVariable keyboardVariable = context.getKeyboardVariable();
+        MouseVariable mouseVariable = (MouseVariable) context.getMouseVariable();
+        KeyboardVariable keyboardVariable = (KeyboardVariable) context.getKeyboardVariable();
 
         game.getEmulator().getDebugManager().handleSceneSelectorInput(deltaTime);
 
@@ -173,7 +174,7 @@ public class InputManager implements Disposable {
         }
 
         if (Gdx.input.isKeyJustPressed(Input.Keys.F7)) {
-            exportGraphicsToFile(new ArrayList<>(game.getCurrentSceneContext().getGraphicsVariables().values()));
+            exportGraphicsToFile(new ArrayList<>((java.util.Collection<? extends Variable>) game.getCurrentSceneContext().getGraphicsVariables().values()));
         }
 
         if (Gdx.input.isKeyJustPressed(Input.Keys.F8)) {
@@ -185,7 +186,7 @@ public class InputManager implements Disposable {
         }
 
         if (Gdx.input.isKeyJustPressed(Input.Keys.F10)) {
-            game.getCurrentSceneContext().getWorldVariable().getPhysicsEngine().dumpGeometryData("geometry_dump_"+(new Date()).getTime()+".json");
+            ((WorldVariable) game.getCurrentSceneContext().getWorldVariable()).getPhysicsEngine().dumpGeometryData("geometry_dump_"+(new Date()).getTime()+".json");
         }
 
         if (Gdx.input.isKeyJustPressed(Input.Keys.F11)) {

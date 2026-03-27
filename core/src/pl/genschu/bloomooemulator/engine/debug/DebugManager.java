@@ -13,8 +13,8 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Disposable;
 import pl.genschu.bloomooemulator.engine.Game;
 import pl.genschu.bloomooemulator.engine.config.EngineConfig;
+import pl.genschu.bloomooemulator.engine.context.GameContext;
 import pl.genschu.bloomooemulator.geometry.points.Point3D;
-import pl.genschu.bloomooemulator.interpreter.v1.Context;
 import pl.genschu.bloomooemulator.interpreter.v1.variable.Variable;
 import pl.genschu.bloomooemulator.interpreter.v1.variable.types.*;
 import pl.genschu.bloomooemulator.geometry.shapes.Box2D;
@@ -24,6 +24,7 @@ import pl.genschu.bloomooemulator.world.MeshTriangle;
 import pl.genschu.bloomooemulator.world.TriangleVertex;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Deque;
 import java.util.List;
@@ -111,7 +112,7 @@ public class DebugManager implements Disposable {
         }
 
         // get matrix variables
-        for (Variable matrixVariable : game.getCurrentSceneContext().getVariables().values()) {
+        for (Variable matrixVariable : (Collection<Variable>) (Collection<?>) game.getCurrentSceneContext().getVariables().values()) {
             if (matrixVariable instanceof MatrixVariable) {
                 debugMatrix((MatrixVariable) matrixVariable);
             }
@@ -119,8 +120,8 @@ public class DebugManager implements Disposable {
     }
 
     private void renderObjectBoundingBoxes() {
-        Context context = game.getCurrentSceneContext();
-        List<Variable> graphics = new ArrayList<>(context.getGraphicsVariables().values());
+        GameContext context = game.getCurrentSceneContext();
+        List<Variable> graphics = new ArrayList<>((Collection<? extends Variable>) context.getGraphicsVariables().values());
 
         shapeRenderer.setProjectionMatrix(camera.combined);
         shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
@@ -257,7 +258,7 @@ public class DebugManager implements Disposable {
     }
 
     private void renderButtonBorders() {
-        List<Variable> buttons = new ArrayList<>(game.getCurrentSceneContext().getButtonsVariables().values());
+        List<Variable> buttons = new ArrayList<>((Collection<? extends Variable>) game.getCurrentSceneContext().getButtonsVariables().values());
         Vector2 mousePos = getMousePosition();
 
         shapeRenderer.setProjectionMatrix(camera.combined);
@@ -457,7 +458,7 @@ public class DebugManager implements Disposable {
         shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
         shapeRenderer.setColor(Color.GREEN);
 
-        WorldVariable world = game.getCurrentSceneContext().getWorldVariable();
+        WorldVariable world = (WorldVariable) game.getCurrentSceneContext().getWorldVariable();
         if( world == null ) {
             shapeRenderer.end();
             return;
@@ -635,11 +636,11 @@ public class DebugManager implements Disposable {
 
     private void generateDebugVariablesText() {
         StringBuilder sb = new StringBuilder();
-        Context context = game.getCurrentSceneContext();
+        GameContext context = game.getCurrentSceneContext();
 
         sb.append("Scena: ").append(game.getCurrentScene()).append("\n\n");
 
-        for (Variable variable : context.getVariables().values()) {
+        for (Variable variable : (Collection<Variable>) (Collection<?>) context.getVariables().values()) {
             switch (variable.getType()) {
                 case "INTEGER":
                 case "DOUBLE":
@@ -676,8 +677,8 @@ public class DebugManager implements Disposable {
     }
 
     private Variable getButtonAt(int x, int y) {
-        Context context = game.getCurrentSceneContext();
-        List<Variable> buttons = new ArrayList<>(context.getButtonsVariables().values());
+        GameContext context = game.getCurrentSceneContext();
+        List<Variable> buttons = new ArrayList<>((Collection<? extends Variable>) context.getButtonsVariables().values());
 
         int minHSPriority = game.getCurrentSceneVariable().getMinHotSpotZ();
         int maxHSPriority = game.getCurrentSceneVariable().getMaxHotSpotZ();
@@ -719,8 +720,8 @@ public class DebugManager implements Disposable {
     }
 
     private Variable getGraphicsAt(int x, int y) {
-        Context context = game.getCurrentSceneContext();
-        List<Variable> drawList = new ArrayList<>(context.getGraphicsVariables().values());
+        GameContext context = game.getCurrentSceneContext();
+        List<Variable> drawList = new ArrayList<>((Collection<? extends Variable>) context.getGraphicsVariables().values());
 
         // Reverse list
         List<Variable> reversedList = new ArrayList<>(drawList);
@@ -757,10 +758,10 @@ public class DebugManager implements Disposable {
 
     private boolean isGraphicsButton(Variable variable) {
         Box2D rect = getRect(variable);
-        Context context = game.getCurrentSceneContext();
+        GameContext context = game.getCurrentSceneContext();
 
         // Check if graphics is a button
-        for (Variable v : context.getVariables().values()) {
+        for (Variable v : (Collection<Variable>) (Collection<?>) context.getVariables().values()) {
             if (!v.getType().equals("BUTTON")) continue;
 
             if (v.getAttribute("GFXSTANDARD") != null &&

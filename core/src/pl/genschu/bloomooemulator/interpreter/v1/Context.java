@@ -1,6 +1,8 @@
 package pl.genschu.bloomooemulator.interpreter.v1;
 
 import pl.genschu.bloomooemulator.engine.config.EngineConfig;
+import pl.genschu.bloomooemulator.engine.context.EngineVariable;
+import pl.genschu.bloomooemulator.engine.context.GameContext;
 import pl.genschu.bloomooemulator.interpreter.factories.LegacyVariableFactory;
 import pl.genschu.bloomooemulator.interpreter.v1.util.GlobalVariables;
 import pl.genschu.bloomooemulator.interpreter.v1.variable.GlobalVariable;
@@ -11,7 +13,7 @@ import pl.genschu.bloomooemulator.engine.Game;
 import java.util.*;
 
 @Deprecated(forRemoval = true, since = "0.2.0-beta")
-public class Context {
+public class Context implements GameContext {
     private Map<String, Variable> variables = new LinkedHashMap<>();
     private Context parentContext;
     private Object returnValue;

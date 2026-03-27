@@ -34,9 +34,9 @@ public class GlobalVariable extends Variable {
         Gdx.app.log("GlobalVariable", "Emitting signal " + name + " from top level with argument " + argument);
 
         List<Context> contextHierarchy = new ArrayList<>();
-        contextHierarchy.add(context.getGame().getCurrentApplicationContext());
-        contextHierarchy.add(context.getGame().getCurrentEpisodeContext());
-        contextHierarchy.add(context.getGame().getCurrentSceneContext());
+        contextHierarchy.add((Context) context.getGame().getCurrentApplicationContext());
+        contextHierarchy.add((Context) context.getGame().getCurrentEpisodeContext());
+        contextHierarchy.add((Context) context.getGame().getCurrentSceneContext());
 
         Variable oldThis = context.getThisVariable();
         context.setThisVariable(this);

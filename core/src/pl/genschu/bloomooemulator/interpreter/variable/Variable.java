@@ -1,5 +1,6 @@
 package pl.genschu.bloomooemulator.interpreter.variable;
 
+import pl.genschu.bloomooemulator.engine.context.EngineVariable;
 import pl.genschu.bloomooemulator.interpreter.helpers.ArgumentHelper;
 import pl.genschu.bloomooemulator.interpreter.values.*;
 
@@ -8,7 +9,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.BiFunction;
 
-public sealed interface Variable permits
+public sealed interface Variable extends EngineVariable permits
         IntegerVariable,
         DoubleVariable,
         StringVariable,
@@ -39,6 +40,22 @@ public sealed interface Variable permits
      * Returns the name of this variable.
      */
     String name();
+
+    /**
+     * EngineVariable bridge: delegates to name().
+     */
+    @Override
+    default String getName() {
+        return name();
+    }
+
+    /**
+     * EngineVariable bridge: delegates to type().name().
+     */
+    @Override
+    default String getTypeName() {
+        return type().name();
+    }
 
     /**
      * Returns the current value as a v2 Value.

@@ -6,7 +6,8 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.utils.Disposable;
 import pl.genschu.bloomooemulator.engine.Game;
 import pl.genschu.bloomooemulator.engine.config.EngineConfig;
-import pl.genschu.bloomooemulator.interpreter.v1.Context;
+import pl.genschu.bloomooemulator.engine.context.EngineVariable;
+import pl.genschu.bloomooemulator.engine.context.GameContext;
 import pl.genschu.bloomooemulator.interpreter.v1.variable.Attribute;
 import pl.genschu.bloomooemulator.interpreter.v1.variable.Variable;
 import pl.genschu.bloomooemulator.interpreter.v1.variable.types.*;
@@ -42,7 +43,7 @@ public class RenderManager implements Disposable {
     }
 
     public void render(float deltaTime) {
-        Context context = game.getCurrentSceneContext();
+        GameContext context = game.getCurrentSceneContext();
 
         // start rendering
         batch.begin();
@@ -117,16 +118,16 @@ public class RenderManager implements Disposable {
         graphicsRenderer.renderAnimo(animoVariable);
     }
 
-    private void renderTexts(Context context) {
-        for (Variable variable : new ArrayList<>(context.getTextVariables().values())) {
+    private void renderTexts(GameContext context) {
+        for (EngineVariable variable : new ArrayList<>(context.getTextVariables().values())) {
             textRenderer.renderText((TextVariable) variable);
         }
     }
 
     private List<Variable> getGraphicsVariables() {
-        Context context = game.getCurrentSceneContext();
+        GameContext context = game.getCurrentSceneContext();
 
-        return new ArrayList<>(context.getGraphicsVariables().values());
+        return new ArrayList<>((java.util.Collection<? extends Variable>) context.getGraphicsVariables().values());
     }
 
     private void sortByPriority(List<Variable> drawList) {

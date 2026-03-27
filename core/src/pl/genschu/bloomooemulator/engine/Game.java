@@ -7,6 +7,7 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 import org.ini4j.Ini;
 import pl.genschu.bloomooemulator.BlooMooEngine;
+import pl.genschu.bloomooemulator.engine.context.GameContext;
 import pl.genschu.bloomooemulator.engine.input.InputManager;
 import pl.genschu.bloomooemulator.interpreter.v1.Context;
 import pl.genschu.bloomooemulator.interpreter.v1.util.GlobalVariables;
@@ -543,7 +544,7 @@ public class Game {
         this.currentSceneVariable = currentSceneVariable;
     }
 
-    public Context getDefinitionContext() {
+    public GameContext getDefinitionContext() {
         return definitionContext;
     }
 
@@ -555,8 +556,8 @@ public class Game {
         this.game = game;
     }
 
-    public void setDefinitionContext(Context definitionContext) {
-        this.definitionContext = definitionContext;
+    public void setDefinitionContext(GameContext definitionContext) {
+        this.definitionContext = (Context) definitionContext;
     }
 
     public String getCurrentScene() {
@@ -567,12 +568,12 @@ public class Game {
         this.currentScene = currentScene;
     }
 
-    public Context getCurrentSceneContext() {
+    public GameContext getCurrentSceneContext() {
         return currentSceneContext;
     }
 
-    public void setCurrentSceneContext(Context currentSceneContext) {
-        this.currentSceneContext = currentSceneContext;
+    public void setCurrentSceneContext(GameContext currentSceneContext) {
+        this.currentSceneContext = (Context) currentSceneContext;
     }
 
     public File getDaneFolder() {
@@ -633,7 +634,7 @@ public class Game {
         return currentApplicationFile;
     }
 
-    public Context getCurrentApplicationContext() {
+    public GameContext getCurrentApplicationContext() {
         return currentApplicationContext;
     }
 
@@ -641,7 +642,7 @@ public class Game {
         this.currentApplicationFile = currentApplicationFile;
     }
 
-    public Context getCurrentEpisodeContext() {
+    public GameContext getCurrentEpisodeContext() {
         return currentEpisodeContext;
     }
 

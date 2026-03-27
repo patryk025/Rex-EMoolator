@@ -11,13 +11,14 @@ import pl.genschu.bloomooemulator.interpreter.v1.variable.types.*;
 import pl.genschu.bloomooemulator.loader.v1.CNVParser;
 import pl.genschu.bloomooemulator.utils.LegacyArgumentsHelper;
 import pl.genschu.bloomooemulator.utils.SignalAndParams;
+import pl.genschu.bloomooemulator.engine.context.EngineVariable;
 
 import java.util.*;
 
 import static pl.genschu.bloomooemulator.interpreter.v1.util.VariableHelper.getVariableFromObject;
 
 @Deprecated(forRemoval = true, since = "0.2.0-beta")
-public abstract class Variable implements Cloneable {
+public abstract class Variable implements Cloneable, EngineVariable {
 	protected static Map<String, List<Method>> baseMethodTemplates() {
 		return METHOD_TEMPLATES;
 	}
@@ -228,6 +229,11 @@ public abstract class Variable implements Cloneable {
 
 	public String getType() {
 		return "VOID";
+	}
+
+	@Override
+	public String getTypeName() {
+		return getType();
 	}
 
 	public Object getValue() {

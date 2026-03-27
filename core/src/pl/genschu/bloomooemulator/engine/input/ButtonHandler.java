@@ -5,7 +5,7 @@ import com.badlogic.gdx.graphics.Cursor;
 import pl.genschu.bloomooemulator.engine.Game;
 import pl.genschu.bloomooemulator.engine.decision.events.ButtonEvent;
 import pl.genschu.bloomooemulator.engine.decision.states.ButtonState;
-import pl.genschu.bloomooemulator.interpreter.v1.Context;
+import pl.genschu.bloomooemulator.engine.context.GameContext;
 import pl.genschu.bloomooemulator.interpreter.v1.variable.Variable;
 import pl.genschu.bloomooemulator.interpreter.v1.variable.types.*;
 import pl.genschu.bloomooemulator.objects.Event;
@@ -28,10 +28,10 @@ public class ButtonHandler {
 
     public void handleMouseInput(int x, int y, boolean isPressed, boolean justPressed,
                                  boolean justReleased, MouseVariable mouseVariable) {
-        Context context = game.getCurrentSceneContext();
+        GameContext context = game.getCurrentSceneContext();
 
         // Get all buttons from the context and class instances
-        List<Variable> buttons = new ArrayList<>(context.getButtonsVariables().values());
+        List<Variable> buttons = new ArrayList<>((java.util.Collection<? extends Variable>) context.getButtonsVariables().values());
 
         // Get the priority ranges of hotspots from the scene
         int minHSPriority = game.getCurrentSceneVariable().getMinHotSpotZ();
