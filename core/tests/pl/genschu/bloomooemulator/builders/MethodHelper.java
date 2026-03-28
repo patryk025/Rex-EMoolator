@@ -70,6 +70,11 @@ public final class MethodHelper {
             public pl.genschu.bloomooemulator.interpreter.context.CloneRegistry clones() {
                 return context.clones();
             }
+
+            @Override
+            public Context context() {
+                return context;
+            }
         };
     }
 

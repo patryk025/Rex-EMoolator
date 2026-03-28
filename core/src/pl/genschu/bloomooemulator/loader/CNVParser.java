@@ -5,6 +5,8 @@ import pl.genschu.bloomooemulator.encoding.ScriptDecypher;
 import pl.genschu.bloomooemulator.interpreter.ast.ASTNode;
 import pl.genschu.bloomooemulator.interpreter.context.Context;
 import pl.genschu.bloomooemulator.interpreter.factories.VariableFactory;
+import pl.genschu.bloomooemulator.interpreter.runtime.ASTInterpreter;
+import pl.genschu.bloomooemulator.interpreter.values.StringValue;
 import pl.genschu.bloomooemulator.interpreter.values.Value;
 import pl.genschu.bloomooemulator.interpreter.variable.*;
 import pl.genschu.bloomooemulator.interpreter.variable.db.DatabaseState;
@@ -255,9 +257,93 @@ public class CNVParser {
                 yield new BehaviourVariable(objectName, ast, Map.of());
             }
             case "ARRAY" -> {
-                // TODO: Create ArrayVariable
-                Gdx.app.log("CNVParser", "ARRAY type not yet fully implemented: " + objectName);
-                yield null;
+                yield new ArrayVariable(objectName);
+            }
+            case "MULTIARRAY" -> {
+                yield new MultiArrayVariable(objectName);
+            }
+            case "TIMER" -> {
+                String elapseStr = properties.get(objectName + ":ELAPSE");
+                long elapse = 0;
+                if (elapseStr != null) {
+                    try { elapse = Long.parseLong(elapseStr); } catch (NumberFormatException ignored) {}
+                }
+                yield new TimerVariable(objectName, elapse);
+            }
+            case "RAND" -> {
+                yield new RandVariable(objectName);
+            }
+            case "VECTOR" -> {
+                String sizeStr = properties.get(objectName + ":SIZE");
+                int size = 2;
+                if (sizeStr != null) {
+                    try { size = Integer.parseInt(sizeStr); } catch (NumberFormatException ignored) {}
+                }
+                yield new VectorVariable(objectName, size);
+            }
+            case "GROUP" -> {
+                yield new GroupVariable(objectName);
+            }
+            case "EXPRESSION" -> {
+                String op1 = properties.get(objectName + ":OPERAND1");
+                String op2 = properties.get(objectName + ":OPERAND2");
+                String operator = properties.get(objectName + ":OPERATOR");
+                yield new ExpressionVariable(objectName, op1, op2, operator);
+            }
+            case "CONDITION" -> {
+                String op1 = properties.get(objectName + ":OPERAND1");
+                String op2 = properties.get(objectName + ":OPERAND2");
+                String operator = properties.get(objectName + ":OPERATOR");
+                yield new ConditionVariable(objectName, op1, op2, operator);
+            }
+            case "COMPLEXCONDITION" -> {
+                String c1 = properties.get(objectName + ":CONDITION1");
+                String c2 = properties.get(objectName + ":CONDITION2");
+                String operator = properties.get(objectName + ":OPERATOR");
+                yield new ComplexConditionVariable(objectName, c1, c2, operator);
+            }
+            case "APPLICATION" -> {
+                String episodesAttr = properties.get(objectName + ":EPISODES");
+                String startWith = properties.get(objectName + ":STARTWITH");
+                String language = properties.get(objectName + ":LANGUAGE");
+                List<String> episodeNames = episodesAttr != null
+                        ? List.of(episodesAttr.split(",")) : List.of();
+                yield new ApplicationVariable(objectName,
+                        language != null ? language : "POL",
+                        episodeNames,
+                        startWith != null ? startWith : "",
+                        Map.of());
+            }
+            case "EPISODE" -> {
+                String scenesAttr = properties.get(objectName + ":SCENES");
+                String startWith = properties.get(objectName + ":STARTWITH");
+                List<String> sceneNames = scenesAttr != null
+                        ? List.of(scenesAttr.split(",")) : List.of();
+                yield new EpisodeVariable(objectName, sceneNames,
+                        startWith != null ? startWith : "",
+                        Map.of());
+            }
+            case "SCENE" -> {
+                String bg = properties.get(objectName + ":BACKGROUND");
+                String music = properties.get(objectName + ":MUSIC");
+                String volStr = properties.get(objectName + ":MUSICVOLUME");
+                String minStr = properties.get(objectName + ":MINHSPRIORITY");
+                String maxStr = properties.get(objectName + ":MAXHSPRIORITY");
+                int volume = 1000, minHS = 0, maxHS = 10000000;
+                if (volStr != null) try { volume = Integer.parseInt(volStr); } catch (NumberFormatException ignored) {}
+                if (minStr != null) try { minHS = Integer.parseInt(minStr); } catch (NumberFormatException ignored) {}
+                if (maxStr != null) try { maxHS = Integer.parseInt(maxStr); } catch (NumberFormatException ignored) {}
+                yield new SceneVariable(objectName,
+                        bg != null ? bg : "", music != null ? music : "",
+                        volume, minHS, maxHS, Map.of());
+            }
+            case "ANIMO" -> {
+                String filename = properties.get(objectName + ":FILENAME");
+                yield filename != null ? new AnimoVariable(objectName, filename) : new AnimoVariable(objectName);
+            }
+            case "SEQUENCE" -> {
+                String filename = properties.get(objectName + ":FILENAME");
+                yield filename != null ? new SequenceVariable(objectName, filename) : new SequenceVariable(objectName);
             }
             default -> {
                 Gdx.app.error("CNVParser", "Unsupported variable type: " + type + " for " + objectName);
@@ -366,9 +452,13 @@ public class CNVParser {
         final String[] finalParams = params;
 
         SignalHandler handler = (var, signal, args) -> {
-            // TODO: Execute behaviour with proper context and arguments
-            // This requires ASTInterpreter integration
-            Gdx.app.log("CNVParser", "Signal " + signal + " triggered on " + var.name() + " - BEHAVIOUR execution not yet implemented");
+            try {
+                ASTInterpreter interpreter = new ASTInterpreter(context);
+                List<Value> resolvedArgs = resolveSignalParams(finalParams, context);
+                interpreter.runBehaviour("Signal:" + signal + " on " + var.name(), var, finalBehaviour, resolvedArgs);
+            } catch (Exception e) {
+                Gdx.app.error("CNVParser", "Error executing signal " + signal + " on " + var.name(), e);
+            }
         };
 
         // Attach handler to variable
@@ -412,6 +502,29 @@ public class CNVParser {
             Gdx.app.log("CNVParser", "ONINIT for " + varName + " (" + variable.type() + ")");
             variable.emitSignal("ONINIT");
         }
+    }
+
+    /**
+     * Resolves signal parameter strings to Values at signal execution time.
+     * Parameters can be: string literals ("text"), variable names, or plain strings.
+     */
+    private List<Value> resolveSignalParams(String[] params, Context context) {
+        if (params == null) return List.of();
+        List<Value> resolved = new ArrayList<>(params.length);
+        for (String param : params) {
+            param = param.trim();
+            if (param.startsWith("\"") && param.endsWith("\"")) {
+                resolved.add(new StringValue(param.substring(1, param.length() - 1)));
+            } else {
+                Variable paramVar = context.getVariable(param);
+                if (paramVar != null) {
+                    resolved.add(paramVar.value());
+                } else {
+                    resolved.add(new StringValue(param));
+                }
+            }
+        }
+        return resolved;
     }
 
     /**

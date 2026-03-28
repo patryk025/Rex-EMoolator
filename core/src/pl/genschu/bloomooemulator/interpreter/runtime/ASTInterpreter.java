@@ -43,6 +43,14 @@ public class ASTInterpreter {
         return pendingReturnValue;
     }
 
+    /**
+     * Executes a BehaviourVariable's AST in a new frame.
+     * Public convenience for signal execution and external callers.
+     */
+    public Value runBehaviour(String frameName, Variable thisVar, BehaviourVariable behaviour, List<Value> args) {
+        return methodContext.runBehaviour(frameName, thisVar, behaviour, args);
+    }
+
     private MethodContext createMethodContext() {
         return new MethodContext() {
             @Override
@@ -92,6 +100,11 @@ public class ASTInterpreter {
             @Override
             public CloneRegistry clones() {
                 return context.clones();
+            }
+
+            @Override
+            public Context context() {
+                return context;
             }
         };
     }

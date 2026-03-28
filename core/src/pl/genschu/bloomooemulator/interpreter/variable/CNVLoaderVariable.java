@@ -1,10 +1,17 @@
 package pl.genschu.bloomooemulator.interpreter.variable;
 
+import com.badlogic.gdx.Gdx;
 import pl.genschu.bloomooemulator.interpreter.context.Context;
+import pl.genschu.bloomooemulator.interpreter.helpers.ArgumentHelper;
+import pl.genschu.bloomooemulator.interpreter.runtime.ExecutionContext;
 import pl.genschu.bloomooemulator.interpreter.values.NullValue;
 import pl.genschu.bloomooemulator.interpreter.values.StringValue;
 import pl.genschu.bloomooemulator.interpreter.values.Value;
+import pl.genschu.bloomooemulator.loader.CNVParser;
+import pl.genschu.bloomooemulator.utils.FileUtils;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -134,31 +141,39 @@ public record CNVLoaderVariable(
                 throw new IllegalArgumentException("LOAD requires 1 argument (cnvFile)");
             }
 
-            String cnvFile = args.get(0).toDisplayString();
+            String cnvFile = ArgumentHelper.getString(args.get(0));
 
-            // Check if already loaded
             if (thisVar.isLoaded(cnvFile)) {
-                // TODO: Log warning? For now, just return self
+                Gdx.app.log("CNVLoaderVariable", "CNV already loaded: " + cnvFile);
                 return MethodResult.noReturn();
             }
 
-            // TODO: Implementation requires:
-            // 1. Get parent context reference
-            // 2. Create new Context with parent
-            // 3. Resolve cnvFile path using FileUtils
-            // 4. Parse .cnv file into new context using CNVParser
-            // 5. Copy variables from loaded context to parent context
-            // 6. Add loaded context as additional context to parent
-            // 7. Return new CNVLoaderVariable with updated loadedContexts
+            Context parentContext = ctx.context();
+            Context cnvContext = new Context(new ExecutionContext(), parentContext);
+            cnvContext.setGame(ctx.getGame());
 
-            // For now, throw exception indicating this needs integration
-            throw new UnsupportedOperationException(
-                "CNVLOADER.LOAD not yet integrated with CNVParser and Context. " +
-                "Implementation requires: " +
-                "1. Context reference to merge variables, " +
-                "2. CNVParser to load file, " +
-                "3. FileUtils to resolve path"
-            );
+            String cnvPath = FileUtils.resolveRelativePath(ctx.getGame(), cnvFile);
+
+            CNVParser cnvParser = new CNVParser();
+            try {
+                Gdx.app.log("CNVLoaderVariable", "Loading " + cnvFile);
+                cnvParser.parseFile(new File(cnvPath), cnvContext);
+
+                for (Map.Entry<String, Variable> entry : cnvContext.getVariables(false).entrySet()) {
+                    parentContext.setVariable(entry.getKey(), entry.getValue());
+                }
+
+                CNVLoaderVariable updated = thisVar.withLoadedContext(cnvFile, cnvContext);
+                ctx.updateVariable(thisVar.name(), updated);
+
+                parentContext.addAdditionalContext(cnvContext);
+                Gdx.app.log("CNVLoaderVariable", "Loaded " + cnvFile);
+            } catch (IOException e) {
+                Gdx.app.error("CNVLoaderVariable", "Error loading " + cnvFile, e);
+                throw new RuntimeException(e);
+            }
+
+            return MethodResult.noReturn();
         })),
 
         Map.entry("RELEASE", MethodSpec.of((self, args, ctx) -> {
@@ -167,28 +182,29 @@ public record CNVLoaderVariable(
                 throw new IllegalArgumentException("RELEASE requires 1 argument (cnvFile)");
             }
 
-            String cnvFile = args.get(0).toDisplayString();
+            String cnvFile = ArgumentHelper.getString(args.get(0));
 
-            // Check if loaded
             if (!thisVar.isLoaded(cnvFile)) {
-                // TODO: Log warning? For now, just return self
+                Gdx.app.log("CNVLoaderVariable", "CNV not loaded: " + cnvFile);
                 return MethodResult.noReturn();
             }
 
-            // TODO: Implementation requires:
-            // 1. Get parent context reference
-            // 2. Get loaded context by cnvFile
-            // 3. Remove all variables from parent context that came from loaded context
-            // 4. Remove loaded context from additional contexts
-            // 5. Return new CNVLoaderVariable without this context
+            Context parentContext = ctx.context();
+            Context cnvContext = thisVar.getLoadedContext(cnvFile);
 
-            // For now, throw exception indicating this needs integration
-            throw new UnsupportedOperationException(
-                "CNVLOADER.RELEASE not yet integrated with Context. " +
-                "Implementation requires: " +
-                "1. Context reference to remove variables, " +
-                "2. Loaded context tracking"
-            );
+            Gdx.app.log("CNVLoaderVariable", "Unloading " + cnvFile);
+
+            for (String variableName : cnvContext.getVariables(false).keySet()) {
+                parentContext.removeVariable(variableName);
+            }
+
+            parentContext.removeAdditionalContext(cnvContext);
+
+            CNVLoaderVariable updated = thisVar.withoutLoadedContext(cnvFile);
+            ctx.updateVariable(thisVar.name(), updated);
+
+            Gdx.app.log("CNVLoaderVariable", "Unloaded " + cnvFile);
+            return MethodResult.noReturn();
         }))
     );
 

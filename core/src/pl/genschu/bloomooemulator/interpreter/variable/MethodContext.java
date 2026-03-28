@@ -2,6 +2,7 @@ package pl.genschu.bloomooemulator.interpreter.variable;
 
 import pl.genschu.bloomooemulator.engine.Game;
 import pl.genschu.bloomooemulator.interpreter.context.CloneRegistry;
+import pl.genschu.bloomooemulator.interpreter.context.Context;
 import pl.genschu.bloomooemulator.interpreter.values.Value;
 
 import java.util.List;
@@ -54,4 +55,11 @@ public interface MethodContext {
      * Returns the CloneRegistry for the current context.
      */
     CloneRegistry clones();
+
+    /**
+     * Returns the underlying v2 Context.
+     * Needed by operations that require deep context manipulation
+     * (e.g., CNVLoader creating child contexts, adding additional contexts).
+     */
+    Context context();
 }
