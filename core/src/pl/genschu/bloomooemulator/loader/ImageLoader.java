@@ -22,7 +22,24 @@ public class ImageLoader {
         }
     }
 
-    private static void readImage(ImageVariable variable, InputStream f) throws IOException {
+    /**
+     * Loads an image from an absolute path into a v2 ImageVariable.
+     */
+    public static void loadImage(pl.genschu.bloomooemulator.interpreter.variable.ImageVariable variable, String absolutePath) {
+        try (FileInputStream f = new FileInputStream(absolutePath)) {
+            Image image = readImageData(f);
+            variable.state().image = image;
+            variable.state().posX = image.offsetX;
+            variable.state().posY = image.offsetY;
+        } catch (IOException e) {
+            Gdx.app.error("ImageLoader", "Error while loading IMG: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Reads image data from stream and returns an Image object.
+     */
+    private static Image readImageData(InputStream f) throws IOException {
         byte[] magicIdBytes = new byte[4];
         f.read(magicIdBytes);
         String magicId = new String(magicIdBytes, StandardCharsets.UTF_8);
@@ -44,24 +61,27 @@ public class ImageLoader {
         int offsetX = buffer.getInt();
         int offsetY = buffer.getInt();
 
-        if(compressionType == 4) {
-            compressionType = 0; // weird, in Animo it is CRLE compression, but here it is no compression
+        if (compressionType == 4) {
+            compressionType = 0;
         }
 
         byte[] imageData = new byte[imageSize];
         f.read(imageData);
         byte[] alphaData;
-        if(alphaSize > 0) {
+        if (alphaSize > 0) {
             alphaData = new byte[alphaSize];
             f.read(alphaData);
-        }
-        else {
+        } else {
             alphaData = null;
         }
 
-        Image image = new Image(width, height, offsetX, offsetY, colorDepth, imageData, alphaData, compressionType);
+        return new Image(width, height, offsetX, offsetY, colorDepth, imageData, alphaData, compressionType);
+    }
+
+    private static void readImage(ImageVariable variable, InputStream f) throws IOException {
+        Image image = readImageData(f);
         variable.setImage(image);
-        variable.setPosX(offsetX);
-        variable.setPosY(offsetY);
+        variable.setPosX(image.offsetX);
+        variable.setPosY(image.offsetY);
     }
 }

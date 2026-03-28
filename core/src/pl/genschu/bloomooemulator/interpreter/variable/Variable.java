@@ -34,7 +34,13 @@ public sealed interface Variable extends EngineVariable permits
         SceneVariable,
         AnimoVariable,
         SequenceVariable,
-        MultiArrayVariable {
+        MultiArrayVariable,
+        ImageVariable,
+        SoundVariable,
+        MouseVariable,
+        KeyboardVariable,
+        ButtonVariable,
+        TextVariable {
 
     /**
      * Returns the name of this variable.

@@ -345,6 +345,26 @@ public class CNVParser {
                 String filename = properties.get(objectName + ":FILENAME");
                 yield filename != null ? new SequenceVariable(objectName, filename) : new SequenceVariable(objectName);
             }
+            case "IMAGE" -> {
+                String filename = properties.get(objectName + ":FILENAME");
+                yield filename != null ? new ImageVariable(objectName, filename) : new ImageVariable(objectName);
+            }
+            case "SOUND" -> {
+                String filename = properties.get(objectName + ":FILENAME");
+                yield filename != null ? new SoundVariable(objectName, filename) : new SoundVariable(objectName);
+            }
+            case "MOUSE" -> {
+                yield new MouseVariable(objectName);
+            }
+            case "KEYBOARD" -> {
+                yield new KeyboardVariable(objectName);
+            }
+            case "BUTTON" -> {
+                yield new ButtonVariable(objectName);
+            }
+            case "TEXT" -> {
+                yield new TextVariable(objectName);
+            }
             default -> {
                 Gdx.app.error("CNVParser", "Unsupported variable type: " + type + " for " + objectName);
                 yield null;
