@@ -9,12 +9,13 @@ import com.badlogic.gdx.utils.GdxRuntimeException;
 import pl.genschu.bloomooemulator.interpreter.v1.Context;
 import pl.genschu.bloomooemulator.interpreter.v1.variable.Attribute;
 import pl.genschu.bloomooemulator.interpreter.v1.variable.Variable;
+import pl.genschu.bloomooemulator.loader.FontLoadable;
 import pl.genschu.bloomooemulator.loader.FontLoader;
 import pl.genschu.bloomooemulator.objects.FontCropping;
 
 import java.util.*;
 
-public class FontVariable extends Variable {
+public class FontVariable extends Variable implements FontLoadable {
 	private final Map<Character, TextureRegion> charTextures = new LinkedHashMap<>();
 	private final Map<Character, FontCropping> charCroppings = new LinkedHashMap<>();
 	private final Map<Character, Map<Character, Integer>> charKerningsMap = new HashMap<>();
@@ -23,6 +24,11 @@ public class FontVariable extends Variable {
 
 	public FontVariable(String name, Context context) {
 		super(name, context);
+	}
+
+	@Override
+	public pl.genschu.bloomooemulator.engine.Game getGameReference() {
+		return getContext().getGame();
 	}
 
 	public void setCharTexture(char c, TextureRegion texture) {

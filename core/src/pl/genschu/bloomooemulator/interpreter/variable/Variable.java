@@ -40,7 +40,16 @@ public sealed interface Variable extends EngineVariable permits
         MouseVariable,
         KeyboardVariable,
         ButtonVariable,
-        TextVariable {
+        TextVariable,
+        CanvasObserverVariable,
+        FontVariable,
+        InertiaVariable,
+        MatrixVariable,
+        PatternVariable,
+        StaticFilterVariable,
+        SystemVariable,
+        VirtualGraphicsObjectVariable,
+        WorldVariable {
 
     /**
      * Returns the name of this variable.

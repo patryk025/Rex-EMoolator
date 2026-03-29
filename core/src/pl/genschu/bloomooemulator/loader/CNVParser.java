@@ -365,6 +365,34 @@ public class CNVParser {
             case "TEXT" -> {
                 yield new TextVariable(objectName);
             }
+            case "CANVASOBSERVER", "CANVAS_OBSERVER" -> {
+                yield new CanvasObserverVariable(objectName);
+            }
+            case "FONT" -> {
+                yield new FontVariable(objectName);
+            }
+            case "INERTIA" -> {
+                yield new InertiaVariable(objectName);
+            }
+            case "MATRIX" -> {
+                yield new MatrixVariable(objectName);
+            }
+            case "PATTERN" -> {
+                yield new PatternVariable(objectName);
+            }
+            case "STATICFILTER" -> {
+                String action = properties.get(objectName + ":ACTION");
+                yield action != null ? new StaticFilterVariable(objectName, action) : new StaticFilterVariable(objectName);
+            }
+            case "SYSTEM" -> {
+                yield new SystemVariable(objectName);
+            }
+            case "VIRTUALGRAPHICSOBJECT" -> {
+                yield new VirtualGraphicsObjectVariable(objectName);
+            }
+            case "WORLD" -> {
+                yield new WorldVariable(objectName);
+            }
             default -> {
                 Gdx.app.error("CNVParser", "Unsupported variable type: " + type + " for " + objectName);
                 yield null;
@@ -559,8 +587,8 @@ public class CNVParser {
             case INTEGER, DOUBLE, STRING, BOOLEAN -> 1;  // Primitives
             case ARRAY, CONDITION, COMPLEXCONDITION, DATABASE, EXPRESSION, MULTIARRAY, STRUCT -> 2;  // Logic and structures
             case ANIMO, CLASS, FONT, IMAGE, SOUND, VIRTUALGRAPHICSOBJECT, VECTOR -> 3;  // Classes, sounds and graphics
-            case BUTTON, CANVAS_OBSERVER, FILTER, GROUP, JOYSTICK, KEYBOARD, MOUSE,
-                 PATTERN, SEQUENCE, STATICFILTER, TEXT, TIMER -> 4;  // UI and input
+            case BUTTON, CANVAS_OBSERVER, FILTER, GROUP, INERTIA, JOYSTICK, KEYBOARD, MATRIX, MOUSE,
+                 PATTERN, SEQUENCE, STATICFILTER, SYSTEM, TEXT, TIMER, WORLD -> 4;  // UI, input, and complex types
             default -> 5;  // Everything else
         };
     }

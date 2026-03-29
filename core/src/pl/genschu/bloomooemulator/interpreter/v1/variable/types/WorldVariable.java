@@ -8,12 +8,13 @@ import pl.genschu.bloomooemulator.interpreter.v1.variable.Attribute;
 import pl.genschu.bloomooemulator.interpreter.v1.variable.Method;
 import pl.genschu.bloomooemulator.interpreter.v1.variable.Parameter;
 import pl.genschu.bloomooemulator.interpreter.v1.variable.Variable;
+import pl.genschu.bloomooemulator.loader.SEKLoadable;
 import pl.genschu.bloomooemulator.loader.SEKLoader;
 import pl.genschu.bloomooemulator.utils.LegacyArgumentsHelper;
 
 import java.util.List;
 
-public class WorldVariable extends Variable {
+public class WorldVariable extends Variable implements SEKLoadable {
 	private final IPhysicsEngine physicsEngine = new ODEPhysicsEngine();
 	private String sekVersion;
 
@@ -591,5 +592,15 @@ public class WorldVariable extends Variable {
 
 	public IPhysicsEngine getPhysicsEngine() {
 		return physicsEngine;
+	}
+
+	@Override
+	public String getFilename() {
+		return getAttribute("FILENAME") != null ? getAttribute("FILENAME").getValue().toString() : "";
+	}
+
+	@Override
+	public pl.genschu.bloomooemulator.engine.Game getGameReference() {
+		return getContext().getGame();
 	}
 }

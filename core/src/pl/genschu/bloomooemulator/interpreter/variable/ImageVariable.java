@@ -176,6 +176,21 @@ public record ImageVariable(
         }
     }
 
+    public void load(pl.genschu.bloomooemulator.engine.Game game) {
+        String filename = state.filename;
+        if (!filename.toUpperCase().endsWith(".IMG")) {
+            filename = filename + ".IMG";
+            state.filename = filename;
+        }
+        try {
+            String path = FileUtils.resolveRelativePath(game, filename);
+            ImageLoader.loadImage(this, path);
+            state.updateRect();
+        } catch (Exception e) {
+            Gdx.app.error("ImageVariable", "Error loading IMAGE: " + filename, e);
+        }
+    }
+
     private void loadImage(Context context) {
         String filename = state.filename;
         if (!filename.toUpperCase().endsWith(".IMG")) {
@@ -204,6 +219,8 @@ public record ImageVariable(
     public boolean isVisible() { return state.visible; }
     public List<Filter> getFilters() { return state.filters; }
     public boolean hasFilters() { return !state.filters.isEmpty(); }
+    public void addFilter(Filter filter) { state.filters.add(filter); }
+    public void removeFilter(Filter filter) { state.filters.remove(filter); }
     public Map<String, Box2D> getAlphaMasks() { return state.alphaMasks; }
 
     public boolean isAt(int x, int y) {

@@ -11,6 +11,18 @@ import java.nio.ByteOrder;
 import java.nio.charset.StandardCharsets;
 
 public class ImageSaver {
+    public static void saveScreenshot(pl.genschu.bloomooemulator.engine.Game game, String path, byte[] data, int width, int height) {
+        String filePath = FileUtils.resolveRelativePath(game, path);
+
+        byte[] imgData = generateData(data, width, height, 16, 0, null, 0, 0);
+
+        try (FileOutputStream f = new FileOutputStream(filePath)) {
+            f.write(imgData);
+        } catch (IOException e) {
+            Gdx.app.error("ImageSaver", "Error while saving IMG: " + e.getMessage());
+        }
+    }
+
     public static void saveScreenshot(Variable variable, String path, byte[] data, int width, int height) {
         String filePath = FileUtils.resolveRelativePath(variable, path);
 

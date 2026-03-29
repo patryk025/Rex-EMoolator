@@ -2,7 +2,6 @@ package pl.genschu.bloomooemulator.loader;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import pl.genschu.bloomooemulator.interpreter.v1.variable.types.FontVariable;
 import pl.genschu.bloomooemulator.objects.FontCropping;
 import pl.genschu.bloomooemulator.objects.Image;
 import pl.genschu.bloomooemulator.utils.FileUtils;
@@ -15,8 +14,8 @@ import java.nio.charset.StandardCharsets;
 
 public class FontLoader {
 
-    public static void loadFont(FontVariable fontVariable, String filePath) {
-        filePath = FileUtils.resolveRelativePath(fontVariable, filePath);
+    public static void loadFont(FontLoadable fontVariable, String filePath) {
+        filePath = FileUtils.resolveRelativePath(fontVariable.getGameReference(), filePath);
 
         try (FileInputStream fileInputStream = new FileInputStream(filePath)) {
             readFont(fontVariable, fileInputStream);
@@ -25,7 +24,7 @@ public class FontLoader {
         }
     }
 
-    private static void readFont(FontVariable fontVariable, FileInputStream fileInputStream) throws IOException {
+    private static void readFont(FontLoadable fontVariable, FileInputStream fileInputStream) throws IOException {
         byte[] headerBuffer = new byte[4];
         fileInputStream.read(headerBuffer);
         String magicId = new String(headerBuffer, StandardCharsets.UTF_8);

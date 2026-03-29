@@ -1,6 +1,6 @@
 package pl.genschu.bloomooemulator.engine.physics;
 
-import pl.genschu.bloomooemulator.interpreter.v1.variable.Variable;
+import pl.genschu.bloomooemulator.engine.context.EngineVariable;
 import pl.genschu.bloomooemulator.world.GameObject;
 import pl.genschu.bloomooemulator.world.Mesh;
 
@@ -69,7 +69,7 @@ public interface IPhysicsEngine {
 
     void setReferenceObjectId(int referenceObjectId);
 
-    void linkVariable(Variable variable, int objectId);
+    void linkVariable(EngineVariable variable, int objectId);
 
     void unlinkVariable(int objectId);
 
