@@ -5,9 +5,7 @@ import pl.genschu.bloomooemulator.engine.Game;
 import pl.genschu.bloomooemulator.engine.config.EngineConfig;
 import pl.genschu.bloomooemulator.engine.context.EngineVariable;
 import pl.genschu.bloomooemulator.engine.context.GameContext;
-import pl.genschu.bloomooemulator.interpreter.v1.exceptions.BreakException;
-import pl.genschu.bloomooemulator.interpreter.v1.variable.Variable;
-import pl.genschu.bloomooemulator.interpreter.v1.variable.types.*;
+import pl.genschu.bloomooemulator.interpreter.variable.*;
 import pl.genschu.bloomooemulator.geometry.shapes.Box2D;
 import pl.genschu.bloomooemulator.utils.CollisionChecker;
 
@@ -50,7 +48,7 @@ public class UpdateManager implements Disposable {
         timerManager.updateTimers();
     }
 
-    public void checkCollisions(Variable object) {
+    public void checkCollisions(EngineVariable object) {
         collisionManager.checkCollisions(object);
     }
 
@@ -79,37 +77,28 @@ public class UpdateManager implements Disposable {
             this.game = game;
         }
 
-        public void checkCollisions(Variable object) {
-            List<Variable> objects = new ArrayList<>(game.getCollisionMonitoredVariables());
+        public void checkCollisions(EngineVariable object) {
+            List<EngineVariable> objects = new ArrayList<>(game.getCollisionMonitoredVariables());
 
             // Check if the object is in the list of objects to check
             if (!objects.contains(object)) {
                 return;
             }
 
-            List<Variable> potentialCollisions = game.getQuadTree().retrieve(new ArrayList<>(), object);
-            for (Variable other : potentialCollisions) {
+            List<EngineVariable> potentialCollisions = game.getQuadTree().retrieve(new ArrayList<>(), object);
+            for (EngineVariable other : potentialCollisions) {
                 if (other != object && checkCollision(object, other)) {
-                    if (!object.isColliding(other)) {
-                        object.setColliding(other);
+                    if (!game.isColliding(object, other)) {
+                        game.setColliding(object, other);
                     }
-                } else if (object.isColliding(other)) {
-                    object.releaseColliding(other);
+                } else if (game.isColliding(object, other)) {
+                    game.releaseColliding(object, other);
                 }
             }
         }
 
-        private boolean checkCollision(Variable obj1, Variable obj2) {
+        private boolean checkCollision(EngineVariable obj1, EngineVariable obj2) {
             return CollisionChecker.checkCollision(obj1, obj2);
-        }
-
-        public Box2D getRect(Variable variable) {
-            if (variable instanceof ImageVariable) {
-                return ((ImageVariable) variable).getRect();
-            } else if (variable instanceof AnimoVariable) {
-                return ((AnimoVariable) variable).getRect();
-            }
-            return null;
         }
 
         @Override
@@ -129,11 +118,12 @@ public class UpdateManager implements Disposable {
         public void updateTimers() {
             GameContext context = game.getCurrentSceneContext();
             for (EngineVariable variable : new ArrayList<>(context.getTimerVariables().values())) {
-                TimerVariable timer = (TimerVariable) variable;
-                try {
-                    timer.update();
-                } catch (BreakException ignored) {
-                    // simple break, nothing special
+                if (variable instanceof TimerVariable timer) {
+                    try {
+                        timer.update();
+                    } catch (Exception ignored) {
+                        // simple break, nothing special
+                    }
                 }
             }
         }
@@ -180,8 +170,14 @@ public class UpdateManager implements Disposable {
         }
 
         public void update(float deltaTime) {
-            List<SoundVariable> playingAudios = new ArrayList<>(game.getPlayingAudios());
-            playingAudios.forEach(SoundVariable::update);
+            List<EngineVariable> playingAudios = new ArrayList<>(game.getPlayingAudios());
+            for (EngineVariable ev : playingAudios) {
+                if (ev instanceof SoundVariable sound) {
+                    sound.update();
+                } else if (ev instanceof pl.genschu.bloomooemulator.interpreter.v1.variable.types.SoundVariable v1Sound) {
+                    v1Sound.update();
+                }
+            }
         }
 
         @Override

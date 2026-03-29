@@ -20,6 +20,9 @@ import pl.genschu.bloomooemulator.objects.Event;
 import pl.genschu.bloomooemulator.objects.FrameData;
 import pl.genschu.bloomooemulator.objects.Image;
 
+import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.Pixmap;
+
 import java.util.*;
 
 /**
@@ -315,6 +318,18 @@ public record AnimoVariable(
 
     public boolean isAsButton() {
         return state.buttonState != ButtonState.DISABLED;
+    }
+
+    public int getAlpha(int x, int y) {
+        if (state.currentImage == null || state.currentImage.getImageTexture() == null) return 0;
+        return getAlpha(state.currentImage, x, y);
+    }
+
+    public int getAlpha(Image image, int x, int y) {
+        if (image == null || image.getImageTexture() == null) return 0;
+        Pixmap pixmap = image.getImageTexture().getTextureData().consumePixmap();
+        Color color = new Color(pixmap.getPixel(x, y));
+        return (int) (color.a * 255f);
     }
 
     public boolean isRenderedOnCanvas() {

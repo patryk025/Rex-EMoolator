@@ -1,9 +1,7 @@
 package pl.genschu.bloomooemulator.geometry.spartial;
 
+import pl.genschu.bloomooemulator.engine.context.EngineVariable;
 import pl.genschu.bloomooemulator.geometry.shapes.Box2D;
-import pl.genschu.bloomooemulator.interpreter.v1.variable.Variable;
-import pl.genschu.bloomooemulator.interpreter.v1.variable.types.AnimoVariable;
-import pl.genschu.bloomooemulator.interpreter.v1.variable.types.ImageVariable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -13,7 +11,7 @@ public class QuadTree {
     private final int MAX_LEVELS = 5;
 
     private final int level;
-    private final List<Variable> objects;
+    private final List<EngineVariable> objects;
     private final Box2D bounds;
     private final QuadTree[] nodes;
 
@@ -75,7 +73,7 @@ public class QuadTree {
         return index;
     }
 
-    public void insert(Variable obj) {
+    public void insert(EngineVariable obj) {
         if (nodes[0] != null) {
             int index = getIndex(getRect(obj));
 
@@ -104,7 +102,7 @@ public class QuadTree {
         }
     }
 
-    public List<Variable> retrieve(List<Variable> returnObjects, Variable obj) {
+    public List<EngineVariable> retrieve(List<EngineVariable> returnObjects, EngineVariable obj) {
         int index = getIndex(getRect(obj));
         if (index != -1 && nodes[0] != null) {
             nodes[index].retrieve(returnObjects, obj);
@@ -115,7 +113,7 @@ public class QuadTree {
         return returnObjects;
     }
 
-    public void remove(Variable obj) {
+    public void remove(EngineVariable obj) {
         if (nodes[0] != null) {
             int index = getIndex(getRect(obj));
             if (index != -1) {
@@ -127,14 +125,19 @@ public class QuadTree {
         objects.remove(obj);
     }
 
-    private Box2D getRect(Variable obj) {
-        if(obj instanceof ImageVariable) {
-            return ((ImageVariable) obj).getRect();
-        } else if(obj instanceof AnimoVariable) {
-            return ((AnimoVariable) obj).getRect();
-        } else {
-            return null;
+    private Box2D getRect(EngineVariable obj) {
+        // v2 types
+        if (obj instanceof pl.genschu.bloomooemulator.interpreter.variable.ImageVariable img) {
+            return img.getRect();
+        } else if (obj instanceof pl.genschu.bloomooemulator.interpreter.variable.AnimoVariable animo) {
+            return animo.getRect();
         }
+        // v1 types
+        if (obj instanceof pl.genschu.bloomooemulator.interpreter.v1.variable.types.ImageVariable v1Img) {
+            return v1Img.getRect();
+        } else if (obj instanceof pl.genschu.bloomooemulator.interpreter.v1.variable.types.AnimoVariable v1Animo) {
+            return v1Animo.getRect();
+        }
+        return null;
     }
 }
-

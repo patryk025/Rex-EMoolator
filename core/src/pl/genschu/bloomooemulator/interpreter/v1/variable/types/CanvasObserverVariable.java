@@ -284,13 +284,15 @@ public class CanvasObserverVariable extends Variable {
 				// check if it is not a variable
 				Variable var = self.getContext().getVariable(imageName);
 				if (var != null && var.getType().equals("IMAGE")) {
-					self.getContext().getGame().getCurrentSceneVariable().setBackground((ImageVariable) var);
+					// v1 ImageVariable can't be set as v2 background directly — skip for now
+					// TODO: handle v1 background images during transition period
 					return null;
 				}
 				ImageVariable image = new ImageVariable("", self.getContext());
 				image.setAttribute("FILENAME", new Attribute("STRING", imageName));
 				image.init();
-				self.getContext().getGame().getCurrentSceneVariable().setBackground(image);
+				// v1 ImageVariable can't be set as v2 background directly — skip for now
+				// TODO: handle v1 background images during transition period
 				return null;
 			}
 		});

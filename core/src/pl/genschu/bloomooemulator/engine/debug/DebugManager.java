@@ -680,8 +680,8 @@ public class DebugManager implements Disposable {
         GameContext context = game.getCurrentSceneContext();
         List<Variable> buttons = new ArrayList<>((Collection<? extends Variable>) context.getButtonsVariables().values());
 
-        int minHSPriority = game.getCurrentSceneVariable().getMinHotSpotZ();
-        int maxHSPriority = game.getCurrentSceneVariable().getMaxHotSpotZ();
+        int minHSPriority = game.getCurrentSceneVariable().minHotSpotZ();
+        int maxHSPriority = game.getCurrentSceneVariable().maxHotSpotZ();
 
         Variable focusedButton = null;
 
@@ -798,10 +798,14 @@ public class DebugManager implements Disposable {
     private void updateSceneList() {
         sceneList.clear();
 
-        // Get every scene
-        for (EpisodeVariable episode : game.getApplicationVariable().getEpisodes()) {
-            for (SceneVariable scene : episode.getScenes()) {
-                sceneList.add(scene.getName());
+        // Get every scene from v2 structure: episodeNames -> resolve episode -> sceneNames
+        for (String episodeName : game.getApplicationVariable().episodeNames()) {
+            pl.genschu.bloomooemulator.engine.context.EngineVariable epVar =
+                    game.getDefinitionContext().getVariable(episodeName);
+            if (epVar instanceof pl.genschu.bloomooemulator.interpreter.variable.EpisodeVariable ep) {
+                for (String sceneName : ep.sceneNames()) {
+                    sceneList.add(sceneName);
+                }
             }
         }
 

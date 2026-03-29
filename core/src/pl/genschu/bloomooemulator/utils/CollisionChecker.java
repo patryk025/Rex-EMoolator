@@ -4,10 +4,9 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.TextureData;
-import pl.genschu.bloomooemulator.interpreter.v1.variable.Attribute;
-import pl.genschu.bloomooemulator.interpreter.v1.variable.Variable;
-import pl.genschu.bloomooemulator.interpreter.v1.variable.types.AnimoVariable;
-import pl.genschu.bloomooemulator.interpreter.v1.variable.types.ImageVariable;
+import pl.genschu.bloomooemulator.engine.context.EngineVariable;
+import pl.genschu.bloomooemulator.interpreter.variable.AnimoVariable;
+import pl.genschu.bloomooemulator.interpreter.variable.ImageVariable;
 import pl.genschu.bloomooemulator.objects.Image;
 import pl.genschu.bloomooemulator.geometry.shapes.Box2D;
 
@@ -23,7 +22,7 @@ public class CollisionChecker {
      * @param obj2 Drugi obiekt
      * @return true, jeśli obiekty kolidują, false w przeciwnym wypadku
      */
-    public static boolean checkCollision(Variable obj1, Variable obj2) {
+    public static boolean checkCollision(EngineVariable obj1, EngineVariable obj2) {
         Box2D rect1 = getRect(obj1);
         Box2D rect2 = getRect(obj2);
 
@@ -52,7 +51,7 @@ public class CollisionChecker {
     /**
      * Sprawdza kolizję piksel po pikselu między dwoma obiektami.
      */
-    private static boolean checkPixelPerfectCollision(Variable obj1, Variable obj2,
+    private static boolean checkPixelPerfectCollision(EngineVariable obj1, EngineVariable obj2,
                                                       Box2D rect1, Box2D rect2,
                                                       boolean checkAlpha1, boolean checkAlpha2) {
         // Oblicz prostokąt przecięcia
@@ -118,11 +117,18 @@ public class CollisionChecker {
     /**
      * Pobiera prostokąt ograniczający obiekt.
      */
-    public static Box2D getRect(Variable variable) {
-        if (variable instanceof ImageVariable) {
-            return ((ImageVariable) variable).getRect();
-        } else if (variable instanceof AnimoVariable) {
-            return ((AnimoVariable) variable).getRect();
+    public static Box2D getRect(EngineVariable variable) {
+        // v2 types
+        if (variable instanceof ImageVariable img) {
+            return img.getRect();
+        } else if (variable instanceof AnimoVariable animo) {
+            return animo.getRect();
+        }
+        // v1 types
+        if (variable instanceof pl.genschu.bloomooemulator.interpreter.v1.variable.types.ImageVariable v1Img) {
+            return v1Img.getRect();
+        } else if (variable instanceof pl.genschu.bloomooemulator.interpreter.v1.variable.types.AnimoVariable v1Animo) {
+            return v1Animo.getRect();
         }
         return null;
     }
@@ -130,11 +136,18 @@ public class CollisionChecker {
     /**
      * Pobiera obraz dla obiektu.
      */
-    public static Image getImage(Variable variable) {
-        if (variable instanceof ImageVariable) {
-            return ((ImageVariable) variable).getImage();
-        } else if (variable instanceof AnimoVariable) {
-            return ((AnimoVariable) variable).getCurrentImage();
+    public static Image getImage(EngineVariable variable) {
+        // v2 types
+        if (variable instanceof ImageVariable img) {
+            return img.getImage();
+        } else if (variable instanceof AnimoVariable animo) {
+            return animo.getCurrentImage();
+        }
+        // v1 types
+        if (variable instanceof pl.genschu.bloomooemulator.interpreter.v1.variable.types.ImageVariable v1Img) {
+            return v1Img.getImage();
+        } else if (variable instanceof pl.genschu.bloomooemulator.interpreter.v1.variable.types.AnimoVariable v1Animo) {
+            return v1Animo.getCurrentImage();
         }
         return null;
     }
@@ -142,10 +155,18 @@ public class CollisionChecker {
     /**
      * Sprawdza, czy obiekt ma włączone sprawdzanie kanału alfa przy kolizjach.
      */
-    private static boolean isCheckingAlpha(Variable variable) {
-        Attribute attribute = variable.getAttribute("MONITORCOLLISIONALPHA");
-        if (attribute != null) {
-            return attribute.getValue().toString().equals("TRUE");
+    private static boolean isCheckingAlpha(EngineVariable variable) {
+        // v2 types
+        if (variable instanceof ImageVariable img) {
+            return img.state().monitorCollision;
+        } else if (variable instanceof AnimoVariable animo) {
+            return animo.isMonitorCollision();
+        }
+        // v1 types
+        if (variable instanceof pl.genschu.bloomooemulator.interpreter.v1.variable.types.ImageVariable v1Img) {
+            return "TRUE".equalsIgnoreCase(v1Img.getAttribute("MONITORCOLLISIONALPHA").getValue().toString());
+        } else if (variable instanceof pl.genschu.bloomooemulator.interpreter.v1.variable.types.AnimoVariable v1Animo) {
+            return "TRUE".equalsIgnoreCase(v1Animo.getAttribute("MONITORCOLLISIONALPHA").getValue().toString());
         }
         return false;
     }

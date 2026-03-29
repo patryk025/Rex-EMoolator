@@ -17,9 +17,8 @@ import pl.genschu.bloomooemulator.engine.Game;
 import pl.genschu.bloomooemulator.engine.config.EngineConfig;
 import pl.genschu.bloomooemulator.engine.context.EngineVariable;
 import pl.genschu.bloomooemulator.engine.context.GameContext;
-import pl.genschu.bloomooemulator.interpreter.v1.variable.Signal;
-import pl.genschu.bloomooemulator.interpreter.v1.variable.Variable;
-import pl.genschu.bloomooemulator.interpreter.v1.variable.types.*;
+import pl.genschu.bloomooemulator.interpreter.values.StringValue;
+import pl.genschu.bloomooemulator.interpreter.variable.*;
 import pl.genschu.bloomooemulator.objects.Image;
 import pl.genschu.bloomooemulator.geometry.shapes.Box2D;
 
@@ -47,7 +46,7 @@ public class InputManager implements Disposable {
     private final Set<Integer> previouslyPressedKeys = new HashSet<>();
 
     // Active button
-    private Variable activeButton = null;
+    private EngineVariable activeButton = null;
 
     // Input handlers
     private final ButtonHandler buttonHandler;
@@ -65,10 +64,14 @@ public class InputManager implements Disposable {
 
     public void processInput(float deltaTime) {
         GameContext context = game.getCurrentSceneContext();
+        if (context == null) return;
 
         // Get mouse and keyboard variables from the current context
-        MouseVariable mouseVariable = (MouseVariable) context.getMouseVariable();
-        KeyboardVariable keyboardVariable = (KeyboardVariable) context.getKeyboardVariable();
+        EngineVariable mouseEV = context.getMouseVariable();
+        EngineVariable keyboardEV = context.getKeyboardVariable();
+
+        MouseVariable mouseVariable = mouseEV instanceof MouseVariable m ? m : null;
+        KeyboardVariable keyboardVariable = keyboardEV instanceof KeyboardVariable k ? k : null;
 
         game.getEmulator().getDebugManager().handleSceneSelectorInput(deltaTime);
 
@@ -124,9 +127,9 @@ public class InputManager implements Disposable {
         // Emit mouse signals
         if (mouseVariable != null && mouseVariable.isEmitSignals()) {
             if (justPressed) {
-                mouseVariable.emitSignal("ONCLICK", "LEFT");
+                mouseVariable.emitSignal("ONCLICK", new StringValue("LEFT"));
             } else if (justReleased) {
-                mouseVariable.emitSignal("ONRELEASE", "LEFT");
+                mouseVariable.emitSignal("ONRELEASE", new StringValue("LEFT"));
             }
         }
 
@@ -174,7 +177,9 @@ public class InputManager implements Disposable {
         }
 
         if (Gdx.input.isKeyJustPressed(Input.Keys.F7)) {
-            exportGraphicsToFile(new ArrayList<>((java.util.Collection<? extends Variable>) game.getCurrentSceneContext().getGraphicsVariables().values()));
+            @SuppressWarnings("unchecked")
+            Collection<Variable> vars = (Collection<Variable>) (Collection<?>) game.getCurrentSceneContext().getGraphicsVariables().values();
+            exportGraphicsToFile(new ArrayList<>(vars));
         }
 
         if (Gdx.input.isKeyJustPressed(Input.Keys.F8)) {
@@ -186,7 +191,8 @@ public class InputManager implements Disposable {
         }
 
         if (Gdx.input.isKeyJustPressed(Input.Keys.F10)) {
-            ((WorldVariable) game.getCurrentSceneContext().getWorldVariable()).getPhysicsEngine().dumpGeometryData("geometry_dump_"+(new Date()).getTime()+".json");
+            // WorldVariable F10 debug — deferred until WorldVariable v2
+            Gdx.app.log("InputManager", "F10 world debug not available in v2 yet");
         }
 
         if (Gdx.input.isKeyJustPressed(Input.Keys.F11)) {
@@ -212,10 +218,10 @@ public class InputManager implements Disposable {
             if (image == null || image.getImageTexture() == null || rect == null) continue;
 
             boolean isVisible = false;
-            if (variable instanceof ImageVariable) {
-                isVisible = ((ImageVariable) variable).isVisible();
-            } else if (variable instanceof AnimoVariable) {
-                isVisible = ((AnimoVariable) variable).isVisible();
+            if (variable instanceof ImageVariable img) {
+                isVisible = img.isVisible();
+            } else if (variable instanceof AnimoVariable animo) {
+                isVisible = animo.isVisible();
             }
 
             Texture texture = image.getImageTexture();
@@ -224,14 +230,14 @@ public class InputManager implements Disposable {
             }
             Pixmap pixmap = texture.getTextureData().consumePixmap();
 
-            String filename = variable.getName() + ".png";
+            String filename = variable.name() + ".png";
             PixmapIO.writePNG(exportDir.child(filename), pixmap);
 
             ObjectMap<String, Object> entry = new ObjectMap<>();
-            entry.put("name", variable.getName());
+            entry.put("name", variable.name());
             entry.put("file", filename);
             entry.put("visible", isVisible);
-            entry.put("type", variable.getType());
+            entry.put("type", variable.type().name());
             entry.put("rect", Map.of(
                     "x", rect.getXLeft(),
                     "y", rect.getYTop(),
@@ -280,24 +286,21 @@ public class InputManager implements Disposable {
         mousePrevPressed = false;
     }
 
-    // Helper method to trigger a signal
+    // Helper method to trigger a signal on a v2 Variable
     public void triggerSignal(Variable variable, String signalName) {
-        Signal signal = variable.getSignal(signalName);
-        if (signal != null) {
-            signal.execute(null);
-        }
+        variable.emitSignal(signalName);
     }
 
-    public Variable getActiveButton() {
+    public EngineVariable getActiveButton() {
         return activeButton;
     }
 
-    public void setActiveButton(Variable activeButton) {
+    public void setActiveButton(EngineVariable activeButton) {
         this.activeButton = activeButton;
     }
 
-    public void clearActiveButton(Variable button) {
-        if (this.activeButton == button) {
+    public void clearActiveButton(EngineVariable button) {
+        if (this.activeButton == button || button == null) {
             this.activeButton = null;
         }
     }

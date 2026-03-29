@@ -3,7 +3,8 @@ package pl.genschu.bloomooemulator.engine.input;
 import com.badlogic.gdx.Gdx;
 import pl.genschu.bloomooemulator.engine.Game;
 import pl.genschu.bloomooemulator.interpreter.v1.util.KeyboardsKeysMapper;
-import pl.genschu.bloomooemulator.interpreter.v1.variable.types.KeyboardVariable;
+import pl.genschu.bloomooemulator.interpreter.values.StringValue;
+import pl.genschu.bloomooemulator.interpreter.variable.KeyboardVariable;
 
 import java.util.Set;
 
@@ -38,16 +39,16 @@ public class KeyboardHandler {
                 // Send the signal only if the key is pressed for the first time
                 // or auto-repeat is enabled
                 if (!wasPressed || keyboardVariable.isAutoRepeat()) {
-                    keyboardVariable.emitSignal("ONKEYDOWN", keyName);
+                    keyboardVariable.emitSignal("ONKEYDOWN", new StringValue(keyName));
                 }
 
                 // Send the ONCHAR signal only if the key is pressed for the first time
                 if (!wasPressed) {
-                    keyboardVariable.emitSignal("ONCHAR", keyName);
+                    keyboardVariable.emitSignal("ONCHAR", new StringValue(keyName));
                 }
             } else if (wasPressed) {
                 // Key was pressed and now it is released
-                keyboardVariable.emitSignal("ONKEYUP", keyName);
+                keyboardVariable.emitSignal("ONKEYUP", new StringValue(keyName));
             }
         }
     }

@@ -10,10 +10,10 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Disposable;
 import pl.genschu.bloomooemulator.engine.filters.Filter;
-import pl.genschu.bloomooemulator.interpreter.v1.variable.Variable;
-import pl.genschu.bloomooemulator.interpreter.v1.variable.types.AnimoVariable;
-import pl.genschu.bloomooemulator.interpreter.v1.variable.types.ImageVariable;
-import pl.genschu.bloomooemulator.interpreter.v1.variable.types.TextVariable;
+import pl.genschu.bloomooemulator.interpreter.variable.AnimoVariable;
+import pl.genschu.bloomooemulator.interpreter.variable.ImageVariable;
+import pl.genschu.bloomooemulator.interpreter.variable.TextVariable;
+import pl.genschu.bloomooemulator.interpreter.variable.Variable;
 import pl.genschu.bloomooemulator.objects.Image;
 import pl.genschu.bloomooemulator.geometry.shapes.Box2D;
 
@@ -37,7 +37,7 @@ public class GraphicsRenderer implements Disposable {
      * Renders an object of type ImageVariable.
      */
     public void renderImage(ImageVariable imageVariable) {
-        if (!imageVariable.isVisible() || !imageVariable.isRenderedOnCanvas()) {
+        if (!imageVariable.isVisible()) {
             return;
         }
 
@@ -113,14 +113,29 @@ class TextRenderer implements Disposable {
     }
 
     /**
-     * Renders an object of type TextVariable.
+     * Renders a v2 TextVariable using BitmapFont.
      */
     public void renderText(TextVariable textVariable) {
         if (!textVariable.isVisible()) {
             return;
         }
 
-        textVariable.renderText(batch);
+        String text = textVariable.getText();
+        if (text == null || text.isEmpty()) return;
+
+        Box2D rect = textVariable.getRect();
+        if (rect == null) return;
+
+        float startX = rect.getXLeft();
+        float startY = 600 - rect.getYTop();
+
+        // Split on '|' for multi-line support
+        String[] lines = text.split("\\|");
+        float lineHeight = defaultFont.getLineHeight();
+
+        for (int i = 0; i < lines.length; i++) {
+            defaultFont.draw(batch, lines[i], startX, startY - (i * lineHeight));
+        }
     }
 
     @Override
@@ -221,23 +236,9 @@ class AlphaMaskRenderer implements Disposable {
         batch.setBlendFunction(GL20.GL_ONE, GL20.GL_ZERO);
 
         // Render alpha masks
-        for (Map.Entry<String, Box2D> entry : alphaMasks.entrySet()) {
-            String maskName = entry.getKey();
-            Box2D maskRect = entry.getValue();
-
-            Variable maskVar = imageVariable.getContext().getVariable(maskName);
-            if (!(maskVar instanceof ImageVariable)) continue;
-
-            ImageVariable mask = (ImageVariable) maskVar;
-            if (mask.getImage() == null) continue;
-
-            Texture maskTexture = mask.getImage().getImageTexture();
-            if (maskTexture == null) continue;
-
-            batch.draw(maskTexture,
-                    maskRect.getXLeft(),
-                    VIRTUAL_HEIGHT - maskRect.getYTop() - mask.getImage().height);
-        }
+        // Note: in v2, mask variables need to be resolved from context.
+        // For now, we skip alpha mask rendering until context is available here.
+        // TODO: pass context to resolve mask variable names
 
         batch.flush();
 

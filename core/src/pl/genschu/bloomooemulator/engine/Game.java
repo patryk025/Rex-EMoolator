@@ -7,14 +7,15 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 import org.ini4j.Ini;
 import pl.genschu.bloomooemulator.BlooMooEngine;
+import pl.genschu.bloomooemulator.engine.context.EngineVariable;
 import pl.genschu.bloomooemulator.engine.context.GameContext;
 import pl.genschu.bloomooemulator.engine.input.InputManager;
-import pl.genschu.bloomooemulator.interpreter.v1.Context;
-import pl.genschu.bloomooemulator.interpreter.v1.util.GlobalVariables;
-import pl.genschu.bloomooemulator.interpreter.v1.variable.Attribute;
-import pl.genschu.bloomooemulator.interpreter.v1.variable.Variable;
-import pl.genschu.bloomooemulator.interpreter.v1.variable.types.*;
-import pl.genschu.bloomooemulator.loader.v1.CNVParser;
+import pl.genschu.bloomooemulator.interpreter.context.Context;
+import pl.genschu.bloomooemulator.interpreter.runtime.ExecutionContext;
+import pl.genschu.bloomooemulator.interpreter.runtime.ASTInterpreter;
+import pl.genschu.bloomooemulator.interpreter.variable.*;
+import pl.genschu.bloomooemulator.loader.CNVParser;
+import pl.genschu.bloomooemulator.loader.ImageLoader;
 import pl.genschu.bloomooemulator.logic.GameEntry;
 
 import java.io.File;
@@ -46,7 +47,8 @@ public class Game {
     private String iniPath = null;
 
     private final QuadTree quadTree;
-    private final Set<Variable> collisionMonitoredVariables = new HashSet<>();
+    private final Set<EngineVariable> collisionMonitoredVariables = new HashSet<>();
+    private final Map<EngineVariable, Set<EngineVariable>> collisionMap = new IdentityHashMap<>();
 
     private SceneVariable currentSceneVariable;
     private SceneVariable previousSceneVariable;
@@ -59,21 +61,28 @@ public class Game {
     private File commonFolder = null; // $COMMON
     private File wavsFolder = null; // $WAVS
 
+    // Resolved paths for definition variables (Application, Episode, Scene)
+    private final Map<String, File> variablePaths = new HashMap<>();
+
     private String currentLanguage = "POL"; // Default language (Polish)
     private Context currentApplicationContext;
     private Context currentEpisodeContext;
     private Context currentSceneContext;
 
-    private List<SoundVariable> playingAudios = new ArrayList<>();
+    private List<EngineVariable> playingAudios = new ArrayList<>();
 
     private Map<String, Music> musicCache;
+    private Music currentSceneMusic = null;
+
+    // Background image for current scene (loaded on scene change)
+    private ImageVariable currentBackgroundImage = null;
 
     private Pixmap lastFrame;
 
     private final BlooMooEngine emulator;
 
     public Game(GameEntry game, BlooMooEngine emulator) {
-        this.definitionContext = new Context();
+        this.definitionContext = new Context(new ExecutionContext());
         this.game = game;
         this.quadTree = new QuadTree(0, new Box2D(0, 0, 800, 600));
         this.emulator = emulator;
@@ -84,8 +93,6 @@ public class Game {
     }
 
     public void loadGame() {
-        GlobalVariables.reset();
-
         if (game != null) {
             scanGameDirectory();
         }
@@ -147,8 +154,8 @@ public class Game {
         Map<String, Variable> variables = definitionContext.getVariables();
         for(Map.Entry<String, Variable> entry : variables.entrySet()) {
             Variable variable = entry.getValue();
-            if(variable instanceof ApplicationVariable) {
-                applicationVariable = (ApplicationVariable) variable;
+            if(variable instanceof ApplicationVariable app) {
+                applicationVariable = app;
                 break;
             }
         }
@@ -171,22 +178,33 @@ public class Game {
             }
         }
 
-        applicationVariable.reloadEpisodes();
-        applicationVariable.setPath(FileUtils.findRelativeFileIgnoreCase(daneFolder, applicationVariable.getAttribute("PATH").getValue().toString()));
+        // Resolve path for ApplicationVariable
+        String appPath = definitionContext.getAttribute(applicationVariable.name(), "PATH");
+        if (appPath != null) {
+            variablePaths.put(applicationVariable.name(),
+                    FileUtils.findRelativeFileIgnoreCase(daneFolder, appPath));
+        }
 
         // Sync language from ApplicationVariable to Game
-        this.setLanguage(applicationVariable.getLanguage());
+        this.setLanguage(applicationVariable.language());
 
-        for(EpisodeVariable episode : applicationVariable.getEpisodes()) {
-            episode.reloadScenes();
-            try {
-                episode.setPath(FileUtils.findRelativeFileIgnoreCase(daneFolder, episode.getAttribute("PATH").getValue().toString()));
-            } catch(NullPointerException e) {
-                episode.setPath(null); // in Reksio i Skarb Piratów PATH is missing
-            }
+        // Resolve episode paths and scene paths
+        for (String episodeName : applicationVariable.episodeNames()) {
+            Variable epVar = definitionContext.getVariable(episodeName);
+            if (epVar instanceof EpisodeVariable episode) {
+                String epPath = definitionContext.getAttribute(episodeName, "PATH");
+                if (epPath != null) {
+                    variablePaths.put(episodeName,
+                            FileUtils.findRelativeFileIgnoreCase(daneFolder, epPath));
+                }
 
-            for(SceneVariable scene : episode.getScenes()) {
-                scene.setPath(FileUtils.findRelativeFileIgnoreCase(daneFolder, scene.getAttribute("PATH").getValue().toString()));
+                for (String sceneName : episode.sceneNames()) {
+                    String scenePath = definitionContext.getAttribute(sceneName, "PATH");
+                    if (scenePath != null) {
+                        variablePaths.put(sceneName,
+                                FileUtils.findRelativeFileIgnoreCase(daneFolder, scenePath));
+                    }
+                }
             }
         }
 
@@ -195,10 +213,11 @@ public class Game {
         Gdx.app.log("Game loader", "Loading application variables...");
 
         try {
-            currentApplicationContext = new Context();
-            currentApplicationContext.setParentContext(definitionContext);
+            currentApplicationContext = new Context(new ExecutionContext(), definitionContext);
+            currentApplicationContext.setGame(this);
 
-            currentApplicationFile = FileUtils.findRelativeFileIgnoreCase(applicationVariable.getPath(), applicationVariable.getName()+".cnv");
+            File appDir = variablePaths.get(applicationVariable.name());
+            currentApplicationFile = FileUtils.findRelativeFileIgnoreCase(appDir, applicationVariable.name()+".cnv");
 
             cnvParser.parseFile(currentApplicationFile, currentApplicationContext);
 
@@ -206,7 +225,22 @@ public class Game {
 
             runInit(currentApplicationContext);
 
-            goTo(applicationVariable.getFirstEpisode().getFirstScene().getName());
+            // Navigate: first episode → first scene
+            String firstEpisodeName = !applicationVariable.startWith().isEmpty()
+                    ? applicationVariable.startWith()
+                    : applicationVariable.episodeNames().isEmpty() ? null : applicationVariable.episodeNames().get(0);
+
+            if (firstEpisodeName != null) {
+                Variable firstEpVar = definitionContext.getVariable(firstEpisodeName);
+                if (firstEpVar instanceof EpisodeVariable firstEpisode) {
+                    String firstSceneName = !firstEpisode.startWith().isEmpty()
+                            ? firstEpisode.startWith()
+                            : firstEpisode.sceneNames().isEmpty() ? null : firstEpisode.sceneNames().get(0);
+                    if (firstSceneName != null) {
+                        goTo(firstSceneName);
+                    }
+                }
+            }
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -322,12 +356,14 @@ public class Game {
 
         Variable variable = definitionContext.getVariable(name);
 
-        if (variable instanceof EpisodeVariable) {
-            loadEpisode((EpisodeVariable) variable);
-        } else if (variable instanceof SceneVariable) {
+        if (variable instanceof EpisodeVariable episode) {
+            loadEpisode(episode);
+        } else if (variable instanceof SceneVariable scene) {
             if (currentEpisodeContext == null) {
-                for (EpisodeVariable episode : applicationVariable.getEpisodes()) {
-                    if (episode.getScenes().contains((SceneVariable) variable)) {
+                // Find which episode contains this scene
+                for (String episodeName : applicationVariable.episodeNames()) {
+                    Variable epVar = definitionContext.getVariable(episodeName);
+                    if (epVar instanceof EpisodeVariable episode && episode.sceneNames().contains(name)) {
                         loadEpisode(episode);
                         break;
                     }
@@ -336,10 +372,10 @@ public class Game {
 
             previousSceneVariable = currentSceneVariable;
             try {
-                previousScene = previousSceneVariable.getName();
+                previousScene = previousSceneVariable.name();
             }
             catch (NullPointerException ignored) {}
-            loadScene((SceneVariable) variable);
+            loadScene(scene);
         }
     }
 
@@ -354,39 +390,41 @@ public class Game {
     }
 
     private void loadEpisode(EpisodeVariable episode) {
-        if (!Objects.equals(currentEpisode, episode.getName())) {
-            if(episode.getPath() == null) {
-                currentEpisodeContext = new Context();
-                currentEpisodeContext.setParentContext(currentApplicationContext);
+        if (!Objects.equals(currentEpisode, episode.name())) {
+            File epPath = variablePaths.get(episode.name());
+            if(epPath == null) {
+                currentEpisodeContext = new Context(new ExecutionContext(), currentApplicationContext);
+                currentEpisodeContext.setGame(this);
                 currentEpisodeVariable = episode;
-                Gdx.app.log("Game", "Episode " + episode.getName() + " doesn't have PATH attribute. Skipping...");
-                //loadScene(episode.getFirstScene());
+                Gdx.app.log("Game", "Episode " + episode.name() + " doesn't have PATH attribute. Skipping...");
                 return;
             }
-            Gdx.app.log("Game", "Loading episode " + episode.getName());
+            Gdx.app.log("Game", "Loading episode " + episode.name());
             try {
-                currentEpisode = episode.getName();
-                currentEpisodeContext = new Context();
-                currentEpisodeContext.setParentContext(currentApplicationContext);
-                currentEpisodeFile = episode.getPath();
-                File episodeFile = FileUtils.findRelativeFileIgnoreCase(currentEpisodeFile, episode.getName() + ".cnv");
+                currentEpisode = episode.name();
+                currentEpisodeContext = new Context(new ExecutionContext(), currentApplicationContext);
+                currentEpisodeContext.setGame(this);
+                currentEpisodeFile = epPath;
+                File episodeFile = FileUtils.findRelativeFileIgnoreCase(currentEpisodeFile, episode.name() + ".cnv");
 
                 if(episodeFile != null) {
                     try {
                         cnvParser.parseFile(episodeFile, currentEpisodeContext);
                     } catch (NullPointerException e) {
-                        Gdx.app.error("Game", "Error while loading episode " + episode.getName() + ":\n" + e.getMessage());
+                        Gdx.app.error("Game", "Error while loading episode " + episode.name() + ":\n" + e.getMessage());
                     }
                 }
                 else {
-                    Gdx.app.error("Game", "Episode " + episode.getName() + " doesn't have preload scripts, but it's okey. Continue without it.");
+                    Gdx.app.error("Game", "Episode " + episode.name() + " doesn't have preload scripts, but it's okey. Continue without it.");
                 }
 
-                currentScene = episode.getFirstScene().getName();
+                // Get first scene name
+                String firstSceneName = !episode.startWith().isEmpty()
+                        ? episode.startWith()
+                        : episode.sceneNames().isEmpty() ? "" : episode.sceneNames().get(0);
+                currentScene = firstSceneName;
 
                 runInit(currentEpisodeContext);
-
-                //loadScene(episode.getFirstScene());
 
             } catch (IOException e) {
                 throw new RuntimeException(e);
@@ -398,23 +436,26 @@ public class Game {
         stopAllSounds();
         quadTree.clear();
         collisionMonitoredVariables.clear();
+        collisionMap.clear();
         if(inputManager != null) {
             inputManager.setActiveButton(null);
             inputManager.setMouseVisible(true);
         }
-        Gdx.app.log("Game", "Loading scene " + scene.getName());
+        Gdx.app.log("Game", "Loading scene " + scene.name());
         try {
-            currentSceneContext = new Context();
-            currentSceneContext.setParentContext(currentEpisodeContext);
+            currentSceneContext = new Context(new ExecutionContext(), currentEpisodeContext);
+            currentSceneContext.setGame(this);
 
-            File sceneFile = FileUtils.findRelativeFileIgnoreCase(scene.getPath(), scene.getName() + ".cnv");
-            currentSceneFile = scene.getPath();
-            currentScene = scene.getName();
+            File scenePath = variablePaths.get(scene.name());
+            File sceneFile = FileUtils.findRelativeFileIgnoreCase(scenePath, scene.name() + ".cnv");
+            currentSceneFile = scenePath;
+            currentScene = scene.name();
 
-            if(currentSceneVariable != null) {
-                Music music = currentSceneVariable.getMusic();
-                if(music != null && music.isPlaying() && music != scene.getMusic()) {
-                    music.stop();
+            // Handle music transition
+            if(currentSceneMusic != null && currentSceneMusic.isPlaying()) {
+                // Stop previous music if different from new scene's music
+                if (!scene.music().equals(currentSceneVariable != null ? currentSceneVariable.music() : "")) {
+                    currentSceneMusic.stop();
                 }
             }
 
@@ -422,14 +463,22 @@ public class Game {
 
             cnvParser.parseFile(sceneFile, currentSceneContext);
 
+            // Load and play scene music
             try {
-                if(scene.getMusic() != null && !scene.getMusic().isPlaying()) {
-                    scene.getMusic().setVolume(scene.getVolume()/1000.0f);
-                    scene.getMusic().play();
+                if (!scene.music().isEmpty()) {
+                    Music music = loadMusic(scene.music());
+                    if (music != null && !music.isPlaying()) {
+                        music.setVolume(scene.musicVolume() / 1000.0f);
+                        music.play();
+                    }
+                    currentSceneMusic = music;
                 }
             } catch (GdxRuntimeException e) {
-                Gdx.app.error("Game", "Error while loading music for scene " + scene.getName() + ". Continue without it.");
+                Gdx.app.error("Game", "Error while loading music for scene " + scene.name() + ". Continue without it.");
             }
+
+            // Load background image
+            loadBackgroundImage(scene);
 
             populateQuadTree(currentSceneContext);
 
@@ -439,12 +488,44 @@ public class Game {
         }
     }
 
-    private void populateQuadTree(Context context) {
-        for(Variable variable : context.getGraphicsVariables(true).values()) {
-            if(variable instanceof ImageVariable || variable instanceof AnimoVariable) {
-                Attribute monitorCollision = variable.getAttribute("MONITORCOLLISION");
+    private Music loadMusic(String musicFile) {
+        return musicCache.computeIfAbsent(musicFile, key -> {
+            try {
+                String path = FileUtils.resolveRelativePath(this, musicFile);
+                return Gdx.audio.newMusic(Gdx.files.absolute(path));
+            } catch (Exception e) {
+                Gdx.app.error("Game", "Error loading music: " + musicFile, e);
+                return null;
+            }
+        });
+    }
 
-                if(monitorCollision != null && monitorCollision.getValue().equals("TRUE")) {
+    private void loadBackgroundImage(SceneVariable scene) {
+        if (scene.background().isEmpty()) {
+            currentBackgroundImage = null;
+            return;
+        }
+        try {
+            String bgFile = scene.background();
+            currentBackgroundImage = new ImageVariable("__BACKGROUND__", bgFile);
+            String path = FileUtils.resolveRelativePath(this, bgFile);
+            ImageLoader.loadImage(currentBackgroundImage, path);
+            currentBackgroundImage.state().updateRect();
+        } catch (Exception e) {
+            Gdx.app.error("Game", "Error loading background for scene " + scene.name(), e);
+            currentBackgroundImage = null;
+        }
+    }
+
+    private void populateQuadTree(Context context) {
+        for(Variable variable : context.getGraphicsVariables().values()) {
+            if(variable instanceof ImageVariable img) {
+                if (img.state().monitorCollision) {
+                    quadTree.insert(variable);
+                    collisionMonitoredVariables.add(variable);
+                }
+            } else if(variable instanceof AnimoVariable animo) {
+                if (animo.isMonitorCollision()) {
                     quadTree.insert(variable);
                     collisionMonitoredVariables.add(variable);
                 }
@@ -454,16 +535,21 @@ public class Game {
     }
 
     private void runInit(Context context) {
-        if(!context.hasVariable("__INIT__")) {
-            Gdx.app.log("Game", "__INIT__ BEHAVIOUR not found. Continue without it.");
+        // v2 CNVParser already runs ONINIT signals during parseFile().
+        // The __INIT__ behaviour is a v1 concept.
+        // For v2, check if there's a __INIT__ behaviour and run it via ASTInterpreter.
+        Variable initVar = context.getVariable("__INIT__");
+        if (initVar == null) {
             return;
         }
 
-        try {
-            Variable initVariable = context.getVariable("__INIT__");
-            initVariable.getMethod("RUN", Collections.singletonList("mixed")).execute(initVariable, null);
-        } catch (Exception e) {
-            Gdx.app.error("Game", "Error while running __INIT__ BEHAVIOUR: " + e.getMessage(), e);
+        if (initVar instanceof BehaviourVariable initBehaviour) {
+            try {
+                ASTInterpreter interpreter = new ASTInterpreter(context);
+                interpreter.runBehaviour("__INIT__", initBehaviour, initBehaviour, List.of());
+            } catch (Exception e) {
+                Gdx.app.error("Game", "Error while running __INIT__ BEHAVIOUR: " + e.getMessage(), e);
+            }
         }
     }
 
@@ -477,34 +563,31 @@ public class Game {
             // gameINI can be null
         }
 
+        // Dispose background image
+        if (currentBackgroundImage != null) {
+            currentBackgroundImage.state().dispose();
+        }
+
+        // Dispose music
+        for (Music music : musicCache.values()) {
+            if (music != null) {
+                music.dispose();
+            }
+        }
+        musicCache.clear();
+
+        // Dispose graphics variables
         for(String key : definitionContext.getVariables().keySet()) {
             Variable variable = definitionContext.getVariable(key);
-            if(variable instanceof SceneVariable) {
-                SceneVariable scene = (SceneVariable) variable;
-                if(scene.isBackgroundLoaded()) {
-                    Texture background = scene.getBackground().getImage().getImageTexture();
-                    if(background != null) {
-                        background.dispose();
-                    }
-                }
-                for(String varKey : scene.getContext().getGraphicsVariables().keySet()) {
-                    Variable graphic = scene.getContext().getVariable(varKey);
-                    if(graphic instanceof AnimoVariable) {
-                        List<Image> images = ((AnimoVariable) graphic).getImages();
-                        for(Image image : images) {
-                            if(image.isLoaded()) {
-                                image.getImageTexture().dispose();
-                            }
-                        }
-                    }
-                    if(graphic instanceof ImageVariable) {
-                        if(((ImageVariable) graphic).getImage().isLoaded()) {
-                            ((ImageVariable) graphic).getImage().getImageTexture().dispose();
-                        }
+            if(variable instanceof ImageVariable img) {
+                img.state().dispose();
+            } else if(variable instanceof AnimoVariable animo) {
+                for(Image image : animo.getImages()) {
+                    if(image.isLoaded() && image.getImageTexture() != null) {
+                        image.getImageTexture().dispose();
                     }
                 }
             }
-            variable.setContext(null);
         }
     }
 
@@ -517,7 +600,7 @@ public class Game {
         String[] sectionsToCheck = new String[] {
                 currentScene.toUpperCase(),
                 currentEpisode.toUpperCase(),
-                applicationVariable.getName().toUpperCase()
+                applicationVariable.name().toUpperCase()
         };
 
         String existingSection = gameINI.findSectionForKey(sectionsToCheck, variableName);
@@ -536,12 +619,46 @@ public class Game {
         Gdx.gl.glReadPixels(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), GL20.GL_RGB, GL20.GL_UNSIGNED_SHORT_5_6_5, lastFrame.getPixels());
     }
 
+    // ========================================
+    // COLLISION TRACKING
+    // ========================================
+
+    public boolean isColliding(EngineVariable a, EngineVariable b) {
+        Set<EngineVariable> set = collisionMap.get(a);
+        return set != null && set.contains(b);
+    }
+
+    public void setColliding(EngineVariable a, EngineVariable b) {
+        collisionMap.computeIfAbsent(a, k -> Collections.newSetFromMap(new IdentityHashMap<>())).add(b);
+    }
+
+    public void releaseColliding(EngineVariable a, EngineVariable b) {
+        Set<EngineVariable> set = collisionMap.get(a);
+        if (set != null) set.remove(b);
+    }
+
+    // ========================================
+    // GETTERS AND SETTERS
+    // ========================================
+
     public SceneVariable getCurrentSceneVariable() {
         return currentSceneVariable;
     }
 
     public void setCurrentSceneVariable(SceneVariable currentSceneVariable) {
         this.currentSceneVariable = currentSceneVariable;
+    }
+
+    public ImageVariable getCurrentBackgroundImage() {
+        return currentBackgroundImage;
+    }
+
+    public void setCurrentBackgroundImage(ImageVariable backgroundImage) {
+        this.currentBackgroundImage = backgroundImage;
+    }
+
+    public Music getCurrentSceneMusic() {
+        return currentSceneMusic;
     }
 
     public GameContext getDefinitionContext() {
@@ -602,9 +719,11 @@ public class Game {
     public void setLanguage(String language) {
         this.currentLanguage = language;
 
-        // Sync with ApplicationVariable
-        if (applicationVariable != null) {
-            applicationVariable.setLanguage(language);
+        // Sync with ApplicationVariable — create updated record if needed
+        if (applicationVariable != null && currentApplicationContext != null) {
+            ApplicationVariable updated = applicationVariable.withLanguage(language);
+            currentApplicationContext.setVariable(applicationVariable.name(), updated);
+            applicationVariable = updated;
         }
 
         Gdx.app.log("Game", "Language set to: " + language);
@@ -694,11 +813,11 @@ public class Game {
         return applicationVariable;
     }
 
-    public List<SoundVariable> getPlayingAudios() {
+    public List<EngineVariable> getPlayingAudios() {
         return playingAudios;
     }
 
-    public void setPlayingAudios(List<SoundVariable> playingAudios) {
+    public void setPlayingAudios(List<EngineVariable> playingAudios) {
         this.playingAudios = playingAudios;
     }
 
@@ -707,9 +826,13 @@ public class Game {
     }
 
     public void stopAllSounds(boolean stopBackground) {
-        for(SoundVariable sound : new ArrayList<>(playingAudios)) {
-            if(stopBackground || sound.getSound() != currentSceneVariable.getMusic()) {
-                sound.stop(false);
+        for(EngineVariable ev : new ArrayList<>(playingAudios)) {
+            if (ev instanceof SoundVariable sound) {
+                if(stopBackground || sound.state().sound != currentSceneMusic) {
+                    sound.stop(false);
+                }
+            } else if (ev instanceof pl.genschu.bloomooemulator.interpreter.v1.variable.types.SoundVariable v1Sound) {
+                v1Sound.stop(false);
             }
         }
         playingAudios.clear();
@@ -727,7 +850,7 @@ public class Game {
         return quadTree;
     }
 
-    public Set<Variable> getCollisionMonitoredVariables() {
+    public Set<EngineVariable> getCollisionMonitoredVariables() {
         return collisionMonitoredVariables;
     }
 
