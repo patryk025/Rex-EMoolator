@@ -13,10 +13,10 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Disposable;
 import pl.genschu.bloomooemulator.engine.Game;
 import pl.genschu.bloomooemulator.engine.config.EngineConfig;
+import pl.genschu.bloomooemulator.engine.context.EngineVariable;
 import pl.genschu.bloomooemulator.engine.context.GameContext;
 import pl.genschu.bloomooemulator.geometry.points.Point3D;
-import pl.genschu.bloomooemulator.interpreter.v1.variable.Variable;
-import pl.genschu.bloomooemulator.interpreter.v1.variable.types.*;
+import pl.genschu.bloomooemulator.interpreter.variable.*;
 import pl.genschu.bloomooemulator.geometry.shapes.Box2D;
 import pl.genschu.bloomooemulator.world.GameObject;
 import pl.genschu.bloomooemulator.world.Mesh;
@@ -112,16 +112,16 @@ public class DebugManager implements Disposable {
         }
 
         // get matrix variables
-        for (Variable matrixVariable : (Collection<Variable>) (Collection<?>) game.getCurrentSceneContext().getVariables().values()) {
-            if (matrixVariable instanceof MatrixVariable) {
-                debugMatrix((MatrixVariable) matrixVariable);
+        for (EngineVariable ev : game.getCurrentSceneContext().getVariables().values()) {
+            if (ev instanceof MatrixVariable mv) {
+                debugMatrix(mv);
             }
         }
     }
 
     private void renderObjectBoundingBoxes() {
         GameContext context = game.getCurrentSceneContext();
-        List<Variable> graphics = new ArrayList<>((Collection<? extends Variable>) context.getGraphicsVariables().values());
+        List<EngineVariable> graphics = new ArrayList<>(context.getGraphicsVariables().values());
 
         shapeRenderer.setProjectionMatrix(camera.combined);
         shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
@@ -129,15 +129,15 @@ public class DebugManager implements Disposable {
         batch.begin();
         font.setColor(Color.WHITE);
 
-        for (Variable variable : graphics) {
+        for (EngineVariable variable : graphics) {
             Box2D rect = getRect(variable);
             if (rect == null) continue;
 
             boolean visible = false;
-            if (variable instanceof ImageVariable) {
-                visible = ((ImageVariable) variable).isVisible();
-            } else if (variable instanceof AnimoVariable) {
-                visible = ((AnimoVariable) variable).isVisible();
+            if (variable instanceof ImageVariable img) {
+                visible = img.isVisible();
+            } else if (variable instanceof AnimoVariable animo) {
+                visible = animo.isVisible();
             }
 
             if (visible) {
@@ -168,12 +168,12 @@ public class DebugManager implements Disposable {
     private void renderGraphicsDebug() {
         // Get info about graphics under cursor
         Vector2 mousePos = getMousePosition();
-        Variable graphicsUnderCursor = getGraphicsAt((int) mousePos.x, (int) mousePos.y);
-        Variable buttonUnderCursor = getButtonAt((int) mousePos.x, (int) mousePos.y);
+        EngineVariable graphicsUnderCursor = getGraphicsAt((int) mousePos.x, (int) mousePos.y);
+        EngineVariable buttonUnderCursor = getButtonAt((int) mousePos.x, (int) mousePos.y);
 
         if (buttonUnderCursor != null) {
-            if(buttonUnderCursor instanceof ButtonVariable) {
-                generateTooltipForButton((ButtonVariable) buttonUnderCursor);
+            if(buttonUnderCursor instanceof ButtonVariable btn) {
+                generateTooltipForButton(btn);
             }
             else {
                 generateTooltipForGraphics(buttonUnderCursor);
@@ -188,9 +188,6 @@ public class DebugManager implements Disposable {
         } else {
             showTooltip = false;
         }
-
-        // Render button borders
-        //renderButtonBorders();
     }
 
     private void renderVariablesDebug() {
@@ -258,23 +255,20 @@ public class DebugManager implements Disposable {
     }
 
     private void renderButtonBorders() {
-        List<Variable> buttons = new ArrayList<>((Collection<? extends Variable>) game.getCurrentSceneContext().getButtonsVariables().values());
+        List<EngineVariable> buttons = new ArrayList<>(game.getCurrentSceneContext().getButtonsVariables().values());
         Vector2 mousePos = getMousePosition();
 
         shapeRenderer.setProjectionMatrix(camera.combined);
         shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
 
-        for (Variable variable : buttons) {
+        for (EngineVariable variable : buttons) {
             Box2D rect = null;
-            boolean isEnabled = true;
 
-            if (variable instanceof ButtonVariable) {
-                ButtonVariable button = (ButtonVariable) variable;
-                if (!button.isEnabled()) continue;
-                rect = button.getRect();
-            } else if (variable instanceof AnimoVariable) {
-                AnimoVariable animoVariable = (AnimoVariable) variable;
-                rect = animoVariable.getRect();
+            if (variable instanceof ButtonVariable btn) {
+                if (!btn.isEnabled()) continue;
+                rect = btn.getRect();
+            } else if (variable instanceof AnimoVariable animo) {
+                rect = animo.getRect();
             }
 
             if (rect != null) {
@@ -296,76 +290,41 @@ public class DebugManager implements Disposable {
     private void debugMatrix(MatrixVariable matrixVariable) {
         if (!config.isDebugMatrix()) return;
 
-        // get array data
-        ArrayVariable arrayVariable = matrixVariable.getData();
-        if (arrayVariable == null) return;
+        MatrixVariable.MatrixState ms = matrixVariable.state();
+        if (ms.data == null) return;
 
-        // get array elements
-        List<Variable> elements = arrayVariable.getElements();
-        if (elements == null) return;
-
-        // get matrix dimensions
-        int width = matrixVariable.getWidth();
-        int height = matrixVariable.getHeight();
-        int cellWidth = matrixVariable.getCellWidth();
-        int cellHeight = matrixVariable.getCellHeight();
-
-        // get base pos
-        float startX = matrixVariable.getBasePosX();
-        float startY = matrixVariable.getBasePosY();
+        int width = ms.width;
+        int height = ms.height;
+        int cellWidth = ms.cellWidth;
+        int cellHeight = ms.cellHeight;
+        float startX = ms.basePosX;
+        float startY = ms.basePosY;
 
         shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
 
         for (int i = 0; i < height; i++) {
             for (int j = 0; j < width; j++) {
                 int index = i * width + j;
-                if (index >= elements.size()) continue;
+                if (index >= ms.data.length) continue;
 
-                Variable element = elements.get(index);
-                int value = 0;
-                if (element instanceof IntegerVariable) {
-                    value = ((IntegerVariable) element).GET();
-                }
+                int value = ms.data[index];
 
                 float x = startX + j * cellWidth;
                 float y = startY + i * cellHeight;
 
                 switch (value) {
-                    case 0: // EMPTY
-                        shapeRenderer.setColor(0.1f, 0.1f, 0.1f, 1f); // Ciemnoszary
-                        break;
-                    case 1: // GROUND
-                        shapeRenderer.setColor(0.5f, 0.35f, 0.05f, 1f); // Brązowy
-                        break;
-                    case 2: // STONE
-                        shapeRenderer.setColor(0.6f, 0.6f, 0.6f, 1f); // Szary
-                        break;
-                    case 3: // DYNAMITE
-                        shapeRenderer.setColor(1f, 0f, 0f, 1f); // Czerwony
-                        break;
-                    case 4: // WALL_WEAK
-                        shapeRenderer.setColor(0.7f, 0.5f, 0.3f, 1f); // Jasnobrązowy
-                        break;
-                    case 5: // ENEMY
-                        shapeRenderer.setColor(1f, 0.5f, 0f, 1f); // Pomarańczowy
-                        break;
-                    case 6: // WALL_STRONG
-                        shapeRenderer.setColor(0.3f, 0.3f, 0.3f, 1f); // Ciemnoszary
-                        break;
-                    case 7: // DYNAMITE_FIRED
-                        shapeRenderer.setColor(1f, 0.3f, 0.3f, 1f); // Jasnoczerwony
-                        break;
-                    case 8: // EXPLOSION
-                        shapeRenderer.setColor(1f, 1f, 0f, 1f); // Żółty
-                        break;
-                    case 9: // EXIT
-                        shapeRenderer.setColor(0f, 1f, 0f, 1f); // Zielony
-                        break;
-                    case 99: // MOLE
-                        shapeRenderer.setColor(0f, 0f, 1f, 1f); // Niebieski
-                        break;
-                    default:
-                        shapeRenderer.setColor(0.8f, 0.8f, 0.8f, 1f); // Biały dla nieznanych wartości
+                    case 0 -> shapeRenderer.setColor(0.1f, 0.1f, 0.1f, 1f);
+                    case 1 -> shapeRenderer.setColor(0.5f, 0.35f, 0.05f, 1f);
+                    case 2 -> shapeRenderer.setColor(0.6f, 0.6f, 0.6f, 1f);
+                    case 3 -> shapeRenderer.setColor(1f, 0f, 0f, 1f);
+                    case 4 -> shapeRenderer.setColor(0.7f, 0.5f, 0.3f, 1f);
+                    case 5 -> shapeRenderer.setColor(1f, 0.5f, 0f, 1f);
+                    case 6 -> shapeRenderer.setColor(0.3f, 0.3f, 0.3f, 1f);
+                    case 7 -> shapeRenderer.setColor(1f, 0.3f, 0.3f, 1f);
+                    case 8 -> shapeRenderer.setColor(1f, 1f, 0f, 1f);
+                    case 9 -> shapeRenderer.setColor(0f, 1f, 0f, 1f);
+                    case 99 -> shapeRenderer.setColor(0f, 0f, 1f, 1f);
+                    default -> shapeRenderer.setColor(0.8f, 0.8f, 0.8f, 1f);
                 }
 
                 shapeRenderer.rect(x, VIRTUAL_HEIGHT - y - cellHeight, cellWidth - 1, cellHeight - 1);
@@ -380,13 +339,12 @@ public class DebugManager implements Disposable {
         for (int i = 0; i < height; i++) {
             for (int j = 0; j < width; j++) {
                 int index = i * width + j;
-                if (index >= elements.size()) continue;
+                if (index >= ms.data.length) continue;
 
-                Variable element = elements.get(index);
-                String value = element.toString();
+                String value = String.valueOf(ms.data[index]);
 
-                float x = startX + j * cellWidth + 4; // Offset dla tekstu
-                float y = VIRTUAL_HEIGHT - (startY + i * cellHeight + 15); // Offset dla tekstu
+                float x = startX + j * cellWidth + 4;
+                float y = VIRTUAL_HEIGHT - (startY + i * cellHeight + 15);
 
                 font.draw(batch, value, x, y);
             }
@@ -458,8 +416,8 @@ public class DebugManager implements Disposable {
         shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
         shapeRenderer.setColor(Color.GREEN);
 
-        WorldVariable world = (WorldVariable) game.getCurrentSceneContext().getWorldVariable();
-        if( world == null ) {
+        EngineVariable worldEV = game.getCurrentSceneContext().getWorldVariable();
+        if (!(worldEV instanceof WorldVariable world)) {
             shapeRenderer.end();
             return;
         }
@@ -555,16 +513,15 @@ public class DebugManager implements Disposable {
     private void generateTooltipForButton(ButtonVariable button) {
         StringBuilder sb = new StringBuilder();
 
-        sb.append("Button: ").append(button.getName()).append("\n");
+        sb.append("Button: ").append(button.name()).append("\n");
         sb.append("Active: ").append(button.isEnabled()).append("\n");
+        sb.append("State: ").append(button.getButtonState()).append("\n");
 
-        Variable gfxStandard = button.getCurrentImage();
-        if (gfxStandard != null) {
-            sb.append("\nStandard GFX: ").append(gfxStandard.getName()).append("\n");
-            sb.append("Priority: ").append(gfxStandard.getAttribute("PRIORITY") != null ?
-                    gfxStandard.getAttribute("PRIORITY").getValue() : "brak").append("\n");
+        String gfxName = button.getCurrentGfxName();
+        if (gfxName != null) {
+            sb.append("\nCurrent GFX: ").append(gfxName).append("\n");
         } else {
-            sb.append("\nNo standard GFX\n");
+            sb.append("\nNo GFX\n");
         }
 
         Box2D rect = button.getRect();
@@ -575,12 +532,12 @@ public class DebugManager implements Disposable {
                 "no defined");
         sb.append(rectText);
 
-        if (button.getAttribute("SNDONMOVE") != null) {
-            sb.append("\nSound on hover: ").append(button.getAttribute("SNDONMOVE").getValue()).append("\n");
+        ButtonVariable.ButtonVarState bs = button.state();
+        if (bs.sndOnMoveName != null) {
+            sb.append("\nSound on hover: ").append(bs.sndOnMoveName).append("\n");
         }
-
-        if (button.getAttribute("SNDONCLICK") != null) {
-            sb.append("\nSound on click: ").append(button.getAttribute("SNDONCLICK").getValue()).append("\n");
+        if (bs.sndOnClickName != null) {
+            sb.append("\nSound on click: ").append(bs.sndOnClickName).append("\n");
         }
 
         sb.append("\nSignals: ");
@@ -597,11 +554,9 @@ public class DebugManager implements Disposable {
         tooltipText = sb.toString();
     }
 
-    private void generateTooltipForGraphics(Variable graphics) {
+    private void generateTooltipForGraphics(EngineVariable graphics) {
         StringBuilder sb = new StringBuilder();
-        sb.append(graphics.getName()).append(" (").append(graphics.getType()).append(")\n");
-        sb.append("Priority: ").append(graphics.getAttribute("PRIORITY") != null ?
-                graphics.getAttribute("PRIORITY").getValue() : 0);
+        sb.append(graphics.getName()).append(" (").append(graphics.getTypeName()).append(")\n");
 
         Box2D rect = getRect(graphics);
         String rectText = "\nRect: " + (rect != null ?
@@ -610,8 +565,8 @@ public class DebugManager implements Disposable {
                         "\n    height: " + rect.getHeight()) :
                 "no defined");
 
-        if (graphics instanceof AnimoVariable) {
-            AnimoVariable animo = (AnimoVariable) graphics;
+        if (graphics instanceof AnimoVariable animo) {
+            sb.append("Priority: ").append(animo.getPriority());
             sb.append("\nCurrent FPS: ").append(animo.getFps());
             sb.append("\nCurrent event: ").append(animo.getCurrentEvent() != null ?
                     animo.getCurrentEvent().getName() : "none");
@@ -619,13 +574,12 @@ public class DebugManager implements Disposable {
             sb.append("\nCurrent image number: ").append(animo.getCurrentImageNumber());
             sb.append("\nIs playing: ").append(animo.isPlaying());
             sb.append("\nIs button: ").append(isGraphicsButton(graphics));
-            sb.append("\nCollision monitoring: ").append(graphics.getAttribute("MONITORCOLLISION") != null ?
-                    graphics.getAttribute("MONITORCOLLISION").getValue() : "FALSE");
+            sb.append("\nCollision monitoring: ").append(animo.isMonitorCollision());
             sb.append(rectText);
-        } else if (graphics instanceof ImageVariable) {
+        } else if (graphics instanceof ImageVariable img) {
+            sb.append("Priority: ").append(img.state().priority);
             sb.append("\nIs button: ").append(isGraphicsButton(graphics));
-            sb.append("\nCollision monitoring: ").append(graphics.getAttribute("MONITORCOLLISION") != null ?
-                    graphics.getAttribute("MONITORCOLLISION").getValue() : "FALSE");
+            sb.append("\nCollision monitoring: ").append(img.state().monitorCollision);
             sb.append(rectText);
         } else {
             sb.append(rectText);
@@ -640,25 +594,25 @@ public class DebugManager implements Disposable {
 
         sb.append("Scena: ").append(game.getCurrentScene()).append("\n\n");
 
-        for (Variable variable : (Collection<Variable>) (Collection<?>) context.getVariables().values()) {
-            switch (variable.getType()) {
-                case "INTEGER":
-                case "DOUBLE":
-                case "BOOL":
-                case "STRING":
-                    sb.append(variable.getName())
-                            .append(" (").append(variable.getType()).append(") = ")
-                            .append(variable.getValue()).append("\n");
-                    break;
+        for (EngineVariable ev : context.getVariables().values()) {
+            if (!(ev instanceof Variable variable)) continue;
 
-                case "TIMER":
+            switch (variable.type()) {
+                case INTEGER, DOUBLE, BOOLEAN, STRING ->
+                    sb.append(variable.name())
+                            .append(" (").append(variable.type()).append(") = ")
+                            .append(variable.value()).append("\n");
+
+                case TIMER -> {
                     TimerVariable timer = (TimerVariable) variable;
-                    sb.append(variable.getName())
-                            .append(" (").append(variable.getType()).append(") = ")
-                            .append(timer.getCurrentTickCount()).append("/").append(timer.getTicks())
-                            .append("(").append(timer.getTimeFromLastTick()).append("/").append(timer.getElapse()).append("ms)")
+                    sb.append(variable.name())
+                            .append(" (TIMER) = ")
+                            .append(timer.currentTickCount()).append("/").append(timer.ticks())
+                            .append("(").append(timer.getTimeFromLastTick()).append("/").append(timer.elapse()).append("ms)")
                             .append("\n");
-                    break;
+                }
+
+                default -> {}
             }
         }
 
@@ -669,71 +623,60 @@ public class DebugManager implements Disposable {
         return new Vector2(Gdx.input.getX(), Gdx.input.getY());
     }
 
-    private int getPriority(Variable image) {
-        if (image != null && image.getAttribute("PRIORITY") != null) {
-            return Integer.parseInt(image.getAttribute("PRIORITY").getValue().toString());
-        }
+    private int getPriority(EngineVariable variable) {
+        if (variable instanceof ImageVariable img) return img.state().priority;
+        if (variable instanceof AnimoVariable animo) return animo.getPriority();
         return 0;
     }
 
-    private Variable getButtonAt(int x, int y) {
+    private EngineVariable getButtonAt(int x, int y) {
         GameContext context = game.getCurrentSceneContext();
-        List<Variable> buttons = new ArrayList<>((Collection<? extends Variable>) context.getButtonsVariables().values());
+        List<EngineVariable> buttons = new ArrayList<>(context.getButtonsVariables().values());
 
         int minHSPriority = game.getCurrentSceneVariable().minHotSpotZ();
         int maxHSPriority = game.getCurrentSceneVariable().maxHotSpotZ();
 
-        Variable focusedButton = null;
-
-        for (Variable variable : buttons) {
-            if (variable instanceof ButtonVariable) {
-                ButtonVariable button = (ButtonVariable) variable;
-                Variable image = button.getCurrentImage();
-
-                // Filter by hotspot priority
-                if (image != null) {
-                    int priority = getPriority(image);
-                    if (priority < minHSPriority || priority > maxHSPriority) continue;
+        for (EngineVariable variable : buttons) {
+            if (variable instanceof ButtonVariable btn) {
+                String gfxName = btn.getCurrentGfxName();
+                if (gfxName != null) {
+                    EngineVariable gfx = context.getVariable(gfxName);
+                    if (gfx != null) {
+                        int priority = getPriority(gfx);
+                        if (priority < minHSPriority || priority > maxHSPriority) continue;
+                    }
                 }
 
-                // Check if button is enabled
-                if (button.isEnabled() && button.getRect() != null && button.getRect().contains(x, y)) {
-                    focusedButton = button;
-                    break;
+                if (btn.isEnabled() && btn.getRect() != null && btn.getRect().contains(x, y)) {
+                    return btn;
                 }
-            } else if (variable instanceof AnimoVariable) {
-                AnimoVariable animo = (AnimoVariable) variable;
-
-                // Filter by hotspot priority
-                int priority = getPriority(animo);
+            } else if (variable instanceof AnimoVariable animo) {
+                int priority = animo.getPriority();
                 if (priority < minHSPriority || priority > maxHSPriority) continue;
 
-                // Check if animo is under cursor
                 if (animo.getRect() != null && animo.getRect().contains(x, y)) {
-                    focusedButton = animo;
-                    break;
+                    return animo;
                 }
             }
         }
 
-        return focusedButton;
+        return null;
     }
 
-    private Variable getGraphicsAt(int x, int y) {
+    private EngineVariable getGraphicsAt(int x, int y) {
         GameContext context = game.getCurrentSceneContext();
-        List<Variable> drawList = new ArrayList<>((Collection<? extends Variable>) context.getGraphicsVariables().values());
+        List<EngineVariable> drawList = new ArrayList<>(context.getGraphicsVariables().values());
 
-        // Reverse list
-        List<Variable> reversedList = new ArrayList<>(drawList);
+        List<EngineVariable> reversedList = new ArrayList<>(drawList);
         java.util.Collections.reverse(reversedList);
 
-        for (Variable variable : reversedList) {
+        for (EngineVariable variable : reversedList) {
             boolean visible = false;
 
-            if (variable instanceof ImageVariable) {
-                visible = ((ImageVariable) variable).isVisible();
-            } else if (variable instanceof AnimoVariable) {
-                visible = ((AnimoVariable) variable).isVisible();
+            if (variable instanceof ImageVariable img) {
+                visible = img.isVisible();
+            } else if (variable instanceof AnimoVariable animo) {
+                visible = animo.isVisible();
             }
 
             if (!visible) continue;
@@ -747,38 +690,33 @@ public class DebugManager implements Disposable {
         return null;
     }
 
-    private Box2D getRect(Variable variable) {
-        if (variable instanceof ImageVariable) {
-            return ((ImageVariable) variable).getRect();
-        } else if (variable instanceof AnimoVariable) {
-            return ((AnimoVariable) variable).getRect();
-        }
+    private Box2D getRect(EngineVariable variable) {
+        if (variable instanceof ImageVariable img) return img.getRect();
+        if (variable instanceof AnimoVariable animo) return animo.getRect();
         return null;
     }
 
-    private boolean isGraphicsButton(Variable variable) {
+    private boolean isGraphicsButton(EngineVariable variable) {
         Box2D rect = getRect(variable);
         GameContext context = game.getCurrentSceneContext();
 
-        // Check if graphics is a button
-        for (Variable v : (Collection<Variable>) (Collection<?>) context.getVariables().values()) {
-            if (!v.getType().equals("BUTTON")) continue;
+        for (EngineVariable ev : context.getVariables().values()) {
+            if (!(ev instanceof ButtonVariable btn)) continue;
 
-            if (v.getAttribute("GFXSTANDARD") != null &&
-                    v.getAttribute("GFXSTANDARD").getValue().equals(variable.getName())) {
+            String gfxStdName = btn.state().gfxStandardName;
+            if (gfxStdName != null && gfxStdName.equals(variable.getName())) {
                 return true;
             }
 
             if (rect == null) continue;
 
-            ButtonVariable buttonVariable = (ButtonVariable) v;
-            if (buttonVariable.getRect() != null && buttonVariable.getRect().intersects(rect)) {
+            if (btn.getRect() != null && btn.getRect().intersects(rect)) {
                 return true;
             }
         }
 
-        if (variable instanceof AnimoVariable) {
-            return ((AnimoVariable) variable).isAsButton();
+        if (variable instanceof AnimoVariable animo) {
+            return animo.isAsButton();
         }
 
         return false;
