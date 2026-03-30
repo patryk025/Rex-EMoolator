@@ -4,6 +4,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import pl.genschu.bloomooemulator.TestEnvironment;
+import pl.genschu.bloomooemulator.engine.Game;
 import pl.genschu.bloomooemulator.utils.FileUtils;
 
 import java.io.File;
@@ -12,6 +13,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 /**
  * Tests for FileUtils language fallback mechanism.
@@ -191,5 +194,40 @@ public class FileUtilsLanguageTest {
         // Assert
         assertNotNull(czeResult, "Should find CZE file");
         assertTrue(czeResult.getAbsolutePath().contains("CZE"), "Should be in CZE directory");
+    }
+
+    @Test
+    public void testResolveRelativePath_DollarPrefixResolvesFromInstallationRoot() throws IOException {
+        Path daneDir = tempDir.resolve("DANE");
+        Path wavFile = tempDir.resolve("WAVS").resolve("INTRO1.WAV");
+        Files.createDirectories(daneDir);
+        Files.createDirectories(wavFile.getParent());
+        Files.createFile(wavFile);
+
+        Game game = mock(Game.class);
+        when(game.getDaneFolder()).thenReturn(daneDir.toFile());
+        when(game.getLanguage()).thenReturn("POL");
+
+        String result = FileUtils.resolveRelativePath(game, "$WAVS\\INTRO1.WAV");
+
+        assertEquals(wavFile.toFile().getAbsolutePath(), result);
+    }
+
+    @Test
+    public void testResolveRelativePath_ApplicationFileUsesParentDirectory() throws IOException {
+        Path appDir = tempDir.resolve("APP");
+        Path appFile = appDir.resolve("APPLICATION.CNV");
+        Path wavFile = appDir.resolve("INTRO1.WAV");
+        Files.createDirectories(appDir);
+        Files.createFile(appFile);
+        Files.createFile(wavFile);
+
+        Game game = mock(Game.class);
+        when(game.getCurrentApplicationFile()).thenReturn(appFile.toFile());
+        when(game.getLanguage()).thenReturn("POL");
+
+        String result = FileUtils.resolveRelativePath(game, "INTRO1.WAV");
+
+        assertEquals(wavFile.toFile().getAbsolutePath(), result);
     }
 }
