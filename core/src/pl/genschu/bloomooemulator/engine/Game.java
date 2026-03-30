@@ -466,7 +466,7 @@ public class Game {
             // Load and play scene music
             try {
                 if (!scene.music().isEmpty()) {
-                    Music music = loadMusic(scene.music());
+                    Music music = loadMusic("$\\"+scene.music());
                     if (music != null && !music.isPlaying()) {
                         music.setVolume(scene.musicVolume() / 1000.0f);
                         music.play();
