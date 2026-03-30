@@ -158,6 +158,7 @@ public class CodeParser {
         List<ASTNode> statements = new ArrayList<>();
         for (SourceSpan line : lines) {
             if (line.isEmpty()) continue;
+            if (line.compactText().startsWith("!")) continue; // skip inline comments
             ASTNode node = parseLine(line, 0);
             if (node != null) {
                 statements.add(node);
