@@ -1,5 +1,6 @@
 package pl.genschu.bloomooemulator.interpreter.runtime;
 
+import com.badlogic.gdx.Gdx;
 import pl.genschu.bloomooemulator.engine.Game;
 import pl.genschu.bloomooemulator.interpreter.ast.*;
 import pl.genschu.bloomooemulator.interpreter.context.CloneRegistry;
@@ -168,11 +169,16 @@ public class ASTInterpreter {
             ExecutionResult lastResult = new NormalResult(NullValue.INSTANCE);
 
             for (ASTNode stmt : node.statements()) {
-                lastResult = execute(stmt);
+                try {
+                    lastResult = execute(stmt);
 
-                // Check for control flow
-                if (!lastResult.shouldContinue()) {
-                    return lastResult; // Propagate break/return
+                    // Check for control flow
+                    if (!lastResult.shouldContinue()) {
+                        return lastResult; // Propagate break/return
+                    }
+                } catch(InterpreterException e) {
+                    Gdx.app.error("ASTInterpreter", "Caught error executing instruction in block statement: " + e.getMessage());
+                    // skip that instruction and continue
                 }
             }
 
