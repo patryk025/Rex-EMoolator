@@ -163,8 +163,22 @@ public class CNVParser {
 
         Object value = properties.get(objectName + ":VALUE");
 
-        // TODO: Check INI file for override (needs Game reference)
-        // For now, just return the value from CNV
+        try {
+            if (context.getGame() != null && context.getGame().getGameINI() != null) {
+                String foundSection = context.getGame().findINISectionForVariable(objectName.toUpperCase());
+                if (foundSection != null) {
+                    String valueFromIni = context.getGame().getGameINI().get(foundSection, objectName.toUpperCase());
+                    if (valueFromIni != null) {
+                        properties.put(objectName + ":INIT_VALUE", String.valueOf(value));
+                        properties.put(objectName + ":VALUE", valueFromIni);
+                        Gdx.app.log("CNVParser", "Found value for " + objectName + " in INI section " + foundSection);
+                        return valueFromIni;
+                    }
+                }
+            }
+        } catch (Exception e) {
+            Gdx.app.error("CNVParser", "Error while getting INI value for " + objectName, e);
+        }
 
         return value;
     }

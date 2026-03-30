@@ -13,6 +13,7 @@ import pl.genschu.bloomooemulator.interpreter.values.*;
 import pl.genschu.bloomooemulator.interpreter.variable.MethodResult;
 import pl.genschu.bloomooemulator.interpreter.variable.RandVariable;
 import pl.genschu.bloomooemulator.interpreter.variable.SignalHandler;
+import pl.genschu.bloomooemulator.interpreter.variable.TimerVariable;
 import pl.genschu.bloomooemulator.interpreter.variable.Variable;
 
 import java.util.ArrayList;
@@ -154,6 +155,26 @@ class VariableCoreTest {
     }
 
     @Test
+    void testAddBehaviourResolvesParameterVariableNameWithoutTruncation() {
+        Context testCtx = new ContextBuilder()
+                .withVariable("STRING", "HOST", "test")
+                .withVariable("STRING", "PARAM", "resolved")
+                .withVariable("STRING", "TARGET", "")
+                .withVariable("BEHAVIOUR", "B_WITH_PARAMS", "{TARGET^SET($1);}")
+                .build();
+
+        MethodHelper.callWithEffects(testCtx, "HOST", "ADDBEHAVIOUR",
+                new StringValue("ONTEST"),
+                new StringValue("B_WITH_PARAMS(PARAM)"));
+
+        Variable host = testCtx.getVariable("HOST");
+        host.emitSignal("ONTEST");
+
+        Variable target = testCtx.getVariable("TARGET");
+        assertEquals("resolved", target.value().toDisplayString());
+    }
+
+    @Test
     void testRemoveBehaviour() {
         Context testCtx = new ContextBuilder()
                 .withVariable("STRING", "HOST", "test")
@@ -292,6 +313,19 @@ class VariableCoreTest {
         flag.callMethod("SET", BoolValue.TRUE);
 
         assertTrue(changedToTrue.get());
+    }
+
+    @Test
+    void testTimerVariableEmitsOnTick() {
+        AtomicBoolean ticked = new AtomicBoolean(false);
+
+        TimerVariable timer = new TimerVariable("TIMER", 10);
+        timer = (TimerVariable) timer.withSignal("ONTICK^1", (var, signal, args) -> ticked.set(true));
+
+        timer.update(timer.lastTickTime() + timer.elapse());
+
+        assertTrue(ticked.get());
+        assertEquals(1, timer.currentTickCount());
     }
 
     // ========================================

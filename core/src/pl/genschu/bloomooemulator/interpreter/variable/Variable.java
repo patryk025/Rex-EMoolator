@@ -331,12 +331,13 @@ public sealed interface Variable extends EngineVariable permits
         if (params == null) return List.of();
         List<Value> resolved = new ArrayList<>(params.length);
         for (String param : params) {
+            param = param.trim();
             if (param.startsWith("\"") && param.endsWith("\"")) {
                 param = param.substring(1, param.length() - 1);
                 resolved.add(new StringValue(param));
                 continue;
             }
-            Variable paramVar = ctx.getVariable(param.substring(1));
+            Variable paramVar = ctx.getVariable(param);
             if (paramVar != null) {
                 resolved.add(paramVar.value());
                 continue;

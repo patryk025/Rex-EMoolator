@@ -102,7 +102,11 @@ public record TimerVariable(
     @Override
     public Variable withSignal(String signalName, SignalHandler handler) {
         Map<String, SignalHandler> newSignals = new HashMap<>(signals);
-        newSignals.put(signalName, handler);
+        if (handler == null) {
+            newSignals.remove(signalName);
+        } else {
+            newSignals.put(signalName, handler);
+        }
         return new TimerVariable(name, state, newSignals);
     }
 
@@ -129,6 +133,7 @@ public record TimerVariable(
         if (currentTime - state.lastTickTime >= state.elapse) {
             state.currentTickCount++;
             state.lastTickTime = currentTime;
+            emitSignal("ONTICK", new IntValue(state.currentTickCount));
 
             if (state.ticks != 0 && state.currentTickCount >= state.ticks) {
                 state.enabled = false;

@@ -4,8 +4,9 @@ import org.openjdk.jmh.annotations.*;
 import pl.genschu.bloomooemulator.TestEnvironment;
 import pl.genschu.bloomooemulator.encoding.ScriptDecypher;
 import pl.genschu.bloomooemulator.engine.Game;
-import pl.genschu.bloomooemulator.interpreter.v1.Context;
-import pl.genschu.bloomooemulator.loader.v1.CNVParser;
+import pl.genschu.bloomooemulator.interpreter.context.Context;
+import pl.genschu.bloomooemulator.interpreter.runtime.ExecutionContext;
+import pl.genschu.bloomooemulator.loader.CNVParser;
 
 import java.io.File;
 import java.io.IOException;
@@ -43,7 +44,7 @@ public class CNVParserBenchmark {
 
         parser = new CNVParser();
         Game game = new Game(null, null);
-        testContext = new Context();
+        testContext = new Context(new ExecutionContext());
         testContext.setGame(game);
 
         smallScript = asset("Arrajki.cnv");

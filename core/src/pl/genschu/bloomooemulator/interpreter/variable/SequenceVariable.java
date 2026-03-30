@@ -6,6 +6,7 @@ import pl.genschu.bloomooemulator.interpreter.context.Context;
 import pl.genschu.bloomooemulator.interpreter.helpers.ArgumentHelper;
 import pl.genschu.bloomooemulator.interpreter.values.*;
 import pl.genschu.bloomooemulator.interpreter.variable.capabilities.Initializable;
+import pl.genschu.bloomooemulator.loader.SequenceLoader;
 import pl.genschu.bloomooemulator.objects.Event;
 
 import java.util.*;
@@ -228,7 +229,24 @@ public record SequenceVariable(
 
     @Override
     public void init(Context context) {
-        // Initialization is done by SEQParser after parsing
+        String filename = state.filename;
+        if ((filename == null || filename.isEmpty())) {
+            String attr = context.getAttribute(name, "FILENAME");
+            if (attr != null && !attr.isEmpty()) {
+                filename = attr;
+                state.filename = attr;
+            }
+        }
+
+        if (filename == null || filename.isEmpty()) {
+            return;
+        }
+
+        try {
+            SequenceLoader.load(this, context);
+        } catch (Exception e) {
+            Gdx.app.error("SequenceVariable", "Failed to load SEQUENCE " + name + ": " + e.getMessage(), e);
+        }
     }
 
     // ========================================
@@ -427,7 +445,7 @@ public record SequenceVariable(
 
                 // Set up handler for when start animation finishes
                 final SequenceVariable thisSeq = this;
-                animoVar.withSignal("ONFINISHED", (var, signal, args) -> {
+                replaceAnimoSignal(context, animoVar, "ONFINISHED", (var, signal, args) -> {
                     thisSeq.startSpeakingMainPhase(event, context);
                 });
             } else {
@@ -446,14 +464,14 @@ public record SequenceVariable(
         String soundName = event.getSoundName();
         if (soundName != null) {
             Variable sound = context.getVariable(soundName);
-            if (sound != null) {
+            if (sound instanceof SoundVariable soundVar) {
                 try {
                     sound.callMethod("PLAY");
                     playSpeakingMainAnimation(event, context);
 
                     // Set up handler for when sound finishes
                     final SequenceVariable thisSeq = this;
-                    sound.withSignal("ONFINISHED", (var, signal, args) -> {
+                    replaceVariableSignal(context, soundVar, "ONFINISHED", (var, signal, args) -> {
                         playback.currentPhase = PlaybackPhase.END;
                         if (event.hasEndAnimation()) {
                             thisSeq.playSpeakingEndAnimation(event, context);
@@ -525,8 +543,7 @@ public record SequenceVariable(
 
         // Set up handler for looping main animation while sound plays
         final SequenceVariable thisSeq = this;
-        final String animNameForHandler = mainAnimName;
-        animoVar.withSignal("ONFINISHED^" + mainAnimName, (var, signal, args) -> {
+        replaceAnimoSignal(context, animoVar, "ONFINISHED^" + mainAnimName, (var, signal, args) -> {
             SequenceEventState playback = event.getPlayback();
             String soundName = event.getSoundName();
             Variable sound = soundName != null ? context.getVariable(soundName) : null;
@@ -556,7 +573,7 @@ public record SequenceVariable(
                 animo.callMethod("PLAY", new StringValue(endAnimName));
 
                 final SequenceVariable thisSeq = this;
-                animoVar.withSignal("ONFINISHED^" + endAnimName, (var, signal, args) -> {
+                replaceAnimoSignal(context, animoVar, "ONFINISHED^" + endAnimName, (var, signal, args) -> {
                     thisSeq.handleEventFinished(event, context);
                 });
             } else {
@@ -599,19 +616,32 @@ public record SequenceVariable(
         SignalHandler originalHandler = animoVar.getSignal("ONFINISHED^" + prefix);
         final SequenceVariable thisSeq = this;
 
-        animoVar.withSignal("ONFINISHED^" + prefix, (var, signal, args) -> {
+        replaceAnimoSignal(context, animoVar, "ONFINISHED^" + prefix, (var, signal, args) -> {
             if (originalHandler != null) {
                 originalHandler.handle(var, signal, args);
             }
             if (event.getPlayback().isPlaying) {
                 thisSeq.handleEventFinished(event, context);
                 // Restore original signal
-                if (originalHandler != null) {
-                    ((AnimoVariable) var).withSignal("ONFINISHED^" + prefix, originalHandler);
-                }
+                replaceAnimoSignal(context, (AnimoVariable) var, "ONFINISHED^" + prefix, originalHandler);
             }
             event.getPlayback().isOnFinishedWrapped = true;
         });
+    }
+
+    private static AnimoVariable replaceAnimoSignal(Context context, AnimoVariable animoVar,
+                                                    String signalName, SignalHandler handler) {
+        AnimoVariable updated = (AnimoVariable) animoVar.withSignal(signalName, handler);
+        context.updateVariableInHierarchy(updated.name(), updated);
+        return updated;
+    }
+
+    private static <T extends Variable> T replaceVariableSignal(Context context, T variable,
+                                                                String signalName, SignalHandler handler) {
+        @SuppressWarnings("unchecked")
+        T updated = (T) variable.withSignal(signalName, handler);
+        context.updateVariableInHierarchy(updated.name(), updated);
+        return updated;
     }
 
     private void handleEventFinished(SequenceEvent event, Context context) {
@@ -763,49 +793,68 @@ public record SequenceVariable(
                 throw new IllegalArgumentException("PLAY requires 1 argument");
             }
             String eventName = ArgumentHelper.getString(args.get(0));
-
-            SequenceEvent event = thisVar.eventsByName.get(eventName);
-            if (event != null) {
-                thisVar.state.currentEvent = event;
-                thisVar.state.isPlaying = true;
-                thisVar.emitSignal("ONSTARTED", new StringValue(eventName));
+            if (ctx != null) {
+                thisVar.playEvent(eventName, ctx.context());
+            } else {
+                SequenceEvent event = thisVar.eventsByName.get(eventName);
+                if (event != null) {
+                    thisVar.state.currentEvent = event;
+                    thisVar.state.isPlaying = true;
+                    thisVar.emitSignal("ONSTARTED", new StringValue(eventName));
+                }
             }
             return MethodResult.noReturn();
         })),
 
         Map.entry("PAUSE", MethodSpec.of((self, args, ctx) -> {
             SequenceVariable thisVar = (SequenceVariable) self;
-            thisVar.state.isPaused = true;
+            if (ctx != null) {
+                thisVar.pauseSequence(ctx.context());
+            } else {
+                thisVar.state.isPaused = true;
+            }
             return MethodResult.noReturn();
         })),
 
         Map.entry("RESUME", MethodSpec.of((self, args, ctx) -> {
             SequenceVariable thisVar = (SequenceVariable) self;
-            thisVar.state.isPaused = false;
+            if (ctx != null) {
+                thisVar.resumeSequence(ctx.context());
+            } else {
+                thisVar.state.isPaused = false;
+            }
             return MethodResult.noReturn();
         })),
 
         Map.entry("STOP", MethodSpec.of((self, args, ctx) -> {
             SequenceVariable thisVar = (SequenceVariable) self;
             boolean emitSignal = args.isEmpty() || ArgumentHelper.getBoolean(args.get(0));
-            if (thisVar.state.currentEvent != null) {
-                if (emitSignal) {
-                    thisVar.emitSignal("ONFINISHED", new StringValue(thisVar.state.currentEvent.getName()));
+            if (ctx != null) {
+                thisVar.stopSequence(emitSignal, ctx.context());
+            } else {
+                if (thisVar.state.currentEvent != null) {
+                    if (emitSignal) {
+                        thisVar.emitSignal("ONFINISHED", new StringValue(thisVar.state.currentEvent.getName()));
+                    }
+                    thisVar.state.currentEvent = null;
+                    thisVar.state.isPlaying = false;
+                    thisVar.state.isPaused = false;
                 }
-                thisVar.state.currentEvent = null;
-                thisVar.state.isPlaying = false;
-                thisVar.state.isPaused = false;
             }
             return MethodResult.noReturn();
         })),
 
         Map.entry("SHOW", MethodSpec.of((self, args, ctx) -> {
-            // Handled by interpreter - needs context
+            if (ctx != null) {
+                ((SequenceVariable) self).showSequence(ctx.context());
+            }
             return MethodResult.noReturn();
         })),
 
         Map.entry("HIDE", MethodSpec.of((self, args, ctx) -> {
-            // Handled by interpreter - needs context
+            if (ctx != null) {
+                ((SequenceVariable) self).hideSequence(ctx.context());
+            }
             return MethodResult.noReturn();
         })),
 
