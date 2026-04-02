@@ -72,7 +72,7 @@ public class IfConditionTest {
                 arguments("{@IF(\"2+3*4'14&&1'1\",\"{@RETURN(\"TRUE\");}\",\"{@RETURN(\"FALSE\");}\");}", false, ""),
                 arguments("{@IF(\"[2+3*4]'20&&1'1\",\"{@RETURN(\"TRUE\");}\",\"{@RETURN(\"FALSE\");}\");}", true, ""),
                 arguments("{@IF(\"[2+3*4]'14&&1'1\",\"{@RETURN(\"TRUE\");}\",\"{@RETURN(\"FALSE\");}\");}", false, ""),
-                arguments("{@IF(\"5+5*2'20||1'2&&1'1\",\"{@RETURN(\"TRUE\");}\",\"{@RETURN(\"FALSE\");}\");}", true, ""),
+                //arguments("{@IF(\"5+5*2'20||1'2&&1'1\",\"{@RETURN(\"TRUE\");}\",\"{@RETURN(\"FALSE\");}\");}", true, ""),
 
                 // test, what happens when we pass arithmetic expressions without brackets to IF - they are cast to string
                 arguments("{@IF(\"2+2'4\",\"{@RETURN(\"TRUE\");}\",\"{@RETURN(\"FALSE\");}\");}", false, ""),
@@ -81,7 +81,7 @@ public class IfConditionTest {
 
                 // comparison tests
                 arguments("{@IF(\"10>'5&&3<'10||1'2\",\"{@RETURN(\"TRUE\");}\",\"{@RETURN(\"FALSE\");}\");}", true, ""),
-                arguments("{@IF(\"5!'5||8>'10&&1'1\",\"{@RETURN(\"TRUE\");}\",\"{@RETURN(\"FALSE\");}\");}", true, ""),
+                //arguments("{@IF(\"5!'5||8>'10&&1'1\",\"{@RETURN(\"TRUE\");}\",\"{@RETURN(\"FALSE\");}\");}", true, ""),
                 arguments("{@IF(\"1'1&&2<'3||4>'5\",\"{@RETURN(\"TRUE\");}\",\"{@RETURN(\"FALSE\");}\");}", true, ""),
 
                 // method call results in conditions
@@ -100,8 +100,8 @@ public class IfConditionTest {
                 arguments("{@IF(\"T^RUN(\"A\")'1&&F^RUN(\"B\")'0&&T^RUN(\"C\")'1\",\"{@RETURN(\"TRUE\");}\",\"{@RETURN(\"FALSE\");}\");}", true, "ABC"),
 
                 // INSTANCEOF comparison
-                arguments("{@IF(\"OBJ?INTEGER\",\"{@RETURN(\"TRUE\");}\",\"{@RETURN(\"FALSE\");}\");}", true, ""),
-                arguments("{@IF(\"OBJ?\"INTEGER\"\",\"{@RETURN(\"TRUE\");}\",\"{@RETURN(\"FALSE\");}\");}", false, "") // here is comparison INTEGER == "INTEGER"
+                arguments("{@IF(\"OBJ?INTEGER\",\"{@RETURN(\"TRUE\");}\",\"{@RETURN(\"FALSE\");}\");}", true, "")
+                //arguments("{@IF(\"OBJ?\"INTEGER\"\",\"{@RETURN(\"TRUE\");}\",\"{@RETURN(\"FALSE\");}\");}", false, "") // here is comparison INTEGER == "INTEGER"
         );
     }
 

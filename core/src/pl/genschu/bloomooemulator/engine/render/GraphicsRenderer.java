@@ -79,7 +79,7 @@ public class GraphicsRenderer implements Disposable {
         }
 
         Box2D rect = animoVariable.getRect();
-        batch.setColor(1, 1, 1, animoVariable.getOpacity());
+        batch.setColor(1, 1, 1, animoVariable.getCalculatedOpacity());
 
         if (animoVariable.hasFilters()) {
             // get first filter (not sure if there can be more at once)

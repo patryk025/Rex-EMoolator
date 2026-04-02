@@ -143,7 +143,7 @@ public class ButtonHandler {
                 if (variable instanceof ButtonVariable btn) {
                     btn.changeState(ButtonEvent.FOCUS_OFF, context);
                 } else if (variable instanceof AnimoVariable animo) {
-                    animo.changeButtonState(ButtonEvent.FOCUS_OFF);
+                    animo.changeButtonState(ButtonEvent.FOCUS_OFF, context);
                 }
             }
         }
@@ -170,14 +170,15 @@ public class ButtonHandler {
     private void processAnimoVariable(AnimoVariable animo, int x, int y, boolean isPressed,
                                       boolean justPressed, MouseVariable mouseVariable,
                                       boolean shouldFocus) {
+        Context context = (Context) game.getCurrentSceneContext();
         if (shouldFocus) {
             if (justPressed) {
                 if (inputManager.getActiveButton() == null) {
                     inputManager.setActiveButton(animo);
-                    animo.changeButtonState(ButtonEvent.PRESSED);
+                    animo.changeButtonState(ButtonEvent.PRESSED, context);
                 }
             } else if (animo.getButtonState() != ButtonState.HOVERED) {
-                animo.changeButtonState(ButtonEvent.FOCUS_ON);
+                animo.changeButtonState(ButtonEvent.FOCUS_ON, context);
             }
         }
     }
@@ -214,8 +215,7 @@ public class ButtonHandler {
             if (activeButton instanceof ButtonVariable btn) {
                 btn.changeState(ButtonEvent.RELEASED, context);
             } else if (activeButton instanceof AnimoVariable animo) {
-                inputManager.triggerSignal(animo, "ONRELEASE");
-                animo.changeButtonState(ButtonEvent.RELEASED);
+                animo.changeButtonState(ButtonEvent.RELEASED, context);
             }
             inputManager.setActiveButton(null);
         }

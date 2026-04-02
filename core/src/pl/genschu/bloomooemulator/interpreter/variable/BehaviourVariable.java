@@ -1,10 +1,14 @@
 package pl.genschu.bloomooemulator.interpreter.variable;
 
+import com.badlogic.gdx.Gdx;
 import pl.genschu.bloomooemulator.interpreter.ast.ASTNode;
-import pl.genschu.bloomooemulator.interpreter.values.NullValue;
-import pl.genschu.bloomooemulator.interpreter.values.Value;
+import pl.genschu.bloomooemulator.interpreter.ast.ComparisonNode;
+import pl.genschu.bloomooemulator.interpreter.ops.ValueOps;
+import pl.genschu.bloomooemulator.interpreter.values.*;
 import pl.genschu.bloomooemulator.loader.BehaviourCodeParser;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -68,19 +72,151 @@ public record BehaviourVariable(
         })),
 
         Map.entry("RUNC", MethodSpec.of((self, args, ctx) -> {
-            // TODO: Check CONDITION attribute before running
             BehaviourVariable behaviour = (BehaviourVariable) self;
+
+            if (!checkCondition(behaviour, ctx)) {
+                return MethodResult.noReturn();
+            }
+
             Value result = ctx.runBehaviour("RUNC:" + behaviour.name(), null, behaviour, args);
             return MethodResult.returns(result);
         })),
 
         Map.entry("RUNLOOPED", MethodSpec.of((self, args, ctx) -> {
-            // TODO: Implement looped execution (run in a loop until break/return)
             BehaviourVariable behaviour = (BehaviourVariable) self;
-            Value result = ctx.runBehaviour("RUNLOOPED:" + behaviour.name(), null, behaviour, args);
-            return MethodResult.returns(result);
+
+            if (args.size() < 2) {
+                throw new IllegalArgumentException("RUNLOOPED requires at least 2 arguments: start, len [, step, ...]");
+            }
+
+            int startVal = args.get(0).toInt().value();
+            int endDiff = args.get(1).toInt().value();
+            int step = args.size() > 2 ? args.get(2).toInt().value() : 1;
+            if (step == 0) step = 1;
+
+            // Extra args beyond start/len/step are passed as $2, $3, ...
+            List<Value> extraArgs = args.size() > 3
+                    ? args.subList(3, args.size())
+                    : List.of();
+
+            // Check condition (if defined)
+            ConditionVariable condition = resolveCondition(behaviour, ctx);
+
+            for (int i = startVal; i < startVal + endDiff; i += step) {
+                // Re-check condition each iteration if present
+                if (condition != null && !evaluateCondition(condition, ctx)) {
+                    break;
+                }
+
+                List<Value> loopArgs = new ArrayList<>(1 + extraArgs.size());
+                loopArgs.add(new IntValue(i)); // $1 = loop counter
+                loopArgs.addAll(extraArgs);    // $2, $3, ... = extra args
+
+                ctx.runBehaviour("RUNLOOPED:" + behaviour.name(), null, behaviour, loopArgs);
+            }
+
+            return MethodResult.noReturn();
         }))
     );
+
+    // ========================================
+    // CONDITION CHECKING
+    // ========================================
+
+    /**
+     * Checks the CONDITION attribute of this behaviour.
+     * Returns true if no condition is defined or if the condition evaluates to true.
+     */
+    private static boolean checkCondition(BehaviourVariable behaviour, MethodContext ctx) {
+        ConditionVariable condition = resolveCondition(behaviour, ctx);
+        if (condition == null) {
+            return true; // No condition = always run
+        }
+        return evaluateCondition(condition, ctx);
+    }
+
+    /**
+     * Resolves the CONDITION attribute to a ConditionVariable.
+     */
+    private static ConditionVariable resolveCondition(BehaviourVariable behaviour, MethodContext ctx) {
+        if (ctx == null) return null;
+
+        String conditionName = ctx.context().getAttribute(behaviour.name(), "CONDITION");
+        if (conditionName == null || conditionName.isEmpty()) {
+            return null;
+        }
+
+        Variable condVar = ctx.getVariable(conditionName);
+        if (condVar instanceof ConditionVariable cond) {
+            return cond;
+        }
+        if (condVar == null) {
+            Gdx.app.error("BehaviourVariable", "Condition variable " + conditionName + " not found");
+        } else {
+            Gdx.app.error("BehaviourVariable", "Variable " + conditionName + " is not a ConditionVariable");
+        }
+        return null;
+    }
+
+    /**
+     * Evaluates a ConditionVariable by resolving its operands and comparing.
+     */
+    private static boolean evaluateCondition(ConditionVariable cond, MethodContext ctx) {
+        try {
+            Value left = resolveOperand(cond.operand1(), ctx);
+            Value right = resolveOperand(cond.operand2(), ctx);
+
+            ComparisonNode.ComparisonOp op = switch (cond.operator().toUpperCase()) {
+                case "EQUAL" -> ComparisonNode.ComparisonOp.EQUAL;
+                case "NOTEQUAL" -> ComparisonNode.ComparisonOp.NOT_EQUAL;
+                case "LESS" -> ComparisonNode.ComparisonOp.LESS;
+                case "GREATER" -> ComparisonNode.ComparisonOp.GREATER;
+                case "LESSEQUAL" -> ComparisonNode.ComparisonOp.LESS_EQUAL;
+                case "GREATEREQUAL" -> ComparisonNode.ComparisonOp.GREATER_EQUAL;
+                default -> ComparisonNode.ComparisonOp.EQUAL;
+            };
+
+            BoolValue result = ValueOps.compare(left, right, op);
+            return result.value();
+        } catch (Exception e) {
+            Gdx.app.error("BehaviourVariable", "Error evaluating condition: " + e.getMessage());
+            return true; // Default to true on error (like v1)
+        }
+    }
+
+    /**
+     * Resolves an operand string to a Value.
+     * Tries: integer literal, double literal, variable lookup, string fallback.
+     */
+    private static Value resolveOperand(String operand, MethodContext ctx) {
+        if (operand == null || operand.isEmpty()) return NullValue.INSTANCE;
+
+        String trimmed = operand.trim();
+
+        // Try integer
+        if (trimmed.matches("[-+]?\\d+")) {
+            try { return new IntValue(Integer.parseInt(trimmed)); }
+            catch (NumberFormatException ignored) {}
+        }
+
+        // Try double
+        if (trimmed.matches("[-+]?\\d*\\.\\d+")) {
+            try { return new DoubleValue(Double.parseDouble(trimmed)); }
+            catch (NumberFormatException ignored) {}
+        }
+
+        // Try variable lookup
+        Variable var = ctx.getVariable(trimmed);
+        if (var != null) {
+            if (var instanceof ConditionVariable nestedCond) {
+                return new BoolValue(evaluateCondition(nestedCond, ctx));
+            }
+            return var.value();
+        }
+
+        // Fallback to string
+        return new StringValue(trimmed);
+    }
 
     @Override
     public Variable withSignal(String signalName, SignalHandler handler) {

@@ -276,6 +276,21 @@ public class Context implements GameContext {
     }
 
     /**
+     * Registers a variable as a button in this context's cache.
+     * Used for AnimoVariables with ASBUTTON that need to appear in button lists.
+     */
+    public void addButtonVariable(Variable variable) {
+        store.getCacheIndex().addButton(variable.getName(), variable);
+    }
+
+    /**
+     * Unregisters a variable from buttons in this context's cache.
+     */
+    public void removeButtonVariable(Variable variable) {
+        store.getCacheIndex().removeButton(variable.getName());
+    }
+
+    /**
      * Gets all timer variables from context hierarchy.
      * includes additionalContexts and classInstances.
      *

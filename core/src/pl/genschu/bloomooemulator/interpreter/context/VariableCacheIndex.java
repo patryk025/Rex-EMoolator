@@ -73,6 +73,20 @@ public class VariableCacheIndex {
         world = null;
     }
 
+    /**
+     * Explicitly registers a variable as a button (e.g., AnimoVariable with ASBUTTON).
+     */
+    public void addButton(String name, Variable var) {
+        buttons.put(name, var);
+    }
+
+    /**
+     * Explicitly unregisters a variable from buttons.
+     */
+    public void removeButton(String name) {
+        buttons.remove(name);
+    }
+
     // ===== Getters (unmodifiable views) =====
 
     public Map<String, Variable> getGraphics() {

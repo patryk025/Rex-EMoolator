@@ -66,6 +66,7 @@ public record AnimoVariable(
 
         // Rendering
         public boolean visible = true;
+        public boolean toCanvas = true;
         public int opacity = 255;
         public int priority = 0;
         public List<Filter> filters = new ArrayList<>();
@@ -100,6 +101,7 @@ public record AnimoVariable(
             copy.anchorY = this.anchorY;
             copy.rect = new Box2D(this.rect.getXLeft(), this.rect.getYBottom(), this.rect.getXRight(), this.rect.getYTop());
             copy.visible = this.visible;
+            copy.toCanvas = this.toCanvas;
             copy.opacity = this.opacity;
             copy.priority = this.priority;
             copy.filters = new ArrayList<>(this.filters);
@@ -215,14 +217,10 @@ public record AnimoVariable(
 
     @Override
     public void init(Context context) {
+        // Read attributes from context (like v1's initAttributes)
+        initAttributesFromContext(context);
+
         String filename = state.filename;
-        if (filename == null || filename.isEmpty()) {
-            String attr = context.getAttribute(name, "FILENAME");
-            if (attr != null && !attr.isEmpty()) {
-                filename = attr;
-                state.filename = filename;
-            }
-        }
         if (filename == null || filename.isEmpty()) {
             Gdx.app.debug("AnimoVariable", name + ": No FILENAME, skipping load");
             return;
@@ -238,15 +236,83 @@ public record AnimoVariable(
         try {
             AnimoData loadedData = AnimoLoader.load(resolvedPath);
             AnimoVariable updated = this.withData(loadedData);
-            if (loadedData.fps() > 0) {
+            // FPS: attribute override > file value > default
+            if (state.fps != 15) {
+                // Attribute already set a custom FPS, keep it
+                updated.state.fps = state.fps;
+                updated.state.frameDuration = 1f / state.fps;
+            } else if (loadedData.fps() > 0) {
                 updated.state.fps = loadedData.fps();
                 updated.state.frameDuration = 1f / loadedData.fps();
             }
             updated.state.opacity = loadedData.opacity();
+            // Carry over attribute-initialized state
+            updated.state.visible = state.visible;
+            updated.state.toCanvas = state.toCanvas;
+            updated.state.priority = state.priority;
+            updated.state.monitorCollision = state.monitorCollision;
+            updated.state.buttonState = state.buttonState;
             context.setVariable(name, updated);
             Gdx.app.log("AnimoVariable", name + ": Loaded ANIMO from " + resolvedPath);
         } catch (Exception e) {
             Gdx.app.error("AnimoVariable", name + ": Failed to load ANIMO: " + e.getMessage(), e);
+        }
+    }
+
+    /**
+     * Reads attributes from context and applies them to state.
+     * Mirrors v1's initMissingAttributes() + initAttributes().
+     */
+    private void initAttributesFromContext(Context context) {
+        // FILENAME
+        if (state.filename == null || state.filename.isEmpty()) {
+            String attr = context.getAttribute(name, "FILENAME");
+            if (attr != null && !attr.isEmpty()) {
+                state.filename = attr;
+            }
+        }
+
+        // VISIBLE (default: true)
+        String visibleAttr = context.getAttribute(name, "VISIBLE");
+        if (visibleAttr != null) {
+            state.visible = visibleAttr.equalsIgnoreCase("TRUE");
+        }
+
+        // TOCANVAS (default: true)
+        String toCanvasAttr = context.getAttribute(name, "TOCANVAS");
+        if (toCanvasAttr != null) {
+            state.toCanvas = toCanvasAttr.equalsIgnoreCase("TRUE");
+        }
+
+        // PRIORITY (default: 0)
+        String priorityAttr = context.getAttribute(name, "PRIORITY");
+        if (priorityAttr != null) {
+            try { state.priority = Integer.parseInt(priorityAttr); }
+            catch (NumberFormatException ignored) {}
+        }
+
+        // FPS (default: 15)
+        String fpsAttr = context.getAttribute(name, "FPS");
+        if (fpsAttr != null) {
+            try {
+                int fps = Integer.parseInt(fpsAttr);
+                if (fps > 0) {
+                    state.fps = fps;
+                    state.frameDuration = 1f / fps;
+                }
+            } catch (NumberFormatException ignored) {}
+        }
+
+        // ASBUTTON
+        String asButtonAttr = context.getAttribute(name, "ASBUTTON");
+        if (asButtonAttr != null && asButtonAttr.equalsIgnoreCase("TRUE")) {
+            changeButtonState(ButtonEvent.ENABLE);
+        }
+
+        // MONITORCOLLISION
+        String monitorAttr = context.getAttribute(name, "MONITORCOLLISION");
+        if (monitorAttr != null && monitorAttr.equalsIgnoreCase("TRUE")) {
+            state.monitorCollision = true;
         }
     }
 
@@ -333,7 +399,7 @@ public record AnimoVariable(
     }
 
     public boolean isRenderedOnCanvas() {
-        return true; // TODO: implement with attributes
+        return state.toCanvas;
     }
 
     // ========================================
@@ -421,10 +487,55 @@ public record AnimoVariable(
     }
 
     public void changeButtonState(ButtonEvent event) {
+        changeButtonState(event, null);
+    }
+
+    public void changeButtonState(ButtonEvent event, Context context) {
         ButtonState oldState = state.buttonState;
         state.buttonState = evaluateButtonState(oldState, event);
 
         if (state.buttonState != oldState) {
+            switch (state.buttonState) {
+                case STANDARD -> {
+                    if (oldState == ButtonState.HOVERED) {
+                        callMethod("PLAY", new StringValue("ONFOCUSOFF"));
+                        emitSignal("ONFOCUSOFF");
+                    }
+                    if (oldState == ButtonState.DISABLED) {
+                        state.toCanvas = true;
+                        callMethod("PLAY", new StringValue("ONNOEVENT"));
+                        if (context != null) {
+                            context.addButtonVariable(this);
+                        }
+                    }
+                }
+                case HOVERED -> {
+                    callMethod("PLAY", new StringValue("ONFOCUSON"));
+                    if (oldState == ButtonState.STANDARD) {
+                        emitSignal("ONFOCUSON");
+                    }
+                    if (oldState == ButtonState.PRESSED) {
+                        emitSignal("ONRELEASE");
+                    }
+                }
+                case PRESSED -> {
+                    callMethod("PLAY", new StringValue("ONCLICK"));
+                    emitSignal("ONCLICK");
+                }
+                case DISABLED -> {
+                    if (context != null) {
+                        context.removeButtonVariable(this);
+                    }
+                    if (oldState == ButtonState.PRESSED) {
+                        Game game = context != null ? context.getGame() : null;
+                        if (game != null && game.getInputManager() != null
+                                && game.getInputManager().getActiveButton() == this) {
+                            game.getInputManager().clearActiveButton(this);
+                        }
+                    }
+                }
+                default -> {}
+            }
             Gdx.app.debug("AnimoVariable", name + " button state: " + oldState + " -> " + state.buttonState);
         }
     }
@@ -1075,10 +1186,11 @@ public record AnimoVariable(
             boolean enabled = ArgumentHelper.getBoolean(args.get(0));
             boolean changeCursor = ArgumentHelper.getBoolean(args.get(1));
             thisVar.setChangeCursor(changeCursor);
+            Context context = ctx != null ? ctx.context() : null;
             if (!enabled) {
-                thisVar.changeButtonState(ButtonEvent.DISABLE);
+                thisVar.changeButtonState(ButtonEvent.DISABLE, context);
             } else {
-                thisVar.changeButtonState(ButtonEvent.ENABLE);
+                thisVar.changeButtonState(ButtonEvent.ENABLE, context);
             }
             return MethodResult.noReturn();
         })),
@@ -1109,10 +1221,15 @@ public record AnimoVariable(
         Map.entry("ISNEAR", MethodSpec.of((self, args, ctx) -> {
             AnimoVariable thisVar = (AnimoVariable) self;
             if (args.size() < 2) {
-                throw new IllegalArgumentException("ISNEAR requires 2 arguments");
+                throw new IllegalArgumentException("ISNEAR requires 2 arguments: varName, iouThreshold");
             }
-            // This method requires context to get the other variable
-            // For now, return false - the interpreter should handle this
+            String otherName = ArgumentHelper.getString(args.get(0));
+            int iouThreshold = ArgumentHelper.getInt(args.get(1));
+            Variable otherVar = ctx != null ? ctx.getVariable(otherName) : null;
+            if (otherVar instanceof AnimoVariable otherAnimo) {
+                return MethodResult.returns(new BoolValue(
+                    thisVar.isNear(thisVar.getRect(), otherAnimo.getRect(), iouThreshold)));
+            }
             return MethodResult.returns(new BoolValue(false));
         })),
 
@@ -1129,16 +1246,21 @@ public record AnimoVariable(
 
         Map.entry("MONITORCOLLISION", MethodSpec.of((self, args, ctx) -> {
             AnimoVariable thisVar = (AnimoVariable) self;
-            // boolean monitorAlpha = !args.isEmpty() && ArgumentHelper.getBoolean(args.get(0));
             thisVar.state.monitorCollision = true;
-            // Actual registration in QuadTree is done by the interpreter
+            if (ctx != null && ctx.getGame() != null) {
+                ctx.getGame().getQuadTree().insert(thisVar);
+                ctx.getGame().getCollisionMonitoredVariables().add(thisVar);
+            }
             return MethodResult.noReturn();
         })),
 
         Map.entry("REMOVEMONITORCOLLISION", MethodSpec.of((self, args, ctx) -> {
             AnimoVariable thisVar = (AnimoVariable) self;
             thisVar.state.monitorCollision = false;
-            // Actual removal from QuadTree is done by the interpreter
+            if (ctx != null && ctx.getGame() != null) {
+                ctx.getGame().getQuadTree().remove(thisVar);
+                ctx.getGame().getCollisionMonitoredVariables().remove(thisVar);
+            }
             return MethodResult.noReturn();
         })),
 

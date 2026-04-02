@@ -151,6 +151,11 @@ public class UpdateManager implements Disposable {
                     if (animoVariable.isPlaying()) {
                         animoVariable.updateAnimation(deltaTime);
                     }
+                    // Refresh QuadTree position for collision-monitored variables
+                    if (animoVariable.isMonitorCollision()) {
+                        game.getQuadTree().remove(animoVariable);
+                        game.getQuadTree().insert(animoVariable);
+                    }
                 }
             }
         }
