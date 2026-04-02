@@ -77,7 +77,11 @@ public record IntegerVariable(
     @Override
     public Variable withSignal(String signalName, SignalHandler handler) {
         Map<String, SignalHandler> newSignals = new HashMap<>(signals);
-        newSignals.put(signalName, handler);
+        if (handler == null) {
+            newSignals.remove(signalName);
+        } else {
+            newSignals.put(signalName, handler);
+        }
         return new IntegerVariable(name, holder, newSignals);
     }
 
@@ -299,8 +303,10 @@ public record IntegerVariable(
 
         Map.entry("RESETINI", MethodSpec.of((self, args, ctx) -> {
             IntegerVariable thisVar = (IntegerVariable) self;
-            // TODO: Get DEFAULT value from INI file
-            return MethodResult.returns(thisVar.value());
+            String resetValue = self.getResetAttributeValue(ctx);
+            IntValue result = new IntValue(resetValue != null ? ArgumentHelper.getInt(new StringValue(resetValue)) : 0);
+            thisVar.setValue(result);
+            return MethodResult.returns(result);
         })),
 
         Map.entry("SET", MethodSpec.of((self, args, ctx) -> {

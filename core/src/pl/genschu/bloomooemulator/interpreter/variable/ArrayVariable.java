@@ -73,7 +73,11 @@ public record ArrayVariable(
     @Override
     public Variable withSignal(String signalName, SignalHandler handler) {
         Map<String, SignalHandler> newSignals = new HashMap<>(signals);
-        newSignals.put(signalName, handler);
+        if (handler == null) {
+            newSignals.remove(signalName);
+        } else {
+            newSignals.put(signalName, handler);
+        }
         return new ArrayVariable(name, elements, newSignals);
     }
 

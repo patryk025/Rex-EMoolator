@@ -1,5 +1,6 @@
 package pl.genschu.bloomooemulator.interpreter.context;
 
+import pl.genschu.bloomooemulator.interpreter.variable.StringVariable;
 import pl.genschu.bloomooemulator.interpreter.variable.Variable;
 import pl.genschu.bloomooemulator.interpreter.variable.VariableType;
 import pl.genschu.bloomooemulator.interpreter.runtime.ExecutionContext;
@@ -98,7 +99,12 @@ public class OriginalEngineQuirksHandler {
             }
 
             // Then check base variable
-            return context.getVariable(baseName);
+            Variable baseVariable = context.getVariable(baseName);
+            if (baseVariable instanceof StringVariable stringVariable &&
+                    baseName.equals(stringVariable.getString())) {
+                return null;
+            }
+            return baseVariable;
         } else {
             // _1+: Find in clones list (using capability)
             // Use store().get() directly to avoid infinite recursion through getVariable()

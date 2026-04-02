@@ -64,6 +64,11 @@ public class ASTInterpreter {
             }
 
             @Override
+            public boolean removeVariable(String name) {
+                return context.removeVariableInHierarchy(name);
+            }
+
+            @Override
             public boolean updateVariable(String name, Variable variable) {
                 return context.updateVariableInHierarchy(name, variable);
             }
@@ -407,7 +412,11 @@ public class ASTInterpreter {
         ExecutionResult exprResult = execute(node.expression());
         if (!exprResult.shouldContinue()) return exprResult;
 
-        String varName = ArgumentHelper.getString(exprResult.getValue());
+        String varName = switch (exprResult.getValue()) {
+            case VariableRef ref -> ref.name();
+            case VariableValue variableValue -> variableValue.variable().name();
+            default -> ArgumentHelper.getString(exprResult.getValue());
+        };
         Variable resolved = context.getVariable(varName);
         if (resolved == null) {
             throw new InterpreterException(

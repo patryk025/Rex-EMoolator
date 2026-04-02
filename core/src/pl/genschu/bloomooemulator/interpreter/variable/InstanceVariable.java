@@ -1,6 +1,7 @@
 package pl.genschu.bloomooemulator.interpreter.variable;
 
 import pl.genschu.bloomooemulator.interpreter.context.Context;
+import pl.genschu.bloomooemulator.interpreter.runtime.ASTInterpreter;
 import pl.genschu.bloomooemulator.interpreter.values.StringValue;
 import pl.genschu.bloomooemulator.interpreter.values.Value;
 import pl.genschu.bloomooemulator.interpreter.variable.capabilities.HasInstanceContext;
@@ -69,7 +70,11 @@ public record InstanceVariable(
     @Override
     public Variable withSignal(String signalName, SignalHandler handler) {
         Map<String, SignalHandler> newSignals = new HashMap<>(signals);
-        newSignals.put(signalName, handler);
+        if (handler != null) {
+            newSignals.put(signalName, handler);
+        } else {
+            newSignals.remove(signalName);
+        }
         return new InstanceVariable(name, instanceContext, newSignals);
     }
 
@@ -92,8 +97,13 @@ public record InstanceVariable(
             throw new IllegalArgumentException("Variable " + methodName + " is not a BEHAVIOUR");
         }
 
-        // Call RUN method on the behaviour
-        return behaviour.callMethod("RUN", arguments, ctx);
+        if (ctx == null) {
+            throw new IllegalArgumentException("Instance method calls require MethodContext");
+        }
+
+        Value result = new ASTInterpreter(instanceContext)
+                .runBehaviour("RUN:" + methodName + "@" + name, this, (BehaviourVariable) behaviour, arguments);
+        return MethodResult.returns(result);
     }
 
     // ========================================

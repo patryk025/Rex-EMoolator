@@ -30,7 +30,7 @@ public class VariableResolver {
     public static VariableResolver createDefault() {
         return new VariableResolver(
             new OriginalEngineQuirksHandler(),
-            BuiltinVariableProvider.NONE,
+            BuiltinVariableProvider.DEFAULT,
             FallbackStrategy.NAME_AS_STRING_VALUE
         );
     }
@@ -66,22 +66,38 @@ public class VariableResolver {
             return builtin;
         }
 
-        // 3. Current context store
+        // 3. Context graph (current -> additional contexts -> parent)
+        Variable resolved = findInContextGraph(name, context, new HashSet<>());
+        if (resolved != null) {
+            return resolved;
+        }
+
+        // 4. Fallback strategy
+        if (fallbackStrategy != null) {
+            return fallbackStrategy.createFallback(name, context);
+        }
+
+        return null;
+    }
+
+    private Variable findInContextGraph(String name, Context context, Set<Context> visited) {
+        if (context == null || !visited.add(context)) {
+            return null;
+        }
+
         if (context.store().has(name)) {
             return context.store().get(name);
         }
 
-        // 4. Parent context (recursive)
-        if (context.getParent() != null) {
-            Variable parent = resolve(name, context.getParent());
-            if (parent != null) {
-                return parent;
+        for (Context additional : context.getAdditionalContexts()) {
+            Variable additionalVariable = findInContextGraph(name, additional, visited);
+            if (additionalVariable != null) {
+                return additionalVariable;
             }
         }
 
-        // 5. Fallback strategy
-        if (fallbackStrategy != null) {
-            return fallbackStrategy.createFallback(name, context);
+        if (context.getParent() != null) {
+            return findInContextGraph(name, context.getParent(), visited);
         }
 
         return null;

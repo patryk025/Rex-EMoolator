@@ -68,7 +68,11 @@ public record BoolVariable(
     @Override
     public Variable withSignal(String signalName, SignalHandler handler) {
         Map<String, SignalHandler> newSignals = new HashMap<>(signals);
-        newSignals.put(signalName, handler);
+        if (handler == null) {
+            newSignals.remove(signalName);
+        } else {
+            newSignals.put(signalName, handler);
+        }
         return new BoolVariable(name, holder, newSignals);
     }
 
@@ -111,7 +115,9 @@ public record BoolVariable(
 
         Map.entry("RESETINI", MethodSpec.of((self, args, ctx) -> {
             BoolVariable thisVar = (BoolVariable) self;
-            // TODO: Get DEFAULT value from INI file
+            String resetValue = self.getResetAttributeValue(ctx);
+            BoolValue result = BoolValue.of(resetValue != null && ArgumentHelper.getBoolean(new StringValue(resetValue)));
+            thisVar.setValue(result);
             return MethodResult.noReturn();
         })),
 

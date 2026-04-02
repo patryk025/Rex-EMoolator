@@ -33,6 +33,11 @@ public final class MethodHelper {
             }
 
             @Override
+            public boolean removeVariable(String name) {
+                return context.removeVariableInHierarchy(name);
+            }
+
+            @Override
             public boolean updateVariable(String name, Variable variable) {
                 return context.updateVariableInHierarchy(name, variable);
             }

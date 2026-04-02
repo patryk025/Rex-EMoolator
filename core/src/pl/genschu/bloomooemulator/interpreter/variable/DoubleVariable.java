@@ -68,7 +68,11 @@ public record DoubleVariable(
     @Override
     public Variable withSignal(String signalName, SignalHandler handler) {
         Map<String, SignalHandler> newSignals = new HashMap<>(signals);
-        newSignals.put(signalName, handler);
+        if (handler == null) {
+            newSignals.remove(signalName);
+        } else {
+            newSignals.put(signalName, handler);
+        }
         return new DoubleVariable(name, holder, newSignals);
     }
 
@@ -303,8 +307,10 @@ public record DoubleVariable(
 
         Map.entry("RESETINI", MethodSpec.of((self, args, ctx) -> {
             DoubleVariable thisVar = (DoubleVariable) self;
-            // TODO: Get DEFAULT value from INI file
-            return MethodResult.returns(thisVar.value());
+            String resetValue = self.getResetAttributeValue(ctx);
+            DoubleValue result = new DoubleValue(resetValue != null ? ArgumentHelper.getDouble(new StringValue(resetValue)) : 0.0);
+            thisVar.setValue(result);
+            return MethodResult.returns(result);
         })),
 
         Map.entry("SET", MethodSpec.of((self, args, ctx) -> {

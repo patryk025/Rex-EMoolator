@@ -233,6 +233,25 @@ public class Context implements GameContext {
     }
 
     /**
+     * Removes a variable from the context hierarchy.
+     *
+     * @param name Variable name
+     * @return true if the variable was removed
+     */
+    public boolean removeVariableInHierarchy(String name) {
+        if (store.has(name)) {
+            store.remove(name);
+            return true;
+        }
+
+        if (parent != null) {
+            return parent.removeVariableInHierarchy(name);
+        }
+
+        return false;
+    }
+
+    /**
      * Gets all variables from context hierarchy (not including parent).
      *
      * @return Map of all variables (unmodifiable)
@@ -334,10 +353,14 @@ public class Context implements GameContext {
         if (mouse != null) return mouse;
 
         if (parent != null) {
-            return parent.getMouseVariable();
+            Variable parentMouse = parent.getMouseVariable();
+            if (parentMouse != null) {
+                return parentMouse;
+            }
         }
 
-        return null;
+        Variable resolved = resolver.resolve("MOUSE", this);
+        return resolved != null && resolved.type() == VariableType.MOUSE ? resolved : null;
     }
 
     /**
@@ -350,10 +373,14 @@ public class Context implements GameContext {
         if (keyboard != null) return keyboard;
 
         if (parent != null) {
-            return parent.getKeyboardVariable();
+            Variable parentKeyboard = parent.getKeyboardVariable();
+            if (parentKeyboard != null) {
+                return parentKeyboard;
+            }
         }
 
-        return null;
+        Variable resolved = resolver.resolve("KEYBOARD", this);
+        return resolved != null && resolved.type() == VariableType.KEYBOARD ? resolved : null;
     }
 
     /**
@@ -492,6 +519,45 @@ public class Context implements GameContext {
      */
     public String getAttribute(String varName, String attributeName) {
         return attributes.get(varName, attributeName);
+    }
+
+    /**
+     * Gets an attribute for a variable by searching this context graph.
+     *
+     * Search order: current context, additional contexts, parent chain.
+     * A visited set is used because CNV-loaded additional contexts often point
+     * back to their parent context, which would otherwise create cycles.
+     *
+     * @param varName Variable name
+     * @param attributeName Attribute name
+     * @return Attribute value or null
+     */
+    public String getAttributeInHierarchy(String varName, String attributeName) {
+        return getAttributeInHierarchy(varName, attributeName, new HashSet<>());
+    }
+
+    private String getAttributeInHierarchy(String varName, String attributeName, Set<Context> visited) {
+        if (!visited.add(this)) {
+            return null;
+        }
+
+        String localValue = attributes.get(varName, attributeName);
+        if (localValue != null) {
+            return localValue;
+        }
+
+        for (Context additional : additionalContexts) {
+            String additionalValue = additional.getAttributeInHierarchy(varName, attributeName, visited);
+            if (additionalValue != null) {
+                return additionalValue;
+            }
+        }
+
+        if (parent != null) {
+            return parent.getAttributeInHierarchy(varName, attributeName, visited);
+        }
+
+        return null;
     }
 
     // ============================================================

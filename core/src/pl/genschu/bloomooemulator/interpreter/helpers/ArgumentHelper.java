@@ -58,6 +58,7 @@ public class ArgumentHelper {
             case DoubleValue v -> v.toStringValue().value();
             case StringValue v -> v.value();
             case BoolValue v -> v.toStringValue().value();
+            case VariableRef v -> v.name();
             case VariableValue v -> getString(v.variable().value());
             default -> "";
         };

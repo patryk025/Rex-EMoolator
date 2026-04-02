@@ -2,10 +2,16 @@ package pl.genschu.bloomooemulator.interpreter.variable;
 
 import com.badlogic.gdx.Gdx;
 import pl.genschu.bloomooemulator.engine.context.EngineVariable;
+import pl.genschu.bloomooemulator.interpreter.context.Context;
 import pl.genschu.bloomooemulator.interpreter.helpers.ArgumentHelper;
 import pl.genschu.bloomooemulator.interpreter.values.*;
 
+import java.lang.reflect.Array;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Method;
+import java.lang.reflect.RecordComponent;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.BiFunction;
@@ -94,7 +100,7 @@ public sealed interface Variable extends EngineVariable permits
      * This is the primary overload used by the interpreter.
      */
     default MethodResult callMethod(String methodName, List<Value> arguments, MethodContext ctx) {
-        Gdx.app.log(getTypeName(), "Calling method: " + methodName + " for " + name() + " with arguments: " + (arguments == null ? List.of() : arguments));
+        //Gdx.app.log(getTypeName(), "Calling method: " + methodName + " for " + name() + " with arguments: " + (arguments == null ? List.of() : arguments));
         Map<String, MethodSpec> availableMethods = methods();
         MethodSpec spec = availableMethods != null
                 ? availableMethods.get(methodName.toUpperCase())
@@ -207,7 +213,7 @@ public sealed interface Variable extends EngineVariable permits
                 }
                 String rawSignalName = ArgumentHelper.getString(args.get(0));
                 String signalName = rawSignalName.replace("$", "^");
-                Variable updated = self.withSignal(signalName, null);
+                Variable updated = self.withoutSignal(signalName);
                 ctx.updateVariable(self.name(), updated);
                 return MethodResult.noReturn();
             })),
@@ -258,7 +264,42 @@ public sealed interface Variable extends EngineVariable permits
      * Creates a new Variable without the specified signal.
      */
     default Variable withoutSignal(String signalName) {
-        return withSignal(signalName, null);
+        Map<String, SignalHandler> updatedSignals = new HashMap<>(signals());
+        updatedSignals.remove(signalName);
+        try {
+            return recreateRecord(Map.copyOf(updatedSignals), name());
+        } catch (ReflectiveOperationException e) {
+            throw new UnsupportedOperationException("withoutSignal not implemented for " + type() + " variable", e);
+        }
+    }
+
+    /**
+     * Resolves the best available reset value from context attributes.
+     *
+     * Preference order matches legacy RESETINI behavior:
+     * DEFAULT -> INIT_VALUE -> VALUE
+     */
+    default String getResetAttributeValue(MethodContext ctx) {
+        if (ctx == null) {
+            return null;
+        }
+
+        Context context = ctx.context();
+        if (context == null) {
+            return null;
+        }
+
+        String resetValue = context.getAttributeInHierarchy(name(), "DEFAULT");
+        if (resetValue != null) {
+            return resetValue;
+        }
+
+        resetValue = context.getAttributeInHierarchy(name(), "INIT_VALUE");
+        if (resetValue != null) {
+            return resetValue;
+        }
+
+        return context.getAttributeInHierarchy(name(), "VALUE");
     }
 
     /**
@@ -287,7 +328,15 @@ public sealed interface Variable extends EngineVariable permits
      * Creates a copy of this variable with a new name.
      */
     default Variable copyAs(String newName) {
-        throw new UnsupportedOperationException("copyAs not implemented for " + type() + " variable");
+        if (!getClass().isRecord()) {
+            throw new UnsupportedOperationException("copyAs not implemented for " + type() + " variable");
+        }
+
+        try {
+            return recreateRecord(Map.copyOf(signals()), newName);
+        } catch (ReflectiveOperationException e) {
+            throw new UnsupportedOperationException("copyAs not implemented for " + type() + " variable", e);
+        }
     }
 
     /**
@@ -347,5 +396,59 @@ public sealed interface Variable extends EngineVariable permits
             resolved.add(new StringValue(param));
         }
         return resolved;
+    }
+
+    private static Object copyComponentValue(Object value) throws ReflectiveOperationException {
+        if (value == null) {
+            return null;
+        }
+        if (value instanceof MutableValue mutableValue) {
+            return new MutableValue(mutableValue.get());
+        }
+        if (value instanceof List<?> list) {
+            return new ArrayList<>(list);
+        }
+        if (value instanceof Map<?, ?> map) {
+            return new HashMap<>(map);
+        }
+        if (value.getClass().isArray()) {
+            int length = Array.getLength(value);
+            Object copy = Array.newInstance(value.getClass().getComponentType(), length);
+            System.arraycopy(value, 0, copy, 0, length);
+            return copy;
+        }
+
+        try {
+            Method copyMethod = value.getClass().getDeclaredMethod("copy");
+            copyMethod.setAccessible(true);
+            return copyMethod.invoke(value);
+        } catch (NoSuchMethodException ignored) {
+            return value;
+        }
+    }
+
+    private Variable recreateRecord(Map<String, SignalHandler> updatedSignals, String newName)
+            throws ReflectiveOperationException {
+        RecordComponent[] components = getClass().getRecordComponents();
+        Object[] values = new Object[components.length];
+        Class<?>[] componentTypes = new Class<?>[components.length];
+
+        for (int i = 0; i < components.length; i++) {
+            RecordComponent component = components[i];
+            componentTypes[i] = component.getType();
+            Object componentValue = component.getAccessor().invoke(this);
+
+            if (i == 0 && component.getType() == String.class) {
+                values[i] = newName;
+            } else if ("signals".equals(component.getName()) && Map.class.isAssignableFrom(component.getType())) {
+                values[i] = updatedSignals;
+            } else {
+                values[i] = copyComponentValue(componentValue);
+            }
+        }
+
+        Constructor<?> constructor = getClass().getDeclaredConstructor(componentTypes);
+        constructor.setAccessible(true);
+        return (Variable) constructor.newInstance(values);
     }
 }

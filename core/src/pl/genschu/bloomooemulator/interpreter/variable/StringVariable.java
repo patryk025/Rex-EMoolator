@@ -3,6 +3,12 @@ package pl.genschu.bloomooemulator.interpreter.variable;
 import pl.genschu.bloomooemulator.annotations.InternalMutable;
 import pl.genschu.bloomooemulator.interpreter.helpers.ArgumentHelper;
 import pl.genschu.bloomooemulator.interpreter.values.*;
+import pl.genschu.bloomooemulator.utils.FileUtils;
+
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -139,6 +145,26 @@ public record StringVariable(
             return MethodResult.returns(result);
         })),
 
+        Map.entry("COPYFILE", MethodSpec.of((self, args, ctx) -> {
+            if (args.size() < 2) {
+                throw new IllegalArgumentException("COPYFILE requires 2 arguments");
+            }
+
+            Path sourcePath = resolvePath(ctx, ArgumentHelper.getString(args.get(0)));
+            Path destinationPath = resolvePath(ctx, ArgumentHelper.getString(args.get(1)));
+
+            if (!Files.exists(sourcePath)) {
+                return MethodResult.returns(BoolValue.FALSE);
+            }
+
+            try {
+                Files.copy(sourcePath, destinationPath, StandardCopyOption.REPLACE_EXISTING);
+                return MethodResult.returns(BoolValue.TRUE);
+            } catch (IOException e) {
+                return MethodResult.returns(BoolValue.FALSE);
+            }
+        })),
+
         Map.entry("CUT", MethodSpec.of((self, args, ctx) -> {
             StringVariable thisVar = (StringVariable) self;
             if (args.size() < 2) {
@@ -210,8 +236,10 @@ public record StringVariable(
 
         Map.entry("RESETINI", MethodSpec.of((self, args, ctx) -> {
             StringVariable thisVar = (StringVariable) self;
-            // TODO: Get DEFAULT value from INI file
-            return MethodResult.returns(thisVar.value());
+            String resetValue = self.getResetAttributeValue(ctx);
+            StringValue result = new StringValue(resetValue != null ? resetValue : "");
+            thisVar.setValue(result);
+            return MethodResult.returns(result);
         })),
 
         Map.entry("SET", MethodSpec.of((self, args, ctx) -> {
@@ -261,6 +289,20 @@ public record StringVariable(
     @Override
     public String toString() {
         return "StringVariable[" + name + "=\"" + getString() + "\"]";
+    }
+
+    private static Path resolvePath(MethodContext ctx, String rawPath) {
+        if (ctx != null && ctx.getGame() != null) {
+            return Path.of(FileUtils.resolveRelativePath(ctx.getGame(), rawPath));
+        }
+
+        String normalized = rawPath;
+        if (normalized.startsWith("$")) {
+            normalized = normalized.substring(1).replaceFirst("^[/\\\\]+", "");
+        }
+
+        Path path = Path.of(normalized);
+        return path.isAbsolute() ? path.normalize() : path.toAbsolutePath().normalize();
     }
 
     @Override

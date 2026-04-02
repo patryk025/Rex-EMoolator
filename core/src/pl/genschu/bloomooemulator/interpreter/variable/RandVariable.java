@@ -62,7 +62,11 @@ public record RandVariable(
     @Override
     public Variable withSignal(String signalName, SignalHandler handler) {
         Map<String, SignalHandler> newSignals = new HashMap<>(signals);
-        newSignals.put(signalName, handler);
+        if (handler == null) {
+            newSignals.remove(signalName);
+        } else {
+            newSignals.put(signalName, handler);
+        }
         return new RandVariable(name, newSignals);
     }
 
@@ -108,6 +112,48 @@ public record RandVariable(
 
             int result = getRandom(offset, range);
             return MethodResult.returns(new IntValue(result));
+        })),
+
+        Map.entry("GETPLENTY", MethodSpec.of((self, args, ctx) -> {
+            if (args.size() < 5) {
+                throw new IllegalArgumentException("GETPLENTY requires 5 arguments");
+            }
+            if (ctx == null) {
+                return MethodResult.noReturn();
+            }
+
+            String targetArrayName = ArgumentHelper.getString(args.get(0));
+            int count = ArgumentHelper.getInt(args.get(1));
+            int offset = ArgumentHelper.getInt(args.get(2));
+            int range = ArgumentHelper.getInt(args.get(3));
+            boolean onlyUnique = ArgumentHelper.getBoolean(args.get(4));
+
+            Variable targetArray = ctx.getVariable(targetArrayName);
+            if (!(targetArray instanceof ArrayVariable array)) {
+                return MethodResult.noReturn();
+            }
+
+            if (count <= 0) {
+                return MethodResult.noReturn();
+            }
+
+            if (onlyUnique && count > range) {
+                return MethodResult.noReturn();
+            }
+
+            List<Value> generated = new ArrayList<>(count);
+            Set<Integer> seen = onlyUnique ? new HashSet<>() : null;
+
+            while (generated.size() < count) {
+                int randomValue = getRandom(offset, range);
+                if (seen != null && !seen.add(randomValue)) {
+                    continue;
+                }
+                generated.add(new IntValue(randomValue));
+            }
+
+            array.elements().addAll(generated);
+            return MethodResult.noReturn();
         }))
     );
 

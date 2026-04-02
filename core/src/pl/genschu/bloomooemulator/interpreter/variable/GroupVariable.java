@@ -80,7 +80,11 @@ public record GroupVariable(
     @Override
     public Variable withSignal(String signalName, SignalHandler handler) {
         Map<String, SignalHandler> newSignals = new HashMap<>(signals);
-        newSignals.put(signalName, handler);
+        if (handler != null) {
+            newSignals.put(signalName, handler);
+        } else {
+            newSignals.remove(signalName);
+        }
         return new GroupVariable(name, variableNames, markerHolder, newSignals);
     }
 
@@ -119,7 +123,7 @@ public record GroupVariable(
             int newMarker = Math.min(thisVar.markerHolder[0] + 1, thisVar.variableNames.size() - 1);
             thisVar.markerHolder[0] = newMarker;
             String varName = thisVar.variableNames.get(newMarker);
-            return MethodResult.returns(new StringValue(varName));
+            return MethodResult.returns(new VariableRef(varName));
         })),
 
         Map.entry("PREV", MethodSpec.of((self, args, ctx) -> {
@@ -130,7 +134,7 @@ public record GroupVariable(
             int newMarker = Math.max(thisVar.markerHolder[0] - 1, 0);
             thisVar.markerHolder[0] = newMarker;
             String varName = thisVar.variableNames.get(newMarker);
-            return MethodResult.returns(new StringValue(varName));
+            return MethodResult.returns(new VariableRef(varName));
         })),
 
         Map.entry("REMOVE", MethodSpec.of((self, args, ctx) -> {
@@ -168,6 +172,31 @@ public record GroupVariable(
 
     public int size() {
         return variableNames.size();
+    }
+
+    @Override
+    public MethodResult callMethod(String methodName, List<Value> arguments, MethodContext ctx) {
+        try {
+            return Variable.super.callMethod(methodName, arguments, ctx);
+        } catch (IllegalArgumentException e) {
+            if (ctx == null) {
+                throw e;
+            }
+
+            for (String varName : variableNames) {
+                Variable variable = ctx.getVariable(varName);
+                if (variable == null) {
+                    continue;
+                }
+
+                try {
+                    variable.callMethod(methodName, arguments, ctx);
+                } catch (IllegalArgumentException | UnsupportedOperationException ignored) {
+                    // v1 ignored members that did not implement the delegated method.
+                }
+            }
+            return MethodResult.noReturn();
+        }
     }
 
     @Override

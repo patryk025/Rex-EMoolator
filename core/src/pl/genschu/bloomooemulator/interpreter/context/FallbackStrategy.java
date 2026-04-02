@@ -25,5 +25,5 @@ public interface FallbackStrategy {
     /**
      * Creates STRING(name)=name when not found.
      */
-    FallbackStrategy NAME_AS_STRING_VALUE = (name, context) -> new StringVariable("temp", name);
+    FallbackStrategy NAME_AS_STRING_VALUE = (name, context) -> new StringVariable(name, name);
 }

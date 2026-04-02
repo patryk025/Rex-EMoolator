@@ -27,6 +27,13 @@ public interface MethodContext {
     void setVariable(String name, Variable variable);
 
     /**
+     * Removes a variable from the current context hierarchy.
+     *
+     * @return true if the variable was removed
+     */
+    boolean removeVariable(String name);
+
+    /**
      * Updates a variable in the context hierarchy (searches up the parent chain).
      *
      * @return true if the update succeeded
