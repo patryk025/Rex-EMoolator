@@ -1,9 +1,12 @@
 package pl.genschu.bloomooemulator.interpreter.variable;
 
+import pl.genschu.bloomooemulator.interpreter.ast.LogicalNode;
 import pl.genschu.bloomooemulator.interpreter.helpers.ArgumentHelper;
+import pl.genschu.bloomooemulator.interpreter.ops.ValueOps;
 import pl.genschu.bloomooemulator.interpreter.values.*;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -75,27 +78,75 @@ public record ComplexConditionVariable(
     }
 
     // ========================================
+    // EVALUATION
+    // ========================================
+
+    /**
+     * Evaluates this complex condition by resolving sub-conditions from context.
+     */
+    public BoolValue evaluate(MethodContext ctx) {
+        Value left = resolveConditionValue(condition1Name, ctx);
+        Value right = resolveConditionValue(condition2Name, ctx);
+
+        if (!(left instanceof BoolValue) || !(right instanceof BoolValue)) {
+            throw new RuntimeException("ComplexCondition operands must be BOOL");
+        }
+
+        LogicalNode.LogicalOp op = isAnd() ? LogicalNode.LogicalOp.AND : LogicalNode.LogicalOp.OR;
+        return ValueOps.logical(left, right, op);
+    }
+
+    private static Value resolveConditionValue(String name, MethodContext ctx) {
+        Variable var = ctx.getVariable(name);
+        if (var == null) {
+            throw new RuntimeException("Variable not found: " + name);
+        }
+        if (var instanceof ConditionVariable cond) return cond.evaluate(ctx);
+        if (var instanceof ComplexConditionVariable complex) return complex.evaluate(ctx);
+        return var.value();
+    }
+
+    private static void handleSignalEmission(Variable cond, BoolValue result, List<Value> args) {
+        if (args != null && !args.isEmpty()) {
+            if (ArgumentHelper.getBoolean(args.get(0))) {
+                cond.emitSignal(result.value() ? "ONRUNTIMESUCCESS" : "ONRUNTIMEFAILED");
+            }
+        }
+    }
+
+    // ========================================
     // METHODS DEFINITION
     // ========================================
 
     private static final Map<String, MethodSpec> METHODS = Map.ofEntries(
-        /* These are implemented in ASTInterpreter */
+        Map.entry("CHECK", MethodSpec.of((self, args, ctx) -> {
+            ComplexConditionVariable cond = (ComplexConditionVariable) self;
+            BoolValue result = cond.evaluate(ctx);
+            handleSignalEmission(cond, result, args);
+            return MethodResult.returns(result);
+        })),
+        Map.entry("BREAK", MethodSpec.of((self, args, ctx) -> {
+            ComplexConditionVariable cond = (ComplexConditionVariable) self;
+            BoolValue result = cond.evaluate(ctx);
+            handleSignalEmission(cond, result, args);
+            return result.value() ? MethodResult.breakAll() : MethodResult.noReturn();
+        })),
+        Map.entry("ONE_BREAK", MethodSpec.of((self, args, ctx) -> {
+            ComplexConditionVariable cond = (ComplexConditionVariable) self;
+            BoolValue result = cond.evaluate(ctx);
+            handleSignalEmission(cond, result, args);
+            return result.value() ? MethodResult.oneBreak() : MethodResult.noReturn();
+        }))
     );
 
     // ========================================
     // CONVENIENT ACCESSORS
     // ========================================
 
-    /**
-     * Returns true if this is an AND condition.
-     */
     public boolean isAnd() {
         return "AND".equalsIgnoreCase(operator);
     }
 
-    /**
-     * Returns true if this is an OR condition.
-     */
     public boolean isOr() {
         return "OR".equalsIgnoreCase(operator);
     }

@@ -1,6 +1,7 @@
 package pl.genschu.bloomooemulator.interpreter.variable;
 
-import pl.genschu.bloomooemulator.interpreter.v1.variable.Method;
+import pl.genschu.bloomooemulator.interpreter.ast.ArithmeticNode;
+import pl.genschu.bloomooemulator.interpreter.ops.ValueOps;
 import pl.genschu.bloomooemulator.interpreter.values.*;
 
 import java.util.HashMap;
@@ -77,10 +78,32 @@ public record ExpressionVariable(
     }
 
     // ========================================
+    // EVALUATION
+    // ========================================
+
+    /**
+     * Evaluates this expression by resolving operands from context.
+     */
+    public Value evaluate(MethodContext ctx) {
+        Value left = ConditionVariable.resolveOperandValue(operand1, ctx);
+        Value right = ConditionVariable.resolveOperandValue(operand2, ctx);
+
+        ArithmeticNode.ArithmeticOp op = switch (operator.toUpperCase()) {
+            case "ADD" -> ArithmeticNode.ArithmeticOp.ADD;
+            case "SUB" -> ArithmeticNode.ArithmeticOp.SUBTRACT;
+            case "MUL" -> ArithmeticNode.ArithmeticOp.MULTIPLY;
+            case "DIV" -> ArithmeticNode.ArithmeticOp.DIVIDE;
+            case "MOD" -> ArithmeticNode.ArithmeticOp.MODULO;
+            default -> throw new IllegalArgumentException("Unknown expression operator: " + operator);
+        };
+
+        return ValueOps.arithmetic(left, right, op);
+    }
+
+    // ========================================
     // METHODS DEFINITION
     // ========================================
 
-    // EXPRESSION doesn't expose any specific methods (it's evaluated at runtime)
     private static final Map<String, MethodSpec> METHODS = Map.of();
 
     // ========================================

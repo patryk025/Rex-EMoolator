@@ -1,9 +1,12 @@
 package pl.genschu.bloomooemulator.interpreter.variable;
 
+import pl.genschu.bloomooemulator.interpreter.ast.ComparisonNode;
 import pl.genschu.bloomooemulator.interpreter.helpers.ArgumentHelper;
+import pl.genschu.bloomooemulator.interpreter.ops.ValueOps;
 import pl.genschu.bloomooemulator.interpreter.values.*;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -75,12 +78,74 @@ public record ConditionVariable(
     }
 
     // ========================================
-    // HELPER METHODS
+    // EVALUATION
     // ========================================
 
     /**
-     * Returns the comparison operator symbol.
+     * Evaluates this condition by resolving operands from context.
      */
+    public BoolValue evaluate(MethodContext ctx) {
+        Value left = resolveOperandValue(operand1, ctx);
+        Value right = resolveOperandValue(operand2, ctx);
+        return ValueOps.compare(left, right, parseComparisonOp(operator));
+    }
+
+    static ComparisonNode.ComparisonOp parseComparisonOp(String operator) {
+        return switch (operator.toUpperCase()) {
+            case "EQUAL" -> ComparisonNode.ComparisonOp.EQUAL;
+            case "NOTEQUAL" -> ComparisonNode.ComparisonOp.NOT_EQUAL;
+            case "LESS" -> ComparisonNode.ComparisonOp.LESS;
+            case "GREATER" -> ComparisonNode.ComparisonOp.GREATER;
+            case "LESSEQUAL" -> ComparisonNode.ComparisonOp.LESS_EQUAL;
+            case "GREATEREQUAL" -> ComparisonNode.ComparisonOp.GREATER_EQUAL;
+            default -> throw new IllegalArgumentException("Unknown condition operator: " + operator);
+        };
+    }
+
+    /**
+     * Resolves an operand string to a Value.
+     * Handles: null, string/bool literals, int/double literals, variable lookup
+     * (including recursive evaluation of Expression/Condition/ComplexCondition).
+     *
+     * Package-private so ExpressionVariable and ComplexConditionVariable can reuse it.
+     */
+    static Value resolveOperandValue(String operand, MethodContext ctx) {
+        if (operand == null) return NullValue.INSTANCE;
+        String trimmed = operand.trim();
+        if (trimmed.isEmpty()) return new StringValue("");
+
+        if ((trimmed.startsWith("\"") && trimmed.endsWith("\"")) ||
+            (trimmed.startsWith("'") && trimmed.endsWith("'"))) {
+            return new StringValue(trimmed.substring(1, trimmed.length() - 1));
+        }
+
+        if ("TRUE".equalsIgnoreCase(trimmed)) return BoolValue.TRUE;
+        if ("FALSE".equalsIgnoreCase(trimmed)) return BoolValue.FALSE;
+
+        if (trimmed.matches("[-+]?\\d+")) {
+            try { return new IntValue(Integer.parseInt(trimmed)); }
+            catch (NumberFormatException ignored) {}
+        }
+        if (trimmed.matches("[-+]?\\d*\\.\\d+")) {
+            try { return new DoubleValue(Double.parseDouble(trimmed)); }
+            catch (NumberFormatException ignored) {}
+        }
+
+        Variable var = ctx.getVariable(trimmed);
+        if (var == null) {
+            throw new RuntimeException("Variable not found: " + trimmed);
+        }
+
+        if (var instanceof ExpressionVariable expr) return expr.evaluate(ctx);
+        if (var instanceof ConditionVariable cond) return cond.evaluate(ctx);
+        if (var instanceof ComplexConditionVariable complex) return complex.evaluate(ctx);
+        return var.value();
+    }
+
+    // ========================================
+    // HELPER METHODS
+    // ========================================
+
     public String getOperatorSymbol() {
         return switch (operator.toUpperCase()) {
             case "EQUAL" -> "==";
@@ -93,12 +158,37 @@ public record ConditionVariable(
         };
     }
 
+    private static void handleSignalEmission(Variable cond, BoolValue result, List<Value> args) {
+        if (args != null && !args.isEmpty()) {
+            if (ArgumentHelper.getBoolean(args.get(0))) {
+                cond.emitSignal(result.value() ? "ONRUNTIMESUCCESS" : "ONRUNTIMEFAILED");
+            }
+        }
+    }
+
     // ========================================
     // METHODS DEFINITION
     // ========================================
 
     private static final Map<String, MethodSpec> METHODS = Map.ofEntries(
-        /* These are implemented in ASTInterpreter */
+        Map.entry("CHECK", MethodSpec.of((self, args, ctx) -> {
+            ConditionVariable cond = (ConditionVariable) self;
+            BoolValue result = cond.evaluate(ctx);
+            handleSignalEmission(cond, result, args);
+            return MethodResult.returns(result);
+        })),
+        Map.entry("BREAK", MethodSpec.of((self, args, ctx) -> {
+            ConditionVariable cond = (ConditionVariable) self;
+            BoolValue result = cond.evaluate(ctx);
+            handleSignalEmission(cond, result, args);
+            return result.value() ? MethodResult.breakAll() : MethodResult.noReturn();
+        })),
+        Map.entry("ONE_BREAK", MethodSpec.of((self, args, ctx) -> {
+            ConditionVariable cond = (ConditionVariable) self;
+            BoolValue result = cond.evaluate(ctx);
+            handleSignalEmission(cond, result, args);
+            return result.value() ? MethodResult.oneBreak() : MethodResult.noReturn();
+        }))
     );
 
     // ========================================

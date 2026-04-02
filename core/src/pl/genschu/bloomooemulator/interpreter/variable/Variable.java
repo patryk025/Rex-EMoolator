@@ -1,5 +1,6 @@
 package pl.genschu.bloomooemulator.interpreter.variable;
 
+import com.badlogic.gdx.Gdx;
 import pl.genschu.bloomooemulator.engine.context.EngineVariable;
 import pl.genschu.bloomooemulator.interpreter.helpers.ArgumentHelper;
 import pl.genschu.bloomooemulator.interpreter.values.*;
@@ -93,6 +94,7 @@ public sealed interface Variable extends EngineVariable permits
      * This is the primary overload used by the interpreter.
      */
     default MethodResult callMethod(String methodName, List<Value> arguments, MethodContext ctx) {
+        Gdx.app.log(getTypeName(), "Calling method: " + methodName + " for " + name() + " with arguments: " + (arguments == null ? List.of() : arguments));
         Map<String, MethodSpec> availableMethods = methods();
         MethodSpec spec = availableMethods != null
                 ? availableMethods.get(methodName.toUpperCase())

@@ -7,27 +7,32 @@ import pl.genschu.bloomooemulator.interpreter.values.Value;
  * Result of a method call on a Variable.
  */
 public record MethodResult(
-    Value returnValue   // null => NullValue.INSTANCE
+    Value returnValue,
+    ControlFlow controlFlow
 ) {
-    /**
-     * Method returns a value (most common case).
-     * Use for both read-only methods (GET) and mutating methods (ADD, SET, etc.).
-     */
+
+    public enum ControlFlow { NONE, BREAK, ONE_BREAK }
+
+    public MethodResult(Value returnValue) {
+        this(returnValue, ControlFlow.NONE);
+    }
+
     public static MethodResult returns(Value v) {
-        return new MethodResult(v);
+        return new MethodResult(v, ControlFlow.NONE);
     }
 
-    /**
-     * Method doesn't return anything meaningful.
-     * Use for void-style mutating methods.
-     */
     public static MethodResult noReturn() {
-        return new MethodResult(NullValue.INSTANCE);
+        return new MethodResult(NullValue.INSTANCE, ControlFlow.NONE);
     }
 
-    /**
-     * Gets the return value, converting null to NullValue.INSTANCE.
-     */
+    public static MethodResult breakAll() {
+        return new MethodResult(NullValue.INSTANCE, ControlFlow.BREAK);
+    }
+
+    public static MethodResult oneBreak() {
+        return new MethodResult(NullValue.INSTANCE, ControlFlow.ONE_BREAK);
+    }
+
     public Value getReturnValue() {
         return returnValue != null ? returnValue : NullValue.INSTANCE;
     }
