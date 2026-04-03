@@ -252,10 +252,45 @@ public record AnimoVariable(
             updated.state.priority = state.priority;
             updated.state.monitorCollision = state.monitorCollision;
             updated.state.buttonState = state.buttonState;
+            // Load SFX audio files from frame descriptions
+            loadSfxAudio(loadedData, game);
             context.setVariable(name, updated);
             Gdx.app.log("AnimoVariable", name + ": Loaded ANIMO from " + resolvedPath);
         } catch (Exception e) {
             Gdx.app.error("AnimoVariable", name + ": Failed to load ANIMO: " + e.getMessage(), e);
+        }
+    }
+
+    /**
+     * Loads SFX audio files from frame data descriptions.
+     */
+    private void loadSfxAudio(AnimoData loadedData, Game game) {
+        if (loadedData.events() == null) return;
+        for (Event event : loadedData.events()) {
+            if (event.getFrameData() == null) continue;
+            for (FrameData frame : event.getFrameData()) {
+                String desc = frame.getSfxDescription();
+                if (desc == null || desc.isEmpty()) continue;
+                String[] sfxFiles = desc.split(";");
+                List<Music> sfxAudioList = new ArrayList<>();
+                for (String sfxFile : sfxFiles) {
+                    if (sfxFile.isEmpty()) continue;
+                    if (!sfxFile.toLowerCase().startsWith("sfx\\")) {
+                        sfxFile = "sfx\\" + sfxFile;
+                    }
+                    if (!sfxFile.startsWith("$")) {
+                        sfxFile = "$WAVS\\" + sfxFile;
+                    }
+                    try {
+                        String resolved = FileUtils.resolveRelativePath(game, sfxFile);
+                        com.badlogic.gdx.files.FileHandle soundFileHandle = Gdx.files.absolute(resolved);
+                        sfxAudioList.add(Gdx.audio.newMusic(soundFileHandle));
+                    } catch (Exception e) {
+                        Gdx.app.error("AnimoVariable", "Error loading SFX: " + e.getMessage());
+                    }
+                }
+                frame.setSfxAudio(sfxAudioList);
+            }
         }
     }
 

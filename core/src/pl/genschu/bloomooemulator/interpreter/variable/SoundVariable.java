@@ -209,15 +209,21 @@ public record SoundVariable(
     /**
      * Called by UpdateManager to check if sound has finished playing.
      */
-    public void update() {
+    /**
+     * Called by UpdateManager to check if sound has finished playing.
+     * Returns true if this sound should be removed from playingAudios.
+     */
+    public boolean update() {
         if (state.playing && state.playStartTime > 0) {
             float now = TimeUtils.nanoTime() / 1_000_000_000f;
             float adjustedDuration = state.duration / ((float) state.currentSampleRate / state.sampleRate);
             if (now - state.playStartTime >= adjustedDuration) {
                 state.playing = false;
                 emitSignal("ONFINISHED");
+                return true;
             }
         }
+        return false;
     }
 
     // ========================================
@@ -260,7 +266,12 @@ public record SoundVariable(
         })),
 
         Map.entry("PLAY", MethodSpec.of((self, args, ctx) -> {
-            ((SoundVariable) self).play();
+            SoundVariable snd = (SoundVariable) self;
+            snd.play();
+            // Register in playingAudios so UpdateManager can poll for ONFINISHED
+            if (ctx != null && ctx.getGame() != null) {
+                ctx.getGame().getPlayingAudios().add(snd);
+            }
             return MethodResult.noReturn();
         })),
 
@@ -282,6 +293,9 @@ public record SoundVariable(
             SoundVariable snd = (SoundVariable) self;
             boolean emit = !args.isEmpty() && ArgumentHelper.getBoolean(args.get(0));
             snd.stop(emit);
+            if (ctx != null && ctx.getGame() != null) {
+                ctx.getGame().getPlayingAudios().remove(snd);
+            }
             return MethodResult.noReturn();
         }))
     );

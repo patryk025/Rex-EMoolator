@@ -400,6 +400,8 @@ public record SequenceVariable(
                         state.pendingFinishedEvent = null;
                     }
 
+                    // Re-fetch after callMethod — signals during PLAY may have replaced it
+                    animoVar = (AnimoVariable) context.getVariable(animName);
                     // Wrap ONFINISHED handler
                     wrapAnimoOnFinished(event, animoVar, prefix, context);
                 }
@@ -443,6 +445,8 @@ public record SequenceVariable(
                     state.pendingFinishedEvent = null;
                 }
 
+                // Re-fetch after callMethod — signals during PLAY may have replaced it
+                animoVar = (AnimoVariable) context.getVariable(animName);
                 // Set up handler for when start animation finishes
                 final SequenceVariable thisSeq = this;
                 replaceAnimoSignal(context, animoVar, "ONFINISHED", (var, signal, args) -> {
@@ -469,6 +473,8 @@ public record SequenceVariable(
                     sound.callMethod("PLAY");
                     playSpeakingMainAnimation(event, context);
 
+                    // Re-fetch after callMethod — signals during PLAY may have replaced it
+                    soundVar = (SoundVariable) context.getVariable(soundName);
                     // Set up handler for when sound finishes
                     final SequenceVariable thisSeq = this;
                     replaceVariableSignal(context, soundVar, "ONFINISHED", (var, signal, args) -> {
@@ -541,6 +547,8 @@ public record SequenceVariable(
 
         animo.callMethod("PLAY", new StringValue(mainAnimName));
 
+        // Re-fetch after callMethod — signals during PLAY may have replaced it
+        animoVar = (AnimoVariable) context.getVariable(animName);
         // Set up handler for looping main animation while sound plays
         final SequenceVariable thisSeq = this;
         replaceAnimoSignal(context, animoVar, "ONFINISHED^" + mainAnimName, (var, signal, args) -> {
@@ -572,6 +580,8 @@ public record SequenceVariable(
             if (animo instanceof AnimoVariable animoVar && animoVar.hasEvent(endAnimName)) {
                 animo.callMethod("PLAY", new StringValue(endAnimName));
 
+                // Re-fetch after callMethod — signals during PLAY may have replaced it
+                animoVar = (AnimoVariable) context.getVariable(animName);
                 final SequenceVariable thisSeq = this;
                 replaceAnimoSignal(context, animoVar, "ONFINISHED^" + endAnimName, (var, signal, args) -> {
                     thisSeq.handleEventFinished(event, context);

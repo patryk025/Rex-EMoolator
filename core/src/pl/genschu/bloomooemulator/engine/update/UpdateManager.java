@@ -178,7 +178,9 @@ public class UpdateManager implements Disposable {
             List<EngineVariable> playingAudios = new ArrayList<>(game.getPlayingAudios());
             for (EngineVariable ev : playingAudios) {
                 if (ev instanceof SoundVariable sound) {
-                    sound.update();
+                    if (sound.update()) {
+                        game.getPlayingAudios().remove(ev);
+                    }
                 } else if (ev instanceof pl.genschu.bloomooemulator.interpreter.v1.variable.types.SoundVariable v1Sound) {
                     v1Sound.update();
                 }

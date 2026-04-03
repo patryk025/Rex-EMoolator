@@ -553,17 +553,20 @@ public class CNVParser {
 
         // First pass: call init() on Initializable variables
         for (Map.Entry<String, Variable> entry : sortedVars) {
+            String varName = entry.getKey();
             Variable variable = entry.getValue();
             if (variable instanceof pl.genschu.bloomooemulator.interpreter.variable.capabilities.Initializable init) {
-                Gdx.app.debug("CNVParser", "Initializing " + entry.getKey() + " (" + variable.type() + ")");
+                Gdx.app.debug("CNVParser", "Initializing " + varName + " (" + variable.type() + ")");
                 init.init(context);
             }
         }
 
         // Second pass: emit ONINIT signals
+        // Re-fetch from context — init() may have replaced variables (e.g. AnimoVariable.withData())
         for (Map.Entry<String, Variable> entry : sortedVars) {
             String varName = entry.getKey();
-            Variable variable = entry.getValue();
+            Variable variable = context.getVariable(varName);
+            if (variable == null) continue;
 
             Gdx.app.log("CNVParser", "ONINIT for " + varName + " (" + variable.type() + ")");
             variable.emitSignal("ONINIT");
