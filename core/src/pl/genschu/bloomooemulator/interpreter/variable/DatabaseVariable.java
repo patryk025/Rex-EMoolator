@@ -123,8 +123,46 @@ public record DatabaseVariable(
             return MethodResult.returns(new IntValue(found));
         })),
 
-        // TODO: IMPLEMENT LOAD/SAVE
-        Map.entry("LOAD", MethodSpec.of((self, args, ctx) -> MethodResult.noReturn())),
-        Map.entry("SAVE", MethodSpec.of((self, args, ctx) -> MethodResult.noReturn()))
+        Map.entry("LOAD", MethodSpec.of((self, args, ctx) -> {
+            DatabaseVariable thisVar = (DatabaseVariable) self;
+            if (args.isEmpty()) {
+                throw new IllegalArgumentException("LOAD requires 1 argument: dtaName");
+            }
+            String dtaName = ArgumentHelper.getString(args.get(0));
+            String filePath = pl.genschu.bloomooemulator.utils.FileUtils.resolveRelativePath(ctx.getGame(), dtaName);
+            if (thisVar.state.columns().isEmpty()) {
+                Gdx.app.error("DatabaseVariable", "Missing model in database " + thisVar.name() + ". Aborting LOAD.");
+                return MethodResult.noReturn();
+            }
+            java.util.List<java.util.List<String>> data = new java.util.ArrayList<>();
+            try (java.io.BufferedReader reader = new java.io.BufferedReader(new java.io.FileReader(filePath))) {
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    data.add(new java.util.ArrayList<>(java.util.Arrays.asList(line.split("\\|"))));
+                }
+            } catch (java.io.IOException e) {
+                Gdx.app.error("DatabaseVariable", "Error loading database: " + e.getMessage(), e);
+            }
+            thisVar.state.setData(data);
+            return MethodResult.noReturn();
+        })),
+
+        Map.entry("SAVE", MethodSpec.of((self, args, ctx) -> {
+            DatabaseVariable thisVar = (DatabaseVariable) self;
+            if (args.isEmpty()) {
+                throw new IllegalArgumentException("SAVE requires 1 argument: dtaName");
+            }
+            String dtaName = ArgumentHelper.getString(args.get(0));
+            String filePath = pl.genschu.bloomooemulator.utils.FileUtils.resolveRelativePath(ctx.getGame(), dtaName);
+            try (java.io.BufferedWriter writer = new java.io.BufferedWriter(new java.io.FileWriter(filePath))) {
+                for (java.util.List<String> row : thisVar.state.data()) {
+                    writer.write(String.join("|", row));
+                    writer.newLine();
+                }
+            } catch (java.io.IOException e) {
+                Gdx.app.error("DatabaseVariable", "Error saving database: " + e.getMessage(), e);
+            }
+            return MethodResult.noReturn();
+        }))
     );
 }

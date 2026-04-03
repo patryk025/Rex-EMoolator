@@ -49,9 +49,13 @@ public record ExpressionVariable(
 
     @Override
     public Value value() {
-        // Expression value must be computed at runtime with context
-        // Return a placeholder - actual evaluation happens in interpreter
-        return new StringValue(operand1 + " " + operator + " " + operand2);
+        // Try to evaluate without context (works when operands are literals)
+        try {
+            return evaluate(null);
+        } catch (Exception e) {
+            // If evaluation fails (needs context for variable resolution), return placeholder
+            return new StringValue(operand1 + " " + operator + " " + operand2);
+        }
     }
 
     @Override

@@ -106,15 +106,21 @@ public sealed interface Variable extends EngineVariable permits
                 ? availableMethods.get(methodName.toUpperCase())
                 : null;
 
+        MethodResult result;
         if (spec == null || spec.method() == null) {
             MethodSpec global = globalMethods().get(methodName.toUpperCase());
             if (global == null || global.method() == null) {
                 throw new IllegalArgumentException("Method not found: " + methodName + " on " + type() + " variable");
             }
-            return global.method().execute(this, arguments == null ? List.of() : arguments, ctx);
+            result = global.method().execute(this, arguments == null ? List.of() : arguments, ctx);
+        } else {
+            result = spec.method().execute(this, arguments == null ? List.of() : arguments, ctx);
         }
 
-        return spec.method().execute(this, arguments == null ? List.of() : arguments, ctx);
+        // Persist value to INI file if TOINI attribute is set (matches v1 Variable.set() behavior)
+        persistToIniIfNeeded(ctx);
+
+        return result;
     }
 
     /**
@@ -375,8 +381,30 @@ public sealed interface Variable extends EngineVariable permits
     }
 
     // ========================================
-    // PRIVATE HELPERS FOR GLOBAL METHODS
+    // PRIVATE HELPERS
     // ========================================
+
+    /**
+     * Persists value to INI file if TOINI attribute is set.
+     * Mirrors v1 Variable.set() behavior: after any value mutation,
+     * check TOINI and write to game INI if needed.
+     */
+    private void persistToIniIfNeeded(MethodContext ctx) {
+        if (ctx == null) return;
+        Context context = ctx.context();
+        if (context == null) return;
+
+        String toini = context.getAttributeInHierarchy(name(), "TOINI");
+        if (!"TRUE".equalsIgnoreCase(toini)) return;
+
+        pl.genschu.bloomooemulator.engine.Game game = ctx.getGame();
+        if (game == null || game.getGameINI() == null) return;
+
+        String section = game.findINISectionForVariable(name().toUpperCase());
+        if (section != null) {
+            game.getGameINI().put(section, name().toUpperCase(), value().toDisplayString());
+        }
+    }
 
     private static List<Value> resolveSignalParams(String[] params, MethodContext ctx) {
         if (params == null) return List.of();

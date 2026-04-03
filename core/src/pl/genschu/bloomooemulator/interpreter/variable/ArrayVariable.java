@@ -102,7 +102,7 @@ public record ArrayVariable(
             }
             int index = ArgumentHelper.getInt(args.get(0));
             if (index < 0 || index >= thisVar.elements.size()) {
-                return MethodResult.returns(NullValue.INSTANCE);
+                return MethodResult.noReturn();
             }
             double addend = ArgumentHelper.getDouble(args.get(1));
             double current = ArgumentHelper.getDouble(thisVar.elements.get(index));
@@ -118,7 +118,7 @@ public record ArrayVariable(
             int index = ArgumentHelper.getInt(args.get(0));
             Value newValue = args.get(1);
             if (index < 0 || index >= thisVar.elements.size()) {
-                return MethodResult.returns(NullValue.INSTANCE);
+                return MethodResult.noReturn();
             }
             thisVar.elements.set(index, newValue);
             return MethodResult.noReturn();
@@ -131,7 +131,7 @@ public record ArrayVariable(
             }
             int index = ArgumentHelper.getInt(args.get(0));
             if (index < 0 || index >= thisVar.elements.size()) {
-                return MethodResult.returns(NullValue.INSTANCE);
+                return MethodResult.noReturn();
             }
             Value current = thisVar.elements.get(index);
             switch (current) {
@@ -150,7 +150,7 @@ public record ArrayVariable(
                     return MethodResult.noReturn();
                 }
                 default -> {
-                    return MethodResult.returns(NullValue.INSTANCE);
+                    return MethodResult.noReturn();
                 }
             }
         })),
@@ -217,7 +217,7 @@ public record ArrayVariable(
             int index = ArgumentHelper.getInt(args.get(0));
             Value value = args.get(1);
             if (index < 0 || index > thisVar.elements.size()) {
-                return MethodResult.returns(NullValue.INSTANCE);
+                return MethodResult.noReturn();
             }
             thisVar.elements.add(index, value);
             return MethodResult.noReturn();
@@ -230,11 +230,11 @@ public record ArrayVariable(
             }
             int index = ArgumentHelper.getInt(args.get(0));
             if (index < 0 || index >= thisVar.elements.size()) {
-                return MethodResult.returns(NullValue.INSTANCE);
+                return MethodResult.noReturn();
             }
             double divisor = ArgumentHelper.getDouble(args.get(1));
             if (divisor == 0.0) {
-                return MethodResult.returns(NullValue.INSTANCE);
+                return MethodResult.noReturn();
             }
             double current = ArgumentHelper.getDouble(thisVar.elements.get(index));
             thisVar.elements.set(index, new DoubleValue(current % divisor));
@@ -248,7 +248,7 @@ public record ArrayVariable(
             }
             int index = ArgumentHelper.getInt(args.get(0));
             if (index < 0 || index >= thisVar.elements.size()) {
-                return MethodResult.returns(NullValue.INSTANCE);
+                return MethodResult.noReturn();
             }
             double multiplier = ArgumentHelper.getDouble(args.get(1));
             double current = ArgumentHelper.getDouble(thisVar.elements.get(index));
@@ -269,7 +269,7 @@ public record ArrayVariable(
             }
             int index = ArgumentHelper.getInt(args.get(0));
             if (index < 0 || index >= thisVar.elements.size()) {
-                return MethodResult.returns(NullValue.INSTANCE);
+                return MethodResult.noReturn();
             }
             thisVar.elements.remove(index);
             return MethodResult.noReturn();
@@ -309,11 +309,115 @@ public record ArrayVariable(
             }
             int index = ArgumentHelper.getInt(args.get(0));
             if (index < 0 || index >= thisVar.elements.size()) {
-                return MethodResult.returns(NullValue.INSTANCE);
+                return MethodResult.noReturn();
             }
             double subtrahend = ArgumentHelper.getDouble(args.get(1));
             double current = ArgumentHelper.getDouble(thisVar.elements.get(index));
             thisVar.elements.set(index, new DoubleValue(current - subtrahend));
+            return MethodResult.noReturn();
+        })),
+
+        Map.entry("COPYTO", MethodSpec.of((self, args, ctx) -> {
+            ArrayVariable thisVar = (ArrayVariable) self;
+            if (args.isEmpty()) {
+                throw new IllegalArgumentException("COPYTO requires 1 argument: arrayVarName");
+            }
+            String targetName = ArgumentHelper.getString(args.get(0));
+            Variable targetVar = ctx.getVariable(targetName);
+            if (targetVar instanceof ArrayVariable targetArray) {
+                targetArray.elements().addAll(thisVar.elements);
+            }
+            return MethodResult.noReturn();
+        })),
+
+        Map.entry("LOAD", MethodSpec.of((self, args, ctx) -> {
+            ArrayVariable thisVar = (ArrayVariable) self;
+            if (args.isEmpty()) {
+                throw new IllegalArgumentException("LOAD requires 1 argument: path");
+            }
+            String path = ArgumentHelper.getString(args.get(0));
+            String filePath = pl.genschu.bloomooemulator.utils.FileUtils.resolveRelativePath(ctx.getGame(), path);
+            thisVar.elements.clear();
+            try (java.io.FileInputStream f = new java.io.FileInputStream(filePath)) {
+                java.nio.ByteOrder LE = java.nio.ByteOrder.LITTLE_ENDIAN;
+                byte[] buf4 = new byte[4];
+                f.read(buf4);
+                int arrayLength = java.nio.ByteBuffer.wrap(buf4).order(LE).getInt();
+                for (int i = 0; i < arrayLength; i++) {
+                    f.read(buf4);
+                    int dataType = java.nio.ByteBuffer.wrap(buf4).order(LE).getInt();
+                    switch (dataType) {
+                        case 1 -> { f.read(buf4); thisVar.elements.add(new IntValue(java.nio.ByteBuffer.wrap(buf4).order(LE).getInt())); }
+                        case 2 -> { f.read(buf4); int len = java.nio.ByteBuffer.wrap(buf4).order(LE).getInt(); byte[] sb = new byte[len]; f.read(sb); thisVar.elements.add(new StringValue(new String(sb, java.nio.charset.StandardCharsets.UTF_8).split("\0")[0])); }
+                        case 3 -> { byte[] b = new byte[1]; f.read(b); thisVar.elements.add(new BoolValue(b[0] != 0)); }
+                        case 4 -> { f.read(buf4); thisVar.elements.add(new DoubleValue(java.nio.ByteBuffer.wrap(buf4).order(LE).getInt() / 10000.0)); }
+                        default -> throw new IllegalArgumentException("Unknown array data type: " + dataType);
+                    }
+                }
+            } catch (java.io.IOException e) {
+                com.badlogic.gdx.Gdx.app.error("ArrayVariable", "Error loading array: " + e.getMessage());
+            }
+            return MethodResult.noReturn();
+        })),
+
+        Map.entry("LOADINI", MethodSpec.of((self, args, ctx) -> {
+            ArrayVariable thisVar = (ArrayVariable) self;
+            pl.genschu.bloomooemulator.engine.Game game = ctx.getGame();
+            if (game == null || game.getGameINI() == null) return MethodResult.noReturn();
+            String section = game.findINISectionForVariable(thisVar.name().toUpperCase());
+            String serialized = game.getGameINI().get(section, thisVar.name().toUpperCase());
+            thisVar.elements.clear();
+            if (serialized != null && !serialized.isEmpty()) {
+                for (String elem : serialized.split(",")) {
+                    elem = elem.trim();
+                    try { thisVar.elements.add(new IntValue(Integer.parseInt(elem))); continue; } catch (NumberFormatException ignored) {}
+                    try { thisVar.elements.add(new DoubleValue(Double.parseDouble(elem))); continue; } catch (NumberFormatException ignored) {}
+                    if ("TRUE".equalsIgnoreCase(elem) || "FALSE".equalsIgnoreCase(elem)) {
+                        thisVar.elements.add(new BoolValue(Boolean.parseBoolean(elem)));
+                    } else {
+                        thisVar.elements.add(new StringValue(elem));
+                    }
+                }
+            }
+            return MethodResult.noReturn();
+        })),
+
+        Map.entry("SAVE", MethodSpec.of((self, args, ctx) -> {
+            ArrayVariable thisVar = (ArrayVariable) self;
+            if (args.isEmpty()) {
+                throw new IllegalArgumentException("SAVE requires 1 argument: path");
+            }
+            String path = ArgumentHelper.getString(args.get(0));
+            String filePath = pl.genschu.bloomooemulator.utils.FileUtils.resolveRelativePath(ctx.getGame(), path);
+            try (java.io.FileOutputStream f = new java.io.FileOutputStream(filePath)) {
+                java.nio.ByteOrder LE = java.nio.ByteOrder.LITTLE_ENDIAN;
+                f.write(java.nio.ByteBuffer.allocate(4).order(LE).putInt(thisVar.elements.size()).array());
+                for (Value element : thisVar.elements) {
+                    switch (element) {
+                        case IntValue iv -> { f.write(java.nio.ByteBuffer.allocate(4).order(LE).putInt(1).array()); f.write(java.nio.ByteBuffer.allocate(4).order(LE).putInt(iv.value()).array()); }
+                        case DoubleValue dv -> { f.write(java.nio.ByteBuffer.allocate(4).order(LE).putInt(4).array()); f.write(java.nio.ByteBuffer.allocate(4).order(LE).putInt((int)(dv.value() * 10000)).array()); }
+                        case StringValue sv -> { f.write(java.nio.ByteBuffer.allocate(4).order(LE).putInt(2).array()); byte[] sb = sv.value().getBytes(java.nio.charset.StandardCharsets.UTF_8); f.write(java.nio.ByteBuffer.allocate(4).order(LE).putInt(sb.length + 1).array()); f.write(sb); f.write(0); }
+                        case BoolValue bv -> { f.write(java.nio.ByteBuffer.allocate(4).order(LE).putInt(3).array()); f.write(bv.value() ? 1 : 0); }
+                        default -> throw new IllegalArgumentException("Unsupported array element type for save");
+                    }
+                }
+            } catch (java.io.IOException e) {
+                com.badlogic.gdx.Gdx.app.error("ArrayVariable", "Error saving array: " + e.getMessage());
+            }
+            return MethodResult.noReturn();
+        })),
+
+        Map.entry("SAVEINI", MethodSpec.of((self, args, ctx) -> {
+            ArrayVariable thisVar = (ArrayVariable) self;
+            pl.genschu.bloomooemulator.engine.Game game = ctx.getGame();
+            if (game == null || game.getGameINI() == null) return MethodResult.noReturn();
+            StringBuilder sb = new StringBuilder();
+            for (int i = 0; i < thisVar.elements.size(); i++) {
+                sb.append(thisVar.elements.get(i).toDisplayString());
+                if (i < thisVar.elements.size() - 1) sb.append(",");
+            }
+            String section = game.findINISectionForVariable(thisVar.name().toUpperCase());
+            game.getGameINI().put(section, thisVar.name().toUpperCase(), sb.toString());
             return MethodResult.noReturn();
         })),
 

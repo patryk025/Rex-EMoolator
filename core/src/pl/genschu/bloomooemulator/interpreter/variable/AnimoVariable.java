@@ -1055,9 +1055,16 @@ public record AnimoVariable(
 
         Map.entry("GETANCHOR", MethodSpec.of((self, args, ctx) -> {
             AnimoVariable thisVar = (AnimoVariable) self;
-            // Returns anchor into array - this requires effect
-            // For now, just return the X coordinate
-            return MethodResult.returns(new IntValue(thisVar.state.anchorX));
+            if (args.isEmpty()) {
+                throw new IllegalArgumentException("GETANCHOR requires 1 argument: arrayName");
+            }
+            String arrayName = ArgumentHelper.getString(args.get(0));
+            Variable arrayVar = ctx.getVariable(arrayName);
+            if (arrayVar instanceof ArrayVariable array) {
+                array.elements().add(new IntValue(thisVar.state.anchorX));
+                array.elements().add(new IntValue(thisVar.state.anchorY));
+            }
+            return MethodResult.noReturn();
         })),
 
         // DIMENSION METHODS
