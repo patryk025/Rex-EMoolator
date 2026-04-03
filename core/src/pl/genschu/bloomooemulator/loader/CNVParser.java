@@ -434,7 +434,6 @@ public class CNVParser {
 
         for (Map.Entry<String, Variable> entry : variables.entrySet()) {
             String varName = entry.getKey();
-            Variable variable = entry.getValue();
 
             // Get all attributes for this variable
             Map<String, String> attrs = context.attributes().getAll(varName);
@@ -446,7 +445,12 @@ public class CNVParser {
 
                 if (attrName.startsWith("ON")) {
                     try {
-                        attachSignal(varName, variable, attrName, attrValue, context);
+                        // Re-fetch variable from context each time — withSignal() creates
+                        // a new immutable instance, so the previous reference is stale.
+                        Variable variable = context.getVariable(varName);
+                        if (variable != null) {
+                            attachSignal(varName, variable, attrName, attrValue, context);
+                        }
                     } catch (Exception e) {
                         Gdx.app.error("CNVParser", "Failed to attach signal " + attrName + " to " + varName, e);
                     }
