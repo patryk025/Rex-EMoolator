@@ -100,7 +100,7 @@ public sealed interface Variable extends EngineVariable permits
      * This is the primary overload used by the interpreter.
      */
     default MethodResult callMethod(String methodName, List<Value> arguments, MethodContext ctx) {
-        //Gdx.app.log(getTypeName(), "Calling method: " + methodName + " for " + name() + " with arguments: " + (arguments == null ? List.of() : arguments));
+        Gdx.app.log(getTypeName(), "Calling method: " + methodName + " for " + name() + " with arguments: " + (arguments == null ? List.of() : arguments));
         Map<String, MethodSpec> availableMethods = methods();
         MethodSpec spec = availableMethods != null
                 ? availableMethods.get(methodName.toUpperCase())
@@ -319,12 +319,15 @@ public sealed interface Variable extends EngineVariable permits
     default void emitSignal(String signalName, Value newValue, Value... arguments) {
         Map<String, SignalHandler> registeredSignals = signals();
         String fullSignalName = signalName + (newValue != null ? "^" + newValue.toDisplayString() : "");
+        Gdx.app.log(getTypeName(), "Emitting signal: " + fullSignalName + " for " + name() + " with arguments: " + (arguments == null ? List.of() : List.of(arguments)));
         if(registeredSignals != null) {
             SignalHandler handler = registeredSignals.get(fullSignalName);
             if (handler == null) {
                 handler = registeredSignals.get(signalName);
+                fullSignalName = signalName;
             }
             if (handler != null) {
+                Gdx.app.log(getTypeName(), "Executing signal: " + fullSignalName + " for " + name());
                 handler.handle(this, fullSignalName, arguments);
             }
         }
