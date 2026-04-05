@@ -1,9 +1,14 @@
 package pl.genschu.bloomooemulator.interpreter.variable;
 
+import pl.genschu.bloomooemulator.interpreter.ast.ASTNode;
+import pl.genschu.bloomooemulator.interpreter.ast.BlockNode;
 import pl.genschu.bloomooemulator.interpreter.ast.ComparisonNode;
 import pl.genschu.bloomooemulator.interpreter.helpers.ArgumentHelper;
 import pl.genschu.bloomooemulator.interpreter.ops.ValueOps;
+import pl.genschu.bloomooemulator.interpreter.runtime.ASTInterpreter;
+import pl.genschu.bloomooemulator.interpreter.runtime.ExecutionResult;
 import pl.genschu.bloomooemulator.interpreter.values.*;
+import pl.genschu.bloomooemulator.loader.BehaviourCodeParser;
 
 import java.util.HashMap;
 import java.util.List;
@@ -131,6 +136,14 @@ public record ConditionVariable(
             catch (NumberFormatException ignored) {}
         }
 
+        if (looksLikeCodeOperand(trimmed)) {
+            return evaluateCodeOperand(trimmed, ctx);
+        }
+
+        if (ctx == null) {
+            throw new IllegalStateException("Cannot resolve operand without method context: " + trimmed);
+        }
+
         Variable var = ctx.getVariable(trimmed);
         if (var == null) {
             throw new RuntimeException("Variable not found: " + trimmed);
@@ -140,6 +153,35 @@ public record ConditionVariable(
         if (var instanceof ConditionVariable cond) return cond.evaluate(ctx);
         if (var instanceof ComplexConditionVariable complex) return complex.evaluate(ctx);
         return var.value();
+    }
+
+    private static boolean looksLikeCodeOperand(String operand) {
+        return operand.startsWith("[")
+            || operand.startsWith("*")
+            || operand.contains("^")
+            || operand.contains("|");
+    }
+
+    private static Value evaluateCodeOperand(String operand, MethodContext ctx) {
+        if (ctx == null) {
+            throw new IllegalStateException("Cannot evaluate code operand without method context: " + operand);
+        }
+
+        String code = operand.endsWith(";") ? operand : operand + ";";
+        ASTNode parsed = BehaviourCodeParser.parseCode(code, "<operand>");
+        ASTNode executable = unwrapSingleStatement(parsed);
+        ASTInterpreter interpreter = new ASTInterpreter(ctx.context());
+        ExecutionResult result = interpreter.execute(executable);
+
+        Value returnValue = interpreter.getPendingReturnValue();
+        return returnValue != null ? returnValue : result.getValue();
+    }
+
+    private static ASTNode unwrapSingleStatement(ASTNode parsed) {
+        if (parsed instanceof BlockNode block && block.statements().size() == 1) {
+            return block.statements().getFirst();
+        }
+        return parsed;
     }
 
     // ========================================

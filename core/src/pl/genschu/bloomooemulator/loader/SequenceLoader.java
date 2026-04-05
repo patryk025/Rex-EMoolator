@@ -134,6 +134,9 @@ public final class SequenceLoader {
             }
         }
 
+        // Always register in eventsByName so child events are findable by name (e.g. SEQ^PLAY(PIXELSEQ_2))
+        sequenceVariable.eventsByName().put(objectName, event);
+
         String addTo = properties.get(objectName + ":ADD");
         if (addTo != null) {
             SequenceVariable.SequenceEvent parentEvent = sequenceVariable.getEventByName(addTo);
