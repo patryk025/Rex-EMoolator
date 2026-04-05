@@ -312,4 +312,51 @@ class SequenceTest {
         result = seq.callMethod("ISPLAYING");
         assertTrue(((pl.genschu.bloomooemulator.interpreter.values.BoolValue) result.returnValue()).value());
     }
+
+    /**
+     * Test GETPLAYING method returns animation name of current event.
+     */
+    @Test
+    void testGetPlaying() {
+        SequenceVariable seq = new SequenceVariable("GP_SEQ");
+
+        // GETPLAYING returns empty when not playing
+        MethodResult result = seq.callMethod("GETPLAYING");
+        assertEquals("", ((StringValue) result.returnValue()).value());
+
+        // Create event with animation name
+        SequenceEvent event = new SequenceEvent("EVT1", EventType.SIMPLE);
+        event.setAnimationName("MY_ANIMO");
+        seq.addEvent(event);
+
+        seq.callMethod("PLAY", new StringValue("EVT1"));
+        result = seq.callMethod("GETPLAYING");
+        assertEquals("MY_ANIMO", ((StringValue) result.returnValue()).value());
+    }
+
+    /**
+     * Test PlaybackObserver notification triggers event transition when context is available.
+     */
+    @Test
+    void testObserverNotificationTriggersFinish() {
+        SequenceVariable seq = new SequenceVariable("OBS_SEQ2");
+        SequenceEvent event = new SequenceEvent("EVT1", EventType.SIMPLE);
+        event.setAnimationName("TEST_ANIMO");
+        seq.addEvent(event);
+
+        seq = wrapSequenceForCapture(seq, "OBS_SEQ2", null, null);
+
+        // Use context-aware PLAY path: playEvent sets playbackContext
+        AnimoVariable animo = new AnimoVariable("TEST_ANIMO");
+        ctx.setVariable("TEST_ANIMO", animo);
+        seq.playEvent("EVT1", ctx);
+        assertTrue(seq.isPlaying());
+
+        // Simulate animo finishing via observer callback
+        seq.onPlaybackFinished(animo, "TEST_ANIMO");
+
+        // Sequence should have received the finish and emitted ONFINISHED
+        assertTrue(capturedSignals.stream().anyMatch(s -> s.contains("ONFINISHED")));
+        assertFalse(seq.isPlaying());
+    }
 }

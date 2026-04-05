@@ -38,6 +38,9 @@ public record SoundVariable(
         public float playStartTime = 0f;
         public String filename = "";
 
+        // Playback observers
+        public List<PlaybackObserver> observers = new ArrayList<>();
+
         public SoundState() {}
 
         public SoundState copy() {
@@ -176,9 +179,11 @@ public record SoundVariable(
             state.sound.setLooping(state.soundId, false);
             state.playStartTime = TimeUtils.nanoTime() / 1_000_000_000f;
             emitSignal("ONSTARTED");
+            notifyObserversStarted();
         } catch (Exception e) {
             Gdx.app.log("SoundVariable", "Error on playing sound: " + e.getMessage(), e);
             emitSignal("ONFINISHED");
+            notifyObserversFinished();
         }
     }
 
@@ -203,6 +208,7 @@ public record SoundVariable(
         state.playing = false;
         if (emitSignal) {
             emitSignal("ONFINISHED");
+            notifyObserversFinished();
         }
     }
 
@@ -220,6 +226,7 @@ public record SoundVariable(
             if (now - state.playStartTime >= adjustedDuration) {
                 state.playing = false;
                 emitSignal("ONFINISHED");
+                notifyObserversFinished();
                 return true;
             }
         }
@@ -232,6 +239,32 @@ public record SoundVariable(
 
     public Sound getSound() { return state.sound; }
     public boolean isPlaying() { return state.playing; }
+
+    // ========================================
+    // PLAYBACK OBSERVERS
+    // ========================================
+
+    public void addObserver(PlaybackObserver observer) {
+        if (!state.observers.contains(observer)) {
+            state.observers.add(observer);
+        }
+    }
+
+    public void removeObserver(PlaybackObserver observer) {
+        state.observers.remove(observer);
+    }
+
+    private void notifyObserversFinished() {
+        for (int i = state.observers.size() - 1; i >= 0; i--) {
+            state.observers.get(i).onPlaybackFinished(this, name);
+        }
+    }
+
+    private void notifyObserversStarted() {
+        for (int i = state.observers.size() - 1; i >= 0; i--) {
+            state.observers.get(i).onPlaybackStarted(this, name);
+        }
+    }
 
     // ========================================
     // METHODS DEFINITION

@@ -119,6 +119,21 @@ public final class SequenceLoader {
             return;
         }
 
+        // Parse WAIT property
+        boolean wait = "TRUE".equalsIgnoreCase(properties.get(objectName + ":WAIT"));
+        event.setWaitMode(wait);
+
+        // Parse SHOW/HIDE — apply to the animation variable at load time
+        String showValue = properties.get(objectName + ":SHOW");
+        String hideValue = properties.get(objectName + ":HIDE");
+        if (event.getAnimationName() != null) {
+            Variable animoVar = context.getVariable(event.getAnimationName());
+            if (animoVar != null) {
+                if ("TRUE".equalsIgnoreCase(showValue)) animoVar.callMethod("SHOW");
+                if ("TRUE".equalsIgnoreCase(hideValue)) animoVar.callMethod("HIDE");
+            }
+        }
+
         String addTo = properties.get(objectName + ":ADD");
         if (addTo != null) {
             SequenceVariable.SequenceEvent parentEvent = sequenceVariable.getEventByName(addTo);

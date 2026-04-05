@@ -78,6 +78,9 @@ public record AnimoVariable(
         public boolean monitorCollision = false;
         public Music currentSfx;
 
+        // Playback observers
+        public List<PlaybackObserver> observers = new ArrayList<>();
+
         // File attributes
         public String filename = "";
         public int fps = 15;
@@ -479,6 +482,32 @@ public record AnimoVariable(
     }
 
     // ========================================
+    // PLAYBACK OBSERVERS
+    // ========================================
+
+    public void addObserver(PlaybackObserver observer) {
+        if (!state.observers.contains(observer)) {
+            state.observers.add(observer);
+        }
+    }
+
+    public void removeObserver(PlaybackObserver observer) {
+        state.observers.remove(observer);
+    }
+
+    private void notifyObserversFinished(String eventName) {
+        for (int i = state.observers.size() - 1; i >= 0; i--) {
+            state.observers.get(i).onPlaybackFinished(this, eventName);
+        }
+    }
+
+    private void notifyObserversStarted(String eventName) {
+        for (int i = state.observers.size() - 1; i >= 0; i--) {
+            state.observers.get(i).onPlaybackStarted(this, eventName);
+        }
+    }
+
+    // ========================================
     // ANIMATION STATE MACHINE
     // ========================================
 
@@ -495,11 +524,13 @@ public record AnimoVariable(
                 case STOPPED:
                     if (emitSignal && oldState == AnimoState.PLAYING && state.currentEvent != null) {
                         emitSignal("ONFINISHED", new StringValue(state.currentEvent.getName()));
+                        notifyObserversFinished(state.currentEvent.getName());
                     }
                     break;
                 case IDLE:
                     if (oldState == AnimoState.PLAYING && state.currentEvent != null) {
                         emitSignal("ONFINISHED", new StringValue(state.currentEvent.getName()));
+                        notifyObserversFinished(state.currentEvent.getName());
                     }
                     break;
             }
@@ -830,6 +861,7 @@ public record AnimoVariable(
                 if (currentEvent != null) {
                     currentEvent.setRepeatCounter(0);
                     thisVar.emitSignal("ONSTARTED", new StringValue(currentEvent.getName()));
+                    thisVar.notifyObserversStarted(currentEvent.getName());
                 }
             } else {
                 // PLAY(eventName) - play specific event
@@ -846,6 +878,7 @@ public record AnimoVariable(
                     thisVar.setCurrentFrameNumber(0, true);
                     event.setRepeatCounter(0);
                     thisVar.emitSignal("ONSTARTED", new StringValue(event.getName()));
+                    thisVar.notifyObserversStarted(event.getName());
                 }
             }
             return MethodResult.noReturn();
@@ -870,6 +903,7 @@ public record AnimoVariable(
                 thisVar.setCurrentFrameNumber(0, true);
                 event.setRepeatCounter(0);
                 thisVar.emitSignal("ONSTARTED", new StringValue(event.getName()));
+                thisVar.notifyObserversStarted(event.getName());
             } else {
                 Gdx.app.error("AnimoVariable", "Event with id " + eventId + " not found");
             }

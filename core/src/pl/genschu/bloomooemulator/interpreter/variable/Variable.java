@@ -324,7 +324,6 @@ public sealed interface Variable extends EngineVariable permits
             SignalHandler handler = registeredSignals.get(fullSignalName);
             if (handler == null) {
                 handler = registeredSignals.get(signalName);
-                fullSignalName = signalName;
             }
             if (handler != null) {
                 Gdx.app.log(getTypeName(), "Executing signal: " + fullSignalName + " for " + name());

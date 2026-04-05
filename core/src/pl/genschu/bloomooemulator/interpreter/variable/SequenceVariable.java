@@ -21,7 +21,7 @@ public record SequenceVariable(
     Map<String, SequenceEvent> eventsByName,
     @InternalMutable SequenceState state,
     Map<String, SignalHandler> signals
-) implements Variable, Initializable {
+) implements Variable, Initializable, PlaybackObserver {
 
     // Character set for parameter mapping (from original implementation)
     public static final String PARAMS_CHARACTER_SET = "123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz{|}~";
@@ -86,6 +86,7 @@ public record SequenceVariable(
         private final String prefix;
         private final boolean hasStartAnimation;
         private final boolean hasEndAnimation;
+        private boolean waitMode;
         private final List<SequenceEvent> subEvents;
         private String animationName;  // Name of AnimoVariable (resolved at runtime)
         private String soundName;      // Name of SoundVariable (resolved at runtime)
@@ -121,11 +122,13 @@ public record SequenceVariable(
         public String getSoundName() { return soundName; }
         public SequenceEvent getParent() { return parent; }
         public SequenceEventState getPlayback() { return playback; }
+        public boolean isWaitMode() { return waitMode; }
 
         // Setters
         public void setAnimationName(String animationName) { this.animationName = animationName; }
         public void setSoundName(String soundName) { this.soundName = soundName; }
         public void setParent(SequenceEvent parent) { this.parent = parent; }
+        public void setWaitMode(boolean waitMode) { this.waitMode = waitMode; }
 
         public void addSubEvent(SequenceEvent subEvent) {
             subEvent.setParent(this);
@@ -145,6 +148,7 @@ public record SequenceVariable(
         public Map<String, Integer> parametersMapping = new HashMap<>();
         public Random random = new Random();
         public String filename = "";
+        public Context playbackContext;  // set during playback for observer callbacks
 
         public SequenceState() {}
 
@@ -158,6 +162,7 @@ public record SequenceVariable(
             copy.parametersMapping = new HashMap<>(this.parametersMapping);
             copy.random = new Random();
             copy.filename = this.filename;
+            copy.playbackContext = this.playbackContext;
             return copy;
         }
     }
@@ -290,6 +295,7 @@ public record SequenceVariable(
         SequenceEvent event = eventsByName.get(eventName);
         if (event != null) {
             stopSequence(false, context);
+            state.playbackContext = context;
             state.currentEvent = event;
             state.isPlaying = true;
             startEvent(event, context);
@@ -321,7 +327,7 @@ public record SequenceVariable(
      */
     public void stopSequence(boolean emitSignal, Context context) {
         Gdx.app.log("SequenceVariable", "stopSequence: " + state.currentEvent);
-        if (state.currentEvent != null) {
+        if (state.currentEvent != null && state.isPlaying) {
             stopEvent(state.currentEvent, context);
             if (emitSignal) {
                 emitSignal("ONFINISHED", new StringValue(state.currentEvent.getName()));
@@ -329,6 +335,7 @@ public record SequenceVariable(
             state.currentEvent = null;
             state.isPlaying = false;
             state.isPaused = false;
+            state.playbackContext = null;
         }
     }
 
@@ -387,6 +394,8 @@ public record SequenceVariable(
             if (animName != null) {
                 Variable animo = context.getVariable(animName);
                 if (animo instanceof AnimoVariable animoVar) {
+                    animoVar.addObserver(this);
+
                     String prefix = event.getPrefix();
                     if (animoVar.hasEvent(prefix)) {
                         animo.callMethod("PLAY", new StringValue(prefix));
@@ -399,11 +408,6 @@ public record SequenceVariable(
                         emitSignal("ONFINISHED", new StringValue(state.pendingFinishedEvent.getName()));
                         state.pendingFinishedEvent = null;
                     }
-
-                    // Re-fetch after callMethod — signals during PLAY may have replaced it
-                    animoVar = (AnimoVariable) context.getVariable(animName);
-                    // Wrap ONFINISHED handler
-                    wrapAnimoOnFinished(event, animoVar, prefix, context);
                 }
             }
 
@@ -438,20 +442,13 @@ public record SequenceVariable(
         if (animName != null) {
             Variable animo = context.getVariable(animName);
             if (animo instanceof AnimoVariable animoVar && animoVar.hasEvent(startAnimName)) {
+                animoVar.addObserver(this);
                 animo.callMethod("PLAY", new StringValue(startAnimName));
 
                 if (state.pendingFinishedEvent != null) {
                     emitSignal("ONFINISHED", new StringValue(state.pendingFinishedEvent.getName()));
                     state.pendingFinishedEvent = null;
                 }
-
-                // Re-fetch after callMethod — signals during PLAY may have replaced it
-                animoVar = (AnimoVariable) context.getVariable(animName);
-                // Set up handler for when start animation finishes
-                final SequenceVariable thisSeq = this;
-                replaceAnimoSignal(context, animoVar, "ONFINISHED", (var, signal, args) -> {
-                    thisSeq.startSpeakingMainPhase(event, context);
-                });
             } else {
                 startSpeakingMainPhase(event, context);
             }
@@ -470,21 +467,9 @@ public record SequenceVariable(
             Variable sound = context.getVariable(soundName);
             if (sound instanceof SoundVariable soundVar) {
                 try {
+                    soundVar.addObserver(this);
                     sound.callMethod("PLAY");
                     playSpeakingMainAnimation(event, context);
-
-                    // Re-fetch after callMethod — signals during PLAY may have replaced it
-                    soundVar = (SoundVariable) context.getVariable(soundName);
-                    // Set up handler for when sound finishes
-                    final SequenceVariable thisSeq = this;
-                    replaceVariableSignal(context, soundVar, "ONFINISHED", (var, signal, args) -> {
-                        playback.currentPhase = PlaybackPhase.END;
-                        if (event.hasEndAnimation()) {
-                            thisSeq.playSpeakingEndAnimation(event, context);
-                        } else {
-                            thisSeq.handleEventFinished(event, context);
-                        }
-                    });
                 } catch (Exception e) {
                     Gdx.app.error("SequenceVariable", "Error playing audio for " + event.getName());
                     playback.currentPhase = PlaybackPhase.END;
@@ -545,26 +530,8 @@ public record SequenceVariable(
             mainAnimName = event.getPrefix() + "_" + nextAnimNumber;
         }
 
+        animoVar.addObserver(this);
         animo.callMethod("PLAY", new StringValue(mainAnimName));
-
-        // Re-fetch after callMethod — signals during PLAY may have replaced it
-        animoVar = (AnimoVariable) context.getVariable(animName);
-        // Set up handler for looping main animation while sound plays
-        final SequenceVariable thisSeq = this;
-        replaceAnimoSignal(context, animoVar, "ONFINISHED^" + mainAnimName, (var, signal, args) -> {
-            SequenceEventState playback = event.getPlayback();
-            String soundName = event.getSoundName();
-            Variable sound = soundName != null ? context.getVariable(soundName) : null;
-            boolean soundPlaying = false;
-            if (sound != null) {
-                MethodResult result = sound.callMethod("ISPLAYING");
-                soundPlaying = result.returnValue() instanceof BoolValue bv && bv.value();
-            }
-
-            if (playback.currentPhase == PlaybackPhase.MAIN && playback.isPlaying && soundPlaying) {
-                thisSeq.playSpeakingMainAnimation(event, context);
-            }
-        });
     }
 
     private void playSpeakingEndAnimation(SequenceEvent event, Context context) {
@@ -578,14 +545,8 @@ public record SequenceVariable(
         if (animName != null) {
             Variable animo = context.getVariable(animName);
             if (animo instanceof AnimoVariable animoVar && animoVar.hasEvent(endAnimName)) {
+                animoVar.addObserver(this);
                 animo.callMethod("PLAY", new StringValue(endAnimName));
-
-                // Re-fetch after callMethod — signals during PLAY may have replaced it
-                animoVar = (AnimoVariable) context.getVariable(animName);
-                final SequenceVariable thisSeq = this;
-                replaceAnimoSignal(context, animoVar, "ONFINISHED^" + endAnimName, (var, signal, args) -> {
-                    thisSeq.handleEventFinished(event, context);
-                });
             } else {
                 handleEventFinished(event, context);
             }
@@ -618,40 +579,6 @@ public record SequenceVariable(
                 Gdx.app.error("SequenceVariable", "Invalid PARAMETER index for event: " + event.getName());
             }
         }
-    }
-
-    private void wrapAnimoOnFinished(SequenceEvent event, AnimoVariable animoVar, String prefix, Context context) {
-        if (event.getPlayback().isOnFinishedWrapped) return;
-
-        SignalHandler originalHandler = animoVar.getSignal("ONFINISHED^" + prefix);
-        final SequenceVariable thisSeq = this;
-
-        replaceAnimoSignal(context, animoVar, "ONFINISHED^" + prefix, (var, signal, args) -> {
-            if (originalHandler != null) {
-                originalHandler.handle(var, signal, args);
-            }
-            if (event.getPlayback().isPlaying) {
-                thisSeq.handleEventFinished(event, context);
-                // Restore original signal
-                replaceAnimoSignal(context, (AnimoVariable) var, "ONFINISHED^" + prefix, originalHandler);
-            }
-            event.getPlayback().isOnFinishedWrapped = true;
-        });
-    }
-
-    private static AnimoVariable replaceAnimoSignal(Context context, AnimoVariable animoVar,
-                                                    String signalName, SignalHandler handler) {
-        AnimoVariable updated = (AnimoVariable) animoVar.withSignal(signalName, handler);
-        context.updateVariableInHierarchy(updated.name(), updated);
-        return updated;
-    }
-
-    private static <T extends Variable> T replaceVariableSignal(Context context, T variable,
-                                                                String signalName, SignalHandler handler) {
-        @SuppressWarnings("unchecked")
-        T updated = (T) variable.withSignal(signalName, handler);
-        context.updateVariableInHierarchy(updated.name(), updated);
-        return updated;
     }
 
     private void handleEventFinished(SequenceEvent event, Context context) {
@@ -775,21 +702,100 @@ public record SequenceVariable(
             String animName = event.getAnimationName();
             if (animName != null) {
                 Variable animo = context.getVariable(animName);
-                if (animo instanceof AnimoVariable animoVar && animoVar.isPlaying()) {
-                    animo.callMethod("STOP");
+                if (animo instanceof AnimoVariable animoVar) {
+                    animoVar.removeObserver(this);
+                    if (animoVar.isPlaying()) {
+                        animo.callMethod("STOP");
+                    }
                 }
             }
             String soundName = event.getSoundName();
             if (soundName != null) {
                 Variable sound = context.getVariable(soundName);
-                if (sound != null) {
+                if (sound instanceof SoundVariable soundVar) {
+                    soundVar.removeObserver(this);
                     MethodResult result = sound.callMethod("ISPLAYING");
-                    if (result.returnValue() instanceof BoolValue bv && bv.value()) {
+                    if (result.returnValue() instanceof BoolValue(boolean value) && value) {
                         sound.callMethod("STOP");
                     }
                 }
             }
         }
+    }
+
+    // ========================================
+    // PLAYBACK OBSERVER IMPLEMENTATION
+    // ========================================
+
+    @Override
+    public void onPlaybackStarted(Variable source, String eventName) {
+        // Not used — sequence tracks starts internally via startEvent()
+    }
+
+    @Override
+    public void onPlaybackFinished(Variable source, String eventName) {
+        if (state.currentEvent == null || !state.isPlaying) return;
+        Context context = state.playbackContext;
+        if (context == null) return;
+
+        SequenceEvent activeEvent = findActiveEventForSource(state.currentEvent, source.name());
+        if (activeEvent == null) return;
+
+        if (source instanceof SoundVariable) {
+            // Sound finished — transition speaking event to END phase
+            SequenceEventState playback = activeEvent.getPlayback();
+            playback.currentPhase = PlaybackPhase.END;
+            if (activeEvent.hasEndAnimation()) {
+                playSpeakingEndAnimation(activeEvent, context);
+            } else {
+                handleEventFinished(activeEvent, context);
+            }
+        } else if (source instanceof AnimoVariable) {
+            switch (activeEvent.getType()) {
+                case SIMPLE -> handleEventFinished(activeEvent, context);
+                case SPEAKING -> {
+                    SequenceEventState playback = activeEvent.getPlayback();
+                    switch (playback.currentPhase) {
+                        case START -> startSpeakingMainPhase(activeEvent, context);
+                        case MAIN -> {
+                            // Check if sound is still playing — if so, loop main animation
+                            String soundName = activeEvent.getSoundName();
+                            Variable sound = soundName != null ? context.getVariable(soundName) : null;
+                            boolean soundPlaying = false;
+                            if (sound != null) {
+                                MethodResult result = sound.callMethod("ISPLAYING");
+                                soundPlaying = result.returnValue() instanceof BoolValue bv && bv.value();
+                            }
+                            if (playback.isPlaying && soundPlaying) {
+                                playSpeakingMainAnimation(activeEvent, context);
+                            }
+                        }
+                        case END -> handleEventFinished(activeEvent, context);
+                    }
+                }
+                default -> {} // SEQUENCE type events don't have direct animations
+            }
+        }
+    }
+
+    /**
+     * Find the active (playing) leaf SequenceEvent that uses the given source variable name.
+     */
+    private SequenceEvent findActiveEventForSource(SequenceEvent event, String sourceName) {
+        if (event.getType() == EventType.SEQUENCE) {
+            for (SequenceEvent sub : event.getSubEvents()) {
+                if (sub.getPlayback().isPlaying) {
+                    SequenceEvent found = findActiveEventForSource(sub, sourceName);
+                    if (found != null) return found;
+                }
+            }
+            return null;
+        }
+        // Leaf event — check if it uses this source
+        if (sourceName.equals(event.getAnimationName()) || sourceName.equals(event.getSoundName())) {
+            return event;
+        }
+        return null;
     }
 
     // ========================================
@@ -876,6 +882,66 @@ public record SequenceVariable(
         Map.entry("GETEVENTNAME", MethodSpec.of((self, args, ctx) -> {
             SequenceVariable thisVar = (SequenceVariable) self;
             return MethodResult.returns(new StringValue(thisVar.getCurrentEventName()));
+        })),
+
+        Map.entry("SETVOLUME", MethodSpec.of((self, args, ctx) -> {
+            SequenceVariable seq = (SequenceVariable) self;
+            int volume = ArgumentHelper.getInt(args.get(0));
+            if (seq.state.currentEvent != null && ctx != null) {
+                String soundName = seq.state.currentEvent.getSoundName();
+                if (soundName != null) {
+                    Variable sound = ctx.context().getVariable(soundName);
+                    if (sound instanceof SoundVariable snd && snd.getSound() != null && snd.state().soundId != -1) {
+                        // DLL formula: ((volume - 800) * 3200) / 800, clamped to -10000..0
+                        // Normalize to libGDX 0.0-1.0 range
+                        float normalized = Math.clamp(volume / 1600f, 0f, 1f);
+                        snd.getSound().setVolume(snd.state().soundId, normalized);
+                    }
+                }
+            }
+            return MethodResult.noReturn();
+        })),
+
+        Map.entry("SETPAN", MethodSpec.of((self, args, ctx) -> {
+            SequenceVariable seq = (SequenceVariable) self;
+            int pan = ArgumentHelper.getInt(args.get(0));
+            if (seq.state.currentEvent != null && ctx != null) {
+                String soundName = seq.state.currentEvent.getSoundName();
+                if (soundName != null) {
+                    Variable sound = ctx.context().getVariable(soundName);
+                    if (sound instanceof SoundVariable snd && snd.getSound() != null && snd.state().soundId != -1) {
+                        // DLL formula: ((pan - 400) * 3200) / 1600
+                        // Normalize to libGDX -1.0..1.0 range
+                        float normalized = Math.clamp((pan - 400f) / 400f, -1f, 1f);
+                        snd.getSound().setPan(snd.state().soundId, normalized, 1.0f);
+                    }
+                }
+            }
+            return MethodResult.noReturn();
+        })),
+
+        Map.entry("SETFREQ", MethodSpec.of((self, args, ctx) -> {
+            SequenceVariable seq = (SequenceVariable) self;
+            int freq = ArgumentHelper.getInt(args.get(0));
+            if (seq.state.currentEvent != null && ctx != null) {
+                String soundName = seq.state.currentEvent.getSoundName();
+                if (soundName != null) {
+                    Variable sound = ctx.context().getVariable(soundName);
+                    if (sound != null) {
+                        sound.callMethod("SETFREQ", new IntValue(freq));
+                    }
+                }
+            }
+            return MethodResult.noReturn();
+        })),
+
+        Map.entry("GETPLAYING", MethodSpec.of((self, args, ctx) -> {
+            SequenceVariable seq = (SequenceVariable) self;
+            if (seq.state.currentEvent != null) {
+                String animName = seq.state.currentEvent.getAnimationName();
+                if (animName != null) return MethodResult.returns(new StringValue(animName));
+            }
+            return MethodResult.returns(new StringValue(""));
         }))
     );
 
