@@ -414,8 +414,10 @@ public record SequenceVariable(
             String soundName = event.getSoundName();
             if (soundName != null) {
                 Variable sound = context.getVariable(soundName);
-                if (sound != null) {
-                    sound.callMethod("PLAY");
+                if (sound instanceof SoundVariable soundVar) {
+                    soundVar.addObserver(this);
+                    soundVar.play();
+                    context.getGame().getPlayingAudios().add(soundVar);
                 }
             }
         }
@@ -468,7 +470,8 @@ public record SequenceVariable(
             if (sound instanceof SoundVariable soundVar) {
                 try {
                     soundVar.addObserver(this);
-                    sound.callMethod("PLAY");
+                    soundVar.play();
+                    context.getGame().getPlayingAudios().add(soundVar);
                     playSpeakingMainAnimation(event, context);
                 } catch (Exception e) {
                     Gdx.app.error("SequenceVariable", "Error playing audio for " + event.getName());
@@ -714,9 +717,9 @@ public record SequenceVariable(
                 Variable sound = context.getVariable(soundName);
                 if (sound instanceof SoundVariable soundVar) {
                     soundVar.removeObserver(this);
-                    MethodResult result = sound.callMethod("ISPLAYING");
-                    if (result.returnValue() instanceof BoolValue(boolean value) && value) {
-                        sound.callMethod("STOP");
+                    if (soundVar.isPlaying()) {
+                        soundVar.stop(false);
+                        context.getGame().getPlayingAudios().remove(soundVar);
                     }
                 }
             }
