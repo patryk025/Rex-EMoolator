@@ -51,6 +51,10 @@ public class ASTInterpreter {
         return methodContext.runBehaviour(frameName, thisVar, behaviour, args);
     }
 
+    public MethodContext getMethodContext() {
+        return methodContext;
+    }
+
     private MethodContext createMethodContext() {
         return new MethodContext() {
             @Override

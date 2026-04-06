@@ -121,7 +121,7 @@ public record BehaviourVariable(
     // CONDITION CHECKING
     // ========================================
 
-    private static boolean checkCondition(BehaviourVariable behaviour, MethodContext ctx) {
+    public static boolean checkCondition(BehaviourVariable behaviour, MethodContext ctx) {
         ConditionVariable condition = resolveCondition(behaviour, ctx);
         if (condition == null) return true;
         return evaluateConditionSafe(condition, ctx);
