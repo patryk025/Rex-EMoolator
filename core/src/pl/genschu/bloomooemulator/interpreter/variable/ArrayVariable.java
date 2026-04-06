@@ -81,6 +81,11 @@ public record ArrayVariable(
         return new ArrayVariable(name, elements, newSignals);
     }
 
+    @Override
+    public Variable copyAs(String newName) {
+        return new ArrayVariable(newName, new ArrayList<>(elements), signals);
+    }
+
     // ========================================
     // METHODS DEFINITION
     // ========================================

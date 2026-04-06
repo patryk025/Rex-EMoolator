@@ -64,7 +64,11 @@ public record EpisodeVariable(
     @Override
     public Variable withSignal(String signalName, SignalHandler handler) {
         Map<String, SignalHandler> newSignals = new HashMap<>(signals);
-        newSignals.put(signalName, handler);
+        if (handler == null) {
+            newSignals.remove(signalName);
+        } else {
+            newSignals.put(signalName, handler);
+        }
         return new EpisodeVariable(name, sceneNames, startWith, newSignals);
     }
 

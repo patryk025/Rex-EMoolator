@@ -6,10 +6,6 @@ import pl.genschu.bloomooemulator.interpreter.context.Context;
 import pl.genschu.bloomooemulator.interpreter.helpers.ArgumentHelper;
 import pl.genschu.bloomooemulator.interpreter.values.*;
 
-import java.lang.reflect.Array;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Method;
-import java.lang.reflect.RecordComponent;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -270,13 +266,7 @@ public sealed interface Variable extends EngineVariable permits
      * Creates a new Variable without the specified signal.
      */
     default Variable withoutSignal(String signalName) {
-        Map<String, SignalHandler> updatedSignals = new HashMap<>(signals());
-        updatedSignals.remove(signalName);
-        try {
-            return recreateRecord(Map.copyOf(updatedSignals), name());
-        } catch (ReflectiveOperationException e) {
-            throw new UnsupportedOperationException("withoutSignal not implemented for " + type() + " variable", e);
-        }
+        return withSignal(signalName, null);
     }
 
     /**
@@ -336,15 +326,7 @@ public sealed interface Variable extends EngineVariable permits
      * Creates a copy of this variable with a new name.
      */
     default Variable copyAs(String newName) {
-        if (!getClass().isRecord()) {
-            throw new UnsupportedOperationException("copyAs not implemented for " + type() + " variable");
-        }
-
-        try {
-            return recreateRecord(Map.copyOf(signals()), newName);
-        } catch (ReflectiveOperationException e) {
-            throw new UnsupportedOperationException("copyAs not implemented for " + type() + " variable", e);
-        }
+        throw new UnsupportedOperationException("copyAs not implemented for " + type() + " variable");
     }
 
     /**
@@ -428,57 +410,4 @@ public sealed interface Variable extends EngineVariable permits
         return resolved;
     }
 
-    private static Object copyComponentValue(Object value) throws ReflectiveOperationException {
-        if (value == null) {
-            return null;
-        }
-        if (value instanceof MutableValue mutableValue) {
-            return new MutableValue(mutableValue.get());
-        }
-        if (value instanceof List<?> list) {
-            return new ArrayList<>(list);
-        }
-        if (value instanceof Map<?, ?> map) {
-            return new HashMap<>(map);
-        }
-        if (value.getClass().isArray()) {
-            int length = Array.getLength(value);
-            Object copy = Array.newInstance(value.getClass().getComponentType(), length);
-            System.arraycopy(value, 0, copy, 0, length);
-            return copy;
-        }
-
-        try {
-            Method copyMethod = value.getClass().getDeclaredMethod("copy");
-            copyMethod.setAccessible(true);
-            return copyMethod.invoke(value);
-        } catch (NoSuchMethodException ignored) {
-            return value;
-        }
-    }
-
-    private Variable recreateRecord(Map<String, SignalHandler> updatedSignals, String newName)
-            throws ReflectiveOperationException {
-        RecordComponent[] components = getClass().getRecordComponents();
-        Object[] values = new Object[components.length];
-        Class<?>[] componentTypes = new Class<?>[components.length];
-
-        for (int i = 0; i < components.length; i++) {
-            RecordComponent component = components[i];
-            componentTypes[i] = component.getType();
-            Object componentValue = component.getAccessor().invoke(this);
-
-            if (i == 0 && component.getType() == String.class) {
-                values[i] = newName;
-            } else if ("signals".equals(component.getName()) && Map.class.isAssignableFrom(component.getType())) {
-                values[i] = updatedSignals;
-            } else {
-                values[i] = copyComponentValue(componentValue);
-            }
-        }
-
-        Constructor<?> constructor = getClass().getDeclaredConstructor(componentTypes);
-        constructor.setAccessible(true);
-        return (Variable) constructor.newInstance(values);
-    }
 }

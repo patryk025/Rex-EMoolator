@@ -7,10 +7,9 @@ import pl.genschu.bloomooemulator.TestEnvironment;
 import pl.genschu.bloomooemulator.builders.ContextBuilder;
 import pl.genschu.bloomooemulator.builders.MethodHelper;
 import pl.genschu.bloomooemulator.interpreter.context.Context;
-import pl.genschu.bloomooemulator.interpreter.v1.exceptions.VariableUnsupportedOperationException;
 import pl.genschu.bloomooemulator.interpreter.factories.VariableFactory;
+import pl.genschu.bloomooemulator.interpreter.variable.ApplicationVariable;
 import pl.genschu.bloomooemulator.interpreter.values.*;
-import pl.genschu.bloomooemulator.interpreter.variable.MethodResult;
 import pl.genschu.bloomooemulator.interpreter.variable.RandVariable;
 import pl.genschu.bloomooemulator.interpreter.variable.SignalHandler;
 import pl.genschu.bloomooemulator.interpreter.variable.TimerVariable;
@@ -196,6 +195,30 @@ class VariableCoreTest {
         // Get updated variable
         host = testCtx.getVariable("HOST");
         assertNull(host.getSignal("ONTEST"));
+    }
+
+    @Test
+    void testWithoutSignalRemovesSignalViaWithSignalContract() {
+        SignalHandler handler = (variable, signalName, arguments) -> {};
+        Variable app = new ApplicationVariable("APP").withSignal("ONTEST", handler);
+
+        assertNotNull(app.getSignal("ONTEST"));
+
+        Variable updated = app.withoutSignal("ONTEST");
+
+        assertNull(updated.getSignal("ONTEST"));
+    }
+
+    @Test
+    void testCopyAsThrowsWhenVariableDoesNotOverrideIt() {
+        Variable app = new ApplicationVariable("APP");
+
+        UnsupportedOperationException exception = assertThrows(
+                UnsupportedOperationException.class,
+                () -> app.copyAs("APP_1")
+        );
+
+        assertEquals("copyAs not implemented for APPLICATION variable", exception.getMessage());
     }
 
     @Test

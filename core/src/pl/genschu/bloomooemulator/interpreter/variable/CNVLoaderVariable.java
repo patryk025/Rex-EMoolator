@@ -77,7 +77,11 @@ public record CNVLoaderVariable(
     @Override
     public Variable withSignal(String signalName, SignalHandler handler) {
         Map<String, SignalHandler> newSignals = new HashMap<>(signals);
-        newSignals.put(signalName, handler);
+        if (handler == null) {
+            newSignals.remove(signalName);
+        } else {
+            newSignals.put(signalName, handler);
+        }
         return new CNVLoaderVariable(name, loadedContexts, newSignals);
     }
 

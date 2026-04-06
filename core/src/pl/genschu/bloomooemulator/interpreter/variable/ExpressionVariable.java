@@ -77,7 +77,11 @@ public record ExpressionVariable(
     @Override
     public Variable withSignal(String signalName, SignalHandler handler) {
         Map<String, SignalHandler> newSignals = new HashMap<>(signals);
-        newSignals.put(signalName, handler);
+        if (handler == null) {
+            newSignals.remove(signalName);
+        } else {
+            newSignals.put(signalName, handler);
+        }
         return new ExpressionVariable(name, operand1, operand2, operator, newSignals);
     }
 

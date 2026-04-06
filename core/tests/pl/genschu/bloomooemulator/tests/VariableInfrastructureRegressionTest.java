@@ -109,7 +109,7 @@ class VariableInfrastructureRegressionTest {
     }
 
     @Test
-    void testCloneFallsBackToGenericRecordCopy() {
+    void testCloneCopiesArrayWithExplicitImplementation() {
         ArrayVariable array = new ArrayVariable("ARR");
         array.callMethod("ADD", List.of(new IntValue(1), new IntValue(2)));
 
