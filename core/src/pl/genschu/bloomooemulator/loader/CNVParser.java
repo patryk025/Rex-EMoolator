@@ -18,9 +18,8 @@ import java.util.regex.Pattern;
 
 /**
  * CNVParser - Parses CNV files and populates Context.
- *
- * Status: WORK IN PROGRESS - Basic structure only
- * TODO: Signal handling, BEHAVIOUR parsing, method initialization
+ * <p>
+ * Status: WORK IN PROGRESS
  */
 public class CNVParser {
 
@@ -256,9 +255,7 @@ public class CNVParser {
                 String basePath = properties.get(objectName + ":BASE");
                 yield new ClassVariable(objectName, defPath, basePath, Map.of());
             }
-            case "CNVLOADER" -> {
-                yield new CNVLoaderVariable(objectName);
-            }
+            case "CNVLOADER" -> new CNVLoaderVariable(objectName);
             case "BEHAVIOUR" -> {
                 // Parse CODE attribute to AST
                 String code = (String) rawValue;
@@ -270,12 +267,8 @@ public class CNVParser {
                 ASTNode ast = BehaviourCodeParser.parseCode(code, objectName);
                 yield new BehaviourVariable(objectName, ast, Map.of());
             }
-            case "ARRAY" -> {
-                yield new ArrayVariable(objectName);
-            }
-            case "MULTIARRAY" -> {
-                yield new MultiArrayVariable(objectName);
-            }
+            case "ARRAY" -> new ArrayVariable(objectName);
+            case "MULTIARRAY" -> new MultiArrayVariable(objectName);
             case "TIMER" -> {
                 String elapseStr = properties.get(objectName + ":ELAPSE");
                 long elapse = 0;
@@ -284,9 +277,7 @@ public class CNVParser {
                 }
                 yield new TimerVariable(objectName, elapse);
             }
-            case "RAND" -> {
-                yield new RandVariable(objectName);
-            }
+            case "RAND" -> new RandVariable(objectName);
             case "VECTOR" -> {
                 String sizeStr = properties.get(objectName + ":SIZE");
                 int size = 2;
@@ -295,9 +286,7 @@ public class CNVParser {
                 }
                 yield new VectorVariable(objectName, size);
             }
-            case "GROUP" -> {
-                yield new GroupVariable(objectName);
-            }
+            case "GROUP" -> new GroupVariable(objectName);
             case "EXPRESSION" -> {
                 String op1 = properties.get(objectName + ":OPERAND1");
                 String op2 = properties.get(objectName + ":OPERAND2");
@@ -367,46 +356,22 @@ public class CNVParser {
                 String filename = properties.get(objectName + ":FILENAME");
                 yield filename != null ? new SoundVariable(objectName, filename) : new SoundVariable(objectName);
             }
-            case "MOUSE" -> {
-                yield new MouseVariable(objectName);
-            }
-            case "KEYBOARD" -> {
-                yield new KeyboardVariable(objectName);
-            }
-            case "BUTTON" -> {
-                yield new ButtonVariable(objectName);
-            }
-            case "TEXT" -> {
-                yield new TextVariable(objectName);
-            }
-            case "CANVASOBSERVER", "CANVAS_OBSERVER" -> {
-                yield new CanvasObserverVariable(objectName);
-            }
-            case "FONT" -> {
-                yield new FontVariable(objectName);
-            }
-            case "INERTIA" -> {
-                yield new InertiaVariable(objectName);
-            }
-            case "MATRIX" -> {
-                yield new MatrixVariable(objectName);
-            }
-            case "PATTERN" -> {
-                yield new PatternVariable(objectName);
-            }
+            case "MOUSE" -> new MouseVariable(objectName);
+            case "KEYBOARD" -> new KeyboardVariable(objectName);
+            case "BUTTON" -> new ButtonVariable(objectName);
+            case "TEXT" -> new TextVariable(objectName);
+            case "CANVASOBSERVER", "CANVAS_OBSERVER" -> new CanvasObserverVariable(objectName);
+            case "FONT" -> new FontVariable(objectName);
+            case "INERTIA" -> new InertiaVariable(objectName);
+            case "MATRIX" -> new MatrixVariable(objectName);
+            case "PATTERN" -> new PatternVariable(objectName);
             case "STATICFILTER" -> {
                 String action = properties.get(objectName + ":ACTION");
                 yield action != null ? new StaticFilterVariable(objectName, action) : new StaticFilterVariable(objectName);
             }
-            case "SYSTEM" -> {
-                yield new SystemVariable(objectName);
-            }
-            case "VIRTUALGRAPHICSOBJECT" -> {
-                yield new VirtualGraphicsObjectVariable(objectName);
-            }
-            case "WORLD" -> {
-                yield new WorldVariable(objectName);
-            }
+            case "SYSTEM" -> new SystemVariable(objectName);
+            case "VIRTUALGRAPHICSOBJECT" -> new VirtualGraphicsObjectVariable(objectName);
+            case "WORLD" -> new WorldVariable(objectName);
             default -> {
                 Gdx.app.error("CNVParser", "Unsupported variable type: " + type + " for " + objectName);
                 yield null;
@@ -420,14 +385,14 @@ public class CNVParser {
 
     /**
      * Assigns signals to all variables in context.
-     *
+     * <p>
      * Signals are stored as attributes with names starting with "ON"
      * (e.g., ONINIT, ONCLICK, ONCHANGED).
-     *
+     * <p>
      * Each signal points to either:
      * - A BEHAVIOUR variable name (e.g., "MyBehaviour")
      * - A BEHAVIOUR with parameters (e.g., "MyBehaviour(param1, param2)")
-     * - Inline code block (e.g., "{@RETURN("hello");}")
+     * - Inline code block (e.g., "{&#064;RETURN("hello"); } ")
      */
     private void assignSignals(Context context) {
         Map<String, Variable> variables = context.getVariables(false);
@@ -541,7 +506,7 @@ public class CNVParser {
 
     /**
      * Initializes variables and runs ONINIT signals.
-     *
+     * <p>
      * Variables should be initialized in specific order to avoid dependency issues.
      * Order: BEHAVIOUR -> primitives -> STRUCT -> DATABASE -> complex types
      */
@@ -604,7 +569,7 @@ public class CNVParser {
     /**
      * Returns initialization priority for a variable type.
      * Lower number = initialized first.
-     *
+     * <p>
      * Important: STRUCT must be before DATABASE (DATABASE.init() needs STRUCT for schema)
      */
     private int getTypePriority(VariableType type) {
