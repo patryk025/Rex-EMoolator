@@ -146,7 +146,9 @@ public record BehaviourVariable(
 
     private static boolean evaluateConditionSafe(ConditionVariable cond, MethodContext ctx) {
         try {
-            return cond.evaluate(ctx).value();
+            boolean condResult = cond.evaluate(ctx).value();
+            cond.emitSignal(condResult ? "ONRUNTIMESUCCESS" : "ONRUNTIMEFAILED");
+            return condResult;
         } catch (Exception e) {
             Gdx.app.error("BehaviourVariable", "Error evaluating condition: " + e.getMessage());
             return true; // Default to true on error (like v1)

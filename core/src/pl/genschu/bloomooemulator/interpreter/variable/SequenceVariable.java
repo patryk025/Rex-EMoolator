@@ -767,7 +767,7 @@ public record SequenceVariable(
                             boolean soundPlaying = false;
                             if (sound != null) {
                                 MethodResult result = sound.callMethod("ISPLAYING");
-                                soundPlaying = result.returnValue() instanceof BoolValue bv && bv.value();
+                                soundPlaying = result.returnValue() instanceof BoolValue(boolean value) && value;
                             }
                             if (playback.isPlaying && soundPlaying) {
                                 playSpeakingMainAnimation(activeEvent, context);
