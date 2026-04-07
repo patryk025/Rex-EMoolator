@@ -222,7 +222,8 @@ public record ButtonVariable(
                 }
             }
             case HOVERED -> {
-                showGfx(state.gfxStandardName, false, context);
+                boolean hasOnMove = state.gfxOnMoveName != null;
+                showGfx(state.gfxStandardName, !hasOnMove, context);
                 showGfx(state.gfxOnMoveName, true, context);
                 showGfx(state.gfxOnClickName, false, context);
                 playSnd(state.sndOnMoveName, context);
@@ -235,7 +236,8 @@ public record ButtonVariable(
                 }
             }
             case PRESSED -> {
-                showGfx(state.gfxStandardName, false, context);
+                boolean hasOnClick = state.gfxOnClickName != null;
+                showGfx(state.gfxStandardName, !hasOnClick, context);
                 showGfx(state.gfxOnMoveName, false, context);
                 showGfx(state.gfxOnClickName, true, context);
                 playSnd(state.sndOnClickName, context);
