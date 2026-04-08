@@ -98,7 +98,7 @@ public record BehaviourVariable(
                     : List.of();
 
             // Check condition (if defined)
-            ConditionVariable condition = resolveCondition(behaviour, ctx);
+            Variable condition = resolveCondition(behaviour, ctx);
 
             for (int i = startVal; i < startVal + endDiff; i += step) {
                 // Re-check condition each iteration if present
@@ -122,33 +122,41 @@ public record BehaviourVariable(
     // ========================================
 
     public static boolean checkCondition(BehaviourVariable behaviour, MethodContext ctx) {
-        ConditionVariable condition = resolveCondition(behaviour, ctx);
+        Variable condition = resolveCondition(behaviour, ctx);
         if (condition == null) return true;
         return evaluateConditionSafe(condition, ctx);
     }
 
-    private static ConditionVariable resolveCondition(BehaviourVariable behaviour, MethodContext ctx) {
+    private static Variable resolveCondition(BehaviourVariable behaviour, MethodContext ctx) {
         if (ctx == null) return null;
 
         String conditionName = ctx.context().getAttribute(behaviour.name(), "CONDITION");
         if (conditionName == null || conditionName.isEmpty()) return null;
 
         Variable condVar = ctx.getVariable(conditionName);
-        if (condVar instanceof ConditionVariable cond) return cond;
+        if (condVar instanceof ConditionVariable) return condVar;
+        if (condVar instanceof ComplexConditionVariable) return condVar;
 
         if (condVar == null) {
             Gdx.app.error("BehaviourVariable", "Condition variable " + conditionName + " not found");
         } else {
-            Gdx.app.error("BehaviourVariable", "Variable " + conditionName + " is not a ConditionVariable");
+            Gdx.app.error("BehaviourVariable", "Variable " + conditionName + " is not a ConditionVariable or ComplexConditionVariable");
         }
         return null;
     }
 
-    private static boolean evaluateConditionSafe(ConditionVariable cond, MethodContext ctx) {
+    private static boolean evaluateConditionSafe(Variable cond, MethodContext ctx) {
         try {
-            boolean condResult = cond.evaluate(ctx).value();
-            cond.emitSignal(condResult ? "ONRUNTIMESUCCESS" : "ONRUNTIMEFAILED");
-            return condResult;
+            BoolValue condResult;
+            if (cond instanceof ConditionVariable condition) {
+                condResult = condition.evaluate(ctx);
+            } else if (cond instanceof ComplexConditionVariable complex) {
+                condResult = complex.evaluate(ctx);
+            } else {
+                return true;
+            }
+            cond.emitSignal(condResult.value() ? "ONRUNTIMESUCCESS" : "ONRUNTIMEFAILED");
+            return condResult.value();
         } catch (Exception e) {
             Gdx.app.error("BehaviourVariable", "Error evaluating condition: " + e.getMessage());
             return true; // Default to true on error (like v1)
