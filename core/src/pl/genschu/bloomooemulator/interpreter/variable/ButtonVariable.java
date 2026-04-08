@@ -191,8 +191,10 @@ public record ButtonVariable(
     private void loadRectFromGfx(String gfxName, Context context) {
         Variable gfx = context.getVariable(gfxName);
         if (gfx instanceof AnimoVariable animo && animo.getRect() != null) {
+            state.rectVarName = gfxName;
             state.rect = animo.getRect();
         } else if (gfx instanceof ImageVariable img && img.getRect() != null) {
+            state.rectVarName = gfxName;
             state.rect = img.getRect();
         }
     }
