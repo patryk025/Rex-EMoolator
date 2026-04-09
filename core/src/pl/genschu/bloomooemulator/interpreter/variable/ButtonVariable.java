@@ -181,7 +181,10 @@ public record ButtonVariable(
                 int yB = Integer.parseInt(parts[1].trim());
                 int xR = Integer.parseInt(parts[2].trim());
                 int yT = Integer.parseInt(parts[3].trim());
-                state.rect = new Box2D(xL, yB, xR, yT);
+                // Compensate Y-axis: Box2D.contains() adds height to Y bounds,
+                // so shift raw screen coords to match the GFX rect convention
+                int height = yT - yB;
+                state.rect = new Box2D(xL, yB - height, xR, yT - height);
             }
         } catch (NumberFormatException e) {
             Gdx.app.error("ButtonVariable", "Invalid RECT format: " + rectAttr);
@@ -399,7 +402,8 @@ public record ButtonVariable(
                 int yB = ArgumentHelper.getInt(args.get(1));
                 int xR = ArgumentHelper.getInt(args.get(2));
                 int yT = ArgumentHelper.getInt(args.get(3));
-                btn.state.rect = new Box2D(xL, yB, xR, yT);
+                int height = yT - yB;
+                btn.state.rect = new Box2D(xL, yB - height, xR, yT - height);
                 btn.state.rectVarName = null;
             }
             return MethodResult.noReturn();

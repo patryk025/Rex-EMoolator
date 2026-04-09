@@ -487,7 +487,7 @@ public class CNVParser {
                 ASTInterpreter interpreter = new ASTInterpreter(context);
                 // If behaviour has a CONDITION attribute, check it before running (RUNC semantics)
                 if (!BehaviourVariable.checkCondition(finalBehaviour, interpreter.getMethodContext())) {
-                    Gdx.app.debug("CNVParser", "Signal " + signal + " on " + var.name() + " skipped — CONDITION not met");
+                    Gdx.app.debug("CNVParser", "Signal " + signal + " on " + var.name() + " skipped - CONDITION not met");
                     return;
                 }
                 List<Value> resolvedArgs = resolveSignalParams(finalParams, context);
