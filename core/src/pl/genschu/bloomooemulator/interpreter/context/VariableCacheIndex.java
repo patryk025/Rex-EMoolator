@@ -37,6 +37,13 @@ public class VariableCacheIndex {
             case WORLD -> world = var;
             default -> {} // Not cached
         }
+
+        // Animos registered as buttons (ASBUTTON) live in both graphics and
+        // buttons caches — keep the buttons entry's value fresh on re-index,
+        // without touching its insertion order.
+        if (varType == VariableType.ANIMO && buttons.containsKey(name)) {
+            buttons.put(name, var);
+        }
     }
 
     /**

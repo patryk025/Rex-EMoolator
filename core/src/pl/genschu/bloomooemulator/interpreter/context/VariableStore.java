@@ -27,11 +27,14 @@ public class VariableStore {
      */
     public void set(String name, Variable var) {
         Variable oldVar = variables.get(name);
-        if (oldVar != null) {
+        // Only evict the cache entry when the variable is new or its type changed.
+        // For same-type updates, rely on LinkedHashMap.put() to update the value
+        // in place — this preserves insertion order, which load-order-sensitive
+        // consumers (e.g. priority-sorted render lists) depend on.
+        if (oldVar != null && oldVar.type() != var.type()) {
             cacheIndex.remove(name, oldVar);
         }
 
-        // Then update storage and reindex
         variables.put(name, var);
         cacheIndex.index(name, var);
     }
