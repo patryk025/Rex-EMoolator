@@ -451,13 +451,7 @@ public record AnimoVariable(
     }
 
     public void setVisible(boolean visible) {
-        boolean prev = state.visible;
         state.visible = visible;
-        if (prev != visible) {
-            StackTraceElement[] st = Thread.currentThread().getStackTrace();
-            String caller = st.length > 3 ? st[2] + " <- " + st[3] : (st.length > 2 ? st[2].toString() : "?");
-            Gdx.app.log("AnimoVariable", "[" + name + "] setVisible " + prev + " -> " + visible + " from " + caller);
-        }
     }
 
     public void setOpacity(int opacity) {

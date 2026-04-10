@@ -40,6 +40,10 @@ public class InputManager implements Disposable {
     private boolean mousePrevPressed = false;
     private GameContext lastMouseClickContext = null;
     private boolean mouseVisible = true;
+    // LibGDX polling returns (0,0) until a real mouse event arrives. Without a
+    // guard, the first tick processes buttons as if the cursor were at (0,0),
+    // falsely focusing any button whose rect contains that point.
+    private boolean mouseEverObserved = false;
 
     // Keyboard state
     private final Set<Integer> pressedKeys = new HashSet<>();
@@ -93,6 +97,18 @@ public class InputManager implements Disposable {
             return;
         }
 
+        boolean isPressed = Gdx.input.isButtonPressed(Input.Buttons.LEFT);
+
+        // Skip processing until we've seen a real mouse event. LibGDX's polling
+        // API returns (0,0) before any event arrives, which can falsely trigger
+        // button focus on any button whose rect contains the top-left corner.
+        if (!mouseEverObserved) {
+            if (x == 0 && y == 0 && !isPressed) {
+                return;
+            }
+            mouseEverObserved = true;
+        }
+
         // Mouse coordinates translation
         Vector2 correctedCoords = getCorrectedMouseCoords(x, y);
         int correctedX = (int) correctedCoords.x;
@@ -100,9 +116,6 @@ public class InputManager implements Disposable {
 
         // Update mouse position
         mousePosition.set(correctedX, correctedY);
-
-        // Update mouse buttons state
-        boolean isPressed = Gdx.input.isButtonPressed(Input.Buttons.LEFT);
         boolean justPressed = isPressed && !mousePrevPressed;
         boolean justReleased = !isPressed && mousePrevPressed;
 
