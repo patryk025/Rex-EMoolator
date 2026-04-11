@@ -468,6 +468,7 @@ public class Game {
                 if (!scene.music().isEmpty()) {
                     Music music = loadMusic("$\\"+scene.music());
                     if (music != null && !music.isPlaying()) {
+                        music.setLooping(true);
                         music.setVolume(scene.musicVolume() / 1000.0f);
                         music.play();
                     }
@@ -492,7 +493,11 @@ public class Game {
         return musicCache.computeIfAbsent(musicFile, key -> {
             try {
                 String path = FileUtils.resolveRelativePath(this, musicFile);
-                return Gdx.audio.newMusic(Gdx.files.absolute(path));
+                Music music = Gdx.audio.newMusic(Gdx.files.absolute(path));
+                if (music != null) {
+                    music.setLooping(true);
+                }
+                return music;
             } catch (Exception e) {
                 Gdx.app.error("Game", "Error loading music: " + musicFile, e);
                 return null;
