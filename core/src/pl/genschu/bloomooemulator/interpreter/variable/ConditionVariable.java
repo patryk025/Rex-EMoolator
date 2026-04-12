@@ -183,7 +183,7 @@ public record ConditionVariable(
         }
 
         String code = operand.endsWith(";") ? operand : operand + ";";
-        ASTNode parsed = BehaviourCodeParser.parseCode(code, "<operand>");
+        ASTNode parsed = BehaviourCodeParser.parseCode(code, "<operand:"+code+">");
         ASTNode executable = unwrapSingleStatement(parsed);
         ASTInterpreter interpreter = new ASTInterpreter(ctx.context());
         ExecutionResult result = interpreter.execute(executable);

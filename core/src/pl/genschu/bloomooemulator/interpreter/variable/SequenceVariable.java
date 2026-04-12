@@ -328,14 +328,17 @@ public record SequenceVariable(
     public void stopSequence(boolean emitSignal, Context context) {
         Gdx.app.log("SequenceVariable", "stopSequence: " + state.currentEvent);
         if (state.currentEvent != null && state.isPlaying) {
+            SequenceEvent finishedEvent = state.currentEvent;
             stopEvent(state.currentEvent, context);
-            if (emitSignal) {
-                emitSignal("ONFINISHED", new StringValue(state.currentEvent.getName()));
-            }
+            // Reset state BEFORE emitting signal so that a re-entrant
+            // playEvent() from the signal handler is not overwritten.
             state.currentEvent = null;
             state.isPlaying = false;
             state.isPaused = false;
             state.playbackContext = null;
+            if (emitSignal) {
+                emitSignal("ONFINISHED", new StringValue(finishedEvent.getName()));
+            }
         }
     }
 
@@ -605,6 +608,12 @@ public record SequenceVariable(
                 startEvent(parentEvent.getSubEvents().get(currentIndex + 1), context);
             } else {
                 stopEvent(parentEvent, context);
+                // Set isPlaying=false BEFORE emitting signals so that
+                // a re-entrant playEvent() from the signal handler can
+                // set it back to true without being overwritten.
+                if (parentEvent.getParent() == null) {
+                    state.isPlaying = false;
+                }
                 if (parentEvent.getMode() == SequenceMode.SEQUENCE &&
                     currentIndex == parentEvent.getSubEvents().size() - 1) {
                     emitSignal("ONFINISHED", new StringValue(parentEvent.getName()));
@@ -612,14 +621,15 @@ public record SequenceVariable(
                 } else {
                     emitSignal("ONFINISHED", new StringValue(event.getName()));
                 }
-                if (parentEvent.getParent() == null) {
-                    state.isPlaying = false;
-                }
             }
         } else {
             stopEvent(event, context);
-            emitSignal("ONFINISHED", new StringValue(state.currentEvent.getName()));
+            // Set isPlaying=false BEFORE emitting signal so that
+            // a re-entrant playEvent() from the signal handler can
+            // set it back to true without being overwritten.
+            String finishedName = state.currentEvent != null ? state.currentEvent.getName() : event.getName();
             state.isPlaying = false;
+            emitSignal("ONFINISHED", new StringValue(finishedName));
         }
     }
 
