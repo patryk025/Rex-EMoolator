@@ -511,9 +511,24 @@ public class ASTInterpreter {
             return variable;
         }
 
+        if (target instanceof LiteralNode literalNode) {
+            String template = literalNode.value().toDisplayString();
+            String resolvedName = interpolateParamRefs(template);
+            Variable variable = context.getVariable(resolvedName);
+            if (variable == null) {
+                throw new InterpreterException(
+                    "Variable not found: " + resolvedName + " (from template " + template + ")",
+                    exec,
+                    location
+                );
+            }
+            return variable;
+        }
+
         if (target instanceof PointerDerefNode pointerDerefNode) {
             ExecutionResult result = execute(pointerDerefNode.expression());
-            return resolveMethodTarget(new VariableNode(result.getValue().toDisplayString(), location), location);
+            String resolvedName = interpolateParamRefs(result.getValue().toDisplayString());
+            return resolveMethodTarget(new VariableNode(resolvedName, location), location);
         }
 
         throw new InterpreterException(
@@ -521,6 +536,36 @@ public class ASTInterpreter {
             exec,
             location
         );
+    }
+
+    /**
+     * Replaces $N parameter references in a string with their values from
+     * the current execution frame locals (e.g. "ANIMOPOLE$1" with $1=3
+     * becomes "ANIMOPOLE3").
+     */
+    private String interpolateParamRefs(String template) {
+        if (!template.contains("$")) return template;
+        StringBuilder sb = new StringBuilder();
+        int i = 0;
+        while (i < template.length()) {
+            if (template.charAt(i) == '$' && i + 1 < template.length()
+                    && Character.isDigit(template.charAt(i + 1))) {
+                int j = i + 1;
+                while (j < template.length() && Character.isDigit(template.charAt(j))) j++;
+                String paramName = template.substring(i, j);
+                Variable paramVar = exec.getLocal(paramName);
+                if (paramVar != null) {
+                    sb.append(paramVar.value().toDisplayString());
+                } else {
+                    sb.append(paramName);
+                }
+                i = j;
+            } else {
+                sb.append(template.charAt(i));
+                i++;
+            }
+        }
+        return sb.toString();
     }
 
     private static Variable valueToVariable(String name, Value value) {

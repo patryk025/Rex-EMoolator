@@ -81,8 +81,8 @@ public class CodeParser {
             if (source == null) {
                 throw new IllegalArgumentException("source cannot be null");
             }
-            start = Math.max(0, Math.min(start, source.raw().length()));
-            end = Math.max(start, Math.min(end, source.raw().length()));
+            start = Math.clamp(start, 0, source.raw().length());
+            end = Math.clamp(end, start, source.raw().length());
         }
 
         int length() {
