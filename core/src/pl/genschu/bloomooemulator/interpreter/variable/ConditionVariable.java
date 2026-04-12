@@ -94,9 +94,20 @@ public record ConditionVariable(
      * Evaluates this condition by resolving operands from context.
      */
     public BoolValue evaluate(MethodContext ctx) {
+        return evaluate(ctx, false);
+    }
+
+    /**
+     * Evaluates this condition and optionally emits ONRUNTIMESUCCESS/ONRUNTIMEFAILED signal.
+     */
+    public BoolValue evaluate(MethodContext ctx, boolean emitSignals) {
         Value left = resolveOperandValue(operand1, ctx);
         Value right = resolveOperandValue(operand2, ctx);
-        return ValueOps.compare(left, right, parseComparisonOp(operator));
+        BoolValue result = ValueOps.compare(left, right, parseComparisonOp(operator));
+        if (emitSignals) {
+            emitSignal(result.value() ? "ONRUNTIMESUCCESS" : "ONRUNTIMEFAILED");
+        }
+        return result;
     }
 
     static ComparisonNode.ComparisonOp parseComparisonOp(String operator) {
@@ -204,14 +215,6 @@ public record ConditionVariable(
         };
     }
 
-    private static void handleSignalEmission(Variable cond, BoolValue result, List<Value> args) {
-        if (args != null && !args.isEmpty()) {
-            if (ArgumentHelper.getBoolean(args.get(0))) {
-                cond.emitSignal(result.value() ? "ONRUNTIMESUCCESS" : "ONRUNTIMEFAILED");
-            }
-        }
-    }
-
     // ========================================
     // METHODS DEFINITION
     // ========================================
@@ -219,20 +222,20 @@ public record ConditionVariable(
     private static final Map<String, MethodSpec> METHODS = Map.ofEntries(
         Map.entry("CHECK", MethodSpec.of((self, args, ctx) -> {
             ConditionVariable cond = (ConditionVariable) self;
-            BoolValue result = cond.evaluate(ctx);
-            handleSignalEmission(cond, result, args);
+            boolean emitSignals = args != null && !args.isEmpty() && ArgumentHelper.getBoolean(args.get(0));
+            BoolValue result = cond.evaluate(ctx, emitSignals);
             return MethodResult.returns(result);
         })),
         Map.entry("BREAK", MethodSpec.of((self, args, ctx) -> {
             ConditionVariable cond = (ConditionVariable) self;
-            BoolValue result = cond.evaluate(ctx);
-            handleSignalEmission(cond, result, args);
+            boolean emitSignals = args != null && !args.isEmpty() && ArgumentHelper.getBoolean(args.get(0));
+            BoolValue result = cond.evaluate(ctx, emitSignals);
             return result.value() ? MethodResult.breakAll() : MethodResult.noReturn();
         })),
         Map.entry("ONE_BREAK", MethodSpec.of((self, args, ctx) -> {
             ConditionVariable cond = (ConditionVariable) self;
-            BoolValue result = cond.evaluate(ctx);
-            handleSignalEmission(cond, result, args);
+            boolean emitSignals = args != null && !args.isEmpty() && ArgumentHelper.getBoolean(args.get(0));
+            BoolValue result = cond.evaluate(ctx, emitSignals);
             return result.value() ? MethodResult.oneBreak() : MethodResult.noReturn();
         }))
     );

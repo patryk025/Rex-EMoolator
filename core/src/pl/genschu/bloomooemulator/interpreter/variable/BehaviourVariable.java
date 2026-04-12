@@ -149,13 +149,12 @@ public record BehaviourVariable(
         try {
             BoolValue condResult;
             if (cond instanceof ConditionVariable condition) {
-                condResult = condition.evaluate(ctx);
+                condResult = condition.evaluate(ctx, true);
             } else if (cond instanceof ComplexConditionVariable complex) {
-                condResult = complex.evaluate(ctx);
+                condResult = complex.evaluate(ctx, true);
             } else {
                 return true;
             }
-            cond.emitSignal(condResult.value() ? "ONRUNTIMESUCCESS" : "ONRUNTIMEFAILED");
             return condResult.value();
         } catch (Exception e) {
             Gdx.app.error("BehaviourVariable", "Error evaluating condition: " + e.getMessage());

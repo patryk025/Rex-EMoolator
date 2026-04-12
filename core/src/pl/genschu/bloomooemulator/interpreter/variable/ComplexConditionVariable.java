@@ -6,7 +6,6 @@ import pl.genschu.bloomooemulator.interpreter.ops.ValueOps;
 import pl.genschu.bloomooemulator.interpreter.values.*;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -89,33 +88,36 @@ public record ComplexConditionVariable(
      * Evaluates this complex condition by resolving sub-conditions from context.
      */
     public BoolValue evaluate(MethodContext ctx) {
-        Value left = resolveConditionValue(condition1Name, ctx);
-        Value right = resolveConditionValue(condition2Name, ctx);
+        return evaluate(ctx, false);
+    }
+
+    /**
+     * Evaluates this complex condition and optionally emits signals for itself and each sub-condition.
+     */
+    public BoolValue evaluate(MethodContext ctx, boolean emitSignals) {
+        Value left = resolveConditionValue(condition1Name, ctx, emitSignals);
+        Value right = resolveConditionValue(condition2Name, ctx, emitSignals);
 
         if (!(left instanceof BoolValue) || !(right instanceof BoolValue)) {
             throw new RuntimeException("ComplexCondition operands must be BOOL");
         }
 
         LogicalNode.LogicalOp op = isAnd() ? LogicalNode.LogicalOp.AND : LogicalNode.LogicalOp.OR;
-        return ValueOps.logical(left, right, op);
+        BoolValue result = ValueOps.logical(left, right, op);
+        if (emitSignals) {
+            emitSignal(result.value() ? "ONRUNTIMESUCCESS" : "ONRUNTIMEFAILED");
+        }
+        return result;
     }
 
-    private static Value resolveConditionValue(String name, MethodContext ctx) {
+    private static Value resolveConditionValue(String name, MethodContext ctx, boolean emitSignals) {
         Variable var = ctx.getVariable(name);
         if (var == null) {
             throw new RuntimeException("Variable not found: " + name);
         }
-        if (var instanceof ConditionVariable cond) return cond.evaluate(ctx);
-        if (var instanceof ComplexConditionVariable complex) return complex.evaluate(ctx);
+        if (var instanceof ConditionVariable cond) return cond.evaluate(ctx, emitSignals);
+        if (var instanceof ComplexConditionVariable complex) return complex.evaluate(ctx, emitSignals);
         return var.value();
-    }
-
-    private static void handleSignalEmission(Variable cond, BoolValue result, List<Value> args) {
-        if (args != null && !args.isEmpty()) {
-            if (ArgumentHelper.getBoolean(args.get(0))) {
-                cond.emitSignal(result.value() ? "ONRUNTIMESUCCESS" : "ONRUNTIMEFAILED");
-            }
-        }
     }
 
     // ========================================
@@ -125,20 +127,20 @@ public record ComplexConditionVariable(
     private static final Map<String, MethodSpec> METHODS = Map.ofEntries(
         Map.entry("CHECK", MethodSpec.of((self, args, ctx) -> {
             ComplexConditionVariable cond = (ComplexConditionVariable) self;
-            BoolValue result = cond.evaluate(ctx);
-            handleSignalEmission(cond, result, args);
+            boolean emitSignals = args != null && !args.isEmpty() && ArgumentHelper.getBoolean(args.get(0));
+            BoolValue result = cond.evaluate(ctx, emitSignals);
             return MethodResult.returns(result);
         })),
         Map.entry("BREAK", MethodSpec.of((self, args, ctx) -> {
             ComplexConditionVariable cond = (ComplexConditionVariable) self;
-            BoolValue result = cond.evaluate(ctx);
-            handleSignalEmission(cond, result, args);
+            boolean emitSignals = args != null && !args.isEmpty() && ArgumentHelper.getBoolean(args.get(0));
+            BoolValue result = cond.evaluate(ctx, emitSignals);
             return result.value() ? MethodResult.breakAll() : MethodResult.noReturn();
         })),
         Map.entry("ONE_BREAK", MethodSpec.of((self, args, ctx) -> {
             ComplexConditionVariable cond = (ComplexConditionVariable) self;
-            BoolValue result = cond.evaluate(ctx);
-            handleSignalEmission(cond, result, args);
+            boolean emitSignals = args != null && !args.isEmpty() && ArgumentHelper.getBoolean(args.get(0));
+            BoolValue result = cond.evaluate(ctx, emitSignals);
             return result.value() ? MethodResult.oneBreak() : MethodResult.noReturn();
         }))
     );
