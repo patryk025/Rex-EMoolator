@@ -288,8 +288,7 @@ public record ButtonVariable(
             if (visible) animo.callMethod("SHOW", List.of());
             else animo.callMethod("HIDE", List.of());
         } else if (gfx instanceof ImageVariable img) {
-            if (visible) img.state().visible = true;
-            else img.state().visible = false;
+            img.state().visible = visible;
         }
     }
 
@@ -340,7 +339,7 @@ public record ButtonVariable(
     private static final Map<String, MethodSpec> METHODS = Map.ofEntries(
         Map.entry("DISABLE", MethodSpec.of((self, args, ctx) -> {
             ButtonVariable btn = (ButtonVariable) self;
-            btn.state.buttonState = ButtonState.DISABLED;
+            btn.changeState(ButtonEvent.DISABLE, ctx.context());
             // Clear from InputManager if this is the active button
             try {
                 if (ctx.getGame().getInputManager().getActiveButton() != null
@@ -353,7 +352,7 @@ public record ButtonVariable(
 
         Map.entry("DISABLEBUTVISIBLE", MethodSpec.of((self, args, ctx) -> {
             ButtonVariable btn = (ButtonVariable) self;
-            btn.state.buttonState = ButtonState.DISABLED_BUT_VISIBLE;
+            btn.changeState(ButtonEvent.DISABLE_BUT_VISIBLE, ctx.context());
             try {
                 if (ctx.getGame().getInputManager().getActiveButton() != null
                         && ctx.getGame().getInputManager().getActiveButton().getName().equals(btn.name())) {
@@ -365,7 +364,7 @@ public record ButtonVariable(
 
         Map.entry("ENABLE", MethodSpec.of((self, args, ctx) -> {
             ButtonVariable btn = (ButtonVariable) self;
-            btn.state.buttonState = evaluateTransition(btn.state.buttonState, ButtonEvent.ENABLE);
+            btn.changeState(ButtonEvent.ENABLE, ctx.context());
             return MethodResult.noReturn();
         })),
 
