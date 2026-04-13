@@ -359,4 +359,64 @@ class SequenceTest {
         assertTrue(capturedSignals.stream().anyMatch(s -> s.contains("ONFINISHED")));
         assertFalse(seq.isPlaying());
     }
+
+    @Test
+    void testRandomParentEmitsFinishedForPlayedEvent() {
+        SequenceVariable seq = new SequenceVariable("KRET");
+
+        SequenceEvent parent = new SequenceEvent("NUCI", EventType.SEQUENCE, SequenceMode.RANDOM, null, false, false);
+        SequenceEvent child = new SequenceEvent("NUCI_0", EventType.SIMPLE, SequenceMode.SEQUENCE, "NUCI", false, false);
+        child.setAnimationName("TEST_ANIMO");
+        parent.addSubEvent(child);
+        seq.addEvent(parent);
+
+        seq = wrapSequenceForCapture(seq, "KRET", null, null);
+
+        AnimoVariable animo = new AnimoVariable("TEST_ANIMO");
+        ctx.setVariable("TEST_ANIMO", animo);
+
+        seq.playEvent("NUCI", ctx);
+        seq.onPlaybackFinished(animo, "NUCI_0");
+
+        assertTrue(capturedSignals.contains("KRET_ONFINISHED^NUCI"));
+        assertFalse(seq.isPlaying());
+    }
+
+    @Test
+    void testNestedRandomChildFinishesParentSequence() {
+        SequenceVariable seq = new SequenceVariable("KRET");
+
+        SequenceEvent topLevel = new SequenceEvent("WRZESZCZY", EventType.SEQUENCE, SequenceMode.SEQUENCE, null, false, false);
+        SequenceEvent firstBranch = new SequenceEvent("WRZESZCZY_FIRST", EventType.SEQUENCE, SequenceMode.RANDOM, null, false, false);
+        SequenceEvent secondBranch = new SequenceEvent("WRZESZCZY_LAST", EventType.SEQUENCE, SequenceMode.RANDOM, null, false, false);
+
+        SequenceEvent firstLeaf = new SequenceEvent("WRZESZCZY_1_0", EventType.SIMPLE, SequenceMode.SEQUENCE, "WRZESZCZY", false, false);
+        firstLeaf.setAnimationName("TEST_ANIMO");
+        firstBranch.addSubEvent(firstLeaf);
+
+        SequenceEvent secondLeaf = new SequenceEvent("WRZESZCZY_2_0", EventType.SIMPLE, SequenceMode.SEQUENCE, "WRZESZCZY", false, false);
+        secondLeaf.setAnimationName("TEST_ANIMO");
+        secondBranch.addSubEvent(secondLeaf);
+
+        topLevel.addSubEvent(firstBranch);
+        topLevel.addSubEvent(secondBranch);
+        seq.addEvent(topLevel);
+
+        seq = wrapSequenceForCapture(seq, "KRET", null, null);
+
+        AnimoVariable animo = new AnimoVariable("TEST_ANIMO");
+        ctx.setVariable("TEST_ANIMO", animo);
+
+        seq.playEvent("WRZESZCZY", ctx);
+        seq.onPlaybackFinished(animo, "WRZESZCZY_1_0");
+
+        assertTrue(seq.isPlaying());
+        assertTrue(capturedSignals.contains("KRET_ONSTARTED^WRZESZCZY_LAST"));
+        assertTrue(capturedSignals.contains("KRET_ONFINISHED^WRZESZCZY_FIRST"));
+
+        seq.onPlaybackFinished(animo, "WRZESZCZY_2_0");
+
+        assertTrue(capturedSignals.contains("KRET_ONFINISHED^WRZESZCZY"));
+        assertFalse(seq.isPlaying());
+    }
 }

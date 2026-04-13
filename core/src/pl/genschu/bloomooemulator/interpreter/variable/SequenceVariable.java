@@ -144,6 +144,7 @@ public record SequenceVariable(
         public boolean isPlaying = false;
         public boolean isPaused = false;
         public SequenceEvent pendingFinishedEvent = null;
+        public List<SequenceEvent> pendingFinishedEvents = new ArrayList<>();
         public Set<String> animosInSequence = new HashSet<>();
         public Map<String, Integer> parametersMapping = new HashMap<>();
         public Random random = new Random();
@@ -158,6 +159,7 @@ public record SequenceVariable(
             copy.isPlaying = this.isPlaying;
             copy.isPaused = this.isPaused;
             copy.pendingFinishedEvent = this.pendingFinishedEvent;
+            copy.pendingFinishedEvents = new ArrayList<>(this.pendingFinishedEvents);
             copy.animosInSequence = new HashSet<>(this.animosInSequence);
             copy.parametersMapping = new HashMap<>(this.parametersMapping);
             copy.random = new Random();
@@ -295,6 +297,8 @@ public record SequenceVariable(
         SequenceEvent event = eventsByName.get(eventName);
         if (event != null) {
             stopSequence(false, context);
+            state.pendingFinishedEvent = null;
+            state.pendingFinishedEvents.clear();
             state.playbackContext = context;
             state.currentEvent = event;
             state.isPlaying = true;
@@ -336,6 +340,8 @@ public record SequenceVariable(
             state.isPlaying = false;
             state.isPaused = false;
             state.playbackContext = null;
+            state.pendingFinishedEvent = null;
+            state.pendingFinishedEvents.clear();
             if (emitSignal) {
                 emitSignal("ONFINISHED", new StringValue(finishedEvent.getName()));
             }
@@ -407,10 +413,7 @@ public record SequenceVariable(
                         animo.callMethod("PLAY", new StringValue(firstEvent.getName()));
                     }
 
-                    if (state.pendingFinishedEvent != null) {
-                        emitSignal("ONFINISHED", new StringValue(state.pendingFinishedEvent.getName()));
-                        state.pendingFinishedEvent = null;
-                    }
+                    flushPendingFinishedEvents();
                 }
             }
 
@@ -450,10 +453,7 @@ public record SequenceVariable(
                 animoVar.addObserver(this);
                 animo.callMethod("PLAY", new StringValue(startAnimName));
 
-                if (state.pendingFinishedEvent != null) {
-                    emitSignal("ONFINISHED", new StringValue(state.pendingFinishedEvent.getName()));
-                    state.pendingFinishedEvent = null;
-                }
+                flushPendingFinishedEvents();
             } else {
                 startSpeakingMainPhase(event, context);
             }
@@ -589,47 +589,73 @@ public record SequenceVariable(
 
     private void handleEventFinished(SequenceEvent event, Context context) {
         Gdx.app.log("SequenceVariable", "handleEventFinished: " + event.getName());
-        event.getPlayback().isPlaying = false;
+        List<SequenceEvent> finishedEvents = new ArrayList<>();
+        FinishResolution resolution = resolveFinishedEvent(event, context, finishedEvents);
 
-        String animName = event.getAnimationName();
-        if (animName != null) {
-            Variable animo = context.getVariable(animName);
-            if (animo != null) {
-                animo.callMethod("PAUSE");
-            }
+        if (resolution.nextEvent() != null) {
+            queuePendingFinishedEvents(finishedEvents);
+            startEvent(resolution.nextEvent(), context);
+            return;
+        }
+
+        if (resolution.topLevelFinished()) {
+            // Set isPlaying=false BEFORE emitting signals so that
+            // a re-entrant playEvent() from the signal handler can
+            // set it back to true without being overwritten.
+            state.isPlaying = false;
+        }
+
+        emitFinishedEvents(finishedEvents);
+    }
+
+    private FinishResolution resolveFinishedEvent(SequenceEvent event, Context context, List<SequenceEvent> finishedEvents) {
+        stopEvent(event, context);
+        finishedEvents.add(0, event);
+
+        if (event == state.currentEvent) {
+            return new FinishResolution(null, true);
         }
 
         SequenceEvent parentEvent = event.getParent();
-        if (parentEvent != null) {
-            int currentIndex = parentEvent.getSubEvents().indexOf(event);
-            if (parentEvent.getMode() == SequenceMode.SEQUENCE &&
-                currentIndex < parentEvent.getSubEvents().size() - 1) {
-                state.pendingFinishedEvent = event;
-                startEvent(parentEvent.getSubEvents().get(currentIndex + 1), context);
-            } else {
-                stopEvent(parentEvent, context);
-                // Set isPlaying=false BEFORE emitting signals so that
-                // a re-entrant playEvent() from the signal handler can
-                // set it back to true without being overwritten.
-                if (parentEvent.getParent() == null) {
-                    state.isPlaying = false;
-                }
-                if (parentEvent.getMode() == SequenceMode.SEQUENCE &&
-                    currentIndex == parentEvent.getSubEvents().size() - 1) {
-                    emitSignal("ONFINISHED", new StringValue(parentEvent.getName()));
-                    emitSignal("ONFINISHED", new StringValue(event.getName()));
-                } else {
-                    emitSignal("ONFINISHED", new StringValue(event.getName()));
-                }
-            }
-        } else {
-            stopEvent(event, context);
-            // Set isPlaying=false BEFORE emitting signal so that
-            // a re-entrant playEvent() from the signal handler can
-            // set it back to true without being overwritten.
-            String finishedName = state.currentEvent != null ? state.currentEvent.getName() : event.getName();
-            state.isPlaying = false;
-            emitSignal("ONFINISHED", new StringValue(finishedName));
+        if (parentEvent == null) {
+            return new FinishResolution(null, true);
+        }
+
+        int currentIndex = parentEvent.getSubEvents().indexOf(event);
+        if (parentEvent.getMode() == SequenceMode.SEQUENCE &&
+            currentIndex >= 0 &&
+            currentIndex < parentEvent.getSubEvents().size() - 1) {
+            return new FinishResolution(parentEvent.getSubEvents().get(currentIndex + 1), false);
+        }
+
+        return resolveFinishedEvent(parentEvent, context, finishedEvents);
+    }
+
+    private void queuePendingFinishedEvents(List<SequenceEvent> finishedEvents) {
+        state.pendingFinishedEvents.addAll(finishedEvents);
+        state.pendingFinishedEvent = state.pendingFinishedEvents.isEmpty()
+            ? null
+            : state.pendingFinishedEvents.get(state.pendingFinishedEvents.size() - 1);
+    }
+
+    private void flushPendingFinishedEvents() {
+        if (!state.pendingFinishedEvents.isEmpty()) {
+            List<SequenceEvent> pendingEvents = new ArrayList<>(state.pendingFinishedEvents);
+            state.pendingFinishedEvents.clear();
+            state.pendingFinishedEvent = null;
+            emitFinishedEvents(pendingEvents);
+            return;
+        }
+
+        if (state.pendingFinishedEvent != null) {
+            emitSignal("ONFINISHED", new StringValue(state.pendingFinishedEvent.getName()));
+            state.pendingFinishedEvent = null;
+        }
+    }
+
+    private void emitFinishedEvents(List<SequenceEvent> finishedEvents) {
+        for (SequenceEvent finishedEvent : finishedEvents) {
+            emitSignal("ONFINISHED", new StringValue(finishedEvent.getName()));
         }
     }
 
@@ -811,6 +837,8 @@ public record SequenceVariable(
         return null;
     }
 
+    private record FinishResolution(SequenceEvent nextEvent, boolean topLevelFinished) {}
+
     // ========================================
     // METHODS DEFINITION
     // ========================================
@@ -827,6 +855,8 @@ public record SequenceVariable(
             } else {
                 SequenceEvent event = thisVar.eventsByName.get(eventName);
                 if (event != null) {
+                    thisVar.state.pendingFinishedEvent = null;
+                    thisVar.state.pendingFinishedEvents.clear();
                     thisVar.state.currentEvent = event;
                     thisVar.state.isPlaying = true;
                     thisVar.emitSignal("ONSTARTED", new StringValue(eventName));
@@ -868,6 +898,8 @@ public record SequenceVariable(
                     thisVar.state.currentEvent = null;
                     thisVar.state.isPlaying = false;
                     thisVar.state.isPaused = false;
+                    thisVar.state.pendingFinishedEvent = null;
+                    thisVar.state.pendingFinishedEvents.clear();
                 }
             }
             return MethodResult.noReturn();
