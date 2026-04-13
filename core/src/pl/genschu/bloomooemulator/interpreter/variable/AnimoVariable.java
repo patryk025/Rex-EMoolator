@@ -1035,6 +1035,9 @@ public record AnimoVariable(
             thisVar.state.posX = ArgumentHelper.getInt(args.get(0)) - thisVar.state.anchorX;
             thisVar.state.posY = ArgumentHelper.getInt(args.get(1)) - thisVar.state.anchorY;
             thisVar.updateRect();
+            if (ctx != null && ctx.getGame() != null) {
+                ctx.getGame().markCollisionDirty(thisVar);
+            }
             return MethodResult.noReturn();
         })),
 
@@ -1064,6 +1067,9 @@ public record AnimoVariable(
             thisVar.state.posX += ArgumentHelper.getInt(args.get(0));
             thisVar.state.posY += ArgumentHelper.getInt(args.get(1));
             thisVar.updateRect();
+            if (ctx != null && ctx.getGame() != null) {
+                ctx.getGame().markCollisionDirty(thisVar);
+            }
             return MethodResult.noReturn();
         })),
 
@@ -1325,8 +1331,7 @@ public record AnimoVariable(
             AnimoVariable thisVar = (AnimoVariable) self;
             thisVar.state.monitorCollision = true;
             if (ctx != null && ctx.getGame() != null) {
-                ctx.getGame().getQuadTree().insert(thisVar);
-                ctx.getGame().getCollisionMonitoredVariables().add(thisVar);
+                ctx.getGame().addCollisionMonitor(thisVar);
             }
             return MethodResult.noReturn();
         })),
@@ -1335,8 +1340,7 @@ public record AnimoVariable(
             AnimoVariable thisVar = (AnimoVariable) self;
             thisVar.state.monitorCollision = false;
             if (ctx != null && ctx.getGame() != null) {
-                ctx.getGame().getQuadTree().remove(thisVar);
-                ctx.getGame().getCollisionMonitoredVariables().remove(thisVar);
+                ctx.getGame().removeCollisionMonitor(thisVar);
             }
             return MethodResult.noReturn();
         })),

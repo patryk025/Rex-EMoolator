@@ -10,7 +10,10 @@ import pl.genschu.bloomooemulator.geometry.shapes.Box2D;
 import pl.genschu.bloomooemulator.utils.CollisionChecker;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.IdentityHashMap;
 import java.util.List;
+import java.util.Set;
 
 public class UpdateManager implements Disposable {
     private final Game game;
@@ -40,12 +43,28 @@ public class UpdateManager implements Disposable {
         // update animations
         updateAnimations(deltaTime);
 
+        // check collisions for objects that moved since last frame
+        updateCollisions();
+
         // update audio
         updateAudio(deltaTime);
     }
 
     private void updateTimers() {
         timerManager.updateTimers();
+    }
+
+    private void updateCollisions() {
+        Set<EngineVariable> dirty = game.getDirtyCollisionObjects();
+        if (dirty.isEmpty()) {
+            return;
+        }
+        // Rebuild QuadTree once so all positions are consistent
+        game.rebuildCollisionQuadTree();
+        for (EngineVariable object : new ArrayList<>(dirty)) {
+            collisionManager.checkCollisions(object);
+        }
+        dirty.clear();
     }
 
     public void checkCollisions(EngineVariable object) {
@@ -78,18 +97,27 @@ public class UpdateManager implements Disposable {
         }
 
         public void checkCollisions(EngineVariable object) {
-            List<EngineVariable> objects = new ArrayList<>(game.getCollisionMonitoredVariables());
-
-            // Check if the object is in the list of objects to check
-            if (!objects.contains(object)) {
+            // Check if the object is still monitored
+            if (!game.getCollisionMonitoredVariables().contains(object)) {
                 return;
             }
 
             List<EngineVariable> potentialCollisions = game.getQuadTree().retrieve(new ArrayList<>(), object);
+
+            // Deduplicate (QuadTree can return the same object from multiple nodes)
+            Set<EngineVariable> seen = Collections.newSetFromMap(new IdentityHashMap<>());
+
             for (EngineVariable other : potentialCollisions) {
-                if (other != object && checkCollision(object, other)) {
+                if (other == object || !seen.add(other)) {
+                    continue;
+                }
+                if (checkCollision(object, other)) {
                     if (!game.isColliding(object, other)) {
                         game.setColliding(object, other);
+                        // Re-check: signal handler may have removed this object from monitoring
+                        if (!game.getCollisionMonitoredVariables().contains(object)) {
+                            return;
+                        }
                     }
                 } else if (game.isColliding(object, other)) {
                     game.releaseColliding(object, other);
@@ -151,10 +179,9 @@ public class UpdateManager implements Disposable {
                     if (animoVariable.isPlaying()) {
                         animoVariable.updateAnimation(deltaTime);
                     }
-                    // Refresh QuadTree position for collision-monitored variables
+                    // Mark dirty for collision-monitored variables (also refreshes QuadTree)
                     if (animoVariable.isMonitorCollision()) {
-                        game.getQuadTree().remove(animoVariable);
-                        game.getQuadTree().insert(animoVariable);
+                        game.markCollisionDirty(animoVariable);
                     }
                 }
             }

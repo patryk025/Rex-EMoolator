@@ -345,7 +345,9 @@ public record ImageVariable(
         Map.entry("MONITORCOLLISION", MethodSpec.of((self, args, ctx) -> {
             ImageVariable img = (ImageVariable) self;
             img.state.monitorCollision = true;
-            // QuadTree integration deferred until Game.java uses v2
+            if (ctx != null && ctx.getGame() != null) {
+                ctx.getGame().addCollisionMonitor(img);
+            }
             return MethodResult.noReturn();
         })),
 
@@ -356,13 +358,18 @@ public record ImageVariable(
             img.state.posX += dx;
             img.state.posY += dy;
             img.state.updateRect();
+            if (ctx != null && ctx.getGame() != null) {
+                ctx.getGame().markCollisionDirty(img);
+            }
             return MethodResult.noReturn();
         })),
 
         Map.entry("REMOVEMONITORCOLLISION", MethodSpec.of((self, args, ctx) -> {
             ImageVariable img = (ImageVariable) self;
             img.state.monitorCollision = false;
-            // QuadTree integration deferred until Game.java uses v2
+            if (ctx != null && ctx.getGame() != null) {
+                ctx.getGame().removeCollisionMonitor(img);
+            }
             return MethodResult.noReturn();
         })),
 
@@ -387,6 +394,9 @@ public record ImageVariable(
             img.state.posX = ArgumentHelper.getInt(args.get(0));
             img.state.posY = ArgumentHelper.getInt(args.get(1));
             img.state.updateRect();
+            if (ctx != null && ctx.getGame() != null) {
+                ctx.getGame().markCollisionDirty(img);
+            }
             return MethodResult.noReturn();
         })),
 

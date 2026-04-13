@@ -3,7 +3,6 @@ package pl.genschu.bloomooemulator.engine;
 import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Pixmap;
-import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 import org.ini4j.Ini;
 import pl.genschu.bloomooemulator.BlooMooEngine;
@@ -14,6 +13,7 @@ import pl.genschu.bloomooemulator.interpreter.context.Context;
 import pl.genschu.bloomooemulator.interpreter.runtime.ExecutionContext;
 import pl.genschu.bloomooemulator.interpreter.runtime.ASTInterpreter;
 import pl.genschu.bloomooemulator.interpreter.variable.*;
+import pl.genschu.bloomooemulator.interpreter.values.StringValue;
 import pl.genschu.bloomooemulator.loader.CNVParser;
 import pl.genschu.bloomooemulator.loader.ImageLoader;
 import pl.genschu.bloomooemulator.logic.GameEntry;
@@ -48,6 +48,7 @@ public class Game {
 
     private final QuadTree quadTree;
     private final Set<EngineVariable> collisionMonitoredVariables = new HashSet<>();
+    private final Set<EngineVariable> dirtyCollisionObjects = Collections.newSetFromMap(new IdentityHashMap<>());
     private final Map<EngineVariable, Set<EngineVariable>> collisionMap = new IdentityHashMap<>();
 
     private SceneVariable currentSceneVariable;
@@ -436,6 +437,7 @@ public class Game {
         stopAllSounds();
         quadTree.clear();
         collisionMonitoredVariables.clear();
+        dirtyCollisionObjects.clear();
         collisionMap.clear();
         if(inputManager != null) {
             inputManager.setActiveButton(null);
@@ -526,13 +528,11 @@ public class Game {
         for(Variable variable : context.getGraphicsVariables().values()) {
             if(variable instanceof ImageVariable img) {
                 if (img.state().monitorCollision) {
-                    quadTree.insert(variable);
-                    collisionMonitoredVariables.add(variable);
+                    addCollisionMonitor(variable);
                 }
             } else if(variable instanceof AnimoVariable animo) {
                 if (animo.isMonitorCollision()) {
-                    quadTree.insert(variable);
-                    collisionMonitoredVariables.add(variable);
+                    addCollisionMonitor(variable);
                 }
             }
         }
@@ -634,12 +634,86 @@ public class Game {
     }
 
     public void setColliding(EngineVariable a, EngineVariable b) {
+        if (isColliding(a, b)) {
+            return;
+        }
         collisionMap.computeIfAbsent(a, k -> Collections.newSetFromMap(new IdentityHashMap<>())).add(b);
+        collisionMap.computeIfAbsent(b, k -> Collections.newSetFromMap(new IdentityHashMap<>())).add(a);
+        emitCollisionSignal(a, "ONCOLLISION", b.getName());
+        emitCollisionSignal(b, "ONCOLLISION", a.getName());
     }
 
     public void releaseColliding(EngineVariable a, EngineVariable b) {
+        if (!isColliding(a, b)) {
+            return;
+        }
         Set<EngineVariable> set = collisionMap.get(a);
-        if (set != null) set.remove(b);
+        if (set != null) {
+            set.remove(b);
+            if (set.isEmpty()) {
+                collisionMap.remove(a);
+            }
+        }
+
+        Set<EngineVariable> reverseSet = collisionMap.get(b);
+        if (reverseSet != null) {
+            reverseSet.remove(a);
+            if (reverseSet.isEmpty()) {
+                collisionMap.remove(b);
+            }
+        }
+
+        emitCollisionSignal(a, "ONCOLLISIONFINISHED", b.getName());
+        emitCollisionSignal(b, "ONCOLLISIONFINISHED", a.getName());
+    }
+
+    public void markCollisionDirty(EngineVariable variable) {
+        if (collisionMonitoredVariables.contains(variable)) {
+            dirtyCollisionObjects.add(variable);
+        }
+    }
+
+    public Set<EngineVariable> getDirtyCollisionObjects() {
+        return dirtyCollisionObjects;
+    }
+
+    public void addCollisionMonitor(EngineVariable variable) {
+        if (!collisionMonitoredVariables.add(variable)) {
+            return;
+        }
+        quadTree.insert(variable);
+    }
+
+    public void removeCollisionMonitor(EngineVariable variable) {
+        for (EngineVariable other : getCollidingWith(variable)) {
+            releaseColliding(variable, other);
+        }
+        collisionMonitoredVariables.remove(variable);
+        quadTree.remove(variable);
+    }
+
+    public void rebuildCollisionQuadTree() {
+        quadTree.clear();
+        for (EngineVariable variable : collisionMonitoredVariables) {
+            quadTree.insert(variable);
+        }
+    }
+
+    public Set<EngineVariable> getCollidingWith(EngineVariable variable) {
+        Set<EngineVariable> set = collisionMap.get(variable);
+        if (set == null || set.isEmpty()) {
+            return Set.of();
+        }
+        Set<EngineVariable> snapshot = Collections.newSetFromMap(new IdentityHashMap<>());
+        snapshot.addAll(set);
+        return snapshot;
+    }
+
+    private void emitCollisionSignal(EngineVariable variable, String signalName, String otherName) {
+        String normalizedName = otherName.toUpperCase(Locale.ROOT);
+        if (variable instanceof Variable v2Var) {
+            v2Var.emitSignal(signalName, new StringValue(normalizedName));
+        }
     }
 
     // ========================================
