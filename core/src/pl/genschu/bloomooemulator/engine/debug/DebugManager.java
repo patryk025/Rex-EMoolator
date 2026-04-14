@@ -574,11 +574,14 @@ public class DebugManager implements Disposable {
             sb.append("\nCurrent image number: ").append(animo.getCurrentImageNumber());
             sb.append("\nIs playing: ").append(animo.isPlaying());
             sb.append("\nIs button: ").append(isGraphicsButton(graphics));
+            sb.append("\nIs visible: ").append(animo.isVisible());
+            sb.append("\nIs rendered on canvas: ").append(animo.isRenderedOnCanvas());
             sb.append("\nCollision monitoring: ").append(animo.isMonitorCollision());
             sb.append(rectText);
         } else if (graphics instanceof ImageVariable img) {
             sb.append("Priority: ").append(img.state().priority);
             sb.append("\nIs button: ").append(isGraphicsButton(graphics));
+            sb.append("\nIs visible: ").append(img.isVisible());
             sb.append("\nCollision monitoring: ").append(img.state().monitorCollision);
             sb.append(rectText);
         } else {
@@ -738,12 +741,9 @@ public class DebugManager implements Disposable {
 
         // Get every scene from v2 structure: episodeNames -> resolve episode -> sceneNames
         for (String episodeName : game.getApplicationVariable().episodeNames()) {
-            pl.genschu.bloomooemulator.engine.context.EngineVariable epVar =
-                    game.getDefinitionContext().getVariable(episodeName);
-            if (epVar instanceof pl.genschu.bloomooemulator.interpreter.variable.EpisodeVariable ep) {
-                for (String sceneName : ep.sceneNames()) {
-                    sceneList.add(sceneName);
-                }
+            EngineVariable epVar = game.getDefinitionContext().getVariable(episodeName);
+            if (epVar instanceof EpisodeVariable ep) {
+                sceneList.addAll(ep.sceneNames());
             }
         }
 
