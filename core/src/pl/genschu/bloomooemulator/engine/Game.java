@@ -420,10 +420,9 @@ public class Game {
                 }
 
                 // Get first scene name
-                String firstSceneName = !episode.startWith().isEmpty()
+                currentScene = !episode.startWith().isEmpty()
                         ? episode.startWith()
                         : episode.sceneNames().isEmpty() ? "" : episode.sceneNames().get(0);
-                currentScene = firstSceneName;
 
                 runInit(currentEpisodeContext);
 

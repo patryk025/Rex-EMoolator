@@ -3,23 +3,34 @@ package pl.genschu.bloomooemulator.tests;
 import com.badlogic.gdx.Gdx;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 import pl.genschu.bloomooemulator.TestEnvironment;
 import pl.genschu.bloomooemulator.builders.ContextBuilder;
+import pl.genschu.bloomooemulator.engine.Game;
 import pl.genschu.bloomooemulator.interpreter.context.Context;
 import pl.genschu.bloomooemulator.interpreter.values.IntValue;
 import pl.genschu.bloomooemulator.interpreter.values.StringValue;
 import pl.genschu.bloomooemulator.interpreter.variable.*;
+import pl.genschu.bloomooemulator.loader.CNVParser;
 import pl.genschu.bloomooemulator.loader.AnimoLoader;
 
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 /**
  * Tests for AnimoVariable implementation using real animation files.
  */
 class AnimoTest {
+
+    @TempDir
+    Path tempDir;
 
     @BeforeAll
     static void boot() {
@@ -300,5 +311,49 @@ class AnimoTest {
         expected.add("ONSTARTED^ELAPSE");
 
         assertEquals(expected, capture.signals);
+    }
+
+    @Test
+    void testSecondAnimoWithSameFilenameBecomesAliasOfFirstLoadedInstance() throws Exception {
+        Path sourceAnn = Gdx.files.internal("../assets/test-assets/MLYNEK.ANN").file().toPath();
+        Files.copy(sourceAnn, tempDir.resolve("MLYNEK.ANN"));
+
+        Path cnv = tempDir.resolve("SCENE.CNV");
+        Files.writeString(cnv, """
+            #
+            #ANIMOKURA3
+            #
+            OBJECT=ANIMOKURA3
+            ANIMOKURA3:TYPE=ANIMO
+            ANIMOKURA3:FILENAME=MLYNEK.ANN
+            ANIMOKURA3:PRIORITY=1000
+
+            #
+            #ANIMOKURA4
+            #
+            OBJECT=ANIMOKURA4
+            ANIMOKURA4:TYPE=ANIMO
+            ANIMOKURA4:FILENAME=MLYNEK.ANN
+            ANIMOKURA4:PRIORITY=50000
+            """);
+
+        Context ctx = new ContextBuilder().build();
+        Game game = mock(Game.class);
+        when(game.getCurrentSceneFile()).thenReturn(tempDir.toFile());
+        when(game.getLanguage()).thenReturn("POL");
+        ctx.setGame(game);
+
+        new CNVParser().parseFile(cnv.toFile(), ctx);
+
+        AnimoVariable first = (AnimoVariable) ctx.getVariable("ANIMOKURA3");
+        AnimoVariable second = (AnimoVariable) ctx.getVariable("ANIMOKURA4");
+
+        assertNotNull(first);
+        assertNotNull(second);
+        assertTrue(first.getEventsCount() > 0);
+        assertTrue(second.getEventsCount() > 0);
+        assertEquals(1000, first.getPriority());
+        assertEquals(1000, second.getPriority());
+        assertEquals("ANIMOKURA4", second.name());
     }
 }

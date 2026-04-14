@@ -27,10 +27,8 @@ public class CNVParser {
      * Parses a CNV file and populates the context with variables.
      */
     public void parseFile(File file, Context context) throws IOException {
-        try {
-            FileReader reader = new FileReader(file);
-            BufferedReader bufferedReader = new BufferedReader(reader);
-
+        try (FileReader reader = new FileReader(file);
+             BufferedReader bufferedReader = new BufferedReader(reader)) {
             String line;
             StringBuilder content = new StringBuilder();
             boolean decipher = false;

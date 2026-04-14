@@ -219,11 +219,17 @@ public record AnimoVariable(
     }
 
     @Override
+    public Variable copyAs(String newName) {
+        return copyFromTemplate(this, newName, new HashMap<>(signals));
+    }
+
+    @Override
     public void init(Context context) {
         // Read attributes from context (like v1's initAttributes)
         initAttributesFromContext(context);
 
-        String filename = state.filename;
+        String filename = normalizeFilename(state.filename);
+        state.filename = filename;
         if (filename == null || filename.isEmpty()) {
             Gdx.app.debug("AnimoVariable", name + ": No FILENAME, skipping load");
             return;
@@ -234,6 +240,13 @@ public record AnimoVariable(
         String resolvedPath = filename;
         if (game != null) {
             resolvedPath = FileUtils.resolveRelativePath(game, filename);
+        }
+
+        AnimoVariable aliased = aliasFromPreviouslyLoadedVariable(context, resolvedPath);
+        if (aliased != null) {
+            context.setVariable(name, aliased);
+            Gdx.app.log("AnimoVariable", name + ": Reused ANIMO from " + resolvedPath + " via alias copy");
+            return;
         }
 
         try {
@@ -261,6 +274,121 @@ public record AnimoVariable(
             Gdx.app.log("AnimoVariable", name + ": Loaded ANIMO from " + resolvedPath);
         } catch (Exception e) {
             Gdx.app.error("AnimoVariable", name + ": Failed to load ANIMO: " + e.getMessage(), e);
+        }
+    }
+
+    private AnimoVariable aliasFromPreviouslyLoadedVariable(Context context, String resolvedPath) {
+        for (Variable variable : context.getVariables(false).values()) {
+            if (!(variable instanceof AnimoVariable source) || source.name.equals(name) || source.data == AnimoData.EMPTY) {
+                continue;
+            }
+
+            String sourceFilename = normalizeFilename(source.state.filename);
+            if (sourceFilename == null || sourceFilename.isEmpty()) {
+                continue;
+            }
+
+            String sourceResolvedPath = resolvedPath;
+            Game game = context.getGame();
+            if (game != null) {
+                sourceResolvedPath = FileUtils.resolveRelativePath(game, sourceFilename);
+            }
+
+            if (sourceResolvedPath.equalsIgnoreCase(resolvedPath)) {
+                return copyFromTemplate(source, name, signals);
+            }
+        }
+        return null;
+    }
+
+    private static String normalizeFilename(String filename) {
+        if (filename == null || filename.isEmpty()) {
+            return filename;
+        }
+        return filename.toUpperCase().endsWith(".ANN") ? filename : filename + ".ANN";
+    }
+
+    private static AnimoVariable copyFromTemplate(AnimoVariable template, String newName, Map<String, SignalHandler> newSignals) {
+        AnimoPlaybackState copiedState = template.state.copy();
+        AnimoData copiedData = copyData(template.data);
+        rebindStateToCopiedData(template, copiedState, copiedData);
+        return new AnimoVariable(newName, copiedState, copiedData, newSignals);
+    }
+
+    private static AnimoData copyData(AnimoData source) {
+        if (source == null || source == AnimoData.EMPTY) {
+            return AnimoData.EMPTY;
+        }
+
+        List<Image> images = new ArrayList<>(source.images());
+        List<Event> events = new ArrayList<>(source.events().size());
+
+        for (Event sourceEvent : source.events()) {
+            Event copiedEvent = new Event();
+            copiedEvent.setName(sourceEvent.getName());
+            copiedEvent.setFramesCount(sourceEvent.getFramesCount());
+            copiedEvent.setLoopStart(sourceEvent.getLoopStart());
+            copiedEvent.setLoopEnd(sourceEvent.getLoopEnd());
+            copiedEvent.setRepeatCount(sourceEvent.getRepeatCount());
+            copiedEvent.setRepeatCounter(sourceEvent.getRepeatCounter());
+            copiedEvent.setOpacity(sourceEvent.getOpacity());
+            copiedEvent.setFlags(sourceEvent.getFlags());
+            copiedEvent.setFramesNumbers(new ArrayList<>(sourceEvent.getFramesNumbers()));
+
+            List<FrameData> copiedFrameData = new ArrayList<>();
+            if (sourceEvent.getFrameData() != null) {
+                for (FrameData sourceFrame : sourceEvent.getFrameData()) {
+                    FrameData copiedFrame = new FrameData();
+                    copiedFrame.setStartingBytes(sourceFrame.getStartingBytes() != null ? sourceFrame.getStartingBytes().clone() : null);
+                    copiedFrame.setOffsetX(sourceFrame.getOffsetX());
+                    copiedFrame.setOffsetY(sourceFrame.getOffsetY());
+                    copiedFrame.setSfxRandomSeed(sourceFrame.getSfxRandomSeed());
+                    copiedFrame.setOpacity(sourceFrame.getOpacity());
+                    copiedFrame.setName(sourceFrame.getName());
+                    copiedFrame.setSfxDescription(sourceFrame.getSfxDescription());
+                    copiedFrame.setSfxAudio(sourceFrame.getSfxAudio() != null ? new ArrayList<>(sourceFrame.getSfxAudio()) : new ArrayList<>());
+                    copiedFrameData.add(copiedFrame);
+                }
+            }
+            copiedEvent.setFrameData(copiedFrameData);
+
+            List<Image> copiedFrames = new ArrayList<>();
+            if (sourceEvent.getFramesNumbers() != null) {
+                for (Integer frameNumber : sourceEvent.getFramesNumbers()) {
+                    copiedFrames.add(images.get(frameNumber));
+                }
+            }
+            copiedEvent.setFrames(copiedFrames);
+            events.add(copiedEvent);
+        }
+
+        return new AnimoData(
+            events,
+            images,
+            source.imagesCount(),
+            source.eventsCount(),
+            source.colorDepth(),
+            source.fps(),
+            source.opacity(),
+            source.maxWidth(),
+            source.maxHeight(),
+            source.description(),
+            source.signature()
+        );
+    }
+
+    private static void rebindStateToCopiedData(AnimoVariable template, AnimoPlaybackState copiedState, AnimoData copiedData) {
+        copiedState.currentEvent = null;
+        if (template.state.currentEvent != null) {
+            int eventIndex = template.data.events().indexOf(template.state.currentEvent);
+            if (eventIndex >= 0 && eventIndex < copiedData.events().size()) {
+                copiedState.currentEvent = copiedData.events().get(eventIndex);
+            }
+        }
+
+        copiedState.currentImage = null;
+        if (copiedState.currentImageNumber >= 0 && copiedState.currentImageNumber < copiedData.images().size()) {
+            copiedState.currentImage = copiedData.images().get(copiedState.currentImageNumber);
         }
     }
 
