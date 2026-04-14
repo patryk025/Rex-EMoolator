@@ -154,7 +154,7 @@ public record ButtonVariable(
         // Set default state
         String enableAttr = context.attributes().get(name, "ENABLE");
         if (enableAttr != null && enableAttr.equalsIgnoreCase("FALSE")) {
-            state.buttonState = ButtonState.DISABLED;
+            changeState(ButtonEvent.DISABLE_BUT_VISIBLE, context);
         } else {
             changeState(ButtonEvent.ENABLE, context);
         }
@@ -285,6 +285,7 @@ public record ButtonVariable(
         if (varName == null) return;
         Variable gfx = context.getVariable(varName);
         if (gfx instanceof AnimoVariable animo) {
+            animo.state().toCanvas = true;
             if (visible) animo.callMethod("SHOW", List.of());
             else animo.callMethod("HIDE", List.of());
         } else if (gfx instanceof ImageVariable img) {
