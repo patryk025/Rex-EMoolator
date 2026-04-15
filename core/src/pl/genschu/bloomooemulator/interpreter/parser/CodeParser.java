@@ -432,13 +432,7 @@ public class CodeParser {
             return new IfNode(condition, trueBranch, falseBranch, location);
         }
         if (args.size() == 5) {
-            String left = extractStringValue(args.get(0).node());
-            String operator = extractStringValue(args.get(1).node());
-            String right = extractStringValue(args.get(2).node());
-            String condText = left + operator.replace("_", "'") + right;
-
-            SourceSpan combinedSpan = merge(args.get(0).source(), args.get(2).source());
-            ASTNode condition = parseCondition(derivedSpan(condText, combinedSpan));
+            ASTNode condition = buildComparison(args.get(0), args.get(1), args.get(2), "@IF");
             ASTNode trueBranch = reinterpretAsCodeBlock(args.get(3));
             ASTNode falseBranch = reinterpretAsCodeBlock(args.get(4));
             return new IfNode(condition, trueBranch, falseBranch, location);
@@ -450,17 +444,21 @@ public class CodeParser {
         if (args.size() != 4) {
             throw new ParseException("@WHILE expects 4 arguments", location);
         }
-        ASTNode left = args.get(0).node();
-        String op = extractStringValue(args.get(1).node());
-        ASTNode right = args.get(2).node();
+        ASTNode condition = buildComparison(args.get(0), args.get(1), args.get(2), "@WHILE");
         ASTNode body = reinterpretAsCodeBlock(args.get(3));
-        ASTNode condition = new ComparisonNode(
+        return new WhileNode(condition, body, location);
+    }
+
+    private static ASTNode buildComparison(ParsedArgument leftArg, ParsedArgument opArg, ParsedArgument rightArg, String callName) {
+        ASTNode left = reinterpretAsConditionOperand(leftArg);
+        ASTNode right = reinterpretAsConditionOperand(rightArg);
+        ComparisonNode.ComparisonOp op = ComparisonNode.ComparisonOp.fromString(extractOperator(opArg, callName));
+        return new ComparisonNode(
             left,
             right,
-            ComparisonNode.ComparisonOp.fromString(op),
-            loc(merge(args.get(0).source(), args.get(2).source()))
+            op,
+            loc(merge(leftArg.source(), rightArg.source()))
         );
-        return new WhileNode(condition, body, location);
     }
 
     private static ASTNode buildLoop(List<ParsedArgument> args, SourceLocation location) {
@@ -817,6 +815,34 @@ public class CodeParser {
         return arg.node();
     }
 
+    /**
+     * Treats a comparison operand argument as an expression rather than a bare string.
+     * If the parser already produced a non-literal node (MethodCallNode, ArithmeticNode,
+     * VariableNode, ...), it is returned as-is. If it ended up as a string literal
+     * (typical for the 5-arg @IF / @WHILE form where everything is quoted), its content
+     * is re-parsed as a condition operand.
+     */
+    private static ASTNode reinterpretAsConditionOperand(ParsedArgument arg) {
+        if (arg.node() instanceof LiteralNode lit && lit.value() instanceof StringValue) {
+            SourceSpan content = literalContent(arg.source());
+            if (content.trim().isEmpty()) {
+                return arg.node();
+            }
+            return parseConditionOperand(content);
+        }
+        return arg.node();
+    }
+
+    private static String extractOperator(ParsedArgument arg, String callName) {
+        if (arg.node() instanceof LiteralNode lit && lit.value() instanceof StringValue sv) {
+            return sv.value();
+        }
+        throw new ParseException(
+            callName + " operator must be a string literal, got: " + arg.node(),
+            arg.node().location()
+        );
+    }
+
     // ========================================
     // UTILITY METHODS
     // ========================================
@@ -940,12 +966,6 @@ public class CodeParser {
             Math.min(first.start(), second.start()),
             Math.max(first.end(), second.end())
         );
-    }
-
-    private static SourceSpan derivedSpan(String text, SourceSpan anchor) {
-        SourceLocation location = loc(anchor);
-        SourceText source = SourceText.from(text, location.line(), location.column());
-        return new SourceSpan(source, 0, source.raw().length());
     }
 
     private static SourceLocation loc(SourceSpan span) {

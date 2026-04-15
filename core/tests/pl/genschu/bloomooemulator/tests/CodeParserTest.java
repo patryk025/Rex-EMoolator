@@ -144,6 +144,24 @@ public class CodeParserTest {
                             "@RETURN(TEST);" +
                           "}", "OK"),
                 arguments("{" +
+                            "@STRING(\"TEST\", \"\");" +
+                            "@IF(\"TEST_BEH^RUN()\",\"_\",2,\"{" +
+                                "TEST^SET(\"OK\");" +
+                            "}\",\"{" +
+                                "TEST^SET(\"BAD\");" +
+                            "}\");" +
+                            "@RETURN(TEST);" +
+                          "}", "OK"),
+                arguments("{" +
+                            "@STRING(\"TEST\", \"\");" +
+                            "@IF(\"[TEST_VALUE_1+1]\",\"_\",6,\"{" +
+                                "TEST^SET(\"OK\");" +
+                            "}\",\"{" +
+                                "TEST^SET(\"BAD\");" +
+                            "}\");" +
+                            "@RETURN(TEST);" +
+                          "}", "OK"),
+                arguments("{" +
                             "@INT(\"A\",1);" +
                             "@INT(\"A\",[A+1]); " +
                             "@RETURN(A);" +
