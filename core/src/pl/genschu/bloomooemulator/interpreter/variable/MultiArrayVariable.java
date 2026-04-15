@@ -1,8 +1,10 @@
 package pl.genschu.bloomooemulator.interpreter.variable;
 
 import com.badlogic.gdx.Gdx;
+import pl.genschu.bloomooemulator.interpreter.context.Context;
 import pl.genschu.bloomooemulator.interpreter.helpers.ArgumentHelper;
 import pl.genschu.bloomooemulator.interpreter.values.*;
+import pl.genschu.bloomooemulator.interpreter.variable.capabilities.Initializable;
 import pl.genschu.bloomooemulator.loader.MultiArrayLoader;
 import pl.genschu.bloomooemulator.saver.MultiArraySaver;
 import pl.genschu.bloomooemulator.utils.FileUtils;
@@ -23,7 +25,7 @@ public record MultiArrayVariable(
     String name,
     MutableState state,
     Map<String, SignalHandler> signals
-) implements Variable {
+) implements Variable, Initializable {
 
     static final class MutableState {
         int[] dimensions;
@@ -31,7 +33,7 @@ public record MultiArrayVariable(
         int totalElements;
 
         MutableState() {
-            this.dimensions = new int[]{1};
+            this.dimensions = new int[]{16,16}; // 2D array, 16x16
             this.totalElements = 1;
             this.data = new Value[1];
         }
@@ -53,6 +55,16 @@ public record MultiArrayVariable(
     // INTERFACE IMPLEMENTATION
     // ========================================
 
+    @Override
+    public void init(Context context) {
+        // DIMENSIONS (default: 2)
+        String dimensionsAttr = context.getAttribute(name, "DIMENSIONS");
+        if (dimensionsAttr != null) {
+            int[] dimensions = new int[Integer.parseInt(dimensionsAttr)];
+            Arrays.fill(dimensions, 16);
+            state.dimensions = dimensions;
+        }
+    }
     @Override
     public Value value() {
         return NullValue.INSTANCE;
