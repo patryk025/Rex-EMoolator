@@ -76,6 +76,7 @@ public record AnimoVariable(
 
         // Collision
         public boolean monitorCollision = false;
+        public boolean monitorCollisionAlpha = false;
         public Music currentSfx;
 
         // Playback observers
@@ -110,6 +111,7 @@ public record AnimoVariable(
             copy.filters = new ArrayList<>(this.filters);
             copy.changeCursor = this.changeCursor;
             copy.monitorCollision = this.monitorCollision;
+            copy.monitorCollisionAlpha = this.monitorCollisionAlpha;
             copy.currentSfx = this.currentSfx;
             copy.filename = this.filename;
             copy.fps = this.fps;
@@ -480,6 +482,12 @@ public record AnimoVariable(
         if (monitorAttr != null && monitorAttr.equalsIgnoreCase("TRUE")) {
             state.monitorCollision = true;
         }
+
+        // MONITORCOLLISIONALPHA
+        String monitorAlphaAttr = context.getAttribute(name, "MONITORCOLLISIONALPHA");
+        if (monitorAlphaAttr != null && monitorAlphaAttr.equalsIgnoreCase("TRUE")) {
+            state.monitorCollisionAlpha = true;
+        }
     }
 
     // ========================================
@@ -534,6 +542,7 @@ public record AnimoVariable(
     public ButtonState getButtonState() { return state.buttonState; }
     public String getFilename() { return state.filename; }
     public boolean isMonitorCollision() { return state.monitorCollision; }
+    public boolean isMonitorCollisionAlpha() { return state.monitorCollisionAlpha; }
     public boolean isChangeCursor() { return state.changeCursor; }
     public List<Filter> getFilters() { return state.filters; }
     public boolean hasFilters() { return !state.filters.isEmpty(); }
@@ -1470,6 +1479,18 @@ public record AnimoVariable(
             if (ctx != null && ctx.getGame() != null) {
                 ctx.getGame().removeCollisionMonitor(thisVar);
             }
+            return MethodResult.noReturn();
+        })),
+
+        Map.entry("MONITORCOLLISIONALPHA", MethodSpec.of((self, args, ctx) -> {
+            AnimoVariable thisVar = (AnimoVariable) self;
+            thisVar.state.monitorCollisionAlpha = true;
+            return MethodResult.noReturn();
+        })),
+
+        Map.entry("REMOVEMONITORCOLLISIONALPHA", MethodSpec.of((self, args, ctx) -> {
+            AnimoVariable thisVar = (AnimoVariable) self;
+            thisVar.state.monitorCollisionAlpha = false;
             return MethodResult.noReturn();
         })),
 

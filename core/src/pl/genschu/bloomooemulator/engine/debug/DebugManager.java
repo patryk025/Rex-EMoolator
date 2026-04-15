@@ -27,7 +27,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Deque;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class DebugManager implements Disposable {
     private static final float VIRTUAL_HEIGHT = 600;
@@ -46,6 +48,8 @@ public class DebugManager implements Disposable {
 
     private String debugVariablesValues = "";
     private Box2D debugRect;
+
+    private final Set<String> loggedCollisionMismatches = new HashSet<>();
 
     private boolean showSceneSelector = false;
     private List<String> sceneList = new ArrayList<>();
@@ -96,6 +100,10 @@ public class DebugManager implements Disposable {
             renderButtonBorders();
         }
 
+        if (config.isDebugCollisions()) {
+            renderCollisionDebug();
+        }
+
         if (debugRect != null) {
             renderDebugRectangle();
         }
@@ -134,14 +142,21 @@ public class DebugManager implements Disposable {
             if (rect == null) continue;
 
             boolean visible = false;
+            boolean inQuadTree = false;
             if (variable instanceof ImageVariable img) {
                 visible = img.isVisible();
+                inQuadTree = img.state().monitorCollision;
             } else if (variable instanceof AnimoVariable animo) {
                 visible = animo.isVisible();
+                inQuadTree = animo.isMonitorCollision();
             }
 
             if (visible) {
-                shapeRenderer.setColor(Color.RED);
+                if(inQuadTree) {
+                    shapeRenderer.setColor(Color.MAGENTA);
+                } else {
+                    shapeRenderer.setColor(Color.RED);
+                }
             } else {
                 shapeRenderer.setColor(Color.GRAY);
             }
@@ -285,6 +300,150 @@ public class DebugManager implements Disposable {
         }
 
         shapeRenderer.end();
+    }
+
+    private void renderCollisionDebug() {
+        Set<EngineVariable> monitored = game.getCollisionMonitoredVariables();
+        if (monitored.isEmpty()) {
+            renderCollisionStats(0, 0, 0, 0);
+            return;
+        }
+
+        List<EngineVariable> snapshot = new ArrayList<>(monitored);
+        Set<EngineVariable> dirty = game.getDirtyCollisionObjects();
+
+        shapeRenderer.setProjectionMatrix(camera.combined);
+        shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
+
+        // QuadTree root bounds (matches Game.java: new Box2D(0, 0, 800, 600))
+        shapeRenderer.setColor(Color.DARK_GRAY);
+        shapeRenderer.rect(0, 0, 800, VIRTUAL_HEIGHT);
+
+        // Rect per monitored variable, colored by status
+        int collidingCount = 0;
+        for (EngineVariable variable : snapshot) {
+            Box2D rect = rectOf(variable);
+            if (rect == null) continue;
+
+            boolean isDirty = dirty.contains(variable);
+            boolean isColliding = !game.getCollidingWith(variable).isEmpty();
+
+            if (isColliding) {
+                shapeRenderer.setColor(Color.YELLOW);
+                collidingCount++;
+            } else if (isDirty) {
+                shapeRenderer.setColor(Color.CYAN);
+            } else {
+                shapeRenderer.setColor(Color.MAGENTA);
+            }
+
+            shapeRenderer.rect(
+                    rect.getXLeft(),
+                    VIRTUAL_HEIGHT - rect.getYTop() - rect.getHeight(),
+                    rect.getWidth(),
+                    rect.getHeight()
+            );
+        }
+
+        // Lines between currently-registered colliding pairs
+        shapeRenderer.setColor(Color.GREEN);
+        Set<String> drawnPairs = new HashSet<>();
+        int activePairs = 0;
+        for (EngineVariable variable : snapshot) {
+            Box2D a = rectOf(variable);
+            if (a == null) continue;
+            for (EngineVariable other : game.getCollidingWith(variable)) {
+                String key = pairKey(variable, other);
+                if (!drawnPairs.add(key)) continue;
+                Box2D b = rectOf(other);
+                if (b == null) continue;
+                shapeRenderer.line(centerX(a), centerY(a), centerX(b), centerY(b));
+                activePairs++;
+            }
+        }
+
+        // Retrieval correctness: for every intersecting pair of monitored rects,
+        // check whether the QuadTree actually surfaces it. Hidden pairs are the
+        // real "why wasn't this collision detected" signal.
+        int hiddenPairs = 0;
+        shapeRenderer.setColor(Color.ORANGE);
+        for (int i = 0; i < snapshot.size(); i++) {
+            EngineVariable vi = snapshot.get(i);
+            Box2D a = rectOf(vi);
+            if (a == null) continue;
+            Set<EngineVariable> retrieved = null;
+            for (int j = i + 1; j < snapshot.size(); j++) {
+                EngineVariable vj = snapshot.get(j);
+                Box2D b = rectOf(vj);
+                if (b == null) continue;
+                if (!a.intersects(b)) continue;
+
+                if (retrieved == null) {
+                    retrieved = new HashSet<>(
+                            game.getQuadTree().retrieve(new ArrayList<>(), vi));
+                }
+                if (!retrieved.contains(vj)) {
+                    hiddenPairs++;
+                    shapeRenderer.line(centerX(a), centerY(a), centerX(b), centerY(b));
+                    String key = pairKey(vi, vj);
+                    if (loggedCollisionMismatches.add(key)) {
+                        Gdx.app.log("CollisionDebug",
+                                "QuadTree missed overlap: " + vi.getName()
+                                        + " vs " + vj.getName()
+                                        + " | a=" + a + " b=" + b);
+                    }
+                }
+            }
+        }
+
+        shapeRenderer.end();
+
+        // Labels next to rects (separate batch pass)
+        batch.begin();
+        font.setColor(Color.WHITE);
+        for (EngineVariable variable : snapshot) {
+            Box2D rect = rectOf(variable);
+            if (rect == null) continue;
+            font.draw(batch, variable.getName(),
+                    rect.getXLeft(),
+                    VIRTUAL_HEIGHT - rect.getYTop() - rect.getHeight() - 3);
+        }
+        batch.end();
+
+        renderCollisionStats(snapshot.size(), dirty.size(), activePairs, hiddenPairs);
+    }
+
+    private void renderCollisionStats(int monitored, int dirty, int activePairs, int hiddenPairs) {
+        String stats = "Collisions [F10]"
+                + "\nMonitored: " + monitored
+                + "\nDirty: " + dirty
+                + "\nActive pairs: " + activePairs
+                + "\nQuadTree misses: " + hiddenPairs;
+
+        batch.begin();
+        font.setColor(hiddenPairs > 0 ? Color.ORANGE : Color.WHITE);
+        font.draw(batch, stats, 5, VIRTUAL_HEIGHT - 120);
+        batch.end();
+    }
+
+    private static String pairKey(EngineVariable a, EngineVariable b) {
+        String na = a.getName();
+        String nb = b.getName();
+        return na.compareTo(nb) <= 0 ? na + "|" + nb : nb + "|" + na;
+    }
+
+    private Box2D rectOf(EngineVariable variable) {
+        if (variable instanceof ImageVariable img) return img.getRect();
+        if (variable instanceof AnimoVariable animo) return animo.getRect();
+        return null;
+    }
+
+    private static float centerX(Box2D r) {
+        return r.getXLeft() + r.getWidth() / 2f;
+    }
+
+    private static float centerY(Box2D r) {
+        return VIRTUAL_HEIGHT - r.getYTop() - r.getHeight() / 2f;
     }
 
     private void debugMatrix(MatrixVariable matrixVariable) {

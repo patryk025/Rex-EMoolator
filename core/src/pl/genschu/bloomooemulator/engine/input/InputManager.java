@@ -204,8 +204,7 @@ public class InputManager implements Disposable {
         }
 
         if (Gdx.input.isKeyJustPressed(Input.Keys.F10)) {
-            // WorldVariable F10 debug — deferred until WorldVariable v2
-            Gdx.app.log("InputManager", "F10 world debug not available in v2 yet");
+            config.toggleDebugCollisions();
         }
 
         if (Gdx.input.isKeyJustPressed(Input.Keys.F11)) {

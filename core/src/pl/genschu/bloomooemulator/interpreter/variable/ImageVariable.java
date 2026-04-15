@@ -40,6 +40,7 @@ public record ImageVariable(
         public int priority = 0;
         public boolean visible = true;
         public boolean monitorCollision = false;
+        public boolean monitorCollisionAlpha = false;
         public String filename = "";
         public final Map<String, Box2D> alphaMasks = new HashMap<>();
         public final List<Filter> filters = new ArrayList<>();
@@ -59,6 +60,7 @@ public record ImageVariable(
             copy.priority = this.priority;
             copy.visible = this.visible;
             copy.monitorCollision = this.monitorCollision;
+            copy.monitorCollisionAlpha = this.monitorCollisionAlpha;
             copy.filename = this.filename;
             copy.alphaMasks.putAll(this.alphaMasks);
             copy.filters.addAll(this.filters);
@@ -168,6 +170,11 @@ public record ImageVariable(
         String monitorAttr = context.attributes().get(name, "MONITORCOLLISION");
         if (monitorAttr != null) {
             state.monitorCollision = monitorAttr.equalsIgnoreCase("TRUE");
+        }
+
+        String monitorAlphaAttr = context.attributes().get(name, "MONITORCOLLISIONALPHA");
+        if (monitorAlphaAttr != null) {
+            state.monitorCollisionAlpha = monitorAlphaAttr.equalsIgnoreCase("TRUE");
         }
 
         // Load image
@@ -370,6 +377,18 @@ public record ImageVariable(
             if (ctx != null && ctx.getGame() != null) {
                 ctx.getGame().removeCollisionMonitor(img);
             }
+            return MethodResult.noReturn();
+        })),
+
+        Map.entry("MONITORCOLLISIONALPHA", MethodSpec.of((self, args, ctx) -> {
+            ImageVariable img = (ImageVariable) self;
+            img.state.monitorCollisionAlpha = true;
+            return MethodResult.noReturn();
+        })),
+
+        Map.entry("REMOVEMONITORCOLLISIONALPHA", MethodSpec.of((self, args, ctx) -> {
+            ImageVariable img = (ImageVariable) self;
+            img.state.monitorCollisionAlpha = false;
             return MethodResult.noReturn();
         })),
 
