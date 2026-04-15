@@ -33,9 +33,9 @@ public record MultiArrayVariable(
         int totalElements;
 
         MutableState() {
-            this.dimensions = new int[]{16,16}; // 2D array, 16x16
-            this.totalElements = 1;
-            this.data = new Value[1];
+            this.dimensions = new int[]{16, 16}; // 2D array, 16x16
+            this.totalElements = 16 * 16;
+            this.data = new Value[this.totalElements];
         }
     }
 
@@ -58,12 +58,14 @@ public record MultiArrayVariable(
     @Override
     public void init(Context context) {
         // DIMENSIONS (default: 2)
+        int dimCount = 2;
         String dimensionsAttr = context.getAttribute(name, "DIMENSIONS");
         if (dimensionsAttr != null) {
-            int[] dimensions = new int[Integer.parseInt(dimensionsAttr)];
-            Arrays.fill(dimensions, 16);
-            state.dimensions = dimensions;
+            dimCount = Integer.parseInt(dimensionsAttr);
         }
+        int[] dimensions = new int[dimCount];
+        Arrays.fill(dimensions, 16);
+        setDimensions(dimensions);
     }
     @Override
     public Value value() {

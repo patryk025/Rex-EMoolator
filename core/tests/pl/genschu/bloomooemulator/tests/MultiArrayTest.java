@@ -187,6 +187,19 @@ class MultiArrayTest {
     }
 
     @Test
+    void testSetOnDefaultDimensions() {
+        // no explicit setDimensions() — default state must already be a usable 16x16
+        multiArrayVar.callMethod("SET", List.of(
+                new IntValue(0), new IntValue(1), new StringValue("LP")));
+
+        Value result = multiArrayVar.callMethod("GET", List.of(
+                new IntValue(0), new IntValue(1))).getReturnValue();
+
+        assertInstanceOf(StringValue.class, result);
+        assertEquals("LP", ((StringValue) result).value());
+    }
+
+    @Test
     void testLoadFromFile() {
         String filename = "test.mar";
         String absPath = Gdx.files.internal("../assets/test-assets/" + filename).file().getAbsolutePath();
