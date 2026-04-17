@@ -16,6 +16,7 @@ import pl.genschu.bloomooemulator.engine.config.EngineConfig;
 import pl.genschu.bloomooemulator.engine.context.EngineVariable;
 import pl.genschu.bloomooemulator.engine.context.GameContext;
 import pl.genschu.bloomooemulator.geometry.points.Point3D;
+import pl.genschu.bloomooemulator.interpreter.context.Context;
 import pl.genschu.bloomooemulator.interpreter.variable.*;
 import pl.genschu.bloomooemulator.geometry.shapes.Box2D;
 import pl.genschu.bloomooemulator.world.GameObject;
@@ -278,16 +279,20 @@ public class DebugManager implements Disposable {
 
         for (EngineVariable variable : buttons) {
             Box2D rect = null;
+            boolean buttonEnabled = true;
 
             if (variable instanceof ButtonVariable btn) {
-                if (!btn.isEnabled()) continue;
+                if (!btn.isEnabled()) buttonEnabled = false;
                 rect = btn.getRect();
             } else if (variable instanceof AnimoVariable animo) {
                 rect = animo.getRect();
             }
 
             if (rect != null) {
-                if (rect.contains((int) mousePos.x, (int) mousePos.y)) {
+                if (!buttonEnabled) {
+                    shapeRenderer.setColor(Color.GRAY);
+                }
+                else if (rect.contains((int) mousePos.x, (int) mousePos.y)) {
                     shapeRenderer.setColor(Color.GREEN);
                 } else {
                     shapeRenderer.setColor(Color.RED);
@@ -300,6 +305,23 @@ public class DebugManager implements Disposable {
         }
 
         shapeRenderer.end();
+
+        // Labels next to buttons
+        batch.begin();
+        font.setColor(Color.WHITE);
+        for (EngineVariable variable : buttons) {
+            Box2D rect = null;
+            if (variable instanceof ButtonVariable btn) {
+                rect = btn.getRect();
+            } else if (variable instanceof AnimoVariable animo) {
+                rect = animo.getRect();
+            }
+            if (rect == null) continue;
+            font.draw(batch, variable.getName(),
+                    rect.getXLeft(),
+                    VIRTUAL_HEIGHT - rect.getYTop() - rect.getHeight() - 3);
+        }
+        batch.end();
     }
 
     private void renderCollisionDebug() {
@@ -809,7 +831,8 @@ public class DebugManager implements Disposable {
                     }
                 }
 
-                if (btn.isEnabled() && btn.getRect() != null && btn.getRect().contains(x, y)) {
+                Box2D btnRect = btn.getRect();
+                if (btn.isEnabled() && btnRect != null && btnRect.contains(x, y)) {
                     return btn;
                 }
             } else if (variable instanceof AnimoVariable animo) {
@@ -872,7 +895,8 @@ public class DebugManager implements Disposable {
 
             if (rect == null) continue;
 
-            if (btn.getRect() != null && btn.getRect().intersects(rect)) {
+            Box2D btnRect = btn.getRect();
+            if (btnRect != null && btnRect.intersects(rect)) {
                 return true;
             }
         }

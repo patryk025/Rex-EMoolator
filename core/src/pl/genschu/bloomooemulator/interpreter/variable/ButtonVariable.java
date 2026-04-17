@@ -165,12 +165,12 @@ public record ButtonVariable(
         Variable rectVar = context.getVariable(rectAttr);
         if (rectVar instanceof AnimoVariable animo) {
             state.rectVarName = rectAttr;
-            state.rect = animo.getRect() != null ? animo.getRect() : new Box2D(0, 0, 0, 0);
+            state.rect = animo.getRect() != null ? animo.getRect().copy() : new Box2D(0, 0, 0, 0);
             return;
         }
         if (rectVar instanceof ImageVariable img) {
             state.rectVarName = rectAttr;
-            state.rect = img.getRect() != null ? img.getRect() : new Box2D(0, 0, 0, 0);
+            state.rect = img.getRect() != null ? img.getRect().copy() : new Box2D(0, 0, 0, 0);
             return;
         }
         // Try as comma-separated coordinates
