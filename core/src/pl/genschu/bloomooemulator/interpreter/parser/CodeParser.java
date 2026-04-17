@@ -808,11 +808,29 @@ public class CodeParser {
     private static ASTNode reinterpretAsCodeBlock(ParsedArgument arg) {
         if (arg.node() instanceof LiteralNode lit && lit.value() instanceof StringValue) {
             SourceSpan code = literalContent(arg.source());
-            if (!code.trim().isEmpty()) {
-                return parseCode(code);
+            SourceSpan trimmed = code.trim();
+            if (trimmed.isEmpty()) {
+                return arg.node();
             }
+            if (isBareIdentifier(trimmed.text())) {
+                SourceLocation location = loc(trimmed);
+                ASTNode target = new VariableNode(trimmed.text(), location);
+                return new MethodCallNode(target, "RUN", List.of(), location);
+            }
+            return parseCode(code);
         }
         return arg.node();
+    }
+
+    private static boolean isBareIdentifier(String text) {
+        if (text.isEmpty()) return false;
+        for (int i = 0; i < text.length(); i++) {
+            char c = text.charAt(i);
+            if (!Character.isLetterOrDigit(c) && c != '_') {
+                return false;
+            }
+        }
+        return true;
     }
 
     /**
@@ -834,8 +852,8 @@ public class CodeParser {
     }
 
     private static String extractOperator(ParsedArgument arg, String callName) {
-        if (arg.node() instanceof LiteralNode lit && lit.value() instanceof StringValue sv) {
-            return sv.value();
+        if (arg.node() instanceof LiteralNode lit && lit.value() instanceof StringValue(String value)) {
+            return value;
         }
         throw new ParseException(
             callName + " operator must be a string literal, got: " + arg.node(),
