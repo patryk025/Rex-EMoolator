@@ -114,18 +114,10 @@ public final class MethodHelper {
         };
     }
 
-    /**
-     * @deprecated Use {@link #callWithContext(Context, Variable, String, Value...)} instead.
-     */
-    @Deprecated
     public static Value callWithEffects(Context context, Variable variable, String methodName, Value... arguments) {
         return callWithContext(context, variable, methodName, arguments);
     }
 
-    /**
-     * @deprecated Use {@link #callWithContext(Context, String, String, Value...)} instead.
-     */
-    @Deprecated
     public static Value callWithEffects(Context context, String variableName, String methodName, Value... arguments) {
         return callWithContext(context, variableName, methodName, arguments);
     }

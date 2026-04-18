@@ -208,8 +208,6 @@ public class UpdateManager implements Disposable {
                     if (sound.update()) {
                         game.getPlayingAudios().remove(ev);
                     }
-                } else if (ev instanceof pl.genschu.bloomooemulator.interpreter.v1.variable.types.SoundVariable v1Sound) {
-                    v1Sound.update();
                 }
             }
         }

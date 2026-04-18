@@ -7,6 +7,9 @@ import pl.genschu.bloomooemulator.engine.physics.camera.CameraAnchor;
 import pl.genschu.bloomooemulator.engine.physics.pathfinding.AStar;
 import pl.genschu.bloomooemulator.geometry.points.Point3D;
 import pl.genschu.bloomooemulator.engine.context.EngineVariable;
+import pl.genschu.bloomooemulator.interpreter.values.IntValue;
+import pl.genschu.bloomooemulator.interpreter.values.StringValue;
+import pl.genschu.bloomooemulator.interpreter.variable.Variable;
 import pl.genschu.bloomooemulator.world.*;
 
 import java.util.*;
@@ -509,16 +512,10 @@ public class ODEPhysicsEngine implements IPhysicsEngine {
                 float screenX = (float) worldPos[0] + cameraAnchor.getCameraPosX();
                 float screenY = cameraAnchor.getCameraPosY() - (float) worldPos[1];
 
-                // set position via v1 or v2 API
-                if (var instanceof pl.genschu.bloomooemulator.interpreter.v1.variable.Variable v1Var) {
-                    v1Var.fireMethod("SETPOSITION",
-                            new pl.genschu.bloomooemulator.interpreter.v1.variable.types.IntegerVariable("", (int) screenX, v1Var.getContext()),
-                            new pl.genschu.bloomooemulator.interpreter.v1.variable.types.IntegerVariable("", (int) screenY, v1Var.getContext())
-                    );
-                } else if (var instanceof pl.genschu.bloomooemulator.interpreter.variable.Variable v2Var) {
+                if (var instanceof Variable v2Var) {
                     v2Var.callMethod("SETPOSITION", List.of(
-                            new pl.genschu.bloomooemulator.interpreter.values.IntValue((int) screenX),
-                            new pl.genschu.bloomooemulator.interpreter.values.IntValue((int) screenY)
+                            new IntValue((int) screenX),
+                            new IntValue((int) screenY)
                     ), null);
                 }
             }
@@ -559,10 +556,8 @@ public class ODEPhysicsEngine implements IPhysicsEngine {
     }
 
     private void emitSignalOnVar(EngineVariable var, String signalName, String signalValue) {
-        if (var instanceof pl.genschu.bloomooemulator.interpreter.v1.variable.Variable v1Var) {
-            v1Var.emitSignal(signalName, signalValue);
-        } else if (var instanceof pl.genschu.bloomooemulator.interpreter.variable.Variable v2Var) {
-            v2Var.emitSignal(signalName, new pl.genschu.bloomooemulator.interpreter.values.StringValue(signalValue));
+        if (var instanceof Variable v2Var) {
+            v2Var.emitSignal(signalName, new StringValue(signalValue));
         }
     }
 

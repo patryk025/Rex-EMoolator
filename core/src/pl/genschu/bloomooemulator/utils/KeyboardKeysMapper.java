@@ -1,4 +1,4 @@
-package pl.genschu.bloomooemulator.interpreter.v1.util;
+package pl.genschu.bloomooemulator.utils;
 
 import com.badlogic.gdx.Input;
 
@@ -6,11 +6,11 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-public class KeyboardsKeysMapper {
+public final class KeyboardKeysMapper {
     private static final Map<Integer, String> KEY_MAPPING = new HashMap<>();
     private static final Map<String, Integer> KEY_REVERSE_MAPPING = new HashMap<>();
+
     static {
-        // Function keys
         KEY_MAPPING.put(Input.Keys.F1, "F1");
         KEY_MAPPING.put(Input.Keys.F2, "F2");
         KEY_MAPPING.put(Input.Keys.F3, "F3");
@@ -24,7 +24,6 @@ public class KeyboardsKeysMapper {
         KEY_MAPPING.put(Input.Keys.F11, "F11");
         KEY_MAPPING.put(Input.Keys.F12, "F12");
 
-        // Special keys
         KEY_MAPPING.put(Input.Keys.ESCAPE, "ESC");
         KEY_MAPPING.put(Input.Keys.INSERT, "INSERT");
         KEY_MAPPING.put(Input.Keys.PAGE_UP, "PGUP");
@@ -41,7 +40,6 @@ public class KeyboardsKeysMapper {
         KEY_MAPPING.put(Input.Keys.SPACE, "SPACE");
         KEY_MAPPING.put(Input.Keys.TAB, "TAB");
 
-        // Letters
         KEY_MAPPING.put(Input.Keys.Q, "Q");
         KEY_MAPPING.put(Input.Keys.W, "W");
         KEY_MAPPING.put(Input.Keys.E, "E");
@@ -69,7 +67,6 @@ public class KeyboardsKeysMapper {
         KEY_MAPPING.put(Input.Keys.N, "N");
         KEY_MAPPING.put(Input.Keys.M, "M");
 
-        // Numbers
         KEY_MAPPING.put(Input.Keys.NUM_0, "0");
         KEY_MAPPING.put(Input.Keys.NUM_1, "1");
         KEY_MAPPING.put(Input.Keys.NUM_2, "2");
@@ -81,7 +78,6 @@ public class KeyboardsKeysMapper {
         KEY_MAPPING.put(Input.Keys.NUM_8, "8");
         KEY_MAPPING.put(Input.Keys.NUM_9, "9");
 
-        // Arrow keys
         KEY_MAPPING.put(Input.Keys.LEFT, "LEFT");
         KEY_MAPPING.put(Input.Keys.RIGHT, "RIGHT");
         KEY_MAPPING.put(Input.Keys.UP, "UP");
@@ -90,6 +86,9 @@ public class KeyboardsKeysMapper {
         for (Map.Entry<Integer, String> entry : KEY_MAPPING.entrySet()) {
             KEY_REVERSE_MAPPING.put(entry.getValue(), entry.getKey());
         }
+    }
+
+    private KeyboardKeysMapper() {
     }
 
     public static String getMappedKey(int key) {
@@ -102,6 +101,6 @@ public class KeyboardsKeysMapper {
 
     public static int getKeyCode(String key) {
         Integer keyCode = KEY_REVERSE_MAPPING.get(key);
-        return (keyCode != null) ? keyCode : -1;
+        return keyCode != null ? keyCode : -1;
     }
 }

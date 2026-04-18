@@ -2,9 +2,9 @@ package pl.genschu.bloomooemulator.engine.input;
 
 import com.badlogic.gdx.Gdx;
 import pl.genschu.bloomooemulator.engine.Game;
-import pl.genschu.bloomooemulator.interpreter.v1.util.KeyboardsKeysMapper;
 import pl.genschu.bloomooemulator.interpreter.values.StringValue;
 import pl.genschu.bloomooemulator.interpreter.variable.KeyboardVariable;
+import pl.genschu.bloomooemulator.utils.KeyboardKeysMapper;
 
 import java.util.Set;
 
@@ -26,8 +26,8 @@ public class KeyboardHandler {
         currentlyPressedKeys.clear();
 
         // Check all keys defined in the mapper
-        for (int keyCode : KeyboardsKeysMapper.getKeySet()) {
-            String keyName = KeyboardsKeysMapper.getMappedKey(keyCode);
+        for (int keyCode : KeyboardKeysMapper.getKeySet()) {
+            String keyName = KeyboardKeysMapper.getMappedKey(keyCode);
 
             boolean isPressed = Gdx.input.isKeyPressed(keyCode);
             boolean wasPressed = previouslyPressedKeys.contains(keyCode);

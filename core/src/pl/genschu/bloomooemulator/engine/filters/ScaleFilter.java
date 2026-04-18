@@ -2,7 +2,6 @@ package pl.genschu.bloomooemulator.engine.filters;
 
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.Texture;
-import pl.genschu.bloomooemulator.utils.LegacyArgumentsHelper;
 
 public class ScaleFilter extends Filter {
     @Override
@@ -12,13 +11,13 @@ public class ScaleFilter extends Filter {
 
         if (properties.containsKey("FACTORX")) {
             Object scaleObj = getProperty("FACTORX");
-            scaleX = (float) LegacyArgumentsHelper.getDouble(scaleObj);
+            scaleX = coerceFloat(scaleObj);
             if(scaleX <= 0) scaleX = 1f;
         }
 
         if (properties.containsKey("FACTORY")) {
             Object scaleObj = getProperty("FACTORY");
-            scaleY = (float) LegacyArgumentsHelper.getDouble(scaleObj);
+            scaleY = coerceFloat(scaleObj);
             if(scaleY <= 0) scaleY = 1f;
         }
 
@@ -43,5 +42,22 @@ public class ScaleFilter extends Filter {
                 texture.getHeight(),    // Texture region height
                 false, false            // Don't flip
         );
+    }
+
+    private static float coerceFloat(Object value) {
+        if (value instanceof Number number) {
+            return number.floatValue();
+        }
+        if (value instanceof Boolean bool) {
+            return bool ? 1f : 0f;
+        }
+        if (value instanceof String string) {
+            try {
+                return Float.parseFloat(string);
+            } catch (NumberFormatException ignored) {
+                return 0f;
+            }
+        }
+        return 0f;
     }
 }

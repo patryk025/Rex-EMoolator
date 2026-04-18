@@ -909,8 +909,6 @@ public class Game {
                 if(stopBackground || sound.state().sound != currentSceneMusic) {
                     sound.stop(false);
                 }
-            } else if (ev instanceof pl.genschu.bloomooemulator.interpreter.v1.variable.types.SoundVariable v1Sound) {
-                v1Sound.stop(false);
             }
         }
         playingAudios.clear();

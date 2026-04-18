@@ -2,7 +2,6 @@ package pl.genschu.bloomooemulator.utils;
 
 import com.badlogic.gdx.Gdx;
 import pl.genschu.bloomooemulator.engine.Game;
-import pl.genschu.bloomooemulator.interpreter.v1.variable.Variable;
 import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -57,11 +56,6 @@ public class FileUtils {
         return currentPath;
     }
 
-    public static String resolveRelativePath(Variable variable) {
-        String filePath = variable.getAttribute("FILENAME").getString();
-        return resolveRelativePath(variable, filePath);
-    }
-
     /**
      * Finds a file with language fallback mechanism.
      *
@@ -93,10 +87,6 @@ public class FileUtils {
         }
 
         return baseFile;
-    }
-
-    public static String resolveRelativePath(Variable variable, String filePath) {
-        return resolveRelativePath(variable.getContext().getGame(), filePath);
     }
 
     public static String resolveRelativePath(Game game, String filePath) {

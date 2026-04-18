@@ -4,8 +4,8 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import pl.genschu.bloomooemulator.annotations.InternalMutable;
 import pl.genschu.bloomooemulator.interpreter.helpers.ArgumentHelper;
-import pl.genschu.bloomooemulator.interpreter.v1.util.KeyboardsKeysMapper;
 import pl.genschu.bloomooemulator.interpreter.values.*;
+import pl.genschu.bloomooemulator.utils.KeyboardKeysMapper;
 
 import java.util.*;
 
@@ -130,7 +130,7 @@ public record KeyboardVariable(
 
         Map.entry("ISKEYDOWN", MethodSpec.of((self, args, ctx) -> {
             String keyName = ArgumentHelper.getString(args.get(0)).toUpperCase();
-            int keyCode = KeyboardsKeysMapper.getKeyCode(keyName);
+            int keyCode = KeyboardKeysMapper.getKeyCode(keyName);
             if (keyCode == -1) {
                 Gdx.app.error("KeyboardVariable", "Unknown key: " + keyName);
                 return MethodResult.returns(BoolValue.FALSE);

@@ -1,9 +1,7 @@
 package pl.genschu.bloomooemulator.loader;
 
 import com.badlogic.gdx.Gdx;
-import pl.genschu.bloomooemulator.interpreter.v1.variable.types.ImageVariable;
 import pl.genschu.bloomooemulator.objects.Image;
-import pl.genschu.bloomooemulator.utils.FileUtils;
 
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -13,15 +11,6 @@ import java.nio.ByteOrder;
 import java.nio.charset.StandardCharsets;
 
 public class ImageLoader {
-    public static void loadImage(ImageVariable variable) {
-        String filePath = FileUtils.resolveRelativePath(variable);
-        try (FileInputStream f = new FileInputStream(filePath)) {
-            readImage(variable, f);
-        } catch (IOException e) {
-            Gdx.app.error("ImageLoader", "Error while loading IMG: " + e.getMessage());
-        }
-    }
-
     /**
      * Loads an image from an absolute path into a v2 ImageVariable.
      */
@@ -76,12 +65,5 @@ public class ImageLoader {
         }
 
         return new Image(width, height, offsetX, offsetY, colorDepth, imageData, alphaData, compressionType);
-    }
-
-    private static void readImage(ImageVariable variable, InputStream f) throws IOException {
-        Image image = readImageData(f);
-        variable.setImage(image);
-        variable.setPosX(image.offsetX);
-        variable.setPosY(image.offsetY);
     }
 }

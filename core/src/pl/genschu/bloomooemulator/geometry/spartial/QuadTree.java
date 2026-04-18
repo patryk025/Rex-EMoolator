@@ -143,17 +143,11 @@ public class QuadTree {
     }
 
     private Box2D getRect(EngineVariable obj) {
-        // v2 types
         if (obj instanceof pl.genschu.bloomooemulator.interpreter.variable.ImageVariable img) {
             return img.getRect();
-        } else if (obj instanceof pl.genschu.bloomooemulator.interpreter.variable.AnimoVariable animo) {
-            return animo.getRect();
         }
-        // v1 types
-        if (obj instanceof pl.genschu.bloomooemulator.interpreter.v1.variable.types.ImageVariable v1Img) {
-            return v1Img.getRect();
-        } else if (obj instanceof pl.genschu.bloomooemulator.interpreter.v1.variable.types.AnimoVariable v1Animo) {
-            return v1Animo.getRect();
+        if (obj instanceof pl.genschu.bloomooemulator.interpreter.variable.AnimoVariable animo) {
+            return animo.getRect();
         }
         return null;
     }
