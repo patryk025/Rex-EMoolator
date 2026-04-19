@@ -6,18 +6,32 @@ An open-source emulator that recreates the behavior of the Piklib/BlooMoo engine
 
 ## Requirements
 
+### Build Toolchain
+- **JDK**: Version 21 or newer
+- **Gradle**: Use the wrapper included in the repository
+
 ### Desktop
-- **Java**: Version 11 or newer
+- **Java**: Version 21 or newer
 - **Operating System**: Windows, Linux, or macOS
 - **Game Files**: Original game files (data from the original CD-ROM or installation)
 
 ### Android
 - **Android Version**: 7.0 (API level 24) or newer
+- **Android SDK**: Installed and configured through `local.properties` (`sdk.dir=...`) or `ANDROID_HOME`
 - **Game Files**: Original game files
 
 ## Building the Project
 
 This project uses Gradle as its build system.
+
+### Full Build
+```bash
+# Windows
+gradlew.bat build
+
+# Linux/macOS
+./gradlew build
+```
 
 ### Desktop Build
 ```bash
@@ -30,7 +44,18 @@ gradlew.bat desktop:shadowJar
 
 The executable JAR will be created in `desktop/build/libs/`.
 
-### Android Build
+### Android Debug Build
+```bash
+# Windows
+gradlew.bat android:assembleDebug
+
+# Linux/macOS
+./gradlew android:assembleDebug
+```
+
+The debug APK will be created in `android/build/outputs/apk/debug/`.
+
+### Android Release Build
 ```bash
 # Windows
 gradlew.bat android:assembleRelease
@@ -39,7 +64,7 @@ gradlew.bat android:assembleRelease
 ./gradlew android:assembleRelease
 ```
 
-The APK will be created in `android/build/outputs/apk/`.
+The release APK will be created in `android/build/outputs/apk/release/`.
 
 ## Running the Emulator
 

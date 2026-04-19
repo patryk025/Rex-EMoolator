@@ -6,18 +6,32 @@ Otwartoźródłowy emulator odtwarzający zachowanie silnika Piklib/BlooMoo uży
 
 ## Wymagania
 
+### Toolchain do budowania
+- **JDK**: Wersja 21 lub nowsza
+- **Gradle**: Użyj wrappera dołączonego do repozytorium
+
 ### Desktop
-- **Java**: Wersja 11 lub nowsza
+- **Java**: Wersja 21 lub nowsza
 - **System operacyjny**: Windows, Linux lub macOS
 - **Pliki gier**: Oryginalne pliki gier (dane z oryginalnej płyty CD-ROM lub instalacji)
 
 ### Android
 - **Wersja Androida**: 7.0 (API level 24) lub nowsza
+- **Android SDK**: Zainstalowany i skonfigurowany przez `local.properties` (`sdk.dir=...`) albo `ANDROID_HOME`
 - **Pliki gier**: Oryginalne pliki gier
 
 ## Budowanie projektu
 
 Projekt wykorzystuje Gradle jako system budowania.
+
+### Pełny build projektu
+```bash
+# Windows
+gradlew.bat build
+
+# Linux/macOS
+./gradlew build
+```
 
 ### Budowanie wersji Desktop
 ```bash
@@ -30,7 +44,18 @@ gradlew.bat desktop:shadowJar
 
 Plik wykonywalny JAR zostanie utworzony w `desktop/build/libs/`.
 
-### Budowanie wersji Android
+### Budowanie wersji Android Debug
+```bash
+# Windows
+gradlew.bat android:assembleDebug
+
+# Linux/macOS
+./gradlew android:assembleDebug
+```
+
+Plik debug APK zostanie utworzony w `android/build/outputs/apk/debug/`.
+
+### Budowanie wersji Android Release
 ```bash
 # Windows
 gradlew.bat android:assembleRelease
@@ -39,7 +64,7 @@ gradlew.bat android:assembleRelease
 ./gradlew android:assembleRelease
 ```
 
-Plik APK zostanie utworzony w `android/build/outputs/apk/`.
+Plik release APK zostanie utworzony w `android/build/outputs/apk/release/`.
 
 ## Uruchamianie emulatora
 
