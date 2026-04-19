@@ -96,7 +96,7 @@ public sealed interface Variable extends EngineVariable permits
      * This is the primary overload used by the interpreter.
      */
     default MethodResult callMethod(String methodName, List<Value> arguments, MethodContext ctx) {
-        Gdx.app.log(getTypeName(), "Calling method: " + methodName + " for " + name() + " with arguments: " + (arguments == null ? List.of() : arguments));
+        Gdx.app.debug(getTypeName(), "Calling method: " + methodName + " for " + name() + " with arguments: " + (arguments == null ? List.of() : arguments));
         Map<String, MethodSpec> availableMethods = methods();
         MethodSpec spec = availableMethods != null
                 ? availableMethods.get(methodName.toUpperCase())
@@ -113,7 +113,7 @@ public sealed interface Variable extends EngineVariable permits
             result = spec.method().execute(this, arguments == null ? List.of() : arguments, ctx);
         }
 
-        // Persist value to INI file if TOINI attribute is set (matches v1 Variable.set() behavior)
+        // Persist value to INI file if TOINI attribute is set
         persistToIniIfNeeded(ctx);
 
         return result;
@@ -309,14 +309,14 @@ public sealed interface Variable extends EngineVariable permits
     default void emitSignal(String signalName, Value newValue, Value... arguments) {
         Map<String, SignalHandler> registeredSignals = signals();
         String fullSignalName = signalName + (newValue != null ? "^" + newValue.toDisplayString() : "");
-        Gdx.app.log(getTypeName(), "Emitting signal: " + fullSignalName + " for " + name() + " with arguments: " + (arguments == null ? List.of() : List.of(arguments)));
+        Gdx.app.debug(getTypeName(), "Emitting signal: " + fullSignalName + " for " + name() + " with arguments: " + (arguments == null ? List.of() : List.of(arguments)));
         if(registeredSignals != null) {
             SignalHandler handler = registeredSignals.get(fullSignalName);
             if (handler == null) {
                 handler = registeredSignals.get(signalName);
             }
             if (handler != null) {
-                Gdx.app.log(getTypeName(), "Executing signal: " + fullSignalName + " for " + name());
+                Gdx.app.debug(getTypeName(), "Executing signal: " + fullSignalName + " for " + name());
                 handler.handle(this, fullSignalName, arguments);
             }
         }

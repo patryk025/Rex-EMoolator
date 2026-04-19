@@ -126,7 +126,7 @@ class VariableCoreTest {
         assertNull(host.getSignal("ONCLICK"));
 
         // Use MethodHelper to execute method with effects
-        MethodHelper.callWithEffects(testCtx, "HOST", "ADDBEHAVIOUR",
+        MethodHelper.callWithContext(testCtx, "HOST", "ADDBEHAVIOUR",
                 new StringValue("ONCLICK"),
                 new StringValue("B"));
 
@@ -142,9 +142,9 @@ class VariableCoreTest {
                 .withVariable("BEHAVIOUR", "B_WITH_PARAMS", "{@RETURN($1);}")
                 .build();
 
-        Variable host = testCtx.getVariable("HOST");
+        Variable host;
 
-        MethodHelper.callWithEffects(testCtx, "HOST", "ADDBEHAVIOUR",
+        MethodHelper.callWithContext(testCtx, "HOST", "ADDBEHAVIOUR",
                 new StringValue("ONTEST"),
                 new StringValue("B_WITH_PARAMS(\"param1\")"));
 
@@ -162,7 +162,7 @@ class VariableCoreTest {
                 .withVariable("BEHAVIOUR", "B_WITH_PARAMS", "{TARGET^SET($1);}")
                 .build();
 
-        MethodHelper.callWithEffects(testCtx, "HOST", "ADDBEHAVIOUR",
+        MethodHelper.callWithContext(testCtx, "HOST", "ADDBEHAVIOUR",
                 new StringValue("ONTEST"),
                 new StringValue("B_WITH_PARAMS(PARAM)"));
 
@@ -181,7 +181,7 @@ class VariableCoreTest {
                 .build();
 
         // Add behaviour first
-        MethodHelper.callWithEffects(testCtx, "HOST", "ADDBEHAVIOUR",
+        MethodHelper.callWithContext(testCtx, "HOST", "ADDBEHAVIOUR",
                 new StringValue("ONTEST"),
                 new StringValue("B"));
 
@@ -189,7 +189,7 @@ class VariableCoreTest {
         assertNotNull(host.getSignal("ONTEST"));
 
         // Remove behaviour
-        MethodHelper.callWithEffects(testCtx, "HOST", "REMOVEBEHAVIOUR",
+        MethodHelper.callWithContext(testCtx, "HOST", "REMOVEBEHAVIOUR",
                 new StringValue("ONTEST"));
 
         // Get updated variable
@@ -228,7 +228,7 @@ class VariableCoreTest {
         Variable intVar = ctx.getVariable("ORIG");
 
         // Clone once
-        MethodHelper.callWithEffects(ctx, "ORIG", "CLONE");
+        MethodHelper.callWithContext(ctx, "ORIG", "CLONE");
 
         Variable clone1 = ctx.getVariable("ORIG_1");
         assertEquals("INTEGER", clone1.type().name());
@@ -236,7 +236,7 @@ class VariableCoreTest {
         assertEquals(42, clone1.value().toInt().value());
 
         // Clone 3 more times
-        MethodHelper.callWithEffects(ctx, "ORIG", "CLONE", new IntValue(3));
+        MethodHelper.callWithContext(ctx, "ORIG", "CLONE", new IntValue(3));
 
         Variable clone2 = ctx.getVariable("ORIG_2");
         Variable clone3 = ctx.getVariable("ORIG_3");
@@ -259,7 +259,7 @@ class VariableCoreTest {
         assertEquals(0, index.toInt().value());
 
         // Clone 2 times - use MethodHelper to execute effects
-        MethodHelper.callWithEffects(ctx, "ORIG", "CLONE", new IntValue(2));
+        MethodHelper.callWithContext(ctx, "ORIG", "CLONE", new IntValue(2));
 
         Variable clone1 = ctx.getVariable("ORIG_1");
         Variable clone2 = ctx.getVariable("ORIG_2");
@@ -309,7 +309,7 @@ class VariableCoreTest {
         assertFalse(signalExecuted.get());
 
         // Send signal - this should trigger the handler
-        MethodHelper.callWithEffects(testCtx, "TEST", "SEND", new StringValue("TEST"));
+        MethodHelper.callWithContext(testCtx, "TEST", "SEND", new StringValue("TEST"));
 
         assertTrue(signalExecuted.get());
     }

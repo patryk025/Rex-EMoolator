@@ -113,12 +113,4 @@ public final class MethodHelper {
             default            -> new StringVariable(name, value.toDisplayString());
         };
     }
-
-    public static Value callWithEffects(Context context, Variable variable, String methodName, Value... arguments) {
-        return callWithContext(context, variable, methodName, arguments);
-    }
-
-    public static Value callWithEffects(Context context, String variableName, String methodName, Value... arguments) {
-        return callWithContext(context, variableName, methodName, arguments);
-    }
 }
