@@ -23,7 +23,6 @@ allprojects {
         ashleyVersion = '1.7.4'
         aiVersion = '1.8.2'
         gdxControllersVersion = '2.2.4'
-        antlrVersion = '4.13.2'
         ini4jVersion = '0.5.4'
         oshiVersion = '6.6.3'
         jnaVersion = '5.18.1'
@@ -134,7 +133,6 @@ project(":core") {
         api "com.badlogicgames.gdx:gdx:$gdxVersion"
         api "com.badlogicgames.gdx-controllers:gdx-controllers-core:$gdxControllersVersion"
         api "com.badlogicgames.gdx:gdx-freetype:$gdxVersion"
-        api "org.antlr:antlr4-runtime:$antlrVersion"
         implementation "org.ini4j:ini4j:$ini4jVersion"
         implementation("com.github.oshi:oshi-core:$oshiVersion") {
             exclude group: 'net.java.dev.jna', module: 'jna'
