@@ -87,6 +87,11 @@ public record AnimoVariable(
         public int fps = 15;
         public float frameDuration = 1f / 15f;
 
+        // Discard the first updateAnimation() after PLAY — the first libGDX deltaTime
+        // includes time from *before* PLAY was called (render-loop smear), which would
+        // shorten the first displayed frame by up to one 60fps tick (~16 ms).
+        public boolean skipNextAccumulation = false;
+
         public AnimoPlaybackState() {}
 
         public AnimoPlaybackState copy() {
@@ -841,6 +846,10 @@ public record AnimoVariable(
     // ========================================
 
     public void updateAnimation(float deltaTime) {
+        if (state.skipNextAccumulation) {
+            state.skipNextAccumulation = false;
+            return;
+        }
         state.elapsedTime += deltaTime;
         if (state.elapsedTime <= state.frameDuration) return;
 
@@ -993,6 +1002,8 @@ public record AnimoVariable(
                     thisVar.changeAnimoState(AnimoEvent.END);
                     return MethodResult.noReturn();
                 }
+                thisVar.state.elapsedTime = 0f;
+                thisVar.state.skipNextAccumulation = true;
                 thisVar.setVisible(true);
                 thisVar.changeAnimoState(AnimoEvent.PLAY);
                 thisVar.setCurrentFrameNumber(0, true);
@@ -1011,6 +1022,8 @@ public record AnimoVariable(
                         thisVar.changeAnimoState(AnimoEvent.END);
                         return MethodResult.noReturn();
                     }
+                    thisVar.state.elapsedTime = 0f;
+                    thisVar.state.skipNextAccumulation = true;
                     thisVar.setVisible(true);
                     thisVar.changeAnimoState(AnimoEvent.PLAY);
                     thisVar.setCurrentFrameNumber(0, true);
@@ -1036,6 +1049,8 @@ public record AnimoVariable(
                     thisVar.changeAnimoState(AnimoEvent.END);
                     return MethodResult.noReturn();
                 }
+                thisVar.state.elapsedTime = 0f;
+                thisVar.state.skipNextAccumulation = true;
                 thisVar.setVisible(true);
                 thisVar.changeAnimoState(AnimoEvent.PLAY);
                 thisVar.setCurrentFrameNumber(0, true);
