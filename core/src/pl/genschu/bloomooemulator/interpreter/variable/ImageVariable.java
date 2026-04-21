@@ -42,7 +42,7 @@ public record ImageVariable(
         public boolean monitorCollision = false;
         public boolean monitorCollisionAlpha = false;
         public String filename = "";
-        public final Map<String, Box2D> alphaMasks = new HashMap<>();
+        public AlphaMaskBinding alphaMask = null;
         public final List<Filter> filters = new ArrayList<>();
 
         public ImageState() {}
@@ -62,7 +62,7 @@ public record ImageVariable(
             copy.monitorCollision = this.monitorCollision;
             copy.monitorCollisionAlpha = this.monitorCollisionAlpha;
             copy.filename = this.filename;
-            copy.alphaMasks.putAll(this.alphaMasks);
+            copy.alphaMask = this.alphaMask;
             copy.filters.addAll(this.filters);
             return copy;
         }
@@ -228,7 +228,9 @@ public record ImageVariable(
     public boolean hasFilters() { return !state.filters.isEmpty(); }
     public void addFilter(Filter filter) { state.filters.add(filter); }
     public void removeFilter(Filter filter) { state.filters.remove(filter); }
-    public Map<String, Box2D> getAlphaMasks() { return state.alphaMasks; }
+    public AlphaMaskBinding getAlphaMask() { return state.alphaMask; }
+
+    public record AlphaMaskBinding(ImageVariable mask, int posX, int posY) {}
 
     public boolean isAt(int x, int y) {
         return x >= state.rect.getXLeft() && x <= state.rect.getXRight()
@@ -343,9 +345,7 @@ public record ImageVariable(
             if (!(maskVar instanceof ImageVariable mask) || mask.state.image == null) {
                 return MethodResult.noReturn();
             }
-            int mw = mask.state.image.width;
-            int mh = mask.state.image.height;
-            img.state.alphaMasks.put(maskName, new Box2D(posX, posY + mh, posX + mw, posY));
+            img.state.alphaMask = new AlphaMaskBinding(mask, posX, posY);
             return MethodResult.noReturn();
         })),
 

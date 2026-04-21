@@ -97,9 +97,9 @@ public class RenderManager implements Disposable {
 
         Box2D rect = imageVariable.getRect();
         Box2D clippingRect = imageVariable.getClippingRect();
-        Map<String, Box2D> alphaMasks = imageVariable.getAlphaMasks();
+        ImageVariable.AlphaMaskBinding alphaMask = imageVariable.getAlphaMask();
 
-        if (alphaMasks.isEmpty()) {
+        if (alphaMask == null) {
             batch.setColor(1, 1, 1, imageVariable.getOpacity());
 
             if (clippingRect != null) {
@@ -108,7 +108,7 @@ public class RenderManager implements Disposable {
                 graphicsRenderer.renderImage(imageVariable);
             }
         } else {
-            alphaMaskRenderer.renderWithAlphaMask(imageVariable, rect, clippingRect, alphaMasks);
+            alphaMaskRenderer.renderWithAlphaMask(imageVariable, rect, clippingRect, alphaMask);
         }
     }
 

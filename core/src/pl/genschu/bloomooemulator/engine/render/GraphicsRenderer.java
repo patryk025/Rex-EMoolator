@@ -17,8 +17,6 @@ import pl.genschu.bloomooemulator.interpreter.variable.Variable;
 import pl.genschu.bloomooemulator.objects.Image;
 import pl.genschu.bloomooemulator.geometry.shapes.Box2D;
 
-import java.util.Map;
-
 /**
  * Class responsible for rendering graphics.
  */
@@ -221,30 +219,40 @@ class AlphaMaskRenderer implements Disposable {
     /**
      * Renders object with alpha mask
      */
-    public void renderWithAlphaMask(ImageVariable imageVariable, Box2D rect, Box2D clippingRect, Map<String, Box2D> alphaMasks) {
+    public void renderWithAlphaMask(ImageVariable imageVariable, Box2D rect, Box2D clippingRect, ImageVariable.AlphaMaskBinding alphaMask) {
         Image image = imageVariable.getImage();
         if (image == null || image.getImageTexture() == null) {
             return;
         }
 
-        // End the current batch
-        batch.end();
-
-        // Configuring alpha mask
-        batch.begin();
-        Gdx.gl.glColorMask(false, false, false, true);
-        batch.setBlendFunction(GL20.GL_ONE, GL20.GL_ZERO);
-
-        // Render alpha masks
-        // Note: in v2, mask variables need to be resolved from context.
-        // For now, we skip alpha mask rendering until context is available here.
-        // TODO: pass context to resolve mask variable names
+        Image maskImage = alphaMask.mask().getImage();
+        if (maskImage == null || maskImage.getImageTexture() == null) {
+            batch.setColor(1, 1, 1, imageVariable.getOpacity());
+            batch.draw(image.getImageTexture(),
+                    rect.getXLeft(),
+                    VIRTUAL_HEIGHT - rect.getYTop() - image.height,
+                    image.width,
+                    image.height);
+            return;
+        }
 
         batch.flush();
 
-        // Setting batch for rendering with alpha
+        // Write mask alpha into the destination alpha channel only
+        Gdx.gl.glColorMask(false, false, false, true);
+        batch.setBlendFunction(GL20.GL_ONE, GL20.GL_ZERO);
+        batch.setColor(1, 1, 1, 1);
+        batch.draw(maskImage.getImageTexture(),
+                alphaMask.posX(),
+                VIRTUAL_HEIGHT - alphaMask.posY() - maskImage.height,
+                maskImage.width,
+                maskImage.height);
+        batch.flush();
+
+        // Draw the image modulated by the destination alpha we just wrote
         Gdx.gl.glColorMask(true, true, true, true);
         batch.setBlendFunction(GL20.GL_DST_ALPHA, GL20.GL_ONE_MINUS_DST_ALPHA);
+        batch.setColor(1, 1, 1, imageVariable.getOpacity());
 
         // Rendering image
         if (clippingRect != null) {
@@ -260,9 +268,8 @@ class AlphaMaskRenderer implements Disposable {
         batch.flush();
 
         // Restoring default settings
-        batch.end();
-        batch.begin();
         batch.setBlendFunction(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
+        batch.setColor(1, 1, 1, 1);
     }
 
     private void renderWithClipping(Image image, Box2D rect, Box2D clippingRect) {
