@@ -134,7 +134,11 @@ public class RenderManager implements Disposable {
         drawList.sort((v1, v2) -> {
             int priority1 = getPriority(v1);
             int priority2 = getPriority(v2);
-            return Integer.compare(priority1, priority2);
+            int priorityComparison = Integer.compare(priority1, priority2);
+            if (priorityComparison != 0) {
+                return priorityComparison;
+            }
+            return Long.compare(getRenderOrder(v1), getRenderOrder(v2));
         });
     }
 
@@ -143,6 +147,15 @@ public class RenderManager implements Disposable {
             return img.state().priority;
         } else if (variable instanceof AnimoVariable animo) {
             return animo.getPriority();
+        }
+        return 0;
+    }
+
+    private long getRenderOrder(Variable variable) {
+        if (variable instanceof ImageVariable img) {
+            return img.getRenderOrder();
+        } else if (variable instanceof AnimoVariable animo) {
+            return animo.getRenderOrder();
         }
         return 0;
     }

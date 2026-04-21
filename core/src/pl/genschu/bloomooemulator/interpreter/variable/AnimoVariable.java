@@ -9,6 +9,7 @@ import pl.genschu.bloomooemulator.engine.decision.events.ButtonEvent;
 import pl.genschu.bloomooemulator.engine.decision.states.AnimoState;
 import pl.genschu.bloomooemulator.engine.decision.states.ButtonState;
 import pl.genschu.bloomooemulator.engine.filters.Filter;
+import pl.genschu.bloomooemulator.engine.render.RenderOrder;
 import pl.genschu.bloomooemulator.geometry.shapes.Box2D;
 import pl.genschu.bloomooemulator.interpreter.context.Context;
 import pl.genschu.bloomooemulator.interpreter.helpers.ArgumentHelper;
@@ -69,6 +70,7 @@ public record AnimoVariable(
         public boolean toCanvas = true;
         public int opacity = 255;
         public int priority = 0;
+        public long renderOrder = RenderOrder.next();
         public List<Filter> filters = new ArrayList<>();
 
         // Button
@@ -113,6 +115,7 @@ public record AnimoVariable(
             copy.toCanvas = this.toCanvas;
             copy.opacity = this.opacity;
             copy.priority = this.priority;
+            copy.renderOrder = this.renderOrder;
             copy.filters = new ArrayList<>(this.filters);
             copy.changeCursor = this.changeCursor;
             copy.monitorCollision = this.monitorCollision;
@@ -536,6 +539,7 @@ public record AnimoVariable(
     public boolean isVisible() { return state.visible; }
     public int getOpacity() { return state.opacity; }
     public int getPriority() { return state.priority; }
+    public long getRenderOrder() { return state.renderOrder; }
     public int getFps() { return state.fps; }
     public float getFrameDuration() { return state.frameDuration; }
     public int getDirection() { return state.direction; }
@@ -602,6 +606,7 @@ public record AnimoVariable(
 
     public void setPriority(int priority) {
         state.priority = priority;
+        state.renderOrder = RenderOrder.next();
     }
 
     public void setDirection(int direction) {

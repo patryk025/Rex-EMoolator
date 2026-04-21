@@ -74,10 +74,31 @@ public class ButtonHandler {
                                            MouseVariable mouseVariable, int minHSPriority, int maxHSPriority) {
         Context context = (Context) game.getCurrentSceneContext();
 
-        // find first button under cursor
+        List<Variable> hitTestOrder = new ArrayList<>(buttons);
+        hitTestOrder.sort((left, right) -> {
+            int priorityComparison = Integer.compare(
+                    getHitPriority(right, context),
+                    getHitPriority(left, context)
+            );
+            if (priorityComparison != 0) {
+                return priorityComparison;
+            }
+
+            int orderComparison = Long.compare(
+                    getHitRenderOrder(right, context),
+                    getHitRenderOrder(left, context)
+            );
+            if (orderComparison != 0) {
+                return orderComparison;
+            }
+
+            return Integer.compare(buttons.indexOf(right), buttons.indexOf(left));
+        });
+
+        // find topmost button under cursor
         Variable focusedButton = null;
 
-        for (Variable variable : buttons) {
+        for (Variable variable : hitTestOrder) {
             if (variable instanceof ButtonVariable btn) {
                 Variable image = getButtonGfx(btn, context);
 
@@ -147,6 +168,35 @@ public class ButtonHandler {
                 }
             }
         }
+    }
+
+    private int getHitPriority(Variable variable, Context context) {
+        if (variable instanceof ButtonVariable btn) {
+            Variable gfx = getButtonGfx(btn, context);
+            return gfx != null ? getPriority(gfx) : 0;
+        }
+        if (variable instanceof AnimoVariable animo) {
+            return animo.getPriority();
+        }
+        return 0;
+    }
+
+    private long getHitRenderOrder(Variable variable, Context context) {
+        if (variable instanceof ButtonVariable btn) {
+            Variable gfx = getButtonGfx(btn, context);
+            return getRenderOrder(gfx);
+        }
+        return getRenderOrder(variable);
+    }
+
+    private long getRenderOrder(Variable variable) {
+        if (variable instanceof ImageVariable img) {
+            return img.getRenderOrder();
+        }
+        if (variable instanceof AnimoVariable animo) {
+            return animo.getRenderOrder();
+        }
+        return 0;
     }
 
     private void processButtonVariable(ButtonVariable button, int x, int y, boolean isPressed,

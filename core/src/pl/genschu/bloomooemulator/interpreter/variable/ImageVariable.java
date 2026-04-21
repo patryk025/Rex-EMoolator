@@ -6,6 +6,7 @@ import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.TextureData;
 import pl.genschu.bloomooemulator.annotations.InternalMutable;
 import pl.genschu.bloomooemulator.engine.filters.Filter;
+import pl.genschu.bloomooemulator.engine.render.RenderOrder;
 import pl.genschu.bloomooemulator.interpreter.context.Context;
 import pl.genschu.bloomooemulator.interpreter.helpers.ArgumentHelper;
 import pl.genschu.bloomooemulator.interpreter.values.*;
@@ -38,6 +39,7 @@ public record ImageVariable(
         public Box2D rect = new Box2D(0, 0, 0, 0);
         public Box2D clippingRect = null;
         public int priority = 0;
+        public long renderOrder = RenderOrder.next();
         public boolean visible = true;
         public boolean monitorCollision = false;
         public boolean monitorCollisionAlpha = false;
@@ -58,6 +60,7 @@ public record ImageVariable(
                     ? new Box2D(clippingRect.getXLeft(), clippingRect.getYBottom(), clippingRect.getXRight(), clippingRect.getYTop())
                     : null;
             copy.priority = this.priority;
+            copy.renderOrder = this.renderOrder;
             copy.visible = this.visible;
             copy.monitorCollision = this.monitorCollision;
             copy.monitorCollisionAlpha = this.monitorCollisionAlpha;
@@ -224,6 +227,7 @@ public record ImageVariable(
     public Box2D getRect() { return state.rect; }
     public Box2D getClippingRect() { return state.clippingRect; }
     public boolean isVisible() { return state.visible; }
+    public long getRenderOrder() { return state.renderOrder; }
     public List<Filter> getFilters() { return state.filters; }
     public boolean hasFilters() { return !state.filters.isEmpty(); }
     public void addFilter(Filter filter) { state.filters.add(filter); }
@@ -422,6 +426,7 @@ public record ImageVariable(
         Map.entry("SETPRIORITY", MethodSpec.of((self, args, ctx) -> {
             ImageVariable img = (ImageVariable) self;
             img.state.priority = ArgumentHelper.getInt(args.get(0));
+            img.state.renderOrder = RenderOrder.next();
             return MethodResult.noReturn();
         })),
 

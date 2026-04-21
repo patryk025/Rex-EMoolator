@@ -154,7 +154,7 @@ public record ButtonVariable(
         // Set default state
         String enableAttr = context.attributes().get(name, "ENABLE");
         if (enableAttr != null && enableAttr.equalsIgnoreCase("FALSE")) {
-            changeState(ButtonEvent.DISABLE_BUT_VISIBLE, context);
+            changeState(ButtonEvent.DISABLE, context);
         } else {
             changeState(ButtonEvent.ENABLE, context);
         }
