@@ -416,7 +416,7 @@ public class Game {
                     }
                 }
                 else {
-                    Gdx.app.error("Game", "Episode " + episode.name() + " doesn't have preload scripts, but it's okey. Continue without it.");
+                    Gdx.app.error("Game", "Episode " + episode.name() + " doesn't have preload scripts. Continue without it.");
                 }
 
                 // Get first scene name
@@ -462,7 +462,16 @@ public class Game {
 
             currentSceneVariable = scene;
 
-            cnvParser.parseFile(sceneFile, currentSceneContext);
+            if(sceneFile != null) {
+                try {
+                    cnvParser.parseFile(sceneFile, currentSceneContext);
+                } catch (NullPointerException e) {
+                    Gdx.app.error("Game", "Error while loading scene " + scene.name() + ":\n" + e.getMessage());
+                }
+            }
+            else {
+                Gdx.app.error("Game", "Scene " + scene.name() + " doesn't have preload scripts. Continue without it.");
+            }
 
             // Load and play scene music
             try {
