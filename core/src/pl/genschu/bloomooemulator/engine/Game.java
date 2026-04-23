@@ -637,9 +637,7 @@ public class Game {
             return;
         }
         collisionMap.computeIfAbsent(a, k -> Collections.newSetFromMap(new IdentityHashMap<>())).add(b);
-        collisionMap.computeIfAbsent(b, k -> Collections.newSetFromMap(new IdentityHashMap<>())).add(a);
         emitCollisionSignal(a, "ONCOLLISION", b.getName());
-        emitCollisionSignal(b, "ONCOLLISION", a.getName());
     }
 
     public void releaseColliding(EngineVariable a, EngineVariable b) {
@@ -654,16 +652,7 @@ public class Game {
             }
         }
 
-        Set<EngineVariable> reverseSet = collisionMap.get(b);
-        if (reverseSet != null) {
-            reverseSet.remove(a);
-            if (reverseSet.isEmpty()) {
-                collisionMap.remove(b);
-            }
-        }
-
         emitCollisionSignal(a, "ONCOLLISIONFINISHED", b.getName());
-        emitCollisionSignal(b, "ONCOLLISIONFINISHED", a.getName());
     }
 
     public void markCollisionDirty(EngineVariable variable) {

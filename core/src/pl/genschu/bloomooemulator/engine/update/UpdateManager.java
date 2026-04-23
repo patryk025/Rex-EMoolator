@@ -179,10 +179,6 @@ public class UpdateManager implements Disposable {
                     if (animoVariable.isPlaying()) {
                         animoVariable.updateAnimation(deltaTime);
                     }
-                    // Mark dirty for collision-monitored variables (also refreshes QuadTree)
-                    if (animoVariable.isMonitorCollision()) {
-                        game.markCollisionDirty(animoVariable);
-                    }
                 }
             }
         }
