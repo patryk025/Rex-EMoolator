@@ -227,20 +227,31 @@ public class Game {
             runInit(currentApplicationContext);
 
             // Navigate: first episode → first scene
-            String firstEpisodeName = !applicationVariable.startWith().isEmpty()
-                    ? applicationVariable.startWith()
-                    : applicationVariable.episodeNames().isEmpty() ? null : applicationVariable.episodeNames().get(0);
+            String firstEpisodeName;
+            if (!applicationVariable.startWith().isEmpty()) {
+                if (!applicationVariable.episodeNames().contains(applicationVariable.startWith())) {
+                    Gdx.app.error("Game", "APPLICATION.STARTWITH references unknown episode: '"
+                            + applicationVariable.startWith() + "'. Available episodes: " + applicationVariable.episodeNames());
+                    firstEpisodeName = null;
+                } else {
+                    firstEpisodeName = applicationVariable.startWith();
+                }
+            } else {
+                firstEpisodeName = applicationVariable.episodeNames().isEmpty() ? null : applicationVariable.episodeNames().get(0);
+            }
 
+            String firstSceneName = null;
             if (firstEpisodeName != null) {
                 Variable firstEpVar = definitionContext.getVariable(firstEpisodeName);
                 if (firstEpVar instanceof EpisodeVariable firstEpisode) {
-                    String firstSceneName = !firstEpisode.startWith().isEmpty()
-                            ? firstEpisode.startWith()
-                            : firstEpisode.sceneNames().isEmpty() ? null : firstEpisode.sceneNames().get(0);
-                    if (firstSceneName != null) {
-                        goTo(firstSceneName);
-                    }
+                    firstSceneName = resolveStartScene(firstEpisode);
                 }
+            }
+
+            if (firstSceneName != null) {
+                goTo(firstSceneName);
+            } else {
+                showStartupError();
             }
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -360,23 +371,21 @@ public class Game {
         if (variable instanceof EpisodeVariable episode) {
             loadEpisode(episode);
         } else if (variable instanceof SceneVariable scene) {
-            if (currentEpisodeContext == null) {
-                // Find which episode contains this scene
-                for (String episodeName : applicationVariable.episodeNames()) {
-                    Variable epVar = definitionContext.getVariable(episodeName);
-                    if (epVar instanceof EpisodeVariable episode && episode.sceneNames().contains(name)) {
-                        loadEpisode(episode);
-                        break;
-                    }
-                }
+            // Find which episode contains this scene using episode.sceneNames()
+            EpisodeVariable ownerEpisode = findEpisodeForScene(name);
+            if (ownerEpisode != null) {
+                loadEpisode(ownerEpisode);
+            } else {
+                Gdx.app.error("Game", "Scene '" + name + "' not found in any episode's SCENES list");
             }
 
             previousSceneVariable = currentSceneVariable;
-            try {
+            if (previousSceneVariable != null) {
                 previousScene = previousSceneVariable.name();
             }
-            catch (NullPointerException ignored) {}
             loadScene(scene);
+        } else {
+            Gdx.app.error("Game", "GOTO target '" + name + "' is not a known Episode or Scene");
         }
     }
 
@@ -388,6 +397,55 @@ public class Game {
         }
 
         loadScene(previousSceneVariable);
+    }
+
+    private EpisodeVariable findEpisodeForScene(String sceneName) {
+        for (String episodeName : applicationVariable.episodeNames()) {
+            Variable epVar = definitionContext.getVariable(episodeName);
+            if (epVar instanceof EpisodeVariable episode && episode.sceneNames().contains(sceneName)) {
+                return episode;
+            }
+        }
+        return null;
+    }
+
+    private String resolveStartScene(EpisodeVariable episode) {
+        if (!episode.startWith().isEmpty()) {
+            if (!episode.sceneNames().contains(episode.startWith())) {
+                Gdx.app.error("Game", "EPISODE '" + episode.name() + "' STARTWITH references unknown scene: '"
+                        + episode.startWith() + "'. Available scenes: " + episode.sceneNames());
+                return null;
+            }
+            return episode.startWith();
+        }
+        return episode.sceneNames().isEmpty() ? null : episode.sceneNames().get(0);
+    }
+
+    private void showStartupError() {
+        Gdx.app.error("Game", "Cannot determine starting scene. Check Application.def for invalid STARTWITH values.");
+
+        SceneVariable errorScene = new SceneVariable("__ERROR__");
+        currentSceneVariable = errorScene;
+        currentScene = errorScene.name();
+
+        currentEpisodeVariable = new EpisodeVariable("__ERROR_EPISODE__", List.of(errorScene.name()), "", Map.of());
+        currentEpisode = currentEpisodeVariable.name();
+
+        currentEpisodeContext = new Context(new ExecutionContext(), currentApplicationContext != null ? currentApplicationContext : definitionContext);
+        currentEpisodeContext.setGame(this);
+
+        currentSceneContext = new Context(new ExecutionContext(), currentEpisodeContext);
+        currentSceneContext.setGame(this);
+
+        TextVariable errorText = new TextVariable("__STARTUP_ERROR__");
+        errorText.state().text = "Invalid startup parameters. Check Application.def or press F9 to change scene.";
+        errorText.state().visible = true;
+        errorText.state().toCanvas = true;
+        errorText.state().priority = Integer.MAX_VALUE;
+        errorText.state().rect = new Box2D(100, 50, 700, 150);
+        errorText.state().hJustify = "CENTER";
+        errorText.state().vJustify = "CENTER";
+        currentSceneContext.setVariable("__STARTUP_ERROR__", errorText);
     }
 
     private void loadEpisode(EpisodeVariable episode) {
@@ -420,9 +478,12 @@ public class Game {
                 }
 
                 // Get first scene name
-                currentScene = !episode.startWith().isEmpty()
-                        ? episode.startWith()
-                        : episode.sceneNames().isEmpty() ? "" : episode.sceneNames().get(0);
+                String resolved = resolveStartScene(episode);
+                if (resolved == null) {
+                    Gdx.app.error("Game", "Episode '" + episode.name() + "' has no valid starting scene. Aborting episode load.");
+                    return;
+                }
+                currentScene = resolved;
 
                 runInit(currentEpisodeContext);
 
