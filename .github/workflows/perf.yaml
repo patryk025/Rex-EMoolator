@@ -7,6 +7,10 @@ on:
       - feat/**
       - perf/**
 
+# check needed permissions for commenting on commits
+permissions:
+  contents: read
+
 jobs:
   jmh-benchmarks:
     if: startsWith(github.event.head_commit.message, 'perf:')
