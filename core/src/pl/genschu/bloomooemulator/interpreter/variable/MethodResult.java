@@ -1,5 +1,7 @@
 package pl.genschu.bloomooemulator.interpreter.variable;
 
+import pl.genschu.bloomooemulator.interpreter.runtime.BreakResult;
+import pl.genschu.bloomooemulator.interpreter.runtime.ExecutionResult;
 import pl.genschu.bloomooemulator.interpreter.values.NullValue;
 import pl.genschu.bloomooemulator.interpreter.values.Value;
 
@@ -31,6 +33,18 @@ public record MethodResult(
 
     public static MethodResult oneBreak() {
         return new MethodResult(NullValue.INSTANCE, ControlFlow.ONE_BREAK);
+    }
+
+    /**
+     * Converts a behaviour ExecutionResult into a MethodResult for propagation
+     * across procedure boundaries. {@link BreakResult} becomes {@link ControlFlow#BREAK}
+     * so it keeps climbing the procedure tree; everything else becomes a normal return.
+     */
+    public static MethodResult fromExecution(ExecutionResult execResult) {
+        if (execResult instanceof BreakResult) {
+            return MethodResult.breakAll();
+        }
+        return MethodResult.returns(execResult.getValue());
     }
 
     public Value getReturnValue() {

@@ -5,6 +5,7 @@ import pl.genschu.bloomooemulator.interpreter.context.Context;
 import pl.genschu.bloomooemulator.interpreter.helpers.ArgumentHelper;
 import pl.genschu.bloomooemulator.interpreter.runtime.ASTInterpreter;
 import pl.genschu.bloomooemulator.interpreter.runtime.ExecutionContext;
+import pl.genschu.bloomooemulator.interpreter.runtime.ExecutionResult;
 import pl.genschu.bloomooemulator.interpreter.values.StringValue;
 import pl.genschu.bloomooemulator.interpreter.values.Value;
 import pl.genschu.bloomooemulator.loader.CNVParser;
@@ -145,8 +146,9 @@ public record ClassVariable(
 
             Variable constructorBehaviour = classContext.store().get("CONSTRUCTOR");
             if (constructorBehaviour instanceof BehaviourVariable behaviour) {
-                new ASTInterpreter(classContext)
+                ExecutionResult ctorResult = new ASTInterpreter(classContext)
                         .runBehaviour("CONSTRUCTOR:" + varName, instance, behaviour, args);
+                return MethodResult.fromExecution(ctorResult);
             }
 
             return MethodResult.noReturn();
@@ -168,12 +170,16 @@ public record ClassVariable(
             }
 
             Variable destructorBehaviour = instance.instanceContext().store().get("DESTRUCTOR");
+            ExecutionResult dtorResult = null;
             if (destructorBehaviour instanceof BehaviourVariable behaviour) {
-                new ASTInterpreter(instance.instanceContext())
+                dtorResult = new ASTInterpreter(instance.instanceContext())
                         .runBehaviour("DESTRUCTOR:" + varName, instance, behaviour, args);
             }
 
             ctx.removeVariable(varName);
+            if (dtorResult != null) {
+                return MethodResult.fromExecution(dtorResult);
+            }
             return MethodResult.noReturn();
         }))
     );

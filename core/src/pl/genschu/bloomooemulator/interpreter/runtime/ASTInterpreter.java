@@ -46,8 +46,13 @@ public class ASTInterpreter {
     /**
      * Executes a BehaviourVariable's AST in a new frame.
      * Public convenience for signal execution and external callers.
+     *
+     * <p>Returns the full {@link ExecutionResult} so callers can decide whether
+     * a {@code @BREAK} should keep climbing the procedure stack. External entry
+     * points (signals, {@code __INIT__}) typically discard the result — they
+     * are top-level handlers with no enclosing procedure to propagate into.
      */
-    public Value runBehaviour(String frameName, Variable thisVar, BehaviourVariable behaviour, List<Value> args) {
+    public ExecutionResult runBehaviour(String frameName, Variable thisVar, BehaviourVariable behaviour, List<Value> args) {
         return methodContext.runBehaviour(frameName, thisVar, behaviour, args);
     }
 
@@ -83,8 +88,8 @@ public class ASTInterpreter {
             }
 
             @Override
-            public Value runBehaviour(String frameName, Variable thisVar,
-                                      BehaviourVariable behaviour, List<Value> args) {
+            public ExecutionResult runBehaviour(String frameName, Variable thisVar,
+                                                BehaviourVariable behaviour, List<Value> args) {
                 exec.pushFrame(frameName, behaviour.name(), null);
                 try {
                     if (args != null && !args.isEmpty()) {
@@ -96,11 +101,23 @@ public class ASTInterpreter {
                         exec.setThis(thisVar);
                     }
                     ASTInterpreter interpreter = new ASTInterpreter(context);
-                    interpreter.execute(behaviour.ast());
-                    if (interpreter.getPendingReturnValue() != null) {
-                        return interpreter.getPendingReturnValue();
+                    ExecutionResult execResult = interpreter.execute(behaviour.ast());
+
+                    // @BREAK escapes the procedure boundary — let the caller decide
+                    // how far to keep propagating (it'll bubble through executeMethodCall
+                    // and any enclosing loops).
+                    if (execResult instanceof BreakResult) {
+                        return BreakResult.INSTANCE;
                     }
-                    return NullValue.INSTANCE;
+
+                    // @ONEBREAK is procedure-local: swallow it here so the caller continues.
+                    // NormalResult / OneBreakResult / ReturnResult all collapse to a normal
+                    // return carrying the pending @RETURN value (if any).
+                    Value returnValue = interpreter.getPendingReturnValue();
+                    if (returnValue == null) {
+                        returnValue = NullValue.INSTANCE;
+                    }
+                    return new NormalResult(returnValue);
                 } finally {
                     exec.popFrame();
                 }

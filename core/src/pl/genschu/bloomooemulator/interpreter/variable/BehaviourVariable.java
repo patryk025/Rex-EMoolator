@@ -2,6 +2,8 @@ package pl.genschu.bloomooemulator.interpreter.variable;
 
 import com.badlogic.gdx.Gdx;
 import pl.genschu.bloomooemulator.interpreter.ast.ASTNode;
+import pl.genschu.bloomooemulator.interpreter.runtime.BreakResult;
+import pl.genschu.bloomooemulator.interpreter.runtime.ExecutionResult;
 import pl.genschu.bloomooemulator.interpreter.values.*;
 import pl.genschu.bloomooemulator.loader.BehaviourCodeParser;
 
@@ -65,8 +67,8 @@ public record BehaviourVariable(
     private static final Map<String, MethodSpec> METHODS = Map.ofEntries(
         Map.entry("RUN", MethodSpec.of((self, args, ctx) -> {
             BehaviourVariable behaviour = (BehaviourVariable) self;
-            Value result = ctx.runBehaviour("RUN:" + behaviour.name(), null, behaviour, args);
-            return MethodResult.returns(result);
+            ExecutionResult result = ctx.runBehaviour("RUN:" + behaviour.name(), null, behaviour, args);
+            return MethodResult.fromExecution(result);
         })),
 
         Map.entry("RUNC", MethodSpec.of((self, args, ctx) -> {
@@ -76,8 +78,8 @@ public record BehaviourVariable(
                 return MethodResult.noReturn();
             }
 
-            Value result = ctx.runBehaviour("RUNC:" + behaviour.name(), null, behaviour, args);
-            return MethodResult.returns(result);
+            ExecutionResult result = ctx.runBehaviour("RUNC:" + behaviour.name(), null, behaviour, args);
+            return MethodResult.fromExecution(result);
         })),
 
         Map.entry("RUNLOOPED", MethodSpec.of((self, args, ctx) -> {
@@ -110,7 +112,15 @@ public record BehaviourVariable(
                 loopArgs.add(new IntValue(i)); // $1 = loop counter
                 loopArgs.addAll(extraArgs);    // $2, $3, ... = extra args
 
-                ctx.runBehaviour("RUNLOOPED:" + behaviour.name(), null, behaviour, loopArgs);
+                ExecutionResult iterResult = ctx.runBehaviour(
+                    "RUNLOOPED:" + behaviour.name(), null, behaviour, loopArgs);
+
+                // @BREAK terminates the whole RUNLOOPED *and* propagates upward.
+                // @ONEBREAK was already swallowed at the procedure boundary, so
+                // it just ends the current iteration; the next one runs.
+                if (iterResult instanceof BreakResult) {
+                    return MethodResult.breakAll();
+                }
             }
 
             return MethodResult.noReturn();

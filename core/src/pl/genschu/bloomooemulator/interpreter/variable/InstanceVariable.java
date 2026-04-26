@@ -2,6 +2,7 @@ package pl.genschu.bloomooemulator.interpreter.variable;
 
 import pl.genschu.bloomooemulator.interpreter.context.Context;
 import pl.genschu.bloomooemulator.interpreter.runtime.ASTInterpreter;
+import pl.genschu.bloomooemulator.interpreter.runtime.ExecutionResult;
 import pl.genschu.bloomooemulator.interpreter.values.StringValue;
 import pl.genschu.bloomooemulator.interpreter.values.Value;
 import pl.genschu.bloomooemulator.interpreter.variable.capabilities.HasInstanceContext;
@@ -101,9 +102,9 @@ public record InstanceVariable(
             throw new IllegalArgumentException("Instance method calls require MethodContext");
         }
 
-        Value result = new ASTInterpreter(instanceContext)
+        ExecutionResult result = new ASTInterpreter(instanceContext)
                 .runBehaviour("RUN:" + methodName + "@" + name, this, (BehaviourVariable) behaviour, arguments);
-        return MethodResult.returns(result);
+        return MethodResult.fromExecution(result);
     }
 
     // ========================================

@@ -2,6 +2,7 @@ package pl.genschu.bloomooemulator.interpreter.variable;
 
 import com.badlogic.gdx.Gdx;
 import pl.genschu.bloomooemulator.interpreter.helpers.ArgumentHelper;
+import pl.genschu.bloomooemulator.interpreter.runtime.ExecutionResult;
 import pl.genschu.bloomooemulator.interpreter.values.*;
 
 import java.util.*;
@@ -121,8 +122,8 @@ public record ApplicationVariable(
             }
             Variable behaviourVar = ctx.getVariable(behaviourName);
             if (behaviourVar instanceof BehaviourVariable behaviour) {
-                Value result = ctx.runBehaviour("RUNENV:" + behaviourName, null, behaviour, List.of());
-                return MethodResult.returns(result);
+                ExecutionResult result = ctx.runBehaviour("RUNENV:" + behaviourName, null, behaviour, List.of());
+                return MethodResult.fromExecution(result);
             }
             return MethodResult.noReturn();
         })),

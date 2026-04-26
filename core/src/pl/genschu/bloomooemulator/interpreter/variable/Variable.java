@@ -168,6 +168,8 @@ public sealed interface Variable extends EngineVariable permits
                 final String[] finalParams = params;
                 SignalHandler handler = (variable, signal, signalArgs) -> {
                     List<Value> resolvedParams = resolveSignalParams(finalParams, ctx);
+                    // Signals are top-level entry points — discard the ExecutionResult.
+                    // A @BREAK inside the handler has no caller procedure to terminate.
                     ctx.runBehaviour("Signal:" + signal, variable, behaviour, resolvedParams);
                 };
 

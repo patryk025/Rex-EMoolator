@@ -2,7 +2,10 @@ package pl.genschu.bloomooemulator.builders;
 
 import pl.genschu.bloomooemulator.interpreter.context.Context;
 import pl.genschu.bloomooemulator.interpreter.runtime.ASTInterpreter;
+import pl.genschu.bloomooemulator.interpreter.runtime.BreakResult;
 import pl.genschu.bloomooemulator.interpreter.runtime.ExecutionContext;
+import pl.genschu.bloomooemulator.interpreter.runtime.ExecutionResult;
+import pl.genschu.bloomooemulator.interpreter.runtime.NormalResult;
 import pl.genschu.bloomooemulator.interpreter.values.*;
 import pl.genschu.bloomooemulator.interpreter.variable.*;
 
@@ -48,7 +51,7 @@ public final class MethodHelper {
             }
 
             @Override
-            public Value runBehaviour(String frameName, Variable thisVar, BehaviourVariable behaviour, List<Value> args) {
+            public ExecutionResult runBehaviour(String frameName, Variable thisVar, BehaviourVariable behaviour, List<Value> args) {
                 ExecutionContext exec = context.exec();
                 exec.pushFrame(frameName, behaviour.name(), null);
                 try {
@@ -61,11 +64,15 @@ public final class MethodHelper {
                         exec.setThis(thisVar);
                     }
                     ASTInterpreter interpreter = new ASTInterpreter(context);
-                    interpreter.execute(behaviour.ast());
-                    if (interpreter.getPendingReturnValue() != null) {
-                        return interpreter.getPendingReturnValue();
+                    ExecutionResult execResult = interpreter.execute(behaviour.ast());
+                    if (execResult instanceof BreakResult) {
+                        return BreakResult.INSTANCE;
                     }
-                    return NullValue.INSTANCE;
+                    Value returnValue = interpreter.getPendingReturnValue();
+                    if (returnValue == null) {
+                        returnValue = NullValue.INSTANCE;
+                    }
+                    return new NormalResult(returnValue);
                 } finally {
                     exec.popFrame();
                 }

@@ -3,6 +3,7 @@ package pl.genschu.bloomooemulator.interpreter.variable;
 import pl.genschu.bloomooemulator.engine.Game;
 import pl.genschu.bloomooemulator.interpreter.context.CloneRegistry;
 import pl.genschu.bloomooemulator.interpreter.context.Context;
+import pl.genschu.bloomooemulator.interpreter.runtime.ExecutionResult;
 import pl.genschu.bloomooemulator.interpreter.values.Value;
 
 import java.util.List;
@@ -50,13 +51,21 @@ public interface MethodContext {
      * Executes a BehaviourVariable's AST in a new frame.
      * Handles $1/$2 locals setup, THIS assignment, and frame push/pop.
      *
+     * <p>The returned {@link ExecutionResult} carries control-flow info so that
+     * {@code @BREAK} can propagate across procedure boundaries (terminating the
+     * whole procedure call tree). {@code @ONEBREAK} is swallowed at the
+     * boundary — the current behaviour exits but the caller continues.
+     *
      * @param frameName  Label for the stack frame (e.g. "RUN:myBehaviour")
      * @param thisVar    Variable to set as THIS (may be null)
      * @param behaviour  The BehaviourVariable whose AST to execute
      * @param args       Arguments to bind as $1, $2, ...
-     * @return The return value from the behaviour, or NullValue.INSTANCE
+     * @return Either {@link pl.genschu.bloomooemulator.interpreter.runtime.NormalResult}
+     *         with the behaviour's return value (or NullValue) or
+     *         {@link pl.genschu.bloomooemulator.interpreter.runtime.BreakResult}
+     *         when a {@code @BREAK} reached the top of the AST.
      */
-    Value runBehaviour(String frameName, Variable thisVar, BehaviourVariable behaviour, List<Value> args);
+    ExecutionResult runBehaviour(String frameName, Variable thisVar, BehaviourVariable behaviour, List<Value> args);
 
     /**
      * Returns the CloneRegistry for the current context.
