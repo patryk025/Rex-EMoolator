@@ -7,6 +7,9 @@ import com.badlogic.gdx.Application;
  * Manages debugging settings, logging levels, etc.
  */
 public class EngineConfig {
+    // singleton baby
+    private static EngineConfig instance;
+
     // debug settings
     private boolean debugGraphics = false;
     private boolean debugGraphicsBounds = false;
@@ -34,9 +37,16 @@ public class EngineConfig {
 
     // engine specific settings
     private boolean useOriginalDoubleRepresentation = true; // enables bugged double to string algorithm used in original engine
+    private boolean fixScriptsOnLoad = false; // add missing semicolons, parentheses, etc.
 
-    // TODO: Make it singleton
     public EngineConfig() {}
+
+    public static EngineConfig getInstance() {
+        if (instance == null) {
+            instance = new EngineConfig();
+        }
+        return instance;
+    }
 
     // getters, setters, whatever
     public boolean isDebugGraphics() {
@@ -197,6 +207,14 @@ public class EngineConfig {
 
     public void setUseOriginalDoubleRepresentation(boolean useOriginalDoubleRepresentation) {
         this.useOriginalDoubleRepresentation = useOriginalDoubleRepresentation;
+    }
+
+    public boolean isFixScriptsOnLoad() {
+        return fixScriptsOnLoad;
+    }
+
+    public void setFixScriptsOnLoad(boolean fixScriptsOnLoad) {
+        this.fixScriptsOnLoad = fixScriptsOnLoad;
     }
 
     /**

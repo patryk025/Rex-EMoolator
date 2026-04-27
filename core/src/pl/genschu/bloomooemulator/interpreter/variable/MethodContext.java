@@ -1,0 +1,81 @@
+package pl.genschu.bloomooemulator.interpreter.variable;
+
+import pl.genschu.bloomooemulator.engine.Game;
+import pl.genschu.bloomooemulator.interpreter.context.CloneRegistry;
+import pl.genschu.bloomooemulator.interpreter.context.Context;
+import pl.genschu.bloomooemulator.interpreter.runtime.ExecutionResult;
+import pl.genschu.bloomooemulator.interpreter.values.Value;
+
+import java.util.List;
+
+/**
+ * Contextual access for variable methods that need runtime information.
+ * Passed as a third parameter to VariableMethod.execute().
+ *
+ * May be null when called from outside interpreter (tests calling simple methods,
+ * SequenceVariable internal calls). Methods that need context must document this requirement.
+ */
+public interface MethodContext {
+
+    /**
+     * Gets a variable by name from the current context hierarchy.
+     */
+    Variable getVariable(String name);
+
+    /**
+     * Sets a variable in the current (local) context.
+     */
+    void setVariable(String name, Variable variable);
+
+    /**
+     * Removes a variable from the current context hierarchy.
+     *
+     * @return true if the variable was removed
+     */
+    boolean removeVariable(String name);
+
+    /**
+     * Updates a variable in the context hierarchy (searches up the parent chain).
+     *
+     * @return true if the update succeeded
+     */
+    boolean updateVariable(String name, Variable variable);
+
+    /**
+     * Gets the Game instance for scene navigation and application control.
+     * May return null in test contexts.
+     */
+    Game getGame();
+
+    /**
+     * Executes a BehaviourVariable's AST in a new frame.
+     * Handles $1/$2 locals setup, THIS assignment, and frame push/pop.
+     *
+     * <p>The returned {@link ExecutionResult} carries control-flow info so that
+     * {@code @BREAK} can propagate across procedure boundaries (terminating the
+     * whole procedure call tree). {@code @ONEBREAK} is swallowed at the
+     * boundary — the current behaviour exits but the caller continues.
+     *
+     * @param frameName  Label for the stack frame (e.g. "RUN:myBehaviour")
+     * @param thisVar    Variable to set as THIS (may be null)
+     * @param behaviour  The BehaviourVariable whose AST to execute
+     * @param args       Arguments to bind as $1, $2, ...
+     * @return Either {@link pl.genschu.bloomooemulator.interpreter.runtime.NormalResult}
+     *         with the behaviour's return value (or NullValue) or
+     *         {@link pl.genschu.bloomooemulator.interpreter.runtime.BreakResult}
+     *         when a {@code @BREAK} reached the top of the AST.
+     */
+    ExecutionResult runBehaviour(String frameName, Variable thisVar, BehaviourVariable behaviour, List<Value> args);
+
+    /**
+     * Returns the CloneRegistry for the current context.
+     */
+    CloneRegistry clones();
+
+    /**
+     * Returns the underlying v2 Context.
+     * Needed by operations that require deep context manipulation
+     * (e.g., CNVLoader creating child contexts, adding additional contexts).
+     */
+    Context context();
+}

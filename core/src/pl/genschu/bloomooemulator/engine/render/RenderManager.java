@@ -6,10 +6,9 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.utils.Disposable;
 import pl.genschu.bloomooemulator.engine.Game;
 import pl.genschu.bloomooemulator.engine.config.EngineConfig;
-import pl.genschu.bloomooemulator.interpreter.Context;
-import pl.genschu.bloomooemulator.interpreter.variable.Attribute;
-import pl.genschu.bloomooemulator.interpreter.variable.Variable;
-import pl.genschu.bloomooemulator.interpreter.variable.types.*;
+import pl.genschu.bloomooemulator.engine.context.EngineVariable;
+import pl.genschu.bloomooemulator.engine.context.GameContext;
+import pl.genschu.bloomooemulator.interpreter.variable.*;
 import pl.genschu.bloomooemulator.objects.Image;
 import pl.genschu.bloomooemulator.geometry.shapes.Box2D;
 
@@ -42,7 +41,7 @@ public class RenderManager implements Disposable {
     }
 
     public void render(float deltaTime) {
-        Context context = game.getCurrentSceneContext();
+        GameContext context = game.getCurrentSceneContext();
 
         // start rendering
         batch.begin();
@@ -66,7 +65,7 @@ public class RenderManager implements Disposable {
     }
 
     private void renderBackground() {
-        ImageVariable background = game.getCurrentSceneVariable().getBackground();
+        ImageVariable background = game.getCurrentBackgroundImage();
         if (background != null && background.getImage() != null) {
             Image image = background.getImage();
             if (image.getImageTexture() != null) {
@@ -82,10 +81,10 @@ public class RenderManager implements Disposable {
 
     private void renderGraphics(List<Variable> drawList) {
         for (Variable variable : drawList) {
-            if (variable instanceof ImageVariable) {
-                renderImage((ImageVariable) variable);
-            } else if (variable instanceof AnimoVariable) {
-                renderAnimo((AnimoVariable) variable);
+            if (variable instanceof ImageVariable img) {
+                renderImage(img);
+            } else if (variable instanceof AnimoVariable animo) {
+                renderAnimo(animo);
             }
         }
     }
@@ -98,9 +97,9 @@ public class RenderManager implements Disposable {
 
         Box2D rect = imageVariable.getRect();
         Box2D clippingRect = imageVariable.getClippingRect();
-        Map<String, Box2D> alphaMasks = imageVariable.getAlphaMasks();
+        ImageVariable.AlphaMaskBinding alphaMask = imageVariable.getAlphaMask();
 
-        if (alphaMasks.isEmpty()) {
+        if (alphaMask == null) {
             batch.setColor(1, 1, 1, imageVariable.getOpacity());
 
             if (clippingRect != null) {
@@ -109,7 +108,7 @@ public class RenderManager implements Disposable {
                 graphicsRenderer.renderImage(imageVariable);
             }
         } else {
-            alphaMaskRenderer.renderWithAlphaMask(imageVariable, rect, clippingRect, alphaMasks);
+            alphaMaskRenderer.renderWithAlphaMask(imageVariable, rect, clippingRect, alphaMask);
         }
     }
 
@@ -117,26 +116,48 @@ public class RenderManager implements Disposable {
         graphicsRenderer.renderAnimo(animoVariable);
     }
 
-    private void renderTexts(Context context) {
-        for (Variable variable : new ArrayList<>(context.getTextVariables().values())) {
-            textRenderer.renderText((TextVariable) variable);
+    private void renderTexts(GameContext context) {
+        for (EngineVariable variable : new ArrayList<>(context.getTextVariables().values())) {
+            if (variable instanceof TextVariable textVar) {
+                textRenderer.renderText(textVar);
+            }
         }
     }
 
+    @SuppressWarnings("unchecked")
     private List<Variable> getGraphicsVariables() {
-        Context context = game.getCurrentSceneContext();
-
-        return new ArrayList<>(context.getGraphicsVariables().values());
+        GameContext context = game.getCurrentSceneContext();
+        return new ArrayList<>((Collection<? extends Variable>) context.getGraphicsVariables().values());
     }
 
     private void sortByPriority(List<Variable> drawList) {
         drawList.sort((v1, v2) -> {
-            Attribute priorityAttr1 = v1.getAttribute("PRIORITY");
-            Attribute priorityAttr2 = v2.getAttribute("PRIORITY");
-            int priority1 = priorityAttr1 != null ? Integer.parseInt(priorityAttr1.getValue().toString()) : 0;
-            int priority2 = priorityAttr2 != null ? Integer.parseInt(priorityAttr2.getValue().toString()) : 0;
-            return Integer.compare(priority1, priority2);
+            int priority1 = getPriority(v1);
+            int priority2 = getPriority(v2);
+            int priorityComparison = Integer.compare(priority1, priority2);
+            if (priorityComparison != 0) {
+                return priorityComparison;
+            }
+            return Long.compare(getRenderOrder(v1), getRenderOrder(v2));
         });
+    }
+
+    private int getPriority(Variable variable) {
+        if (variable instanceof ImageVariable img) {
+            return img.state().priority;
+        } else if (variable instanceof AnimoVariable animo) {
+            return animo.getPriority();
+        }
+        return 0;
+    }
+
+    private long getRenderOrder(Variable variable) {
+        if (variable instanceof ImageVariable img) {
+            return img.getRenderOrder();
+        } else if (variable instanceof AnimoVariable animo) {
+            return animo.getRenderOrder();
+        }
+        return 0;
     }
 
     @Override
@@ -153,19 +174,16 @@ public class RenderManager implements Disposable {
         StringBuilder sb = new StringBuilder();
         for (Variable variable : drawList) {
             boolean visible = false;
-            if (variable instanceof ImageVariable) {
-                visible = ((ImageVariable) variable).isVisible();
-            } else if (variable instanceof AnimoVariable) {
-                visible = ((AnimoVariable) variable).isVisible();
+            if (variable instanceof ImageVariable img) {
+                visible = img.isVisible();
+            } else if (variable instanceof AnimoVariable animo) {
+                visible = animo.isVisible();
             }
 
             if (!visible) continue;
 
-            sb.append(variable.getName());
-            Attribute priority = variable.getAttribute("PRIORITY");
-            if (priority != null) {
-                sb.append(" (").append(priority.getValue()).append(")");
-            }
+            sb.append(variable.name());
+            sb.append(" (").append(getPriority(variable)).append(")");
             sb.append(", ");
         }
 

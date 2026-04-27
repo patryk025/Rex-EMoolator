@@ -10,14 +10,12 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Disposable;
 import pl.genschu.bloomooemulator.engine.filters.Filter;
+import pl.genschu.bloomooemulator.interpreter.variable.AnimoVariable;
+import pl.genschu.bloomooemulator.interpreter.variable.ImageVariable;
+import pl.genschu.bloomooemulator.interpreter.variable.TextVariable;
 import pl.genschu.bloomooemulator.interpreter.variable.Variable;
-import pl.genschu.bloomooemulator.interpreter.variable.types.AnimoVariable;
-import pl.genschu.bloomooemulator.interpreter.variable.types.ImageVariable;
-import pl.genschu.bloomooemulator.interpreter.variable.types.TextVariable;
 import pl.genschu.bloomooemulator.objects.Image;
 import pl.genschu.bloomooemulator.geometry.shapes.Box2D;
-
-import java.util.Map;
 
 /**
  * Class responsible for rendering graphics.
@@ -37,7 +35,7 @@ public class GraphicsRenderer implements Disposable {
      * Renders an object of type ImageVariable.
      */
     public void renderImage(ImageVariable imageVariable) {
-        if (!imageVariable.isVisible() || !imageVariable.isRenderedOnCanvas()) {
+        if (!imageVariable.isVisible()) {
             return;
         }
 
@@ -79,7 +77,7 @@ public class GraphicsRenderer implements Disposable {
         }
 
         Box2D rect = animoVariable.getRect();
-        batch.setColor(1, 1, 1, animoVariable.getOpacity());
+        batch.setColor(1, 1, 1, animoVariable.getCalculatedOpacity());
 
         if (animoVariable.hasFilters()) {
             // get first filter (not sure if there can be more at once)
@@ -113,14 +111,29 @@ class TextRenderer implements Disposable {
     }
 
     /**
-     * Renders an object of type TextVariable.
+     * Renders a v2 TextVariable using BitmapFont.
      */
     public void renderText(TextVariable textVariable) {
         if (!textVariable.isVisible()) {
             return;
         }
 
-        textVariable.renderText(batch);
+        String text = textVariable.getText();
+        if (text == null || text.isEmpty()) return;
+
+        Box2D rect = textVariable.getRect();
+        if (rect == null) return;
+
+        float startX = rect.getXLeft();
+        float startY = 600 - rect.getYTop();
+
+        // Split on '|' for multi-line support
+        String[] lines = text.split("\\|");
+        float lineHeight = defaultFont.getLineHeight();
+
+        for (int i = 0; i < lines.length; i++) {
+            defaultFont.draw(batch, lines[i], startX, startY - (i * lineHeight));
+        }
     }
 
     @Override
@@ -206,44 +219,40 @@ class AlphaMaskRenderer implements Disposable {
     /**
      * Renders object with alpha mask
      */
-    public void renderWithAlphaMask(ImageVariable imageVariable, Box2D rect, Box2D clippingRect, Map<String, Box2D> alphaMasks) {
+    public void renderWithAlphaMask(ImageVariable imageVariable, Box2D rect, Box2D clippingRect, ImageVariable.AlphaMaskBinding alphaMask) {
         Image image = imageVariable.getImage();
         if (image == null || image.getImageTexture() == null) {
             return;
         }
 
-        // End the current batch
-        batch.end();
-
-        // Configuring alpha mask
-        batch.begin();
-        Gdx.gl.glColorMask(false, false, false, true);
-        batch.setBlendFunction(GL20.GL_ONE, GL20.GL_ZERO);
-
-        // Render alpha masks
-        for (Map.Entry<String, Box2D> entry : alphaMasks.entrySet()) {
-            String maskName = entry.getKey();
-            Box2D maskRect = entry.getValue();
-
-            Variable maskVar = imageVariable.getContext().getVariable(maskName);
-            if (!(maskVar instanceof ImageVariable)) continue;
-
-            ImageVariable mask = (ImageVariable) maskVar;
-            if (mask.getImage() == null) continue;
-
-            Texture maskTexture = mask.getImage().getImageTexture();
-            if (maskTexture == null) continue;
-
-            batch.draw(maskTexture,
-                    maskRect.getXLeft(),
-                    VIRTUAL_HEIGHT - maskRect.getYTop() - mask.getImage().height);
+        Image maskImage = alphaMask.mask().getImage();
+        if (maskImage == null || maskImage.getImageTexture() == null) {
+            batch.setColor(1, 1, 1, imageVariable.getOpacity());
+            batch.draw(image.getImageTexture(),
+                    rect.getXLeft(),
+                    VIRTUAL_HEIGHT - rect.getYTop() - image.height,
+                    image.width,
+                    image.height);
+            return;
         }
 
         batch.flush();
 
-        // Setting batch for rendering with alpha
+        // Write mask alpha into the destination alpha channel only
+        Gdx.gl.glColorMask(false, false, false, true);
+        batch.setBlendFunction(GL20.GL_ONE, GL20.GL_ZERO);
+        batch.setColor(1, 1, 1, 1);
+        batch.draw(maskImage.getImageTexture(),
+                alphaMask.posX(),
+                VIRTUAL_HEIGHT - alphaMask.posY() - maskImage.height,
+                maskImage.width,
+                maskImage.height);
+        batch.flush();
+
+        // Draw the image modulated by the destination alpha we just wrote
         Gdx.gl.glColorMask(true, true, true, true);
         batch.setBlendFunction(GL20.GL_DST_ALPHA, GL20.GL_ONE_MINUS_DST_ALPHA);
+        batch.setColor(1, 1, 1, imageVariable.getOpacity());
 
         // Rendering image
         if (clippingRect != null) {
@@ -259,9 +268,8 @@ class AlphaMaskRenderer implements Disposable {
         batch.flush();
 
         // Restoring default settings
-        batch.end();
-        batch.begin();
         batch.setBlendFunction(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
+        batch.setColor(1, 1, 1, 1);
     }
 
     private void renderWithClipping(Image image, Box2D rect, Box2D clippingRect) {

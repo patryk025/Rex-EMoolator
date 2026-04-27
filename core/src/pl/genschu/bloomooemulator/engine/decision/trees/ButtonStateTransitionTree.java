@@ -4,7 +4,7 @@ import pl.genschu.bloomooemulator.engine.decision.DecisionTree;
 import pl.genschu.bloomooemulator.engine.decision.builder.DecisionTreeBuilder;
 import pl.genschu.bloomooemulator.engine.decision.events.ButtonEvent;
 import pl.genschu.bloomooemulator.engine.decision.states.ButtonState;
-import pl.genschu.bloomooemulator.interpreter.variable.types.ButtonVariable;
+import pl.genschu.bloomooemulator.interpreter.variable.ButtonVariable;
 
 public class ButtonStateTransitionTree {
     private static final DecisionTree<ButtonState> stateTransitionTree = DecisionTreeBuilder.<ButtonState>create()
@@ -32,7 +32,7 @@ public class ButtonStateTransitionTree {
     }
 
     private static ButtonState getCurrentState(Object[] ctx) {
-        return ((ButtonVariable) ctx[0]).getState();
+        return ((ButtonVariable) ctx[0]).getButtonState();
     }
 
     public static ButtonState evaluate(ButtonVariable variable, ButtonEvent event) {

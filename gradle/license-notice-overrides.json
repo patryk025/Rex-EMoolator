@@ -1,0 +1,34 @@
+{
+  "modules": {
+    "net.java.dev.jna:jna": {
+      "licenses": [
+        {
+          "name": "Apache-2.0",
+          "url": "https://github.com/java-native-access/jna"
+        }
+      ],
+      "reason": "Upstream declares JNA as LGPL-2.1-or-later or Apache License 2.0. This project uses the Apache 2.0 option for JNA.",
+      "source": "https://github.com/java-native-access/jna"
+    },
+    "net.java.dev.jna:jna-platform": {
+      "licenses": [
+        {
+          "name": "Apache-2.0",
+          "url": "https://github.com/java-native-access/jna"
+        }
+      ],
+      "reason": "Upstream declares JNA as LGPL-2.1-or-later or Apache License 2.0. This project uses the Apache 2.0 option for the JNA platform artifact as well.",
+      "source": "https://github.com/java-native-access/jna"
+    },
+    "org.ode4j:core": {
+      "licenses": [
+        {
+          "name": "BSD-3-Clause",
+          "url": "https://github.com/tzaeschke/ode4j"
+        }
+      ],
+      "reason": "Upstream Maven Central metadata publishes LGPL only, but the upstream repository states that ode4j is dual-licensed under LGPL v2.1 and BSD 3-clause and that users may choose either license.",
+      "source": "https://github.com/tzaeschke/ode4j"
+    }
+  }
+}

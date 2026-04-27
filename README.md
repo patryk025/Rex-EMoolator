@@ -6,31 +6,82 @@ An open-source emulator that recreates the behavior of the Piklib/BlooMoo engine
 
 ## Requirements
 
+### Build Toolchain
+- **JDK**: Version 21 or newer
+- **Gradle**: Use the wrapper included in the repository
+
 ### Desktop
-- **Java**: Version 11 or newer
+- **Java**: Version 21 or newer
 - **Operating System**: Windows, Linux, or macOS
 - **Game Files**: Original game files (data from the original CD-ROM or installation)
 
 ### Android
 - **Android Version**: 7.0 (API level 24) or newer
+- **Android SDK**: Installed and configured through `local.properties` (`sdk.dir=...`) or `ANDROID_HOME`
 - **Game Files**: Original game files
 
 ## Building the Project
 
 This project uses Gradle as its build system.
 
-### Desktop Build
+### Full Build
 ```bash
 # Windows
-gradlew.bat desktop:shadowJar
+gradlew.bat build
 
 # Linux/macOS
-./gradlew desktop:shadowJar
+./gradlew build
 ```
 
-The executable JAR will be created in `desktop/build/libs/`.
+### Desktop Build
 
-### Android Build
+The desktop module produces two distribution artifacts:
+
+- **Single-file shadow JAR** — convenient one-file distribution.
+- **Distribution ZIP** — thin JAR + every dependency as a separate file in
+  `lib/`, plus startup scripts. Recommended for redistribution because
+  individual library JARs (including LGPL-licensed components) can be
+  replaced by simply overwriting files in `lib/`.
+
+```bash
+# Both artifacts
+./gradlew desktop:build
+
+# Shadow JAR only
+./gradlew desktop:shadowJar
+
+# Distribution ZIP only
+./gradlew desktop:distZip
+```
+
+The shadow JAR is created in `desktop/build/libs/` and the distribution ZIP
+in `desktop/build/distributions/`.
+
+### Dependency License Maintenance
+```bash
+# Regenerate THIRD-PARTY-NOTICES.md from current runtime dependencies
+./gradlew updateThirdPartyNotices
+
+# Fail if a dependency introduces a new or unapproved license family
+./gradlew checkLicense
+```
+
+`desktop:build` refreshes `THIRD-PARTY-NOTICES.md` automatically, and both
+`check` and `build` fail when the generated notices or allowed license rules
+are out of date.
+
+### Android Debug Build
+```bash
+# Windows
+gradlew.bat android:assembleDebug
+
+# Linux/macOS
+./gradlew android:assembleDebug
+```
+
+The debug APK will be created in `android/build/outputs/apk/debug/`.
+
+### Android Release Build
 ```bash
 # Windows
 gradlew.bat android:assembleRelease
@@ -39,7 +90,7 @@ gradlew.bat android:assembleRelease
 ./gradlew android:assembleRelease
 ```
 
-The APK will be created in `android/build/outputs/apk/`.
+The release APK will be created in `android/build/outputs/apk/release/`.
 
 ## Running the Emulator
 
@@ -70,6 +121,7 @@ The emulator targets games based on the Piklib/BlooMoo engine.
 - ![In-game](https://img.shields.io/badge/In--game-yellow) Game runs but cannot be completed due to various bugs
 - ![In-intro](https://img.shields.io/badge/In--intro-orange) Game loads but doesn't progress past the intro
 - ![Unplayable](https://img.shields.io/badge/Unplayable-red) Game doesn't initialize properly, loads with errors, crashes, or shows a black screen
+- ![Unknown](https://img.shields.io/badge/Unknown-lightgrey) Not yet evaluated
 
 Playability estimates are based on the number of scenes that play correctly according to the game scripts until the first point where emulator bugs prevent further progress. Minor bugs and animation issues are not counted—only bugs that prevent scenes from starting/ending or cause crashes. Since this requires playing through titles repeatedly, this information may not be updated frequently. The list of scenes and the assessment of their correctness will be gradually created as part of GitHub Projects. However, since the newer games use dedicated scenes for cutscenes and minigames—which are significantly harder to trace in the code than simple `GOTO` transitions—this process will not be immediate.
 
@@ -88,72 +140,79 @@ Playability estimates are based on the number of scenes that play correctly acco
 <tr>
 <td>Reksio i Skarb Piratów</td>
 <td><img alt="Playable" src="https://img.shields.io/badge/Playable-green"/></td>
-<td>Fully playable with minor bugs. River crossing stages started to lag (needs verification). Coconut sequence has minor collision detection differences vs original (also a chicken appears in the corner slightly obscuring the menu button). During Twarog God statue puzzles, answer graphics occasionally swap positions (narrator reads correctly though). UFO stage occasionally has animation priority issues (elevator obscures Rex, needs verification). Otherwise everything works correctly.</td>
+<td>Fully playable with minor bugs.</td>
 <td>100%</td>
 <td><a href="https://github.com/users/patryk025/projects/3">Link</a></td>
 </tr>
 <tr>
 <td>Reksio i Ufo</td>
-<td><img alt="In-game" src="https://img.shields.io/badge/In--game-yellow"/></td>
-<td>Works correctly until reaching the canyon on Indor. Platform sequence works but has issues (can exit ladder and walk in air). Race has problems—completable but opponents can get stuck. Egg vacuuming sequence has issues with vacuum animation running too fast (seems to be a global emulator issue, needs checking). Crashed after first torpedo fired. Also reveals "leaking" sound issues—sounds from previous scene can play in the next.</td>
-<td>~30% (26/86 scenes)</td>
+<td><img alt="Unknown" src="https://img.shields.io/badge/Unknown-lightgrey"/></td>
+<td>Requires re-evaluation after interpreter refactor.</td>
+<td>N/A</td>
 <td><a href="https://github.com/users/patryk025/projects/4">Link</a></td>
 </tr>
 <tr>
 <td>Reksio i Czarodzieje</td>
-<td><img alt="In-game" src="https://img.shields.io/badge/In--game-yellow"/></td>
-<td>Menu is slightly laggy. Hills sequence works, but the stage after with hidden doors doesn't due to missing World type implementation (in progress). This is a blocking point preventing further gameplay.</td>
-<td></td>
+<td><img alt="Unknown" src="https://img.shields.io/badge/Unknown-lightgrey"/></td>
+<td>Requires re-evaluation after interpreter refactor.</td>
+<td>N/A</td>
 <td><a href="https://github.com/users/patryk025/projects/6">Link</a></td>
 </tr>
 <tr>
 <td>Reksio i Wehikuł Czasu</td>
-<td><img alt="In-game" src="https://img.shields.io/badge/In--game-yellow"/></td>
-<td>Requires re-evaluation.</td>
-<td>0%</td>
+<td><img alt="Unknown" src="https://img.shields.io/badge/Unknown-lightgrey"/></td>
+<td>Requires re-evaluation after interpreter refactor.</td>
+<td>N/A</td>
 <td><a href="https://github.com/users/patryk025/projects/8">Link</a></td>
 </tr>
 <tr>
 <td>Reksio i Kapitan Nemo</td>
-<td><img alt="In-game" src="https://img.shields.io/badge/In--game-yellow"/></td>
-<td>Requires re-evaluation.</td>
-<td>0%</td>
+<td><img alt="Unknown" src="https://img.shields.io/badge/Unknown-lightgrey"/></td>
+<td>Requires re-evaluation after interpreter refactor.</td>
+<td>N/A</td>
 <td><a href="https://github.com/users/patryk025/projects/10">Link</a></td>
 </tr>
 <tr>
 <td>Reksio i Kretes w Akcji!</td>
-<td><img alt="In-game" src="https://img.shields.io/badge/In--game-yellow"/></td>
-<td>Opening intro works and proceeds correctly. Clicking brings you to menu. All buttons work and go to corresponding minigames. Reksio i Skarb Piratów technically works—background doesn't scroll but collisions work. In Reksio i Ufo, only background, Millennium Falcon, and particle effects render, but stage doesn't work due to missing Inertia implementation. In Reksio i Czarodzieje, track renders but everything seems over-accelerated. Collisions work but elements don't move. In Reksio i Wehikuł Czasu, map draws and characters can move but there are bugs with graphics and positions. Super Heros i Kapitan Nemo doesn't load the map. Map editor is also incomplete.</td>
-<td>0%</td>
+<td><img alt="Unknown" src="https://img.shields.io/badge/Unknown-lightgrey"/></td>
+<td>Requires re-evaluation after interpreter refactor.</td>
+<td>N/A</td>
 <td><a href="https://github.com/users/patryk025/projects/11">Link</a></td>
 </tr>
 <tr>
 <td>Poznaj Mity: Wyprawa po Złote Runo</td>
-<td><img alt="In-game" src="https://img.shields.io/badge/In--game-yellow"/></td>
-<td>Requires re-evaluation.</td>
-<td></td>
+<td><img alt="Unknown" src="https://img.shields.io/badge/Unknown-lightgrey"/></td>
+<td>Requires re-evaluation after interpreter refactor.</td>
+<td>N/A</td>
 <td><a href="https://github.com/users/patryk025/projects/12">Link</a></td>
 </tr>
 <tr>
 <td>Poznaj Mity: Wojna Trojańska</td>
-<td><img alt="In-game" src="https://img.shields.io/badge/In--game-yellow"/></td>
-<td>Requires re-evaluation.</td>
-<td></td>
+<td><img alt="Unknown" src="https://img.shields.io/badge/Unknown-lightgrey"/></td>
+<td>Requires re-evaluation after interpreter refactor.</td>
+<td>N/A</td>
 <td><a href="https://github.com/users/patryk025/projects/13">Link</a></td>
 </tr>
 <tr>
 <td>Poznaj Mity: Przygody Odyseusza</td>
-<td><img alt="In-game" src="https://img.shields.io/badge/In--game-yellow"/></td>
-<td>Requires re-evaluation.</td>
-<td></td>
+<td><img alt="Unknown" src="https://img.shields.io/badge/Unknown-lightgrey"/></td>
+<td>Requires re-evaluation after interpreter refactor.</td>
+<td>N/A</td>
 <td><a href="https://github.com/users/patryk025/projects/14">Link</a></td>
 </tr>
 <tr>
 <td>Poznaj Mity: Herkules</td>
-<td><img alt="In-game" src="https://img.shields.io/badge/In--game-yellow"/></td>
-<td>Requires re-evaluation.</td>
-<td></td>
+<td><img alt="Unknown" src="https://img.shields.io/badge/Unknown-lightgrey"/></td>
+<td>Requires re-evaluation after interpreter refactor.</td>
+<td>N/A</td>
 <td><a href="https://github.com/users/patryk025/projects/15">Link</a></td>
+</tr>
+<tr>
+<td>Tezeusz i Nić Ariadny</td>
+<td><img alt="Unknown" src="https://img.shields.io/badge/Unknown-lightgrey"/></td>
+<td>Requires re-evaluation after interpreter refactor.</td>
+<td>N/A</td>
+<td></td>
 </tr>
 </tbody>
 </table>
@@ -240,11 +299,32 @@ Playability estimates are based on the number of scenes that play correctly acco
 
 ## License
 
-This project is intended for educational and preservation purposes. You must own the original games to use this emulator.
+Rex EMoolator itself is open-source software released under the **MIT
+License**. You can find the full license text in the [`LICENSE`](LICENSE)
+file.
 
-The project does not distribute complete copyrighted assets from the original titles, such as full graphics, audio, or binary data.
-The assets/ directory may contain minimal, necessary fragments of assets used solely for automated testing and engine validation. These files are included only to the extent required to analyze and reproduce the engine’s behavior, and fall under fair use / permitted use for interoperability.
+The project uses several third-party libraries (like libGDX, LWJGL, ODE4J etc.), each
+with its own license. For a complete list of these libraries and their
+respective licenses, please check [`THIRD-PARTY-NOTICES.md`](THIRD-PARTY-NOTICES.md).
 
-Users are required to obtain the full original game assets legally, from copies they personally own.
+If you're interested in how we handle LGPL-licensed components (like JLayer or
+JOrbis) to keep everything compliant, all the details are also in that file.
 
-The author of this project is not affiliated with the rights holders of the original games. The emulator is provided in good faith, “as is”, without any warranties, as a research and documentation tool.
+The MIT license applies to the emulator source code in this repository. Game
+data, mods, fan translations, patches, and other content loaded by the
+emulator are separate works and remain subject to their own licenses,
+permissions, and copyright status.
+
+### A note on game assets
+
+This emulator is created for educational, preservation, and interoperability
+purposes. You can use it with original game files, your own backups, fan-made
+mods, translations, patches, and other compatible data, as long as you have
+the legal right to use those files.
+
+We do not distribute copyrighted graphics, music, or other data from the
+original games. The `assets/` directory only contains minimal, technical
+fragments used for automated testing to make sure the engine works as expected.
+
+Rex EMoolator is an independent project and is not affiliated with the original creators or rights holders of the
+games. The emulator is provided in good faith, “as is”, without any warranties, as a research and documentation tool.

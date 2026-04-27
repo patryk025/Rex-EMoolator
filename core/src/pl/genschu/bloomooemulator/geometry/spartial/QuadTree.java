@@ -1,9 +1,7 @@
 package pl.genschu.bloomooemulator.geometry.spartial;
 
+import pl.genschu.bloomooemulator.engine.context.EngineVariable;
 import pl.genschu.bloomooemulator.geometry.shapes.Box2D;
-import pl.genschu.bloomooemulator.interpreter.variable.Variable;
-import pl.genschu.bloomooemulator.interpreter.variable.types.AnimoVariable;
-import pl.genschu.bloomooemulator.interpreter.variable.types.ImageVariable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -13,7 +11,7 @@ public class QuadTree {
     private final int MAX_LEVELS = 5;
 
     private final int level;
-    private final List<Variable> objects;
+    private final List<EngineVariable> objects;
     private final Box2D bounds;
     private final QuadTree[] nodes;
 
@@ -41,10 +39,10 @@ public class QuadTree {
         int x = bounds.getXLeft();
         int y = bounds.getYBottom();
 
-        nodes[0] = new QuadTree(level + 1, new Box2D(x + subWidth, y, subWidth, subHeight));
-        nodes[1] = new QuadTree(level + 1, new Box2D(x, y, subWidth, subHeight));
-        nodes[2] = new QuadTree(level + 1, new Box2D(x, y + subHeight, subWidth, subHeight));
-        nodes[3] = new QuadTree(level + 1, new Box2D(x + subWidth, y + subHeight, subWidth, subHeight));
+        nodes[0] = new QuadTree(level + 1, new Box2D(x + subWidth, y,             x + 2 * subWidth, y + subHeight));
+        nodes[1] = new QuadTree(level + 1, new Box2D(x,            y,             x + subWidth,     y + subHeight));
+        nodes[2] = new QuadTree(level + 1, new Box2D(x,            y + subHeight, x + subWidth,     y + 2 * subHeight));
+        nodes[3] = new QuadTree(level + 1, new Box2D(x + subWidth, y + subHeight, x + 2 * subWidth, y + 2 * subHeight));
     }
 
     private int getIndex(Box2D rect) {
@@ -75,7 +73,7 @@ public class QuadTree {
         return index;
     }
 
-    public void insert(Variable obj) {
+    public void insert(EngineVariable obj) {
         if (nodes[0] != null) {
             int index = getIndex(getRect(obj));
 
@@ -104,10 +102,20 @@ public class QuadTree {
         }
     }
 
-    public List<Variable> retrieve(List<Variable> returnObjects, Variable obj) {
-        int index = getIndex(getRect(obj));
-        if (index != -1 && nodes[0] != null) {
-            nodes[index].retrieve(returnObjects, obj);
+    public List<EngineVariable> retrieve(List<EngineVariable> returnObjects, EngineVariable obj) {
+        Box2D rect = getRect(obj);
+        if (nodes[0] != null) {
+            int index = getIndex(rect);
+            if (index != -1) {
+                nodes[index].retrieve(returnObjects, obj);
+            } else if (rect != null) {
+                // Rect straddles quadrants: descend into every child whose bounds it overlaps.
+                for (QuadTree node : nodes) {
+                    if (node != null && boundsOverlap(rect, node.bounds)) {
+                        node.retrieve(returnObjects, obj);
+                    }
+                }
+            }
         }
 
         returnObjects.addAll(objects);
@@ -115,7 +123,14 @@ public class QuadTree {
         return returnObjects;
     }
 
-    public void remove(Variable obj) {
+    private static boolean boundsOverlap(Box2D rect, Box2D nodeBounds) {
+        return rect.getXLeft()   < nodeBounds.getXRight()
+            && rect.getXRight()  > nodeBounds.getXLeft()
+            && rect.getYBottom() < nodeBounds.getYTop()
+            && rect.getYTop()    > nodeBounds.getYBottom();
+    }
+
+    public void remove(EngineVariable obj) {
         if (nodes[0] != null) {
             int index = getIndex(getRect(obj));
             if (index != -1) {
@@ -127,14 +142,13 @@ public class QuadTree {
         objects.remove(obj);
     }
 
-    private Box2D getRect(Variable obj) {
-        if(obj instanceof ImageVariable) {
-            return ((ImageVariable) obj).getRect();
-        } else if(obj instanceof AnimoVariable) {
-            return ((AnimoVariable) obj).getRect();
-        } else {
-            return null;
+    private Box2D getRect(EngineVariable obj) {
+        if (obj instanceof pl.genschu.bloomooemulator.interpreter.variable.ImageVariable img) {
+            return img.getRect();
         }
+        if (obj instanceof pl.genschu.bloomooemulator.interpreter.variable.AnimoVariable animo) {
+            return animo.getRect();
+        }
+        return null;
     }
 }
-

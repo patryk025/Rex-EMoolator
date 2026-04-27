@@ -5,15 +5,10 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import pl.genschu.bloomooemulator.TestEnvironment;
-import pl.genschu.bloomooemulator.builders.ContextBuilder;
-import pl.genschu.bloomooemulator.interpreter.Context;
-import pl.genschu.bloomooemulator.interpreter.arithmetic.ArithmeticSolver;
-import pl.genschu.bloomooemulator.interpreter.logic.LogicSolver;
-import pl.genschu.bloomooemulator.interpreter.variable.Variable;
-import pl.genschu.bloomooemulator.interpreter.variable.types.BoolVariable;
-import pl.genschu.bloomooemulator.interpreter.variable.types.DoubleVariable;
-import pl.genschu.bloomooemulator.interpreter.variable.types.IntegerVariable;
-import pl.genschu.bloomooemulator.interpreter.variable.types.StringVariable;
+import pl.genschu.bloomooemulator.interpreter.ast.ComparisonNode;
+import pl.genschu.bloomooemulator.interpreter.helpers.ArgumentHelper;
+import pl.genschu.bloomooemulator.interpreter.ops.ValueOps;
+import pl.genschu.bloomooemulator.interpreter.values.*;
 
 import java.util.Map;
 
@@ -21,8 +16,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 public class ComparisonTest {
-    private Context ctx;
-
     private Map<String, Object[][]> expectedResults;
 
     @BeforeAll
@@ -32,11 +25,11 @@ public class ComparisonTest {
 
     @BeforeEach
     void setUp() {
-        ctx = new ContextBuilder().build();
         initExpectedResults();
     }
 
     private void initExpectedResults() {
+        // TODO: And here... we need to pack it into a more manageable form.
         // Format: [type, value] - "S"=String, "I"=Integer, "D"=Double, "B"=Boolean
         expectedResults = Map.of(
                 "EQUALS", new Object[][][] {
@@ -119,38 +112,24 @@ public class ComparisonTest {
         );
     }
 
-    private Variable createVariable(String type, Object value) {
+    private Value createVariable(String type, Object value) {
         try {
-            switch (type) {
-                case "S":
-                    return new StringVariable("", (String) value, ctx);
-                case "I":
-                    return new IntegerVariable("", (Integer) value, ctx);
-                case "D":
-                    return new DoubleVariable("", (Double) value, ctx);
-                case "B":
-                    return new BoolVariable("", (Boolean) value, ctx);
-                default:
-                    throw new IllegalArgumentException("Unknown type: " + type);
-            }
-        } catch (ClassCastException e) {
-            String expectedType;
-            switch (type) {
-                case "S":
-                    expectedType = "String";
-                    break;
-                case "I":
-                    expectedType = "Integer";
-                    break;
-                case "D":
-                    expectedType = "Double";
-                    break;
-                case "B":
-                    expectedType = "Boolean";
-                    break;
-                default:
-                    expectedType = type;
+            return switch (type) {
+                case "S" -> new StringValue((String) value);
+                case "I" -> new IntValue((Integer) value);
+                case "D" -> new DoubleValue((Double) value);
+                case "B" -> new BoolValue((Boolean) value);
+                default -> throw new IllegalArgumentException("Unknown type: " + type);
             };
+        } catch (ClassCastException e) {
+            String expectedType = switch (type) {
+                case "S" -> "String";
+                case "I" -> "Integer";
+                case "D" -> "Double";
+                case "B" -> "Boolean";
+                default -> type;
+            };
+            ;
             throw new IllegalArgumentException("Value " + value + " of type " + value.getClass().getName() + " does not match type " + expectedType, e);
         }
     }
@@ -170,23 +149,23 @@ public class ComparisonTest {
     @ParameterizedTest
     @ValueSource(ints = {0, 1, 2, 3})
     void testEquals(int setIndex) {
-        testLogicOperation("EQUALS", setIndex, LogicSolver::equals);
+        testLogicOperation("EQUALS", setIndex, ComparisonNode.ComparisonOp.EQUAL);
     }
 
     @ParameterizedTest
     @ValueSource(ints = {0, 1, 2, 3})
     void testLess(int setIndex) {
-        testLogicOperation("LESS", setIndex, LogicSolver::less);
+        testLogicOperation("LESS", setIndex, ComparisonNode.ComparisonOp.LESS);
     }
 
     @ParameterizedTest
     @ValueSource(ints = {0, 1, 2, 3})
     void testGreater(int setIndex) {
-        testLogicOperation("GREATER", setIndex, LogicSolver::greater);
+        testLogicOperation("GREATER", setIndex, ComparisonNode.ComparisonOp.GREATER);
     }
 
     private void testLogicOperation(String operation, int setIndex,
-                                         LogicOperation logicOperation) {
+                                    ComparisonNode.ComparisonOp op) {
         Object[][] expected = expectedResults.get(operation);
         if (expected == null || expected.length <= setIndex * 4) {
             return; // Skip if no expected results defined
@@ -196,18 +175,18 @@ public class ComparisonTest {
         Object[] set2 = TEST_SETS[setIndex][1];
 
         // Create test variables
-        Variable[] vars1 = {
-                new StringVariable("", (String) set1[0], ctx),
-                new BoolVariable("", (Boolean) set1[1], ctx),
-                new DoubleVariable("", (Double) set1[2], ctx),
-                new IntegerVariable("", (Integer) set1[3], ctx)
+        Value[] vars1 = {
+                new StringValue((String) set1[0]),
+                new BoolValue((Boolean) set1[1]),
+                new DoubleValue((Double) set1[2]),
+                new IntValue((Integer) set1[3])
         };
 
-        Variable[] vars2 = {
-                new StringVariable("", (String) set2[0], ctx),
-                new BoolVariable("", (Boolean) set2[1], ctx),
-                new DoubleVariable("", (Double) set2[2], ctx),
-                new IntegerVariable("", (Integer) set2[3], ctx)
+        Value[] vars2 = {
+                new StringValue((String) set2[0]),
+                new BoolValue((Boolean) set2[1]),
+                new DoubleValue((Double) set2[2]),
+                new IntValue((Integer) set2[3])
         };
 
         // Test all combinations: STRING+all, INTEGER+all, DOUBLE+all, BOOLEAN+all
@@ -216,10 +195,10 @@ public class ComparisonTest {
 
         for (int i = 0; i < 4; i++) { // For each type (STRING, INTEGER, DOUBLE, BOOLEAN)
             for (int j = 0; j < 4; j++) { // Against each type
-                Variable var1 = vars1[varIndexes[i]];
-                Variable var2 = vars2[varIndexes[j]];
+                Value var1 = vars1[varIndexes[i]];
+                Value var2 = vars2[varIndexes[j]];
 
-                Variable result = logicOperation.apply(var1, var2);
+                Value result = ValueOps.compare(var1, var2, op);
 
                 // Get expected result
                 int expectedIndex = setIndex * 4 + i; // Which type group
@@ -228,20 +207,15 @@ public class ComparisonTest {
                     String expectedType = (String) expectedData[0];
                     Object expectedValue = expectedData[1];
 
-                    Variable expectedVar = createVariable(expectedType, expectedValue);
+                    Value expectedVar = createVariable(expectedType, expectedValue);
 
                     assertNotNull(result, String.format("%s %s + %s should return result",
                             operation, var1.getType(), var2.getType()));
 
-                    assertEquals(((BoolVariable)expectedVar).GET(),
-                            ((BoolVariable)result).GET());
+                    assertEquals(ArgumentHelper.getBoolean(expectedVar),
+                            ArgumentHelper.getBoolean(result));
                 }
             }
         }
-    }
-
-    @FunctionalInterface
-    interface LogicOperation {
-        Variable apply(Variable a, Variable b);
     }
 }

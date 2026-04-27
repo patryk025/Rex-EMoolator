@@ -7,9 +7,202 @@ buildscript {
         google()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:8.12.3'
+        classpath 'com.android.tools.build:gradle:8.13.2'
         classpath 'com.gradleup.shadow:shadow-gradle-plugin:9.2.2'
+        classpath 'com.github.jk1:gradle-license-report:2.9'
     }
+}
+
+apply plugin: 'com.github.jk1.dependency-license-report'
+
+licenseReport {
+    configurations = ['runtimeClasspath']
+    renderers = [
+            new com.github.jk1.license.render.SimpleHtmlReportRenderer(),
+            new com.github.jk1.license.render.JsonReportRenderer('index.json', false)
+    ]
+    allowedLicensesFile = rootProject.file('gradle/allowed-licenses.json')
+}
+
+def licenseReportJsonFile = layout.buildDirectory.file('reports/dependency-license/index.json')
+def thirdPartyNoticesFile = layout.projectDirectory.file('THIRD-PARTY-NOTICES.md')
+def licenseNoticeOverridesFile = layout.projectDirectory.file('gradle/license-notice-overrides.json')
+
+def normalizeNoticeValue = { Object value ->
+    value == null ? '' : value.toString().replaceAll(/\s+/, ' ').trim()
+}
+
+def escapeMarkdownCell = { Object value ->
+    normalizeNoticeValue(value).replace('|', '\\|')
+}
+
+def normalizeLicenseName = { Object value ->
+    def normalized = normalizeNoticeValue(value)
+    normalized = normalized.replaceAll(/^"(.+)";link="[^"]+"$/, '$1')
+    normalized = normalized.replaceAll(/^SPDX-License-Identifier:\s*/, '')
+    normalized
+}
+
+def loadLicenseNoticeOverrides = {
+    def sourceFile = licenseNoticeOverridesFile.asFile
+    if (!sourceFile.exists()) {
+        return [:]
+    }
+
+    def parsed = new groovy.json.JsonSlurper().parse(sourceFile)
+    parsed.modules instanceof Map ? parsed.modules : [:]
+}
+
+def renderThirdPartyNotices = { File reportFile ->
+    def report = new groovy.json.JsonSlurper().parse(reportFile)
+    def overrides = loadLicenseNoticeOverrides()
+    def dependencies = ((report.dependencies ?: []) as List).collect { dependency ->
+        def licensesByKey = [:]
+        ((dependency.moduleLicenses ?: []) as List).each { license ->
+            def normalizedLicense = [
+                    name: normalizeLicenseName(license.moduleLicense),
+                    url : normalizeNoticeValue(license.moduleLicenseUrl)
+            ]
+            if (!normalizedLicense.name && !normalizedLicense.url) {
+                return
+            }
+
+            def key = normalizedLicense.name ?: normalizedLicense.url
+            def existing = licensesByKey[key]
+            if (existing == null || (!existing.url && normalizedLicense.url)) {
+                licensesByKey[key] = normalizedLicense
+            }
+        }
+
+        def moduleName = normalizeNoticeValue(dependency.moduleName)
+        def override = overrides[moduleName]
+        def licenses = licensesByKey.values() as List
+        if (override?.licenses instanceof List) {
+            licenses = override.licenses.collect { license ->
+                [
+                        name: normalizeLicenseName(license.name),
+                        url : normalizeNoticeValue(license.url)
+                ]
+            }.findAll { it.name || it.url }
+        }
+
+        [
+                name    : normalizeNoticeValue(dependency.moduleName),
+                version : normalizeNoticeValue(dependency.moduleVersion),
+                licenses: licenses,
+                override: override
+        ]
+    }.sort { left, right ->
+        left.name <=> right.name ?: left.version <=> right.version
+    }
+
+    def lgplDependencies = dependencies.findAll { dependency ->
+        dependency.licenses.any { license ->
+            def lowerCaseName = license.name.toLowerCase()
+            lowerCaseName.contains('lgpl') || lowerCaseName.contains('lesser general public')
+        }
+    }
+
+    def lines = [
+            '# Third-Party Notices',
+            '',
+            '> This file is generated from the Gradle runtime dependency graph. Do not edit it manually.',
+            '> Run `./gradlew updateThirdPartyNotices` after changing dependencies.',
+            '',
+            'The complete HTML and JSON reports are generated in `build/reports/dependency-license/`.',
+            'If a new dependency introduces a license outside `gradle/allowed-licenses.json`, `checkLicense` will fail.',
+            'Known upstream metadata mismatches can be documented in `gradle/license-notice-overrides.json`.',
+            '',
+            '## Dependency Summary',
+            '',
+            '| Dependency | Version | License | License URL |',
+            '| :--- | :--- | :--- | :--- |'
+    ]
+
+    dependencies.each { dependency ->
+        def licenseNames = dependency.licenses.collect { escapeMarkdownCell(it.name) }.findAll { it }.join('<br>')
+        def licenseUrls = dependency.licenses.collect { it.url ? "<${it.url}>" : '' }.findAll { it }.join('<br>')
+        lines << "| ${escapeMarkdownCell(dependency.name)} | ${escapeMarkdownCell(dependency.version)} | ${licenseNames ?: 'Unknown'} | ${licenseUrls ?: 'n/a'} |"
+    }
+
+    def appliedOverrides = dependencies.findAll { it.override instanceof Map }
+    if (!appliedOverrides.isEmpty()) {
+        lines += [
+                '',
+                '## Manual Overrides',
+                '',
+                'The following entries intentionally override published dependency metadata:'
+        ]
+        appliedOverrides.each { dependency ->
+            def reason = normalizeNoticeValue(dependency.override.reason)
+            def source = normalizeNoticeValue(dependency.override.source)
+            lines << "- `${dependency.name}:${dependency.version}`${reason ? ': ' + reason : ''}${source ? ' Source: <' + source + '>' : ''}"
+        }
+    }
+
+    if (!lgplDependencies.isEmpty()) {
+        lines += [
+                '',
+                '## LGPL Components',
+                '',
+                'The following runtime dependencies currently resolve to LGPL-family licenses:'
+        ]
+        lgplDependencies.each { dependency ->
+            lines << "- `${dependency.name}:${dependency.version}`"
+        }
+        lines += [
+                '',
+                'For redistribution, prefer `./gradlew desktop:distZip`: LGPL components remain as separate JARs in `lib/`, so they can be replaced without rebuilding the project.',
+                'The shadow JAR keeps classes unrelocated, but replacing them requires unpacking and repacking the archive.',
+                ''
+        ]
+    } else {
+        lines << ''
+    }
+
+    lines.join('\n')
+}
+
+tasks.register('updateThirdPartyNotices') {
+    group = 'documentation'
+    description = 'Regenerates THIRD-PARTY-NOTICES.md from the Gradle license report.'
+    dependsOn tasks.named('generateLicenseReport')
+    inputs.file(licenseReportJsonFile)
+    inputs.file(licenseNoticeOverridesFile)
+    outputs.file(thirdPartyNoticesFile)
+
+    doLast {
+        def generatedText = renderThirdPartyNotices(licenseReportJsonFile.get().asFile)
+        def targetFile = thirdPartyNoticesFile.asFile
+        if (!targetFile.exists() || targetFile.getText('UTF-8') != generatedText) {
+            targetFile.setText(generatedText, 'UTF-8')
+        }
+    }
+}
+
+tasks.register('checkThirdPartyNotices') {
+    group = 'verification'
+    description = 'Fails if THIRD-PARTY-NOTICES.md is not in sync with the Gradle license report.'
+    dependsOn tasks.named('generateLicenseReport')
+    mustRunAfter tasks.named('updateThirdPartyNotices')
+    inputs.file(licenseReportJsonFile)
+    inputs.file(licenseNoticeOverridesFile)
+    inputs.file(thirdPartyNoticesFile)
+
+    doLast {
+        def generatedText = renderThirdPartyNotices(licenseReportJsonFile.get().asFile)
+        def targetFile = thirdPartyNoticesFile.asFile
+        def currentText = targetFile.exists() ? targetFile.getText('UTF-8') : ''
+        if (currentText != generatedText) {
+            throw new GradleException('THIRD-PARTY-NOTICES.md is out of date. Run ./gradlew updateThirdPartyNotices.')
+        }
+    }
+}
+
+tasks.register('verifyThirdPartyLicenses') {
+    group = 'verification'
+    description = 'Verifies license allow-list rules and the generated THIRD-PARTY-NOTICES.md file.'
+    dependsOn tasks.named('checkLicense'), tasks.named('checkThirdPartyNotices')
 }
 
 allprojects {
@@ -23,7 +216,6 @@ allprojects {
         ashleyVersion = '1.7.4'
         aiVersion = '1.8.2'
         gdxControllersVersion = '2.2.4'
-        antlrVersion = '4.13.2'
         ini4jVersion = '0.5.4'
         oshiVersion = '6.6.3'
         jnaVersion = '5.18.1'
@@ -43,6 +235,7 @@ allprojects {
 
 project(":desktop") {
     apply plugin: "java-library"
+    apply plugin: "distribution"
     apply plugin: "com.gradleup.shadow"
 
     dependencies {
@@ -55,6 +248,41 @@ project(":desktop") {
         implementation "net.java.dev.jna:jna:$jnaVersion"
     }
 
+    tasks.named('jar') {
+        archiveBaseName.set('Rex_EMoolator-desktop')
+        archiveClassifier.set('thin')
+        manifest {
+            attributes(
+                    'Main-Class': 'pl.genschu.bloomooemulator.GameListFrame'
+            )
+        }
+    }
+
+    tasks.register('createStartScripts', CreateStartScripts) {
+        mainClass = 'pl.genschu.bloomooemulator.GameListFrame'
+        applicationName = 'Rex_EMoolator-desktop'
+        outputDir = layout.buildDirectory.dir('startScripts').get().asFile
+        classpath = files('lib/*')
+    }
+
+    distributions {
+        main {
+            distributionBaseName.set('Rex_EMoolator-desktop')
+            contents {
+                from(rootProject.file('LICENSE'))
+                from(rootProject.file('THIRD-PARTY-NOTICES.md'))
+                into('lib') {
+                    from(tasks.named('jar'))
+                    from(configurations.runtimeClasspath)
+                }
+                into('bin') {
+                    from(tasks.named('createStartScripts'))
+                    filePermissions { unix(0755) }
+                }
+            }
+        }
+    }
+
     shadowJar {
         archiveBaseName.set('Rex_EMoolator-desktop')
         archiveClassifier.set('')
@@ -63,13 +291,25 @@ project(":desktop") {
                     'Main-Class': 'pl.genschu.bloomooemulator.GameListFrame'
             )
         }
+        mergeServiceFiles()
+        transform(com.github.jengelman.gradle.plugins.shadow.transformers.ApacheLicenseResourceTransformer)
+        from(rootProject.file('LICENSE')) {
+            into 'META-INF'
+            rename { 'LICENSE-Rex-EMoolator' }
+        }
+        from(rootProject.file('THIRD-PARTY-NOTICES.md')) { into 'META-INF' }
     }
 
-    tasks.named('jar') {
-        enabled = false
+    tasks.named('distZip') {
+        dependsOn rootProject.tasks.named('updateThirdPartyNotices')
     }
+
+    tasks.named('shadowJar') {
+        dependsOn rootProject.tasks.named('updateThirdPartyNotices')
+    }
+
     tasks.named('build') {
-        dependsOn shadowJar
+        dependsOn rootProject.tasks.named('updateThirdPartyNotices'), shadowJar, distZip
     }
 }
 
@@ -108,13 +348,14 @@ project(":android") {
     
     android {
         packagingOptions {
-            exclude 'META-INF/AL2.0'
-            exclude 'META-INF/LGPL2.1'
+            resources {
+                pickFirsts += ['META-INF/AL2.0', 'META-INF/LGPL2.1']
+            }
         }
 
         compileOptions {
-            sourceCompatibility JavaVersion.VERSION_11
-            targetCompatibility JavaVersion.VERSION_11
+            sourceCompatibility JavaVersion.VERSION_21
+            targetCompatibility JavaVersion.VERSION_21
         }
 
         applicationVariants.all { variant ->
@@ -127,14 +368,13 @@ project(":android") {
 
 project(":core") {
     apply plugin: "java-library"
-    sourceCompatibility = JavaVersion.VERSION_11
-    targetCompatibility = JavaVersion.VERSION_11
+    sourceCompatibility = JavaVersion.VERSION_21
+    targetCompatibility = JavaVersion.VERSION_21
 
     dependencies {
         api "com.badlogicgames.gdx:gdx:$gdxVersion"
         api "com.badlogicgames.gdx-controllers:gdx-controllers-core:$gdxControllersVersion"
         api "com.badlogicgames.gdx:gdx-freetype:$gdxVersion"
-        api "org.antlr:antlr4-runtime:$antlrVersion"
         implementation "org.ini4j:ini4j:$ini4jVersion"
         implementation("com.github.oshi:oshi-core:$oshiVersion") {
             exclude group: 'net.java.dev.jna', module: 'jna'
@@ -149,6 +389,9 @@ project(":core") {
         testImplementation 'org.assertj:assertj-core:3.27.6'
         testImplementation "com.badlogicgames.gdx:gdx-backend-headless:$gdxVersion"
         testRuntimeOnly "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-desktop"
+
+        testImplementation("org.openjdk.jmh:jmh-core:1.37")
+        testAnnotationProcessor("org.openjdk.jmh:jmh-generator-annprocess:1.37")
     }
 
     test {
@@ -157,5 +400,33 @@ project(":core") {
             events 'passed', 'skipped', 'failed'
         }
         jvmArgs "-javaagent:${configurations.testRuntimeClasspath.find { it.name.contains('mockito-core') }}", '-Xshare:off'
+    }
+
+    tasks.register('jmh', JavaExec) {
+        group = 'verification'
+        description = 'Run JMH benchmarks'
+
+        classpath = sourceSets.test.runtimeClasspath
+        mainClass = 'org.openjdk.jmh.Main'
+
+        def resultsDir = layout.buildDirectory.dir("reports/jmh")
+        def resultsFile = resultsDir.map { it.file("results.json") }
+
+        doFirst {
+            resultsDir.get().asFile.mkdirs()
+        }
+
+        args '-rf', 'json'
+        args '-rff', resultsFile.get().asFile.absolutePath
+
+        if (project.hasProperty('jmhIncludeRegex')) {
+            args project.property('jmhIncludeRegex')
+        }
+    }
+}
+
+subprojects {
+    tasks.matching { it.name == 'check' }.configureEach {
+        dependsOn rootProject.tasks.named('verifyThirdPartyLicenses')
     }
 }

@@ -1,489 +1,415 @@
 package pl.genschu.bloomooemulator.interpreter.variable;
 
 import com.badlogic.gdx.Gdx;
-import pl.genschu.bloomooemulator.engine.debug.PerformanceMonitor;
-import pl.genschu.bloomooemulator.interpreter.Context;
-import pl.genschu.bloomooemulator.interpreter.exceptions.BreakException;
-import pl.genschu.bloomooemulator.interpreter.exceptions.ClassMethodNotFoundException;
-import pl.genschu.bloomooemulator.interpreter.exceptions.ClassMethodNotImplementedException;
-import pl.genschu.bloomooemulator.interpreter.exceptions.VariableUnsupportedOperationException;
-import pl.genschu.bloomooemulator.interpreter.factories.VariableFactory;
-import pl.genschu.bloomooemulator.interpreter.variable.types.*;
-import pl.genschu.bloomooemulator.loader.CNVParser;
-import pl.genschu.bloomooemulator.utils.ArgumentsHelper;
-import pl.genschu.bloomooemulator.utils.SignalAndParams;
+import pl.genschu.bloomooemulator.engine.context.EngineVariable;
+import pl.genschu.bloomooemulator.interpreter.context.Context;
+import pl.genschu.bloomooemulator.interpreter.helpers.ArgumentHelper;
+import pl.genschu.bloomooemulator.interpreter.values.*;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.function.BiFunction;
 
-import static pl.genschu.bloomooemulator.interpreter.util.VariableHelper.getVariableFromObject;
+public sealed interface Variable extends EngineVariable permits
+        IntegerVariable,
+        DoubleVariable,
+        StringVariable,
+        BoolVariable,
+        BehaviourVariable,
+        ArrayVariable,
+        DatabaseVariable,
+        StructVariable,
+        DatabaseCursorVariable,
+        ClassVariable,
+        InstanceVariable,
+        CNVLoaderVariable,
+        TimerVariable,
+        VectorVariable,
+        RandVariable,
+        GroupVariable,
+        ExpressionVariable,
+        ConditionVariable,
+        ComplexConditionVariable,
+        ApplicationVariable,
+        EpisodeVariable,
+        SceneVariable,
+        AnimoVariable,
+        SequenceVariable,
+        MultiArrayVariable,
+        ImageVariable,
+        SoundVariable,
+        MouseVariable,
+        KeyboardVariable,
+        ButtonVariable,
+        TextVariable,
+        CanvasObserverVariable,
+        FontVariable,
+        InertiaVariable,
+        MatrixVariable,
+        PatternVariable,
+        StaticFilterVariable,
+        SystemVariable,
+        VirtualGraphicsObjectVariable,
+        WorldVariable {
 
-public abstract class Variable implements Cloneable {
-	protected String name;
-	protected Map<String, Attribute> attributes;
-	protected Map<String, List<Method>> methods;
-	protected Map<String, Signal> signals;
-	protected Context context;
-	protected List<Variable> clones;
+    /**
+     * Returns the name of this variable.
+     */
+    String name();
 
-	private String iniSection;
+    /**
+     * EngineVariable bridge: delegates to name().
+     */
+    @Override
+    default String getName() {
+        return name();
+    }
 
-	private Map<String, String> pendingSignals = new HashMap<>(); // unprocessed signals
+    /**
+     * EngineVariable bridge: delegates to type().name().
+     */
+    @Override
+    default String getTypeName() {
+        return type().name();
+    }
 
-	private Map<Variable, Boolean> isCollidingMap = new HashMap<>();
+    /**
+     * Returns the current value as a v2 Value.
+     */
+    Value value();
 
-	public Variable(String name, Context context) {
-		this.name = name;
-		this.attributes = new HashMap<>();
-		this.methods = new HashMap<>();
-		this.signals = new HashMap<>();
-		this.clones = new ArrayList<>();
-		this.context = context;
+    /**
+     * Returns the type of this variable.
+     */
+    VariableType type();
 
-		this.setMethods();
+    /**
+     * Sets the value of this variable in-place (mutates via MutableValue holder).
+     * Returns this variable for chaining.
+     */
+    Variable withValue(Value newValue);
 
-		try {
-			this.iniSection = context.getGame().getCurrentScene().toUpperCase();
-		} catch (Exception e) {
-			this.iniSection = "NO_SCENE";
-		}
-	}
+    /**
+     * Calls a method on this variable with context access.
+     * This is the primary overload used by the interpreter.
+     */
+    default MethodResult callMethod(String methodName, List<Value> arguments, MethodContext ctx) {
+        Gdx.app.debug(getTypeName(), "Calling method: " + methodName + " for " + name() + " with arguments: " + (arguments == null ? List.of() : arguments));
+        Map<String, MethodSpec> availableMethods = methods();
+        MethodSpec spec = availableMethods != null
+                ? availableMethods.get(methodName.toUpperCase())
+                : null;
 
-	public String getName() {
-		return name;
-	}
-
-	public void setName(String name) {
-		this.name = name;
-	}
-
-	public Variable convertTo(String type) {
-		if(this.getType().equals(type)) // typ jest ten sam i nie ma po co konwertować
-			return this;
-
-		if(!(this.getType().equals("STRING") || this.getType().equals("BOOL") || this.getType().equals("INTEGER") || this.getType().equals("DOUBLE"))) {
-			throw new VariableUnsupportedOperationException(this, "CONV");
-		}
-
-		if(!(type.equals("STRING") || type.equals("BOOL") || type.equals("INTEGER") || type.equals("DOUBLE"))) {
-			throw new VariableUnsupportedOperationException(this, type, "CONV");
-		}
-
-		switch(this.getType()) {
-			case "INTEGER":
-				return ((IntegerVariable) this).convert(type);
-			case "DOUBLE":
-				return ((DoubleVariable) this).convert(type);
-			case "BOOL":
-				return ((BoolVariable) this).convert(type);
-			case "STRING":
-				return ((StringVariable) this).convert(type);
-			default:
-				return this;
-		}
-	}
-
-	protected void setMethods() {
-		this.setMethod("ADDBEHAVIOUR", new Method(
-				List.of(
-						new Parameter("STRING", "signalName", true),
-						new Parameter("STRING", "behaviourName", true)
-				),
-				"void"
-		) {
-			@Override
-			public Variable execute(List<Object> arguments) {
-				String signalName = ArgumentsHelper.getString(arguments.get(0));
-				String behaviourName = ArgumentsHelper.getString(arguments.get(1));
-
-				if(signalName.contains("$")) {
-					signalName = signalName.replace("$", "^");
-				}
-
-				SignalAndParams signalAndParams = new CNVParser().processEventCode(behaviourName, context);
-
-				if (signalAndParams == null || signalAndParams.behaviourVariable == null) {
-					Gdx.app.error("VARIABLE", "Error in ADDBEHAVIOUR: Failed to get behaviour variable for signal " + signalName);
-					return null;
-				}
-
-				String finalSignalName = signalName;
-				setSignal(signalName, new Signal() {
-					@Override
-					public void execute(Object argument) {
-						List<Object> arguments = new ArrayList<>();
-						if(signalAndParams.params != null)
-							for(String param : signalAndParams.params) {
-								arguments.add(getVariableFromObject(param, context));
-							}
-						Variable oldThis = signalAndParams.behaviourVariable.getContext().getThisVariable();
-						signalAndParams.behaviourVariable.getContext().setThisVariable(Variable.this);
-						signalAndParams.behaviourVariable.getMethod(signalAndParams.behaviourVariable.getAttribute("CONDITION") != null ? "RUNC" : "RUN", Collections.singletonList("mixed"))
-								.execute(!arguments.isEmpty() ? arguments : null);
-						signalAndParams.behaviourVariable.getContext().setThisVariable(oldThis);
-						Gdx.app.log("Signal", "Signal " + finalSignalName + " done");
-					}
-				});
-				return null;
-			}
-		});
-		this.setMethod("CLONE", new Method(
-				List.of(
-						new Parameter("INTEGER", "amount", false)
-				),
-				"void"
-		) {
-			@Override
-			public Variable execute(List<Object> arguments) {
-				int amount = 1;
-				if(!arguments.isEmpty()) {
-					amount = ArgumentsHelper.getInteger(arguments.get(0));
-				}
-
-				for(int i = 0; i < amount; i++) {
-					Variable cloneVar = Variable.this.clone();
-					String newName = cloneVar.getName()+"_"+(getClones().size()+1);
-					cloneVar.setName(newName);
-					context.setVariable(newName, cloneVar);
-					clones.add(cloneVar);
-				}
-
-				return null;
-			}
-		});
-		this.setMethod("GETCLONEINDEX", new Method(
-				"INTEGER"
-		) {
-			@Override
-			public Variable execute(List<Object> arguments) {
-				if(getName().contains("_"))
-					return new IntegerVariable("", Integer.parseInt(getName().substring(getName().lastIndexOf("_") + 1)), context);
-				return new IntegerVariable("", 0, context);
-			}
-		});
-		this.setMethod("MSGBOX", new Method(
-				"void"
-		) {
-			@Override
-			public Variable execute(List<Object> arguments) {
-				// TODO: implement this method
-				throw new ClassMethodNotImplementedException("Method MSGBOX is not implemented yet");
-			}
-		});
-		this.setMethod("REMOVEBEHAVIOUR", new Method(
-				List.of(
-						new Parameter("STRING", "behaviourName", true)
-				),
-				"void"
-		) {
-			@Override
-			public Variable execute(List<Object> arguments) {
-				String behaviourName = ArgumentsHelper.getString(arguments.get(0));
-
-				removeSignal(behaviourName);
-				return null;
-			}
-		});
-		this.setMethod("SEND", new Method(
-				List.of(
-						new Parameter("STRING", "signal", true)
-				),
-				"void"
-		) {
-			@Override
-			public Variable execute(List<Object> arguments) {
-				String signal = ArgumentsHelper.getString(arguments.get(0));
-
-				emitSignal("ONSIGNAL", signal);
-				return null;
-			}
-		});
-	}
-
-	public String getType() {
-		return "VOID";
-	}
-
-	public Object getValue() {
-		return null;
-	}
-
-	@Override
-	public Variable clone() {
-        try {
-            Variable cloneVar = (Variable) super.clone();
-
-			cloneVar.attributes = new HashMap<>();
-			for(Map.Entry<String, Attribute> entry : this.attributes.entrySet()) {
-				Attribute currentAttr = entry.getValue();
-				cloneVar.attributes.put(entry.getKey(), new Attribute(currentAttr.getType(), currentAttr.getValue().toString()));
-			}
-			cloneVar.methods = new HashMap<>();
-			cloneVar.setMethods();
-			cloneVar.signals = new HashMap<>();
-			cloneVar.context = this.context;
-			cloneVar.clones = new ArrayList<>();
-
-			return cloneVar;
-        } catch (CloneNotSupportedException e) {
-            throw new RuntimeException(e); // it should not be thrown
+        MethodResult result;
+        if (spec == null || spec.method() == null) {
+            MethodSpec global = globalMethods().get(methodName.toUpperCase());
+            if (global == null || global.method() == null) {
+                throw new IllegalArgumentException("Method not found: " + methodName + " on " + type() + " variable");
+            }
+            result = global.method().execute(this, arguments == null ? List.of() : arguments, ctx);
+        } else {
+            result = spec.method().execute(this, arguments == null ? List.of() : arguments, ctx);
         }
+
+        // Persist value to INI file if TOINI attribute is set
+        persistToIniIfNeeded(ctx);
+
+        return result;
     }
 
-	public void init() {
-		// this method initialises the variable, in this place is no-op, every class should override it
-	}
-
-	public Variable fireMethod(String methodName, Object... params) {
-		List<String> paramsTypes = new ArrayList<>();
-		for(Object param : params) {
-			paramsTypes.add(((Variable) param).getType());
-		}
-		Method method = this.getMethod(methodName, paramsTypes);
-		try {
-			PerformanceMonitor.startOperation("(" + this.getType() + ") " + methodName);
-			return method.execute(List.of(params));
-		} catch (ClassMethodNotFoundException | ClassMethodNotImplementedException | ClassCastException e) {
-			Gdx.app.error("Variable", "Method call error in variable " + this.getName() + " of class " + this.getType() + ": " + e.getMessage(), e);
-			return null;
-		} finally {
-			PerformanceMonitor.endOperation("(" + this.getType() + ") " + methodName);
-		}
+    /**
+     * Calls a method without context (convenience for tests and internal variable calls).
+     */
+    default MethodResult callMethod(String methodName, List<Value> arguments) {
+        return callMethod(methodName, arguments, null);
     }
 
-	public void setAttribute(String name, Attribute attribute) {
-		attributes.put(name, attribute);
-	}
+    /**
+     * Calls a method without context (varargs convenience).
+     */
+    default MethodResult callMethod(String methodName, Value... arguments) {
+        return callMethod(methodName, arguments != null ? List.of(arguments) : List.of(), null);
+    }
 
-	public void setAttribute(String name, String attribute) {
-		setAttribute(name, new Attribute(name, attribute));
-	}
+    /**
+     * Global methods available on all variable types.
+     */
+    Map<String, MethodSpec> GLOBAL_METHODS = Map.ofEntries(
+            Map.entry("ADDBEHAVIOUR", MethodSpec.of((self, args, ctx) -> {
+                if (args == null || args.size() < 2) {
+                    throw new IllegalArgumentException("ADDBEHAVIOUR requires 2 arguments: signalName, behaviourName");
+                }
+                String rawSignalName = ArgumentHelper.getString(args.get(0));
+                String signalName = rawSignalName.replace("$", "^");
+                String behaviourSpec = ArgumentHelper.getString(args.get(1));
 
-	public Attribute getAttribute(String name) {
-		return attributes.get(name);
-	}
-
-	public void setMethod(String name, Method method) {
-		if (!methods.containsKey(name)) {
-			methods.put(name, new ArrayList<>());
-		}
-		methods.get(name).add(method);
-	}
-
-	public Method getMethod(String name, List<String> paramTypes) {
-		List<Method> methodList = methods.get(name);
-		Method toReturn = null;
-		if (methodList != null) {
-			for (Method method : methodList) {
-				List<String> methodParamTypes = method.getParameterTypes();
-
-				boolean foundVarargs = false;
-				String varargsType = null;
-
-				for (String methodParamType : methodParamTypes) {
-                    if (methodParamType.endsWith("...")) {
-                        foundVarargs = true;
-                        varargsType = methodParamType.substring(0, methodParamType.length() - 3);
-                        break;
+                // Parse behaviour spec - may have parameters like "MYBEHAVIOUR(\"param1\", VAR)"
+                String behaviourName = behaviourSpec;
+                String[] params = null;
+                if (behaviourSpec.contains("(") && behaviourSpec.endsWith(")")) {
+                    int parenStart = behaviourSpec.indexOf('(');
+                    behaviourName = behaviourSpec.substring(0, parenStart).trim();
+                    String paramStr = behaviourSpec.substring(parenStart + 1, behaviourSpec.length() - 1);
+                    if (!paramStr.isEmpty()) {
+                        params = paramStr.split(",");
+                        for (int i = 0; i < params.length; i++) {
+                            params[i] = params[i].trim();
+                        }
                     }
                 }
 
-				if (foundVarargs) {
-					List<String> baseMethodParamTypes = new ArrayList<>(methodParamTypes);
-                    baseMethodParamTypes.removeIf(param -> param.endsWith("..."));
+                Variable behaviourVar = ctx.getVariable(behaviourName.trim());
+                if (!(behaviourVar instanceof BehaviourVariable behaviour)) {
+                    return MethodResult.noReturn();
+                }
 
-					if (paramTypes.size() >= baseMethodParamTypes.size()) {
-						while (baseMethodParamTypes.size() < paramTypes.size()) {
-							baseMethodParamTypes.add(varargsType);
-						}
-					}
+                final String[] finalParams = params;
+                SignalHandler handler = (variable, signal, signalArgs) -> {
+                    List<Value> resolvedParams = resolveSignalParams(finalParams, ctx);
+                    // Signals are top-level entry points — discard the ExecutionResult.
+                    // A @BREAK inside the handler has no caller procedure to terminate.
+                    ctx.runBehaviour("Signal:" + signal, variable, behaviour, resolvedParams);
+                };
 
-					methodParamTypes = baseMethodParamTypes;
-				}
+                Variable updated = self.withSignal(signalName, handler);
+                ctx.updateVariable(self.name(), updated);
+                return MethodResult.noReturn();
+            })),
 
-				if (isParameterListMatching(methodParamTypes, paramTypes)) {
-					if (toReturn == null || toReturn.getParameterTypes().size() < method.getParameterTypes().size()) {
-						toReturn = method;
-					}
-				}
-			}
-		}
+            Map.entry("CLONE", MethodSpec.of((self, args, ctx) -> {
+                int amount = 1;
+                if (args != null && !args.isEmpty()) {
+                    amount = ArgumentHelper.getInt(args.get(0));
+                }
+                int count = Math.max(0, amount);
+                if (count > 0) {
+                    String baseName = self.name();
+                    int existing = ctx.clones().getCloneNames(baseName).size();
+                    for (int i = 0; i < count; i++) {
+                        String cloneName = baseName + "_" + (existing + i + 1);
+                        Variable clone = self.copyAs(cloneName);
+                        ctx.setVariable(cloneName, clone);
+                        ctx.clones().registerClone(baseName, cloneName);
+                    }
+                }
+                return MethodResult.noReturn();
+            })),
 
-		if (toReturn != null) {
-			return toReturn;
-		}
-		throw new ClassMethodNotFoundException(name, paramTypes);
-	}
+            Map.entry("GETCLONEINDEX", MethodSpec.of((self, args, ctx) -> {
+                String name = self.name();
+                int idx = 0;
+                int pos = name.lastIndexOf('_');
+                if (pos > -1 && pos < name.length() - 1) {
+                    try {
+                        idx = Integer.parseInt(name.substring(pos + 1));
+                    } catch (NumberFormatException ignored) {
+                        idx = 0;
+                    }
+                }
+                return MethodResult.returns(new IntValue(idx));
+            })),
 
-	private boolean isParameterListMatching(List<String> methodParamTypes, List<String> paramTypes) {
-		int requiredParams = 0;
-		if (methodParamTypes.size() != paramTypes.size()) {
-			// get number of required parameters
-			for (String methodParamType : methodParamTypes) {
-				if (!methodParamType.endsWith("?")) {
-					requiredParams++;
-				}
-			}
+            Map.entry("REMOVEBEHAVIOUR", MethodSpec.of((self, args, ctx) -> {
+                if (args == null || args.isEmpty()) {
+                    throw new IllegalArgumentException("REMOVEBEHAVIOUR requires 1 argument: signalName");
+                }
+                String rawSignalName = ArgumentHelper.getString(args.get(0));
+                String signalName = rawSignalName.replace("$", "^");
+                Variable updated = self.withoutSignal(signalName);
+                ctx.updateVariable(self.name(), updated);
+                return MethodResult.noReturn();
+            })),
 
-			if(paramTypes.size() < requiredParams) {
-				return false;
-			}
-		}
-		else {
-			requiredParams = paramTypes.size();
-		}
+            Map.entry("SEND", MethodSpec.of((self, args, ctx) -> {
+                if (args == null || args.isEmpty()) {
+                    throw new IllegalArgumentException("SEND requires 1 argument: signal");
+                }
+                String signal = ArgumentHelper.getString(args.get(0));
+                self.emitSignal("ONSIGNAL", new StringValue(signal));
+                return MethodResult.noReturn();
+            }))
+    );
 
-		for (int i = 0; i < requiredParams; i++) {
-			String methodParamType = methodParamTypes.get(i);
-			String paramType = paramTypes.get(i);
+    /**
+     * Returns available methods for this variable type.
+     */
+    Map<String, MethodSpec> methods();
 
-			if (!isTypeCompatible(methodParamType, paramType)) {
-				return false;
-			}
-		}
-		return true;
-	}
-
-	private boolean isTypeCompatible(String methodParamType, String paramType) {
-		if(methodParamType.endsWith("?")) {
-			methodParamType = methodParamType.substring(0, methodParamType.length() - 1);
-		}
-
-		if (methodParamType.equals(paramType)) {
-			return true;
-		}
-
-		if(methodParamType.equals("mixed")) {
-			return true;
-		}
-
-		String[] primitiveMethods = {"INTEGER", "DOUBLE", "BOOL", "STRING", "EXPRESSION" /* expression returns primitives */};
-        return Arrays.asList(primitiveMethods).contains(methodParamType) && Arrays.asList(primitiveMethods).contains(paramType);
+    /**
+     * Returns available global methods for all variable types.
+     */
+    default Map<String, MethodSpec> globalMethods() {
+        return GLOBAL_METHODS;
     }
 
-	public void setSignal(String name, Signal signal) {
-		signals.put(name, signal);
-	}
+    /**
+     * Returns signal handlers attached to this variable.
+     */
+    Map<String, SignalHandler> signals();
 
-	public Signal getSignal(String name) {
-		return signals.get(name);
-	}
-    
-    public void removeSignal(String name) {
-        signals.remove(name);
+    /**
+     * Gets a signal handler by name.
+     * Convenience method for signals().get(signalName).
+     */
+    default SignalHandler getSignal(String signalName) {
+        Map<String, SignalHandler> registeredSignals = signals();
+        return registeredSignals != null ? registeredSignals.get(signalName) : null;
     }
 
-	public void emitSignal(String name) {
-		this.emitSignal(name, null);
-	}
+    /**
+     * Creates a new Variable with an additional signal handler.
+     * If handler is null, removes the signal.
+     */
+    Variable withSignal(String signalName, SignalHandler handler);
 
-	public void emitSignal(String name, Object argument) {
-		Gdx.app.log("Variable", "Emitting signal " + name + " for variable " + this.getName() + " with argument " + argument);
-		// Gdx.app.log("Variable", "Setting THIS variable to " + this.getName());
-		Variable oldThis = context.getThisVariable();
-		if(!(this instanceof ConditionVariable) && !(this instanceof BehaviourVariable)) {
-			context.setThisVariable(this);
-		}
+    /**
+     * Creates a new Variable without the specified signal.
+     */
+    default Variable withoutSignal(String signalName) {
+        return withSignal(signalName, null);
+    }
 
-		try {
-			String signalName = name;
-			if (argument != null) {
-				signalName += "^" + argument;
-			}
-			Signal signal = this.getSignal(signalName);
-			if (signal != null) {
-				Gdx.app.log(this.getClass().getSimpleName(), "Executing signal " + signalName + "...");
-				signal.execute(argument);
-			} else {
-				//Gdx.app.log(this.getClass().getSimpleName(), "Signal "+signalName+" not found. Looking for generic "+name+"...");
-				signal = this.getSignal(name);
-				if (signal != null) {
-					Gdx.app.log(this.getClass().getSimpleName(), "Executing signal " + name + "...");
-					signal.execute(null);
-				}
-				/*else {
-					Gdx.app.log(this.getClass().getSimpleName(), "Signal "+name+" not found. Omitting...");
-				}*/
-			}
-		} catch (BreakException ignored) {} // simple break
+    /**
+     * Resolves the best available reset value from context attributes.
+     *
+     * Preference order matches legacy RESETINI behavior:
+     * DEFAULT -> INIT_VALUE -> VALUE
+     */
+    default String getResetAttributeValue(MethodContext ctx) {
+        if (ctx == null) {
+            return null;
+        }
 
-		context.setThisVariable(oldThis);
-	}
+        Context context = ctx.context();
+        if (context == null) {
+            return null;
+        }
 
-	protected void set(Object value) {
-		Object currentValue = getAttribute("VALUE").getValue();
-		getAttribute("VALUE").setValue(value);
-		Gdx.app.log("Variable", "Emitting signal ONBRUTALCHANGED for variable " + this.getName() + ", class type " + this.getType());
-		emitSignal("ONBRUTALCHANGED", value.toString());
-		if (!value.toString().equals(currentValue.toString())) {
-			Gdx.app.log("Variable", "Emitting signal ONCHANGED for variable " + this.getName() + ", class type " + this.getType());
-			emitSignal("ONCHANGED", value.toString());
-		}
+        String resetValue = context.getAttributeInHierarchy(name(), "DEFAULT");
+        if (resetValue != null) {
+            return resetValue;
+        }
 
-		if (getAttribute("TOINI") != null && getAttribute("TOINI").getBool()) {
-			String section = getIniSection();
+        resetValue = context.getAttributeInHierarchy(name(), "INIT_VALUE");
+        if (resetValue != null) {
+            return resetValue;
+        }
 
-			if (section == null) {
-				section = context.getGame().findINISectionForVariable(this.getName().toUpperCase());
-				setIniSection(section);
-			}
+        return context.getAttributeInHierarchy(name(), "VALUE");
+    }
 
-			Gdx.app.log("Variable", "Saving variable " + this.getName() + " to INI section " + section);
-			context.getGame().getGameINI().put(section, this.getName().toUpperCase(), value.toString());
-		}
-	}
+    /**
+     * Emits a signal on this variable.
+     * This executes the signal handler if one is registered.
+     */
+    default void emitSignal(String signalName) {
+        emitSignal(signalName, null);
+    }
 
-	public boolean isColliding(Variable variable) {
-		return this.isCollidingMap.containsKey(variable);
-	}
+    default void emitSignal(String signalName, Value newValue, Value... arguments) {
+        Map<String, SignalHandler> registeredSignals = signals();
+        String fullSignalName = signalName + (newValue != null ? "^" + newValue.toDisplayString() : "");
+        Gdx.app.debug(getTypeName(), "Emitting signal: " + fullSignalName + " for " + name() + " with arguments: " + (arguments == null ? List.of() : List.of(arguments)));
+        if(registeredSignals != null) {
+            SignalHandler handler = registeredSignals.get(fullSignalName);
+            if (handler == null) {
+                handler = registeredSignals.get(signalName);
+            }
+            if (handler != null) {
+                Gdx.app.debug(getTypeName(), "Executing signal: " + fullSignalName + " for " + name());
+                handler.handle(this, fullSignalName, arguments);
+            }
+        }
+    }
 
-	public void setColliding(Variable variable) {
-		this.isCollidingMap.put(variable, true);
-		this.emitSignal("ONCOLLISION", variable.getName());
-	}
+    /**
+     * Creates a copy of this variable with a new name.
+     */
+    default Variable copyAs(String newName) {
+        throw new UnsupportedOperationException("copyAs not implemented for " + type() + " variable");
+    }
 
-	public void releaseColliding(Variable variable) {
-		this.isCollidingMap.remove(variable);
-		this.emitSignal("ONCOLLISIONFINISHED", variable.getName());
-	}
+    /**
+     * Map of converters from Value to Variable by target type name.
+     */
+    Map<String, BiFunction<String, Value, Variable>> CONVERTERS = Map.of(
+            "INTEGER", (name, val) -> new IntegerVariable(name, val.toInt().value()),
+            "DOUBLE",  (name, val) -> new DoubleVariable(name, val.toDouble().value()),
+            "STRING",  (name, val) -> new StringVariable(name, val.toStringValue().value()),
+            "BOOLEAN", (name, val) -> new BoolVariable(name, val.toBool().value())
+    );
 
-	public Context getContext() {
-		return this.context;
-	}
+    /**
+     * Converts this variable to another type.
+     */
+    default Variable convertTo(String targetType) {
+        String target = targetType.toUpperCase();
+        if (type().name().equals(target)) {
+            return this;
+        }
 
-	public void setContext(Context context) {
-		this.context = context;
-	}
+        if(!type().isPrimitive()) {
+            throw new UnsupportedOperationException("Conversion from non-primitive type " + type() + " is not supported");
+        }
 
-	@Override
-	public String toString() {
-		return ""; // technicznie zmienne nie będące BOOLem, INTEGERem, DOUBLE, czy STRINGiem podczas próby wypisania wartości wywalają silnik, my zrobimy pustą wartość
-	}
+        var factory = CONVERTERS.get(target);
+        if (factory == null) {
+            throw new UnsupportedOperationException("Unsupported target type: " + target);
+        }
 
-	public void addPendingSignal(String signalName, String signalCode) {
-		pendingSignals.put(signalName, signalCode);
-	}
+        try {
+            return factory.apply(name(), value());
+        } catch (Exception e) {
+            throw new RuntimeException("Conversion failed to " + target, e);
+        }
+    }
 
-	public Map<String, String> getPendingSignals() {
-		return pendingSignals;
-	}
+    // ========================================
+    // PRIVATE HELPERS
+    // ========================================
 
-	public List<Variable> getClones() {
-		return clones;
-	}
+    /**
+     * Persists value to INI file if TOINI attribute is set.
+     * Mirrors v1 Variable.set() behavior: after any value mutation,
+     * check TOINI and write to game INI if needed.
+     */
+    private void persistToIniIfNeeded(MethodContext ctx) {
+        if (ctx == null) return;
+        Context context = ctx.context();
+        if (context == null) return;
 
-	public void setClones(List<Variable> clones) {
-		this.clones = clones;
-	}
+        String toini = context.getAttributeInHierarchy(name(), "TOINI");
+        if (!"TRUE".equalsIgnoreCase(toini)) return;
 
-	public Map<String, Signal> getSignals() {
-		return signals;
-	}
+        pl.genschu.bloomooemulator.engine.Game game = ctx.getGame();
+        if (game == null || game.getGameINI() == null) return;
 
-	public String getIniSection() {
-		return iniSection;
-	}
+        String section = game.findINISectionForVariable(name().toUpperCase());
+        if (section != null) {
+            game.getGameINI().put(section, name().toUpperCase(), value().toDisplayString());
+        }
+    }
 
-	public void setIniSection(String iniSection) {
-		this.iniSection = iniSection;
-	}
+    private static List<Value> resolveSignalParams(String[] params, MethodContext ctx) {
+        if (params == null) return List.of();
+        List<Value> resolved = new ArrayList<>(params.length);
+        for (String param : params) {
+            param = param.trim();
+            if (param.startsWith("\"") && param.endsWith("\"")) {
+                param = param.substring(1, param.length() - 1);
+                resolved.add(new StringValue(param));
+                continue;
+            }
+            Variable paramVar = ctx.getVariable(param);
+            if (paramVar != null) {
+                resolved.add(paramVar.value());
+                continue;
+            }
+            resolved.add(new StringValue(param));
+        }
+        return resolved;
+    }
+
 }

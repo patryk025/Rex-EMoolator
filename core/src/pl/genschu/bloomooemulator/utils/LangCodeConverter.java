@@ -8,15 +8,22 @@ public class LangCodeConverter {
 
     // language codes extracted and converted from Polish version of Windows 10 and registry key HKEY_LOCAL_MACHINE\SOFTWARE\Classes\MIME\Database\Rfc1766
     static {
-        // LCID -> ISO 639-2 mappings
+        // Codes used in original engine
+        lcidToIsoMap.put("0402", "bul"); // bg - Bulgarian
+        lcidToIsoMap.put("0405", "cze"); // cs - Czech
+        lcidToIsoMap.put("040E", "hun"); // hu - Hungarian
+        lcidToIsoMap.put("0415", "pol"); // pl - Polish
+        lcidToIsoMap.put("0418", "rom"); // ro - Romanian
+        lcidToIsoMap.put("0419", "rus"); // ru - Russian
+        lcidToIsoMap.put("041B", "slo"); // sk - Slovak
+
+        // Other codes unused in original engine, just in case
         lcidToIsoMap.put("0001", "ara"); // ar - Arabic
         lcidToIsoMap.put("0004", "zho"); // zh - Chinese
         lcidToIsoMap.put("0009", "eng"); // en - English
         lcidToIsoMap.put("0401", "ara"); // ar-sa - Arabic (Saudi Arabia)
-        lcidToIsoMap.put("0402", "bul"); // bg - Bulgarian
         lcidToIsoMap.put("0403", "cat"); // ca - Catalan
         lcidToIsoMap.put("0404", "zho"); // zh-tw - Chinese (Taiwan)
-        lcidToIsoMap.put("0405", "ces"); // cs - Czech
         lcidToIsoMap.put("0406", "dan"); // da - Danish
         lcidToIsoMap.put("0407", "deu"); // de - German
         lcidToIsoMap.put("0408", "ell"); // el - Modern Greek
@@ -25,20 +32,15 @@ public class LangCodeConverter {
         lcidToIsoMap.put("040B", "fin"); // fi - Finnish
         lcidToIsoMap.put("040C", "fra"); // fr - French
         lcidToIsoMap.put("040D", "heb"); // he - Hebrew
-        lcidToIsoMap.put("040E", "hun"); // hu - Hungarian
         lcidToIsoMap.put("040F", "isl"); // is - Icelandic
         lcidToIsoMap.put("0410", "ita"); // it - Italian
         lcidToIsoMap.put("0411", "jpn"); // ja - Japanese
         lcidToIsoMap.put("0412", "kor"); // ko - Korean
         lcidToIsoMap.put("0413", "nld"); // nl - Dutch
         lcidToIsoMap.put("0414", "nor"); // no - Norwegian
-        lcidToIsoMap.put("0415", "pol"); // pl - Polish
         lcidToIsoMap.put("0416", "por"); // pt-br - Portuguese (Brazil)
         lcidToIsoMap.put("0417", "roh"); // rm - Romansh
-        lcidToIsoMap.put("0418", "ron"); // ro - Romanian
-        lcidToIsoMap.put("0419", "rus"); // ru - Russian
         lcidToIsoMap.put("041A", "hrv"); // hr - Croatian
-        lcidToIsoMap.put("041B", "slk"); // sk - Slovak
         lcidToIsoMap.put("041C", "sqi"); // sq - Albanian
         lcidToIsoMap.put("041D", "swe"); // sv - Swedish
         lcidToIsoMap.put("041E", "tha"); // th - Thai

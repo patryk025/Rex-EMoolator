@@ -8,11 +8,6 @@ import pl.genschu.bloomooemulator.encoding.CLZW2Compression;
 import pl.genschu.bloomooemulator.encoding.CRLECompression;
 import com.badlogic.gdx.Gdx;
 
-import javax.imageio.ImageIO;
-import java.awt.image.BufferedImage;
-import java.awt.image.DataBufferByte;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.nio.ByteBuffer;
 
 public class Image {
@@ -70,18 +65,24 @@ public class Image {
         else if(compressionType == CompressionTypes.JPEG) {
             isJPEG = true;
             try {
-                BufferedImage bufferedImage = ImageIO.read(new java.io.ByteArrayInputStream(imageData));
-                imageData = ((DataBufferByte) bufferedImage.getRaster().getDataBuffer()).getData();
-
                 if(alphaData != null)
                     alphaData = CLZW2Compression.decompress(alphaData);
+
+                Pixmap jpegPixmap = new Pixmap(imageData, 0, imageData.length);
+                try {
+                    imageTexture = combineJpegDataWithAlpha(jpegPixmap, alphaData);
+                } finally {
+                    jpegPixmap.dispose();
+                }
             } catch (Exception e) {
                 Gdx.app.error("ImageDecompression", "Wystąpił problem z CLZW, przerywam ładowanie");
                 return;
             }
         }
 
-        imageTexture = combineImageDataWithAlpha(width, height, imageData, alphaData, colorDepth, isJPEG);
+        if (!isJPEG) {
+            imageTexture = combineImageDataWithAlpha(width, height, imageData, alphaData, colorDepth, false);
+        }
 
         if(originalImageTexture != null)
             originalImageTexture.dispose();
@@ -89,6 +90,31 @@ public class Image {
         originalImageTexture = imageTexture;
 
         isLoaded = true;
+    }
+
+    private Texture combineJpegDataWithAlpha(Pixmap jpegPixmap, byte[] alphaData) {
+        Pixmap pixmap = new Pixmap(width, height, Pixmap.Format.RGBA8888);
+        pixmap.drawPixmap(
+            jpegPixmap,
+            0,
+            0,
+            0,
+            0,
+            Math.min(width, jpegPixmap.getWidth()),
+            Math.min(height, jpegPixmap.getHeight())
+        );
+
+        if (alphaData != null) {
+            int pixelCount = Math.min(width * height, alphaData.length);
+            for (int i = 0; i < pixelCount; i++) {
+                int x = i % width;
+                int y = i / width;
+                int pixel = pixmap.getPixel(x, y);
+                pixmap.drawPixel(x, y, (pixel & 0xFFFFFF00) | (alphaData[i] & 0xFF));
+            }
+        }
+
+        return new Texture(pixmap);
     }
 
     private int[] convertRgbToRgb888(int rgb, int colorDepth) {

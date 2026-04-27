@@ -84,4 +84,8 @@ public class Box2D {
     public int area() {
         return width * height;
     }
+
+    public Box2D copy() {
+        return new Box2D(xLeft, yBottom, xRight, yTop);
+    }
 }

@@ -1,15 +1,15 @@
 package pl.genschu.bloomooemulator.engine.physics;
 
-import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import org.ode4j.math.*;
 import org.ode4j.ode.*;
 import pl.genschu.bloomooemulator.engine.physics.camera.CameraAnchor;
 import pl.genschu.bloomooemulator.engine.physics.pathfinding.AStar;
-import pl.genschu.bloomooemulator.engine.physics.pathfinding.Graph;
 import pl.genschu.bloomooemulator.geometry.points.Point3D;
+import pl.genschu.bloomooemulator.engine.context.EngineVariable;
+import pl.genschu.bloomooemulator.interpreter.values.IntValue;
+import pl.genschu.bloomooemulator.interpreter.values.StringValue;
 import pl.genschu.bloomooemulator.interpreter.variable.Variable;
-import pl.genschu.bloomooemulator.interpreter.variable.types.IntegerVariable;
 import pl.genschu.bloomooemulator.world.*;
 
 import java.util.*;
@@ -24,7 +24,7 @@ public class ODEPhysicsEngine implements IPhysicsEngine {
     DJointGroup jointGroup;
     CameraAnchor cameraAnchor;
     private final Map<Integer, List<GameObject>> objects = new HashMap<>();
-    private final Map<DBody, Variable> linkedVariables = new HashMap<>();
+    private final Map<DBody, EngineVariable> linkedVariables = new HashMap<>();
     private int cameraX = 0;
     private int cameraY = 0;
     private int referenceObjectId = 0;
@@ -501,7 +501,7 @@ public class ODEPhysicsEngine implements IPhysicsEngine {
 
             // get variable
             GameObject go = (GameObject) linkedBody.getData();
-            Variable var = linkedVariables.get(linkedBody);
+            EngineVariable var = linkedVariables.get(linkedBody);
 
             // get body position
             double[] worldPos = linkedBody.getPosition().toDoubleArray();
@@ -512,51 +512,52 @@ public class ODEPhysicsEngine implements IPhysicsEngine {
                 float screenX = (float) worldPos[0] + cameraAnchor.getCameraPosX();
                 float screenY = cameraAnchor.getCameraPosY() - (float) worldPos[1];
 
-                // set position in variable
-                var.fireMethod("SETPOSITION",
-                        new IntegerVariable("", (int) screenX, var.getContext()),
-                        new IntegerVariable("", (int) screenY, var.getContext())
-                );
+                if (var instanceof Variable v2Var) {
+                    v2Var.callMethod("SETPOSITION", List.of(
+                            new IntValue((int) screenX),
+                            new IntValue((int) screenY)
+                    ), null);
+                }
             }
 
             // pathfinding things
             if ((go.getFlags() & 2) != 0) {
-                // let's tell emulator that object is at goal and if it has collisions and with what
-
-                // checking if is at goal
                 int isAtGoal = go.getIsAtGoal();
                 if (isAtGoal == 1) {
-                    var.emitSignal("ONSIGNAL", "ATGOAL");
-                    continue;  // skip other checks if at goal
+                    emitSignalOnVar(var, "ONSIGNAL", "ATGOAL");
+                    continue;
                 } else if (isAtGoal == 2) {
-                    var.emitSignal("ONSIGNAL", "NOPATH");
-                    continue; // and if there is no path
+                    emitSignalOnVar(var, "ONSIGNAL", "NOPATH");
+                    continue;
                 }
 
-                // check if it has any collisions
                 List<Integer> collisionIds = go.getCollisionIds();
                 if (!collisionIds.isEmpty()) {
-                    // send signal for all collision ids
                     for (Integer collisionId : collisionIds) {
-                        var.emitSignal("ONSIGNAL", String.valueOf(collisionId));
+                        emitSignalOnVar(var, "ONSIGNAL", String.valueOf(collisionId));
                     }
-                    var.emitSignal("ONSIGNAL", "ANY");
+                    emitSignalOnVar(var, "ONSIGNAL", "ANY");
                 } else {
-                    var.emitSignal("ONSIGNAL", "NOCOLL");
+                    emitSignalOnVar(var, "ONSIGNAL", "NOCOLL");
                 }
 
-                // last step, let's check if object started moving or stopped
                 float currentSpeed = go.getSpeed();
                 float lastSpeed = go.getLastSpeed();
 
                 if (currentSpeed != lastSpeed) {
                     if (currentSpeed == 0.0f && lastSpeed != 0.0f) {
-                        var.emitSignal("ONSIGNAL", "ONFINISHED");
+                        emitSignalOnVar(var, "ONSIGNAL", "ONFINISHED");
                     } else if (lastSpeed == 0.0f && currentSpeed != 0.0f) {
-                        var.emitSignal("ONSIGNAL", "ONSTARTED");
+                        emitSignalOnVar(var, "ONSIGNAL", "ONSTARTED");
                     }
                 }
             }
+        }
+    }
+
+    private void emitSignalOnVar(EngineVariable var, String signalName, String signalValue) {
+        if (var instanceof Variable v2Var) {
+            v2Var.emitSignal(signalName, new StringValue(signalValue));
         }
     }
 
@@ -770,7 +771,7 @@ public class ODEPhysicsEngine implements IPhysicsEngine {
     }
 
     @Override
-    public void linkVariable(Variable variable, int objectId) {
+    public void linkVariable(EngineVariable variable, int objectId) {
         GameObject go = getObject(objectId);
         DBody body = (DBody) go.getBody();
         if(body != null) {

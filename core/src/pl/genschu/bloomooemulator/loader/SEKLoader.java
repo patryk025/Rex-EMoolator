@@ -4,7 +4,7 @@ import com.badlogic.gdx.Gdx;
 import pl.genschu.bloomooemulator.engine.physics.pathfinding.AStar;
 import pl.genschu.bloomooemulator.engine.physics.pathfinding.Graph;
 import pl.genschu.bloomooemulator.geometry.points.Point3D;
-import pl.genschu.bloomooemulator.interpreter.variable.types.WorldVariable;
+import pl.genschu.bloomooemulator.engine.physics.IPhysicsEngine;
 import pl.genschu.bloomooemulator.loader.helpers.BinaryHelper;
 import pl.genschu.bloomooemulator.utils.FileUtils;
 import pl.genschu.bloomooemulator.world.*;
@@ -15,19 +15,19 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class SEKLoader {
-    public static void loadSek(WorldVariable variable) {
-        Gdx.app.log("WorldVariable", "Loading SEK: " + variable.getName());
-        String filePath = FileUtils.resolveRelativePath(variable);
+    public static void loadSek(SEKLoadable variable) {
+        Gdx.app.log("SEKLoader", "Loading SEK: " + variable.getName());
+        String filePath = FileUtils.resolveRelativePath(variable.getGameReference(), variable.getFilename());
         try (FileInputStream f = new FileInputStream(filePath)) {
             int entityCount = readHeader(variable, f);
             readEntities(variable, f, entityCount);
-            Gdx.app.log("WorldVariable", "Loaded SEK: " + variable.getName());
+            Gdx.app.log("SEKLoader", "Loaded SEK: " + variable.getName());
         } catch (Exception e) {
-            Gdx.app.error("WorldVariable", "Error while loading SEK: " + e.getMessage(), e);
+            Gdx.app.error("SEKLoader", "Error while loading SEK: " + e.getMessage(), e);
         }
     }
 
-    private static int readHeader(WorldVariable variable, FileInputStream f) throws IOException {
+    private static int readHeader(SEKLoadable variable, FileInputStream f) throws IOException {
         String magic = BinaryHelper.readString(f, 16);
         if(!magic.equals("SEKAI81080701915")) {
             throw new IllegalArgumentException("Not a valid SEK file. Expected magic: SEKAI81080701915, got: " + magic);
@@ -37,7 +37,7 @@ public class SEKLoader {
         return BinaryHelper.readIntLE(f); // entityCount
     }
 
-    private static void readEntities(WorldVariable variable, FileInputStream f, int entityCount) throws IOException {
+    private static void readEntities(SEKLoadable variable, FileInputStream f, int entityCount) throws IOException {
         switch (variable.getSekVersion()) {
             case "004":
                 for (int i = 0; i < entityCount; i++) {
@@ -52,7 +52,7 @@ public class SEKLoader {
                             parsePointsData(variable, f);
                             break;
                         default:
-                            Gdx.app.log("WorldVariable", "Unknown entity type: " + typeId);
+                            Gdx.app.log("SEKLoader", "Unknown entity type: " + typeId);
                             f.skip(length); // skip unknown entity data
                             break;
                     }
@@ -110,7 +110,7 @@ public class SEKLoader {
                                         object.geomType(1);
                                         break;
                                     default:
-                                        Gdx.app.error("WorldVariable", "Unknown geomType: " + geomType);
+                                        Gdx.app.error("SEKLoader", "Unknown geomType: " + geomType);
                                         break;
                                 }
                                 break;
@@ -143,15 +143,15 @@ public class SEKLoader {
                                             Float.parseFloat(values[5].trim())  // maxZ
                                     );
                                 } else {
-                                    Gdx.app.error("WorldVariable", "Invalid limit values: " + propValues);
+                                    Gdx.app.error("SEKLoader", "Invalid limit values: " + propValues);
                                 }
                                 break;
                             default:
-                                Gdx.app.log("WorldVariable", "Unknown property: " + propName + " with values: " + propValues);
+                                Gdx.app.log("SEKLoader", "Unknown property: " + propName + " with values: " + propValues);
                                 break;
                         }
                     } else {
-                        Gdx.app.error("WorldVariable", "Unsupported property format: " + part);
+                        Gdx.app.error("SEKLoader", "Unsupported property format: " + part);
                     }
                 }
             }
@@ -166,7 +166,7 @@ public class SEKLoader {
         return object;
     }
 
-    private static void parseSceneObject(WorldVariable variable, FileInputStream f) throws IOException {
+    private static void parseSceneObject(SEKLoadable variable, FileInputStream f) throws IOException {
         GameObject.GameObjectBuilder builder = parseObjectHeader(f);
 
         int geometryType = BinaryHelper.readIntLE(f);
@@ -222,7 +222,7 @@ public class SEKLoader {
         }
     }
 
-    private static void parsePointsData(WorldVariable variable, FileInputStream f) throws IOException {
+    private static void parsePointsData(SEKLoadable variable, FileInputStream f) throws IOException {
         GameObject.GameObjectBuilder builder = parseObjectHeader(f);
 
         builder.physicsEngine(variable.getPhysicsEngine());

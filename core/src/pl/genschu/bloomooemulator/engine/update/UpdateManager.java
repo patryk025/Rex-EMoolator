@@ -3,15 +3,17 @@ package pl.genschu.bloomooemulator.engine.update;
 import com.badlogic.gdx.utils.Disposable;
 import pl.genschu.bloomooemulator.engine.Game;
 import pl.genschu.bloomooemulator.engine.config.EngineConfig;
-import pl.genschu.bloomooemulator.interpreter.Context;
-import pl.genschu.bloomooemulator.interpreter.exceptions.BreakException;
-import pl.genschu.bloomooemulator.interpreter.variable.Variable;
-import pl.genschu.bloomooemulator.interpreter.variable.types.*;
+import pl.genschu.bloomooemulator.engine.context.EngineVariable;
+import pl.genschu.bloomooemulator.engine.context.GameContext;
+import pl.genschu.bloomooemulator.interpreter.variable.*;
 import pl.genschu.bloomooemulator.geometry.shapes.Box2D;
 import pl.genschu.bloomooemulator.utils.CollisionChecker;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.IdentityHashMap;
 import java.util.List;
+import java.util.Set;
 
 public class UpdateManager implements Disposable {
     private final Game game;
@@ -33,13 +35,16 @@ public class UpdateManager implements Disposable {
     }
 
     public void update(float deltaTime) {
-        Context context = game.getCurrentSceneContext();
+        GameContext context = game.getCurrentSceneContext();
 
         // update timers
         updateTimers();
 
         // update animations
         updateAnimations(deltaTime);
+
+        // check collisions for objects that moved since last frame
+        updateCollisions();
 
         // update audio
         updateAudio(deltaTime);
@@ -49,7 +54,20 @@ public class UpdateManager implements Disposable {
         timerManager.updateTimers();
     }
 
-    public void checkCollisions(Variable object) {
+    private void updateCollisions() {
+        Set<EngineVariable> dirty = game.getDirtyCollisionObjects();
+        if (dirty.isEmpty()) {
+            return;
+        }
+        // Rebuild QuadTree once so all positions are consistent
+        game.rebuildCollisionQuadTree();
+        for (EngineVariable object : new ArrayList<>(dirty)) {
+            collisionManager.checkCollisions(object);
+        }
+        dirty.clear();
+    }
+
+    public void checkCollisions(EngineVariable object) {
         collisionManager.checkCollisions(object);
     }
 
@@ -78,37 +96,37 @@ public class UpdateManager implements Disposable {
             this.game = game;
         }
 
-        public void checkCollisions(Variable object) {
-            List<Variable> objects = new ArrayList<>(game.getCollisionMonitoredVariables());
-
-            // Check if the object is in the list of objects to check
-            if (!objects.contains(object)) {
+        public void checkCollisions(EngineVariable object) {
+            // Check if the object is still monitored
+            if (!game.getCollisionMonitoredVariables().contains(object)) {
                 return;
             }
 
-            List<Variable> potentialCollisions = game.getQuadTree().retrieve(new ArrayList<>(), object);
-            for (Variable other : potentialCollisions) {
-                if (other != object && checkCollision(object, other)) {
-                    if (!object.isColliding(other)) {
-                        object.setColliding(other);
+            List<EngineVariable> potentialCollisions = game.getQuadTree().retrieve(new ArrayList<>(), object);
+
+            // Deduplicate (QuadTree can return the same object from multiple nodes)
+            Set<EngineVariable> seen = Collections.newSetFromMap(new IdentityHashMap<>());
+
+            for (EngineVariable other : potentialCollisions) {
+                if (other == object || !seen.add(other)) {
+                    continue;
+                }
+                if (checkCollision(object, other)) {
+                    if (!game.isColliding(object, other)) {
+                        game.setColliding(object, other);
+                        // Re-check: signal handler may have removed this object from monitoring
+                        if (!game.getCollisionMonitoredVariables().contains(object)) {
+                            return;
+                        }
                     }
-                } else if (object.isColliding(other)) {
-                    object.releaseColliding(other);
+                } else if (game.isColliding(object, other)) {
+                    game.releaseColliding(object, other);
                 }
             }
         }
 
-        private boolean checkCollision(Variable obj1, Variable obj2) {
+        private boolean checkCollision(EngineVariable obj1, EngineVariable obj2) {
             return CollisionChecker.checkCollision(obj1, obj2);
-        }
-
-        public Box2D getRect(Variable variable) {
-            if (variable instanceof ImageVariable) {
-                return ((ImageVariable) variable).getRect();
-            } else if (variable instanceof AnimoVariable) {
-                return ((AnimoVariable) variable).getRect();
-            }
-            return null;
         }
 
         @Override
@@ -126,13 +144,14 @@ public class UpdateManager implements Disposable {
         }
 
         public void updateTimers() {
-            Context context = game.getCurrentSceneContext();
-            for (Variable variable : new ArrayList<>(context.getTimerVariables().values())) {
-                TimerVariable timer = (TimerVariable) variable;
-                try {
-                    timer.update();
-                } catch (BreakException ignored) {
-                    // simple break, nothing special
+            GameContext context = game.getCurrentSceneContext();
+            for (EngineVariable variable : new ArrayList<>(context.getTimerVariables().values())) {
+                if (variable instanceof TimerVariable timer) {
+                    try {
+                        timer.update();
+                    } catch (Exception ignored) {
+                        // simple break, nothing special
+                    }
                 }
             }
         }
@@ -152,12 +171,11 @@ public class UpdateManager implements Disposable {
         }
 
         public void updateAnimations(float deltaTime) {
-            Context context = game.getCurrentSceneContext();
-            List<Variable> graphicsVariables = new ArrayList<>(context.getGraphicsVariables().values());
+            GameContext context = game.getCurrentSceneContext();
+            List<? extends EngineVariable> graphicsVariables = new ArrayList<>(context.getGraphicsVariables().values());
 
-            for (Variable variable : graphicsVariables) {
-                if (variable instanceof AnimoVariable) {
-                    AnimoVariable animoVariable = (AnimoVariable) variable;
+            for (EngineVariable variable : graphicsVariables) {
+                if (variable instanceof AnimoVariable animoVariable) {
                     if (animoVariable.isPlaying()) {
                         animoVariable.updateAnimation(deltaTime);
                     }
@@ -180,8 +198,14 @@ public class UpdateManager implements Disposable {
         }
 
         public void update(float deltaTime) {
-            List<SoundVariable> playingAudios = new ArrayList<>(game.getPlayingAudios());
-            playingAudios.forEach(SoundVariable::update);
+            List<EngineVariable> playingAudios = new ArrayList<>(game.getPlayingAudios());
+            for (EngineVariable ev : playingAudios) {
+                if (ev instanceof SoundVariable sound) {
+                    if (sound.update()) {
+                        game.getPlayingAudios().remove(ev);
+                    }
+                }
+            }
         }
 
         @Override

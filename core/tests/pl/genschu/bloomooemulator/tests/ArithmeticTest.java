@@ -5,19 +5,17 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import pl.genschu.bloomooemulator.TestEnvironment;
-import pl.genschu.bloomooemulator.builders.ContextBuilder;
-import pl.genschu.bloomooemulator.interpreter.Context;
-import pl.genschu.bloomooemulator.interpreter.arithmetic.ArithmeticSolver;
+import pl.genschu.bloomooemulator.interpreter.ast.ArithmeticNode;
+import pl.genschu.bloomooemulator.interpreter.helpers.ArgumentHelper;
+import pl.genschu.bloomooemulator.interpreter.ops.ValueOps;
+import pl.genschu.bloomooemulator.interpreter.values.*;
 import pl.genschu.bloomooemulator.interpreter.variable.Variable;
-import pl.genschu.bloomooemulator.interpreter.variable.types.*;
 
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 public class ArithmeticTest {
-    private Context ctx;
-
     private Map<String, Object[][]> expectedResults;
 
     @BeforeAll
@@ -27,11 +25,11 @@ public class ArithmeticTest {
 
     @BeforeEach
     void setUp() {
-        ctx = new ContextBuilder().build();
         initExpectedResults();
     }
 
     private void initExpectedResults() {
+        // TODO: Simplify this mess. Geez, partially unreadable soup of 3D arrays...
         // Format: [type, value] - "S"=String, "I"=Integer, "D"=Double, "B"=Boolean
         expectedResults = Map.of(
                 "ADDITION", new Object[][][] {
@@ -166,38 +164,24 @@ public class ArithmeticTest {
         );
     }
 
-    private Variable createVariable(String type, Object value) {
+    private Value createVariable(String type, Object value) {
         try {
-            switch (type) {
-                case "S":
-                    return new StringVariable("", (String) value, ctx);
-                case "I":
-                    return new IntegerVariable("", (Integer) value, ctx);
-                case "D":
-                    return new DoubleVariable("", (Double) value, ctx);
-                case "B":
-                    return new BoolVariable("", (Boolean) value, ctx);
-                default:
-                    throw new IllegalArgumentException("Unknown type: " + type);
-            }
-        } catch (ClassCastException e) {
-            String expectedType;
-            switch (type) {
-                case "S":
-                    expectedType = "String";
-                    break;
-                case "I":
-                    expectedType = "Integer";
-                    break;
-                case "D":
-                    expectedType = "Double";
-                    break;
-                case "B":
-                    expectedType = "Boolean";
-                    break;
-                default:
-                    expectedType = type;
+            return switch (type) {
+                case "S" -> new StringValue((String) value);
+                case "I" -> new IntValue((Integer) value);
+                case "D" -> new DoubleValue((Double) value);
+                case "B" -> new BoolValue((Boolean) value);
+                default -> throw new IllegalArgumentException("Unknown type: " + type);
             };
+        } catch (ClassCastException e) {
+            String expectedType = switch (type) {
+                case "S" -> "String";
+                case "I" -> "Integer";
+                case "D" -> "Double";
+                case "B" -> "Boolean";
+                default -> type;
+            };
+            ;
             throw new IllegalArgumentException("Value " + value + " of type " + value.getClass().getName() + " does not match type " + expectedType, e);
         }
     }
@@ -217,35 +201,34 @@ public class ArithmeticTest {
     @ParameterizedTest
     @ValueSource(ints = {0, 1, 2, 3})
     void testAddition(int setIndex) {
-        testArithmeticOperation("ADDITION", setIndex, ArithmeticSolver::add);
+        testArithmeticOperation("ADDITION", setIndex, ArithmeticNode.ArithmeticOp.ADD);
     }
 
     @ParameterizedTest
     @ValueSource(ints = {0, 1, 2, 3})
     void testSubtraction(int setIndex) {
-        testArithmeticOperation("SUBTRACTION", setIndex, ArithmeticSolver::subtract);
+        testArithmeticOperation("SUBTRACTION", setIndex, ArithmeticNode.ArithmeticOp.SUBTRACT);
     }
 
     @ParameterizedTest
     @ValueSource(ints = {0, 1, 2, 3})
     void testMultiplication(int setIndex) {
-        testArithmeticOperation("MULTIPLICATION", setIndex, ArithmeticSolver::multiply);
+        testArithmeticOperation("MULTIPLICATION", setIndex, ArithmeticNode.ArithmeticOp.MULTIPLY);
     }
 
     @ParameterizedTest
     @ValueSource(ints = {0, 1, 2, 3})
     void testDivision(int setIndex) {
-        testArithmeticOperation("DIVISION", setIndex, ArithmeticSolver::divide);
+        testArithmeticOperation("DIVISION", setIndex, ArithmeticNode.ArithmeticOp.DIVIDE);
     }
 
     @ParameterizedTest
     @ValueSource(ints = {0, 1, 2, 3})
     void testModulo(int setIndex) {
-        testArithmeticOperation("MODULO", setIndex, ArithmeticSolver::modulo);
+        testArithmeticOperation("MODULO", setIndex, ArithmeticNode.ArithmeticOp.MODULO);
     }
 
-    private void testArithmeticOperation(String operation, int setIndex,
-                                         ArithmeticOperation arithmeticOp) {
+    private void testArithmeticOperation(String operation, int setIndex, ArithmeticNode.ArithmeticOp op) {
         Object[][] expected = expectedResults.get(operation);
         if (expected == null || expected.length <= setIndex * 4) {
             return; // Skip if no expected results defined
@@ -255,18 +238,18 @@ public class ArithmeticTest {
         Object[] set2 = TEST_SETS[setIndex][1];
 
         // Create test variables
-        Variable[] vars1 = {
-                new StringVariable("", (String) set1[0], ctx),
-                new BoolVariable("", (Boolean) set1[1], ctx),
-                new DoubleVariable("", (Double) set1[2], ctx),
-                new IntegerVariable("", (Integer) set1[3], ctx)
+        Value[] vars1 = {
+                new StringValue((String) set1[0]),
+                new BoolValue((Boolean) set1[1]),
+                new DoubleValue((Double) set1[2]),
+                new IntValue((Integer) set1[3])
         };
 
-        Variable[] vars2 = {
-                new StringVariable("", (String) set2[0], ctx),
-                new BoolVariable("", (Boolean) set2[1], ctx),
-                new DoubleVariable("", (Double) set2[2], ctx),
-                new IntegerVariable("", (Integer) set2[3], ctx)
+        Value[] vars2 = {
+                new StringValue((String) set2[0]),
+                new BoolValue((Boolean) set2[1]),
+                new DoubleValue((Double) set2[2]),
+                new IntValue((Integer) set2[3])
         };
 
         // Test all combinations: STRING+all, INTEGER+all, DOUBLE+all, BOOLEAN+all
@@ -275,10 +258,10 @@ public class ArithmeticTest {
 
         for (int i = 0; i < 4; i++) { // For each type (STRING, INTEGER, DOUBLE, BOOLEAN)
             for (int j = 0; j < 4; j++) { // Against each type
-                Variable var1 = vars1[varIndexes[i]];
-                Variable var2 = vars2[varIndexes[j]];
+                Value var1 = vars1[varIndexes[i]];
+                Value var2 = vars2[varIndexes[j]];
 
-                Variable result = arithmeticOp.apply(var1, var2);
+                Value result = ValueOps.arithmetic(var1, var2, op);
 
                 // Get expected result
                 int expectedIndex = setIndex * 4 + i; // Which type group
@@ -287,7 +270,7 @@ public class ArithmeticTest {
                     String expectedType = (String) expectedData[0];
                     Object expectedValue = expectedData[1];
 
-                    Variable expectedVar = createVariable(expectedType, expectedValue);
+                    Value expectedVar = createVariable(expectedType, expectedValue);
 
                     assertNotNull(result, String.format("%s %s + %s should return result",
                             operation, var1.getType(), var2.getType()));
@@ -299,28 +282,23 @@ public class ArithmeticTest {
                     // Compare values based on type
                     switch (expectedType) {
                         case "S":
-                            assertEquals(((StringVariable)expectedVar).GET(), ((StringVariable)result).GET());
+                            assertEquals(ArgumentHelper.getString(expectedVar), ArgumentHelper.getString(result));
                             break;
                         case "I":
-                            assertEquals(((IntegerVariable)expectedVar).GET(),
-                                    ((IntegerVariable)result).GET());
+                            assertEquals(ArgumentHelper.getInt(expectedVar),
+                                    ArgumentHelper.getInt(result));
                             break;
                         case "D":
-                            assertEquals(((DoubleVariable)expectedVar).GET(),
-                                    ((DoubleVariable)result).GET(), 0.00001);
+                            assertEquals(ArgumentHelper.getDouble(expectedVar),
+                                    ArgumentHelper.getDouble(result), 0.00001);
                             break;
                         case "B":
-                            assertEquals(((BoolVariable)expectedVar).GET(),
-                                    ((BoolVariable)result).GET());
+                            assertEquals(ArgumentHelper.getBoolean(expectedVar),
+                                    ArgumentHelper.getBoolean(result));
                             break;
                     }
                 }
             }
         }
-    }
-
-    @FunctionalInterface
-    interface ArithmeticOperation {
-        Variable apply(Variable a, Variable b);
     }
 }

@@ -1,159 +1,77 @@
 package pl.genschu.bloomooemulator.interpreter.factories;
 
-import pl.genschu.bloomooemulator.interpreter.Context;
-import pl.genschu.bloomooemulator.interpreter.variable.types.*;
-import pl.genschu.bloomooemulator.interpreter.util.TypeGuesser;
-import pl.genschu.bloomooemulator.interpreter.variable.Variable;
+import pl.genschu.bloomooemulator.interpreter.ast.ASTNode;
+import pl.genschu.bloomooemulator.interpreter.helpers.ArgumentHelper;
+import pl.genschu.bloomooemulator.interpreter.values.*;
+import pl.genschu.bloomooemulator.interpreter.variable.*;
 
-import java.util.Objects;
+import java.util.Locale;
 
-public class VariableFactory
-{
-    public static Variable createVariableWithAutoType(String name, Object value, Context context) {
-        return createVariable(TypeGuesser.guessType(""+value), name, value, context);
+/**
+ * New factory dedicated to the v2 Value/Variable model.
+ * <p>
+ * Only primitive types are supported here for now:
+ * INT/DOUBLE/STRING/BOOL.
+ * Everything else should be created using their constructor while migration is in progress.
+ */
+public final class VariableFactory {
+    private VariableFactory() {
     }
 
-    public static Variable createVariable(String type, String name, Context context) {
-        return createVariable(Objects.requireNonNullElse(type, "VOID"), name, null, context);
+    /**
+     * Creates a {@link Variable} based on the provided type/name/value trio.
+     */
+    public static Variable createVariable(String type, String name, Object rawValue) {
+        Value value = createValueWithAutoType(name, rawValue);
+        return createVariable(type, name, value);
     }
 
-    public static Variable createVariable(String type, String name, Object value, Context context) {
-        // System.out.println("VariableFactory, type: "+type+", valie: "+value);
-		switch (type.toUpperCase()) {
-            case "ANIMO":
-                return new AnimoVariable(name, context);
-            case "APPLICATION":
-                return new ApplicationVariable(name, context);
-            case "ARRAY":
-                return new ArrayVariable(name, context);
-            case "BEHAVIOUR":
-                return new BehaviourVariable(name, value.toString(), context);
-            case "BOOL":
-                if (value instanceof Boolean) {
-                    return new BoolVariable(name, (Boolean) value, context);
-                } else if (value instanceof Integer) {
-                    return new BoolVariable(name, (Integer) value != 0, context);
-                } else if (value instanceof Double) {
-                    return new BoolVariable(name, (Double) value != 0, context);
-                } else if (value instanceof String) {
-                    try {
-                        if(((String) value).isEmpty()) {
-                            return new BoolVariable(name, false, context);
-                        }
-                        return new BoolVariable(name, Boolean.parseBoolean((String) value), context);
-                    } catch (NumberFormatException e) {
-                        return new BoolVariable(name, false, context);
-                    }
-                } else {
-                    return new BoolVariable(name, false, context);
-                }
-            case "BUTTON":
-                return new ButtonVariable(name, context);
-            case "CANVASOBSERVER":
-            case "CANVAS_OBSERVER":
-                return new CanvasObserverVariable(name, context);
-            case "CLASS":
-                return new ClassVariable(name, context);
-            case "CNVLOADER":
-                return new CNVLoaderVariable(name, context);
-            case "COMPLEXCONDITION":
-                return new ComplexConditionVariable(name, context);
-            case "CONDITION":
-                return new ConditionVariable(name, context);
-            case "DATABASE":
-                return new DatabaseVariable(name, context);
-            case "DOUBLE":
-                if (value instanceof Double) {
-                    return new DoubleVariable(name, (Double) value, context);
-                } else if (value instanceof Integer) {
-                    return new DoubleVariable(name, ((Integer) value).doubleValue(), context);
-                } else if (value instanceof String) {
-                    try {
-                        if(((String) value).isEmpty()) {
-                            return new DoubleVariable(name, 0, context);
-                        }
-                        return new DoubleVariable(name, Double.parseDouble((String) value), context);
-                    } catch (NumberFormatException e) {
-                        return new DoubleVariable(name, 0, context);
-                    }
-                } else if (value instanceof Boolean) {
-                    return new DoubleVariable(name, ((Boolean) value) ? 1.0 : 0.0, context);
-                } else {
-                    return new DoubleVariable(name, 0.0, context);
-                }
-            case "EPISODE":
-                return new EpisodeVariable(name, context);
-            case "EXPRESSION":
-                return new ExpressionVariable(name, context);
-            case "FONT":
-                return new FontVariable(name, context);
-            case "GROUP":
-                return new GroupVariable(name, context);
-            case "IMAGE":
-                return new ImageVariable(name, context);
-            case "INERTIA":
-                return new InertiaVariable(name, context);
-            case "INTEGER":
-            case "INT":
-                if (value instanceof Integer) {
-                    return new IntegerVariable(name, (Integer) value, context);
-                } else if (value instanceof Double) {
-                    return new IntegerVariable(name, ((Double) value).intValue(), context);
-                } else if (value instanceof Boolean) {
-                    return new IntegerVariable(name, ((Boolean) value) ? 1 : 0, context);
-                } else if (value instanceof String) {
-                    try {
-                        if(((String) value).isEmpty()) {
-                            return new IntegerVariable(name, 0, context);
-                        }
-                        return new IntegerVariable(name, Integer.parseInt((String) value), context);
-                    } catch (NumberFormatException e) {
-                        return new IntegerVariable(name, 0, context);
-                    }
-                } else {
-                    return new IntegerVariable(name, 0, context);
-                }
-            case "KEYBOARD":
-                return new KeyboardVariable(name, context);
-            case "MATRIX":
-                return new MatrixVariable(name, context);
-            case "MOUSE":
-                return new MouseVariable(name, context);
-            case "MULTIARRAY":
-                return new MultiArrayVariable(name, context);
-            case "PATTERN":
-                return new PatternVariable(name, context);
-            case "RAND":
-                return new RandVariable(name, context);
-            case "SCENE":
-                return new SceneVariable(name, context);
-            case "SEQUENCE":
-                return new SequenceVariable(name, context);
-            /*case "SIMPLE": //TODO: implement this class
-                return new SimpleVariable(name, context);*/
-            case "SOUND":
-                return new SoundVariable(name, context);
-            /*case "SPEAKING": //TODO: implement this class
-                return new SpeakingVariable(name, context);*/
-            case "STATICFILTER":
-                return new StaticFilterVariable(name, context);
-            case "STRING":
-                if(value == null) {
-                    return new StringVariable(name, "", context);
-                }
-                return new StringVariable(name, (String) value, context);
-            case "STRUCT":
-                return new StructVariable(name, context);
-            case "TEXT":
-                return new TextVariable(name, context);
-            case "TIMER":
-                return new TimerVariable(name, context);
-            case "VECTOR":
-                return new VectorVariable(name, context);
-            case "WORLD":
-                return new WorldVariable(name, context);
-            default:
-                throw new IllegalArgumentException("Unknown variable type: " + type);
+    /**
+     * Creates a {@link Variable} using an already materialised {@link Value}.
+     */
+    public static Variable createVariable(String type, String name, Value value) {
+        String normalized = normalize(type);
+
+        return switch (normalized) {
+            case "INT", "INTEGER" -> new IntegerVariable(name, ArgumentHelper.getInt(value));
+            case "DOUBLE" -> new DoubleVariable(name, ArgumentHelper.getDouble(value));
+            case "STRING" -> new StringVariable(name, ArgumentHelper.getString(value));
+            case "BOOL", "BOOLEAN" -> new BoolVariable(name, ArgumentHelper.getBoolean(value));
+            default -> throw new IllegalArgumentException("Unsupported variable type: " + normalized);
+        };
+    }
+
+    /**
+     * Creates a {@link Value} from a raw object with a best-effort type guess.
+     */
+    public static Value createValueWithAutoType(String name, Object rawValue) {
+        if (rawValue instanceof Value value) {
+            return value;
         }
+
+        if (rawValue instanceof Integer i) {
+            return new IntValue(i);
+        }
+        if (rawValue instanceof Double d) {
+            return new DoubleValue(d);
+        }
+        if (rawValue instanceof Float f) {
+            return new DoubleValue(f.doubleValue());
+        }
+        if (rawValue instanceof Boolean b) {
+            return BoolValue.of(b);
+        }
+        if (rawValue instanceof String s) {
+            return new StringValue(s);
+        }
+        if (rawValue instanceof ASTNode astNode) {
+            return new BehaviourValue(name, astNode);
+        }
+
+        return NullValue.INSTANCE;
+    }
+
+    private static String normalize(String type) {
+        return type == null ? "" : type.trim().toUpperCase(Locale.ROOT);
     }
 }

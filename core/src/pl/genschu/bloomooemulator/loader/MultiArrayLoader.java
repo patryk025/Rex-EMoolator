@@ -1,9 +1,7 @@
 package pl.genschu.bloomooemulator.loader;
 
 import com.badlogic.gdx.Gdx;
-import pl.genschu.bloomooemulator.interpreter.variable.Variable;
-import pl.genschu.bloomooemulator.interpreter.variable.types.*;
-import pl.genschu.bloomooemulator.utils.FileUtils;
+import pl.genschu.bloomooemulator.interpreter.values.*;
 
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -41,38 +39,18 @@ public class MultiArrayLoader {
         return new String(bytes, StandardCharsets.UTF_8).split("\0")[0];
     }
 
-    private static Variable readVariable(InputStream f, MultiArrayVariable parent) throws IOException {
-        int dataType = readInt(f);
-
-        if (dataType == 1) {
-            return new IntegerVariable("", readInt(f), parent.getContext());
-        } else if (dataType == 4) {
-            return new DoubleVariable("", readDouble(f), parent.getContext());
-        } else if (dataType == 2) {
-            String string = readString(f);
-            return new StringVariable("", string, parent.getContext());
-        } else if (dataType == 3) {
-            return new BoolVariable("", readBoolean(f), parent.getContext());
-        } else {
-            throw new IllegalArgumentException("Unknown data type: " + dataType);
-        }
-    }
-
-    public static void loadMultiArray(MultiArrayVariable variable, String path) {
-        String filePath = FileUtils.resolveRelativePath(variable, path);
-        try (FileInputStream f = new FileInputStream(filePath)) {
-            readMultiArray(variable, f);
+    public static void loadMultiArray(pl.genschu.bloomooemulator.interpreter.variable.MultiArrayVariable variable, String absolutePath) {
+        try (FileInputStream f = new FileInputStream(absolutePath)) {
+            readMultiArrayV2(variable, f);
         } catch (IOException e) {
             Gdx.app.error("MultiArrayLoader", "Error while loading multi-array: " + e.getMessage());
         }
     }
 
-    private static void readMultiArray(MultiArrayVariable variable, FileInputStream f) throws IOException {
-        // Read dimensions count
+    private static void readMultiArrayV2(pl.genschu.bloomooemulator.interpreter.variable.MultiArrayVariable variable, FileInputStream f) throws IOException {
         int dimensionsCount = readInt(f);
         int[] dimensions = new int[dimensionsCount];
 
-        // Read all dimensions size
         int totalElements = 1;
         for (int i = 0; i < dimensionsCount; i++) {
             dimensions[i] = readInt(f);
@@ -82,40 +60,49 @@ public class MultiArrayLoader {
         Gdx.app.log("MultiArrayLoader", String.format(Locale.getDefault(), "Loading %dD array with dimensions: %s (total: %d elements)",
                 dimensionsCount, java.util.Arrays.toString(dimensions), totalElements));
 
-        // Allocate array
         variable.setDimensions(dimensions);
 
-        // Read elements with their indices (sparse format)
-        // Format: [index, type, value]
-        // Terminator: index == totalElements
         int loadedCount = 0;
         try {
             while (f.available() > 0) {
                 int index = readInt(f);
 
-                // Check if terminator
                 if (index == totalElements) {
                     Gdx.app.log("MultiArrayLoader", "Found terminator at index " + index);
                     break;
                 }
 
-                // Check if index is valid
                 if (index < 0 || index >= totalElements) {
                     Gdx.app.error("MultiArrayLoader", "Invalid index: " + index + " (max: " + (totalElements - 1) + ")");
                     break;
                 }
 
-                // Read variable
-                Variable var = readVariable(f, variable);
-                variable.getData()[index] = var;
+                Value val = readValue(f);
+                variable.getData()[index] = val;
                 loadedCount++;
             }
         } catch (IOException e) {
-            // End of file
             Gdx.app.log("MultiArrayLoader", "Stopped loading after " + loadedCount + " elements: " + e.getMessage());
         }
 
         Gdx.app.log("MultiArrayLoader", String.format(Locale.getDefault(), "Successfully loaded %d/%d elements (%.1f%% filled)",
                 loadedCount, totalElements, 100.0 * loadedCount / totalElements));
     }
+
+    private static Value readValue(InputStream f) throws IOException {
+        int dataType = readInt(f);
+
+        if (dataType == 1) {
+            return new IntValue(readInt(f));
+        } else if (dataType == 4) {
+            return new DoubleValue(readDouble(f));
+        } else if (dataType == 2) {
+            return new StringValue(readString(f));
+        } else if (dataType == 3) {
+            return new BoolValue(readBoolean(f));
+        } else {
+            throw new IllegalArgumentException("Unknown data type: " + dataType);
+        }
+    }
+
 }
