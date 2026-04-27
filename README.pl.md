@@ -2,7 +2,7 @@
 
 **Polski** | [English](README.md)
 
-Otwartoźródłowy emulator odtwarzający zachowanie silnika Piklib/BlooMoo używanego w grach Aidem Media.
+Otwarto-źródłowy emulator odtwarzający zachowanie silnika Piklib/BlooMoo używanego w grach Aidem Media.
 
 ## Wymagania
 
@@ -34,15 +34,41 @@ gradlew.bat build
 ```
 
 ### Budowanie wersji Desktop
-```bash
-# Windows
-gradlew.bat desktop:shadowJar
 
-# Linux/macOS
+Moduł desktop produkuje dwa artefakty dystrybucyjne:
+
+- **Single-file shadow JAR** — wygodna dystrybucja w jednym pliku.
+- **Distribution ZIP** — thin JAR + każda zależność jako osobny plik w
+  katalogu `lib/`, plus skrypty startowe. Rekomendowane do redystrybucji,
+  ponieważ poszczególne pliki bibliotek (w tym komponenty na licencji LGPL)
+  można podmienić, po prostu nadpisując pliki w `lib/`.
+
+```bash
+# Oba artefakty
+./gradlew desktop:build
+
+# Tylko shadow JAR
 ./gradlew desktop:shadowJar
+
+# Tylko distribution ZIP
+./gradlew desktop:distZip
 ```
 
-Plik wykonywalny JAR zostanie utworzony w `desktop/build/libs/`.
+Shadow JAR powstaje w `desktop/build/libs/`, a distribution ZIP w
+`desktop/build/distributions/`.
+
+### Utrzymanie licencji zależności
+```bash
+# Odtwórz THIRD-PARTY-NOTICES.md z aktualnych zależności runtime
+./gradlew updateThirdPartyNotices
+
+# Wywal build, jeśli pojawi się nowa albo niezatwierdzona rodzina licencji
+./gradlew checkLicense
+```
+
+`desktop:build` odświeża `THIRD-PARTY-NOTICES.md` automatycznie, a `check`
+oraz `build` wywalą się, jeśli plik notices albo reguły dozwolonych licencji
+nie będą aktualne.
 
 ### Budowanie wersji Android Debug
 ```bash
@@ -95,6 +121,7 @@ Emulator obsługuje gry oparte na silniku Piklib/BlooMoo.
 - ![W grze](https://img.shields.io/badge/W%20grze-yellow) Gra działa, jednak przez różne błędy i niedoróbki nie jest możliwa do ukończenia
 - ![W intrze](https://img.shields.io/badge/W%20intrze-orange) Gra ładuje się, jednak nie przechodzi poza intro
 - ![Niegrywalne](https://img.shields.io/badge/Niegrywalne-red) Gra nie inicjalizuje się poprawnie, ładuje się z błędem, wywołuje crash emulatora lub daje czarny obraz
+- ![Nieznane](https://img.shields.io/badge/Nieznane-lightgrey) Nie zostało jeszcze sprawdzone
 
 Szacowane poziomy grywalności są wyznaczane na podstawie ilości scen, które się odgrywają poprawnie zgodnie z przepływem narzuconym przez skrypty gry do pierwszego momentu, w którym błędy emulatora uniemożliwiają przejście dalej. Nie uwzględniam tutaj drobnych błędów, problemów z animacjami, a jedynie błędy, które powodują, że scena się nie kończy bądź nie zaczyna lub emulator się crashuje. Z racji, iż wymaga to przechodzenia tytułu przynajmniej od momentu, gdzie wszystko działało, a co któryś raz od początku, informacja ta nie będzie aktualizowana na bieżąco. Lista scen oraz ocena ich poprawności działania będzie sukcesywnie tworzona w ramach GitHub Projects. Należy jednak pamiętać, że nowsze części gier korzystały z dedykowanych scen obsługujących cutscenki i minigry, które są znacznie trudniejsze do śledzenia w kodzie niż zwykłe przejścia typu `GOTO`, dlatego proces ten nie będzie natychmiastowy.
 
@@ -113,71 +140,78 @@ Szacowane poziomy grywalności są wyznaczane na podstawie ilości scen, które 
 <tr>
 <td>Reksio i Skarb Piratów</td>
 <td><img alt="Grywalne" src="https://img.shields.io/badge/Grywalne-green"/></td>
-<td>Gra w pełni grywalna z drobnymi bugami. Etapy z przejściem rzeki zaczęły się przymulać (do sprawdzenia). Sekwencja z kokosami ma drobne różnice w detekcji kolizji w stosunku do oryginału (dodatkowo pojawia się w rogu kura lekko przesłaniająca przycisk menu, nie wiem czemu). Podczas zagadek przy posągu Boga Twaroga sporadycznie grafiki odpowiedzi są zamienione miejscami (narrator jednak czyta poprawnie). W etapie z UFO sporadycznie są problemy z priorytetami animacji (winda przesłania Reksia, do weryfikacji). Poza tymi niekrytycznymi bugami wszystko działa poprawnie.</td>
+<td>Gra w pełni grywalna z drobnymi bugami.</td>
 <td>100%</td>
 <td><a href="https://github.com/users/patryk025/projects/3">Link</a></td>
 </tr>
 <tr>
 <td>Reksio i Ufo</td>
-<td><img alt="W grze" src="https://img.shields.io/badge/W%20grze-yellow"/></td>
-<td>Gra działa poprawnie do momentu dotarcia do wąwozu na Indorze. Sekwencja platformowa działa, aczkolwiek ma problemy, np. można wyjść z drabiny i iść w powietrzu. Są problemy w wyścigu. Da się przejść, tylko są problemy z przeciwnikami, którzy potrafią utknąć. Sekwencja odkurzania Jaja z kury ma problemy ze zbyt szybko działającą animacją odkurzacza (zdaje się jest to problem globalny z emulatorem, do sprawdzenia). Do tego wysypała emulator po pierwszym wystrzeleniu torpedy. Ujawniają się też problemy z "przeciekającymi" dźwiękami. Dźwięki z poprzedniej sceny potrafią się odtworzyć w następnej.</td>
-<td>ok. 30% (26/86 scen)</td>
+<td><img alt="Nieznane" src="https://img.shields.io/badge/Nieznane-lightgrey"/></td>
+<td>Wymaga ponownej ewaluacji po refaktoryzacji interpretera</td>
+<td>N/D</td>
 <td><a href="https://github.com/users/patryk025/projects/4">Link</a></td>
 </tr>
 <tr>
 <td>Reksio i Czarodzieje</td>
-<td><img alt="W grze" src="https://img.shields.io/badge/W%20grze-yellow"/></td>
-<td>Menu jest lekko zlagowane. Sekwencja ze wzgórzami działa, jednak etap zaraz za nimi z ukrytymi drzwami już nie z racji braku implementacji typu World (prace w toku). Jest to punkt blokujący i uniemożliwia dalszą rozgrywkę.</td>
-<td></td>
+<td><img alt="Nieznane" src="https://img.shields.io/badge/Nieznane-lightgrey"/></td>
+<td>Wymaga ponownej ewaluacji po refaktoryzacji interpretera</td>
+<td>N/D</td>
 <td><a href="https://github.com/users/patryk025/projects/6">Link</a></td>
 </tr>
 <tr>
 <td>Reksio i Wehikuł Czasu</td>
-<td><img alt="W grze" src="https://img.shields.io/badge/W%20grze-yellow"/></td>
-<td>Wymagana ponowna ewaluacja.</td>
-<td>0%</td>
-<td></td>
+<td><img alt="Nieznane" src="https://img.shields.io/badge/Nieznane-lightgrey"/></td>
+<td>Wymaga ponownej ewaluacji po refaktoryzacji interpretera</td>
+<td>N/D</td>
+<td><a href="https://github.com/users/patryk025/projects/8">Link</a></td>
 </tr>
 <tr>
 <td>Reksio i Kapitan Nemo</td>
-<td><img alt="W grze" src="https://img.shields.io/badge/W%20grze-yellow"/></td>
-<td>Wymagana ponowna ewaluacja.</td>
-<td>0%</td>
-<td></td>
+<td><img alt="Nieznane" src="https://img.shields.io/badge/Nieznane-lightgrey"/></td>
+<td>Wymaga ponownej ewaluacji po refaktoryzacji interpretera</td>
+<td>N/D</td>
+<td><a href="https://github.com/users/patryk025/projects/10">Link</a></td>
 </tr>
 <tr>
 <td>Reksio i Kretes w Akcji!</td>
-<td><img alt="W grze" src="https://img.shields.io/badge/W%20grze-yellow"/></td>
-<td>Działa startowe intro i przechodzi poprawnie dalej. Po kliknięciu myszą przenosi nas do menu. Wszystkie guziki działają i przenoszą od odpowiadających im minigierek. Reksio i Skarb Piratów technicznie działa. Tło się nie przesuwa, ale kolizje działają. Przy Reksio i Ufo gra rysuje tylko tło, Sikora Millenium oraz jakieś efekty cząsteczkowe, ale przez brak implementacji Inertia etap nie działa. Przy Reksio i Czarodzieje renderuje trasę, jednak całość jest jakby dopalona sterydami. Kolizje działają, ale elementy się nie przesuwają. Przy Reksio i Wehikuł Czasu mapa się rysuje oraz daje się poruszać postaciami, jednak są błędy oraz problemy z grafikami i ich pozycjami. Przy Super Heros i Kapitan Nemo nie ładuje się mapa. Edytor map jest również niekompletny.</td>
-<td>0%</td>
-<td></td>
+<td><img alt="Nieznane" src="https://img.shields.io/badge/Nieznane-lightgrey"/></td>
+<td>Wymaga ponownej ewaluacji po refaktoryzacji interpretera</td>
+<td>N/D</td>
+<td><a href="https://github.com/users/patryk025/projects/11">Link</a></td>
 </tr>
 <tr>
 <td>Poznaj Mity: Wyprawa po Złote Runo</td>
-<td><img alt="W grze" src="https://img.shields.io/badge/W%20grze-yellow"/></td>
-<td>Wymagana ponowna ewaluacja.</td>
-<td></td>
-<td></td>
+<td><img alt="Nieznane" src="https://img.shields.io/badge/Nieznane-lightgrey"/></td>
+<td>Wymaga ponownej ewaluacji po refaktoryzacji interpretera</td>
+<td>N/D</td>
+<td><a href="https://github.com/users/patryk025/projects/12">Link</a></td>
 </tr>
 <tr>
 <td>Poznaj Mity: Wojna Trojańska</td>
-<td><img alt="W grze" src="https://img.shields.io/badge/W%20grze-yellow"/></td>
-<td>Wymagana ponowna ewaluacja.</td>
-<td></td>
-<td></td>
+<td><img alt="Nieznane" src="https://img.shields.io/badge/Nieznane-lightgrey"/></td>
+<td>Wymaga ponownej ewaluacji po refaktoryzacji interpretera</td>
+<td>N/D</td>
+<td><a href="https://github.com/users/patryk025/projects/13">Link</a></td>
 </tr>
 <tr>
 <td>Poznaj Mity: Przygody Odyseusza</td>
-<td><img alt="W grze" src="https://img.shields.io/badge/W%20grze-yellow"/></td>
-<td>Wymagana ponowna ewaluacja.</td>
-<td></td>
-<td></td>
+<td><img alt="Nieznane" src="https://img.shields.io/badge/Nieznane-lightgrey"/></td>
+<td>Wymaga ponownej ewaluacji po refaktoryzacji interpretera</td>
+<td>N/D</td>
+<td><a href="https://github.com/users/patryk025/projects/14">Link</a></td>
 </tr>
 <tr>
 <td>Poznaj Mity: Herkules</td>
-<td><img alt="W grze" src="https://img.shields.io/badge/W%20grze-yellow"/></td>
-<td>Wymagana ponowna ewaluacja.</td>
-<td></td>
+<td><img alt="Nieznane" src="https://img.shields.io/badge/Nieznane-lightgrey"/></td>
+<td>Wymaga ponownej ewaluacji po refaktoryzacji interpretera</td>
+<td>N/D</td>
+<td><a href="https://github.com/users/patryk025/projects/15">Link</a></td>
+</tr>
+<tr>
+<td>Tezeusz i Nić Ariadny</td>
+<td><img alt="Nieznane" src="https://img.shields.io/badge/Nieznane-lightgrey"/></td>
+<td>Wymaga ponownej ewaluacji po refaktoryzacji interpretera</td>
+<td>N/D</td>
 <td></td>
 </tr>
 </tbody>
@@ -265,11 +299,33 @@ Szacowane poziomy grywalności są wyznaczane na podstawie ilości scen, które 
 
 ## Licencja
 
-Ten projekt służy celom edukacyjnym oraz archiwizacyjnym. Do korzystania z tego emulatora musisz posiadać oryginalne wersje gier.
+Sam Rex EMoolator jest projektem otwarto-źródłowym udostępnianym na
+**licencji MIT**. Pełną treść licencji znajdziesz w pliku [`LICENSE`](LICENSE).
 
-Projekt nie dystrybuuje pełnych materiałów chronionych prawem autorskim z oryginalnych produkcji, takich jak kompletne zasoby graficzne, dźwiękowe czy kod binarny.
-W katalogu assets/ mogą znajdować się minimalne, niezbędne fragmenty zasobów używane wyłącznie do testów automatycznych oraz walidacji poprawności emulatora. Są one umieszczone w zakresie niezbędnym do analizy i odtwarzania zachowania silnika gry, zgodnie z zasadą fair use / dozwolonego użytku na potrzeby interoperacyjności.
+Projekt korzysta z różnych bibliotek (m.in. libGDX, LWJGL czy ODE4J), z których każda
+posiada własną licencję. Pełną listę tych bibliotek wraz z ich licencjami
+znajdziesz w pliku [`THIRD-PARTY-NOTICES.md`](THIRD-PARTY-NOTICES.md).
 
-Użytkownik ma obowiązek pozyskać pełne i oryginalne materiały legalnie, z własnych kopii gier.
+Jeśli interesuje Cię, jak dbamy o zgodność z licencjami LGPL (np. w przypadku
+bibliotek JLayer czy JOrbis), wszystkie szczegóły techniczne również opisaliśmy
+w tym pliku.
 
-Autor projektu nie jest powiązany z właścicielami praw do oryginalnych tytułów. Emulator jest udostępniany w dobrej wierze, „tak jak jest”, bez jakichkolwiek gwarancji, jako narzędzie badawcze i dokumentacyjne.
+Licencja MIT dotyczy kodu źródłowego emulatora znajdującego się w tym
+repozytorium. Dane gier, mody, fanowskie tłumaczenia, patche i inne treści
+ładowane przez emulator są odrębnymi utworami i podlegają własnym licencjom,
+zgodom oraz ograniczeniom prawnoautorskim.
+
+### Kilka słów o materiałach z gier
+
+Ten emulator powstał w celach edukacyjnych, archiwizacyjnych i związanych z
+interoperacyjnością. Możesz używać go z oryginalnymi plikami gier, własnymi
+kopiami, fanowskimi modami, tłumaczeniami, patchami i innymi kompatybilnymi
+zasobami, o ile masz prawo legalnie z nich korzystać.
+
+Nie rozpowszechniamy grafik, muzyki ani innych danych chronionych prawem
+autorskim z oryginalnych gier. Katalog `assets/` zawiera jedynie minimalne,
+techniczne fragmenty używane do testów automatycznych, by mieć pewność, że
+silnik działa poprawnie.
+
+Rex EMoolator jest niezależnym projektem i nie jest w żaden sposób powiązany z oryginalnymi twórcami czy właścicielami praw do
+gier. Emulator jest udostępniany w dobrej wierze, „tak jak jest”, bez jakichkolwiek gwarancji, jako narzędzie badawcze i dokumentacyjne.

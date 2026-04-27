@@ -67,8 +67,8 @@ jobs:
 
           echo "RELEASE_CODE=$((COUNT + 1))" >> $GITHUB_ENV
 
-      - name: Build desktop JAR
-        run: ./gradlew :desktop:shadowJar --no-daemon
+      - name: Build desktop artifacts
+        run: ./gradlew :desktop:shadowJar :desktop:distZip --no-daemon
         env:
           RELEASE_VERSION: ${{ steps.version.outputs.version_name }}
 
@@ -104,6 +104,7 @@ jobs:
           prerelease: false
           files: |
             desktop/build/libs/*.jar
+            desktop/build/distributions/*.zip
             android/build/outputs/apk/debug/*.apk
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

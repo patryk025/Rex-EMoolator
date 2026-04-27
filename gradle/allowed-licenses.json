@@ -1,0 +1,19 @@
+{
+  "allowedLicenses": [
+    {
+      "moduleLicense": "(?i).*apache.*"
+    },
+    {
+      "moduleLicense": "(?i).*mit.*"
+    },
+    {
+      "moduleLicense": "(?i).*bsd.*(2|3).*"
+    },
+    {
+      "moduleLicense": "(?i).*(lgpl|lesser general public).*"
+    },
+    {
+      "moduleLicense": "(?i).*freetype.*"
+    }
+  ]
+}
