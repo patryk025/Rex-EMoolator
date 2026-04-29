@@ -3,8 +3,9 @@ package pl.genschu.bloomooemulator.engine.ini;
 import org.ini4j.Config;
 import org.ini4j.Wini;
 
-import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -13,20 +14,20 @@ public class INIManager {
 
     private Map<String, Map<String, String>> sectionCache = new LinkedHashMap<>();
 
-    public void loadFile(String path) throws IOException {
+    public void load(InputStream input) throws IOException {
         ini = new Wini();
 
         Config config = ini.getConfig();
         config.setStrictOperator(true);
         ini.setConfig(config);
 
-        ini.load(new File(path));
+        ini.load(input);
 
         sectionCache.clear();
     }
 
-    public void saveFile(String path) throws IOException {
-        ini.store(new File(path));
+    public void store(OutputStream output) throws IOException {
+        ini.store(output);
     }
 
     public String get(String section, String key) {

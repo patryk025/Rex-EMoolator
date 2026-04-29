@@ -89,6 +89,22 @@ public class FileUtils {
         return baseFile;
     }
 
+    /**
+     * Translates a script path into a VFS-relative one.
+     *
+     * The {@code $} prefix denotes the game's installation root; everything
+     * after it is the VFS path. Anything else passes through (with separator
+     * normalization) and is interpreted relative to the VFS root.
+     */
+    public static String resolveVfsPath(Game game, String filePath) {
+        if (filePath == null || filePath.isEmpty()) return null;
+        String path = filePath;
+        if (path.startsWith("$")) {
+            path = path.substring(1).replaceFirst("^[/\\\\]+", "");
+        }
+        return path.replace('\\', '/');
+    }
+
     public static String resolveRelativePath(Game game, String filePath) {
         File baseDirectory;
         String relativePath = filePath;

@@ -21,10 +21,14 @@ import pl.genschu.bloomooemulator.logic.GameEntry;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 import com.badlogic.gdx.Gdx;
+import pl.genschu.bloomooemulator.engine.filesystem.LocalFileSystem;
+import pl.genschu.bloomooemulator.engine.filesystem.VFS;
 import pl.genschu.bloomooemulator.engine.ini.INIManager;
 import pl.genschu.bloomooemulator.objects.Image;
 import pl.genschu.bloomooemulator.geometry.spartial.QuadTree;
@@ -32,6 +36,7 @@ import pl.genschu.bloomooemulator.geometry.shapes.Box2D;
 import pl.genschu.bloomooemulator.utils.FileUtils;
 
 public class Game {
+    private final VFS vfs = new VFS();
     private Context definitionContext;
     private GameEntry game;
     private String currentEpisode = "";
@@ -45,6 +50,7 @@ public class Game {
 
     private INIManager gameINI = null;
     private String iniPath = null;
+    private String relativeIniPath = null;
 
     private final QuadTree quadTree;
     private final Set<EngineVariable> collisionMonitoredVariables = new HashSet<>();
@@ -101,6 +107,10 @@ public class Game {
 
     private void scanGameDirectory() {
         File folder = new File(this.game.getPath());
+
+        vfs.mountAssets(new LocalFileSystem(folder));
+        vfs.setStorage(new LocalFileSystem(resolveStorageDir()));
+
         File[] files = folder.listFiles();
 
         daneFolder = null;
@@ -166,16 +176,16 @@ public class Game {
             return;
         }
 
-        iniPath = findGameINI();
-        if(iniPath == null) {
+        relativeIniPath = findGameINI();
+        iniPath = relativeIniPath == null ? null : new File(folder, relativeIniPath).getAbsolutePath();
+        if (relativeIniPath == null) {
             gameINI = null;
-        }
-        else {
+        } else {
             gameINI = new INIManager();
-            try {
-                gameINI.loadFile(iniPath);
+            try (InputStream is = vfs.openRead(relativeIniPath)) {
+                gameINI.load(is);
             } catch (IOException e) {
-                Gdx.app.error("Game loader", "This should not happen but somehow file doesn't load");
+                Gdx.app.error("Game loader", "Failed to load INI via VFS: " + e.getMessage());
             }
         }
 
@@ -280,6 +290,10 @@ public class Game {
     }
 
 
+    /**
+     * Locates the game's INI file. Returns a path relative to the game root
+     * (suitable for VFS lookups), or {@code null} if none is found.
+     */
     public String findGameINI() {
         File parentFolder = daneFolder.getParentFile();
         if (parentFolder == null || !parentFolder.exists()) {
@@ -287,69 +301,57 @@ public class Game {
             return null;
         }
 
-        // find bloomoo.ini
+        // bloomoo.ini points at the real INI via [MAIN].INI
         File bloomooIni = new File(parentFolder, "bloomoo.ini");
         if (bloomooIni.exists()) {
-            Gdx.app.log("findGameINI", "Found bloomoo.ini in the parent folder, looking for INI with variables...");
+            Gdx.app.log("findGameINI", "Found bloomoo.ini, looking for INI with variables...");
             try {
                 Ini bloomooIniFile = new Ini();
                 bloomooIniFile.load(bloomooIni);
-
-                // read INI field
                 String iniPath = bloomooIniFile.get("MAIN", "INI");
-
-                if(iniPath != null) {
-                    File iniFile = new File(parentFolder, iniPath);
-                    Gdx.app.log("findGameINI", "Found INI: " + iniFile.getAbsolutePath());
-                    return iniFile.getAbsolutePath();
+                if (iniPath != null) {
+                    Gdx.app.log("findGameINI", "Found INI: " + iniPath);
+                    return iniPath;
                 }
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
         }
 
-        File[] files = parentFolder.listFiles((dir, name) -> name.toLowerCase().endsWith(".exe") && !name.equalsIgnoreCase("setup.exe") && !name.equalsIgnoreCase("uninstall.exe") && !name.equalsIgnoreCase("install.exe"));
-        if (files == null || files.length == 0) {
-            Gdx.app.error("findGameINI", "No .exe file found in the parent folder. Switching to fallback method...");
-
-            File[] iniFiles = parentFolder.listFiles((dir, name) -> name.toLowerCase().endsWith(".ini") && !name.equalsIgnoreCase("setup.ini") && !name.equalsIgnoreCase("uninstall.ini") && !name.equalsIgnoreCase("install.ini"));
-
+        File[] exeFiles = parentFolder.listFiles((dir, name) -> name.toLowerCase().endsWith(".exe")
+                && !name.equalsIgnoreCase("setup.exe")
+                && !name.equalsIgnoreCase("uninstall.exe")
+                && !name.equalsIgnoreCase("install.exe"));
+        if (exeFiles == null || exeFiles.length == 0) {
+            Gdx.app.error("findGameINI", "No .exe file found, falling back to first .ini in folder");
+            File[] iniFiles = parentFolder.listFiles((dir, name) -> name.toLowerCase().endsWith(".ini")
+                    && !name.equalsIgnoreCase("setup.ini")
+                    && !name.equalsIgnoreCase("uninstall.ini")
+                    && !name.equalsIgnoreCase("install.ini"));
             if (iniFiles == null || iniFiles.length == 0) {
-                Gdx.app.error("findGame", "No .ini files found in the parent folder");
+                Gdx.app.error("findGameINI", "No .ini files found in the parent folder");
                 return null;
             }
-
-            Gdx.app.log("findGameIni", "Using first found file: " + iniFiles[0].getAbsolutePath());
-            return iniFiles[0].getAbsolutePath();
+            Gdx.app.log("findGameINI", "Using first found file: " + iniFiles[0].getName());
+            return iniFiles[0].getName();
         }
 
-        for(File file : files) {
+        for (File file : exeFiles) {
             Gdx.app.log("findGameINI", "Searching for ini file associated with executable: " + file.getName());
 
-            // let's try to use ini file with the same name as exe
-            String exeFileName = files[0].getName();
+            String exeFileName = file.getName();
             String baseName = exeFileName.substring(0, exeFileName.lastIndexOf('.'));
-
             String iniFileName = baseName + ".ini";
 
-            File iniFile = new File(parentFolder, iniFileName);
-
-            if(iniFile.exists()) {
-                Gdx.app.log("findGameINI", "Found ini file: " + iniFile.getAbsolutePath());
-                return iniFile.getAbsolutePath();
+            if (new File(parentFolder, iniFileName).exists()) {
+                Gdx.app.log("findGameINI", "Found ini file: " + iniFileName);
+                return iniFileName;
             }
-            else {
-                iniFileName = findIniInExe(file);
 
-                if (iniFileName == null) {
-                    continue;
-                }
-
-                iniFile = new File(parentFolder, iniFileName);
-                if (iniFile.exists()) {
-                    Gdx.app.log("findGameINI", "Found ini file: " + iniFile.getAbsolutePath());
-                    return iniFile.getAbsolutePath();
-                }
+            iniFileName = findIniInExe(file);
+            if (iniFileName != null && new File(parentFolder, iniFileName).exists()) {
+                Gdx.app.log("findGameINI", "Found ini file: " + iniFileName);
+                return iniFileName;
             }
         }
 
@@ -357,14 +359,30 @@ public class Game {
         return null;
     }
 
-    public void goTo(String name) {
+    /**
+     * Picks a directory for per-game writable storage. Uses libGDX's local
+     * dir when available so it works on non-desktop backends; falls back to
+     * a folder under the user home for tooling/CLI contexts.
+     *
+     * The game folder name acts as the per-game key. It's not perfect (two
+     * games installed under the same folder name would collide), but it
+     * avoids depending on a stable id from {@code GameEntry} that we don't
+     * have yet.
+     */
+    private File resolveStorageDir() {
+        String key = new File(this.game.getPath()).getName();
         try {
-            gameINI.saveFile(iniPath);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        } catch (NullPointerException ignored) {
-            // gameINI can be null
+            if (Gdx.files != null) {
+                return Gdx.files.local("storage/" + key).file();
+            }
+        } catch (Exception ignored) {
+            // fallthrough to user.home
         }
+        return new File(System.getProperty("user.home"), ".bloomooemulator/" + key);
+    }
+
+    public void goTo(String name) {
+        persistGameINI();
 
         Variable variable = definitionContext.getVariable(name);
 
@@ -390,11 +408,7 @@ public class Game {
     }
 
     public void goToPreviousScene() {
-        try {
-            gameINI.saveFile(iniPath);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+        persistGameINI();
 
         loadScene(previousSceneVariable);
     }
@@ -563,14 +577,14 @@ public class Game {
     private Music loadMusic(String musicFile) {
         return musicCache.computeIfAbsent(musicFile, key -> {
             try {
-                String path = FileUtils.resolveRelativePath(this, musicFile);
-                Music music = Gdx.audio.newMusic(Gdx.files.absolute(path));
+                String vfsPath = FileUtils.resolveVfsPath(this, musicFile);
+                Music music = Gdx.audio.newMusic(vfs.getFileHandle(vfsPath));
                 if (music != null) {
                     music.setLooping(true);
                 }
                 return music;
             } catch (Exception e) {
-                Gdx.app.error("Game", "Error loading music: " + musicFile, e);
+                Gdx.app.error("Game", "Error loading music via VFS: " + musicFile, e);
                 return null;
             }
         });
@@ -584,11 +598,13 @@ public class Game {
         try {
             String bgFile = scene.background();
             currentBackgroundImage = new ImageVariable("__BACKGROUND__", bgFile);
-            String path = FileUtils.resolveRelativePath(this, bgFile);
-            ImageLoader.loadImage(currentBackgroundImage, path);
+            String vfsPath = FileUtils.resolveVfsPath(this, bgFile);
+            try (InputStream is = vfs.openRead(vfsPath)) {
+                ImageLoader.loadImage(currentBackgroundImage, is);
+            }
             currentBackgroundImage.state().updateRect();
         } catch (Exception e) {
-            Gdx.app.error("Game", "Error loading background for scene " + scene.name(), e);
+            Gdx.app.error("Game", "Error loading background for scene " + scene.name() + " via VFS", e);
             currentBackgroundImage = null;
         }
     }
@@ -627,15 +643,18 @@ public class Game {
         }
     }
 
+    private void persistGameINI() {
+        if (gameINI == null || relativeIniPath == null) return;
+        try (OutputStream os = vfs.openWrite(relativeIniPath)) {
+            gameINI.store(os);
+        } catch (IOException e) {
+            Gdx.app.error("Game", "Failed to save INI via VFS: " + e.getMessage());
+        }
+    }
+
     // method for release data from memory
     public void dispose() {
-        try {
-            gameINI.saveFile(iniPath);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        } catch (NullPointerException ignored) {
-            // gameINI can be null
-        }
+        persistGameINI();
 
         // Dispose background image
         if (currentBackgroundImage != null) {
@@ -855,6 +874,7 @@ public class Game {
      */
     public void setLanguage(String language) {
         this.currentLanguage = language;
+        vfs.setLanguage(language);
 
         // Sync with ApplicationVariable — create updated record if needed
         if (applicationVariable != null && currentApplicationContext != null) {

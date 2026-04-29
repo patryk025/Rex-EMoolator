@@ -12,16 +12,28 @@ import java.nio.charset.StandardCharsets;
 
 public class ImageLoader {
     /**
-     * Loads an image from an absolute path into a v2 ImageVariable.
+     * Loads an image from a stream into a v2 ImageVariable.
      */
-    public static void loadImage(pl.genschu.bloomooemulator.interpreter.variable.ImageVariable variable, String absolutePath) {
-        try (FileInputStream f = new FileInputStream(absolutePath)) {
-            Image image = readImageData(f);
+    public static void loadImage(pl.genschu.bloomooemulator.interpreter.variable.ImageVariable variable, InputStream inputStream) {
+        try {
+            Image image = readImageData(inputStream);
             variable.state().image = image;
             variable.state().posX = image.offsetX;
             variable.state().posY = image.offsetY;
         } catch (IOException e) {
             Gdx.app.error("ImageLoader", "Error while loading IMG: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Loads an image from an absolute path into a v2 ImageVariable.
+     */
+    @Deprecated
+    public static void loadImage(pl.genschu.bloomooemulator.interpreter.variable.ImageVariable variable, String absolutePath) {
+        try (FileInputStream f = new FileInputStream(absolutePath)) {
+            loadImage(variable, f);
+        } catch (IOException e) {
+            Gdx.app.error("ImageLoader", "Error while opening IMG file: " + e.getMessage());
         }
     }
 
