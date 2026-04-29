@@ -958,6 +958,10 @@ public class Game {
         this.musicCache = musicCache;
     }
 
+    public VFS getVfs() {
+        return vfs;
+    }
+
     public INIManager getGameINI() {
         return gameINI;
     }

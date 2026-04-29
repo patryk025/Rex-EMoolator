@@ -3,57 +3,50 @@ package pl.genschu.bloomooemulator.utils;
 import com.badlogic.gdx.Gdx;
 import pl.genschu.bloomooemulator.engine.Game;
 import java.io.File;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 
 public class FileUtils {
     public static String convertToPlatformPath(String path) {
         return path.replace("/", File.separator).replace("\\", File.separator);
     }
 
+    /**
+     * Resolves {@code relativePath} under {@code baseDirectory} matching path
+     * segments case-insensitively. Returns the literal (possibly non-existent)
+     * file when no match is found, so callers can still report a sensible path.
+     *
+     * Implemented with {@link java.io.File} only — {@code java.nio.file} APIs
+     * require Android API 26+, but the project targets API 24.
+     */
     public static File findRelativeFileIgnoreCase(File baseDirectory, String relativePath) {
         String platformPath = convertToPlatformPath(relativePath);
-        File targetFile = new File(baseDirectory, platformPath);
+        File literal = new File(baseDirectory, platformPath);
+        if (literal.exists()) return literal;
 
-        if (targetFile.exists()) {
-            return targetFile;
-        }
+        File current = baseDirectory;
+        for (String segment : platformPath.split(java.util.regex.Pattern.quote(File.separator))) {
+            if (segment.isEmpty()) continue;
 
-        Path basePath = baseDirectory.toPath();
-        Path resolvedPath = resolveCaseInsensitive(basePath, Paths.get(platformPath));
-
-        return resolvedPath != null ? resolvedPath.toFile() : null;
-    }
-
-    private static Path resolveCaseInsensitive(Path basePath, Path relativePath) {
-        Path currentPath = basePath.normalize();
-
-        for (Path segment : relativePath.normalize()) {
-            if (segment.toString().isEmpty()) {
-                continue;
-            }
-
-            try {
-                Path finalCurrentPath = currentPath;
-                Path matchedPath = Files.list(currentPath)
-                        .filter(p -> p.getFileName().toString().equalsIgnoreCase(segment.toString()))
-                        .findFirst()
-                        .orElse(null);
-
-                if (matchedPath == null || !Files.exists(matchedPath)) {
-                    Gdx.app.debug("FileUtils", "No case-insensitive match for: " + segment + " in " + finalCurrentPath);
-                    return null;
-                }
-
-                currentPath = matchedPath;
-            } catch (Exception e) {
-                Gdx.app.error("FileUtils", "Error listing directory: " + currentPath, e);
+            File[] entries = current.listFiles();
+            if (entries == null) {
+                Gdx.app.debug("FileUtils", "Cannot list directory: " + current);
                 return null;
             }
-        }
 
-        return currentPath;
+            File match = null;
+            for (File entry : entries) {
+                if (entry.getName().equalsIgnoreCase(segment)) {
+                    match = entry;
+                    break;
+                }
+            }
+
+            if (match == null) {
+                Gdx.app.debug("FileUtils", "No case-insensitive match for: " + segment + " in " + current);
+                return null;
+            }
+            current = match;
+        }
+        return current;
     }
 
     /**

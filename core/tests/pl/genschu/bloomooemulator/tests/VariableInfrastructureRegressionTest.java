@@ -5,6 +5,8 @@ import org.junit.jupiter.api.Test;
 import pl.genschu.bloomooemulator.TestEnvironment;
 import pl.genschu.bloomooemulator.builders.ContextBuilder;
 import pl.genschu.bloomooemulator.builders.MethodHelper;
+import pl.genschu.bloomooemulator.engine.Game;
+import pl.genschu.bloomooemulator.engine.filesystem.LocalFileSystem;
 import pl.genschu.bloomooemulator.interpreter.context.Context;
 import pl.genschu.bloomooemulator.interpreter.runtime.ExecutionContext;
 import pl.genschu.bloomooemulator.interpreter.values.*;
@@ -173,25 +175,32 @@ class VariableInfrastructureRegressionTest {
     }
 
     @Test
-    void testStringCopyFileCopiesContents() throws IOException {
+    void testStringCopyFileCopiesContents(@org.junit.jupiter.api.io.TempDir Path tempDir) throws IOException {
         Context ctx = new ContextBuilder()
                 .withVariable(new StringVariable("FS", ""))
                 .build();
 
-        Path source = Files.createTempFile("copyfile-source", ".txt");
-        Path destination = Files.createTempFile("copyfile-destination", ".txt");
-        Files.writeString(source, "payload");
+        Path assetsDir = tempDir.resolve("assets");
+        Path storageDir = tempDir.resolve("storage");
+        Files.createDirectories(assetsDir);
+        Files.createDirectories(storageDir);
+        Files.writeString(assetsDir.resolve("source.txt"), "payload");
+
+        Game game = new Game(null, null);
+        game.getVfs().mountAssets(new LocalFileSystem(assetsDir.toFile()));
+        game.getVfs().setStorage(new LocalFileSystem(storageDir.toFile()));
+        ctx.setGame(game);
 
         Value result = MethodHelper.callWithContext(
                 ctx,
                 "FS",
                 "COPYFILE",
-                new StringValue(source.toString()),
-                new StringValue(destination.toString())
+                new StringValue("$\\source.txt"),
+                new StringValue("$\\destination.txt")
         );
 
         assertTrue(result.toBool().value());
-        assertEquals("payload", Files.readString(destination));
+        assertEquals("payload", Files.readString(storageDir.resolve("destination.txt")));
     }
 
     @Test

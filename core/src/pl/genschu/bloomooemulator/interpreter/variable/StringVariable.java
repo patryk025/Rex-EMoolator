@@ -1,14 +1,15 @@
 package pl.genschu.bloomooemulator.interpreter.variable;
 
 import pl.genschu.bloomooemulator.annotations.InternalMutable;
+import pl.genschu.bloomooemulator.engine.Game;
+import pl.genschu.bloomooemulator.engine.filesystem.VFS;
 import pl.genschu.bloomooemulator.interpreter.helpers.ArgumentHelper;
 import pl.genschu.bloomooemulator.interpreter.values.*;
 import pl.genschu.bloomooemulator.utils.FileUtils;
 
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.StandardCopyOption;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -150,15 +151,24 @@ public record StringVariable(
                 throw new IllegalArgumentException("COPYFILE requires 2 arguments");
             }
 
-            Path sourcePath = resolvePath(ctx, ArgumentHelper.getString(args.get(0)));
-            Path destinationPath = resolvePath(ctx, ArgumentHelper.getString(args.get(1)));
+            Game game = ctx != null ? ctx.getGame() : null;
+            if (game == null) return MethodResult.returns(BoolValue.FALSE);
 
-            if (!Files.exists(sourcePath)) {
+            VFS vfs = game.getVfs();
+            String src = FileUtils.resolveVfsPath(game, ArgumentHelper.getString(args.get(0)));
+            String dst = FileUtils.resolveVfsPath(game, ArgumentHelper.getString(args.get(1)));
+
+            if (src == null || dst == null || !vfs.exists(src)) {
                 return MethodResult.returns(BoolValue.FALSE);
             }
 
-            try {
-                Files.copy(sourcePath, destinationPath, StandardCopyOption.REPLACE_EXISTING);
+            try (InputStream in = vfs.openRead(src);
+                 OutputStream out = vfs.openWrite(dst)) {
+                byte[] buffer = new byte[8192];
+                int read;
+                while ((read = in.read(buffer)) != -1) {
+                    out.write(buffer, 0, read);
+                }
                 return MethodResult.returns(BoolValue.TRUE);
             } catch (IOException e) {
                 return MethodResult.returns(BoolValue.FALSE);
@@ -289,20 +299,6 @@ public record StringVariable(
     @Override
     public String toString() {
         return "StringVariable[" + name + "=\"" + getString() + "\"]";
-    }
-
-    private static Path resolvePath(MethodContext ctx, String rawPath) {
-        if (ctx != null && ctx.getGame() != null) {
-            return Path.of(FileUtils.resolveRelativePath(ctx.getGame(), rawPath));
-        }
-
-        String normalized = rawPath;
-        if (normalized.startsWith("$")) {
-            normalized = normalized.substring(1).replaceFirst("^[/\\\\]+", "");
-        }
-
-        Path path = Path.of(normalized);
-        return path.isAbsolute() ? path.normalize() : path.toAbsolutePath().normalize();
     }
 
     @Override
