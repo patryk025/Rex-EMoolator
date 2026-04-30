@@ -1,4 +1,4 @@
-# Rex EMoolator
+# Rex-EMoolator
 
 [Polski](README.pl.md) | **English**
 
@@ -299,7 +299,7 @@ Playability estimates are based on the number of scenes that play correctly acco
 
 ## License
 
-Rex EMoolator itself is open-source software released under the **MIT
+Rex-EMoolator itself is open-source software released under the **MIT
 License**. You can find the full license text in the [`LICENSE`](LICENSE)
 file.
 
@@ -326,5 +326,5 @@ We do not distribute copyrighted graphics, music, or other data from the
 original games. The `assets/` directory only contains minimal, technical
 fragments used for automated testing to make sure the engine works as expected.
 
-Rex EMoolator is an independent project and is not affiliated with the original creators or rights holders of the
+Rex-EMoolator is an independent project and is not affiliated with the original creators or rights holders of the
 games. The emulator is provided in good faith, “as is”, without any warranties, as a research and documentation tool.

@@ -210,7 +210,7 @@ allprojects {
 
     version = System.getenv('RELEASE_VERSION') ?: '0.1-SNAPSHOT'
     ext {
-        appName = "Rex EMoolator"
+        appName = "Rex-EMoolator"
         gdxVersion = '1.14.0'
         roboVMVersion = '2.3.20'
         ashleyVersion = '1.7.4'

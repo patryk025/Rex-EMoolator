@@ -12,7 +12,7 @@ public class DesktopLauncher {
 	public static void main (String[] args) {
 		Lwjgl3ApplicationConfiguration config = new Lwjgl3ApplicationConfiguration();
 		config.setForegroundFPS(60);
-		config.setTitle("Rex EMoolator");
+		config.setTitle("Rex-EMoolator");
 		config.setWindowedMode(800, 600);
 
 		GameEntry game = null;
