@@ -19,7 +19,6 @@ import pl.genschu.bloomooemulator.loader.ImageLoader;
 import pl.genschu.bloomooemulator.logic.GameEntry;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -36,20 +35,22 @@ import pl.genschu.bloomooemulator.geometry.shapes.Box2D;
 import pl.genschu.bloomooemulator.utils.FileUtils;
 
 public class Game {
+    private static final String DANE_ROOT = "DANE";
+
     private final VFS vfs = new VFS();
     private Context definitionContext;
     private GameEntry game;
     private String currentEpisode = "";
     private String currentScene = "";
-    private File currentApplicationFile = null;
-    private File currentEpisodeFile = null;
-    private File currentSceneFile = null;
+    private String currentApplicationFile = null; // VFS-relative path to .cnv
+    private String currentEpisodeFile = null;     // VFS-relative directory
+    private String currentSceneFile = null;       // VFS-relative directory
+    private String currentResourceDirectory = DANE_ROOT;
     private String previousScene = "";
 
     private InputManager inputManager;
 
     private INIManager gameINI = null;
-    private String iniPath = null;
     private String relativeIniPath = null;
 
     private final QuadTree quadTree;
@@ -64,12 +65,9 @@ public class Game {
     private EpisodeVariable currentEpisodeVariable;
 
     private final CNVParser cnvParser = new CNVParser();
-    private File daneFolder = null; // $
-    private File commonFolder = null; // $COMMON
-    private File wavsFolder = null; // $WAVS
 
-    // Resolved paths for definition variables (Application, Episode, Scene)
-    private final Map<String, File> variablePaths = new HashMap<>();
+    // Resolved VFS-relative directories for definition variables (Application, Episode, Scene)
+    private final Map<String, String> variablePaths = new HashMap<>();
 
     private String currentLanguage = "POL"; // Default language (Polish)
     private Context currentApplicationContext;
@@ -111,73 +109,40 @@ public class Game {
         vfs.mountAssets(new LocalFileSystem(folder));
         vfs.setStorage(new LocalFileSystem(resolveStorageDir()));
 
-        File[] files = folder.listFiles();
-
-        daneFolder = null;
-        commonFolder = null;
-        wavsFolder = null;
-
-        // let's find all needed folders
-        if (files != null) {
-            for (File file : files) {
-                if(file.isDirectory()) {
-                    if(file.getName().equalsIgnoreCase("dane")) {
-                        daneFolder = file;
-                    }
-                    else if(file.getName().equalsIgnoreCase("common")) {
-                        commonFolder = file;
-                    }
-                    else if(file.getName().equalsIgnoreCase("wavs")) {
-                        wavsFolder = file;
-                    }
-                }
-            }
-        }
-
-        if(daneFolder == null) {
+        if (!vfs.isDirectory(DANE_ROOT)) {
             Gdx.app.error("Game loader", "Folder dane not found");
             return;
         }
-        files = daneFolder.listFiles();
 
-        // find application.def
-        boolean applicationDefFound = false;
-        if (files != null) {
-            for (File file : files) {
-                if(file.getName().toLowerCase().matches("application.def")) {
-                    try (InputStream is = new FileInputStream(file)) {
-                        cnvParser.parse(is, file.getName(), definitionContext);
-                        applicationDefFound = true;
-                        break;
-                    } catch(IOException e) {
-                        Gdx.app.error("Game loader", e.getMessage());
-                    }
-                }
-            }
-        }
-
-        if(!applicationDefFound) {
+        // find application.def in DANE/ (case-insensitive resolve handles disk casing)
+        String applicationDefPath = DANE_ROOT + "/application.def";
+        if (!vfs.exists(applicationDefPath)) {
             Gdx.app.error("Game loader", "Application.def not found");
+            return;
+        }
+        try (InputStream is = vfs.openRead(applicationDefPath)) {
+            cnvParser.parse(is, "application.def", definitionContext);
+        } catch (IOException e) {
+            Gdx.app.error("Game loader", e.getMessage());
             return;
         }
 
         // find APPLICATION variable
         Map<String, Variable> variables = definitionContext.getVariables();
-        for(Map.Entry<String, Variable> entry : variables.entrySet()) {
+        for (Map.Entry<String, Variable> entry : variables.entrySet()) {
             Variable variable = entry.getValue();
-            if(variable instanceof ApplicationVariable app) {
+            if (variable instanceof ApplicationVariable app) {
                 applicationVariable = app;
                 break;
             }
         }
 
-        if(applicationVariable == null) {
+        if (applicationVariable == null) {
             Gdx.app.error("Game loader", "APPLICATION variable not found");
             return;
         }
 
         relativeIniPath = findGameINI();
-        iniPath = relativeIniPath == null ? null : new File(folder, relativeIniPath).getAbsolutePath();
         if (relativeIniPath == null) {
             gameINI = null;
         } else {
@@ -189,11 +154,10 @@ public class Game {
             }
         }
 
-        // Resolve path for ApplicationVariable
+        // Resolve VFS path for ApplicationVariable
         String appPath = definitionContext.getAttribute(applicationVariable.name(), "PATH");
         if (appPath != null) {
-            variablePaths.put(applicationVariable.name(),
-                    FileUtils.findRelativeFileIgnoreCase(daneFolder, appPath));
+            variablePaths.put(applicationVariable.name(), composeUnderDane(appPath));
         }
 
         // Sync language from ApplicationVariable to Game
@@ -205,15 +169,13 @@ public class Game {
             if (epVar instanceof EpisodeVariable episode) {
                 String epPath = definitionContext.getAttribute(episodeName, "PATH");
                 if (epPath != null) {
-                    variablePaths.put(episodeName,
-                            FileUtils.findRelativeFileIgnoreCase(daneFolder, epPath));
+                    variablePaths.put(episodeName, composeUnderDane(epPath));
                 }
 
                 for (String sceneName : episode.sceneNames()) {
                     String scenePath = definitionContext.getAttribute(sceneName, "PATH");
                     if (scenePath != null) {
-                        variablePaths.put(sceneName,
-                                FileUtils.findRelativeFileIgnoreCase(daneFolder, scenePath));
+                        variablePaths.put(sceneName, composeUnderDane(scenePath));
                     }
                 }
             }
@@ -227,11 +189,12 @@ public class Game {
             currentApplicationContext = new Context(new ExecutionContext(), definitionContext);
             currentApplicationContext.setGame(this);
 
-            File appDir = variablePaths.get(applicationVariable.name());
-            currentApplicationFile = FileUtils.findRelativeFileIgnoreCase(appDir, applicationVariable.name()+".cnv");
+            String appDir = variablePaths.get(applicationVariable.name());
+            currentApplicationFile = appDir + "/" + applicationVariable.name() + ".cnv";
+            currentResourceDirectory = appDir;
 
-            try (InputStream is = new FileInputStream(currentApplicationFile)) {
-                cnvParser.parse(is, currentApplicationFile.getName(), currentApplicationContext);
+            try (InputStream is = vfs.openRead(currentApplicationFile)) {
+                cnvParser.parse(is, applicationVariable.name() + ".cnv", currentApplicationContext);
             }
 
             Gdx.app.log("Game loader", "Application variables loaded");
@@ -270,13 +233,21 @@ public class Game {
         }
     }
 
-    public String findIniInExe(File exeFile) {
-        try {
-            byte[] exeBytes = new byte[(int) exeFile.length()];
-            FileInputStream fis = new FileInputStream(exeFile);
-            fis.read(exeBytes);
-            fis.close();
+    /** Joins a DANE-relative segment with the DANE root, normalizing separators. */
+    private static String composeUnderDane(String relPath) {
+        return DANE_ROOT + "/" + relPath.replace('\\', '/').replaceFirst("^/+", "");
+    }
 
+    /** Reads a file's bytes via VFS (caller-provided path). */
+    private byte[] readAllBytes(String vfsPath) throws IOException {
+        try (InputStream is = vfs.openRead(vfsPath)) {
+            return is.readAllBytes();
+        }
+    }
+
+    private String findIniInExe(String exeVfsPath) {
+        try {
+            byte[] exeBytes = readAllBytes(exeVfsPath);
             String exeContent = new String(exeBytes, StandardCharsets.UTF_8);
 
             // Poszukaj ".ini" i weź kilka znaków wcześniej
@@ -293,65 +264,69 @@ public class Game {
 
 
     /**
-     * Locates the game's INI file. Returns a path relative to the game root
-     * (suitable for VFS lookups), or {@code null} if none is found.
+     * Locates the game's INI file. Returns a path relative to the VFS root
+     * (suitable for {@code vfs.openRead}), or {@code null} if none is found.
      */
     public String findGameINI() {
-        File parentFolder = daneFolder.getParentFile();
-        if (parentFolder == null || !parentFolder.exists()) {
-            Gdx.app.error("findGameINI", "Parent folder is null or does not exist");
-            return null;
-        }
-
         // bloomoo.ini points at the real INI via [MAIN].INI
-        File bloomooIni = new File(parentFolder, "bloomoo.ini");
-        if (bloomooIni.exists()) {
+        if (vfs.exists("bloomoo.ini")) {
             Gdx.app.log("findGameINI", "Found bloomoo.ini, looking for INI with variables...");
-            try {
+            try (InputStream is = vfs.openRead("bloomoo.ini")) {
                 Ini bloomooIniFile = new Ini();
-                bloomooIniFile.load(bloomooIni);
-                String iniPath = bloomooIniFile.get("MAIN", "INI");
-                if (iniPath != null) {
-                    Gdx.app.log("findGameINI", "Found INI: " + iniPath);
-                    return iniPath;
+                bloomooIniFile.load(is);
+                String mainIni = bloomooIniFile.get("MAIN", "INI");
+                if (mainIni != null) {
+                    Gdx.app.log("findGameINI", "Found INI: " + mainIni);
+                    return mainIni;
                 }
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
         }
 
-        File[] exeFiles = parentFolder.listFiles((dir, name) -> name.toLowerCase().endsWith(".exe")
-                && !name.equalsIgnoreCase("setup.exe")
-                && !name.equalsIgnoreCase("uninstall.exe")
-                && !name.equalsIgnoreCase("install.exe"));
-        if (exeFiles == null || exeFiles.length == 0) {
-            Gdx.app.error("findGameINI", "No .exe file found, falling back to first .ini in folder");
-            File[] iniFiles = parentFolder.listFiles((dir, name) -> name.toLowerCase().endsWith(".ini")
-                    && !name.equalsIgnoreCase("setup.ini")
-                    && !name.equalsIgnoreCase("uninstall.ini")
-                    && !name.equalsIgnoreCase("install.ini"));
-            if (iniFiles == null || iniFiles.length == 0) {
-                Gdx.app.error("findGameINI", "No .ini files found in the parent folder");
-                return null;
+        String[] rootEntries = vfs.list("");
+        if (rootEntries == null) rootEntries = new String[0];
+
+        List<String> exeFiles = new ArrayList<>();
+        for (String name : rootEntries) {
+            String lower = name.toLowerCase();
+            if (lower.endsWith(".exe")
+                    && !lower.equals("setup.exe")
+                    && !lower.equals("uninstall.exe")
+                    && !lower.equals("install.exe")) {
+                exeFiles.add(name);
             }
-            Gdx.app.log("findGameINI", "Using first found file: " + iniFiles[0].getName());
-            return iniFiles[0].getName();
         }
 
-        for (File file : exeFiles) {
-            Gdx.app.log("findGameINI", "Searching for ini file associated with executable: " + file.getName());
+        if (exeFiles.isEmpty()) {
+            Gdx.app.error("findGameINI", "No .exe file found, falling back to first .ini in folder");
+            for (String name : rootEntries) {
+                String lower = name.toLowerCase();
+                if (lower.endsWith(".ini")
+                        && !lower.equals("setup.ini")
+                        && !lower.equals("uninstall.ini")
+                        && !lower.equals("install.ini")) {
+                    Gdx.app.log("findGameINI", "Using first found file: " + name);
+                    return name;
+                }
+            }
+            Gdx.app.error("findGameINI", "No .ini files found in the parent folder");
+            return null;
+        }
 
-            String exeFileName = file.getName();
-            String baseName = exeFileName.substring(0, exeFileName.lastIndexOf('.'));
+        for (String exeName : exeFiles) {
+            Gdx.app.log("findGameINI", "Searching for ini file associated with executable: " + exeName);
+
+            String baseName = exeName.substring(0, exeName.lastIndexOf('.'));
             String iniFileName = baseName + ".ini";
 
-            if (new File(parentFolder, iniFileName).exists()) {
+            if (vfs.exists(iniFileName)) {
                 Gdx.app.log("findGameINI", "Found ini file: " + iniFileName);
                 return iniFileName;
             }
 
-            iniFileName = findIniInExe(file);
-            if (iniFileName != null && new File(parentFolder, iniFileName).exists()) {
+            iniFileName = findIniInExe(exeName);
+            if (iniFileName != null && vfs.exists(iniFileName)) {
                 Gdx.app.log("findGameINI", "Found ini file: " + iniFileName);
                 return iniFileName;
             }
@@ -466,11 +441,12 @@ public class Game {
 
     private void loadEpisode(EpisodeVariable episode) {
         if (!Objects.equals(currentEpisode, episode.name())) {
-            File epPath = variablePaths.get(episode.name());
+            String epPath = variablePaths.get(episode.name());
             if(epPath == null) {
                 currentEpisodeContext = new Context(new ExecutionContext(), currentApplicationContext);
                 currentEpisodeContext.setGame(this);
                 currentEpisodeVariable = episode;
+                currentResourceDirectory = currentApplicationContext != null ? directoryOf(currentApplicationFile) : DANE_ROOT;
                 Gdx.app.log("Game", "Episode " + episode.name() + " doesn't have PATH attribute. Skipping...");
                 return;
             }
@@ -480,11 +456,12 @@ public class Game {
                 currentEpisodeContext = new Context(new ExecutionContext(), currentApplicationContext);
                 currentEpisodeContext.setGame(this);
                 currentEpisodeFile = epPath;
-                File episodeFile = FileUtils.findRelativeFileIgnoreCase(currentEpisodeFile, episode.name() + ".cnv");
+                currentResourceDirectory = epPath;
+                String episodeFile = epPath + "/" + episode.name() + ".cnv";
 
-                if(episodeFile != null) {
-                    try (InputStream is = new FileInputStream(episodeFile)) {
-                        cnvParser.parse(is, episodeFile.getName(), currentEpisodeContext);
+                if(vfs.exists(episodeFile)) {
+                    try (InputStream is = vfs.openRead(episodeFile)) {
+                        cnvParser.parse(is, episode.name() + ".cnv", currentEpisodeContext);
                     } catch (NullPointerException e) {
                         Gdx.app.error("Game", "Error while loading episode " + episode.name() + ":\n" + e.getMessage());
                     }
@@ -524,9 +501,10 @@ public class Game {
             currentSceneContext = new Context(new ExecutionContext(), currentEpisodeContext);
             currentSceneContext.setGame(this);
 
-            File scenePath = variablePaths.get(scene.name());
-            File sceneFile = FileUtils.findRelativeFileIgnoreCase(scenePath, scene.name() + ".cnv");
+            String scenePath = variablePaths.get(scene.name());
+            String sceneFile = scenePath == null ? null : scenePath + "/" + scene.name() + ".cnv";
             currentSceneFile = scenePath;
+            currentResourceDirectory = scenePath != null ? scenePath : (currentEpisodeFile != null ? currentEpisodeFile : DANE_ROOT);
             currentScene = scene.name();
 
             // Handle music transition
@@ -539,9 +517,9 @@ public class Game {
 
             currentSceneVariable = scene;
 
-            if(sceneFile != null) {
-                try (InputStream is = new FileInputStream(sceneFile)) {
-                    cnvParser.parse(is, sceneFile.getName(), currentSceneContext);
+            if(sceneFile != null && vfs.exists(sceneFile)) {
+                try (InputStream is = vfs.openRead(sceneFile)) {
+                    cnvParser.parse(is, scene.name() + ".cnv", currentSceneContext);
                 } catch (NullPointerException e) {
                     Gdx.app.error("Game", "Error while loading scene " + scene.name() + ":\n" + e.getMessage());
                 }
@@ -643,6 +621,12 @@ public class Game {
                 Gdx.app.error("Game", "Error while running __INIT__ BEHAVIOUR: " + e.getMessage(), e);
             }
         }
+    }
+
+    private static String directoryOf(String vfsPath) {
+        if (vfsPath == null || vfsPath.isEmpty()) return DANE_ROOT;
+        int slash = vfsPath.replace('\\', '/').lastIndexOf('/');
+        return slash >= 0 ? vfsPath.substring(0, slash) : DANE_ROOT;
     }
 
     private void persistGameINI() {
@@ -851,14 +835,6 @@ public class Game {
         this.currentSceneContext = (Context) currentSceneContext;
     }
 
-    public File getDaneFolder() {
-        return daneFolder;
-    }
-
-    public void setDaneFolder(File daneFolder) {
-        this.daneFolder = daneFolder;
-    }
-
     /**
      * Gets the current language code (e.g., "POL", "HUN", "CZE").
      *
@@ -888,60 +864,32 @@ public class Game {
         Gdx.app.log("Game", "Language set to: " + language);
     }
 
-    @Deprecated(forRemoval = true, since = "0.2.0-beta")
-    public File getCommonFolder() {
-        return commonFolder;
-    }
-
-    @Deprecated(forRemoval = true, since = "0.2.0-beta")
-    public void setCommonFolder(File commonFolder) {
-        this.commonFolder = commonFolder;
-    }
-
-    @Deprecated(forRemoval = true, since = "0.2.0-beta")
-    public File getWavsFolder() {
-        return wavsFolder;
-    }
-
-    @Deprecated(forRemoval = true, since = "0.2.0-beta")
-    public void setWavsFolder(File wavsFolder) {
-        this.wavsFolder = wavsFolder;
-    }
-
-    public File getCurrentApplicationFile() {
-        return currentApplicationFile;
-    }
-
     public GameContext getCurrentApplicationContext() {
         return currentApplicationContext;
-    }
-
-    public void setCurrentApplicationFile(File currentApplicationFile) {
-        this.currentApplicationFile = currentApplicationFile;
     }
 
     public GameContext getCurrentEpisodeContext() {
         return currentEpisodeContext;
     }
 
-    public File getCurrentEpisodeFile() {
-        return currentEpisodeFile;
-    }
-
-    public void setCurrentEpisodeFile(File currentEpisodeFile) {
-        this.currentEpisodeFile = currentEpisodeFile;
-    }
-
-    public File getCurrentSceneFile() {
-        return currentSceneFile;
+    public String getCurrentResourceDirectory() {
+        if (currentResourceDirectory != null && !currentResourceDirectory.isEmpty()) {
+            return currentResourceDirectory;
+        }
+        if (currentSceneFile != null && !currentSceneFile.isEmpty()) {
+            return currentSceneFile;
+        }
+        if (currentEpisodeFile != null && !currentEpisodeFile.isEmpty()) {
+            return currentEpisodeFile;
+        }
+        if (currentApplicationFile != null && !currentApplicationFile.isEmpty()) {
+            return directoryOf(currentApplicationFile);
+        }
+        return DANE_ROOT;
     }
 
     public String getPreviousScene() {
         return previousScene;
-    }
-
-    public void setCurrentSceneFile(File currentSceneFile) {
-        this.currentSceneFile = currentSceneFile;
     }
 
     public Pixmap getLastFrame() {

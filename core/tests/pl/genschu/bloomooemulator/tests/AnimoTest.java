@@ -355,7 +355,6 @@ class AnimoTest {
 
         Context ctx = new ContextBuilder().build();
         Game game = mock(Game.class);
-        when(game.getCurrentSceneFile()).thenReturn(tempDir.toFile());
         when(game.getLanguage()).thenReturn("POL");
         VFS vfs = new VFS();
         vfs.mountAssets(new LocalFileSystem(tempDir.toFile()));

@@ -56,6 +56,35 @@ public class VFS {
         return findSource(path) != null;
     }
 
+    public boolean isDirectory(String path) {
+        IFileSystem source = findSource(path);
+        return source != null && source.isDirectory(resolveOn(source, path));
+    }
+
+    /**
+     * Lists entries at {@code path} across all layers (storage + assets),
+     * deduplicated by name. The storage layer is queried first so writes
+     * under it become visible, but its names don't shadow asset entries
+     * that happen to share a parent directory.
+     */
+    public String[] list(String path) {
+        java.util.LinkedHashSet<String> names = new java.util.LinkedHashSet<>();
+        if (storage != null) {
+            String resolved = resolveOn(storage, path);
+            if (resolved != null) addAll(names, storage.list(resolved));
+        }
+        for (IFileSystem source : assetsSources) {
+            String resolved = resolveOn(source, path);
+            if (resolved != null) addAll(names, source.list(resolved));
+        }
+        return names.toArray(new String[0]);
+    }
+
+    private static void addAll(java.util.Set<String> dst, String[] src) {
+        if (src == null) return;
+        java.util.Collections.addAll(dst, src);
+    }
+
     public long length(String path) {
         IFileSystem source = findSource(path);
         return source == null ? 0 : source.length(resolveOn(source, path));

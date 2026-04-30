@@ -53,17 +53,51 @@ public class FileUtils {
     /**
      * Translates a script path into a VFS-relative one.
      *
-     * The {@code $} prefix denotes the game's installation root; everything
-     * after it is the VFS path. Anything else passes through (with separator
-     * normalization) and is interpreted relative to the VFS root.
+     * The {@code $} prefix denotes the game's installation root. Paths without
+     * it are resolved relative to the currently loaded application, episode or
+     * scene directory, matching the original File-based resolver.
      */
     public static String resolveVfsPath(Game game, String filePath) {
         if (filePath == null || filePath.isEmpty()) return null;
-        String path = filePath;
+        String path = filePath.replace('\\', '/');
         if (path.startsWith("$")) {
-            path = path.substring(1).replaceFirst("^[/\\\\]+", "");
+            return path.substring(1).replaceFirst("^/+", "");
         }
-        return path.replace('\\', '/');
+
+        path = path.replaceFirst("^/+", "");
+        if (game == null) {
+            return path;
+        }
+
+        String baseDirectory = game.getCurrentResourceDirectory();
+        if (baseDirectory == null || baseDirectory.isEmpty()) {
+            baseDirectory = "DANE";
+        }
+        baseDirectory = baseDirectory.replace('\\', '/').replaceFirst("/+$", "");
+
+        String language = game.getLanguage();
+        if (language != null && !language.isEmpty()) {
+            String localizedPath = joinVfsPath(baseDirectory, language, path);
+            if (game.getVfs().exists(localizedPath)) {
+                return localizedPath;
+            }
+        }
+
+        String resolvedPath = joinVfsPath(baseDirectory, path);
+        if (game.getVfs().exists(resolvedPath)) {
+            return resolvedPath;
+        }
+        return resolvedPath;
+    }
+
+    private static String joinVfsPath(String first, String... rest) {
+        StringBuilder joined = new StringBuilder(first.replace('\\', '/').replaceFirst("/+$", ""));
+        for (String segment : rest) {
+            if (segment == null || segment.isEmpty()) continue;
+            if (!joined.isEmpty()) joined.append('/');
+            joined.append(segment.replace('\\', '/').replaceFirst("^/+", "").replaceFirst("/+$", ""));
+        }
+        return joined.toString();
     }
 
 }

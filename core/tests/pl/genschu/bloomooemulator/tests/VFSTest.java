@@ -11,6 +11,8 @@ import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.HashSet;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -118,6 +120,27 @@ class VFSTest {
         // empty language
         vfs.setLanguage("");
         assertEquals("hello", readAll(vfs.openRead("greeting.txt")));
+    }
+
+    @Test
+    void listMergesEntriesAcrossStorageAndAssets(@TempDir Path tempDir) throws IOException {
+        Path assetsDir = tempDir.resolve("assets");
+        Path storageDir = tempDir.resolve("storage");
+        Files.createDirectories(assetsDir);
+        Files.createDirectories(storageDir);
+
+        // Asset has the original game file; storage holds a save-only file.
+        Files.writeString(assetsDir.resolve("game.ini"), "asset");
+        Files.writeString(assetsDir.resolve("game.exe"), "");
+        Files.writeString(storageDir.resolve("game.ini"), "saved");
+        Files.writeString(storageDir.resolve("save.dat"), "");
+
+        VFS vfs = new VFS();
+        vfs.mountAssets(new LocalFileSystem(assetsDir.toFile()));
+        vfs.setStorage(new LocalFileSystem(storageDir.toFile()));
+
+        Set<String> names = new HashSet<>(java.util.Arrays.asList(vfs.list("")));
+        assertEquals(Set.of("game.ini", "game.exe", "save.dat"), names);
     }
 
     @Test

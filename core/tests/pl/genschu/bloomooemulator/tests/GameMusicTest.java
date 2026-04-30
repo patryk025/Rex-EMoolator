@@ -33,13 +33,10 @@ public class GameMusicTest {
 
     @Test
     public void testLoadMusic_EnablesLoopingForSceneMusic() throws Exception {
-        Path daneDir = tempDir.resolve("DANE");
         Path musicFile = tempDir.resolve("INTRO1.WAV");
-        Files.createDirectories(daneDir);
         Files.createFile(musicFile);
 
         Game game = new Game(null, null);
-        game.setDaneFolder(daneDir.toFile());
         game.setLanguage("POL");
         game.getVfs().mountAssets(new LocalFileSystem(tempDir.toFile()));
 
