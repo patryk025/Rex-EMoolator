@@ -8,6 +8,8 @@ import org.ini4j.Ini;
 import pl.genschu.bloomooemulator.BlooMooEngine;
 import pl.genschu.bloomooemulator.engine.context.EngineVariable;
 import pl.genschu.bloomooemulator.engine.context.GameContext;
+import pl.genschu.bloomooemulator.engine.filesystem.AssetSourceDispatcher;
+import pl.genschu.bloomooemulator.engine.filesystem.IFileSystem;
 import pl.genschu.bloomooemulator.engine.input.InputManager;
 import pl.genschu.bloomooemulator.interpreter.context.Context;
 import pl.genschu.bloomooemulator.interpreter.runtime.ExecutionContext;
@@ -18,6 +20,7 @@ import pl.genschu.bloomooemulator.loader.CNVParser;
 import pl.genschu.bloomooemulator.loader.ImageLoader;
 import pl.genschu.bloomooemulator.logic.GameEntry;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -106,8 +109,19 @@ public class Game {
     private void scanGameDirectory() {
         File folder = new File(this.game.getPath());
 
-        vfs.mountAssets(new LocalFileSystem(folder));
-        vfs.setStorage(new LocalFileSystem(resolveStorageDir()));
+        try {
+            IFileSystem fs = AssetSourceDispatcher.openAssets(folder);
+            vfs.mountAssets(fs);
+            if(fs instanceof LocalFileSystem) {
+                vfs.setStorage(new LocalFileSystem(folder)); // use the same folder as assets
+            }
+            else {
+                vfs.setStorage(new LocalFileSystem(resolveStorageDir()));
+            }
+        } catch (IOException e) {
+            showErrorWrongMedia();
+            return;
+        }
 
         if (!vfs.isDirectory(DANE_ROOT)) {
             Gdx.app.error("Game loader", "Folder dane not found");
@@ -226,7 +240,7 @@ public class Game {
             if (firstSceneName != null) {
                 goTo(firstSceneName);
             } else {
-                showStartupError();
+                showErrorInApplicationDef();
             }
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -241,7 +255,14 @@ public class Game {
     /** Reads a file's bytes via VFS (caller-provided path). */
     private byte[] readAllBytes(String vfsPath) throws IOException {
         try (InputStream is = vfs.openRead(vfsPath)) {
-            return is.readAllBytes();
+            ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+            byte[] data = new byte[8192];
+            int nRead;
+            while ((nRead = is.read(data, 0, data.length)) != -1) {
+                buffer.write(data, 0, nRead);
+            }
+            buffer.flush();
+            return buffer.toByteArray();
         }
     }
 
@@ -412,8 +433,16 @@ public class Game {
         return episode.sceneNames().isEmpty() ? null : episode.sceneNames().get(0);
     }
 
-    private void showStartupError() {
-        Gdx.app.error("Game", "Cannot determine starting scene. Check Application.def for invalid STARTWITH values.");
+    private void showErrorInApplicationDef() {
+        showStartupError("Cannot determine starting scene. Check Application.def for invalid STARTWITH values.", "Invalid startup parameters. Check Application.def or press F9 to change scene.");
+    }
+
+    private void showErrorWrongMedia() {
+        showStartupError("Wrong media type used.", "Invalid startup parameters. The input data format is invalid. Currently, only directories and ISO images are supported. Please select a different source.");
+    }
+
+    private void showStartupError(String logMessage, String title) {
+        Gdx.app.error("Game", logMessage);
 
         SceneVariable errorScene = new SceneVariable("__ERROR__");
         currentSceneVariable = errorScene;
@@ -429,7 +458,7 @@ public class Game {
         currentSceneContext.setGame(this);
 
         TextVariable errorText = new TextVariable("__STARTUP_ERROR__");
-        errorText.state().text = "Invalid startup parameters. Check Application.def or press F9 to change scene.";
+        errorText.state().text = title;
         errorText.state().visible = true;
         errorText.state().toCanvas = true;
         errorText.state().priority = Integer.MAX_VALUE;
