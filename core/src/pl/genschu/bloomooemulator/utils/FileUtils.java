@@ -71,7 +71,7 @@ public class FileUtils {
 
         String baseDirectory = game.getCurrentResourceDirectory();
         if (baseDirectory == null || baseDirectory.isEmpty()) {
-            baseDirectory = "DANE";
+            baseDirectory = "";
         }
         baseDirectory = baseDirectory.replace('\\', '/').replaceFirst("/+$", "");
 
