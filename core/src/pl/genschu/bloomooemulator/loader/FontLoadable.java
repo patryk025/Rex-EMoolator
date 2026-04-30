@@ -6,8 +6,7 @@ import pl.genschu.bloomooemulator.objects.FontCropping;
 import java.util.List;
 
 /**
- * Interface for variables that can be loaded by FontLoader.
- * Both v1 and v2 FontVariable implement this.
+ * Variables loadable by {@link FontLoader}.
  */
 public interface FontLoadable {
     void setCharHeight(int charHeight);
@@ -18,5 +17,4 @@ public interface FontLoadable {
     void setCharCropping(char c, FontCropping cropping);
     FontCropping getCharCropping(char c);
     List<Character> getCharTextureKeys();
-    pl.genschu.bloomooemulator.engine.Game getGameReference();
 }

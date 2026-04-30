@@ -8,11 +8,11 @@ import pl.genschu.bloomooemulator.interpreter.runtime.ExecutionContext;
 import pl.genschu.bloomooemulator.interpreter.runtime.ExecutionResult;
 import pl.genschu.bloomooemulator.interpreter.values.StringValue;
 import pl.genschu.bloomooemulator.interpreter.values.Value;
+import pl.genschu.bloomooemulator.engine.Game;
 import pl.genschu.bloomooemulator.loader.CNVParser;
-import pl.genschu.bloomooemulator.utils.FileUtils;
 
-import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -126,19 +126,19 @@ public record ClassVariable(
             Context classContext = new Context(new ExecutionContext(), parentContext);
             classContext.setGame(ctx.getGame());
 
-            String resolvedPath = resolveDefinitionPath(thisVar.defPath, ctx);
-            File classFile = new File(resolvedPath);
+            Game game = ctx.getGame();
+            String vfsPath = resolveDefinitionVfsPath(thisVar.defPath);
             CNVParser cnvParser = new CNVParser();
 
-            if (classFile.exists()) {
-                try {
-                    cnvParser.parseFile(classFile, classContext);
+            if (game != null && game.getVfs().exists(vfsPath)) {
+                try (InputStream is = game.getVfs().openRead(vfsPath)) {
+                    cnvParser.parse(is, vfsPath, classContext);
                 } catch (IOException e) {
-                    Gdx.app.error("ClassVariable", "Error while loading class " + resolvedPath, e);
+                    Gdx.app.error("ClassVariable", "Error while loading class " + vfsPath, e);
                     throw new RuntimeException(e);
                 }
             } else {
-                Gdx.app.error("ClassVariable", "Class definition " + resolvedPath + " doesn't exist. Instance will be empty.");
+                Gdx.app.error("ClassVariable", "Class definition " + vfsPath + " doesn't exist. Instance will be empty.");
             }
 
             InstanceVariable instance = new InstanceVariable(varName, classContext);
@@ -184,25 +184,11 @@ public record ClassVariable(
         }))
     );
 
-    private static String resolveDefinitionPath(String definitionPath, MethodContext ctx) {
-        File directFile = new File(definitionPath);
-        String classPath;
-        if (definitionPath.startsWith("$")) {
-            classPath = definitionPath;
-        } else if (directFile.isAbsolute()) {
-            classPath = definitionPath;
-        } else {
-            classPath = "$COMMON/classes/" + definitionPath;
-        }
-
-        if (ctx.getGame() != null && !directFile.isAbsolute()) {
-            return FileUtils.resolveRelativePath(ctx.getGame(), classPath);
-        }
-
-        String rawPath = classPath.startsWith("$")
-                ? classPath.substring(1).replaceFirst("^[/\\\\]+", "")
-                : classPath;
-        return new File(rawPath).getAbsolutePath();
+    private static String resolveDefinitionVfsPath(String definitionPath) {
+        String classPath = definitionPath.startsWith("$")
+                ? definitionPath
+                : "$COMMON/classes/" + definitionPath;
+        return classPath.substring(1).replaceFirst("^[/\\\\]+", "").replace('\\', '/');
     }
 
     @Override

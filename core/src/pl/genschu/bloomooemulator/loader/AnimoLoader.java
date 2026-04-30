@@ -6,7 +6,6 @@ import pl.genschu.bloomooemulator.objects.FrameData;
 import pl.genschu.bloomooemulator.objects.Image;
 import pl.genschu.bloomooemulator.utils.StringUtils;
 
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
@@ -15,12 +14,6 @@ import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 public class AnimoLoader {
-
-    public static AnimoVariable.AnimoData load(String filePath) throws IOException {
-        try (FileInputStream f = new FileInputStream(filePath)) {
-            return load(f);
-        }
-    }
 
     public static AnimoVariable.AnimoData load(InputStream input) throws IOException {
         // Header

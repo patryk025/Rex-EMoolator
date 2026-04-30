@@ -145,8 +145,8 @@ public class Game {
         if (files != null) {
             for (File file : files) {
                 if(file.getName().toLowerCase().matches("application.def")) {
-                    try {
-                        cnvParser.parseFile(file, definitionContext);
+                    try (InputStream is = new FileInputStream(file)) {
+                        cnvParser.parse(is, file.getName(), definitionContext);
                         applicationDefFound = true;
                         break;
                     } catch(IOException e) {
@@ -230,7 +230,9 @@ public class Game {
             File appDir = variablePaths.get(applicationVariable.name());
             currentApplicationFile = FileUtils.findRelativeFileIgnoreCase(appDir, applicationVariable.name()+".cnv");
 
-            cnvParser.parseFile(currentApplicationFile, currentApplicationContext);
+            try (InputStream is = new FileInputStream(currentApplicationFile)) {
+                cnvParser.parse(is, currentApplicationFile.getName(), currentApplicationContext);
+            }
 
             Gdx.app.log("Game loader", "Application variables loaded");
 
@@ -481,8 +483,8 @@ public class Game {
                 File episodeFile = FileUtils.findRelativeFileIgnoreCase(currentEpisodeFile, episode.name() + ".cnv");
 
                 if(episodeFile != null) {
-                    try {
-                        cnvParser.parseFile(episodeFile, currentEpisodeContext);
+                    try (InputStream is = new FileInputStream(episodeFile)) {
+                        cnvParser.parse(is, episodeFile.getName(), currentEpisodeContext);
                     } catch (NullPointerException e) {
                         Gdx.app.error("Game", "Error while loading episode " + episode.name() + ":\n" + e.getMessage());
                     }
@@ -538,8 +540,8 @@ public class Game {
             currentSceneVariable = scene;
 
             if(sceneFile != null) {
-                try {
-                    cnvParser.parseFile(sceneFile, currentSceneContext);
+                try (InputStream is = new FileInputStream(sceneFile)) {
+                    cnvParser.parse(is, sceneFile.getName(), currentSceneContext);
                 } catch (NullPointerException e) {
                     Gdx.app.error("Game", "Error while loading scene " + scene.name() + ":\n" + e.getMessage());
                 }

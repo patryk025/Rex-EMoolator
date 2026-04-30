@@ -49,13 +49,14 @@ class VariableInfrastructureRegressionTest {
     }
 
     @Test
-    void testClassVariableLoadsConstructorAndDestructor() throws IOException {
+    void testClassVariableLoadsConstructorAndDestructor(@org.junit.jupiter.api.io.TempDir Path tempDir) throws IOException {
         Context ctx = new ContextBuilder()
                 .withVariable("STRING", "FLAG", "")
                 .build();
 
-        Path classFile = Files.createTempFile("class-variable", ".cnv");
-        Files.writeString(classFile, """
+        Path commonClasses = tempDir.resolve("COMMON/classes");
+        Files.createDirectories(commonClasses);
+        Files.writeString(commonClasses.resolve("myclass.class"), """
                 OBJECT = VALUE
                 VALUE:TYPE = INTEGER
                 VALUE:VALUE = 1
@@ -67,7 +68,11 @@ class VariableInfrastructureRegressionTest {
                 DESTRUCTOR:CODE = {FLAG^SET("deleted");}
                 """);
 
-        ctx.setVariable("MYCLASS", new ClassVariable("MYCLASS", classFile.toAbsolutePath().toString()));
+        Game game = new Game(null, null);
+        game.getVfs().mountAssets(new LocalFileSystem(tempDir.toFile()));
+        ctx.setGame(game);
+
+        ctx.setVariable("MYCLASS", new ClassVariable("MYCLASS", "myclass.class"));
 
         MethodHelper.callWithContext(ctx, "MYCLASS", "NEW", new StringValue("OBJ"));
 

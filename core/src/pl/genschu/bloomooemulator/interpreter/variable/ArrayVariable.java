@@ -341,9 +341,9 @@ public record ArrayVariable(
                 throw new IllegalArgumentException("LOAD requires 1 argument: path");
             }
             String path = ArgumentHelper.getString(args.get(0));
-            String filePath = pl.genschu.bloomooemulator.utils.FileUtils.resolveRelativePath(ctx.getGame(), path);
+            String vfsPath = pl.genschu.bloomooemulator.utils.FileUtils.resolveVfsPath(ctx.getGame(), path);
             thisVar.elements.clear();
-            try (java.io.FileInputStream f = new java.io.FileInputStream(filePath)) {
+            try (java.io.InputStream f = ctx.getGame().getVfs().openRead(vfsPath)) {
                 java.nio.ByteOrder LE = java.nio.ByteOrder.LITTLE_ENDIAN;
                 byte[] buf4 = new byte[4];
                 f.read(buf4);
@@ -393,8 +393,8 @@ public record ArrayVariable(
                 throw new IllegalArgumentException("SAVE requires 1 argument: path");
             }
             String path = ArgumentHelper.getString(args.get(0));
-            String filePath = pl.genschu.bloomooemulator.utils.FileUtils.resolveRelativePath(ctx.getGame(), path);
-            try (java.io.FileOutputStream f = new java.io.FileOutputStream(filePath)) {
+            String vfsPath = pl.genschu.bloomooemulator.utils.FileUtils.resolveVfsPath(ctx.getGame(), path);
+            try (java.io.OutputStream f = ctx.getGame().getVfs().openWrite(vfsPath)) {
                 java.nio.ByteOrder LE = java.nio.ByteOrder.LITTLE_ENDIAN;
                 f.write(java.nio.ByteBuffer.allocate(4).order(LE).putInt(thisVar.elements.size()).array());
                 for (Value element : thisVar.elements) {

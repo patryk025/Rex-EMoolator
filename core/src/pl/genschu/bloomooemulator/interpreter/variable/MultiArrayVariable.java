@@ -184,16 +184,24 @@ public record MultiArrayVariable(
         Map.entry("SAVE", MethodSpec.of((self, args, ctx) -> {
             MultiArrayVariable thisVar = (MultiArrayVariable) self;
             String path = ArgumentHelper.getString(args.get(0));
-            String resolvedPath = FileUtils.resolveRelativePath(ctx.getGame(), path);
-            MultiArraySaver.saveMultiArray(thisVar, resolvedPath);
+            String vfsPath = FileUtils.resolveVfsPath(ctx.getGame(), path);
+            try (java.io.OutputStream os = ctx.getGame().getVfs().openWrite(vfsPath)) {
+                MultiArraySaver.saveMultiArray(thisVar, os);
+            } catch (java.io.IOException e) {
+                Gdx.app.error("MultiArrayVariable", "Error saving multi-array: " + e.getMessage());
+            }
             return MethodResult.noReturn();
         })),
 
         Map.entry("LOAD", MethodSpec.of((self, args, ctx) -> {
             MultiArrayVariable thisVar = (MultiArrayVariable) self;
             String path = ArgumentHelper.getString(args.get(0));
-            String resolvedPath = FileUtils.resolveRelativePath(ctx.getGame(), path);
-            MultiArrayLoader.loadMultiArray(thisVar, resolvedPath);
+            String vfsPath = FileUtils.resolveVfsPath(ctx.getGame(), path);
+            try (java.io.InputStream is = ctx.getGame().getVfs().openRead(vfsPath)) {
+                MultiArrayLoader.loadMultiArray(thisVar, is);
+            } catch (java.io.IOException e) {
+                Gdx.app.error("MultiArrayVariable", "Error loading multi-array: " + e.getMessage());
+            }
             return MethodResult.noReturn();
         })),
 

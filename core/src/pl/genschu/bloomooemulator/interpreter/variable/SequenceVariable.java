@@ -249,8 +249,9 @@ public record SequenceVariable(
             return;
         }
 
-        try {
-            SequenceLoader.load(this, context);
+        String vfsPath = pl.genschu.bloomooemulator.utils.FileUtils.resolveVfsPath(context.getGame(), filename);
+        try (java.io.InputStream is = context.getGame().getVfs().openRead(vfsPath)) {
+            SequenceLoader.load(this, is, context);
         } catch (Exception e) {
             Gdx.app.error("SequenceVariable", "Failed to load SEQUENCE " + name + ": " + e.getMessage(), e);
         }

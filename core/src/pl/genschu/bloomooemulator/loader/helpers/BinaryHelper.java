@@ -1,7 +1,6 @@
 package pl.genschu.bloomooemulator.loader.helpers;
 
 import java.io.ByteArrayOutputStream;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
@@ -9,28 +8,28 @@ import java.nio.ByteOrder;
 import java.nio.charset.StandardCharsets;
 
 public class BinaryHelper {
-    public static int readIntLE(FileInputStream in) throws IOException {
+    public static int readIntLE(InputStream in) throws IOException {
         byte[] buffer = readFully(in, 4);
         return ByteBuffer.wrap(buffer).order(ByteOrder.LITTLE_ENDIAN).getInt();
     }
 
-    public static float readFloatLE(FileInputStream in) throws IOException {
+    public static float readFloatLE(InputStream in) throws IOException {
         byte[] buffer = readFully(in, 4);
         return ByteBuffer.wrap(buffer).order(ByteOrder.LITTLE_ENDIAN).getFloat();
     }
 
-    public static short readShortLE(FileInputStream in) throws IOException {
+    public static short readShortLE(InputStream in) throws IOException {
         byte[] buffer = readFully(in, 2);
         return ByteBuffer.wrap(buffer).order(ByteOrder.LITTLE_ENDIAN).getShort();
     }
 
-    public static byte readByte(FileInputStream in) throws IOException {
+    public static byte readByte(InputStream in) throws IOException {
         byte[] buffer = readFully(in, 1);
         return buffer[0];
     }
 
     // read NUL-terminated string
-    public static String readString(FileInputStream in) throws IOException {
+    public static String readString(InputStream in) throws IOException {
         ByteArrayOutputStream buffer = new ByteArrayOutputStream();
         int b;
         while ((b = in.read()) != -1 && b != 0) {
@@ -41,12 +40,12 @@ public class BinaryHelper {
     }
 
     // read string with known length
-    public static String readString(FileInputStream in, int length) throws IOException {
+    public static String readString(InputStream in, int length) throws IOException {
         byte[] buffer = readFully(in, length);
         return new String(buffer, StandardCharsets.UTF_8);
     }
 
-    public static byte[] readFully(FileInputStream in, int length) throws IOException {
+    public static byte[] readFully(InputStream in, int length) throws IOException {
         byte[] buffer = new byte[length];
         int offset = 0;
         while (offset < length) {

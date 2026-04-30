@@ -191,31 +191,17 @@ public record FontVariable(
     @Override public void setCharCropping(char c, FontCropping cropping) { state.setCharCropping(c, cropping); }
     @Override public FontCropping getCharCropping(char c) { return state.getCharCropping(c); }
     @Override public java.util.List<Character> getCharTextureKeys() { return state.getCharTextureKeys(); }
-    @Override public pl.genschu.bloomooemulator.engine.Game getGameReference() {
-        // FontVariable doesn't store game ref directly; loadFromDefinition receives it
-        throw new UnsupportedOperationException("Use loadFromDefinition(game, fontDefinition) instead");
-    }
 
     /**
      * Called during attribute processing to load font data from a DEF_ attribute.
      */
     public void loadFromDefinition(pl.genschu.bloomooemulator.engine.Game game, String fontDefinition) {
-        FontLoader.loadFont(new FontLoadableAdapter(this, game), fontDefinition);
-    }
-
-    /**
-     * Adapter that provides the game reference for FontLoader.
-     */
-    private record FontLoadableAdapter(FontVariable font, pl.genschu.bloomooemulator.engine.Game game) implements FontLoadable {
-        @Override public void setCharHeight(int charHeight) { font.setCharHeight(charHeight); }
-        @Override public void setCharWidth(int charWidth) { font.setCharWidth(charWidth); }
-        @Override public void setCharTexture(char c, TextureRegion texture) { font.setCharTexture(c, texture); }
-        @Override public void setCharKerning(int i, int[] kernings) { font.setCharKerning(i, kernings); }
-        @Override public void setCharKerning(int i, int j, int kerning) { font.setCharKerning(i, j, kerning); }
-        @Override public void setCharCropping(char c, FontCropping cropping) { font.setCharCropping(c, cropping); }
-        @Override public FontCropping getCharCropping(char c) { return font.getCharCropping(c); }
-        @Override public java.util.List<Character> getCharTextureKeys() { return font.getCharTextureKeys(); }
-        @Override public pl.genschu.bloomooemulator.engine.Game getGameReference() { return game; }
+        String vfsPath = pl.genschu.bloomooemulator.utils.FileUtils.resolveVfsPath(game, fontDefinition);
+        try (java.io.InputStream is = game.getVfs().openRead(vfsPath)) {
+            FontLoader.loadFont(this, is);
+        } catch (java.io.IOException e) {
+            com.badlogic.gdx.Gdx.app.error("FontVariable", "Failed to open font via VFS: " + vfsPath, e);
+        }
     }
 
     // No script-callable methods — FontVariable is used by TextVariable for rendering

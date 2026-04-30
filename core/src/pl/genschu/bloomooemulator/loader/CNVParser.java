@@ -12,6 +12,7 @@ import pl.genschu.bloomooemulator.interpreter.variable.*;
 import pl.genschu.bloomooemulator.interpreter.variable.db.DatabaseState;
 
 import java.io.*;
+import java.nio.charset.Charset;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -24,11 +25,14 @@ import java.util.regex.Pattern;
 public class CNVParser {
 
     /**
-     * Parses a CNV file and populates the context with variables.
+     * Parses a CNV stream and populates the context with variables.
+     *
+     * @param stream      input stream (caller closes it)
+     * @param displayName label used only for logs
      */
-    public void parseFile(File file, Context context) throws IOException {
-        try (FileReader reader = new FileReader(file);
-             BufferedReader bufferedReader = new BufferedReader(reader)) {
+    public void parse(InputStream stream, String displayName, Context context) throws IOException {
+        try (BufferedReader bufferedReader = new BufferedReader(
+                new InputStreamReader(stream, Charset.defaultCharset()))) {
             String line;
             StringBuilder content = new StringBuilder();
             boolean decipher = false;
@@ -48,14 +52,11 @@ public class CNVParser {
             }
 
             if (decipher) {
-                Gdx.app.log("CNVParser", "Deciphering " + file.getName() + "...");
+                Gdx.app.log("CNVParser", "Deciphering " + displayName + "...");
                 parseString(ScriptDecypher.decode(content.toString(), offset), context);
             } else {
                 parseString(content.toString(), context);
             }
-        } catch (FileNotFoundException e) {
-            Gdx.app.error("CNVParser", "File not found: " + file.getName());
-            throw e;
         }
 
         assignSignals(context);

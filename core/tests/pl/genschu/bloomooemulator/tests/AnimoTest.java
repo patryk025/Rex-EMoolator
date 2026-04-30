@@ -7,6 +7,8 @@ import org.junit.jupiter.api.io.TempDir;
 import pl.genschu.bloomooemulator.TestEnvironment;
 import pl.genschu.bloomooemulator.builders.ContextBuilder;
 import pl.genschu.bloomooemulator.engine.Game;
+import pl.genschu.bloomooemulator.engine.filesystem.LocalFileSystem;
+import pl.genschu.bloomooemulator.engine.filesystem.VFS;
 import pl.genschu.bloomooemulator.interpreter.context.Context;
 import pl.genschu.bloomooemulator.interpreter.values.IntValue;
 import pl.genschu.bloomooemulator.interpreter.values.StringValue;
@@ -14,6 +16,8 @@ import pl.genschu.bloomooemulator.interpreter.variable.*;
 import pl.genschu.bloomooemulator.loader.CNVParser;
 import pl.genschu.bloomooemulator.loader.AnimoLoader;
 
+import java.io.FileInputStream;
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
@@ -89,7 +93,10 @@ class AnimoTest {
         // Load animation data
         String filename = "MLYNEK.ANN";
         String absPath = Gdx.files.internal("../assets/test-assets/" + filename).file().getAbsolutePath();
-        AnimoVariable.AnimoData data = AnimoLoader.load(absPath);
+        AnimoVariable.AnimoData data;
+        try (InputStream is = new FileInputStream(absPath)) {
+            data = AnimoLoader.load(is);
+        }
 
         // Create signal capture
         SignalCapture capture = new SignalCapture();
@@ -165,7 +172,10 @@ class AnimoTest {
         // Load animation data
         String filename = "odliczanie.ann";
         String absPath = Gdx.files.internal("../assets/test-assets/" + filename).file().getAbsolutePath();
-        AnimoVariable.AnimoData data = AnimoLoader.load(absPath);
+        AnimoVariable.AnimoData data;
+        try (InputStream is = new FileInputStream(absPath)) {
+            data = AnimoLoader.load(is);
+        }
 
         // Create signal capture
         SignalCapture capture = new SignalCapture();
@@ -217,7 +227,10 @@ class AnimoTest {
         // Load animation data
         String filename = "stl2.ann";
         String absPath = Gdx.files.internal("../assets/test-assets/" + filename).file().getAbsolutePath();
-        AnimoVariable.AnimoData data = AnimoLoader.load(absPath);
+        AnimoVariable.AnimoData data;
+        try (InputStream is = new FileInputStream(absPath)) {
+            data = AnimoLoader.load(is);
+        }
 
         // Create signal capture
         SignalCapture capture = new SignalCapture();
@@ -261,7 +274,10 @@ class AnimoTest {
         // Load animation data
         String filename = "st2.ann";
         String absPath = Gdx.files.internal("../assets/test-assets/" + filename).file().getAbsolutePath();
-        AnimoVariable.AnimoData data = AnimoLoader.load(absPath);
+        AnimoVariable.AnimoData data;
+        try (InputStream is = new FileInputStream(absPath)) {
+            data = AnimoLoader.load(is);
+        }
 
         // Create signal capture with limit
         SignalCapture capture = new SignalCapture(200);
@@ -341,9 +357,14 @@ class AnimoTest {
         Game game = mock(Game.class);
         when(game.getCurrentSceneFile()).thenReturn(tempDir.toFile());
         when(game.getLanguage()).thenReturn("POL");
+        VFS vfs = new VFS();
+        vfs.mountAssets(new LocalFileSystem(tempDir.toFile()));
+        when(game.getVfs()).thenReturn(vfs);
         ctx.setGame(game);
 
-        new CNVParser().parseFile(cnv.toFile(), ctx);
+        try (java.io.InputStream cnvStream = new java.io.FileInputStream(cnv.toFile())) {
+            new CNVParser().parse(cnvStream, cnv.getFileName().toString(), ctx);
+        }
 
         AnimoVariable first = (AnimoVariable) ctx.getVariable("ANIMOKURA3");
         AnimoVariable second = (AnimoVariable) ctx.getVariable("ANIMOKURA4");
