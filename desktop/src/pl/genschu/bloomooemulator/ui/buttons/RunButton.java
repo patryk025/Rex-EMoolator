@@ -38,7 +38,7 @@ public class RunButton extends ButtonColumn {
         Lwjgl3ApplicationConfiguration config = new Lwjgl3ApplicationConfiguration();
         config.setForegroundFPS(60);
         config.setWindowedMode(800, 600); // temporary for testing
-        config.setTitle("Rex EMoolator");
+        config.setTitle("Rex-EMoolator");
 
         new Lwjgl3Application(new BlooMooEngine(game), config);
     }

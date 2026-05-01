@@ -200,10 +200,12 @@ class MultiArrayTest {
     }
 
     @Test
-    void testLoadFromFile() {
+    void testLoadFromFile() throws IOException {
         String filename = "test.mar";
         String absPath = Gdx.files.internal("../assets/test-assets/" + filename).file().getAbsolutePath();
-        MultiArrayLoader.loadMultiArray(multiArrayVar, absPath);
+        try (java.io.InputStream is = new java.io.FileInputStream(absPath)) {
+            MultiArrayLoader.loadMultiArray(multiArrayVar, is);
+        }
 
         Value result1 = multiArrayVar.callMethod("GET", List.of(
                 new IntValue(0), new IntValue(0))).getReturnValue();
@@ -243,14 +245,18 @@ class MultiArrayTest {
     }
 
     @Test
-    void testSaveToFile() {
+    void testSaveToFile() throws IOException {
         String filename = "test.mar";
         String absPath = Gdx.files.internal("../assets/test-assets/" + filename).file().getAbsolutePath();
-        MultiArrayLoader.loadMultiArray(multiArrayVar, absPath);
+        try (java.io.InputStream is = new java.io.FileInputStream(absPath)) {
+            MultiArrayLoader.loadMultiArray(multiArrayVar, is);
+        }
 
         String saveFilename = "test_save.mar";
         String saveAbsPath = Gdx.files.internal("../assets/test-assets/" + saveFilename).file().getAbsolutePath();
-        MultiArraySaver.saveMultiArray(multiArrayVar, saveAbsPath);
+        try (java.io.OutputStream os = new java.io.FileOutputStream(saveAbsPath)) {
+            MultiArraySaver.saveMultiArray(multiArrayVar, os);
+        }
 
         // compare two files if binary match
         try {

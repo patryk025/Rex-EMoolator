@@ -2,6 +2,7 @@ package pl.genschu.bloomooemulator;
 
 import pl.genschu.bloomooemulator.logic.GameEntry;
 import pl.genschu.bloomooemulator.logic.GameManager;
+import pl.genschu.bloomooemulator.logic.AppPaths;
 import pl.genschu.bloomooemulator.ui.ButtonColumn;
 import pl.genschu.bloomooemulator.ui.Dialogs;
 import pl.genschu.bloomooemulator.ui.TextTableRenderer;
@@ -89,16 +90,7 @@ public class GameListFrame extends JFrame {
     }
 
     private String getFolderPath() {
-        String osName = System.getProperty("os.name").toLowerCase();
-        String userHome = System.getProperty("user.home");
-
-        if (osName.contains("win")) {
-            return System.getenv("USERPROFILE") + "\\.rexemoolator";
-        } else if (osName.contains("mac") || osName.contains("nix") || osName.contains("nux")) {
-            return userHome + "/.rexemoolator";
-        } else {
-            return userHome + "/.rexemoolator";
-        }
+        return AppPaths.userDataDir().getAbsolutePath();
     }
 
     public void refreshGameList() {
@@ -115,4 +107,3 @@ public class GameListFrame extends JFrame {
         }
     }
 }
-

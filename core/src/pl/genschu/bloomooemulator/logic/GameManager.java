@@ -27,10 +27,21 @@ public class GameManager {
                 Json jsonParser = new Json();
                 GameEntry[] entries = jsonParser.fromJson(GameEntry[].class, json);
                 games = new Array<>(entries);
+                if (migrateMissingStorageIds()) {
+                    saveData();
+                }
             }
         } catch(Exception e) {
             Gdx.app.error("GameManager", "Error loading games.json", e);
         }
+    }
+
+    private boolean migrateMissingStorageIds() {
+        boolean migrated = false;
+        for (GameEntry game : games) {
+            migrated |= game.ensureStorageId();
+        }
+        return migrated;
     }
 
     private String loadFile(File file) {
@@ -63,6 +74,7 @@ public class GameManager {
     }
 
     public void addGame(GameEntry game) {
+        game.ensureStorageId();
         games.add(game);
         game.setId(games.size - 1);
         saveData();

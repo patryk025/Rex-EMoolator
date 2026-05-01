@@ -5,6 +5,8 @@ import org.junit.jupiter.api.Test;
 import pl.genschu.bloomooemulator.TestEnvironment;
 import pl.genschu.bloomooemulator.builders.ContextBuilder;
 import pl.genschu.bloomooemulator.builders.MethodHelper;
+import pl.genschu.bloomooemulator.engine.Game;
+import pl.genschu.bloomooemulator.engine.filesystem.LocalFileSystem;
 import pl.genschu.bloomooemulator.interpreter.context.Context;
 import pl.genschu.bloomooemulator.interpreter.runtime.ExecutionContext;
 import pl.genschu.bloomooemulator.interpreter.values.*;
@@ -47,13 +49,14 @@ class VariableInfrastructureRegressionTest {
     }
 
     @Test
-    void testClassVariableLoadsConstructorAndDestructor() throws IOException {
+    void testClassVariableLoadsConstructorAndDestructor(@org.junit.jupiter.api.io.TempDir Path tempDir) throws IOException {
         Context ctx = new ContextBuilder()
                 .withVariable("STRING", "FLAG", "")
                 .build();
 
-        Path classFile = Files.createTempFile("class-variable", ".cnv");
-        Files.writeString(classFile, """
+        Path commonClasses = tempDir.resolve("COMMON/classes");
+        Files.createDirectories(commonClasses);
+        Files.writeString(commonClasses.resolve("myclass.class"), """
                 OBJECT = VALUE
                 VALUE:TYPE = INTEGER
                 VALUE:VALUE = 1
@@ -65,7 +68,11 @@ class VariableInfrastructureRegressionTest {
                 DESTRUCTOR:CODE = {FLAG^SET("deleted");}
                 """);
 
-        ctx.setVariable("MYCLASS", new ClassVariable("MYCLASS", classFile.toAbsolutePath().toString()));
+        Game game = new Game(null, null);
+        game.getVfs().mountAssets(new LocalFileSystem(tempDir.toFile()));
+        ctx.setGame(game);
+
+        ctx.setVariable("MYCLASS", new ClassVariable("MYCLASS", "myclass.class"));
 
         MethodHelper.callWithContext(ctx, "MYCLASS", "NEW", new StringValue("OBJ"));
 
@@ -173,25 +180,32 @@ class VariableInfrastructureRegressionTest {
     }
 
     @Test
-    void testStringCopyFileCopiesContents() throws IOException {
+    void testStringCopyFileCopiesContents(@org.junit.jupiter.api.io.TempDir Path tempDir) throws IOException {
         Context ctx = new ContextBuilder()
                 .withVariable(new StringVariable("FS", ""))
                 .build();
 
-        Path source = Files.createTempFile("copyfile-source", ".txt");
-        Path destination = Files.createTempFile("copyfile-destination", ".txt");
-        Files.writeString(source, "payload");
+        Path assetsDir = tempDir.resolve("assets");
+        Path storageDir = tempDir.resolve("storage");
+        Files.createDirectories(assetsDir);
+        Files.createDirectories(storageDir);
+        Files.writeString(assetsDir.resolve("source.txt"), "payload");
+
+        Game game = new Game(null, null);
+        game.getVfs().mountAssets(new LocalFileSystem(assetsDir.toFile()));
+        game.getVfs().setStorage(new LocalFileSystem(storageDir.toFile()));
+        ctx.setGame(game);
 
         Value result = MethodHelper.callWithContext(
                 ctx,
                 "FS",
                 "COPYFILE",
-                new StringValue(source.toString()),
-                new StringValue(destination.toString())
+                new StringValue("$\\source.txt"),
+                new StringValue("$\\destination.txt")
         );
 
         assertTrue(result.toBool().value());
-        assertEquals("payload", Files.readString(destination));
+        assertEquals("payload", Files.readString(storageDir.resolve("destination.txt")));
     }
 
     @Test

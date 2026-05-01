@@ -1,9 +1,9 @@
 package pl.genschu.bloomooemulator.loader;
 
 import com.badlogic.gdx.Gdx;
+import pl.genschu.bloomooemulator.interpreter.variable.ImageVariable;
 import pl.genschu.bloomooemulator.objects.Image;
 
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
@@ -11,12 +11,9 @@ import java.nio.ByteOrder;
 import java.nio.charset.StandardCharsets;
 
 public class ImageLoader {
-    /**
-     * Loads an image from an absolute path into a v2 ImageVariable.
-     */
-    public static void loadImage(pl.genschu.bloomooemulator.interpreter.variable.ImageVariable variable, String absolutePath) {
-        try (FileInputStream f = new FileInputStream(absolutePath)) {
-            Image image = readImageData(f);
+    public static void loadImage(ImageVariable variable, InputStream inputStream) {
+        try {
+            Image image = readImageData(inputStream);
             variable.state().image = image;
             variable.state().posX = image.offsetX;
             variable.state().posY = image.offsetY;

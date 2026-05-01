@@ -1,4 +1,4 @@
-# Rex EMoolator
+# Rex-EMoolator
 
 **Polski** | [English](README.md)
 
@@ -299,7 +299,7 @@ Szacowane poziomy grywalności są wyznaczane na podstawie ilości scen, które 
 
 ## Licencja
 
-Sam Rex EMoolator jest projektem otwarto-źródłowym udostępnianym na
+Sam Rex-EMoolator jest projektem otwarto-źródłowym udostępnianym na
 **licencji MIT**. Pełną treść licencji znajdziesz w pliku [`LICENSE`](LICENSE).
 
 Projekt korzysta z różnych bibliotek (m.in. libGDX, LWJGL czy ODE4J), z których każda
@@ -327,5 +327,5 @@ autorskim z oryginalnych gier. Katalog `assets/` zawiera jedynie minimalne,
 techniczne fragmenty używane do testów automatycznych, by mieć pewność, że
 silnik działa poprawnie.
 
-Rex EMoolator jest niezależnym projektem i nie jest w żaden sposób powiązany z oryginalnymi twórcami czy właścicielami praw do
+Rex-EMoolator jest niezależnym projektem i nie jest w żaden sposób powiązany z oryginalnymi twórcami czy właścicielami praw do
 gier. Emulator jest udostępniany w dobrej wierze, „tak jak jest”, bez jakichkolwiek gwarancji, jako narzędzie badawcze i dokumentacyjne.

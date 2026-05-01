@@ -245,22 +245,18 @@ public record AnimoVariable(
             return;
         }
 
-        // Resolve path relative to current scene/episode/application
         Game game = context.getGame();
-        String resolvedPath = filename;
-        if (game != null) {
-            resolvedPath = FileUtils.resolveRelativePath(game, filename);
-        }
+        String vfsPath = game != null ? FileUtils.resolveVfsPath(game, filename) : filename;
 
-        AnimoVariable aliased = aliasFromPreviouslyLoadedVariable(context, resolvedPath);
+        AnimoVariable aliased = aliasFromPreviouslyLoadedVariable(context, vfsPath);
         if (aliased != null) {
             context.setVariable(name, aliased);
-            Gdx.app.log("AnimoVariable", name + ": Reused ANIMO from " + resolvedPath + " via alias copy");
+            Gdx.app.log("AnimoVariable", name + ": Reused ANIMO from " + vfsPath + " via alias copy");
             return;
         }
 
-        try {
-            AnimoData loadedData = AnimoLoader.load(resolvedPath);
+        try (java.io.InputStream is = game.getVfs().openRead(vfsPath)) {
+            AnimoData loadedData = AnimoLoader.load(is);
             AnimoVariable updated = this.withData(loadedData);
             // FPS: attribute override > file value > default
             if (state.fps != 15) {
@@ -281,13 +277,14 @@ public record AnimoVariable(
             // Load SFX audio files from frame descriptions
             loadSfxAudio(loadedData, game);
             context.setVariable(name, updated);
-            Gdx.app.log("AnimoVariable", name + ": Loaded ANIMO from " + resolvedPath);
+            Gdx.app.log("AnimoVariable", name + ": Loaded ANIMO from " + vfsPath);
         } catch (Exception e) {
             Gdx.app.error("AnimoVariable", name + ": Failed to load ANIMO: " + e.getMessage(), e);
         }
     }
 
-    private AnimoVariable aliasFromPreviouslyLoadedVariable(Context context, String resolvedPath) {
+    private AnimoVariable aliasFromPreviouslyLoadedVariable(Context context, String vfsPath) {
+        Game game = context.getGame();
         for (Variable variable : context.getVariables(false).values()) {
             if (!(variable instanceof AnimoVariable source) || source.name.equals(name) || source.data == AnimoData.EMPTY) {
                 continue;
@@ -298,13 +295,8 @@ public record AnimoVariable(
                 continue;
             }
 
-            String sourceResolvedPath = resolvedPath;
-            Game game = context.getGame();
-            if (game != null) {
-                sourceResolvedPath = FileUtils.resolveRelativePath(game, sourceFilename);
-            }
-
-            if (sourceResolvedPath.equalsIgnoreCase(resolvedPath)) {
+            String sourceVfsPath = game != null ? FileUtils.resolveVfsPath(game, sourceFilename) : sourceFilename;
+            if (sourceVfsPath != null && sourceVfsPath.equalsIgnoreCase(vfsPath)) {
                 return copyFromTemplate(source, name, signals);
             }
         }
@@ -423,9 +415,8 @@ public record AnimoVariable(
                         sfxFile = "$WAVS\\" + sfxFile;
                     }
                     try {
-                        String resolved = FileUtils.resolveRelativePath(game, sfxFile);
-                        com.badlogic.gdx.files.FileHandle soundFileHandle = Gdx.files.absolute(resolved);
-                        sfxAudioList.add(Gdx.audio.newMusic(soundFileHandle));
+                        String vfsPath = FileUtils.resolveVfsPath(game, sfxFile);
+                        sfxAudioList.add(Gdx.audio.newMusic(game.getVfs().getFileHandle(vfsPath)));
                     } catch (Exception e) {
                         Gdx.app.error("AnimoVariable", "Error loading SFX: " + e.getMessage());
                     }

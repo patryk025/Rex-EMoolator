@@ -3,7 +3,6 @@ package pl.genschu.bloomooemulator.loader;
 import com.badlogic.gdx.Gdx;
 import pl.genschu.bloomooemulator.interpreter.values.*;
 
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
@@ -39,15 +38,15 @@ public class MultiArrayLoader {
         return new String(bytes, StandardCharsets.UTF_8).split("\0")[0];
     }
 
-    public static void loadMultiArray(pl.genschu.bloomooemulator.interpreter.variable.MultiArrayVariable variable, String absolutePath) {
-        try (FileInputStream f = new FileInputStream(absolutePath)) {
+    public static void loadMultiArray(pl.genschu.bloomooemulator.interpreter.variable.MultiArrayVariable variable, InputStream f) {
+        try {
             readMultiArrayV2(variable, f);
         } catch (IOException e) {
             Gdx.app.error("MultiArrayLoader", "Error while loading multi-array: " + e.getMessage());
         }
     }
 
-    private static void readMultiArrayV2(pl.genschu.bloomooemulator.interpreter.variable.MultiArrayVariable variable, FileInputStream f) throws IOException {
+    private static void readMultiArrayV2(pl.genschu.bloomooemulator.interpreter.variable.MultiArrayVariable variable, InputStream f) throws IOException {
         int dimensionsCount = readInt(f);
         int[] dimensions = new int[dimensionsCount];
 

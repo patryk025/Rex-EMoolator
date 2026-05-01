@@ -7,6 +7,7 @@ import pl.genschu.bloomooemulator.interpreter.helpers.ArgumentHelper;
 import pl.genschu.bloomooemulator.interpreter.values.*;
 import pl.genschu.bloomooemulator.loader.SEKLoadable;
 import pl.genschu.bloomooemulator.loader.SEKLoader;
+import pl.genschu.bloomooemulator.utils.FileUtils;
 
 import java.util.*;
 
@@ -263,7 +264,12 @@ public record WorldVariable(
             w.state.gameRef = ctx.getGame();
             w.state.physicsEngine.shutdown();
             w.state.physicsEngine.init();
-            SEKLoader.loadSek(w);
+            String vfsPath = FileUtils.resolveVfsPath(ctx.getGame(), filename);
+            try (java.io.InputStream is = ctx.getGame().getVfs().openRead(vfsPath)) {
+                SEKLoader.loadSek(w, is);
+            } catch (java.io.IOException e) {
+                com.badlogic.gdx.Gdx.app.error("WorldVariable", "Failed to open SEK via VFS: " + vfsPath, e);
+            }
             return MethodResult.noReturn();
         })),
 

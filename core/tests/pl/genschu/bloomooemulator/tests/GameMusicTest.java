@@ -9,6 +9,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import pl.genschu.bloomooemulator.TestEnvironment;
 import pl.genschu.bloomooemulator.engine.Game;
+import pl.genschu.bloomooemulator.engine.filesystem.LocalFileSystem;
 
 import java.lang.reflect.Method;
 import java.nio.file.Files;
@@ -32,14 +33,12 @@ public class GameMusicTest {
 
     @Test
     public void testLoadMusic_EnablesLoopingForSceneMusic() throws Exception {
-        Path daneDir = tempDir.resolve("DANE");
         Path musicFile = tempDir.resolve("INTRO1.WAV");
-        Files.createDirectories(daneDir);
         Files.createFile(musicFile);
 
         Game game = new Game(null, null);
-        game.setDaneFolder(daneDir.toFile());
         game.setLanguage("POL");
+        game.getVfs().mountAssets(new LocalFileSystem(tempDir.toFile()));
 
         Audio originalAudio = Gdx.audio;
         Audio audio = mock(Audio.class);
@@ -55,7 +54,7 @@ public class GameMusicTest {
 
             assertSame(music, result);
             verify(audio).newMusic(argThat(handle ->
-                handle != null && musicFile.toFile().getAbsolutePath().equals(handle.file().getAbsolutePath())
+                handle != null && handle.exists() && "INTRO1.WAV".equals(handle.name())
             ));
             verify(music).setLooping(true);
         } finally {

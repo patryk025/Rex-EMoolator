@@ -4,30 +4,27 @@ import com.badlogic.gdx.Gdx;
 import pl.genschu.bloomooemulator.engine.physics.pathfinding.AStar;
 import pl.genschu.bloomooemulator.engine.physics.pathfinding.Graph;
 import pl.genschu.bloomooemulator.geometry.points.Point3D;
-import pl.genschu.bloomooemulator.engine.physics.IPhysicsEngine;
 import pl.genschu.bloomooemulator.loader.helpers.BinaryHelper;
-import pl.genschu.bloomooemulator.utils.FileUtils;
 import pl.genschu.bloomooemulator.world.*;
 
-import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
 public class SEKLoader {
-    public static void loadSek(SEKLoadable variable) {
+    public static void loadSek(SEKLoadable variable, InputStream stream) {
         Gdx.app.log("SEKLoader", "Loading SEK: " + variable.getName());
-        String filePath = FileUtils.resolveRelativePath(variable.getGameReference(), variable.getFilename());
-        try (FileInputStream f = new FileInputStream(filePath)) {
-            int entityCount = readHeader(variable, f);
-            readEntities(variable, f, entityCount);
+        try {
+            int entityCount = readHeader(variable, stream);
+            readEntities(variable, stream, entityCount);
             Gdx.app.log("SEKLoader", "Loaded SEK: " + variable.getName());
         } catch (Exception e) {
             Gdx.app.error("SEKLoader", "Error while loading SEK: " + e.getMessage(), e);
         }
     }
 
-    private static int readHeader(SEKLoadable variable, FileInputStream f) throws IOException {
+    private static int readHeader(SEKLoadable variable, InputStream f) throws IOException {
         String magic = BinaryHelper.readString(f, 16);
         if(!magic.equals("SEKAI81080701915")) {
             throw new IllegalArgumentException("Not a valid SEK file. Expected magic: SEKAI81080701915, got: " + magic);
@@ -37,7 +34,7 @@ public class SEKLoader {
         return BinaryHelper.readIntLE(f); // entityCount
     }
 
-    private static void readEntities(SEKLoadable variable, FileInputStream f, int entityCount) throws IOException {
+    private static void readEntities(SEKLoadable variable, InputStream f, int entityCount) throws IOException {
         switch (variable.getSekVersion()) {
             case "004":
                 for (int i = 0; i < entityCount; i++) {
@@ -66,7 +63,7 @@ public class SEKLoader {
         }
     }
 
-    private static GameObject.GameObjectBuilder parseObjectHeader(FileInputStream f) throws IOException {
+    private static GameObject.GameObjectBuilder parseObjectHeader(InputStream f) throws IOException {
         int entityId = BinaryHelper.readIntLE(f);
         int flags = BinaryHelper.readIntLE(f); // ?, if 3, object can move and its position is read from file, if 0 and other position is ignored and is set to (0, 0, 0)
 
@@ -166,7 +163,7 @@ public class SEKLoader {
         return object;
     }
 
-    private static void parseSceneObject(SEKLoadable variable, FileInputStream f) throws IOException {
+    private static void parseSceneObject(SEKLoadable variable, InputStream f) throws IOException {
         GameObject.GameObjectBuilder builder = parseObjectHeader(f);
 
         int geometryType = BinaryHelper.readIntLE(f);
@@ -222,7 +219,7 @@ public class SEKLoader {
         }
     }
 
-    private static void parsePointsData(SEKLoadable variable, FileInputStream f) throws IOException {
+    private static void parsePointsData(SEKLoadable variable, InputStream f) throws IOException {
         GameObject.GameObjectBuilder builder = parseObjectHeader(f);
 
         builder.physicsEngine(variable.getPhysicsEngine());

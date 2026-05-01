@@ -129,13 +129,14 @@ public record DatabaseVariable(
                 throw new IllegalArgumentException("LOAD requires 1 argument: dtaName");
             }
             String dtaName = ArgumentHelper.getString(args.get(0));
-            String filePath = pl.genschu.bloomooemulator.utils.FileUtils.resolveRelativePath(ctx.getGame(), dtaName);
+            String vfsPath = pl.genschu.bloomooemulator.utils.FileUtils.resolveVfsPath(ctx.getGame(), dtaName);
             if (thisVar.state.columns().isEmpty()) {
                 Gdx.app.error("DatabaseVariable", "Missing model in database " + thisVar.name() + ". Aborting LOAD.");
                 return MethodResult.noReturn();
             }
             java.util.List<java.util.List<String>> data = new java.util.ArrayList<>();
-            try (java.io.BufferedReader reader = new java.io.BufferedReader(new java.io.FileReader(filePath))) {
+            try (java.io.BufferedReader reader = new java.io.BufferedReader(
+                    new java.io.InputStreamReader(ctx.getGame().getVfs().openRead(vfsPath), java.nio.charset.Charset.defaultCharset()))) {
                 String line;
                 while ((line = reader.readLine()) != null) {
                     data.add(new java.util.ArrayList<>(java.util.Arrays.asList(line.split("\\|"))));
@@ -153,8 +154,9 @@ public record DatabaseVariable(
                 throw new IllegalArgumentException("SAVE requires 1 argument: dtaName");
             }
             String dtaName = ArgumentHelper.getString(args.get(0));
-            String filePath = pl.genschu.bloomooemulator.utils.FileUtils.resolveRelativePath(ctx.getGame(), dtaName);
-            try (java.io.BufferedWriter writer = new java.io.BufferedWriter(new java.io.FileWriter(filePath))) {
+            String vfsPath = pl.genschu.bloomooemulator.utils.FileUtils.resolveVfsPath(ctx.getGame(), dtaName);
+            try (java.io.BufferedWriter writer = new java.io.BufferedWriter(
+                    new java.io.OutputStreamWriter(ctx.getGame().getVfs().openWrite(vfsPath), java.nio.charset.Charset.defaultCharset()))) {
                 for (java.util.List<String> row : thisVar.state.data()) {
                     writer.write(String.join("|", row));
                     writer.newLine();

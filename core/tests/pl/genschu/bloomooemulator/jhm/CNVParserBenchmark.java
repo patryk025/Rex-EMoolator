@@ -9,7 +9,9 @@ import pl.genschu.bloomooemulator.interpreter.runtime.ExecutionContext;
 import pl.genschu.bloomooemulator.loader.CNVParser;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.util.concurrent.TimeUnit;
 
@@ -65,29 +67,35 @@ public class CNVParserBenchmark {
         largeScriptContent = new String(Files.readAllBytes(largeScript.toPath()));
     }
 
+    private void parseFile(File file) throws IOException {
+        try (InputStream is = new FileInputStream(file)) {
+            parser.parse(is, file.getName(), testContext);
+        }
+    }
+
     @Benchmark
     public void parseSmallScript() throws IOException {
-        parser.parseFile(smallScript, testContext);
+        parseFile(smallScript);
     }
 
     @Benchmark
     public void parseMediumScript() throws IOException {
-        parser.parseFile(mediumScript, testContext);
+        parseFile(mediumScript);
     }
 
     @Benchmark
     public void parseLargeScript() throws IOException {
-        parser.parseFile(largeScript, testContext);
+        parseFile(largeScript);
     }
 
     @Benchmark
     public void parseEncryptedSmall() throws IOException {
-        parser.parseFile(encryptedSmall, testContext);
+        parseFile(encryptedSmall);
     }
 
     @Benchmark
     public void parseEncryptedLarge() throws IOException {
-        parser.parseFile(encryptedLarge, testContext);
+        parseFile(encryptedLarge);
     }
 
     @Benchmark

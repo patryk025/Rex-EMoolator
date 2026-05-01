@@ -187,29 +187,22 @@ public record ImageVariable(
     }
 
     public void load(pl.genschu.bloomooemulator.engine.Game game) {
-        String filename = state.filename;
-        if (!filename.toUpperCase().endsWith(".IMG")) {
-            filename = filename + ".IMG";
-            state.filename = filename;
-        }
-        try {
-            String path = FileUtils.resolveRelativePath(game, filename);
-            ImageLoader.loadImage(this, path);
-            state.updateRect();
-        } catch (Exception e) {
-            Gdx.app.error("ImageVariable", "Error loading IMAGE: " + filename, e);
-        }
+        loadFromVfs(game);
     }
 
     private void loadImage(Context context) {
+        loadFromVfs(context.getGame());
+    }
+
+    private void loadFromVfs(pl.genschu.bloomooemulator.engine.Game game) {
         String filename = state.filename;
         if (!filename.toUpperCase().endsWith(".IMG")) {
             filename = filename + ".IMG";
             state.filename = filename;
         }
-        try {
-            String path = FileUtils.resolveRelativePath(context.getGame(), filename);
-            ImageLoader.loadImage(this, path);
+        String vfsPath = FileUtils.resolveVfsPath(game, filename);
+        try (java.io.InputStream is = game.getVfs().openRead(vfsPath)) {
+            ImageLoader.loadImage(this, is);
             state.updateRect();
         } catch (Exception e) {
             Gdx.app.error("ImageVariable", "Error loading IMAGE: " + filename, e);
@@ -333,9 +326,7 @@ public record ImageVariable(
             ImageVariable img = (ImageVariable) self;
             String path = ArgumentHelper.getString(args.get(0));
             img.state.filename = path;
-            String resolved = FileUtils.resolveRelativePath(ctx.getGame(), path);
-            ImageLoader.loadImage(img, resolved);
-            img.state.updateRect();
+            img.loadFromVfs(ctx.getGame());
             img.state.visible = true;
             return MethodResult.noReturn();
         })),

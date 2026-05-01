@@ -8,14 +8,10 @@ import java.io.InputStream;
 import java.util.Arrays;
 
 public class SoundLoader {
-    /**
-     * Loads sound from an absolute path into a v2 SoundVariable.
-     */
-    public static void loadSound(pl.genschu.bloomooemulator.interpreter.variable.SoundVariable variable, String absolutePath) {
+    public static void loadSound(pl.genschu.bloomooemulator.interpreter.variable.SoundVariable variable, FileHandle handle) {
         try {
-            FileHandle soundFileHandle = Gdx.files.absolute(absolutePath);
-            variable.state().sound = Gdx.audio.newSound(soundFileHandle);
-            parseWavHeader(soundFileHandle, variable);
+            variable.state().sound = Gdx.audio.newSound(handle);
+            parseWavHeader(handle, variable);
         } catch (Exception e) {
             Gdx.app.error("SoundLoader", "Error while loading sound: " + e.getMessage());
         }

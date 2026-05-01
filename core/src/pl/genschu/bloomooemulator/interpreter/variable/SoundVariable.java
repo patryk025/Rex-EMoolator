@@ -149,7 +149,6 @@ public record SoundVariable(
     private void loadSound(Context context) {
         try {
             String filename = state.filename;
-            // Check if filename is actually a variable reference
             pl.genschu.bloomooemulator.interpreter.variable.Variable ref = context.getVariable(filename);
             if (ref != null) {
                 filename = ref.value().toDisplayString();
@@ -157,8 +156,8 @@ public record SoundVariable(
             if (!filename.startsWith("$")) {
                 filename = "$WAVS\\" + filename;
             }
-            String path = FileUtils.resolveRelativePath(context.getGame(), filename);
-            SoundLoader.loadSound(this, path);
+            String vfsPath = FileUtils.resolveVfsPath(context.getGame(), filename);
+            SoundLoader.loadSound(this, context.getGame().getVfs().getFileHandle(vfsPath));
         } catch (Exception e) {
             Gdx.app.error("SoundVariable", "Error loading SOUND: " + state.filename, e);
         }
@@ -288,8 +287,8 @@ public record SoundVariable(
             if (!path.startsWith("$")) {
                 path = "$WAVS\\" + path;
             }
-            String resolved = FileUtils.resolveRelativePath(ctx.getGame(), path);
-            SoundLoader.loadSound(snd, resolved);
+            String vfsPath = FileUtils.resolveVfsPath(ctx.getGame(), path);
+            SoundLoader.loadSound(snd, ctx.getGame().getVfs().getFileHandle(vfsPath));
             return MethodResult.noReturn();
         })),
 

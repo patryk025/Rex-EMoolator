@@ -10,8 +10,8 @@ import pl.genschu.bloomooemulator.interpreter.values.Value;
 import pl.genschu.bloomooemulator.loader.CNVParser;
 import pl.genschu.bloomooemulator.utils.FileUtils;
 
-import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -156,12 +156,12 @@ public record CNVLoaderVariable(
             Context cnvContext = new Context(new ExecutionContext(), parentContext);
             cnvContext.setGame(ctx.getGame());
 
-            String cnvPath = FileUtils.resolveRelativePath(ctx.getGame(), cnvFile);
+            String vfsPath = FileUtils.resolveVfsPath(ctx.getGame(), cnvFile);
 
             CNVParser cnvParser = new CNVParser();
-            try {
+            try (InputStream is = ctx.getGame().getVfs().openRead(vfsPath)) {
                 Gdx.app.log("CNVLoaderVariable", "Loading " + cnvFile);
-                cnvParser.parseFile(new File(cnvPath), cnvContext);
+                cnvParser.parse(is, cnvFile, cnvContext);
 
                 for (Map.Entry<String, Variable> entry : cnvContext.getVariables(false).entrySet()) {
                     parentContext.setVariable(entry.getKey(), entry.getValue());
