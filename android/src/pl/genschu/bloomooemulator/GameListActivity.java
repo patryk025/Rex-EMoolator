@@ -22,7 +22,6 @@ import pl.genschu.bloomooemulator.logic.GameEntry;
 import pl.genschu.bloomooemulator.logic.GameManager;
 
 public class GameListActivity extends AppCompatActivity {
-    private RecyclerView gamesRecyclerView;
     private GameListAdapter adapter;
     private GameManager gameManager;
 
@@ -35,7 +34,7 @@ public class GameListActivity extends AppCompatActivity {
 
         gameManager = new GameManager(getFolderPath());
 
-        gamesRecyclerView = findViewById(R.id.gamesRecyclerView);
+        RecyclerView gamesRecyclerView = findViewById(R.id.gamesRecyclerView);
         gamesRecyclerView.setLayoutManager(new LinearLayoutManager(this));
         adapter = new GameListAdapter(this, gameManager.getGames());
         gamesRecyclerView.setAdapter(adapter);
@@ -45,20 +44,28 @@ public class GameListActivity extends AppCompatActivity {
         Button addGameButton = findViewById(R.id.addGameButton);
         addGameButton.setOnClickListener(v -> showGameDialog());
 
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED ||
-            ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this,
-                new String[]{Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE},
-                REQUEST_CODE_PERMISSIONS);
+        if (savedInstanceState == null) {
+            requestStoragePermissions();
         }
-        
+    }
+
+    private void requestStoragePermissions() {
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.R) {
+            // On API 30+ legacy WRITE_EXTERNAL_STORAGE is a no-op; MANAGE_EXTERNAL_STORAGE supersedes it.
             if (!Environment.isExternalStorageManager()) {
                 Intent intent = new Intent(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION);
                 intent.addCategory("android.intent.category.DEFAULT");
                 intent.setData(Uri.parse(String.format("package:%s", getApplicationContext().getPackageName())));
                 startActivityForResult(intent, REQUEST_CODE_PERMISSIONS);
             }
+            return;
+        }
+
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED ||
+            ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this,
+                new String[]{Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                REQUEST_CODE_PERMISSIONS);
         }
     }
 
