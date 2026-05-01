@@ -1,6 +1,8 @@
 package pl.genschu.bloomooemulator.engine;
 
+import com.badlogic.gdx.Application;
 import com.badlogic.gdx.audio.Music;
+import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.utils.GdxRuntimeException;
@@ -9,6 +11,7 @@ import pl.genschu.bloomooemulator.BlooMooEngine;
 import pl.genschu.bloomooemulator.engine.context.EngineVariable;
 import pl.genschu.bloomooemulator.engine.context.GameContext;
 import pl.genschu.bloomooemulator.engine.filesystem.AssetSourceDispatcher;
+import pl.genschu.bloomooemulator.engine.filesystem.AudioFileResolver;
 import pl.genschu.bloomooemulator.engine.filesystem.IFileSystem;
 import pl.genschu.bloomooemulator.engine.input.InputManager;
 import pl.genschu.bloomooemulator.interpreter.context.Context;
@@ -586,7 +589,7 @@ public class Game {
         return musicCache.computeIfAbsent(musicFile, key -> {
             try {
                 String vfsPath = FileUtils.resolveVfsPath(this, musicFile);
-                Music music = Gdx.audio.newMusic(vfs.getFileHandle(vfsPath));
+                Music music = Gdx.audio.newMusic(getAudioFileHandle(vfsPath));
                 if (music != null) {
                     music.setLooping(true);
                 }
@@ -938,6 +941,18 @@ public class Game {
 
     public VFS getVfs() {
         return vfs;
+    }
+
+    /**
+     * Returns a FileHandle for an audio asset that any libGDX backend can
+     * load. On Android this materializes VFS bytes into a per-game cache;
+     * elsewhere it returns a VFS handle directly. See {@link AudioFileResolver}.
+     */
+    public FileHandle getAudioFileHandle(String vfsPath) {
+        if (Gdx.app == null || Gdx.app.getType() != Application.ApplicationType.Android) {
+            return vfs.getFileHandle(vfsPath);
+        }
+        return AudioFileResolver.resolveForPlayback(vfs, game.getStorageId(), vfsPath);
     }
 
     public INIManager getGameINI() {

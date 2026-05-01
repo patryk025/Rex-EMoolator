@@ -416,7 +416,7 @@ public record AnimoVariable(
                     }
                     try {
                         String vfsPath = FileUtils.resolveVfsPath(game, sfxFile);
-                        sfxAudioList.add(Gdx.audio.newMusic(game.getVfs().getFileHandle(vfsPath)));
+                        sfxAudioList.add(Gdx.audio.newMusic(game.getAudioFileHandle(vfsPath)));
                     } catch (Exception e) {
                         Gdx.app.error("AnimoVariable", "Error loading SFX: " + e.getMessage());
                     }

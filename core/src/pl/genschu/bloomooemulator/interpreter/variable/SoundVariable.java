@@ -157,7 +157,7 @@ public record SoundVariable(
                 filename = "$WAVS\\" + filename;
             }
             String vfsPath = FileUtils.resolveVfsPath(context.getGame(), filename);
-            SoundLoader.loadSound(this, context.getGame().getVfs().getFileHandle(vfsPath));
+            SoundLoader.loadSound(this, context.getGame().getAudioFileHandle(vfsPath));
         } catch (Exception e) {
             Gdx.app.error("SoundVariable", "Error loading SOUND: " + state.filename, e);
         }
