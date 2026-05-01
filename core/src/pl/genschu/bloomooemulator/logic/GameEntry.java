@@ -1,13 +1,15 @@
 package pl.genschu.bloomooemulator.logic;
 
+import pl.genschu.bloomooemulator.engine.filesystem.AssetSourceDispatcher;
+import pl.genschu.bloomooemulator.engine.filesystem.IFileSystem;
+
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
-import java.security.DigestInputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.Locale;
 
 import static pl.genschu.bloomooemulator.logic.KnownHashes.checkHash;
 
@@ -37,53 +39,60 @@ public class GameEntry implements Serializable {
     }
 
     private String searchForDllFiles(String path) {
-        File folder = new File(path);
-        File[] files = folder.listFiles((dir, name) -> name.toLowerCase().matches("bloomoodll\\.dll|piklib\\d+\\.dll"));
+        File source = new File(path);
+        if (!source.exists()) {
+            return "DLL not found";
+        }
 
-        if (files != null) {
-            for (File file : files) {
-                try {
-                    //this.gameName = checkHash(computeFileSHA1(file));
-                    this.gameName = checkHash(calculateSHA1(file.getPath()));
-                } catch (IOException e) {
-                    this.gameName = "Nieznana gra";
-                } catch (NoSuchAlgorithmException e) {
-                    throw new RuntimeException(e);
-                }
-                String name = file.getName().toLowerCase();
-                if(name.matches("bloomoodll\\.dll")) return "BlooMoo";
-                if(name.matches("piklib\\d+\\.dll")) {
-                    String version = name.split("piklib")[1].split("\\.dll")[0];
-                    if(version.length() > 1)
-                        version = version.charAt(0) + "." + version.substring(1);
+        IFileSystem fs;
+        try {
+            fs = AssetSourceDispatcher.openAssets(source);
+        } catch (IOException e) {
+            return "DLL not found";
+        }
 
-                    return "Piklib v" + version;
-                }
+        String[] entries = fs.list("");
+        if (entries == null) {
+            return "DLL not found";
+        }
+
+        for (String entry : entries) {
+            String name = entry.toLowerCase(Locale.ROOT);
+            if (!name.matches("bloomoodll\\.dll|piklib\\d+\\.dll")) {
+                continue;
             }
+            try (InputStream is = fs.open(entry)) {
+                this.gameName = checkHash(calculateSHA1(is));
+            } catch (IOException e) {
+                this.gameName = "Nieznana gra";
+            } catch (NoSuchAlgorithmException e) {
+                throw new RuntimeException(e);
+            }
+            if (name.equals("bloomoodll.dll")) {
+                return "BlooMoo";
+            }
+            String version = name.substring("piklib".length(), name.length() - ".dll".length());
+            if (version.length() > 1) {
+                version = version.charAt(0) + "." + version.substring(1);
+            }
+            return "Piklib v" + version;
         }
 
         return "DLL not found";
     }
 
-    public static String calculateSHA1(String filePath) throws IOException, NoSuchAlgorithmException {
+    public static String calculateSHA1(InputStream input) throws IOException, NoSuchAlgorithmException {
         MessageDigest sha1 = MessageDigest.getInstance("SHA-1");
-        FileInputStream inputStream = new FileInputStream(filePath);
-
-        byte[] dataBytes = new byte[8192];
-        int bytesRead;
-
-        while ((bytesRead = inputStream.read(dataBytes)) != -1) {
-            sha1.update(dataBytes, 0, bytesRead);
+        byte[] buffer = new byte[8192];
+        int read;
+        while ((read = input.read(buffer)) != -1) {
+            sha1.update(buffer, 0, read);
         }
 
-        byte[] hashBytes = sha1.digest();
-
-        // Convert hash bytes to hex format
         StringBuilder sb = new StringBuilder();
-        for (byte b : hashBytes) {
+        for (byte b : sha1.digest()) {
             sb.append(String.format("%02x", b));
         }
-
         return sb.toString();
     }
 
