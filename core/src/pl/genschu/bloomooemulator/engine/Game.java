@@ -18,6 +18,7 @@ import pl.genschu.bloomooemulator.interpreter.variable.*;
 import pl.genschu.bloomooemulator.interpreter.values.StringValue;
 import pl.genschu.bloomooemulator.loader.CNVParser;
 import pl.genschu.bloomooemulator.loader.ImageLoader;
+import pl.genschu.bloomooemulator.logic.AppPaths;
 import pl.genschu.bloomooemulator.logic.GameEntry;
 
 import java.io.ByteArrayOutputStream;
@@ -358,25 +359,23 @@ public class Game {
     }
 
     /**
-     * Picks a directory for per-game writable storage. Uses libGDX's local
-     * dir when available so it works on non-desktop backends; falls back to
-     * a folder under the user home for tooling/CLI contexts.
+     * Picks a directory for per-game writable storage.
      *
-     * The game folder name acts as the per-game key. It's not perfect (two
-     * games installed under the same folder name would collide), but it
-     * avoids depending on a stable id from {@code GameEntry} that we don't
-     * have yet.
+     * Desktop keeps overlays next to games.json in the user data directory.
+     * Android keeps using libGDX's local app directory. The per-game key is
+     * a UUID stored on GameEntry, not the source file name.
      */
     private File resolveStorageDir() {
-        String key = new File(this.game.getPath()).getName();
         try {
-            if (Gdx.files != null) {
-                return Gdx.files.local("storage/" + key).file();
+            if (Gdx.app != null
+                    && Gdx.app.getType() == com.badlogic.gdx.Application.ApplicationType.Android
+                    && Gdx.files != null) {
+                return Gdx.files.local("storage/" + this.game.getStorageId()).file();
             }
         } catch (Exception ignored) {
             // fallthrough to user.home
         }
-        return new File(System.getProperty("user.home"), ".bloomooemulator/" + key);
+        return AppPaths.storageDirFor(this.game);
     }
 
     public void goTo(String name) {

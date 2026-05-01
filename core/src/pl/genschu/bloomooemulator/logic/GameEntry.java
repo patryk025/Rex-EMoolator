@@ -10,6 +10,7 @@ import java.io.Serializable;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Locale;
+import java.util.UUID;
 
 import static pl.genschu.bloomooemulator.logic.KnownHashes.checkHash;
 
@@ -19,6 +20,7 @@ public class GameEntry implements Serializable {
     private String version;
     private String gameName;
     private String path;
+    private String storageId;
     private String mouseMode;
     private boolean mouseVirtualJoystick;
     private boolean skipLicenceCode;
@@ -31,6 +33,7 @@ public class GameEntry implements Serializable {
         this.id = -1;
         this.name = name;
         this.path = path;
+        this.storageId = UUID.randomUUID().toString();
         this.version = searchForDllFiles(path);
         this.mouseMode = mouseMode;
         this.mouseVirtualJoystick = mouseVirtualJoystick;
@@ -118,6 +121,29 @@ public class GameEntry implements Serializable {
 
     public String getPath() {
         return path;
+    }
+
+    public String getStorageId() {
+        ensureStorageId();
+        return storageId;
+    }
+
+    public void setStorageId(String storageId) {
+        this.storageId = storageId;
+    }
+
+    public boolean ensureStorageId() {
+        if (storageId == null || storageId.isBlank()) {
+            storageId = UUID.randomUUID().toString();
+            return true;
+        }
+        try {
+            UUID.fromString(storageId);
+            return false;
+        } catch (IllegalArgumentException ignored) {
+            storageId = UUID.randomUUID().toString();
+            return true;
+        }
     }
 
     public String getGameName() {
