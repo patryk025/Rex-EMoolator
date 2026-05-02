@@ -115,11 +115,12 @@ public record BehaviourVariable(
                 ExecutionResult iterResult = ctx.runBehaviour(
                     "RUNLOOPED:" + behaviour.name(), null, behaviour, loopArgs);
 
-                // @BREAK terminates the whole RUNLOOPED *and* propagates upward.
-                // @ONEBREAK was already swallowed at the procedure boundary, so
-                // it just ends the current iteration; the next one runs.
+                // RUNLOOPED owns its own loop frame, so @BREAK terminates this loop
+                // only — the calling procedure keeps running. @ONEBREAK was already
+                // swallowed at the procedure boundary and just ends the current
+                // iteration, letting the next one run.
                 if (iterResult instanceof BreakResult) {
-                    return MethodResult.breakAll();
+                    break;
                 }
             }
 

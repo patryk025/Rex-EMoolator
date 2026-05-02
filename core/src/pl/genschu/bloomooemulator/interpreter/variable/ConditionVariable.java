@@ -13,6 +13,7 @@ import pl.genschu.bloomooemulator.loader.BehaviourCodeParser;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * ConditionVariable represents a conditional check with two operands and a comparison operator.
@@ -177,14 +178,21 @@ public record ConditionVariable(
             || operand.contains("|");
     }
 
+    // Operand source strings come from CNV-time CONDITION/EXPRESSION attributes and never
+    // change at runtime, so the parsed AST can be reused across every CHECK — RUNLOOPED in
+    // particular re-evaluates the same operand once per iteration.
+    private static final Map<String, ASTNode> OPERAND_AST_CACHE = new ConcurrentHashMap<>();
+
     private static Value evaluateCodeOperand(String operand, MethodContext ctx) {
         if (ctx == null) {
             throw new IllegalStateException("Cannot evaluate code operand without method context: " + operand);
         }
 
         String code = operand.endsWith(";") ? operand : operand + ";";
-        ASTNode parsed = BehaviourCodeParser.parseCode(code, "<operand:"+code+">");
-        ASTNode executable = unwrapSingleStatement(parsed);
+        ASTNode executable = OPERAND_AST_CACHE.computeIfAbsent(code, c -> {
+            ASTNode parsed = BehaviourCodeParser.parseCode(c, "<operand:" + c + ">");
+            return unwrapSingleStatement(parsed);
+        });
         ASTInterpreter interpreter = new ASTInterpreter(ctx.context());
         ExecutionResult result = interpreter.execute(executable);
 
