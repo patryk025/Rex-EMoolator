@@ -152,21 +152,32 @@ public class VariableResolver {
         Context context,
         Function<Context, Map<String, Variable>> extractor
     ) {
+        return collectByType(context, extractor, new HashSet<>());
+    }
+
+    private Map<String, Variable> collectByType(
+        Context context,
+        Function<Context, Map<String, Variable>> extractor,
+        Set<Context> visited
+    ) {
         Map<String, Variable> result = new LinkedHashMap<>();
+        if (context == null || !visited.add(context)) {
+            return result;
+        }
 
         // From class instances (getInstanceContext() on Variable)
         for (Variable var : context.store().getAll().values()) {
             if(var instanceof HasInstanceContext hic) {
                 Context instanceCtx = hic.getInstanceContext();
                 if (instanceCtx != null) {
-                    result.putAll(collectByType(instanceCtx, extractor));
+                    result.putAll(collectByType(instanceCtx, extractor, visited));
                 }
             }
         }
 
         // From additional contexts
         for (Context additional : context.getAdditionalContexts()) {
-            result.putAll(collectByType(additional, extractor));
+            result.putAll(collectByType(additional, extractor, visited));
         }
 
         // From current
@@ -174,7 +185,7 @@ public class VariableResolver {
 
         // From parent (recursive)
         if (context.getParent() != null) {
-            result.putAll(collectByType(context.getParent(), extractor));
+            result.putAll(collectByType(context.getParent(), extractor, visited));
         }
 
         return result;
@@ -188,26 +199,33 @@ public class VariableResolver {
      * @return Map of all variables (unmodifiable)
      */
     public Map<String, Variable> collectAllVariables(Context context, boolean includeParent) {
+        return collectAllVariables(context, includeParent, new HashSet<>());
+    }
+
+    private Map<String, Variable> collectAllVariables(Context context, boolean includeParent, Set<Context> visited) {
         Map<String, Variable> result = new LinkedHashMap<>();
+        if (context == null || !visited.add(context)) {
+            return result;
+        }
 
         // From class instances
         for (Variable var : context.store().getAll().values()) {
             if(var instanceof HasInstanceContext hic) {
                 Context instanceCtx = hic.getInstanceContext();
                 if (instanceCtx != null) {
-                    result.putAll(collectAllVariables(instanceCtx, false));
+                    result.putAll(collectAllVariables(instanceCtx, false, visited));
                 }
             }
         }
 
         // From additional contexts
         for (Context additional : context.getAdditionalContexts()) {
-            result.putAll(collectAllVariables(additional, includeParent));
+            result.putAll(collectAllVariables(additional, includeParent, visited));
         }
 
         // From parent
         if (includeParent && context.getParent() != null) {
-            result.putAll(collectAllVariables(context.getParent(), true));
+            result.putAll(collectAllVariables(context.getParent(), true, visited));
         }
 
         // From current (last = highest priority)
