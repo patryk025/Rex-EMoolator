@@ -447,10 +447,13 @@ public record MatrixVariable(
             int sourceCellCode = s.getCell(srcCellIdx);
             int destCellCode = s.getCell(destCellIdx);
 
+            Value argSrcX = new IntValue(srcX);
+            Value argSrcY = new IntValue(srcY);
+            Value argCode = new IntValue(code);
             if (s.currentMoveIndex == s.pendingMoves.size() - 1) {
-                m.emitSignal("ONLATEST");
+                m.emitSignal("ONLATEST", null, argSrcX, argSrcY, argCode);
             } else {
-                m.emitSignal("ONNEXT");
+                m.emitSignal("ONNEXT", null, argSrcX, argSrcY, argCode);
             }
 
             if (code == MOVEMENT_DOWN) {

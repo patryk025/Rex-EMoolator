@@ -167,7 +167,7 @@ public sealed interface Variable extends EngineVariable permits
 
                 final String[] finalParams = params;
                 SignalHandler handler = (variable, signal, signalArgs) -> {
-                    List<Value> resolvedParams = resolveSignalParams(finalParams, ctx);
+                    List<Value> resolvedParams = resolveSignalParams(finalParams, ctx, signalArgs);
                     // Signals are top-level entry points — discard the ExecutionResult.
                     // A @BREAK inside the handler has no caller procedure to terminate.
                     ctx.runBehaviour("Signal:" + signal, variable, behaviour, resolvedParams);
@@ -392,7 +392,7 @@ public sealed interface Variable extends EngineVariable permits
         }
     }
 
-    private static List<Value> resolveSignalParams(String[] params, MethodContext ctx) {
+    private static List<Value> resolveSignalParams(String[] params, MethodContext ctx, Value[] signalArgs) {
         if (params == null) return List.of();
         List<Value> resolved = new ArrayList<>(params.length);
         for (String param : params) {
@@ -401,6 +401,16 @@ public sealed interface Variable extends EngineVariable permits
                 param = param.substring(1, param.length() - 1);
                 resolved.add(new StringValue(param));
                 continue;
+            }
+            // $N references resolve from signalArgs (positional emitSignal arguments)
+            if (param.length() > 1 && param.charAt(0) == '$') {
+                try {
+                    int idx = Integer.parseInt(param.substring(1)) - 1;
+                    if (signalArgs != null && idx >= 0 && idx < signalArgs.length) {
+                        resolved.add(signalArgs[idx]);
+                        continue;
+                    }
+                } catch (NumberFormatException ignored) {}
             }
             Variable paramVar = ctx.getVariable(param);
             if (paramVar != null) {
