@@ -1,8 +1,11 @@
 package pl.genschu.bloomooemulator.interpreter.variable;
 
+import com.badlogic.gdx.Gdx;
 import pl.genschu.bloomooemulator.annotations.InternalMutable;
+import pl.genschu.bloomooemulator.interpreter.context.Context;
 import pl.genschu.bloomooemulator.interpreter.helpers.ArgumentHelper;
 import pl.genschu.bloomooemulator.interpreter.values.*;
+import pl.genschu.bloomooemulator.interpreter.variable.capabilities.Initializable;
 
 import java.util.*;
 
@@ -16,7 +19,7 @@ public record MatrixVariable(
     String name,
     @InternalMutable MatrixState state,
     Map<String, SignalHandler> signals
-) implements Variable {
+) implements Variable, Initializable {
 
     // Field codes
     public static final int FIELD_CODE_MOLE = 99;
@@ -172,6 +175,60 @@ public record MatrixVariable(
     @Override
     public Variable copyAs(String newName) {
         return new MatrixVariable(newName, state.copy(), new HashMap<>(signals));
+    }
+
+    @Override
+    public void init(Context context) {
+        initAttributesFromContext(context);
+    }
+
+    private void initAttributesFromContext(Context context) {
+        // SIZE: "W,H" → also allocates the data grid
+        String sizeAttr = context.getAttribute(name, "SIZE");
+        if (sizeAttr != null) {
+            String[] dimensions = sizeAttr.split(",");
+            if (dimensions.length == 2) {
+                try {
+                    int width = Integer.parseInt(dimensions[0].trim());
+                    int height = Integer.parseInt(dimensions[1].trim());
+                    state.initGrid(width, height);
+                } catch (NumberFormatException e) {
+                    Gdx.app.error("MatrixVariable", name + ": invalid SIZE attribute: " + sizeAttr);
+                }
+            }
+        }
+
+        // BASEPOS: "X,Y"
+        String basePosAttr = context.getAttribute(name, "BASEPOS");
+        if (basePosAttr != null) {
+            String[] basePos = basePosAttr.split(",");
+            if (basePos.length == 2) {
+                try {
+                    state.basePosX = Integer.parseInt(basePos[0].trim());
+                    state.basePosY = Integer.parseInt(basePos[1].trim());
+                } catch (NumberFormatException e) {
+                    Gdx.app.error("MatrixVariable", name + ": invalid BASEPOS attribute: " + basePosAttr);
+                }
+            }
+        }
+
+        // CELLWIDTH
+        String cellWidthAttr = context.getAttribute(name, "CELLWIDTH");
+        if (cellWidthAttr != null) {
+            try { state.cellWidth = Integer.parseInt(cellWidthAttr.trim()); }
+            catch (NumberFormatException e) {
+                Gdx.app.error("MatrixVariable", name + ": invalid CELLWIDTH attribute: " + cellWidthAttr);
+            }
+        }
+
+        // CELLHEIGHT
+        String cellHeightAttr = context.getAttribute(name, "CELLHEIGHT");
+        if (cellHeightAttr != null) {
+            try { state.cellHeight = Integer.parseInt(cellHeightAttr.trim()); }
+            catch (NumberFormatException e) {
+                Gdx.app.error("MatrixVariable", name + ": invalid CELLHEIGHT attribute: " + cellHeightAttr);
+            }
+        }
     }
 
     // ========================================
