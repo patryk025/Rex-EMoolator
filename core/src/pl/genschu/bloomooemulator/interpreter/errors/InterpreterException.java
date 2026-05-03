@@ -26,9 +26,28 @@ public class InterpreterException extends RuntimeException {
         SourceLocation location,
         Throwable cause
     ) {
-        super(formatMessage(message, context, location), cause);
+        super(formatMessage(appendCauseMessage(message, cause), context, location), cause);
         this.context = context;
         this.location = location;
+    }
+
+    private static String appendCauseMessage(String message, Throwable cause) {
+        if (cause == null) {
+            return message;
+        }
+        StringBuilder sb = new StringBuilder(message);
+        Throwable current = cause;
+        int depth = 0;
+        while (current != null && depth < 8) {
+            sb.append("\n  caused by: ").append(current.getClass().getSimpleName());
+            String causeMsg = current.getMessage();
+            if (causeMsg != null && !causeMsg.isEmpty()) {
+                sb.append(": ").append(causeMsg);
+            }
+            current = current.getCause();
+            depth++;
+        }
+        return sb.toString();
     }
 
     public ExecutionContext getContext() {
