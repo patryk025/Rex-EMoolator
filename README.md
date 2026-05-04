@@ -146,9 +146,9 @@ Playability estimates are based on the number of scenes that play correctly acco
 </tr>
 <tr>
 <td>Reksio i Ufo</td>
-<td><img alt="Unknown" src="https://img.shields.io/badge/Unknown-lightgrey"/></td>
-<td>Requires re-evaluation after interpreter refactor.</td>
-<td>N/A</td>
+<td><img alt="In-game" src="https://img.shields.io/badge/In--game-yellow"/></td>
+<td>The game has some minor glitches and a few more serious ones, but it’s impossible to complete the level where you have to rescue Reksio from the La Resistance Boulangerie storage room. Diesel the hamster can’t get into the pipe leading to the very top; he gets stuck.</td>
+<td>73/82 scenes playable (89.0%), about 35% of story</td>
 <td><a href="https://github.com/users/patryk025/projects/4">Link</a></td>
 </tr>
 <tr>

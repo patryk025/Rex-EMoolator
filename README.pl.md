@@ -146,9 +146,9 @@ Szacowane poziomy grywalności są wyznaczane na podstawie ilości scen, które 
 </tr>
 <tr>
 <td>Reksio i Ufo</td>
-<td><img alt="Nieznane" src="https://img.shields.io/badge/Nieznane-lightgrey"/></td>
-<td>Wymaga ponownej ewaluacji po refaktoryzacji interpretera</td>
-<td>N/D</td>
+<td><img alt="W grze" src="https://img.shields.io/badge/W%20grze-yellow"/></td>
+<td>Gra działa z błędami kosmetycznymi i kilkoma poważniejszymi, ale nie da się przejść etapu z wydostaniem Reksia ze składziku La Resistance Boulangerie. Chomik Diesel nie może się dostać do rury kierującej na samą górę, blokuje się.</td>
+<td>73/82 scen grywalne (89.0%), około 35% fabuły</td>
 <td><a href="https://github.com/users/patryk025/projects/4">Link</a></td>
 </tr>
 <tr>
