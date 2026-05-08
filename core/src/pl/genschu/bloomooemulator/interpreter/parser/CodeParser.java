@@ -272,7 +272,8 @@ public class CodeParser {
             return parseStarTarget(trimmed, depth);
         }
 
-        if (normalized.startsWith("THIS") && normalized.length() > 4) {
+        if (normalized.startsWith("THIS") && normalized.length() > 4
+                && (normalized.charAt(4) == '^' || normalized.charAt(4) == '(')) {
             return parseThisCall(trimmed, depth);
         }
 
