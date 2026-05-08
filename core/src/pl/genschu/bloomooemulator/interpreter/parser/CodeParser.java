@@ -726,7 +726,12 @@ public class CodeParser {
         }
 
         if (text.length() >= 2 && text.charAt(0) == '"' && text.charAt(text.length() - 1) == '"') {
-            return new LiteralNode(new StringValue(text.substring(1, text.length() - 1)), loc(token));
+            String inner = text.substring(1, text.length() - 1);
+            // Handle doubled quotes used as explicit string cast: ""4B"" -> 4B
+            if (inner.length() >= 2 && inner.charAt(0) == '"' && inner.charAt(inner.length() - 1) == '"') {
+                inner = inner.substring(1, inner.length() - 1);
+            }
+            return new LiteralNode(new StringValue(inner), loc(token));
         }
 
         if (text.equalsIgnoreCase("TRUE")) {
