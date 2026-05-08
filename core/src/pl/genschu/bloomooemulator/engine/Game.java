@@ -988,6 +988,24 @@ public class Game {
             }
         }
         playingAudios.clear();
+        stopAnimoSfx();
+    }
+
+    /**
+     * Stops SFX audio playing on AnimoVariables across all active contexts.
+     * AnimoVariable SFX are played directly (not via playingAudios), so they
+     * need separate cleanup to prevent leaking into the next scene.
+     */
+    private void stopAnimoSfx() {
+        Context[] contexts = { currentSceneContext, currentEpisodeContext, currentApplicationContext };
+        for (Context ctx : contexts) {
+            if (ctx == null) continue;
+            for (Variable var : ctx.getVariables(false).values()) {
+                if (var instanceof AnimoVariable animo) {
+                    animo.stopSfx();
+                }
+            }
+        }
     }
 
     public EpisodeVariable getCurrentEpisodeVariable() {

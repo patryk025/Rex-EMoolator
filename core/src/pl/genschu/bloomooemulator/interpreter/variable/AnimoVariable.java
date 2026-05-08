@@ -788,6 +788,17 @@ public record AnimoVariable(
         }
     }
 
+    /**
+     * Stops any currently playing SFX on this animation.
+     * Called during scene transitions to prevent audio leaking.
+     */
+    public void stopSfx() {
+        if (state.currentSfx != null) {
+            state.currentSfx.stop();
+            state.currentSfx = null;
+        }
+    }
+
     private void playSfx() {
         if (state.currentEvent == null) return;
         List<FrameData> frameData = state.currentEvent.getFrameData();
