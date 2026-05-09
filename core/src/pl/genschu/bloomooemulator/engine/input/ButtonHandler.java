@@ -6,6 +6,7 @@ import pl.genschu.bloomooemulator.engine.Game;
 import pl.genschu.bloomooemulator.engine.decision.events.ButtonEvent;
 import pl.genschu.bloomooemulator.engine.decision.states.ButtonState;
 import pl.genschu.bloomooemulator.engine.context.GameContext;
+import pl.genschu.bloomooemulator.geometry.shapes.Box2D;
 import pl.genschu.bloomooemulator.interpreter.context.Context;
 import pl.genschu.bloomooemulator.interpreter.variable.*;
 import pl.genschu.bloomooemulator.objects.Event;
@@ -49,7 +50,9 @@ public class ButtonHandler {
 
     private Variable getButtonGfx(Variable button, Context context) {
         if (button instanceof ButtonVariable btn) {
-            String gfxName = btn.getCurrentGfxName();
+            // Hit testing always uses GFXSTANDARD — the trigger silhouette is fixed
+            // by the standard graphic, even while GFXONMOVE/GFXONCLICK is displayed.
+            String gfxName = btn.state().gfxStandardName;
             if (gfxName != null) {
                 return context.getVariable(gfxName);
             }
@@ -106,7 +109,7 @@ public class ButtonHandler {
                 if (image != null) {
                     int priority = getPriority(image);
                     if (priority < minHSPriority || priority > maxHSPriority) continue;
-                    if (pixelPerfect && btn.state().rectVarName != null) {
+                    if (pixelPerfect) {
                         if (getAlpha(image, x, y) == 0) continue;
                     }
                 }
@@ -121,11 +124,11 @@ public class ButtonHandler {
                 int priority = animo.getPriority();
                 if (priority < minHSPriority || priority > maxHSPriority) continue;
 
-                // Check if animo is under cursor
-                if (animo.getRect() != null && animo.getRect().contains(x, y)) {
-                    if (pixelPerfect) {
-                        if (getAlpha(animo, x, y) == 0) continue;
-                    }
+                // ANIMO via SETASBUTTON uses a plain bounding-box trigger — no alpha test.
+                // The transparent areas of the sprite are still clickable. The rect is
+                // frozen at SETASBUTTON(TRUE) time and does not follow later frame changes.
+                Box2D hitRect = animo.getButtonRect() != null ? animo.getButtonRect() : animo.getRect();
+                if (hitRect != null && hitRect.contains(x, y)) {
                     focusedButton = animo;
                     break;
                 }
