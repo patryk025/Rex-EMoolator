@@ -64,9 +64,6 @@ public record AnimoVariable(
         public int anchorX = 0;
         public int anchorY = 0;
         public Box2D rect = new Box2D(0, 0, 0, 0);
-        // Frozen hit-test rect captured at SETASBUTTON(TRUE,..) time. Mirrors ReksioEngine,
-        // where Animo.SETASBUTTON sets hitArea = sprite.getBounds() once and never updates.
-        public Box2D buttonRect = null;
 
         // Rendering
         public boolean visible = true;
@@ -114,7 +111,6 @@ public record AnimoVariable(
             copy.anchorX = this.anchorX;
             copy.anchorY = this.anchorY;
             copy.rect = new Box2D(this.rect.getXLeft(), this.rect.getYBottom(), this.rect.getXRight(), this.rect.getYTop());
-            copy.buttonRect = this.buttonRect != null ? this.buttonRect.copy() : null;
             copy.visible = this.visible;
             copy.toCanvas = this.toCanvas;
             copy.opacity = this.opacity;
@@ -531,7 +527,6 @@ public record AnimoVariable(
     public int getAnchorX() { return state.anchorX; }
     public int getAnchorY() { return state.anchorY; }
     public Box2D getRect() { return state.rect; }
-    public Box2D getButtonRect() { return state.buttonRect; }
     public boolean isVisible() { return state.visible; }
     public int getOpacity() { return state.opacity; }
     public int getPriority() { return state.priority; }
@@ -1436,9 +1431,7 @@ public record AnimoVariable(
             Context context = ctx != null ? ctx.context() : null;
             if (!enabled) {
                 thisVar.changeButtonState(ButtonEvent.DISABLE, context);
-                thisVar.state.buttonRect = null;
             } else {
-                thisVar.state.buttonRect = thisVar.state.rect != null ? thisVar.state.rect.copy() : null;
                 thisVar.changeButtonState(ButtonEvent.ENABLE, context);
             }
             return MethodResult.noReturn();

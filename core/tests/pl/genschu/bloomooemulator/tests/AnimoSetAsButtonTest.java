@@ -12,9 +12,14 @@ import pl.genschu.bloomooemulator.interpreter.values.BoolValue;
 import pl.genschu.bloomooemulator.interpreter.variable.AnimoVariable;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
 
+/**
+ * Regression guard: ANIMO buttons (SETASBUTTON) must use the live state.rect for hit
+ * testing, not a snapshot taken at SETASBUTTON time. ReksioEngine sets
+ * `hitArea = sprite.getBounds()` once, but the returned Rectangle is mutated each frame
+ * by PixiJS, so the trigger follows the moving sprite. Scenes like S38_KALIBRACJA depend
+ * on this — comets/satellites etc. are animated buttons whose bounds shift over time.
+ */
 class AnimoSetAsButtonTest {
     private Context ctx;
 
@@ -29,51 +34,22 @@ class AnimoSetAsButtonTest {
     }
 
     @Test
-    void setAsButtonTrueFreezesCurrentRect() {
-        AnimoVariable animo = new AnimoVariable("ANIMORESTART");
-        animo.state().rect = new Box2D(10, 0, 50, -40);
-        ctx.setVariable("ANIMORESTART", animo);
-
-        MethodHelper.callWithContext(ctx, animo, "SETASBUTTON",
-                BoolValue.TRUE, BoolValue.TRUE);
-
-        Box2D frozen = animo.getButtonRect();
-        assertNotNull(frozen);
-        assertEquals(10, frozen.getXLeft());
-        assertEquals(50, frozen.getXRight());
-    }
-
-    @Test
-    void frozenRectIsIndependentOfLaterFrameRectChanges() {
-        AnimoVariable animo = new AnimoVariable("ANIMORESTART");
+    void getRectReflectsLiveStateAfterSetAsButton() {
+        AnimoVariable animo = new AnimoVariable("ANNCOMET0");
         animo.state().rect = new Box2D(0, 0, 100, -50);
-        ctx.setVariable("ANIMORESTART", animo);
+        ctx.setVariable("ANNCOMET0", animo);
 
         MethodHelper.callWithContext(ctx, animo, "SETASBUTTON",
                 BoolValue.TRUE, BoolValue.TRUE);
 
-        // Simulate a later animation frame moving / resizing the live rect.
+        // Animation frame moves the sprite — getRect() must reflect the new position
+        // so the hit-test rect in ButtonHandler follows it.
         animo.state().rect = new Box2D(200, 200, 250, 150);
 
-        Box2D frozen = animo.getButtonRect();
-        assertEquals(0, frozen.getXLeft());
-        assertEquals(100, frozen.getXRight());
-        assertEquals(0, frozen.getYBottom());
-        assertEquals(-50, frozen.getYTop());
-    }
-
-    @Test
-    void setAsButtonFalseClearsButtonRect() {
-        AnimoVariable animo = new AnimoVariable("ANIMORESTART");
-        animo.state().rect = new Box2D(0, 0, 10, -10);
-        ctx.setVariable("ANIMORESTART", animo);
-
-        MethodHelper.callWithContext(ctx, animo, "SETASBUTTON",
-                BoolValue.TRUE, BoolValue.TRUE);
-        assertNotNull(animo.getButtonRect());
-
-        MethodHelper.callWithContext(ctx, animo, "SETASBUTTON",
-                BoolValue.FALSE, BoolValue.FALSE);
-        assertNull(animo.getButtonRect());
+        Box2D live = animo.getRect();
+        assertEquals(200, live.getXLeft());
+        assertEquals(250, live.getXRight());
+        assertEquals(200, live.getYBottom());
+        assertEquals(150, live.getYTop());
     }
 }

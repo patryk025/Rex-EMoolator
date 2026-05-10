@@ -125,9 +125,9 @@ public class ButtonHandler {
                 if (priority < minHSPriority || priority > maxHSPriority) continue;
 
                 // ANIMO via SETASBUTTON uses a plain bounding-box trigger — no alpha test.
-                // The transparent areas of the sprite are still clickable. The rect is
-                // frozen at SETASBUTTON(TRUE) time and does not follow later frame changes.
-                Box2D hitRect = animo.getButtonRect() != null ? animo.getButtonRect() : animo.getRect();
+                // The transparent areas of the sprite are still clickable. The rect is live
+                // so the trigger follows the moving sprite.
+                Box2D hitRect = animo.getRect();
                 if (hitRect != null && hitRect.contains(x, y)) {
                     focusedButton = animo;
                     break;
