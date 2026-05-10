@@ -5,8 +5,8 @@ import pl.genschu.bloomooemulator.interpreter.values.Value;
 /**
  * Represents the result of executing an AST node.
  *
- * This sealed interface replaces the old system of throwing exceptions
- * for control flow (BreakException, OneBreakException, ReturnException).
+ * This sealed interface represents control flow without throwing exceptions
+ * for Break, OneBreak, and Return.
  *
  * Benefits:
  * - No exception overhead

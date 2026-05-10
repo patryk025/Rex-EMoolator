@@ -29,7 +29,7 @@ public class ComparisonTest {
     }
 
     private void initExpectedResults() {
-        // TODO: And here... we need to pack it into a more manageable form.
+        // TODO: Replace nested arrays with a table-based test data builder.
         // Format: [type, value] - "S"=String, "I"=Integer, "D"=Double, "B"=Boolean
         expectedResults = Map.of(
                 "EQUALS", new Object[][][] {

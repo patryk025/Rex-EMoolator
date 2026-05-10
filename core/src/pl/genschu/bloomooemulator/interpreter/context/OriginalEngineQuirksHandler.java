@@ -73,7 +73,7 @@ public class OriginalEngineQuirksHandler {
     /**
      * Resolves clone using the context clone registry.
      *
-     * Logic (from v1):
+     * Clone lookup behavior:
      * - SPRITE_0: First check if "SPRITE_0" exists as variable.
      *             If not, return SPRITE itself (unless SPRITE is STRING("SPRITE")).
      * - SPRITE_1+: Find in SPRITE.getClones()

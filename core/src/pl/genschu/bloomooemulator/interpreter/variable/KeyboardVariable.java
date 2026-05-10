@@ -119,7 +119,7 @@ public record KeyboardVariable(
         })),
 
         Map.entry("GETLATESTKEY", MethodSpec.of((self, args, ctx) -> {
-            // Not implemented in v1 either — return empty string
+            // The runtime does not expose buffered key text yet; return an empty value.
             Gdx.app.log("KeyboardVariable", "GETLATESTKEY not implemented");
             return MethodResult.returns(new StringValue(""));
         })),

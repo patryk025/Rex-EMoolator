@@ -4,7 +4,6 @@ import pl.genschu.bloomooemulator.engine.physics.IPhysicsEngine;
 
 /**
  * Interface for variables that can be loaded by SEKLoader.
- * Both v1 and v2 WorldVariable implement this.
  */
 public interface SEKLoadable {
     String getName();

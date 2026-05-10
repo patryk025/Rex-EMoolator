@@ -76,7 +76,7 @@ public sealed interface Variable extends EngineVariable permits
     }
 
     /**
-     * Returns the current value as a v2 Value.
+     * Returns the current value.
      */
     Value value();
 
@@ -274,7 +274,7 @@ public sealed interface Variable extends EngineVariable permits
     /**
      * Resolves the best available reset value from context attributes.
      *
-     * Preference order matches legacy RESETINI behavior:
+     * Preference order matches RESETINI behavior:
      * DEFAULT -> INIT_VALUE -> VALUE
      */
     default String getResetAttributeValue(MethodContext ctx) {
@@ -372,8 +372,7 @@ public sealed interface Variable extends EngineVariable permits
 
     /**
      * Persists value to INI file if TOINI attribute is set.
-     * Mirrors v1 Variable.set() behavior: after any value mutation,
-     * check TOINI and write to game INI if needed.
+     * After any value mutation, check TOINI and write to game INI if needed.
      */
     private void persistToIniIfNeeded(MethodContext ctx) {
         if (ctx == null) return;

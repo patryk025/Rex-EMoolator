@@ -298,7 +298,7 @@ public class InputManager implements Disposable {
         mousePrevPressed = false;
     }
 
-    // Helper method to trigger a signal on a v2 Variable
+    // Helper method to trigger a signal on an interpreter variable.
     public void triggerSignal(Variable variable, String signalName) {
         variable.emitSignal(signalName);
     }

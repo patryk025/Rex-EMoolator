@@ -15,7 +15,7 @@ public record GroupVariable(
     @InternalMutable
     List<String> variableNames,
     @InternalMutable
-    int[] markerHolder,  // single-element array for mutable marker... yeah, but it works without needing a separate mutable wrapper class
+    int[] markerHolder,  // single-element mutable marker holder
     Map<String, SignalHandler> signals
 ) implements Variable {
 
@@ -192,7 +192,7 @@ public record GroupVariable(
                 try {
                     variable.callMethod(methodName, arguments, ctx);
                 } catch (IllegalArgumentException | UnsupportedOperationException ignored) {
-                    // v1 ignored members that did not implement the delegated method.
+                    // Ignore members that do not implement the delegated method.
                 }
             }
             return MethodResult.noReturn();

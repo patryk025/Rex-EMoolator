@@ -8,7 +8,7 @@ import pl.genschu.bloomooemulator.interpreter.variable.*;
 import java.util.Locale;
 
 /**
- * New factory dedicated to the v2 Value/Variable model.
+ * Factory dedicated to the Value/Variable model.
  * <p>
  * Only primitive types are supported here for now:
  * INT/DOUBLE/STRING/BOOL.

@@ -5,7 +5,7 @@ import pl.genschu.bloomooemulator.interpreter.errors.SourceLocation;
 /**
  * Base sealed interface for all AST nodes.
  *
- * Key differences from the old system:
+ * Design notes:
  * - AST nodes are pure data structures (no execute/evaluate methods)
  * - All nodes are immutable (records)
  * - All nodes carry source location information

@@ -10,7 +10,7 @@ import pl.genschu.bloomooemulator.interpreter.runtime.ExecutionContext;
 import java.util.*;
 
 /**
- * Context v2 - clean implementation using composition.
+ * Interpreter context implemented using composition.
  */
 public class Context implements GameContext {
     private final ExecutionContext executionContext;

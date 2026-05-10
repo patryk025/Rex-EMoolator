@@ -14,7 +14,7 @@ public class Event {
     private List<Integer> framesNumbers;
     private List<FrameData> frameData;
     private List<Image> frames;
-    private int flags; // Geez, 32 bits for flags? Really? What a waste of space
+    private int flags;
 
 
     public String getName() {

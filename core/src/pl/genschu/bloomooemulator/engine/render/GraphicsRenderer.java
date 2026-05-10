@@ -111,7 +111,7 @@ class TextRenderer implements Disposable {
     }
 
     /**
-     * Renders a v2 TextVariable using BitmapFont.
+     * Renders a TextVariable using BitmapFont.
      */
     public void renderText(TextVariable textVariable) {
         if (!textVariable.isVisible()) {

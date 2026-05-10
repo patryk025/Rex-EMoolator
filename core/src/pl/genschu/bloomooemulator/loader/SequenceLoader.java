@@ -19,7 +19,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * v2 SEQ loader used by SequenceVariable.init().
+ * SEQ loader used by SequenceVariable.init().
  */
 public final class SequenceLoader {
     private SequenceLoader() {}

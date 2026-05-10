@@ -199,7 +199,7 @@ public class SEKLoader {
             variable.getPhysicsEngine().createBody(gameObject, null); // create object without mesh (rigid body)
         else {
             if(!triangles.isEmpty()) { // just a safe check
-                GameObject.GameObjectBuilder meshBuilder = GameObject.builder(); // yeah, another game object builder, sweet
+                GameObject.GameObjectBuilder meshBuilder = GameObject.builder();
                 meshBuilder.id(gameObject.getId())
                         .rigidBody(false)
                         .position(0, 0, 0)

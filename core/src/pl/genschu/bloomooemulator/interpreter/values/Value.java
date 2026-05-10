@@ -5,7 +5,7 @@ package pl.genschu.bloomooemulator.interpreter.values;
  * This is a sealed interface to ensure type safety and enable exhaustive pattern matching.
  *
  * Value objects are immutable and represent actual runtime values,
- * unlike the old system which mixed Objects, Expressions, and Variables chaotically.
+ * separate from variables and parsed expressions.
  */
 public sealed interface Value permits
     IntValue,

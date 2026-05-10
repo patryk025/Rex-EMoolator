@@ -9,7 +9,7 @@ import pl.genschu.bloomooemulator.interpreter.parser.CodeParser;
 import java.util.List;
 
 /**
- * Helper class for parsing BEHAVIOUR code to v2 ASTNode.
+ * Helper class for parsing BEHAVIOUR code to ASTNode.
  *
  * Handles errors gracefully by returning empty block on failure.
  */

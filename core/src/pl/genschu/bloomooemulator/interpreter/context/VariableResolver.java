@@ -25,7 +25,7 @@ public class VariableResolver {
     }
 
     /**
-     * Default resolver with legacy compatibility.
+     * Default resolver with original engine compatibility rules.
      */
     public static VariableResolver createDefault() {
         return new VariableResolver(
@@ -47,14 +47,14 @@ public class VariableResolver {
     }
 
     /**
-     * Resolves a variable by name (v1-compatible lookup chain).
+     * Resolves a variable by name using the engine-compatible lookup chain.
      *
      * @param name Variable name
      * @param context Context to search from
      * @return Variable or null (depending on fallback strategy)
      */
     public Variable resolve(String name, Context context) {
-        // 1. Legacy quirks (THIS, _CURSOR, _\d+)
+        // 1. Original engine quirks (THIS, _CURSOR, _\d+)
         Variable quirk = quirksHandler.handle(name, context);
         if (quirk != null) {
             return quirk;

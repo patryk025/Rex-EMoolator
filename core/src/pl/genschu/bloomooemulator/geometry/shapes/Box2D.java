@@ -1,7 +1,7 @@
 package pl.genschu.bloomooemulator.geometry.shapes;
 
 public class Box2D {
-    // TODO: refactor like in Box3D class (it will be very much classes to refactor, whole rendering, collisions, buttons, etc.)
+    // TODO: Align Box2D with Box3D once rendering, collisions, and buttons share a common shape model.
     private int xLeft;
     private int yBottom;
     private int xRight;

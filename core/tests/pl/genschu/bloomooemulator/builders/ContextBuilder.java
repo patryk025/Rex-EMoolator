@@ -7,7 +7,7 @@ import pl.genschu.bloomooemulator.interpreter.runtime.ExecutionContext;
 import pl.genschu.bloomooemulator.interpreter.variable.*;
 
 /**
- * Builder for creating test contexts with v2 infrastructure.
+ * Builder for creating interpreter contexts in tests.
  *
  * Example usage:
  *   Context ctx = new ContextBuilder()

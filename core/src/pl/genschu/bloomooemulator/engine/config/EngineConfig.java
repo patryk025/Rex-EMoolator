@@ -222,7 +222,7 @@ public class EngineConfig {
      * @param configPath Path to the configuration file
      */
     public void loadFromFile(String configPath) {
-        // TODO: Implementacja ładowania konfiguracji z pliku
+        // TODO: Implement loading configuration from a file.
     }
 
     /**
@@ -230,7 +230,7 @@ public class EngineConfig {
      * @param configPath Path to the configuration file
      */
     public void saveToFile(String configPath) {
-        // TODO: Implementacja zapisywania konfiguracji do pliku
+        // TODO: Implement saving configuration to a file.
     }
 
     /**

@@ -235,7 +235,7 @@ public record AnimoVariable(
 
     @Override
     public void init(Context context) {
-        // Read attributes from context (like v1's initAttributes)
+        // Read attributes collected during CNV parsing before loading animation data.
         initAttributesFromContext(context);
 
         String filename = normalizeFilename(state.filename);
@@ -428,7 +428,6 @@ public record AnimoVariable(
 
     /**
      * Reads attributes from context and applies them to state.
-     * Mirrors v1's initMissingAttributes() + initAttributes().
      */
     private void initAttributesFromContext(Context context) {
         // FILENAME

@@ -169,7 +169,7 @@ public record BehaviourVariable(
             return condResult.value();
         } catch (Exception e) {
             Gdx.app.error("BehaviourVariable", "Error evaluating condition: " + e.getMessage());
-            return true; // Default to true on error (like v1)
+            return true; // Preserve permissive condition handling on evaluation errors.
         }
     }
 

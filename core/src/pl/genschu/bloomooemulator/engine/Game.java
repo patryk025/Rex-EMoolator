@@ -636,9 +636,8 @@ public class Game {
     }
 
     private void runInit(Context context) {
-        // v2 CNVParser already runs ONINIT signals during parseFile().
-        // The __INIT__ behaviour is a v1 concept.
-        // For v2, check if there's a __INIT__ behaviour and run it via ASTInterpreter.
+        // CNVParser already runs ONINIT signals during parseFile().
+        // Some data sets also define a __INIT__ behaviour, so run it explicitly when present.
         Variable initVar = context.getVariable("__INIT__");
         if (initVar == null) {
             return;

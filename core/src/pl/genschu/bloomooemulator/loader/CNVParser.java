@@ -201,7 +201,7 @@ public class CNVParser {
     }
 
     /**
-     * Creates a v2 Variable from type, name, value, and properties.
+     * Creates a Variable from type, name, value, and properties.
      */
     private Variable createVariable(String type, String objectName, Object rawValue,
                                       Map<String, String> properties, Context context) {

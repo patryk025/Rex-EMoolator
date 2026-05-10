@@ -73,7 +73,7 @@ public interface MethodContext {
     CloneRegistry clones();
 
     /**
-     * Returns the underlying v2 Context.
+     * Returns the underlying interpreter Context.
      * Needed by operations that require deep context manipulation
      * (e.g., CNVLoader creating child contexts, adding additional contexts).
      */

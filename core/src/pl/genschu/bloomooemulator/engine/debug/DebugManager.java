@@ -922,7 +922,7 @@ public class DebugManager implements Disposable {
     private void updateSceneList() {
         sceneList.clear();
 
-        // Get every scene from v2 structure: episodeNames -> resolve episode -> sceneNames
+        // Resolve every scene through application episodes.
         for (String episodeName : game.getApplicationVariable().episodeNames()) {
             EngineVariable epVar = game.getDefinitionContext().getVariable(episodeName);
             if (epVar instanceof EpisodeVariable ep) {

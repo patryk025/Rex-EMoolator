@@ -15,10 +15,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * Regression guard: ANIMO buttons (SETASBUTTON) must use the live state.rect for hit
- * testing, not a snapshot taken at SETASBUTTON time. ReksioEngine sets
- * `hitArea = sprite.getBounds()` once, but the returned Rectangle is mutated each frame
- * by PixiJS, so the trigger follows the moving sprite. Scenes like S38_KALIBRACJA depend
- * on this — comets/satellites etc. are animated buttons whose bounds shift over time.
+ * testing, not a snapshot taken at SETASBUTTON time. Scenes like S38_KALIBRACJA
+ * depend on animated buttons whose bounds shift over time.
  */
 class AnimoSetAsButtonTest {
     private Context ctx;
@@ -42,7 +40,7 @@ class AnimoSetAsButtonTest {
         MethodHelper.callWithContext(ctx, animo, "SETASBUTTON",
                 BoolValue.TRUE, BoolValue.TRUE);
 
-        // Animation frame moves the sprite — getRect() must reflect the new position
+        // Animation frame moves the sprite; getRect() must reflect the new position
         // so the hit-test rect in ButtonHandler follows it.
         animo.state().rect = new Box2D(200, 200, 250, 150);
 

@@ -8,11 +8,8 @@ import java.util.Map;
  * Abstraction over the interpreter context, used by engine managers (Render, Update, Input)
  * and Game.java for lifecycle management.
  *
- * Both v1.Context and v2.Context implement this interface, allowing the engine
- * to be decoupled from a specific interpreter version.
- *
- * Variable return types use EngineVariable - callers cast to specific concrete types
- * (v1 or v2) as needed via instanceof checks.
+ * Variable return types use EngineVariable so the engine layer does not depend on
+ * concrete interpreter variable classes.
  */
 public interface GameContext {
 

@@ -14,8 +14,7 @@ import java.util.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * Tests for SequenceVariable v2 implementation using real animation files.
- * This is the v2 equivalent of SequenceTest (which uses v1).
+ * Tests for SequenceVariable using real animation files.
  */
 class SequenceTest {
     private static final List<String> capturedSignals = new ArrayList<>();
@@ -40,7 +39,7 @@ class SequenceTest {
             String arg = args.length > 0 && args[0] instanceof StringValue sv ? sv.value() : null;
             String fullSignal = variableName + "_" + (arg == null ? signalName : signalName + "^" + arg);
 
-            // Filter out certain signals like in v1 test
+            // Filter out numbered and per-frame signals that are irrelevant here.
             if (arg != null && arg.matches(".*_[0-9]+$")) {
                 // ignore numbered events
             } else if (!signalName.contains("ONFRAMECHANGED")) {
