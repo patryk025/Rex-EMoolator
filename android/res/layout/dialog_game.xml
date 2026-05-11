@@ -28,6 +28,27 @@
          android:hint="Ścieżka do plików"
          android:id="@+id/pathField" />
 
+    <LinearLayout
+         android:layout_height="wrap_content"
+         android:layout_width="match_parent"
+         android:orientation="horizontal">
+
+        <Button
+             android:layout_height="wrap_content"
+             android:layout_width="0dp"
+             android:layout_weight="1"
+             android:id="@+id/chooseFolderButton"
+             android:text="Wybierz folder" />
+
+        <Button
+             android:layout_height="wrap_content"
+             android:layout_width="0dp"
+             android:layout_weight="1"
+             android:id="@+id/chooseIsoButton"
+             android:text="Wybierz ISO" />
+
+    </LinearLayout>
+
     <TextView
          android:layout_height="wrap_content"
          android:layout_width="match_parent"

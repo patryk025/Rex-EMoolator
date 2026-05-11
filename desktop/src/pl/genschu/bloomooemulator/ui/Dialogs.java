@@ -5,7 +5,9 @@ import pl.genschu.bloomooemulator.logic.GameEntry;
 import pl.genschu.bloomooemulator.logic.GameManager;
 
 import javax.swing.*;
+import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.*;
+import java.io.File;
 import java.util.ResourceBundle;
 
 public class Dialogs {
@@ -46,10 +48,21 @@ public class Dialogs {
 
         JTextField nameField = new JTextField(game != null ? game.getName() : "");
         JTextField pathField = new JTextField(game != null ? game.getPath() : "");
+        JPanel pathPanel = new JPanel(new BorderLayout(5, 0));
+        JPanel pathButtonPanel = new JPanel(new GridLayout(1, 2, 5, 0));
+        JButton chooseFolderButton = new JButton(resourceBundle.getString("choose_folder"));
+        JButton chooseIsoButton = new JButton(resourceBundle.getString("choose_iso"));
         JComboBox<String> mouseModeSelectBox = new JComboBox<>(new String[]{resourceBundle.getString("mouse_touch"), resourceBundle.getString("mouse_physical")});
         JCheckBox joystickCheckbox = new JCheckBox(resourceBundle.getString("use_virtual_joystick"));
         JCheckBox skipPoliceCheckbox = new JCheckBox(resourceBundle.getString("skip_code"));
         JCheckBox fullscreenCheckbox = new JCheckBox(resourceBundle.getString("stretch_fullscreen"));
+
+        chooseFolderButton.addActionListener(e -> chooseGamePath(dialog, pathField, true));
+        chooseIsoButton.addActionListener(e -> chooseGamePath(dialog, pathField, false));
+        pathButtonPanel.add(chooseFolderButton);
+        pathButtonPanel.add(chooseIsoButton);
+        pathPanel.add(pathField, BorderLayout.CENTER);
+        pathPanel.add(pathButtonPanel, BorderLayout.EAST);
 
         if (game != null) {
             mouseModeSelectBox.setSelectedItem(game.getMouseMode());
@@ -61,7 +74,7 @@ public class Dialogs {
         dialog.add(new JLabel(resourceBundle.getString("game_name")));
         dialog.add(nameField);
         dialog.add(new JLabel(resourceBundle.getString("game_path")));
-        dialog.add(pathField);
+        dialog.add(pathPanel);
         dialog.add(new JLabel(resourceBundle.getString("mouse_mode")));
         dialog.add(mouseModeSelectBox);
         dialog.add(joystickCheckbox);
@@ -98,6 +111,29 @@ public class Dialogs {
         dialog.add(cancelButton);
 
         dialog.setVisible(true);
+    }
+
+    private void chooseGamePath(Component parent, JTextField pathField, boolean directoryMode) {
+        JFileChooser chooser = new JFileChooser();
+        chooser.setFileSelectionMode(directoryMode ? JFileChooser.DIRECTORIES_ONLY : JFileChooser.FILES_ONLY);
+        chooser.setDialogTitle(resourceBundle.getString(directoryMode ? "choose_folder" : "choose_iso"));
+        if (!directoryMode) {
+            chooser.setFileFilter(new FileNameExtensionFilter("ISO (*.iso)", "iso"));
+        }
+
+        String currentPath = pathField.getText();
+        if (currentPath != null && !currentPath.isBlank()) {
+            File currentFile = new File(currentPath);
+            File currentDirectory = currentFile.isDirectory() ? currentFile : currentFile.getParentFile();
+            if (currentDirectory != null) {
+                chooser.setCurrentDirectory(currentDirectory);
+            }
+            chooser.setSelectedFile(currentFile);
+        }
+
+        if (chooser.showOpenDialog(parent) == JFileChooser.APPROVE_OPTION) {
+            pathField.setText(chooser.getSelectedFile().getAbsolutePath());
+        }
     }
 
     public void showDeleteDialog(GameEntry game) {

@@ -21,6 +21,12 @@ import pl.genschu.bloomooemulator.adapters.GameListAdapter;
 import pl.genschu.bloomooemulator.logic.GameEntry;
 import pl.genschu.bloomooemulator.logic.GameManager;
 
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.List;
+
 public class GameListActivity extends AppCompatActivity {
     private GameListAdapter adapter;
     private GameManager gameManager;
@@ -112,10 +118,15 @@ public class GameListActivity extends AppCompatActivity {
 
         EditText nameField = dialogView.findViewById(R.id.nameField);
         EditText pathField = dialogView.findViewById(R.id.pathField);
+        Button chooseFolderButton = dialogView.findViewById(R.id.chooseFolderButton);
+        Button chooseIsoButton = dialogView.findViewById(R.id.chooseIsoButton);
         Spinner mouseModeSelectBox = dialogView.findViewById(R.id.mouseModeSelectBox);
         CheckBox joystickCheckbox = dialogView.findViewById(R.id.joystickCheckbox);
         CheckBox skipPoliceCheckbox = dialogView.findViewById(R.id.skipPoliceCheckbox);
         CheckBox fullscreenCheckbox = dialogView.findViewById(R.id.fullscreenCheckbox);
+
+        chooseFolderButton.setOnClickListener(v -> showPathPicker(pathField, true));
+        chooseIsoButton.setOnClickListener(v -> showPathPicker(pathField, false));
 
         if (game != null) {
             nameField.setText(game.getName());
@@ -128,22 +139,23 @@ public class GameListActivity extends AppCompatActivity {
 
         builder.setPositiveButton("Zapisz", (dialog, which) -> {
             if (game == null) {
-                gameManager.addGame(new GameEntry(
+                GameEntry newGame = new GameEntry(
                         nameField.getText().toString(),
                         pathField.getText().toString(),
                         mouseModeSelectBox.getSelectedItem().toString(),
                         joystickCheckbox.isChecked(),
                         skipPoliceCheckbox.isChecked(),
-                        !fullscreenCheckbox.isChecked()));
+                        !fullscreenCheckbox.isChecked());
+                gameManager.addGame(newGame);
 
-                adapter.notifyItemInserted(gameManager.getGames().indexOf(game, true));
+                adapter.notifyItemInserted(gameManager.getGames().indexOf(newGame, true));
             } else {
                 game.setName(nameField.getText().toString());
                 game.setPath(pathField.getText().toString());
                 game.setMouseMode(mouseModeSelectBox.getSelectedItem().toString());
                 game.setMouseVirtualJoystick(joystickCheckbox.isChecked());
                 game.setSkipLicenceCode(skipPoliceCheckbox.isChecked());
-                game.setMaintainAspectRatio(fullscreenCheckbox.isChecked());
+                game.setMaintainAspectRatio(!fullscreenCheckbox.isChecked());
                 gameManager.updateGame(game);
 
                 adapter.notifyItemChanged(gameManager.getGames().indexOf(game, true));
@@ -152,6 +164,63 @@ public class GameListActivity extends AppCompatActivity {
 
         builder.setNegativeButton("Anuluj", null);
         builder.show();
+    }
+
+    private void showPathPicker(EditText pathField, boolean directoryMode) {
+        File startDirectory = resolveStartDirectory(pathField.getText().toString());
+        showPathPicker(pathField, directoryMode, startDirectory);
+    }
+
+    private void showPathPicker(EditText pathField, boolean directoryMode, File directory) {
+        File[] files = directory.listFiles(file -> file.isDirectory() || (!directoryMode && file.getName().toLowerCase().endsWith(".iso")));
+        List<File> entries = new ArrayList<>();
+        if (directory.getParentFile() != null) {
+            entries.add(directory.getParentFile());
+        }
+        if (files != null) {
+            Arrays.sort(files, Comparator
+                    .comparing((File file) -> !file.isDirectory())
+                    .thenComparing(file -> file.getName().toLowerCase()));
+            entries.addAll(Arrays.asList(files));
+        }
+
+        String[] labels = new String[entries.size()];
+        for (int i = 0; i < entries.size(); i++) {
+            File entry = entries.get(i);
+            labels[i] = entry.equals(directory.getParentFile()) ? ".." : entry.getName() + (entry.isDirectory() ? "/" : "");
+        }
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle(directory.getAbsolutePath());
+        builder.setItems(labels, (dialog, which) -> {
+            File selected = entries.get(which);
+            if (selected.isDirectory()) {
+                showPathPicker(pathField, directoryMode, selected);
+            } else {
+                pathField.setText(selected.getAbsolutePath());
+            }
+        });
+        if (directoryMode) {
+            builder.setPositiveButton("Wybierz ten folder", (dialog, which) -> pathField.setText(directory.getAbsolutePath()));
+        }
+        builder.setNegativeButton("Anuluj", null);
+        builder.show();
+    }
+
+    private File resolveStartDirectory(String currentPath) {
+        if (currentPath != null && !currentPath.isBlank()) {
+            File currentFile = new File(currentPath);
+            if (currentFile.isDirectory()) {
+                return currentFile;
+            }
+            File parent = currentFile.getParentFile();
+            if (parent != null && parent.isDirectory()) {
+                return parent;
+            }
+        }
+
+        File externalStorage = Environment.getExternalStorageDirectory();
+        return externalStorage != null ? externalStorage : getFilesDir();
     }
 
     public void showDeleteDialog(GameEntry game) {
