@@ -35,7 +35,8 @@ public record ImageVariable(
         public Image image;
         public int posX = 0;
         public int posY = 0;
-        public float opacity = 255f;
+        public float opacity = 1f;
+        public float pendingOpacity = 1f;
         public Box2D rect = new Box2D(0, 0, 0, 0);
         public Box2D clippingRect = null;
         public int priority = 0;
@@ -55,6 +56,7 @@ public record ImageVariable(
             copy.posX = this.posX;
             copy.posY = this.posY;
             copy.opacity = this.opacity;
+            copy.pendingOpacity = this.pendingOpacity;
             copy.rect = new Box2D(rect.getXLeft(), rect.getYBottom(), rect.getXRight(), rect.getYTop());
             copy.clippingRect = this.clippingRect != null
                     ? new Box2D(clippingRect.getXLeft(), clippingRect.getYBottom(), clippingRect.getXRight(), clippingRect.getYTop())
@@ -241,6 +243,14 @@ public record ImageVariable(
         return (int) (color.a * 255f);
     }
 
+    private void setPendingOpacity(int opacity) {
+        state.pendingOpacity = Math.clamp(opacity, 0, 255) / 255.0f;
+    }
+
+    private void invalidate() {
+        state.opacity = state.pendingOpacity;
+    }
+
     // ========================================
     // METHODS DEFINITION
     // ========================================
@@ -399,7 +409,13 @@ public record ImageVariable(
 
         Map.entry("SETOPACITY", MethodSpec.of((self, args, ctx) -> {
             ImageVariable img = (ImageVariable) self;
-            img.state.opacity = ArgumentHelper.getInt(args.get(0)) / 255.0f;
+            img.setPendingOpacity(ArgumentHelper.getInt(args.get(0)));
+            return MethodResult.noReturn();
+        })),
+
+        Map.entry("INVALIDATE", MethodSpec.of((self, args, ctx) -> {
+            ImageVariable img = (ImageVariable) self;
+            img.invalidate();
             return MethodResult.noReturn();
         })),
 
