@@ -8,6 +8,7 @@ import pl.genschu.bloomooemulator.interpreter.runtime.ExecutionContext;
 import pl.genschu.bloomooemulator.interpreter.runtime.ExecutionResult;
 import pl.genschu.bloomooemulator.interpreter.values.StringValue;
 import pl.genschu.bloomooemulator.interpreter.values.Value;
+import pl.genschu.bloomooemulator.interpreter.variable.capabilities.Initializable;
 import pl.genschu.bloomooemulator.engine.Game;
 import pl.genschu.bloomooemulator.loader.CNVParser;
 
@@ -18,13 +19,19 @@ import java.util.Map;
 
 /**
  * ClassVariable represents a CLASS definition.
+ *
+ * <p>{@code definingContext} captures the context the class was registered in
+ * (set by {@link #init(Context)} during CNV parsing). NEW uses it as the
+ * registration target for new instances and as the parent of their classContext,
+ * so instances outlive the scene the NEW call originated from.
  */
 public record ClassVariable(
     String name,
     String defPath,                      // Path to class definition file (DEF attribute)
     String basePath,                     // Base class (BASE attribute) - not yet used
-    Map<String, SignalHandler> signals
-) implements Variable {
+    Map<String, SignalHandler> signals,
+    Context definingContext              // Context where this class was declared; null until init()
+) implements Variable, Initializable {
 
     public ClassVariable {
         if (name == null || name.isEmpty()) {
@@ -39,7 +46,11 @@ public record ClassVariable(
 
     // Convenience constructor
     public ClassVariable(String name, String defPath) {
-        this(name, defPath, null, Map.of());
+        this(name, defPath, null, Map.of(), null);
+    }
+
+    public ClassVariable(String name, String defPath, String basePath, Map<String, SignalHandler> signals) {
+        this(name, defPath, basePath, signals, null);
     }
 
     // ========================================
@@ -77,7 +88,7 @@ public record ClassVariable(
         } else {
             newSignals.remove(signalName);
         }
-        return new ClassVariable(name, defPath, basePath, newSignals);
+        return new ClassVariable(name, defPath, basePath, newSignals, definingContext);
     }
 
     // ========================================
@@ -91,7 +102,7 @@ public record ClassVariable(
      * @return New ClassVariable with updated path
      */
     public ClassVariable withDefPath(String path) {
-        return new ClassVariable(name, path, basePath, signals);
+        return new ClassVariable(name, path, basePath, signals, definingContext);
     }
 
     /**
@@ -101,7 +112,21 @@ public record ClassVariable(
      * @return New ClassVariable with updated base
      */
     public ClassVariable withBasePath(String base) {
-        return new ClassVariable(name, defPath, base, signals);
+        return new ClassVariable(name, defPath, base, signals, definingContext);
+    }
+
+    public ClassVariable withDefiningContext(Context context) {
+        return new ClassVariable(name, defPath, basePath, signals, context);
+    }
+
+    @Override
+    public void init(Context context) {
+        // Capture the context that holds this declaration so instances created by
+        // NEW from any nested scope (e.g. a scene-level __INIT__) still live with
+        // the class, not with the caller.
+        if (definingContext != context) {
+            context.setVariable(name, withDefiningContext(context));
+        }
     }
 
     // ========================================
@@ -122,8 +147,12 @@ public record ClassVariable(
             }
 
             String varName = ArgumentHelper.getString(args.get(0));
-            Context parentContext = ctx.context();
-            Context classContext = new Context(new ExecutionContext(), parentContext);
+            // Instance lives with the class declaration: if defined in app .cnv,
+            // it survives scene changes; if defined in a scene .cnv, it dies with
+            // the scene. Falls back to caller context for tests that build a
+            // ClassVariable directly without going through CNV init.
+            Context targetContext = thisVar.definingContext != null ? thisVar.definingContext : ctx.context();
+            Context classContext = new Context(new ExecutionContext(), targetContext);
             classContext.setGame(ctx.getGame());
 
             Game game = ctx.getGame();
@@ -142,7 +171,7 @@ public record ClassVariable(
             }
 
             InstanceVariable instance = new InstanceVariable(varName, classContext);
-            ctx.setVariable(varName, instance);
+            targetContext.setVariable(varName, instance);
 
             Variable constructorBehaviour = classContext.store().get("CONSTRUCTOR");
             if (constructorBehaviour instanceof BehaviourVariable behaviour) {
@@ -155,6 +184,7 @@ public record ClassVariable(
         })),
 
         Map.entry("DELETE", MethodSpec.of((self, args, ctx) -> {
+            ClassVariable thisVar = (ClassVariable) self;
             if (args.isEmpty()) {
                 throw new IllegalArgumentException("DELETE requires at least 1 argument (varName)");
             }
@@ -163,7 +193,8 @@ public record ClassVariable(
             }
 
             String varName = ArgumentHelper.getString(args.get(0));
-            Variable instanceVariable = ctx.getVariable(varName);
+            Context targetContext = thisVar.definingContext != null ? thisVar.definingContext : ctx.context();
+            Variable instanceVariable = targetContext.getVariable(varName);
             if (!(instanceVariable instanceof InstanceVariable instance)) {
                 Gdx.app.error("ClassVariable", "Variable is not an INSTANCE: " + varName);
                 return MethodResult.noReturn();
@@ -176,7 +207,7 @@ public record ClassVariable(
                         .runBehaviour("DESTRUCTOR:" + varName, instance, behaviour, args);
             }
 
-            ctx.removeVariable(varName);
+            targetContext.removeVariable(varName);
             if (dtorResult != null) {
                 return MethodResult.fromExecution(dtorResult);
             }
