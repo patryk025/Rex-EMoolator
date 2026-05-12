@@ -41,6 +41,7 @@ public record AnimoVariable(
     public static final int FLAG_PLAY_NEXT_EVENT = 0x800000;
     public static final int FLAG_WAIT_FOR_SFX = 0x100000;
     public static final int FLAG_PING_PONG = 0x20000;
+    private static final float FRAME_TIME_EPSILON = 0.000001f;
 
     /**
      * Mutable playback state for animation.
@@ -577,6 +578,10 @@ public record AnimoVariable(
     // ========================================
 
     public void setFps(int fps) {
+        if (fps <= 0) {
+            Gdx.app.error("AnimoVariable", "Ignoring invalid FPS value: " + fps);
+            return;
+        }
         state.fps = fps;
         state.frameDuration = 1f / fps;
     }
@@ -655,12 +660,14 @@ public record AnimoVariable(
         if (state.animationState != oldState) {
             switch (state.animationState) {
                 case STOPPED:
+                    state.elapsedTime = 0f;
                     if (emitSignal && oldState == AnimoState.PLAYING && state.currentEvent != null) {
                         emitSignal("ONFINISHED", new StringValue(state.currentEvent.getName()));
                         notifyObserversFinished(state.currentEvent.getName());
                     }
                     break;
                 case IDLE:
+                    state.elapsedTime = 0f;
                     if (oldState == AnimoState.PLAYING && state.currentEvent != null) {
                         emitSignal("ONFINISHED", new StringValue(state.currentEvent.getName()));
                         notifyObserversFinished(state.currentEvent.getName());
@@ -847,61 +854,123 @@ public record AnimoVariable(
     // ========================================
 
     public void updateAnimation(float deltaTime) {
+        if (deltaTime <= 0f || state.currentEvent == null || !isPlaying()) return;
+        ensureValidFrameDuration();
+
         state.elapsedTime += deltaTime;
-        if (state.elapsedTime <= state.frameDuration) return;
 
-        state.elapsedTime -= state.frameDuration;
-        if (state.elapsedTime > state.frameDuration) {
-            state.elapsedTime = 0; // Prevent fast-forward on lag
+        while (state.currentEvent != null
+                && isPlaying()
+                && state.elapsedTime > state.frameDuration + FRAME_TIME_EPSILON) {
+            state.elapsedTime -= state.frameDuration;
+            if (state.elapsedTime > state.frameDuration) {
+                state.elapsedTime = 0; // Prevent fast-forward on lag
+            }
+            if (state.elapsedTime < 0f && state.elapsedTime > -FRAME_TIME_EPSILON) {
+                state.elapsedTime = 0f;
+            }
+
+            advanceAnimationTick();
         }
+    }
 
-        if (state.currentEvent == null || !isPlaying()) return;
+    private void advanceAnimationTick() {
+        Event event = state.currentEvent;
+        if (event == null || !isPlaying()) return;
 
-        if (state.currentEvent.getFramesCount() == 0) {
-            changeAnimoState(AnimoEvent.STOP);
+        int frameCount = getFrameCount(event);
+        if (frameCount == 0) {
+            finishCurrentEvent(event);
             return;
         }
 
-        if (!isPlaying()) return; // Re-check in case ONFRAMECHANGED stopped it
+        int direction = state.direction == 0 ? 1 : state.direction;
+        int nextFrameNumber = state.currentFrameNumber + direction;
 
-        int nextFrameNumber = state.currentFrameNumber + state.direction;
-
-        // Handle loop end
-        if (state.currentEvent.getLoopEnd() != 0 && nextFrameNumber >= state.currentEvent.getLoopEnd()) {
-            setCurrentFrameNumber(state.currentEvent.getLoopStart(), true);
-            state.currentEvent.setRepeatCounter(state.currentEvent.getRepeatCounter() + 1);
-            if (state.currentEvent.getRepeatCounter() >= state.currentEvent.getRepeatCount()) {
-                changeAnimoState(AnimoEvent.END);
-            }
+        if (shouldLoop(event, nextFrameNumber, direction)) {
+            applyLoop(event, direction);
+            return;
         }
-        // Handle overflow/underflow
-        else if (nextFrameNumber >= state.currentEvent.getFrames().size() || nextFrameNumber < 0) {
-            if (nextFrameNumber < 0) {
-                // Backward past first frame
-                if ((state.currentEvent.getFlags() & FLAG_PING_PONG) != 0) {
-                    state.direction *= -1;
-                } else {
-                    changeAnimoState(AnimoEvent.END);
-                }
-            } else {
-                // Forward past last frame
-                if ((state.currentEvent.getFlags() & FLAG_PING_PONG) != 0) {
-                    state.direction *= -1;
-                } else if ((state.currentEvent.getFlags() & FLAG_PLAY_NEXT_EVENT) != 0) {
-                    int currentIdx = data.events().indexOf(state.currentEvent);
-                    if (currentIdx < data.events().size() - 1) {
-                        state.currentEvent = data.events().get(currentIdx + 1);
-                        setCurrentFrameNumber(0, true);
-                        state.currentEvent.setRepeatCounter(0);
-                    } else {
-                        changeAnimoState(AnimoEvent.END);
-                    }
-                } else {
-                    changeAnimoState(AnimoEvent.END);
-                }
-            }
-        } else {
-            setCurrentFrameNumber(nextFrameNumber, true);
+
+        if (nextFrameNumber < 0 || nextFrameNumber >= frameCount) {
+            handleEventBoundary(event, direction);
+            return;
+        }
+
+        setCurrentFrameNumber(nextFrameNumber, true);
+    }
+
+    private void ensureValidFrameDuration() {
+        if (state.frameDuration <= 0f) {
+            int fps = Math.max(1, state.fps);
+            state.frameDuration = 1f / fps;
+        }
+    }
+
+    private int getFrameCount(Event event) {
+        if (event.getFramesNumbers() != null) {
+            return event.getFramesNumbers().size();
+        }
+        if (event.getFrames() != null) {
+            return event.getFrames().size();
+        }
+        return Math.max(0, event.getFramesCount());
+    }
+
+    private boolean shouldLoop(Event event, int nextFrameNumber, int direction) {
+        if (event.getLoopEnd() == 0) return false;
+        return direction >= 0 && nextFrameNumber >= event.getLoopEnd();
+    }
+
+    private void applyLoop(Event event, int direction) {
+        if (state.currentEvent != event || !isPlaying()) return;
+
+        setCurrentFrameNumber(clampFrameNumber(event, event.getLoopStart()), true);
+        if (state.currentEvent != event || !isPlaying()) return;
+
+        event.setRepeatCounter(event.getRepeatCounter() + 1);
+        if (event.getRepeatCounter() >= event.getRepeatCount()) {
+            finishCurrentEvent(event);
+        }
+    }
+
+    private void handleEventBoundary(Event event, int direction) {
+        if (state.currentEvent != event || !isPlaying()) return;
+
+        if ((event.getFlags() & FLAG_PING_PONG) != 0) {
+            state.direction = -direction;
+            return;
+        }
+
+        if (direction > 0 && (event.getFlags() & FLAG_PLAY_NEXT_EVENT) != 0) {
+            playNextEvent(event);
+            return;
+        }
+
+        finishCurrentEvent(event);
+    }
+
+    private void playNextEvent(Event event) {
+        int currentIdx = data.events().indexOf(event);
+        if (currentIdx < 0 || currentIdx >= data.events().size() - 1) {
+            finishCurrentEvent(event);
+            return;
+        }
+
+        Event nextEvent = data.events().get(currentIdx + 1);
+        state.currentEvent = nextEvent;
+        nextEvent.setRepeatCounter(0);
+        setCurrentFrameNumber(0, true);
+    }
+
+    private int clampFrameNumber(Event event, int frameNumber) {
+        int lastFrame = Math.max(0, getFrameCount(event) - 1);
+        return Math.clamp(frameNumber, 0, lastFrame);
+    }
+
+    private void finishCurrentEvent(Event event) {
+        if (state.currentEvent == event && isPlaying()) {
+            changeAnimoState(AnimoEvent.END);
         }
     }
 
@@ -984,6 +1053,34 @@ public record AnimoVariable(
         return opacity / 255f;
     }
 
+    private void playCurrentEventFromStart() {
+        Event currentEvent = state.currentEvent;
+        if (currentEvent == null) {
+            state.elapsedTime = 0f;
+            setVisible(true);
+            changeAnimoState(AnimoEvent.PLAY);
+            return;
+        }
+        playEventFromStart(currentEvent);
+    }
+
+    private void playEventFromStart(Event event) {
+        state.currentEvent = event;
+        state.elapsedTime = 0f;
+        event.setRepeatCounter(0);
+        setVisible(true);
+
+        changeAnimoState(AnimoEvent.PLAY);
+        if (getFrameCount(event) == 0) {
+            finishCurrentEvent(event);
+            return;
+        }
+
+        setCurrentFrameNumber(0, true);
+        emitSignal("ONSTARTED", new StringValue(event.getName()));
+        notifyObserversStarted(event.getName());
+    }
+
     // ========================================
     // METHODS DEFINITION
     // ========================================
@@ -993,36 +1090,13 @@ public record AnimoVariable(
         Map.entry("PLAY", MethodSpec.of((self, args, ctx) -> {
             AnimoVariable thisVar = (AnimoVariable) self;
             if (args.isEmpty()) {
-                // PLAY() - play current event
-                Event currentEvent = thisVar.state.currentEvent;
-                if (currentEvent != null && currentEvent.getFramesCount() == 0) {
-                    thisVar.changeAnimoState(AnimoEvent.END);
-                    return MethodResult.noReturn();
-                }
-                thisVar.setVisible(true);
-                thisVar.changeAnimoState(AnimoEvent.PLAY);
-                thisVar.setCurrentFrameNumber(0, true);
-                if (currentEvent != null) {
-                    currentEvent.setRepeatCounter(0);
-                    thisVar.emitSignal("ONSTARTED", new StringValue(currentEvent.getName()));
-                    thisVar.notifyObserversStarted(currentEvent.getName());
-                }
+                thisVar.playCurrentEventFromStart();
             } else {
                 // PLAY(eventName) - play specific event
                 String eventName = ArgumentHelper.getString(args.get(0));
                 Event event = thisVar.getEvent(eventName);
                 if (event != null) {
-                    thisVar.state.currentEvent = event;
-                    if (event.getFramesCount() == 0) {
-                        thisVar.changeAnimoState(AnimoEvent.END);
-                        return MethodResult.noReturn();
-                    }
-                    thisVar.setVisible(true);
-                    thisVar.changeAnimoState(AnimoEvent.PLAY);
-                    thisVar.setCurrentFrameNumber(0, true);
-                    event.setRepeatCounter(0);
-                    thisVar.emitSignal("ONSTARTED", new StringValue(event.getName()));
-                    thisVar.notifyObserversStarted(event.getName());
+                    thisVar.playEventFromStart(event);
                 }
             }
             return MethodResult.noReturn();
@@ -1037,17 +1111,7 @@ public record AnimoVariable(
             List<Event> events = thisVar.data.events();
             if (eventId >= 0 && eventId < events.size()) {
                 Event event = events.get(eventId);
-                thisVar.state.currentEvent = event;
-                if (event.getFramesCount() == 0) {
-                    thisVar.changeAnimoState(AnimoEvent.END);
-                    return MethodResult.noReturn();
-                }
-                thisVar.setVisible(true);
-                thisVar.changeAnimoState(AnimoEvent.PLAY);
-                thisVar.setCurrentFrameNumber(0, true);
-                event.setRepeatCounter(0);
-                thisVar.emitSignal("ONSTARTED", new StringValue(event.getName()));
-                thisVar.notifyObserversStarted(event.getName());
+                thisVar.playEventFromStart(event);
             } else {
                 Gdx.app.error("AnimoVariable", "Event with id " + eventId + " not found");
             }
@@ -1070,6 +1134,7 @@ public record AnimoVariable(
             AnimoVariable thisVar = (AnimoVariable) self;
             boolean emitSignal = args.isEmpty() || ArgumentHelper.getBoolean(args.get(0));
             thisVar.changeAnimoState(AnimoEvent.STOP, emitSignal);
+            thisVar.state.elapsedTime = 0f;
             return MethodResult.noReturn();
         })),
 
