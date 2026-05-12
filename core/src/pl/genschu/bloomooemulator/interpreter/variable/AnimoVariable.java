@@ -1614,8 +1614,26 @@ public record AnimoVariable(
         })),
 
         Map.entry("SETFRAMENAME", MethodSpec.of((self, args, ctx) -> {
-            // TODO: implement this method
-            throw new UnsupportedOperationException("SETFRAMENAME is not implemented yet");
+            AnimoVariable thisVar = (AnimoVariable) self;
+            if(args.size() < 3) {
+                throw new IllegalArgumentException("SETFRAMENAME requires 3 arguments");
+            }
+            int eventNumber = ArgumentHelper.getInt(args.get(0));
+            int frameNumber = ArgumentHelper.getInt(args.get(1));
+            String frameName = ArgumentHelper.getString(args.get(2));
+            List<Event> events = thisVar.data.events();
+            if (eventNumber >= 0 && eventNumber < events.size()) {
+                Event event = events.get(eventNumber);
+                if (frameNumber >= 0 && frameNumber < event.getFramesNumbers().size()) {
+                    event.getFrameData().get(frameNumber).setName(frameName);
+                } else {
+                    Gdx.app.error("AnimoVariable", "SETFRAMENAME frame number out of range");
+                }
+            } else {
+                Gdx.app.error("AnimoVariable", "SETFRAMENAME event number out of range");
+            }
+
+            return MethodResult.noReturn();
         }))
     );
 
