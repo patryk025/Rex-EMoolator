@@ -145,7 +145,35 @@ public record SceneVariable(
         })),
 
         Map.entry("RUNCLONES", MethodSpec.of((self, args, ctx) -> {
-            // Run behaviour on clones - handled by interpreter
+            if (args.size() < 4) {
+                throw new IllegalArgumentException("RUNCLONES requires 4 arguments: varName, firstId, lastId, behaviourName");
+            }
+            String varName = ArgumentHelper.getString(args.get(0));
+            int firstId = ArgumentHelper.getInt(args.get(1));
+            int lastId = ArgumentHelper.getInt(args.get(2));
+            String behaviourName = ArgumentHelper.getString(args.get(3));
+
+            List<String> cloneNames = ctx.clones().getCloneNames(varName);
+            if (cloneNames.isEmpty()) {
+                return MethodResult.noReturn();
+            }
+
+            Variable behaviourVar = ctx.getVariable(behaviourName);
+            if (!(behaviourVar instanceof BehaviourVariable behaviour)) {
+                return MethodResult.noReturn();
+            }
+
+            int from = Math.max(firstId, 1);
+            int to = lastId < 0 ? cloneNames.size() : Math.min(lastId, cloneNames.size());
+
+            for (int i = from; i <= to; i++) {
+                String cloneName = varName + "_" + i;
+                Variable clone = ctx.getVariable(cloneName);
+                if (clone == null) {
+                    continue;
+                }
+                ctx.runBehaviour("RUNCLONES:" + behaviourName + "@" + cloneName, clone, behaviour, List.of());
+            }
             return MethodResult.noReturn();
         })),
 
