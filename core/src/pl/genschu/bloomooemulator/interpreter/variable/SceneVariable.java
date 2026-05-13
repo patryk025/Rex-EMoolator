@@ -172,7 +172,7 @@ public record SceneVariable(
                 if (clone == null) {
                     continue;
                 }
-                ctx.runBehaviour("RUNCLONES:" + behaviourName + "@" + cloneName, clone, behaviour, List.of());
+                ctx.runBehaviour("RUNCLONES:" + behaviourName + "@" + cloneName, clone, behaviour, List.of(new StringValue(cloneName)));
             }
             return MethodResult.noReturn();
         })),
