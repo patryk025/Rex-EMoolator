@@ -25,11 +25,13 @@ import pl.genschu.bloomooemulator.world.MeshTriangle;
 import pl.genschu.bloomooemulator.world.TriangleVertex;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Deque;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Set;
 
 public class DebugManager implements Disposable {
@@ -42,6 +44,7 @@ public class DebugManager implements Disposable {
 
     private final ShapeRenderer shapeRenderer;
     private final BitmapFont font;
+    private final FpsCounter fpsCounter = new FpsCounter();
 
     private String tooltipText = "";
     private final Vector2 tooltipPosition = new Vector2();
@@ -76,6 +79,8 @@ public class DebugManager implements Disposable {
     }
 
     public void render(float deltaTime) {
+        fpsCounter.update(Gdx.graphics.getDeltaTime());
+
         // render if in debug mode
         if (config.isDebugGraphics()) {
             renderGraphicsDebug();
@@ -125,6 +130,10 @@ public class DebugManager implements Disposable {
             if (ev instanceof MatrixVariable mv) {
                 debugMatrix(mv);
             }
+        }
+
+        if (config.isShowFpsCounter()) {
+            renderFpsCounter();
         }
     }
 
@@ -222,6 +231,38 @@ public class DebugManager implements Disposable {
         font.setColor(Color.WHITE);
         font.draw(batch, performanceMetrics, 350, VIRTUAL_HEIGHT - 5);
         batch.end();
+    }
+
+    private void renderFpsCounter() {
+        FpsCounter.Snapshot snapshot = fpsCounter.getSnapshot();
+        String text = String.format(Locale.ROOT, "%.0f FPS | low %.0f", snapshot.fps, snapshot.lowOnePercentFps);
+        GlyphLayout layout = new GlyphLayout(font, text);
+        float x = 8;
+        float y = VIRTUAL_HEIGHT - 8;
+        float paddingX = 6;
+        float paddingY = 4;
+
+        shapeRenderer.setProjectionMatrix(camera.combined);
+        shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
+        shapeRenderer.setColor(new Color(0, 0, 0, 0.65f));
+        shapeRenderer.rect(
+                x - paddingX,
+                y - layout.height - paddingY,
+                layout.width + paddingX * 2,
+                layout.height + paddingY * 2
+        );
+        shapeRenderer.end();
+
+        batch.begin();
+        font.setColor(fpsColor(snapshot.lowOnePercentFps));
+        font.draw(batch, text, x, y);
+        batch.end();
+    }
+
+    private Color fpsColor(float lowOnePercentFps) {
+        if (lowOnePercentFps >= 55f) return Color.GREEN;
+        if (lowOnePercentFps >= 30f) return Color.YELLOW;
+        return Color.RED;
     }
 
     private void renderDebugRectangle() {
@@ -1073,5 +1114,77 @@ public class DebugManager implements Disposable {
     public void dispose() {
         shapeRenderer.dispose();
         font.dispose();
+    }
+
+    private static final class FpsCounter {
+        private static final int MAX_SAMPLES = 600;
+        private static final float WINDOW_SECONDS = 5.0f;
+        private static final float REFRESH_SECONDS = 0.5f;
+
+        private final float[] frameTimes = new float[MAX_SAMPLES];
+        private int nextIndex = 0;
+        private int sampleCount = 0;
+        private float totalSeconds = 0;
+        private float refreshTimer = 0;
+        private Snapshot snapshot = new Snapshot(0, 0);
+
+        void update(float deltaTime) {
+            if (deltaTime <= 0) return;
+
+            float frameTime = Math.min(deltaTime, 1.0f);
+            if (sampleCount < MAX_SAMPLES) {
+                sampleCount++;
+            } else {
+                totalSeconds -= frameTimes[nextIndex];
+            }
+
+            frameTimes[nextIndex] = frameTime;
+            totalSeconds += frameTime;
+            nextIndex = (nextIndex + 1) % MAX_SAMPLES;
+
+            while (sampleCount > 1 && totalSeconds > WINDOW_SECONDS) {
+                int oldestIndex = (nextIndex - sampleCount + MAX_SAMPLES) % MAX_SAMPLES;
+                totalSeconds -= frameTimes[oldestIndex];
+                sampleCount--;
+            }
+
+            refreshTimer += frameTime;
+            if (refreshTimer >= REFRESH_SECONDS || snapshot.fps == 0) {
+                refreshTimer = 0;
+                snapshot = calculateSnapshot();
+            }
+        }
+
+        Snapshot getSnapshot() {
+            return snapshot;
+        }
+
+        private Snapshot calculateSnapshot() {
+            if (sampleCount == 0 || totalSeconds <= 0) {
+                return new Snapshot(0, 0);
+            }
+
+            float fps = sampleCount / totalSeconds;
+            float[] sorted = new float[sampleCount];
+            for (int i = 0; i < sampleCount; i++) {
+                int index = (nextIndex - sampleCount + i + MAX_SAMPLES) % MAX_SAMPLES;
+                sorted[i] = frameTimes[index];
+            }
+            Arrays.sort(sorted);
+
+            int percentile99Index = Math.min(sorted.length - 1, (int) Math.ceil(sorted.length * 0.99f) - 1);
+            float lowOnePercentFps = 1.0f / sorted[percentile99Index];
+            return new Snapshot(fps, lowOnePercentFps);
+        }
+
+        static final class Snapshot {
+            final float fps;
+            final float lowOnePercentFps;
+
+            Snapshot(float fps, float lowOnePercentFps) {
+                this.fps = fps;
+                this.lowOnePercentFps = lowOnePercentFps;
+            }
+        }
     }
 }

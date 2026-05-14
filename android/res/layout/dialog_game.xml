@@ -80,4 +80,10 @@
          android:id="@+id/fullscreenCheckbox"
          android:text="Rozciągaj na cały ekran (ignoruj proporcje ekranu)" />
 
+    <CheckBox
+         android:layout_height="wrap_content"
+         android:layout_width="match_parent"
+         android:id="@+id/fpsCounterCheckbox"
+         android:text="Pokaż licznik FPS" />
+
 </LinearLayout>

@@ -18,6 +18,7 @@ public class EngineConfig {
     private boolean debugCollisions = false;
     private boolean debugMatrix = false;
     private boolean monitorPerformance = false;
+    private boolean showFpsCounter = false;
     private boolean debugWorld = true;
 
     // render settings
@@ -119,6 +120,18 @@ public class EngineConfig {
 
     public void toggleMonitorPerformance() {
         this.monitorPerformance = !this.monitorPerformance;
+    }
+
+    public boolean isShowFpsCounter() {
+        return showFpsCounter;
+    }
+
+    public void setShowFpsCounter(boolean showFpsCounter) {
+        this.showFpsCounter = showFpsCounter;
+    }
+
+    public void toggleShowFpsCounter() {
+        this.showFpsCounter = !this.showFpsCounter;
     }
 
     public boolean isDebugWorld() {
@@ -241,6 +254,7 @@ public class EngineConfig {
         debugVariables = false;
         debugButtons = false;
         debugCollisions = false;
+        showFpsCounter = false;
 
         maintainAspectRatio = true;
         vsync = true;

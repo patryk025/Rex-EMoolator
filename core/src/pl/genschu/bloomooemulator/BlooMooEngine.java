@@ -37,6 +37,9 @@ public class BlooMooEngine extends ApplicationAdapter {
     public BlooMooEngine(GameEntry gameEntry) {
         this.gameEntry = gameEntry;
         this.config = new EngineConfig();
+        if (gameEntry != null) {
+            this.config.setShowFpsCounter(gameEntry.isShowFpsCounter());
+        }
     }
 
     @Override

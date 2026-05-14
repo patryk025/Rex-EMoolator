@@ -56,6 +56,7 @@ public class Dialogs {
         JCheckBox joystickCheckbox = new JCheckBox(resourceBundle.getString("use_virtual_joystick"));
         JCheckBox skipPoliceCheckbox = new JCheckBox(resourceBundle.getString("skip_code"));
         JCheckBox fullscreenCheckbox = new JCheckBox(resourceBundle.getString("stretch_fullscreen"));
+        JCheckBox fpsCounterCheckbox = new JCheckBox(resourceBundle.getString("show_fps_counter"));
 
         chooseFolderButton.addActionListener(e -> chooseGamePath(dialog, pathField, true));
         chooseIsoButton.addActionListener(e -> chooseGamePath(dialog, pathField, false));
@@ -69,6 +70,7 @@ public class Dialogs {
             joystickCheckbox.setSelected(game.isMouseVirtualJoystick());
             skipPoliceCheckbox.setSelected(game.isSkipLicenceCode());
             fullscreenCheckbox.setSelected(!game.isMaintainAspectRatio());
+            fpsCounterCheckbox.setSelected(game.isShowFpsCounter());
         }
 
         dialog.add(new JLabel(resourceBundle.getString("game_name")));
@@ -80,17 +82,20 @@ public class Dialogs {
         dialog.add(joystickCheckbox);
         dialog.add(skipPoliceCheckbox);
         dialog.add(fullscreenCheckbox);
+        dialog.add(fpsCounterCheckbox);
 
         JButton saveButton = new JButton(resourceBundle.getString("save"));
         saveButton.addActionListener(e -> {
             if (game == null) {
-                gameManager.addGame(new GameEntry(
+                GameEntry newGame = new GameEntry(
                         nameField.getText(),
                         pathField.getText(),
                         mouseModeSelectBox.getSelectedItem().toString(),
                         joystickCheckbox.isSelected(),
                         skipPoliceCheckbox.isSelected(),
-                        fullscreenCheckbox.isSelected()));
+                        !fullscreenCheckbox.isSelected());
+                newGame.setShowFpsCounter(fpsCounterCheckbox.isSelected());
+                gameManager.addGame(newGame);
             } else {
                 game.setName(nameField.getText());
                 game.setPath(pathField.getText());
@@ -98,6 +103,7 @@ public class Dialogs {
                 game.setMouseVirtualJoystick(joystickCheckbox.isSelected());
                 game.setSkipLicenceCode(skipPoliceCheckbox.isSelected());
                 game.setMaintainAspectRatio(!fullscreenCheckbox.isSelected());
+                game.setShowFpsCounter(fpsCounterCheckbox.isSelected());
                 gameManager.updateGame(game);
             }
             gameListFrame.refreshGameList();

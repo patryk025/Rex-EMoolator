@@ -25,6 +25,7 @@ public class GameEntry implements Serializable {
     private boolean mouseVirtualJoystick;
     private boolean skipLicenceCode;
     private boolean maintainAspectRatio;
+    private boolean showFpsCounter;
 
     public GameEntry() {
     }
@@ -192,6 +193,14 @@ public class GameEntry implements Serializable {
 
     public void setMaintainAspectRatio(boolean maintainAspectRatio) {
         this.maintainAspectRatio = maintainAspectRatio;
+    }
+
+    public boolean isShowFpsCounter() {
+        return showFpsCounter;
+    }
+
+    public void setShowFpsCounter(boolean showFpsCounter) {
+        this.showFpsCounter = showFpsCounter;
     }
 
     @Override
