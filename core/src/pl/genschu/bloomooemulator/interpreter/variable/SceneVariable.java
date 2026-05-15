@@ -1,5 +1,10 @@
 package pl.genschu.bloomooemulator.interpreter.variable;
 
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.audio.Music;
+import pl.genschu.bloomooemulator.engine.Game;
+import pl.genschu.bloomooemulator.engine.decision.events.AnimoEvent;
+import pl.genschu.bloomooemulator.engine.decision.states.AnimoState;
 import pl.genschu.bloomooemulator.interpreter.helpers.ArgumentHelper;
 import pl.genschu.bloomooemulator.interpreter.values.*;
 
@@ -93,6 +98,11 @@ public record SceneVariable(
         return new SceneVariable(name, background, newMusic, musicVolume, minHotSpotZ, maxHotSpotZ, signals);
     }
 
+    private static Music currentMusic(MethodContext ctx) {
+        Game game = ctx.getGame();
+        return game != null ? game.getCurrentSceneMusic() : null;
+    }
+
     // ========================================
     // METHODS DEFINITION
     // ========================================
@@ -109,27 +119,102 @@ public record SceneVariable(
         })),
 
         Map.entry("GETPLAYINGANIMO", MethodSpec.of((self, args, ctx) -> {
-            // Get playing animations into group - handled by interpreter
+            if (args.isEmpty()) {
+                throw new IllegalArgumentException("GETPLAYINGANIMO requires 1 argument");
+            }
+            String groupName = ArgumentHelper.getString(args.get(0));
+            Variable groupVar = ctx.getVariable(groupName);
+            if (!(groupVar instanceof GroupVariable group)) {
+                Gdx.app.log("SceneVariable", "Variable " + groupName + " is not GROUP. Ignoring it.");
+                return MethodResult.noReturn();
+            }
+            group.variableNames().clear();
+            group.markerHolder()[0] = -1;
+            for (Variable variable : ctx.context().getGraphicsVariables().values()) {
+                if (variable instanceof AnimoVariable animo && animo.isPlaying()
+                        && !group.variableNames().contains(animo.name())) {
+                    group.variableNames().add(animo.name());
+                }
+            }
+            if (!group.variableNames().isEmpty()) {
+                group.markerHolder()[0] = 0;
+            }
             return MethodResult.noReturn();
         })),
 
         Map.entry("PAUSE", MethodSpec.of((self, args, ctx) -> {
-            // Pause scene - handled by interpreter/game
+            Music music = currentMusic(ctx);
+            if (music != null && music.isPlaying()) {
+                music.pause();
+            }
+            for (Variable variable : ctx.context().getGraphicsVariables().values()) {
+                if (variable instanceof AnimoVariable animo && animo.isPlaying()) {
+                    animo.changeAnimoState(AnimoEvent.PAUSE);
+                }
+            }
             return MethodResult.noReturn();
         })),
 
         Map.entry("REMOVECLONES", MethodSpec.of((self, args, ctx) -> {
-            // Remove clones - handled by interpreter
+            if (args.size() < 3) {
+                throw new IllegalArgumentException("REMOVECLONES requires 3 arguments: varName, firstId, lastId");
+            }
+            String varName = ArgumentHelper.getString(args.get(0));
+            int firstId = ArgumentHelper.getInt(args.get(1));
+            int lastId = ArgumentHelper.getInt(args.get(2));
+
+            List<String> cloneNames = ctx.clones().getCloneNames(varName);
+            if (cloneNames.isEmpty()) {
+                return MethodResult.noReturn();
+            }
+
+            int from = Math.max(firstId, 1);
+            int to = lastId < 0 ? cloneNames.size() : Math.min(lastId, cloneNames.size());
+
+            for (int i = from; i <= to; i++) {
+                String cloneName = varName + "_" + i;
+                if (ctx.getVariable(cloneName) == null) {
+                    continue;
+                }
+                ctx.removeVariable(cloneName);
+                ctx.clones().removeClone(varName, cloneName);
+            }
             return MethodResult.noReturn();
         })),
 
         Map.entry("RESUME", MethodSpec.of((self, args, ctx) -> {
-            // Resume scene - handled by interpreter/game
+            SceneVariable thisVar = (SceneVariable) self;
+            Music music = currentMusic(ctx);
+            if (music != null && !music.isPlaying()) {
+                music.setVolume(thisVar.musicVolume / 1000.0f);
+                music.play();
+            }
+            for (Variable variable : ctx.context().getGraphicsVariables().values()) {
+                if (variable instanceof AnimoVariable animo
+                        && animo.getAnimationState() == AnimoState.PAUSED) {
+                    animo.changeAnimoState(AnimoEvent.PLAY);
+                }
+            }
             return MethodResult.noReturn();
         })),
 
         Map.entry("RESUMEONLY", MethodSpec.of((self, args, ctx) -> {
-            // Resume only specified group - handled by interpreter/game
+            if (args.isEmpty()) {
+                throw new IllegalArgumentException("RESUMEONLY requires 1 argument");
+            }
+            String groupName = ArgumentHelper.getString(args.get(0));
+            Variable groupVar = ctx.getVariable(groupName);
+            if (!(groupVar instanceof GroupVariable group)) {
+                Gdx.app.log("SceneVariable", "Variable " + groupName + " is not GROUP. Ignoring it.");
+                return MethodResult.noReturn();
+            }
+            for (String memberName : group.variableNames()) {
+                Variable member = ctx.getVariable(memberName);
+                if (member instanceof AnimoVariable animo
+                        && animo.getAnimationState() == AnimoState.PAUSED) {
+                    animo.changeAnimoState(AnimoEvent.PLAY);
+                }
+            }
             return MethodResult.noReturn();
         })),
 
@@ -204,6 +289,10 @@ public record SceneVariable(
             }
             int newVolume = ArgumentHelper.getInt(args.get(0));
             ctx.updateVariable(thisVar.name(), thisVar.withMusicVolume(newVolume));
+            Music music = currentMusic(ctx);
+            if (music != null) {
+                music.setVolume(newVolume / 1000.0f);
+            }
             return MethodResult.noReturn();
         })),
 
