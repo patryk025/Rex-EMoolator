@@ -785,8 +785,46 @@ public record AnimoVariable(
         }
         updateRect();
         if (emitFrameChanged && state.currentEvent != null) {
-            emitSignal("ONFRAMECHANGED", new StringValue(state.currentEvent.getName()));
+            emitFrameChangedCascade();
         }
+    }
+
+    // Reflects analysis of CMC_Animo::onPlayableTick in bloomoodll.dll:
+    // tries a per-frame handler first, then a per-event handler with the
+    // frame label as argument, then a generic ONFRAMECHANGED. First matching
+    // handler short-circuits — at most one fires per tick.
+    private void emitFrameChangedCascade() {
+        Event event = state.currentEvent;
+        String eventName = event.getName();
+        int frameNo = state.currentFrameNumber;
+
+        String frameName = null;
+        List<FrameData> frames = event.getFrameData();
+        if (frames != null && frameNo >= 0 && frameNo < frames.size()) {
+            FrameData fd = frames.get(frameNo);
+            if (fd != null && fd.getName() != null && !fd.getName().isEmpty()) {
+                frameName = fd.getName().toUpperCase();
+            }
+        }
+
+        if (frameName != null) {
+            if (tryFireSignal("ONFRAMECHANGED^" + frameName)) return;
+            if (tryFireSignal("ONFRAMECHANGED^" + eventName, new StringValue(frameName))) return;
+        } else {
+            if (tryFireSignal("ONFRAMECHANGEDFRAME^" + frameNo)) return;
+            if (tryFireSignal("ONFRAMECHANGED^" + eventName, new StringValue(String.valueOf(frameNo)))) return;
+        }
+        tryFireSignal("ONFRAMECHANGED");
+    }
+
+    private boolean tryFireSignal(String fullName, Value... arguments) {
+        Map<String, SignalHandler> registered = signals();
+        if (registered == null) return false;
+        SignalHandler handler = registered.get(fullName);
+        if (handler == null) return false;
+        Gdx.app.debug(getTypeName(), "Executing signal: " + fullName + " for " + name());
+        handler.handle(this, fullName, arguments == null ? new Value[]{} : arguments);
+        return true;
     }
 
     /**

@@ -15,6 +15,7 @@ import pl.genschu.bloomooemulator.interpreter.values.StringValue;
 import pl.genschu.bloomooemulator.interpreter.variable.*;
 import pl.genschu.bloomooemulator.loader.CNVParser;
 import pl.genschu.bloomooemulator.loader.AnimoLoader;
+import pl.genschu.bloomooemulator.objects.FrameData;
 
 import java.io.FileInputStream;
 import java.io.InputStream;
@@ -62,25 +63,32 @@ class AnimoTest {
             return (var, signalName, args) -> {
                 if (signals.size() >= eventLimit) throw new RuntimeException("Too many signals");
                 AnimoVariable av = (AnimoVariable) var;
-                String arg = args.length > 0 && args[0] instanceof StringValue(String value) ? value : null;
-                String sigKey = arg == null ? signalName : signalName + "^" + arg;
-                signals.add(sigKey);
+                // Use signalName directly: event cascade already encodes the
+                // frame/event suffix in the signal name, and args[0] now carries the per-frame
+                // parameter rather than being part of the key.
+                signals.add(signalName);
                 frames.add(av.getCurrentFrameNumber());
                 images.add(av.getCurrentImageNumber());
 
-                // Chain to additional handler if present
-                SignalHandler additional = additionalHandlers.get(sigKey);
+                SignalHandler additional = additionalHandlers.get(signalName);
                 if (additional != null) {
                     additional.handle(var, signalName, args);
                 }
             };
         }
 
-        AnimoVariable wrapAnimo(AnimoVariable animo) {
-            return (AnimoVariable) animo
+        AnimoVariable wrapAnimo(AnimoVariable animo, String... frameChangedEvents) {
+            AnimoVariable wrapped = (AnimoVariable) animo
                 .withSignal("ONSTARTED", createHandler("ONSTARTED"))
                 .withSignal("ONFINISHED", createHandler("ONFINISHED"))
                 .withSignal("ONFRAMECHANGED", createHandler("ONFRAMECHANGED"));
+            // ONFRAMECHANGED uses a strict cascade now (no built-in fallback inside emitSignal);
+            // a script that wants the per-event variant must register the exact key.
+            for (String eventName : frameChangedEvents) {
+                wrapped = (AnimoVariable) wrapped
+                    .withSignal("ONFRAMECHANGED^" + eventName, createHandler("ONFRAMECHANGED"));
+            }
+            return wrapped;
         }
     }
 
@@ -125,7 +133,7 @@ class AnimoTest {
             }
         });
 
-        animo = capture.wrapAnimo(animo);
+        animo = capture.wrapAnimo(animo, "B");
         ctx.setVariable("ANIMOMLYNEK", animo);
 
         // Sanity check
@@ -189,7 +197,7 @@ class AnimoTest {
             var.callMethod("HIDE");
         });
 
-        animo = capture.wrapAnimo(animo);
+        animo = capture.wrapAnimo(animo, "PLAY");
         ctx.setVariable("ANNLAMPKI", animo);
 
         // Sanity check
@@ -238,7 +246,7 @@ class AnimoTest {
         // Create AnimoVariable with data
         AnimoVariable animo = new AnimoVariable("STLIDLE0");
         animo = animo.withData(data);
-        animo = capture.wrapAnimo(animo);
+        animo = capture.wrapAnimo(animo, "ELAPSE");
         ctx.setVariable("STLIDLE0", animo);
 
         // Sanity check
@@ -303,7 +311,7 @@ class AnimoTest {
             opacity.callMethod("SUB", new IntValue(4));
         });
 
-        animo = capture.wrapAnimo(animo);
+        animo = capture.wrapAnimo(animo, "ELAPSE");
 
         // Sanity check
         assertTrue(animo.getEventsCount() > 0);
@@ -326,6 +334,187 @@ class AnimoTest {
         expected.add("ONFRAMECHANGED^ELAPSE");
         expected.add("ONSTARTED^ELAPSE");
 
+        assertEquals(expected, capture.signals);
+    }
+
+    /**
+     * Branch A of event cascade: when the current frame has a name
+     * (set via SETFRAMENAME / loaded from ann file), ONFRAMECHANGED^FRAMENAME fires
+     * in preference to ONFRAMECHANGED^EVENTNAME. The frame name is upper-cased
+     * (Upper() in the DLL) before becoming part of the signal key.
+     */
+    @Test
+    void testOnFrameChangedFiresPerFrameNameHandler() throws Exception {
+        Context ctx = new ContextBuilder().build();
+
+        String filename = "odliczanie.ann";
+        String absPath = Gdx.files.internal("../assets/test-assets/" + filename).file().getAbsolutePath();
+        AnimoVariable.AnimoData data;
+        try (InputStream is = new FileInputStream(absPath)) {
+            data = AnimoLoader.load(is);
+        }
+
+        SignalCapture capture = new SignalCapture();
+        AnimoVariable animo = new AnimoVariable("ANIMO").withData(data);
+
+        // Use mixed case to verify Upper() is applied.
+        Objects.requireNonNull(animo.getEvent("PLAY")).getFrameData().get(1).setName("myFrame");
+
+        animo = (AnimoVariable) animo
+            .withSignal("ONSTARTED", capture.createHandler("ONSTARTED"))
+            .withSignal("ONFINISHED", capture.createHandler("ONFINISHED"))
+            .withSignal("ONFRAMECHANGED^PLAY", capture.createHandler("ONFRAMECHANGED"))
+            .withSignal("ONFRAMECHANGED^MYFRAME", capture.createHandler("ONFRAMECHANGED"));
+        ctx.setVariable("ANIMO", animo);
+
+        animo.callMethod("PLAY", new StringValue("PLAY"));
+        float frameTime = 1f / animo.getFps();
+        while (animo.isPlaying()) {
+            animo.updateAnimation(frameTime);
+        }
+
+        List<String> expected = List.of(
+            "ONFRAMECHANGED^PLAY",
+            "ONSTARTED^PLAY",
+            "ONFRAMECHANGED^MYFRAME",
+            "ONFRAMECHANGED^PLAY",
+            "ONFINISHED^PLAY"
+        );
+        assertEquals(expected, capture.signals);
+    }
+
+    /**
+     * Branch B of event cascade: when the current frame has no
+     * name, ONFRAMECHANGEDFRAME^&lt;N&gt; (N = frame index) is tried first. If no
+     * such handler is bound, the cascade falls back to ONFRAMECHANGED^EVENTNAME.
+     */
+    @Test
+    void testOnFrameChangedFiresPerFrameNumberHandler() throws Exception {
+        Context ctx = new ContextBuilder().build();
+
+        String filename = "odliczanie.ann";
+        String absPath = Gdx.files.internal("../assets/test-assets/" + filename).file().getAbsolutePath();
+        AnimoVariable.AnimoData data;
+        try (InputStream is = new FileInputStream(absPath)) {
+            data = AnimoLoader.load(is);
+        }
+
+        SignalCapture capture = new SignalCapture();
+        AnimoVariable animo = new AnimoVariable("ANIMO").withData(data);
+
+        // Force Branch B (no frame name) by clearing names loaded from the ANN file.
+        for (FrameData fd : Objects.requireNonNull(animo.getEvent("PLAY")).getFrameData()) {
+            fd.setName(null);
+        }
+
+        animo = (AnimoVariable) animo
+            .withSignal("ONSTARTED", capture.createHandler("ONSTARTED"))
+            .withSignal("ONFINISHED", capture.createHandler("ONFINISHED"))
+            .withSignal("ONFRAMECHANGED^PLAY", capture.createHandler("ONFRAMECHANGED"))
+            .withSignal("ONFRAMECHANGEDFRAME^1", capture.createHandler("ONFRAMECHANGED"));
+        ctx.setVariable("ANIMO", animo);
+
+        animo.callMethod("PLAY", new StringValue("PLAY"));
+        float frameTime = 1f / animo.getFps();
+        while (animo.isPlaying()) {
+            animo.updateAnimation(frameTime);
+        }
+
+        List<String> expected = List.of(
+            "ONFRAMECHANGED^PLAY",
+            "ONSTARTED^PLAY",
+            "ONFRAMECHANGEDFRAME^1",
+            "ONFRAMECHANGED^PLAY",
+            "ONFINISHED^PLAY"
+        );
+        assertEquals(expected, capture.signals);
+    }
+
+    /**
+     * The bare ONFRAMECHANGED handler is the final fallback (step .3 in the
+     * cascade); it must fire only when no per-frame-name, per-frame-number, or
+     * per-event handler matches.
+     */
+    @Test
+    void testOnFrameChangedFallsBackToGenericWhenNothingElseMatches() throws Exception {
+        Context ctx = new ContextBuilder().build();
+
+        String filename = "odliczanie.ann";
+        String absPath = Gdx.files.internal("../assets/test-assets/" + filename).file().getAbsolutePath();
+        AnimoVariable.AnimoData data;
+        try (InputStream is = new FileInputStream(absPath)) {
+            data = AnimoLoader.load(is);
+        }
+
+        SignalCapture capture = new SignalCapture();
+        AnimoVariable animo = new AnimoVariable("ANIMO").withData(data);
+
+        animo = (AnimoVariable) animo
+            .withSignal("ONSTARTED", capture.createHandler("ONSTARTED"))
+            .withSignal("ONFINISHED", capture.createHandler("ONFINISHED"))
+            .withSignal("ONFRAMECHANGED", capture.createHandler("ONFRAMECHANGED"));
+        ctx.setVariable("ANIMO", animo);
+
+        animo.callMethod("PLAY", new StringValue("PLAY"));
+        float frameTime = 1f / animo.getFps();
+        while (animo.isPlaying()) {
+            animo.updateAnimation(frameTime);
+        }
+
+        List<String> expected = List.of(
+            "ONFRAMECHANGED",
+            "ONSTARTED^PLAY",
+            "ONFRAMECHANGED",
+            "ONFRAMECHANGED",
+            "ONFINISHED^PLAY"
+        );
+        assertEquals(expected, capture.signals);
+    }
+
+    /**
+     * Short-circuit semantics: the cascade fires at most one handler per tick.
+     * When all three layers (per-frame-name, per-event, generic) are bound, only
+     * the most specific one for the current frame fires.
+     */
+    @Test
+    void testOnFrameChangedCascadeShortCircuitsOnFirstMatch() throws Exception {
+        Context ctx = new ContextBuilder().build();
+
+        String filename = "odliczanie.ann";
+        String absPath = Gdx.files.internal("../assets/test-assets/" + filename).file().getAbsolutePath();
+        AnimoVariable.AnimoData data;
+        try (InputStream is = new FileInputStream(absPath)) {
+            data = AnimoLoader.load(is);
+        }
+
+        SignalCapture capture = new SignalCapture();
+        AnimoVariable animo = new AnimoVariable("ANIMO").withData(data);
+
+        Objects.requireNonNull(animo.getEvent("PLAY")).getFrameData().get(1).setName("WIN");
+
+        animo = (AnimoVariable) animo
+            .withSignal("ONSTARTED", capture.createHandler("ONSTARTED"))
+            .withSignal("ONFINISHED", capture.createHandler("ONFINISHED"))
+            .withSignal("ONFRAMECHANGED", capture.createHandler("ONFRAMECHANGED"))
+            .withSignal("ONFRAMECHANGED^PLAY", capture.createHandler("ONFRAMECHANGED"))
+            .withSignal("ONFRAMECHANGED^WIN", capture.createHandler("ONFRAMECHANGED"));
+        ctx.setVariable("ANIMO", animo);
+
+        animo.callMethod("PLAY", new StringValue("PLAY"));
+        float frameTime = 1f / animo.getFps();
+        while (animo.isPlaying()) {
+            animo.updateAnimation(frameTime);
+        }
+
+        // Frame 1 must produce ONFRAMECHANGED^WIN exactly once: no extra ^PLAY
+        // or generic ONFRAMECHANGED is appended for that tick.
+        List<String> expected = List.of(
+            "ONFRAMECHANGED^PLAY",
+            "ONSTARTED^PLAY",
+            "ONFRAMECHANGED^WIN",
+            "ONFRAMECHANGED^PLAY",
+            "ONFINISHED^PLAY"
+        );
         assertEquals(expected, capture.signals);
     }
 
