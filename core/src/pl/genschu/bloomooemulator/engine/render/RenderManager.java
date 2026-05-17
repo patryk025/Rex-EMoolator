@@ -50,6 +50,9 @@ public class RenderManager implements Disposable {
         // Render background
         renderBackground();
 
+        // Render graphics pasted onto background by CANVAS_OBSERVER.PASTE
+        renderPastedGraphics();
+
         // Obtain draw list and sort by priority
         List<Variable> drawList = getGraphicsVariables();
         sortByPriority(drawList);
@@ -76,6 +79,18 @@ public class RenderManager implements Disposable {
                         image.width,
                         image.height);
             }
+        }
+    }
+
+    private void renderPastedGraphics() {
+        for (PastedGraphic p : game.getPastedGraphics()) {
+            if (p.texture() == null) continue;
+            batch.setColor(1, 1, 1, p.opacity());
+            batch.draw(p.texture(),
+                    p.x(),
+                    VIRTUAL_HEIGHT - p.y() - p.height(),
+                    p.width(),
+                    p.height());
         }
     }
 

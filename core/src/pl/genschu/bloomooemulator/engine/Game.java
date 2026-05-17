@@ -14,6 +14,7 @@ import pl.genschu.bloomooemulator.engine.filesystem.AssetSourceDispatcher;
 import pl.genschu.bloomooemulator.engine.filesystem.AudioFileResolver;
 import pl.genschu.bloomooemulator.engine.filesystem.IFileSystem;
 import pl.genschu.bloomooemulator.engine.input.InputManager;
+import pl.genschu.bloomooemulator.engine.render.PastedGraphic;
 import pl.genschu.bloomooemulator.interpreter.context.Context;
 import pl.genschu.bloomooemulator.interpreter.runtime.ExecutionContext;
 import pl.genschu.bloomooemulator.interpreter.runtime.ASTInterpreter;
@@ -88,6 +89,9 @@ public class Game {
 
     // Background image for current scene (loaded on scene change)
     private ImageVariable currentBackgroundImage = null;
+
+    // Snapshots pasted onto the background by CANVAS_OBSERVER.PASTE - rendered between bkg and scene.
+    private final List<PastedGraphic> pastedGraphics = new ArrayList<>();
 
     private Pixmap lastFrame;
 
@@ -523,6 +527,7 @@ public class Game {
         collisionMonitoredVariables.clear();
         dirtyCollisionObjects.clear();
         collisionMap.clear();
+        clearPastedGraphics();
         if(inputManager != null) {
             inputManager.setActiveButton(null);
             inputManager.setMouseVisible(true);
@@ -677,6 +682,8 @@ public class Game {
             currentBackgroundImage.state().dispose();
         }
 
+        clearPastedGraphics();
+
         // Dispose music
         for (Music music : musicCache.values()) {
             if (music != null) {
@@ -827,6 +834,19 @@ public class Game {
 
     public void setCurrentBackgroundImage(ImageVariable backgroundImage) {
         this.currentBackgroundImage = backgroundImage;
+    }
+
+    public List<PastedGraphic> getPastedGraphics() {
+        return pastedGraphics;
+    }
+
+    public void addPastedGraphic(PastedGraphic graphic) {
+        pastedGraphics.add(graphic);
+    }
+
+    public void clearPastedGraphics() {
+        for (PastedGraphic p : pastedGraphics) p.dispose();
+        pastedGraphics.clear();
     }
 
     public Music getCurrentSceneMusic() {

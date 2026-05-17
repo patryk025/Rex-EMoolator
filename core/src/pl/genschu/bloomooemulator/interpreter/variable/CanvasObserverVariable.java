@@ -3,8 +3,10 @@ package pl.genschu.bloomooemulator.interpreter.variable;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Pixmap;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.TextureData;
 import pl.genschu.bloomooemulator.engine.context.EngineVariable;
+import pl.genschu.bloomooemulator.engine.render.PastedGraphic;
 import pl.genschu.bloomooemulator.interpreter.helpers.ArgumentHelper;
 import pl.genschu.bloomooemulator.interpreter.values.*;
 import pl.genschu.bloomooemulator.objects.Image;
@@ -13,6 +15,7 @@ import pl.genschu.bloomooemulator.saver.ImageSaver;
 
 import java.nio.ByteBuffer;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * CanvasObserverVariable observes the canvas (screen) and provides methods
@@ -20,7 +23,8 @@ import java.util.*;
  */
 public record CanvasObserverVariable(
     String name,
-    Map<String, SignalHandler> signals
+    Map<String, SignalHandler> signals,
+    AtomicBoolean notificationsEnabled
 ) implements Variable {
 
     public CanvasObserverVariable {
@@ -32,10 +36,13 @@ public record CanvasObserverVariable(
         } else {
             signals = Map.copyOf(signals);
         }
+        if (notificationsEnabled == null) {
+            notificationsEnabled = new AtomicBoolean(true);
+        }
     }
 
     public CanvasObserverVariable(String name) {
-        this(name, Map.of());
+        this(name, Map.of(), new AtomicBoolean(true));
     }
 
     @Override
@@ -66,7 +73,7 @@ public record CanvasObserverVariable(
         } else {
             newSignals.remove(signalName);
         }
-        return new CanvasObserverVariable(name, newSignals);
+        return new CanvasObserverVariable(name, newSignals, notificationsEnabled);
     }
 
     // ========================================
@@ -97,6 +104,12 @@ public record CanvasObserverVariable(
         return false;
     }
 
+    private static float getOpacity(EngineVariable variable) {
+        if (variable instanceof ImageVariable img) return img.getOpacity();
+        if (variable instanceof AnimoVariable animo) return animo.getOpacity() / 255.0f;
+        return 1f;
+    }
+
     public static void flipPixmapVertically(Pixmap p) {
         int w = p.getWidth();
         int h = p.getHeight();
@@ -119,88 +132,94 @@ public record CanvasObserverVariable(
         return byteArray;
     }
 
+    private static Texture snapshotTexture(Texture src) {
+        if (src == null) return null;
+        TextureData data = src.getTextureData();
+        if (!data.isPrepared()) data.prepare();
+        Pixmap pixmap = data.consumePixmap();
+        Pixmap copy = new Pixmap(pixmap.getWidth(), pixmap.getHeight(), pixmap.getFormat());
+        copy.setBlending(Pixmap.Blending.None);
+        copy.drawPixmap(pixmap, 0, 0);
+        if (data.disposePixmap()) pixmap.dispose();
+        Texture result = new Texture(copy);
+        copy.dispose();
+        return result;
+    }
+
     // ========================================
     // METHODS
     // ========================================
 
     private static final Map<String, MethodSpec> METHODS = Map.ofEntries(
         Map.entry("ADD", MethodSpec.of((self, args, ctx) -> {
-            // TODO: ADD(animoVar)
-            throw new UnsupportedOperationException("CANVAS_OBSERVER.ADD not implemented");
+            if (args.isEmpty()) return MethodResult.noReturn();
+            String varName = ArgumentHelper.getString(args.get(0));
+            int priority = args.size() > 1 ? ArgumentHelper.getInt(args.get(1)) : 1000;
+            Variable var = ctx.getVariable(varName);
+            if (var instanceof ImageVariable img) {
+                img.state().priority = priority;
+                img.state().visible = true;
+            } else if (var instanceof AnimoVariable animo) {
+                animo.setPriority(priority);
+                animo.setVisible(true);
+            }
+            return MethodResult.noReturn();
         })),
 
         Map.entry("ENABLENOTIFY", MethodSpec.of((self, args, ctx) -> {
-            // TODO: ENABLENOTIFY(enable)
-            throw new UnsupportedOperationException("CANVAS_OBSERVER.ENABLENOTIFY not implemented");
+            CanvasObserverVariable co = (CanvasObserverVariable) self;
+            boolean enable = !args.isEmpty() && ArgumentHelper.getBoolean(args.get(0));
+            co.notificationsEnabled.set(enable);
+            return MethodResult.noReturn();
+        })),
+
+        Map.entry("GETBPP", MethodSpec.of((self, args, ctx) -> {
+            // Original BlooMoo runs in 16bpp (RGB565). The emulator uses RGBA8888 internally
+            // but games querying this expect the canonical BlooMoo value.
+            return MethodResult.returns(new IntValue(16));
         })),
 
         Map.entry("GETGRAPHICSAT", MethodSpec.of((self, args, ctx) -> {
-            int posX = ArgumentHelper.getInt(args.get(0));
-            int posY = ArgumentHelper.getInt(args.get(1));
-            boolean onlyVisible = args.size() > 2 && ArgumentHelper.getBoolean(args.get(2));
-            int minZ = args.size() > 3 ? ArgumentHelper.getInt(args.get(3)) : Integer.MIN_VALUE;
-            int maxZ = args.size() > 4 ? ArgumentHelper.getInt(args.get(4)) : Integer.MAX_VALUE;
-            boolean includeAlpha = args.size() > 5 && ArgumentHelper.getBoolean(args.get(5));
+            // Searches only the current scene container (no walk-up to episode/root).
+            return getGraphicsAt(args, ctx, false);
+        })),
 
-            List<EngineVariable> drawList = new ArrayList<>(ctx.getGame().getCurrentSceneContext().getGraphicsVariables().values());
-
-            drawList.sort((v1, v2) -> Integer.compare(getPriority(v2), getPriority(v1)));
-
-            for (EngineVariable variable : drawList) {
-                if (onlyVisible && !isVisible(variable)) continue;
-
-                int z = getPriority(variable);
-                if (z < minZ || z > maxZ) continue;
-
-                Box2D rect = getRect(variable);
-                if (rect == null) continue;
-
-                boolean containsPoint;
-                if (includeAlpha) {
-                    containsPoint = rect.contains(posX, posY);
-                } else {
-                    if (rect.contains(posX, posY)) {
-                        Image image = getImage(variable);
-                        int relativeX = posX - rect.getXLeft();
-                        int relativeY = posY - rect.getYTop();
-                        int alpha = 255;
-
-                        if (image != null && image.getImageTexture() != null) {
-                            TextureData textureData = image.getImageTexture().getTextureData();
-                            if (!textureData.isPrepared()) textureData.prepare();
-                            Pixmap pixmap = textureData.consumePixmap();
-                            int pixel = pixmap.getPixel(relativeX, relativeY);
-                            alpha = (pixel & 0xFF);
-                            if (textureData.disposePixmap()) pixmap.dispose();
-                        }
-
-                        containsPoint = alpha > 0;
-                    } else {
-                        containsPoint = false;
-                    }
-                }
-
-                if (containsPoint) {
-                    return MethodResult.returns(new StringValue(variable.getName()));
-                }
-            }
-
-            return MethodResult.returns(new StringValue("NULL"));
+        Map.entry("GETGRAPHICSAT2", MethodSpec.of((self, args, ctx) -> {
+            // Walks up the container hierarchy (scene -> episode -> root) if not found in current.
+            return getGraphicsAt(args, ctx, true);
         })),
 
         Map.entry("MOVEBKG", MethodSpec.of((self, args, ctx) -> {
-            // TODO: MOVEBKG(deltaX, deltaY)
-            throw new UnsupportedOperationException("CANVAS_OBSERVER.MOVEBKG not implemented");
+            int dx = ArgumentHelper.getInt(args.get(0));
+            int dy = ArgumentHelper.getInt(args.get(1));
+            ImageVariable bg = ctx.getGame().getCurrentBackgroundImage();
+            if (bg != null && bg.getImage() != null) {
+                bg.getImage().offsetX += dx;
+                bg.getImage().offsetY += dy;
+            }
+            return MethodResult.noReturn();
         })),
 
         Map.entry("PASTE", MethodSpec.of((self, args, ctx) -> {
-            // TODO: PASTE(varName, posX, posY)
-            throw new UnsupportedOperationException("CANVAS_OBSERVER.PASTE not implemented");
+            String varName = ArgumentHelper.getString(args.get(0));
+            int posX = ArgumentHelper.getInt(args.get(1));
+            int posY = ArgumentHelper.getInt(args.get(2));
+
+            Variable var = ctx.getVariable(varName);
+            if (!(var instanceof EngineVariable ev)) return MethodResult.noReturn();
+            Image image = getImage(ev);
+            if (image == null || image.getImageTexture() == null) return MethodResult.noReturn();
+
+            Texture snapshot = snapshotTexture(image.getImageTexture());
+            PastedGraphic p = new PastedGraphic(snapshot, posX, posY, image.width, image.height, getOpacity(ev));
+            ctx.getGame().addPastedGraphic(p);
+            return MethodResult.noReturn();
         })),
 
         Map.entry("REDRAW", MethodSpec.of((self, args, ctx) -> {
-            // TODO: REDRAW
-            throw new UnsupportedOperationException("CANVAS_OBSERVER.REDRAW not implemented");
+            // In the original this marks the canvas dirty and notifies observers. The emulator
+            // redraws the canvas every frame anyway, so there is nothing to do here.
+            return MethodResult.noReturn();
         })),
 
         Map.entry("REFRESH", MethodSpec.of((self, args, ctx) -> {
@@ -229,7 +248,6 @@ public record CanvasObserverVariable(
         })),
 
         Map.entry("SAVE", MethodSpec.of((self, args, ctx) -> {
-            CanvasObserverVariable coSelf = (CanvasObserverVariable) self;
             String imgFileName = ArgumentHelper.getString(args.get(0));
             double xScaleFactor = ArgumentHelper.getDouble(args.get(1));
             double yScaleFactor = ArgumentHelper.getDouble(args.get(2));
@@ -283,10 +301,80 @@ public record CanvasObserverVariable(
         })),
 
         Map.entry("SETBKGPOS", MethodSpec.of((self, args, ctx) -> {
-            // TODO: SETBKGPOS(posX, posY)
-            throw new UnsupportedOperationException("CANVAS_OBSERVER.SETBKGPOS not implemented");
+            int x = ArgumentHelper.getInt(args.get(0));
+            int y = ArgumentHelper.getInt(args.get(1));
+            ImageVariable bg = ctx.getGame().getCurrentBackgroundImage();
+            if (bg != null && bg.getImage() != null) {
+                bg.getImage().offsetX = x;
+                bg.getImage().offsetY = y;
+            }
+            return MethodResult.noReturn();
         }))
     );
+
+    private static MethodResult getGraphicsAt(List<Value> args, MethodContext ctx, boolean walkParentContainers) {
+        int posX = ArgumentHelper.getInt(args.get(0));
+        int posY = ArgumentHelper.getInt(args.get(1));
+        boolean onlyVisible = args.size() > 2 && ArgumentHelper.getBoolean(args.get(2));
+        int minZ = args.size() > 4 ? ArgumentHelper.getInt(args.get(3)) : Integer.MIN_VALUE;
+        int maxZ = args.size() > 4 ? ArgumentHelper.getInt(args.get(4)) : Integer.MAX_VALUE;
+        boolean ignoreAlpha = args.size() > 5 && ArgumentHelper.getBoolean(args.get(5));
+
+        var sceneCtx = ctx.getGame().getCurrentSceneContext();
+        List<EngineVariable> drawList = new ArrayList<>();
+        if (walkParentContainers) {
+            drawList.addAll(sceneCtx.getGraphicsVariables().values());
+        } else {
+            for (EngineVariable v : sceneCtx.getVariables().values()) {
+                if (v instanceof ImageVariable || v instanceof AnimoVariable) {
+                    drawList.add(v);
+                }
+            }
+        }
+
+        drawList.sort((v1, v2) -> Integer.compare(getPriority(v2), getPriority(v1)));
+
+        for (EngineVariable variable : drawList) {
+            if (onlyVisible && !isVisible(variable)) continue;
+
+            int z = getPriority(variable);
+            if (z < minZ || z > maxZ) continue;
+
+            Box2D rect = getRect(variable);
+            if (rect == null) continue;
+
+            boolean containsPoint;
+            if (ignoreAlpha) {
+                containsPoint = rect.contains(posX, posY);
+            } else {
+                if (rect.contains(posX, posY)) {
+                    Image image = getImage(variable);
+                    int relativeX = posX - rect.getXLeft();
+                    int relativeY = posY - rect.getYTop();
+                    int alpha = 255;
+
+                    if (image != null && image.getImageTexture() != null) {
+                        TextureData textureData = image.getImageTexture().getTextureData();
+                        if (!textureData.isPrepared()) textureData.prepare();
+                        Pixmap pixmap = textureData.consumePixmap();
+                        int pixel = pixmap.getPixel(relativeX, relativeY);
+                        alpha = (pixel & 0xFF);
+                        if (textureData.disposePixmap()) pixmap.dispose();
+                    }
+
+                    containsPoint = alpha > 0;
+                } else {
+                    containsPoint = false;
+                }
+            }
+
+            if (containsPoint) {
+                return MethodResult.returns(new StringValue(variable.getName()));
+            }
+        }
+
+        return MethodResult.returns(new StringValue("NULL"));
+    }
 
     @Override
     public String toString() {
