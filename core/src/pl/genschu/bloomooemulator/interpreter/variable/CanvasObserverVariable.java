@@ -206,13 +206,12 @@ public record CanvasObserverVariable(
         Map.entry("REFRESH", MethodSpec.of((self, args, ctx) -> {
             // technically in original it sets all canvas as dirty for redraw, but as I do that in every frame
             // just simply invalidate all IMAGE variables
-            List<EngineVariable> drawList = new ArrayList<>(ctx.getGame().getCurrentSceneContext().getGraphicsVariables().values());
-
-            for (EngineVariable variable : drawList) {
-                if(variable instanceof ImageVariable img) {
-                    img.callMethod("INVALIDATE");
-                }
-            }
+            ctx.getGame().getCurrentSceneContext().getGraphicsVariables().values()
+                    .forEach(variable -> {
+                        if (variable instanceof ImageVariable img) {
+                            img.callMethod("INVALIDATE");
+                        }
+                    });
             return MethodResult.noReturn();
         })),
 
