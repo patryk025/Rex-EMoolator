@@ -1,15 +1,20 @@
+import com.github.jengelman.gradle.plugins.shadow.transformers.ApacheLicenseResourceTransformer
+import com.github.jk1.license.render.JsonReportRenderer
+import com.github.jk1.license.render.SimpleHtmlReportRenderer
+import groovy.json.JsonSlurper
+
 buildscript {
     repositories {
         mavenLocal()
         mavenCentral()
         gradlePluginPortal()
-        maven { url "https://oss.sonatype.org/content/repositories/snapshots/" }
+        maven { url = uri("https://oss.sonatype.org/content/repositories/snapshots/") }
         google()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:8.13.2'
-        classpath 'com.gradleup.shadow:shadow-gradle-plugin:9.2.2'
-        classpath 'com.github.jk1:gradle-license-report:2.9'
+        classpath 'com.android.tools.build:gradle:9.0.1'
+        classpath 'com.gradleup.shadow:shadow-gradle-plugin:9.4.1'
+        classpath 'com.github.jk1:gradle-license-report:3.1.2'
     }
 }
 
@@ -18,8 +23,8 @@ apply plugin: 'com.github.jk1.dependency-license-report'
 licenseReport {
     configurations = ['runtimeClasspath']
     renderers = [
-            new com.github.jk1.license.render.SimpleHtmlReportRenderer(),
-            new com.github.jk1.license.render.JsonReportRenderer('index.json', false)
+            new SimpleHtmlReportRenderer(),
+            new JsonReportRenderer('index.json', false)
     ]
     allowedLicensesFile = rootProject.file('gradle/allowed-licenses.json')
 }
@@ -49,12 +54,12 @@ def loadLicenseNoticeOverrides = {
         return [:]
     }
 
-    def parsed = new groovy.json.JsonSlurper().parse(sourceFile)
+    def parsed = new JsonSlurper().parse(sourceFile)
     parsed.modules instanceof Map ? parsed.modules : [:]
 }
 
 def renderThirdPartyNotices = { File reportFile ->
-    def report = new groovy.json.JsonSlurper().parse(reportFile)
+    def report = new JsonSlurper().parse(reportFile)
     def overrides = loadLicenseNoticeOverrides()
     def dependencies = ((report.dependencies ?: []) as List).collect { dependency ->
         def licensesByKey = [:]
@@ -122,7 +127,7 @@ def renderThirdPartyNotices = { File reportFile ->
     dependencies.each { dependency ->
         def licenseNames = dependency.licenses.collect { escapeMarkdownCell(it.name) }.findAll { it }.join('<br>')
         def licenseUrls = dependency.licenses.collect { it.url ? "<${it.url}>" : '' }.findAll { it }.join('<br>')
-        lines << "| ${escapeMarkdownCell(dependency.name)} | ${escapeMarkdownCell(dependency.version)} | ${licenseNames ?: 'Unknown'} | ${licenseUrls ?: 'n/a'} |"
+        lines << ("| ${escapeMarkdownCell(dependency.name)} | ${escapeMarkdownCell(dependency.version)} | ${licenseNames ?: 'Unknown'} | ${licenseUrls ?: 'n/a'} |" as String)
     }
 
     def appliedOverrides = dependencies.findAll { it.override instanceof Map }
@@ -136,7 +141,7 @@ def renderThirdPartyNotices = { File reportFile ->
         appliedOverrides.each { dependency ->
             def reason = normalizeNoticeValue(dependency.override.reason)
             def source = normalizeNoticeValue(dependency.override.source)
-            lines << "- `${dependency.name}:${dependency.version}`${reason ? ': ' + reason : ''}${source ? ' Source: <' + source + '>' : ''}"
+            lines << ("- `${dependency.name}:${dependency.version}`${reason ? ': ' + reason : ''}${source ? ' Source: <' + source + '>' : ''}" as String)
         }
     }
 
@@ -148,7 +153,7 @@ def renderThirdPartyNotices = { File reportFile ->
                 'The following runtime dependencies currently resolve to LGPL-family licenses:'
         ]
         lgplDependencies.each { dependency ->
-            lines << "- `${dependency.name}:${dependency.version}`"
+            lines << ("- `${dependency.name}:${dependency.version}`" as String)
         }
         lines += [
                 '',
@@ -227,9 +232,9 @@ allprojects {
         mavenCentral()
         google()
         gradlePluginPortal()
-        maven { url "https://oss.sonatype.org/content/repositories/snapshots/" }
-        maven { url "https://oss.sonatype.org/content/repositories/releases/" }
-        maven { url "https://jitpack.io" }
+        maven { url = uri("https://oss.sonatype.org/content/repositories/snapshots/") }
+        maven { url = uri("https://oss.sonatype.org/content/repositories/releases/") }
+        maven { url = uri("https://jitpack.io") }
     }
 }
 
@@ -265,20 +270,18 @@ project(":desktop") {
         classpath = files('lib/*')
     }
 
-    distributions {
-        main {
-            distributionBaseName.set('Rex_EMoolator-desktop')
-            contents {
-                from(rootProject.file('LICENSE'))
-                from(rootProject.file('THIRD-PARTY-NOTICES.md'))
-                into('lib') {
-                    from(tasks.named('jar'))
-                    from(configurations.runtimeClasspath)
-                }
-                into('bin') {
-                    from(tasks.named('createStartScripts'))
-                    filePermissions { unix(0755) }
-                }
+    distributions.named('main') {
+        distributionBaseName.set('Rex_EMoolator-desktop')
+        contents {
+            from(rootProject.file('LICENSE'))
+            from(rootProject.file('THIRD-PARTY-NOTICES.md'))
+            into('lib') {
+                from(tasks.named('jar'))
+                from(configurations.runtimeClasspath)
+            }
+            into('bin') {
+                from(tasks.named('createStartScripts'))
+                filePermissions { unix(0755) }
             }
         }
     }
@@ -292,7 +295,7 @@ project(":desktop") {
             )
         }
         mergeServiceFiles()
-        transform(com.github.jengelman.gradle.plugins.shadow.transformers.ApacheLicenseResourceTransformer)
+        transform(ApacheLicenseResourceTransformer)
         from(rootProject.file('LICENSE')) {
             into 'META-INF'
             rename { 'LICENSE-Rex-EMoolator' }
@@ -334,20 +337,20 @@ project(":android") {
 
         implementation 'androidx.appcompat:appcompat:1.7.1'
         implementation 'androidx.constraintlayout:constraintlayout:2.2.1'
-        implementation 'androidx.navigation:navigation-fragment:2.9.6'
-        implementation 'androidx.navigation:navigation-ui:2.9.4'
-        implementation 'androidx.activity:activity:1.11.0'
+        implementation 'androidx.navigation:navigation-fragment:2.9.8'
+        implementation 'androidx.navigation:navigation-ui:2.9.8'
+        implementation 'androidx.activity:activity:1.13.0'
         testImplementation 'junit:junit:4.13.2'
         androidTestImplementation 'androidx.test.ext:junit:1.3.0'
         androidTestImplementation 'androidx.test.espresso:espresso-core:3.7.0'
         implementation 'androidx.recyclerview:recyclerview:1.4.0'
-        implementation 'androidx.work:work-runtime:2.11.0'
+        implementation 'androidx.work:work-runtime:2.11.2'
 
         implementation "net.java.dev.jna:jna:$jnaVersion@aar"
     }
     
     android {
-        packagingOptions {
+        packaging {
             resources {
                 pickFirsts += ['META-INF/AL2.0', 'META-INF/LGPL2.1']
             }
@@ -358,9 +361,12 @@ project(":android") {
             targetCompatibility JavaVersion.VERSION_21
         }
 
-        applicationVariants.all { variant ->
-            variant.outputs.all {
-                outputFileName = "Rex_Emoolator-android-${version}-${variant.name}.apk"
+    }
+
+    androidComponents {
+        onVariants(selector().all()) { variant ->
+            variant.outputs.each { output ->
+                output.outputFileName.set("Rex_Emoolator-android-${version}-${variant.name}.apk")
             }
         }
     }
@@ -368,8 +374,11 @@ project(":android") {
 
 project(":core") {
     apply plugin: "java-library"
-    sourceCompatibility = JavaVersion.VERSION_21
-    targetCompatibility = JavaVersion.VERSION_21
+
+    java {
+        sourceCompatibility = JavaVersion.VERSION_21
+        targetCompatibility = JavaVersion.VERSION_21
+    }
 
     dependencies {
         api "com.badlogicgames.gdx:gdx:$gdxVersion"
@@ -381,12 +390,12 @@ project(":core") {
         }
         implementation "org.ode4j:core:$ode4jVersion"
 
-        testImplementation 'org.junit.jupiter:junit-jupiter:5.13.4'
-        testRuntimeOnly "org.junit.platform:junit-platform-launcher:1.13.4"
-        testImplementation 'org.mockito:mockito-core:5.20.0'
+        testImplementation 'org.junit.jupiter:junit-jupiter:6.0.3'
+        testRuntimeOnly "org.junit.platform:junit-platform-launcher:6.0.3"
+        testImplementation 'org.mockito:mockito-core:5.23.0'
         testImplementation "org.mockito:mockito-inline:5.2.0"
-        testImplementation "org.mockito:mockito-junit-jupiter:5.20.0"
-        testImplementation 'org.assertj:assertj-core:3.27.6'
+        testImplementation "org.mockito:mockito-junit-jupiter:5.23.0"
+        testImplementation 'org.assertj:assertj-core:3.27.7'
         testImplementation "com.badlogicgames.gdx:gdx-backend-headless:$gdxVersion"
         testRuntimeOnly "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-desktop"
 
