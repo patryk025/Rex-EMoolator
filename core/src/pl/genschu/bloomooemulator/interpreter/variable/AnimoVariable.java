@@ -152,16 +152,6 @@ public record AnimoVariable(
         }
     }
 
-    /**
-     * Result of animation update.
-     */
-    public record AnimationUpdateResult(
-        boolean frameChanged,
-        boolean animationEnded,
-        String signalToEmit,
-        String signalArgument
-    ) {}
-
     // Compact constructor
     public AnimoVariable {
         if (name == null || name.isEmpty()) {
@@ -1123,7 +1113,7 @@ public record AnimoVariable(
     // METHODS DEFINITION
     // ========================================
 
-    private static final Map<String, MethodSpec> METHODS = Map.ofEntries(
+    private static final Map<String, MethodSpec> METHODS = Map.<String, MethodSpec>ofEntries(
         // PLAYBACK METHODS
         Map.entry("PLAY", MethodSpec.of((self, args, ctx) -> {
             AnimoVariable thisVar = (AnimoVariable) self;
