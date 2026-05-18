@@ -17,6 +17,7 @@ import pl.genschu.bloomooemulator.engine.Game;
 import pl.genschu.bloomooemulator.engine.config.EngineConfig;
 import pl.genschu.bloomooemulator.engine.context.EngineVariable;
 import pl.genschu.bloomooemulator.engine.context.GameContext;
+import pl.genschu.bloomooemulator.interpreter.context.Context;
 import pl.genschu.bloomooemulator.interpreter.values.StringValue;
 import pl.genschu.bloomooemulator.interpreter.variable.*;
 import pl.genschu.bloomooemulator.objects.Image;
@@ -70,26 +71,40 @@ public class InputManager implements Disposable {
         GameContext context = game.getCurrentSceneContext();
         if (context == null) return;
 
-        // Get mouse and keyboard variables from the current context
-        EngineVariable mouseEV = context.getMouseVariable();
-        EngineVariable keyboardEV = context.getKeyboardVariable();
-
-        MouseVariable mouseVariable = mouseEV instanceof MouseVariable m ? m : null;
-        KeyboardVariable keyboardVariable = keyboardEV instanceof KeyboardVariable k ? k : null;
+        List<MouseVariable> mouseVariables = getMouseListeners(context);
+        List<KeyboardVariable> keyboardVariables = getKeyboardListeners(context);
 
         game.getEmulator().getDebugManager().handleSceneSelectorInput(deltaTime);
 
         // Handle mouse input
-        processMouseInput(mouseVariable);
+        processMouseInput(mouseVariables);
 
         // Handle keyboard input
-        processKeyboardInput(keyboardVariable);
+        processKeyboardInput(keyboardVariables);
 
         // Handle debugging (F1, F2 keys)
         processDebugInput();
     }
 
-    private void processMouseInput(MouseVariable mouseVariable) {
+    private List<MouseVariable> getMouseListeners(GameContext context) {
+        if (context instanceof Context interpreterContext) {
+            return interpreterContext.getMouseVariables();
+        }
+
+        EngineVariable mouseEV = context.getMouseVariable();
+        return mouseEV instanceof MouseVariable mouse ? List.of(mouse) : List.of();
+    }
+
+    private List<KeyboardVariable> getKeyboardListeners(GameContext context) {
+        if (context instanceof Context interpreterContext) {
+            return interpreterContext.getKeyboardVariables();
+        }
+
+        EngineVariable keyboardEV = context.getKeyboardVariable();
+        return keyboardEV instanceof KeyboardVariable keyboard ? List.of(keyboard) : List.of();
+    }
+
+    private void processMouseInput(List<MouseVariable> mouseVariables) {
         int x = Gdx.input.getX();
         int y = Gdx.input.getY();
 
@@ -129,34 +144,42 @@ public class InputManager implements Disposable {
             justReleased = false;
         }
 
-        // Update mouse variable
-        if (mouseVariable != null) {
+        // Update mouse listener variables
+        for (MouseVariable mouseVariable : mouseVariables) {
             mouseVariable.update(correctedX, correctedY);
         }
 
         // Process button interactions
-        buttonHandler.handleMouseInput(correctedX, correctedY, isPressed, justPressed, justReleased, mouseVariable);
+        MouseVariable primaryMouse = mouseVariables.isEmpty() ? null : mouseVariables.get(mouseVariables.size() - 1);
+        buttonHandler.handleMouseInput(correctedX, correctedY, isPressed, justPressed, justReleased, primaryMouse);
 
         // Emit mouse signals
-        if (mouseVariable != null && mouseVariable.isEmitSignals()) {
-            if (justPressed) {
-                mouseVariable.emitSignal("ONCLICK", new StringValue("LEFT"));
-            } else if (justReleased) {
-                mouseVariable.emitSignal("ONRELEASE", new StringValue("LEFT"));
-            }
+        if (justPressed) {
+            emitMouseSignal(mouseVariables, "ONCLICK", new StringValue("LEFT"));
+        } else if (justReleased) {
+            emitMouseSignal(mouseVariables, "ONRELEASE", new StringValue("LEFT"));
         }
 
         // Update mouse state
+        mousePressed = isPressed;
         mousePrevPressed = isPressed;
     }
 
-    private void processKeyboardInput(KeyboardVariable keyboardVariable) {
-        if (keyboardVariable == null || !keyboardVariable.isEnabled()) {
+    private void emitMouseSignal(List<MouseVariable> mouseVariables, String signalName, StringValue buttonName) {
+        for (MouseVariable mouseVariable : mouseVariables) {
+            if (mouseVariable.isEnabled() && mouseVariable.isEmitSignals()) {
+                mouseVariable.emitSignal(signalName, buttonName);
+            }
+        }
+    }
+
+    private void processKeyboardInput(List<KeyboardVariable> keyboardVariables) {
+        if (keyboardVariables.isEmpty()) {
             return;
         }
 
         // Handle keyboard buttons input
-        keyboardHandler.handleKeyboardInput(keyboardVariable, pressedKeys, previouslyPressedKeys);
+        keyboardHandler.handleKeyboardInput(keyboardVariables, pressedKeys, previouslyPressedKeys);
 
         // Update keyboard buttons state
         previouslyPressedKeys.clear();

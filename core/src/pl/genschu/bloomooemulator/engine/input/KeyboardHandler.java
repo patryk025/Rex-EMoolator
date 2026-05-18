@@ -6,6 +6,8 @@ import pl.genschu.bloomooemulator.interpreter.values.StringValue;
 import pl.genschu.bloomooemulator.interpreter.variable.KeyboardVariable;
 import pl.genschu.bloomooemulator.utils.KeyboardKeysMapper;
 
+import java.util.Collection;
+import java.util.List;
 import java.util.Set;
 
 public class KeyboardHandler {
@@ -18,7 +20,14 @@ public class KeyboardHandler {
     public void handleKeyboardInput(KeyboardVariable keyboardVariable,
                                     Set<Integer> currentlyPressedKeys,
                                     Set<Integer> previouslyPressedKeys) {
-        if (keyboardVariable == null || !keyboardVariable.isEnabled()) {
+        handleKeyboardInput(keyboardVariable != null ? List.of(keyboardVariable) : List.of(),
+                currentlyPressedKeys, previouslyPressedKeys);
+    }
+
+    public void handleKeyboardInput(Collection<KeyboardVariable> keyboardVariables,
+                                    Set<Integer> currentlyPressedKeys,
+                                    Set<Integer> previouslyPressedKeys) {
+        if (keyboardVariables == null || keyboardVariables.isEmpty()) {
             return;
         }
 
@@ -38,17 +47,30 @@ public class KeyboardHandler {
 
                 // Send the signal only if the key is pressed for the first time
                 // or auto-repeat is enabled
-                if (!wasPressed || keyboardVariable.isAutoRepeat()) {
-                    keyboardVariable.emitSignal("ONKEYDOWN", new StringValue(keyName));
+                for (KeyboardVariable keyboardVariable : keyboardVariables) {
+                    if (!keyboardVariable.isEnabled()) {
+                        continue;
+                    }
+                    if (!wasPressed || keyboardVariable.isAutoRepeat()) {
+                        keyboardVariable.emitSignal("ONKEYDOWN", new StringValue(keyName));
+                    }
                 }
 
                 // Send the ONCHAR signal only if the key is pressed for the first time
                 if (!wasPressed) {
-                    keyboardVariable.emitSignal("ONCHAR", new StringValue(keyName));
+                    for (KeyboardVariable keyboardVariable : keyboardVariables) {
+                        if (keyboardVariable.isEnabled()) {
+                            keyboardVariable.emitSignal("ONCHAR", new StringValue(keyName));
+                        }
+                    }
                 }
             } else if (wasPressed) {
                 // Key was pressed and now it is released
-                keyboardVariable.emitSignal("ONKEYUP", new StringValue(keyName));
+                for (KeyboardVariable keyboardVariable : keyboardVariables) {
+                    if (keyboardVariable.isEnabled()) {
+                        keyboardVariable.emitSignal("ONKEYUP", new StringValue(keyName));
+                    }
+                }
             }
         }
     }

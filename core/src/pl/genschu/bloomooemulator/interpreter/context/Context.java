@@ -384,6 +384,69 @@ public class Context implements GameContext {
     }
 
     /**
+     * Gets all MOUSE listener variables from the active context chain.
+     *
+     * Input callbacks in the original engine are listener-based: a MOUSE object
+     * declared in APPLICATION, EPISODE and SCENE receives events as separate
+     * listeners even though all of them share the canonical MOUSE name.
+     */
+    public List<MouseVariable> getMouseVariables() {
+        return collectInputVariables(VariableType.MOUSE, MouseVariable.class, "MOUSE");
+    }
+
+    /**
+     * Gets all KEYBOARD listener variables from the active context chain.
+     */
+    public List<KeyboardVariable> getKeyboardVariables() {
+        return collectInputVariables(VariableType.KEYBOARD, KeyboardVariable.class, "KEYBOARD");
+    }
+
+    private <T extends Variable> List<T> collectInputVariables(
+            VariableType type,
+            Class<T> expectedType,
+            String fallbackName
+    ) {
+        List<T> result = new ArrayList<>();
+        Set<Context> visitedContexts = Collections.newSetFromMap(new IdentityHashMap<>());
+        Set<Variable> visitedVariables = Collections.newSetFromMap(new IdentityHashMap<>());
+        collectInputVariables(this, type, expectedType, result, visitedContexts, visitedVariables);
+
+        if (result.isEmpty()) {
+            Variable resolved = resolver.resolve(fallbackName, this);
+            if (expectedType.isInstance(resolved)) {
+                result.add(expectedType.cast(resolved));
+            }
+        }
+
+        return Collections.unmodifiableList(result);
+    }
+
+    private <T extends Variable> void collectInputVariables(
+            Context context,
+            VariableType type,
+            Class<T> expectedType,
+            List<T> result,
+            Set<Context> visitedContexts,
+            Set<Variable> visitedVariables
+    ) {
+        if (context == null || !visitedContexts.add(context)) {
+            return;
+        }
+
+        collectInputVariables(context.getParent(), type, expectedType, result, visitedContexts, visitedVariables);
+
+        Variable variable = switch (type) {
+            case MOUSE -> context.store().getCacheIndex().getMouse();
+            case KEYBOARD -> context.store().getCacheIndex().getKeyboard();
+            default -> null;
+        };
+
+        if (expectedType.isInstance(variable) && visitedVariables.add(variable)) {
+            result.add(expectedType.cast(variable));
+        }
+    }
+
+    /**
      * Gets the WORLD variable (searches up parent chain).
      *
      * @return WORLD variable or null

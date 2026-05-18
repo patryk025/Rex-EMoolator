@@ -44,8 +44,37 @@ class VariableInfrastructureRegressionTest {
 
         assertSame(mouse, ctx.getMouseVariable());
         assertSame(keyboard, ctx.getKeyboardVariable());
+        assertEquals(List.of(mouse), ctx.getMouseVariables());
+        assertEquals(List.of(keyboard), ctx.getKeyboardVariables());
         assertSame(mouse, ctx.getVariable("MOUSE"));
         assertSame(random, ctx.getVariable("RAND"));
+    }
+
+    @Test
+    void testInputListenersPreserveHierarchyOrderAndDuplicateNames() {
+        Context definition = new ContextBuilder().build();
+        Context application = new Context(new ExecutionContext(), definition);
+        Context episode = new Context(new ExecutionContext(), application);
+        Context scene = new Context(new ExecutionContext(), episode);
+
+        MouseVariable applicationMouse = new MouseVariable("MOUSE");
+        MouseVariable episodeMouse = new MouseVariable("MOUSE");
+        MouseVariable sceneMouse = new MouseVariable("MOUSE");
+        KeyboardVariable applicationKeyboard = new KeyboardVariable("KEYBOARD");
+        KeyboardVariable episodeKeyboard = new KeyboardVariable("KEYBOARD");
+        KeyboardVariable sceneKeyboard = new KeyboardVariable("KEYBOARD");
+
+        application.setVariable("MOUSE", applicationMouse);
+        episode.setVariable("MOUSE", episodeMouse);
+        scene.setVariable("MOUSE", sceneMouse);
+        application.setVariable("KEYBOARD", applicationKeyboard);
+        episode.setVariable("KEYBOARD", episodeKeyboard);
+        scene.setVariable("KEYBOARD", sceneKeyboard);
+
+        assertEquals(List.of(applicationMouse, episodeMouse, sceneMouse), scene.getMouseVariables());
+        assertEquals(List.of(applicationKeyboard, episodeKeyboard, sceneKeyboard), scene.getKeyboardVariables());
+        assertSame(sceneMouse, scene.getMouseVariable());
+        assertSame(sceneKeyboard, scene.getKeyboardVariable());
     }
 
     @Test
