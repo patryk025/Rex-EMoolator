@@ -111,7 +111,7 @@ public record AnimoVariable(
             copy.toCanvas = this.toCanvas;
             copy.opacity = this.opacity;
             copy.priority = this.priority;
-            copy.renderOrder = this.renderOrder;
+            copy.renderOrder = RenderOrder.next();
             copy.filters = new ArrayList<>(this.filters);
             copy.changeCursor = this.changeCursor;
             copy.monitorCollision = this.monitorCollision;

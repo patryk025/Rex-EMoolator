@@ -62,7 +62,7 @@ public record ImageVariable(
                     ? new Box2D(clippingRect.getXLeft(), clippingRect.getYBottom(), clippingRect.getXRight(), clippingRect.getYTop())
                     : null;
             copy.priority = this.priority;
-            copy.renderOrder = this.renderOrder;
+            copy.renderOrder = RenderOrder.next();
             copy.visible = this.visible;
             copy.monitorCollision = this.monitorCollision;
             copy.monitorCollisionAlpha = this.monitorCollisionAlpha;
