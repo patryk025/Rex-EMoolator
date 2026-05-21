@@ -124,7 +124,7 @@ public class Dialogs {
         chooser.setFileSelectionMode(directoryMode ? JFileChooser.DIRECTORIES_ONLY : JFileChooser.FILES_ONLY);
         chooser.setDialogTitle(resourceBundle.getString(directoryMode ? "choose_folder" : "choose_iso"));
         if (!directoryMode) {
-            chooser.setFileFilter(new FileNameExtensionFilter("ISO (*.iso)", "iso"));
+            chooser.setFileFilter(new FileNameExtensionFilter("Archives (*.iso, *.zip)", "iso", "zip"));
         }
 
         String currentPath = pathField.getText();

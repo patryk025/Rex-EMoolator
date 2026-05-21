@@ -17,6 +17,9 @@ public final class AssetSourceDispatcher {
         if (name.endsWith(".iso")) {
             return new IsoFileSystem(path);
         }
+        if (name.endsWith(".zip")) {
+            return new ZipFileSystem(path);
+        }
 
         throw new IOException("Unsupported game asset source: " + path);
     }

@@ -26,6 +26,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Locale;
 
 public class GameListActivity extends AppCompatActivity {
     private GameListAdapter adapter;
@@ -176,7 +177,7 @@ public class GameListActivity extends AppCompatActivity {
     }
 
     private void showPathPicker(EditText pathField, boolean directoryMode, File directory) {
-        File[] files = directory.listFiles(file -> file.isDirectory() || (!directoryMode && file.getName().toLowerCase().endsWith(".iso")));
+        File[] files = directory.listFiles(file -> file.isDirectory() || (!directoryMode && isSupportedAssetFile(file)));
         List<File> entries = new ArrayList<>();
         if (directory.getParentFile() != null) {
             entries.add(directory.getParentFile());
@@ -225,6 +226,11 @@ public class GameListActivity extends AppCompatActivity {
 
         File externalStorage = Environment.getExternalStorageDirectory();
         return externalStorage != null ? externalStorage : getFilesDir();
+    }
+
+    private static boolean isSupportedAssetFile(File file) {
+        String name = file.getName().toLowerCase(Locale.ROOT);
+        return name.endsWith(".iso") || name.endsWith(".zip");
     }
 
     public void showDeleteDialog(GameEntry game) {
