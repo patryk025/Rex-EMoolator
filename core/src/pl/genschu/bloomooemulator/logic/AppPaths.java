@@ -5,6 +5,8 @@ import java.io.File;
 public final class AppPaths {
     private static final String APP_DIR = ".rexemoolator";
     private static final String STORAGE_DIR = "storage";
+    private static final String PATCHES_DIR = "patches";
+    private static final String PATCHES_INDEX = "index.json";
 
     private AppPaths() {
     }
@@ -29,5 +31,13 @@ public final class AppPaths {
 
     public static File storageDirFor(GameEntry game) {
         return new File(storageRootDir(), game.getStorageId());
+    }
+
+    public static File patchesRootDir() {
+        return new File(userDataDir(), PATCHES_DIR);
+    }
+
+    public static File patchesIndexFile() {
+        return new File(patchesRootDir(), PATCHES_INDEX);
     }
 }
