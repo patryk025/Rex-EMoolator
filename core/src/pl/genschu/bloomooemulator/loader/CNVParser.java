@@ -274,7 +274,14 @@ public class CNVParser {
                 if (elapseStr != null) {
                     try { elapse = Long.parseLong(elapseStr); } catch (NumberFormatException ignored) {}
                 }
-                yield new TimerVariable(objectName, elapse);
+                String ticksStr = properties.get(objectName + ":TICKS");
+                int ticks = 0;
+                if (ticksStr != null) {
+                    try { ticks = Integer.parseInt(ticksStr); } catch (NumberFormatException ignored) {}
+                }
+                String enabledStr = properties.get(objectName + ":ENABLED");
+                boolean enabled = enabledStr == null || !enabledStr.equalsIgnoreCase("FALSE");
+                yield new TimerVariable(objectName, elapse, enabled, ticks, System.currentTimeMillis(), 0, Map.of());
             }
             case "RAND" -> new RandVariable(objectName);
             case "VECTOR" -> {
