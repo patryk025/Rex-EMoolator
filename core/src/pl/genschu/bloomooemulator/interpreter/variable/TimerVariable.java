@@ -11,6 +11,11 @@ import java.util.Map;
  * TimerVariable handles time-based events.
  * Emits ONTICK signal at regular intervals.
  *
+ * <p>Time fields are expressed in engine-clock milliseconds (see
+ * {@link pl.genschu.bloomooemulator.engine.Game#getEngineTimeMs()}), not
+ * wall-clock time. Callers must pass the engine time to {@link #update(long)};
+ * methods that mutate {@code lastTickTime} also read it from the engine.
+ *
  * Uses a mutable TimerState to avoid recreating the record on every tick.
  **/
 public record TimerVariable(
@@ -38,7 +43,7 @@ public record TimerVariable(
         }
 
         public TimerState() {
-            this(0L, true, 0, System.currentTimeMillis(), 0);
+            this(0L, true, 0, 0L, 0);
         }
 
         public TimerState copy() {
@@ -65,7 +70,7 @@ public record TimerVariable(
     }
 
     public TimerVariable(String name, long elapse) {
-        this(name, new TimerState(elapse, true, 0, System.currentTimeMillis(), 0), Map.of());
+        this(name, new TimerState(elapse, true, 0, 0L, 0), Map.of());
     }
 
     // Legacy-compatible constructor
@@ -121,10 +126,6 @@ public record TimerVariable(
     public long lastTickTime() { return state.lastTickTime; }
     public int currentTickCount() { return state.currentTickCount; }
 
-    public UpdateResult update() {
-        return update(System.currentTimeMillis());
-    }
-
     public UpdateResult update(long currentTime) {
         if (!state.enabled || state.elapse <= 0) {
             return new UpdateResult(this, false);
@@ -146,8 +147,8 @@ public record TimerVariable(
 
     public record UpdateResult(TimerVariable timer, boolean tickOccurred) {}
 
-    public int getTimeFromLastTick() {
-        return (int) (System.currentTimeMillis() - state.lastTickTime);
+    public int getTimeFromLastTick(long engineTimeMs) {
+        return (int) (engineTimeMs - state.lastTickTime);
     }
 
     // ========================================
@@ -163,8 +164,12 @@ public record TimerVariable(
 
         Map.entry("ENABLE", MethodSpec.of((self, args, ctx) -> {
             TimerVariable thisVar = (TimerVariable) self;
+            if (thisVar.state.enabled) {
+                return MethodResult.noReturn(); // BlooMooDLL: ENABLE on already-enabled timer is a no-op
+            }
+            thisVar.state.currentTickCount = 0;
             thisVar.state.enabled = true;
-            thisVar.state.lastTickTime = System.currentTimeMillis();
+            thisVar.state.lastTickTime = engineTimeFrom(ctx);
             return MethodResult.noReturn();
         })),
 
@@ -176,7 +181,7 @@ public record TimerVariable(
         Map.entry("RESET", MethodSpec.of((self, args, ctx) -> {
             TimerVariable thisVar = (TimerVariable) self;
             thisVar.state.currentTickCount = 0;
-            thisVar.state.lastTickTime = System.currentTimeMillis();
+            thisVar.state.lastTickTime = engineTimeFrom(ctx);
             return MethodResult.noReturn();
         })),
 
@@ -185,7 +190,10 @@ public record TimerVariable(
             if (args.isEmpty()) {
                 throw new IllegalArgumentException("SET requires 1 argument");
             }
+            // BlooMooDLL: SET also resets the slot (zeros currentTickCount and lastFire).
             thisVar.state.ticks = ArgumentHelper.getInt(args.get(0));
+            thisVar.state.currentTickCount = 0;
+            thisVar.state.lastTickTime = engineTimeFrom(ctx);
             return MethodResult.noReturn();
         })),
 
@@ -194,11 +202,18 @@ public record TimerVariable(
             if (args.isEmpty()) {
                 throw new IllegalArgumentException("SETELAPSE requires 1 argument");
             }
+            // BlooMooDLL: only the period changes; the accumulator (lastTickTime) is preserved
+            // so scripts that retune ELAPSE mid-flight keep the elapsed budget intact.
             thisVar.state.elapse = ArgumentHelper.getInt(args.get(0));
-            thisVar.state.lastTickTime = System.currentTimeMillis();
             return MethodResult.noReturn();
         }))
     );
+
+    private static long engineTimeFrom(MethodContext ctx) {
+        if (ctx == null) return 0L;
+        var game = ctx.getGame();
+        return game == null ? 0L : game.getEngineTimeMs();
+    }
 
     @Override
     public String toString() {

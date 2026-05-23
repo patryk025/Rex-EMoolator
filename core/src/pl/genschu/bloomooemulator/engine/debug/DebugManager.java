@@ -833,7 +833,7 @@ public class DebugManager implements Disposable {
                     sb.append(variable.name())
                             .append(" (TIMER) = ")
                             .append(timer.currentTickCount()).append("/").append(timer.ticks())
-                            .append("(").append(timer.getTimeFromLastTick()).append("/").append(timer.elapse()).append("ms)")
+                            .append("(").append(timer.getTimeFromLastTick(game.getEngineTimeMs())).append("/").append(timer.elapse()).append("ms)")
                             .append("\n");
                 }
 

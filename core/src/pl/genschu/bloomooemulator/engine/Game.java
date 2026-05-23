@@ -84,6 +84,10 @@ public class Game {
 
     private List<EngineVariable> playingAudios = new ArrayList<>();
 
+    // Monotonic engine clock — advanced by UpdateManager.tick() at a fixed step.
+    // Decoupled from System.currentTimeMillis() so OS hiccups can't double-fire timers.
+    private double engineTimeMsAccum = 0.0;
+
     private Map<String, Music> musicCache;
     private Music currentSceneMusic = null;
 
@@ -984,6 +988,14 @@ public class Game {
 
     public ApplicationVariable getApplicationVariable() {
         return applicationVariable;
+    }
+
+    public long getEngineTimeMs() {
+        return (long) engineTimeMsAccum;
+    }
+
+    public void advanceEngineTime(float deltaSec) {
+        engineTimeMsAccum += deltaSec * 1000.0;
     }
 
     public List<EngineVariable> getPlayingAudios() {

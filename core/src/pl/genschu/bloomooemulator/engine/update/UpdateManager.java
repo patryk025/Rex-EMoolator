@@ -34,24 +34,22 @@ public class UpdateManager implements Disposable {
         this.audioManager = new AudioManager(game);
     }
 
-    public void update(float deltaTime) {
-        GameContext context = game.getCurrentSceneContext();
+    /**
+     * Advances all managed subsystems by one fixed step. Timers tick on the
+     * engine's monotonic clock; animations, collisions, and audio take the
+     * fixed delta directly.
+     */
+    public void tick(float fixedDt) {
+        game.advanceEngineTime(fixedDt);
 
-        // update timers
-        updateTimers();
-
-        // update animations
-        updateAnimations(deltaTime);
-
-        // check collisions for objects that moved since last frame
+        updateTimers(game.getEngineTimeMs());
+        updateAnimations(fixedDt);
         updateCollisions();
-
-        // update audio
-        updateAudio(deltaTime);
+        updateAudio(fixedDt);
     }
 
-    private void updateTimers() {
-        timerManager.updateTimers();
+    private void updateTimers(long engineTimeMs) {
+        timerManager.updateTimers(engineTimeMs);
     }
 
     private void updateCollisions() {
@@ -143,12 +141,12 @@ public class UpdateManager implements Disposable {
             this.game = game;
         }
 
-        public void updateTimers() {
+        public void updateTimers(long engineTimeMs) {
             GameContext context = game.getCurrentSceneContext();
             for (EngineVariable variable : new ArrayList<>(context.getTimerVariables().values())) {
                 if (variable instanceof TimerVariable timer) {
                     try {
-                        timer.update();
+                        timer.update(engineTimeMs);
                     } catch (Exception ignored) {
                         // simple break, nothing special
                     }

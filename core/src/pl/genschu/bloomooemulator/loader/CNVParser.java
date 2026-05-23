@@ -281,7 +281,8 @@ public class CNVParser {
                 }
                 String enabledStr = properties.get(objectName + ":ENABLED");
                 boolean enabled = enabledStr == null || !enabledStr.equalsIgnoreCase("FALSE");
-                yield new TimerVariable(objectName, elapse, enabled, ticks, System.currentTimeMillis(), 0, Map.of());
+                long now = context.getGame() != null ? context.getGame().getEngineTimeMs() : 0L;
+                yield new TimerVariable(objectName, elapse, enabled, ticks, now, 0, Map.of());
             }
             case "RAND" -> new RandVariable(objectName);
             case "VECTOR" -> {

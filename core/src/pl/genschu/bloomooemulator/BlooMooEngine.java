@@ -21,6 +21,12 @@ public class BlooMooEngine extends ApplicationAdapter {
     private static final float VIRTUAL_WIDTH = 800;
     private static final float VIRTUAL_HEIGHT = 600;
 
+    // Original BlooMooDLL ticked gameplay every 16 ms on a dedicated thread.
+    // We emulate that grid with a fixed-step accumulator so the script clock
+    // doesn't slow down when render FPS drops.
+    private static final float TICK = 1f / 60f;
+    private static final int MAX_STEPS = 5;
+
     private SpriteBatch batch;
     private OrthographicCamera camera;
     private Viewport viewport;
@@ -30,6 +36,8 @@ public class BlooMooEngine extends ApplicationAdapter {
     private RenderManager renderManager;
     private UpdateManager updateManager;
     private DebugManager debugManager;
+
+    private float updateAccumulator = 0f;
 
     private final GameEntry gameEntry;
     private final EngineConfig config;
@@ -76,13 +84,15 @@ public class BlooMooEngine extends ApplicationAdapter {
     @Override
     public void render() {
         float deltaTime = Gdx.graphics.getDeltaTime();
+        boolean forceSingleStep = false;
 
         if(config.isPaused() && !config.isStepFrame()) {
             deltaTime = 0;
         }
         if(config.isStepFrame()) {
             config.toggleStepFrame();
-            deltaTime = 1.0f / 15.0f; // assume 15 FPS for a single step
+            deltaTime = TICK;
+            forceSingleStep = true;
         }
 
         PerformanceMonitor.startOperation("Render - frame time");
@@ -101,8 +111,22 @@ public class BlooMooEngine extends ApplicationAdapter {
         PerformanceMonitor.endOperation("Render - processing input");
 
         PerformanceMonitor.startOperation("Render - updating game state");
-        // update objects
-        updateManager.update(deltaTime);
+        // update objects on a fixed 16.67 ms grid (matches BlooMooDLL's worker thread)
+        if (forceSingleStep) {
+            updateManager.tick(TICK);
+        } else {
+            // Fix Your Timestep! See https://gafferongames.com/post/fix_your_timestep/ for details.
+            updateAccumulator += deltaTime;
+            int steps = 0;
+            while (updateAccumulator >= TICK && steps < MAX_STEPS) {
+                updateManager.tick(TICK);
+                updateAccumulator -= TICK;
+                steps++;
+            }
+            if (steps == MAX_STEPS) {
+                updateAccumulator = 0f; // anti-spiral when a frame stalls badly
+            }
+        }
         PerformanceMonitor.endOperation("Render - updating game state");
 
         PerformanceMonitor.startOperation("Render - rendering");
