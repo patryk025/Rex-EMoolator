@@ -19,6 +19,9 @@ public class DesktopLauncher {
 			int gameIndex = Integer.parseInt(args[0]);
 			GameManager gm = new GameManager(AppPaths.userDataDir().getAbsolutePath());
 			game = gm.getGames().get(gameIndex);
+			if (game.ensureIniPath()) {
+				gm.updateGame(game);
+			}
 		}
 
 		new Lwjgl3Application(new BlooMooEngine(game), config);

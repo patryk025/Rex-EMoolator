@@ -6,7 +6,6 @@ import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.utils.GdxRuntimeException;
-import org.ini4j.Ini;
 import pl.genschu.bloomooemulator.BlooMooEngine;
 import pl.genschu.bloomooemulator.engine.context.EngineVariable;
 import pl.genschu.bloomooemulator.engine.context.GameContext;
@@ -24,13 +23,13 @@ import pl.genschu.bloomooemulator.loader.CNVParser;
 import pl.genschu.bloomooemulator.loader.ImageLoader;
 import pl.genschu.bloomooemulator.logic.AppPaths;
 import pl.genschu.bloomooemulator.logic.GameEntry;
+import pl.genschu.bloomooemulator.logic.GameIniResolver;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 import com.badlogic.gdx.Gdx;
@@ -278,95 +277,30 @@ public class Game {
         }
     }
 
-    private String findIniInExe(String exeVfsPath) {
-        try {
-            byte[] exeBytes = readAllBytes(exeVfsPath);
-            String exeContent = new String(exeBytes, StandardCharsets.UTF_8);
-
-            // Poszukaj ".ini" i weź kilka znaków wcześniej
-            int iniIndex = exeContent.indexOf(".ini");
-            if (iniIndex > 0) {
-                int startIndex = exeContent.lastIndexOf("\0", iniIndex) + 1;
-                return exeContent.substring(startIndex, iniIndex + 4);
-            }
-        } catch (IOException e) {
-            Gdx.app.error("findIniInExe", "Error reading exe file: " + e.getMessage());
-        }
-        return null;
-    }
-
-
     /**
      * Locates the game's INI file. Returns a path relative to the VFS root
      * (suitable for {@code vfs.openRead}), or {@code null} if none is found.
+     *
+     * Uses the path cached on {@link GameEntry} (resolved once at registration
+     * and persisted to games.json) when it still points at an existing file;
+     * otherwise resolves live and caches the result on the entry for the rest
+     * of the session.
      */
     public String findGameINI() {
-        // bloomoo.ini points at the real INI via [MAIN].INI
-        if (vfs.exists("bloomoo.ini")) {
-            Gdx.app.log("findGameINI", "Found bloomoo.ini, looking for INI with variables...");
-            try (InputStream is = vfs.openRead("bloomoo.ini")) {
-                Ini bloomooIniFile = new Ini();
-                bloomooIniFile.load(is);
-                String mainIni = bloomooIniFile.get("MAIN", "INI");
-                if (mainIni != null) {
-                    Gdx.app.log("findGameINI", "Found INI: " + mainIni);
-                    return mainIni;
-                }
-            } catch (IOException e) {
-                throw new RuntimeException(e);
+        if (game != null) {
+            String cached = game.getIniPath();
+            if (cached != null && vfs.exists(cached)) {
+                return cached;
             }
         }
 
-        String[] rootEntries = vfs.list("");
-        if (rootEntries == null) rootEntries = new String[0];
-
-        List<String> exeFiles = new ArrayList<>();
-        for (String name : rootEntries) {
-            String lower = name.toLowerCase();
-            if (lower.endsWith(".exe")
-                    && !lower.equals("setup.exe")
-                    && !lower.equals("uninstall.exe")
-                    && !lower.equals("install.exe")) {
-                exeFiles.add(name);
-            }
+        String resolved = GameIniResolver.resolve(vfs::exists, vfs.list(""), this::readAllBytes);
+        if (resolved == null) {
+            Gdx.app.error("findGameINI", "No .ini file found in the parent folder");
+        } else if (game != null) {
+            game.setIniPath(resolved);
         }
-
-        if (exeFiles.isEmpty()) {
-            Gdx.app.error("findGameINI", "No .exe file found, falling back to first .ini in folder");
-            for (String name : rootEntries) {
-                String lower = name.toLowerCase();
-                if (lower.endsWith(".ini")
-                        && !lower.equals("setup.ini")
-                        && !lower.equals("uninstall.ini")
-                        && !lower.equals("install.ini")) {
-                    Gdx.app.log("findGameINI", "Using first found file: " + name);
-                    return name;
-                }
-            }
-            Gdx.app.error("findGameINI", "No .ini files found in the parent folder");
-            return null;
-        }
-
-        for (String exeName : exeFiles) {
-            Gdx.app.log("findGameINI", "Searching for ini file associated with executable: " + exeName);
-
-            String baseName = exeName.substring(0, exeName.lastIndexOf('.'));
-            String iniFileName = baseName + ".ini";
-
-            if (vfs.exists(iniFileName)) {
-                Gdx.app.log("findGameINI", "Found ini file: " + iniFileName);
-                return iniFileName;
-            }
-
-            iniFileName = findIniInExe(exeName);
-            if (iniFileName != null && vfs.exists(iniFileName)) {
-                Gdx.app.log("findGameINI", "Found ini file: " + iniFileName);
-                return iniFileName;
-            }
-        }
-
-        Gdx.app.error("findGameINI", "No .ini file found in the parent folder");
-        return null;
+        return resolved;
     }
 
     /**

@@ -68,6 +68,10 @@ public class GameListAdapter extends RecyclerView.Adapter<GameListAdapter.GameVi
                 int position = getAdapterPosition();
                 GameEntry game = games.get(position);
 
+                if (context instanceof GameListActivity) {
+                    ((GameListActivity) context).persistIniPath(game);
+                }
+
                 Intent i = new Intent(context, AndroidLauncher.class);
                 i.putExtra("game", game);
                 context.startActivity(i);

@@ -245,4 +245,11 @@ public class GameListActivity extends AppCompatActivity {
         builder.setNegativeButton("Nie", null);
         builder.show();
     }
+
+    /** Lazily resolves and persists the INI path before a game is launched. */
+    public void persistIniPath(GameEntry game) {
+        if (game.ensureIniPath()) {
+            gameManager.updateGame(game);
+        }
+    }
 }

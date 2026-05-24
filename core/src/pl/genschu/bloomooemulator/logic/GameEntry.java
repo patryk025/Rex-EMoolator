@@ -20,6 +20,7 @@ public class GameEntry implements Serializable {
     private String version;
     private String gameName;
     private String path;
+    private String iniPath;
     private String storageId;
     private String mouseMode;
     private boolean mouseVirtualJoystick;
@@ -60,6 +61,8 @@ public class GameEntry implements Serializable {
             return "DLL not found";
         }
 
+        this.iniPath = resolveIniPath(fs, entries);
+
         for (String entry : entries) {
             String name = entry.toLowerCase(Locale.ROOT);
             if (!name.matches("bloomoodll\\.dll|piklib\\d+\\.dll")) {
@@ -83,6 +86,58 @@ public class GameEntry implements Serializable {
         }
 
         return "DLL not found";
+    }
+
+    /**
+     * Lazily resolves and caches {@link #iniPath} for legacy entries that
+     * predate INI caching. Opens the assets, resolves once; the caller is
+     * responsible for persisting (e.g. via GameManager) when this returns true.
+     */
+    public boolean ensureIniPath() {
+        if (iniPath != null && !iniPath.isBlank()) {
+            return false;
+        }
+        if (path == null) {
+            return false;
+        }
+        File source = new File(path);
+        if (!source.exists()) {
+            return false;
+        }
+        IFileSystem fs;
+        try {
+            fs = AssetSourceDispatcher.openAssets(source);
+        } catch (IOException e) {
+            return false;
+        }
+        String[] entries = fs.list("");
+        if (entries == null) {
+            return false;
+        }
+        String resolved = resolveIniPath(fs, entries);
+        if (resolved != null) {
+            this.iniPath = resolved;
+            return true;
+        }
+        return false;
+    }
+
+    private static String resolveIniPath(IFileSystem fs, String[] entries) {
+        return GameIniResolver.resolve(fs::exists, entries, p -> {
+            try (InputStream is = fs.open(p)) {
+                return readAllBytes(is);
+            }
+        });
+    }
+
+    private static byte[] readAllBytes(InputStream input) throws IOException {
+        java.io.ByteArrayOutputStream buffer = new java.io.ByteArrayOutputStream();
+        byte[] data = new byte[8192];
+        int read;
+        while ((read = input.read(data)) != -1) {
+            buffer.write(data, 0, read);
+        }
+        return buffer.toByteArray();
     }
 
     public static String calculateSHA1(InputStream input) throws IOException, NoSuchAlgorithmException {
@@ -122,6 +177,14 @@ public class GameEntry implements Serializable {
 
     public String getPath() {
         return path;
+    }
+
+    public String getIniPath() {
+        return iniPath;
+    }
+
+    public void setIniPath(String iniPath) {
+        this.iniPath = iniPath;
     }
 
     public String getStorageId() {

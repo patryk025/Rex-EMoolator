@@ -25,6 +25,12 @@ public class RunButton extends ButtonColumn {
         int row = table.getSelectedRow();
         GameEntry game = gameManager.getGames().get(row);
 
+        // Resolve and persist the INI path lazily, in the parent process, so the
+        // macOS subprocess reads it from games.json instead of re-scanning.
+        if (game.ensureIniPath()) {
+            gameManager.updateGame(game);
+        }
+
         boolean isMac = System.getProperty("os.name", "").toLowerCase().contains("mac");
         if (isMac) {
             // On macOS, Lwjgl3Application requires -XstartOnFirstThread on the JVM.

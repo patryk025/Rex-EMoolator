@@ -373,7 +373,7 @@ public record CanvasObserverVariable(
             }
         }
 
-        return MethodResult.returns(new StringValue("NULL"));
+        return MethodResult.returns(NullValue.INSTANCE);
     }
 
     @Override
