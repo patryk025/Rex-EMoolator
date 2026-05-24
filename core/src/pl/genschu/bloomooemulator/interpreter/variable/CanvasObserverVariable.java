@@ -228,7 +228,7 @@ public record CanvasObserverVariable(
             ctx.getGame().getCurrentSceneContext().getGraphicsVariables().values()
                     .forEach(variable -> {
                         if (variable instanceof ImageVariable img) {
-                            img.callMethod("INVALIDATE");
+                            img.invalidate();
                         }
                     });
             return MethodResult.noReturn();

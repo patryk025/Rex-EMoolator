@@ -247,7 +247,7 @@ public record ImageVariable(
         state.pendingOpacity = Math.clamp(opacity, 0, 255) / 255.0f;
     }
 
-    private void invalidate() {
+    public void invalidate() {
         state.opacity = state.pendingOpacity;
     }
 
