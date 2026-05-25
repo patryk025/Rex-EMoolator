@@ -5,7 +5,6 @@ import com.badlogic.gdx.graphics.Cursor;
 import pl.genschu.bloomooemulator.engine.Game;
 import pl.genschu.bloomooemulator.engine.decision.events.ButtonEvent;
 import pl.genschu.bloomooemulator.engine.decision.states.ButtonState;
-import pl.genschu.bloomooemulator.engine.context.GameContext;
 import pl.genschu.bloomooemulator.geometry.shapes.Box2D;
 import pl.genschu.bloomooemulator.interpreter.context.Context;
 import pl.genschu.bloomooemulator.interpreter.variable.*;
@@ -30,27 +29,39 @@ public class ButtonHandler {
 
     public void handleMouseInput(int x, int y, boolean isPressed, boolean justPressed,
                                  boolean justReleased, MouseVariable mouseVariable) {
-        GameContext context = game.getCurrentSceneContext();
+        Context sceneContext = (Context) game.getCurrentSceneContext();
 
         // Get all buttons from the context and class instances
         @SuppressWarnings("unchecked")
-        List<Variable> buttons = new ArrayList<>((Collection<? extends Variable>) context.getButtonsVariables().values());
+        List<Variable> buttons = new ArrayList<>((Collection<? extends Variable>) sceneContext.getButtonsVariables().values());
+
+        // A button defined inside a class instance lives in that instance context, not
+        // the scene; use the concrete variable instance so duplicate names do not
+        // accidentally resolve to a different owner.
+        List<ScopedButton> scopedButtons = new ArrayList<>(buttons.size());
+        for (int i = 0; i < buttons.size(); i++) {
+            Variable button = buttons.get(i);
+            Context owner = sceneContext.findOwningContext(button);
+            scopedButtons.add(new ScopedButton(button, owner != null ? owner : sceneContext, i));
+        }
 
         // Get the priority ranges of hotspots from the scene
         int minHSPriority = game.getCurrentSceneVariable().minHotSpotZ();
         int maxHSPriority = game.getCurrentSceneVariable().maxHotSpotZ();
 
         // Process button interactions
-        processButtonInteractions(buttons, x, y, isPressed, justPressed, justReleased,
+        processButtonInteractions(scopedButtons, x, y, isPressed, justPressed, justReleased,
                 mouseVariable, minHSPriority, maxHSPriority);
 
         // Handle button release
-        handleButtonRelease(justReleased);
+        handleButtonRelease(justReleased, scopedButtons);
     }
+
+    private record ScopedButton(Variable variable, Context owner, int order) {}
 
     private Variable getButtonGfx(Variable button, Context context) {
         if (button instanceof ButtonVariable btn) {
-            // Hit testing always uses GFXSTANDARD — the trigger silhouette is fixed
+            // Hit testing always uses GFXSTANDARD: the trigger silhouette is fixed
             // by the standard graphic, even while GFXONMOVE/GFXONCLICK is displayed.
             String gfxName = btn.state().gfxStandardName;
             if (gfxName != null) {
@@ -72,38 +83,38 @@ public class ButtonHandler {
         return 0;
     }
 
-    private void processButtonInteractions(List<Variable> buttons, int x, int y, boolean isPressed,
+    private void processButtonInteractions(List<ScopedButton> buttons,
+                                           int x, int y, boolean isPressed,
                                            boolean justPressed, boolean justReleased,
                                            MouseVariable mouseVariable, int minHSPriority, int maxHSPriority) {
-        Context context = (Context) game.getCurrentSceneContext();
-
-        List<Variable> hitTestOrder = new ArrayList<>(buttons);
+        List<ScopedButton> hitTestOrder = new ArrayList<>(buttons);
         hitTestOrder.sort((left, right) -> {
             int priorityComparison = Integer.compare(
-                    getHitPriority(right, context),
-                    getHitPriority(left, context)
+                    getHitPriority(right.variable(), right.owner()),
+                    getHitPriority(left.variable(), left.owner())
             );
             if (priorityComparison != 0) {
                 return priorityComparison;
             }
 
             int orderComparison = Long.compare(
-                    getHitRenderOrder(right, context),
-                    getHitRenderOrder(left, context)
+                    getHitRenderOrder(right.variable(), right.owner()),
+                    getHitRenderOrder(left.variable(), left.owner())
             );
             if (orderComparison != 0) {
                 return orderComparison;
             }
 
-            return Integer.compare(buttons.indexOf(right), buttons.indexOf(left));
+            return Integer.compare(right.order(), left.order());
         });
 
         // find topmost button under cursor
-        Variable focusedButton = null;
+        ScopedButton focusedButton = null;
 
-        for (Variable variable : hitTestOrder) {
+        for (ScopedButton scopedButton : hitTestOrder) {
+            Variable variable = scopedButton.variable();
             if (variable instanceof ButtonVariable btn) {
-                Variable image = getButtonGfx(btn, context);
+                Variable image = getButtonGfx(btn, scopedButton.owner());
 
                 // Filter by hotspot priority
                 if (image != null) {
@@ -116,7 +127,7 @@ public class ButtonHandler {
 
                 // Check if button is enabled
                 if (btn.isEnabled() && btn.getRect() != null && btn.getRect().contains(x, y)) {
-                    focusedButton = btn;
+                    focusedButton = scopedButton;
                     break;
                 }
             } else if (variable instanceof AnimoVariable animo) {
@@ -124,12 +135,12 @@ public class ButtonHandler {
                 int priority = animo.getPriority();
                 if (priority < minHSPriority || priority > maxHSPriority) continue;
 
-                // ANIMO via SETASBUTTON uses a plain bounding-box trigger — no alpha test.
+                // ANIMO via SETASBUTTON uses a plain bounding-box trigger: no alpha test.
                 // The transparent areas of the sprite are still clickable. The rect is live
                 // so the trigger follows the moving sprite.
                 Box2D hitRect = animo.getRect();
                 if (hitRect != null && hitRect.contains(x, y)) {
-                    focusedButton = animo;
+                    focusedButton = scopedButton;
                     break;
                 }
             }
@@ -139,7 +150,7 @@ public class ButtonHandler {
 
         // Set hand cursor
         if (focusedButton != null && isMouseVisible) {
-            if (focusedButton instanceof AnimoVariable animo) {
+            if (focusedButton.variable() instanceof AnimoVariable animo) {
                 if (animo.isChangeCursor()) {
                     Gdx.graphics.setSystemCursor(Cursor.SystemCursor.Hand);
                 } else {
@@ -155,19 +166,21 @@ public class ButtonHandler {
         }
 
         // Process 'em all!
-        for (Variable variable : buttons) {
-            if (variable == focusedButton) {
+        for (ScopedButton scopedButton : buttons) {
+            Variable variable = scopedButton.variable();
+            Context owner = scopedButton.owner();
+            if (scopedButton == focusedButton) {
                 if (variable instanceof ButtonVariable btn) {
-                    processButtonVariable(btn, x, y, isPressed, justPressed, mouseVariable, true);
+                    processButtonVariable(btn, owner, justPressed, true);
                 } else if (variable instanceof AnimoVariable animo) {
-                    processAnimoVariable(animo, x, y, isPressed, justPressed, mouseVariable, true);
+                    processAnimoVariable(animo, owner, justPressed, true);
                 }
             } else {
                 // Take down focus
                 if (variable instanceof ButtonVariable btn) {
-                    btn.changeState(ButtonEvent.FOCUS_OFF, context);
+                    btn.changeState(ButtonEvent.FOCUS_OFF, owner);
                 } else if (variable instanceof AnimoVariable animo) {
-                    animo.changeButtonState(ButtonEvent.FOCUS_OFF, context);
+                    animo.changeButtonState(ButtonEvent.FOCUS_OFF, owner);
                 }
             }
         }
@@ -202,11 +215,9 @@ public class ButtonHandler {
         return 0;
     }
 
-    private void processButtonVariable(ButtonVariable button, int x, int y, boolean isPressed,
-                                       boolean justPressed, MouseVariable mouseVariable,
-                                       boolean shouldFocus) {
+    private void processButtonVariable(ButtonVariable button, Context context,
+                                       boolean justPressed, boolean shouldFocus) {
         if (!button.isEnabled()) return;
-        Context context = (Context) game.getCurrentSceneContext();
 
         if (shouldFocus) {
             if (justPressed) {
@@ -220,10 +231,8 @@ public class ButtonHandler {
         }
     }
 
-    private void processAnimoVariable(AnimoVariable animo, int x, int y, boolean isPressed,
-                                      boolean justPressed, MouseVariable mouseVariable,
-                                      boolean shouldFocus) {
-        Context context = (Context) game.getCurrentSceneContext();
+    private void processAnimoVariable(AnimoVariable animo, Context context,
+                                      boolean justPressed, boolean shouldFocus) {
         if (shouldFocus) {
             if (justPressed) {
                 if (inputManager.getActiveButton() == null) {
@@ -261,14 +270,18 @@ public class ButtonHandler {
         return 0;
     }
 
-    private void handleButtonRelease(boolean justReleased) {
+    private void handleButtonRelease(boolean justReleased, List<ScopedButton> buttons) {
         Object activeButton = inputManager.getActiveButton();
         if (justReleased && activeButton != null) {
-            Context context = (Context) game.getCurrentSceneContext();
+            Context owner = buttons.stream()
+                    .filter(button -> button.variable() == activeButton)
+                    .findFirst()
+                    .map(ScopedButton::owner)
+                    .orElse((Context) game.getCurrentSceneContext());
             if (activeButton instanceof ButtonVariable btn) {
-                btn.changeState(ButtonEvent.RELEASED, context);
+                btn.changeState(ButtonEvent.RELEASED, owner);
             } else if (activeButton instanceof AnimoVariable animo) {
-                animo.changeButtonState(ButtonEvent.RELEASED, context);
+                animo.changeButtonState(ButtonEvent.RELEASED, owner);
             }
             inputManager.setActiveButton(null);
         }

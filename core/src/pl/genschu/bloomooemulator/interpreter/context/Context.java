@@ -5,6 +5,7 @@ import pl.genschu.bloomooemulator.engine.context.EngineVariable;
 import pl.genschu.bloomooemulator.engine.context.GameContext;
 import pl.genschu.bloomooemulator.interpreter.values.*;
 import pl.genschu.bloomooemulator.interpreter.variable.*;
+import pl.genschu.bloomooemulator.interpreter.variable.capabilities.HasInstanceContext;
 import pl.genschu.bloomooemulator.interpreter.runtime.ExecutionContext;
 
 import java.util.*;
@@ -307,6 +308,52 @@ public class Context implements GameContext {
      */
     public void removeButtonVariable(Variable variable) {
         store.getCacheIndex().removeButton(variable.getName());
+    }
+
+    /**
+     * Finds the context that directly holds {@code variable} in its store, searching the
+     * same graph the cached collectors use: class instances -> additional contexts ->
+     * current -> parent. Returns null if not found anywhere in the hierarchy.
+     *
+     * <p>Buttons collected by {@link #getButtonsVariables()} may live inside a class
+     * instance context whose GFX/SND variables are invisible to a plain
+     * {@link #getVariable(String)} from the scene (lookup only walks up, never down
+     * into instances). The input handler uses this to resolve a button's graphics and
+     * sounds against the context where they actually live.
+     */
+    public Context findOwningContext(Variable variable) {
+        return findOwningContext(variable, new HashSet<>());
+    }
+
+    private Context findOwningContext(Variable variable, Set<Context> visited) {
+        if (!visited.add(this)) {
+            return null;
+        }
+
+        for (Variable var : store.getAll().values()) {
+            if (var instanceof HasInstanceContext hic) {
+                Context instanceCtx = hic.getInstanceContext();
+                if (instanceCtx != null) {
+                    Context owner = instanceCtx.findOwningContext(variable, visited);
+                    if (owner != null) return owner;
+                }
+            }
+        }
+
+        for (Context additional : additionalContexts) {
+            Context owner = additional.findOwningContext(variable, visited);
+            if (owner != null) return owner;
+        }
+
+        if (store.getAll().containsValue(variable)) {
+            return this;
+        }
+
+        if (parent != null) {
+            return parent.findOwningContext(variable, visited);
+        }
+
+        return null;
     }
 
     /**

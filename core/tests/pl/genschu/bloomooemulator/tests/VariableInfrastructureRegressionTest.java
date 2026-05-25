@@ -120,6 +120,58 @@ class VariableInfrastructureRegressionTest {
     }
 
     @Test
+    void testButtonInClassInstanceResolvesGraphicsViaOwningContext(@org.junit.jupiter.api.io.TempDir Path tempDir) throws IOException {
+        // Regression guard: a BUTTON defined inside a class instance is collected by
+        // getButtonsVariables (so the input handler iterates it), but its GFX/SND
+        // siblings live in the instance context, invisible to a scene-level
+        // getVariable(), which only walks up the parent chain, never down into
+        // instances. ButtonHandler must resolve state changes against the owning
+        // context, located via findOwningContext.
+        Context scene = new ContextBuilder().build();
+
+        Path commonClasses = tempDir.resolve("COMMON/classes");
+        Files.createDirectories(commonClasses);
+        Files.writeString(commonClasses.resolve("widget.class"), """
+                OBJECT = MYGFX
+                MYGFX:TYPE = INTEGER
+                MYGFX:VALUE = 7
+                OBJECT = MYBTN
+                MYBTN:TYPE = BUTTON
+                MYBTN:GFXSTANDARD = MYGFX
+                MYBTN:RECT = 10,10,50,50
+                """);
+
+        Game game = new Game(null, null);
+        game.getVfs().mountAssets(new LocalFileSystem(tempDir.toFile()));
+        scene.setGame(game);
+
+        scene.setVariable("WIDGET", new ClassVariable("WIDGET", "widget.class"));
+        MethodHelper.callWithContext(scene, "WIDGET", "NEW", new StringValue("OBJ"));
+
+        InstanceVariable instance = (InstanceVariable) scene.store().get("OBJ");
+        Context instanceCtx = instance.instanceContext();
+
+        // The class button is collected from the scene (input handler sees it).
+        assertTrue(scene.getButtonsVariables().containsKey("MYBTN"),
+                "class-instance button must appear in scene button collection");
+
+        // The bug's root: a scene-level lookup never descends into instances, so the
+        // default resolver hands back a STRING(name)=name fallback instead of the real
+        // GFX. ButtonHandler then sees a non-image gfx, its alpha test returns 0, and
+        // the button is skipped: no focus, no events.
+        Variable sceneGfx = scene.getVariable("MYGFX");
+        assertInstanceOf(StringVariable.class, sceneGfx);
+        assertEquals("MYGFX", sceneGfx.value().toDisplayString());
+
+        // The fix: the scene can locate the context that actually owns the button,
+        // and from there the real sibling GFX resolves.
+        assertSame(instanceCtx, scene.findOwningContext(scene.getButtonsVariables().get("MYBTN")));
+        Variable ownerGfx = instanceCtx.getVariable("MYGFX");
+        assertInstanceOf(IntegerVariable.class, ownerGfx);
+        assertEquals(7, ownerGfx.value().toInt().value());
+    }
+
+    @Test
     void testGroupVariableBroadcastsMethodsAndReturnsVariableRef() {
         Context ctx = new ContextBuilder()
                 .withVariable("INTEGER", "A", 1)
