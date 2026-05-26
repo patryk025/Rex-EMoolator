@@ -947,7 +947,9 @@ public record AnimoVariable(
 
     private boolean shouldLoop(Event event, int nextFrameNumber, int direction) {
         if (event.getLoopEnd() == 0) return false;
-        return direction >= 0 && nextFrameNumber >= event.getLoopEnd();
+        // loopEnd is the index of the last frame in the loop section; it must be
+        // displayed before we jump back to loopStart. So trigger once we move past loopEnd.
+        return direction >= 0 && nextFrameNumber > event.getLoopEnd();
     }
 
     private void applyLoop(Event event, int direction) {
@@ -955,6 +957,9 @@ public record AnimoVariable(
 
         setCurrentFrameNumber(clampFrameNumber(event, event.getLoopStart()), true);
         if (state.currentEvent != event || !isPlaying()) return;
+
+        // repeatCount == 0 means "loop forever" in the ANN format. Only a positive repeatCount bounds the number of loops.
+        if (event.getRepeatCount() == 0) return;
 
         event.setRepeatCounter(event.getRepeatCounter() + 1);
         if (event.getRepeatCounter() >= event.getRepeatCount()) {

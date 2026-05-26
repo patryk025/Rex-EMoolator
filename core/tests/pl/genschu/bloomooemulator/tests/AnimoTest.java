@@ -272,6 +272,42 @@ class AnimoTest {
         assertEquals(expectedImages, capture.images);
     }
 
+    /**
+     * An event with loopEnd != 0 and repeatCount == 0 loops forever (STL2 idle
+     * animation: 2 frames, loopStart=0, loopEnd=1, repeatCount=0). It must keep
+     * playing and oscillate over the loop section [loopStart..loopEnd] instead of
+     * finishing after the first pass.
+     */
+    @Test
+    void testInfiniteLoopWhenRepeatCountIsZero() throws Exception {
+        Context ctx = new ContextBuilder().build();
+
+        String filename = "stl2.ann";
+        String absPath = Gdx.files.internal("../assets/test-assets/" + filename).file().getAbsolutePath();
+        AnimoVariable.AnimoData data;
+        try (InputStream is = new FileInputStream(absPath)) {
+            data = AnimoLoader.load(is);
+        }
+
+        AnimoVariable animo = new AnimoVariable("STLIDLE0").withData(data);
+        ctx.setVariable("STLIDLE0", animo);
+
+        animo.callMethod("PLAY", new StringValue("ELAPSE"));
+
+        // Tick well past one full loop; the animation must never stop on its own.
+        float frameTime = 1f / animo.getFps();
+        Set<Integer> seenFrames = new HashSet<>();
+        for (int i = 0; i < 50; i++) {
+            assertTrue(animo.isPlaying(), "looping animation stopped at tick " + i);
+            seenFrames.add(animo.getCurrentFrameNumber());
+            animo.updateAnimation(frameTime);
+        }
+
+        // Both frames of the loop section [0, 1] must be visited.
+        assertTrue(seenFrames.contains(0), "frame 0 (loopStart) never shown");
+        assertTrue(seenFrames.contains(1), "frame 1 (loopEnd) never shown");
+    }
+
     @Test
     void testPauseDuringRestartAnimo() throws Exception {
         // This test simulates the S65_ZAMEK scenario where animation restarts in a loop
