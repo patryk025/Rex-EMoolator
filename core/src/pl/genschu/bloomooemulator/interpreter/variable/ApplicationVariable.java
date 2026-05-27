@@ -1,9 +1,12 @@
 package pl.genschu.bloomooemulator.interpreter.variable;
 
 import com.badlogic.gdx.Gdx;
+import pl.genschu.bloomooemulator.interpreter.context.Context;
 import pl.genschu.bloomooemulator.interpreter.helpers.ArgumentHelper;
+import pl.genschu.bloomooemulator.interpreter.runtime.ASTInterpreter;
 import pl.genschu.bloomooemulator.interpreter.runtime.ExecutionResult;
 import pl.genschu.bloomooemulator.interpreter.values.*;
+import pl.genschu.bloomooemulator.interpreter.variable.capabilities.HasInstanceContext;
 
 import java.util.*;
 
@@ -114,15 +117,30 @@ public record ApplicationVariable(
             if (args.size() < 2) {
                 throw new IllegalArgumentException("RUNENV requires 2 arguments");
             }
-            String sceneName = ArgumentHelper.getString(args.get(0));
+            String ownerName = ArgumentHelper.getString(args.get(0));
             String behaviourName = ArgumentHelper.getString(args.get(1));
-            String currentScene = ctx.getGame().getCurrentScene();
-            if (!sceneName.equalsIgnoreCase(currentScene)) {
+
+            Context live = ctx.getGame() != null && ctx.getGame().getCurrentSceneContext() != null
+                    ? (Context) ctx.getGame().getCurrentSceneContext()
+                    : ctx.context();
+
+            if (!live.hasVariable(ownerName)) {
                 return MethodResult.noReturn();
             }
-            Variable behaviourVar = ctx.getVariable(behaviourName);
+            Variable owner = live.getVariable(ownerName);
+
+            if (owner instanceof HasInstanceContext hic) {
+                Variable behaviour = hic.getInstanceContext().getVariable(behaviourName);
+                if (behaviour instanceof BehaviourVariable) {
+                    return owner.callMethod(behaviourName, List.of(), ctx);
+                }
+                return MethodResult.noReturn();
+            }
+
+            Variable behaviourVar = live.getVariable(behaviourName);
             if (behaviourVar instanceof BehaviourVariable behaviour) {
-                ExecutionResult result = ctx.runBehaviour("RUNENV:" + behaviourName, null, behaviour, List.of());
+                ExecutionResult result = new ASTInterpreter(live)
+                        .runBehaviour("RUNENV:" + behaviourName, owner, behaviour, List.of());
                 return MethodResult.fromExecution(result);
             }
             return MethodResult.noReturn();
