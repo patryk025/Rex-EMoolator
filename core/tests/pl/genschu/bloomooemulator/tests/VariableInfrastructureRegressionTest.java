@@ -7,7 +7,9 @@ import pl.genschu.bloomooemulator.builders.ContextBuilder;
 import pl.genschu.bloomooemulator.builders.MethodHelper;
 import pl.genschu.bloomooemulator.engine.Game;
 import pl.genschu.bloomooemulator.engine.filesystem.LocalFileSystem;
+import pl.genschu.bloomooemulator.interpreter.ast.ASTNode;
 import pl.genschu.bloomooemulator.interpreter.context.Context;
+import pl.genschu.bloomooemulator.interpreter.parser.CodeParser;
 import pl.genschu.bloomooemulator.interpreter.runtime.ExecutionContext;
 import pl.genschu.bloomooemulator.interpreter.values.*;
 import pl.genschu.bloomooemulator.interpreter.variable.*;
@@ -172,6 +174,53 @@ class VariableInfrastructureRegressionTest {
     }
 
     @Test
+    void testRunEnvExecutesBehaviourInItsDefiningContextNotTheLiveScene() {
+        // Regression guard for the RUNENV context leak.
+        //
+        // Scenario from the games: while running in episode PRZYGODA, code calls
+        // GAME^RUNENV("START", "B_PAUSE_START"). B_PAUSE_START does NOT live in the
+        // scene START — it lives in the episode. It in turn invokes BFITMP3, and BOTH
+        // the scene and the episode declare their own BFITMP3.
+        //
+        // RUNENV resolves the behaviour by walking UP the live scene chain (so it
+        // correctly finds the episode's B_PAUSE_START), but it must then EXECUTE it
+        // rooted at the behaviour's defining context (the episode), not at the deepest
+        // live context (the scene). A parent never sees its children's variables, so
+        // BFITMP3 must resolve to the episode's version. The bug ran it rooted at the
+        // scene, so the scene's BFITMP3 shadowed the parent's and the wrong code ran.
+        Context application = new Context(new ExecutionContext());
+        Context episode = new Context(new ExecutionContext(), application);
+        Context scene = new Context(new ExecutionContext(), episode);
+
+        Game game = new Game(null, null);
+        application.setGame(game);
+        game.setCurrentSceneContext(scene);
+
+        application.setVariable("GAME", new ApplicationVariable("GAME"));
+
+        // Sentinel both BFITMP3 versions write into, so we can tell which one ran.
+        StringVariable result = new StringVariable("RESULT", "");
+        application.setVariable("RESULT", result);
+
+        // The episode owns B_PAUSE_START and its own BFITMP3.
+        episode.setVariable("B_PAUSE_START", behaviour("B_PAUSE_START", "{BFITMP3^RUN();}"));
+        episode.setVariable("BFITMP3", behaviour("BFITMP3", "{RESULT^SET(\"EPISODE\");}"));
+
+        // The scene declares a colliding BFITMP3 that must NOT be reached from a
+        // parent-scoped behaviour, plus the START object used as the RUNENV owner.
+        scene.setVariable("BFITMP3", behaviour("BFITMP3", "{RESULT^SET(\"SCENE\");}"));
+        scene.setVariable("START", new SceneVariable("START"));
+
+        MethodHelper.callWithContext(
+                application, "GAME", "RUNENV",
+                new StringValue("START"), new StringValue("B_PAUSE_START"));
+
+        assertEquals("EPISODE", result.value().toDisplayString(),
+                "RUNENV must run the episode's behaviour in the episode context; "
+                        + "the scene's colliding BFITMP3 must not shadow the parent's");
+    }
+
+    @Test
     void testGroupVariableBroadcastsMethodsAndReturnsVariableRef() {
         Context ctx = new ContextBuilder()
                 .withVariable("INTEGER", "A", 1)
@@ -320,5 +369,10 @@ class VariableInfrastructureRegressionTest {
         assertEquals(3, generated.size());
         assertEquals(3, generated.stream().distinct().count());
         assertTrue(generated.stream().allMatch(value -> value >= 10 && value < 15));
+    }
+
+    private static BehaviourVariable behaviour(String name, String code) {
+        ASTNode ast = CodeParser.parseCode(code);
+        return new BehaviourVariable(name, ast, Map.of());
     }
 }

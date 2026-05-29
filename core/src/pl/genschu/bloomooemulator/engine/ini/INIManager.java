@@ -12,7 +12,7 @@ import java.util.Map;
 public class INIManager {
     private Wini ini = new Wini();
 
-    private Map<String, Map<String, String>> sectionCache = new LinkedHashMap<>();
+    private final Map<String, Map<String, String>> sectionCache = new LinkedHashMap<>();
 
     public void load(InputStream input) throws IOException {
         ini = new Wini();

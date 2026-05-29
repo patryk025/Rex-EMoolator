@@ -139,7 +139,17 @@ public record ApplicationVariable(
 
             Variable behaviourVar = live.getVariable(behaviourName);
             if (behaviourVar instanceof BehaviourVariable behaviour) {
-                ExecutionResult result = new ASTInterpreter(live)
+                // Run the behaviour in the context where it is DEFINED, not in the
+                // deepest live context. The lookup above walks UP the chain, so a
+                // behaviour declared at episode/application level (e.g. B_PAUSE_START
+                // living in PRZYGODA) is resolved fine — but if we then executed it
+                // rooted at the scene context, a bare name it references (e.g.
+                // BFITMP3) would resolve against the SCENE store first and shadow the
+                // parent's own version. A parent never sees its children's variables;
+                // resolution must start from the behaviour's owning context upward.
+                Context defining = live.findOwningContext(behaviour);
+                Context runIn = defining != null ? defining : live;
+                ExecutionResult result = new ASTInterpreter(runIn)
                         .runBehaviour("RUNENV:" + behaviourName, owner, behaviour, List.of());
                 return MethodResult.fromExecution(result);
             }
