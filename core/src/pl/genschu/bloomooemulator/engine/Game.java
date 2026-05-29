@@ -468,7 +468,6 @@ public class Game {
         clearPastedGraphics();
         if(inputManager != null) {
             inputManager.setActiveButton(null);
-            inputManager.setMouseVisible(true);
         }
         Gdx.app.log("Game", "Loading scene " + scene.name());
         try {
