@@ -293,6 +293,18 @@ public record ButtonVariable(
         }
     }
 
+    /** Removes a graphic from the canvas entirely (mirrors CRefreshScreen::operator>>). */
+    private void removeGfxFromCanvas(String varName, Context context) {
+        if (varName == null) return;
+        Variable gfx = context.getVariable(varName);
+        if (gfx instanceof AnimoVariable animo) {
+            animo.callMethod("HIDE", List.of());
+            animo.state().toCanvas = false;
+        } else if (gfx instanceof ImageVariable img) {
+            img.state().visible = false;
+        }
+    }
+
     private void playSnd(String varName, Context context) {
         if (varName == null) return;
         Variable snd = context.getVariable(varName);
@@ -409,15 +421,42 @@ public record ButtonVariable(
             return MethodResult.noReturn();
         })),
 
+        // SETSTD(graphicObjectName, removeFromCanvas=true [, onBoundingBox=false])
         Map.entry("SETSTD", MethodSpec.of((self, args, ctx) -> {
             ButtonVariable btn = (ButtonVariable) self;
             String varName = ArgumentHelper.getString(args.get(0));
+            if (varName.isEmpty()) {
+                Gdx.app.error("ButtonVariable", "SETSTD requires a non-empty variable name");
+                return MethodResult.noReturn();
+            }
+            boolean removeFromCanvas = ArgumentHelper.getBoolean(args, 1, true);
+
+            // I'm not sure, what's onBoundingBox do
+            // I found in bloomoodll.dll trace: onBoundingBox -> CHotSpot pixel-mask vs bbox hit-test
+            // but it is not used anywhere in analyzed scripts and has default FALSE value
+
+            // Detach the previous standard graphic from the canvas before swapping.
+            String previous = btn.state.gfxStandardName;
+            if (removeFromCanvas && previous != null && !previous.equals(varName)) {
+                btn.removeGfxFromCanvas(previous, ctx.context());
+            }
+
             btn.state.gfxStandardName = varName;
+
             // Set priority to 0 on the new standard graphics
             Variable gfx = ctx.getVariable(varName);
             if (gfx != null) {
                 gfx.callMethod("SETPRIORITY", List.of(new IntValue(0)), ctx);
             }
+
+            // Reflect the swap immediately according to the current button state
+            boolean stdVisible = switch (btn.state.buttonState) {
+                case STANDARD, DISABLED_BUT_VISIBLE -> true;
+                case HOVERED -> btn.state.gfxOnMoveName == null;
+                case PRESSED -> btn.state.gfxOnClickName == null;
+                default -> false;
+            };
+            btn.showGfx(varName, stdVisible, ctx.context());
             return MethodResult.noReturn();
         }))
     );
