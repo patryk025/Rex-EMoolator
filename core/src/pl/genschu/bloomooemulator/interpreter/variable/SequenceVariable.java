@@ -333,7 +333,6 @@ public record SequenceVariable(
     public void stopSequence(boolean emitSignal, Context context) {
         Gdx.app.log("SequenceVariable", "stopSequence: " + state.currentEvent);
         if (state.currentEvent != null && state.isPlaying) {
-            SequenceEvent finishedEvent = state.currentEvent;
             stopEvent(state.currentEvent, context);
             // Reset state BEFORE emitting signal so that a re-entrant
             // playEvent() from the signal handler is not overwritten.
@@ -344,7 +343,8 @@ public record SequenceVariable(
             state.pendingFinishedEvent = null;
             state.pendingFinishedEvents.clear();
             if (emitSignal) {
-                emitSignal("ONFINISHED", new StringValue(finishedEvent.getName()));
+                // Stopping the sequence finishes the root playable -> generic ONFINISHED
+                emitSignal("ONFINISHED");
             }
         }
     }
@@ -649,14 +649,42 @@ public record SequenceVariable(
         }
 
         if (state.pendingFinishedEvent != null) {
-            emitSignal("ONFINISHED", new StringValue(state.pendingFinishedEvent.getName()));
+            emitFinishedSignal(state.pendingFinishedEvent);
             state.pendingFinishedEvent = null;
         }
     }
 
     private void emitFinishedEvents(List<SequenceEvent> finishedEvents) {
         for (SequenceEvent finishedEvent : finishedEvents) {
-            emitSignal("ONFINISHED", new StringValue(finishedEvent.getName()));
+            emitFinishedSignal(finishedEvent);
+        }
+    }
+
+    /**
+     * Emits the ONFINISHED signal for a finished event, mirroring the original
+     * CMC_Sequence::onPlayableFinished behaviour:
+     * <ul>
+     *   <li>If the finished event is the sequence root (the event passed to PLAY,
+     *       i.e. {@code state.currentEvent}), emit the bare generic {@code ONFINISHED}
+     *       with no parameter — this is the "whole sequence finished" branch
+     *       ({@code *(this+8) == param_1}).</li>
+     *   <li>If it is a sub-event, emit ONLY {@code ONFINISHED^<NAME>} with NO fallback
+     *       to the generic {@code ONFINISHED}. Unlike CMC_Animo, the sequence does not
+     *       cascade a sub-event finish to the generic signal, so an object-level
+     *       {@code ONFINISHED} handler does not fire while inner events are still running.</li>
+     * </ul>
+     */
+    private void emitFinishedSignal(SequenceEvent event) {
+        if (event == state.currentEvent) {
+            // Root playable finished -> generic ONFINISHED (no parameter)
+            emitSignal("ONFINISHED");
+        } else {
+            // Sub-event finished -> parameterized signal only, no generic fallback
+            String fullSignalName = "ONFINISHED^" + event.getName();
+            SignalHandler handler = getSignal(fullSignalName);
+            if (handler != null) {
+                handler.handle(this, fullSignalName);
+            }
         }
     }
 
@@ -894,7 +922,8 @@ public record SequenceVariable(
             } else {
                 if (thisVar.state.currentEvent != null) {
                     if (emitSignal) {
-                        thisVar.emitSignal("ONFINISHED", new StringValue(thisVar.state.currentEvent.getName()));
+                        // Root playable finished -> generic ONFINISHED (no parameter)
+                        thisVar.emitSignal("ONFINISHED");
                     }
                     thisVar.state.currentEvent = null;
                     thisVar.state.isPlaying = false;
