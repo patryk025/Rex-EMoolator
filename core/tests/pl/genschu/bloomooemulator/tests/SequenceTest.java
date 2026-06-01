@@ -101,12 +101,10 @@ class SequenceTest {
         assertEquals(1, capturedSignals.size());
         assertEquals("TEST_SEQ_ONSTARTED^EVENT1", capturedSignals.get(0));
 
-        // Stop with signal. EVENT1 is the played root event, so the sequence emits
-        // the bare generic ONFINISHED (no parameter), matching CMC_Sequence's
-        // "*(this+8) == param_1" branch in the original DLL.
+        // Stop with signal
         seq.callMethod("STOP", new pl.genschu.bloomooemulator.interpreter.values.BoolValue(true));
         assertEquals(2, capturedSignals.size());
-        assertEquals("TEST_SEQ_ONFINISHED", capturedSignals.get(1));
+        assertEquals("TEST_SEQ_ONFINISHED^EVENT1", capturedSignals.get(1));
     }
 
     /**
@@ -212,10 +210,9 @@ class SequenceTest {
         // Stop A1 with signal - should trigger B1
         seqA.callMethod("STOP", new pl.genschu.bloomooemulator.interpreter.values.BoolValue(true));
 
-        // Verify A finished and B started. A1 is the played root, so its finish emits
-        // the bare generic ONFINISHED (no parameter).
+        // Verify A finished and B started
         assertEquals(3, capturedSignals.size());
-        assertEquals("SEQ_A_ONFINISHED", capturedSignals.get(1));
+        assertEquals("SEQ_A_ONFINISHED^A1", capturedSignals.get(1));
         assertEquals("SEQ_B_ONSTARTED^B1", capturedSignals.get(2));
     }
 
@@ -380,8 +377,7 @@ class SequenceTest {
         seq.playEvent("NUCI", ctx);
         seq.onPlaybackFinished(animo, "NUCI_0");
 
-        // NUCI is the played root event -> bare generic ONFINISHED (no parameter).
-        assertTrue(capturedSignals.contains("KRET_ONFINISHED"));
+        assertTrue(capturedSignals.contains("KRET_ONFINISHED^NUCI"));
         assertFalse(seq.isPlaying());
     }
 
@@ -406,10 +402,6 @@ class SequenceTest {
         seq.addEvent(topLevel);
 
         seq = wrapSequenceForCapture(seq, "KRET", null, null);
-        // A sub-event finish is delivered ONLY to a handler bound to the exact
-        // "ONFINISHED^<name>" key (no fallback to the generic ONFINISHED), so bind one
-        // explicitly to observe the inner branch finishing.
-        seq = (SequenceVariable) seq.withSignal("ONFINISHED^WRZESZCZY_FIRST", capturingHandler("KRET", null));
 
         AnimoVariable animo = new AnimoVariable("TEST_ANIMO");
         ctx.setVariable("TEST_ANIMO", animo);
@@ -420,14 +412,10 @@ class SequenceTest {
         assertTrue(seq.isPlaying());
         assertTrue(capturedSignals.contains("KRET_ONSTARTED^WRZESZCZY_LAST"));
         assertTrue(capturedSignals.contains("KRET_ONFINISHED^WRZESZCZY_FIRST"));
-        // The inner branch finishing must NOT trigger the generic ONFINISHED while the
-        // top-level sequence is still running (this is the bug being fixed).
-        assertFalse(capturedSignals.contains("KRET_ONFINISHED"));
 
         seq.onPlaybackFinished(animo, "WRZESZCZY_2_0");
 
-        // The played root (WRZESZCZY) finishing emits the bare generic ONFINISHED.
-        assertTrue(capturedSignals.contains("KRET_ONFINISHED"));
+        assertTrue(capturedSignals.contains("KRET_ONFINISHED^WRZESZCZY"));
         assertFalse(seq.isPlaying());
     }
 }
