@@ -101,7 +101,8 @@ class SequenceTest {
         assertEquals(1, capturedSignals.size());
         assertEquals("TEST_SEQ_ONSTARTED^EVENT1", capturedSignals.get(0));
 
-        // Stop with signal
+        // Stop with signal. EVENT1 is the top-level played event → ONFINISHED^EVENT1
+        // (with fallback to a bare ONFINISHED handler).
         seq.callMethod("STOP", new pl.genschu.bloomooemulator.interpreter.values.BoolValue(true));
         assertEquals(2, capturedSignals.size());
         assertEquals("TEST_SEQ_ONFINISHED^EVENT1", capturedSignals.get(1));
@@ -210,7 +211,8 @@ class SequenceTest {
         // Stop A1 with signal - should trigger B1
         seqA.callMethod("STOP", new pl.genschu.bloomooemulator.interpreter.values.BoolValue(true));
 
-        // Verify A finished and B started
+        // Verify A finished and B started. A1 is the top-level played event of SEQ_A
+        // → ONFINISHED^A1 (with fallback to bare ONFINISHED).
         assertEquals(3, capturedSignals.size());
         assertEquals("SEQ_A_ONFINISHED^A1", capturedSignals.get(1));
         assertEquals("SEQ_B_ONSTARTED^B1", capturedSignals.get(2));
@@ -377,6 +379,8 @@ class SequenceTest {
         seq.playEvent("NUCI", ctx);
         seq.onPlaybackFinished(animo, "NUCI_0");
 
+        // NUCI is the top-level played event → ONFINISHED^NUCI (matches a specific
+        // ONFINISHED^NUCI handler as in KRETSIAKAPIE, or falls back to bare otherwise).
         assertTrue(capturedSignals.contains("KRET_ONFINISHED^NUCI"));
         assertFalse(seq.isPlaying());
     }
@@ -402,6 +406,10 @@ class SequenceTest {
         seq.addEvent(topLevel);
 
         seq = wrapSequenceForCapture(seq, "KRET", null, null);
+        // A sub-event finish emits ONFINISHED^<NAME> only to a SPECIFIC handler — it
+        // must NOT fall back to the bare ONFINISHED handler (DLL: CMC_Sequence does not
+        // fall back for sub-events, unlike CMC_Animo). Register one to observe it.
+        seq = (SequenceVariable) seq.withSignal("ONFINISHED^WRZESZCZY_FIRST", capturingHandler("KRET", null));
 
         AnimoVariable animo = new AnimoVariable("TEST_ANIMO");
         ctx.setVariable("TEST_ANIMO", animo);
@@ -411,11 +419,58 @@ class SequenceTest {
 
         assertTrue(seq.isPlaying());
         assertTrue(capturedSignals.contains("KRET_ONSTARTED^WRZESZCZY_LAST"));
+        // The intermediate branch fired its specific parametrized signal (no fallback)...
         assertTrue(capturedSignals.contains("KRET_ONFINISHED^WRZESZCZY_FIRST"));
+        // ...but the top-level WRZESZCZY finish must NOT have fired yet.
+        assertFalse(capturedSignals.contains("KRET_ONFINISHED^WRZESZCZY"));
 
         seq.onPlaybackFinished(animo, "WRZESZCZY_2_0");
 
+        // Now the top-level played event finished → ONFINISHED^WRZESZCZY
+        // (no specific handler here → falls back to the bare ONFINISHED handler).
         assertTrue(capturedSignals.contains("KRET_ONFINISHED^WRZESZCZY"));
         assertFalse(seq.isPlaying());
+    }
+
+    /**
+     * Regression test for the KURATOR88 scene (s88_zlapanykurator): a SEQUENCE-mode
+     * event with several sub-events and only a bare ONFINISHED handler must fire that
+     * handler exactly ONCE, when the whole played event finishes — never after an
+     * intermediate sub-event. Inner sub-events emit ONFINISHED^<name> without falling
+     * back to the bare ONFINISHED handler (CMC_Sequence::onPlayableFinished parity).
+     */
+    @Test
+    void testSequentialSubEventsDoNotFireFinishedPrematurely() {
+        SequenceVariable seq = new SequenceVariable("KUR");
+
+        SequenceEvent played = new SequenceEvent("KURATOR88_1", EventType.SEQUENCE, SequenceMode.SEQUENCE, null, false, false);
+        SequenceEvent line1 = new SequenceEvent("KURATOR88_1_1", EventType.SIMPLE);
+        SequenceEvent line2 = new SequenceEvent("KURATOR88_1_2", EventType.SIMPLE);
+        line1.setAnimationName("TEST_ANIMO");
+        line2.setAnimationName("TEST_ANIMO");
+        played.addSubEvent(line1);
+        played.addSubEvent(line2);
+        seq.addEvent(played);
+
+        // Only a bare ONFINISHED handler is bound, exactly like KURATOR88:ONFINISHED=ODEGRAJSFX.
+        seq = wrapSequenceForCapture(seq, "KUR", null, null);
+
+        AnimoVariable animo = new AnimoVariable("TEST_ANIMO");
+        ctx.setVariable("TEST_ANIMO", animo);
+
+        seq.playEvent("KURATOR88_1", ctx);
+
+        // First sub-event finishes → must progress to the second line, NOT fire ONFINISHED.
+        seq.onPlaybackFinished(animo, "KURATOR88_1_1");
+        assertTrue(seq.isPlaying());
+        assertEquals(0, capturedSignals.stream().filter(s -> s.contains("ONFINISHED")).count(),
+            "Bare ONFINISHED (ODEGRAJSFX) must not fire after an intermediate sub-event");
+
+        // Second (last) sub-event finishes → the whole played event finishes → ONFINISHED once.
+        seq.onPlaybackFinished(animo, "KURATOR88_1_2");
+        assertFalse(seq.isPlaying());
+        assertEquals(1, capturedSignals.stream().filter(s -> s.contains("ONFINISHED")).count(),
+            "Bare ONFINISHED must fire exactly once, at the end");
+        assertTrue(capturedSignals.contains("KUR_ONFINISHED^KURATOR88_1"));
     }
 }

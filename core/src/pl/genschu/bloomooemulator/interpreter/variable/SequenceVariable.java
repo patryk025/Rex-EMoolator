@@ -344,6 +344,8 @@ public record SequenceVariable(
             state.pendingFinishedEvent = null;
             state.pendingFinishedEvents.clear();
             if (emitSignal) {
+                // The stopped event is the top-level played event → ONFINISHED^<NAME>
+                // with fallback to a bare ONFINISHED handler.
                 emitSignal("ONFINISHED", new StringValue(finishedEvent.getName()));
             }
         }
@@ -590,6 +592,10 @@ public record SequenceVariable(
 
     private void handleEventFinished(SequenceEvent event, Context context) {
         Gdx.app.log("SequenceVariable", "handleEventFinished: " + event.getName());
+        // The PLAY target (top-level played event). Captured before any signal is
+        // emitted so a re-entrant playEvent() from a handler cannot change how the
+        // remaining finished events are classified (top-level vs sub-event).
+        SequenceEvent topLevel = state.currentEvent;
         List<SequenceEvent> finishedEvents = new ArrayList<>();
         FinishResolution resolution = resolveFinishedEvent(event, context, finishedEvents);
 
@@ -606,7 +612,7 @@ public record SequenceVariable(
             state.isPlaying = false;
         }
 
-        emitFinishedEvents(finishedEvents);
+        emitFinishedEvents(finishedEvents, topLevel);
     }
 
     private FinishResolution resolveFinishedEvent(SequenceEvent event, Context context, List<SequenceEvent> finishedEvents) {
@@ -644,19 +650,54 @@ public record SequenceVariable(
             List<SequenceEvent> pendingEvents = new ArrayList<>(state.pendingFinishedEvents);
             state.pendingFinishedEvents.clear();
             state.pendingFinishedEvent = null;
-            emitFinishedEvents(pendingEvents);
+            // Pending events are always sub-events that completed while the sequence
+            // keeps playing — never the top-level played event.
+            emitFinishedEvents(pendingEvents, state.currentEvent);
             return;
         }
 
         if (state.pendingFinishedEvent != null) {
-            emitSignal("ONFINISHED", new StringValue(state.pendingFinishedEvent.getName()));
+            fireFinishedSignal(state.pendingFinishedEvent, state.currentEvent);
             state.pendingFinishedEvent = null;
         }
     }
 
-    private void emitFinishedEvents(List<SequenceEvent> finishedEvents) {
+    private void emitFinishedEvents(List<SequenceEvent> finishedEvents, SequenceEvent topLevel) {
         for (SequenceEvent finishedEvent : finishedEvents) {
+            fireFinishedSignal(finishedEvent, topLevel);
+        }
+    }
+
+    /**
+     * Emits the ONFINISHED signal for a single finished event. The distinction
+     * between the top-level played event and inner sub-events is whether the
+     * parametrized signal is allowed to fall back to the bare {@code ONFINISHED}
+     * handler (CMC_Sequence::onPlayableFinished in PIKLIB8.DLL):
+     *
+     * <ul>
+     *   <li><b>Top-level played event</b> (the PLAY target): emit
+     *       {@code ONFINISHED^<NAME>} <em>with</em> the normal fallback to a bare
+     *       {@code ONFINISHED} handler. This satisfies both styles of script
+     *       binding: {@code KRET:ONFINISHED^NUCI=...} (specific handler matches) and
+     *       {@code KURATOR88:ONFINISHED=ODEGRAJSFX} (no specific handler → falls back
+     *       to bare).</li>
+     *   <li><b>Inner sub-event</b>: emit {@code ONFINISHED^<NAME>} and dispatch it
+     *       ONLY if a handler is registered for that exact parametrized signal — it
+     *       must NOT fall back to the bare {@code ONFINISHED} handler. Otherwise every
+     *       intermediate sub-event would prematurely trigger the sequence's own
+     *       ONFINISHED behaviour (the KURATOR88 regression: ODEGRAJSFX fired after the
+     *       first speaking line instead of at the end).</li>
+     * </ul>
+     */
+    private void fireFinishedSignal(SequenceEvent finishedEvent, SequenceEvent topLevel) {
+        if (finishedEvent == topLevel) {
+            // emitSignal performs the ONFINISHED^<NAME> -> ONFINISHED fallback.
             emitSignal("ONFINISHED", new StringValue(finishedEvent.getName()));
+        } else {
+            String specificSignal = "ONFINISHED^" + finishedEvent.getName();
+            if (signals().containsKey(specificSignal)) {
+                emitSignal("ONFINISHED", new StringValue(finishedEvent.getName()));
+            }
         }
     }
 
@@ -894,6 +935,7 @@ public record SequenceVariable(
             } else {
                 if (thisVar.state.currentEvent != null) {
                     if (emitSignal) {
+                        // Top-level played event → ONFINISHED^<NAME> with fallback to bare.
                         thisVar.emitSignal("ONFINISHED", new StringValue(thisVar.state.currentEvent.getName()));
                     }
                     thisVar.state.currentEvent = null;
