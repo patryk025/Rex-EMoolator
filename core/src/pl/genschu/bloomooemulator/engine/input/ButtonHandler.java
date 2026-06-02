@@ -28,7 +28,7 @@ public class ButtonHandler {
     }
 
     public void handleMouseInput(int x, int y, boolean isPressed, boolean justPressed,
-                                 boolean justReleased, MouseVariable mouseVariable) {
+                                 boolean justReleased, MouseVariable mouseVariable, boolean mouseEnabled) {
         Context sceneContext = (Context) game.getCurrentSceneContext();
 
         // Get all buttons from the context and class instances
@@ -51,7 +51,7 @@ public class ButtonHandler {
 
         // Process button interactions
         processButtonInteractions(scopedButtons, x, y, isPressed, justPressed, justReleased,
-                mouseVariable, minHSPriority, maxHSPriority);
+                mouseVariable, minHSPriority, maxHSPriority, mouseEnabled);
 
         // Handle button release
         handleButtonRelease(justReleased, scopedButtons);
@@ -86,7 +86,8 @@ public class ButtonHandler {
     private void processButtonInteractions(List<ScopedButton> buttons,
                                            int x, int y, boolean isPressed,
                                            boolean justPressed, boolean justReleased,
-                                           MouseVariable mouseVariable, int minHSPriority, int maxHSPriority) {
+                                           MouseVariable mouseVariable, int minHSPriority, int maxHSPriority,
+                                           boolean mouseEnabled) {
         List<ScopedButton> hitTestOrder = new ArrayList<>(buttons);
         hitTestOrder.sort((left, right) -> {
             int priorityComparison = Integer.compare(
@@ -108,10 +109,13 @@ public class ButtonHandler {
             return Integer.compare(right.order(), left.order());
         });
 
-        // find topmost button under cursor
+        // find topmost button under cursor.
+        // When the mouse is disabled, no button can be focused or
+        // clicked: leaving focusedButton null makes the loop below drop focus from
+        // every button and prevents any press from registering.
         ScopedButton focusedButton = null;
 
-        for (ScopedButton scopedButton : hitTestOrder) {
+        for (ScopedButton scopedButton : (mouseEnabled ? hitTestOrder : List.<ScopedButton>of())) {
             Variable variable = scopedButton.variable();
             if (variable instanceof ButtonVariable btn) {
                 Variable image = getButtonGfx(btn, scopedButton.owner());

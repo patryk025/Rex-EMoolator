@@ -151,7 +151,10 @@ public class InputManager implements Disposable {
 
         // Process button interactions
         MouseVariable primaryMouse = mouseVariables.isEmpty() ? null : mouseVariables.get(mouseVariables.size() - 1);
-        buttonHandler.handleMouseInput(correctedX, correctedY, isPressed, justPressed, justReleased, primaryMouse);
+        // MOUSE^DISABLE() must also block button handling, not just mouse signals.
+        // With no mouse variable in context, default to enabled (legacy behaviour).
+        boolean mouseEnabled = primaryMouse == null || primaryMouse.isEnabled();
+        buttonHandler.handleMouseInput(correctedX, correctedY, isPressed, justPressed, justReleased, primaryMouse, mouseEnabled);
 
         // Emit mouse signals
         if (justPressed) {
