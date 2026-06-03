@@ -1,6 +1,5 @@
 package pl.genschu.bloomooemulator.engine.input;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Cursor;
 import pl.genschu.bloomooemulator.engine.Game;
 import pl.genschu.bloomooemulator.engine.decision.events.ButtonEvent;
@@ -156,17 +155,17 @@ public class ButtonHandler {
         if (focusedButton != null && isMouseVisible) {
             if (focusedButton.variable() instanceof AnimoVariable animo) {
                 if (animo.isChangeCursor()) {
-                    Gdx.graphics.setSystemCursor(Cursor.SystemCursor.Hand);
+                    inputManager.applyMouseCursor(Cursor.SystemCursor.Hand);
                 } else {
-                    Gdx.graphics.setSystemCursor(Cursor.SystemCursor.Arrow);
+                    inputManager.applyMouseCursor(Cursor.SystemCursor.Arrow);
                 }
             } else {
-                Gdx.graphics.setSystemCursor(Cursor.SystemCursor.Hand);
+                inputManager.applyMouseCursor(Cursor.SystemCursor.Hand);
             }
         } else if (isMouseVisible) {
-            Gdx.graphics.setSystemCursor(Cursor.SystemCursor.Arrow);
+            inputManager.applyMouseCursor(null);
         } else {
-            Gdx.graphics.setSystemCursor(Cursor.SystemCursor.None);
+            inputManager.applyMouseCursor(null);
         }
 
         // Process 'em all!

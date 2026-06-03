@@ -4,6 +4,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.Cursor;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.PixmapIO;
 import com.badlogic.gdx.graphics.Texture;
@@ -29,6 +30,33 @@ import static pl.genschu.bloomooemulator.utils.CollisionChecker.getImage;
 import static pl.genschu.bloomooemulator.utils.CollisionChecker.getRect;
 
 public class InputManager implements Disposable {
+    public enum MouseCursor {
+        ARROW(Cursor.SystemCursor.Arrow),
+        WAIT(Cursor.SystemCursor.NotAllowed), // For now, I don't have a wait cursor, so I'm using not allowed as a substitute
+        ACTIVE(Cursor.SystemCursor.Hand);
+
+        private final Cursor.SystemCursor systemCursor;
+
+        MouseCursor(Cursor.SystemCursor systemCursor) {
+            this.systemCursor = systemCursor;
+        }
+
+        public Cursor.SystemCursor systemCursor() {
+            return systemCursor;
+        }
+
+        public static MouseCursor fromName(String cursorName) {
+            if (cursorName == null) return null;
+
+            return switch (cursorName.toUpperCase(Locale.ROOT)) {
+                case "ARROW" -> ARROW;
+                case "WAIT" -> WAIT;
+                case "ACTIVE" -> ACTIVE;
+                default -> null;
+            };
+        }
+    }
+
     // Camera and viewport references
     private final OrthographicCamera camera;
     private final Viewport viewport;
@@ -41,6 +69,7 @@ public class InputManager implements Disposable {
     private boolean mousePrevPressed = false;
     private GameContext lastMouseClickContext = null;
     private boolean mouseVisible = true;
+    private MouseCursor mouseCursor = MouseCursor.ARROW;
     // LibGDX polling returns (0,0) until a real mouse event arrives. Without a
     // guard, the first tick processes buttons as if the cursor were at (0,0),
     // falsely focusing any button whose rect contains that point.
@@ -357,6 +386,27 @@ public class InputManager implements Disposable {
 
     public void setMouseVisible(boolean mouseVisible) {
         this.mouseVisible = mouseVisible;
+        applyMouseCursor(null);
+    }
+
+    public MouseCursor getMouseCursor() {
+        return mouseCursor;
+    }
+
+    public void setMouseCursor(MouseCursor mouseCursor) {
+        if (mouseCursor == null) {
+            return;
+        }
+
+        this.mouseCursor = mouseCursor;
+        applyMouseCursor(null);
+    }
+
+    public void applyMouseCursor(Cursor.SystemCursor overrideCursor) {
+        Cursor.SystemCursor cursor = !mouseVisible
+                ? Cursor.SystemCursor.None
+                : overrideCursor != null ? overrideCursor : mouseCursor.systemCursor();
+        Gdx.graphics.setSystemCursor(cursor);
     }
 
     @Override
