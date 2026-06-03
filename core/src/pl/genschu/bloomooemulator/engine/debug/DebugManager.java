@@ -59,12 +59,15 @@ public class DebugManager implements Disposable {
 
     private boolean showSceneSelector = false;
     private SelectorMode selectorMode = SelectorMode.SCENES;
-    private final StringBuilder sceneNameInput = new StringBuilder();
-    private List<String> sceneList = new ArrayList<>();
-    private int selectedScene = -1;
+    private final StringBuilder sceneNameInput = new StringBuilder();   // shared filter / name field
     private Vector2 selectorPosition = new Vector2(10, 30);
-    private int scrollPosition = 0;
     private static final int MAX_VISIBLE_SCENES = 15;
+
+    // SCENES mode: master list + type-to-filter view.
+    private List<String> sceneList = new ArrayList<>();
+    private final List<String> filteredScenes = new ArrayList<>();
+    private int selectedScene = -1;   // index into filteredScenes
+    private int scrollPosition = 0;
 
     // ARCADE / CUTSCENE name catalog + type-to-filter pick list.
     private final SceneNameCatalog sceneCatalog = new SceneNameCatalog();
@@ -73,13 +76,18 @@ public class DebugManager implements Disposable {
     private int filteredScroll = 0;
     private static final int MAX_VISIBLE_LOADER = 10;
 
+    // Cached filter state so the view is rebuilt only when the query/mode change.
+    private String appliedFilter = null;
+    private SelectorMode appliedMode = null;
+
     private float keyRepeatTimer = 0;
     private boolean keyIsDown = false;
     private final float KEY_INITIAL_DELAY = 0.4f;
     private final float KEY_REPEAT_INTERVAL = 0.1f;
 
     /**
-     * Captures typed characters for the ARCADE / CUTSCENE name field. Installed
+     * Captures typed characters for the shared filter / name field (scene
+     * filter in SCENES mode, scene name in ARCADE / CUTSCENE modes). Installed
      * while the selector is open so it also swallows gameplay input. We capture
      * inline rather than via {@code Gdx.input.getTextInput} because the LWJGL3
      * AWT dialog deadlocks on macOS under {@code -XstartOnFirstThread}.
@@ -87,7 +95,7 @@ public class DebugManager implements Disposable {
     private final InputAdapter selectorInputProcessor = new InputAdapter() {
         @Override
         public boolean keyTyped(char character) {
-            if (!showSceneSelector || selectorMode == SelectorMode.SCENES) {
+            if (!showSceneSelector) {
                 return false;
             }
             if (character == '\b') {
@@ -96,11 +104,9 @@ public class DebugManager implements Disposable {
                 }
             } else if (character >= 32 && character != 127) {
                 sceneNameInput.append(character);
-            } else {
-                return true;
             }
-            // Any edit returns focus to the typed text rather than a list item.
-            filteredSelection = -1;
+            // The change is picked up by ensureFilter() next frame, which rebuilds
+            // the filtered view and resets the selection.
             return true;
         }
     };
@@ -995,7 +1001,7 @@ public class DebugManager implements Disposable {
         showSceneSelector = !showSceneSelector;
         if (showSceneSelector) {
             selectorMode = SelectorMode.SCENES;
-            resetLoaderInput();
+            resetFilterInput();
             updateSceneList();
         }
     }
@@ -1014,18 +1020,63 @@ public class DebugManager implements Disposable {
         // Sort
         Collections.sort(sceneList);
 
-        // Set selected scene
-        selectedScene = sceneList.indexOf(game.getCurrentScene());
-
-        // Make sure the selected scene is visible on open. updateSceneList()
-        // previously left scrollPosition untouched, so a current scene below the
-        // fold stayed off-screen until the user nudged the selection down/up.
-        clampScrollToSelection();
+        // Build the (initially unfiltered) view; selects & scrolls to the
+        // current scene. Force a rebuild regardless of the previous filter state.
+        appliedFilter = null;
+        appliedMode = null;
+        ensureFilter();
     }
 
-    /** Scrolls the list so {@link #selectedScene} is visible (roughly centred). */
+    /**
+     * Rebuilds the filtered view only when the typed query or the mode changed,
+     * so list navigation (which doesn't touch the query) is preserved.
+     */
+    private void ensureFilter() {
+        String query = sceneNameInput.toString();
+        if (query.equals(appliedFilter) && selectorMode == appliedMode) {
+            return;
+        }
+        appliedFilter = query;
+        appliedMode = selectorMode;
+        rebuildFilter();
+    }
+
+    private void rebuildFilter() {
+        String query = sceneNameInput.toString().trim().toLowerCase(Locale.ROOT);
+        if (selectorMode == SelectorMode.SCENES) {
+            filteredScenes.clear();
+            for (String scene : sceneList) {
+                if (query.isEmpty() || scene.toLowerCase(Locale.ROOT).contains(query)) {
+                    filteredScenes.add(scene);
+                }
+            }
+            if (query.isEmpty()) {
+                // On open / unfiltered, highlight the current scene.
+                selectedScene = filteredScenes.indexOf(game.getCurrentScene());
+                if (selectedScene < 0 && !filteredScenes.isEmpty()) {
+                    selectedScene = 0;
+                }
+            } else {
+                selectedScene = filteredScenes.isEmpty() ? -1 : 0;
+            }
+            clampScrollToSelection();
+        } else {
+            filteredNames.clear();
+            String family = SceneLoaderScripts.familyId(game.getGame() != null ? game.getGame().getGameName() : null);
+            boolean arcade = selectorMode == SelectorMode.ARCADE;
+            for (String name : sceneCatalog.names(family, arcade)) {
+                if (query.isEmpty() || name.toLowerCase(Locale.ROOT).contains(query)) {
+                    filteredNames.add(name);
+                }
+            }
+            filteredSelection = -1;   // a fresh query defaults focus to the typed text
+            filteredScroll = 0;
+        }
+    }
+
+    /** Scrolls the scene list so {@link #selectedScene} is visible (roughly centred). */
     private void clampScrollToSelection() {
-        int maxScroll = Math.max(0, sceneList.size() - MAX_VISIBLE_SCENES);
+        int maxScroll = Math.max(0, filteredScenes.size() - MAX_VISIBLE_SCENES);
         if (selectedScene < 0) {
             scrollPosition = 0;
         } else {
@@ -1052,36 +1103,19 @@ public class DebugManager implements Disposable {
         int current = Math.max(0, modes.indexOf(selectorMode));
         int next = (current + direction + modes.size()) % modes.size();
         selectorMode = modes.get(next);
-        resetLoaderInput();
+        resetFilterInput();
         keyIsDown = false;
         keyRepeatTimer = 0;
     }
 
-    private void resetLoaderInput() {
+    /** Clears the shared filter field and forces the view to rebuild. */
+    private void resetFilterInput() {
         sceneNameInput.setLength(0);
         filteredNames.clear();
+        filteredScenes.clear();
         filteredSelection = -1;
         filteredScroll = 0;
-    }
-
-    /**
-     * Rebuilds {@link #filteredNames} from the catalog for the current game,
-     * mode and typed prefix. Called each frame while a loader mode is active.
-     */
-    private void recomputeFilteredNames() {
-        filteredNames.clear();
-        String family = SceneLoaderScripts.familyId(game.getGame() != null ? game.getGame().getGameName() : null);
-        boolean arcade = selectorMode == SelectorMode.ARCADE;
-        String query = sceneNameInput.toString().trim().toLowerCase(Locale.ROOT);
-        for (String name : sceneCatalog.names(family, arcade)) {
-            if (query.isEmpty() || name.toLowerCase(Locale.ROOT).contains(query)) {
-                filteredNames.add(name);
-            }
-        }
-        if (filteredSelection >= filteredNames.size()) {
-            filteredSelection = filteredNames.size() - 1;
-        }
-        clampLoaderScroll();
+        appliedFilter = null;   // force ensureFilter() to rebuild for the new mode
     }
 
     private void clampLoaderScroll() {
@@ -1148,8 +1182,8 @@ public class DebugManager implements Disposable {
         int width = 300;
         int height;
         if (selectorMode == SelectorMode.SCENES) {
-            int rows = Math.min(Math.max(sceneList.size(), 1), MAX_VISIBLE_SCENES);
-            height = rows * 20 + topPad + 8;
+            int rows = Math.min(Math.max(filteredScenes.size(), 1), MAX_VISIBLE_SCENES);
+            height = topPad + rows * 20 + 36;   // filter line + list + footer
         } else {
             int rows = Math.max(1, Math.min(filteredNames.size(), MAX_VISIBLE_LOADER));
             height = topPad + 44 + rows * 20 + 14;
@@ -1187,21 +1221,31 @@ public class DebugManager implements Disposable {
         float contentTop = selectorPosition.y + height - topPad;
 
         if (selectorMode == SelectorMode.SCENES) {
-            int visibleCount = Math.min(sceneList.size(), MAX_VISIBLE_SCENES);
-            for (int i = 0; i < visibleCount; i++) {
-                int index = scrollPosition + i;
-                if (index >= sceneList.size()) break;
+            // Filter field (type to narrow the list).
+            font.setColor(Color.WHITE);
+            font.draw(batch, "Filtr: " + sceneNameInput + "_", selectorPosition.x + 15, contentTop);
 
-                if (index == selectedScene) {
-                    font.setColor(Color.GREEN);  // Selected scene
-                } else if (sceneList.get(index).equals(game.getCurrentScene())) {
-                    font.setColor(Color.CYAN);   // Current scene
-                } else {
-                    font.setColor(Color.WHITE);  // Rest of scenes
+            float listTop = contentTop - 20;
+            if (filteredScenes.isEmpty()) {
+                font.setColor(Color.GRAY);
+                font.draw(batch, "(brak dopasowania)", selectorPosition.x + 15, listTop);
+            } else {
+                int visibleCount = Math.min(filteredScenes.size(), MAX_VISIBLE_SCENES);
+                for (int i = 0; i < visibleCount; i++) {
+                    int index = scrollPosition + i;
+                    if (index >= filteredScenes.size()) break;
+
+                    if (index == selectedScene) {
+                        font.setColor(Color.GREEN);  // Selected scene
+                    } else if (filteredScenes.get(index).equals(game.getCurrentScene())) {
+                        font.setColor(Color.CYAN);   // Current scene
+                    } else {
+                        font.setColor(Color.WHITE);  // Rest of scenes
+                    }
+
+                    float itemY = listTop - (i * 20);
+                    font.draw(batch, filteredScenes.get(index), selectorPosition.x + 15, itemY);
                 }
-
-                float itemY = contentTop - (i * 20);
-                font.draw(batch, sceneList.get(index), selectorPosition.x + 15, itemY);
             }
         } else {
             font.setColor(Color.WHITE);
@@ -1233,19 +1277,19 @@ public class DebugManager implements Disposable {
 
         batch.end();
 
-        if (selectorMode == SelectorMode.SCENES && sceneList.size() > MAX_VISIBLE_SCENES) {
-            float scrollableArea = height - topPad - 8;
-            float totalItems = sceneList.size();
+        if (selectorMode == SelectorMode.SCENES && filteredScenes.size() > MAX_VISIBLE_SCENES) {
+            float scrollableArea = height - topPad - 44;
+            float totalItems = filteredScenes.size();
             float visibleItems = MAX_VISIBLE_SCENES;
 
             float barHeight = (visibleItems / totalItems) * scrollableArea;
 
             float barPositionRatio = scrollPosition / (totalItems - visibleItems);
-            float barY = selectorPosition.y + 18 + (scrollableArea - barHeight) * (1.0f - barPositionRatio);
+            float barY = selectorPosition.y + 24 + (scrollableArea - barHeight) * (1.0f - barPositionRatio);
 
             shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
             shapeRenderer.setColor(Color.GRAY);
-            shapeRenderer.rect(selectorPosition.x + width - 15, selectorPosition.y + 18, 10, scrollableArea);
+            shapeRenderer.rect(selectorPosition.x + width - 15, selectorPosition.y + 24, 10, scrollableArea);
             shapeRenderer.setColor(Color.WHITE);
             shapeRenderer.rect(selectorPosition.x + width - 13, barY, 6, barHeight);
             shapeRenderer.end();
@@ -1256,7 +1300,7 @@ public class DebugManager implements Disposable {
         if (!showSceneSelector) return;
 
         // Swallow gameplay input while the selector is open; the processor also
-        // captures typed characters for the ARCADE / CUTSCENE name field.
+        // captures typed characters for the shared filter / name field.
         Gdx.input.setInputProcessor(selectorInputProcessor);
 
         // Switch modes (only meaningful when the game exposes ARCADE/CUTSCENE).
@@ -1266,12 +1310,10 @@ public class DebugManager implements Disposable {
             cycleMode(1);
         }
 
-        // In loader modes, keep the type-to-filter pick list in sync.
-        if (selectorMode != SelectorMode.SCENES) {
-            recomputeFilteredNames();
-        }
+        // Re-filter when the typed query (or mode) changed.
+        ensureFilter();
 
-        // UP/DOWN drive the active list (scene list, or filtered loader list).
+        // UP/DOWN drive the active list (filtered scenes, or filtered loader list).
         boolean upPressed = Gdx.input.isKeyPressed(Input.Keys.UP);
         boolean downPressed = Gdx.input.isKeyPressed(Input.Keys.DOWN);
 
@@ -1306,8 +1348,8 @@ public class DebugManager implements Disposable {
 
         if (Gdx.input.isKeyJustPressed(Input.Keys.ENTER)) {
             if (selectorMode == SelectorMode.SCENES) {
-                if (selectedScene >= 0) {
-                    game.goTo(sceneList.get(selectedScene));
+                if (selectedScene >= 0 && selectedScene < filteredScenes.size()) {
+                    game.goTo(filteredScenes.get(selectedScene));
                     showSceneSelector = false;
                 }
             } else {
@@ -1350,7 +1392,7 @@ public class DebugManager implements Disposable {
     }
 
     private void moveSelectionDown() {
-        if (selectedScene < sceneList.size() - 1) {
+        if (selectedScene < filteredScenes.size() - 1) {
             selectedScene++;
 
             if (selectedScene >= scrollPosition + MAX_VISIBLE_SCENES) {
