@@ -55,7 +55,11 @@ public class DebugManager implements Disposable {
 
     private final Set<String> loggedCollisionMismatches = new HashSet<>();
 
+    private enum SelectorMode { SCENES, ARCADE, CUTSCENE }
+
     private boolean showSceneSelector = false;
+    private SelectorMode selectorMode = SelectorMode.SCENES;
+    private final StringBuilder sceneNameInput = new StringBuilder();
     private List<String> sceneList = new ArrayList<>();
     private int selectedScene = -1;
     private Vector2 selectorPosition = new Vector2(10, 30);
@@ -66,6 +70,29 @@ public class DebugManager implements Disposable {
     private boolean keyIsDown = false;
     private final float KEY_INITIAL_DELAY = 0.4f;
     private final float KEY_REPEAT_INTERVAL = 0.1f;
+
+    /**
+     * Captures typed characters for the ARCADE / CUTSCENE name field. Installed
+     * while the selector is open so it also swallows gameplay input. We capture
+     * inline rather than via {@code Gdx.input.getTextInput} because the LWJGL3
+     * AWT dialog deadlocks on macOS under {@code -XstartOnFirstThread}.
+     */
+    private final InputAdapter selectorInputProcessor = new InputAdapter() {
+        @Override
+        public boolean keyTyped(char character) {
+            if (!showSceneSelector || selectorMode == SelectorMode.SCENES) {
+                return false;
+            }
+            if (character == '\b') {
+                if (sceneNameInput.length() > 0) {
+                    sceneNameInput.deleteCharAt(sceneNameInput.length() - 1);
+                }
+            } else if (character >= 32 && character != 127) {
+                sceneNameInput.append(character);
+            }
+            return true;
+        }
+    };
 
 
     public DebugManager(SpriteBatch batch, OrthographicCamera camera, Game game, EngineConfig config) {
@@ -956,6 +983,8 @@ public class DebugManager implements Disposable {
     public void toggleSceneSelector() {
         showSceneSelector = !showSceneSelector;
         if (showSceneSelector) {
+            selectorMode = SelectorMode.SCENES;
+            sceneNameInput.setLength(0);
             updateSceneList();
         }
     }
@@ -976,13 +1005,90 @@ public class DebugManager implements Disposable {
 
         // Set selected scene
         selectedScene = sceneList.indexOf(game.getCurrentScene());
+
+        // Make sure the selected scene is visible on open. updateSceneList()
+        // previously left scrollPosition untouched, so a current scene below the
+        // fold stayed off-screen until the user nudged the selection down/up.
+        clampScrollToSelection();
+    }
+
+    /** Scrolls the list so {@link #selectedScene} is visible (roughly centred). */
+    private void clampScrollToSelection() {
+        int maxScroll = Math.max(0, sceneList.size() - MAX_VISIBLE_SCENES);
+        if (selectedScene < 0) {
+            scrollPosition = 0;
+        } else {
+            int target = selectedScene - MAX_VISIBLE_SCENES / 2;
+            scrollPosition = Math.max(0, Math.min(target, maxScroll));
+        }
+    }
+
+    private List<SelectorMode> availableModes() {
+        List<SelectorMode> modes = new ArrayList<>();
+        modes.add(SelectorMode.SCENES);
+        String gameName = game.getGame() != null ? game.getGame().getGameName() : null;
+        if (SceneLoaderScripts.supportsArcade(gameName)) {
+            modes.add(SelectorMode.ARCADE);
+        }
+        if (SceneLoaderScripts.supportsCutscene(gameName)) {
+            modes.add(SelectorMode.CUTSCENE);
+        }
+        return modes;
+    }
+
+    private void cycleMode(int direction) {
+        List<SelectorMode> modes = availableModes();
+        int current = Math.max(0, modes.indexOf(selectorMode));
+        int next = (current + direction + modes.size()) % modes.size();
+        selectorMode = modes.get(next);
+        sceneNameInput.setLength(0);
+        keyIsDown = false;
+        keyRepeatTimer = 0;
+    }
+
+    /**
+     * Runs the game-specific loader script for the name typed into the inline
+     * field. Called on the render thread (from input handling), so the scene
+     * transition it triggers is safe.
+     */
+    private void loadCustomScene(SelectorMode mode) {
+        String name = sceneNameInput.toString().trim();
+        if (name.isEmpty()) {
+            return;
+        }
+        String gameName = game.getGame() != null ? game.getGame().getGameName() : null;
+        String script = mode == SelectorMode.ARCADE
+                ? SceneLoaderScripts.arcadeScript(gameName, name)
+                : SceneLoaderScripts.cutsceneScript(gameName, name);
+        if (script != null) {
+            game.runScript(script);
+        }
+        showSceneSelector = false;
+    }
+
+    private static String modeLabel(SelectorMode mode) {
+        switch (mode) {
+            case ARCADE:   return "ARCADE";
+            case CUTSCENE: return "CUTSCENKI";
+            default:       return "SCENY";
+        }
     }
 
     private void renderSceneSelector() {
         if (!showSceneSelector) return;
 
+        List<SelectorMode> modes = availableModes();
+        boolean hasTabs = modes.size() > 1;
+        int topPad = hasTabs ? 52 : 32;   // header (+ tabs) area above content
+
         int width = 300;
-        int height = Math.min(sceneList.size(), MAX_VISIBLE_SCENES) * 20 + 40;
+        int height;
+        if (selectorMode == SelectorMode.SCENES) {
+            int rows = Math.min(Math.max(sceneList.size(), 1), MAX_VISIBLE_SCENES);
+            height = rows * 20 + topPad + 8;
+        } else {
+            height = topPad + 48;
+        }
 
         // Draw background
         shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
@@ -1000,43 +1106,65 @@ public class DebugManager implements Disposable {
 
         // Draw header
         font.setColor(Color.YELLOW);
-        font.draw(batch, "Scene Selector (F9 to toggle)", selectorPosition.x + 10, selectorPosition.y + height - 10);
+        font.draw(batch, "Scene Selector (F9)", selectorPosition.x + 10, selectorPosition.y + height - 10);
 
-        // Draw scene list
-        int visibleCount = Math.min(sceneList.size(), MAX_VISIBLE_SCENES);
-
-        for (int i = 0; i < visibleCount; i++) {
-            int index = scrollPosition + i;
-            if (index >= sceneList.size()) break;
-
-            if (index == selectedScene) {
-                font.setColor(Color.GREEN);  // Selected scene
-            } else if (sceneList.get(index).equals(game.getCurrentScene())) {
-                font.setColor(Color.CYAN);   // Current scene
-            } else {
-                font.setColor(Color.WHITE);  // Rest of scenes
+        // Draw mode tabs
+        if (hasTabs) {
+            float tabX = selectorPosition.x + 12;
+            float tabY = selectorPosition.y + height - 30;
+            for (SelectorMode mode : modes) {
+                font.setColor(mode == selectorMode ? Color.GREEN : Color.GRAY);
+                GlyphLayout layout = font.draw(batch, modeLabel(mode), tabX, tabY);
+                tabX += layout.width + 14;
             }
-
-            float itemY = selectorPosition.y + height - 35 - (i * 20);
-
-            font.draw(batch, sceneList.get(index), selectorPosition.x + 15, itemY);
         }
+
+        float contentTop = selectorPosition.y + height - topPad;
+
+        if (selectorMode == SelectorMode.SCENES) {
+            int visibleCount = Math.min(sceneList.size(), MAX_VISIBLE_SCENES);
+            for (int i = 0; i < visibleCount; i++) {
+                int index = scrollPosition + i;
+                if (index >= sceneList.size()) break;
+
+                if (index == selectedScene) {
+                    font.setColor(Color.GREEN);  // Selected scene
+                } else if (sceneList.get(index).equals(game.getCurrentScene())) {
+                    font.setColor(Color.CYAN);   // Current scene
+                } else {
+                    font.setColor(Color.WHITE);  // Rest of scenes
+                }
+
+                float itemY = contentTop - (i * 20);
+                font.draw(batch, sceneList.get(index), selectorPosition.x + 15, itemY);
+            }
+        } else {
+            font.setColor(Color.WHITE);
+            font.draw(batch, "Nazwa " + modeLabel(selectorMode) + ":", selectorPosition.x + 15, contentTop);
+            font.setColor(Color.GREEN);
+            font.draw(batch, sceneNameInput + "_", selectorPosition.x + 15, contentTop - 20);
+        }
+
+        // Footer hint
+        font.setColor(Color.GRAY);
+        font.draw(batch, hasTabs ? "<-/->: tryb   ESC: zamknij" : "ESC: zamknij",
+                selectorPosition.x + 12, selectorPosition.y + 14);
 
         batch.end();
 
-        if (sceneList.size() > MAX_VISIBLE_SCENES) {
-            float scrollableArea = height - 40;
+        if (selectorMode == SelectorMode.SCENES && sceneList.size() > MAX_VISIBLE_SCENES) {
+            float scrollableArea = height - topPad - 8;
             float totalItems = sceneList.size();
             float visibleItems = MAX_VISIBLE_SCENES;
 
             float barHeight = (visibleItems / totalItems) * scrollableArea;
 
             float barPositionRatio = scrollPosition / (totalItems - visibleItems);
-            float barY = selectorPosition.y + 10 + (scrollableArea - barHeight) * (1.0f - barPositionRatio);
+            float barY = selectorPosition.y + 18 + (scrollableArea - barHeight) * (1.0f - barPositionRatio);
 
             shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
             shapeRenderer.setColor(Color.GRAY);
-            shapeRenderer.rect(selectorPosition.x + width - 15, selectorPosition.y + 10, 10, scrollableArea);
+            shapeRenderer.rect(selectorPosition.x + width - 15, selectorPosition.y + 18, 10, scrollableArea);
             shapeRenderer.setColor(Color.WHITE);
             shapeRenderer.rect(selectorPosition.x + width - 13, barY, 6, barHeight);
             shapeRenderer.end();
@@ -1046,8 +1174,20 @@ public class DebugManager implements Disposable {
     public void handleSceneSelectorInput(float deltaTime) {
         if (!showSceneSelector) return;
 
-        boolean upPressed = Gdx.input.isKeyPressed(Input.Keys.UP);
-        boolean downPressed = Gdx.input.isKeyPressed(Input.Keys.DOWN);
+        // Swallow gameplay input while the selector is open; the processor also
+        // captures typed characters for the ARCADE / CUTSCENE name field.
+        Gdx.input.setInputProcessor(selectorInputProcessor);
+
+        // Switch modes (only meaningful when the game exposes ARCADE/CUTSCENE).
+        if (Gdx.input.isKeyJustPressed(Input.Keys.LEFT)) {
+            cycleMode(-1);
+        } else if (Gdx.input.isKeyJustPressed(Input.Keys.RIGHT)) {
+            cycleMode(1);
+        }
+
+        // List navigation only applies in SCENES mode.
+        boolean upPressed = selectorMode == SelectorMode.SCENES && Gdx.input.isKeyPressed(Input.Keys.UP);
+        boolean downPressed = selectorMode == SelectorMode.SCENES && Gdx.input.isKeyPressed(Input.Keys.DOWN);
 
         if (upPressed || downPressed) {
             if (!keyIsDown) {
@@ -1078,16 +1218,20 @@ public class DebugManager implements Disposable {
             keyRepeatTimer = 0;
         }
 
-        if (Gdx.input.isKeyJustPressed(Input.Keys.ENTER) && selectedScene >= 0) {
-            // Goto scene
-            game.goTo(sceneList.get(selectedScene));
-            showSceneSelector = false;
+        if (Gdx.input.isKeyJustPressed(Input.Keys.ENTER)) {
+            if (selectorMode == SelectorMode.SCENES) {
+                if (selectedScene >= 0) {
+                    game.goTo(sceneList.get(selectedScene));
+                    showSceneSelector = false;
+                }
+            } else {
+                // ARCADE / CUTSCENE: run the loader script for the typed name.
+                loadCustomScene(selectorMode);
+            }
         } else if (Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) {
             // Close selector
             showSceneSelector = false;
         }
-
-        Gdx.input.setInputProcessor(new InputAdapter());
     }
 
     private void moveSelectionUp() {

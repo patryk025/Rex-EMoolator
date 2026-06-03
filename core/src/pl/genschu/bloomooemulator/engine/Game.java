@@ -19,6 +19,8 @@ import pl.genschu.bloomooemulator.interpreter.runtime.ExecutionContext;
 import pl.genschu.bloomooemulator.interpreter.runtime.ASTInterpreter;
 import pl.genschu.bloomooemulator.interpreter.variable.*;
 import pl.genschu.bloomooemulator.interpreter.values.StringValue;
+import pl.genschu.bloomooemulator.interpreter.ast.ASTNode;
+import pl.genschu.bloomooemulator.loader.BehaviourCodeParser;
 import pl.genschu.bloomooemulator.loader.CNVParser;
 import pl.genschu.bloomooemulator.loader.ImageLoader;
 import pl.genschu.bloomooemulator.logic.AppPaths;
@@ -592,6 +594,32 @@ public class Game {
             } catch (Exception e) {
                 Gdx.app.error("Game", "Error while running __INIT__ BEHAVIOUR: " + e.getMessage(), e);
             }
+        }
+    }
+
+    /**
+     * Parses and runs an ad-hoc BlooMoo script string in the current scene
+     * context, using the same machinery as scene behaviours. Used by the debug
+     * scene loader (ARCADE / CUTSCENE) and future custom-script tooling.
+     *
+     * <p>Must be called on the render thread — the script may trigger a scene
+     * transition (GOTO), which touches GL.
+     *
+     * @return {@code true} if the script ran without throwing.
+     */
+    public boolean runScript(String code) {
+        if (code == null || code.trim().isEmpty()) {
+            return false;
+        }
+        try {
+            ASTNode ast = BehaviourCodeParser.parseCode(code, "__SCRIPT__");
+            BehaviourVariable behaviour = new BehaviourVariable("__SCRIPT__", ast, Map.of());
+            ASTInterpreter interpreter = new ASTInterpreter(currentSceneContext);
+            interpreter.runBehaviour("__SCRIPT__", behaviour, behaviour, List.of());
+            return true;
+        } catch (Exception e) {
+            Gdx.app.error("Game", "Error while running script: " + e.getMessage(), e);
+            return false;
         }
     }
 
