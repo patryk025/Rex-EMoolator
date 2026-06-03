@@ -94,7 +94,7 @@ public class FileUtils {
         StringBuilder joined = new StringBuilder(first.replace('\\', '/').replaceFirst("/+$", ""));
         for (String segment : rest) {
             if (segment == null || segment.isEmpty()) continue;
-            if (!joined.isEmpty()) joined.append('/');
+            if (!joined.toString().isEmpty()) joined.append('/');
             joined.append(segment.replace('\\', '/').replaceFirst("^/+", "").replaceFirst("/+$", ""));
         }
         return joined.toString();
