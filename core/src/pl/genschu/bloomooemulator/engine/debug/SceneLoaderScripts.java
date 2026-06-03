@@ -19,6 +19,30 @@ public final class SceneLoaderScripts {
 
     private static final String NAME_TOKEN = "%NAME%";
 
+    /**
+     * Stable identifier for a game family, used as the key in the bundled
+     * {@code scene_lists.json} name catalog. Returns {@code null} for games
+     * without ARCADE/CUTSCENE loaders.
+     */
+    public static String familyId(String gameName) {
+        if (gameName == null) {
+            return null;
+        }
+        if (gameName.startsWith("Reksio i Czarodzieje")) {
+            return "CZARODZIEJE";
+        }
+        if (gameName.startsWith("Reksio i Wehikuł Czasu")) {
+            return "WEHIKUL";
+        }
+        if (gameName.startsWith("Reksio i Kapitan Nemo")) {
+            return "NEMO";
+        }
+        if (gameName.startsWith("Reksio i Kretes w Akcji")) {
+            return "KRETES";
+        }
+        return null;
+    }
+
     public static boolean supportsArcade(String gameName) {
         return arcadeTemplate(gameName) != null;
     }

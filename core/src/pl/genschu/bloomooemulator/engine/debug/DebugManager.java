@@ -66,6 +66,13 @@ public class DebugManager implements Disposable {
     private int scrollPosition = 0;
     private static final int MAX_VISIBLE_SCENES = 15;
 
+    // ARCADE / CUTSCENE name catalog + type-to-filter pick list.
+    private final SceneNameCatalog sceneCatalog = new SceneNameCatalog();
+    private final List<String> filteredNames = new ArrayList<>();
+    private int filteredSelection = -1;   // -1 = load the typed text, not a list item
+    private int filteredScroll = 0;
+    private static final int MAX_VISIBLE_LOADER = 10;
+
     private float keyRepeatTimer = 0;
     private boolean keyIsDown = false;
     private final float KEY_INITIAL_DELAY = 0.4f;
@@ -89,7 +96,11 @@ public class DebugManager implements Disposable {
                 }
             } else if (character >= 32 && character != 127) {
                 sceneNameInput.append(character);
+            } else {
+                return true;
             }
+            // Any edit returns focus to the typed text rather than a list item.
+            filteredSelection = -1;
             return true;
         }
     };
@@ -984,7 +995,7 @@ public class DebugManager implements Disposable {
         showSceneSelector = !showSceneSelector;
         if (showSceneSelector) {
             selectorMode = SelectorMode.SCENES;
-            sceneNameInput.setLength(0);
+            resetLoaderInput();
             updateSceneList();
         }
     }
@@ -1041,19 +1052,72 @@ public class DebugManager implements Disposable {
         int current = Math.max(0, modes.indexOf(selectorMode));
         int next = (current + direction + modes.size()) % modes.size();
         selectorMode = modes.get(next);
-        sceneNameInput.setLength(0);
+        resetLoaderInput();
         keyIsDown = false;
         keyRepeatTimer = 0;
     }
 
+    private void resetLoaderInput() {
+        sceneNameInput.setLength(0);
+        filteredNames.clear();
+        filteredSelection = -1;
+        filteredScroll = 0;
+    }
+
     /**
-     * Runs the game-specific loader script for the name typed into the inline
-     * field. Called on the render thread (from input handling), so the scene
-     * transition it triggers is safe.
+     * Rebuilds {@link #filteredNames} from the catalog for the current game,
+     * mode and typed prefix. Called each frame while a loader mode is active.
      */
-    private void loadCustomScene(SelectorMode mode) {
-        String name = sceneNameInput.toString().trim();
-        if (name.isEmpty()) {
+    private void recomputeFilteredNames() {
+        filteredNames.clear();
+        String family = SceneLoaderScripts.familyId(game.getGame() != null ? game.getGame().getGameName() : null);
+        boolean arcade = selectorMode == SelectorMode.ARCADE;
+        String query = sceneNameInput.toString().trim().toLowerCase(Locale.ROOT);
+        for (String name : sceneCatalog.names(family, arcade)) {
+            if (query.isEmpty() || name.toLowerCase(Locale.ROOT).contains(query)) {
+                filteredNames.add(name);
+            }
+        }
+        if (filteredSelection >= filteredNames.size()) {
+            filteredSelection = filteredNames.size() - 1;
+        }
+        clampLoaderScroll();
+    }
+
+    private void clampLoaderScroll() {
+        if (filteredSelection < 0) {
+            filteredScroll = 0;
+        } else if (filteredSelection < filteredScroll) {
+            filteredScroll = filteredSelection;
+        } else if (filteredSelection >= filteredScroll + MAX_VISIBLE_LOADER) {
+            filteredScroll = filteredSelection - MAX_VISIBLE_LOADER + 1;
+        }
+    }
+
+    private void moveLoaderSelectionDown() {
+        if (filteredNames.isEmpty()) {
+            return;
+        }
+        if (filteredSelection < filteredNames.size() - 1) {
+            filteredSelection++;
+        }
+        clampLoaderScroll();
+    }
+
+    private void moveLoaderSelectionUp() {
+        if (filteredSelection >= 0) {
+            filteredSelection--;   // stepping above the top returns focus to the text field
+        }
+        clampLoaderScroll();
+    }
+
+    /**
+     * Runs the game-specific loader script for the given scene name. Called on
+     * the render thread (from input handling), so the scene transition it
+     * triggers is safe.
+     */
+    private void loadCustomScene(SelectorMode mode, String name) {
+        if (name == null || name.trim().isEmpty()) {
             return;
         }
         String gameName = game.getGame() != null ? game.getGame().getGameName() : null;
@@ -1087,7 +1151,8 @@ public class DebugManager implements Disposable {
             int rows = Math.min(Math.max(sceneList.size(), 1), MAX_VISIBLE_SCENES);
             height = rows * 20 + topPad + 8;
         } else {
-            height = topPad + 48;
+            int rows = Math.max(1, Math.min(filteredNames.size(), MAX_VISIBLE_LOADER));
+            height = topPad + 44 + rows * 20 + 14;
         }
 
         // Draw background
@@ -1141,8 +1206,24 @@ public class DebugManager implements Disposable {
         } else {
             font.setColor(Color.WHITE);
             font.draw(batch, "Nazwa " + modeLabel(selectorMode) + ":", selectorPosition.x + 15, contentTop);
-            font.setColor(Color.GREEN);
-            font.draw(batch, sceneNameInput + "_", selectorPosition.x + 15, contentTop - 20);
+
+            boolean textFocused = filteredSelection < 0;
+            font.setColor(textFocused ? Color.GREEN : Color.LIGHT_GRAY);
+            font.draw(batch, sceneNameInput + (textFocused ? "_" : ""), selectorPosition.x + 15, contentTop - 20);
+
+            float listTop = contentTop - 44;
+            if (filteredNames.isEmpty()) {
+                font.setColor(Color.GRAY);
+                font.draw(batch, "(brak na liscie - ENTER laduje wpisane)", selectorPosition.x + 15, listTop);
+            } else {
+                int visible = Math.min(filteredNames.size(), MAX_VISIBLE_LOADER);
+                for (int i = 0; i < visible; i++) {
+                    int index = filteredScroll + i;
+                    if (index >= filteredNames.size()) break;
+                    font.setColor(index == filteredSelection ? Color.GREEN : Color.WHITE);
+                    font.draw(batch, filteredNames.get(index), selectorPosition.x + 15, listTop - i * 20);
+                }
+            }
         }
 
         // Footer hint
@@ -1185,9 +1266,14 @@ public class DebugManager implements Disposable {
             cycleMode(1);
         }
 
-        // List navigation only applies in SCENES mode.
-        boolean upPressed = selectorMode == SelectorMode.SCENES && Gdx.input.isKeyPressed(Input.Keys.UP);
-        boolean downPressed = selectorMode == SelectorMode.SCENES && Gdx.input.isKeyPressed(Input.Keys.DOWN);
+        // In loader modes, keep the type-to-filter pick list in sync.
+        if (selectorMode != SelectorMode.SCENES) {
+            recomputeFilteredNames();
+        }
+
+        // UP/DOWN drive the active list (scene list, or filtered loader list).
+        boolean upPressed = Gdx.input.isKeyPressed(Input.Keys.UP);
+        boolean downPressed = Gdx.input.isKeyPressed(Input.Keys.DOWN);
 
         if (upPressed || downPressed) {
             if (!keyIsDown) {
@@ -1195,9 +1281,9 @@ public class DebugManager implements Disposable {
                 keyRepeatTimer = 0;
 
                 if (upPressed) {
-                    moveSelectionUp();
+                    moveUp();
                 } else {
-                    moveSelectionDown();
+                    moveDown();
                 }
             } else {
                 keyRepeatTimer += deltaTime;
@@ -1206,9 +1292,9 @@ public class DebugManager implements Disposable {
                     float timeSinceDelay = keyRepeatTimer - KEY_INITIAL_DELAY;
                     if (timeSinceDelay % KEY_REPEAT_INTERVAL < deltaTime) {
                         if (upPressed) {
-                            moveSelectionUp();
+                            moveUp();
                         } else {
-                            moveSelectionDown();
+                            moveDown();
                         }
                     }
                 }
@@ -1225,12 +1311,31 @@ public class DebugManager implements Disposable {
                     showSceneSelector = false;
                 }
             } else {
-                // ARCADE / CUTSCENE: run the loader script for the typed name.
-                loadCustomScene(selectorMode);
+                // ARCADE / CUTSCENE: a highlighted list item wins, else the typed text.
+                String name = (filteredSelection >= 0 && filteredSelection < filteredNames.size())
+                        ? filteredNames.get(filteredSelection)
+                        : sceneNameInput.toString();
+                loadCustomScene(selectorMode, name);
             }
         } else if (Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) {
             // Close selector
             showSceneSelector = false;
+        }
+    }
+
+    private void moveUp() {
+        if (selectorMode == SelectorMode.SCENES) {
+            moveSelectionUp();
+        } else {
+            moveLoaderSelectionUp();
+        }
+    }
+
+    private void moveDown() {
+        if (selectorMode == SelectorMode.SCENES) {
+            moveSelectionDown();
+        } else {
+            moveLoaderSelectionDown();
         }
     }
 
