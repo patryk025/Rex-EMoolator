@@ -10,13 +10,16 @@ import pl.genschu.bloomooemulator.engine.filesystem.LocalFileSystem;
 import pl.genschu.bloomooemulator.interpreter.ast.ASTNode;
 import pl.genschu.bloomooemulator.interpreter.context.Context;
 import pl.genschu.bloomooemulator.interpreter.parser.CodeParser;
+import pl.genschu.bloomooemulator.loader.CNVParser;
 import pl.genschu.bloomooemulator.interpreter.runtime.ExecutionContext;
 import pl.genschu.bloomooemulator.interpreter.values.*;
 import pl.genschu.bloomooemulator.interpreter.variable.*;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -369,6 +372,45 @@ class VariableInfrastructureRegressionTest {
         assertEquals(3, generated.size());
         assertEquals(3, generated.stream().distinct().count());
         assertTrue(generated.stream().allMatch(value -> value >= 10 && value < 15));
+    }
+
+    @Test
+    void testCnvSignalUsesParsedBehaviourArgumentsWhenEmitSignalHasNoArgs() throws IOException {
+        Context ctx = new ContextBuilder().build();
+
+        String cnv = """
+                OBJECT=ARRAYWIOSKA52
+                ARRAYWIOSKA52:TYPE=ARRAY
+                
+                OBJECT=RESULT_SEQ
+                RESULT_SEQ:TYPE=STRING
+                RESULT_SEQ:VALUE=
+                
+                OBJECT=RESULT_STORY
+                RESULT_STORY:TYPE=STRING
+                RESULT_STORY:VALUE=
+                
+                OBJECT=BEHPLAYSEQ
+                BEHPLAYSEQ:TYPE=BEHAVIOUR
+                BEHPLAYSEQ:CODE={RESULT_SEQ^SET($1);RESULT_STORY^SET($2);}
+                
+                OBJECT=CONDONCLICKINDOR
+                CONDONCLICKINDOR:TYPE=CONDITION
+                CONDONCLICKINDOR:OPERAND1=ARRAYWIOSKA52^GET(2)
+                CONDONCLICKINDOR:OPERATOR=EQUAL
+                CONDONCLICKINDOR:OPERAND2=1
+                CONDONCLICKINDOR:ONRUNTIMEFAILED=BEHPLAYSEQ("SEQINDOR","STORY1")
+                """;
+
+        new CNVParser().parse(
+                new ByteArrayInputStream(cnv.getBytes(StandardCharsets.UTF_8)),
+                "signal-args-regression.cnv",
+                ctx);
+
+        MethodHelper.callWithContext(ctx, "CONDONCLICKINDOR", "CHECK", BoolValue.TRUE);
+
+        assertEquals("SEQINDOR", ctx.getVariable("RESULT_SEQ").value().toDisplayString());
+        assertEquals("STORY1", ctx.getVariable("RESULT_STORY").value().toDisplayString());
     }
 
     private static BehaviourVariable behaviour(String name, String code) {

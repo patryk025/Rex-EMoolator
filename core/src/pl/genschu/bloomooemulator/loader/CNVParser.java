@@ -497,7 +497,7 @@ public class CNVParser {
                     Gdx.app.debug("CNVParser", "Signal " + signal + " on " + var.name() + " skipped - CONDITION not met");
                     return;
                 }
-                List<Value> resolvedArgs = args != null ? Arrays.asList(args) : resolveSignalParams(finalParams, context);
+                List<Value> resolvedArgs = args != null && args.length > 0 ? Arrays.asList(args) : resolveSignalParams(finalParams, context);
                 interpreter.runBehaviour("Signal:" + signal + " on " + var.name(), var, finalBehaviour, resolvedArgs);
             } catch (Exception e) {
                 Gdx.app.error("CNVParser", "Error executing signal " + signal + " on " + var.name(), e);
