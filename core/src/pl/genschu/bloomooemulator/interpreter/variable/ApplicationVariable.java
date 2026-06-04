@@ -109,6 +109,9 @@ public record ApplicationVariable(
             String varName = ArgumentHelper.getString(args.get(0));
             String methodName = ArgumentHelper.getString(args.get(1));
             List<Value> params = args.size() > 2 ? args.subList(2, args.size()) : List.of();
+            if (!ctx.context().hasVariable(varName)) {
+                return MethodResult.noReturn();
+            }
             Variable target = ctx.getVariable(varName);
             return target.callMethod(methodName, params, ctx);
         })),

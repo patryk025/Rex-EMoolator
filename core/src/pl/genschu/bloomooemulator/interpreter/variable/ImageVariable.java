@@ -238,7 +238,10 @@ public record ImageVariable(
 
     public int getAlpha(int x, int y) {
         if (state.image == null || state.image.getImageTexture() == null) return 0;
-        Pixmap pixmap = state.image.getImageTexture().getTextureData().consumePixmap();
+        if (x < 0 || y < 0 || x >= state.image.width || y >= state.image.height) return 0;
+        TextureData textureData = state.image.getImageTexture().getTextureData();
+        if (!textureData.isPrepared()) textureData.prepare();
+        Pixmap pixmap = textureData.consumePixmap();
         Color color = new Color(pixmap.getPixel(x, y));
         return (int) (color.a * 255f);
     }
@@ -260,7 +263,10 @@ public record ImageVariable(
             ImageVariable img = (ImageVariable) self;
             int posX = ArgumentHelper.getInt(args.get(0));
             int posY = ArgumentHelper.getInt(args.get(1));
-            return MethodResult.returns(new IntValue(img.getAlpha(posX, posY)));
+            int localX = posX - img.state.posX;
+            int localY = posY - img.state.posY;
+            int alpha = img.getAlpha(localX, localY);
+            return MethodResult.returns(new IntValue(alpha));
         })),
 
         Map.entry("GETCENTERX", MethodSpec.of((self, args, ctx) -> {
