@@ -516,7 +516,18 @@ public class ASTInterpreter {
         if (target instanceof VariableNode variableNode) {
             String name = variableNode.name();
 
-            Variable variable = context.getVariable(name);
+            // A $N target carries the param's *value*. The original engine
+            // substitutes params textually, so a param holding an object/var name
+            // resolves as a bare reference to that object (e.g. $1="WALK0" ->
+            // WALK0^HIDE). We bind $N by value, so mirror that here: interpolate
+            // $N to its value and use it as the target name. Fall back to the raw
+            // name when the substitution doesn't name a known variable, preserving
+            // the by-value behaviour for params that are plain values.
+            String resolvedName = interpolateParamRefs(name);
+            Variable variable = context.getVariable(resolvedName);
+            if (variable == null && !resolvedName.equals(name)) {
+                variable = context.getVariable(name);
+            }
             if (variable == null) {
                 throw new InterpreterException(
                     "Variable not found: " + name,

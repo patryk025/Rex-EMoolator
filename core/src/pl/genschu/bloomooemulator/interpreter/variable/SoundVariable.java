@@ -168,7 +168,14 @@ public record SoundVariable(
     // ========================================
 
     public void play() {
-        if (state.sound == null) return;
+        if (state.sound == null) {
+            // A sound that can't be played (missing file / failed load) must still
+            // report completion — otherwise any ONFINISHED-gated logic stalls forever.
+            state.playing = false;
+            emitSignal("ONFINISHED");
+            notifyObserversFinished();
+            return;
+        }
         try {
             state.sound.stop();
             state.soundId = state.sound.play();
