@@ -497,7 +497,14 @@ public class CNVParser {
                     Gdx.app.debug("CNVParser", "Signal " + signal + " on " + var.name() + " skipped - CONDITION not met");
                     return;
                 }
-                List<Value> resolvedArgs = args != null && args.length > 0 ? Arrays.asList(args) : resolveSignalParams(finalParams, context);
+                // Explicitly declared params win (e.g. ONFRAMECHANGED^IDLE=BEHCOMMAND(0)
+                // must pass 0 as $1, NOT the frame name the signal emits). $N inside
+                // those params still resolves from the emitted signal args. Only when
+                // the handler declares no params do we forward the emitted args, so bare
+                // references and inline {code} can read them via $1.
+                List<Value> resolvedArgs = finalParams != null
+                        ? resolveSignalParams(finalParams, context, args)
+                        : (args != null ? Arrays.asList(args) : List.of());
                 interpreter.runBehaviour("Signal:" + signal + " on " + var.name(), var, finalBehaviour, resolvedArgs);
             } catch (Exception e) {
                 Gdx.app.error("CNVParser", "Error executing signal " + signal + " on " + var.name(), e);
@@ -554,20 +561,30 @@ public class CNVParser {
      * Resolves signal parameter strings to Values at signal execution time.
      * Parameters can be: string literals ("text"), variable names, or plain strings.
      */
-    private List<Value> resolveSignalParams(String[] params, Context context) {
+    private List<Value> resolveSignalParams(String[] params, Context context, Value[] signalArgs) {
         if (params == null) return List.of();
         List<Value> resolved = new ArrayList<>(params.length);
         for (String param : params) {
             param = param.trim();
             if (param.startsWith("\"") && param.endsWith("\"")) {
                 resolved.add(new StringValue(param.substring(1, param.length() - 1)));
+                continue;
+            }
+            // $N references resolve from the emitted signal arguments (positional).
+            if (param.length() > 1 && param.charAt(0) == '$') {
+                try {
+                    int idx = Integer.parseInt(param.substring(1)) - 1;
+                    if (signalArgs != null && idx >= 0 && idx < signalArgs.length) {
+                        resolved.add(signalArgs[idx]);
+                        continue;
+                    }
+                } catch (NumberFormatException ignored) {}
+            }
+            Variable paramVar = context.getVariable(param);
+            if (paramVar != null) {
+                resolved.add(paramVar.value());
             } else {
-                Variable paramVar = context.getVariable(param);
-                if (paramVar != null) {
-                    resolved.add(paramVar.value());
-                } else {
-                    resolved.add(new StringValue(param));
-                }
+                resolved.add(new StringValue(param));
             }
         }
         return resolved;
