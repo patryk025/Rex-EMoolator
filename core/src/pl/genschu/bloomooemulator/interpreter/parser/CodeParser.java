@@ -512,6 +512,14 @@ public class CodeParser {
             return parseCode(codeSpan);
         }
 
+        // Parse a bracket expression inside quotes, e.g. "[80*$1]".
+        // This form appears in the BEHINITZASLONAY behaviour (S53_0_PLAT1
+        // scene of "Reksio i Ufo") and is passed to the RUNLOOPED method.
+        if (normalized.length() > quoteOffset && normalized.charAt(quoteOffset) == '[') {
+            SourceSpan exprSpan = firstChar == '"' ? stripOuterDelimiters(token, '"', '"') : token;
+            return parseExpression(stripOuterDelimiters(exprSpan, '[', ']'));
+        }
+
         return parseLine(token, depth + 1);
     }
 

@@ -94,9 +94,10 @@ public record BehaviourVariable(
             int step = args.size() > 2 ? args.get(2).toInt().value() : 1;
             if (step == 0) step = 1;
 
-            // Extra args beyond start/len/step are passed as $2, $3, ...
-            List<Value> extraArgs = args.size() > 3
-                    ? args.subList(3, args.size())
+            // The loop counter is $1; everything from arg index 2 onward (the step
+            // value included) is passed through as $2, $3, ...
+            List<Value> extraArgs = args.size() > 2
+                    ? args.subList(2, args.size())
                     : List.of();
 
             // Check condition (if defined)

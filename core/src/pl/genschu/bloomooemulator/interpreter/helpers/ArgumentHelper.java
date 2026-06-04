@@ -60,6 +60,7 @@ public class ArgumentHelper {
             case BoolValue v -> v.toStringValue().value();
             case VariableRef v -> v.name();
             case VariableValue v -> getString(v.variable().value());
+            case NullValue v -> v.toDisplayString();
             default -> "";
         };
     }
