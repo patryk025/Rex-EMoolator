@@ -181,8 +181,31 @@ public class ASTInterpreter {
             case ConditionVariable cond -> new NormalResult(cond.evaluate(methodContext));
             case ComplexConditionVariable complex -> new NormalResult(complex.evaluate(methodContext));
             case VectorVariable vec -> new NormalResult(new VariableValue(vec));
-            default -> new NormalResult(variable.value());
+            default -> new NormalResult(resolveParamValue(node, variable));
         };
+    }
+
+    /**
+     * Resolves the value a variable reference yields. For a $N parameter the
+     * original engine substitutes the argument textually, so a param holding a
+     * variable name resolves as a bare reference to that variable — e.g.
+     * {@code VARNR^SET($1)} with {@code $1="VARLEBIODKA"} sets VARNR to
+     * VARLEBIODKA's value, not the literal string. We bind $N by value, so
+     * mirror that here: if a $N param's string value names a known variable,
+     * dereference one level. Plain-value params (numbers, animation names like
+     * "GRA0"/"POJAWIA" that match no variable) fall through to the literal.
+     * This is the value-position analog of the $N handling in
+     * {@link #resolveMethodTarget}.
+     */
+    private Value resolveParamValue(VariableNode node, Variable variable) {
+        Value value = variable.value();
+        if (node.name().startsWith("$") && value instanceof StringValue(String value1)) {
+            Variable referenced = context.getVariable(value1);
+            if (referenced != null && referenced != variable) {
+                return referenced.value();
+            }
+        }
+        return value;
     }
 
     // === BLOCKS ===
