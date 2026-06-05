@@ -139,7 +139,7 @@ public record BoolVariable(
             }
             boolean value1 = ArgumentHelper.getBoolean(args.get(0));
             boolean value2 = ArgumentHelper.getBoolean(args.get(1));
-            boolean switched = (thisVar.getBool() != value1) ? value2 : value1;
+            boolean switched = (thisVar.getBool() == value1) ? value2 : value1;
             BoolValue result = BoolValue.of(switched);
             thisVar.setValue(result);
             return MethodResult.returns(result);
