@@ -180,6 +180,7 @@ public class ASTInterpreter {
             case ExpressionVariable expr -> new NormalResult(expr.evaluate(methodContext));
             case ConditionVariable cond -> new NormalResult(cond.evaluate(methodContext));
             case ComplexConditionVariable complex -> new NormalResult(complex.evaluate(methodContext));
+            case VectorVariable vec -> new NormalResult(new VariableValue(vec));
             default -> new NormalResult(variable.value());
         };
     }
