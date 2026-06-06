@@ -291,6 +291,17 @@ public class CNVParser {
                 if (sizeStr != null) {
                     try { size = Integer.parseInt(sizeStr); } catch (NumberFormatException ignored) {}
                 }
+                String valueStr = properties.get(objectName + ":VALUE");
+                if (valueStr != null && !valueStr.isBlank()) {
+                    List<Double> components = new ArrayList<>(size);
+                    String[] parts = valueStr.split(",");
+                    for (String part : parts) {
+                        try { components.add(Double.parseDouble(part.trim())); }
+                        catch (NumberFormatException ignored) { components.add(0.0); }
+                    }
+                    while (components.size() < size) components.add(0.0);
+                    yield new VectorVariable(objectName, size, components, Map.of());
+                }
                 yield new VectorVariable(objectName, size);
             }
             case "GROUP" -> new GroupVariable(objectName);
