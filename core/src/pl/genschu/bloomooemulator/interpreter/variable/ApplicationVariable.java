@@ -115,18 +115,11 @@ public record ApplicationVariable(
             Variable target = ctx.getVariable(varName);
             // A behaviour can't name its caller statically, so it stashes the
             // caller's name in a temp STRING and hands RUN the *name of that temp*
-            // (e.g. BEHCOLLISION^RUN("VARSTEMP1",...) -> UFO^RUN($1,"GETCENTERX")).
-            // In the original engine $1 is substituted textually, so VARSTEMP1
-            // becomes a bare reference that evaluates to its value ("WALK0") before
-            // RUN ever sees it. We bind $N by value, so the indirection name lands
-            // here intact: dereference one level when the named variable is a STRING
-            // that doesn't itself own the requested method.
-            if (target instanceof StringVariable str && !hasMethod(target, methodName)) {
-                String realName = str.getString();
-                if (ctx.context().hasVariable(realName)) {
-                    target = ctx.getVariable(realName);
-                }
-            }
+            // via $N (e.g. UFO^RUN($1,"GETCENTERX") with $1 naming VARSTEMP1, a
+            // STRING holding "WALK0"). The original substitutes $N textually, so
+            // VARSTEMP1 is read as a bare reference and yields "WALK0" before RUN
+            // sees it — which ASTInterpreter.resolveParamReference already does
+            // when the $N argument is evaluated, so varName arrives resolved here.
             return target.callMethod(methodName, params, ctx);
         })),
 
@@ -183,21 +176,6 @@ public record ApplicationVariable(
             return MethodResult.noReturn();
         }))
     );
-
-    /**
-     * True if {@code variable} resolves {@code methodName} on its own type or via
-     * the global method set. Used by RUN to tell a STRING target that genuinely
-     * owns the method apart from a STRING that is merely holding an object name.
-     */
-    private static boolean hasMethod(Variable variable, String methodName) {
-        String upper = methodName.toUpperCase();
-        Map<String, MethodSpec> methods = variable.methods();
-        if (methods != null && methods.containsKey(upper)) {
-            return true;
-        }
-        Map<String, MethodSpec> global = variable.globalMethods();
-        return global != null && global.containsKey(upper);
-    }
 
     @Override
     public String toString() {

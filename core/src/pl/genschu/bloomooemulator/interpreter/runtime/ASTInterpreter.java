@@ -190,22 +190,36 @@ public class ASTInterpreter {
      * original engine substitutes the argument textually, so a param holding a
      * variable name resolves as a bare reference to that variable — e.g.
      * {@code VARNR^SET($1)} with {@code $1="VARLEBIODKA"} sets VARNR to
-     * VARLEBIODKA's value, not the literal string. We bind $N by value, so
-     * mirror that here: if a $N param's string value names a known variable,
-     * dereference one level. Plain-value params (numbers, animation names like
-     * "GRA0"/"POJAWIA" that match no variable) fall through to the literal.
-     * This is the value-position analog of the $N handling in
-     * {@link #resolveMethodTarget}.
+     * VARLEBIODKA's value, not the literal string. This is the value-position
+     * use of {@link #resolveParamReference}: when the $N token denotes a known
+     * variable, dereference one level; otherwise (numbers, animation names like
+     * "GRA0"/"POJAWIA" that match no variable) fall through to the literal value.
      */
     private Value resolveParamValue(VariableNode node, Variable variable) {
-        Value value = variable.value();
-        if (node.name().startsWith("$") && value instanceof StringValue(String value1)) {
-            Variable referenced = context.getVariable(value1);
+        if (node.name().startsWith("$")) {
+            Variable referenced = resolveParamReference(node.name());
             if (referenced != null && referenced != variable) {
                 return referenced.value();
             }
         }
-        return value;
+        return variable.value();
+    }
+
+    /**
+     * The single rule behind all $N handling. Mirrors the original engine's
+     * textual substitution: the param text is spliced into {@code rawName}
+     * (handling concatenation like {@code PREFIX$1} via {@link #interpolateParamRefs})
+     * and, if the result names a known variable, that variable is returned —
+     * a bare reference. Returns {@code null} when no variable matches, so callers
+     * fall back to literal handling. Used identically in target and value position.
+     */
+    private Variable resolveParamReference(String rawName) {
+        String resolved = interpolateParamRefs(rawName);
+        Variable variable = context.getVariable(resolved);
+        if (variable == null && !resolved.equals(rawName)) {
+            variable = context.getVariable(rawName);
+        }
+        return variable;
     }
 
     // === BLOCKS ===
@@ -539,19 +553,7 @@ public class ASTInterpreter {
     private Variable resolveMethodTarget(ASTNode target, SourceLocation location) {
         if (target instanceof VariableNode variableNode) {
             String name = variableNode.name();
-
-            // A $N target carries the param's *value*. The original engine
-            // substitutes params textually, so a param holding an object/var name
-            // resolves as a bare reference to that object (e.g. $1="WALK0" ->
-            // WALK0^HIDE). We bind $N by value, so mirror that here: interpolate
-            // $N to its value and use it as the target name. Fall back to the raw
-            // name when the substitution doesn't name a known variable, preserving
-            // the by-value behaviour for params that are plain values.
-            String resolvedName = interpolateParamRefs(name);
-            Variable variable = context.getVariable(resolvedName);
-            if (variable == null && !resolvedName.equals(name)) {
-                variable = context.getVariable(name);
-            }
+            Variable variable = resolveParamReference(name);
             if (variable == null) {
                 throw new InterpreterException(
                     "Variable not found: " + name,
@@ -565,11 +567,10 @@ public class ASTInterpreter {
 
         if (target instanceof LiteralNode literalNode) {
             String template = literalNode.value().toDisplayString();
-            String resolvedName = interpolateParamRefs(template);
-            Variable variable = context.getVariable(resolvedName);
+            Variable variable = resolveParamReference(template);
             if (variable == null) {
                 throw new InterpreterException(
-                    "Variable not found: " + resolvedName + " (from template " + template + ")",
+                    "Variable not found: " + interpolateParamRefs(template) + " (from template " + template + ")",
                     exec,
                     location
                 );
