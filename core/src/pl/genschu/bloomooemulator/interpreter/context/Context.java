@@ -165,6 +165,20 @@ public class Context implements GameContext {
      */
     @Override
     public boolean hasVariable(String name) {
+        return hasVariable(name, new HashSet<>());
+    }
+
+    /**
+     * Cycle-safe traversal of the context graph. The graph can contain cycles
+     * (e.g. a CNVLoader context is added as an additionalContext of its own
+     * parent), so the visited set prevents infinite recursion between
+     * additionalContexts and the parent chain, mirroring VariableResolver.
+     */
+    private boolean hasVariable(String name, Set<Context> visited) {
+        if (!visited.add(this)) {
+            return false;
+        }
+
         if (executionContext.getLocal(name) != null) {
             return true;
         }
@@ -174,13 +188,13 @@ public class Context implements GameContext {
         }
 
         for (Context ctx : additionalContexts) {
-            if (ctx.hasVariable(name)) {
+            if (ctx.hasVariable(name, visited)) {
                 return true;
             }
         }
 
         if (parent != null) {
-            return parent.hasVariable(name);
+            return parent.hasVariable(name, visited);
         }
 
         return false;
