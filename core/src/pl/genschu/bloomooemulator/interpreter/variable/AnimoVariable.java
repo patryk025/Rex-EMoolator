@@ -1110,6 +1110,16 @@ public record AnimoVariable(
         }
 
         setCurrentFrameNumber(0, true);
+        // The original engine plays in an "advance then display" model: frame 0 is
+        // only the static starting pose (already shown since the object was inited),
+        // so the first tick steps off it instead of holding it for a full period.
+        // Priming elapsedTime makes the very next updateAnimation advance immediately.
+        // Without this a one-shot, low-FPS animation (e.g. ODLICZANIE.ANN forced to
+        // 1 FPS) lingers an extra second on frame 0 and looks like it starts a frame
+        // late versus the original. For looping/high-FPS animations the effect is
+        // imperceptible.
+        ensureValidFrameDuration();
+        state.elapsedTime = state.frameDuration;
         emitSignal("ONSTARTED", new StringValue(event.getName()));
         notifyObserversStarted(event.getName());
     }

@@ -229,6 +229,33 @@ class AnimoTest {
     }
 
     @Test
+    void testPlayDoesNotLingerOnStaticFrameZeroAtLowFps() throws Exception {
+        // Regression guard for s67_Wyscigi's ODLICZANIE.ANN countdown. The scene
+        // forces 1 FPS, so frame 0 would otherwise hold for a full second. The
+        // original engine advances off the static frame 0 on the first tick, so a
+        // single sub-frameDuration delta (one engine frame) must already leave it.
+        Context ctx = new ContextBuilder().build();
+
+        String absPath = Gdx.files.internal("../assets/test-assets/odliczanie.ann").file().getAbsolutePath();
+        AnimoVariable.AnimoData data;
+        try (InputStream is = new FileInputStream(absPath)) {
+            data = AnimoLoader.load(is);
+        }
+
+        AnimoVariable animo = new AnimoVariable("ANNLAMPKI").withData(data);
+        ctx.setVariable("ANNLAMPKI", animo);
+
+        animo.setFps(1);
+        animo.callMethod("PLAY", new StringValue("PLAY"));
+        assertEquals(0, animo.getCurrentFrameNumber(), "play starts on the static frame 0");
+
+        // One engine frame (~50 ms) is far below the 1 s frame duration, yet the
+        // animation must already have stepped onto frame 1.
+        animo.updateAnimation(0.05f);
+        assertEquals(1, animo.getCurrentFrameNumber(), "first tick advances off the static frame 0");
+    }
+
+    @Test
     void testPlayAnimo3() throws Exception {
         Context ctx = new ContextBuilder().build();
 
@@ -261,11 +288,12 @@ class AnimoTest {
         // Verify signals
         List<String> expected = List.of(
             "ONFRAMECHANGED^ELAPSE",
-            "ONSTARTED^ELAPSE"
+            "ONSTARTED^ELAPSE",
+            "ONFRAMECHANGED^ELAPSE"
         );
 
-        List<Integer> expectedFrames = List.of(0, 0);
-        List<Integer> expectedImages = List.of(0, 0);
+        List<Integer> expectedFrames = List.of(0, 0, 1);
+        List<Integer> expectedImages = List.of(0, 0, 0);
 
         assertEquals(expected, capture.signals);
         assertEquals(expectedFrames, capture.frames);
