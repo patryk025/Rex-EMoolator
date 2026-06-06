@@ -734,8 +734,16 @@ public class CodeParser {
             return parseExpression(stripOuterDelimiters(token, '[', ']'));
         }
 
-        if (text.length() >= 2 && text.charAt(0) == '"' && text.charAt(text.length() - 1) == '"') {
-            String inner = text.substring(1, text.length() - 1);
+        if (text.charAt(0) == '"') {
+            // Strip the opening quote, and a closing quote if present. The original
+            // engine tolerates an unbalanced leading quote (e.g. the malformed
+            // ARRLOCALNAMES^ADD("ANNCAR0,"ANNCAR1",...) in s66_Wybor): "ANNCAR0
+            // resolves to the bare object name ANNCAR0, not a stray "ANNCAR0.
+            int end = text.length();
+            if (end > 1 && text.charAt(end - 1) == '"') {
+                end--;
+            }
+            String inner = text.substring(1, end);
             // Handle doubled quotes used as explicit string cast: ""4B"" -> 4B
             if (inner.length() >= 2 && inner.charAt(0) == '"' && inner.charAt(inner.length() - 1) == '"') {
                 inner = inner.substring(1, inner.length() - 1);
