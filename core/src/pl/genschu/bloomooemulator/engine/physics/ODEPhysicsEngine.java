@@ -889,6 +889,8 @@ public class ODEPhysicsEngine implements IPhysicsEngine {
 
     @Override
     public void shutdown() {
+        boolean wasInitialized = world != null;
+
         for (Integer id : new ArrayList<>(objects.keySet())) {
             destroyBody(id);
         }
@@ -896,10 +898,22 @@ public class ODEPhysicsEngine implements IPhysicsEngine {
             meshData.destroy();
         }
         triMeshDatas.clear();
-        jointGroup.destroy();
-        world.destroy();
-        space.destroy();
-        OdeHelper.closeODE();
+        if (jointGroup != null) {
+            jointGroup.destroy();
+            jointGroup = null;
+        }
+        if (world != null) {
+            world.destroy();
+            world = null;
+        }
+        if (space != null) {
+            space.destroy();
+            space = null;
+        }
+        timer = null;
+        if (wasInitialized) {
+            OdeHelper.closeODE();
+        }
     }
 
     private final DGeom.DNearCallback nearCallback = new DGeom.DNearCallback() {
