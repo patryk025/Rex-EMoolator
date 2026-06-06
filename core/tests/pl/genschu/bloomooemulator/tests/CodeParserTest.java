@@ -69,6 +69,8 @@ public class CodeParserTest {
                 arguments("{@RETURN([2+2*2]);}", 8),
                 arguments("{@RETURN([1.2+2.3]);}", 3.5),
                 arguments("{@INT(\"A\", 5); @RETURN([A + 2]);}", 7),
+                // Unbalanced leading quote must strip the stray quote.
+                arguments("{@RETURN(\"ANNCAR0);}", "ANNCAR0"),
                 // three arguments IFs
                 arguments("{" +
                             "@STRING(\"TEST\", \"\");" +
