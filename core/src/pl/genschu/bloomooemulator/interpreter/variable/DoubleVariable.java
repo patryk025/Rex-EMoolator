@@ -152,7 +152,16 @@ public record DoubleVariable(
             }
             double y = ArgumentHelper.getDouble(args.get(0));
             double x = ArgumentHelper.getDouble(args.get(1));
-            double atanDegrees = Math.toDegrees(Math.atan2(y, x));
+            double atanDegrees;
+            if (args.size() >= 3) {
+                // 3-argument form: return the third argument reduced modulo 360.
+                atanDegrees = (long) ArgumentHelper.getDouble(args.get(2)) % 360;
+            } else {
+                atanDegrees = Math.toDegrees(Math.atan2(y, x));
+                if (atanDegrees < 0) {
+                    atanDegrees += 360.0;
+                }
+            }
             DoubleValue result = new DoubleValue(atanDegrees);
             thisVar.setValue(result);
             return MethodResult.returns(result);
@@ -165,7 +174,7 @@ public record DoubleVariable(
             }
             double rangeMin = ArgumentHelper.getDouble(args.get(0));
             double rangeMax = ArgumentHelper.getDouble(args.get(1));
-            double clampedValue = Math.max(rangeMin, Math.min(rangeMax, thisVar.getDouble()));
+            double clampedValue = Math.clamp(thisVar.getDouble(), rangeMin, rangeMax);
             DoubleValue result = new DoubleValue(clampedValue);
             thisVar.setValue(result);
             return MethodResult.returns(result);

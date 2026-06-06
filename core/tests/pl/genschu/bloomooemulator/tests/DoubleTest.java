@@ -104,6 +104,14 @@ class DoubleTest {
                 "ARCTANEX failed for vector (4,5)");
     }
 
+    @Test
+    void testAtan2NormalisesNegativeAnglesIntoFullCircle() {
+        DoubleVariable testVar = new DoubleVariable("TEST", 0);
+        testVar.callMethod("ARCTANEX", List.of(new DoubleValue(-1.0), new DoubleValue(1.0)));
+        assertEquals(315.0, testVar.get(), 0.00001,
+                "ARCTANEX should normalise negative angles to [0, 360)");
+    }
+
     @ParameterizedTest
     @ValueSource(ints = {0, 1, 2, 3, 4, 5, 6})
     void testClamp(int vectorIndex) {
