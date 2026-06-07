@@ -232,8 +232,10 @@ public record ImageVariable(
     public record AlphaMaskBinding(ImageVariable mask, int posX, int posY) {}
 
     public boolean isAt(int x, int y) {
-        return x >= state.rect.getXLeft() && x <= state.rect.getXRight()
-            && y >= state.rect.getYTop() && y <= state.rect.getYBottom();
+        // Delegate to the same hit-test that click detection (buttons) already relies on,
+        // instead of reading raw getters which, given the posY-anchored rect storage, form
+        // an empty Y range and always return false. See project_box2d_height_compensation.
+        return state.rect.contains(x, y);
     }
 
     public int getAlpha(int x, int y) {

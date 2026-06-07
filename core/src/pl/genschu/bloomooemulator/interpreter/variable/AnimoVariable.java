@@ -1043,8 +1043,9 @@ public record AnimoVariable(
     }
 
     public boolean isAt(int x, int y) {
-        Box2D r = state.rect;
-        return x >= r.getXLeft() && x <= r.getXRight() && y >= r.getYTop() && y <= r.getYBottom();
+        // Same fix as ImageVariable.isAt: route through Box2D.contains rather than raw
+        // getters, which form an empty Y range under the posY-anchored rect storage.
+        return state.rect.contains(x, y);
     }
 
     public boolean isNear(Box2D rect1, Box2D rect2, int iouThreshold) {
