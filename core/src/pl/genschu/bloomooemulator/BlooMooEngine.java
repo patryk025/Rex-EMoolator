@@ -16,11 +16,9 @@ import pl.genschu.bloomooemulator.engine.input.InputManager;
 import pl.genschu.bloomooemulator.engine.render.RenderManager;
 import pl.genschu.bloomooemulator.engine.update.UpdateManager;
 import pl.genschu.bloomooemulator.engine.debug.DebugManager;
+import pl.genschu.bloomooemulator.geometry.coords.Coords;
 
 public class BlooMooEngine extends ApplicationAdapter {
-    private static final float VIRTUAL_WIDTH = 800;
-    private static final float VIRTUAL_HEIGHT = 600;
-
     // Original BlooMooDLL ticked gameplay every 16 ms on a dedicated thread.
     // We emulate that grid with a fixed-step accumulator so the script clock
     // doesn't slow down when render FPS drops.
@@ -58,9 +56,9 @@ public class BlooMooEngine extends ApplicationAdapter {
 
         // select viewport
         if (gameEntry.isMaintainAspectRatio()) {
-            viewport = new FitViewport(VIRTUAL_WIDTH, VIRTUAL_HEIGHT, camera);
+            viewport = new FitViewport(Coords.VIRTUAL_WIDTH, Coords.VIRTUAL_HEIGHT, camera);
         } else {
-            viewport = new StretchViewport(VIRTUAL_WIDTH, VIRTUAL_HEIGHT, camera);
+            viewport = new StretchViewport(Coords.VIRTUAL_WIDTH, Coords.VIRTUAL_HEIGHT, camera);
         }
 
         viewport.apply();

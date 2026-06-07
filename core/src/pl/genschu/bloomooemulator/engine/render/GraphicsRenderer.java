@@ -15,14 +15,13 @@ import pl.genschu.bloomooemulator.interpreter.variable.ImageVariable;
 import pl.genschu.bloomooemulator.interpreter.variable.TextVariable;
 import pl.genschu.bloomooemulator.interpreter.variable.Variable;
 import pl.genschu.bloomooemulator.objects.Image;
+import pl.genschu.bloomooemulator.geometry.coords.Coords;
 import pl.genschu.bloomooemulator.geometry.shapes.Box2D;
 
 /**
  * Class responsible for rendering graphics.
  */
 public class GraphicsRenderer implements Disposable {
-    protected static final float VIRTUAL_HEIGHT = 600;
-
     private final SpriteBatch batch;
     private final OrthographicCamera camera;
 
@@ -49,11 +48,11 @@ public class GraphicsRenderer implements Disposable {
         if (imageVariable.hasFilters()) {
             // get first filter (not sure if there can be more at once)
             Filter filter = imageVariable.getFilters().get(0);
-            filter.apply(batch, image.getImageTexture(), rect.getXLeft(), VIRTUAL_HEIGHT - rect.getYTop() - image.height, image.width, image.height);
+            filter.apply(batch, image.getImageTexture(), rect.getXLeft(), Coords.glDrawY(rect.getYTop(), image.height), image.width, image.height);
         } else {
             batch.draw(image.getImageTexture(),
                     rect.getXLeft(),
-                    VIRTUAL_HEIGHT - rect.getYTop() - image.height,
+                    Coords.glDrawY(rect.getYTop(), image.height),
                     image.width,
                     image.height);
         }
@@ -82,11 +81,11 @@ public class GraphicsRenderer implements Disposable {
         if (animoVariable.hasFilters()) {
             // get first filter (not sure if there can be more at once)
             Filter filter = animoVariable.getFilters().get(0);
-            filter.apply(batch, image.getImageTexture(), rect.getXLeft(), VIRTUAL_HEIGHT - rect.getYTop() - image.height, image.width, image.height);
+            filter.apply(batch, image.getImageTexture(), rect.getXLeft(), Coords.glDrawY(rect.getYTop(), image.height), image.width, image.height);
         } else {
             batch.draw(image.getImageTexture(),
                     rect.getXLeft(),
-                    VIRTUAL_HEIGHT - rect.getYTop() - image.height,
+                    Coords.glDrawY(rect.getYTop(), image.height),
                     image.width,
                     image.height);
         }
@@ -125,7 +124,7 @@ class TextRenderer implements Disposable {
         if (rect == null) return;
 
         float startX = rect.getXLeft();
-        float startY = 600 - rect.getYTop();
+        float startY = Coords.flipY(rect.getYTop());
 
         // Split on '|' for multi-line support
         String[] lines = text.split("\\|");
@@ -163,9 +162,9 @@ class MaskRenderer implements Disposable {
         }
 
         int xLeft = clippingRect.getXLeft();
-        int yTop = (int) (GraphicsRenderer.VIRTUAL_HEIGHT - clippingRect.getYTop());
+        int yTop = (int) Coords.flipY(clippingRect.getYTop());
         int xRight = clippingRect.getXRight();
-        int yBottom = (int) (GraphicsRenderer.VIRTUAL_HEIGHT - clippingRect.getYBottom());
+        int yBottom = (int) Coords.flipY(clippingRect.getYBottom());
 
         batch.flush();
         Gdx.gl.glEnable(GL20.GL_SCISSOR_TEST);
@@ -183,7 +182,7 @@ class MaskRenderer implements Disposable {
 
         batch.draw(image.getImageTexture(),
                 rect.getXLeft(),
-                GraphicsRenderer.VIRTUAL_HEIGHT - rect.getYTop() - image.height,
+                Coords.glDrawY(rect.getYTop(), image.height),
                 image.width,
                 image.height);
 
@@ -208,8 +207,6 @@ class MaskRenderer implements Disposable {
  * Class responsible for rendering alpha masks.
  */
 class AlphaMaskRenderer implements Disposable {
-    private static final float VIRTUAL_HEIGHT = 600;
-
     private final SpriteBatch batch;
 
     public AlphaMaskRenderer(SpriteBatch batch) {
@@ -230,7 +227,7 @@ class AlphaMaskRenderer implements Disposable {
             batch.setColor(1, 1, 1, imageVariable.getOpacity());
             batch.draw(image.getImageTexture(),
                     rect.getXLeft(),
-                    VIRTUAL_HEIGHT - rect.getYTop() - image.height,
+                    Coords.glDrawY(rect.getYTop(), image.height),
                     image.width,
                     image.height);
             return;
@@ -244,7 +241,7 @@ class AlphaMaskRenderer implements Disposable {
         batch.setColor(1, 1, 1, 1);
         batch.draw(maskImage.getImageTexture(),
                 alphaMask.posX(),
-                VIRTUAL_HEIGHT - alphaMask.posY() - maskImage.height,
+                Coords.glDrawY(alphaMask.posY(), maskImage.height),
                 maskImage.width,
                 maskImage.height);
         batch.flush();
@@ -260,7 +257,7 @@ class AlphaMaskRenderer implements Disposable {
         } else {
             batch.draw(image.getImageTexture(),
                     rect.getXLeft(),
-                    VIRTUAL_HEIGHT - rect.getYTop() - image.height,
+                    Coords.glDrawY(rect.getYTop(), image.height),
                     image.width,
                     image.height);
         }
@@ -274,9 +271,9 @@ class AlphaMaskRenderer implements Disposable {
 
     private void renderWithClipping(Image image, Box2D rect, Box2D clippingRect) {
         int xLeft = clippingRect.getXLeft();
-        int yTop = (int) (VIRTUAL_HEIGHT - clippingRect.getYTop());
+        int yTop = (int) Coords.flipY(clippingRect.getYTop());
         int xRight = clippingRect.getXRight();
-        int yBottom = (int) (VIRTUAL_HEIGHT - clippingRect.getYBottom());
+        int yBottom = (int) Coords.flipY(clippingRect.getYBottom());
 
         batch.flush();
         Gdx.gl.glEnable(GL20.GL_SCISSOR_TEST);
@@ -294,7 +291,7 @@ class AlphaMaskRenderer implements Disposable {
 
         batch.draw(image.getImageTexture(),
                 rect.getXLeft(),
-                VIRTUAL_HEIGHT - rect.getYTop() - image.height,
+                Coords.glDrawY(rect.getYTop(), image.height),
                 image.width,
                 image.height);
 

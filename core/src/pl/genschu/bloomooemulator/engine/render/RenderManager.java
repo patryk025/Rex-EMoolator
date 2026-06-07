@@ -10,13 +10,12 @@ import pl.genschu.bloomooemulator.engine.context.EngineVariable;
 import pl.genschu.bloomooemulator.engine.context.GameContext;
 import pl.genschu.bloomooemulator.interpreter.variable.*;
 import pl.genschu.bloomooemulator.objects.Image;
+import pl.genschu.bloomooemulator.geometry.coords.Coords;
 import pl.genschu.bloomooemulator.geometry.shapes.Box2D;
 
 import java.util.*;
 
 public class RenderManager implements Disposable {
-    private static final float VIRTUAL_HEIGHT = 600;
-
     private final SpriteBatch batch;
     private final OrthographicCamera camera;
     private final Game game;
@@ -75,7 +74,7 @@ public class RenderManager implements Disposable {
                 batch.setColor(1, 1, 1, background.getOpacity());
                 batch.draw(image.getImageTexture(),
                         image.offsetX,
-                        VIRTUAL_HEIGHT - image.offsetY - image.height,
+                        Coords.glDrawY(image.offsetY, image.height),
                         image.width,
                         image.height);
             }
@@ -88,7 +87,7 @@ public class RenderManager implements Disposable {
             batch.setColor(1, 1, 1, p.opacity());
             batch.draw(p.texture(),
                     p.x(),
-                    VIRTUAL_HEIGHT - p.y() - p.height(),
+                    Coords.glDrawY(p.y(), p.height()),
                     p.width(),
                     p.height());
         }

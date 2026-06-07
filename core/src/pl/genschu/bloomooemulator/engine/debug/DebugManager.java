@@ -15,6 +15,7 @@ import pl.genschu.bloomooemulator.engine.Game;
 import pl.genschu.bloomooemulator.engine.config.EngineConfig;
 import pl.genschu.bloomooemulator.engine.context.EngineVariable;
 import pl.genschu.bloomooemulator.engine.context.GameContext;
+import pl.genschu.bloomooemulator.geometry.coords.Coords;
 import pl.genschu.bloomooemulator.geometry.points.Point3D;
 import pl.genschu.bloomooemulator.interpreter.context.Context;
 import pl.genschu.bloomooemulator.interpreter.variable.*;
@@ -35,7 +36,7 @@ import java.util.Locale;
 import java.util.Set;
 
 public class DebugManager implements Disposable {
-    private static final float VIRTUAL_HEIGHT = 600;
+    private static final float VIRTUAL_HEIGHT = Coords.VIRTUAL_HEIGHT;
 
     private final SpriteBatch batch;
     private final OrthographicCamera camera;
