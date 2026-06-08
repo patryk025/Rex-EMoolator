@@ -63,29 +63,20 @@ public class GraphicsRenderer implements Disposable {
      * Renders an object of type AnimoVariable.
      */
     public void renderAnimo(AnimoVariable animoVariable) {
-        boolean dbg = "ANNREX".equals(animoVariable.name());
         if (!animoVariable.isVisible()) {
-            if (dbg) Gdx.app.debug("GraphicsRenderer", "ANNREX skip: not visible");
             return;
         }
 
         if(!animoVariable.isRenderedOnCanvas()) {
-            if (dbg) Gdx.app.debug("GraphicsRenderer", "ANNREX skip: not toCanvas");
             return;
         }
 
         Image image = animoVariable.getCurrentImage();
         if (image == null || image.getImageTexture() == null) {
-            if (dbg) Gdx.app.debug("GraphicsRenderer", "ANNREX skip: image=" + image
-                    + " tex=" + (image == null ? "n/a" : image.getImageTexture()));
             return;
         }
 
         Box2D rect = animoVariable.getRect();
-        if (dbg) Gdx.app.debug("GraphicsRenderer", String.format(
-                "ANNREX draw rect=(%d,%d) wh=(%d,%d) opacity=%.2f priority=%d",
-                rect.getXLeft(), rect.getYTop(), image.width, image.height,
-                animoVariable.getCalculatedOpacity(), animoVariable.getPriority()));
         batch.setColor(1, 1, 1, animoVariable.getCalculatedOpacity());
 
         if (animoVariable.hasFilters()) {

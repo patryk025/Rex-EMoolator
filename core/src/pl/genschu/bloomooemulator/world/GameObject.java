@@ -13,6 +13,9 @@ public class GameObject {
     private float prevX, prevY, prevZ;
     private float velX, velY, velZ;
     private float prevVelX, prevVelY, prevVelZ;
+    // Last non-zero movement heading (radians). Kept so the facing direction survives a
+    // stop (e.g. arriving at a path goal where velocity is zeroed) — GETANGLE falls back to it.
+    private double lastAngle;
     private double mass;
     private double mu;
     private double friction;
@@ -493,6 +496,14 @@ public class GameObject {
 
     public float getLastSpeed() {
         return (float) Math.sqrt(prevVelX * prevVelX + prevVelY * prevVelY + prevVelZ * prevVelZ);
+    }
+
+    public double getLastAngle() {
+        return lastAngle;
+    }
+
+    public void setLastAngle(double lastAngle) {
+        this.lastAngle = lastAngle;
     }
 
     public int getFlags() {

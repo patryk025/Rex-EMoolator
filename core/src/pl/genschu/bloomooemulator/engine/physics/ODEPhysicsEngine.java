@@ -339,6 +339,10 @@ public class ODEPhysicsEngine implements IPhysicsEngine {
     public void setSpeed(int objectId, double speedX, double speedY, double speedZ) {
         GameObject go = getObject(objectId);
         if (go == null) return;
+        // Remember the heading while actually moving so a later stop keeps the facing direction.
+        if (speedX != 0.0 || speedY != 0.0) {
+            go.setLastAngle(Math.atan2(speedY, speedX));
+        }
         DBody body = (DBody) go.getBody();
         try {
             body.setLinearVel(speedX, speedY, speedZ);
@@ -468,7 +472,7 @@ public class ODEPhysicsEngine implements IPhysicsEngine {
             // get speed vector and calculate angle
             DVector3C velocity = body.getLinearVel();
             if (velocity.length() == 0) {
-                return 0.0; // No movement, angle is 0
+                return go.getLastAngle(); // stopped: keep the last movement heading
             }
             return Math.atan2(velocity.get(1), velocity.get(0));
         }
@@ -520,11 +524,6 @@ public class ODEPhysicsEngine implements IPhysicsEngine {
                 // convert world position to screen position
                 float screenX = cameraAnchor.worldToScreenX((float) worldPos[0]);
                 float screenY = cameraAnchor.worldToScreenY((float) worldPos[1]);
-
-                Gdx.app.debug("ODEPhysicsEngine", String.format(
-                        "sync id=%d world=(%.1f,%.1f) screen=(%.0f,%.0f) scroll=(%.0f,%.0f)",
-                        go.getId(), worldPos[0], worldPos[1], screenX, screenY,
-                        cameraAnchor.getBkgPosX(), cameraAnchor.getBkgPosY()));
 
                 if (var instanceof Variable v2Var) {
                     v2Var.callMethod("SETPOSITION", List.of(

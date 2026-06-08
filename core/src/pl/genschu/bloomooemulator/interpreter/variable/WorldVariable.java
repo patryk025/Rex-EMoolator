@@ -167,7 +167,12 @@ public record WorldVariable(
             WorldVariable w = (WorldVariable) self;
             int objectId = ArgumentHelper.getInt(args.get(0));
             double angle = w.state.physicsEngine.getAngle(objectId);
-            return MethodResult.returns(new DoubleValue(Math.toDegrees(angle)));
+            // Scripts expect a 0..360 heading (e.g. direction index = (GETANGLE+22.5)/45),
+            // but atan2 yields -180..180 — negative (downward) headings gave wrong/negative
+            // indices, so the facing only updated near the horizontal. Normalise to [0, 360).
+            double degrees = Math.toDegrees(angle) % 360.0;
+            if (degrees < 0) degrees += 360.0;
+            return MethodResult.returns(new DoubleValue(degrees));
         })),
 
         Map.entry("GETBKGPOSX", MethodSpec.of((self, args, ctx) -> {
