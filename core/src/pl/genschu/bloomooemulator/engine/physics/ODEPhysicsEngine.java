@@ -712,7 +712,6 @@ public class ODEPhysicsEngine implements IPhysicsEngine {
                 space.remove(geom);
                 geom.destroy();
             }
-            body.destroy();
             linkedVariables.remove(body); // Remove any linked variable
             body.destroy();
         }
