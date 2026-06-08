@@ -22,7 +22,7 @@ public class ODEPhysicsEngine implements IPhysicsEngine {
     DSpace space;
     ODEPhysicsTimer timer;
     DJointGroup jointGroup;
-    CameraAnchor cameraAnchor;
+    CameraAnchor cameraAnchor = new CameraAnchor();
     private final Map<Integer, List<GameObject>> objects = new HashMap<>();
     private final Map<DBody, EngineVariable> linkedVariables = new HashMap<>();
     private int cameraX = 0;
@@ -72,8 +72,6 @@ public class ODEPhysicsEngine implements IPhysicsEngine {
         jointGroup = OdeHelper.createJointGroup();
 
         timer = new ODEPhysicsTimer();
-
-        cameraAnchor = new CameraAnchor();
     }
 
     private GameObject getObject(int objectId) {
