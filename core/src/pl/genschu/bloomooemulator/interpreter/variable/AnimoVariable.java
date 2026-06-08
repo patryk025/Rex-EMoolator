@@ -1613,8 +1613,29 @@ public record AnimoVariable(
             if (args.isEmpty()) {
                 throw new IllegalArgumentException("LOAD requires 1 argument");
             }
-            thisVar.state.filename = ArgumentHelper.getString(args.get(0));
-            // Actual loading is done by the interpreter using AnimoLoader
+            String filename = normalizeFilename(ArgumentHelper.getString(args.get(0)));
+            thisVar.state.filename = filename;
+
+            Game game = ctx != null ? ctx.getGame() : null;
+            if (game == null) {
+                return MethodResult.noReturn();
+            }
+
+            String vfsPath = FileUtils.resolveVfsPath(game, filename);
+            try (java.io.InputStream is = game.getVfs().openRead(vfsPath)) {
+                AnimoData loadedData = AnimoLoader.load(is);
+                AnimoVariable updated = thisVar.withData(loadedData);
+                if (loadedData.fps() > 0) {
+                    updated.state.fps = loadedData.fps();
+                    updated.state.frameDuration = 1f / loadedData.fps();
+                }
+                updated.state.opacity = loadedData.opacity();
+                thisVar.loadSfxAudio(loadedData, game);
+                ctx.setVariable(thisVar.name, updated);
+                Gdx.app.log("AnimoVariable", thisVar.name + ": Loaded ANIMO from " + vfsPath);
+            } catch (Exception e) {
+                Gdx.app.error("AnimoVariable", thisVar.name + ": Failed to LOAD: " + e.getMessage(), e);
+            }
             return MethodResult.noReturn();
         })),
 
