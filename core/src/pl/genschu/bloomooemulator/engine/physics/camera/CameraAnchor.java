@@ -76,4 +76,36 @@ public class CameraAnchor {
     public float getCameraPosY() {
         return cameraPosY;
     }
+
+    /**
+     * WORLD.SETBKGSIZE — sets the map (background) bounds used for camera clamping.
+     * Script passes (minX, maxX, minY, maxY) = (-tx, tx+800, -ty, ty+600) where
+     * tx=(bkgW-800)/2, ty=(bkgH-600)/2, so the camera may scroll within [-tx, tx] / [-ty, ty].
+     */
+    public void setLimits(float minX, float maxX, float minY, float maxY) {
+        this.minX = minX;
+        this.maxX = maxX;
+        this.minY = minY;
+        this.maxY = maxY;
+    }
+
+    /**
+     * WORLD.SETMOVEFLAGS — the script passes the per-axis max scroll amounts (tx, ty),
+     * not bit flags. An axis scrolls only when its background is larger than the screen
+     * (amount &gt;= 0). Keeping tracking enabled at 0 lets the clamp recentre the camera,
+     * which is what non-scrolling (800x600) scenes rely on.
+     */
+    public void setMoveFlags(float moveX, float moveY) {
+        flags = (moveX >= 0 ? 1 : 0) | (moveY >= 0 ? 2 : 0);
+    }
+
+    /** WORLD.GETBKGPOSX — background scroll offset relative to the centred baseline. */
+    public float getBkgPosX() {
+        return cameraPosX - HALF_WIDTH;
+    }
+
+    /** WORLD.GETBKGPOSY — background scroll offset relative to the centred baseline. */
+    public float getBkgPosY() {
+        return cameraPosY - HALF_HEIGHT;
+    }
 }

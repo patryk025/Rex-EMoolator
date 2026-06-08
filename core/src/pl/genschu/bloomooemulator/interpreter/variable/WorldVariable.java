@@ -170,13 +170,15 @@ public record WorldVariable(
             return MethodResult.returns(new DoubleValue(Math.toDegrees(angle)));
         })),
 
-        Map.entry("GETBKGPOSX", MethodSpec.of((self, args, ctx) ->
-            MethodResult.returns(new IntValue(0)) // stub
-        )),
+        Map.entry("GETBKGPOSX", MethodSpec.of((self, args, ctx) -> {
+            WorldVariable w = (WorldVariable) self;
+            return MethodResult.returns(new IntValue(w.state.physicsEngine.getBkgPosX()));
+        })),
 
-        Map.entry("GETBKGPOSY", MethodSpec.of((self, args, ctx) ->
-            MethodResult.returns(new IntValue(0)) // stub
-        )),
+        Map.entry("GETBKGPOSY", MethodSpec.of((self, args, ctx) -> {
+            WorldVariable w = (WorldVariable) self;
+            return MethodResult.returns(new IntValue(w.state.physicsEngine.getBkgPosY()));
+        })),
 
         Map.entry("GETMOVEDISTANCE", MethodSpec.of((self, args, ctx) -> {
             WorldVariable w = (WorldVariable) self;
@@ -296,7 +298,13 @@ public record WorldVariable(
         })),
 
         Map.entry("SETBKGSIZE", MethodSpec.of((self, args, ctx) -> {
-            throw new UnsupportedOperationException("WORLD.SETBKGSIZE not implemented");
+            WorldVariable w = (WorldVariable) self;
+            double minX = ArgumentHelper.getDouble(args.get(0));
+            double maxX = ArgumentHelper.getDouble(args.get(1));
+            double minY = ArgumentHelper.getDouble(args.get(2));
+            double maxY = ArgumentHelper.getDouble(args.get(3));
+            w.state.physicsEngine.setBkgSize(minX, maxX, minY, maxY);
+            return MethodResult.noReturn();
         })),
 
         Map.entry("SETG", MethodSpec.of((self, args, ctx) -> {
@@ -344,7 +352,11 @@ public record WorldVariable(
         })),
 
         Map.entry("SETMOVEFLAGS", MethodSpec.of((self, args, ctx) -> {
-            throw new UnsupportedOperationException("WORLD.SETMOVEFLAGS not implemented");
+            WorldVariable w = (WorldVariable) self;
+            double moveX = ArgumentHelper.getDouble(args.get(0));
+            double moveY = ArgumentHelper.getDouble(args.get(1));
+            w.state.physicsEngine.setMoveFlags(moveX, moveY);
+            return MethodResult.noReturn();
         })),
 
         Map.entry("SETPOSITION", MethodSpec.of((self, args, ctx) -> {

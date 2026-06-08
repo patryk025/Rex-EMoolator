@@ -69,6 +69,14 @@ public interface IPhysicsEngine {
 
     void setReferenceObjectId(int referenceObjectId);
 
+    void setBkgSize(double minX, double maxX, double minY, double maxY);
+
+    void setMoveFlags(double moveX, double moveY);
+
+    int getBkgPosX();
+
+    int getBkgPosY();
+
     void linkVariable(EngineVariable variable, int objectId);
 
     void unlinkVariable(int objectId);

@@ -770,6 +770,26 @@ public class ODEPhysicsEngine implements IPhysicsEngine {
     }
 
     @Override
+    public void setBkgSize(double minX, double maxX, double minY, double maxY) {
+        cameraAnchor.setLimits((float) minX, (float) maxX, (float) minY, (float) maxY);
+    }
+
+    @Override
+    public void setMoveFlags(double moveX, double moveY) {
+        cameraAnchor.setMoveFlags((float) moveX, (float) moveY);
+    }
+
+    @Override
+    public int getBkgPosX() {
+        return (int) cameraAnchor.getBkgPosX();
+    }
+
+    @Override
+    public int getBkgPosY() {
+        return (int) cameraAnchor.getBkgPosY();
+    }
+
+    @Override
     public void linkVariable(EngineVariable variable, int objectId) {
         GameObject go = getObject(objectId);
         DBody body = (DBody) go.getBody();
