@@ -292,7 +292,7 @@ public record WorldVariable(
             WorldVariable w = (WorldVariable) self;
             int objectId = ArgumentHelper.getInt(args.get(0));
             boolean active = ArgumentHelper.getBoolean(args.get(1));
-            boolean collidable = ArgumentHelper.getBoolean(args.get(2));
+            boolean collidable = args.size() > 2 ? ArgumentHelper.getBoolean(args.get(2)) : active;
             w.state.physicsEngine.setActive(objectId, active, collidable);
             return MethodResult.noReturn();
         })),

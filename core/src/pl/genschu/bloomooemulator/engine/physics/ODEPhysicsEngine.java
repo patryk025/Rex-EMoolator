@@ -74,14 +74,14 @@ public class ODEPhysicsEngine implements IPhysicsEngine {
         timer = new ODEPhysicsTimer();
     }
 
+    /**
+     * Returns the last body registered under {@code objectId}, or {@code null} if none exists.
+     */
     private GameObject getObject(int objectId) {
-        // get last body
         List<GameObject> objectsData = objects.get(objectId);
-        if (objectsData == null) {
-            throw new IllegalArgumentException("No objects found with ID: " + objectId);
-        }
-        if(objectsData.isEmpty()) {
-            throw new IllegalStateException("No objects associated with ID: " + objectId);
+        if (objectsData == null || objectsData.isEmpty()) {
+            Gdx.app.debug("ODEPhysicsEngine", "No objects found with ID: " + objectId + " (ignored)");
+            return null;
         }
         return objectsData.get(objectsData.size() - 1);
     }
@@ -312,6 +312,7 @@ public class ODEPhysicsEngine implements IPhysicsEngine {
     @Override
     public void addForce(int objectId, double forceX, double forceY, double forceZ) {
         GameObject go = getObject(objectId);
+        if (go == null) return;
         DBody body = (DBody) go.getBody();
         try {
             body.addForce(forceX, forceY, forceZ);
@@ -324,6 +325,7 @@ public class ODEPhysicsEngine implements IPhysicsEngine {
     @Override
     public void setPosition(int objectId, double x, double y, double z) {
         GameObject go = getObject(objectId);
+        if (go == null) return;
         DBody body = (DBody) go.getBody();
         try {
             body.setPosition(x, y, z);
@@ -336,6 +338,7 @@ public class ODEPhysicsEngine implements IPhysicsEngine {
     @Override
     public void setSpeed(int objectId, double speedX, double speedY, double speedZ) {
         GameObject go = getObject(objectId);
+        if (go == null) return;
         DBody body = (DBody) go.getBody();
         try {
             body.setLinearVel(speedX, speedY, speedZ);
@@ -380,6 +383,7 @@ public class ODEPhysicsEngine implements IPhysicsEngine {
     @Override
     public void setMass(int objectId, double mass, int geomType) {
         GameObject go = getObject(objectId);
+        if (go == null) return;
         DBody body = (DBody) go.getBody();
         try {
             setMass(body, mass, geomType);
@@ -397,18 +401,21 @@ public class ODEPhysicsEngine implements IPhysicsEngine {
     @Override
     public void setGravityCenter(int objectId, boolean gravityCenter) {
         GameObject go = getObject(objectId);
+        if (go == null) return;
         go.setGravityCenter(gravityCenter);
     }
 
     @Override
     public void setMaxVelocity(int objectId, double maxVelocity) {
         GameObject go = getObject(objectId);
+        if (go == null) return;
         go.setMaxVelocity(maxVelocity);
     }
 
     @Override
     public double[] getPosition(int objectId) {
         GameObject go = getObject(objectId);
+        if (go == null) return new double[] {0, 0, 0};
         DBody body = (DBody) go.getBody();
         try {
             DVector3C position = body.getPosition();
@@ -423,6 +430,7 @@ public class ODEPhysicsEngine implements IPhysicsEngine {
     @Override
     public double[] getSpeed(int objectId) {
         GameObject go = getObject(objectId);
+        if (go == null) return new double[] {0, 0, 0};
         DBody body = (DBody) go.getBody();
         try {
             DVector3C velocity = body.getLinearVel();
@@ -437,6 +445,7 @@ public class ODEPhysicsEngine implements IPhysicsEngine {
     @Override
     public double getRotationZ(int objectId) {
         GameObject go = getObject(objectId);
+        if (go == null) return 0.0;
         DBody body = (DBody) go.getBody();
         try {
             // ODE does not provide a direct way to get rotation, we can calculate it from the orientation
@@ -453,6 +462,7 @@ public class ODEPhysicsEngine implements IPhysicsEngine {
     @Override
     public double getAngle(int objectId) {
         GameObject go = getObject(objectId);
+        if (go == null) return 0.0;
         DBody body = (DBody) go.getBody();
         try {
             // get speed vector and calculate angle
@@ -471,6 +481,7 @@ public class ODEPhysicsEngine implements IPhysicsEngine {
     @Override
     public double getMoveDistance(int objectId) {
         GameObject go = getObject(objectId);
+        if (go == null) return 0.0;
         return go.getMoveDistance();
     }
 
@@ -688,6 +699,7 @@ public class ODEPhysicsEngine implements IPhysicsEngine {
     @Override
     public void setLimit(int objectId, double minX, double minY, double minZ, double maxX, double maxY, double maxZ) {
         GameObject go = getObject(objectId);
+        if (go == null) return;
         go.setLimits(minX, maxX, minY, maxY, minZ, maxZ);
     }
 
@@ -695,7 +707,8 @@ public class ODEPhysicsEngine implements IPhysicsEngine {
     public void destroyBody(int objectId) {
         List<GameObject> gameObjects = objects.remove(objectId);
         if (gameObjects == null) {
-            throw new IllegalArgumentException("No objects found with ID: " + objectId);
+            Gdx.app.debug("ODEPhysicsEngine", "destroyBody: no objects found with ID: " + objectId + " (ignored)");
+            return;
         }
         for (GameObject go : gameObjects) {
             DBody body = (DBody) go.getBody();
@@ -719,6 +732,7 @@ public class ODEPhysicsEngine implements IPhysicsEngine {
     public void addJoint(int firstId, int secondId, double anchorX, double anchorY, double anchorZ, double limitMotor, double lowStop, double highStop, double hingeAxisX, double hingeAxisY, double hingeAxisZ) {
         GameObject go = getObject(firstId);
         GameObject go2 = getObject(secondId);
+        if (go == null || go2 == null) return;
         DBody body1 = (DBody) go.getBody();
         DBody body2 = (DBody) go2.getBody();
         if (body1 == null) {
@@ -753,12 +767,14 @@ public class ODEPhysicsEngine implements IPhysicsEngine {
     @Override
     public void setG(int objectId, double g) {
         GameObject go = getObject(objectId);
+        if (go == null) return;
         go.setG(g);
     }
 
     @Override
     public void setActive(int objectId, boolean active, boolean unknown) {
         GameObject go = getObject(objectId);
+        if (go == null) return;
         go.setActive(active);
     }
 
@@ -790,6 +806,7 @@ public class ODEPhysicsEngine implements IPhysicsEngine {
     @Override
     public void linkVariable(EngineVariable variable, int objectId) {
         GameObject go = getObject(objectId);
+        if (go == null) return;
         DBody body = (DBody) go.getBody();
         if(body != null) {
             linkedVariables.put(body, variable);
@@ -802,6 +819,7 @@ public class ODEPhysicsEngine implements IPhysicsEngine {
     @Override
     public void unlinkVariable(int objectId) {
         GameObject go = getObject(objectId);
+        if (go == null) return;
         DBody body = (DBody) go.getBody();
         if(body != null) {
             linkedVariables.remove(body);
@@ -814,6 +832,7 @@ public class ODEPhysicsEngine implements IPhysicsEngine {
     @Override
     public float followPath(int objectId, int arrivalRadius, double turnClamp, double speed) {
         GameObject go = getObject(objectId);
+        if (go == null) return 0.0f;
 
         while (true) {
             Point3D currentWaypoint = go.getCurrentPathPoint();
@@ -873,6 +892,7 @@ public class ODEPhysicsEngine implements IPhysicsEngine {
     public void findPath(int objectId, int pointObjectId, int targetX, int targetY, int targetZ, boolean saveIntermediates, boolean unknown) {
         GameObject go = getObject(objectId);
         GameObject go2 = getObject(pointObjectId);
+        if (go == null || go2 == null) return;
         DBody body = (DBody) go.getBody();
         if(body == null) {
             Gdx.app.error("ODEPhysicsEngine", "Cannot find path for object " + objectId + ". Body is null (object is not rigid body)." );
