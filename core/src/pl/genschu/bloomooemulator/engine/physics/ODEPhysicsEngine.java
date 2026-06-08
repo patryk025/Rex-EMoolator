@@ -518,8 +518,13 @@ public class ODEPhysicsEngine implements IPhysicsEngine {
             // synchronizing object position
             if ((go.getFlags() & 1) != 0) {
                 // convert world position to screen position
-                float screenX = (float) worldPos[0] + cameraAnchor.getCameraPosX();
-                float screenY = cameraAnchor.getCameraPosY() - (float) worldPos[1];
+                float screenX = cameraAnchor.worldToScreenX((float) worldPos[0]);
+                float screenY = cameraAnchor.worldToScreenY((float) worldPos[1]);
+
+                Gdx.app.debug("ODEPhysicsEngine", String.format(
+                        "sync id=%d world=(%.1f,%.1f) screen=(%.0f,%.0f) scroll=(%.0f,%.0f)",
+                        go.getId(), worldPos[0], worldPos[1], screenX, screenY,
+                        cameraAnchor.getBkgPosX(), cameraAnchor.getBkgPosY()));
 
                 if (var instanceof Variable v2Var) {
                     v2Var.callMethod("SETPOSITION", List.of(
@@ -839,6 +844,9 @@ public class ODEPhysicsEngine implements IPhysicsEngine {
 
             if (currentWaypoint == null) {
                 go.setIsAtGoal(1);
+                // Path exhausted = final goal reached: stop the body so it doesn't keep
+                // coasting along the last steering vector.
+                setSpeed(objectId, 0, 0, 0);
                 return 0.0f;
             }
 

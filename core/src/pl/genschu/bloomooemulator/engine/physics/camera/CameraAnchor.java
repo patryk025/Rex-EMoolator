@@ -1,80 +1,54 @@
 package pl.genschu.bloomooemulator.engine.physics.camera;
 
+/**
+ * Tracks the scrolling background camera for a WORLD scene.
+ *
+ * <p>World space has its origin at the canvas centre with Y pointing up; screen space is
+ * 800x600 with Y pointing down. A static object at world (wx, wy) maps to screen
+ * (wx + 400, 300 - wy). When the background is larger than the screen, the camera scrolls
+ * to follow the reference object, clamped so the background edges never show.
+ *
+ * <p>{@code scrollX/scrollY} is how far the world has been shifted under the screen. It is
+ * 0 for a non-scrolling 800x600 scene. The screen position of any object is then
+ * {@code worldToScreen(world) = world±half - scroll}.
+ */
 public class CameraAnchor {
     static final float HALF_WIDTH = 400.0f;
     static final float HALF_HEIGHT = 300.0f;
     static final float FULL_WIDTH = 800.0f;
     static final float FULL_HEIGHT = 600.0f;
 
-    float minX, maxX, minY, maxY;  // map limit
-    float cameraPosX, cameraPosY;  // camera position
-    float lastObjectX, lastObjectY; // last object position
-    int flags = 3; // bit 0=track X, bit 1=track Y
+    // Map (background) bounds in scroll space, from SETBKGSIZE: the camera may scroll within
+    // [minX, maxX - FULL_WIDTH] / [minY, maxY - FULL_HEIGHT].
+    private float minX, maxX, minY, maxY;
+    private float scrollX, scrollY;
+    private boolean trackX = true, trackY = true;
 
-    public void updateCameraAnchor(float objectX, float objectY, float objectZ) {
-        // Convert object position to screen space
-        float screenX = objectX + HALF_WIDTH;
-        float screenY = HALF_HEIGHT - objectY;
-
-        boolean trackX = (flags & 1) != 0;
-        boolean trackY = (flags & 2) != 0;
-
-        // Calculate delta (how far object is from camera center)
-        float multiplierX = trackX ? 1.0f : 0.0f;
-        float multiplierY = trackY ? 1.0f : 0.0f;
-
-        float deltaX = (screenX - cameraPosX) * multiplierX;
-        float deltaY = (screenY - cameraPosY) * multiplierY;
-
-        // Clamp to map limits
-        // Camera can not show area outside [minX, maxX] and [minY, maxY]
-        // but must take into account screen size (800x600)
-
-        float correctionX = 0;
-        if (deltaX < minX) {
-            // too close to left edge
-            correctionX = minX - deltaX;
-        } else if (deltaX > maxX - FULL_WIDTH) {
-            // too close to right edge (subtract screen width)
-            correctionX = (maxX - FULL_WIDTH) - deltaX;
-        }
-
-        float correctionY = 0;
-        if (deltaY < minY) {
-            // too close to top edge
-            correctionY = minY - deltaY;
-        } else if (deltaY > maxY - FULL_HEIGHT) {
-            // too close to bottom edge (subtract screen height)
-            correctionY = (maxY - FULL_HEIGHT) - deltaY;
-        }
-
-        // Apply corrections
-        deltaX += correctionX;
-        deltaY += correctionY;
-
-        // Move camera
-        cameraPosX += deltaX;
-        cameraPosY += deltaY;
-
-        // If tracking is enabled, reverse the correction
-        if (trackX) {
-            cameraPosX -= correctionX;
-        }
-        if (trackY) {
-            cameraPosY -= correctionY;
-        }
-
-        // Zapisz końcowe wartości dla renderowania
-        lastObjectX = screenX;
-        lastObjectY = objectY + screenY;
+    /**
+     * Recompute the scroll offset from the reference object's WORLD position so that the
+     * object stays centred, clamped to the background bounds. For a non-scrolling scene the
+     * clamp range is empty and scroll stays 0.
+     */
+    public void updateCameraAnchor(float refWorldX, float refWorldY, float refWorldZ) {
+        // Scroll needed to centre the reference object equals its world coordinate
+        // (screenCentre = world + half; scroll = screenPos - half = world).
+        if (trackX) scrollX = clamp(refWorldX, minX, maxX - FULL_WIDTH);
+        if (trackY) scrollY = clamp(-refWorldY, minY, maxY - FULL_HEIGHT);
     }
 
-    public float getCameraPosX() {
-        return cameraPosX;
+    private static float clamp(float v, float lo, float hi) {
+        if (hi < lo) hi = lo; // degenerate (background not larger than screen) -> pin to lo
+        return Math.max(lo, Math.min(hi, v));
     }
 
-    public float getCameraPosY() {
-        return cameraPosY;
+    /** World X -> screen X for the current scroll. */
+    public float worldToScreenX(float worldX) {
+        return worldX + HALF_WIDTH - scrollX;
+    }
+
+    /** World Y (up) -> screen Y (down) for the current scroll. */
+    public float worldToScreenY(float worldY) {
+        return HALF_HEIGHT - worldY - scrollY;
     }
 
     /**
@@ -92,20 +66,22 @@ public class CameraAnchor {
     /**
      * WORLD.SETMOVEFLAGS — the script passes the per-axis max scroll amounts (tx, ty),
      * not bit flags. An axis scrolls only when its background is larger than the screen
-     * (amount &gt;= 0). Keeping tracking enabled at 0 lets the clamp recentre the camera,
-     * which is what non-scrolling (800x600) scenes rely on.
+     * (amount &gt;= 0); otherwise it stays pinned (scroll 0).
      */
     public void setMoveFlags(float moveX, float moveY) {
-        flags = (moveX >= 0 ? 1 : 0) | (moveY >= 0 ? 2 : 0);
+        trackX = moveX >= 0;
+        trackY = moveY >= 0;
+        if (!trackX) scrollX = 0;
+        if (!trackY) scrollY = 0;
     }
 
-    /** WORLD.GETBKGPOSX — background scroll offset relative to the centred baseline. */
+    /** WORLD.GETBKGPOSX — current horizontal background scroll (0 when not scrolling). */
     public float getBkgPosX() {
-        return cameraPosX - HALF_WIDTH;
+        return scrollX;
     }
 
-    /** WORLD.GETBKGPOSY — background scroll offset relative to the centred baseline. */
+    /** WORLD.GETBKGPOSY — current vertical background scroll (0 when not scrolling). */
     public float getBkgPosY() {
-        return cameraPosY - HALF_HEIGHT;
+        return scrollY;
     }
 }

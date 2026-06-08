@@ -1348,11 +1348,17 @@ public record AnimoVariable(
                     }
                     case "LEFTLOWER" -> {
                         thisVar.state.anchorX = rect.getXLeft();
-                        thisVar.state.anchorY = rect.getYBottom();
+                        // Render space is Y-down anchored at posY: the visual lower edge is
+                        // YTop + height. Box2D's getYBottom() is YTop - height (Y-up), which
+                        // pushed LOWER/BOTTOM-anchored sprites ~2*height off the bottom.
+                        thisVar.state.anchorY = rect.getYTop() + rect.getHeight();
                     }
                     case "RIGHTLOWER" -> {
                         thisVar.state.anchorX = rect.getXRight();
-                        thisVar.state.anchorY = rect.getYBottom();
+                        // Render space is Y-down anchored at posY: the visual lower edge is
+                        // YTop + height. Box2D's getYBottom() is YTop - height (Y-up), which
+                        // pushed LOWER/BOTTOM-anchored sprites ~2*height off the bottom.
+                        thisVar.state.anchorY = rect.getYTop() + rect.getHeight();
                     }
                     case "LEFT" -> {
                         thisVar.state.anchorX = rect.getXLeft();
@@ -1368,7 +1374,10 @@ public record AnimoVariable(
                     }
                     case "BOTTOM" -> {
                         thisVar.state.anchorX = rect.getXLeft() + rect.getWidth() / 2;
-                        thisVar.state.anchorY = rect.getYBottom();
+                        // Render space is Y-down anchored at posY: the visual lower edge is
+                        // YTop + height. Box2D's getYBottom() is YTop - height (Y-up), which
+                        // pushed LOWER/BOTTOM-anchored sprites ~2*height off the bottom.
+                        thisVar.state.anchorY = rect.getYTop() + rect.getHeight();
                     }
                     default -> Gdx.app.log("AnimoVariable", "Unknown anchor: " + anchor);
                 }
