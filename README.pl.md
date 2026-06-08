@@ -147,14 +147,14 @@ Szacowane poziomy grywalności są wyznaczane na podstawie ilości scen, które 
 <tr>
 <td>Reksio i Ufo</td>
 <td><img alt="W grze" src="https://img.shields.io/badge/W%20grze-yellow"/></td>
-<td>Gra działa z błędami kosmetycznymi i kilkoma poważniejszymi, ale nie da się przejść etapu z wydostaniem Reksia ze składziku La Resistance Boulangerie. Chomik Diesel nie może się dostać do rury kierującej na samą górę, blokuje się.</td>
-<td>73/82 scen grywalne (89.0%), około 35% fabuły</td>
+<td>Gra zdaje się być mniej lub bardziej grywalna od początku do końca, jednak wymagane są jeszcze drobne poprawki oraz przejście gry w sposób manualny. Status zostawiam "W grze" do momentu, aż nie zweryfikuję wszystkiego.</td>
+<td>100% z pewnymi bugami</td>
 <td><a href="https://github.com/users/patryk025/projects/4">Link</a></td>
 </tr>
 <tr>
 <td>Reksio i Czarodzieje</td>
-<td><img alt="Nieznane" src="https://img.shields.io/badge/Nieznane-lightgrey"/></td>
-<td>Wymaga ponownej ewaluacji po refaktoryzacji interpretera</td>
+<td><img alt="W grze" src="https://img.shields.io/badge/W%20grze-yellow"/></td>
+<td>Da się przejść pagórki, po czym blokada.</td>
 <td>N/D</td>
 <td><a href="https://github.com/users/patryk025/projects/6">Link</a></td>
 </tr>

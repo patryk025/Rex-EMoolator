@@ -147,14 +147,14 @@ Playability estimates are based on the number of scenes that play correctly acco
 <tr>
 <td>Reksio i Ufo</td>
 <td><img alt="In-game" src="https://img.shields.io/badge/In--game-yellow"/></td>
-<td>The game has some minor glitches and a few more serious ones, but it’s impossible to complete the level where you have to rescue Reksio from the La Resistance Boulangerie storage room. Diesel the hamster can’t get into the pipe leading to the very top; he gets stuck.</td>
-<td>73/82 scenes playable (89.0%), about 35% of story</td>
+<td>The game seems to be more or less playable from start to finish, but it still needs some minor tweaks and needs to be played through manually. I'm leaving the status as "In-game" until I've verified everything.</td>
+<td>100% with some bugs</td>
 <td><a href="https://github.com/users/patryk025/projects/4">Link</a></td>
 </tr>
 <tr>
 <td>Reksio i Czarodzieje</td>
-<td><img alt="Unknown" src="https://img.shields.io/badge/Unknown-lightgrey"/></td>
-<td>Requires re-evaluation after interpreter refactor.</td>
+<td><img alt="In-game" src="https://img.shields.io/badge/In--game-yellow"/></td>
+<td>You can get past the hills, but then there's a roadblock.</td>
 <td>N/A</td>
 <td><a href="https://github.com/users/patryk025/projects/6">Link</a></td>
 </tr>
