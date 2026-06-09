@@ -147,7 +147,7 @@ public record WorldVariable(
             int targetX = ArgumentHelper.getInt(args.get(2));
             int targetY = ArgumentHelper.getInt(args.get(3));
             int targetZ = ArgumentHelper.getInt(args.get(4));
-            boolean saveIntermediates = ArgumentHelper.getBoolean(args.get(5));
+            boolean saveIntermediates = args.size() > 5 && ArgumentHelper.getBoolean(args.get(5));
             boolean unknown = args.size() > 6 && ArgumentHelper.getBoolean(args.get(6));
             w.state.physicsEngine.findPath(objectId, pointObjectId, targetX, targetY, targetZ, saveIntermediates, unknown);
             return MethodResult.noReturn();
