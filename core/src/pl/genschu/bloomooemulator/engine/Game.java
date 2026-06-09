@@ -506,13 +506,7 @@ public class Game {
             // Load and play scene music
             try {
                 if (!scene.music().isEmpty()) {
-                    Music music = loadMusic("$\\"+scene.music());
-                    if (music != null && !music.isPlaying()) {
-                        music.setLooping(true);
-                        music.setVolume(scene.musicVolume() / 1000.0f);
-                        music.play();
-                    }
-                    currentSceneMusic = music;
+                    startSceneMusic(scene.music(), scene.musicVolume());
                 }
             } catch (GdxRuntimeException e) {
                 Gdx.app.error("Game", "Error while loading music for scene " + scene.name() + ". Continue without it.");
@@ -543,6 +537,29 @@ public class Game {
                 return null;
             }
         });
+    }
+
+    public void startSceneMusic(String musicFile, int volume) {
+        if (musicFile == null || musicFile.isEmpty()) {
+            return;
+        }
+
+        String path = musicFile.startsWith("$") ? musicFile : "$\\" + musicFile;
+        Music nextMusic = loadMusic(path);
+        if (nextMusic == null) {
+            return;
+        }
+
+        if (currentSceneMusic != null && currentSceneMusic != nextMusic && currentSceneMusic.isPlaying()) {
+            currentSceneMusic.stop();
+        }
+
+        nextMusic.setLooping(true);
+        nextMusic.setVolume(volume / 1000.0f);
+        if (!nextMusic.isPlaying()) {
+            nextMusic.play();
+        }
+        currentSceneMusic = nextMusic;
     }
 
     private void loadBackgroundImage(SceneVariable scene) {

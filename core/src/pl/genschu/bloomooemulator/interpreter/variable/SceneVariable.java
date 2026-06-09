@@ -303,6 +303,10 @@ public record SceneVariable(
             }
             String musicFile = ArgumentHelper.getString(args.get(0));
             ctx.updateVariable(thisVar.name(), thisVar.withMusic(musicFile));
+            Game game = ctx.getGame();
+            if (game != null) {
+                game.startSceneMusic(musicFile, thisVar.musicVolume);
+            }
             return MethodResult.noReturn();
         }))
     );
