@@ -247,6 +247,7 @@ class SequenceTest {
         state.currentPhase = PlaybackPhase.MAIN;
         state.currentAnimationNumber = 5;
         state.isOnFinishedWrapped = true;
+        state.activeAnimationName = "ANNOBJECT0";
 
         SequenceEventState copy = state.copy();
 
@@ -255,6 +256,7 @@ class SequenceTest {
         assertEquals(PlaybackPhase.MAIN, copy.currentPhase);
         assertEquals(5, copy.currentAnimationNumber);
         assertTrue(copy.isOnFinishedWrapped);
+        assertEquals("ANNOBJECT0", copy.activeAnimationName);
 
         // Verify independence
         copy.isPlaying = false;
@@ -271,6 +273,7 @@ class SequenceTest {
         state.isPaused = true;
         state.filename = "test.seq";
         state.animosInSequence.add("ANIMO1");
+        state.hiddenRedirectedAnimations.add("ANNCHARACTER");
         state.parametersMapping.put("EVENT1", 2);
 
         SequenceState copy = state.copy();
@@ -279,6 +282,7 @@ class SequenceTest {
         assertTrue(copy.isPaused);
         assertEquals("test.seq", copy.filename);
         assertTrue(copy.animosInSequence.contains("ANIMO1"));
+        assertTrue(copy.hiddenRedirectedAnimations.contains("ANNCHARACTER"));
         assertEquals(2, copy.parametersMapping.get("EVENT1"));
 
         // Verify independence
@@ -359,6 +363,31 @@ class SequenceTest {
         // Sequence should have received the finish and emitted ONFINISHED
         assertTrue(capturedSignals.stream().anyMatch(s -> s.contains("ONFINISHED")));
         assertFalse(seq.isPlaying());
+    }
+
+    @Test
+    void testSequenceReusesExistingAnimationWithSameFilename() {
+        SequenceVariable seq = new SequenceVariable("SEQBLANK");
+        SequenceEvent event = new SequenceEvent("GADABLANK", EventType.SIMPLE);
+        event.setAnimationName("ANNCHARACTER");
+        seq.addEvent(event);
+
+        AnimoVariable placeholder = new AnimoVariable("ANNCHARACTER", "LUSTRO\\KROLIK.ANN");
+        AnimoVariable sceneObject = new AnimoVariable("ANNOBJECT0", "lustro/krolik.ann");
+        ctx.setVariable("ANNCHARACTER", placeholder);
+        ctx.setVariable("ANNOBJECT0", sceneObject);
+
+        seq.playEvent("GADABLANK", ctx);
+
+        assertEquals("ANNOBJECT0", event.getPlayback().activeAnimationName);
+        assertFalse(placeholder.isVisible());
+        seq.onPlaybackFinished(sceneObject, "PLAY");
+        assertFalse(seq.isPlaying());
+
+        placeholder.setFilename("LUSTRO\\REKTOR.ANN");
+        seq.playEvent("GADABLANK", ctx);
+        assertEquals("ANNCHARACTER", event.getPlayback().activeAnimationName);
+        assertTrue(placeholder.isVisible());
     }
 
     @Test

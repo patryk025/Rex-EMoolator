@@ -62,6 +62,7 @@ public record SequenceVariable(
         public PlaybackPhase currentPhase = PlaybackPhase.START;
         public int currentAnimationNumber = 1;
         public boolean isOnFinishedWrapped = false;
+        public String activeAnimationName;
 
         public SequenceEventState() {}
 
@@ -72,6 +73,7 @@ public record SequenceVariable(
             copy.currentPhase = this.currentPhase;
             copy.currentAnimationNumber = this.currentAnimationNumber;
             copy.isOnFinishedWrapped = this.isOnFinishedWrapped;
+            copy.activeAnimationName = this.activeAnimationName;
             return copy;
         }
     }
@@ -146,6 +148,7 @@ public record SequenceVariable(
         public SequenceEvent pendingFinishedEvent = null;
         public List<SequenceEvent> pendingFinishedEvents = new ArrayList<>();
         public Set<String> animosInSequence = new HashSet<>();
+        public Set<String> hiddenRedirectedAnimations = new HashSet<>();
         public Map<String, Integer> parametersMapping = new HashMap<>();
         public Random random = new Random();
         public String filename = "";
@@ -161,6 +164,7 @@ public record SequenceVariable(
             copy.pendingFinishedEvent = this.pendingFinishedEvent;
             copy.pendingFinishedEvents = new ArrayList<>(this.pendingFinishedEvents);
             copy.animosInSequence = new HashSet<>(this.animosInSequence);
+            copy.hiddenRedirectedAnimations = new HashSet<>(this.hiddenRedirectedAnimations);
             copy.parametersMapping = new HashMap<>(this.parametersMapping);
             copy.random = new Random();
             copy.filename = this.filename;
@@ -398,11 +402,12 @@ public record SequenceVariable(
 
     private void startBasicEvent(SequenceEvent event, Context context) {
         Gdx.app.log("SequenceVariable", "startBasicEvent: " + event.getName());
+        event.getPlayback().activeAnimationName = resolveActiveAnimationName(event, context);
         if (event.getType() == EventType.SPEAKING) {
             startSpeakingEvent(event, context);
         } else {
             // SIMPLE event
-            String animName = event.getAnimationName();
+            String animName = getActiveAnimationName(event);
             if (animName != null) {
                 Variable animo = context.getVariable(animName);
                 if (animo instanceof AnimoVariable animoVar) {
@@ -448,7 +453,7 @@ public record SequenceVariable(
     private void playSpeakingStartAnimation(SequenceEvent event, Context context) {
         Gdx.app.log("SequenceVariable", "playSpeakingStartAnimation: " + event.getName());
         String startAnimName = event.getPrefix() + "_START";
-        String animName = event.getAnimationName();
+        String animName = getActiveAnimationName(event);
 
         if (animName != null) {
             Variable animo = context.getVariable(animName);
@@ -502,7 +507,7 @@ public record SequenceVariable(
 
     private void playSpeakingMainAnimation(SequenceEvent event, Context context) {
         Gdx.app.log("SequenceVariable", "playSpeakingMainAnimation: " + event.getName());
-        String animName = event.getAnimationName();
+        String animName = getActiveAnimationName(event);
         if (animName == null) return;
 
         Variable animo = context.getVariable(animName);
@@ -549,7 +554,7 @@ public record SequenceVariable(
         playback.currentPhase = PlaybackPhase.END;
 
         String endAnimName = event.getPrefix() + "_STOP";
-        String animName = event.getAnimationName();
+        String animName = getActiveAnimationName(event);
 
         if (animName != null) {
             Variable animo = context.getVariable(animName);
@@ -717,7 +722,7 @@ public record SequenceVariable(
     }
 
     private void pauseEventContent(SequenceEvent event, Context context) {
-        String animName = event.getAnimationName();
+        String animName = getActiveAnimationName(event);
         if (animName != null) {
             Variable animo = context.getVariable(animName);
             if (animo != null) {
@@ -751,7 +756,7 @@ public record SequenceVariable(
     }
 
     private void resumeEventContent(SequenceEvent event, Context context) {
-        String animName = event.getAnimationName();
+        String animName = getActiveAnimationName(event);
         if (animName != null) {
             Variable animo = context.getVariable(animName);
             if (animo != null) {
@@ -780,7 +785,7 @@ public record SequenceVariable(
                 }
             }
         } else {
-            String animName = event.getAnimationName();
+            String animName = getActiveAnimationName(event);
             if (animName != null) {
                 Variable animo = context.getVariable(animName);
                 if (animo instanceof AnimoVariable animoVar) {
@@ -790,6 +795,7 @@ public record SequenceVariable(
                     }
                 }
             }
+            playback.activeAnimationName = null;
             String soundName = event.getSoundName();
             if (soundName != null) {
                 Variable sound = context.getVariable(soundName);
@@ -873,10 +879,55 @@ public record SequenceVariable(
             return null;
         }
         // Leaf event — check if it uses this source
-        if (sourceName.equals(event.getAnimationName()) || sourceName.equals(event.getSoundName())) {
+        if (sourceName.equals(getActiveAnimationName(event)) || sourceName.equals(event.getSoundName())) {
             return event;
         }
         return null;
+    }
+
+    private String resolveActiveAnimationName(SequenceEvent event, Context context) {
+        String declaredName = event.getAnimationName();
+        if (declaredName == null) {
+            return null;
+        }
+
+        Variable declared = context.getVariable(declaredName);
+        if (!(declared instanceof AnimoVariable declaredAnimo)) {
+            return declaredName;
+        }
+
+        String filename = normalizeAnimationFilename(declaredAnimo.getFilename());
+        if (filename == null || filename.isEmpty()) {
+            return declaredName;
+        }
+
+        for (Variable variable : context.getGraphicsVariables().values()) {
+            if (variable instanceof AnimoVariable candidate
+                && candidate != declaredAnimo
+                && filename.equals(normalizeAnimationFilename(candidate.getFilename()))) {
+                if (declaredAnimo.isVisible()) {
+                    declaredAnimo.callMethod("HIDE");
+                    state.hiddenRedirectedAnimations.add(declaredName);
+                }
+                Gdx.app.log("SequenceVariable", event.getName() + ": using " + candidate.name()
+                    + " for animation file " + declaredAnimo.getFilename());
+                return candidate.name();
+            }
+        }
+
+        if (state.hiddenRedirectedAnimations.remove(declaredName)) {
+            declaredAnimo.callMethod("SHOW");
+        }
+        return declaredName;
+    }
+
+    private static String getActiveAnimationName(SequenceEvent event) {
+        String activeName = event.getPlayback().activeAnimationName;
+        return activeName != null ? activeName : event.getAnimationName();
+    }
+
+    private static String normalizeAnimationFilename(String filename) {
+        return filename == null ? null : filename.replace('\\', '/').toUpperCase(Locale.ROOT);
     }
 
     private record FinishResolution(SequenceEvent nextEvent, boolean topLevelFinished) {}
