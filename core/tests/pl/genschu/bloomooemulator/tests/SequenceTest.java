@@ -273,7 +273,6 @@ class SequenceTest {
         state.isPaused = true;
         state.filename = "test.seq";
         state.animosInSequence.add("ANIMO1");
-        state.hiddenRedirectedAnimations.add("ANNCHARACTER");
         state.parametersMapping.put("EVENT1", 2);
 
         SequenceState copy = state.copy();
@@ -282,7 +281,6 @@ class SequenceTest {
         assertTrue(copy.isPaused);
         assertEquals("test.seq", copy.filename);
         assertTrue(copy.animosInSequence.contains("ANIMO1"));
-        assertTrue(copy.hiddenRedirectedAnimations.contains("ANNCHARACTER"));
         assertEquals(2, copy.parametersMapping.get("EVENT1"));
 
         // Verify independence
@@ -384,10 +382,13 @@ class SequenceTest {
         seq.onPlaybackFinished(sceneObject, "PLAY");
         assertFalse(seq.isPlaying());
 
+        AnimoVariable staleSceneObject = new AnimoVariable("ANNOBJECT2", "TEMPLATE.ANN");
+        ctx.setVariable("ANNOBJECT2", staleSceneObject);
+        ctx.setVariable("ANNOBJECT2", new AnimoVariable("ANNOBJECT2", "LUSTRO\\REKTOR.ANN"));
         placeholder.setFilename("LUSTRO\\REKTOR.ANN");
         seq.playEvent("GADABLANK", ctx);
-        assertEquals("ANNCHARACTER", event.getPlayback().activeAnimationName);
-        assertTrue(placeholder.isVisible());
+        assertEquals("ANNOBJECT2", event.getPlayback().activeAnimationName);
+        assertFalse(placeholder.isVisible());
     }
 
     @Test

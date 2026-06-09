@@ -148,7 +148,6 @@ public record SequenceVariable(
         public SequenceEvent pendingFinishedEvent = null;
         public List<SequenceEvent> pendingFinishedEvents = new ArrayList<>();
         public Set<String> animosInSequence = new HashSet<>();
-        public Set<String> hiddenRedirectedAnimations = new HashSet<>();
         public Map<String, Integer> parametersMapping = new HashMap<>();
         public Random random = new Random();
         public String filename = "";
@@ -164,7 +163,6 @@ public record SequenceVariable(
             copy.pendingFinishedEvent = this.pendingFinishedEvent;
             copy.pendingFinishedEvents = new ArrayList<>(this.pendingFinishedEvents);
             copy.animosInSequence = new HashSet<>(this.animosInSequence);
-            copy.hiddenRedirectedAnimations = new HashSet<>(this.hiddenRedirectedAnimations);
             copy.parametersMapping = new HashMap<>(this.parametersMapping);
             copy.random = new Random();
             copy.filename = this.filename;
@@ -901,13 +899,13 @@ public record SequenceVariable(
             return declaredName;
         }
 
-        for (Variable variable : context.getGraphicsVariables().values()) {
+        for (String variableName : context.getGraphicsVariables().keySet()) {
+            Variable variable = context.getVariable(variableName);
             if (variable instanceof AnimoVariable candidate
                 && candidate != declaredAnimo
                 && filename.equals(normalizeAnimationFilename(candidate.getFilename()))) {
                 if (declaredAnimo.isVisible()) {
                     declaredAnimo.callMethod("HIDE");
-                    state.hiddenRedirectedAnimations.add(declaredName);
                 }
                 Gdx.app.log("SequenceVariable", event.getName() + ": using " + candidate.name()
                     + " for animation file " + declaredAnimo.getFilename());
@@ -915,9 +913,6 @@ public record SequenceVariable(
             }
         }
 
-        if (state.hiddenRedirectedAnimations.remove(declaredName)) {
-            declaredAnimo.callMethod("SHOW");
-        }
         return declaredName;
     }
 
