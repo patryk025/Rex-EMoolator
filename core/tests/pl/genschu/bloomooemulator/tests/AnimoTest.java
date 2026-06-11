@@ -142,9 +142,11 @@ class AnimoTest {
         // Play animation
         animo.callMethod("PLAY", new StringValue("B"));
 
-        float frameTime = 1f / animo.getFps();
+        long stepMs = 1000L / animo.getFps();
+        long clockMs = 0;
         while (animo.isPlaying()) {
-            animo.updateAnimation(frameTime);
+            clockMs += stepMs;
+            animo.updateAnimation(clockMs);
         }
 
         // Verify signals in strict order
@@ -206,9 +208,11 @@ class AnimoTest {
         // Play animation
         animo.callMethod("PLAY", new StringValue("PLAY"));
 
-        float frameTime = 1f / animo.getFps();
+        long stepMs = 1000L / animo.getFps();
+        long clockMs = 0;
         while (animo.isPlaying()) {
-            animo.updateAnimation(frameTime);
+            clockMs += stepMs;
+            animo.updateAnimation(clockMs);
         }
 
         // Verify signals
@@ -231,9 +235,10 @@ class AnimoTest {
     @Test
     void testPlayDoesNotLingerOnStaticFrameZeroAtLowFps() throws Exception {
         // Regression guard for s67_Wyscigi's ODLICZANIE.ANN countdown. The scene
-        // forces 1 FPS, so frame 0 would otherwise hold for a full second. The
-        // original engine advances off the static frame 0 on the first tick, so a
-        // single sub-frameDuration delta (one engine frame) must already leave it.
+        // forces 1 FPS, so frame 0 would otherwise hold for a full second. On a
+        // cold start the tick clock is stale, so the original engine advances off
+        // the static frame 0 on the very next update pass, long before a full
+        // frame period elapsed.
         Context ctx = new ContextBuilder().build();
 
         String absPath = Gdx.files.internal("../assets/test-assets/odliczanie.ann").file().getAbsolutePath();
@@ -249,9 +254,9 @@ class AnimoTest {
         animo.callMethod("PLAY", new StringValue("PLAY"));
         assertEquals(0, animo.getCurrentFrameNumber(), "play starts on the static frame 0");
 
-        // One engine frame (~50 ms) is far below the 1 s frame duration, yet the
+        // One engine frame (~50 ms) is far below the 1 s frame period, yet the
         // animation must already have stepped onto frame 1.
-        animo.updateAnimation(0.05f);
+        animo.updateAnimation(50);
         assertEquals(1, animo.getCurrentFrameNumber(), "first tick advances off the static frame 0");
     }
 
@@ -282,8 +287,7 @@ class AnimoTest {
         // Play animation (only one frame update)
         animo.callMethod("PLAY", new StringValue("ELAPSE"));
 
-        float frameTime = 1f / animo.getFps();
-        animo.updateAnimation(frameTime);
+        animo.updateAnimation(1000L / animo.getFps());
 
         // Verify signals
         List<String> expected = List.of(
@@ -323,12 +327,14 @@ class AnimoTest {
         animo.callMethod("PLAY", new StringValue("ELAPSE"));
 
         // Tick well past one full loop; the animation must never stop on its own.
-        float frameTime = 1f / animo.getFps();
+        long stepMs = 1000L / animo.getFps();
+        long clockMs = 0;
         Set<Integer> seenFrames = new HashSet<>();
         for (int i = 0; i < 50; i++) {
             assertTrue(animo.isPlaying(), "looping animation stopped at tick " + i);
             seenFrames.add(animo.getCurrentFrameNumber());
-            animo.updateAnimation(frameTime);
+            clockMs += stepMs;
+            animo.updateAnimation(clockMs);
         }
 
         // Both frames of the loop section [0, 1] must be visited.
@@ -383,9 +389,11 @@ class AnimoTest {
         // Play animation
         animo.callMethod("PLAY", new StringValue("ELAPSE"));
 
-        float frameTime = 1f / animo.getFps();
+        long stepMs = 1000L / animo.getFps();
+        long clockMs = 0;
         while (animo.isPlaying()) {
-            animo.updateAnimation(frameTime);
+            clockMs += stepMs;
+            animo.updateAnimation(clockMs);
         }
 
         // Build expected signals
@@ -432,9 +440,11 @@ class AnimoTest {
         ctx.setVariable("ANIMO", animo);
 
         animo.callMethod("PLAY", new StringValue("PLAY"));
-        float frameTime = 1f / animo.getFps();
+        long stepMs = 1000L / animo.getFps();
+        long clockMs = 0;
         while (animo.isPlaying()) {
-            animo.updateAnimation(frameTime);
+            clockMs += stepMs;
+            animo.updateAnimation(clockMs);
         }
 
         List<String> expected = List.of(
@@ -479,9 +489,11 @@ class AnimoTest {
         ctx.setVariable("ANIMO", animo);
 
         animo.callMethod("PLAY", new StringValue("PLAY"));
-        float frameTime = 1f / animo.getFps();
+        long stepMs = 1000L / animo.getFps();
+        long clockMs = 0;
         while (animo.isPlaying()) {
-            animo.updateAnimation(frameTime);
+            clockMs += stepMs;
+            animo.updateAnimation(clockMs);
         }
 
         List<String> expected = List.of(
@@ -520,9 +532,11 @@ class AnimoTest {
         ctx.setVariable("ANIMO", animo);
 
         animo.callMethod("PLAY", new StringValue("PLAY"));
-        float frameTime = 1f / animo.getFps();
+        long stepMs = 1000L / animo.getFps();
+        long clockMs = 0;
         while (animo.isPlaying()) {
-            animo.updateAnimation(frameTime);
+            clockMs += stepMs;
+            animo.updateAnimation(clockMs);
         }
 
         List<String> expected = List.of(
@@ -565,9 +579,11 @@ class AnimoTest {
         ctx.setVariable("ANIMO", animo);
 
         animo.callMethod("PLAY", new StringValue("PLAY"));
-        float frameTime = 1f / animo.getFps();
+        long stepMs = 1000L / animo.getFps();
+        long clockMs = 0;
         while (animo.isPlaying()) {
-            animo.updateAnimation(frameTime);
+            clockMs += stepMs;
+            animo.updateAnimation(clockMs);
         }
 
         // Frame 1 must produce ONFRAMECHANGED^WIN exactly once: no extra ^PLAY

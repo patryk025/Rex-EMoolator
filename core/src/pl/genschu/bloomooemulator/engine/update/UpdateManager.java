@@ -43,7 +43,7 @@ public class UpdateManager implements Disposable {
         game.advanceEngineTime(fixedDt);
 
         updateTimers(game.getEngineTimeMs());
-        updateAnimations(fixedDt);
+        updateAnimations(game.getEngineTimeMs());
         updateCollisions();
         updateAudio(fixedDt);
     }
@@ -69,8 +69,8 @@ public class UpdateManager implements Disposable {
         collisionManager.checkCollisions(object);
     }
 
-    private void updateAnimations(float deltaTime) {
-        animationManager.updateAnimations(deltaTime);
+    private void updateAnimations(long engineTimeMs) {
+        animationManager.updateAnimations(engineTimeMs);
     }
 
     private void updateAudio(float deltaTime) {
@@ -168,14 +168,14 @@ public class UpdateManager implements Disposable {
             this.game = game;
         }
 
-        public void updateAnimations(float deltaTime) {
+        public void updateAnimations(long engineTimeMs) {
             GameContext context = game.getCurrentSceneContext();
             List<? extends EngineVariable> graphicsVariables = new ArrayList<>(context.getGraphicsVariables().values());
 
             for (EngineVariable variable : graphicsVariables) {
                 if (variable instanceof AnimoVariable animoVariable) {
                     if (animoVariable.isPlaying()) {
-                        animoVariable.updateAnimation(deltaTime);
+                        animoVariable.updateAnimation(engineTimeMs);
                     }
                 }
             }

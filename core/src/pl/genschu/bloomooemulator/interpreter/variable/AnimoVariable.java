@@ -41,7 +41,6 @@ public record AnimoVariable(
     public static final int FLAG_PLAY_NEXT_EVENT = 0x800000;
     public static final int FLAG_WAIT_FOR_SFX = 0x100000;
     public static final int FLAG_PING_PONG = 0x20000;
-    private static final float FRAME_TIME_EPSILON = 0.000001f;
 
     /**
      * Mutable playback state for animation.
@@ -56,7 +55,9 @@ public record AnimoVariable(
         public int currentFrameNumber = 0;
         public int currentImageNumber = 0;
         public Image currentImage;
-        public float elapsedTime = 0f;
+        // Engine time (ms) of the last frame tick; -1 = never ticked.
+        // it is refreshed only when a tick actually fires and is NOT reset by PLAY.
+        public long lastTickAtMs = -1L;
         public int direction = 1;
 
         // Geometry
@@ -88,7 +89,6 @@ public record AnimoVariable(
         // File attributes
         public String filename = "";
         public int fps = 15;
-        public float frameDuration = 1f / 15f;
 
         public AnimoPlaybackState() {}
 
@@ -100,7 +100,7 @@ public record AnimoVariable(
             copy.currentFrameNumber = this.currentFrameNumber;
             copy.currentImageNumber = this.currentImageNumber;
             copy.currentImage = this.currentImage;
-            copy.elapsedTime = this.elapsedTime;
+            copy.lastTickAtMs = this.lastTickAtMs;
             copy.direction = this.direction;
             copy.posX = this.posX;
             copy.posY = this.posY;
@@ -119,7 +119,6 @@ public record AnimoVariable(
             copy.currentSfx = this.currentSfx;
             copy.filename = this.filename;
             copy.fps = this.fps;
-            copy.frameDuration = this.frameDuration;
             return copy;
         }
     }
@@ -248,10 +247,8 @@ public record AnimoVariable(
             if (state.fps != 15) {
                 // Attribute already set a custom FPS, keep it
                 updated.state.fps = state.fps;
-                updated.state.frameDuration = 1f / state.fps;
             } else if (loadedData.fps() > 0) {
                 updated.state.fps = loadedData.fps();
-                updated.state.frameDuration = 1f / loadedData.fps();
             }
             updated.state.opacity = loadedData.opacity();
             // Carry over attribute-initialized state
@@ -450,7 +447,6 @@ public record AnimoVariable(
                 int fps = Integer.parseInt(fpsAttr);
                 if (fps > 0) {
                     state.fps = fps;
-                    state.frameDuration = 1f / fps;
                 }
             } catch (NumberFormatException ignored) {}
         }
@@ -517,7 +513,6 @@ public record AnimoVariable(
     public int getPriority() { return state.priority; }
     public long getRenderOrder() { return state.renderOrder; }
     public int getFps() { return state.fps; }
-    public float getFrameDuration() { return state.frameDuration; }
     public int getDirection() { return state.direction; }
     public Event getCurrentEvent() { return state.currentEvent; }
     public int getCurrentFrameNumber() { return state.currentFrameNumber; }
@@ -573,7 +568,6 @@ public record AnimoVariable(
             return;
         }
         state.fps = fps;
-        state.frameDuration = 1f / fps;
     }
 
     public void setVisible(boolean visible) {
@@ -648,16 +642,17 @@ public record AnimoVariable(
         state.animationState = evaluateAnimoState(oldState, event);
 
         if (state.animationState != oldState) {
+            // Note: the frame-tick clock (lastTickAtMs) is deliberately left alone on
+            // STOP/IDLE — in the original engine the per-playable timestamp keeps its
+            // value while the animation is stopped and is only refreshed by real ticks.
             switch (state.animationState) {
                 case STOPPED:
-                    state.elapsedTime = 0f;
                     if (emitSignal && oldState == AnimoState.PLAYING && state.currentEvent != null) {
                         emitSignal("ONFINISHED", new StringValue(state.currentEvent.getName()));
                         notifyObserversFinished(state.currentEvent.getName());
                     }
                     break;
                 case IDLE:
-                    state.elapsedTime = 0f;
                     if (oldState == AnimoState.PLAYING && state.currentEvent != null) {
                         emitSignal("ONFINISHED", new StringValue(state.currentEvent.getName()));
                         notifyObserversFinished(state.currentEvent.getName());
@@ -881,25 +876,23 @@ public record AnimoVariable(
     // ANIMATION UPDATE
     // ========================================
 
-    public void updateAnimation(float deltaTime) {
-        if (deltaTime <= 0f || state.currentEvent == null || !isPlaying()) return;
-        ensureValidFrameDuration();
+    /**
+     * Advances the animation against the monotonic engine clock. Mirrors
+     * CAnimationManager::domodal in the original engine: a tick fires when at
+     * least 1000/fps ms (integer division) elapsed since the last tick, the
+     * timestamp is then re-read from the clock (no remainder carry-over), and at
+     * most one frame advances per update pass. PLAY never resets the clock, so a
+     * cold start ticks immediately while a chained PLAY waits out the current
+     * period.
+     */
+    public void updateAnimation(long engineTimeMs) {
+        if (state.currentEvent == null || !isPlaying()) return;
 
-        state.elapsedTime += deltaTime;
-
-        while (state.currentEvent != null
-                && isPlaying()
-                && state.elapsedTime > state.frameDuration + FRAME_TIME_EPSILON) {
-            state.elapsedTime -= state.frameDuration;
-            if (state.elapsedTime > state.frameDuration) {
-                state.elapsedTime = 0; // Prevent fast-forward on lag
-            }
-            if (state.elapsedTime < 0f && state.elapsedTime > -FRAME_TIME_EPSILON) {
-                state.elapsedTime = 0f;
-            }
-
-            advanceAnimationTick();
+        if (state.lastTickAtMs >= 0 && engineTimeMs - state.lastTickAtMs < framePeriodMs()) {
+            return;
         }
+        state.lastTickAtMs = engineTimeMs;
+        advanceAnimationTick();
     }
 
     private void advanceAnimationTick() {
@@ -928,11 +921,8 @@ public record AnimoVariable(
         setCurrentFrameNumber(nextFrameNumber, true);
     }
 
-    private void ensureValidFrameDuration() {
-        if (state.frameDuration <= 0f) {
-            int fps = Math.max(1, state.fps);
-            state.frameDuration = 1f / fps;
-        }
+    private long framePeriodMs() {
+        return 1000L / Math.max(1, state.fps);
     }
 
     private int getFrameCount(Event event) {
@@ -1089,7 +1079,6 @@ public record AnimoVariable(
     private void playCurrentEventFromStart() {
         Event currentEvent = state.currentEvent;
         if (currentEvent == null) {
-            state.elapsedTime = 0f;
             setVisible(true);
             changeAnimoState(AnimoEvent.PLAY);
             return;
@@ -1099,7 +1088,6 @@ public record AnimoVariable(
 
     private void playEventFromStart(Event event) {
         state.currentEvent = event;
-        state.elapsedTime = 0f;
         event.setRepeatCounter(0);
         setVisible(true);
 
@@ -1110,16 +1098,6 @@ public record AnimoVariable(
         }
 
         setCurrentFrameNumber(0, true);
-        // The original engine plays in an "advance then display" model: frame 0 is
-        // only the static starting pose (already shown since the object was inited),
-        // so the first tick steps off it instead of holding it for a full period.
-        // Priming elapsedTime makes the very next updateAnimation advance immediately.
-        // Without this a one-shot, low-FPS animation (e.g. ODLICZANIE.ANN forced to
-        // 1 FPS) lingers an extra second on frame 0 and looks like it starts a frame
-        // late versus the original. For looping/high-FPS animations the effect is
-        // imperceptible.
-        ensureValidFrameDuration();
-        state.elapsedTime = state.frameDuration;
         emitSignal("ONSTARTED", new StringValue(event.getName()));
         notifyObserversStarted(event.getName());
     }
@@ -1177,7 +1155,6 @@ public record AnimoVariable(
             AnimoVariable thisVar = (AnimoVariable) self;
             boolean emitSignal = args.isEmpty() || ArgumentHelper.getBoolean(args.get(0));
             thisVar.changeAnimoState(AnimoEvent.STOP, emitSignal);
-            thisVar.state.elapsedTime = 0f;
             return MethodResult.noReturn();
         })),
 
@@ -1636,7 +1613,6 @@ public record AnimoVariable(
                 AnimoVariable updated = thisVar.withData(loadedData);
                 if (loadedData.fps() > 0) {
                     updated.state.fps = loadedData.fps();
-                    updated.state.frameDuration = 1f / loadedData.fps();
                 }
                 updated.state.opacity = loadedData.opacity();
                 thisVar.loadSfxAudio(loadedData, game);
