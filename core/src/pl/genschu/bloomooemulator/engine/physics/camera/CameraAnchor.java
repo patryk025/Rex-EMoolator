@@ -51,6 +51,16 @@ public class CameraAnchor {
         return HALF_HEIGHT - worldY - scrollY;
     }
 
+    /** Screen X -> world X for the current scroll (inverse of {@link #worldToScreenX}). */
+    public float screenToWorldX(float screenX) {
+        return screenX - HALF_WIDTH + scrollX;
+    }
+
+    /** Screen Y (down) -> world Y (up) for the current scroll (inverse of {@link #worldToScreenY}). */
+    public float screenToWorldY(float screenY) {
+        return HALF_HEIGHT - screenY - scrollY;
+    }
+
     /**
      * WORLD.SETBKGSIZE — sets the map (background) bounds used for camera clamping.
      * Script passes (minX, maxX, minY, maxY) = (-tx, tx+800, -ty, ty+600) where

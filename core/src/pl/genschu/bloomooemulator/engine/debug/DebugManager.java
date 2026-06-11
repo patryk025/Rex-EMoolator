@@ -619,7 +619,7 @@ public class DebugManager implements Disposable {
         batch.end();
     }
 
-    private void drawVelocityArrow(ShapeRenderer sr, GameObject go) {
+    private void drawVelocityArrow(ShapeRenderer sr, GameObject go, float scrollX, float scrollY) {
         sr.setColor(Color.CYAN);
         final float vx = go.getVelX();
         final float vy = go.getVelY();
@@ -638,8 +638,8 @@ public class DebugManager implements Disposable {
 
         float len = Math.min(maxLen, baseLen + scaleLen * speed);
 
-        final float x0 = go.getX()+400;
-        final float y0 = go.getY()+300;
+        final float x0 = go.getX()+400-scrollX;
+        final float y0 = go.getY()+300+scrollY;
         final float x1 = x0 + dx * len;
         final float y1 = y0 + dy * len;
 
@@ -658,7 +658,7 @@ public class DebugManager implements Disposable {
         sr.line(x1, y1, x1 - pRx * headLen, y1 - pRy * headLen);
     }
 
-    private void drawPath(ShapeRenderer sr, GameObject go) {
+    private void drawPath(ShapeRenderer sr, GameObject go, float scrollX, float scrollY) {
         Deque<Point3D> path = go.getPath();
         if (path == null || path.size() < 2) return;
 
@@ -666,8 +666,8 @@ public class DebugManager implements Disposable {
         Point3D prev = null;
         for (Point3D p : path) {
             if (prev != null) {
-                sr.line((float) prev.x+400, (float) prev.y+300,
-                        (float) p.x+400, (float) p.y+300);
+                sr.line((float) prev.x+400-scrollX, (float) prev.y+300+scrollY,
+                        (float) p.x+400-scrollX, (float) p.y+300+scrollY);
             }
             prev = p;
         }
@@ -689,6 +689,11 @@ public class DebugManager implements Disposable {
         }
         List<GameObject> objects = world.getPhysicsEngine().getGameObjects();
 
+        // Camera scroll offset (CameraAnchor): screen space subtracts scrollX and adds
+        // scrollY relative to the unscrolled +400/+300 origin shift used below.
+        final float scrollX = world.getPhysicsEngine().getBkgPosX();
+        final float scrollY = world.getPhysicsEngine().getBkgPosY();
+
         for (GameObject go : objects) {
             Mesh mesh = go.getMesh();
             final float x = go.getX();
@@ -700,8 +705,8 @@ public class DebugManager implements Disposable {
             if (mesh == null) {
                 final float[] d = go.getDimensions();
 
-                final float correctedX = x + 400;
-                final float correctedY = y + 300;
+                final float correctedX = x + 400 - scrollX;
+                final float correctedY = y + 300 + scrollY;
 
                 switch (go.getGeomType()) {
                     case 0: // box
@@ -738,7 +743,7 @@ public class DebugManager implements Disposable {
                 }
             }
             else {
-                final float dx = 400f, dy = 300f;
+                final float dx = 400f - scrollX, dy = 300f + scrollY;
 
                 for (MeshTriangle tri : mesh.getTriangles()) {
                     TriangleVertex[] vs = tri.getVertices();
@@ -767,8 +772,8 @@ public class DebugManager implements Disposable {
                     shapeRenderer.line(wx2, wy2, wx0, wy0);
                 }
             }
-            drawVelocityArrow(shapeRenderer, go);
-            drawPath(shapeRenderer, go);
+            drawVelocityArrow(shapeRenderer, go, scrollX, scrollY);
+            drawPath(shapeRenderer, go, scrollX, scrollY);
         }
 
         shapeRenderer.end();

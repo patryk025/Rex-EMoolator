@@ -907,7 +907,11 @@ public class ODEPhysicsEngine implements IPhysicsEngine {
         }
         DVector3C position = body.getPosition();
         Point3D start = new Point3D(position.get(0), position.get(1), position.get(2));
-        Point3D target = new Point3D(targetX-400, 300-targetY, targetZ);
+        Point3D target = new Point3D(
+                cameraAnchor.screenToWorldX(targetX),
+                cameraAnchor.screenToWorldY(targetY),
+                targetZ
+        );
 
         AStar pathfinder = go2.getPathfinder();
 
