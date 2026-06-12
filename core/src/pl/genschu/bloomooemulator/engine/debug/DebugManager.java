@@ -1011,6 +1011,14 @@ public class DebugManager implements Disposable {
         }
     }
 
+    /**
+     * Whether the scene selector overlay is currently open. While open, it installs
+     * its own input processor and swallows gameplay input.
+     */
+    public boolean isSceneSelectorActive() {
+        return showSceneSelector;
+    }
+
     private void updateSceneList() {
         sceneList.clear();
 

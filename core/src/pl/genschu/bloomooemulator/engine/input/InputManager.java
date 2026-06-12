@@ -85,6 +85,8 @@ public class InputManager implements Disposable {
     // Input handlers
     private final ButtonHandler buttonHandler;
     private final KeyboardHandler keyboardHandler;
+    // Captures typed characters for the ONCHAR channel.
+    private final KeyboardCharInput keyboardCharInput = new KeyboardCharInput();
 
     public InputManager(OrthographicCamera camera, Viewport viewport, Game game, EngineConfig config) {
         this.camera = camera;
@@ -103,7 +105,17 @@ public class InputManager implements Disposable {
         List<MouseVariable> mouseVariables = getMouseListeners(context);
         List<KeyboardVariable> keyboardVariables = getKeyboardListeners(context);
 
-        game.getEmulator().getDebugManager().handleSceneSelectorInput(deltaTime);
+        var debugManager = game.getEmulator().getDebugManager();
+        debugManager.handleSceneSelectorInput(deltaTime);
+
+        // Keep the character-input processor installed during gameplay so keyTyped
+        // events feed the ONCHAR channel. The scene selector temporarily swaps in
+        // its own processor and never restores it on close, so re-assert ours once
+        // the selector is no longer active.
+        if (!debugManager.isSceneSelectorActive()
+                && Gdx.input.getInputProcessor() != keyboardCharInput) {
+            Gdx.input.setInputProcessor(keyboardCharInput);
+        }
 
         // Handle mouse input
         processMouseInput(mouseVariables);
@@ -206,12 +218,15 @@ public class InputManager implements Disposable {
     }
 
     private void processKeyboardInput(List<KeyboardVariable> keyboardVariables) {
+        // Always drain so the buffer never grows unbounded, even with no listeners.
+        List<Character> typedChars = keyboardCharInput.drain();
+
         if (keyboardVariables.isEmpty()) {
             return;
         }
 
-        // Handle keyboard buttons input
-        keyboardHandler.handleKeyboardInput(keyboardVariables, pressedKeys, previouslyPressedKeys);
+        // Handle keyboard buttons input (ONKEYDOWN/ONKEYUP) and typed chars (ONCHAR)
+        keyboardHandler.handleKeyboardInput(keyboardVariables, pressedKeys, previouslyPressedKeys, typedChars);
 
         // Update keyboard buttons state
         previouslyPressedKeys.clear();

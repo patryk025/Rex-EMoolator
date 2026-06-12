@@ -1,7 +1,6 @@
 package pl.genschu.bloomooemulator.interpreter.variable;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Input;
 import pl.genschu.bloomooemulator.annotations.InternalMutable;
 import pl.genschu.bloomooemulator.interpreter.helpers.ArgumentHelper;
 import pl.genschu.bloomooemulator.interpreter.values.*;
@@ -25,6 +24,7 @@ public record KeyboardVariable(
     public static final class KeyboardState {
         public boolean enabled = true;
         public boolean autoRepeat = false;
+        public String latestKey = "";
 
         public KeyboardState() {}
 
@@ -32,6 +32,7 @@ public record KeyboardVariable(
             KeyboardState copy = new KeyboardState();
             copy.enabled = this.enabled;
             copy.autoRepeat = this.autoRepeat;
+            copy.latestKey = this.latestKey;
             return copy;
         }
 
@@ -102,6 +103,8 @@ public record KeyboardVariable(
 
     public boolean isEnabled() { return state.enabled; }
     public boolean isAutoRepeat() { return state.autoRepeat; }
+    public String getLatestKey() { return state.latestKey; }
+    public void setLatestKey(String key) { state.latestKey = key == null ? "" : key; }
 
     // ========================================
     // METHODS DEFINITION
@@ -118,11 +121,9 @@ public record KeyboardVariable(
             return MethodResult.noReturn();
         })),
 
-        Map.entry("GETLATESTKEY", MethodSpec.of((self, args, ctx) -> {
-            // The runtime does not expose buffered key text yet; return an empty value.
-            Gdx.app.log("KeyboardVariable", "GETLATESTKEY not implemented");
-            return MethodResult.returns(new StringValue(""));
-        })),
+        Map.entry("GETLATESTKEY", MethodSpec.of((self, args, ctx) ->
+            MethodResult.returns(new StringValue(((KeyboardVariable) self).state.latestKey))
+        )),
 
         Map.entry("ISENABLED", MethodSpec.of((self, args, ctx) ->
             MethodResult.returns(BoolValue.of(((KeyboardVariable) self).state.enabled))

@@ -39,6 +39,8 @@ public final class KeyboardKeysMapper {
         KEY_MAPPING.put(Input.Keys.ENTER, "ENTER");
         KEY_MAPPING.put(Input.Keys.SPACE, "SPACE");
         KEY_MAPPING.put(Input.Keys.TAB, "TAB");
+        KEY_MAPPING.put(Input.Keys.DEL, "DELETE");
+        KEY_MAPPING.put(Input.Keys.END, "END");
 
         KEY_MAPPING.put(Input.Keys.Q, "Q");
         KEY_MAPPING.put(Input.Keys.W, "W");
