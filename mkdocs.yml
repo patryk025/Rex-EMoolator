@@ -1,0 +1,170 @@
+site_name: Rex-EMoolator
+site_description: Unofficial documentation of the Piklib/BlooMoo scripting engines and the Rex-EMoolator emulator.
+site_url: https://patryk025.github.io/Rex-EMoolator/
+repo_url: https://github.com/patryk025/Rex-EMoolator
+repo_name: Rex-EMoolator
+edit_uri: edit/main/docs/
+
+docs_dir: docs
+
+theme:
+  name: material
+  language: pl
+  features:
+    - navigation.tracking
+    - navigation.tabs
+    - navigation.sections
+    - navigation.top
+    - search.suggest
+    - search.highlight
+    - content.code.copy
+    - content.code.annotate
+    - content.action.edit
+    - content.tabs.link
+    - toc.follow
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/weather-night
+        name: Tryb ciemny
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/weather-sunny
+        name: Tryb jasny
+
+markdown_extensions:
+  - admonition
+  - attr_list
+  - md_in_html
+  - tables
+  - toc:
+      permalink: true
+  - pymdownx.details
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.inlinehilite
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+  - pymdownx.snippets
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.emoji:
+      emoji_index: !!python/name:material.extensions.emoji.twemoji
+      emoji_generator: !!python/name:material.extensions.emoji.to_svg
+
+plugins:
+  - search
+  - i18n:
+      docs_structure: folder
+      languages:
+        - locale: pl
+          name: Polski
+          default: true
+          build: true
+          nav_translations:
+            Strona główna: Strona główna
+            Silnik: Silnik
+            Skrypty: Skrypty
+            Arytmetyka: Arytmetyka
+            Zdarzenia i sygnały: Zdarzenia i sygnały
+            Zmienne globalne: Zmienne globalne
+            Dziwactwa silnika: Dziwactwa silnika
+            Wnętrze silnika: Wnętrze silnika
+            Pętla i zegar silnika: Pętla i zegar silnika
+            Renderowanie: Renderowanie
+            System animacji: System animacji
+            Czas i timery: Czas i timery
+            Formaty plików: Formaty plików
+            Referencja typów: Referencja typów
+        - locale: en
+          name: English
+          build: true
+          nav_translations:
+            Strona główna: Home
+            Silnik: Engine
+            Skrypty: Scripts
+            Arytmetyka: Arithmetic
+            Zdarzenia i sygnały: Events and signals
+            Zmienne globalne: Global variables
+            Dziwactwa silnika: Engine quirks
+            Wnętrze silnika: Engine internals
+            Pętla i zegar silnika: Game loop & engine clock
+            Renderowanie: Rendering
+            System animacji: Animation system
+            Czas i timery: Time and timers
+            Formaty plików: File formats
+            Referencja typów: Type reference
+
+nav:
+  - Strona główna: index.md
+  - Silnik:
+      - engine/index.md
+      - Skrypty: engine/scripts.md
+      - Arytmetyka: engine/arithmetic.md
+      - Zdarzenia i sygnały: engine/events.md
+      - Zmienne globalne: engine/globals.md
+      - Dziwactwa silnika: engine/quirks.md
+  - Wnętrze silnika:
+      - internals/index.md
+      - Pętla i zegar silnika: internals/loop.md
+      - Renderowanie: internals/rendering.md
+      - System animacji: internals/animation.md
+      - Czas i timery: internals/timers.md
+  - Formaty plików:
+      - formats/index.md
+      - ANN: formats/ANN.md
+      - IMG: formats/IMG.md
+      - FNT: formats/FNT.md
+      - ARR: formats/ARR.md
+      - DTA: formats/DTA.md
+      - SEK: formats/SEK.md
+      - INE: formats/INE.md
+  - Referencja typów:
+      - reference/index.md
+      - ANIMO: reference/ANIMO.md
+      - APPLICATION: reference/APPLICATION.md
+      - ARRAY: reference/ARRAY.md
+      - BEHAVIOUR: reference/BEHAVIOUR.md
+      - BOOL: reference/BOOL.md
+      - BUTTON: reference/BUTTON.md
+      - CANVAS_OBSERVER: reference/CANVAS_OBSERVER.md
+      - CLASS: reference/CLASS.md
+      - CNVLOADER: reference/CNVLOADER.md
+      - COMPLEXCONDITION: reference/COMPLEXCONDITION.md
+      - CONDITION: reference/CONDITION.md
+      - DATABASE: reference/DATABASE.md
+      - DOUBLE: reference/DOUBLE.md
+      - EPISODE: reference/EPISODE.md
+      - EXPRESSION: reference/EXPRESSION.md
+      - FONT: reference/FONT.md
+      - GROUP: reference/GROUP.md
+      - IMAGE: reference/IMAGE.md
+      - INERTIA: reference/INERTIA.md
+      - INTEGER: reference/INTEGER.md
+      - KEYBOARD: reference/KEYBOARD.md
+      - MATRIX: reference/MATRIX.md
+      - MOUSE: reference/MOUSE.md
+      - MULTIARRAY: reference/MULTIARRAY.md
+      - PATTERN: reference/PATTERN.md
+      - RAND: reference/RAND.md
+      - SCENE: reference/SCENE.md
+      - SEQUENCE: reference/SEQUENCE.md
+      - SOUND: reference/SOUND.md
+      - STATICFILTER: reference/STATICFILTER.md
+      - STRING: reference/STRING.md
+      - STRUCT: reference/STRUCT.md
+      - SYSTEM: reference/SYSTEM.md
+      - TEXT: reference/TEXT.md
+      - TIMER: reference/TIMER.md
+      - VECTOR: reference/VECTOR.md
+      - VIRTUALGRAPHICSOBJECT: reference/VIRTUALGRAPHICSOBJECT.md
+      - WORLD: reference/WORLD.md
