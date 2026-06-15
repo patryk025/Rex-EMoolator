@@ -31,10 +31,13 @@ public class CNVParser {
      * @param displayName label used only for logs
      */
     public void parse(InputStream stream, String displayName, Context context) throws IOException {
-        byte[] bytes;
-        try (InputStream in = stream) {
-            bytes = in.readAllBytes();
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        byte[] buffer = new byte[8192];
+        int r;
+        while ((r = stream.read(buffer)) != -1) {
+            baos.write(buffer, 0, r);
         }
+        byte[] bytes = baos.toByteArray();
 
         if (ScriptDecypher.isEncrypted(bytes)) {
             Gdx.app.log("CNVParser", "Deciphering " + displayName + "...");
