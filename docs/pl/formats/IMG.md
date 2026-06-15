@@ -49,4 +49,5 @@ Po nagłówku: blok danych koloru (`rozmiar danych obrazka` bajtów), a jeśli `
 
 - [`IMAGE`](../reference/IMAGE.md) — obiekt skryptowy oparty na `.IMG`.
 - [Format ANN](ANN.md) — animacje używają tego samego kodowania pikseli.
+- [Kompresja](compression.md) — CLZW2 i dekodowanie pikseli RGB565/555.
 - [Renderowanie](../internals/rendering.md) — co dzieje się z bitmapą po dekodowaniu.

@@ -31,33 +31,15 @@ public class CNVParser {
      * @param displayName label used only for logs
      */
     public void parse(InputStream stream, String displayName, Context context) throws IOException {
-        try (BufferedReader bufferedReader = new BufferedReader(
-                new InputStreamReader(stream, Charset.defaultCharset()))) {
-            String line;
-            StringBuilder content = new StringBuilder();
-            boolean decipher = false;
-            int offset = 0;
-
-            while ((line = bufferedReader.readLine()) != null) {
-                if (line.startsWith("{<")) {
-                    String[] tmpParam = line.replace("{<", "").replace(">}", "").split(":");
-                    offset = Integer.parseInt(tmpParam[1]);
-                    if (tmpParam[0].equalsIgnoreCase("D")) {
-                        offset *= -1;
-                    }
-                    decipher = true;
-                } else {
-                    content.append(line).append("\n");
-                }
-            }
-
-            if (decipher) {
-                Gdx.app.log("CNVParser", "Deciphering " + displayName + "...");
-                parseString(ScriptDecypher.decode(content.toString(), offset), context);
-            } else {
-                parseString(content.toString(), context);
-            }
+        byte[] bytes;
+        try (InputStream in = stream) {
+            bytes = in.readAllBytes();
         }
+
+        if (ScriptDecypher.isEncrypted(bytes)) {
+            Gdx.app.log("CNVParser", "Deciphering " + displayName + "...");
+        }
+        parseString(ScriptDecypher.decypherIfNeeded(bytes), context);
 
         assignSignals(context);
         runOnInit(context);

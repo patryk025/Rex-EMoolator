@@ -21,6 +21,14 @@ flowchart LR
 
 <div class="grid cards" markdown>
 
+-   :material-sitemap-outline:{ .lg .middle } __Architektura__
+
+    ---
+
+    Mapa całości: warstwy i moduły, centralny hub `Game`, managery, konteksty, system zmiennych i VFS oraz potok ładowania gry.
+
+    [:octicons-arrow-right-24: Czytaj](architecture.md)
+
 -   :material-sync:{ .lg .middle } __Pętla i zegar silnika__
 
     ---
@@ -36,6 +44,14 @@ flowchart LR
     Potok rysowania klatki, priorytety, odbicie osi Y, przycinanie i maski alfa — oraz jak render działał w oryginale (DirectDraw, dirty rects).
 
     [:octicons-arrow-right-24: Czytaj](rendering.md)
+
+-   :material-crosshairs-gps:{ .lg .middle } __Współrzędne i kotwice__
+
+    ---
+
+    Kanwa 800×600, pozycjonowanie bezwzględne i względne, składanie pozycji animacji oraz kotwice (i ich nieintuicyjne odejmowanie).
+
+    [:octicons-arrow-right-24: Czytaj](coordinates.md)
 
 -   :material-animation-play:{ .lg .middle } __System animacji__
 

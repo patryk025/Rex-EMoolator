@@ -79,11 +79,15 @@ plugins:
             Zmienne globalne: Zmienne globalne
             Dziwactwa silnika: Dziwactwa silnika
             Wnętrze silnika: Wnętrze silnika
+            Architektura: Architektura
             Pętla i zegar silnika: Pętla i zegar silnika
             Renderowanie: Renderowanie
+            Współrzędne i kotwice: Współrzędne i kotwice
             System animacji: System animacji
             Czas i timery: Czas i timery
             Formaty plików: Formaty plików
+            Kompresja: Kompresja
+            Szyfrowanie skryptów: Szyfrowanie skryptów
             Referencja typów: Referencja typów
         - locale: en
           name: English
@@ -97,11 +101,15 @@ plugins:
             Zmienne globalne: Global variables
             Dziwactwa silnika: Engine quirks
             Wnętrze silnika: Engine internals
+            Architektura: Architecture
             Pętla i zegar silnika: Game loop & engine clock
             Renderowanie: Rendering
+            Współrzędne i kotwice: Coordinates & anchors
             System animacji: Animation system
             Czas i timery: Time and timers
             Formaty plików: File formats
+            Kompresja: Compression
+            Szyfrowanie skryptów: Script encryption
             Referencja typów: Type reference
 
 nav:
@@ -115,8 +123,10 @@ nav:
       - Dziwactwa silnika: engine/quirks.md
   - Wnętrze silnika:
       - internals/index.md
+      - Architektura: internals/architecture.md
       - Pętla i zegar silnika: internals/loop.md
       - Renderowanie: internals/rendering.md
+      - Współrzędne i kotwice: internals/coordinates.md
       - System animacji: internals/animation.md
       - Czas i timery: internals/timers.md
   - Formaty plików:
@@ -125,9 +135,12 @@ nav:
       - IMG: formats/IMG.md
       - FNT: formats/FNT.md
       - ARR: formats/ARR.md
+      - MAR: formats/MAR.md
       - DTA: formats/DTA.md
       - SEK: formats/SEK.md
       - INE: formats/INE.md
+      - Kompresja: formats/compression.md
+      - Szyfrowanie skryptów: formats/encryption.md
   - Referencja typów:
       - reference/index.md
       - ANIMO: reference/ANIMO.md

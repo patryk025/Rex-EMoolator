@@ -33,7 +33,7 @@ public class CNVParserBenchmark {
     private File encryptedSmall;
     private File encryptedLarge;
 
-    private String largeScriptContent;
+    private byte[] largeScriptContent;
 
     private File asset(String name) {
         return new File("../assets/test-assets/scripts/" + name).getAbsoluteFile();
@@ -64,7 +64,7 @@ public class CNVParserBenchmark {
         System.out.println("Medium: " + mediumScript.length() / 1024 + " KB, " + mediumBehaviours + " behaviours");
         System.out.println("Large:  " + largeScript.length() / 1024 + " KB, " + largeBehaviours + " behaviours");
 
-        largeScriptContent = new String(Files.readAllBytes(largeScript.toPath()));
+        largeScriptContent = Files.readAllBytes(largeScript.toPath());
     }
 
     private void parseFile(File file) throws IOException {
@@ -100,7 +100,7 @@ public class CNVParserBenchmark {
 
     @Benchmark
     public String decryptionOnly() throws IOException {
-        return ScriptDecypher.decode(largeScriptContent, 6);
+        return ScriptDecypher.decode(largeScriptContent, 0, 6);
     }
 
     private int countBehaviours(File file) throws IOException {

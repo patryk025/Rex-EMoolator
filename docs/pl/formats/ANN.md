@@ -130,11 +130,11 @@ Na końcu pliku, dla każdego obrazka kolejno: blok danych koloru (`rozmiar dany
 | `4` | CRLE |
 | `5` | JPEG |
 
-!!! abstract "Algorytmy — wkrótce"
-    Szczegóły CRLE i CLZW2 (oraz dekodowanie RGB565/555 → RGBA) opiszemy w osobnym rozdziale o [kompresji](index.md#kodowanie-pikseli). Tu istotny jest wyłącznie **typ** zapisany w metadanych.
+Algorytmy CRLE i CLZW2 oraz dekodowanie pikseli RGB565/555 → RGBA opisuje rozdział [Kompresja](compression.md). Tu istotny jest wyłącznie **typ** zapisany w metadanych.
 
 ## Zobacz też
 
 - [System animacji](../internals/animation.md) — jak silnik odtwarza te dane.
 - [`ANIMO`](../reference/ANIMO.md) — obiekt skryptowy oparty na `.ANN`.
 - [Format IMG](IMG.md) — pokrewny format pojedynczego obrazu.
+- [Kompresja](compression.md) — CRLE, CLZW2 i dekodowanie pikseli.

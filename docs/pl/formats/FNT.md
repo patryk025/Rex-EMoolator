@@ -2,6 +2,9 @@
 
 Plik `.FNT` przechowuje **bitmapową** czcionkę: zestaw znaków o stałej wysokości, ich metryki oraz jedną wspólną bitmapę ze wszystkimi glifami. To format obiektów [`FONT`](../reference/FONT.md) używanych przez [`TEXT`](../reference/TEXT.md). Liczby są **little-endian**. Układ odpowiada parserowi `FontLoader`.
 
+!!! warning "Format nie do końca rozpracowany"
+    `.FNT` jest jeszcze analizowany. Pewny jest podział na sekcje i to, jak parser je czyta, ale część szczegółów pozostaje otwarta — m.in. **dokładna semantyka macierzy kerningu** (jak wartości przekładają się na odstępy), interpretacja pola `lineLength` jako liczby „komórek" oraz drobny **odstęp `+1` px** przy wycinaniu glifów. Te miejsca traktuj jako robocze.
+
 ## Struktura pliku
 
 ```mermaid
