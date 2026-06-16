@@ -1,6 +1,6 @@
 # Silnik
 
-**Piklib** (później **BlooMoo**) to 32-bitowy silnik graficzny stworzony przez firmę Aidem Media na potrzeby polskich gier przygodowych z lat 2000. Niniejsza dokumentacja opisuje wewnętrzną logikę silnika i sposób, w jaki wykonuje on skrypty gry.
+**Piklib** (później **BlooMoo**) to 32-bitowy silnik graficzny stworzony przez firmę Aidem Media na potrzeby polskich gier z lat 2000. Niniejsza dokumentacja opisuje wewnętrzną logikę silnika i sposób, w jaki wykonuje on skrypty gry.
 
 ## Czego dotyczy ta dokumentacja
 
@@ -24,15 +24,58 @@ Pełną listę dostępnych typów danych zawiera [Referencja typów](../referenc
 
 Lista jest niekompletna i będzie uzupełniana w miarę identyfikowania kolejnych tytułów.
 
-| Gra | Wersja silnika |
-|---|---|
-| Reksio i Skarb Piratów | Piklib 8 |
-| Reksio i Ufo | Piklib 7.1, Piklib 8 |
-| Reksio i Czarodzieje | Piklib 8 |
-| Reksio i Wehikuł Czasu | Piklib 8 |
-| Reksio i Kapitan Nemo | BlooMoo |
-| Reksio i Kretes w Akcji | BlooMoo |
-| Poznaj Mity: Wyprawa po Złote Runo | Piklib 7.1 |
-| Poznaj Mity: Wojna Trojańska | Piklib 7.2 |
-| Poznaj Mity: Przygody Odyseusza | Piklib 8 |
-| Poznaj Mity: Herkules | Piklib 8 |
+| Gra                                                      | Wersja silnika                       |
+|----------------------------------------------------------|--------------------------------------|
+| **Przygody Reksia**                                      |                                      |
+| Reksio i Skarb Piratów                                   | Piklib 6.1, Piklib 7, Piklib 8       |
+| Reksio i Ufo                                             | Piklib 7.1, Piklib 8                 |
+| Reksio i Czarodzieje                                     | Piklib 8                             |
+| Reksio i Wehikuł Czasu                                   | Piklib 8                             |
+| Reksio i Kapitan Nemo                                    | BlooMoo                              |
+| Reksio i Kretes w Akcji                                  | BlooMoo                              |
+| **Poznaj Mity**                                          |                                      |
+| Wyprawa po Złote Runo                                    | Piklib 7.1                           |
+| Wojna Trojańska                                          | Piklib 7.2                           |
+| Przygody Odyseusza                                       | Piklib 8                             |
+| Herkules                                                 | Piklib 8                             |
+| Tezeusz i nić Ariadny                                    | Piklib 8                             |
+| **Bolek i Lolek**                                        |                                      |
+| Bolek i Lolek na tropie zaginionej księgi ortografii     | Piklib 3.0                           |
+| Bolek i Lolek. Alfabet i nauka czytania                  | BlooMoo                              |
+| Bolek i Lolek: Język angielski dla dzieci                | Piklib 8                             |
+| Bolek i Lolek: Język niemiecki dla najmłodszych          | BlooMoo                              |
+| Bolek i Lolek: Moje pierwsze literki                     | BlooMoo                              |
+| Bolek i Lolek: Moje pierwsze studio plastyczne           | BlooMoo                              |
+| Bolek i Lolek: Olimpiada Letnia                          | Piklib 8                             |
+| Bolek i Lolek: Zwariowana Olimpiada                      | Piklib 8                             |
+| Wesołe przedszkole Bolka i Lolka                         | Piklib 8                             |
+| **Król Maciuś Pierwszy**                                 |                                      |
+| Król Maciuś Pierwszy. Przedszkole, zabawy z przyjaciółmi | BlooMoo                              |
+| Król Maciuś Pierwszy. Wesołe miasteczko                  | BlooMooWeb                           |
+| Król Maciuś Pierwszy. Wyspa Togo-Pogo                    | BlooMoo                              |
+| **Komputerowy świat bajek** / **Gry-Bajki**              |                                      |
+| Aladyn                                                   | Piklib 6.1                           |
+| Pinokio                                                  | Piklib 6.1                           |
+| Piotruś Pan                                              | Piklib 6.1                           |
+| Ali Baba i czterdziestu rozbójników                      | Piklib 8 (ale config to BlooMoo.ini) |
+| Robinson Crusoe                                          | Piklib 6.1                           |
+| Sindbad                                                  | Piklib 6.1                           |
+| Robin Hood                                               | Piklib 6.1                           |
+| Księga Dżungli                                           | Piklib 6.1                           |
+| Doktor Dolittle                                          | Piklib 6.1                           |
+| **Gry dla dziewczynek**                                  |                                      |
+| Piękna i Bestia                                          | BlooMoo                              |
+| Roszpunka                                                | BlooMoo                              |
+| **Koziołek Matołek**                                     |                                      |
+| Szkoła Koziołka Matołka                                  | Piklib 7.2                           |
+| Wesołe przedszkole Koziołka Matołka                      | Piklib 8                             |
+| **Edukacja XXI wieku**                                   |                                      |
+| Matematyka: Dodawanie i odejmowanie                      | Piklib 4.1                           |
+| Alfabet. Nauka czytania i pisania                        | Piklib 4.1                           |
+| **Other games featuring Rex**                            |                                      |
+| ABC z Reksiem                                            | Piklib 4.1, RPiklib (?)              |
+| Liczę z Reksiem                                          | Piklib 6.0                           |
+| Reksio i Ortografia                                      | Piklib 7.2                           |
+| Wesołe Przedszkole Reksia                                | Piklib 8                             |
+| **Other titles**                                         |                                      |
+| Wielki Teleturniej Smoka Wawelskiego                     | Piklib 5.0                           |
