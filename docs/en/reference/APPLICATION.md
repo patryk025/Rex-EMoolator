@@ -128,18 +128,21 @@ void SETLANGUAGE(STRING languageCode)
 
 Sets the application's language code. The engine maps the passed Windows LCID code to an internal language identifier per the table below:
 
-| LCID | Language | Internal ID | Subfolder |
-|---|---|---|---|
-| `0415` | Polish | `1` | `POL` |
-| `0405` | Czech | `2` | `CZE` |
-| `0402` | Bulgarian | `3` | `BUL` |
-| `0418` | Romanian | `4` | `ROM` |
-| `0419` | Russian | `5` | `RUS` |
-| `040E` | Hungarian | `6` | `HUN` |
-| `041B` | Slovak | `7` | `SLO` |
-| `0422` | Ukrainian | `8` | `UKR` |
+| LCID   | Language  | Internal ID | Subfolder |
+|--------|-----------|-------------|-----------|
+| `0415` | Polish    | `1`         | `POL`     |
+| `0405` | Czech     | `2`         | `CZE`     |
+| `0402` | Bulgarian | `3`         | `BUL`     |
+| `0418` | Romanian  | `4`         | `ROM`     |
+| `0419` | Russian   | `5`         | `RUS`     |
+| `040E` | Hungarian | `6`         | `HUN`     |
+| `041B` | Slovak    | `7`         | `SLO`     |
+| `0422` | Ukrainian | `8`         | `UKR`     |
+| `0407` | German    | `9`         | `NIEM`    |
+| `0c07` | German    | `10`        | `NIEM`    |
+| `0807` | German    | `11`        | `NIEM`    |
 
-The selected identifier determines the localised-assets subfolder the engine consults when loading game files (see [Loading subsequent files](../engine/scripts.md#loading-subsequent-files)). Identifiers `9`, `10`, and `11` (set through paths other than `SETLANGUAGE`) all map to the `NIEM` subfolder — the German-language build. Any identifier outside the listed range yields an empty subfolder. Setting the language also re-initialises the keyboard layout.
+The selected identifier determines the localized-assets subfolder the engine consults when loading game files (see [Loading subsequent files](../engine/scripts.md#loading-subsequent-files)). Identifiers `9`, `10`, and `11` (during my ongoing research, I've only seen them in *Reksio i Kretes w Akcji*) all map to the `NIEM` subfolder — the German-language build. Any identifier outside the listed range yields an empty subfolder. Setting the language also re-initialises the keyboard layout.
 
 **Parameters**
 

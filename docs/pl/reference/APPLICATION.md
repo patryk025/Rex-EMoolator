@@ -128,18 +128,21 @@ void SETLANGUAGE(STRING languageCode)
 
 Ustawia kod języka aplikacji. Silnik mapuje przekazany kod LCID Windows na wewnętrzny identyfikator języka według poniższej tabeli:
 
-| Kod LCID | Język | Wewnętrzny ID | Podkatalog |
-|---|---|---|---|
-| `0415` | polski | `1` | `POL` |
-| `0405` | czeski | `2` | `CZE` |
-| `0402` | bułgarski | `3` | `BUL` |
-| `0418` | rumuński | `4` | `ROM` |
-| `0419` | rosyjski | `5` | `RUS` |
-| `040E` | węgierski | `6` | `HUN` |
-| `041B` | słowacki | `7` | `SLO` |
-| `0422` | ukraiński | `8` | `UKR` |
+| Kod LCID | Język     | Wewnętrzny ID | Podkatalog  |
+|----------|-----------|---------------|-------------|
+| `0415`   | polski    | `1`           | `POL`       |
+| `0405`   | czeski    | `2`           | `CZE`       |
+| `0402`   | bułgarski | `3`           | `BUL`       |
+| `0418`   | rumuński  | `4`           | `ROM`       |
+| `0419`   | rosyjski  | `5`           | `RUS`       |
+| `040E`   | węgierski | `6`           | `HUN`       |
+| `041B`   | słowacki  | `7`           | `SLO`       |
+| `0422`   | ukraiński | `8`           | `UKR`       |
+| `0407`   | niemiecki | `9`           | `NIEM`      |
+| `0c07`   | niemiecki | `10`          | `NIEM`      |
+| `0807`   | niemiecki | `11`          | `NIEM`      |
 
-Wybrany identyfikator decyduje o podkatalogu z lokalizowanymi zasobami, z którego silnik wczytuje pliki gry (zobacz [Ładowanie kolejnych plików](../engine/scripts.md#ladowanie-kolejnych-plikow)). Identyfikatory `9`, `10` i `11` (ustawiane inną drogą niż `SETLANGUAGE`) odpowiadają podkatalogowi `NIEM` — wersji niemieckojęzycznej. Identyfikator spoza powyższego zakresu skutkuje pustym podkatalogiem. Po ustawieniu języka silnik ponownie inicjalizuje również układ klawiatury.
+Wybrany identyfikator decyduje o podkatalogu z lokalizowanymi zasobami, z którego silnik wczytuje pliki gry (zobacz [Ładowanie kolejnych plików](../engine/scripts.md#ladowanie-kolejnych-plikow)). Identyfikatory `9`, `10` i `11` (w toku trwających analiz widziałem je jedynie w *Reksio i Kretes w Akcji*) odpowiadają podkatalogowi `NIEM` — wersji niemieckojęzycznej. Identyfikator spoza powyższego zakresu skutkuje pustym podkatalogiem. Po ustawieniu języka silnik ponownie inicjalizuje również układ klawiatury.
 
 **Parametry**
 

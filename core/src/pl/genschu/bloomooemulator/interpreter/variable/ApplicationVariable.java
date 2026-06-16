@@ -7,6 +7,7 @@ import pl.genschu.bloomooemulator.interpreter.runtime.ASTInterpreter;
 import pl.genschu.bloomooemulator.interpreter.runtime.ExecutionResult;
 import pl.genschu.bloomooemulator.interpreter.values.*;
 import pl.genschu.bloomooemulator.interpreter.variable.capabilities.HasInstanceContext;
+import pl.genschu.bloomooemulator.utils.LangCodeConverter;
 
 import java.util.*;
 
@@ -171,7 +172,8 @@ public record ApplicationVariable(
             if (args.isEmpty()) {
                 throw new IllegalArgumentException("SETLANGUAGE requires 1 argument");
             }
-            String newLanguage = ArgumentHelper.getString(args.get(0));
+            String newLanguageCode = ArgumentHelper.getString(args.get(0));
+            String newLanguage = LangCodeConverter.lcidToIsoCode(newLanguageCode).toUpperCase();
             ctx.updateVariable(thisVar.name(), thisVar.withLanguage(newLanguage));
             return MethodResult.noReturn();
         }))
