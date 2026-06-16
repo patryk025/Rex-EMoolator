@@ -45,11 +45,11 @@ The Piklib/BlooMoo engine keeps game assets in a dozen-odd file formats — some
 
     Waypoints, physics objects, and path points for [`WORLD`](../reference/WORLD.md). Magic: `SEKAI…`. *Work in progress.*
 
--   :material-cog-outline:{ .lg .middle } __[INE](INE.md)__ — Inertia physics :material-progress-wrench:
+-   :material-cog-outline:{ .lg .middle } __[INE](INE.md)__ — Inertia physics
 
     ---
 
-    Data for the [`INERTIA`](../reference/INERTIA.md) engine. *Work in progress.*
+    Physics bodies — collision shapes for the [`INERTIA`](../reference/INERTIA.md) engine. Magic: `INE1`.
 
 </div>
 
@@ -76,6 +76,7 @@ Most binary formats start with a constant signature — the first thing a parser
 | IMG | `50 49 4B 00` | `PIK\0` |
 | FNT | `46 4E 54 00` | `FNT\0` |
 | SEK | `53 45 4B 41 49 …` | `SEKAI81080701915004` |
+| INE | `49 4E 45 31` | `INE1` |
 
 The [`ARR`](ARR.md), [`MAR`](MAR.md), and [`DTA`](DTA.md) files have no signature — `ARR` starts with the element count, `MAR` with the dimension count, and `DTA` is plain text.
 

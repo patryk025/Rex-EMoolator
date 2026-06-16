@@ -277,4 +277,4 @@ Within each file, variables are created and initialised in a fixed order by type
 4. Animations, images, sounds, and fonts.
 5. Buttons, text fields, sequences, mouse, keyboard, canvas observer.
 
-For each variable in this phase the `ONINIT` signal is fired. Once all variables are initialised, the engine calls the `__ONINIT__` procedure if one is defined.
+For each variable in this phase the `ONINIT` signal is fired. Once all variables are initialised, the engine calls the `__INIT__` procedure (applies to the BlooMoo) if one is defined.

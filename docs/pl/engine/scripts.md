@@ -277,4 +277,4 @@ W ramach każdego pliku zmienne są tworzone i inicjalizowane w stałej kolejno�
 4. Animacje, obrazy, dźwięki i fonty.
 5. Przyciski, pola tekstowe, sekwencje, mysz, klawiatura, obserwator kanwy.
 
-Dla każdej zmiennej w tej fazie wywoływany jest sygnał `ONINIT`. Na koniec, po zakończeniu inicjalizacji wszystkich zmiennych, wywoływana jest procedura `__ONINIT__`, jeśli została zdefiniowana.
+Dla każdej zmiennej w tej fazie wywoływany jest sygnał `ONINIT`. Na koniec, po zakończeniu inicjalizacji wszystkich zmiennych, wywoływana jest procedura `__INIT__` (dotyczy BlooMoo), jeśli została zdefiniowana.
