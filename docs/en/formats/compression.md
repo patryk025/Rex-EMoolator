@@ -1,6 +1,6 @@
 # Compression
 
-The engine's graphics data (images [`IMG`](IMG.md), animation frames [`ANN`](ANN.md)) may be compressed with one of two algorithms: **CRLE** (an RLE variant) and **CLZW2** (an LZ77-family scheme). They may also be combined. The compression type is stored in the file's metadata.
+The engine's graphics data (images [`IMG`](IMG.md), animation frames [`ANN`](ANN.md)) may be compressed with one of two algorithms: **CRLE** (an RLE variant) and **CLZW2** (the **LZO1X** encoding from the LZ77 family). They may also be combined. The compression type is stored in the file's metadata.
 
 !!! note "Decompression only"
     Rex-EMoolator (like this description) deals only with **reading**. Compression on the engine side is not re-implemented — `CLZW2Compression.compress()` deliberately throws "Not implemented". The CLZW2 algorithm was reconstructed from reverse-engineering by Dove6.
@@ -18,11 +18,11 @@ The compression-type values found in file headers:
 | `5` | JPEG | standard JPEG |
 
 !!! tip "IMG quirk"
-    In [`IMG`](IMG.md) files, type `4` is normalised to `0` (no compression), not to CRLE. In [`ANN`](ANN.md), `4` means CRLE.
+    In [`IMG`](IMG.md) files, type `4` is normalized to `0` (no compression), not to CRLE. In [`ANN`](ANN.md), `4` means CRLE.
 
 ## CRLE
 
-CRLE is RLE with an extra parameter, **`bulk`** — the size of the group of bytes copied at once (`1` by default; `2` for 16-bit colour pixels). The algorithm reads a control byte and, based on it, either copies or repeats data:
+CRLE is RLE with an extra parameter, **`bulk`** — the size of the group of bytes copied at once (`1` by default; `2` for 16-bit color pixels). The algorithm reads a control byte and, based on it, either copies or repeats data:
 
 ```mermaid
 flowchart TD
@@ -44,23 +44,23 @@ flowchart TD
 
 ## CLZW2
 
-Despite its library name (`CLZWCompression2`), the algorithm is closer to **LZ77** than to classic LZW: there is no dynamic dictionary, and the stream consists of literal runs and **back-references** (distance + length) into already-decoded data. It additionally uses prefixes (nibbles) to distinguish symbol types, which optimises the encoding of different distance ranges.
+Despite its library name (`CLZWCompression2`), this is not a variant of LZW. Reverse-engineering the encoder in the DLL showed it to be specifically **LZO1X-1** — an LZ77-family algorithm, the same one used by the [LZO](https://www.oberhumer.com/opensource/lzo/) library by Markus F. X. J. Oberhumer. There is no dynamic dictionary; the stream consists of literal runs and **back-references** (distance + length) into already-decoded data. The symbol type is recognized by a prefix (the most significant bits of the control byte), which optimizes the encoding of different distance ranges.
 
 ### Header
 
-| Field | Type | Description |
-|---|---|---|
-| decoded length | `uint32` LE | size of the data after decompression |
-| encoded length | `uint32` LE | size of the compressed stream |
+The 8-byte header is a **container layer added by `CLZWCompression2`**, not part of LZO itself. All little-endian:
 
-The stream ends with an **ETX** marker: bytes `11 00 00`.
+| Offset | Field | Type | Description |
+|---|---|---|---|
+| `+0x00` | `originalSize` | `uint32` LE | size of the data after decompression |
+| `+0x04` | `compressedSize` | `uint32` LE | length of the raw LZO stream |
+| `+0x08` | data | … | raw **LZO1X** stream |
 
-!!! note "Upper limit"
-    With an 8-byte header (two `uint32`s) the maximum data size is `2³²` B (4 GiB) — unreachable in practice for game assets.
+The LZO stream itself ends with an **ETX** marker: bytes `11 00 00`.
 
 ### Symbols
 
-The symbol type is recognised by the **most significant nibble** of the control byte. After the first literal run, three classes of back-reference are available, optimised for different distance ranges:
+The symbol type is recognized by the **most significant nibble** of the control byte. After the first literal run, three classes of back-reference are available, optimized for different distance ranges:
 
 | Prefix (MSN) | Symbol | Distance range |
 |---|---|---|
@@ -89,7 +89,7 @@ flowchart TD
 
 ## Pixel decoding
 
-After decompression the colour data is still in **hi-color** format and must be expanded to RGBA8888. The colour bits are expanded by replicating the most significant bits:
+After decompression the color data is still in **hi-color** format and must be expanded to RGBA8888. The color bits are expanded by replicating the most significant bits:
 
 === "RGB565 (16 bits)"
 
@@ -109,7 +109,7 @@ After decompression the colour data is still in **hi-color** format and must be 
     b8 = (b5 << 3) | (b5 >> 2)
     ```
 
-The **alpha** channel is stored separately (one byte per pixel) and merged into each pixel after the colour is expanded. If the file has no alpha data, the pixels are fully opaque (`α = 255`).
+The **alpha** channel is stored separately (one byte per pixel) and merged into each pixel after the color is expanded. If the file has no alpha data, the pixels are fully opaque (`α = 255`).
 
 ## See also
 

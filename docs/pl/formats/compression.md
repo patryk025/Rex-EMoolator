@@ -1,6 +1,6 @@
 # Kompresja
 
-Dane graficzne silnika (obrazy [`IMG`](IMG.md), klatki [`ANN`](ANN.md)) bywają kompresowane jednym z dwóch algorytmów: **CRLE** (wariant RLE) oraz **CLZW2** (schemat z rodziny LZ77). Bywają też łączone. Typ kompresji zapisany jest w metadanych pliku.
+Dane graficzne silnika (obrazy [`IMG`](IMG.md), klatki [`ANN`](ANN.md)) bywają kompresowane jednym z dwóch algorytmów: **CRLE** (wariant RLE) oraz **CLZW2** (kodowanie **LZO1X** z rodziny LZ77). Bywają też łączone. Typ kompresji zapisany jest w metadanych pliku.
 
 !!! note "Tylko dekompresja"
     Rex-EMoolator (jak i ten opis) zajmuje się wyłącznie **odczytem**. Kompresja po stronie silnika nie jest reimplementowana — `CLZW2Compression.compress()` celowo rzuca wyjątek „Not implemented". Algorytm CLZW2 odtworzono na podstawie reverse-engineeringu autorstwa Dove6.
@@ -17,7 +17,7 @@ Wartości typu kompresji spotykane w nagłówkach plików:
 | `4` | CRLE (w `IMG` traktowane jak `0`) | `CRLE` |
 | `5` | JPEG | standardowy JPEG |
 
-!!! tip "Kwirk IMG"
+!!! tip "Dziwnostka IMG"
     W plikach [`IMG`](IMG.md) typ `4` jest normalizowany do `0` (brak kompresji), nie do CRLE. W [`ANN`](ANN.md) `4` oznacza CRLE.
 
 ## CRLE
@@ -44,19 +44,19 @@ flowchart TD
 
 ## CLZW2
 
-Wbrew nazwie z biblioteki (`CLZWCompression2`) algorytm bliższy jest **LZ77** niż klasycznemu LZW: nie ma dynamicznego słownika, a strumień składa się z ciągów dosłownych oraz **referencji wstecz** (odległość + długość) do już zdekodowanych danych. Dodatkowo używa prefiksów (nibble'i) do rozróżniania typów symboli, co optymalizuje kodowanie różnych zakresów odległości.
+Wbrew nazwie z biblioteki (`CLZWCompression2`) nie jest to wariant LZW. Reverse-engineering enkodera w DLL-u wykazał, że to konkretnie **LZO1X-1** — algorytm z rodziny LZ77, ten sam, którego używa biblioteka [LZO](https://www.oberhumer.com/opensource/lzo/) autorstwa Markusa F. X. J. Oberhumera. Nie ma w nim dynamicznego słownika; strumień składa się z ciągów dosłownych oraz **referencji wstecz** (odległość + długość) do już zdekodowanych danych. Typ symbolu rozpoznawany jest po prefiksie (najbardziej znaczących bitach bajtu sterującego), co optymalizuje kodowanie różnych zakresów odległości.
 
 ### Nagłówek
 
-| Pole | Typ | Opis |
-|---|---|---|
-| długość zdekodowana | `uint32` LE | rozmiar danych po dekompresji |
-| długość zakodowana | `uint32` LE | rozmiar skompresowanego strumienia |
+8-bajtowy nagłówek to **warstwa kontenera dokładana przez `CLZWCompression2`**, a nie część samego LZO. Wszystko little-endian:
 
-Strumień kończy się znacznikiem **ETX**: bajty `11 00 00`.
+| Offset | Pole | Typ | Opis |
+|---|---|---|---|
+| `+0x00` | `originalSize` | `uint32` LE | rozmiar danych po dekompresji |
+| `+0x04` | `compressedSize` | `uint32` LE | długość surowego strumienia LZO |
+| `+0x08` | dane | … | surowy strumień **LZO1X** |
 
-!!! note "Górny limit"
-    Przy 8-bajtowym nagłówku (dwa `uint32`) maksymalny rozmiar danych to `2³²` B (4 GiB) — w praktyce nieosiągalny dla zasobów gry.
+Sam strumień LZO kończy się znacznikiem **ETX**: bajty `11 00 00`.
 
 ### Symbole
 
