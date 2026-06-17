@@ -71,7 +71,8 @@ flowchart TD
     A["definitionContext (root)"] --> APP["Application"]
     APP --> EP["Episode"]
     EP --> SC["Scene"]
-    SC -. "widzi w górę" .-> EP -. .-> APP
+    SC -. "widzi w górę" .-> EP
+    EP -.-> APP
 ```
 
 Każdy `Context` zbudowany jest przez **kompozycję** wyspecjalizowanych części:
@@ -94,7 +95,7 @@ Reprezentacja danych w skryptach opiera się na **interfejsach zapieczętowanych
 
 - **`Variable`** — każdy typ skryptowy ([`INTEGER`](../reference/INTEGER.md), [`STRING`](../reference/STRING.md), [`ANIMO`](../reference/ANIMO.md), [`TIMER`](../reference/TIMER.md), …). Zmienne są **niemutowalne** — `withValue()` zwraca nową instancję (z wyjątkami stanu mutowalnego oznaczonego wewnętrznie, jak stan animacji czy timera).
 - **`Value`** — wartości prymitywne (`IntValue`, `DoubleValue`, `StringValue`, `BoolValue`) z metodami konwersji typów.
-- **`MethodSpec` / `MethodResult`** — deklaratywne definicje metod. Metoda zamiast bezpośrednio zmieniać świat zwraca **efekty** (np. `CloneEffect`, `AddBehaviourEffect`), które wykonuje runtime.
+- **`MethodSpec` / `MethodResult` / `MethodContext`** — deklaratywne definicje metod (`MethodSpec` opakowuje `VariableMethod`). Metoda dostaje **`MethodContext`** — widok na runtime (dostęp do zmiennych, instancji `Game`, uruchamianie behaviourów, rejestr klonów) — i przez niego zmienia świat bezpośrednio. `MethodResult` niesie wartość zwracaną oraz informację o przepływie sterowania (`BREAK` / `ONE_BREAK`) potrzebną do propagacji `@BREAK` / `@ONEBREAK` przez granice procedur.
 
 Skrypty parsowane są przez ANTLR do drzewa AST, które wykonuje `ASTInterpreter`. Składnię języka opisuje rozdział [Skrypty](../engine/scripts.md), a pełny spis typów — [Referencja typów](../reference/index.md).
 

@@ -71,7 +71,8 @@ flowchart TD
     A["definitionContext (root)"] --> APP["Application"]
     APP --> EP["Episode"]
     EP --> SC["Scene"]
-    SC -. "sees upward" .-> EP -. .-> APP
+    SC -. "sees upward" .-> EP
+    EP -.-> APP
 ```
 
 Each `Context` is built by **composition** of specialised parts:
@@ -94,7 +95,7 @@ Data representation in scripts is built on **sealed interfaces** with exhaustive
 
 - **`Variable`** — every scripting type ([`INTEGER`](../reference/INTEGER.md), [`STRING`](../reference/STRING.md), [`ANIMO`](../reference/ANIMO.md), [`TIMER`](../reference/TIMER.md), …). Variables are **immutable** — `withValue()` returns a new instance (with exceptions for internally-marked mutable state, such as animation or timer state).
 - **`Value`** — primitive values (`IntValue`, `DoubleValue`, `StringValue`, `BoolValue`) with type-conversion methods.
-- **`MethodSpec` / `MethodResult`** — declarative method definitions. Instead of mutating the world directly, a method returns **effects** (e.g. `CloneEffect`, `AddBehaviourEffect`) that the runtime executes.
+- **`MethodSpec` / `MethodResult` / `MethodContext`** — declarative method definitions (`MethodSpec` wraps a `VariableMethod`). A method receives a **`MethodContext`** — a view onto the runtime (access to variables, the `Game` instance, running behaviours, the clone registry) — and mutates the world directly through it. `MethodResult` carries the return value plus control-flow info (`BREAK` / `ONE_BREAK`) needed to propagate `@BREAK` / `@ONEBREAK` across procedure boundaries.
 
 Scripts are parsed by ANTLR into an AST, which is executed by `ASTInterpreter`. The language syntax is covered in [Scripts](../engine/scripts.md), and the full type list in the [Type reference](../reference/index.md).
 
