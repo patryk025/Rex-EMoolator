@@ -789,25 +789,6 @@ ANNREX^STOP(FALSE);
 ANNBLANK^STOP();
 ```
 
-### TOP
-
-```
-void TOP([BOOL flag])
-```
-
-Modifies how the animation is rendered relative to the scene's top layer. The exact behaviour depends on the current scene composition.
-
-**Parameters**
-
-- `flag` — (optional) a flag changing the rendering mode.
-
-**Examples**
-
-```
-ANNWAND0^TOP(FALSE);
-ANNHEAD0^TOP(FALSE);
-```
-
 ## Signals
 
 ### ONCLICK

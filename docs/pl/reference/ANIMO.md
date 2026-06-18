@@ -789,25 +789,6 @@ ANNREX^STOP(FALSE);
 ANNBLANK^STOP();
 ```
 
-### TOP
-
-```
-void TOP([BOOL flag])
-```
-
-Modyfikuje sposób renderowania animacji względem warstwy „wierzchu" sceny. Dokładne zachowanie zależne od bieżącej kompozycji sceny.
-
-**Parametry**
-
-- `flag` — (opcjonalnie) flaga modyfikująca tryb działania.
-
-**Przykłady**
-
-```
-ANNWAND0^TOP(FALSE);
-ANNHEAD0^TOP(FALSE);
-```
-
 ## Sygnały
 
 ### ONCLICK
