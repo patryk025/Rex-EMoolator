@@ -72,10 +72,10 @@ Lista jest niekompletna i będzie uzupełniana w miarę identyfikowania kolejnyc
 | **Edukacja XXI wieku**                                   |                                      |
 | Matematyka: Dodawanie i odejmowanie                      | Piklib 4.1                           |
 | Alfabet. Nauka czytania i pisania                        | Piklib 4.1                           |
-| **Other games featuring Rex**                            |                                      |
+| **Inne gry z Reksiem**                                   |                                      |
 | ABC z Reksiem                                            | Piklib 4.1, RPiklib (?)              |
 | Liczę z Reksiem                                          | Piklib 6.0                           |
 | Reksio i Ortografia                                      | Piklib 7.2                           |
 | Wesołe Przedszkole Reksia                                | Piklib 8                             |
-| **Other titles**                                         |                                      |
+| **Pozostałe tytuły**                                     |                                      |
 | Wielki Teleturniej Smoka Wawelskiego                     | Piklib 5.0                           |

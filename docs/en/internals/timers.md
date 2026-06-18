@@ -71,7 +71,7 @@ Some methods have behaviour that's easy to overlook — it was mirrored directly
 In `bloomoodll.dll` timers were driven by **Win32 multimedia timers** (`timeSetEvent`, classes `CXTimer`/`CTimerNotificator`), not by the render loop. Rex-EMoolator instead ticks them on the [engine clock](loop.md#engine-clock) at a `1/60 s` step. The tick logic itself, however, is the same.
 
 !!! quote "Confirmed by decompilation"
-    The `CMC_Timer::onTimer` method in the original library does exactly what's described above: it checks the "enabled" flag, increments the tick counter, disables the timer once the `TICKS` limit is reached, and then emits the parameterised `ONTICK^<count>` signal followed by `ONTICK`. So the logic described on this page mirrors the original's behaviour, not just the emulator's implementation.
+    The `CMC_Timer::onTimer` method in the original library does exactly what's described above: it checks the "enabled" flag, increments the tick counter, disables the timer once the `TICKS` limit is reached, and then emits the parameterised `ONTICK^<count>` signal followed by `ONTICK`.
 
 ## Related topics
 

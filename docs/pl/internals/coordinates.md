@@ -6,14 +6,21 @@ Wszystkie obiekty graficzne i interaktywne silnika żyją w jednym, stałym ukł
 
 Jednostką odniesienia jest **wirtualna kanwa 800×600 px** o stałym rozmiarze. Początek układu `(0, 0)` leży w **lewym górnym rogu**, a oś Y rośnie **w dół** — tak jak w większości API 2D z epoki.
 
-```
-(0,0) ────────────── x → 799
-  │  ┌───────────┐
-  │  │  ▢ obiekt  │
-  y  └───────────┘
-  ↓
- 599
-```
+<svg viewBox="0 0 340 210" role="img" aria-label="Wirtualna kanwa 800×600: początek w lewym górnym rogu, oś X w prawo, oś Y w dół" xmlns="http://www.w3.org/2000/svg" style="max-width:340px;width:100%;height:auto">
+  <defs>
+    <marker id="ah-canvas" markerWidth="8" markerHeight="8" refX="5" refY="3" orient="auto">
+      <path d="M0,0 L6,3 L0,6 Z" fill="currentColor"/>
+    </marker>
+  </defs>
+  <rect x="50" y="30" width="240" height="150" fill="currentColor" fill-opacity="0.04" stroke="currentColor" stroke-opacity="0.35"/>
+  <line x1="50" y1="30" x2="305" y2="30" stroke="currentColor" stroke-width="1.5" marker-end="url(#ah-canvas)"/>
+  <line x1="50" y1="30" x2="50" y2="195" stroke="currentColor" stroke-width="1.5" marker-end="url(#ah-canvas)"/>
+  <rect x="120" y="78" width="84" height="50" rx="3" fill="currentColor" fill-opacity="0.12" stroke="currentColor" stroke-opacity="0.65"/>
+  <text x="162" y="107" font-size="11" fill="currentColor" text-anchor="middle">obiekt</text>
+  <text x="45" y="26" font-size="11" fill="currentColor" text-anchor="end">(0,0)</text>
+  <text x="305" y="22" font-size="11" fill="currentColor" text-anchor="end">x → 799</text>
+  <text x="58" y="196" font-size="11" fill="currentColor">y ↓ 599</text>
+</svg>
 
 Wszystkie współrzędne na poziomie skryptu — `SETPOSITION`, `GETPOSITIONX`, pozycja myszy, `RECT` przycisku — wyrażone są w tym układzie. To, że renderer odbija oś Y przy rysowaniu (LibGDX ma początek w lewym dolnym rogu), jest wyłącznie szczegółem implementacyjnym i nie ujawnia się w skryptach — patrz [odbicie osi Y](rendering.md#uklad-wspolrzednych-i-odbicie-osi-y).
 

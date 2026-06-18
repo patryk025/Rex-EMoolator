@@ -27,8 +27,8 @@ Najważniejsza decyzja projektowa pętli: **wejście i renderowanie biegną z pr
 !!! info "Dlaczego nie po prostu `deltaTime`?"
     Stały krok daje **determinizm i powtarzalność** — stan gry ewoluuje identycznie niezależnie od liczby klatek na sekundę, co ułatwia testy i odtwarzanie błędów. Gdyby Rex-EMoolator aktualizował stan wprost o zmienny `deltaTime` klatki, animacje i timery rozjeżdżałyby się na szybszym i wolniejszym sprzęcie.
 
-!!! quote "A jak robił to oryginał?"
-    Inaczej, niż mogłoby się wydawać. Dekompilacja `bloomoodll.dll` pokazuje, że silnik mierzył **realny czas każdej klatki** zegarem wysokiej rozdzielczości (`QueryPerformanceCounter`, klasa `CHiResTimer` — globalne `appTime`, `frameTime`, `fps`) i posuwał logikę o tę **zmienną deltę**. Zaplanowane zdarzenia i skryptowe [timery](timers.md) obsługiwał osobny mechanizm multimedialnych timerów Win32 (`timeSetEvent`, klasy `CXTimer`/`CTimerNotificator`). Stały krok 60 Hz to więc **świadoma decyzja emulatora** dla determinizmu, a nie odtworzenie sztywnego ticka — oryginał takiego nie miał.
+!!! quote "Jak robił to oryginał"
+    Oryginał działał inaczej. Dekompilacja `bloomoodll.dll` pokazuje, że silnik mierzył **realny czas każdej klatki** zegarem wysokiej rozdzielczości (`QueryPerformanceCounter`, klasa `CHiResTimer` — globalne `appTime`, `frameTime`, `fps`) i posuwał logikę o tę **zmienną deltę**. Zaplanowane zdarzenia i skryptowe [timery](timers.md) obsługiwał osobny mechanizm multimedialnych timerów Win32 (`timeSetEvent`, klasy `CXTimer`/`CTimerNotificator`). Stały krok 60 Hz to więc **świadoma decyzja emulatora** dla determinizmu, a nie odtworzenie zachowania oryginału, który sztywnego ticka nie miał.
 
 Realizuje to klasyczny **akumulator** (wzorzec *„Fix Your Timestep!"*): czas każdej klatki dokładany jest do akumulatora, z którego silnik „wypłaca" pełne kroki po `1/60 s`.
 

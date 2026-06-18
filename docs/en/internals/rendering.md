@@ -46,21 +46,44 @@ screenY = 600 - top - height   // (1)
 
 === "Engine space (scripts)"
 
-    ```
-    (0,0) ┌──────────────┐
-          │  ▢ top=50     │   Y grows down
-          │               │
-          └──────────────┘ (800,600)
-    ```
+    <svg viewBox="0 0 340 210" role="img" aria-label="Engine space: origin in the top-left corner, Y axis grows downward" xmlns="http://www.w3.org/2000/svg" style="max-width:340px;width:100%;height:auto">
+      <defs>
+        <marker id="ah-eng" markerWidth="8" markerHeight="8" refX="5" refY="3" orient="auto">
+          <path d="M0,0 L6,3 L0,6 Z" fill="currentColor"/>
+        </marker>
+      </defs>
+      <rect x="50" y="30" width="240" height="150" fill="currentColor" fill-opacity="0.04" stroke="currentColor" stroke-opacity="0.35"/>
+      <line x1="50" y1="30" x2="305" y2="30" stroke="currentColor" stroke-width="1.5" marker-end="url(#ah-eng)"/>
+      <line x1="50" y1="30" x2="50" y2="195" stroke="currentColor" stroke-width="1.5" marker-end="url(#ah-eng)"/>
+      <line x1="110" y1="30" x2="110" y2="62" stroke="currentColor" stroke-opacity="0.5" stroke-dasharray="3 3"/>
+      <rect x="110" y="62" width="74" height="46" rx="3" fill="currentColor" fill-opacity="0.12" stroke="currentColor" stroke-opacity="0.65"/>
+      <text x="147" y="89" font-size="11" fill="currentColor" text-anchor="middle">object</text>
+      <text x="106" y="50" font-size="11" fill="currentColor" text-anchor="end">top=50</text>
+      <text x="45" y="26" font-size="11" fill="currentColor" text-anchor="end">(0,0)</text>
+      <text x="305" y="22" font-size="11" fill="currentColor" text-anchor="end">x → 799</text>
+      <text x="58" y="196" font-size="11" fill="currentColor">y ↓ 599</text>
+    </svg>
 
 === "Renderer space (LibGDX)"
 
-    ```
-    (0,600) ┌──────────────┐
-            │               │   Y grows up
-            │  ▢ y=600-50-h │
-      (0,0) └──────────────┘ (800,0)
-    ```
+    <svg viewBox="0 0 340 210" role="img" aria-label="Renderer space (LibGDX): origin in the bottom-left corner, Y axis grows upward" xmlns="http://www.w3.org/2000/svg" style="max-width:340px;width:100%;height:auto">
+      <defs>
+        <marker id="ah-gdx" markerWidth="8" markerHeight="8" refX="5" refY="3" orient="auto">
+          <path d="M0,0 L6,3 L0,6 Z" fill="currentColor"/>
+        </marker>
+      </defs>
+      <rect x="50" y="30" width="240" height="150" fill="currentColor" fill-opacity="0.04" stroke="currentColor" stroke-opacity="0.35"/>
+      <line x1="50" y1="180" x2="305" y2="180" stroke="currentColor" stroke-width="1.5" marker-end="url(#ah-gdx)"/>
+      <line x1="50" y1="180" x2="50" y2="15" stroke="currentColor" stroke-width="1.5" marker-end="url(#ah-gdx)"/>
+      <rect x="110" y="118" width="74" height="46" rx="3" fill="currentColor" fill-opacity="0.12" stroke="currentColor" stroke-opacity="0.65"/>
+      <text x="147" y="145" font-size="11" fill="currentColor" text-anchor="middle">object</text>
+      <text x="45" y="28" font-size="11" fill="currentColor" text-anchor="end">(0,600)</text>
+      <text x="45" y="184" font-size="11" fill="currentColor" text-anchor="end">(0,0)</text>
+      <text x="298" y="196" font-size="11" fill="currentColor" text-anchor="end">(800,0)</text>
+      <text x="305" y="172" font-size="11" fill="currentColor" text-anchor="end">x → 799</text>
+      <text x="58" y="24" font-size="11" fill="currentColor">y ↑ 599</text>
+      <text x="194" y="145" font-size="11" fill="currentColor">y = 600−top−h</text>
+    </svg>
 
 !!! tip "Practical upshot"
     In scripts and in the [type reference](../reference/index.md) all coordinates are in engine space (top-left origin). The flip is purely a renderer implementation detail — it does not surface at the script level.
@@ -144,8 +167,8 @@ The original Piklib/BlooMoo is a turn-of-the-century engine running on 32-bit Wi
     - **Hi-color** surfaces: RGB565 or RGB555 (15/16 bits) — follows from the [`IMG`/`ANN` formats](../formats/index.md).
     - A fixed **800×600** canvas.
 
-!!! quote "How we know this"
-    The above was **confirmed by decompiling `bloomoodll.dll`** (Ghidra): the `DirectDrawCreateEx` import, the classes `CDirectDrawSurface`, `CSurface::Flip`, `CRefreshScreen` with `CValidationQuene`/`CInvalidateObserver`, and blits taking a `CXRect*`. The RGB565/555 colour depth and the 800×600 canvas follow from the [asset formats](../formats/index.md) and engine constants. This is no longer a reconstruction — it's a model read straight out of the original library.
+!!! quote "Confirmed by decompilation"
+    The above was **confirmed by decompiling `bloomoodll.dll`** (Ghidra): the `DirectDrawCreateEx` import, the classes `CDirectDrawSurface`, `CSurface::Flip`, `CRefreshScreen` with `CValidationQuene`/`CInvalidateObserver`, and blits taking a `CXRect*`. The RGB565/555 colour depth and the 800×600 canvas follow from the [asset formats](../formats/index.md) and engine constants.
 
 The key conceptual difference: the original saved work by redrawing and blitting **only the dirty rectangles**, whereas Rex-EMoolator redraws the **whole canvas** every frame and leaves optimisation to the GPU. On today's hardware a full 800×600 redraw is cheaper than bookkeeping dirty regions, and the code is much simpler for it.
 

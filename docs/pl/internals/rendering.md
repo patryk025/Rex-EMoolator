@@ -46,21 +46,44 @@ screenY = 600 - top - height   // (1)
 
 === "Układ silnika (skrypty)"
 
-    ```
-    (0,0) ┌──────────────┐
-          │  ▢ top=50     │   Y rośnie w dół
-          │               │
-          └──────────────┘ (800,600)
-    ```
+    <svg viewBox="0 0 340 210" role="img" aria-label="Układ silnika: początek w lewym górnym rogu, oś Y rośnie w dół" xmlns="http://www.w3.org/2000/svg" style="max-width:340px;width:100%;height:auto">
+      <defs>
+        <marker id="ah-eng" markerWidth="8" markerHeight="8" refX="5" refY="3" orient="auto">
+          <path d="M0,0 L6,3 L0,6 Z" fill="currentColor"/>
+        </marker>
+      </defs>
+      <rect x="50" y="30" width="240" height="150" fill="currentColor" fill-opacity="0.04" stroke="currentColor" stroke-opacity="0.35"/>
+      <line x1="50" y1="30" x2="305" y2="30" stroke="currentColor" stroke-width="1.5" marker-end="url(#ah-eng)"/>
+      <line x1="50" y1="30" x2="50" y2="195" stroke="currentColor" stroke-width="1.5" marker-end="url(#ah-eng)"/>
+      <line x1="110" y1="30" x2="110" y2="62" stroke="currentColor" stroke-opacity="0.5" stroke-dasharray="3 3"/>
+      <rect x="110" y="62" width="74" height="46" rx="3" fill="currentColor" fill-opacity="0.12" stroke="currentColor" stroke-opacity="0.65"/>
+      <text x="147" y="89" font-size="11" fill="currentColor" text-anchor="middle">obiekt</text>
+      <text x="106" y="50" font-size="11" fill="currentColor" text-anchor="end">top=50</text>
+      <text x="45" y="26" font-size="11" fill="currentColor" text-anchor="end">(0,0)</text>
+      <text x="305" y="22" font-size="11" fill="currentColor" text-anchor="end">x → 799</text>
+      <text x="58" y="196" font-size="11" fill="currentColor">y ↓ 599</text>
+    </svg>
 
 === "Układ renderera (LibGDX)"
 
-    ```
-    (0,600) ┌──────────────┐
-            │               │   Y rośnie w górę
-            │  ▢ y=600-50-h │
-      (0,0) └──────────────┘ (800,0)
-    ```
+    <svg viewBox="0 0 340 210" role="img" aria-label="Układ renderera LibGDX: początek w lewym dolnym rogu, oś Y rośnie w górę" xmlns="http://www.w3.org/2000/svg" style="max-width:340px;width:100%;height:auto">
+      <defs>
+        <marker id="ah-gdx" markerWidth="8" markerHeight="8" refX="5" refY="3" orient="auto">
+          <path d="M0,0 L6,3 L0,6 Z" fill="currentColor"/>
+        </marker>
+      </defs>
+      <rect x="50" y="30" width="240" height="150" fill="currentColor" fill-opacity="0.04" stroke="currentColor" stroke-opacity="0.35"/>
+      <line x1="50" y1="180" x2="305" y2="180" stroke="currentColor" stroke-width="1.5" marker-end="url(#ah-gdx)"/>
+      <line x1="50" y1="180" x2="50" y2="15" stroke="currentColor" stroke-width="1.5" marker-end="url(#ah-gdx)"/>
+      <rect x="110" y="118" width="74" height="46" rx="3" fill="currentColor" fill-opacity="0.12" stroke="currentColor" stroke-opacity="0.65"/>
+      <text x="147" y="145" font-size="11" fill="currentColor" text-anchor="middle">obiekt</text>
+      <text x="45" y="28" font-size="11" fill="currentColor" text-anchor="end">(0,600)</text>
+      <text x="45" y="184" font-size="11" fill="currentColor" text-anchor="end">(0,0)</text>
+      <text x="298" y="196" font-size="11" fill="currentColor" text-anchor="end">(800,0)</text>
+      <text x="305" y="172" font-size="11" fill="currentColor" text-anchor="end">x → 799</text>
+      <text x="58" y="24" font-size="11" fill="currentColor">y ↑ 599</text>
+      <text x="194" y="145" font-size="11" fill="currentColor">y = 600−top−h</text>
+    </svg>
 
 !!! tip "Skutek praktyczny"
     W skryptach i w [referencji typów](../reference/index.md) wszystkie współrzędne podawane są w układzie silnika (lewy górny róg). Odbicie jest wyłącznie szczegółem implementacyjnym renderera — nie ujawnia się na poziomie skryptu.
@@ -144,8 +167,8 @@ Oryginalny Piklib/BlooMoo to silnik z przełomu wieków, działający na 32-bito
     - Powierzchnie w trybie **hi-color**: RGB565 lub RGB555 (15/16 bitów) — wynika z [formatów `IMG`/`ANN`](../formats/index.md).
     - Stała kanwa **800×600**.
 
-!!! quote "Skąd to wiemy"
-    Powyższe **potwierdzono dekompilacją `bloomoodll.dll`** (Ghidra): import `DirectDrawCreateEx`, klasy `CDirectDrawSurface`, `CSurface::Flip`, `CRefreshScreen` z `CValidationQuene`/`CInvalidateObserver` oraz blity przyjmujące `CXRect*`. Głębia kolorów RGB565/555 i kanwa 800×600 wynikają z [formatów zasobów](../formats/index.md) i stałych silnika. To już nie rekonstrukcja — to model odczytany z biblioteki oryginału.
+!!! quote "Potwierdzone dekompilacją"
+    Powyższe **potwierdzono dekompilacją `bloomoodll.dll`** (Ghidra): import `DirectDrawCreateEx`, klasy `CDirectDrawSurface`, `CSurface::Flip`, `CRefreshScreen` z `CValidationQuene`/`CInvalidateObserver` oraz blity przyjmujące `CXRect*`. Głębia kolorów RGB565/555 i kanwa 800×600 wynikają z [formatów zasobów](../formats/index.md) i stałych silnika.
 
 Najważniejsza różnica koncepcyjna: oryginał oszczędzał pracę, przerysowując i blitując **tylko nieczyste prostokąty**, podczas gdy Rex-EMoolator przerysowuje **całą kanwę** co klatkę i pozostawia optymalizację GPU. Na dzisiejszym sprzęcie pełne przerysowanie 800×600 jest tańsze niż księgowanie nieczystych regionów, a kod jest dzięki temu znacznie prostszy.
 

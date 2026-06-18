@@ -14,6 +14,9 @@ INTEGER SIZE
 
 The number of vector components. Typical values in shipping games are `2` or `3`.
 
+!!! note "SIZE governs the scope of calculations"
+    The arithmetic methods — [`ADD`](#add), [`MUL`](#mul), [`NORMALIZE`](#normalize), and [`REFLECT`](#reflect) — operate on **exactly `SIZE`** components: missing ones are treated as `0`, and components beyond `SIZE` (e.g. added by [`ASSIGN`](#assign)) are **ignored**. [`LEN`](#len) and the variable's value (Euclidean length), on the other hand, are computed over **all** stored components. These two sets can drift apart — see the note under [`ASSIGN`](#assign).
+
 ### VALUE
 
 ```
@@ -49,7 +52,10 @@ VTEMP2^ADD(VTOCENTER);
 void ASSIGN(DOUBLE x1, DOUBLE x2, [DOUBLE...])
 ```
 
-Assigns new component values. The number of arguments dictates how many components are overwritten — any beyond that retain their previous values. If more arguments are supplied than the vector has components, the vector is extended.
+Assigns new component values. The number of arguments dictates how many components are overwritten — any beyond that retain their previous values. If more arguments are supplied than the vector currently has stored, the value list is extended.
+
+!!! warning "ASSIGN does not change SIZE"
+    `ASSIGN` writes (and, if needed, appends) **values**, but does **not update the [`SIZE`](#size) field**. Assigning more arguments than `SIZE` leaves the extra components outside the scope of calculations: they are visible through [`GET`](#get) and counted by [`LEN`](#len)/length, but [`ADD`](#add), [`MUL`](#mul), [`NORMALIZE`](#normalize), and [`REFLECT`](#reflect) still cover only the first `SIZE` components. To include them, set `SIZE` correctly up front in the object definition.
 
 **Parameters**
 
@@ -136,6 +142,9 @@ void REFLECT(STRING|VECTOR normalVector, STRING|VECTOR resultVector)
 ```
 
 Reflects this vector about the given normal vector and writes the result into the result vector. The original vector is unchanged.
+
+!!! warning "REFLECT returns the reflection with a flipped sign"
+    For an incident vector `d` (this vector) and a normal `n`, the engine computes `result = 2·(d·n)·n − d`, i.e. the **negation** of the standard reflection formula `d − 2·(d·n)·n`. In practice the returned vector points in the **opposite** direction to the textbook reflection (this mirrors the original engine's behaviour). If you need a "normal" reflection, flip the result with [`MUL(-1)`](#mul). The normal should be **normalised** ([`NORMALIZE`](#normalize)) — the formula assumes unit length. The computation covers [`SIZE`](#size) components of this vector.
 
 **Parameters**
 

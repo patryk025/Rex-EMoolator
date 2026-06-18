@@ -6,14 +6,21 @@ Every graphical and interactive object in the engine lives in one fixed coordina
 
 The reference unit is a **fixed 800×600 px virtual canvas**. The origin `(0, 0)` is in the **top-left corner**, and the Y axis grows **downward** — as in most 2D APIs of the era.
 
-```
-(0,0) ────────────── x → 799
-  │  ┌───────────┐
-  │  │  ▢ object  │
-  y  └───────────┘
-  ↓
- 599
-```
+<svg viewBox="0 0 340 210" role="img" aria-label="Virtual 800×600 canvas: origin in the top-left corner, X axis to the right, Y axis downward" xmlns="http://www.w3.org/2000/svg" style="max-width:340px;width:100%;height:auto">
+  <defs>
+    <marker id="ah-canvas" markerWidth="8" markerHeight="8" refX="5" refY="3" orient="auto">
+      <path d="M0,0 L6,3 L0,6 Z" fill="currentColor"/>
+    </marker>
+  </defs>
+  <rect x="50" y="30" width="240" height="150" fill="currentColor" fill-opacity="0.04" stroke="currentColor" stroke-opacity="0.35"/>
+  <line x1="50" y1="30" x2="305" y2="30" stroke="currentColor" stroke-width="1.5" marker-end="url(#ah-canvas)"/>
+  <line x1="50" y1="30" x2="50" y2="195" stroke="currentColor" stroke-width="1.5" marker-end="url(#ah-canvas)"/>
+  <rect x="120" y="78" width="84" height="50" rx="3" fill="currentColor" fill-opacity="0.12" stroke="currentColor" stroke-opacity="0.65"/>
+  <text x="162" y="107" font-size="11" fill="currentColor" text-anchor="middle">object</text>
+  <text x="45" y="26" font-size="11" fill="currentColor" text-anchor="end">(0,0)</text>
+  <text x="305" y="22" font-size="11" fill="currentColor" text-anchor="end">x → 799</text>
+  <text x="58" y="196" font-size="11" fill="currentColor">y ↓ 599</text>
+</svg>
 
 All coordinates at the script level — `SETPOSITION`, `GETPOSITIONX`, mouse position, a button's `RECT` — are expressed in this system. The fact that the renderer flips the Y axis when drawing (LibGDX has its origin in the bottom-left corner) is purely an implementation detail and does not surface in scripts — see [the Y-axis flip](rendering.md#coordinate-system-and-y-axis-flip).
 

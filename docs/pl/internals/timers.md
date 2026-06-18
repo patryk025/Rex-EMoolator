@@ -71,7 +71,7 @@ Część metod ma zachowanie, które łatwo przeoczyć — zostało ono odwzorow
 W `bloomoodll.dll` timery napędzane były **multimedialnymi timerami Win32** (`timeSetEvent`, klasy `CXTimer`/`CTimerNotificator`), a nie pętlą renderowania. Rex-EMoolator tyka je zamiast tego na [zegarze silnika](loop.md#zegar-silnika) w kroku `1/60 s`. Sama logika tyknięcia jest jednak ta sama.
 
 !!! quote "Potwierdzone dekompilacją"
-    Metoda `CMC_Timer::onTimer` w oryginalnej bibliotece robi dokładnie to, co opisano wyżej: sprawdza flagę „włączony", inkrementuje licznik tyknięć, wyłącza timer po osiągnięciu limitu `TICKS`, a następnie emituje sparametryzowany sygnał `ONTICK^<licznik>` oraz `ONTICK`. Opis logiki na tej stronie jest więc odwzorowaniem zachowania oryginału, a nie tylko implementacji emulatora.
+    Metoda `CMC_Timer::onTimer` w oryginalnej bibliotece robi dokładnie to, co opisano wyżej: sprawdza flagę „włączony", inkrementuje licznik tyknięć, wyłącza timer po osiągnięciu limitu `TICKS`, a następnie emituje sparametryzowany sygnał `ONTICK^<licznik>` oraz `ONTICK`.
 
 ## Powiązane tematy
 

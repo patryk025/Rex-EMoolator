@@ -27,8 +27,8 @@ The loop's key design decision: **input and rendering run at the monitor's frame
 !!! info "Why not just `deltaTime`?"
     A fixed step gives **determinism and reproducibility** — game state evolves identically regardless of frame rate, which makes tests and bug reproduction easier. If Rex-EMoolator advanced state directly by the frame's variable `deltaTime`, animations and timers would drift apart on faster and slower hardware.
 
-!!! quote "And how did the original do it?"
-    Differently than you might expect. Decompilation of `bloomoodll.dll` shows the engine measured the **real time of each frame** with a high-resolution clock (`QueryPerformanceCounter`, class `CHiResTimer` — globals `appTime`, `frameTime`, `fps`) and advanced logic by that **variable delta**. Scheduled events and script [timers](timers.md) were handled by a separate Win32 multimedia-timer mechanism (`timeSetEvent`, classes `CXTimer`/`CTimerNotificator`). The fixed 60 Hz step is therefore a **deliberate emulator choice** for determinism, not a recreation of a rigid tick — the original had none.
+!!! quote "How the original did it"
+    The original worked differently. Decompilation of `bloomoodll.dll` shows the engine measured the **real time of each frame** with a high-resolution clock (`QueryPerformanceCounter`, class `CHiResTimer` — globals `appTime`, `frameTime`, `fps`) and advanced logic by that **variable delta**. Scheduled events and script [timers](timers.md) were handled by a separate Win32 multimedia-timer mechanism (`timeSetEvent`, classes `CXTimer`/`CTimerNotificator`). The fixed 60 Hz step is therefore a **deliberate emulator choice** for determinism, rather than a recreation of the original's behaviour, which had no rigid tick.
 
 This is implemented by the classic **accumulator** (the *"Fix Your Timestep!"* pattern): each frame's time is added to an accumulator, from which the engine "pays out" full `1/60 s` steps.
 

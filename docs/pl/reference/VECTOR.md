@@ -14,6 +14,9 @@ INTEGER SIZE
 
 Liczba współrzędnych wektora. Wartości w grach to zwykle `2` lub `3`.
 
+!!! note "SIZE wyznacza zakres obliczeń"
+    Metody arytmetyczne — [`ADD`](#add), [`MUL`](#mul), [`NORMALIZE`](#normalize) i [`REFLECT`](#reflect) — działają na **dokładnie `SIZE`** współrzędnych: brakujące traktują jak `0`, a współrzędne ponad `SIZE` (np. dodane przez [`ASSIGN`](#assign)) **pomijają**. Z kolei [`LEN`](#len) oraz wartość zmiennej (długość euklidesowa) liczą się po **wszystkich** faktycznie zapisanych współrzędnych. Te dwa zbiory mogą się rozjechać — patrz uwaga przy [`ASSIGN`](#assign).
+
 ### VALUE
 
 ```
@@ -49,7 +52,10 @@ VTEMP2^ADD(VTOCENTER);
 void ASSIGN(DOUBLE x1, DOUBLE x2, [DOUBLE...])
 ```
 
-Przypisuje wektorowi nowe wartości współrzędnych. Liczba argumentów wyznacza, ile współrzędnych zostanie nadpisanych — pozostałe (jeśli wektor był większy) zachowują swoje wcześniejsze wartości. Jeśli liczba argumentów przekracza bieżącą długość wektora, wektor zostaje rozszerzony.
+Przypisuje wektorowi nowe wartości współrzędnych. Liczba argumentów wyznacza, ile współrzędnych zostanie nadpisanych — pozostałe (jeśli wektor był większy) zachowują swoje wcześniejsze wartości. Jeśli liczba argumentów przekracza bieżącą liczbę zapisanych współrzędnych, lista wartości zostaje rozszerzona.
+
+!!! warning "ASSIGN nie zmienia SIZE"
+    `ASSIGN` zapisuje (i w razie potrzeby dokłada) **wartości**, ale **nie aktualizuje pola [`SIZE`](#size)**. Przypisanie większej liczby argumentów niż `SIZE` zostawia nadmiarowe współrzędne poza zakresem obliczeń: będą one widoczne przez [`GET`](#get) i wliczane do [`LEN`](#len)/długości, ale [`ADD`](#add), [`MUL`](#mul), [`NORMALIZE`](#normalize) i [`REFLECT`](#reflect) nadal obejmą tylko pierwsze `SIZE` współrzędnych. Aby je uwzględnić, `SIZE` trzeba ustawić od razu poprawnie podczas definicji obiektu.
 
 **Parametry**
 
@@ -136,6 +142,9 @@ void REFLECT(STRING|VECTOR normalVector, STRING|VECTOR resultVector)
 ```
 
 Oblicza odbicie bieżącego wektora względem wektora normalnego i zapisuje wynik do wektora docelowego. Bieżący wektor pozostaje niezmieniony.
+
+!!! warning "REFLECT zwraca odbicie z odwróconym znakiem"
+    Dla wektora padającego `d` (bieżący) i normalnej `n` silnik liczy `wynik = 2·(d·n)·n − d`, czyli **negację** klasycznego wzoru na odbicie `d − 2·(d·n)·n`. W praktyce zwrócony wektor jest skierowany **przeciwnie** do podręcznikowego odbicia (odwzorowuje to zachowanie oryginalnego silnika). Jeśli potrzebujesz „zwykłego" odbicia, odwróć wynik [`MUL(-1)`](#mul). Normalna powinna być **znormalizowana** ([`NORMALIZE`](#normalize)) — wzór zakłada długość `1`. Obliczenie obejmuje [`SIZE`](#size) współrzędnych bieżącego wektora.
 
 **Parametry**
 
