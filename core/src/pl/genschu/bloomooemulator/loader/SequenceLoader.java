@@ -8,12 +8,7 @@ import pl.genschu.bloomooemulator.interpreter.variable.SequenceVariable;
 import pl.genschu.bloomooemulator.interpreter.variable.SoundVariable;
 import pl.genschu.bloomooemulator.interpreter.variable.Variable;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.StringReader;
+import java.io.*;
 import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.Map;
@@ -25,32 +20,18 @@ public final class SequenceLoader {
     private SequenceLoader() {}
 
     public static void load(SequenceVariable sequenceVariable, InputStream stream, Context context) throws IOException {
-        try (BufferedReader reader = new BufferedReader(new InputStreamReader(stream, Charset.defaultCharset()))) {
-            String line;
-            StringBuilder content = new StringBuilder();
-            boolean decipher = false;
-            int offset = 0;
-
-            while ((line = reader.readLine()) != null) {
-                if (line.startsWith("{<")) {
-                    String[] tmpParam = line.replace("{<", "").replace(">}", "").split(":");
-                    offset = Integer.parseInt(tmpParam[1]);
-                    if (tmpParam[0].equalsIgnoreCase("D")) {
-                        offset *= -1;
-                    }
-                    decipher = true;
-                } else {
-                    content.append(line).append("\n");
-                }
-            }
-
-            if (decipher) {
-                Gdx.app.log("SequenceLoader", "Deciphering " + sequenceVariable.getFilename() + "...");
-                parseString(ScriptDecypher.decode(content.toString(), offset), sequenceVariable, context);
-            } else {
-                parseString(content.toString(), sequenceVariable, context);
-            }
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        byte[] buffer = new byte[8192];
+        int r;
+        while ((r = stream.read(buffer)) != -1) {
+            baos.write(buffer, 0, r);
         }
+        byte[] bytes = baos.toByteArray();
+
+        if (ScriptDecypher.isEncrypted(bytes)) {
+            Gdx.app.log("SequenceLoader", "Deciphering " + sequenceVariable.getFilename() + "...");
+        }
+        parseString(ScriptDecypher.decypherIfNeeded(bytes), sequenceVariable, context);
     }
 
     private static void parseString(String string, SequenceVariable sequenceVariable, Context context) throws IOException {

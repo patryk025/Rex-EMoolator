@@ -117,3 +117,7 @@ Thumbs.db
 out/
 exported_graphics/
 storage
+
+## MkDocs
+.venv_docs/
+/site/

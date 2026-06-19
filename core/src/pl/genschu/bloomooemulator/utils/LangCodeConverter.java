@@ -11,11 +11,14 @@ public class LangCodeConverter {
         // Codes used in original engine
         lcidToIsoMap.put("0402", "bul"); // bg - Bulgarian
         lcidToIsoMap.put("0405", "cze"); // cs - Czech
+        lcidToIsoMap.put("0407", "niem"); // de - German
         lcidToIsoMap.put("040E", "hun"); // hu - Hungarian
         lcidToIsoMap.put("0415", "pol"); // pl - Polish
         lcidToIsoMap.put("0418", "rom"); // ro - Romanian
         lcidToIsoMap.put("0419", "rus"); // ru - Russian
         lcidToIsoMap.put("041B", "slo"); // sk - Slovak
+        lcidToIsoMap.put("0807", "niem"); // de-ch - German (Switzerland)
+        lcidToIsoMap.put("0C07", "niem"); // de-at - German (Austria)
 
         // Other codes unused in original engine, just in case
         lcidToIsoMap.put("0001", "ara"); // ar - Arabic
@@ -25,7 +28,6 @@ public class LangCodeConverter {
         lcidToIsoMap.put("0403", "cat"); // ca - Catalan
         lcidToIsoMap.put("0404", "zho"); // zh-tw - Chinese (Taiwan)
         lcidToIsoMap.put("0406", "dan"); // da - Danish
-        lcidToIsoMap.put("0407", "deu"); // de - German
         lcidToIsoMap.put("0408", "ell"); // el - Modern Greek
         lcidToIsoMap.put("0409", "eng"); // en-us - English (United States)
         lcidToIsoMap.put("040A", "spa"); // es - Spanish
@@ -72,7 +74,6 @@ public class LangCodeConverter {
         lcidToIsoMap.put("043E", "msa"); // ms - Malay (macrolanguage)
         lcidToIsoMap.put("0801", "ara"); // ar-iq - Arabic (Iraq)
         lcidToIsoMap.put("0804", "zho"); // zh-cn - Chinese (China)
-        lcidToIsoMap.put("0807", "deu"); // de-ch - German (Switzerland)
         lcidToIsoMap.put("0809", "eng"); // en-gb - English (United Kingdom)
         lcidToIsoMap.put("080A", "spa"); // es-mx - Spanish (Mexico)
         lcidToIsoMap.put("080C", "fra"); // fr-be - French (Belgium)
@@ -86,7 +87,6 @@ public class LangCodeConverter {
         lcidToIsoMap.put("081D", "swe"); // sv-fi - Swedish (Finland)
         lcidToIsoMap.put("0C01", "ara"); // ar-eg - Arabic (Egypt)
         lcidToIsoMap.put("0C04", "zho"); // zh-hk - Chinese (Hong Kong)
-        lcidToIsoMap.put("0C07", "deu"); // de-at - German (Austria)
         lcidToIsoMap.put("0C09", "eng"); // en-au - English (Australia)
         lcidToIsoMap.put("0C0A", "spa"); // es - Spanish
         lcidToIsoMap.put("0C0C", "fra"); // fr-ca - French (Canada)
