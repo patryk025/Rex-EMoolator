@@ -21,9 +21,6 @@ public class BlooMooEngine extends ApplicationAdapter {
     private static final float VIRTUAL_WIDTH = 800;
     private static final float VIRTUAL_HEIGHT = 600;
 
-    // Original BlooMooDLL ticked gameplay every 16 ms on a dedicated thread.
-    // We emulate that grid with a fixed-step accumulator so the script clock
-    // doesn't slow down when render FPS drops.
     private static final float TICK = 1f / 60f;
     private static final int MAX_STEPS = 5;
 
