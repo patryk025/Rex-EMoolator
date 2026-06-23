@@ -7,9 +7,9 @@ on:
       - feat/**
       - perf/**
 
-# check needed permissions for commenting on commits
+# github-action-benchmark pushes history to gh-pages and comments on regressions
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   jmh-benchmarks:
@@ -41,8 +41,16 @@ jobs:
       - name: Generate Markdown report from JMH JSON
         run: |
           python core/jmh_to_md.py core/build/reports/jmh/results.json > core/build/reports/jmh/results.md
-          echo "=== JMH Markdown Summary ==="
-          cat core/build/reports/jmh/results.md
+          {
+            echo "## JMH Benchmark Summary"
+            echo
+            cat core/build/reports/jmh/results.md
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Convert JMH JSON to benchmark-action format
+        run: |
+          python core/jmh_to_benchmark_json.py core/build/reports/jmh/results.json \
+            > core/build/reports/jmh/benchmark.json
 
       - name: Upload JMH artifacts
         uses: actions/upload-artifact@v6
@@ -51,17 +59,21 @@ jobs:
           path: |
             core/build/reports/jmh/results.json
             core/build/reports/jmh/results.md
+            core/build/reports/jmh/benchmark.json
           if-no-files-found: error
 
-      - name: Comment on commit with JMH report
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          body="$(cat core/build/reports/jmh/results.md)"
-          
-          # utwórz komentarz do commita
-          gh api \
-            -X POST \
-            -H "Authorization: token $GITHUB_TOKEN" \
-            "/repos/${GITHUB_REPOSITORY}/commits/${GITHUB_SHA}/comments" \
-            -f body="$body"
+      - name: Store benchmark result and compare with history
+        uses: benchmark-action/github-action-benchmark@v1
+        with:
+          name: JMH Benchmarks
+          tool: 'customSmallerIsBetter'
+          output-file-path: core/build/reports/jmh/benchmark.json
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          # dedicated data branch, NOT gh-pages: Pages is served via Actions (docs.yaml),
+          # so this branch is a pure history store and never touches the docs deployment
+          gh-pages-branch: benchmarks
+          benchmark-data-dir-path: dev/bench
+          auto-push: true
+          alert-threshold: '150%'
+          comment-on-alert: true
+          fail-on-alert: false

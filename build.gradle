@@ -427,6 +427,8 @@ project(":core") {
 
         args '-rf', 'json'
         args '-rff', resultsFile.get().asFile.absolutePath
+        // GC profiler populates secondaryMetrics["gc.alloc.rate.norm"] (B/op) for allocation tracking
+        args '-prof', 'gc'
 
         if (project.hasProperty('jmhIncludeRegex')) {
             args project.property('jmhIncludeRegex')
