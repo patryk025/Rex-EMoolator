@@ -4,13 +4,12 @@
 CLZWCompression2 test-vector generator.
 """
 
-import base64
-import hashlib
-import json
 import os
 import random
 
-OUT_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "raw")
+ROOT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+OUT_DIR = os.path.join(ROOT_DIR, "raw")
+SEED = 19980915 # just random value
 
 def synth_image(width: int, height: int, rng: random.Random) -> bytes:
     """Generate a pseudo-paletted image: horizontal bands of uniform color
@@ -108,7 +107,6 @@ def build_corpus() -> list[tuple[str, bytes]]:
 
 def main() -> None:
     os.makedirs(OUT_DIR, exist_ok=True)
-
     corpus = build_corpus()
 
 if __name__ == "__main__":

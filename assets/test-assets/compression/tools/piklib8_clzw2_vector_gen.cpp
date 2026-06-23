@@ -5,7 +5,7 @@
 //
 //   gen.exe <PIKLIB8.dll> <input_dir> <output_dir>
 //
-// Each input file -> <output_dir>/<name>.clzw2
+// Each .raw input file -> <output_dir>/<name>.clzw2
 
 #include <windows.h>
 
@@ -74,6 +74,7 @@ int main(int argc, char** argv) {
     for (const auto& entry : fs::directory_iterator(inDir)) {
         if (!entry.is_regular_file()) continue;
         const fs::path in = entry.path();
+        if (in.extension() != ".raw") continue;
         const std::string fname = in.filename().string();
         try {
             std::vector<char> raw = readFile(in);
