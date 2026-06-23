@@ -1,65 +1,115 @@
-from pathlib import Path
-import random
-import struct
-import zlib
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+CLZWCompression2 test-vector generator.
+"""
+
+import base64
+import hashlib
 import json
+import os
+import random
 
-OUT = Path(".")
-OUT.mkdir(exist_ok=True)
+OUT_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "raw")
 
-def write(name, data):
-    raw_path = OUT / f"{name}.raw"
-    meta_path = OUT / f"{name}.json"
+def synth_image(width: int, height: int, rng: random.Random) -> bytes:
+    """Generate a pseudo-paletted image: horizontal bands of uniform color
+    (flat regions), occasional noise, and sometimes a repeat of an entire
+    row. Produces matches with distance ~width (M3/M4) and long RLE matches
+    (distance 1).
+    """
+    rows = []
+    prev = None
+    for y in range(height):
+        if prev is not None and rng.random() < 0.45:
+            rows.append(prev)                       # exact row repeat
+            continue
+        row = bytearray()
+        x = 0
+        while x < width:
+            run = min(width - x, rng.randint(1, 24))
+            col = rng.randint(0, 15)                 # 16-color palette
+            row.extend([col] * run)
+            x += run
+        if rng.random() < 0.15:                      # occasional noise
+            for _ in range(rng.randint(1, 8)):
+                row[rng.randrange(width)] = rng.randint(0, 255)
+        prev = bytes(row)
+        rows.append(prev)
+    return b"".join(rows)
 
-    raw_path.write_bytes(data)
 
-    meta = {
-        "name": name,
-        "size": len(data),
-        "crc32": f"{zlib.crc32(data) & 0xffffffff:08x}",
-    }
-    meta_path.write_text(json.dumps(meta, indent=2), encoding="utf-8")
+def build_corpus() -> list[tuple[str, bytes]]:
+    rng = random.Random(SEED)
+    c: list[tuple[str, bytes]] = []
+    add = lambda n, b: c.append((n, b))
+
+    # --- degenerate / edge cases ---
+    add("empty", b"")
+    add("byte_00", b"\x00")
+    add("byte_ff", b"\xff")
+    add("byte_41", b"A")
+    add("two_bytes", b"\x00\x01")
+
+    # --- short literals, first opcode (special stream start) ---
+    # lengths of the first literal run around thresholds 4 / 17 / 18 / 19
+    for L in (3, 4, 5, 16, 17, 18, 19, 20):
+        add(f"first_literals_{L}", bytes(rng.randrange(256) for _ in range(L)))
+
+    # --- incompressible (random) at run-length extension boundaries ---
+    # run-length == 0 -> we read 0x00 bytes (after +255) until a non-zero
+    for L in (18, 255, 256, 273, 274, 512, 600, 1000, 5000, 65536):
+        add(f"random_{L}", bytes(rng.randrange(256) for _ in range(L)))
+
+    # --- RLE / distance 1 (long matches, match-length extension) ---
+    for L in (2, 3, 4, 5, 17, 18, 255, 256, 264, 512, 1000, 4096):
+        add(f"rle00_{L}", b"\x00" * L)
+    add("rle_ff_1000", b"\xff" * 1000)
+
+    # --- small periods (distance 2..8): various M1/M2 opcodes + trailing-lit states
+    for period in (2, 3, 4, 5, 7, 8):
+        add(f"period_{period}", (bytes(range(period)) * (1200 // period)))
+
+    # --- repeated rows/tiles: distance = width (M3/M4) ---
+    for w in (16, 64, 320, 640):
+        scan = bytes(rng.randrange(256) for _ in range(w))
+        add(f"row_repeat_w{w}", scan * 32)
+
+    # --- gradients (semi-compressible) ---
+    add("gradient_ramp", bytes(i & 0xFF for i in range(4096)))
+    add("gradient_tri", bytes(abs((i % 510) - 255) for i in range(4096)))
+
+    # --- machine state: short-match + 0/1/2/3 trailing literals, alternating ---
+    sm = bytearray()
+    pat = b"QWERTY"
+    for trail in (0, 1, 2, 3, 2, 1, 0, 3):
+        sm += pat                       # can be matched (match)
+        sm += bytes(rng.randrange(256) for _ in range(trail))  # trailing literals
+    add("state_machine_mix", bytes(sm) * 40)
+
+    # --- realistic graphics (main use-case) ---
+    add("img_16x16", synth_image(16, 16, rng))
+    add("img_64x64", synth_image(64, 64, rng))
+    add("img_320x200", synth_image(320, 200, rng))
+    add("img_640x480", synth_image(640, 480, rng))
+
+    # --- mixture: literals + matches + incompressible tail (near-EOS) ---
+    mixed = b"HEADER\x00\x00" + b"\xab\xcd" * 300 + bytes(rng.randrange(256) for _ in range(37))
+    add("mixed_tail", mixed)
+
+    # --- some fuzz variety (different seeds) ---
+    for s in range(5):
+        r = random.Random(SEED + 1 + s)
+        L = r.randint(1, 3000)
+        add(f"fuzz_{s}_{L}", bytes(r.randrange(256) for _ in range(L)))
+
+    return c
 
 
-write("empty", b"")
-write("one_byte", b"\x42")
-write("small_literals", b"ABCDEF")
-write("zeros_4k", b"\x00" * 4096)
-write("ff_4k", b"\xff" * 4096)
-write("random_4k", bytes(random.randrange(256) for _ in range(4096)))
+def main() -> None:
+    os.makedirs(OUT_DIR, exist_ok=True)
 
-write("long_run_64k", b"\x7f" * 65536)
-write("repeated_phrase", (b"REKSIO_KRETES_BLOOMOO_" * 2048))
-data_with_noise = bytearray(b"REKSIO_KRETES_BLOOMOO_" * 2048)
+    corpus = build_corpus()
 
-for i in range(0, len(data_with_noise), 256):
-    data_with_noise[i] ^= 0x55
-
-write("almost_repeated_with_noise", data_with_noise)
-
-# RGB565 gradient
-w, h = 128, 128
-rgb565 = bytearray()
-for y in range(h):
-    for x in range(w):
-        r = (x * 31) // (w - 1)
-        g = (y * 63) // (h - 1)
-        b = ((x + y) * 31) // (w + h - 2)
-        px = (r << 11) | (g << 5) | b
-        rgb565 += struct.pack("<H", px)
-write("gradient_rgb565", rgb565)
-
-# Checkerboard RGB565
-checker = bytearray()
-for y in range(h):
-    for x in range(w):
-        px = 0xffff if ((x // 8) ^ (y // 8)) & 1 else 0x0000
-        checker += struct.pack("<H", px)
-write("checkerboard_rgb565", checker)
-
-# Tilemap-like data
-tile = bytes([0, 1, 2, 3, 3, 2, 1, 0] * 8)
-tilemap = tile * 1024
-write("tilemap_repeating_8x8", tilemap)
-
-print("Generated raw test corpus.")
+if __name__ == "__main__":
+    main()
