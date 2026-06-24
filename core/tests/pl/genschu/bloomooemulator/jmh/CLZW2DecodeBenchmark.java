@@ -1,4 +1,4 @@
-package pl.genschu.bloomooemulator.jhm;
+package pl.genschu.bloomooemulator.jmh;
 
 import org.openjdk.jmh.annotations.*;
 import pl.genschu.bloomooemulator.encoding.CLZW2Compression;

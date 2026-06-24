@@ -12,7 +12,9 @@ import json
 import sys
 from pathlib import Path
 
-PREFIX = "pl.genschu.bloomooemulator.jhm."
+from jmh_common import vector_name, vector_sizes
+
+PREFIX = "pl.genschu.bloomooemulator.jmh."
 
 
 def bench_label(bench):
@@ -53,6 +55,15 @@ def main(path):
                 "unit": "B/op",
                 "value": alloc,
             })
+
+            sizes = vector_sizes(vector_name(bench))
+            decoded = sizes[1] if sizes else None
+            if decoded:
+                entries.append({
+                    "name": f"{label} (alloc/byte)",
+                    "unit": "B/B",
+                    "value": alloc / decoded,
+                })
 
     json.dump(entries, sys.stdout, indent=2)
     sys.stdout.write("\n")
