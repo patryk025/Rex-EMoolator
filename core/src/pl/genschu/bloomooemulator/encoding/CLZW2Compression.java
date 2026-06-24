@@ -1,207 +1,169 @@
 package pl.genschu.bloomooemulator.encoding;
 
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
-import java.util.Arrays;
+/**
+ * Decoder of CLZW2 format (8-byte header + raw LZO1X-1 stream).
+ */
+public final class CLZW2Compression {
 
-// adapted and translated from https://gist.github.com/Dove6/0d21e763919daa8b5049e20b6bdacfaa#file-clzw2_decoder-py
-public class CLZW2Compression
-{
     private static final int HEADER_LENGTH = 8;
-    private static final byte[] ETX_MARKER = new byte[]{(byte) 0x11, 0x00, 0x00};
-    private static final int MINIMAL_ENCODED_LENGTH = HEADER_LENGTH + ETX_MARKER.length;
+    private static final int MINIMAL_ENCODED_LENGTH = HEADER_LENGTH + 3; // + EOS marker
 
-    private static int readInt(byte[] data) {
-        return ByteBuffer.wrap(Arrays.copyOfRange(data, 0, 4)).order(ByteOrder.LITTLE_ENDIAN).getInt();
+    private CLZW2Compression() {}
+
+    public static byte[] compress() {
+        throw new UnsupportedOperationException("Not implemented");
     }
 
-    private static int readShort(byte[] data) {
-        return ByteBuffer.wrap(Arrays.copyOfRange(data, 0, 2)).order(ByteOrder.LITTLE_ENDIAN).getShort();
-    }
-
-    private static int readByte(byte[] data) {
-        return data[0] & 0xFF;
-    }
-
-    private static int readMostSignificantNibble(byte[] data) {
-        return (readByte(data) >> 4) & 0x0F;
-    }
-
-    public static byte[] compress() throws Exception {
-        throw new Exception("Not implemented");
-    }
-
-    // translated from https://gist.github.com/Dove6/0d21e763919daa8b5049e20b6bdacfaa#file-clzw2_decoder-py
-    public static byte[] decompress(byte[] data) throws IllegalArgumentException {
+    public static byte[] decompress(byte[] data) {
         if (data.length < MINIMAL_ENCODED_LENGTH) {
             throw new IllegalArgumentException("Encoded data too short");
         }
 
-        byte[] header = Arrays.copyOfRange(data, 0, HEADER_LENGTH);
-        data = Arrays.copyOfRange(data, HEADER_LENGTH, data.length);
-
-        int decodedLength = readInt(header);
-        int encodedLength = readInt(Arrays.copyOfRange(header, 4, 8));
-
-        if (data.length != encodedLength) {
-            throw new IllegalArgumentException("Length of encoded data does not match length from the header");
+        final int decodedLength = readIntLE(data, 0);
+        final int encodedLength = readIntLE(data, 4);
+        if (data.length - HEADER_LENGTH != encodedLength) {
+            throw new IllegalArgumentException("Length of encoded data does not match header");
         }
 
-        byte[] decodedData = new byte[decodedLength];
+        final byte[] out = new byte[decodedLength];
+        final int end = data.length;
+        int enc = HEADER_LENGTH;
+        int dec = 0;
+        boolean literalSeen = false;
 
-        int encPtr = 0;
-        int decPtr = 0;
-        boolean literalEncountered = false;
-
-        int zeroBytesCount = 0;
-        int literalLength = 0;
-
-        while(true) {
-            if(encPtr >= data.length) {
-                throw new IllegalArgumentException("Encoded data ended unexpectedly. Out of bounds at index " + encPtr);
-            }
-            if (Arrays.equals(Arrays.copyOfRange(data, encPtr, encPtr + 3), ETX_MARKER)) {
-                encPtr += 3;
+        while (true) {
+            // end of stream marker: 0x11 0x00 0x00
+            if (enc + 3 <= end && data[enc] == 0x11 && data[enc + 1] == 0 && data[enc + 2] == 0) {
+                enc += 3;
                 break;
             }
-            if(decPtr >= decodedData.length) {
-                throw new IllegalArgumentException("Out of bounds access to decoded data at index " + decPtr);
+            if (enc >= end) {
+                throw new IllegalArgumentException("Encoded data ended unexpectedly at index " + enc);
             }
-            if (readMostSignificantNibble(Arrays.copyOfRange(data, encPtr, encPtr + 1)) == 0b0000) {
-                zeroBytesCount = 0;
-                while (readByte(Arrays.copyOfRange(data, encPtr, encPtr + 1)) == 0) {
-                    zeroBytesCount += 1;
-                    encPtr += 1;
+
+            final int op = data[enc] & 0xFF;
+            final int nibble = op >>> 4;
+
+            if (nibble == 0) {
+                // --- literals run ---
+                int litLen;
+                if (op != 0) {
+                    litLen = op + 3;
+                    enc++;
+                } else {
+                    int zeros = 0;
+                    while (data[enc] == 0) { zeros++; enc++; }
+                    litLen = (data[enc++] & 0xFF) + 18 + (zeros - 1) * 255;
                 }
-                literalLength = readByte(Arrays.copyOfRange(data, encPtr, encPtr + 1));
-                encPtr += 1;
-                if(zeroBytesCount == 0) {
-                    literalLength += 3;
+                System.arraycopy(data, enc, out, dec, litLen);
+                enc += litLen;
+                dec += litLen;
+                literalSeen = true;
+
+            } else if (!literalSeen) {
+                // --- first literals run (special stream start) ---
+                if (op < 18) {
+                    throw new IllegalArgumentException("Invalid first literal length " + op + " (min 18)");
                 }
-                else {
-                    literalLength += 18 + (zeroBytesCount - 1) * 255;
-                }
-                System.arraycopy(data, encPtr, decodedData, decPtr, literalLength);
-                encPtr += literalLength;
-                decPtr += literalLength;
-                literalEncountered = true;
-            }
-            else if(readMostSignificantNibble(Arrays.copyOfRange(data, encPtr, encPtr + 1)) > 0b0000 && !literalEncountered) {
-                literalLength = readByte(Arrays.copyOfRange(data, encPtr, encPtr + 1));
-                encPtr += 1;
-                if(literalLength < 18) {
-                    throw new IllegalArgumentException("Invalid literal length " + literalLength + " (should be at least 18)");
-                }
-                literalLength -= 17;
-                System.arraycopy(data, encPtr, decodedData, decPtr, literalLength);
-                encPtr += literalLength;
-                decPtr += literalLength;
-                literalEncountered = true;
-            }
-            else if(readMostSignificantNibble(Arrays.copyOfRange(data, encPtr, encPtr + 1)) >= 0b0100) {
-                if(!literalEncountered) {
-                    throw new IllegalArgumentException("No literal encountered before reference symbol 0b0100");
-                }
-                int buffer = readByte(Arrays.copyOfRange(data, encPtr, encPtr + 1));
-                encPtr += 1;
-                int length = (buffer >> 5) & 0b111;
-                length += 1;
-                int distance = (buffer >> 2) & 0b111;
-                int followingLiteralLength = buffer & 0b0011;
-                distance |= (readByte(Arrays.copyOfRange(data, encPtr, encPtr + 1)) << 3);
+                int litLen = op - 17;
+                enc++;
+                System.arraycopy(data, enc, out, dec, litLen);
+                enc += litLen;
+                dec += litLen;
+                literalSeen = true;
+
+            } else if (nibble >= 0b0100) {
+                // --- short match (M2) ---
+                final int b0 = data[enc++] & 0xFF;
+                final int length = ((b0 >> 5) & 0b111) + 1;
+                int distance = (b0 >> 2) & 0b111;
+                final int trailing = b0 & 0b0011;
+                distance |= (data[enc++] & 0xFF) << 3;
                 distance += 1;
-                encPtr += 1;
-                for(int i = 0; i < length; i++) {
-                    if(decPtr - distance <= 0) {
-                        throw new IllegalArgumentException("Out of bounds access to decoded data at index " + decPtr);
-                    }
-                    System.arraycopy(decodedData, decPtr - distance, decodedData, decPtr, 1);
-                    decPtr += 1;
-                }
-                System.arraycopy(data, encPtr, decodedData, decPtr, followingLiteralLength);
-                encPtr += followingLiteralLength;
-                decPtr += followingLiteralLength;
-            }
-            else if(readMostSignificantNibble(Arrays.copyOfRange(data, encPtr, encPtr + 1)) >= 0b0010) {
-                if (!literalEncountered) {
-                    throw new IllegalArgumentException("No literal encountered before reference symbol 0b0010");
-                }
-                int length = readByte(Arrays.copyOfRange(data, encPtr, encPtr + 1)) & 0b00011111;
-                encPtr += 1;
-                if(length == 0) {
-                    zeroBytesCount = 0;
-                    length += 31;
-                    while (readByte(Arrays.copyOfRange(data, encPtr, encPtr + 1)) == 0) {
-                        zeroBytesCount += 1;
-                        encPtr += 1;
-                    }
-                    length += readByte(Arrays.copyOfRange(data, encPtr, encPtr + 1));
-                    encPtr += 1;
-                    length += zeroBytesCount * 255;
-                }
-                length += 2;
-                int buffer = readByte(Arrays.copyOfRange(data, encPtr, encPtr + 1));
-                encPtr += 1;
-                int distance = buffer >> 2;
-                int followingLiteralLength = buffer & 0b0011;
-                distance |= (readByte(Arrays.copyOfRange(data, encPtr, encPtr + 1)) << 6);
-                distance += 1;
-                encPtr += 1;
-                for(int i = 0; i < length; i++) {
-                    if(decPtr - distance <= 0) {
-                        throw new IllegalArgumentException("Out of bounds access to decoded data at index " + decPtr);
-                    }
-                    System.arraycopy(decodedData, decPtr - distance, decodedData, decPtr, 1);
-                    decPtr += 1;
-                }
-                System.arraycopy(data, encPtr, decodedData, decPtr, followingLiteralLength);
-                encPtr += followingLiteralLength;
-                decPtr += followingLiteralLength;
-            }
-            else if(readMostSignificantNibble(Arrays.copyOfRange(data, encPtr, encPtr + 1)) == 0b0001) {
-                if (!literalEncountered) {
-                    throw new IllegalArgumentException("No literal encountered before reference symbol 0b0001");
-                }
-                int buffer = readByte(Arrays.copyOfRange(data, encPtr, encPtr + 1));
-                encPtr += 1;
-                int distance = ((buffer & 0b1000) >> 3) << 14;
-                int length = buffer & 0b0111;
+                dec = copyMatch(out, dec, distance, length);
+                dec = copyTrailing(data, out, enc, dec, trailing);
+                enc += trailing;
+
+            } else if (nibble >= 0b0010) {
+                // --- medium-distance match (M3) ---
+                int length = data[enc++] & 0b00011111;
                 if (length == 0) {
-                    zeroBytesCount = 0;
-                    length += 7;
-                    while (readByte(Arrays.copyOfRange(data, encPtr, encPtr + 1)) == 0) {
-                        zeroBytesCount += 1;
-                        encPtr += 1;
-                    }
-                    length += readByte(Arrays.copyOfRange(data, encPtr, encPtr + 1));
-                    encPtr += 1;
-                    length += zeroBytesCount * 255;
+                    int zeros = 0;
+                    length = 31;
+                    while (data[enc] == 0) { zeros++; enc++; }
+                    length += (data[enc++] & 0xFF) + zeros * 255;
                 }
                 length += 2;
-                buffer = readByte(Arrays.copyOfRange(data, encPtr, encPtr + 1));
-                encPtr += 1;
-                distance |= buffer >> 2;
-                int followingLiteralLength = buffer & 0b0011;
-                distance |= (readByte(Arrays.copyOfRange(data, encPtr, encPtr + 1)) << 6);
-                distance += 16384;
-                encPtr += 1;
-                for (int i = 0; i < length; i++) {
-                    if (decPtr - distance <= 0) {
-                        throw new IllegalArgumentException("Out of bounds access to decoded data at index " + decPtr);
-                    }
-                    System.arraycopy(decodedData, decPtr - distance, decodedData, decPtr, 1);
-                    decPtr += 1;
+                final int b0 = data[enc++] & 0xFF;
+                int distance = b0 >> 2;
+                final int trailing = b0 & 0b0011;
+                distance |= (data[enc++] & 0xFF) << 6;
+                distance += 1;
+                dec = copyMatch(out, dec, distance, length);
+                dec = copyTrailing(data, out, enc, dec, trailing);
+                enc += trailing;
+
+            } else { // nibble == 0b0001
+                // --- long-distance match (M4) ---
+                final int b0 = data[enc++] & 0xFF;
+                int distance = ((b0 & 0b1000) >> 3) << 14;
+                int length = b0 & 0b0111;
+                if (length == 0) {
+                    int zeros = 0;
+                    length = 7;
+                    while (data[enc] == 0) { zeros++; enc++; }
+                    length += (data[enc++] & 0xFF) + zeros * 255;
                 }
-                System.arraycopy(data, encPtr, decodedData, decPtr, followingLiteralLength);
-                encPtr += followingLiteralLength;
-                decPtr += followingLiteralLength;
+                length += 2;
+                final int b1 = data[enc++] & 0xFF;
+                distance |= b1 >> 2;
+                final int trailing = b1 & 0b0011;
+                distance |= (data[enc++] & 0xFF) << 6;
+                distance += 16384;
+                dec = copyMatch(out, dec, distance, length);
+                dec = copyTrailing(data, out, enc, dec, trailing);
+                enc += trailing;
             }
         }
 
-        if(decPtr != decodedData.length) {
-            throw new IllegalArgumentException("Length of decoded data does not match length from the header");
+        if (dec != out.length) {
+            throw new IllegalArgumentException(
+                    "Decoded length " + dec + " does not match header length " + out.length);
         }
+        return out;
+    }
 
-        return decodedData;
+    /** Copies match backwards. Boundary check once (dec-distance only increases). */
+    private static int copyMatch(byte[] out, int dec, int distance, int length) {
+        if (dec - distance < 0) {
+            throw new IllegalArgumentException("Out of bounds match source at index " + (dec - distance));
+        }
+        if (distance >= length) {
+            // no overlapping -> single bulk copy
+            System.arraycopy(out, dec - distance, out, dec, length);
+            return dec + length;
+        }
+        // overlapping (RLE propagation) -> byte by byte
+        final int stop = dec + length;
+        while (dec < stop) {
+            out[dec] = out[dec - distance];
+            dec++;
+        }
+        return dec;
+    }
+
+    /** 0-3 literals appended to the match. */
+    private static int copyTrailing(byte[] data, byte[] out, int enc, int dec, int count) {
+        for (int i = 0; i < count; i++) {
+            out[dec++] = data[enc++];
+        }
+        return dec;
+    }
+
+    private static int readIntLE(byte[] d, int off) {
+        return (d[off] & 0xFF)
+                | ((d[off + 1] & 0xFF) << 8)
+                | ((d[off + 2] & 0xFF) << 16)
+                | ((d[off + 3] & 0xFF) << 24);
     }
 }
