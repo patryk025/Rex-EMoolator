@@ -16,7 +16,7 @@ import pl.genschu.bloomooemulator.engine.config.EngineConfig;
 import pl.genschu.bloomooemulator.engine.context.EngineVariable;
 import pl.genschu.bloomooemulator.engine.context.GameContext;
 import pl.genschu.bloomooemulator.geometry.points.Point3D;
-import pl.genschu.bloomooemulator.interpreter.context.Context;
+import pl.genschu.bloomooemulator.interpreter.values.StringValue;
 import pl.genschu.bloomooemulator.interpreter.variable.*;
 import pl.genschu.bloomooemulator.geometry.shapes.Box2D;
 import pl.genschu.bloomooemulator.world.GameObject;
@@ -26,7 +26,6 @@ import pl.genschu.bloomooemulator.world.TriangleVertex;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Deque;
 import java.util.HashSet;
@@ -60,11 +59,11 @@ public class DebugManager implements Disposable {
     private boolean showSceneSelector = false;
     private SelectorMode selectorMode = SelectorMode.SCENES;
     private final StringBuilder sceneNameInput = new StringBuilder();   // shared filter / name field
-    private Vector2 selectorPosition = new Vector2(10, 30);
+    private final Vector2 selectorPosition = new Vector2(10, 30);
     private static final int MAX_VISIBLE_SCENES = 15;
 
     // SCENES mode: master list + type-to-filter view.
-    private List<String> sceneList = new ArrayList<>();
+    private final List<String> sceneList = new ArrayList<>();
     private final List<String> filteredScenes = new ArrayList<>();
     private int selectedScene = -1;   // index into filteredScenes
     private int scrollPosition = 0;
@@ -866,7 +865,31 @@ public class DebugManager implements Disposable {
         StringBuilder sb = new StringBuilder();
         GameContext context = game.getCurrentSceneContext();
 
-        sb.append("Scena: ").append(game.getCurrentScene()).append("\n\n");
+        sb.append("Scena: ").append(game.getCurrentScene()).append("\n");
+
+        switch(game.getCurrentScene()) {
+            case "ARCADE" -> {
+                sb.append("Sekcja interaktywna: ");
+                String arcadeScene = switch(SceneLoaderScripts.familyId(game.getGame().getGameName())) {
+                    case "CZARODZIEJE" -> ((StringVariable) context.getVariable("G_SARCADEOBJECTS")).getString();
+                    case "WEHIKUL" -> ((StringVariable) context.getVariable("G_SARCADESCENE")).getString();
+                    case "NEMO" -> ((Variable) context.getVariable("GSAVE")).callMethod("GET", new StringValue("ARCADE_SCENE_NAME")).getReturnValue().toDisplayString();
+                    default -> "NULL";
+                };
+                sb.append(arcadeScene).append("\n");
+            }
+            case "CUTSCENKI" -> {
+                sb.append("Cutscenka: ");
+                String cutsceneScene = switch(SceneLoaderScripts.familyId(game.getGame().getGameName())) {
+                    case "NEMO" -> ((Variable) context.getVariable("GSAVE")).callMethod("GET", new StringValue("CS_SCENE_NAME")).getReturnValue().toDisplayString();
+                    case "KRETES" -> ((Variable) context.getVariable("GSAVE")).callMethod("GET", new StringValue("CS_NAME")).getReturnValue().toDisplayString();
+                    default -> "NULL";
+                };
+                sb.append(cutsceneScene).append("\n");
+            }
+        }
+
+        sb.append("\n");
 
         for (EngineVariable ev : context.getVariables().values()) {
             if (!(ev instanceof Variable variable)) continue;
@@ -1178,11 +1201,11 @@ public class DebugManager implements Disposable {
     }
 
     private static String modeLabel(SelectorMode mode) {
-        switch (mode) {
-            case ARCADE:   return "ARCADE";
-            case CUTSCENE: return "CUTSCENKI";
-            default:       return "SCENY";
-        }
+        return switch (mode) {
+            case ARCADE -> "ARCADE";
+            case CUTSCENE -> "CUTSCENKI";
+            default -> "SCENY";
+        };
     }
 
     private void renderSceneSelector() {
@@ -1195,10 +1218,10 @@ public class DebugManager implements Disposable {
         int width = 300;
         int height;
         if (selectorMode == SelectorMode.SCENES) {
-            int rows = Math.min(Math.max(filteredScenes.size(), 1), MAX_VISIBLE_SCENES);
+            int rows = Math.clamp(filteredScenes.size(), 1, MAX_VISIBLE_SCENES);
             height = topPad + rows * 20 + 36;   // filter line + list + footer
         } else {
-            int rows = Math.max(1, Math.min(filteredNames.size(), MAX_VISIBLE_LOADER));
+            int rows = Math.clamp(filteredNames.size(), 1, MAX_VISIBLE_LOADER);
             height = topPad + 44 + rows * 20 + 14;
         }
 
@@ -1481,14 +1504,6 @@ public class DebugManager implements Disposable {
             return new Snapshot(fps, lowOnePercentFps);
         }
 
-        static final class Snapshot {
-            final float fps;
-            final float lowOnePercentFps;
-
-            Snapshot(float fps, float lowOnePercentFps) {
-                this.fps = fps;
-                this.lowOnePercentFps = lowOnePercentFps;
-            }
-        }
+        record Snapshot(float fps, float lowOnePercentFps) {}
     }
 }
