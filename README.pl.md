@@ -154,65 +154,65 @@ Szacowane poziomy grywalności są wyznaczane na podstawie ilości scen, które 
 <tr>
 <td>Reksio i Czarodzieje</td>
 <td><img alt="W grze" src="https://img.shields.io/badge/W%20grze-yellow"/></td>
-<td>Da się przejść pagórki, po czym blokada.</td>
+<td>Blokada jest na etapie budowy teleportków, nie daje się podnieść przedmiotów.</td>
 <td>N/D</td>
 <td><a href="https://github.com/users/patryk025/projects/6">Link</a></td>
 </tr>
 <tr>
 <td>Reksio i Wehikuł Czasu</td>
-<td><img alt="Nieznane" src="https://img.shields.io/badge/Nieznane-lightgrey"/></td>
+<td><img alt="W grze" src="https://img.shields.io/badge/W%20grze-yellow"/></td>
 <td>Wymaga ponownej ewaluacji po refaktoryzacji interpretera</td>
 <td>N/D</td>
 <td><a href="https://github.com/users/patryk025/projects/8">Link</a></td>
 </tr>
 <tr>
 <td>Reksio i Kapitan Nemo</td>
-<td><img alt="Nieznane" src="https://img.shields.io/badge/Nieznane-lightgrey"/></td>
-<td>Wymaga ponownej ewaluacji po refaktoryzacji interpretera</td>
+<td><img alt="Niegrywalne" src="https://img.shields.io/badge/Niegrywalne-red"/></td>
+<td>Podczas uruchamiania w którymś miejscu pojawia się StackOverflowError, gra próbuje ładować cutscenkę "NULL", co się nie udaje, gdyż nie istnieje.</td>
 <td>N/D</td>
 <td><a href="https://github.com/users/patryk025/projects/10">Link</a></td>
 </tr>
 <tr>
 <td>Reksio i Kretes w Akcji!</td>
-<td><img alt="Nieznane" src="https://img.shields.io/badge/Nieznane-lightgrey"/></td>
-<td>Wymaga ponownej ewaluacji po refaktoryzacji interpretera</td>
+<td><img alt="Niegrywalne" src="https://img.shields.io/badge/Niegrywalne-red"/></td>
+<td>Analogiczna sytuacja, jak w Reksio i Kapitan Nemo, próba załadowania cutscenki "NULL"</td>
 <td>N/D</td>
 <td><a href="https://github.com/users/patryk025/projects/11">Link</a></td>
 </tr>
 <tr>
 <td>Poznaj Mity: Wyprawa po Złote Runo</td>
-<td><img alt="Nieznane" src="https://img.shields.io/badge/Nieznane-lightgrey"/></td>
-<td>Wymaga ponownej ewaluacji po refaktoryzacji interpretera</td>
+<td><img alt="W grze" src="https://img.shields.io/badge/W%20grze-yellow"/></td>
+<td>Minigierki są w mniejszym lub większym stopniu zabugowane.</td>
 <td>N/D</td>
 <td><a href="https://github.com/users/patryk025/projects/12">Link</a></td>
 </tr>
 <tr>
 <td>Poznaj Mity: Wojna Trojańska</td>
-<td><img alt="Nieznane" src="https://img.shields.io/badge/Nieznane-lightgrey"/></td>
-<td>Wymaga ponownej ewaluacji po refaktoryzacji interpretera</td>
+<td><img alt="W grze" src="https://img.shields.io/badge/W%20grze-yellow"/></td>
+<td>Minigierki są w mniejszym lub większym stopniu zabugowane.</td>
 <td>N/D</td>
 <td><a href="https://github.com/users/patryk025/projects/13">Link</a></td>
 </tr>
 <tr>
 <td>Poznaj Mity: Przygody Odyseusza</td>
-<td><img alt="Nieznane" src="https://img.shields.io/badge/Nieznane-lightgrey"/></td>
-<td>Wymaga ponownej ewaluacji po refaktoryzacji interpretera</td>
+<td><img alt="W grze" src="https://img.shields.io/badge/W%20grze-yellow"/></td>
+<td>Minigierki są w mniejszym lub większym stopniu zabugowane.</td>
 <td>N/D</td>
 <td><a href="https://github.com/users/patryk025/projects/14">Link</a></td>
 </tr>
 <tr>
 <td>Poznaj Mity: Herkules</td>
-<td><img alt="Nieznane" src="https://img.shields.io/badge/Nieznane-lightgrey"/></td>
-<td>Wymaga ponownej ewaluacji po refaktoryzacji interpretera</td>
+<td><img alt="W grze" src="https://img.shields.io/badge/W%20grze-yellow"/></td>
+<td>Minigierki są w mniejszym lub większym stopniu zabugowane.</td>
 <td>N/D</td>
 <td><a href="https://github.com/users/patryk025/projects/15">Link</a></td>
 </tr>
 <tr>
 <td>Tezeusz i Nić Ariadny</td>
-<td><img alt="Nieznane" src="https://img.shields.io/badge/Nieznane-lightgrey"/></td>
-<td>Wymaga ponownej ewaluacji po refaktoryzacji interpretera</td>
+<td><img alt="W grze" src="https://img.shields.io/badge/W%20grze-yellow"/></td>
+<td>Minigierki są w mniejszym lub większym stopniu zabugowane.</td>
 <td>N/D</td>
-<td></td>
+<td><a href="https://github.com/users/patryk025/projects/17">Link</a></td>
 </tr>
 </tbody>
 </table>

@@ -154,65 +154,65 @@ Playability estimates are based on the number of scenes that play correctly acco
 <tr>
 <td>Reksio i Czarodzieje</td>
 <td><img alt="In-game" src="https://img.shields.io/badge/In--game-yellow"/></td>
-<td>You can get past the hills, but then there's a roadblock.</td>
+<td>Blocked at the stage of building teleporters, items cannot be picked up.</td>
 <td>N/A</td>
 <td><a href="https://github.com/users/patryk025/projects/6">Link</a></td>
 </tr>
 <tr>
 <td>Reksio i Wehikuł Czasu</td>
-<td><img alt="Unknown" src="https://img.shields.io/badge/Unknown-lightgrey"/></td>
+<td><img alt="In-game" src="https://img.shields.io/badge/In--game-yellow"/></td>
 <td>Requires re-evaluation after interpreter refactor.</td>
 <td>N/A</td>
 <td><a href="https://github.com/users/patryk025/projects/8">Link</a></td>
 </tr>
 <tr>
 <td>Reksio i Kapitan Nemo</td>
-<td><img alt="Unknown" src="https://img.shields.io/badge/Unknown-lightgrey"/></td>
-<td>Requires re-evaluation after interpreter refactor.</td>
+<td><img alt="Unplayable" src="https://img.shields.io/badge/Unplayable-red"/></td>
+<td>During startup, a StackOverflowError occurs, the game tries to load the "NULL" cutscene, which fails because it doesn't exist.</td>
 <td>N/A</td>
 <td><a href="https://github.com/users/patryk025/projects/10">Link</a></td>
 </tr>
 <tr>
 <td>Reksio i Kretes w Akcji!</td>
-<td><img alt="Unknown" src="https://img.shields.io/badge/Unknown-lightgrey"/></td>
-<td>Requires re-evaluation after interpreter refactor.</td>
+<td><img alt="Unplayable" src="https://img.shields.io/badge/Unplayable-red"/></td>
+<td>Similar situation to Reksio i Kapitan Nemo, attempting to load the "NULL" cutscene.</td>
 <td>N/A</td>
 <td><a href="https://github.com/users/patryk025/projects/11">Link</a></td>
 </tr>
 <tr>
 <td>Poznaj Mity: Wyprawa po Złote Runo</td>
-<td><img alt="Unknown" src="https://img.shields.io/badge/Unknown-lightgrey"/></td>
-<td>Requires re-evaluation after interpreter refactor.</td>
+<td><img alt="In-game" src="https://img.shields.io/badge/In--game-yellow"/></td>
+<td>Minigames are buggy to a greater or lesser extent.</td>
 <td>N/A</td>
 <td><a href="https://github.com/users/patryk025/projects/12">Link</a></td>
 </tr>
 <tr>
 <td>Poznaj Mity: Wojna Trojańska</td>
-<td><img alt="Unknown" src="https://img.shields.io/badge/Unknown-lightgrey"/></td>
-<td>Requires re-evaluation after interpreter refactor.</td>
+<td><img alt="In-game" src="https://img.shields.io/badge/In--game-yellow"/></td>
+<td>Minigames are buggy to a greater or lesser extent.</td>
 <td>N/A</td>
 <td><a href="https://github.com/users/patryk025/projects/13">Link</a></td>
 </tr>
 <tr>
 <td>Poznaj Mity: Przygody Odyseusza</td>
-<td><img alt="Unknown" src="https://img.shields.io/badge/Unknown-lightgrey"/></td>
-<td>Requires re-evaluation after interpreter refactor.</td>
+<td><img alt="In-game" src="https://img.shields.io/badge/In--game-yellow"/></td>
+<td>Minigames are buggy to a greater or lesser extent.</td>
 <td>N/A</td>
 <td><a href="https://github.com/users/patryk025/projects/14">Link</a></td>
 </tr>
 <tr>
 <td>Poznaj Mity: Herkules</td>
-<td><img alt="Unknown" src="https://img.shields.io/badge/Unknown-lightgrey"/></td>
-<td>Requires re-evaluation after interpreter refactor.</td>
+<td><img alt="In-game" src="https://img.shields.io/badge/In--game-yellow"/></td>
+<td>Minigames are buggy to a greater or lesser extent.</td>
 <td>N/A</td>
 <td><a href="https://github.com/users/patryk025/projects/15">Link</a></td>
 </tr>
 <tr>
 <td>Tezeusz i Nić Ariadny</td>
-<td><img alt="Unknown" src="https://img.shields.io/badge/Unknown-lightgrey"/></td>
-<td>Requires re-evaluation after interpreter refactor.</td>
+<td><img alt="In-game" src="https://img.shields.io/badge/In--game-yellow"/></td>
+<td>Minigames are buggy to a greater or lesser extent.</td>
 <td>N/A</td>
-<td></td>
+<td><a href="https://github.com/users/patryk025/projects/17">Link</a></td>
 </tr>
 </tbody>
 </table>
