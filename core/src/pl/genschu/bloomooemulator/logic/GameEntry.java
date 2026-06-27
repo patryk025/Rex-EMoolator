@@ -19,6 +19,7 @@ public class GameEntry implements Serializable {
     private String name;
     private String version;
     private String gameName;
+    private String dllHash;
     private String path;
     private String iniPath;
     private String storageId;
@@ -69,7 +70,9 @@ public class GameEntry implements Serializable {
                 continue;
             }
             try (InputStream is = fs.open(entry)) {
-                this.gameName = checkHash(calculateSHA1(is));
+                String hash = calculateSHA1(is).toUpperCase(Locale.ROOT);
+                this.dllHash = hash;
+                this.gameName = checkHash(hash);
             } catch (IOException e) {
                 this.gameName = "Nieznana gra";
             } catch (NoSuchAlgorithmException e) {
@@ -118,6 +121,50 @@ public class GameEntry implements Serializable {
         if (resolved != null) {
             this.iniPath = resolved;
             return true;
+        }
+        return false;
+    }
+
+    /**
+     * Lazily computes and caches {@link #dllHash} for legacy entries that
+     * predate hash caching. Opens the assets, hashes the engine DLL once; the
+     * caller is responsible for persisting (e.g. via GameManager) when this
+     * returns true.
+     */
+    public boolean ensureDllHash() {
+        if (dllHash != null && !dllHash.isBlank()) {
+            return false;
+        }
+        if (path == null) {
+            return false;
+        }
+        File source = new File(path);
+        if (!source.exists()) {
+            return false;
+        }
+        IFileSystem fs;
+        try {
+            fs = AssetSourceDispatcher.openAssets(source);
+        } catch (IOException e) {
+            return false;
+        }
+        String[] entries = fs.list("");
+        if (entries == null) {
+            return false;
+        }
+        for (String entry : entries) {
+            String name = entry.toLowerCase(Locale.ROOT);
+            if (!name.matches("bloomoodll\\.dll|piklib\\d+\\.dll")) {
+                continue;
+            }
+            try (InputStream is = fs.open(entry)) {
+                this.dllHash = calculateSHA1(is).toUpperCase(Locale.ROOT);
+                return true;
+            } catch (IOException e) {
+                return false;
+            } catch (NoSuchAlgorithmException e) {
+                throw new RuntimeException(e);
+            }
         }
         return false;
     }
@@ -224,6 +271,14 @@ public class GameEntry implements Serializable {
 
     public void setGameName(String gameName) {
         this.gameName = gameName;
+    }
+
+    public String getDllHash() {
+        return dllHash;
+    }
+
+    public void setDllHash(String dllHash) {
+        this.dllHash = dllHash;
     }
 
     public String getMouseMode() {

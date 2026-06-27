@@ -25,7 +25,10 @@ import pl.genschu.bloomooemulator.loader.CNVParser;
 import pl.genschu.bloomooemulator.loader.ImageLoader;
 import pl.genschu.bloomooemulator.logic.AppPaths;
 import pl.genschu.bloomooemulator.logic.GameEntry;
+import pl.genschu.bloomooemulator.logic.GameFamilies;
 import pl.genschu.bloomooemulator.logic.GameIniResolver;
+import pl.genschu.bloomooemulator.patch.PatchManager;
+import pl.genschu.bloomooemulator.patch.PatchRegistry;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -119,6 +122,25 @@ public class Game {
         }
     }
 
+    /**
+     * Stacks any active patches for this game on top of the freshly-mounted
+     * game assets. VFS gives the last-mounted source the highest priority, so a
+     * patch's {@code files/} tree overrides the originals. No-op when the engine
+     * DLL hash is unknown — there's nothing to match a patch against.
+     */
+    private void mountPatches() {
+        game.ensureDllHash();
+        String gameHash = game.getDllHash();
+        if (gameHash == null || gameHash.isBlank()) {
+            return;
+        }
+        String gameFamily = GameFamilies.familyFor(gameHash);
+        PatchManager patchManager = new PatchManager(
+                AppPaths.patchesRootDir(),
+                new PatchRegistry(AppPaths.patchesIndexFile()));
+        patchManager.mountActiveFor(vfs, gameHash, gameFamily);
+    }
+
     private void scanGameDirectory() {
         File folder = new File(this.game.getPath());
 
@@ -135,6 +157,8 @@ public class Game {
             showErrorWrongMedia();
             return;
         }
+
+        mountPatches();
 
         if (!vfs.isDirectory(DANE_ROOT)) {
             Gdx.app.error("Game loader", "Folder dane not found");
