@@ -147,12 +147,11 @@ public class Game {
         try {
             IFileSystem fs = AssetSourceDispatcher.openAssets(folder);
             vfs.mountAssets(fs);
-            if(fs instanceof LocalFileSystem) {
-                vfs.setStorage(new LocalFileSystem(folder)); // use the same folder as assets
-            }
-            else {
-                vfs.setStorage(new LocalFileSystem(resolveStorageDir()));
-            }
+            // Writable storage is always a separate per-game directory — even for
+            // folder games, where it used to be the game folder itself. Keeping the
+            // folder read-only lets mounted patches override it: the VFS read order
+            // becomes storage (saves) > patches > original assets.
+            vfs.setStorage(new LocalFileSystem(resolveStorageDir()));
         } catch (IOException e) {
             showErrorWrongMedia();
             return;
