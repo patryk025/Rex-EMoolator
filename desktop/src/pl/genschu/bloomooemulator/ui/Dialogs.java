@@ -191,6 +191,7 @@ public class Dialogs {
 
         String[] columns = {
                 resourceBundle.getString("patch_col_name"),
+                resourceBundle.getString("patch_col_author"),
                 resourceBundle.getString("patch_col_version"),
                 resourceBundle.getString("patch_col_compat"),
                 resourceBundle.getString("patch_col_installed"),
@@ -218,7 +219,7 @@ public class Dialogs {
             rows.addAll(controller.rows());
             model.setRowCount(0);
             for (PatchRowVM row : rows) {
-                model.addRow(new Object[]{row.getDisplayName(), row.getVersion(),
+                model.addRow(new Object[]{row.getDisplayName(), row.getAuthor(), row.getVersion(),
                         compatLabel(row.getCompat()), yesNo(row.isInstalled()), yesNo(row.isEnabled())});
             }
             StringBuilder sb = new StringBuilder();

@@ -47,6 +47,10 @@ public final class PatchRowVM {
         return manifest.getVersion() != null ? manifest.getVersion() : "";
     }
 
+    public String getAuthor() {
+        return manifest.getAuthor() != null ? manifest.getAuthor() : "";
+    }
+
     public String getDescription() { return manifest.getDescription(); }
 
     /** True when the patch declares a source the installer can fetch (direct URL or Google Drive). */
