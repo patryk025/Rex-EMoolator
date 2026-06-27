@@ -6,6 +6,13 @@ import com.badlogic.gdx.utils.Json;
 import com.badlogic.gdx.utils.JsonReader;
 import com.badlogic.gdx.utils.JsonValue;
 
+import java.io.BufferedInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.net.URI;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -34,6 +41,9 @@ import java.util.Map;
 public class PatchCatalog {
     private static final String BUNDLED_PATH = "patch_catalog.json";
 
+    /** Default remote catalog endpoint, overridable via {@link #load(String)}. */
+    public static final String DEFAULT_REMOTE_URL = "https://rexemoolator.genschu.pl/patch_catalog.json";
+
     /** Entries by id, in insertion order: bundled first, then remote-only additions. */
     private final Map<String, PatchManifest> entries = new LinkedHashMap<>();
 
@@ -49,6 +59,40 @@ public class PatchCatalog {
             Gdx.app.error("PatchCatalog", "Failed to load " + BUNDLED_PATH + ": " + e.getMessage(), e);
         }
         return catalog;
+    }
+
+    /**
+     * Bundled baseline with the remote catalog merged on top (remote wins by id).
+     * A remote that is offline, errors, or serves junk is non-fatal — you still get
+     * the bundled entries (see {@link #loadRemote}).
+     */
+    public static PatchCatalog load(String remoteUrl) {
+        PatchCatalog catalog = loadBundled();
+        if (remoteUrl != null && !remoteUrl.isBlank()) {
+            catalog.mergeFrom(loadRemote(remoteUrl));
+        }
+        return catalog;
+    }
+
+    /** {@link #load(String)} against {@link #DEFAULT_REMOTE_URL}. */
+    public static PatchCatalog loadWithDefaultRemote() {
+        return load(DEFAULT_REMOTE_URL);
+    }
+
+    /**
+     * Fetches and parses a remote catalog. Best-effort: any failure (offline, non-200,
+     * malformed JSON) yields an empty list rather than throwing, so callers can merge
+     * unconditionally.
+     */
+    public static List<PatchManifest> loadRemote(String url) {
+        try {
+            return parse(fetchString(url));
+        } catch (Exception e) {
+            if (Gdx.app != null) {
+                Gdx.app.error("PatchCatalog", "Remote catalog unavailable (" + url + "): " + e.getMessage());
+            }
+            return new ArrayList<>();
+        }
     }
 
     /**
@@ -117,5 +161,34 @@ public class PatchCatalog {
 
     public int size() {
         return entries.size();
+    }
+
+    private static String fetchString(String url) throws IOException {
+        HttpURLConnection conn = (HttpURLConnection) URI.create(url).toURL().openConnection();
+        conn.setInstanceFollowRedirects(true);
+        conn.setConnectTimeout(10000);
+        conn.setReadTimeout(15000);
+        conn.setRequestProperty("User-Agent", "RexEMoolator");
+        try {
+            int code = conn.getResponseCode();
+            if (code != HttpURLConnection.HTTP_OK) {
+                throw new IOException("HTTP " + code);
+            }
+            try (InputStream in = new BufferedInputStream(conn.getInputStream())) {
+                return readString(in);
+            }
+        } finally {
+            conn.disconnect();
+        }
+    }
+
+    private static String readString(InputStream in) throws IOException {
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        byte[] buffer = new byte[8192];
+        int read;
+        while ((read = in.read(buffer)) != -1) {
+            out.write(buffer, 0, read);
+        }
+        return new String(out.toByteArray(), StandardCharsets.UTF_8);
     }
 }

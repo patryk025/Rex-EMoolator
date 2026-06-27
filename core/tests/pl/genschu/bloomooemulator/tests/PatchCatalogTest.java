@@ -68,4 +68,10 @@ class PatchCatalogTest {
         assertEquals("b", all.get(1).getId());
         assertEquals("c", all.get(2).getId());
     }
+
+    @Test
+    void remoteFetchFailureIsNonFatalAndEmpty() {
+        // Malformed/unreachable endpoint must degrade to an empty list, never throw.
+        assertTrue(PatchCatalog.loadRemote("::not-a-valid-url::").isEmpty());
+    }
 }
