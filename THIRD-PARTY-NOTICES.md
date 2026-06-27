@@ -22,6 +22,7 @@ Known upstream metadata mismatches can be documented in `gradle/license-notice-o
 | com.badlogicgames.gdx:gdx-platform | 1.14.0 | The Apache Software License, Version 2.0 | <http://www.apache.org/licenses/LICENSE-2.0.txt> |
 | com.badlogicgames.jamepad:jamepad | 2.26.5.0 | The Apache Software License, Version 2.0 | <http://www.apache.org/licenses/LICENSE-2.0.txt> |
 | com.badlogicgames.jlayer:jlayer | 1.0.1-gdx | GNU Lesser General Public License (LGPL), Version 2.1 | <http://www.fsf.org/licensing/licenses/lgpl.txt> |
+| com.github.junrar:junrar | 7.5.5 | UnRar License | <https://github.com/junrar/junrar/blob/master/LICENSE> |
 | com.github.oshi:oshi-core | 6.6.3 | MIT | <https://opensource.org/licenses/MIT> |
 | net.java.dev.jna:jna | 5.18.1 | Apache-2.0 | <https://github.com/java-native-access/jna> |
 | net.java.dev.jna:jna-platform | 5.14.0 | Apache-2.0 | <https://github.com/java-native-access/jna> |
