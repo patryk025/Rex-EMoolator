@@ -44,6 +44,7 @@ public final class GameFamilies {
             // Reksio i Czarodzieje
             entry("A70F97E970C6301166E90E8872F499DA59961464", "reksio-czarodzieje"),
             entry("130BD02553829B28FAE9757A82E24881C5B6E4F2", "reksio-czarodzieje"),
+            entry("92D602BBEA05CBDA48B39DC69C90D0980BB563A0", "reksio-czarodzieje"),
 
             // Reksio i Wehikuł Czasu
             entry("2679920B3735624D746FDF24D7BB507A23B31A08", "reksio-wehikul-czasu"),

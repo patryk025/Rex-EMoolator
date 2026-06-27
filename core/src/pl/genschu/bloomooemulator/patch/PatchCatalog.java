@@ -1,0 +1,121 @@
+package pl.genschu.bloomooemulator.patch;
+
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.files.FileHandle;
+import com.badlogic.gdx.utils.Json;
+import com.badlogic.gdx.utils.JsonReader;
+import com.badlogic.gdx.utils.JsonValue;
+
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+
+/**
+ * In-memory list of <em>available</em> patches (not necessarily installed yet):
+ * each entry is a {@link PatchManifest} whose {@link PatchSource} says where to
+ * download the payload from. Two layers feed it:
+ * <ul>
+ *   <li>a bundled {@code patch_catalog.json} shipped in the app assets — the
+ *       baseline everyone who builds the project gets, and</li>
+ *   <li>an optional remote catalog fetched at runtime, whose entries override or
+ *       add to the bundled ones by {@code id} (see {@link #mergeFrom}).</li>
+ * </ul>
+ *
+ * <p>On-disk shape:
+ * <pre>
+ * { "patches": [ { …manifest… }, { …manifest… } ] }
+ * </pre>
+ *
+ * <p>Distinct from {@link PatchRegistry} (per-game enable state of installed
+ * patches) and {@link PatchManager} (discovery + mounting of installed patches).
+ * The catalog only answers "what can I install, and from where?".
+ */
+public class PatchCatalog {
+    private static final String BUNDLED_PATH = "patch_catalog.json";
+
+    /** Entries by id, in insertion order: bundled first, then remote-only additions. */
+    private final Map<String, PatchManifest> entries = new LinkedHashMap<>();
+
+    /** Loads the catalog bundled with the app assets. Missing/unreadable → empty catalog. */
+    public static PatchCatalog loadBundled() {
+        PatchCatalog catalog = new PatchCatalog();
+        try {
+            FileHandle handle = Gdx.files.internal(BUNDLED_PATH);
+            if (handle.exists()) {
+                catalog.mergeFrom(parse(handle.readString("UTF-8")));
+            }
+        } catch (Exception e) {
+            Gdx.app.error("PatchCatalog", "Failed to load " + BUNDLED_PATH + ": " + e.getMessage(), e);
+        }
+        return catalog;
+    }
+
+    /**
+     * Parses a catalog document into manifests. Entries without a usable {@code id}
+     * are skipped. Pure (no {@code Gdx} dependency), so it is unit-testable without
+     * a running application and reusable for remote payloads.
+     */
+    public static List<PatchManifest> parse(String json) {
+        List<PatchManifest> result = new ArrayList<>();
+        if (json == null || json.isBlank()) {
+            return result;
+        }
+        JsonValue root = new JsonReader().parse(json);
+        if (root == null) {
+            return result;
+        }
+        JsonValue patches = root.get("patches");
+        if (patches == null) {
+            return result;
+        }
+        Json mapper = new Json();
+        for (JsonValue entry = patches.child; entry != null; entry = entry.next) {
+            PatchManifest manifest = mapper.readValue(PatchManifest.class, entry);
+            if (manifest != null && manifest.getId() != null && !manifest.getId().isBlank()) {
+                result.add(manifest);
+            }
+        }
+        return result;
+    }
+
+    /**
+     * Merges manifests on top of this catalog: an id already present is replaced
+     * (keeping its original position), a new id is appended. This is how a remote
+     * catalog overrides/extends the bundled baseline.
+     */
+    public void mergeFrom(List<PatchManifest> manifests) {
+        if (manifests == null) {
+            return;
+        }
+        for (PatchManifest manifest : manifests) {
+            if (manifest != null && manifest.getId() != null && !manifest.getId().isBlank()) {
+                entries.put(manifest.getId(), manifest);
+            }
+        }
+    }
+
+    /** Convenience overload of {@link #mergeFrom(List)} for another catalog. */
+    public void mergeFrom(PatchCatalog other) {
+        if (other != null) {
+            mergeFrom(other.all());
+        }
+    }
+
+    /** All entries, bundled order with remote-only additions last. */
+    public List<PatchManifest> all() {
+        return new ArrayList<>(entries.values());
+    }
+
+    public PatchManifest byId(String id) {
+        return id == null ? null : entries.get(id);
+    }
+
+    public boolean isEmpty() {
+        return entries.isEmpty();
+    }
+
+    public int size() {
+        return entries.size();
+    }
+}

@@ -1,0 +1,47 @@
+{
+  "patches": [
+    {
+      "id": "czarodzieje-easy",
+      "name": "Ułatw sobie „Reksio i Czarodzieje”!",
+      "description": "Plik należy rozpakować do katalogu z grą na twardym dysku. Działa tylko przy pełnej instalacji. Moduł obniża poziom trudności w zabawach: \"Lot na Smoku\" i \"Obrona murów\". Nie niszczy zachwanych stanów gry. ",
+      "author": "Aidem Media",
+      "version": "1.0",
+      "targetHashes": ["A70F97E970C6301166E90E8872F499DA59961464"],
+      "targetFamily": "reksio-czarodzieje",
+      "filesRoot": "files",
+      "source": {
+        "type": "URL",
+        "url": "https://www.przygodyreksia.aidemmedia.pl/pliki/kogut/patch/czaro_easy.zip"
+      }
+    },
+    {
+      "id": "czarodzieje-easy2",
+      "name": "Ułatw sobie bardziej „Reksio i Czarodzieje”!",
+      "description": "Plik należy rozpakować do katalogu z grą na twardym dysku. Działa tylko przy pełnej instalacji. Moduł obniża jeszcze bardziej poziom trudności w zabawie \"Obrona murów\". Nie niszczy zachwanych stanów gry. ",
+      "author": "Aidem Media",
+      "version": "2.0",
+      "targetHashes": ["A70F97E970C6301166E90E8872F499DA59961464"],
+      "targetFamily": "reksio-czarodzieje",
+      "filesRoot": "files",
+      "supersedes": ["czarodzieje-easy"],
+      "source": {
+        "type": "URL",
+        "url": "https://www.przygodyreksia.aidemmedia.pl/pliki/kogut/patch/czaro_easy2.zip"
+      }
+    },
+    {
+      "id": "czarodzieje-patch-11",
+      "name": "Łatka 1.1 do gry „Reksio i Czarodzieje”",
+      "description": "Plik należy rozpakować do katalogu z grą na twardym dysku. Działa tylko przy pełnej instalacji. Zaleca się zainstalować łatkę przed rozpoczęciem grania, gdyż może zakłócić zachowane stany gry.",
+      "author": "Aidem Media",
+      "version": "1.1",
+      "targetHashes": ["92D602BBEA05CBDA48B39DC69C90D0980BB563A0"],
+      "targetFamily": "reksio-czarodzieje",
+      "filesRoot": "files",
+      "source": {
+        "type": "URL",
+        "url": "https://www.przygodyreksia.aidemmedia.pl/pliki/kogut/patch/czaro_patch.rar"
+      }
+    }
+  ]
+}

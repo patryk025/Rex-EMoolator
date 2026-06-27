@@ -389,6 +389,7 @@ project(":core") {
             exclude group: 'net.java.dev.jna', module: 'jna'
         }
         implementation "org.ode4j:core:$ode4jVersion"
+        implementation "com.github.junrar:junrar:7.5.5"
 
         testImplementation 'org.junit.jupiter:junit-jupiter:6.0.3'
         testRuntimeOnly "org.junit.platform:junit-platform-launcher:6.0.3"
