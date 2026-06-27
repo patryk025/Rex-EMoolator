@@ -52,17 +52,30 @@ public final class PatchInstaller {
 
     private enum Format { ZIP, RAR, UNKNOWN }
 
-    /** Downloads {@code manifest.source} and installs it. Source must be {@link PatchSourceType#URL}. */
+    /**
+     * Downloads {@code manifest.source} and installs it. Supports {@link PatchSourceType#URL}
+     * (direct archive URL) and {@link PatchSourceType#GDRIVE} (Google Drive share link,
+     * resolved via {@link GoogleDriveDownloader}). GITHUB remains out of scope.
+     */
     public static InstalledPatch installFromSource(PatchManifest manifest, File patchesRoot) throws IOException {
+        return installFromSource(manifest, patchesRoot, null);
+    }
+
+    /** {@link #installFromSource(PatchManifest, File)} with a download-progress callback. */
+    public static InstalledPatch installFromSource(PatchManifest manifest, File patchesRoot,
+                                                   DownloadProgress progress) throws IOException {
         PatchSource source = manifest == null ? null : manifest.getSource();
         if (source == null || source.getType() == null || source.getType() == PatchSourceType.LOCAL) {
             throw new IOException("Patch has no remote source to install from");
         }
-        if (source.getType() != PatchSourceType.URL) {
-            // GITHUB and others are out of scope for now; install step expects a direct archive URL.
+        File archive;
+        if (source.getType() == PatchSourceType.URL) {
+            archive = download(source.getUrl(), patchesRoot, progress);
+        } else if (source.getType() == PatchSourceType.GDRIVE) {
+            archive = GoogleDriveDownloader.download(source.getUrl(), patchesRoot, progress);
+        } else {
             throw new IOException("Unsupported source type for install: " + source.getType());
         }
-        File archive = download(source.getUrl(), patchesRoot);
         try {
             return installFromArchive(manifest, archive, patchesRoot);
         } finally {
@@ -107,6 +120,11 @@ public final class PatchInstaller {
 
     /** Downloads {@code url} into a temp file under {@code destDir}. Caller deletes it. */
     public static File download(String url, File destDir) throws IOException {
+        return download(url, destDir, null);
+    }
+
+    /** {@link #download(String, File)} reporting byte progress to {@code progress} (may be null). */
+    public static File download(String url, File destDir, DownloadProgress progress) throws IOException {
         if (url == null || url.isBlank()) {
             throw new IOException("Empty source URL");
         }
@@ -123,10 +141,11 @@ public final class PatchInstaller {
             if (code != HttpURLConnection.HTTP_OK) {
                 throw new IOException("HTTP " + code + " downloading " + url);
             }
+            long total = conn.getContentLengthLong();
             File out = File.createTempFile("patch-", ".archive", destDir);
             try (InputStream in = new BufferedInputStream(conn.getInputStream());
                  OutputStream os = new BufferedOutputStream(new FileOutputStream(out))) {
-                copy(in, os);
+                copy(in, os, progress, total);
             }
             return out;
         } finally {

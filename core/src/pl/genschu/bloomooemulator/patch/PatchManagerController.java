@@ -88,7 +88,8 @@ public class PatchManagerController {
             throw new IllegalStateException("Unknown patch: " + patchId);
         }
         PatchSource source = manifest.getSource();
-        if (source == null || source.getType() != PatchSourceType.URL) {
+        if (source == null || (source.getType() != PatchSourceType.URL
+                && source.getType() != PatchSourceType.GDRIVE)) {
             throw new IllegalStateException("Patch is not downloadable: " + patchId);
         }
         PatchInstaller.installFromSource(manifest, patchesRoot);

@@ -10,6 +10,8 @@ import java.io.Serializable;
  * For GITHUB: {@code url} is the repo (e.g. {@code https://github.com/owner/repo}),
  * {@code ref} is the pinned commit SHA or release tag.
  * For URL: {@code url} is the ZIP download URL, {@code ref} is unused.
+ * For GDRIVE: {@code url} is a Google Drive share link (or bare file id); the direct
+ * download and large-file confirmation are resolved by {@link GoogleDriveDownloader}.
  * For LOCAL: both may be null.
  */
 public class PatchSource implements Serializable {

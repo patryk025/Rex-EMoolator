@@ -49,9 +49,13 @@ public final class PatchRowVM {
 
     public String getDescription() { return manifest.getDescription(); }
 
-    /** True when the patch declares a direct-download source the installer can fetch. */
+    /** True when the patch declares a source the installer can fetch (direct URL or Google Drive). */
     public boolean isDownloadable() {
         PatchSource source = manifest.getSource();
-        return source != null && source.getType() == PatchSourceType.URL;
+        if (source == null) {
+            return false;
+        }
+        PatchSourceType type = source.getType();
+        return type == PatchSourceType.URL || type == PatchSourceType.GDRIVE;
     }
 }
