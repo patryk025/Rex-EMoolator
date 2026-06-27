@@ -1,6 +1,5 @@
 package pl.genschu.bloomooemulator.patch;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.utils.Json;
 
 import java.io.File;
@@ -13,6 +12,8 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Persisted enable state for all (game, patch) pairings.
@@ -25,6 +26,8 @@ import java.util.Locale;
  * {@link PatchManager}; this class only tracks user intent.
  */
 public class PatchRegistry {
+    private static final Logger LOGGER = Logger.getLogger(PatchRegistry.class.getName());
+
     private final File indexFile;
     private final List<PatchRegistryEntry> entries = new ArrayList<>();
 
@@ -46,7 +49,7 @@ public class PatchRegistry {
                 for (PatchRegistryEntry e : parsed) entries.add(e);
             }
         } catch (IOException e) {
-            Gdx.app.error("PatchRegistry", "Failed to read " + indexFile, e);
+            LOGGER.log(Level.WARNING, "Failed to read " + indexFile, e);
         }
     }
 
@@ -54,14 +57,14 @@ public class PatchRegistry {
         if (indexFile == null) return;
         File parent = indexFile.getParentFile();
         if (parent != null && !parent.exists() && !parent.mkdirs()) {
-            Gdx.app.error("PatchRegistry", "Cannot create " + parent);
+            LOGGER.warning("Cannot create " + parent);
             return;
         }
         String json = new Json().toJson(entries.toArray(new PatchRegistryEntry[0]), PatchRegistryEntry[].class);
         try (OutputStreamWriter writer = new OutputStreamWriter(new FileOutputStream(indexFile), StandardCharsets.UTF_8)) {
             writer.write(json);
         } catch (IOException e) {
-            Gdx.app.error("PatchRegistry", "Failed to write " + indexFile, e);
+            LOGGER.log(Level.WARNING, "Failed to write " + indexFile, e);
         }
     }
 

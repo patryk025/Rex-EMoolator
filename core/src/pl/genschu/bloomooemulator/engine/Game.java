@@ -134,7 +134,7 @@ public class Game {
         if (gameHash == null || gameHash.isBlank()) {
             return;
         }
-        String gameFamily = GameFamilies.familyFor(gameHash);
+        String gameFamily = GameFamilies.familyFor(gameHash, game.getGameName());
         PatchManager patchManager = new PatchManager(
                 AppPaths.patchesRootDir(),
                 new PatchRegistry(AppPaths.patchesIndexFile()));

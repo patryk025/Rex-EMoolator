@@ -1,5 +1,6 @@
 package pl.genschu.bloomooemulator.logic;
 
+import java.util.LinkedHashMap;
 import java.util.Locale;
 import java.util.Map;
 import static java.util.Map.entry;
@@ -70,11 +71,55 @@ public final class GameFamilies {
             entry("0967908F2DF1079415B02C60F567B5C2AC665473", "poznaj-mity-tezeusz")
     );
 
+    /**
+     * Fallback family lookup by display name (prefix match), for games whose engine
+     * DLL hash isn't recognised — e.g. after a no-CD patch modifies the DLL. The name
+     * is captured from the pristine library at add-time, so it survives later DLL edits.
+     * Keyed by name prefix so localisation / distribution suffixes still resolve.
+     */
+    private static final Map<String, String> familyByNamePrefix = new LinkedHashMap<>();
+    static {
+        familyByNamePrefix.put("Reksio i Skarb Piratów", "reksio-skarb-piratow");
+        familyByNamePrefix.put("Reksio i UFO", "reksio-ufo");
+        familyByNamePrefix.put("Reksio i Czarodzieje", "reksio-czarodzieje");
+        familyByNamePrefix.put("Reksio i Wehikuł Czasu", "reksio-wehikul-czasu");
+        familyByNamePrefix.put("Reksio i Kapitan Nemo", "reksio-kapitan-nemo");
+        familyByNamePrefix.put("Reksio i Kretes w Akcji", "reksio-kretes-w-akcji");
+        familyByNamePrefix.put("Wesołe Przedszkole Reksia", "reksio-wesole-przedszkole");
+        familyByNamePrefix.put("Poznaj Mity: Wyprawa po Złote Runo", "poznaj-mity-zlote-runo");
+        familyByNamePrefix.put("Poznaj Mity: Wojna Trojańska", "poznaj-mity-wojna-trojanska");
+        familyByNamePrefix.put("Poznaj Mity: Herkules/Odyseusz", "poznaj-mity-herkules-odyseusz");
+        familyByNamePrefix.put("Poznaj Mity: Tezeusz i Nić Ariadny", "poznaj-mity-tezeusz");
+    }
+
     /** @return the family slug for the given DLL hash, or {@code null} if unknown. */
     public static String familyFor(String hash) {
         if (hash == null) {
             return null;
         }
         return families.getOrDefault(hash.toUpperCase(Locale.ROOT), null);
+    }
+
+    /**
+     * Resolves the family by DLL hash, falling back to the display name when the hash
+     * is unknown (modified / cracked engine DLL). Prefer this over {@link #familyFor(String)}
+     * wherever a {@code gameName} is available.
+     */
+    public static String familyFor(String hash, String gameName) {
+        String byHash = familyFor(hash);
+        return byHash != null ? byHash : familyFromName(gameName);
+    }
+
+    /** @return the family slug for a game display name (prefix match), or {@code null}. */
+    public static String familyFromName(String gameName) {
+        if (gameName == null) {
+            return null;
+        }
+        for (Map.Entry<String, String> entry : familyByNamePrefix.entrySet()) {
+            if (gameName.startsWith(entry.getKey())) {
+                return entry.getValue();
+            }
+        }
+        return null;
     }
 }

@@ -1,6 +1,5 @@
 package pl.genschu.bloomooemulator.patch;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.utils.Json;
 import pl.genschu.bloomooemulator.engine.filesystem.PatchFileSystem;
 import pl.genschu.bloomooemulator.engine.filesystem.VFS;
@@ -16,6 +15,8 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Top-level entry point for the patch system.
@@ -36,6 +37,7 @@ import java.util.Set;
  */
 public class PatchManager {
     private static final String MANIFEST_FILE = "patch.json";
+    private static final Logger LOGGER = Logger.getLogger(PatchManager.class.getName());
 
     private final File patchesRoot;
     private final PatchRegistry registry;
@@ -178,12 +180,12 @@ public class PatchManager {
             while ((c = reader.read()) != -1) sb.append((char) c);
             PatchManifest parsed = new Json().fromJson(PatchManifest.class, sb.toString());
             if (parsed == null || parsed.getId() == null || parsed.getId().isBlank()) {
-                Gdx.app.error("PatchManager", "Skipping " + dir + ": manifest missing id");
+                LOGGER.warning("Skipping " + dir + ": manifest missing id");
                 return null;
             }
             return new InstalledPatch(parsed, dir);
         } catch (IOException e) {
-            Gdx.app.error("PatchManager", "Failed to read " + manifest, e);
+            LOGGER.log(Level.WARNING, "Failed to read " + manifest, e);
             return null;
         }
     }

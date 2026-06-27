@@ -17,6 +17,8 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * In-memory list of <em>available</em> patches (not necessarily installed yet):
@@ -44,21 +46,45 @@ public class PatchCatalog {
     /** Default remote catalog endpoint, overridable via {@link #load(String)}. */
     public static final String DEFAULT_REMOTE_URL = "https://rexemoolator.genschu.pl/patch_catalog.json";
 
+    private static final Logger LOGGER = Logger.getLogger(PatchCatalog.class.getName());
+
     /** Entries by id, in insertion order: bundled first, then remote-only additions. */
     private final Map<String, PatchManifest> entries = new LinkedHashMap<>();
 
-    /** Loads the catalog bundled with the app assets. Missing/unreadable → empty catalog. */
+    /** Loads the catalog bundled with the app. Missing/unreadable → empty catalog. */
     public static PatchCatalog loadBundled() {
         PatchCatalog catalog = new PatchCatalog();
-        try {
-            FileHandle handle = Gdx.files.internal(BUNDLED_PATH);
-            if (handle.exists()) {
-                catalog.mergeFrom(parse(handle.readString("UTF-8")));
-            }
-        } catch (Exception e) {
-            Gdx.app.error("PatchCatalog", "Failed to load " + BUNDLED_PATH + ": " + e.getMessage(), e);
+        String json = readBundled();
+        if (json != null) {
+            catalog.mergeFrom(parse(json));
         }
         return catalog;
+    }
+
+    /**
+     * Reads the bundled catalog. Prefers a classpath resource so it works in the
+     * Swing launcher (which has no initialised libGDX), falling back to
+     * {@code Gdx.files} for asset-only platforms such as Android.
+     */
+    private static String readBundled() {
+        try (InputStream in = PatchCatalog.class.getResourceAsStream("/" + BUNDLED_PATH)) {
+            if (in != null) {
+                return readString(in);
+            }
+        } catch (Exception e) {
+            LOGGER.log(Level.WARNING, "Failed to read bundled " + BUNDLED_PATH + " from classpath", e);
+        }
+        try {
+            if (Gdx.files != null) {
+                FileHandle handle = Gdx.files.internal(BUNDLED_PATH);
+                if (handle.exists()) {
+                    return handle.readString("UTF-8");
+                }
+            }
+        } catch (Exception e) {
+            LOGGER.log(Level.WARNING, "Failed to read bundled " + BUNDLED_PATH + " via Gdx", e);
+        }
+        return null;
     }
 
     /**
@@ -88,9 +114,7 @@ public class PatchCatalog {
         try {
             return parse(fetchString(url));
         } catch (Exception e) {
-            if (Gdx.app != null) {
-                Gdx.app.error("PatchCatalog", "Remote catalog unavailable (" + url + "): " + e.getMessage());
-            }
+            LOGGER.warning("Remote catalog unavailable (" + url + "): " + e.getMessage());
             return new ArrayList<>();
         }
     }
