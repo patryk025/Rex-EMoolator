@@ -228,10 +228,20 @@ public final class PatchInstaller {
 
     /** Buffered stream copy. Avoids {@code InputStream.transferTo} (Java 9 / Android API 33+). */
     private static void copy(InputStream in, OutputStream out) throws IOException {
+        copy(in, out, null, -1);
+    }
+
+    /** Buffered stream copy that reports cumulative bytes to {@code progress} (may be null). */
+    private static void copy(InputStream in, OutputStream out, DownloadProgress progress, long total) throws IOException {
         byte[] buffer = new byte[8192];
+        long readTotal = 0;
         int read;
         while ((read = in.read(buffer)) != -1) {
             out.write(buffer, 0, read);
+            readTotal += read;
+            if (progress != null) {
+                progress.onProgress(readTotal, total);
+            }
         }
     }
 

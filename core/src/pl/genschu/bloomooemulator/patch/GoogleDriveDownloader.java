@@ -59,6 +59,11 @@ public final class GoogleDriveDownloader {
      *                     confirmation flow cannot be resolved.
      */
     public static File download(String linkOrId, File destDir) throws IOException {
+        return download(linkOrId, destDir, null);
+    }
+
+    /** {@link #download(String, File)} reporting byte progress to {@code progress} (may be null). */
+    public static File download(String linkOrId, File destDir, DownloadProgress progress) throws IOException {
         String id = extractFileId(linkOrId);
         if (id == null) {
             throw new IOException("Not a recognisable Google Drive link/id: " + linkOrId);
@@ -75,7 +80,7 @@ public final class GoogleDriveDownloader {
                 throw new IOException("HTTP " + code + " from Google Drive for id " + id);
             }
             if (!isHtml(conn.getHeaderField("Content-Type"))) {
-                return streamToTemp(conn, destDir); // small file: binary served directly
+                return streamToTemp(conn, destDir, progress); // small file: binary served directly
             }
             // Large/unscannable file: resolve the confirmation token and retry with cookies.
             String cookie = joinCookies(conn);
@@ -94,7 +99,7 @@ public final class GoogleDriveDownloader {
                 if (isHtml(confirm.getHeaderField("Content-Type"))) {
                     throw new IOException("Google Drive still returned HTML after confirmation (id " + id + ")");
                 }
-                return streamToTemp(confirm, destDir);
+                return streamToTemp(confirm, destDir, progress);
             } finally {
                 confirm.disconnect();
             }
@@ -185,14 +190,20 @@ public final class GoogleDriveDownloader {
         return conn;
     }
 
-    private static File streamToTemp(HttpURLConnection conn, File destDir) throws IOException {
+    private static File streamToTemp(HttpURLConnection conn, File destDir, DownloadProgress progress) throws IOException {
+        long total = conn.getContentLengthLong();
         File out = File.createTempFile("gdrive-", ".archive", destDir);
         try (InputStream in = new BufferedInputStream(conn.getInputStream());
              OutputStream os = new BufferedOutputStream(new FileOutputStream(out))) {
             byte[] buffer = new byte[8192];
+            long readTotal = 0;
             int read;
             while ((read = in.read(buffer)) != -1) {
                 os.write(buffer, 0, read);
+                readTotal += read;
+                if (progress != null) {
+                    progress.onProgress(readTotal, total);
+                }
             }
         }
         return out;
@@ -249,6 +260,11 @@ public final class GoogleDriveDownloader {
     }
 
     private static String urlEncode(String s) {
-        return URLEncoder.encode(s, StandardCharsets.UTF_8);
+        try {
+            // The Charset overload is API 33+; the named-charset overload works on API 24.
+            return URLEncoder.encode(s, "UTF-8");
+        } catch (java.io.UnsupportedEncodingException e) {
+            throw new IllegalStateException("UTF-8 is always supported", e);
+        }
     }
 }

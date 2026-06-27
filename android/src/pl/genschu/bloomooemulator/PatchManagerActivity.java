@@ -106,11 +106,11 @@ public class PatchManagerActivity extends AppCompatActivity {
         rebuild();
 
         // Merge the remote catalog off the main thread, then re-render.
-        setBusy(true);
+        showIndeterminate();
         executor.execute(() -> {
             controller.refreshRemote();
             runOnUiThread(() -> {
-                setBusy(false);
+                hideProgress();
                 rebuild();
             });
         });
@@ -183,18 +183,32 @@ public class PatchManagerActivity extends AppCompatActivity {
     }
 
     private void install(PatchRowVM row) {
-        setBusy(true);
+        showProgress(0);
         final String patchId = row.getId();
+        // Throttle UI posts: only when the whole-percent changes, and a single switch
+        // to indeterminate when the server omits Content-Length.
+        final int[] lastPct = {-1};
         executor.execute(() -> {
             String error = null;
             try {
-                controller.install(patchId);
+                controller.install(patchId, (bytesRead, totalBytes) -> {
+                    if (totalBytes > 0) {
+                        int pct = (int) (bytesRead * 100 / totalBytes);
+                        if (pct != lastPct[0]) {
+                            lastPct[0] = pct;
+                            runOnUiThread(() -> showProgress(pct));
+                        }
+                    } else if (lastPct[0] != -2) {
+                        lastPct[0] = -2;
+                        runOnUiThread(this::showIndeterminate);
+                    }
+                });
             } catch (Exception ex) {
                 error = ex.getMessage();
             }
             final String err = error;
             runOnUiThread(() -> {
-                setBusy(false);
+                hideProgress();
                 if (err != null) {
                     Toast.makeText(this, "Instalacja nie powiodła się: " + err, Toast.LENGTH_LONG).show();
                 }
@@ -218,8 +232,22 @@ public class PatchManagerActivity extends AppCompatActivity {
         notesText.setText(sb.toString());
     }
 
-    private void setBusy(boolean busy) {
-        progressBar.setVisibility(busy ? View.VISIBLE : View.GONE);
+    /** Determinate download progress (0–100%). */
+    private void showProgress(int percent) {
+        progressBar.setIndeterminate(false);
+        progressBar.setMax(100);
+        progressBar.setProgress(percent);
+        progressBar.setVisibility(View.VISIBLE);
+    }
+
+    /** Indeterminate spinner — for the remote refresh and downloads of unknown size. */
+    private void showIndeterminate() {
+        progressBar.setIndeterminate(true);
+        progressBar.setVisibility(View.VISIBLE);
+    }
+
+    private void hideProgress() {
+        progressBar.setVisibility(View.GONE);
     }
 
     private PatchCatalog loadBundledCatalog() {

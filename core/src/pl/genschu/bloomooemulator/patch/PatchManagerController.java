@@ -80,6 +80,11 @@ public class PatchManagerController {
      * @throws IOException           on download/extract failure
      */
     public void install(String patchId) throws IOException {
+        install(patchId, null);
+    }
+
+    /** {@link #install(String)} reporting download progress to {@code progress} (may be null). */
+    public void install(String patchId, DownloadProgress progress) throws IOException {
         if (manager.byId(patchId) != null) {
             throw new IllegalStateException("Patch already installed: " + patchId);
         }
@@ -92,7 +97,7 @@ public class PatchManagerController {
                 && source.getType() != PatchSourceType.GDRIVE)) {
             throw new IllegalStateException("Patch is not downloadable: " + patchId);
         }
-        PatchInstaller.installFromSource(manifest, patchesRoot);
+        PatchInstaller.installFromSource(manifest, patchesRoot, progress);
         manager.rescan();
     }
 

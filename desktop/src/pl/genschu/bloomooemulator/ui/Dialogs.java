@@ -239,6 +239,10 @@ public class Dialogs {
         JButton moveDownButton = new JButton(resourceBundle.getString("patch_move_down"));
         JButton closeButton = new JButton(resourceBundle.getString("close"));
 
+        final JProgressBar progressBar = new JProgressBar(0, 100);
+        progressBar.setStringPainted(true);
+        progressBar.setVisible(false);
+
         installButton.addActionListener(e -> {
             int sel = table.getSelectedRow();
             if (sel < 0) {
@@ -256,13 +260,25 @@ public class Dialogs {
             }
             final String patchId = row.getId();
             installButton.setEnabled(false);
-            new SwingWorker<Void, Void>() {
+            progressBar.setIndeterminate(false);
+            progressBar.setValue(0);
+            progressBar.setVisible(true);
+            // Switch to indeterminate at most once, when the server omits Content-Length.
+            final boolean[] indeterminateSet = {false};
+            SwingWorker<Void, Void> worker = new SwingWorker<>() {
                 private Exception error;
 
                 @Override
                 protected Void doInBackground() {
                     try {
-                        controller.install(patchId);
+                        controller.install(patchId, (bytesRead, totalBytes) -> {
+                            if (totalBytes > 0) {
+                                setProgress((int) (bytesRead * 100 / totalBytes)); // SwingWorker dedupes same value
+                            } else if (!indeterminateSet[0]) {
+                                indeterminateSet[0] = true;
+                                SwingUtilities.invokeLater(() -> progressBar.setIndeterminate(true));
+                            }
+                        });
                     } catch (Exception ex) {
                         error = ex;
                     }
@@ -272,13 +288,21 @@ public class Dialogs {
                 @Override
                 protected void done() {
                     installButton.setEnabled(true);
+                    progressBar.setVisible(false);
+                    progressBar.setIndeterminate(false);
                     if (error != null) {
                         JOptionPane.showMessageDialog(dialog,
                                 resourceBundle.getString("patch_install_failed").replace("{0}", String.valueOf(error.getMessage())));
                     }
                     rebuild.run();
                 }
-            }.execute();
+            };
+            worker.addPropertyChangeListener(evt -> {
+                if ("progress".equals(evt.getPropertyName())) {
+                    progressBar.setValue((Integer) evt.getNewValue());
+                }
+            });
+            worker.execute();
         });
 
         toggleButton.addActionListener(e -> {
@@ -337,9 +361,12 @@ public class Dialogs {
         buttons.add(moveUpButton);
         buttons.add(moveDownButton);
         buttons.add(closeButton);
+        JPanel bottom = new JPanel(new BorderLayout());
+        bottom.add(buttons, BorderLayout.CENTER);
+        bottom.add(progressBar, BorderLayout.SOUTH);
         JPanel south = new JPanel(new BorderLayout(8, 4));
         south.add(notesPanel, BorderLayout.CENTER);
-        south.add(buttons, BorderLayout.SOUTH);
+        south.add(bottom, BorderLayout.SOUTH);
         dialog.add(south, BorderLayout.SOUTH);
 
         rebuild.run();
