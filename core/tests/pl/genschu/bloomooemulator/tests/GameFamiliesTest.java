@@ -1,6 +1,7 @@
 package pl.genschu.bloomooemulator.tests;
 
 import org.junit.jupiter.api.Test;
+import pl.genschu.bloomooemulator.logic.GameEntry;
 import pl.genschu.bloomooemulator.logic.GameFamilies;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -34,6 +35,24 @@ class GameFamiliesTest {
         assertEquals("reksio-wehikul-czasu", GameFamilies.familyFromName("Reksio i Wehikuł Czasu"));
         assertNull(GameFamilies.familyFromName("Nieznana gra"));
         assertNull(GameFamilies.familyFromName(null));
+    }
+
+    @Test
+    void gameEntryResolveFamilyPrecedence() {
+        GameEntry game = new GameEntry();
+        game.setGameName("Reksio i Czarodzieje");
+        game.setDllHash(CZARODZIEJE_NOCD);                 // unknown hash → name fallback
+        assertEquals("reksio-czarodzieje", game.resolveFamily());
+
+        game.setDllHash(CZARODZIEJE_RETAIL);               // known hash takes over
+        assertEquals("reksio-czarodzieje", game.resolveFamily());
+
+        game.setFamilyOverride("custom-family");           // explicit override wins over everything
+        assertEquals("custom-family", game.resolveFamily());
+
+        game.setFamilyOverride("   ");                     // blank clears the override
+        assertNull(game.getFamilyOverride());
+        assertEquals("reksio-czarodzieje", game.resolveFamily());
     }
 
     @Test

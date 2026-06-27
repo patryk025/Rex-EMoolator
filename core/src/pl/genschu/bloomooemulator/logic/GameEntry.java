@@ -20,6 +20,7 @@ public class GameEntry implements Serializable {
     private String version;
     private String gameName;
     private String dllHash;
+    private String familyOverride;
     private String path;
     private String iniPath;
     private String storageId;
@@ -279,6 +280,26 @@ public class GameEntry implements Serializable {
 
     public void setDllHash(String dllHash) {
         this.dllHash = dllHash;
+    }
+
+    public String getFamilyOverride() {
+        return familyOverride;
+    }
+
+    public void setFamilyOverride(String familyOverride) {
+        this.familyOverride = (familyOverride == null || familyOverride.isBlank()) ? null : familyOverride.trim();
+    }
+
+    /**
+     * Resolves the patch family: an explicit {@link #familyOverride} wins, otherwise
+     * it is derived from the engine DLL hash, falling back to the cached display name
+     * (which survives no-CD / DLL edits). May be {@code null} if nothing resolves.
+     */
+    public String resolveFamily() {
+        if (familyOverride != null && !familyOverride.isBlank()) {
+            return familyOverride;
+        }
+        return GameFamilies.familyFor(dllHash, gameName);
     }
 
     public String getMouseMode() {

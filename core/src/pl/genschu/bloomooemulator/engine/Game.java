@@ -25,7 +25,6 @@ import pl.genschu.bloomooemulator.loader.CNVParser;
 import pl.genschu.bloomooemulator.loader.ImageLoader;
 import pl.genschu.bloomooemulator.logic.AppPaths;
 import pl.genschu.bloomooemulator.logic.GameEntry;
-import pl.genschu.bloomooemulator.logic.GameFamilies;
 import pl.genschu.bloomooemulator.logic.GameIniResolver;
 import pl.genschu.bloomooemulator.patch.PatchManager;
 import pl.genschu.bloomooemulator.patch.PatchRegistry;
@@ -134,7 +133,7 @@ public class Game {
         if (gameHash == null || gameHash.isBlank()) {
             return;
         }
-        String gameFamily = GameFamilies.familyFor(gameHash, game.getGameName());
+        String gameFamily = game.resolveFamily();
         PatchManager patchManager = new PatchManager(
                 AppPaths.patchesRootDir(),
                 new PatchRegistry(AppPaths.patchesIndexFile()));

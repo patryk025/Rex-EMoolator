@@ -78,6 +78,37 @@ public class PatchManager {
     }
 
     /**
+     * Deletes a patch's on-disk folder and refreshes the scan. The caller is
+     * responsible for clearing the patch's {@link PatchRegistry} entries.
+     *
+     * @return {@code true} if the patch was installed and removed.
+     */
+    public boolean uninstall(String id) {
+        InstalledPatch patch = byId(id);
+        if (patch == null) {
+            return false;
+        }
+        deleteRecursively(patch.getRootDir());
+        rescan();
+        return true;
+    }
+
+    private static void deleteRecursively(File file) {
+        if (file == null || !file.exists()) {
+            return;
+        }
+        File[] children = file.listFiles();
+        if (children != null) {
+            for (File child : children) {
+                deleteRecursively(child);
+            }
+        }
+        if (!file.delete()) {
+            LOGGER.warning("Could not delete " + file);
+        }
+    }
+
+    /**
      * Patches that match the given game at any compatibility level, paired with
      * the level. Used by UI to render the patch list grouped by exact/family/none.
      */

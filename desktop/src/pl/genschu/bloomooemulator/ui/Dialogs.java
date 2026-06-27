@@ -3,7 +3,6 @@ package pl.genschu.bloomooemulator.ui;
 import pl.genschu.bloomooemulator.GameListFrame;
 import pl.genschu.bloomooemulator.logic.AppPaths;
 import pl.genschu.bloomooemulator.logic.GameEntry;
-import pl.genschu.bloomooemulator.logic.GameFamilies;
 import pl.genschu.bloomooemulator.logic.GameManager;
 import pl.genschu.bloomooemulator.patch.InstalledPatch;
 import pl.genschu.bloomooemulator.patch.PatchCatalog;
@@ -65,6 +64,7 @@ public class Dialogs {
 
         JTextField nameField = new JTextField(game != null ? game.getName() : "");
         JTextField pathField = new JTextField(game != null ? game.getPath() : "");
+        JTextField familyField = new JTextField(game != null && game.getFamilyOverride() != null ? game.getFamilyOverride() : "");
         JPanel pathPanel = new JPanel(new BorderLayout(5, 0));
         JPanel pathButtonPanel = new JPanel(new GridLayout(1, 2, 5, 0));
         JButton chooseFolderButton = new JButton(resourceBundle.getString("choose_folder"));
@@ -100,6 +100,8 @@ public class Dialogs {
         dialog.add(skipPoliceCheckbox);
         dialog.add(fullscreenCheckbox);
         dialog.add(fpsCounterCheckbox);
+        dialog.add(new JLabel(resourceBundle.getString("family_override")));
+        dialog.add(familyField);
 
         JButton saveButton = new JButton(resourceBundle.getString("save"));
         saveButton.addActionListener(e -> {
@@ -112,6 +114,7 @@ public class Dialogs {
                         skipPoliceCheckbox.isSelected(),
                         !fullscreenCheckbox.isSelected());
                 newGame.setShowFpsCounter(fpsCounterCheckbox.isSelected());
+                newGame.setFamilyOverride(familyField.getText());
                 gameManager.addGame(newGame);
             } else {
                 game.setName(nameField.getText());
@@ -121,6 +124,7 @@ public class Dialogs {
                 game.setSkipLicenceCode(skipPoliceCheckbox.isSelected());
                 game.setMaintainAspectRatio(!fullscreenCheckbox.isSelected());
                 game.setShowFpsCounter(fpsCounterCheckbox.isSelected());
+                game.setFamilyOverride(familyField.getText());
                 gameManager.updateGame(game);
             }
             gameListFrame.refreshGameList();
@@ -182,7 +186,7 @@ public class Dialogs {
             JOptionPane.showMessageDialog(gameListFrame, resourceBundle.getString("patch_no_hash"));
             return;
         }
-        final String family = GameFamilies.familyFor(hash, game.getGameName());
+        final String family = game.resolveFamily();
         final File patchesRoot = AppPaths.patchesRootDir();
         final PatchRegistry registry = new PatchRegistry(AppPaths.patchesIndexFile());
         final PatchManager manager = new PatchManager(patchesRoot, registry);
@@ -240,6 +244,9 @@ public class Dialogs {
 
         JButton installButton = new JButton(resourceBundle.getString("patch_install"));
         JButton toggleButton = new JButton(resourceBundle.getString("patch_toggle"));
+        JButton uninstallButton = new JButton(resourceBundle.getString("patch_uninstall"));
+        JButton moveUpButton = new JButton(resourceBundle.getString("patch_move_up"));
+        JButton moveDownButton = new JButton(resourceBundle.getString("patch_move_down"));
         JButton closeButton = new JButton(resourceBundle.getString("close"));
 
         installButton.addActionListener(e -> {
@@ -308,6 +315,32 @@ public class Dialogs {
             }
         });
 
+        uninstallButton.addActionListener(e -> {
+            int sel = table.getSelectedRow();
+            if (sel < 0) {
+                JOptionPane.showMessageDialog(dialog, resourceBundle.getString("patch_select_row"));
+                return;
+            }
+            PatchRow row = rows.get(sel);
+            if (!row.installed) {
+                return;
+            }
+            String name = row.manifest.getName() != null ? row.manifest.getName() : row.manifest.getId();
+            int resp = JOptionPane.showConfirmDialog(dialog,
+                    resourceBundle.getString("patch_confirm_uninstall").replace("{0}", name),
+                    resourceBundle.getString("patch_uninstall"), JOptionPane.YES_NO_OPTION);
+            if (resp != JOptionPane.YES_OPTION) {
+                return;
+            }
+            manager.uninstall(row.manifest.getId());
+            registry.remove(hash, row.manifest.getId());
+            registry.save();
+            rebuild.run();
+        });
+
+        moveUpButton.addActionListener(e -> movePatchOrder(table, rows, registry, hash, -1, rebuild));
+        moveDownButton.addActionListener(e -> movePatchOrder(table, rows, registry, hash, 1, rebuild));
+
         closeButton.addActionListener(e -> {
             gameListFrame.refreshGameList();
             dialog.dispose();
@@ -319,6 +352,9 @@ public class Dialogs {
         JPanel buttons = new JPanel();
         buttons.add(installButton);
         buttons.add(toggleButton);
+        buttons.add(uninstallButton);
+        buttons.add(moveUpButton);
+        buttons.add(moveDownButton);
         buttons.add(closeButton);
         JPanel south = new JPanel(new BorderLayout(8, 4));
         south.add(notesPanel, BorderLayout.CENTER);
@@ -366,9 +402,49 @@ public class Dialogs {
             }
             PatchRegistryEntry entry = registry.find(hash, m.getId());
             boolean enabled = entry != null && entry.isEnabled();
-            rows.add(new PatchRow(m, compat, installed, enabled));
+            int order = entry != null ? entry.getOrder() : Integer.MAX_VALUE;
+            rows.add(new PatchRow(m, compat, installed, enabled, entry != null, order));
         }
+        // Registry-tracked patches first, in mount order (ascending); the rest keep scan order.
+        rows.sort((a, b) -> Integer.compare(a.order, b.order));
         return rows;
+    }
+
+    /**
+     * Swaps the mount {@code order} of the selected registry-tracked patch with its
+     * neighbour in {@code direction} (-1 up, +1 down), skipping rows without a registry
+     * entry. Persists and re-renders, keeping the moved patch selected.
+     */
+    private void movePatchOrder(JTable table, List<PatchRow> rows, PatchRegistry registry,
+                                String hash, int direction, Runnable rebuild) {
+        int sel = table.getSelectedRow();
+        if (sel < 0 || !rows.get(sel).hasEntry) {
+            return;
+        }
+        int target = sel + direction;
+        while (target >= 0 && target < rows.size() && !rows.get(target).hasEntry) {
+            target += direction;
+        }
+        if (target < 0 || target >= rows.size()) {
+            return;
+        }
+        String movedId = rows.get(sel).manifest.getId();
+        PatchRegistryEntry a = registry.find(hash, movedId);
+        PatchRegistryEntry b = registry.find(hash, rows.get(target).manifest.getId());
+        if (a == null || b == null) {
+            return;
+        }
+        int tmp = a.getOrder();
+        a.setOrder(b.getOrder());
+        b.setOrder(tmp);
+        registry.save();
+        rebuild.run();
+        for (int i = 0; i < rows.size(); i++) {
+            if (rows.get(i).manifest.getId().equals(movedId)) {
+                table.setRowSelectionInterval(i, i);
+                break;
+            }
+        }
     }
 
     private int nextOrder(PatchRegistry registry, String hash) {
@@ -399,12 +475,17 @@ public class Dialogs {
         final PatchCompatibility compat;
         final boolean installed;
         final boolean enabled;
+        final boolean hasEntry;
+        final int order;
 
-        PatchRow(PatchManifest manifest, PatchCompatibility compat, boolean installed, boolean enabled) {
+        PatchRow(PatchManifest manifest, PatchCompatibility compat, boolean installed,
+                 boolean enabled, boolean hasEntry, int order) {
             this.manifest = manifest;
             this.compat = compat;
             this.installed = installed;
             this.enabled = enabled;
+            this.hasEntry = hasEntry;
+            this.order = order;
         }
     }
 }
