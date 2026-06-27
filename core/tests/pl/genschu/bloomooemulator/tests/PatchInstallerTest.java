@@ -76,6 +76,25 @@ class PatchInstallerTest {
     }
 
     @Test
+    void archiveRootStripsWrapperFolder() throws Exception {
+        Map<String, String> entries = new LinkedHashMap<>();
+        entries.put("Reksio Piraci/Dane/music.cnv", "score");
+        entries.put("Reksio Piraci/wavs/track1.wav", "audio");
+        entries.put("readme.txt", "outside the wrapper");
+        File archive = zip("soundtrack.zip", entries);
+
+        PatchManifest m = manifest("skarb-soundtrack");
+        m.setArchiveRoot("Reksio Piraci");
+        InstalledPatch installed = PatchInstaller.installFromArchive(m, archive, tmp.toFile());
+
+        File files = installed.getFilesDir();
+        assertTrue(new File(files, "Dane/music.cnv").isFile(), "wrapper folder must be stripped");
+        assertTrue(new File(files, "wavs/track1.wav").isFile());
+        assertFalse(new File(files, "Reksio Piraci/Dane/music.cnv").exists(), "no double nesting");
+        assertFalse(new File(files, "readme.txt").exists(), "entries outside archiveRoot are ignored");
+    }
+
+    @Test
     void reinstallReplacesPreviousOverlay() throws Exception {
         File first = zip("first.zip", Map.of("Dane/old.cnv", "old"));
         PatchInstaller.installFromArchive(manifest("p"), first, tmp.toFile());

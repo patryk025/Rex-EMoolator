@@ -150,6 +150,7 @@ public class PatchCatalog {
             return result;
         }
         Json mapper = new Json();
+        mapper.setIgnoreUnknownFields(true); // forward-compat: tolerate manifest fields newer than this build
         for (JsonValue entry = patches.child; entry != null; entry = entry.next) {
             PatchManifest manifest = mapper.readValue(PatchManifest.class, entry);
             if (manifest != null && manifest.getId() != null && !manifest.getId().isBlank()) {

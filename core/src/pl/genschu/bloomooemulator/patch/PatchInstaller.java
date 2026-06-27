@@ -108,9 +108,10 @@ public final class PatchInstaller {
         }
 
         Predicate<String> filter = keep == null ? DEFAULT_FILTER : keep;
+        String archiveRoot = normalizeRoot(manifest.getArchiveRoot());
         switch (detectFormat(archive)) {
-            case ZIP -> extractZip(archive, filesDir, filter);
-            case RAR -> extractRar(archive, filesDir, filter);
+            case ZIP -> extractZip(archive, filesDir, filter, archiveRoot);
+            case RAR -> extractRar(archive, filesDir, filter, archiveRoot);
             default -> throw new IOException("Unsupported archive format: " + archive.getName());
         }
 
@@ -153,15 +154,15 @@ public final class PatchInstaller {
         }
     }
 
-    private static void extractZip(File archive, File baseDir, Predicate<String> keep) throws IOException {
+    private static void extractZip(File archive, File baseDir, Predicate<String> keep, String archiveRoot) throws IOException {
         try (ZipInputStream zis = new ZipInputStream(new BufferedInputStream(new FileInputStream(archive)))) {
             ZipEntry entry;
             while ((entry = zis.getNextEntry()) != null) {
                 if (entry.isDirectory()) {
                     continue;
                 }
-                String name = entry.getName().replace('\\', '/');
-                if (!keep.test(name)) {
+                String name = relativize(entry.getName().replace('\\', '/'), archiveRoot);
+                if (name == null || !keep.test(name)) {
                     continue;
                 }
                 writeTo(resolveSafe(baseDir, name), zis);
@@ -169,15 +170,15 @@ public final class PatchInstaller {
         }
     }
 
-    private static void extractRar(File archive, File baseDir, Predicate<String> keep) throws IOException {
+    private static void extractRar(File archive, File baseDir, Predicate<String> keep, String archiveRoot) throws IOException {
         try (Archive rar = new Archive(archive)) {
             FileHeader header;
             while ((header = rar.nextFileHeader()) != null) {
                 if (header.isDirectory()) {
                     continue;
                 }
-                String name = header.getFileName().replace('\\', '/');
-                if (!keep.test(name)) {
+                String name = relativize(header.getFileName().replace('\\', '/'), archiveRoot);
+                if (name == null || !keep.test(name)) {
                     continue;
                 }
                 File target = resolveSafe(baseDir, name);
@@ -189,6 +190,38 @@ public final class PatchInstaller {
         } catch (RarException e) {
             throw new IOException("Failed to extract RAR " + archive.getName(), e);
         }
+    }
+
+    /**
+     * Maps an archive entry path to its overlay-relative path. With no {@code archiveRoot}
+     * the path is unchanged; otherwise the entry must live under {@code archiveRoot/} —
+     * that prefix is stripped and entries outside it return {@code null} (skipped).
+     */
+    private static String relativize(String name, String archiveRoot) {
+        if (archiveRoot == null || archiveRoot.isEmpty()) {
+            return name;
+        }
+        String prefix = archiveRoot + "/";
+        if (name.length() <= prefix.length()
+                || !name.regionMatches(true, 0, prefix, 0, prefix.length())) {
+            return null;
+        }
+        return name.substring(prefix.length());
+    }
+
+    /** Normalises a manifest {@code archiveRoot}: backslashes→/, strips surrounding slashes. */
+    private static String normalizeRoot(String root) {
+        if (root == null) {
+            return null;
+        }
+        String r = root.replace('\\', '/').trim();
+        while (r.startsWith("/")) {
+            r = r.substring(1);
+        }
+        while (r.endsWith("/")) {
+            r = r.substring(0, r.length() - 1);
+        }
+        return r.isEmpty() ? null : r;
     }
 
     private static Format detectFormat(File archive) throws IOException {

@@ -33,6 +33,11 @@ import java.util.Locale;
  *   <li>{@code filesRoot} — subdirectory under the patch root holding the overlay tree.
  *       Defaults to {@code "files"}. The tree mirrors the game's VFS layout
  *       (e.g. {@code files/DANE/scene12/music.cnv}).</li>
+ *   <li>{@code archiveRoot} — optional subdirectory <em>inside the downloaded archive</em>
+ *       whose contents are the overlay root. It is stripped during extraction (entries
+ *       outside it are ignored), so the on-disk overlay stays clean and {@code filesRoot}
+ *       remains {@code "files"}. Use it when an archive wraps everything in a folder
+ *       (e.g. {@code "Reksio Piraci"}). Null/absent = extract the whole archive verbatim.</li>
  *   <li>{@code source} — provenance, used only by the patch manager for refresh logic.</li>
  *   <li>{@code conflicts} / {@code requires} / {@code supersedes} — relationships with other
  *       patches, evaluated by {@link PatchManager#validate}. Each entry is a patch {@code id}.
@@ -49,6 +54,7 @@ public class PatchManifest implements Serializable {
     private String[] targetHashes = new String[0];
     private String targetFamily;
     private String filesRoot = "files";
+    private String archiveRoot;
     private PatchSource source = new PatchSource();
     private String reference;
     private String[] conflicts = new String[0];
@@ -103,6 +109,11 @@ public class PatchManifest implements Serializable {
     public String getFilesRoot() { return filesRoot; }
     public void setFilesRoot(String filesRoot) {
         this.filesRoot = (filesRoot == null || filesRoot.isBlank()) ? "files" : filesRoot;
+    }
+
+    public String getArchiveRoot() { return archiveRoot; }
+    public void setArchiveRoot(String archiveRoot) {
+        this.archiveRoot = (archiveRoot == null || archiveRoot.isBlank()) ? null : archiveRoot.trim();
     }
 
     public PatchSource getSource() { return source; }

@@ -209,7 +209,9 @@ public class PatchManager {
             StringBuilder sb = new StringBuilder();
             int c;
             while ((c = reader.read()) != -1) sb.append((char) c);
-            PatchManifest parsed = new Json().fromJson(PatchManifest.class, sb.toString());
+            Json json = new Json();
+            json.setIgnoreUnknownFields(true); // forward-compat: a patch.json written by a newer build
+            PatchManifest parsed = json.fromJson(PatchManifest.class, sb.toString());
             if (parsed == null || parsed.getId() == null || parsed.getId().isBlank()) {
                 LOGGER.warning("Skipping " + dir + ": manifest missing id");
                 return null;
