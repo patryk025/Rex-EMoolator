@@ -88,6 +88,18 @@ public class PatchCatalog {
     }
 
     /**
+     * Builds a catalog from a raw catalog JSON document. Lets callers that have
+     * already obtained the bundled JSON by other means (e.g. Android's
+     * {@code AssetManager}, where neither the classpath nor {@code Gdx.files} is
+     * usable in the plain launcher Activity) feed it in directly.
+     */
+    public static PatchCatalog fromJson(String json) {
+        PatchCatalog catalog = new PatchCatalog();
+        catalog.mergeFrom(parse(json));
+        return catalog;
+    }
+
+    /**
      * Bundled baseline with the remote catalog merged on top (remote wins by id).
      * A remote that is offline, errors, or serves junk is non-fatal — you still get
      * the bundled entries (see {@link #loadRemote}).

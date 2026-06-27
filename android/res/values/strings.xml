@@ -2,7 +2,10 @@
 <resources>
 
     <string name="app_name">Rex-EMoolator</string>
-    
+
+    <string name="patch_manager_title">Łatki</string>
+    <string name="patches_button_desc">Zarządzaj łatkami</string>
+
     <string-array name="mouse_modes">
         <item>Dotykowo</item>
         <item>Fizyczny kursor</item>

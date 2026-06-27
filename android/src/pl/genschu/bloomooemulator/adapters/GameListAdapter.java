@@ -15,6 +15,7 @@ import com.badlogic.gdx.utils.Array;
 
 import pl.genschu.bloomooemulator.AndroidLauncher;
 import pl.genschu.bloomooemulator.GameListActivity;
+import pl.genschu.bloomooemulator.PatchManagerActivity;
 import pl.genschu.bloomooemulator.R;
 import pl.genschu.bloomooemulator.logic.GameEntry;
 
@@ -54,6 +55,7 @@ public class GameListAdapter extends RecyclerView.Adapter<GameListAdapter.GameVi
         ImageButton runButton;
         ImageButton editButton;
         ImageButton deleteButton;
+        ImageButton patchesButton;
 
         public GameViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -63,6 +65,7 @@ public class GameListAdapter extends RecyclerView.Adapter<GameListAdapter.GameVi
             runButton = itemView.findViewById(R.id.runButton);
             editButton = itemView.findViewById(R.id.editButton);
             deleteButton = itemView.findViewById(R.id.deleteButton);
+            patchesButton = itemView.findViewById(R.id.patchesButton);
 
             runButton.setOnClickListener(v -> {
                 int position = getAdapterPosition();
@@ -88,6 +91,14 @@ public class GameListAdapter extends RecyclerView.Adapter<GameListAdapter.GameVi
                 GameEntry game = games.get(position);
                 ((GameListActivity) context).showDeleteDialog(game);
                 notifyItemRemoved(position);
+            });
+
+            patchesButton.setOnClickListener(v -> {
+                int position = getAdapterPosition();
+                GameEntry game = games.get(position);
+                Intent i = new Intent(context, PatchManagerActivity.class);
+                i.putExtra("game", game);
+                context.startActivity(i);
             });
         }
 

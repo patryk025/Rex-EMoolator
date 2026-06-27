@@ -38,6 +38,11 @@ public final class AppPaths {
     }
 
     public static File patchesIndexFile() {
-        return new File(patchesRootDir(), PATCHES_INDEX);
+        return patchesIndexFileIn(patchesRootDir());
+    }
+
+    /** Patch registry index inside an explicit patches root (used when the root is platform-resolved). */
+    public static File patchesIndexFileIn(File patchesRoot) {
+        return new File(patchesRoot, PATCHES_INDEX);
     }
 }

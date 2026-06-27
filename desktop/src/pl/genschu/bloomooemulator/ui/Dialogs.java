@@ -4,17 +4,11 @@ import pl.genschu.bloomooemulator.GameListFrame;
 import pl.genschu.bloomooemulator.logic.AppPaths;
 import pl.genschu.bloomooemulator.logic.GameEntry;
 import pl.genschu.bloomooemulator.logic.GameManager;
-import pl.genschu.bloomooemulator.patch.InstalledPatch;
 import pl.genschu.bloomooemulator.patch.PatchCatalog;
 import pl.genschu.bloomooemulator.patch.PatchCompatibility;
-import pl.genschu.bloomooemulator.patch.PatchInstaller;
 import pl.genschu.bloomooemulator.patch.PatchIssue;
-import pl.genschu.bloomooemulator.patch.PatchManager;
-import pl.genschu.bloomooemulator.patch.PatchManifest;
-import pl.genschu.bloomooemulator.patch.PatchRegistry;
-import pl.genschu.bloomooemulator.patch.PatchRegistryEntry;
-import pl.genschu.bloomooemulator.patch.PatchSource;
-import pl.genschu.bloomooemulator.patch.PatchSourceType;
+import pl.genschu.bloomooemulator.patch.PatchManagerController;
+import pl.genschu.bloomooemulator.patch.PatchRowVM;
 
 import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
@@ -22,7 +16,6 @@ import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.io.File;
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.ResourceBundle;
 
@@ -187,10 +180,8 @@ public class Dialogs {
             return;
         }
         final String family = game.resolveFamily();
-        final File patchesRoot = AppPaths.patchesRootDir();
-        final PatchRegistry registry = new PatchRegistry(AppPaths.patchesIndexFile());
-        final PatchManager manager = new PatchManager(patchesRoot, registry);
-        final PatchCatalog catalog = PatchCatalog.loadBundled();
+        final PatchManagerController controller = new PatchManagerController(
+                hash, family, AppPaths.patchesRootDir(), AppPaths.patchesIndexFile(), PatchCatalog.loadBundled());
 
         final JDialog dialog = new JDialog(gameListFrame,
                 resourceBundle.getString("patch_dialog_title").replace("{0}", game.getName()), true);
@@ -221,21 +212,20 @@ public class Dialogs {
         notes.setLineWrap(true);
         notes.setWrapStyleWord(true);
 
-        final List<PatchRow> rows = new ArrayList<>();
+        final List<PatchRowVM> rows = new ArrayList<>();
         final Runnable rebuild = () -> {
             rows.clear();
-            rows.addAll(buildPatchRows(catalog, manager, registry, hash, family));
+            rows.addAll(controller.rows());
             model.setRowCount(0);
-            for (PatchRow row : rows) {
-                String name = row.manifest.getName() != null ? row.manifest.getName() : row.manifest.getId();
-                String version = row.manifest.getVersion() != null ? row.manifest.getVersion() : "";
-                model.addRow(new Object[]{name, version, compatLabel(row.compat), yesNo(row.installed), yesNo(row.enabled)});
+            for (PatchRowVM row : rows) {
+                model.addRow(new Object[]{row.getDisplayName(), row.getVersion(),
+                        compatLabel(row.getCompat()), yesNo(row.isInstalled()), yesNo(row.isEnabled())});
             }
             StringBuilder sb = new StringBuilder();
             if (rows.isEmpty()) {
                 sb.append(resourceBundle.getString("patch_none_relevant"));
             } else {
-                for (PatchIssue issue : manager.validate(manager.activeFor(hash, family))) {
+                for (PatchIssue issue : controller.issues()) {
                     sb.append("• [").append(issue.getSeverity()).append("] ").append(issue.getMessage()).append('\n');
                 }
             }
@@ -255,16 +245,16 @@ public class Dialogs {
                 JOptionPane.showMessageDialog(dialog, resourceBundle.getString("patch_select_row"));
                 return;
             }
-            PatchRow row = rows.get(sel);
-            if (row.installed) {
+            PatchRowVM row = rows.get(sel);
+            if (row.isInstalled()) {
                 JOptionPane.showMessageDialog(dialog, resourceBundle.getString("patch_already_installed"));
                 return;
             }
-            PatchSource src = row.manifest.getSource();
-            if (src == null || src.getType() != PatchSourceType.URL) {
+            if (!row.isDownloadable()) {
                 JOptionPane.showMessageDialog(dialog, resourceBundle.getString("patch_not_downloadable"));
                 return;
             }
+            final String patchId = row.getId();
             installButton.setEnabled(false);
             new SwingWorker<Void, Void>() {
                 private Exception error;
@@ -272,7 +262,7 @@ public class Dialogs {
                 @Override
                 protected Void doInBackground() {
                     try {
-                        PatchInstaller.installFromSource(row.manifest, patchesRoot);
+                        controller.install(patchId);
                     } catch (Exception ex) {
                         error = ex;
                     }
@@ -286,7 +276,6 @@ public class Dialogs {
                         JOptionPane.showMessageDialog(dialog,
                                 resourceBundle.getString("patch_install_failed").replace("{0}", String.valueOf(error.getMessage())));
                     }
-                    manager.rescan();
                     rebuild.run();
                 }
             }.execute();
@@ -298,17 +287,12 @@ public class Dialogs {
                 JOptionPane.showMessageDialog(dialog, resourceBundle.getString("patch_select_row"));
                 return;
             }
-            PatchRow row = rows.get(sel);
-            if (!row.installed) {
+            PatchRowVM row = rows.get(sel);
+            if (!row.isInstalled()) {
                 JOptionPane.showMessageDialog(dialog, resourceBundle.getString("patch_install_first"));
                 return;
             }
-            PatchRegistryEntry entry = registry.find(hash, row.manifest.getId());
-            boolean nowEnabled = !(entry != null && entry.isEnabled());
-            boolean force = row.compat != PatchCompatibility.EXACT;
-            int order = entry != null ? entry.getOrder() : nextOrder(registry, hash);
-            registry.upsert(new PatchRegistryEntry(hash, row.manifest.getId(), nowEnabled, nowEnabled && force, order));
-            registry.save();
+            controller.toggle(row.getId());
             rebuild.run();
             if (sel < table.getRowCount()) {
                 table.setRowSelectionInterval(sel, sel);
@@ -321,25 +305,22 @@ public class Dialogs {
                 JOptionPane.showMessageDialog(dialog, resourceBundle.getString("patch_select_row"));
                 return;
             }
-            PatchRow row = rows.get(sel);
-            if (!row.installed) {
+            PatchRowVM row = rows.get(sel);
+            if (!row.isInstalled()) {
                 return;
             }
-            String name = row.manifest.getName() != null ? row.manifest.getName() : row.manifest.getId();
             int resp = JOptionPane.showConfirmDialog(dialog,
-                    resourceBundle.getString("patch_confirm_uninstall").replace("{0}", name),
+                    resourceBundle.getString("patch_confirm_uninstall").replace("{0}", row.getDisplayName()),
                     resourceBundle.getString("patch_uninstall"), JOptionPane.YES_NO_OPTION);
             if (resp != JOptionPane.YES_OPTION) {
                 return;
             }
-            manager.uninstall(row.manifest.getId());
-            registry.remove(hash, row.manifest.getId());
-            registry.save();
+            controller.uninstall(row.getId());
             rebuild.run();
         });
 
-        moveUpButton.addActionListener(e -> movePatchOrder(table, rows, registry, hash, -1, rebuild));
-        moveDownButton.addActionListener(e -> movePatchOrder(table, rows, registry, hash, 1, rebuild));
+        moveUpButton.addActionListener(e -> movePatchOrder(table, rows, controller, -1, rebuild));
+        moveDownButton.addActionListener(e -> movePatchOrder(table, rows, controller, 1, rebuild));
 
         closeButton.addActionListener(e -> {
             gameListFrame.refreshGameList();
@@ -364,95 +345,43 @@ public class Dialogs {
         rebuild.run();
 
         // Merge the remote catalog off the EDT, then re-render once it arrives.
-        new SwingWorker<List<PatchManifest>, Void>() {
+        new SwingWorker<Void, Void>() {
             @Override
-            protected List<PatchManifest> doInBackground() {
-                return PatchCatalog.loadRemote(PatchCatalog.DEFAULT_REMOTE_URL);
+            protected Void doInBackground() {
+                controller.refreshRemote();
+                return null;
             }
 
             @Override
             protected void done() {
-                try {
-                    catalog.mergeFrom(get());
-                    rebuild.run();
-                } catch (Exception ignored) {
-                    // remote merge is best-effort; bundled catalog already shown
-                }
+                rebuild.run();
             }
         }.execute();
 
         dialog.setVisible(true);
     }
 
-    private List<PatchRow> buildPatchRows(PatchCatalog catalog, PatchManager manager,
-                                          PatchRegistry registry, String hash, String family) {
-        LinkedHashMap<String, PatchManifest> byId = new LinkedHashMap<>();
-        for (PatchManifest m : catalog.all()) {
-            byId.put(m.getId(), m);
-        }
-        for (InstalledPatch p : manager.allInstalled()) {
-            byId.put(p.getManifest().getId(), p.getManifest()); // installed manifest is authoritative
-        }
-        List<PatchRow> rows = new ArrayList<>();
-        for (PatchManifest m : byId.values()) {
-            PatchCompatibility compat = m.compatibilityFor(hash, family);
-            boolean installed = manager.byId(m.getId()) != null;
-            if (compat == PatchCompatibility.NONE && !installed) {
-                continue; // not for this game
-            }
-            PatchRegistryEntry entry = registry.find(hash, m.getId());
-            boolean enabled = entry != null && entry.isEnabled();
-            int order = entry != null ? entry.getOrder() : Integer.MAX_VALUE;
-            rows.add(new PatchRow(m, compat, installed, enabled, entry != null, order));
-        }
-        // Registry-tracked patches first, in mount order (ascending); the rest keep scan order.
-        rows.sort((a, b) -> Integer.compare(a.order, b.order));
-        return rows;
-    }
-
     /**
-     * Swaps the mount {@code order} of the selected registry-tracked patch with its
-     * neighbour in {@code direction} (-1 up, +1 down), skipping rows without a registry
-     * entry. Persists and re-renders, keeping the moved patch selected.
+     * Moves the selected registry-tracked patch up ({@code -1}) or down ({@code +1})
+     * in mount order via the controller, then re-renders and keeps it selected.
      */
-    private void movePatchOrder(JTable table, List<PatchRow> rows, PatchRegistry registry,
-                                String hash, int direction, Runnable rebuild) {
+    private void movePatchOrder(JTable table, List<PatchRowVM> rows, PatchManagerController controller,
+                                int direction, Runnable rebuild) {
         int sel = table.getSelectedRow();
-        if (sel < 0 || !rows.get(sel).hasEntry) {
+        if (sel < 0) {
             return;
         }
-        int target = sel + direction;
-        while (target >= 0 && target < rows.size() && !rows.get(target).hasEntry) {
-            target += direction;
-        }
-        if (target < 0 || target >= rows.size()) {
+        String movedId = rows.get(sel).getId();
+        if (!controller.move(movedId, direction)) {
             return;
         }
-        String movedId = rows.get(sel).manifest.getId();
-        PatchRegistryEntry a = registry.find(hash, movedId);
-        PatchRegistryEntry b = registry.find(hash, rows.get(target).manifest.getId());
-        if (a == null || b == null) {
-            return;
-        }
-        int tmp = a.getOrder();
-        a.setOrder(b.getOrder());
-        b.setOrder(tmp);
-        registry.save();
         rebuild.run();
         for (int i = 0; i < rows.size(); i++) {
-            if (rows.get(i).manifest.getId().equals(movedId)) {
+            if (rows.get(i).getId().equals(movedId)) {
                 table.setRowSelectionInterval(i, i);
                 break;
             }
         }
-    }
-
-    private int nextOrder(PatchRegistry registry, String hash) {
-        int max = -1;
-        for (PatchRegistryEntry e : registry.entriesFor(hash)) {
-            max = Math.max(max, e.getOrder());
-        }
-        return max + 1;
     }
 
     private String compatLabel(PatchCompatibility compat) {
@@ -468,24 +397,5 @@ public class Dialogs {
 
     private String yesNo(boolean value) {
         return resourceBundle.getString(value ? "yes" : "no");
-    }
-
-    private static final class PatchRow {
-        final PatchManifest manifest;
-        final PatchCompatibility compat;
-        final boolean installed;
-        final boolean enabled;
-        final boolean hasEntry;
-        final int order;
-
-        PatchRow(PatchManifest manifest, PatchCompatibility compat, boolean installed,
-                 boolean enabled, boolean hasEntry, int order) {
-            this.manifest = manifest;
-            this.compat = compat;
-            this.installed = installed;
-            this.enabled = enabled;
-            this.hasEntry = hasEntry;
-            this.order = order;
-        }
     }
 }

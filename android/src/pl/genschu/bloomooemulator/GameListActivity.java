@@ -126,6 +126,7 @@ public class GameListActivity extends AppCompatActivity {
         CheckBox skipPoliceCheckbox = dialogView.findViewById(R.id.skipPoliceCheckbox);
         CheckBox fullscreenCheckbox = dialogView.findViewById(R.id.fullscreenCheckbox);
         CheckBox fpsCounterCheckbox = dialogView.findViewById(R.id.fpsCounterCheckbox);
+        EditText familyField = dialogView.findViewById(R.id.familyField);
 
         chooseFolderButton.setOnClickListener(v -> showPathPicker(pathField, true));
         chooseIsoButton.setOnClickListener(v -> showPathPicker(pathField, false));
@@ -138,6 +139,9 @@ public class GameListActivity extends AppCompatActivity {
             skipPoliceCheckbox.setChecked(game.isSkipLicenceCode());
             fullscreenCheckbox.setChecked(!game.isMaintainAspectRatio());
             fpsCounterCheckbox.setChecked(game.isShowFpsCounter());
+            if (game.getFamilyOverride() != null) {
+                familyField.setText(game.getFamilyOverride());
+            }
         }
 
         builder.setPositiveButton("Zapisz", (dialog, which) -> {
@@ -150,6 +154,7 @@ public class GameListActivity extends AppCompatActivity {
                         skipPoliceCheckbox.isChecked(),
                         !fullscreenCheckbox.isChecked());
                 newGame.setShowFpsCounter(fpsCounterCheckbox.isChecked());
+                newGame.setFamilyOverride(familyField.getText().toString());
                 gameManager.addGame(newGame);
 
                 adapter.notifyItemInserted(gameManager.getGames().indexOf(newGame, true));
@@ -161,6 +166,7 @@ public class GameListActivity extends AppCompatActivity {
                 game.setSkipLicenceCode(skipPoliceCheckbox.isChecked());
                 game.setMaintainAspectRatio(!fullscreenCheckbox.isChecked());
                 game.setShowFpsCounter(fpsCounterCheckbox.isChecked());
+                game.setFamilyOverride(familyField.getText().toString());
                 gameManager.updateGame(game);
 
                 adapter.notifyItemChanged(gameManager.getGames().indexOf(game, true));

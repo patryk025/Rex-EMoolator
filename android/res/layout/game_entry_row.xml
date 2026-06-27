@@ -73,6 +73,13 @@
              android:contentDescription="Usuń"
              android:id="@+id/deleteButton" />
 
+        <ImageButton
+             android:layout_height="wrap_content"
+             android:layout_width="wrap_content"
+             android:src="@drawable/baseline_extension_24"
+             android:contentDescription="@string/patches_button_desc"
+             android:id="@+id/patchesButton" />
+
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

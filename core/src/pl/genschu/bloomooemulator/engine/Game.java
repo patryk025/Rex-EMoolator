@@ -134,10 +134,30 @@ public class Game {
             return;
         }
         String gameFamily = game.resolveFamily();
+        File patchesRoot = resolvePatchesRoot();
         PatchManager patchManager = new PatchManager(
-                AppPaths.patchesRootDir(),
-                new PatchRegistry(AppPaths.patchesIndexFile()));
+                patchesRoot,
+                new PatchRegistry(AppPaths.patchesIndexFileIn(patchesRoot)));
         patchManager.mountActiveFor(vfs, gameHash, gameFamily);
+    }
+
+    /**
+     * Picks the patches root, mirroring {@link #resolveStorageDir()}: on Android it is
+     * libGDX's local app directory ({@code getFilesDir()/patches}) — the same place the
+     * native patch UI installs into — so a patch enabled in the UI is found here at
+     * launch. Desktop keeps patches in the shared user data directory.
+     */
+    private File resolvePatchesRoot() {
+        try {
+            if (Gdx.app != null
+                    && Gdx.app.getType() == com.badlogic.gdx.Application.ApplicationType.Android
+                    && Gdx.files != null) {
+                return Gdx.files.local("patches").file();
+            }
+        } catch (Exception ignored) {
+            // fallthrough to user data dir
+        }
+        return AppPaths.patchesRootDir();
     }
 
     private void scanGameDirectory() {

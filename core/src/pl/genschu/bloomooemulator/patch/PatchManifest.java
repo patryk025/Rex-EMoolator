@@ -50,6 +50,7 @@ public class PatchManifest implements Serializable {
     private String targetFamily;
     private String filesRoot = "files";
     private PatchSource source = new PatchSource();
+    private String reference;
     private String[] conflicts = new String[0];
     private String[] requires = new String[0];
     private String[] supersedes = new String[0];

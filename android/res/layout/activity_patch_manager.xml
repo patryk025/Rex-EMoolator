@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+     xmlns:android="http://schemas.android.com/apk/res/android"
+     android:layout_height="match_parent"
+     android:layout_width="match_parent"
+     android:orientation="vertical"
+     android:padding="8dp">
+
+    <TextView
+         android:layout_height="wrap_content"
+         android:layout_width="match_parent"
+         android:textSize="18sp"
+         android:textStyle="bold"
+         android:id="@+id/headerText"
+         android:text="Gra" />
+
+    <TextView
+         android:layout_height="wrap_content"
+         android:layout_width="match_parent"
+         android:textSize="12sp"
+         android:textColor="?android:attr/textColorSecondary"
+         android:id="@+id/subHeaderText"
+         android:text="" />
+
+    <ProgressBar
+         android:layout_height="wrap_content"
+         android:layout_width="match_parent"
+         android:indeterminate="true"
+         android:visibility="gone"
+         android:id="@+id/progressBar" />
+
+    <androidx.recyclerview.widget.RecyclerView
+         android:layout_height="0dp"
+         android:layout_width="match_parent"
+         android:layout_weight="1"
+         android:id="@+id/patchRecyclerView" />
+
+    <TextView
+         android:layout_height="wrap_content"
+         android:layout_width="match_parent"
+         android:textStyle="bold"
+         android:paddingTop="8dp"
+         android:text="Uwagi:" />
+
+    <ScrollView
+         android:layout_height="120dp"
+         android:layout_width="match_parent">
+
+        <TextView
+             android:layout_height="wrap_content"
+             android:layout_width="match_parent"
+             android:textSize="13sp"
+             android:id="@+id/notesText"
+             android:text="" />
+
+    </ScrollView>
+
+</LinearLayout>
