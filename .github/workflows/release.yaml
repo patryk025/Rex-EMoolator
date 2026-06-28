@@ -19,7 +19,7 @@ permissions:
   contents: write
 
 jobs:
-  # 1. KROK WSPÓLNY: Przygotowanie wersji i changelogu
+  # 1. Prepare version number and changelog
   prepare:
     runs-on: ubuntu-latest
     outputs:
@@ -71,7 +71,7 @@ jobs:
           echo "$LOG" >> $GITHUB_OUTPUT
           echo 'EOF' >> $GITHUB_OUTPUT
 
-  # 2. BUDOWANIE DESKTOPA: Matrix trzech systemów pod jpackage
+  # 2. BUILDING DESKTOP: Matrix of three systems for jpackage
   build-desktop:
     needs: prepare
     strategy:
@@ -98,15 +98,45 @@ jobs:
         env:
           RELEASE_VERSION: ${{ needs.prepare.outputs.version_name }}
 
-      - name: Upload artifacts for release
+      - name: Upload installer artifact
         uses: actions/upload-artifact@v4
         with:
-          name: desktop-artifacts-${{ matrix.os }}
-          path: |
-            desktop/build/jpackage/
-            desktop/build/distributions/
+          name: desktop-installer-${{ matrix.os }}
+          path: desktop/build/jpackage/
 
-  # 3. BUDOWANIE ANDROIDA: Szybki build na osobnym Linuksie
+  # 2b. JVM artefacts
+  build-desktop-jvm:
+    needs: prepare
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v5
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+          cache: gradle
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v5
+
+      - name: Build fat JAR and distribution ZIP
+        run: ./gradlew :desktop:shadowJar :desktop:distZip --no-daemon
+        env:
+          RELEASE_VERSION: ${{ needs.prepare.outputs.version_name }}
+
+      - name: Upload JVM artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: desktop-jvm
+          path: |
+            desktop/build/libs/*.jar
+            !desktop/build/libs/*-thin.jar
+            desktop/build/distributions/*.zip
+
+  # 3. Android build
   build-android:
     needs: prepare
     runs-on: ubuntu-latest
@@ -139,9 +169,9 @@ jobs:
           name: android-artifact
           path: android/build/outputs/apk/debug/*.apk
 
-  # 4. PUBLIKACJA: Zbiorcze pobranie paczek i wystawienie wydania
+  # 4. Artefact publishing to GitHub Release
   publish-release:
-    needs: [prepare, build-desktop, build-android]
+    needs: [prepare, build-desktop, build-desktop-jvm, build-android]
     runs-on: ubuntu-latest
     steps:
       - name: Download all build artifacts
