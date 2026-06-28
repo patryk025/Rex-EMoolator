@@ -2,6 +2,7 @@
 <androidx.constraintlayout.widget.ConstraintLayout
      xmlns:android="http://schemas.android.com/apk/res/android"
      xmlns:app="http://schemas.android.com/apk/res-auto"
+     xmlns:tools="http://schemas.android.com/tools"
      android:layout_height="wrap_content"
      android:layout_width="match_parent"
      android:padding="8dp">
@@ -15,7 +16,7 @@
          app:layout_constraintEnd_toStartOf="@id/buttonsLayout"
          app:layout_constraintHorizontal_chainStyle="spread_inside"
          android:id="@+id/gameNameTextView"
-         android:text="Nazwa Gry"
+         tools:text="Nazwa Gry"
          android:textStyle="bold" />
     
     <TextView
@@ -28,7 +29,7 @@
          app:layout_constraintBottom_toBottomOf="parent"
          app:layout_constraintTop_toBottomOf="@id/gameNameTextView"
          android:id="@+id/detectedGameNameTextView"
-         android:text="Wykryta gra" />
+         tools:text="Wykryta gra" />
 
 
     <TextView
@@ -41,7 +42,7 @@
          app:layout_constraintBottom_toBottomOf="parent"
          app:layout_constraintTop_toBottomOf="@id/detectedGameNameTextView"
          android:id="@+id/gameVersionTextView"
-         android:text="Wersja Gry" />
+         tools:text="Wersja Gry" />
 
     <LinearLayout
          android:layout_height="wrap_content"
@@ -56,22 +57,29 @@
                 android:layout_height="wrap_content"
                 android:layout_width="wrap_content"
                 android:src="@drawable/baseline_arrow_forward_24"
-                android:contentDescription="Uruchom"
+                android:contentDescription="@string/run_game_desc"
                 android:id="@+id/runButton" />
 
         <ImageButton
              android:layout_height="wrap_content"
              android:layout_width="wrap_content"
              android:src="@drawable/baseline_edit_24"
-             android:contentDescription="Edytuj"
+             android:contentDescription="@string/edit_game_desc"
              android:id="@+id/editButton" />
 
         <ImageButton
              android:layout_height="wrap_content"
              android:layout_width="wrap_content"
              android:src="@drawable/baseline_delete_24"
-             android:contentDescription="Usuń"
+             android:contentDescription="@string/delete_game_desc"
              android:id="@+id/deleteButton" />
+
+        <ImageButton
+             android:layout_height="wrap_content"
+             android:layout_width="wrap_content"
+             android:src="@drawable/baseline_extension_24"
+             android:contentDescription="@string/patches_button_desc"
+             android:id="@+id/patchesButton" />
 
     </LinearLayout>
 

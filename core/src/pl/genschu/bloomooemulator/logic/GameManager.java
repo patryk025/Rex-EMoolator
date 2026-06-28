@@ -27,7 +27,7 @@ public class GameManager {
                 Json jsonParser = new Json();
                 GameEntry[] entries = jsonParser.fromJson(GameEntry[].class, json);
                 games = new Array<>(entries);
-                if (migrateMissingStorageIds()) {
+                if (migrateEntries()) {
                     saveData();
                 }
             }
@@ -36,10 +36,12 @@ public class GameManager {
         }
     }
 
-    private boolean migrateMissingStorageIds() {
+    private boolean migrateEntries() {
         boolean migrated = false;
         for (GameEntry game : games) {
             migrated |= game.ensureStorageId();
+            migrated |= game.ensureDllHash();
+            migrated |= game.normalizeMouseMode();
         }
         return migrated;
     }

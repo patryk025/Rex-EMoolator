@@ -19,6 +19,8 @@ public class GameEntry implements Serializable {
     private String name;
     private String version;
     private String gameName;
+    private String dllHash;
+    private String familyOverride;
     private String path;
     private String iniPath;
     private String storageId;
@@ -69,7 +71,9 @@ public class GameEntry implements Serializable {
                 continue;
             }
             try (InputStream is = fs.open(entry)) {
-                this.gameName = checkHash(calculateSHA1(is));
+                String hash = calculateSHA1(is).toUpperCase(Locale.ROOT);
+                this.dllHash = hash;
+                this.gameName = checkHash(hash);
             } catch (IOException e) {
                 this.gameName = "Nieznana gra";
             } catch (NoSuchAlgorithmException e) {
@@ -118,6 +122,50 @@ public class GameEntry implements Serializable {
         if (resolved != null) {
             this.iniPath = resolved;
             return true;
+        }
+        return false;
+    }
+
+    /**
+     * Lazily computes and caches {@link #dllHash} for legacy entries that
+     * predate hash caching. Opens the assets, hashes the engine DLL once; the
+     * caller is responsible for persisting (e.g. via GameManager) when this
+     * returns true.
+     */
+    public boolean ensureDllHash() {
+        if (dllHash != null && !dllHash.isBlank()) {
+            return false;
+        }
+        if (path == null) {
+            return false;
+        }
+        File source = new File(path);
+        if (!source.exists()) {
+            return false;
+        }
+        IFileSystem fs;
+        try {
+            fs = AssetSourceDispatcher.openAssets(source);
+        } catch (IOException e) {
+            return false;
+        }
+        String[] entries = fs.list("");
+        if (entries == null) {
+            return false;
+        }
+        for (String entry : entries) {
+            String name = entry.toLowerCase(Locale.ROOT);
+            if (!name.matches("bloomoodll\\.dll|piklib\\d+\\.dll")) {
+                continue;
+            }
+            try (InputStream is = fs.open(entry)) {
+                this.dllHash = calculateSHA1(is).toUpperCase(Locale.ROOT);
+                return true;
+            } catch (IOException e) {
+                return false;
+            } catch (NoSuchAlgorithmException e) {
+                throw new RuntimeException(e);
+            }
         }
         return false;
     }
@@ -226,12 +274,64 @@ public class GameEntry implements Serializable {
         this.gameName = gameName;
     }
 
+    public String getDllHash() {
+        return dllHash;
+    }
+
+    public void setDllHash(String dllHash) {
+        this.dllHash = dllHash;
+    }
+
+    public String getFamilyOverride() {
+        return familyOverride;
+    }
+
+    public void setFamilyOverride(String familyOverride) {
+        this.familyOverride = (familyOverride == null || familyOverride.isBlank()) ? null : familyOverride.trim();
+    }
+
+    /**
+     * Resolves the patch family: an explicit {@link #familyOverride} wins, otherwise
+     * it is derived from the engine DLL hash, falling back to the cached display name
+     * (which survives no-CD / DLL edits). May be {@code null} if nothing resolves.
+     */
+    public String resolveFamily() {
+        if (familyOverride != null && !familyOverride.isBlank()) {
+            return familyOverride;
+        }
+        return GameFamilies.familyFor(dllHash, gameName);
+    }
+
     public String getMouseMode() {
         return mouseMode;
     }
 
     public void setMouseMode(String mouseMode) {
         this.mouseMode = mouseMode;
+    }
+
+    /** The mouse mode as a typed value, resolving legacy/blank stored values. */
+    public MouseMode getMouseModeEnum() {
+        return MouseMode.fromStored(mouseMode);
+    }
+
+    /** Stores {@code mode} by its stable {@link MouseMode#key()}. */
+    public void setMouseMode(MouseMode mode) {
+        this.mouseMode = (mode == null ? MouseMode.defaultMode() : mode).key();
+    }
+
+    /**
+     * Rewrites a legacy {@code mouseMode} (stored as a localized label) to the
+     * stable {@link MouseMode#key()}. Returns {@code true} if the value changed,
+     * so the caller can persist; mirrors {@link #ensureStorageId()} / {@link #ensureDllHash()}.
+     */
+    public boolean normalizeMouseMode() {
+        String normalized = MouseMode.fromStored(mouseMode).key();
+        if (!normalized.equals(mouseMode)) {
+            this.mouseMode = normalized;
+            return true;
+        }
+        return false;
     }
 
     public boolean isMouseVirtualJoystick() {

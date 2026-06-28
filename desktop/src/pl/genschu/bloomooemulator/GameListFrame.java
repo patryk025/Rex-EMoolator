@@ -8,6 +8,7 @@ import pl.genschu.bloomooemulator.ui.Dialogs;
 import pl.genschu.bloomooemulator.ui.TextTableRenderer;
 import pl.genschu.bloomooemulator.ui.buttons.DeleteButton;
 import pl.genschu.bloomooemulator.ui.buttons.EditButton;
+import pl.genschu.bloomooemulator.ui.buttons.PatchesButton;
 import pl.genschu.bloomooemulator.ui.buttons.RunButton;
 
 import javax.swing.*;
@@ -51,6 +52,7 @@ public class GameListFrame extends JFrame {
         model.addColumn("");
         model.addColumn("");
         model.addColumn("");
+        model.addColumn("");
 
         table = new JTable(model) {
             @Override
@@ -71,6 +73,7 @@ public class GameListFrame extends JFrame {
         ButtonColumn buttonColumn = new RunButton(table, 1, gameManager);
         ButtonColumn buttonColumn2 = new EditButton(table, 2, gameManager);
         ButtonColumn buttonColumn3 = new DeleteButton(table, 3, gameManager);
+        ButtonColumn buttonColumn4 = new PatchesButton(table, 4, gameManager);
 
         JScrollPane scrollPane = new JScrollPane(table);
         add(scrollPane);
@@ -102,7 +105,8 @@ public class GameListFrame extends JFrame {
                     game.toString(),
                     resourceBundle.getString("run_game"),
                     resourceBundle.getString("edit_game"),
-                    resourceBundle.getString("delete_game")
+                    resourceBundle.getString("delete_game"),
+                    resourceBundle.getString("patches")
             });
         }
     }

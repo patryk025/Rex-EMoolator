@@ -31,7 +31,9 @@ public class KnownHashes {
             entry("D1CC807BCBE5A478CBEC49CA795C2A8EA63D0B67", "Poznaj Mity: Wyprawa po Złote Runo"),
             entry("4666638DD606241664691DE60F4ACFFAF4AB272D", "Poznaj Mity: Wojna Trojańska"), // jedyny znany mi egzemplarz biblioteki Piklib w wersji 7.2
             entry("E80093DE96363524A209BBB80901458D9D524925", "Poznaj Mity: Herkules/Odyseusz"), // te dwie gry pracują na tej samej wersji Piklib 8 o tym samym hashu
-            entry("DB853DBE96751160D436F267CA378DB1CBA81A52", "Reksio i Skarb Piratów (wersja z czasopisma Komputer Świat Gry")
+            entry("0967908F2DF1079415B02C60F567B5C2AC665473", "Poznaj Mity: Tezeusz i Nić Ariadny"),
+            entry("DB853DBE96751160D436F267CA378DB1CBA81A52", "Reksio i Skarb Piratów (wersja z czasopisma Komputer Świat Gry"),
+            entry("92D602BBEA05CBDA48B39DC69C90D0980BB563A0", "Reksio i Czarodzieje (wersja 1.0)")
     );
 
     public static String checkHash(String hash) {

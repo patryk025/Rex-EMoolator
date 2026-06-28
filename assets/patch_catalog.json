@@ -1,0 +1,95 @@
+{
+  "patches": [
+    {
+      "id": "czarodzieje-easy",
+      "name": "Ułatw sobie „Reksio i Czarodzieje”!",
+      "description": "Plik należy rozpakować do katalogu z grą na twardym dysku. Działa tylko przy pełnej instalacji. Moduł obniża poziom trudności w zabawach: \"Lot na Smoku\" i \"Obrona murów\". Nie niszczy zachwanych stanów gry. ",
+      "author": "Aidem Media",
+      "version": "1.0",
+      "targetHashes": [],
+      "targetFamily": "reksio-czarodzieje",
+      "filesRoot": "files",
+      "source": {
+        "type": "URL",
+        "url": "https://www.przygodyreksia.aidemmedia.pl/pliki/kogut/patch/czaro_easy.zip"
+      },
+      "reference": "https://www.przygodyreksia.aidemmedia.pl/pliki/kogut/kogut.html"
+    },
+    {
+      "id": "czarodzieje-easy2",
+      "name": "Ułatw sobie bardziej „Reksio i Czarodzieje”!",
+      "description": "Plik należy rozpakować do katalogu z grą na twardym dysku. Działa tylko przy pełnej instalacji. Moduł obniża jeszcze bardziej poziom trudności w zabawie \"Obrona murów\". Nie niszczy zachwanych stanów gry. ",
+      "author": "Aidem Media",
+      "version": "1.0",
+      "targetHashes": [],
+      "targetFamily": "reksio-czarodzieje",
+      "filesRoot": "files",
+      "supersedes": ["czarodzieje-easy"],
+      "source": {
+        "type": "URL",
+        "url": "https://www.przygodyreksia.aidemmedia.pl/pliki/kogut/patch/czaro_easy2.zip"
+      },
+      "reference": "https://www.przygodyreksia.aidemmedia.pl/pliki/kogut/kogut.html"
+    },
+    {
+      "id": "czarodzieje-patch-11",
+      "name": "Łatka 1.1 do gry „Reksio i Czarodzieje”",
+      "description": "Plik należy rozpakować do katalogu z grą na twardym dysku. Działa tylko przy pełnej instalacji. Zaleca się zainstalować łatkę przed rozpoczęciem grania, gdyż może zakłócić zachowane stany gry.",
+      "author": "Aidem Media",
+      "version": "1.1",
+      "targetHashes": ["92D602BBEA05CBDA48B39DC69C90D0980BB563A0"],
+      "filesRoot": "files",
+      "source": {
+        "type": "URL",
+        "url": "https://www.przygodyreksia.aidemmedia.pl/pliki/kogut/patch/czaro_patch.rar"
+      },
+      "reference": "https://www.przygodyreksia.aidemmedia.pl/pliki/kogut/kogut.html"
+    },
+    {
+      "id": "wehikul-czasu-patch-12",
+      "name": "łatka do Wehikułu Czasu",
+      "description": "Plik należy rozpakować do katalogu z grą na twardym dysku. Działa tylko przy pełnej instalacji. Moduł obniża poziom trudności w zabawach: \"Lot na Smoku\" i \"Obrona murów\". Nie niszczy zachwanych stanów gry. ",
+      "author": "Aidem Media",
+      "version": "1.2",
+      "targetHashes": [],
+      "targetFamily": "reksio-wehikul-czasu",
+      "filesRoot": "files",
+      "supersedes": ["wehikul-czasu-patch-11", "wehikul-czasu-rabarbark"],
+      "source": {
+        "type": "URL",
+        "url": "https://www.przygodyreksia.aidemmedia.pl/pliki/kogut/patch/Wehikul_12.zip"
+      },
+      "reference": "https://www.przygodyreksia.aidemmedia.pl/pliki/kogut/kogut.html"
+    },
+    {
+      "id": "wehikul-czasu-patch-11",
+      "name": "łatka poprawiająca moduł Krzemienie w Wehikule Czasu",
+      "description": "Plik należy rozpakować do katalogu z grą na twardym dysku. Nie zakłóca zachowanych stanów gry.",
+      "author": "Aidem Media",
+      "version": "1.1",
+      "targetHashes": [],
+      "targetFamily": "reksio-wehikul-czasu",
+      "filesRoot": "files",
+      "source": {
+        "type": "URL",
+        "url": "https://www.przygodyreksia.aidemmedia.pl/pliki/kogut/patch/Wehikul_11.zip"
+      },
+      "reference": "https://www.przygodyreksia.aidemmedia.pl/pliki/kogut/kogut.html"
+    },
+    {
+      "id": "wehikul-czasu-rabarbark",
+      "name": "łatka poprawiająca rzadki błąd blokujący wyjście z Twierdzy Rabarbark (w Wehikule Czasu)",
+      "description": "Plik należy rozpakować do katalogu z grą na twardym dysku. Nie zakłóca zachowanych stanów gry. ",
+      "author": "Aidem Media",
+      "version": "1.0",
+      "targetHashes": [],
+      "targetFamily": "reksio-wehikul-czasu",
+      "filesRoot": "files",
+      "source": {
+        "type": "URL",
+        "url": "https://www.przygodyreksia.aidemmedia.pl/pliki/kogut/patch/rabarbark.zip"
+      },
+      "reference": "https://www.przygodyreksia.aidemmedia.pl/pliki/kogut/kogut.html"
+    }
+  ]
+}

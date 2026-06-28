@@ -26,6 +26,8 @@ import pl.genschu.bloomooemulator.loader.ImageLoader;
 import pl.genschu.bloomooemulator.logic.AppPaths;
 import pl.genschu.bloomooemulator.logic.GameEntry;
 import pl.genschu.bloomooemulator.logic.GameIniResolver;
+import pl.genschu.bloomooemulator.patch.PatchManager;
+import pl.genschu.bloomooemulator.patch.PatchRegistry;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -119,22 +121,62 @@ public class Game {
         }
     }
 
+    /**
+     * Stacks any active patches for this game on top of the freshly-mounted
+     * game assets. VFS gives the last-mounted source the highest priority, so a
+     * patch's {@code files/} tree overrides the originals. No-op when the engine
+     * DLL hash is unknown — there's nothing to match a patch against.
+     */
+    private void mountPatches() {
+        game.ensureDllHash();
+        String gameHash = game.getDllHash();
+        if (gameHash == null || gameHash.isBlank()) {
+            return;
+        }
+        String gameFamily = game.resolveFamily();
+        File patchesRoot = resolvePatchesRoot();
+        PatchManager patchManager = new PatchManager(
+                patchesRoot,
+                new PatchRegistry(AppPaths.patchesIndexFileIn(patchesRoot)));
+        patchManager.mountActiveFor(vfs, gameHash, gameFamily);
+    }
+
+    /**
+     * Picks the patches root, mirroring {@link #resolveStorageDir()}: on Android it is
+     * libGDX's local app directory ({@code getFilesDir()/patches}) — the same place the
+     * native patch UI installs into — so a patch enabled in the UI is found here at
+     * launch. Desktop keeps patches in the shared user data directory.
+     */
+    private File resolvePatchesRoot() {
+        try {
+            if (Gdx.app != null
+                    && Gdx.app.getType() == com.badlogic.gdx.Application.ApplicationType.Android
+                    && Gdx.files != null) {
+                return Gdx.files.local("patches").file();
+            }
+        } catch (Exception ignored) {
+            // fallthrough to user data dir
+        }
+        return AppPaths.patchesRootDir();
+    }
+
     private void scanGameDirectory() {
         File folder = new File(this.game.getPath());
 
         try {
             IFileSystem fs = AssetSourceDispatcher.openAssets(folder);
             vfs.mountAssets(fs);
-            if(fs instanceof LocalFileSystem) {
-                vfs.setStorage(new LocalFileSystem(folder)); // use the same folder as assets
-            }
-            else {
-                vfs.setStorage(new LocalFileSystem(resolveStorageDir()));
-            }
+            // Writable storage is always a separate per-game directory — even for
+            // folder games, where it used to be the game folder itself. Keeping the
+            // folder read-only lets mounted patches override it: the VFS read order
+            // becomes storage (saves) > patches > original assets.
+            vfs.setStorage(new LocalFileSystem(resolveStorageDir()));
         } catch (IOException e) {
             showErrorWrongMedia();
             return;
         }
+
+        mountPatches();
 
         if (!vfs.isDirectory(DANE_ROOT)) {
             Gdx.app.error("Game loader", "Folder dane not found");
