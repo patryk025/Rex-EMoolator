@@ -9,36 +9,28 @@ on:
       version:
         description: 'Release version (leave empty for auto-generated)'
         required: false
+      draft:
+        description: 'Create as a Draft Release?'
+        type: boolean
+        required: true
+        default: false
 
 permissions:
   contents: write
 
 jobs:
-  release:
+  # 1. KROK WSPÓLNY: Przygotowanie wersji i changelogu
+  prepare:
     runs-on: ubuntu-latest
-
+    outputs:
+      version_name: ${{ steps.version.outputs.version_name }}
+      release_code: ${{ env.RELEASE_CODE }}
+      changelog: ${{ steps.changelog.outputs.changelog }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v5
         with:
           fetch-depth: 0
-
-      - name: Set up JDK 21
-        uses: actions/setup-java@v5
-        with:
-          java-version: '21'
-          distribution: 'temurin'
-          cache: gradle
-
-      - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@v5
-
-      - name: Make gradlew executable
-        run: chmod +x gradlew
-
-      - name: Decode debug keystore
-        run: |
-          echo "${{ secrets.DEBUG_KEYSTORE_B64 }}" | base64 -d > debug.keystore
 
       - name: Generate version name
         id: version
@@ -64,47 +56,108 @@ jobs:
             -H "X-GitHub-Api-Version: 2022-11-28" \
             https://api.github.com/repos/${{ github.repository }}/releases \
             | jq length)
-
           echo "RELEASE_CODE=$((COUNT + 1))" >> $GITHUB_ENV
 
-      - name: Build desktop artifacts
-        run: ./gradlew :desktop:shadowJar :desktop:distZip --no-daemon
-        env:
-          RELEASE_VERSION: ${{ steps.version.outputs.version_name }}
-
-      - name: Build Android APK
-        run: ./gradlew :android:assembleDebug --no-daemon
-        env:
-          RELEASE_VERSION: ${{ steps.version.outputs.version_name }}
-          RELEASE_CODE: ${{ env.RELEASE_CODE }}
-          
       - name: Generate changelog
         id: changelog
         run: |
           PREV_TAG=$(git describe --tags --abbrev=0 HEAD^ 2>/dev/null || echo "")
-          echo "Previous tag: $PREV_TAG"
-      
           if [ -z "$PREV_TAG" ]; then
             LOG=$(git log --pretty=format:"- %s (%h)" --no-merges)
           else
             LOG=$(git log "$PREV_TAG"..HEAD --pretty=format:"- %s (%h)" --no-merges)
           fi
-      
           echo 'changelog<<EOF' >> $GITHUB_OUTPUT
           echo "$LOG" >> $GITHUB_OUTPUT
           echo 'EOF' >> $GITHUB_OUTPUT
-      
+
+  # 2. BUDOWANIE DESKTOPA: Matrix trzech systemów pod jpackage
+  build-desktop:
+    needs: prepare
+    strategy:
+      matrix:
+        os: [windows-latest, ubuntu-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v5
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+          cache: gradle
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v5
+
+      - name: Build native desktop installers
+        shell: bash
+        run: ./gradlew :desktop:jpackage --no-daemon
+        env:
+          RELEASE_VERSION: ${{ needs.prepare.outputs.version_name }}
+
+      - name: Upload artifacts for release
+        uses: actions/upload-artifact@v4
+        with:
+          name: desktop-artifacts-${{ matrix.os }}
+          path: |
+            desktop/build/jpackage/
+            desktop/build/distributions/
+
+  # 3. BUDOWANIE ANDROIDA: Szybki build na osobnym Linuksie
+  build-android:
+    needs: prepare
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v5
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+          cache: gradle
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v5
+
+      - name: Decode debug keystore
+        run: echo "${{ secrets.DEBUG_KEYSTORE_B64 }}" | base64 -d > debug.keystore
+
+      - name: Build Android APK
+        run: ./gradlew :android:assembleDebug --no-daemon
+        env:
+          RELEASE_VERSION: ${{ needs.prepare.outputs.version_name }}
+          RELEASE_CODE: ${{ needs.prepare.outputs.release_code }}
+
+      - name: Upload APK artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: android-artifact
+          path: android/build/outputs/apk/debug/*.apk
+
+  # 4. PUBLIKACJA: Zbiorcze pobranie paczek i wystawienie wydania
+  publish-release:
+    needs: [prepare, build-desktop, build-android]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download all build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: all-artifacts
+
       - name: Create and upload release
         uses: softprops/action-gh-release@v3
         with:
-          tag_name: ${{ steps.version.outputs.version_name }}
-          name: ${{ steps.version.outputs.version_name }}
-          draft: false
-          body: ${{ steps.changelog.outputs.changelog }}
+          tag_name: ${{ needs.prepare.outputs.version_name }}
+          name: ${{ needs.prepare.outputs.version_name }}
+          draft: ${{ github.event.inputs.draft == 'true' }}
+          body: ${{ needs.prepare.outputs.changelog }}
           prerelease: false
           files: |
-            desktop/build/libs/*.jar
-            desktop/build/distributions/*.zip
-            android/build/outputs/apk/debug/*.apk
+            all-artifacts/**/*
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

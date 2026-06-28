@@ -253,6 +253,11 @@ project(":desktop") {
         implementation "net.java.dev.jna:jna:$jnaVersion"
     }
 
+    // Ignore icons and other resources that are not needed for the desktop distribution
+    tasks.named('processResources') {
+        exclude 'icons/**'
+    }
+
     tasks.named('jar') {
         archiveBaseName.set('Rex_EMoolator-desktop')
         archiveClassifier.set('thin')
@@ -301,6 +306,59 @@ project(":desktop") {
             rename { 'LICENSE-Rex-EMoolator' }
         }
         from(rootProject.file('THIRD-PARTY-NOTICES.md')) { into 'META-INF' }
+    }
+
+    // --- Native installers (jpackage) ---
+    // Builds installer for current OS: Windows -> .exe, macOS -> .dmg, Linux -> .deb.
+    tasks.register('jpackage', Exec) {
+        group = 'distribution'
+        description = 'Buduje natywny instalator aplikacji desktop przy użyciu jpackage.'
+        dependsOn tasks.named('shadowJar')
+
+        def os = org.gradle.internal.os.OperatingSystem.current()
+        def shadowJarTask = tasks.named('shadowJar')
+        def destDir = layout.buildDirectory.dir('jpackage').get().asFile
+        def iconsDir = rootProject.file('assets/icons')
+
+        def rawVersion = System.getenv('RELEASE_VERSION') ?: project.version.toString()
+        def versionMatch = (rawVersion =~ /^v?(\d+\.\d+(?:\.\d+)?)$/)
+        def appVersion = versionMatch.matches() ? versionMatch.group(1) : '1.0.0'
+
+        doFirst {
+            destDir.deleteDir()
+            destDir.mkdirs()
+
+            def jar = shadowJarTask.get().archiveFile.get().asFile
+            def jpackageBin = "${System.getProperty('java.home')}/bin/jpackage"
+
+            def command = [
+                    jpackageBin,
+                    '--name', 'Rex-EMoolator',
+                    '--app-version', appVersion,
+                    '--vendor', 'Rex-EMoolator',
+                    '--input', jar.parentFile.absolutePath,
+                    '--main-jar', jar.name,
+                    '--main-class', 'pl.genschu.bloomooemulator.GameListFrame',
+                    '--dest', destDir.absolutePath
+            ]
+
+            if (os.windows) {
+                def ico = new File(iconsDir, 'icon.ico')
+                command += ['--type', 'exe', '--win-dir-chooser', '--win-menu', '--win-shortcut']
+                if (ico.exists()) command += ['--icon', ico.absolutePath]
+            } else if (os.macOsX) {
+                def icns = new File(iconsDir, 'icon.icns')
+                command += ['--type', 'dmg']
+                if (icns.exists()) command += ['--icon', icns.absolutePath]
+            } else {
+                def png = new File(iconsDir, 'icon.png')
+                command += ['--type', 'deb', '--linux-shortcut']
+                if (png.exists()) command += ['--icon', png.absolutePath]
+            }
+
+            logger.lifecycle("Uruchamiam jpackage (wersja ${appVersion}, ${os.familyName}): ${command.join(' ')}")
+            commandLine command
+        }
     }
 
     tasks.named('distZip') {

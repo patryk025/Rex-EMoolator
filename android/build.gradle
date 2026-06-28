@@ -17,6 +17,10 @@ android {
             excludes += ['META-INF/robovm/ios/robovm.xml']
         }
     }
+    // Ignore icons from assets directory
+    androidResources {
+        ignoreAssetsPattern = "!.svn:!.git:!.ds_store:!*.scc:!CVS:!thumbs.db:!picasa.ini:!*~:!icons"
+    }
     defaultConfig {
         applicationId = "pl.genschu.bloomooemulator"
         compileSdk = 36
