@@ -20,6 +20,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import pl.genschu.bloomooemulator.adapters.GameListAdapter;
 import pl.genschu.bloomooemulator.logic.GameEntry;
 import pl.genschu.bloomooemulator.logic.GameManager;
+import pl.genschu.bloomooemulator.logic.MouseMode;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -109,6 +110,16 @@ public class GameListActivity extends AppCompatActivity {
         return getFilesDir().getAbsolutePath();
     }
 
+    private static int mouseModeLabelRes(MouseMode mode) {
+        switch (mode) {
+            case PHYSICAL:
+                return R.string.mouse_mode_physical;
+            case TOUCH:
+            default:
+                return R.string.mouse_mode_touch;
+        }
+    }
+
     public void showGameDialog() {
         showGameDialog(null);
     }
@@ -134,11 +145,21 @@ public class GameListActivity extends AppCompatActivity {
         chooseFolderButton.setOnClickListener(v -> showPathPicker(pathField, true));
         chooseIsoButton.setOnClickListener(v -> showPathPicker(pathField, false));
 
+        // Spinner shows localized labels but maps to a stable MouseMode (persisted by key).
+        final MouseMode[] mouseModes = MouseMode.values();
+        String[] mouseModeLabels = new String[mouseModes.length];
+        for (int i = 0; i < mouseModes.length; i++) {
+            mouseModeLabels[i] = getString(mouseModeLabelRes(mouseModes[i]));
+        }
+        ArrayAdapter<String> mouseModeAdapter = new ArrayAdapter<>(
+                this, android.R.layout.simple_spinner_item, mouseModeLabels);
+        mouseModeAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        mouseModeSelectBox.setAdapter(mouseModeAdapter);
+
         if (game != null) {
             nameField.setText(game.getName());
             pathField.setText(game.getPath());
-            String[] mouseModes = getResources().getStringArray(R.array.mouse_modes);
-            mouseModeSelectBox.setSelection(game.getMouseMode().equals(mouseModes[0]) ? 0 : 1);
+            mouseModeSelectBox.setSelection(game.getMouseModeEnum().ordinal());
             joystickCheckbox.setChecked(game.isMouseVirtualJoystick());
             skipPoliceCheckbox.setChecked(game.isSkipLicenceCode());
             fullscreenCheckbox.setChecked(!game.isMaintainAspectRatio());
@@ -153,7 +174,7 @@ public class GameListActivity extends AppCompatActivity {
                 GameEntry newGame = new GameEntry(
                         nameField.getText().toString(),
                         pathField.getText().toString(),
-                        mouseModeSelectBox.getSelectedItem().toString(),
+                        mouseModes[mouseModeSelectBox.getSelectedItemPosition()].key(),
                         joystickCheckbox.isChecked(),
                         skipPoliceCheckbox.isChecked(),
                         !fullscreenCheckbox.isChecked());
@@ -165,7 +186,7 @@ public class GameListActivity extends AppCompatActivity {
             } else {
                 game.setName(nameField.getText().toString());
                 game.setPath(pathField.getText().toString());
-                game.setMouseMode(mouseModeSelectBox.getSelectedItem().toString());
+                game.setMouseMode(mouseModes[mouseModeSelectBox.getSelectedItemPosition()]);
                 game.setMouseVirtualJoystick(joystickCheckbox.isChecked());
                 game.setSkipLicenceCode(skipPoliceCheckbox.isChecked());
                 game.setMaintainAspectRatio(!fullscreenCheckbox.isChecked());

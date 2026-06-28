@@ -41,6 +41,7 @@ public class GameManager {
         for (GameEntry game : games) {
             migrated |= game.ensureStorageId();
             migrated |= game.ensureDllHash();
+            migrated |= game.normalizeMouseMode();
         }
         return migrated;
     }

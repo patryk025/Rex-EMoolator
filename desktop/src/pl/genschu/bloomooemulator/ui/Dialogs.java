@@ -4,6 +4,7 @@ import pl.genschu.bloomooemulator.GameListFrame;
 import pl.genschu.bloomooemulator.logic.AppPaths;
 import pl.genschu.bloomooemulator.logic.GameEntry;
 import pl.genschu.bloomooemulator.logic.GameManager;
+import pl.genschu.bloomooemulator.logic.MouseMode;
 import pl.genschu.bloomooemulator.patch.PatchCatalog;
 import pl.genschu.bloomooemulator.patch.PatchCompatibility;
 import pl.genschu.bloomooemulator.patch.PatchIssue;
@@ -65,7 +66,12 @@ public class Dialogs {
         JPanel pathButtonPanel = new JPanel(new GridLayout(1, 2, 5, 0));
         JButton chooseFolderButton = new JButton(resourceBundle.getString("choose_folder"));
         JButton chooseIsoButton = new JButton(resourceBundle.getString("choose_iso"));
-        JComboBox<String> mouseModeSelectBox = new JComboBox<>(new String[]{resourceBundle.getString("mouse_touch"), resourceBundle.getString("mouse_physical")});
+        final MouseMode[] mouseModes = MouseMode.values();
+        String[] mouseModeLabels = new String[mouseModes.length];
+        for (int i = 0; i < mouseModes.length; i++) {
+            mouseModeLabels[i] = mouseModeLabel(mouseModes[i]);
+        }
+        JComboBox<String> mouseModeSelectBox = new JComboBox<>(mouseModeLabels);
         JCheckBox joystickCheckbox = new JCheckBox(resourceBundle.getString("use_virtual_joystick"));
         JCheckBox skipPoliceCheckbox = new JCheckBox(resourceBundle.getString("skip_code"));
         JCheckBox fullscreenCheckbox = new JCheckBox(resourceBundle.getString("stretch_fullscreen"));
@@ -79,7 +85,7 @@ public class Dialogs {
         pathPanel.add(pathButtonPanel, BorderLayout.EAST);
 
         if (game != null) {
-            mouseModeSelectBox.setSelectedItem(game.getMouseMode());
+            mouseModeSelectBox.setSelectedIndex(game.getMouseModeEnum().ordinal());
             joystickCheckbox.setSelected(game.isMouseVirtualJoystick());
             skipPoliceCheckbox.setSelected(game.isSkipLicenceCode());
             fullscreenCheckbox.setSelected(!game.isMaintainAspectRatio());
@@ -105,7 +111,7 @@ public class Dialogs {
                 GameEntry newGame = new GameEntry(
                         nameField.getText(),
                         pathField.getText(),
-                        mouseModeSelectBox.getSelectedItem().toString(),
+                        mouseModes[mouseModeSelectBox.getSelectedIndex()].key(),
                         joystickCheckbox.isSelected(),
                         skipPoliceCheckbox.isSelected(),
                         !fullscreenCheckbox.isSelected());
@@ -115,7 +121,7 @@ public class Dialogs {
             } else {
                 game.setName(nameField.getText());
                 game.setPath(pathField.getText());
-                game.setMouseMode(mouseModeSelectBox.getSelectedItem().toString());
+                game.setMouseMode(mouseModes[mouseModeSelectBox.getSelectedIndex()]);
                 game.setMouseVirtualJoystick(joystickCheckbox.isSelected());
                 game.setSkipLicenceCode(skipPoliceCheckbox.isSelected());
                 game.setMaintainAspectRatio(!fullscreenCheckbox.isSelected());
@@ -444,6 +450,16 @@ public class Dialogs {
                 table.setRowSelectionInterval(i, i);
                 break;
             }
+        }
+    }
+
+    private String mouseModeLabel(MouseMode mode) {
+        switch (mode) {
+            case PHYSICAL:
+                return resourceBundle.getString("mouse_physical");
+            case TOUCH:
+            default:
+                return resourceBundle.getString("mouse_touch");
         }
     }
 

@@ -41,6 +41,8 @@
     <string name="choose_iso">Choose image/ZIP</string>
     <string name="choose_this_folder">Choose this folder</string>
     <string name="mouse_mode_label">Mouse mode:</string>
+    <string name="mouse_mode_touch">Touchscreen</string>
+    <string name="mouse_mode_physical">Physical cursor</string>
     <string name="use_joystick">Use a virtual joystick for mouse control</string>
     <string name="skip_police_code">Skip code entry (Mr. Policeman)</string>
     <string name="stretch_fullscreen">Stretch to fullscreen (ignore aspect ratio)</string>

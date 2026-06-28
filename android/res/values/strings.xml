@@ -45,19 +45,14 @@
     <string name="choose_iso">Wybierz obraz/ZIP</string>
     <string name="choose_this_folder">Wybierz ten folder</string>
     <string name="mouse_mode_label">Tryb pracy myszy:</string>
+    <string name="mouse_mode_touch">Dotykowo</string>
+    <string name="mouse_mode_physical">Fizyczny kursor</string>
     <string name="use_joystick">Używaj wirtualnego joysticka do obsługi myszy</string>
     <string name="skip_police_code">Pomiń wprowadzanie kodu (Pana Policjanta)</string>
     <string name="stretch_fullscreen">Rozciągaj na cały ekran (ignoruj proporcje ekranu)</string>
     <string name="show_fps">Pokaż licznik FPS</string>
     <string name="patch_family_label">Rodzina łatek (opcjonalnie):</string>
     <string name="patch_family_hint">np. czarodzieje</string>
-
-    <!-- Persisted as the selected label (GameEntry.mouseMode), so intentionally kept
-         Polish-only / untranslated to keep stored game configs locale-stable. -->
-    <string-array name="mouse_modes" translatable="false">
-        <item>Dotykowo</item>
-        <item>Fizyczny kursor</item>
-    </string-array>
 
     <!-- Patch manager screen -->
     <string name="patch_manager_title">Łatki</string>

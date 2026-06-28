@@ -310,6 +310,30 @@ public class GameEntry implements Serializable {
         this.mouseMode = mouseMode;
     }
 
+    /** The mouse mode as a typed value, resolving legacy/blank stored values. */
+    public MouseMode getMouseModeEnum() {
+        return MouseMode.fromStored(mouseMode);
+    }
+
+    /** Stores {@code mode} by its stable {@link MouseMode#key()}. */
+    public void setMouseMode(MouseMode mode) {
+        this.mouseMode = (mode == null ? MouseMode.defaultMode() : mode).key();
+    }
+
+    /**
+     * Rewrites a legacy {@code mouseMode} (stored as a localized label) to the
+     * stable {@link MouseMode#key()}. Returns {@code true} if the value changed,
+     * so the caller can persist; mirrors {@link #ensureStorageId()} / {@link #ensureDllHash()}.
+     */
+    public boolean normalizeMouseMode() {
+        String normalized = MouseMode.fromStored(mouseMode).key();
+        if (!normalized.equals(mouseMode)) {
+            this.mouseMode = normalized;
+            return true;
+        }
+        return false;
+    }
+
     public boolean isMouseVirtualJoystick() {
         return mouseVirtualJoystick;
     }
