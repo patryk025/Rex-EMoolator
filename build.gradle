@@ -13,7 +13,7 @@ buildscript {
     }
     dependencies {
         classpath 'com.android.tools.build:gradle:9.0.1'
-        classpath 'com.gradleup.shadow:shadow-gradle-plugin:9.4.1'
+        classpath 'com.gradleup.shadow:shadow-gradle-plugin:9.4.2'
         classpath 'com.github.jk1:gradle-license-report:3.1.2'
     }
 }
@@ -216,14 +216,14 @@ allprojects {
     version = System.getenv('RELEASE_VERSION') ?: '0.1-SNAPSHOT'
     ext {
         appName = "Rex-EMoolator"
-        gdxVersion = '1.14.0'
+        gdxVersion = '1.14.2'
         roboVMVersion = '2.3.20'
         ashleyVersion = '1.7.4'
         aiVersion = '1.8.2'
         gdxControllersVersion = '2.2.4'
         ini4jVersion = '0.5.4'
         oshiVersion = '6.6.3'
-        jnaVersion = '5.18.1'
+        jnaVersion = '5.19.1'
         ode4jVersion = '0.5.4'
     }
 
@@ -389,10 +389,10 @@ project(":core") {
             exclude group: 'net.java.dev.jna', module: 'jna'
         }
         implementation "org.ode4j:core:$ode4jVersion"
-        implementation "com.github.junrar:junrar:7.5.5"
+        implementation "com.github.junrar:junrar:7.6.0"
 
-        testImplementation 'org.junit.jupiter:junit-jupiter:6.0.3'
-        testRuntimeOnly "org.junit.platform:junit-platform-launcher:6.0.3"
+        testImplementation 'org.junit.jupiter:junit-jupiter:6.1.0'
+        testRuntimeOnly "org.junit.platform:junit-platform-launcher:6.1.0"
         testImplementation 'org.mockito:mockito-core:5.23.0'
         testImplementation "org.mockito:mockito-inline:5.2.0"
         testImplementation "org.mockito:mockito-junit-jupiter:5.23.0"
