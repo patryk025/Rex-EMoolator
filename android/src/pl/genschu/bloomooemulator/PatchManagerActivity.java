@@ -77,7 +77,7 @@ public class PatchManagerActivity extends AppCompatActivity {
         }
         String hash = game.getDllHash();
         if (hash == null || hash.trim().isEmpty()) {
-            Toast.makeText(this, "Nie udało się ustalić wersji silnika gry.", Toast.LENGTH_LONG).show();
+            Toast.makeText(this, getString(R.string.patch_engine_hash_failed), Toast.LENGTH_LONG).show();
             finish();
             return;
         }
@@ -95,8 +95,11 @@ public class PatchManagerActivity extends AppCompatActivity {
         progressBar = findViewById(R.id.progressBar);
 
         headerText.setText(game.getName());
-        subHeaderText.setText("Silnik: " + shortHash(hash)
-                + (family != null ? "  •  Rodzina: " + family : ""));
+        String subHeader = getString(R.string.patch_engine_label, shortHash(hash));
+        if (family != null) {
+            subHeader += getString(R.string.patch_family_suffix, family);
+        }
+        subHeaderText.setText(subHeader);
 
         RecyclerView recyclerView = findViewById(R.id.patchRecyclerView);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
@@ -127,16 +130,17 @@ public class PatchManagerActivity extends AppCompatActivity {
         Menu menu = popup.getMenu();
         if (!row.isInstalled()) {
             if (row.isDownloadable()) {
-                menu.add(0, MENU_INSTALL, 0, "Zainstaluj");
+                menu.add(0, MENU_INSTALL, 0, getString(R.string.patch_action_install));
             }
         } else {
-            menu.add(0, MENU_TOGGLE, 0, row.isEnabled() ? "Wyłącz" : "Włącz");
-            menu.add(0, MENU_UP, 1, "Przesuń w górę");
-            menu.add(0, MENU_DOWN, 2, "Przesuń w dół");
-            menu.add(0, MENU_UNINSTALL, 3, "Odinstaluj");
+            menu.add(0, MENU_TOGGLE, 0, getString(row.isEnabled()
+                    ? R.string.patch_action_disable : R.string.patch_action_enable));
+            menu.add(0, MENU_UP, 1, getString(R.string.patch_action_move_up));
+            menu.add(0, MENU_DOWN, 2, getString(R.string.patch_action_move_down));
+            menu.add(0, MENU_UNINSTALL, 3, getString(R.string.patch_action_uninstall));
         }
         if (menu.size() == 0) {
-            Toast.makeText(this, "Brak dostępnych akcji dla tej łatki.", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, getString(R.string.patch_no_actions), Toast.LENGTH_SHORT).show();
             return;
         }
         popup.setOnMenuItemClickListener(item -> handleMenu(row, item.getItemId()));
@@ -172,13 +176,13 @@ public class PatchManagerActivity extends AppCompatActivity {
 
     private void confirmUninstall(PatchRowVM row) {
         new AlertDialog.Builder(this)
-                .setTitle("Odinstaluj")
-                .setMessage("Czy odinstalować łatkę „" + row.getDisplayName() + "”?")
-                .setPositiveButton("Tak", (dialog, which) -> {
+                .setTitle(getString(R.string.patch_action_uninstall))
+                .setMessage(getString(R.string.patch_uninstall_message, row.getDisplayName()))
+                .setPositiveButton(getString(R.string.common_yes), (dialog, which) -> {
                     controller.uninstall(row.getId());
                     rebuild();
                 })
-                .setNegativeButton("Nie", null)
+                .setNegativeButton(getString(R.string.common_no), null)
                 .show();
     }
 
@@ -210,7 +214,7 @@ public class PatchManagerActivity extends AppCompatActivity {
             runOnUiThread(() -> {
                 hideProgress();
                 if (err != null) {
-                    Toast.makeText(this, "Instalacja nie powiodła się: " + err, Toast.LENGTH_LONG).show();
+                    Toast.makeText(this, getString(R.string.patch_install_failed, err), Toast.LENGTH_LONG).show();
                 }
                 rebuild();
             });
@@ -223,7 +227,7 @@ public class PatchManagerActivity extends AppCompatActivity {
         adapter.setRows(rows);
         StringBuilder sb = new StringBuilder();
         if (rows.isEmpty()) {
-            sb.append("Brak łatek pasujących do tej gry.");
+            sb.append(getString(R.string.patch_none_relevant));
         } else {
             for (PatchIssue issue : controller.issues()) {
                 sb.append("• [").append(issue.getSeverity()).append("] ").append(issue.getMessage()).append('\n');

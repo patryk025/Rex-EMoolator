@@ -3,6 +3,7 @@ package pl.genschu.bloomooemulator.adapters;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -65,32 +66,34 @@ public class PatchListAdapter extends RecyclerView.Adapter<PatchListAdapter.Patc
         return rows.size();
     }
 
-    private static String compatLabel(PatchCompatibility compat) {
+    private static String compatLabel(Context context, PatchCompatibility compat) {
         switch (compat) {
             case EXACT:
-                return "dokładna";
+                return context.getString(R.string.patch_compat_exact);
             case FAMILY:
-                return "rodzina";
+                return context.getString(R.string.patch_compat_family);
             default:
-                return "brak";
+                return context.getString(R.string.patch_compat_none);
         }
     }
 
     /** Builds the secondary line, e.g. "Aidem Media • v1.1 • Zgodność: dokładna • Zainstalowana". */
-    private static String statusLine(PatchRowVM row) {
-        StringBuilder sb = new StringBuilder();
+    private static String statusLine(Context context, PatchRowVM row) {
+        List<String> parts = new ArrayList<>();
         if (!row.getAuthor().isEmpty()) {
-            sb.append(row.getAuthor()).append(" • ");
+            parts.add(row.getAuthor());
         }
         if (!row.getVersion().isEmpty()) {
-            sb.append("v").append(row.getVersion()).append(" • ");
+            parts.add(context.getString(R.string.patch_version_format, row.getVersion()));
         }
-        sb.append("Zgodność: ").append(compatLabel(row.getCompat()));
-        sb.append(" • ").append(row.isInstalled() ? "Zainstalowana" : "Niezainstalowana");
+        parts.add(context.getString(R.string.patch_compat_label, compatLabel(context, row.getCompat())));
+        parts.add(context.getString(row.isInstalled()
+                ? R.string.patch_state_installed : R.string.patch_state_not_installed));
         if (row.isInstalled()) {
-            sb.append(" • ").append(row.isEnabled() ? "Włączona" : "Wyłączona");
+            parts.add(context.getString(row.isEnabled()
+                    ? R.string.patch_state_enabled : R.string.patch_state_disabled));
         }
-        return sb.toString();
+        return TextUtils.join(" • ", parts);
     }
 
     /** Opens {@code url} in the user's browser; toasts on failure. No-op when blank. */
@@ -121,7 +124,7 @@ public class PatchListAdapter extends RecyclerView.Adapter<PatchListAdapter.Patc
 
         void bind(PatchRowVM row) {
             patchName.setText(row.getDisplayName());
-            patchStatus.setText(statusLine(row));
+            patchStatus.setText(statusLine(itemView.getContext(), row));
             patchMenuButton.setOnClickListener(v -> onMenu.show(v, row));
 
             String reference = row.getReference();

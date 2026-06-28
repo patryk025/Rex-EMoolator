@@ -1,16 +1,94 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string name="app_name">Rex-EMoolator</string>
+    <string name="app_name" translatable="false">Rex-EMoolator</string>
 
-    <string name="patch_manager_title">Łatki</string>
+    <!-- Common -->
+    <string name="common_yes">Tak</string>
+    <string name="common_no">Nie</string>
+    <string name="save">Zapisz</string>
+    <string name="cancel">Anuluj</string>
+
+    <!-- Game list screen -->
+    <string name="game_list_title">Lista gier</string>
+    <string name="add_game">Dodaj grę</string>
+    <string name="edit_game">Edytuj grę</string>
+    <plurals name="games_loaded">
+        <item quantity="one">Załadowano %d grę</item>
+        <item quantity="few">Załadowano %d gry</item>
+        <item quantity="many">Załadowano %d gier</item>
+        <item quantity="other">Załadowano %d gier</item>
+    </plurals>
+
+    <!-- Storage permissions -->
+    <string name="permissions_granted">Uprawnienia przyznane!</string>
+    <string name="permissions_denied">Uprawnienia odmówione!</string>
+    <string name="manage_files_granted">Uprawnienia do zarządzania plikami przyznane!</string>
+    <string name="manage_files_denied">Uprawnienia do zarządzania plikami odmówione!</string>
+
+    <!-- Game entry row actions (content descriptions) -->
+    <string name="run_game_desc">Uruchom</string>
+    <string name="edit_game_desc">Edytuj</string>
+    <string name="delete_game_desc">Usuń</string>
     <string name="patches_button_desc">Zarządzaj łatkami</string>
-    <string name="patch_open_source">🔗 Strona źródłowa</string>
-    <string name="patch_open_source_failed">Nie udało się otworzyć linku.</string>
 
-    <string-array name="mouse_modes">
+    <!-- Delete game dialog -->
+    <string name="delete_game_title">Usuwanie gry</string>
+    <string name="delete_game_message">Czy aby na pewno chcesz usunąć %1$s?</string>
+
+    <!-- Add / edit game dialog -->
+    <string name="game_name_label">Nazwa gry:</string>
+    <string name="game_name_hint">Nazwa gry</string>
+    <string name="game_path_label">Ścieżka do plików:</string>
+    <string name="game_path_hint">Ścieżka do plików</string>
+    <string name="choose_folder">Wybierz folder</string>
+    <string name="choose_iso">Wybierz obraz/ZIP</string>
+    <string name="choose_this_folder">Wybierz ten folder</string>
+    <string name="mouse_mode_label">Tryb pracy myszy:</string>
+    <string name="use_joystick">Używaj wirtualnego joysticka do obsługi myszy</string>
+    <string name="skip_police_code">Pomiń wprowadzanie kodu (Pana Policjanta)</string>
+    <string name="stretch_fullscreen">Rozciągaj na cały ekran (ignoruj proporcje ekranu)</string>
+    <string name="show_fps">Pokaż licznik FPS</string>
+    <string name="patch_family_label">Rodzina łatek (opcjonalnie):</string>
+    <string name="patch_family_hint">np. czarodzieje</string>
+
+    <!-- Persisted as the selected label (GameEntry.mouseMode), so intentionally kept
+         Polish-only / untranslated to keep stored game configs locale-stable. -->
+    <string-array name="mouse_modes" translatable="false">
         <item>Dotykowo</item>
         <item>Fizyczny kursor</item>
     </string-array>
-    
+
+    <!-- Patch manager screen -->
+    <string name="patch_manager_title">Łatki</string>
+    <string name="patch_notes_label">Uwagi:</string>
+    <string name="patch_open_source">🔗 Strona źródłowa</string>
+    <string name="patch_open_source_failed">Nie udało się otworzyć linku.</string>
+    <string name="patch_engine_hash_failed">Nie udało się ustalić wersji silnika gry.</string>
+    <string name="patch_engine_label">Silnik: %1$s</string>
+    <string name="patch_family_suffix">"  •  Rodzina: %1$s"</string>
+    <string name="patch_none_relevant">Brak łatek pasujących do tej gry.</string>
+    <string name="patch_no_actions">Brak dostępnych akcji dla tej łatki.</string>
+    <string name="patch_install_failed">Instalacja nie powiodła się: %1$s</string>
+    <string name="patch_uninstall_message">Czy odinstalować łatkę „%1$s”?</string>
+
+    <!-- Patch actions (context menu) -->
+    <string name="patch_action_install">Zainstaluj</string>
+    <string name="patch_action_enable">Włącz</string>
+    <string name="patch_action_disable">Wyłącz</string>
+    <string name="patch_action_move_up">Przesuń w górę</string>
+    <string name="patch_action_move_down">Przesuń w dół</string>
+    <string name="patch_action_uninstall">Odinstaluj</string>
+
+    <!-- Patch status line -->
+    <string name="patch_version_format">v%1$s</string>
+    <string name="patch_compat_label">Zgodność: %1$s</string>
+    <string name="patch_compat_exact">dokładna</string>
+    <string name="patch_compat_family">rodzina</string>
+    <string name="patch_compat_none">brak</string>
+    <string name="patch_state_installed">Zainstalowana</string>
+    <string name="patch_state_not_installed">Niezainstalowana</string>
+    <string name="patch_state_enabled">Włączona</string>
+    <string name="patch_state_disabled">Wyłączona</string>
+
 </resources>

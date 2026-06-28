@@ -9,23 +9,23 @@
     <TextView
          android:layout_height="wrap_content"
          android:layout_width="match_parent"
-         android:text="Nazwa gry:" />
+         android:text="@string/game_name_label" />
 
     <EditText
          android:layout_height="wrap_content"
          android:layout_width="match_parent"
-         android:hint="Nazwa gry"
+         android:hint="@string/game_name_hint"
          android:id="@+id/nameField" />
 
     <TextView
          android:layout_height="wrap_content"
          android:layout_width="match_parent"
-         android:text="Ścieżka do plików:" />
+         android:text="@string/game_path_label" />
 
     <EditText
          android:layout_height="wrap_content"
          android:layout_width="match_parent"
-         android:hint="Ścieżka do plików"
+         android:hint="@string/game_path_hint"
          android:id="@+id/pathField" />
 
     <LinearLayout
@@ -38,21 +38,21 @@
              android:layout_width="0dp"
              android:layout_weight="1"
              android:id="@+id/chooseFolderButton"
-             android:text="Wybierz folder" />
+             android:text="@string/choose_folder" />
 
         <Button
              android:layout_height="wrap_content"
              android:layout_width="0dp"
              android:layout_weight="1"
              android:id="@+id/chooseIsoButton"
-             android:text="Wybierz obraz/ZIP" />
+             android:text="@string/choose_iso" />
 
     </LinearLayout>
 
     <TextView
          android:layout_height="wrap_content"
          android:layout_width="match_parent"
-         android:text="Tryb pracy myszy:" />
+         android:text="@string/mouse_mode_label" />
 
     <Spinner
          android:layout_height="wrap_content"
@@ -66,35 +66,35 @@
          android:layout_height="wrap_content"
          android:layout_width="match_parent"
          android:id="@+id/joystickCheckbox"
-         android:text="Używaj wirtualnego joysticka do obsługi myszy" />
+         android:text="@string/use_joystick" />
 
     <CheckBox
          android:layout_height="wrap_content"
          android:layout_width="match_parent"
          android:id="@+id/skipPoliceCheckbox"
-         android:text="Pomiń wprowadzanie kodu (Pana Policjanta)" />
+         android:text="@string/skip_police_code" />
 
     <CheckBox
          android:layout_height="wrap_content"
          android:layout_width="match_parent"
          android:id="@+id/fullscreenCheckbox"
-         android:text="Rozciągaj na cały ekran (ignoruj proporcje ekranu)" />
+         android:text="@string/stretch_fullscreen" />
 
     <CheckBox
          android:layout_height="wrap_content"
          android:layout_width="match_parent"
          android:id="@+id/fpsCounterCheckbox"
-         android:text="Pokaż licznik FPS" />
+         android:text="@string/show_fps" />
 
     <TextView
          android:layout_height="wrap_content"
          android:layout_width="match_parent"
-         android:text="Rodzina łatek (opcjonalnie):" />
+         android:text="@string/patch_family_label" />
 
     <EditText
          android:layout_height="wrap_content"
          android:layout_width="match_parent"
-         android:hint="np. czarodzieje"
+         android:hint="@string/patch_family_hint"
          android:inputType="text"
          android:id="@+id/familyField" />
 

@@ -46,7 +46,10 @@ public class GameListActivity extends AppCompatActivity {
         adapter = new GameListAdapter(this, gameManager.getGames());
         gamesRecyclerView.setAdapter(adapter);
         
-        Toast.makeText(getApplicationContext(), "Załadowano " + gameManager.getGames().size + " gier", Toast.LENGTH_LONG).show();
+        int gameCount = gameManager.getGames().size;
+        Toast.makeText(getApplicationContext(),
+                getResources().getQuantityString(R.plurals.games_loaded, gameCount, gameCount),
+                Toast.LENGTH_LONG).show();
 
         Button addGameButton = findViewById(R.id.addGameButton);
         addGameButton.setOnClickListener(v -> showGameDialog());
@@ -81,9 +84,9 @@ public class GameListActivity extends AppCompatActivity {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         if (requestCode == REQUEST_CODE_PERMISSIONS) {
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                Toast.makeText(this, "Uprawnienia przyznane!", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, getString(R.string.permissions_granted), Toast.LENGTH_SHORT).show();
             } else {
-                Toast.makeText(this, "Uprawnienia odmówione!", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, getString(R.string.permissions_denied), Toast.LENGTH_SHORT).show();
             }
         }
     }
@@ -94,9 +97,9 @@ public class GameListActivity extends AppCompatActivity {
         if (requestCode == REQUEST_CODE_PERMISSIONS) {
             if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.R) {
                 if (Environment.isExternalStorageManager()) {
-                    Toast.makeText(this, "Uprawnienia do zarządzania plikami przyznane!", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this, getString(R.string.manage_files_granted), Toast.LENGTH_SHORT).show();
                 } else {
-                    Toast.makeText(this, "Uprawnienia do zarządzania plikami odmówione!", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this, getString(R.string.manage_files_denied), Toast.LENGTH_SHORT).show();
                 }
             }
         }
@@ -112,7 +115,7 @@ public class GameListActivity extends AppCompatActivity {
 
     public void showGameDialog(GameEntry game) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle(game == null ? "Dodaj grę" : "Edytuj grę");
+        builder.setTitle(game == null ? getString(R.string.add_game) : getString(R.string.edit_game));
 
         View dialogView = getLayoutInflater().inflate(R.layout.dialog_game, null);
         builder.setView(dialogView);
@@ -134,7 +137,8 @@ public class GameListActivity extends AppCompatActivity {
         if (game != null) {
             nameField.setText(game.getName());
             pathField.setText(game.getPath());
-            mouseModeSelectBox.setSelection(game.getMouseMode().equals("Dotykowo") ? 0 : 1);
+            String[] mouseModes = getResources().getStringArray(R.array.mouse_modes);
+            mouseModeSelectBox.setSelection(game.getMouseMode().equals(mouseModes[0]) ? 0 : 1);
             joystickCheckbox.setChecked(game.isMouseVirtualJoystick());
             skipPoliceCheckbox.setChecked(game.isSkipLicenceCode());
             fullscreenCheckbox.setChecked(!game.isMaintainAspectRatio());
@@ -144,7 +148,7 @@ public class GameListActivity extends AppCompatActivity {
             }
         }
 
-        builder.setPositiveButton("Zapisz", (dialog, which) -> {
+        builder.setPositiveButton(getString(R.string.save), (dialog, which) -> {
             if (game == null) {
                 GameEntry newGame = new GameEntry(
                         nameField.getText().toString(),
@@ -173,7 +177,7 @@ public class GameListActivity extends AppCompatActivity {
             }
         });
 
-        builder.setNegativeButton("Anuluj", null);
+        builder.setNegativeButton(getString(R.string.cancel), null);
         builder.show();
     }
 
@@ -212,9 +216,9 @@ public class GameListActivity extends AppCompatActivity {
             }
         });
         if (directoryMode) {
-            builder.setPositiveButton("Wybierz ten folder", (dialog, which) -> pathField.setText(directory.getAbsolutePath()));
+            builder.setPositiveButton(getString(R.string.choose_this_folder), (dialog, which) -> pathField.setText(directory.getAbsolutePath()));
         }
-        builder.setNegativeButton("Anuluj", null);
+        builder.setNegativeButton(getString(R.string.cancel), null);
         builder.show();
     }
 
@@ -241,14 +245,14 @@ public class GameListActivity extends AppCompatActivity {
 
     public void showDeleteDialog(GameEntry game) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("Usuwanie gry");
-        builder.setMessage("Czy aby na pewno chcesz usunąć " + game.getName() + "?");
-        builder.setPositiveButton("Tak", (dialog, which) -> {
+        builder.setTitle(getString(R.string.delete_game_title));
+        builder.setMessage(getString(R.string.delete_game_message, game.getName()));
+        builder.setPositiveButton(getString(R.string.common_yes), (dialog, which) -> {
             int index = gameManager.getGames().indexOf(game, true);
             gameManager.removeGame(game);
             adapter.notifyItemRemoved(index);
         });
-        builder.setNegativeButton("Nie", null);
+        builder.setNegativeButton(getString(R.string.common_no), null);
         builder.show();
     }
 

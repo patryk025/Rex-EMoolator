@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- Common -->
+    <string name="common_yes">Yes</string>
+    <string name="common_no">No</string>
+    <string name="save">Save</string>
+    <string name="cancel">Cancel</string>
+
+    <!-- Game list screen -->
+    <string name="game_list_title">Game list</string>
+    <string name="add_game">Add game</string>
+    <string name="edit_game">Edit game</string>
+    <plurals name="games_loaded">
+        <item quantity="one">Loaded %d game</item>
+        <item quantity="other">Loaded %d games</item>
+    </plurals>
+
+    <!-- Storage permissions -->
+    <string name="permissions_granted">Permissions granted!</string>
+    <string name="permissions_denied">Permissions denied!</string>
+    <string name="manage_files_granted">File management permission granted!</string>
+    <string name="manage_files_denied">File management permission denied!</string>
+
+    <!-- Game entry row actions (content descriptions) -->
+    <string name="run_game_desc">Run</string>
+    <string name="edit_game_desc">Edit</string>
+    <string name="delete_game_desc">Delete</string>
+    <string name="patches_button_desc">Manage patches</string>
+
+    <!-- Delete game dialog -->
+    <string name="delete_game_title">Delete game</string>
+    <string name="delete_game_message">Are you sure you want to delete %1$s?</string>
+
+    <!-- Add / edit game dialog -->
+    <string name="game_name_label">Game name:</string>
+    <string name="game_name_hint">Game name</string>
+    <string name="game_path_label">Files path:</string>
+    <string name="game_path_hint">Files path</string>
+    <string name="choose_folder">Choose folder</string>
+    <string name="choose_iso">Choose image/ZIP</string>
+    <string name="choose_this_folder">Choose this folder</string>
+    <string name="mouse_mode_label">Mouse mode:</string>
+    <string name="use_joystick">Use a virtual joystick for mouse control</string>
+    <string name="skip_police_code">Skip code entry (Mr. Policeman)</string>
+    <string name="stretch_fullscreen">Stretch to fullscreen (ignore aspect ratio)</string>
+    <string name="show_fps">Show FPS counter</string>
+    <string name="patch_family_label">Patch family (optional):</string>
+    <string name="patch_family_hint">e.g. czarodzieje</string>
+
+    <!-- Patch manager screen -->
+    <string name="patch_manager_title">Patches</string>
+    <string name="patch_notes_label">Notes:</string>
+    <string name="patch_open_source">🔗 Source page</string>
+    <string name="patch_open_source_failed">Could not open the link.</string>
+    <string name="patch_engine_hash_failed">Could not determine the game engine version.</string>
+    <string name="patch_engine_label">Engine: %1$s</string>
+    <string name="patch_family_suffix">"  •  Family: %1$s"</string>
+    <string name="patch_none_relevant">No patches for this game.</string>
+    <string name="patch_no_actions">No actions available for this patch.</string>
+    <string name="patch_install_failed">Installation failed: %1$s</string>
+    <string name="patch_uninstall_message">Uninstall patch “%1$s”?</string>
+
+    <!-- Patch actions (context menu) -->
+    <string name="patch_action_install">Install</string>
+    <string name="patch_action_enable">Enable</string>
+    <string name="patch_action_disable">Disable</string>
+    <string name="patch_action_move_up">Move up</string>
+    <string name="patch_action_move_down">Move down</string>
+    <string name="patch_action_uninstall">Uninstall</string>
+
+    <!-- Patch status line -->
+    <string name="patch_version_format">v%1$s</string>
+    <string name="patch_compat_label">Compatibility: %1$s</string>
+    <string name="patch_compat_exact">exact</string>
+    <string name="patch_compat_family">family</string>
+    <string name="patch_compat_none">none</string>
+    <string name="patch_state_installed">Installed</string>
+    <string name="patch_state_not_installed">Not installed</string>
+    <string name="patch_state_enabled">Enabled</string>
+    <string name="patch_state_disabled">Disabled</string>
+
+</resources>
