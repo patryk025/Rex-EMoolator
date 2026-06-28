@@ -29,7 +29,6 @@ import pl.genschu.bloomooemulator.logic.GameIniResolver;
 import pl.genschu.bloomooemulator.patch.PatchManager;
 import pl.genschu.bloomooemulator.patch.PatchRegistry;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -307,20 +306,6 @@ public class Game {
         return DANE_ROOT + "/" + relPath.replace('\\', '/').replaceFirst("^/+", "");
     }
 
-    /** Reads a file's bytes via VFS (caller-provided path). */
-    private byte[] readAllBytes(String vfsPath) throws IOException {
-        try (InputStream is = vfs.openRead(vfsPath)) {
-            ByteArrayOutputStream buffer = new ByteArrayOutputStream();
-            byte[] data = new byte[8192];
-            int nRead;
-            while ((nRead = is.read(data, 0, data.length)) != -1) {
-                buffer.write(data, 0, nRead);
-            }
-            buffer.flush();
-            return buffer.toByteArray();
-        }
-    }
-
     /**
      * Locates the game's INI file. Returns a path relative to the VFS root
      * (suitable for {@code vfs.openRead}), or {@code null} if none is found.
@@ -338,7 +323,9 @@ public class Game {
             }
         }
 
-        String resolved = GameIniResolver.resolve(vfs::exists, vfs.list(""), this::readAllBytes);
+        // boundedReader skips oversized entries (bundled video demos) that would OOM.
+        String resolved = GameIniResolver.resolve(vfs::exists, vfs.list(""),
+                GameIniResolver.boundedReader(vfs::length, vfs::openRead));
         if (resolved == null) {
             Gdx.app.error("findGameINI", "No .ini file found in the parent folder");
         } else if (game != null) {

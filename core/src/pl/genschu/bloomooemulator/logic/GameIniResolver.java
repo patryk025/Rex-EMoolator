@@ -4,13 +4,16 @@ import com.badlogic.gdx.Gdx;
 import org.ini4j.Ini;
 
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 import java.util.function.Predicate;
+import java.util.function.ToLongFunction;
 
 /**
  * Resolves the path (relative to the assets root) of a game's main INI file.
@@ -31,9 +34,56 @@ import java.util.function.Predicate;
 public final class GameIniResolver {
     private GameIniResolver() {}
 
-    /** Reads the full contents of a path. */
+    /**
+     * Upper bound on bytes a {@link ByteReader} should materialize when scanning a
+     * file for an embedded INI name. Piklib/BlooMoo game launchers are tiny (tens
+     * to hundreds of KB); a much larger ".exe" is a bundled video demo (e.g.
+     * {@code Reksio_ufo.exe} / {@code czarodemo1.exe} on the Tezeusz disc) that never
+     * embeds the current game's INI name. Reading such a file whole OOMs on Android's
+     * capped heap, so callers skip oversized entries and bound the read.
+     */
+    public static final long MAX_SCAN_BYTES = 24L * 1024 * 1024;
+
+    /** Reads (up to {@link #MAX_SCAN_BYTES}) the contents of a path. */
     public interface ByteReader {
         byte[] read(String path) throws IOException;
+    }
+
+    /** Opens a path for reading (filesystem-agnostic). */
+    public interface Opener {
+        InputStream open(String path) throws IOException;
+    }
+
+    /**
+     * Builds a {@link ByteReader} that skips entries larger than {@link #MAX_SCAN_BYTES}
+     * and never materializes more than that many bytes, so a bundled video-demo ".exe"
+     * (e.g. {@code Reksio_ufo.exe}) can't OOM the INI scan. {@code length} reports an
+     * entry's size (anything bigger is skipped without opening it); {@code opener}
+     * supplies the bytes, and the read is still bounded as a backstop for filesystems
+     * that can't report a length.
+     */
+    public static ByteReader boundedReader(ToLongFunction<String> length, Opener opener) {
+        return path -> {
+            if (length.applyAsLong(path) > MAX_SCAN_BYTES) {
+                return new byte[0];
+            }
+            try (InputStream is = opener.open(path)) {
+                return readBounded(is, (int) MAX_SCAN_BYTES);
+            }
+        };
+    }
+
+    static byte[] readBounded(InputStream input, int maxBytes) throws IOException {
+        ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+        byte[] data = new byte[8192];
+        int read;
+        int total = 0;
+        while (total < maxBytes
+                && (read = input.read(data, 0, Math.min(data.length, maxBytes - total))) != -1) {
+            buffer.write(data, 0, read);
+            total += read;
+        }
+        return buffer.toByteArray();
     }
 
     public static String resolve(Predicate<String> exists, String[] rootEntries, ByteReader reader) {

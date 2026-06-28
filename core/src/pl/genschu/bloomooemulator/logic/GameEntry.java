@@ -171,21 +171,10 @@ public class GameEntry implements Serializable {
     }
 
     private static String resolveIniPath(IFileSystem fs, String[] entries) {
-        return GameIniResolver.resolve(fs::exists, entries, p -> {
-            try (InputStream is = fs.open(p)) {
-                return readAllBytes(is);
-            }
-        });
-    }
-
-    private static byte[] readAllBytes(InputStream input) throws IOException {
-        java.io.ByteArrayOutputStream buffer = new java.io.ByteArrayOutputStream();
-        byte[] data = new byte[8192];
-        int read;
-        while ((read = input.read(data)) != -1) {
-            buffer.write(data, 0, read);
-        }
-        return buffer.toByteArray();
+        // boundedReader skips oversized entries (bundled video demos like
+        // Reksio_ufo.exe / czarodemo1.exe on the Tezeusz disc) that would OOM the scan.
+        return GameIniResolver.resolve(fs::exists, entries,
+                GameIniResolver.boundedReader(fs::length, fs::open));
     }
 
     public static String calculateSHA1(InputStream input) throws IOException, NoSuchAlgorithmException {
