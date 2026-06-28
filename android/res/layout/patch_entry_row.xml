@@ -29,6 +29,19 @@
              android:id="@+id/patchStatus"
              android:text="" />
 
+        <TextView
+             android:layout_height="wrap_content"
+             android:layout_width="wrap_content"
+             android:textSize="13sp"
+             android:textColor="?android:attr/textColorLink"
+             android:paddingTop="2dp"
+             android:background="?attr/selectableItemBackground"
+             android:clickable="true"
+             android:focusable="true"
+             android:visibility="gone"
+             android:id="@+id/patchReference"
+             android:text="@string/patch_open_source" />
+
     </LinearLayout>
 
     <ImageButton

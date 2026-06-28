@@ -39,6 +39,9 @@ import java.util.Locale;
  *       remains {@code "files"}. Use it when an archive wraps everything in a folder
  *       (e.g. {@code "Reksio Piraci"}). Null/absent = extract the whole archive verbatim.</li>
  *   <li>{@code source} — provenance, used only by the patch manager for refresh logic.</li>
+ *   <li>{@code reference} — optional URL with more info about the patch (changelog, forum
+ *       thread, author's page). Purely informational; surfaced as a clickable link in the
+ *       patch manager UI. Null/absent = no link shown.</li>
  *   <li>{@code conflicts} / {@code requires} / {@code supersedes} — relationships with other
  *       patches, evaluated by {@link PatchManager#validate}. Each entry is a patch {@code id}.
  *       Asymmetric declarations still count (if A lists B as conflicting, the conflict holds
@@ -118,6 +121,11 @@ public class PatchManifest implements Serializable {
 
     public PatchSource getSource() { return source; }
     public void setSource(PatchSource source) { this.source = source == null ? new PatchSource() : source; }
+
+    public String getReference() { return reference; }
+    public void setReference(String reference) {
+        this.reference = (reference == null || reference.isBlank()) ? null : reference.trim();
+    }
 
     public String[] getConflicts() { return conflicts; }
     public void setConflicts(String[] conflicts) {

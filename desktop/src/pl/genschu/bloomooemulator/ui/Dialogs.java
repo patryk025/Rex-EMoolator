@@ -14,7 +14,10 @@ import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.io.File;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
@@ -213,6 +216,19 @@ public class Dialogs {
         notes.setLineWrap(true);
         notes.setWrapStyleWord(true);
 
+        // Clickable info link for the selected patch's `reference` URL (hidden when none).
+        final String[] referenceUrl = {null};
+        final JLabel referenceLink = new JLabel();
+        referenceLink.setVisible(false);
+        referenceLink.setForeground(new Color(0x1A0DAB));
+        referenceLink.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        referenceLink.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                openUrl(referenceUrl[0]);
+            }
+        });
+
         final List<PatchRowVM> rows = new ArrayList<>();
         final Runnable rebuild = () -> {
             rows.clear();
@@ -232,6 +248,24 @@ public class Dialogs {
             }
             notes.setText(sb.toString());
         };
+
+        // Show/refresh the reference link for whichever row is currently selected.
+        table.getSelectionModel().addListSelectionListener(e -> {
+            if (e.getValueIsAdjusting()) {
+                return;
+            }
+            int sel = table.getSelectedRow();
+            String url = (sel >= 0 && sel < rows.size()) ? rows.get(sel).getReference() : null;
+            referenceUrl[0] = url;
+            if (url != null && !url.isBlank()) {
+                referenceLink.setText("<html><u>" + resourceBundle.getString("patch_open_source") + "</u></html>");
+                referenceLink.setToolTipText(url);
+                referenceLink.setVisible(true);
+            } else {
+                referenceLink.setVisible(false);
+                referenceLink.setToolTipText(null);
+            }
+        });
 
         JButton installButton = new JButton(resourceBundle.getString("patch_install"));
         JButton toggleButton = new JButton(resourceBundle.getString("patch_toggle"));
@@ -355,6 +389,7 @@ public class Dialogs {
         JPanel notesPanel = new JPanel(new BorderLayout());
         notesPanel.add(new JLabel(resourceBundle.getString("patch_notes")), BorderLayout.NORTH);
         notesPanel.add(new JScrollPane(notes), BorderLayout.CENTER);
+        notesPanel.add(referenceLink, BorderLayout.SOUTH);
         JPanel buttons = new JPanel();
         buttons.add(installButton);
         buttons.add(toggleButton);
@@ -425,5 +460,20 @@ public class Dialogs {
 
     private String yesNo(boolean value) {
         return resourceBundle.getString(value ? "yes" : "no");
+    }
+
+    /** Opens {@code url} in the user's default browser; no-op when blank or unsupported. */
+    private void openUrl(String url) {
+        if (url == null || url.isBlank()) {
+            return;
+        }
+        try {
+            if (Desktop.isDesktopSupported() && Desktop.getDesktop().isSupported(Desktop.Action.BROWSE)) {
+                Desktop.getDesktop().browse(URI.create(url));
+            }
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(gameListFrame,
+                    resourceBundle.getString("patch_open_source_failed").replace("{0}", String.valueOf(ex.getMessage())));
+        }
     }
 }

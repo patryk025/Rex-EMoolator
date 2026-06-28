@@ -5,6 +5,8 @@
 
     <string name="patch_manager_title">Łatki</string>
     <string name="patches_button_desc">Zarządzaj łatkami</string>
+    <string name="patch_open_source">🔗 Strona źródłowa</string>
+    <string name="patch_open_source_failed">Nie udało się otworzyć linku.</string>
 
     <string-array name="mouse_modes">
         <item>Dotykowo</item>

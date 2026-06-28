@@ -53,6 +53,9 @@ public final class PatchRowVM {
 
     public String getDescription() { return manifest.getDescription(); }
 
+    /** Author-supplied info URL (changelog/forum/page), or {@code null} when none was declared. */
+    public String getReference() { return manifest.getReference(); }
+
     /** True when the patch declares a source the installer can fetch (direct URL or Google Drive). */
     public boolean isDownloadable() {
         PatchSource source = manifest.getSource();

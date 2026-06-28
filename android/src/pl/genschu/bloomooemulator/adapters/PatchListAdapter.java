@@ -1,10 +1,14 @@
 package pl.genschu.bloomooemulator.adapters;
 
+import android.content.Context;
+import android.content.Intent;
+import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
@@ -72,9 +76,12 @@ public class PatchListAdapter extends RecyclerView.Adapter<PatchListAdapter.Patc
         }
     }
 
-    /** Builds the secondary line, e.g. "v1.1 • Zgodność: dokładna • Zainstalowana • Włączona". */
+    /** Builds the secondary line, e.g. "Aidem Media • v1.1 • Zgodność: dokładna • Zainstalowana". */
     private static String statusLine(PatchRowVM row) {
         StringBuilder sb = new StringBuilder();
+        if (!row.getAuthor().isEmpty()) {
+            sb.append(row.getAuthor()).append(" • ");
+        }
         if (!row.getVersion().isEmpty()) {
             sb.append("v").append(row.getVersion()).append(" • ");
         }
@@ -86,15 +93,29 @@ public class PatchListAdapter extends RecyclerView.Adapter<PatchListAdapter.Patc
         return sb.toString();
     }
 
+    /** Opens {@code url} in the user's browser; toasts on failure. No-op when blank. */
+    private static void openReference(Context context, String url) {
+        if (url == null || url.isEmpty()) {
+            return;
+        }
+        try {
+            context.startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(url)));
+        } catch (Exception e) {
+            Toast.makeText(context, R.string.patch_open_source_failed, Toast.LENGTH_SHORT).show();
+        }
+    }
+
     class PatchViewHolder extends RecyclerView.ViewHolder {
         final TextView patchName;
         final TextView patchStatus;
+        final TextView patchReference;
         final ImageButton patchMenuButton;
 
         PatchViewHolder(@NonNull View itemView) {
             super(itemView);
             patchName = itemView.findViewById(R.id.patchName);
             patchStatus = itemView.findViewById(R.id.patchStatus);
+            patchReference = itemView.findViewById(R.id.patchReference);
             patchMenuButton = itemView.findViewById(R.id.patchMenuButton);
         }
 
@@ -102,6 +123,15 @@ public class PatchListAdapter extends RecyclerView.Adapter<PatchListAdapter.Patc
             patchName.setText(row.getDisplayName());
             patchStatus.setText(statusLine(row));
             patchMenuButton.setOnClickListener(v -> onMenu.show(v, row));
+
+            String reference = row.getReference();
+            if (reference != null && !reference.isEmpty()) {
+                patchReference.setVisibility(View.VISIBLE);
+                patchReference.setOnClickListener(v -> openReference(v.getContext(), reference));
+            } else {
+                patchReference.setVisibility(View.GONE);
+                patchReference.setOnClickListener(null);
+            }
         }
     }
 }
