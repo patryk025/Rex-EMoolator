@@ -169,11 +169,11 @@ public record SoundVariable(
 
     public void play() {
         if (state.sound == null) {
-            // A sound that can't be played (missing file / failed load) must still
-            // report completion — otherwise any ONFINISHED-gated logic stalls forever.
+            // Play returns silently when the buffer failed to load — it never registers
+            // with the sound manager and never fires a finish notification.
+            // Emitting ONFINISHED here instead let an ONFINISHED handler that
+            // re-plays the sound recurse synchronously into StackOverflowError.
             state.playing = false;
-            emitSignal("ONFINISHED");
-            notifyObserversFinished();
             return;
         }
         try {
@@ -295,7 +295,7 @@ public record SoundVariable(
                 path = "$WAVS\\" + path;
             }
             String vfsPath = FileUtils.resolveVfsPath(ctx.getGame(), path);
-            SoundLoader.loadSound(snd, ctx.getGame().getVfs().getFileHandle(vfsPath));
+            SoundLoader.loadSound(snd, ctx.getGame().getAudioFileHandle(vfsPath));
             return MethodResult.noReturn();
         })),
 
@@ -307,8 +307,10 @@ public record SoundVariable(
         Map.entry("PLAY", MethodSpec.of((self, args, ctx) -> {
             SoundVariable snd = (SoundVariable) self;
             snd.play();
-            // Register in playingAudios so UpdateManager can poll for ONFINISHED
-            if (ctx != null && ctx.getGame() != null) {
+            // Register in playingAudios so UpdateManager can poll for ONFINISHED.
+            // Only when playback actually started: a failed/null sound never plays
+            // so it must not linger in the poll list with no way to ever be removed.
+            if (snd.isPlaying() && ctx != null && ctx.getGame() != null) {
                 ctx.getGame().getPlayingAudios().add(snd);
             }
             return MethodResult.noReturn();
