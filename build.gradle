@@ -32,6 +32,7 @@ licenseReport {
 def licenseReportJsonFile = layout.buildDirectory.file('reports/dependency-license/index.json')
 def thirdPartyNoticesFile = layout.projectDirectory.file('THIRD-PARTY-NOTICES.md')
 def licenseNoticeOverridesFile = layout.projectDirectory.file('gradle/license-notice-overrides.json')
+def documentationLicenseNoticesFile = layout.projectDirectory.file('gradle/documentation-license-notices.json')
 
 def normalizeNoticeValue = { Object value ->
     value == null ? '' : value.toString().replaceAll(/\s+/, ' ').trim()
@@ -58,9 +59,20 @@ def loadLicenseNoticeOverrides = {
     parsed.modules instanceof Map ? parsed.modules : [:]
 }
 
+def loadDocumentationLicenseNotices = {
+    def sourceFile = documentationLicenseNoticesFile.asFile
+    if (!sourceFile.exists()) {
+        return []
+    }
+
+    def parsed = new JsonSlurper().parse(sourceFile)
+    parsed.tools instanceof List ? parsed.tools : []
+}
+
 def renderThirdPartyNotices = { File reportFile ->
     def report = new JsonSlurper().parse(reportFile)
     def overrides = loadLicenseNoticeOverrides()
+    def documentationTools = loadDocumentationLicenseNotices()
     def dependencies = ((report.dependencies ?: []) as List).collect { dependency ->
         def licensesByKey = [:]
         ((dependency.moduleLicenses ?: []) as List).each { license ->
@@ -111,12 +123,13 @@ def renderThirdPartyNotices = { File reportFile ->
     def lines = [
             '# Third-Party Notices',
             '',
-            '> This file is generated from the Gradle runtime dependency graph. Do not edit it manually.',
-            '> Run `./gradlew updateThirdPartyNotices` after changing dependencies.',
+            '> This file is generated from the Gradle runtime dependency graph and maintained notice metadata. Do not edit it manually.',
+            '> Run `./gradlew updateThirdPartyNotices` after changing dependencies or documentation tooling.',
             '',
             'The complete HTML and JSON reports are generated in `build/reports/dependency-license/`.',
             'If a new dependency introduces a license outside `gradle/allowed-licenses.json`, `checkLicense` will fail.',
             'Known upstream metadata mismatches can be documented in `gradle/license-notice-overrides.json`.',
+            'Documentation tooling notices are maintained in `gradle/documentation-license-notices.json`.',
             '',
             '## Dependency Summary',
             '',
@@ -142,6 +155,23 @@ def renderThirdPartyNotices = { File reportFile ->
             def reason = normalizeNoticeValue(dependency.override.reason)
             def source = normalizeNoticeValue(dependency.override.source)
             lines << ("- `${dependency.name}:${dependency.version}`${reason ? ': ' + reason : ''}${source ? ' Source: <' + source + '>' : ''}" as String)
+        }
+    }
+
+    if (!documentationTools.isEmpty()) {
+        lines += [
+                '',
+                '## Documentation Tooling',
+                '',
+                'The following tools are used to build the documentation site and are not runtime dependencies of the emulator:',
+                '',
+                '| Tool | Version | License | License URL | Source |',
+                '| :--- | :--- | :--- | :--- | :--- |'
+        ]
+        documentationTools.each { tool ->
+            def licenseUrl = normalizeNoticeValue(tool.licenseUrl)
+            def source = normalizeNoticeValue(tool.source)
+            lines << ("| ${escapeMarkdownCell(tool.name)} | ${escapeMarkdownCell(tool.version)} | ${escapeMarkdownCell(tool.license)} | ${licenseUrl ? '<' + licenseUrl + '>' : 'n/a'} | ${source ? '<' + source + '>' : 'n/a'} |" as String)
         }
     }
 
@@ -174,6 +204,7 @@ tasks.register('updateThirdPartyNotices') {
     dependsOn tasks.named('generateLicenseReport')
     inputs.file(licenseReportJsonFile)
     inputs.file(licenseNoticeOverridesFile)
+    inputs.file(documentationLicenseNoticesFile)
     outputs.file(thirdPartyNoticesFile)
 
     doLast {
@@ -192,6 +223,7 @@ tasks.register('checkThirdPartyNotices') {
     mustRunAfter tasks.named('updateThirdPartyNotices')
     inputs.file(licenseReportJsonFile)
     inputs.file(licenseNoticeOverridesFile)
+    inputs.file(documentationLicenseNoticesFile)
     inputs.file(thirdPartyNoticesFile)
 
     doLast {

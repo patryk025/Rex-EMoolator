@@ -1,0 +1,25 @@
+{
+  "tools": [
+    {
+      "name": "mkdocs",
+      "version": "1.6.1",
+      "license": "BSD-2-Clause",
+      "licenseUrl": "https://spdx.org/licenses/BSD-2-Clause.html",
+      "source": "https://github.com/mkdocs/mkdocs"
+    },
+    {
+      "name": "mkdocs-material",
+      "version": "9.5.44",
+      "license": "MIT",
+      "licenseUrl": "https://spdx.org/licenses/MIT.html",
+      "source": "https://github.com/squidfunk/mkdocs-material"
+    },
+    {
+      "name": "mkdocs-static-i18n",
+      "version": "1.2.3",
+      "license": "MIT",
+      "licenseUrl": "https://spdx.org/licenses/MIT.html",
+      "source": "https://github.com/ultrabug/mkdocs-static-i18n"
+    }
+  ]
+}

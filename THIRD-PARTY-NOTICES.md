@@ -1,11 +1,12 @@
 # Third-Party Notices
 
-> This file is generated from the Gradle runtime dependency graph. Do not edit it manually.
-> Run `./gradlew updateThirdPartyNotices` after changing dependencies.
+> This file is generated from the Gradle runtime dependency graph and maintained notice metadata. Do not edit it manually.
+> Run `./gradlew updateThirdPartyNotices` after changing dependencies or documentation tooling.
 
 The complete HTML and JSON reports are generated in `build/reports/dependency-license/`.
 If a new dependency introduces a license outside `gradle/allowed-licenses.json`, `checkLicense` will fail.
 Known upstream metadata mismatches can be documented in `gradle/license-notice-overrides.json`.
+Documentation tooling notices are maintained in `gradle/documentation-license-notices.json`.
 
 ## Dependency Summary
 
@@ -43,6 +44,16 @@ The following entries intentionally override published dependency metadata:
 - `net.java.dev.jna:jna:5.19.1`: Upstream declares JNA as LGPL-2.1-or-later or Apache License 2.0. This project uses the Apache 2.0 option for JNA. Source: <https://github.com/java-native-access/jna>
 - `net.java.dev.jna:jna-platform:5.14.0`: Upstream declares JNA as LGPL-2.1-or-later or Apache License 2.0. This project uses the Apache 2.0 option for the JNA platform artifact as well. Source: <https://github.com/java-native-access/jna>
 - `org.ode4j:core:0.5.4`: Upstream Maven Central metadata publishes LGPL only, but the upstream repository states that ode4j is dual-licensed under LGPL v2.1 and BSD 3-clause and that users may choose either license. Source: <https://github.com/tzaeschke/ode4j>
+
+## Documentation Tooling
+
+The following tools are used to build the documentation site and are not runtime dependencies of the emulator:
+
+| Tool | Version | License | License URL | Source |
+| :--- | :--- | :--- | :--- | :--- |
+| mkdocs | 1.6.1 | BSD-2-Clause | <https://spdx.org/licenses/BSD-2-Clause.html> | <https://github.com/mkdocs/mkdocs> |
+| mkdocs-material | 9.5.44 | MIT | <https://spdx.org/licenses/MIT.html> | <https://github.com/squidfunk/mkdocs-material> |
+| mkdocs-static-i18n | 1.2.3 | MIT | <https://spdx.org/licenses/MIT.html> | <https://github.com/ultrabug/mkdocs-static-i18n> |
 
 ## LGPL Components
 
