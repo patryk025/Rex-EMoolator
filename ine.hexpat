@@ -11,10 +11,10 @@ enum BodyType : s32 {
 enum Material : s32 {
     DEFAULT=0,
     BOUNCY=1,
-    RIGID=2,
-    TRIGGER=5, // dedicate callbacks
-    GHOST=6,
-    REACTIVE=7 // mixed callbacks
+    SOFT=2,
+    TRIGGER=5,
+    NOCOLL=6,
+    STATIC=7
 };
 
 struct Point2D {
@@ -34,7 +34,7 @@ struct Body {
     Material groupId;
     float x_px; // mapped (x-400)*0.01, 100px per meter
     float y_px; // mapped (300-y)*0.01, reversed y-scale, 100px per meter
-    float angle; //?
+    float angle; // angle in radians
     if(body_type != 7) {
         float mass;
         if(body_type != 6) {
@@ -47,8 +47,8 @@ struct Body {
     }
     if(body_type == 6 || body_type == 7) {
         VertexArray array; // flat polyline extruded to collision walls
-        // for CBodyHull it's 10 meters
-        // for CBodyLevel it's 2 meters
+                           // for CBodyHull it's 10 meters
+                           // for CBodyLevel it's 2 meters
     }
 };
 
