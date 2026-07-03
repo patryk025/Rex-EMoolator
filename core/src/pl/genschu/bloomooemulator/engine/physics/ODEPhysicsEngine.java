@@ -25,37 +25,34 @@ public class ODEPhysicsEngine implements IPhysicsEngine {
     CameraAnchor cameraAnchor = new CameraAnchor();
     private final Map<Integer, List<GameObject>> objects = new HashMap<>();
     private final Map<DBody, EngineVariable> linkedVariables = new HashMap<>();
-    private int cameraX = 0;
-    private int cameraY = 0;
+    private final Set<Integer> pausedLinkIds = new HashSet<>();
     private int referenceObjectId = 0;
-    private float velEps = 0.001f;
     private final List<DTriMeshData> triMeshDatas = new ArrayList<>();
+
+    // Session-long running dt average for lag-spike smoothing
+    private double dtTotal = 0.0;
+    private long dtFrames = 0;
 
     enum GeomType {
         BOX,
-        CYLINDER,
+        CAPSULE, // old ODE's dCreateCCylinder = capsule (z-aligned), not a flat cylinder
         SPHERE,
         TRI_MESH,
         CAR // wait, what? id == 4, 4 spheres, 1 box
     }
 
     // class for faster and safer lookup of vertices
-    static final class VertexKey {
-        final int ix, iy, iz;
-        VertexKey(float x, float y, float z) {
-            this.ix = Float.floatToIntBits(x);
-            this.iy = Float.floatToIntBits(y);
-            this.iz = Float.floatToIntBits(z);
+    record VertexKey(int ix, int iy, int iz) {
+        VertexKey(float ix, float iy, float iz) {
+            this(Float.floatToIntBits(ix), Float.floatToIntBits(iy), Float.floatToIntBits(iz));
         }
-        @Override public boolean equals(Object o) {
-            if (this == o) return true;
-            if (!(o instanceof VertexKey)) return false;
-            VertexKey k = (VertexKey) o;
-            return ix == k.ix && iy == k.iy && iz == k.iz;
-        }
-        @Override public int hashCode() {
-            int h = ix; h = 31*h + iy; h = 31*h + iz; return h;
-        }
+
+        @Override
+        public boolean equals(Object o) {
+                if (this == o) return true;
+                if (!(o instanceof VertexKey(int ix1, int iy1, int iz1))) return false;
+                return ix == ix1 && iy == iy1 && iz == iz1;
+            }
     }
 
     @Override
@@ -63,9 +60,10 @@ public class ODEPhysicsEngine implements IPhysicsEngine {
         OdeHelper.initODE2(0);
 
         world = OdeHelper.createWorld();
-        world.setGravity(0, 0, -9.8100004); // Default gravity in Sekai
-        world.setCFM(0.00001f);
-        world.setERP(0.8f);
+        world.setGravity(0, -9.8100004, 0);
+
+        dtTotal = 0.0;
+        dtFrames = 0;
 
         space = OdeHelper.createSimpleSpace();
 
@@ -238,10 +236,10 @@ public class ODEPhysicsEngine implements IPhysicsEngine {
                 box.setBody(body);
                 box.setData(go);
                 break;
-            case CYLINDER:
-                DCylinder cylinder = OdeHelper.createCylinder(space, dimensions[0], dimensions[1]);
-                cylinder.setBody(body);
-                cylinder.setData(go);
+            case CAPSULE:
+                DCapsule capsule = OdeHelper.createCapsule(space, dimensions[0], dimensions[1]);
+                capsule.setBody(body);
+                capsule.setData(go);
                 break;
             case SPHERE:
                 DSphere sphere = OdeHelper.createSphere(space, dimensions[0]);
@@ -323,6 +321,18 @@ public class ODEPhysicsEngine implements IPhysicsEngine {
     }
 
     @Override
+    public void addForceAt(int objectId, double forceX, double forceY, double forceZ, double posX, double posY, double posZ) {
+        GameObject go = getObject(objectId);
+        if (go == null) return;
+        DBody body = (DBody) go.getBody();
+        if (body == null) {
+            Gdx.app.error("ODEPhysicsEngine", "Failed to add force at position to object " + objectId + ". Body is null (object is not rigid body)");
+            return;
+        }
+        body.addForceAtPos(forceX, forceY, forceZ, posX, posY, posZ);
+    }
+
+    @Override
     public void setPosition(int objectId, double x, double y, double z) {
         GameObject go = getObject(objectId);
         if (go == null) return;
@@ -355,8 +365,7 @@ public class ODEPhysicsEngine implements IPhysicsEngine {
     private void setMass(DBody body, double mass, int geomType) {
         float[] dimensions = new float[]{1.0f, 1.0f, 1.0f};
 
-        if(body.getData() instanceof GameObject) {
-            GameObject go = (GameObject) body.getData();
+        if(body.getData() instanceof GameObject go) {
             dimensions = go.getDimensions();
         }
 
@@ -369,8 +378,8 @@ public class ODEPhysicsEngine implements IPhysicsEngine {
             case BOX:
                 m.setBoxTotal(mass, dimensions[0], dimensions[1], dimensions[2]);
                 break;
-            case CYLINDER:
-                m.setCylinderTotal(mass, 3, dimensions[0], dimensions[1]); // axis, radius, length
+            case CAPSULE:
+                m.setCapsuleTotal(mass, 3, dimensions[0], dimensions[1]); // axis, radius, length
                 break;
             case SPHERE:
                 m.setSphereTotal(mass, dimensions[0]);
@@ -395,6 +404,16 @@ public class ODEPhysicsEngine implements IPhysicsEngine {
         catch (NullPointerException e) {
             Gdx.app.error("ODEPhysicsEngine", "Cannot set mass to object " + objectId + ". Body is null (object is not rigid body)");
         }
+    }
+
+    @Override
+    public void setMass(int objectId, double mass) {
+        GameObject go = getObject(objectId);
+        if (go == null) return;
+        go.setMass(mass);
+        DBody body = (DBody) go.getBody();
+        if (body == null) return;
+        setMass(body, mass, go.getGeomType());
     }
 
     @Override
@@ -491,7 +510,23 @@ public class ODEPhysicsEngine implements IPhysicsEngine {
 
     @Override
     public double stepSimulation() {
-        return stepSimulation(timer.calculateStepSize());
+        return stepSimulation(smoothDeltaTime(timer.calculateStepSize()));
+    }
+
+    /**
+     * Lag-spike smoothing from ISekai::MoveObjects: a dt more than twice the running
+     * session average is replaced by that average, so a loading hitch doesn't turn into
+     * one giant physics step.
+     */
+    private double smoothDeltaTime(double dt) {
+        if (dt <= 0) return dt;
+        dtFrames++;
+        double avg = dtTotal / dtFrames;
+        dtTotal += dt;
+        if (2 * avg < dt && avg > 0.001) {
+            dt = avg;
+        }
+        return dt;
     }
 
     private void synchronizeObjects() {
@@ -509,12 +544,13 @@ public class ODEPhysicsEngine implements IPhysicsEngine {
 
         // iteration over links
         for (DBody linkedBody : linkedVariables.keySet()) {
-            // technically there is possibility of pausing and resuming links,
-            // but I didn't find usage of this feature, so I skip it for now
-
             // get variable
             GameObject go = (GameObject) linkedBody.getData();
             EngineVariable var = linkedVariables.get(linkedBody);
+
+            if (pausedLinkIds.contains(go.getId())) {
+                continue; // PAUSELINK
+            }
 
             // get body position
             double[] worldPos = linkedBody.getPosition().toDoubleArray();
@@ -537,21 +573,21 @@ public class ODEPhysicsEngine implements IPhysicsEngine {
             if ((go.getFlags() & 2) != 0) {
                 int isAtGoal = go.getIsAtGoal();
                 if (isAtGoal == 1) {
-                    emitSignalOnVar(var, "ONSIGNAL", "ATGOAL");
+                    emitSignalOnVar(var, "ATGOAL");
                     continue;
                 } else if (isAtGoal == 2) {
-                    emitSignalOnVar(var, "ONSIGNAL", "NOPATH");
+                    emitSignalOnVar(var, "NOPATH");
                     continue;
                 }
 
                 List<Integer> collisionIds = go.getCollisionIds();
                 if (!collisionIds.isEmpty()) {
                     for (Integer collisionId : collisionIds) {
-                        emitSignalOnVar(var, "ONSIGNAL", String.valueOf(collisionId));
+                        emitSignalOnVar(var, String.valueOf(collisionId));
                     }
-                    emitSignalOnVar(var, "ONSIGNAL", "ANY");
+                    emitSignalOnVar(var, "ANY");
                 } else {
-                    emitSignalOnVar(var, "ONSIGNAL", "NOCOLL");
+                    emitSignalOnVar(var, "NOCOLL");
                 }
 
                 float currentSpeed = go.getSpeed();
@@ -559,26 +595,31 @@ public class ODEPhysicsEngine implements IPhysicsEngine {
 
                 if (currentSpeed != lastSpeed) {
                     if (currentSpeed == 0.0f && lastSpeed != 0.0f) {
-                        emitSignalOnVar(var, "ONSIGNAL", "ONFINISHED");
+                        emitSignalOnVar(var, "ONFINISHED");
                     } else if (lastSpeed == 0.0f && currentSpeed != 0.0f) {
-                        emitSignalOnVar(var, "ONSIGNAL", "ONSTARTED");
+                        emitSignalOnVar(var, "ONSTARTED");
                     }
                 }
             }
         }
     }
 
-    private void emitSignalOnVar(EngineVariable var, String signalName, String signalValue) {
+    private void emitSignalOnVar(EngineVariable var, String signalValue) {
         if (var instanceof Variable v2Var) {
-            v2Var.emitSignal(signalName, new StringValue(signalValue));
+            v2Var.emitSignal("ONSIGNAL", new StringValue(signalValue));
         }
     }
 
-    private void calculateBodiesAttraction(double deltaTime) {
-        // Newton's law of universal gravitation baby
-        // This method is mainly used for magnets in Reksio i Wehikuł Czasu, where G is modified
+    private void calculateBodiesAttraction() {
+        // Magnet attraction as in Sekai (RiWC magnets): |F| = G_center · G_other · K / |r|,
+        // pulled toward the center. The G's come from SETG (not masses) and K is Newton's
+        // constant baked into the object ctor — that's why scripts pass SETG in the millions.
+        // Note the 1/|r| falloff (not 1/r²) and that both G's default to 0, so only pairs
+        // with SETG set on both sides attract at all.
         if (world == null) return;
 
+        final double NEWTON_G = 6.674e-11;
+        // The original has no r=0 guard (NaN/explosion); we keep a small epsilon instead.
         final double EPS2 = 1e-6;
 
         List<GameObject> gameObjects = getGameObjects();
@@ -589,11 +630,10 @@ public class ODEPhysicsEngine implements IPhysicsEngine {
 
             if(centerBody == null) continue; // ignore non-rigid bodies
 
-            DVector3C pc = centerBody.getPosition();
-            double m1 = go.getMass();
-            double G  = go.getG();
+            double gCenter = go.getG();
+            if (gCenter == 0.0) continue;
 
-            go.setStepsize(deltaTime);
+            DVector3C pc = centerBody.getPosition();
 
             for (GameObject go2 : gameObjects) {
                 DBody other = (DBody) go2.getBody();
@@ -601,10 +641,12 @@ public class ODEPhysicsEngine implements IPhysicsEngine {
                 if (other == null) continue; // ignore non-rigid bodies
 
                 if(!go2.isActive()) continue;
+                if(go2.isGravityExcluded(go.getId())) continue; // ADDGRAVITYEX
+
+                double gOther = go2.getG();
+                if (gOther == 0.0) continue;
 
                 DVector3C po = other.getPosition();
-
-                double m2 = go2.getMass();
 
                 double dx = pc.get0() - po.get0();
                 double dy = pc.get1() - po.get1();
@@ -613,16 +655,10 @@ public class ODEPhysicsEngine implements IPhysicsEngine {
                 double r2 = dx*dx + dy*dy + dz*dz;
                 if (r2 < EPS2) continue;
 
-                double invR = 1.0 / Math.sqrt(r2);
-                double invR3 = invR * invR * invR;
+                // components = (d/|r|) · |F| = d · gCenter·gOther·K / r²
+                double scalar = gCenter * gOther * NEWTON_G / r2;
 
-                double scalar = G * m1 * m2 * invR3;
-
-                double fx = dx * scalar;
-                double fy = dy * scalar;
-                double fz = dz * scalar;
-
-                other.addForce(fx, fy, fz);
+                other.addForce(dx * scalar, dy * scalar, dz * scalar);
             }
         }
     }
@@ -645,21 +681,29 @@ public class ODEPhysicsEngine implements IPhysicsEngine {
         return false;
     }
 
-    private void clearCollisions() {
-        for (GameObject go : getGameObjects()) {
-            go.getCollisionIds().clear();
-        }
-    }
-
     @Override
     public double stepSimulation(double deltaTime) {
-        if(deltaTime > 0.03f) deltaTime = 0.03f; // that limit was in Sekai
         if(deltaTime <= 0) return 0.0; // ignore zero and negative delta times
-        clearCollisions(); // clear collisions from previous frame
-        calculateBodiesAttraction(deltaTime);
+        if(deltaTime > 0.03) deltaTime = 0.03; // hard step cap from Sekai
+
+        for (GameObject go : getGameObjects()) {
+            go.getCollisionIds().clear(); // collisions from the previous frame
+            go.setStepsize(deltaTime); // the original stores dt on every object each frame
+        }
+
+        calculateBodiesAttraction();
         space.collide(this, nearCallback);
-        //world.step(deltaTime);
-        world.quickStep(deltaTime);
+
+        // RiWC substepping: internally ~60 Hz (dt=0.03 → 2 × 0.015); the n=1 case matches
+        // RiC's single step for ordinary frames. Collisions are gathered once per frame and
+        // the contact group is cleared after all substeps, as in the original.
+        // dWorldStep (Dantzig LCP), not quickStep — the original never used SOR.
+        int substeps = 1 + (int) (deltaTime * 60.0);
+        // TODO: cap substeps for Reksio i Czarodzieje
+        double h = deltaTime / substeps;
+        for (int i = 0; i < substeps; i++) {
+            world.step(h);
+        }
         jointGroup.clear();
 
         for (GameObject go : getGameObjects()) {
@@ -735,15 +779,16 @@ public class ODEPhysicsEngine implements IPhysicsEngine {
     @Override
     public void addJoint(int firstId, int secondId, double anchorX, double anchorY, double anchorZ, double limitMotor, double lowStop, double highStop, double hingeAxisX, double hingeAxisY, double hingeAxisZ) {
         GameObject go = getObject(firstId);
-        GameObject go2 = getObject(secondId);
-        if (go == null || go2 == null) return;
+        if (go == null) return;
         DBody body1 = (DBody) go.getBody();
-        DBody body2 = (DBody) go2.getBody();
         if (body1 == null) {
-            throw new IllegalArgumentException("No body found with ID: " + firstId);
+            Gdx.app.error("ODEPhysicsEngine", "addJoint: object " + firstId + " has no rigid body, joint skipped");
+            return;
         }
+        GameObject go2 = getObject(secondId);
+        DBody body2 = (go2 != null) ? (DBody) go2.getBody() : null;
         if (body2 == null) {
-            Gdx.app.log("ODEPhysicsEngine", "No second body supplied for joint. Joining to plane.");
+            Gdx.app.log("ODEPhysicsEngine", "No second body supplied for joint. Joining to world.");
         }
         DHingeJoint joint = OdeHelper.createHingeJoint(body1.getWorld());
 
@@ -769,6 +814,228 @@ public class ODEPhysicsEngine implements IPhysicsEngine {
     }
 
     @Override
+    public void addJoint2(int firstId, int secondId,
+                          double anchorX, double anchorY, double anchorZ,
+                          double axis1X, double axis1Y, double axis1Z,
+                          double axis2X, double axis2Y, double axis2Z) {
+        GameObject go = getObject(firstId);
+        if (go == null) return;
+        DBody body1 = (DBody) go.getBody();
+        if (body1 == null) {
+            Gdx.app.error("ODEPhysicsEngine", "addJoint2: object " + firstId + " has no rigid body, joint skipped");
+            return;
+        }
+        GameObject go2 = getObject(secondId);
+        DBody body2 = (go2 != null) ? (DBody) go2.getBody() : null;
+
+        if (go.getJoint() != null) {
+            DJoint oldJoint = (DJoint) go.getJoint();
+            oldJoint.setFeedback(null);
+            oldJoint.destroy();
+        }
+
+        DHinge2Joint joint = OdeHelper.createHinge2Joint(world);
+        go.setJoint(joint, 0f); // JOIN2 never sets a break force, so no feedback either
+        joint.attach(body1, body2);
+        joint.setAnchor(anchorX, anchorY, anchorZ);
+        setHinge2Axes(joint, axis1X, axis1Y, axis1Z, axis2X, axis2Y, axis2Z);
+        // Constants hardcoded in Sekai (ODE demo_buggy pattern): stiff suspension,
+        // steering locked at 0, wheel motor idle.
+        joint.setParam(DJoint.PARAM_N.dParamSuspensionERP1, 0.8);
+        joint.setParam(DJoint.PARAM_N.dParamSuspensionCFM1, 1e-5);
+        joint.setParam(DJoint.PARAM_N.dParamLoStop1, 0.0);
+        joint.setParam(DJoint.PARAM_N.dParamHiStop1, 0.0);
+        joint.setParam(DJoint.PARAM_N.dParamVel2, 0.0);
+        joint.setParam(DJoint.PARAM_N.dParamFMax2, 0.1);
+        joint.setParam(DJoint.PARAM_N.dParamVel1, 0.0);
+        joint.setParam(DJoint.PARAM_N.dParamFMax1, 0.2);
+    }
+
+    /**
+     * ode4j validates each axis against the joint's other (initially default) axis, so setting
+     * both target axes directly can trip the "linearly independent" assert. Routing through a
+     * vector perpendicular to both targets makes the sequence safe for any independent pair.
+     */
+    private static void setHinge2Axes(DHinge2Joint joint,
+                                      double a1x, double a1y, double a1z,
+                                      double a2x, double a2y, double a2z) {
+        double cx = a1y * a2z - a1z * a2y;
+        double cy = a1z * a2x - a1x * a2z;
+        double cz = a1x * a2y - a1y * a2x;
+        double crossLen = Math.sqrt(cx * cx + cy * cy + cz * cz);
+        if (crossLen < 1e-9) {
+            Gdx.app.error("ODEPhysicsEngine", "addJoint2: hinge2 axes are parallel, keeping default axes");
+            return;
+        }
+        // The cross product is parallel to the default axis2 (0,1,0) only when cx≈0 and cz≈0.
+        if (Math.abs(cx) > 1e-9 * crossLen || Math.abs(cz) > 1e-9 * crossLen) {
+            joint.setAxis1(cx, cy, cz);
+            joint.setAxis2(a2x, a2y, a2z);
+            joint.setAxis1(a1x, a1y, a1z);
+        } else {
+            joint.setAxis2(cx, cy, cz);
+            joint.setAxis1(a1x, a1y, a1z);
+            joint.setAxis2(a2x, a2y, a2z);
+        }
+    }
+
+    @Override
+    public void breakJoint(int objectId) {
+        GameObject go = getObject(objectId);
+        if (go == null || go.getJoint() == null) return;
+        DJoint joint = (DJoint) go.getJoint();
+        joint.setFeedback(null);
+        joint.destroy();
+        go.setJoint(null, go.getLimot());
+    }
+
+    @Override
+    public void jointSteer(int objectId, double angle) {
+        GameObject go = getObject(objectId);
+        if (go == null) return;
+        if (!(go.getJoint() instanceof DHinge2Joint joint)) return;
+        // Proportional steering: velocity = angle error, stops at ±30°.
+        joint.setParam(DJoint.PARAM_N.dParamVel1, angle - joint.getAngle1());
+        joint.setParam(DJoint.PARAM_N.dParamFMax1, 0.2);
+        joint.setParam(DJoint.PARAM_N.dParamLoStop1, -0.5236);
+        joint.setParam(DJoint.PARAM_N.dParamHiStop1, 0.5236);
+    }
+
+    @Override
+    public void jointSpeed(int objectId, double speed) {
+        GameObject go = getObject(objectId);
+        if (go == null) return;
+        if (!(go.getJoint() instanceof DHinge2Joint joint)) return;
+        joint.setParam(DJoint.PARAM_N.dParamVel2, speed);
+        joint.setParam(DJoint.PARAM_N.dParamFMax2, 25.0);
+    }
+
+    @Override
+    public void zeroAll(int objectId) {
+        GameObject go = getObject(objectId);
+        if (go == null) return;
+        DBody body = (DBody) go.getBody();
+        if (body == null) return;
+        body.setLinearVel(0, 0, 0);
+        body.setAngularVel(0, 0, 0);
+        body.setForce(0, 0, 0);
+        body.setTorque(0, 0, 0);
+    }
+
+    @Override
+    public void rotate(int objectId, double angleDegrees) {
+        GameObject go = getObject(objectId);
+        if (go == null) return;
+        DBody body = (DBody) go.getBody();
+        if (body == null) return;
+        DMatrix3 R = new DMatrix3();
+        DRotation.dRFromAxisAndAngle(R, 0, 0, 1, Math.toRadians(angleDegrees));
+        body.setRotation(R);
+    }
+
+    @Override
+    public double getRotationX(int objectId) {
+        GameObject go = getObject(objectId);
+        if (go == null) return 0.0;
+        DBody body = (DBody) go.getBody();
+        try {
+            DMatrix3C rotation = body.getRotation();
+            return Math.atan2(rotation.get(2, 1), rotation.get(2, 2));
+        }
+        catch (NullPointerException e) {
+            Gdx.app.error("ODEPhysicsEngine", "Cannot get rotation of object " + objectId + ". Body is null (object is not rigid body). Returning 0 instead");
+            return 0.0;
+        }
+    }
+
+    @Override
+    public double getRotationY(int objectId) {
+        GameObject go = getObject(objectId);
+        if (go == null) return 0.0;
+        DBody body = (DBody) go.getBody();
+        try {
+            DMatrix3C rotation = body.getRotation();
+            return Math.atan2(-rotation.get(2, 0),
+                    Math.hypot(rotation.get(2, 1), rotation.get(2, 2)));
+        }
+        catch (NullPointerException e) {
+            Gdx.app.error("ODEPhysicsEngine", "Cannot get rotation of object " + objectId + ". Body is null (object is not rigid body). Returning 0 instead");
+            return 0.0;
+        }
+    }
+
+    @Override
+    public boolean getCollision(int objectId) {
+        GameObject go = getObject(objectId);
+        return go != null && !go.getCollisionIds().isEmpty();
+    }
+
+    @Override
+    public boolean getCollision(int objectId, int otherId) {
+        GameObject go = getObject(objectId);
+        return go != null && go.getCollisionIds().contains(otherId);
+    }
+
+    @Override
+    public void setCollisionType(int objectId, int collisionType) {
+        GameObject go = getObject(objectId);
+        if (go == null) return;
+        go.setCollisionType(collisionType);
+    }
+
+    @Override
+    public void setLinkPaused(int objectId, boolean paused) {
+        if (paused) {
+            pausedLinkIds.add(objectId);
+        } else {
+            pausedLinkIds.remove(objectId);
+        }
+    }
+
+    @Override
+    public void setBodyProperties(int objectId, double mass, double sizeX, double sizeY, double sizeZ) {
+        GameObject go = getObject(objectId);
+        if (go == null) return;
+        float[] dims = go.getDimensions();
+        dims[0] = (float) sizeX;
+        dims[1] = (float) sizeY;
+        dims[2] = (float) sizeZ;
+        go.setMass(mass);
+        DBody body = (DBody) go.getBody();
+        if (body == null) return;
+        Iterator<DGeom> iterator = body.getGeomIterator();
+        while (iterator.hasNext()) {
+            DGeom geom = iterator.next();
+            if (geom instanceof DBox) {
+                ((DBox) geom).setLengths(sizeX, sizeY, sizeZ);
+            } else if (geom instanceof DSphere) {
+                ((DSphere) geom).setRadius(sizeX);
+            } else if (geom instanceof DCapsule) {
+                ((DCapsule) geom).setParams(sizeX, sizeY);
+            }
+        }
+        setMass(body, mass, go.getGeomType());
+    }
+
+    @Override
+    public void setBodyDynamics(int objectId, double mu, double friction, double bounce, double bounceVelocity, double maxVelocity) {
+        GameObject go = getObject(objectId);
+        if (go == null) return;
+        go.setMu(mu);
+        go.setFriction(friction);
+        go.setBounce(bounce);
+        go.setBounceVelocity(bounceVelocity);
+        go.setMaxVelocity(maxVelocity);
+    }
+
+    @Override
+    public void setGravityExclusion(int objectId, int centerId, boolean excluded) {
+        GameObject go = getObject(objectId);
+        if (go == null) return;
+        go.setGravityExcluded(centerId, excluded);
+    }
+
+    @Override
     public void setG(int objectId, double g) {
         GameObject go = getObject(objectId);
         if (go == null) return;
@@ -776,10 +1043,11 @@ public class ODEPhysicsEngine implements IPhysicsEngine {
     }
 
     @Override
-    public void setActive(int objectId, boolean active, boolean unknown) {
+    public void setActive(int objectId, boolean active, boolean monitorCollisions) {
         GameObject go = getObject(objectId);
         if (go == null) return;
         go.setActive(active);
+        go.setCollisionMonitoring(monitorCollisions);
     }
 
     @Override
@@ -861,7 +1129,7 @@ public class ODEPhysicsEngine implements IPhysicsEngine {
             if (distance > arrivalRadius) {
                 // If so, go to them
 
-                // calculate normalised direction vector
+                // calculate normalized direction vector
                 if(distance > 0.0f) {
                     deltaToTarget.normalize();
                 }
@@ -942,6 +1210,7 @@ public class ODEPhysicsEngine implements IPhysicsEngine {
         for (Integer id : new ArrayList<>(objects.keySet())) {
             destroyBody(id);
         }
+        pausedLinkIds.clear();
         for (DTriMeshData meshData : triMeshDatas) {
             meshData.destroy();
         }
@@ -977,27 +1246,47 @@ public class ODEPhysicsEngine implements IPhysicsEngine {
                 return; // Skip self-collisions
             }
 
+            DBody body1 = g1.getBody();
+            DBody body2 = g2.getBody();
+            if (body1 == null && body2 == null) {
+                return; // Two static geoms never interact
+            }
+            if (body1 != null && body2 != null && OdeHelper.areConnected(body1, body2)) {
+                return; // Joint-connected bodies don't generate contacts
+            }
+
             int N = 4;
             DContactBuffer contacts = new DContactBuffer(N);
             DContactGeomBuffer gb = contacts.getGeomBuffer();
             int numContacts = OdeHelper.collide(g1, g2, N, gb);
 
-            if(numContacts > 0) {
+            if (numContacts == 0) {
+                return;
+            }
+
+            if (go1.isCollisionMonitoring()) {
                 go1.getCollisionIds().add(go2.getId());
+            }
+            if (go2.isCollisionMonitoring()) {
                 go2.getCollisionIds().add(go1.getId());
+            }
+
+            if (!go1.isActive() || !go2.isActive()) {
+                return; // Contacts are reported above but push bodies only when both are active
             }
 
             for (int i = 0; i < numContacts; i++) {
                 DContact c = contacts.get(i);
-                c.surface.mode = dContactBounce | dContactSoftERP | dContactSoftCFM;
+                // Same surface setup as Sekai: friction pyramid, per-pair CFM (0 unless SetCFM
+                // was used — neither game does), no contact-level ERP.
+                c.surface.mode = dContactApprox1 | dContactSoftCFM | dContactBounce;
                 c.surface.mu = Math.min(go1.getMu(), go2.getMu());
                 c.surface.bounce = Math.max(go1.getBounce(), go2.getBounce());
                 c.surface.bounce_vel = Math.max(go1.getBounceVelocity(), go2.getBounceVelocity());
-                c.surface.soft_erp = 0.8;
-                c.surface.soft_cfm = 1e-5;
+                c.surface.soft_cfm = Math.min(go1.getCfm(), go2.getCfm());
 
                 DJoint j = OdeHelper.createContactJoint(world, jointGroup, c);
-                j.attach(g1.getBody(), g2.getBody());
+                j.attach(body1, body2);
             }
         }
     };
@@ -1085,7 +1374,7 @@ public class ODEPhysicsEngine implements IPhysicsEngine {
                     case SPHERE:
                         sb.append("\"radius\":").append(d[0]);
                         break;
-                    case CYLINDER:
+                    case CAPSULE:
                         sb.append("\"radius\":").append(d[0]).append(",\"length\":").append(d[1]).append(",\"axis\":3");
                         break;
                     default:
@@ -1100,7 +1389,7 @@ public class ODEPhysicsEngine implements IPhysicsEngine {
                         .append(r20).append(",").append(r21).append(",").append(r22).append("]}}");
             }
             sb.append("]}");
-            out.println(sb.toString());
+            out.println(sb);
         } catch (Exception e) {
             Gdx.app.error("ODEPhysicsEngine", "dumpSceneToJson failed", e);
         }

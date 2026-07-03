@@ -24,7 +24,14 @@ public class GameObject {
     private double maxVelocity;
     private double G; // Gravitational constant
     private boolean gravityCenter;
+    // Magnet centers (by id) whose attraction is disabled for this object (ADDGRAVITYEX)
+    private Set<Integer> gravityExclusions;
     private boolean active;
+    // SETACTIVE's second flag: whether contacts get reported through GETCOLLISION/ONSIGNAL
+    private boolean collisionMonitoring;
+    // Per-object contact softness; neither game ever sets it, so contacts run at 0
+    private double cfm;
+    private int collisionType;
     private int geomType;
     private float minXLimit, minYLimit, minZLimit;
     private float maxXLimit, maxYLimit, maxZLimit;
@@ -75,10 +82,14 @@ public class GameObject {
             obj.friction = 0.0f;
             obj.bounce = 0.0f;
             obj.bounceVelocity = 0.0f;
-            obj.maxVelocity = 0.0f;
+            obj.maxVelocity = 10.0f;
             obj.G = 0.0f;
             obj.gravityCenter = false;
+            obj.gravityExclusions = new HashSet<>();
             obj.active = true;
+            obj.collisionMonitoring = true;
+            obj.cfm = 0.0;
+            obj.collisionType = 0;
             obj.minXLimit = -100_000f;
             obj.minYLimit = -100_000f;
             obj.minZLimit = -100_000f;
@@ -433,12 +444,68 @@ public class GameObject {
         this.gravityCenter = gravityCenter;
     }
 
+    public boolean isGravityExcluded(int centerId) {
+        return gravityExclusions.contains(centerId);
+    }
+
+    public void setGravityExcluded(int centerId, boolean excluded) {
+        if (excluded) {
+            gravityExclusions.add(centerId);
+        } else {
+            gravityExclusions.remove(centerId);
+        }
+    }
+
+    public int getCollisionType() {
+        return collisionType;
+    }
+
+    public void setCollisionType(int collisionType) {
+        this.collisionType = collisionType;
+    }
+
+    public void setMass(double mass) {
+        this.mass = mass;
+    }
+
+    public void setMu(double mu) {
+        this.mu = mu;
+    }
+
+    public void setFriction(double friction) {
+        this.friction = friction;
+    }
+
+    public void setBounce(double bounce) {
+        this.bounce = bounce;
+    }
+
+    public void setBounceVelocity(double bounceVelocity) {
+        this.bounceVelocity = bounceVelocity;
+    }
+
     public boolean isActive() {
         return active;
     }
 
     public void setActive(boolean active) {
         this.active = active;
+    }
+
+    public boolean isCollisionMonitoring() {
+        return collisionMonitoring;
+    }
+
+    public void setCollisionMonitoring(boolean collisionMonitoring) {
+        this.collisionMonitoring = collisionMonitoring;
+    }
+
+    public double getCfm() {
+        return cfm;
+    }
+
+    public void setCfm(double cfm) {
+        this.cfm = cfm;
     }
 
     public double getMoveDistance() {
