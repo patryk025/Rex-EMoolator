@@ -1,12 +1,16 @@
 package pl.genschu.bloomooemulator.tests;
 
+import com.badlogic.gdx.utils.Json;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
+import pl.genschu.bloomooemulator.patch.InstalledPatch;
 import pl.genschu.bloomooemulator.patch.PatchCatalog;
 import pl.genschu.bloomooemulator.patch.PatchInstaller;
+import pl.genschu.bloomooemulator.patch.PatchManager;
 import pl.genschu.bloomooemulator.patch.PatchManagerController;
 import pl.genschu.bloomooemulator.patch.PatchManifest;
 import pl.genschu.bloomooemulator.patch.PatchRegistry;
+import pl.genschu.bloomooemulator.patch.PatchRegistryEntry;
 import pl.genschu.bloomooemulator.patch.PatchRowVM;
 import pl.genschu.bloomooemulator.patch.PatchSource;
 import pl.genschu.bloomooemulator.patch.PatchSourceType;
@@ -14,6 +18,7 @@ import pl.genschu.bloomooemulator.patch.PatchSourceType;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
@@ -56,6 +61,26 @@ class PatchManagerControllerTest {
             zos.closeEntry();
         }
         return file;
+    }
+
+    private File packagedZip(String name, PatchManifest manifest) throws Exception {
+        File file = tmp.resolve(name).toFile();
+        try (ZipOutputStream zos = new ZipOutputStream(new FileOutputStream(file))) {
+            zos.putNextEntry(new ZipEntry("patch.json"));
+            zos.write(new Json().toJson(manifest, PatchManifest.class).getBytes(StandardCharsets.UTF_8));
+            zos.closeEntry();
+            zos.putNextEntry(new ZipEntry("files/Dane/local.cnv"));
+            zos.write("local".getBytes(StandardCharsets.UTF_8));
+            zos.closeEntry();
+        }
+        return file;
+    }
+
+    private File overlayFolder(String name) throws Exception {
+        Path folder = tmp.resolve(name);
+        Files.createDirectories(folder.resolve("Dane"));
+        Files.writeString(folder.resolve("Dane/local.cnv"), "local", StandardCharsets.UTF_8);
+        return folder.toFile();
     }
 
     /** Materialises a patch on disk so the manager discovers it as installed. */
@@ -191,5 +216,89 @@ class PatchManagerControllerTest {
     @Test
     void installRejectsUnknownPatch() {
         assertThrows(IllegalStateException.class, () -> controller(catalog()).install("ghost"));
+    }
+
+    @Test
+    void importLocalArchiveInstallsAndListsSelfContainedPatch() throws Exception {
+        PatchManifest manifest = new PatchManifest();
+        manifest.setId("local");
+        manifest.setTargetHashes(new String[]{HASH});
+        File archive = packagedZip("local.zip", manifest);
+
+        PatchManagerController controller = controller(catalog());
+        controller.importLocalArchive(archive);
+
+        PatchRowVM row = rowById(controller.rows(), "local");
+        assertNotNull(row);
+        assertTrue(row.isInstalled());
+        assertEquals("local", row.getId());
+        assertTrue(new File(patchesRoot(), "local/files/Dane/local.cnv").isFile());
+    }
+
+    @Test
+    void importLocalArchiveRejectsAlreadyInstalledPatch() throws Exception {
+        installOnDisk("local", new String[]{HASH}, null);
+        PatchManifest manifest = new PatchManifest();
+        manifest.setId("local");
+        manifest.setTargetHashes(new String[]{HASH});
+        File archive = packagedZip("local.zip", manifest);
+
+        assertThrows(IllegalStateException.class, () -> controller(catalog()).importLocalArchive(archive));
+    }
+
+    @Test
+    void linkLocalFolderMountsSourceDirectoryWithoutCopying() throws Exception {
+        File folder = overlayFolder("work-mod");
+
+        PatchManagerController controller = controller(catalog());
+        InstalledPatch linked = controller.linkLocalFolder(folder);
+
+        PatchRowVM row = rowById(controller.rows(), linked.getManifest().getId());
+        assertNotNull(row);
+        assertTrue(row.isInstalled());
+        assertTrue(row.isEnabled(), "development folder should be enabled immediately");
+        assertTrue(row.isLinkedLocal());
+
+        PatchRegistryEntry persisted = new PatchRegistry(indexFile()).find(HASH, linked.getManifest().getId());
+        assertNotNull(persisted);
+        assertEquals(folder.getCanonicalPath(), new File(persisted.getLocalPath()).getCanonicalPath());
+
+        PatchManager reloaded = new PatchManager(patchesRoot(), new PatchRegistry(indexFile()));
+        InstalledPatch active = reloaded.activeFor(HASH, FAMILY).get(0);
+        assertTrue(active.isLinkedLocal());
+        assertEquals(folder.getCanonicalFile(), active.getFilesDir().getCanonicalFile());
+
+        Files.writeString(folder.toPath().resolve("Dane/new.cnv"), "new", StandardCharsets.UTF_8);
+        assertTrue(new File(active.getFilesDir(), "Dane/new.cnv").isFile(),
+                "linked folders should expose edits without re-importing");
+    }
+
+    @Test
+    void togglingLinkedFolderPreservesItsSourcePath() throws Exception {
+        File folder = overlayFolder("toggle-mod");
+        PatchManagerController controller = controller(catalog());
+        String patchId = controller.linkLocalFolder(folder).getManifest().getId();
+
+        controller.setEnabled(patchId, false);
+        PatchRegistryEntry disabled = new PatchRegistry(indexFile()).find(HASH, patchId);
+        assertFalse(disabled.isEnabled());
+        assertNotNull(disabled.getLocalPath());
+
+        controller.setEnabled(patchId, true);
+        PatchManager reloaded = new PatchManager(patchesRoot(), new PatchRegistry(indexFile()));
+        assertEquals(patchId, reloaded.activeFor(HASH, FAMILY).get(0).getManifest().getId());
+    }
+
+    @Test
+    void unlinkLocalFolderDoesNotDeleteSourceDirectory() throws Exception {
+        File folder = overlayFolder("unlink-mod");
+        PatchManagerController controller = controller(catalog());
+        String patchId = controller.linkLocalFolder(folder).getManifest().getId();
+
+        assertTrue(controller.uninstall(patchId));
+
+        assertTrue(folder.isDirectory(), "source folder must survive unlinking");
+        assertNull(rowById(controller.rows(), patchId), "unlinked folder should disappear from the patch list");
+        assertNull(new PatchRegistry(indexFile()).find(HASH, patchId));
     }
 }

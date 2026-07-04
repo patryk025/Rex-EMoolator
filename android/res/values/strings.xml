@@ -65,7 +65,12 @@
     <string name="patch_none_relevant">Brak łatek pasujących do tej gry.</string>
     <string name="patch_no_actions">Brak dostępnych akcji dla tej łatki.</string>
     <string name="patch_install_failed">Instalacja nie powiodła się: %1$s</string>
+    <string name="patch_import_local">Importuj lokalne archiwum</string>
+    <string name="patch_import_failed">Import nie powiódł się: %1$s</string>
+    <string name="patch_link_local_folder">Podłącz folder roboczy</string>
+    <string name="patch_link_failed">Nie udało się podłączyć folderu: %1$s</string>
     <string name="patch_uninstall_message">Czy odinstalować łatkę „%1$s”?</string>
+    <string name="patch_unlink_message">Czy odłączyć łatkę „%1$s”? Folder źródłowy nie zostanie usunięty.</string>
 
     <!-- Patch actions (context menu) -->
     <string name="patch_action_install">Zainstaluj</string>

@@ -82,6 +82,11 @@ public class PatchRegistry {
         return result;
     }
 
+    /** Snapshot of all registry entries. Used by patch discovery for linked local folders. */
+    public List<PatchRegistryEntry> allEntries() {
+        return new ArrayList<>(entries);
+    }
+
     public PatchRegistryEntry find(String gameHash, String patchId) {
         if (gameHash == null || patchId == null) return null;
         String hashKey = gameHash.toUpperCase(Locale.ROOT);
@@ -103,6 +108,7 @@ public class PatchRegistry {
             existing.setEnabled(entry.isEnabled());
             existing.setForceEnable(entry.isForceEnable());
             existing.setOrder(entry.getOrder());
+            existing.setLocalPath(entry.getLocalPath());
         }
     }
 

@@ -65,6 +65,12 @@ public class PatchManager {
                 }
             }
         }
+        for (PatchRegistryEntry entry : registry.allEntries()) {
+            InstalledPatch linked = readLinkedPatch(entry);
+            if (linked != null && !next.containsKey(linked.getManifest().getId())) {
+                next.put(linked.getManifest().getId(), linked);
+            }
+        }
         installed = next;
     }
 
@@ -88,7 +94,9 @@ public class PatchManager {
         if (patch == null) {
             return false;
         }
-        deleteRecursively(patch.getRootDir());
+        if (!patch.isLinkedLocal()) {
+            deleteRecursively(patch.getRootDir());
+        }
         rescan();
         return true;
     }
@@ -221,6 +229,58 @@ public class PatchManager {
             LOGGER.log(Level.WARNING, "Failed to read " + manifest, e);
             return null;
         }
+    }
+
+    private InstalledPatch readLinkedPatch(PatchRegistryEntry entry) {
+        if (entry == null || !entry.isLinkedLocal() || entry.getPatchId() == null || entry.getPatchId().isBlank()) {
+            return null;
+        }
+        File rootDir = new File(entry.getLocalPath());
+        if (!rootDir.isDirectory()) {
+            LOGGER.warning("Skipping linked local patch '" + entry.getPatchId() + "': missing folder " + rootDir);
+            return null;
+        }
+        try {
+            PatchManifest manifest = PatchInstaller.readManifestFromDirectory(rootDir);
+            if (manifest == null) {
+                manifest = syntheticLinkedManifest(entry, rootDir);
+            } else if (!entry.getPatchId().equals(manifest.getId())) {
+                LOGGER.warning("Skipping linked local patch '" + entry.getPatchId()
+                        + "': manifest id changed to '" + manifest.getId() + "'");
+                return null;
+            }
+            if (!isFilesRootInside(rootDir, manifest)) {
+                LOGGER.warning("Skipping linked local patch '" + entry.getPatchId()
+                        + "': filesRoot escapes source folder");
+                return null;
+            }
+            return new InstalledPatch(manifest, rootDir, true);
+        } catch (IOException e) {
+            LOGGER.log(Level.WARNING, "Failed to read linked local patch " + rootDir, e);
+            return null;
+        }
+    }
+
+    private static PatchManifest syntheticLinkedManifest(PatchRegistryEntry entry, File rootDir) {
+        PatchManifest manifest = new PatchManifest();
+        manifest.setId(entry.getPatchId());
+        manifest.setName(rootDir.getName());
+        manifest.setTargetHashes(new String[]{entry.getGameHash()});
+        manifest.setFilesRoot(".");
+        PatchSource source = new PatchSource();
+        source.setType(PatchSourceType.LOCAL);
+        manifest.setSource(source);
+        return manifest;
+    }
+
+    private static boolean isFilesRootInside(File rootDir, PatchManifest manifest) throws IOException {
+        File root = rootDir.getCanonicalFile();
+        File files = new File(root, manifest.getFilesRoot()).getCanonicalFile();
+        if (files.equals(root)) {
+            return true;
+        }
+        String rootPath = root.getPath() + File.separator;
+        return files.getPath().startsWith(rootPath);
     }
 
     /** Pairing of an installed patch with its compatibility level for a given game. */

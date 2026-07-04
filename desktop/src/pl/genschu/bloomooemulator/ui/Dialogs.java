@@ -5,11 +5,7 @@ import pl.genschu.bloomooemulator.logic.AppPaths;
 import pl.genschu.bloomooemulator.logic.GameEntry;
 import pl.genschu.bloomooemulator.logic.GameManager;
 import pl.genschu.bloomooemulator.logic.MouseMode;
-import pl.genschu.bloomooemulator.patch.PatchCatalog;
-import pl.genschu.bloomooemulator.patch.PatchCompatibility;
-import pl.genschu.bloomooemulator.patch.PatchIssue;
-import pl.genschu.bloomooemulator.patch.PatchManagerController;
-import pl.genschu.bloomooemulator.patch.PatchRowVM;
+import pl.genschu.bloomooemulator.patch.*;
 
 import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
@@ -194,7 +190,8 @@ public class Dialogs {
 
         final JDialog dialog = new JDialog(gameListFrame,
                 resourceBundle.getString("patch_dialog_title").replace("{0}", game.getName()), true);
-        dialog.setSize(760, 480);
+        dialog.setSize(1100, 560);
+        dialog.setMinimumSize(new Dimension(900, 520));
         dialog.setLayout(new BorderLayout(8, 8));
         dialog.setLocationRelativeTo(gameListFrame);
 
@@ -274,6 +271,8 @@ public class Dialogs {
         });
 
         JButton installButton = new JButton(resourceBundle.getString("patch_install"));
+        JButton importButton = new JButton(resourceBundle.getString("patch_import_local"));
+        JButton linkFolderButton = new JButton(resourceBundle.getString("patch_link_local_folder"));
         JButton toggleButton = new JButton(resourceBundle.getString("patch_toggle"));
         JButton uninstallButton = new JButton(resourceBundle.getString("patch_uninstall"));
         JButton moveUpButton = new JButton(resourceBundle.getString("patch_move_up"));
@@ -346,6 +345,101 @@ public class Dialogs {
             worker.execute();
         });
 
+        importButton.addActionListener(e -> {
+            JFileChooser chooser = new JFileChooser();
+            chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+            chooser.setDialogTitle(resourceBundle.getString("patch_import_local"));
+            chooser.setFileFilter(new FileNameExtensionFilter("Patch archives (*.zip, *.rar)", "zip", "rar"));
+            if (chooser.showOpenDialog(dialog) != JFileChooser.APPROVE_OPTION) {
+                return;
+            }
+            File archive = chooser.getSelectedFile();
+            importButton.setEnabled(false);
+            progressBar.setIndeterminate(true);
+            progressBar.setVisible(true);
+            SwingWorker<Void, Void> worker = new SwingWorker<>() {
+                private String importedId;
+                private Exception error;
+
+                @Override
+                protected Void doInBackground() {
+                    try {
+                        InstalledPatch installed = controller.importLocalArchive(archive);
+                        importedId = installed.getManifest().getId();
+                    } catch (Exception ex) {
+                        error = ex;
+                    }
+                    return null;
+                }
+
+                @Override
+                protected void done() {
+                    importButton.setEnabled(true);
+                    progressBar.setVisible(false);
+                    progressBar.setIndeterminate(false);
+                    if (error != null) {
+                        JOptionPane.showMessageDialog(dialog,
+                                resourceBundle.getString("patch_import_failed").replace("{0}", String.valueOf(error.getMessage())));
+                    }
+                    rebuild.run();
+                    if (importedId != null) {
+                        for (int i = 0; i < rows.size(); i++) {
+                            if (rows.get(i).getId().equals(importedId)) {
+                                table.setRowSelectionInterval(i, i);
+                                break;
+                            }
+                        }
+                    }
+                }
+            };
+            worker.execute();
+        });
+
+        linkFolderButton.addActionListener(e -> {
+            JFileChooser chooser = new JFileChooser();
+            chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+            chooser.setDialogTitle(resourceBundle.getString("patch_link_local_folder"));
+            if (chooser.showOpenDialog(dialog) != JFileChooser.APPROVE_OPTION) {
+                return;
+            }
+            File folder = chooser.getSelectedFile();
+            linkFolderButton.setEnabled(false);
+            SwingWorker<Void, Void> worker = new SwingWorker<>() {
+                private String linkedId;
+                private Exception error;
+
+                @Override
+                protected Void doInBackground() {
+                    try {
+                        InstalledPatch linked = controller.linkLocalFolder(folder);
+                        linkedId = linked.getManifest().getId();
+                    } catch (Exception ex) {
+                        error = ex;
+                    }
+                    return null;
+                }
+
+                @Override
+                protected void done() {
+                    linkFolderButton.setEnabled(true);
+                    if (error != null) {
+                        JOptionPane.showMessageDialog(dialog,
+                                resourceBundle.getString("patch_link_failed").replace("{0}", String.valueOf(error.getMessage())));
+                    }
+                    rebuild.run();
+                    if (linkedId != null) {
+                        for (int i = 0; i < rows.size(); i++) {
+                            if (rows.get(i).getId().equals(linkedId)) {
+                                table.setRowSelectionInterval(i, i);
+                                break;
+                            }
+                        }
+                    }
+                }
+            };
+            worker.execute();
+        });
+
         toggleButton.addActionListener(e -> {
             int sel = table.getSelectedRow();
             if (sel < 0) {
@@ -374,8 +468,9 @@ public class Dialogs {
             if (!row.isInstalled()) {
                 return;
             }
+            String confirmKey = row.isLinkedLocal() ? "patch_confirm_unlink" : "patch_confirm_uninstall";
             int resp = JOptionPane.showConfirmDialog(dialog,
-                    resourceBundle.getString("patch_confirm_uninstall").replace("{0}", row.getDisplayName()),
+                    resourceBundle.getString(confirmKey).replace("{0}", row.getDisplayName()),
                     resourceBundle.getString("patch_uninstall"), JOptionPane.YES_NO_OPTION);
             if (resp != JOptionPane.YES_OPTION) {
                 return;
@@ -397,6 +492,8 @@ public class Dialogs {
         notesPanel.add(new JScrollPane(notes), BorderLayout.CENTER);
         notesPanel.add(referenceLink, BorderLayout.SOUTH);
         JPanel buttons = new JPanel();
+        buttons.add(linkFolderButton);
+        buttons.add(importButton);
         buttons.add(installButton);
         buttons.add(toggleButton);
         buttons.add(uninstallButton);

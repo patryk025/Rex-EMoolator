@@ -61,7 +61,12 @@
     <string name="patch_none_relevant">No patches for this game.</string>
     <string name="patch_no_actions">No actions available for this patch.</string>
     <string name="patch_install_failed">Installation failed: %1$s</string>
+    <string name="patch_import_local">Import local archive</string>
+    <string name="patch_import_failed">Import failed: %1$s</string>
+    <string name="patch_link_local_folder">Link work folder</string>
+    <string name="patch_link_failed">Could not link folder: %1$s</string>
     <string name="patch_uninstall_message">Uninstall patch “%1$s”?</string>
+    <string name="patch_unlink_message">Unload patch “%1$s”? The source folder will not be deleted.</string>
 
     <!-- Patch actions (context menu) -->
     <string name="patch_action_install">Install</string>

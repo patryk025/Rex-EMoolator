@@ -23,6 +23,18 @@
          android:id="@+id/subHeaderText"
          android:text="" />
 
+    <Button
+         android:layout_height="wrap_content"
+         android:layout_width="match_parent"
+         android:id="@+id/importPatchButton"
+         android:text="@string/patch_import_local" />
+
+    <Button
+         android:layout_height="wrap_content"
+         android:layout_width="match_parent"
+         android:id="@+id/linkPatchFolderButton"
+         android:text="@string/patch_link_local_folder" />
+
     <ProgressBar
          style="?android:attr/progressBarStyleHorizontal"
          android:layout_height="wrap_content"

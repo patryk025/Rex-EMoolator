@@ -19,6 +19,8 @@ public class PatchRegistryEntry implements Serializable {
     private boolean forceEnable;
     /** Free-form ordering hint; lower numbers mount first (= lower priority). */
     private int order;
+    /** Optional external patch folder mounted directly for development/testing. */
+    private String localPath;
 
     public PatchRegistryEntry() {}
 
@@ -44,4 +46,11 @@ public class PatchRegistryEntry implements Serializable {
 
     public int getOrder() { return order; }
     public void setOrder(int order) { this.order = order; }
+
+    public String getLocalPath() { return localPath; }
+    public void setLocalPath(String localPath) {
+        this.localPath = (localPath == null || localPath.isBlank()) ? null : localPath;
+    }
+
+    public boolean isLinkedLocal() { return localPath != null && !localPath.isBlank(); }
 }

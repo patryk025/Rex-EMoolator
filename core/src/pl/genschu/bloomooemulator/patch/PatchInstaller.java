@@ -7,6 +7,7 @@ import com.github.junrar.rarfile.FileHeader;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -39,6 +40,8 @@ import java.util.zip.ZipInputStream;
  */
 public final class PatchInstaller {
     private PatchInstaller() {}
+
+    private static final String MANIFEST_FILE = "patch.json";
 
     /** Keeps every archive entry except engine/installer binaries. */
     public static final Predicate<String> DEFAULT_FILTER = path -> {
@@ -89,6 +92,49 @@ public final class PatchInstaller {
     }
 
     /**
+     * Installs a self-contained local patch archive. The archive must contain a
+     * {@code patch.json} manifest plus the manifest's {@code filesRoot} directory
+     * next to it, optionally wrapped in one top-level folder.
+     */
+    public static InstalledPatch installFromPackagedArchive(File archive, File patchesRoot) throws IOException {
+        PackagedManifest packaged = readPackagedManifest(archive);
+        return installFromPackagedArchive(packaged.manifest, archive, patchesRoot, packaged.root, DEFAULT_FILTER);
+    }
+
+    /**
+     * Reads the {@code patch.json} from a self-contained local patch archive without
+     * installing it. Useful for UI/controller preflight checks.
+     */
+    public static PatchManifest readManifestFromArchive(File archive) throws IOException {
+        return readPackagedManifest(archive).manifest;
+    }
+
+    /**
+     * Reads {@code patch.json} from a local patch folder. Returns {@code null} when
+     * the folder has no manifest, which lets development overlays be mounted directly.
+     */
+    public static PatchManifest readManifestFromDirectory(File rootDir) throws IOException {
+        File manifestFile = new File(rootDir, MANIFEST_FILE);
+        if (!manifestFile.isFile()) {
+            return null;
+        }
+        try (InputStream in = new BufferedInputStream(new FileInputStream(manifestFile))) {
+            Json mapper = new Json();
+            mapper.setIgnoreUnknownFields(true);
+            PatchManifest manifest = mapper.fromJson(PatchManifest.class, readString(in));
+            if (manifest == null || manifest.getId() == null || manifest.getId().isBlank()) {
+                throw new IOException("Patch manifest has no id");
+            }
+            if (!isSafePatchId(manifest.getId())) {
+                throw new IOException("Patch id must be a simple directory name: " + manifest.getId());
+            }
+            return manifest;
+        } catch (RuntimeException ex) {
+            throw new IOException("Invalid " + MANIFEST_FILE + " in " + rootDir, ex);
+        }
+    }
+
+    /**
      * Extracts {@code archive} into {@code <patchesRoot>/<id>/<filesRoot>} (replacing
      * any previous overlay), keeping only entries accepted by {@code keep}, then writes
      * the manifest as {@code patch.json}.
@@ -100,8 +146,8 @@ public final class PatchInstaller {
         if (manifest == null || manifest.getId() == null || manifest.getId().isBlank()) {
             throw new IOException("Patch manifest has no id");
         }
-        File patchDir = new File(patchesRoot, manifest.getId());
-        File filesDir = new File(patchDir, manifest.getFilesRoot());
+        File patchDir = patchDir(patchesRoot, manifest);
+        File filesDir = filesDir(patchDir, manifest);
         deleteRecursively(filesDir);
         if (!filesDir.mkdirs() && !filesDir.isDirectory()) {
             throw new IOException("Cannot create overlay directory " + filesDir);
@@ -116,6 +162,34 @@ public final class PatchInstaller {
         }
 
         writeManifest(manifest, new File(patchDir, "patch.json"));
+        return new InstalledPatch(manifest, patchDir);
+    }
+
+    private static InstalledPatch installFromPackagedArchive(PatchManifest manifest, File archive, File patchesRoot,
+                                                             String packageRoot, Predicate<String> keep) throws IOException {
+        if (manifest == null || manifest.getId() == null || manifest.getId().isBlank()) {
+            throw new IOException("Patch manifest has no id");
+        }
+        File patchDir = patchDir(patchesRoot, manifest);
+        File filesDir = filesDir(patchDir, manifest);
+        deleteRecursively(filesDir);
+        if (!filesDir.mkdirs() && !filesDir.isDirectory()) {
+            throw new IOException("Cannot create overlay directory " + filesDir);
+        }
+
+        Predicate<String> filter = keep == null ? DEFAULT_FILTER : keep;
+        String filesRootInArchive = joinRoots(packageRoot, manifest.getFilesRoot());
+        int extracted;
+        switch (detectFormat(archive)) {
+            case ZIP -> extracted = extractZip(archive, filesDir, filter, filesRootInArchive);
+            case RAR -> extracted = extractRar(archive, filesDir, filter, filesRootInArchive);
+            default -> throw new IOException("Unsupported archive format: " + archive.getName());
+        }
+        if (extracted == 0) {
+            throw new IOException("Patch archive does not contain " + filesRootInArchive + "/");
+        }
+
+        writeManifest(manifest, new File(patchDir, MANIFEST_FILE));
         return new InstalledPatch(manifest, patchDir);
     }
 
@@ -154,7 +228,8 @@ public final class PatchInstaller {
         }
     }
 
-    private static void extractZip(File archive, File baseDir, Predicate<String> keep, String archiveRoot) throws IOException {
+    private static int extractZip(File archive, File baseDir, Predicate<String> keep, String archiveRoot) throws IOException {
+        int extracted = 0;
         try (ZipInputStream zis = new ZipInputStream(new BufferedInputStream(new FileInputStream(archive)))) {
             ZipEntry entry;
             while ((entry = zis.getNextEntry()) != null) {
@@ -166,11 +241,14 @@ public final class PatchInstaller {
                     continue;
                 }
                 writeTo(resolveSafe(baseDir, name), zis);
+                extracted++;
             }
         }
+        return extracted;
     }
 
-    private static void extractRar(File archive, File baseDir, Predicate<String> keep, String archiveRoot) throws IOException {
+    private static int extractRar(File archive, File baseDir, Predicate<String> keep, String archiveRoot) throws IOException {
+        int extracted = 0;
         try (Archive rar = new Archive(archive)) {
             FileHeader header;
             while ((header = rar.nextFileHeader()) != null) {
@@ -186,10 +264,12 @@ public final class PatchInstaller {
                 try (OutputStream os = new BufferedOutputStream(new FileOutputStream(target))) {
                     rar.extractFile(header, os);
                 }
+                extracted++;
             }
         } catch (RarException e) {
             throw new IOException("Failed to extract RAR " + archive.getName(), e);
         }
+        return extracted;
     }
 
     /**
@@ -222,6 +302,157 @@ public final class PatchInstaller {
             r = r.substring(0, r.length() - 1);
         }
         return r.isEmpty() ? null : r;
+    }
+
+    private static String joinRoots(String first, String second) {
+        String a = normalizeRoot(first);
+        String b = normalizeRoot(second);
+        if (a == null) {
+            return b;
+        }
+        if (b == null) {
+            return a;
+        }
+        return a + "/" + b;
+    }
+
+    private static PackagedManifest readPackagedManifest(File archive) throws IOException {
+        return switch (detectFormat(archive)) {
+            case ZIP -> readZipManifest(archive);
+            case RAR -> readRarManifest(archive);
+            default -> throw new IOException("Unsupported archive format: " + archive.getName());
+        };
+    }
+
+    private static PackagedManifest readZipManifest(File archive) throws IOException {
+        ManifestCandidate best = null;
+        try (ZipInputStream zis = new ZipInputStream(new BufferedInputStream(new FileInputStream(archive)))) {
+            ZipEntry entry;
+            while ((entry = zis.getNextEntry()) != null) {
+                if (entry.isDirectory()) {
+                    continue;
+                }
+                String name = entry.getName().replace('\\', '/');
+                if (!isManifestPath(name)) {
+                    continue;
+                }
+                ManifestCandidate candidate = parseManifestCandidate(name, readString(zis));
+                if (candidate != null && (best == null || candidate.depth < best.depth)) {
+                    best = candidate;
+                }
+            }
+        }
+        if (best == null) {
+            throw new IOException("Patch archive has no valid " + MANIFEST_FILE);
+        }
+        return new PackagedManifest(best.manifest, best.root);
+    }
+
+    private static PackagedManifest readRarManifest(File archive) throws IOException {
+        ManifestCandidate best = null;
+        try (Archive rar = new Archive(archive)) {
+            FileHeader header;
+            while ((header = rar.nextFileHeader()) != null) {
+                if (header.isDirectory()) {
+                    continue;
+                }
+                String name = header.getFileName().replace('\\', '/');
+                if (!isManifestPath(name)) {
+                    continue;
+                }
+                ByteArrayOutputStream out = new ByteArrayOutputStream();
+                rar.extractFile(header, out);
+                ManifestCandidate candidate = parseManifestCandidate(
+                        name, new String(out.toByteArray(), StandardCharsets.UTF_8));
+                if (candidate != null && (best == null || candidate.depth < best.depth)) {
+                    best = candidate;
+                }
+            }
+        } catch (RarException e) {
+            throw new IOException("Failed to read RAR " + archive.getName(), e);
+        }
+        if (best == null) {
+            throw new IOException("Patch archive has no valid " + MANIFEST_FILE);
+        }
+        return new PackagedManifest(best.manifest, best.root);
+    }
+
+    private static boolean isManifestPath(String name) {
+        String normalized = normalizeRoot(name);
+        if (normalized == null) {
+            return false;
+        }
+        String lower = normalized.toLowerCase(Locale.ROOT);
+        return lower.equals(MANIFEST_FILE) || lower.endsWith("/" + MANIFEST_FILE);
+    }
+
+    private static ManifestCandidate parseManifestCandidate(String path, String json) {
+        PatchManifest manifest;
+        try {
+            Json mapper = new Json();
+            mapper.setIgnoreUnknownFields(true);
+            manifest = mapper.fromJson(PatchManifest.class, json);
+        } catch (RuntimeException ex) {
+            return null;
+        }
+        if (manifest == null || manifest.getId() == null || manifest.getId().isBlank()
+                || !isSafePatchId(manifest.getId())) {
+            return null;
+        }
+        String root = manifestRoot(path);
+        return new ManifestCandidate(manifest, root, rootDepth(root));
+    }
+
+    private static String manifestRoot(String path) {
+        String normalized = normalizeRoot(path);
+        if (normalized == null) {
+            return null;
+        }
+        int slash = normalized.lastIndexOf('/');
+        return slash < 0 ? null : normalized.substring(0, slash);
+    }
+
+    private static int rootDepth(String root) {
+        if (root == null || root.isEmpty()) {
+            return 0;
+        }
+        int depth = 1;
+        for (int i = 0; i < root.length(); i++) {
+            if (root.charAt(i) == '/') {
+                depth++;
+            }
+        }
+        return depth;
+    }
+
+    public static boolean isSafePatchId(String id) {
+        return id != null && !id.isBlank()
+                && !id.equals(".") && !id.equals("..")
+                && id.indexOf('/') < 0 && id.indexOf('\\') < 0;
+    }
+
+    private static File patchDir(File patchesRoot, PatchManifest manifest) throws IOException {
+        if (patchesRoot == null) {
+            throw new IOException("Missing patches root");
+        }
+        if (!isSafePatchId(manifest.getId())) {
+            throw new IOException("Patch id must be a simple directory name: " + manifest.getId());
+        }
+        File base = patchesRoot.getCanonicalFile();
+        File patchDir = new File(base, manifest.getId()).getCanonicalFile();
+        String basePath = base.getPath() + File.separator;
+        if (!patchDir.getPath().startsWith(basePath)) {
+            throw new IOException("Patch id escapes patches directory: " + manifest.getId());
+        }
+        return patchDir;
+    }
+
+    private static File filesDir(File patchDir, PatchManifest manifest) throws IOException {
+        String filesRoot = normalizeRoot(manifest.getFilesRoot());
+        if (filesRoot == null) {
+            throw new IOException("Patch manifest has no filesRoot");
+        }
+        return resolveSafe(patchDir, filesRoot);
     }
 
     private static Format detectFormat(File archive) throws IOException {
@@ -278,6 +509,12 @@ public final class PatchInstaller {
         }
     }
 
+    private static String readString(InputStream in) throws IOException {
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        copy(in, out);
+        return new String(out.toByteArray(), StandardCharsets.UTF_8);
+    }
+
     private static void ensureParent(File target) throws IOException {
         File parent = target.getParentFile();
         if (parent != null && !parent.isDirectory() && !parent.mkdirs()) {
@@ -308,6 +545,28 @@ public final class PatchInstaller {
         }
         if (!file.delete()) {
             throw new IOException("Cannot delete " + file);
+        }
+    }
+
+    private static final class PackagedManifest {
+        private final PatchManifest manifest;
+        private final String root;
+
+        private PackagedManifest(PatchManifest manifest, String root) {
+            this.manifest = manifest;
+            this.root = root;
+        }
+    }
+
+    private static final class ManifestCandidate {
+        private final PatchManifest manifest;
+        private final String root;
+        private final int depth;
+
+        private ManifestCandidate(PatchManifest manifest, String root, int depth) {
+            this.manifest = manifest;
+            this.root = root;
+            this.depth = depth;
         }
     }
 }

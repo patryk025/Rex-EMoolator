@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Locale;
 
 /**
  * UI-agnostic orchestration of the per-game patch manager. Both the Swing dialog
@@ -65,7 +66,9 @@ public class PatchManagerController {
             PatchRegistryEntry entry = registry.find(gameHash, m.getId());
             boolean enabled = entry != null && entry.isEnabled();
             int order = entry != null ? entry.getOrder() : Integer.MAX_VALUE;
-            rows.add(new PatchRowVM(m, compat, installed, enabled, entry != null, order));
+            InstalledPatch installedPatch = manager.byId(m.getId());
+            boolean linkedLocal = installedPatch != null && installedPatch.isLinkedLocal();
+            rows.add(new PatchRowVM(m, compat, installed, enabled, entry != null, order, linkedLocal));
         }
         rows.sort((a, b) -> Integer.compare(a.getOrder(), b.getOrder()));
         return rows;
@@ -102,6 +105,66 @@ public class PatchManagerController {
     }
 
     /**
+     * Installs a self-contained local patch archive ({@code patch.json} plus its
+     * {@code filesRoot} directory) and rescans on-disk state.
+     *
+     * @return the freshly installed patch.
+     * @throws IllegalStateException if a patch with the same id is already installed.
+     * @throws IOException           if the archive is unsupported or malformed.
+     */
+    public InstalledPatch importLocalArchive(File archive) throws IOException {
+        PatchManifest manifest = PatchInstaller.readManifestFromArchive(archive);
+        if (manager.byId(manifest.getId()) != null) {
+            throw new IllegalStateException("Patch already installed: " + manifest.getId());
+        }
+        InstalledPatch installed = PatchInstaller.installFromPackagedArchive(archive, patchesRoot);
+        manager.rescan();
+        return installed;
+    }
+
+    /**
+     * Links a local development folder as an enabled patch for the current game.
+     *
+     * <p>If the folder contains {@code patch.json}, that manifest is used and its
+     * {@code filesRoot} is mounted. Without a manifest, the folder itself is treated
+     * as the overlay root and a game-specific temporary manifest is synthesized.
+     * Files are not copied, so edits become visible on the next game load.
+     */
+    public InstalledPatch linkLocalFolder(File folder) throws IOException {
+        if (folder == null || !folder.isDirectory()) {
+            throw new IOException("Selected path is not a folder");
+        }
+        File canonicalFolder = folder.getCanonicalFile();
+        PatchManifest manifest = PatchInstaller.readManifestFromDirectory(canonicalFolder);
+        if (manifest == null) {
+            manifest = syntheticLocalFolderManifest(canonicalFolder);
+        }
+        validateLinkedFolder(canonicalFolder, manifest);
+
+        String patchId = manifest.getId();
+        InstalledPatch existingPatch = manager.byId(patchId);
+        if (existingPatch != null && (!existingPatch.isLinkedLocal()
+                || !sameFile(existingPatch.getRootDir(), canonicalFolder))) {
+            throw new IllegalStateException("Patch already installed: " + patchId);
+        }
+
+        PatchCompatibility compat = manifest.compatibilityFor(gameHash, gameFamily);
+        PatchRegistryEntry existingEntry = registry.find(gameHash, patchId);
+        int order = existingEntry != null ? existingEntry.getOrder() : nextOrder();
+        PatchRegistryEntry linked = new PatchRegistryEntry(
+                gameHash, patchId, true, compat != PatchCompatibility.EXACT, order);
+        linked.setLocalPath(canonicalFolder.getPath());
+        registry.upsert(linked);
+        registry.save();
+        manager.rescan();
+        InstalledPatch installed = manager.byId(patchId);
+        if (installed == null) {
+            throw new IOException("Linked patch could not be loaded: " + patchId);
+        }
+        return installed;
+    }
+
+    /**
      * Enables or disables an installed patch. Non-EXACT matches (FAMILY) are
      * auto-marked {@code forceEnable} when enabled, since {@link PatchManager#activeFor}
      * only mounts EXACT matches otherwise. New pairings get the next mount order.
@@ -116,7 +179,11 @@ public class PatchManagerController {
         boolean force = patch.getManifest().compatibilityFor(gameHash, gameFamily) != PatchCompatibility.EXACT;
         PatchRegistryEntry entry = registry.find(gameHash, patchId);
         int order = entry != null ? entry.getOrder() : nextOrder();
-        registry.upsert(new PatchRegistryEntry(gameHash, patchId, enabled, enabled && force, order));
+        PatchRegistryEntry updated = new PatchRegistryEntry(gameHash, patchId, enabled, enabled && force, order);
+        if (entry != null) {
+            updated.setLocalPath(entry.getLocalPath());
+        }
+        registry.upsert(updated);
         registry.save();
     }
 
@@ -135,6 +202,7 @@ public class PatchManagerController {
         boolean removed = manager.uninstall(patchId);
         registry.remove(gameHash, patchId);
         registry.save();
+        manager.rescan();
         return removed;
     }
 
@@ -207,5 +275,54 @@ public class PatchManagerController {
             }
         }
         return -1;
+    }
+
+    private PatchManifest syntheticLocalFolderManifest(File folder) {
+        PatchManifest manifest = new PatchManifest();
+        manifest.setId(localFolderPatchId(folder, gameHash));
+        manifest.setName(folder.getName());
+        manifest.setTargetHashes(new String[]{gameHash});
+        manifest.setFilesRoot(".");
+        PatchSource source = new PatchSource();
+        source.setType(PatchSourceType.LOCAL);
+        manifest.setSource(source);
+        return manifest;
+    }
+
+    private static String localFolderPatchId(File folder, String gameHash) {
+        String base = folder.getName();
+        if (base == null || base.isBlank()) {
+            base = "folder";
+        }
+        String slug = base.toLowerCase(Locale.ROOT)
+                .replaceAll("[^a-z0-9._-]+", "-")
+                .replaceAll("^-+|-+$", "");
+        if (slug.isBlank() || slug.equals(".") || slug.equals("..")) {
+            slug = "folder";
+        }
+        String suffix = Integer.toUnsignedString(folder.getPath().hashCode(), 36);
+        String hashSuffix = gameHash == null || gameHash.length() < 8 ? "" : "-" + gameHash.substring(0, 8).toLowerCase(Locale.ROOT);
+        return "local-" + slug + "-" + suffix + hashSuffix;
+    }
+
+    private static void validateLinkedFolder(File folder, PatchManifest manifest) throws IOException {
+        if (!PatchInstaller.isSafePatchId(manifest.getId())) {
+            throw new IOException("Patch id must be a simple directory name: " + manifest.getId());
+        }
+        File root = folder.getCanonicalFile();
+        File files = new File(root, manifest.getFilesRoot()).getCanonicalFile();
+        if (!files.equals(root)) {
+            String rootPath = root.getPath() + File.separator;
+            if (!files.getPath().startsWith(rootPath)) {
+                throw new IOException("Patch filesRoot escapes source folder: " + manifest.getFilesRoot());
+            }
+        }
+        if (!files.isDirectory()) {
+            throw new IOException("Patch folder has no filesRoot directory: " + manifest.getFilesRoot());
+        }
+    }
+
+    private static boolean sameFile(File a, File b) throws IOException {
+        return a.getCanonicalFile().equals(b.getCanonicalFile());
     }
 }

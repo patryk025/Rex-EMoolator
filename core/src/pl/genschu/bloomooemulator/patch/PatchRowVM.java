@@ -16,15 +16,22 @@ public final class PatchRowVM {
     private final boolean enabled;
     private final boolean hasEntry;
     private final int order;
+    private final boolean linkedLocal;
 
     public PatchRowVM(PatchManifest manifest, PatchCompatibility compat, boolean installed,
                       boolean enabled, boolean hasEntry, int order) {
+        this(manifest, compat, installed, enabled, hasEntry, order, false);
+    }
+
+    public PatchRowVM(PatchManifest manifest, PatchCompatibility compat, boolean installed,
+                      boolean enabled, boolean hasEntry, int order, boolean linkedLocal) {
         this.manifest = manifest;
         this.compat = compat;
         this.installed = installed;
         this.enabled = enabled;
         this.hasEntry = hasEntry;
         this.order = order;
+        this.linkedLocal = linkedLocal;
     }
 
     public PatchManifest getManifest() { return manifest; }
@@ -36,6 +43,7 @@ public final class PatchRowVM {
     public boolean hasEntry() { return hasEntry; }
 
     public int getOrder() { return order; }
+    public boolean isLinkedLocal() { return linkedLocal; }
 
     public String getId() { return manifest.getId(); }
 
