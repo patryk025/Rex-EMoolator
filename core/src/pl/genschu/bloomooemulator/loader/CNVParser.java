@@ -12,7 +12,6 @@ import pl.genschu.bloomooemulator.interpreter.variable.*;
 import pl.genschu.bloomooemulator.interpreter.variable.db.DatabaseState;
 
 import java.io.*;
-import java.nio.charset.Charset;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -366,6 +365,7 @@ public class CNVParser {
             case "CANVASOBSERVER", "CANVAS_OBSERVER" -> new CanvasObserverVariable(objectName);
             case "FONT" -> new FontVariable(objectName);
             case "INERTIA" -> new InertiaVariable(objectName);
+            case "KOLOROWANKA" -> new KolorowankaVariable(objectName);
             case "MATRIX" -> new MatrixVariable(objectName);
             case "PATTERN" -> new PatternVariable(objectName);
             case "STATICFILTER" -> {
@@ -598,7 +598,7 @@ public class CNVParser {
             case INTEGER, DOUBLE, STRING, BOOLEAN -> 1;  // Primitives
             case ARRAY, CONDITION, COMPLEXCONDITION, DATABASE, EXPRESSION, MULTIARRAY, STRUCT -> 2;  // Logic and structures
             case ANIMO, CLASS, FONT, IMAGE, SOUND, VIRTUALGRAPHICSOBJECT, VECTOR -> 3;  // Classes, sounds and graphics
-            case BUTTON, CANVAS_OBSERVER, FILTER, GROUP, INERTIA, JOYSTICK, KEYBOARD, MATRIX, MOUSE,
+            case BUTTON, CANVAS_OBSERVER, FILTER, GROUP, INERTIA, JOYSTICK, KEYBOARD, KOLOROWANKA, MATRIX, MOUSE,
                  PATTERN, SEQUENCE, STATICFILTER, SYSTEM, TEXT, TIMER, WORLD -> 4;  // UI, input, and complex types
             default -> 5;  // Everything else
         };

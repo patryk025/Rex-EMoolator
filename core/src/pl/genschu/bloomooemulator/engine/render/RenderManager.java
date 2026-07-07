@@ -100,8 +100,26 @@ public class RenderManager implements Disposable {
                 renderImage(img);
             } else if (variable instanceof AnimoVariable animo) {
                 renderAnimo(animo);
+            } else if (variable instanceof KolorowankaVariable klr) {
+                renderKolorowanka(klr);
             }
         }
+    }
+
+    private void renderKolorowanka(KolorowankaVariable klr) {
+        if (!klr.isVisible()) {
+            return;
+        }
+        var texture = klr.getTexture();
+        if (texture == null) {
+            return;
+        }
+        batch.setColor(1, 1, 1, 1);
+        batch.draw(texture,
+                klr.getPosX(),
+                VIRTUAL_HEIGHT - klr.getPosY() - klr.getHeight(),
+                klr.getWidth(),
+                klr.getHeight());
     }
 
     private void renderImage(ImageVariable imageVariable) {
@@ -162,6 +180,8 @@ public class RenderManager implements Disposable {
             return img.state().priority;
         } else if (variable instanceof AnimoVariable animo) {
             return animo.getPriority();
+        } else if (variable instanceof KolorowankaVariable klr) {
+            return klr.getPriority();
         }
         return 0;
     }
@@ -171,6 +191,8 @@ public class RenderManager implements Disposable {
             return img.getRenderOrder();
         } else if (variable instanceof AnimoVariable animo) {
             return animo.getRenderOrder();
+        } else if (variable instanceof KolorowankaVariable klr) {
+            return klr.getRenderOrder();
         }
         return 0;
     }

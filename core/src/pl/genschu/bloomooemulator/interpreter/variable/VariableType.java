@@ -30,6 +30,7 @@ public enum VariableType {
     INTEGER,
     JOYSTICK,
     KEYBOARD,
+    KOLOROWANKA,
     MATRIX,
     MOUSE,
     MULTIARRAY,

@@ -27,7 +27,7 @@ public class VariableCacheIndex {
         VariableType varType = var.type();
 
         switch (varType) {
-            case ANIMO, IMAGE, SEQUENCE -> graphics.put(name, var);
+            case ANIMO, IMAGE, KOLOROWANKA, SEQUENCE -> graphics.put(name, var);
             case BUTTON -> buttons.put(name, var);
             case TIMER -> timers.put(name, var);
             case SOUND -> sounds.put(name, var);

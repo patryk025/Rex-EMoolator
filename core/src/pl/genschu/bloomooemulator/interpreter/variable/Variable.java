@@ -47,6 +47,7 @@ public sealed interface Variable extends EngineVariable permits
         CanvasObserverVariable,
         FontVariable,
         InertiaVariable,
+        KolorowankaVariable,
         MatrixVariable,
         PatternVariable,
         StaticFilterVariable,

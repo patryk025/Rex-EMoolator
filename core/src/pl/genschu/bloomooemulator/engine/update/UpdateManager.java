@@ -177,6 +177,8 @@ public class UpdateManager implements Disposable {
                     if (animoVariable.isPlaying()) {
                         animoVariable.updateAnimation(engineTimeMs);
                     }
+                } else if (variable instanceof KolorowankaVariable kolorowanka) {
+                    kolorowanka.update(engineTimeMs);
                 }
             }
         }

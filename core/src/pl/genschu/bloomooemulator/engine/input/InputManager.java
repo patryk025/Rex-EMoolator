@@ -197,6 +197,11 @@ public class InputManager implements Disposable {
         boolean mouseEnabled = primaryMouse == null || primaryMouse.isEnabled();
         buttonHandler.handleMouseInput(correctedX, correctedY, isPressed, justPressed, justReleased, primaryMouse, mouseEnabled);
 
+        // KOLOROWANKA objects register a global mouse listener in the original engine
+        if (justPressed && mouseEnabled) {
+            dispatchKolorowankaClick(correctedX, correctedY);
+        }
+
         // Emit mouse signals
         if (justPressed) {
             emitMouseSignal(mouseVariables, "ONCLICK", new StringValue("LEFT"));
@@ -207,6 +212,16 @@ public class InputManager implements Disposable {
         // Update mouse state
         mousePressed = isPressed;
         mousePrevPressed = isPressed;
+    }
+
+    private void dispatchKolorowankaClick(int x, int y) {
+        GameContext context = game.getCurrentSceneContext();
+        if (context == null) return;
+        for (EngineVariable variable : new ArrayList<>(context.getGraphicsVariables().values())) {
+            if (variable instanceof KolorowankaVariable kolorowanka) {
+                kolorowanka.handleClick(x, y);
+            }
+        }
     }
 
     private void emitMouseSignal(List<MouseVariable> mouseVariables, String signalName, StringValue buttonName) {
