@@ -603,25 +603,33 @@ public record KolorowankaVariable(
     // ========================================
 
     /**
-     * Repaints the whole picture into the pixmap. Per pixel (a = outline brightness,
-     * 255 = paper, 0 = black line): a colored field pixel is the fill color scaled
-     * towards black by a/255 (opaque); an uncolored pixel is black with alpha 255−a
-     * (the scene background shows through the paper).
+     * Repaints the whole picture into the pixmap. Phase 0 paints every pixel that
+     * belongs to no fill region opaque black — that is the line core between fields
+     * (the original builds a w×h mask of the fill spans and blacks the rest of the
+     * canvas). Then, per pixel (a = outline brightness, 255 = paper, 0 = black line):
+     * a colored field pixel is the fill color scaled towards black by a/255 (opaque);
+     * an uncolored pixel is black with alpha 255−a (the scene background shows through
+     * the paper).
      */
     private void repaint() {
         KolorowankaState s = state;
         if (s.pixmap == null || s.ptr == null) return;
 
-        s.pixmap.setColor(0, 0, 0, 0);
+        // Phase 0: line core — black outside all fill regions
+        s.pixmap.setColor(0, 0, 0, 1);
         s.pixmap.fill();
 
-        // Pass 1: fill regions of fields that ever received a color
+        // Pass 1: fill regions; fields that never received a color keep a fully
+        // transparent fill (the original zeroes their mask and paints nothing)
         for (Field field : s.fields) {
             if (field.hasColour) {
                 paintRegion(field.def.fillRegion, field);
+            } else {
+                clearRegion(field.def.fillRegion);
             }
         }
-        // Pass 2: outline regions (skipped for blank fields with the hide flag)
+        // Pass 2: outline regions; blank fields with the hide flag are skipped and
+        // therefore stay phase-0 black, as in the original
         for (Field field : s.fields) {
             if (field.color16 == COLOR_NONE && field.def.hideOutlineWhenBlank) {
                 continue;
@@ -629,6 +637,23 @@ public record KolorowankaVariable(
             paintRegion(field.def.outlineRegion, field);
         }
         s.textureDirty = true;
+    }
+
+    private void clearRegion(PtrLoader.Region region) {
+        KolorowankaState s = state;
+        if (region == null || region.rows == null) return;
+        for (int r = 0; r < region.rows.length; r++) {
+            int y = region.top + r;
+            if (y < 0 || y >= s.ptr.height) continue;
+            int[] spans = region.rows[r];
+            for (int i = 0; i + 1 < spans.length; i += 2) {
+                int start = spans[i];
+                int end = start + spans[i + 1];
+                for (int x = Math.max(0, start); x < Math.min(end, s.ptr.width); x++) {
+                    s.pixmap.drawPixel(x, y, 0);
+                }
+            }
+        }
     }
 
     private void paintRegion(PtrLoader.Region region, Field field) {
