@@ -197,8 +197,10 @@ public class InputManager implements Disposable {
         boolean mouseEnabled = primaryMouse == null || primaryMouse.isEnabled();
         buttonHandler.handleMouseInput(correctedX, correctedY, isPressed, justPressed, justReleased, primaryMouse, mouseEnabled);
 
-        // KOLOROWANKA objects register a global mouse listener in the original engine
-        if (justPressed && mouseEnabled) {
+        // KOLOROWANKA objects register a global mouse listener in the original engine.
+        // Skip when a button handler above changed the scene: the press belongs to the
+        // previous scene and must not colour a field in the freshly loaded one.
+        if (justPressed && mouseEnabled && game.getCurrentSceneContext() == lastMouseClickContext) {
             dispatchKolorowankaClick(correctedX, correctedY);
         }
 
