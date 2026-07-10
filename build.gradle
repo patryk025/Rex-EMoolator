@@ -13,7 +13,7 @@ buildscript {
     }
     dependencies {
         classpath 'com.android.tools.build:gradle:9.0.1'
-        classpath 'com.gradleup.shadow:shadow-gradle-plugin:9.4.2'
+        classpath 'com.gradleup.shadow:shadow-gradle-plugin:9.4.3'
         classpath 'com.github.jk1:gradle-license-report:3.1.2'
     }
 }
@@ -298,6 +298,20 @@ project(":desktop") {
                     'Main-Class': 'pl.genschu.bloomooemulator.GameListFrame'
             )
         }
+        doFirst {
+            manifest.attributes('Class-Path': configurations.runtimeClasspath.files.collect { "lib/${it.name}" }.join(' '))
+        }
+    }
+
+    tasks.register('prepareJpackageInput', Sync) {
+        group = 'distribution'
+        description = 'Prepares a jpackage input directory with the thin launcher JAR and separate runtime libraries.'
+        dependsOn tasks.named('jar')
+        into layout.buildDirectory.dir('jpackage-input')
+        from(tasks.named('jar'))
+        into('lib') {
+            from(configurations.runtimeClasspath)
+        }
     }
 
     tasks.register('createStartScripts', CreateStartScripts) {
@@ -345,10 +359,11 @@ project(":desktop") {
     tasks.register('jpackage', Exec) {
         group = 'distribution'
         description = 'Buduje natywny instalator aplikacji desktop przy użyciu jpackage.'
-        dependsOn tasks.named('shadowJar')
+        dependsOn tasks.named('prepareJpackageInput')
 
         def os = org.gradle.internal.os.OperatingSystem.current()
-        def shadowJarTask = tasks.named('shadowJar')
+        def thinJarTask = tasks.named('jar')
+        def inputDir = layout.buildDirectory.dir('jpackage-input').get().asFile
         def destDir = layout.buildDirectory.dir('jpackage').get().asFile
         def iconsDir = rootProject.file('assets/icons')
 
@@ -360,7 +375,7 @@ project(":desktop") {
             destDir.deleteDir()
             destDir.mkdirs()
 
-            def jar = shadowJarTask.get().archiveFile.get().asFile
+            def jar = thinJarTask.get().archiveFile.get().asFile
             def jpackageBin = "${System.getProperty('java.home')}/bin/jpackage"
 
             def command = [
@@ -368,7 +383,7 @@ project(":desktop") {
                     '--name', 'Rex-EMoolator',
                     '--app-version', appVersion,
                     '--vendor', 'Rex-EMoolator',
-                    '--input', jar.parentFile.absolutePath,
+                    '--input', inputDir.absolutePath,
                     '--main-jar', jar.name,
                     '--main-class', 'pl.genschu.bloomooemulator.GameListFrame',
                     '--dest', destDir.absolutePath
@@ -398,6 +413,10 @@ project(":desktop") {
     }
 
     tasks.named('shadowJar') {
+        dependsOn rootProject.tasks.named('updateThirdPartyNotices')
+    }
+
+    tasks.named('prepareJpackageInput') {
         dependsOn rootProject.tasks.named('updateThirdPartyNotices')
     }
 

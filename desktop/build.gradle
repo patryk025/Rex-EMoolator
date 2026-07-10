@@ -7,7 +7,7 @@ project.ext.assetsDir = new File("../assets")
 import org.gradle.internal.os.OperatingSystem
 
 tasks.register('run', JavaExec) {
-    dependsOn classes
+    dependsOn tasks.named('classes')
     mainClass = project.mainClassName
     classpath = sourceSets.main.runtimeClasspath
     standardInput = System.in
@@ -19,7 +19,7 @@ tasks.register('run', JavaExec) {
 }
 
 tasks.register('debug', JavaExec) {
-    dependsOn classes
+    dependsOn tasks.named('classes')
     mainClass = project.mainClassName
     classpath = sourceSets.main.runtimeClasspath
     standardInput = System.in
@@ -37,10 +37,12 @@ tasks.register('dist', Jar) {
     from {
         configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
     }
-    with jar
+    with tasks.named('jar').get()
 }
 
 
-dist.dependsOn classes
+tasks.named('dist') {
+    dependsOn tasks.named('classes')
+}
 
 eclipse.project.name = appName + "-desktop"
