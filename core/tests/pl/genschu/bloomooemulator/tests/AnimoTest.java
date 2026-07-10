@@ -123,15 +123,18 @@ class AnimoTest {
     @Test
     void setFrameAcceptsNumericEventIndex() {
         FrameData firstFrame = new FrameData();
+        firstFrame.setName("DEFAULT");
+        FrameData brushFrame = new FrameData();
+        brushFrame.setName("BRUSH");
         FrameData secondFrame = new FrameData();
         pl.genschu.bloomooemulator.objects.Image image = mock(pl.genschu.bloomooemulator.objects.Image.class);
 
         Event firstEvent = new Event();
         firstEvent.setName("FIRST");
-        firstEvent.setFramesCount(1);
-        firstEvent.setFramesNumbers(List.of(0));
-        firstEvent.setFrameData(List.of(firstFrame));
-        firstEvent.setFrames(List.of(image));
+        firstEvent.setFramesCount(2);
+        firstEvent.setFramesNumbers(List.of(0, 0));
+        firstEvent.setFrameData(List.of(firstFrame, brushFrame));
+        firstEvent.setFrames(List.of(image, image));
 
         Event secondEvent = new Event();
         secondEvent.setName("SECOND");
@@ -149,6 +152,16 @@ class AnimoTest {
 
         assertSame(secondEvent, animo.getCurrentEvent());
         assertEquals(0, animo.getCurrentFrameNumber());
+
+        animo.callMethod("SETFRAME", List.of(new StringValue("MISSING"), new IntValue(1)));
+
+        assertSame(firstEvent, animo.getCurrentEvent());
+        assertEquals(1, animo.getCurrentFrameNumber());
+
+        animo.callMethod("SETFRAME", List.of(new StringValue("FIRST"), new StringValue("BRUSH")));
+
+        assertSame(firstEvent, animo.getCurrentEvent());
+        assertEquals(1, animo.getCurrentFrameNumber());
     }
 
     @Test

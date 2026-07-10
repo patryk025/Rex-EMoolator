@@ -1033,7 +1033,32 @@ public record AnimoVariable(
         if (selector instanceof IntValue(int index)) {
             return index >= 0 && index < data.events().size() ? data.events().get(index) : null;
         }
-        return getEvent(ArgumentHelper.getString(selector));
+        Event namedEvent = getEvent(ArgumentHelper.getString(selector));
+        if (namedEvent != null) {
+            return namedEvent;
+        }
+        // CAnimo::getFrameNo initializes its result to 0, so an unknown textual
+        // event name silently selects the first event instead of returning -1.
+        return data.events().isEmpty() ? null : data.events().get(0);
+    }
+
+    private int getFrameNumber(Event event, Value selector) {
+        if (selector instanceof IntValue(int index)) {
+            return index;
+        }
+        String frameName = ArgumentHelper.getString(selector);
+        List<FrameData> frameData = event.getFrameData();
+        if (frameData == null) {
+            return -1;
+        }
+        for (int i = 0; i < frameData.size(); i++) {
+            FrameData frame = frameData.get(i);
+            String candidate = frame != null ? frame.getName() : null;
+            if (candidate != null && candidate.equalsIgnoreCase(frameName)) {
+                return i;
+            }
+        }
+        return -1;
     }
 
     public List<Event> getEventsWithPrefix(String prefix) {
@@ -1215,11 +1240,13 @@ public record AnimoVariable(
             } else {
                 // SETFRAME(eventName, frameNumber)
                 Value eventSelector = args.get(0);
-                int frameNumber = ArgumentHelper.getInt(args.get(1));
                 Event event = thisVar.getEvent(eventSelector);
                 if (event != null && !event.getFrames().isEmpty()) {
-                    thisVar.state.currentEvent = event;
-                    thisVar.setCurrentFrameNumber(frameNumber, true);
+                    int frameNumber = thisVar.getFrameNumber(event, args.get(1));
+                    if (frameNumber >= 0) {
+                        thisVar.state.currentEvent = event;
+                        thisVar.setCurrentFrameNumber(frameNumber, true);
+                    }
                 } else {
                     Gdx.app.error("AnimoVariable", "Event " + eventSelector.toDisplayString() + " not found or has no frames");
                 }
