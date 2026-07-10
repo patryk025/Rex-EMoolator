@@ -215,7 +215,15 @@ public record AnimoVariable(
 
     @Override
     public Variable copyAs(String newName) {
-        return copyFromTemplate(this, newName, new HashMap<>(signals));
+        AnimoVariable clone = copyFromTemplate(this, newName, new HashMap<>(signals));
+
+        // Piklib registers every cloned ANIMO in CRefreshScreen. If the template
+        // was not registered (TOCANVAS=FALSE), CMC_Animo::clone uses priority 0.
+        clone.state.toCanvas = true;
+        if (!state.toCanvas) {
+            clone.state.priority = 0;
+        }
+        return clone;
     }
 
     @Override
@@ -1021,6 +1029,13 @@ public record AnimoVariable(
         return null;
     }
 
+    private Event getEvent(Value selector) {
+        if (selector instanceof IntValue(int index)) {
+            return index >= 0 && index < data.events().size() ? data.events().get(index) : null;
+        }
+        return getEvent(ArgumentHelper.getString(selector));
+    }
+
     public List<Event> getEventsWithPrefix(String prefix) {
         List<Event> result = new ArrayList<>();
         if (data.events() == null) return result;
@@ -1199,14 +1214,14 @@ public record AnimoVariable(
                 thisVar.setCurrentImageNumber(imageNumber, true);
             } else {
                 // SETFRAME(eventName, frameNumber)
-                String eventName = ArgumentHelper.getString(args.get(0));
+                Value eventSelector = args.get(0);
                 int frameNumber = ArgumentHelper.getInt(args.get(1));
-                Event event = thisVar.getEvent(eventName);
+                Event event = thisVar.getEvent(eventSelector);
                 if (event != null && !event.getFrames().isEmpty()) {
                     thisVar.state.currentEvent = event;
                     thisVar.setCurrentFrameNumber(frameNumber, true);
                 } else {
-                    Gdx.app.error("AnimoVariable", "Event " + eventName + " not found or has no frames");
+                    Gdx.app.error("AnimoVariable", "Event " + eventSelector.toDisplayString() + " not found or has no frames");
                 }
             }
             thisVar.changeAnimoState(AnimoEvent.SET_FRAME);

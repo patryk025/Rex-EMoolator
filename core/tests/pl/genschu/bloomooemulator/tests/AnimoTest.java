@@ -15,6 +15,7 @@ import pl.genschu.bloomooemulator.interpreter.values.StringValue;
 import pl.genschu.bloomooemulator.interpreter.variable.*;
 import pl.genschu.bloomooemulator.loader.CNVParser;
 import pl.genschu.bloomooemulator.loader.AnimoLoader;
+import pl.genschu.bloomooemulator.objects.Event;
 import pl.genschu.bloomooemulator.objects.FrameData;
 
 import java.io.FileInputStream;
@@ -24,7 +25,9 @@ import java.nio.file.Path;
 import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -90,6 +93,62 @@ class AnimoTest {
             }
             return wrapped;
         }
+    }
+
+    @Test
+    void cloneIsPutOnCanvasEvenWhenTemplateIsNot() {
+        AnimoVariable template = new AnimoVariable("TEMPLATE");
+        template.state().toCanvas = false;
+        template.state().priority = 37;
+
+        AnimoVariable clone = (AnimoVariable) template.copyAs("TEMPLATE_1");
+
+        assertFalse(template.isRenderedOnCanvas());
+        assertTrue(clone.isRenderedOnCanvas());
+        assertEquals(0, clone.getPriority());
+    }
+
+    @Test
+    void cloneKeepsPriorityWhenTemplateIsAlreadyOnCanvas() {
+        AnimoVariable template = new AnimoVariable("TEMPLATE");
+        template.state().toCanvas = true;
+        template.state().priority = 37;
+
+        AnimoVariable clone = (AnimoVariable) template.copyAs("TEMPLATE_1");
+
+        assertTrue(clone.isRenderedOnCanvas());
+        assertEquals(37, clone.getPriority());
+    }
+
+    @Test
+    void setFrameAcceptsNumericEventIndex() {
+        FrameData firstFrame = new FrameData();
+        FrameData secondFrame = new FrameData();
+        pl.genschu.bloomooemulator.objects.Image image = mock(pl.genschu.bloomooemulator.objects.Image.class);
+
+        Event firstEvent = new Event();
+        firstEvent.setName("FIRST");
+        firstEvent.setFramesCount(1);
+        firstEvent.setFramesNumbers(List.of(0));
+        firstEvent.setFrameData(List.of(firstFrame));
+        firstEvent.setFrames(List.of(image));
+
+        Event secondEvent = new Event();
+        secondEvent.setName("SECOND");
+        secondEvent.setFramesCount(1);
+        secondEvent.setFramesNumbers(List.of(0));
+        secondEvent.setFrameData(List.of(secondFrame));
+        secondEvent.setFrames(List.of(image));
+
+        AnimoVariable.AnimoData data = new AnimoVariable.AnimoData(
+                List.of(firstEvent, secondEvent), List.of(image), 1, 2,
+                16, 15, 255, 0, 0, "", "");
+        AnimoVariable animo = new AnimoVariable("ANIMO").withData(data);
+
+        animo.callMethod("SETFRAME", List.of(new IntValue(1), new IntValue(0)));
+
+        assertSame(secondEvent, animo.getCurrentEvent());
+        assertEquals(0, animo.getCurrentFrameNumber());
     }
 
     @Test
