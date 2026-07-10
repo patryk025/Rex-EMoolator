@@ -117,8 +117,10 @@ Priorytet zmienia się ze skryptu metodami [`SETPRIORITY`](../reference/ANIMO.md
 Obiekt zostaje pominięty w rysowaniu, jeśli:
 
 - nie jest widoczny (`VISIBLE = FALSE`, np. po [`HIDE`](../reference/ANIMO.md#hide)), albo
-- w przypadku animacji ma wyłączone rysowanie na kanwie ([`TOCANVAS = FALSE`](../reference/ANIMO.md#tocanvas)) — silnik **nadal odtwarza** taką animację i emituje jej zdarzenia, ale jej nie rysuje, albo
+- w przypadku animacji jej obiekt graficzny nie należy do kanwy ([`TOCANVAS = FALSE`](../reference/ANIMO.md#tocanvas)) — silnik **nadal odtwarza** taką animację i emituje jej zdarzenia, ale obiektu bazowego nie rysuje, albo
 - nie ma jeszcze załadowanej tekstury (bitmapy klatki / obrazu).
+
+`TOCANVAS` steruje członkostwem w liście `CRefreshScreen`, a nie wyborem drugiej warstwy renderowania. Ważnym wyjątkiem jest `CMC_Animo::clone`: klon grafiki jest zawsze dodawany przez `CRefreshScreen::put`. Gdy wzorzec nie należał do kanwy, `GetPriority` zwraca `-1`, a kod klonowania podstawia priorytet `0`. Dlatego częsty wzorzec zasobowy `VISIBLE=FALSE, TOCANVAS=FALSE` może służyć jako niewidoczny szablon, którego klony skrypt pokazuje przez `SHOW`.
 
 ## Przycinanie (clipping)
 

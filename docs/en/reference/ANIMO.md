@@ -68,7 +68,9 @@ Rendering priority (`Z`) relative to other scene objects.
 BOOL TOCANVAS
 ```
 
-Whether the animation is drawn on the scene's main canvas. Setting this to `FALSE` hides the animation visually, but the engine keeps playing it and firing the associated events.
+Whether the base animation object is registered with `CRefreshScreen`, the list of objects drawn on the scene canvas. Setting this to `FALSE` does not stop playback or event emission, but the base object itself is not drawn.
+
+Cloning is a special case inherited from the original engine: `CLONE` always registers an `ANIMO` clone on the canvas. If its template had `TOCANVAS = FALSE`, the clone starts at priority `0`. Its copied `VISIBLE` state still determines whether it is actually visible. `TOCANVAS` does not select a separate layer above the canvas.
 
 ### VISIBLE
 
@@ -425,7 +427,7 @@ ANNREXGLOWA^ISPLAYING("SPI");
 BOOL ISVISIBLE()
 ```
 
-Checks whether the animation is visible ([`VISIBLE`](#visible) = `TRUE` and [`TOCANVAS`](#tocanvas) = `TRUE`).
+Returns the animation's visibility state (`VISIBLE`). It does not check whether [`TOCANVAS`](#tocanvas) registered the object on the canvas.
 
 **Returns**: [`BOOL`](BOOL.md) — `TRUE` if the animation is visible.
 
@@ -660,14 +662,18 @@ ANNKON^SETFPS([IKONFPS*8]);
 
 ```
 void SETFRAME(INTEGER frameNumber)
+void SETFRAME(INTEGER eventId, INTEGER frameNumber)
 void SETFRAME(STRING eventName, INTEGER frameNumber)
 void SETFRAME(STRING eventName, STRING frameName)
 ```
 
-Sets the animation to a specific frame. The one-argument variant selects a frame by its global index. The two-argument variant selects an event and then a position in it (by frame number or frame name).
+Sets the animation to a specific frame. The one-argument variant selects a frame by its global index. The two-argument variant selects an event by index or name and then a position in it by frame number or frame name.
+
+The original engine has an important quirk: when a textual event name does not exist, `CAnimo::getFrameNo` returns `0`, so `SETFRAME` uses the first event.
 
 **Parameters**
 
+- `eventId` — event index from `0`.
 - `eventName` — event name.
 - `frameNumber` — frame index within an event (from `0`) or a global frame index.
 - `frameName` — specific frame name within the event.

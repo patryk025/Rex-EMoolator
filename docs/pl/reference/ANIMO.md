@@ -68,7 +68,9 @@ Priorytet renderowania (`Z`) względem innych obiektów na scenie.
 BOOL TOCANVAS
 ```
 
-Określa, czy animacja jest rysowana na głównej kanwie sceny. Ustawienie `FALSE` ukrywa animację wizualnie, ale silnik nadal ją odtwarza i emituje powiązane zdarzenia.
+Określa, czy bazowy obiekt animacji zostaje zarejestrowany w `CRefreshScreen`, czyli na liście obiektów rysowanych. Ustawienie `FALSE` nie zatrzymuje odtwarzania ani emisji zdarzeń; sam obiekt bazowy nie jest jednak rysowany.
+
+Klonowanie jest szczególnym przypadkiem odziedziczonym z oryginalnego silnika: `CLONE` zawsze rejestruje klon `ANIMO` na kanwie. Jeżeli wzorzec miał `TOCANVAS = FALSE`, klon zaczyna z priorytetem `0`. Jego skopiowane `VISIBLE` nadal decyduje, czy faktycznie jest widoczny. `TOCANVAS` nie oznacza osobnej warstwy nad kanwą.
 
 ### VISIBLE
 
@@ -425,7 +427,7 @@ ANNREXGLOWA^ISPLAYING("SPI");
 BOOL ISVISIBLE()
 ```
 
-Sprawdza, czy animacja jest widoczna ([`VISIBLE`](#visible) = `TRUE` i [`TOCANVAS`](#tocanvas) = `TRUE`).
+Zwraca stan widoczności animacji (`VISIBLE`). Nie sprawdza, czy obiekt jest zarejestrowany na kanwie przez [`TOCANVAS`](#tocanvas).
 
 **Zwraca**: [`BOOL`](BOOL.md) — `TRUE`, jeżeli animacja jest widoczna.
 
@@ -660,14 +662,18 @@ ANNKON^SETFPS([IKONFPS*8]);
 
 ```
 void SETFRAME(INTEGER frameNumber)
+void SETFRAME(INTEGER eventId, INTEGER frameNumber)
 void SETFRAME(STRING eventName, INTEGER frameNumber)
 void SETFRAME(STRING eventName, STRING frameName)
 ```
 
-Ustawia animację na konkretną klatkę. Wariant z jednym argumentem ustawia klatkę po jej globalnym indeksie. Wariant dwuargumentowy wybiera zdarzenie, a następnie pozycję w nim (przez numer lub nazwę klatki).
+Ustawia animację na konkretną klatkę. Wariant z jednym argumentem ustawia klatkę po jej globalnym indeksie. Wariant dwuargumentowy wybiera zdarzenie przez indeks lub nazwę, a następnie pozycję w nim przez numer lub nazwę klatki.
+
+Oryginalny silnik ma istotny quirk: jeżeli tekstowa nazwa zdarzenia nie istnieje, `CAnimo::getFrameNo` zwraca `0`, więc `SETFRAME` używa pierwszego zdarzenia.
 
 **Parametry**
 
+- `eventId` — indeks zdarzenia od `0`.
 - `eventName` — nazwa zdarzenia.
 - `frameNumber` — indeks klatki w zdarzeniu (od `0`) lub globalny indeks klatki.
 - `frameName` — nazwa konkretnej klatki w zdarzeniu.

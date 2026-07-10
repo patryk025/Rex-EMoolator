@@ -117,8 +117,10 @@ Priority is changed from scripts with [`SETPRIORITY`](../reference/ANIMO.md#setp
 An object is skipped during drawing if:
 
 - it is not visible (`VISIBLE = FALSE`, e.g. after [`HIDE`](../reference/ANIMO.md#hide)), or
-- for an animation, drawing to the canvas is disabled ([`TOCANVAS = FALSE`](../reference/ANIMO.md#tocanvas)) — the engine **still plays** such an animation and emits its events, but does not draw it, or
+- for an animation, its graphics object is not a member of the canvas ([`TOCANVAS = FALSE`](../reference/ANIMO.md#tocanvas)) — the engine **still plays** such an animation and emits its events, but does not draw the base object, or
 - it has no texture loaded yet (the frame/image bitmap).
+
+`TOCANVAS` controls membership in the `CRefreshScreen` list; it does not select a second rendering layer. One important exception is `CMC_Animo::clone`: the cloned graphics object is always added through `CRefreshScreen::put`. When the template was not on the canvas, `GetPriority` returns `-1` and the clone code substitutes priority `0`. This is why the common resource pattern `VISIBLE=FALSE, TOCANVAS=FALSE` can define an invisible template whose clones are later revealed by script calls to `SHOW`.
 
 ## Clipping
 
