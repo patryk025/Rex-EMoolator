@@ -211,6 +211,22 @@ jobs:
           RELEASE_VERSION_NUMBER: ${{ needs.prepare.outputs.version_number }}
           APPLICATION_RUNTIME_JAVA_HOME: ${{ env.JAVA_21_HOME }}
 
+      - name: Normalize macOS package filename
+        if: runner.os == 'macOS'
+        shell: bash
+        run: |
+          VERSION="${RELEASE_VERSION#v}"
+          DMG="$(find desktop/build/jpackage -maxdepth 1 -name '*.dmg' -print -quit)"
+
+          if [[ -z "$DMG" ]]; then
+            echo "DMG file not found."
+            exit 1
+          fi
+
+          mv "$DMG" "desktop/build/jpackage/Rex-EMoolator-${VERSION}.dmg"
+        env:
+          RELEASE_VERSION: ${{ needs.prepare.outputs.version_name }}
+
       - name: List generated files
         shell: bash
         run: |
