@@ -198,6 +198,30 @@ def renderThirdPartyNotices = { File reportFile ->
     lines.join('\n')
 }
 
+def normalizeJpackageVersion = { Object rawValue ->
+    def rawVersion = rawValue?.toString()?.trim()
+
+    if (!rawVersion) {
+        throw new GradleException('Wersja wydania jest pusta.')
+    }
+
+    def version = rawVersion.startsWith('v')
+            ? rawVersion.substring(1)
+            : rawVersion
+
+    def matcher = version =~ /^(\d+(?:\.\d+)*)(?:-[0-9A-Za-z.-]+)?(?:\+[0-9A-Za-z.-]+)?$/
+
+    if (!matcher.matches()) {
+        throw new GradleException(
+                "Incorrect version '${rawVersion}'. " +
+                        "Expected format is e.g., v0.4.2, v0.4.2-beta.1 " +
+                        "or v0.4.2+build.123."
+        )
+    }
+
+    matcher.group(1)
+}
+
 tasks.register('updateThirdPartyNotices') {
     group = 'documentation'
     description = 'Regenerates THIRD-PARTY-NOTICES.md from the Gradle license report.'
@@ -358,52 +382,106 @@ project(":desktop") {
     // Builds installer for current OS: Windows -> .exe, macOS -> .dmg, Linux -> .deb.
     tasks.register('jpackage', Exec) {
         group = 'distribution'
-        description = 'Buduje natywny instalator aplikacji desktop przy użyciu jpackage.'
+        description = 'Builds a native installer for the current OS using jpackage.'
+
         dependsOn tasks.named('prepareJpackageInput')
 
         def os = org.gradle.internal.os.OperatingSystem.current()
-        def thinJarTask = tasks.named('jar')
-        def inputDir = layout.buildDirectory.dir('jpackage-input').get().asFile
-        def destDir = layout.buildDirectory.dir('jpackage').get().asFile
-        def iconsDir = rootProject.file('assets/icons')
 
-        def rawVersion = System.getenv('RELEASE_VERSION') ?: project.version.toString()
-        def versionMatch = (rawVersion =~ /^v?(\d+\.\d+(?:\.\d+)?)$/)
-        def appVersion = versionMatch.matches() ? versionMatch.group(1) : '1.0.0'
+        def thinJarTask = tasks.named('jar')
+        def inputDir = layout.buildDirectory.dir('jpackage-input')
+        def destDir = layout.buildDirectory.dir('jpackage')
+        def iconsDir = rootProject.layout.projectDirectory.dir('assets/icons')
+
+        def releaseVersionProvider = providers
+                .environmentVariable('RELEASE_VERSION')
+                .orElse(providers.provider { project.version.toString() })
+
+        def packageVersionProvider = providers
+                .environmentVariable('PACKAGE_VERSION')
+                .orElse(releaseVersionProvider)
+
+        def jpackageJavaHomeProvider = providers
+                .environmentVariable('JPACKAGE_JAVA_HOME')
+                .orElse(providers.systemProperty('java.home'))
 
         doFirst {
-            destDir.deleteDir()
-            destDir.mkdirs()
+            def rawVersion = packageVersionProvider.get().trim()
+            def appVersion = normalizeJpackageVersion(rawVersion)
 
+            def inputDirectory = inputDir.get().asFile
+            def destinationDirectory = destDir.get().asFile
             def jar = thinJarTask.get().archiveFile.get().asFile
-            def jpackageBin = "${System.getProperty('java.home')}/bin/jpackage"
+
+            destinationDirectory.deleteDir()
+            destinationDirectory.mkdirs()
+
+            def jpackageJavaHome = file(jpackageJavaHomeProvider.get())
+            def jpackageExecutable = new File(
+                    jpackageJavaHome,
+                    os.windows ? 'bin/jpackage.exe' : 'bin/jpackage'
+            )
+
+            if (!jpackageExecutable.isFile()) {
+                throw new GradleException(
+                        "jpackage not found: ${jpackageExecutable.absolutePath}"
+                )
+            }
 
             def command = [
-                    jpackageBin,
+                    jpackageExecutable.absolutePath,
                     '--name', 'Rex-EMoolator',
                     '--app-version', appVersion,
                     '--vendor', 'Rex-EMoolator',
-                    '--input', inputDir.absolutePath,
+                    '--input', inputDirectory.absolutePath,
                     '--main-jar', jar.name,
                     '--main-class', 'pl.genschu.bloomooemulator.GameListFrame',
-                    '--dest', destDir.absolutePath
+                    '--dest', destinationDirectory.absolutePath
             ]
 
             if (os.windows) {
-                def ico = new File(iconsDir, 'icon.ico')
-                command += ['--type', 'exe', '--win-dir-chooser', '--win-menu', '--win-shortcut']
-                if (ico.exists()) command += ['--icon', ico.absolutePath]
+                def ico = iconsDir.file('icon.ico').asFile
+
+                command += [
+                        '--type', 'exe',
+                        '--win-dir-chooser',
+                        '--win-menu',
+                        '--win-shortcut'
+                ]
+
+                if (ico.isFile()) {
+                    command += ['--icon', ico.absolutePath]
+                }
             } else if (os.macOsX) {
-                def icns = new File(iconsDir, 'icon.icns')
+                def icns = iconsDir.file('icon.icns').asFile
+
                 command += ['--type', 'dmg']
-                if (icns.exists()) command += ['--icon', icns.absolutePath]
+
+                if (icns.isFile()) {
+                    command += ['--icon', icns.absolutePath]
+                }
+            } else if (os.linux) {
+                def png = iconsDir.file('icon.png').asFile
+
+                command += [
+                        '--type', 'deb',
+                        '--linux-shortcut'
+                ]
+
+                if (png.isFile()) {
+                    command += ['--icon', png.absolutePath]
+                }
             } else {
-                def png = new File(iconsDir, 'icon.png')
-                command += ['--type', 'deb', '--linux-shortcut']
-                if (png.exists()) command += ['--icon', png.absolutePath]
+                throw new GradleException(
+                        "Unsupported operating system: ${os.familyName}"
+                )
             }
 
-            logger.lifecycle("Uruchamiam jpackage (wersja ${appVersion}, ${os.familyName}): ${command.join(' ')}")
+            logger.lifecycle(
+                    "Running jpackage ${jpackageExecutable} " +
+                            "(version ${appVersion}, OS ${os.familyName})"
+            )
+
             commandLine command
         }
     }
