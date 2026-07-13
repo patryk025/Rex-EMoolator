@@ -28,6 +28,10 @@ public class ButtonHandler {
 
     public void handleMouseInput(int x, int y, boolean isPressed, boolean justPressed,
                                  boolean justReleased, MouseVariable mouseVariable, boolean mouseEnabled) {
+        if (isPressed || justReleased) {
+            inputManager.getDragManager().update(x, y);
+        }
+
         Context sceneContext = (Context) game.getCurrentSceneContext();
 
         // Get all buttons from the context and class instances
@@ -174,7 +178,7 @@ public class ButtonHandler {
             Context owner = scopedButton.owner();
             if (scopedButton == focusedButton) {
                 if (variable instanceof ButtonVariable btn) {
-                    processButtonVariable(btn, owner, justPressed, true);
+                    processButtonVariable(btn, owner, x, y, justPressed, true);
                 } else if (variable instanceof AnimoVariable animo) {
                     processAnimoVariable(animo, owner, justPressed, true);
                 }
@@ -218,7 +222,7 @@ public class ButtonHandler {
         return 0;
     }
 
-    private void processButtonVariable(ButtonVariable button, Context context,
+    private void processButtonVariable(ButtonVariable button, Context context, int mouseX, int mouseY,
                                        boolean justPressed, boolean shouldFocus) {
         if (!button.isEnabled()) return;
 
@@ -226,7 +230,10 @@ public class ButtonHandler {
             if (justPressed) {
                 if (inputManager.getActiveButton() == null) {
                     inputManager.setActiveButton(button);
-                    button.changeState(ButtonEvent.PRESSED, context);
+                    inputManager.getDragManager().start(button, context, mouseX, mouseY);
+                    if (inputManager.getActiveButton() == button) {
+                        button.changeState(ButtonEvent.PRESSED, context);
+                    }
                 }
             } else if (button.getButtonState() != ButtonState.HOVERED) {
                 button.changeState(ButtonEvent.FOCUS_ON, context);
@@ -283,6 +290,9 @@ public class ButtonHandler {
                     .orElse((Context) game.getCurrentSceneContext());
             if (activeButton instanceof ButtonVariable btn) {
                 btn.changeState(ButtonEvent.RELEASED, owner);
+                inputManager.getDragManager().end(
+                        (int) inputManager.getMousePosition().x,
+                        (int) inputManager.getMousePosition().y);
             } else if (activeButton instanceof AnimoVariable animo) {
                 animo.changeButtonState(ButtonEvent.RELEASED, owner);
             }

@@ -71,6 +71,14 @@ The following fields are stored as metadata and do not directly affect engine be
 
 ## Methods
 
+### GETDRAGGEDNAME
+
+```
+STRING GETDRAGGEDNAME()
+```
+
+Returns the name of the graphics object currently dragged by a [`BUTTON`](BUTTON.md). Returns an empty string outside a drag operation.
+
 ### GETMAXHSPRIORITY
 
 ```

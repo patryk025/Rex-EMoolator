@@ -118,6 +118,14 @@ public record SceneVariable(
             return MethodResult.returns(new IntValue(thisVar.maxHotSpotZ));
         })),
 
+        Map.entry("GETDRAGGEDNAME", MethodSpec.of((self, args, ctx) -> {
+            Game game = ctx != null ? ctx.getGame() : null;
+            String draggedName = game != null && game.getInputManager() != null
+                    ? game.getInputManager().getDragManager().getDraggedName()
+                    : "";
+            return MethodResult.returns(new StringValue(draggedName));
+        })),
+
         Map.entry("GETPLAYINGANIMO", MethodSpec.of((self, args, ctx) -> {
             if (args.isEmpty()) {
                 throw new IllegalArgumentException("GETPLAYINGANIMO requires 1 argument");

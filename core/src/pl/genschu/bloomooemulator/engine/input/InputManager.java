@@ -83,6 +83,7 @@ public class InputManager implements Disposable {
     private EngineVariable activeButton = null;
 
     // Input handlers
+    private final DragManager dragManager;
     private final ButtonHandler buttonHandler;
     private final KeyboardHandler keyboardHandler;
     // Captures typed characters for the ONCHAR channel.
@@ -94,6 +95,7 @@ public class InputManager implements Disposable {
         this.game = game;
         this.config = config;
 
+        this.dragManager = new DragManager(game);
         this.buttonHandler = new ButtonHandler(game, this);
         this.keyboardHandler = new KeyboardHandler(game);
     }
@@ -383,6 +385,8 @@ public class InputManager implements Disposable {
         // Reset mouse state on resize
         mousePressed = false;
         mousePrevPressed = false;
+        dragManager.cancel();
+        activeButton = null;
     }
 
     // Helper method to trigger a signal on an interpreter variable.
@@ -395,13 +399,19 @@ public class InputManager implements Disposable {
     }
 
     public void setActiveButton(EngineVariable activeButton) {
+        if (activeButton == null) dragManager.cancel();
         this.activeButton = activeButton;
     }
 
     public void clearActiveButton(EngineVariable button) {
         if (this.activeButton == button || button == null) {
+            dragManager.cancel();
             this.activeButton = null;
         }
+    }
+
+    public DragManager getDragManager() {
+        return dragManager;
     }
 
     public Vector2 getMousePosition() {
@@ -443,5 +453,6 @@ public class InputManager implements Disposable {
 
     @Override
     public void dispose() {
+        dragManager.cancel();
     }
 }

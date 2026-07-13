@@ -62,6 +62,25 @@ class ButtonVariableTest {
         assertTrue(standard.isVisible());
     }
 
+    @Test
+    void initReadsDraggingConfigurationAndMethodsToggleIt() {
+        ButtonVariable button = new ButtonVariable("BTN");
+        ctx.setVariable("BTN", button);
+        ctx.setAttribute("BTN", "DRAG", "DRAG_IMAGE");
+        ctx.setAttribute("BTN", "DRAGGABLE", "TRUE");
+
+        button.init(ctx);
+
+        assertTrue(button.isDraggable());
+        assertEquals("DRAG_IMAGE", button.getDragName());
+
+        button.callMethod("DISABLEDRAGGING");
+        assertFalse(button.isDraggable());
+
+        button.callMethod("ENABLEDRAGGING");
+        assertTrue(button.isDraggable());
+    }
+
     private static ImageVariable standardImage() {
         ImageVariable image = new ImageVariable("STD");
         image.state().rect = new Box2D(0, -10, 10, 0);

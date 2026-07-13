@@ -218,6 +218,7 @@ public record ImageVariable(
     public Image getImage() { return state.image; }
     public int getPosX() { return state.posX; }
     public int getPosY() { return state.posY; }
+    public int getPriority() { return state.priority; }
     public float getOpacity() { return state.opacity; }
     public Box2D getRect() { return state.rect; }
     public Box2D getClippingRect() { return state.clippingRect; }
@@ -228,6 +229,18 @@ public record ImageVariable(
     public void addFilter(Filter filter) { state.filters.add(filter); }
     public void removeFilter(Filter filter) { state.filters.remove(filter); }
     public AlphaMaskBinding getAlphaMask() { return state.alphaMask; }
+
+    public void moveBy(int dx, int dy, pl.genschu.bloomooemulator.engine.Game game) {
+        state.posX += dx;
+        state.posY += dy;
+        state.updateRect();
+        if (game != null) game.markCollisionDirty(this);
+    }
+
+    public void setPriority(int priority) {
+        state.priority = priority;
+        state.renderOrder = RenderOrder.next();
+    }
 
     public record AlphaMaskBinding(ImageVariable mask, int posX, int posY) {}
 
@@ -373,12 +386,7 @@ public record ImageVariable(
             ImageVariable img = (ImageVariable) self;
             int dx = ArgumentHelper.getInt(args.get(0));
             int dy = ArgumentHelper.getInt(args.get(1));
-            img.state.posX += dx;
-            img.state.posY += dy;
-            img.state.updateRect();
-            if (ctx != null && ctx.getGame() != null) {
-                ctx.getGame().markCollisionDirty(img);
-            }
+            img.moveBy(dx, dy, ctx != null ? ctx.getGame() : null);
             return MethodResult.noReturn();
         })),
 
@@ -438,8 +446,7 @@ public record ImageVariable(
 
         Map.entry("SETPRIORITY", MethodSpec.of((self, args, ctx) -> {
             ImageVariable img = (ImageVariable) self;
-            img.state.priority = ArgumentHelper.getInt(args.get(0));
-            img.state.renderOrder = RenderOrder.next();
+            img.setPriority(ArgumentHelper.getInt(args.get(0)));
             return MethodResult.noReturn();
         })),
 

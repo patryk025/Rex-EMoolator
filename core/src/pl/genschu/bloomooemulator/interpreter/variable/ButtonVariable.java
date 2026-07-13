@@ -35,6 +35,8 @@ public record ButtonVariable(
         public String sndStandardName = null;
         public String sndOnMoveName = null;
         public String sndOnClickName = null;
+        public String dragName = null;
+        public boolean draggable = false;
 
         public ButtonVarState() {}
 
@@ -51,6 +53,8 @@ public record ButtonVariable(
             copy.sndStandardName = this.sndStandardName;
             copy.sndOnMoveName = this.sndOnMoveName;
             copy.sndOnClickName = this.sndOnClickName;
+            copy.dragName = this.dragName;
+            copy.draggable = this.draggable;
             return copy;
         }
 
@@ -139,6 +143,12 @@ public record ButtonVariable(
 
         String sndClick = context.attributes().get(name, "SNDONCLICK");
         if (sndClick != null) state.sndOnClickName = sndClick;
+
+        String drag = context.attributes().get(name, "DRAG");
+        if (drag != null && !drag.isBlank()) state.dragName = drag;
+
+        String draggable = context.attributes().get(name, "DRAGGABLE");
+        if (draggable != null) state.draggable = draggable.equalsIgnoreCase("TRUE");
 
         // Parse RECT attribute
         String rectAttr = context.attributes().get(name, "RECT");
@@ -329,6 +339,8 @@ public record ButtonVariable(
 
     public ButtonState getButtonState() { return state.buttonState; }
     public Box2D getRect() { return state.rect; }
+    public String getDragName() { return state.dragName; }
+    public boolean isDraggable() { return state.draggable; }
 
     public boolean isEnabled() {
         return state.buttonState != ButtonState.DISABLED && state.buttonState != ButtonState.DISABLED_BUT_VISIBLE;
@@ -378,6 +390,16 @@ public record ButtonVariable(
         Map.entry("ENABLE", MethodSpec.of((self, args, ctx) -> {
             ButtonVariable btn = (ButtonVariable) self;
             btn.changeState(ButtonEvent.ENABLE, ctx.context());
+            return MethodResult.noReturn();
+        })),
+
+        Map.entry("ENABLEDRAGGING", MethodSpec.of((self, args, ctx) -> {
+            ((ButtonVariable) self).state.draggable = true;
+            return MethodResult.noReturn();
+        })),
+
+        Map.entry("DISABLEDRAGGING", MethodSpec.of((self, args, ctx) -> {
+            ((ButtonVariable) self).state.draggable = false;
             return MethodResult.noReturn();
         })),
 

@@ -611,6 +611,13 @@ public record AnimoVariable(
         state.posY = posY;
     }
 
+    public void moveBy(int dx, int dy, pl.genschu.bloomooemulator.engine.Game game) {
+        state.posX += dx;
+        state.posY += dy;
+        updateRect();
+        if (game != null) game.markCollisionDirty(this);
+    }
+
     // ========================================
     // PLAYBACK OBSERVERS
     // ========================================
@@ -1334,12 +1341,10 @@ public record AnimoVariable(
             if (args.size() < 2) {
                 throw new IllegalArgumentException("MOVE requires 2 arguments");
             }
-            thisVar.state.posX += ArgumentHelper.getInt(args.get(0));
-            thisVar.state.posY += ArgumentHelper.getInt(args.get(1));
-            thisVar.updateRect();
-            if (ctx != null && ctx.getGame() != null) {
-                ctx.getGame().markCollisionDirty(thisVar);
-            }
+            thisVar.moveBy(
+                    ArgumentHelper.getInt(args.get(0)),
+                    ArgumentHelper.getInt(args.get(1)),
+                    ctx != null ? ctx.getGame() : null);
             return MethodResult.noReturn();
         })),
 

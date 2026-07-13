@@ -71,6 +71,14 @@ Następujące pola są zapisywane jako metadane i nie wpływają bezpośrednio n
 
 ## Metody
 
+### GETDRAGGEDNAME
+
+```
+STRING GETDRAGGEDNAME()
+```
+
+Zwraca nazwę obiektu graficznego aktualnie przeciąganego przez [`BUTTON`](BUTTON.md). Poza operacją przeciągania zwraca pusty ciąg.
+
 ### GETMAXHSPRIORITY
 
 ```

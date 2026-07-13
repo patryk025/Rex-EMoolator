@@ -16,6 +16,14 @@ Internally the button is a small state machine. Every state transition automatic
 
 ## Fields
 
+### DRAG
+
+```
+STRING DRAG
+```
+
+Name of the [`ANIMO`](ANIMO.md) or [`IMAGE`](IMAGE.md) variable moved while dragging. This field is optional. If it does not resolve to a graphics object, the engine falls back to [`GFXSTANDARD`](#gfxstandard), then [`GFXONMOVE`](#gfxonmove).
+
 ### DRAGGABLE
 
 ```
@@ -148,6 +156,22 @@ B_GLOBAL_PAUSE^ENABLE();
 BTNEXIT^ENABLE();
 ```
 
+### ENABLEDRAGGING
+
+```
+void ENABLEDRAGGING()
+```
+
+Enables dragging, equivalent to setting [`DRAGGABLE`](#draggable) to `TRUE`.
+
+### DISABLEDRAGGING
+
+```
+void DISABLEDRAGGING()
+```
+
+Prevents new drag operations from starting.
+
 ### SETPRIORITY
 
 ```
@@ -238,7 +262,11 @@ Fired together with [`ONRELEASED`](#onreleased) — confirms that a full click (
 
 ### ONSTARTDRAGGING
 
-Fired when dragging begins (only for buttons with [`DRAGGABLE`](#draggable) set to `TRUE`).
+Fired when dragging begins (only for buttons with [`DRAGGABLE`](#draggable) set to `TRUE`). At this point [`SCENE^GETDRAGGEDNAME()`](SCENE.md#getdraggedname) returns the moved graphics object's name.
+
+### ONDRAGGING
+
+Fired while the graphics object is moving whenever the cursor position changes.
 
 ### ONENDDRAGGING
 

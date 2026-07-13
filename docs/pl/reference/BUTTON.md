@@ -16,6 +16,14 @@ Wewnętrznie przycisk jest maszyną stanów. Każde przejście stanu automatyczn
 
 ## Pola
 
+### DRAG
+
+```
+STRING DRAG
+```
+
+Nazwa zmiennej [`ANIMO`](ANIMO.md) lub [`IMAGE`](IMAGE.md), która ma być przesuwana podczas przeciągania. Pole jest opcjonalne. Jeżeli nie wskazuje prawidłowej grafiki, silnik używa kolejno [`GFXSTANDARD`](#gfxstandard), a następnie [`GFXONMOVE`](#gfxonmove).
+
 ### DRAGGABLE
 
 ```
@@ -148,6 +156,22 @@ B_GLOBAL_PAUSE^ENABLE();
 BTNEXIT^ENABLE();
 ```
 
+### ENABLEDRAGGING
+
+```
+void ENABLEDRAGGING()
+```
+
+Włącza możliwość przeciągania przycisku, analogicznie do ustawienia [`DRAGGABLE`](#draggable) na `TRUE`.
+
+### DISABLEDRAGGING
+
+```
+void DISABLEDRAGGING()
+```
+
+Wyłącza rozpoczynanie nowych operacji przeciągania.
+
 ### SETPRIORITY
 
 ```
@@ -238,7 +262,11 @@ Wywoływany razem z [`ONRELEASED`](#onreleased) — sygnał potwierdzający, że
 
 ### ONSTARTDRAGGING
 
-Wywoływany po rozpoczęciu przeciągania przycisku (dostępne tylko dla przycisków z polem [`DRAGGABLE`](#draggable) ustawionym na `TRUE`).
+Wywoływany po rozpoczęciu przeciągania przycisku (dostępne tylko dla przycisków z polem [`DRAGGABLE`](#draggable) ustawionym na `TRUE`). W tym momencie [`SCENE^GETDRAGGEDNAME()`](SCENE.md#getdraggedname) zwraca nazwę przesuwanej grafiki.
+
+### ONDRAGGING
+
+Wywoływany podczas przesuwania grafiki, gdy pozycja kursora ulegnie zmianie.
 
 ### ONENDDRAGGING
 
