@@ -95,6 +95,11 @@ public record DatabaseVariable(
             return MethodResult.returns(new IntValue(thisVar.state.rowsNo()));
         })),
 
+        Map.entry("GETCURSORPOS", MethodSpec.of((self, args, ctx) -> {
+            DatabaseVariable thisVar = (DatabaseVariable) self;
+            return MethodResult.returns(new IntValue(thisVar.state.currentRowIndex()));
+        })),
+
         Map.entry("NEXT", MethodSpec.of((self, args, ctx) -> {
             DatabaseVariable thisVar = (DatabaseVariable) self;
             thisVar.state.next();

@@ -437,7 +437,10 @@ public class ASTInterpreter {
     // === METHOD CALLS ===
 
     private ExecutionResult executeMethodCall(MethodCallNode node) {
-        Variable target = resolveMethodTarget(node.target(), node.location());
+        StructAccessNode structAccess = node.target() instanceof StructAccessNode access ? access : null;
+        Variable target = structAccess != null
+            ? resolveStructFieldMethodTarget(structAccess)
+            : resolveMethodTarget(node.target(), node.location());
 
         // Evaluate all arguments
         List<Value> arguments = new ArrayList<>(node.arguments().size());
@@ -451,6 +454,9 @@ public class ASTInterpreter {
         MethodResult result;
         try {
             result = target.callMethod(node.methodName(), arguments, methodContext);
+            if (structAccess != null) {
+                updateStructField(structAccess, target.value());
+            }
         } catch (RuntimeException e) {
             throw new InterpreterException(
                 "Method call failed: " + node.methodName(),
@@ -465,6 +471,52 @@ public class ASTInterpreter {
             case ONE_BREAK -> OneBreakResult.INSTANCE;
             case NONE -> new NormalResult(result.getReturnValue());
         };
+    }
+
+    /**
+     * Struct fields support the same mutating methods as primitive variables
+     * (for example POSITIONS|A0^SET(99)). Run the method on a typed primitive
+     * view and copy the resulting value back into the struct afterwards.
+     */
+    private Variable resolveStructFieldMethodTarget(StructAccessNode node) {
+        Variable variable = context.getVariable(node.structName());
+        if (!(variable instanceof StructVariable struct)) {
+            throw new InterpreterException(
+                node.structName() + " is not a STRUCT",
+                exec,
+                node.location()
+            );
+        }
+
+        int fieldIndex = struct.getFieldIndex(node.fieldName());
+        if (fieldIndex < 0) {
+            throw new InterpreterException(
+                "Struct field not found: " + node.structName() + "|" + node.fieldName(),
+                exec,
+                node.location()
+            );
+        }
+
+        String targetName = node.structName() + "|" + node.fieldName();
+        Value value = struct.getFieldByIndex(fieldIndex);
+        String declaredType = fieldIndex < struct.types().size()
+            ? struct.types().get(fieldIndex).toUpperCase()
+            : "STRING";
+        boolean unset = value == NullValue.INSTANCE;
+
+        return switch (declaredType) {
+            case "INT", "INTEGER" -> new IntegerVariable(targetName, unset ? 0 : value.toInt().value());
+            case "DOUBLE" -> new DoubleVariable(targetName, unset ? 0.0 : value.toDouble().value());
+            case "BOOL", "BOOLEAN" -> new BoolVariable(targetName, !unset && value.toBool().value());
+            default -> new StringVariable(targetName, unset ? "" : value.toStringValue().value());
+        };
+    }
+
+    private void updateStructField(StructAccessNode node, Value value) {
+        Variable variable = context.getVariable(node.structName());
+        if (variable instanceof StructVariable struct) {
+            struct.withValueAt(struct.getFieldIndex(node.fieldName()), value);
+        }
     }
 
     private ExecutionResult executePointerDeref(PointerDerefNode node) {

@@ -303,7 +303,18 @@ public class CodeParser {
 
     private static ASTNode parseStarTarget(SourceSpan normalizedLine, int depth) {
         String text = normalizedLine.text();
-        int closeBracket = text.indexOf(']');
+        // A closing bracket only belongs to the dereference target when the
+        // target itself starts with '['. Looking for any ']' in the whole
+        // call made e.g. *NAME^MOVE([X], [MOUSE^GETPOSY()]) caused the parser
+        // to skip the real
+        // target caret and treat part of the argument list as the target.
+        int targetStart = 1;
+        while (targetStart < text.length() && Character.isWhitespace(text.charAt(targetStart))) {
+            targetStart++;
+        }
+        int closeBracket = targetStart < text.length() && text.charAt(targetStart) == '['
+            ? text.indexOf(']', targetStart + 1)
+            : -1;
         int searchFrom = closeBracket >= 0 ? closeBracket + 1 : 1;
         int caretIdx = text.indexOf('^', searchFrom);
 

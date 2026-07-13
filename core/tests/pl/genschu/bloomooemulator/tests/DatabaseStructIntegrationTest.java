@@ -147,6 +147,9 @@ class DatabaseStructIntegrationTest {
         assertEquals(2, db.state().currentRowIndex());
         assertEquals(List.of("Player3", "60"), db.state().currentRow());
 
+        result = db.callMethod("GETCURSORPOS", List.of());
+        assertEquals(2, result.getReturnValue().toInt().value());
+
         // FIND
         result = db.callMethod("FIND", List.of(
             new StringValue("NAME"),

@@ -207,6 +207,11 @@ public class CodeParserTest {
                 arguments("{@RETURN(*TEST_VALUE_NAME^GET());}", 5), // access by STRING variable
                 arguments("{@RETURN(*[\"TEST_VALUE_\"+TEST_NO]^GET());}", 5), // access by arithmetic operation
                 arguments("{@RETURN(*[\"TEST_VALUE_\"+TEST_NO+1]^GET());}", "TEST_VALUE_11"), // access to non-existent variable
+                // A bracket in the method arguments belongs to the argument,
+                // not to the pointer target.
+                arguments("{*TEST_VALUE_NAME^SET([TEST_BEH^RUN()+5]);@RETURN(TEST_VALUE_1);}", 7),
+                // Struct fields are writable method targets (used by DARRAY).
+                arguments("{TEST_STRUCT|VAL^SET(9);@RETURN(TEST_STRUCT|VAL);}", 9),
 
                 arguments("{@INT(\"B\",0);@RETURN(B);B^SET(1);}", 0), // RETURN only sets value to return, is not exiting the behaviour
                 arguments("{@INT(\"B\",0);@RETURN(B);B^SET(1);@RETURN(B);B^SET(2);}", 1) // and every next call of @RETURN overrides previous value
