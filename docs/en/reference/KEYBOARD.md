@@ -18,6 +18,8 @@ Disables keyboard event handling — key signals stop being fired.
 KEYBOARD^DISABLE();
 ```
 
+**Compatibility:** `DISABLE` - `PIKLIB61.DLL` ✅, `PIKLIB71.DLL` ✅, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
+
 ### ENABLE
 
 ```
@@ -31,6 +33,8 @@ Enables keyboard event handling.
 ```
 KEYBOARD^ENABLE();
 ```
+
+**Compatibility:** `ENABLE` - `PIKLIB61.DLL` ✅, `PIKLIB71.DLL` ✅, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
 
 ### GETLATESTKEY
 
@@ -48,6 +52,8 @@ Returns the name of the most recently pressed key.
 KEYBOARD^GETLATESTKEY();
 ```
 
+**Compatibility:** `GETLATESTKEY` - `PIKLIB61.DLL` ⚠️ (1/4), `PIKLIB71.DLL` ✅, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
+
 ### ISENABLED
 
 ```
@@ -63,6 +69,8 @@ Checks whether keyboard handling is enabled.
 ```
 KEYBOARD^ISENABLED();
 ```
+
+**Compatibility:** `ISENABLED` - `PIKLIB61.DLL` ❌, `PIKLIB71.DLL` ❌, `PIKLIB72.DLL` ❌, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
 
 ### ISKEYDOWN
 
@@ -86,6 +94,8 @@ KEYBOARD^ISKEYDOWN("LEFT");
 KEYBOARD^ISKEYDOWN(ARRAYKEYBOARD^GET(0));
 ```
 
+**Compatibility:** `ISKEYDOWN` - `PIKLIB61.DLL` ⚠️ (3/4), `PIKLIB71.DLL` ✅, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
+
 ### SETAUTOREPEAT
 
 ```
@@ -103,6 +113,8 @@ Sets whether the [`ONKEYDOWN`](#onkeydown) signal is fired repeatedly as long as
 ```
 KEYBOARD^SETAUTOREPEAT(FALSE);
 ```
+
+**Compatibility:** `SETAUTOREPEAT` - `PIKLIB61.DLL` ⚠️ (3/4), `PIKLIB71.DLL` ✅, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
 
 ## Signals
 

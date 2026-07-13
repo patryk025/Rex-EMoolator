@@ -46,6 +46,8 @@ FJITTER^LINK("IMGZOOM");
 FROTATE^LINK(ARRCARS^GET(0));
 ```
 
+**Compatibility:** `LINK` - type visible in the export, but with no resolved C++ class - no method data.
+
 ### SETPROPERTY
 
 ```
@@ -80,6 +82,8 @@ FJITTER^SETPROPERTY("MAXJITTER",7);
 FROTATE^SETPROPERTY("ANGLE",IKONANGLE);
 ```
 
+**Compatibility:** `SETPROPERTY` - type visible in the export, but with no resolved C++ class - no method data.
+
 ### UNLINK
 
 ```
@@ -98,6 +102,8 @@ Detaches the filter from a graphics variable — removes the effect.
 FROTATE^UNLINK("ANNKON");
 FROTATE^UNLINK(ARRCARS^GET(VARPLAYER));
 ```
+
+**Compatibility:** `UNLINK` - type visible in the export, but with no resolved C++ class - no method data.
 
 ## Signals
 

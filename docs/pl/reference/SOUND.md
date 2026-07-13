@@ -39,6 +39,8 @@ SNDATGOAL^ISPLAYING();
 SNDREX0^ISPLAYING();
 ```
 
+**Kompatybilność:** `ISPLAYING` - `PIKLIB61.DLL` ❌, `PIKLIB71.DLL` ❌, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
+
 ### LOAD
 
 ```
@@ -59,6 +61,8 @@ SNDWAV^LOAD("$WAVS\NAR_I000.WAV");
 SNDANSWER^LOAD(ARRSEQ^GET(0));
 ```
 
+**Kompatybilność:** `LOAD` - `PIKLIB61.DLL` ✅, `PIKLIB71.DLL` ✅, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
+
 ### PAUSE
 
 ```
@@ -72,6 +76,8 @@ Pauzuje odtwarzanie dźwięku.
 ```
 SND_SHIP_GAZ2^PAUSE();
 ```
+
+**Kompatybilność:** `PAUSE` - `PIKLIB61.DLL` ✅, `PIKLIB71.DLL` ✅, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
 
 ### PLAY
 
@@ -88,6 +94,8 @@ SNDTAKE^PLAY();
 SNDATGOAL^PLAY();
 ```
 
+**Kompatybilność:** `PLAY` - `PIKLIB61.DLL` ✅, `PIKLIB71.DLL` ✅, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
+
 ### RESUME
 
 ```
@@ -101,6 +109,8 @@ Wznawia odtwarzanie zatrzymane wcześniej przez [`PAUSE`](#pause).
 ```
 SND_SHIP_GAZ2^RESUME();
 ```
+
+**Kompatybilność:** `RESUME` - `PIKLIB61.DLL` ✅, `PIKLIB71.DLL` ✅, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
 
 ### SETFREQ
 
@@ -120,6 +130,8 @@ Ustawia bieżące próbkowanie odtwarzanego dźwięku (w hercach). Wartość ró
 SNDENGINE0^SETFREQ(10025);
 ```
 
+**Kompatybilność:** `SETFREQ` - `PIKLIB61.DLL` ❌, `PIKLIB71.DLL` ✅, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
+
 ### STOP
 
 ```
@@ -138,6 +150,8 @@ Zatrzymuje odtwarzanie dźwięku.
 SNDATGOAL^STOP(FALSE);
 SNDIDLEREX^STOP();
 ```
+
+**Kompatybilność:** `STOP` - `PIKLIB61.DLL` ✅, `PIKLIB71.DLL` ✅, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
 
 ## Sygnały
 

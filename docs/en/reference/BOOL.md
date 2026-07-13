@@ -34,6 +34,8 @@ Returns the current value of the variable.
 
 - `BOOL` — the current value of the `VALUE` field.
 
+**Compatibility:** `GET` - `PIKLIB61.DLL` ❌, `PIKLIB71.DLL` ✅, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
+
 ### RESETINI
 
 ```
@@ -41,6 +43,8 @@ void RESETINI()
 ```
 
 Resets the variable's value to the reset value defined in the object's script attributes. The engine looks up the value in the following order: `DEFAULT` → `INIT_VALUE` → `VALUE`; the first one found is used.
+
+**Compatibility:** `RESETINI` - `PIKLIB61.DLL` ✅, `PIKLIB71.DLL` ✅, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
 
 ### SET
 
@@ -62,6 +66,8 @@ __KEYB__^SET(KEYBOARD^ISENABLED());
 VARBTEMP1^SET($2);
 ```
 
+**Compatibility:** `SET` - `PIKLIB61.DLL` ✅, `PIKLIB71.DLL` ✅, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
+
 ### SWITCH
 
 ```
@@ -80,6 +86,8 @@ Toggles the variable's value between the two values passed as arguments. The met
 ```
 B_0^SWITCH(TRUE, FALSE);
 ```
+
+**Compatibility:** `SWITCH` - `PIKLIB61.DLL` ✅, `PIKLIB71.DLL` ✅, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
 
 ## Signals
 

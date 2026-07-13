@@ -121,3 +121,6 @@ storage
 ## MkDocs
 .venv_docs/
 /site/
+
+## Python tooling
+__pycache__/

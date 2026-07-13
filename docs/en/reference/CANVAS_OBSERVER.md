@@ -27,6 +27,8 @@ CANVASOBSERVER^ADD("ANNMKORBA2");
 CANVASOBSERVER^ADD("ANNMPRZEGRYZA");
 ```
 
+**Compatibility:** `ADD` - `PIKLIB61.DLL` ✅, `PIKLIB71.DLL` ✅, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
+
 ### ENABLENOTIFY
 
 ```
@@ -45,6 +47,8 @@ Enables or disables emission of game-window focus signals ([`ONWINDOWFOCUSON`](#
 CANVASOBSERVER^ENABLENOTIFY(TRUE);
 ```
 
+**Compatibility:** `ENABLENOTIFY` - `PIKLIB61.DLL` ❌, `PIKLIB71.DLL` ❌, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
+
 ### GETBPP
 
 ```
@@ -54,6 +58,8 @@ INTEGER GETBPP()
 Returns the canvas colour depth in bits per pixel. The original BlooMoo engine runs in 16 bpp (RGB565) — this method always returns `16`.
 
 **Returns**: [`INTEGER`](INTEGER.md) — colour depth in bits (`16`).
+
+**Compatibility:** `GETBPP` - `PIKLIB61.DLL` ❌, `PIKLIB71.DLL` ❌, `PIKLIB72.DLL` ❌, `PIKLIB8.DLL` ⚠️ (4/10), `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
 
 ### GETGRAPHICSAT
 
@@ -80,6 +86,8 @@ CANVASOBSERVER^GETGRAPHICSAT(MOUSE^GETPOSX(),MOUSE^GETPOSY(),TRUE,2998,2998,FALS
 CANVASOBSERVER^GETGRAPHICSAT(VARICURSORX,VARICURSORY,TRUE,40,40,TRUE);
 ```
 
+**Compatibility:** `GETGRAPHICSAT` - `PIKLIB61.DLL` ✅, `PIKLIB71.DLL` ✅, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
+
 ### GETGRAPHICSAT2
 
 ```
@@ -88,6 +96,8 @@ STRING GETGRAPHICSAT2(INTEGER posX, INTEGER posY, BOOL onlyVisible, INTEGER minZ
 ```
 
 Variant of [`GETGRAPHICSAT`](#getgraphicsat) that walks up the container hierarchy (scene → episode → root) instead of searching only the current scene.
+
+**Compatibility:** `GETGRAPHICSAT2` - `PIKLIB61.DLL` ❌, `PIKLIB71.DLL` ❌, `PIKLIB72.DLL` ❌, `PIKLIB8.DLL` ❌, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ⚠️ (4/5).
 
 ### MOVEBKG
 
@@ -107,6 +117,8 @@ Moves the background by the given X/Y deltas (relative to its current position).
 CANVASOBSERVER^MOVEBKG(0,ARRAYDY^GET(0));
 CANVASOBSERVER^MOVEBKG(ISCROLLMOVEX,ISCROLLMOVEY);
 ```
+
+**Compatibility:** `MOVEBKG` - `PIKLIB61.DLL` ❌, `PIKLIB71.DLL` ✅, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
 
 ### PASTE
 
@@ -128,6 +140,8 @@ CANVASOBSERVER^PASTE("ANNBUM",[I1-IPLANPOSX],[I2-IPLANPOSY]);
 CANVASOBSERVER^PASTE("IMG1",0,0);
 ```
 
+**Compatibility:** `PASTE` - `PIKLIB61.DLL` ❌, `PIKLIB71.DLL` ❌, `PIKLIB72.DLL` ❌, `PIKLIB8.DLL` ❌, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ⚠️ (4/5).
+
 ### REDRAW
 
 ```
@@ -136,6 +150,8 @@ void REDRAW()
 
 In the original engine this marks the canvas as needing repaint. In practice the engine already redraws the whole canvas every frame, so this method behaves as a no-op.
 
+**Compatibility:** `REDRAW` - `PIKLIB61.DLL` ❌, `PIKLIB71.DLL` ❌, `PIKLIB72.DLL` ❌, `PIKLIB8.DLL` ⚠️ (8/10), `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
+
 ### REFRESH
 
 ```
@@ -143,6 +159,8 @@ void REFRESH()
 ```
 
 Forces a redraw of every [`IMAGE`](IMAGE.md) in the current scene — internally calls [`INVALIDATE`](IMAGE.md#invalidate) on each.
+
+**Compatibility:** `REFRESH` - `PIKLIB61.DLL` ✅, `PIKLIB71.DLL` ✅, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
 
 ### REMOVE
 
@@ -162,6 +180,8 @@ Hides the listed graphics on the canvas (sets their visibility to `FALSE`). Acce
 CANVASOBSERVER^REMOVE("ZLY");
 CANVASOBSERVER^REMOVE("ANNAUTOR","ANNAUTOL","ANNAUTORMASK","ANNAUTOLMASK");
 ```
+
+**Compatibility:** `REMOVE` - `PIKLIB61.DLL` ✅, `PIKLIB71.DLL` ✅, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
 
 ### SAVE
 
@@ -186,6 +206,8 @@ CANVASOBSERVER^SAVE("$COMMON\ZOOM.IMG",2,2,$1,$2,$3,$4);
 CANVASOBSERVER^SAVE(["$COMMON\SAVE_BD\BD_SCR"+VARISLOTNO+".IMG"],0.5,0.5);
 ```
 
+**Compatibility:** `SAVE` - `PIKLIB61.DLL` ❌, `PIKLIB71.DLL` ❌, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
+
 ### SETBACKGROUND
 
 ```
@@ -205,6 +227,8 @@ CANVASOBSERVER^SETBACKGROUND(SOBJECT|NAME);
 CANVASOBSERVER^SETBACKGROUND("LOGO.IMG");
 ```
 
+**Compatibility:** `SETBACKGROUND` - `PIKLIB61.DLL` ✅, `PIKLIB71.DLL` ✅, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
+
 ### SETBKGPOS
 
 ```
@@ -223,6 +247,8 @@ Sets the absolute X/Y position of the background.
 CANVASOBSERVER^SETBKGPOS([VARI_BKGX-VARI_BKGXOFFSET],[VARI_BKGY-VARI_BKGYOFFSET]);
 CANVASOBSERVER^SETBKGPOS(VARI_TMPX,0);
 ```
+
+**Compatibility:** `SETBKGPOS` - `PIKLIB61.DLL` ❌, `PIKLIB71.DLL` ✅, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
 
 ## Signals
 

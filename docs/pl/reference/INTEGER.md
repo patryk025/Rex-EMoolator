@@ -43,6 +43,8 @@ VARINT0^ABS(VARINT0);
 I_7^ABS(ARRFLDCLONES^GET(I_FIELD_INDEX));
 ```
 
+**Kompatybilność:** `ABS` - `PIKLIB61.DLL` ⚠️ (2/4), `PIKLIB71.DLL` ✅, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
+
 ### ADD
 
 ```
@@ -65,6 +67,8 @@ VARIKRETSTARTX^ADD(50);
 VARITEMP0^ADD(VARIRADIUS);
 ```
 
+**Kompatybilność:** `ADD` - `PIKLIB61.DLL` ✅, `PIKLIB71.DLL` ✅, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
+
 ### AND
 
 ```
@@ -85,6 +89,8 @@ Wykonuje bitową koniunkcję bieżącej wartości zmiennej z argumentem, zapisuj
 VARITEMP2^AND(1);
 VARITEMP1^AND(ARRMASK^GET(ARRENEMYMASK^GET(VARENEMY)));
 ```
+
+**Kompatybilność:** `AND` - `PIKLIB61.DLL` ❌, `PIKLIB71.DLL` ✅, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
 
 ### CLAMP
 
@@ -109,6 +115,8 @@ I1^CLAMP(0, IMIECZMAX);
 IFRAMER^CLAMP(IFRAMECENTER, IFRAMEMAX);
 ```
 
+**Kompatybilność:** `CLAMP` - `PIKLIB61.DLL` ❌, `PIKLIB71.DLL` ✅, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
+
 ### CLEAR
 
 ```
@@ -118,6 +126,8 @@ INTEGER CLEAR()
 Ustawia wartość zmiennej na `0` i zwraca tę wartość.
 
 **Zwraca**: `0`.
+
+**Kompatybilność:** `CLEAR` - `PIKLIB61.DLL` ✅, `PIKLIB71.DLL` ❌, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
 
 ### DEC
 
@@ -135,6 +145,8 @@ Zmniejsza wartość zmiennej o `1`.
 VARITIMETOEXIT^DEC();
 VARIWAIT^DEC();
 ```
+
+**Kompatybilność:** `DEC` - `PIKLIB61.DLL` ✅, `PIKLIB71.DLL` ✅, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
 
 ### DIV
 
@@ -157,6 +169,8 @@ VARITEMP0^DIV(2);
 VARMOUSEDX^DIV(VARMOUSESPEED);
 ```
 
+**Kompatybilność:** `DIV` - `PIKLIB61.DLL` ⚠️ (3/4), `PIKLIB71.DLL` ✅, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
+
 ### GET
 
 ```
@@ -166,6 +180,8 @@ INTEGER GET()
 Zwraca aktualną wartość zmiennej.
 
 **Zwraca**: bieżąca wartość pola `VALUE`.
+
+**Kompatybilność:** `GET` - `PIKLIB61.DLL` ❌, `PIKLIB71.DLL` ✅, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
 
 ### INC
 
@@ -183,6 +199,8 @@ Zwiększa wartość zmiennej o `1`.
 VARINUMITEMS^INC();
 VARITUTCOUNT^INC();
 ```
+
+**Kompatybilność:** `INC` - `PIKLIB61.DLL` ✅, `PIKLIB71.DLL` ✅, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
 
 ### LENGTH
 
@@ -206,6 +224,8 @@ VARI_TMP1^LENGTH([VARI_TMPX-VARI_CARX], [VARI_TMPY-VARI_CARY]);
 I3^LENGTH(I3, 600);
 ```
 
+**Kompatybilność:** `LENGTH` - `PIKLIB61.DLL` ❌, `PIKLIB71.DLL` ✅, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
+
 ### MOD
 
 ```
@@ -226,6 +246,8 @@ Zapisuje w zmiennej resztę z dzielenia jej bieżącej wartości przez argument.
 VARITEMP4^MOD(8);
 IGC^MOD(ARLEVG^GETSIZE());
 ```
+
+**Kompatybilność:** `MOD` - `PIKLIB61.DLL` ⚠️ (3/4), `PIKLIB71.DLL` ✅, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
 
 ### MUL
 
@@ -248,6 +270,8 @@ VARITEMP0^MUL(34);
 I1^MUL(IGRID);
 ```
 
+**Kompatybilność:** `MUL` - `PIKLIB61.DLL` ✅, `PIKLIB71.DLL` ✅, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
+
 ### NOT
 
 ```
@@ -257,6 +281,8 @@ INTEGER NOT()
 Wykonuje bitową negację (dopełnienie) bieżącej wartości zmiennej, zapisuje wynik i zwraca go.
 
 **Zwraca**: nową wartość zmiennej.
+
+**Kompatybilność:** `NOT` - `PIKLIB61.DLL` ❌, `PIKLIB71.DLL` ✅, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
 
 ### OR
 
@@ -272,6 +298,8 @@ Wykonuje bitową alternatywę bieżącej wartości zmiennej z argumentem, zapisu
 
 **Zwraca**: nową wartość zmiennej.
 
+**Kompatybilność:** `OR` - `PIKLIB61.DLL` ❌, `PIKLIB71.DLL` ✅, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
+
 ### POWER
 
 ```
@@ -285,6 +313,8 @@ Podnosi bieżącą wartość zmiennej do podanej potęgi, zaokrągla wynik do li
 - `exponent` — wykładnik potęgi.
 
 **Zwraca**: nową wartość zmiennej.
+
+**Kompatybilność:** `POWER` - `PIKLIB61.DLL` ❌, `PIKLIB71.DLL` ✅, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
 
 ### RANDOM
 
@@ -312,6 +342,8 @@ VARITEMP0^RANDOM(0, 100);
 VARI_TMP3^RANDOM(VARI_TMP3);
 ```
 
+**Kompatybilność:** `RANDOM` - `PIKLIB61.DLL` ❌, `PIKLIB71.DLL` ❌, `PIKLIB72.DLL` ❌, `PIKLIB8.DLL` ⚠️ (6/10), `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
+
 ### RESETINI
 
 ```
@@ -321,6 +353,8 @@ INTEGER RESETINI()
 Przywraca wartość zmiennej do wartości resetu zdefiniowanej w atrybutach obiektu w skrypcie. Silnik szuka wartości w kolejności: `DEFAULT` → `INIT_VALUE` → `VALUE`; używana jest pierwsza znaleziona. Jeśli żadna z nich nie jest ustawiona, wartość ustawiana jest na `0`.
 
 **Zwraca**: nową wartość zmiennej.
+
+**Kompatybilność:** `RESETINI` - `PIKLIB61.DLL` ✅, `PIKLIB71.DLL` ✅, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
 
 ### SET
 
@@ -344,6 +378,8 @@ VARITEMP1^SET($2);
 ITEMP^SET(STCBAZA|SRODEK);
 ```
 
+**Kompatybilność:** `SET` - `PIKLIB61.DLL` ✅, `PIKLIB71.DLL` ✅, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
+
 ### SUB
 
 ```
@@ -365,6 +401,8 @@ G_IPAGE^SUB(100);
 VARIPRIORITY^SUB(VARIBKGOFFSETY);
 ```
 
+**Kompatybilność:** `SUB` - `PIKLIB61.DLL` ⚠️ (3/4), `PIKLIB71.DLL` ✅, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
+
 ### SWITCH
 
 ```
@@ -380,6 +418,8 @@ Jeżeli bieżąca wartość zmiennej jest równa `valueA`, zmiennej zostaje przy
 
 **Zwraca**: nową wartość zmiennej.
 
+**Kompatybilność:** `SWITCH` - `PIKLIB61.DLL` ✅, `PIKLIB71.DLL` ✅, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
+
 ### XOR
 
 ```
@@ -393,6 +433,8 @@ Wykonuje bitową różnicę symetryczną bieżącej wartości zmiennej z argumen
 - `value` — wartość, z którą wykonywana jest operacja.
 
 **Zwraca**: nową wartość zmiennej.
+
+**Kompatybilność:** `XOR` - `PIKLIB61.DLL` ❌, `PIKLIB71.DLL` ✅, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
 
 ## Sygnały
 

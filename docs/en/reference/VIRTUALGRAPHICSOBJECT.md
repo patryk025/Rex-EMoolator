@@ -82,6 +82,8 @@ Returns the object's height in pixels.
 
 **Returns**: [`INTEGER`](INTEGER.md) — height.
 
+**Compatibility:** `GETHEIGHT` - `PIKLIB61.DLL` ❌, `PIKLIB71.DLL` ❌, `PIKLIB72.DLL` ❌, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
+
 ### GETPOSITIONX
 
 ```
@@ -91,6 +93,8 @@ INTEGER GETPOSITIONX()
 Returns the object's X position.
 
 **Returns**: [`INTEGER`](INTEGER.md) — X coordinate.
+
+**Compatibility:** `GETPOSITIONX` - `PIKLIB61.DLL` ❌, `PIKLIB71.DLL` ❌, `PIKLIB72.DLL` ❌, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
 
 ### GETPOSITIONY
 
@@ -102,6 +106,8 @@ Returns the object's Y position.
 
 **Returns**: [`INTEGER`](INTEGER.md) — Y coordinate.
 
+**Compatibility:** `GETPOSITIONY` - `PIKLIB61.DLL` ❌, `PIKLIB71.DLL` ❌, `PIKLIB72.DLL` ❌, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
+
 ### GETWIDTH
 
 ```
@@ -111,6 +117,8 @@ INTEGER GETWIDTH()
 Returns the object's width in pixels.
 
 **Returns**: [`INTEGER`](INTEGER.md) — width.
+
+**Compatibility:** `GETWIDTH` - `PIKLIB61.DLL` ❌, `PIKLIB71.DLL` ❌, `PIKLIB72.DLL` ❌, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
 
 ### MOVE
 
@@ -130,6 +138,8 @@ Moves the object by the given offsets, relative to its current position.
 VGO^MOVE($1,$2);
 ```
 
+**Compatibility:** `MOVE` - `PIKLIB61.DLL` ❌, `PIKLIB71.DLL` ❌, `PIKLIB72.DLL` ❌, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
+
 ### SETMASK
 
 ```
@@ -147,6 +157,8 @@ Sets the clipping mask — equivalent to the [`MASK`](#mask) field.
 ```
 VGO^SETMASK(MSK);
 ```
+
+**Compatibility:** `SETMASK` - `PIKLIB61.DLL` ❌, `PIKLIB71.DLL` ❌, `PIKLIB72.DLL` ❌, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
 
 ### SETPOSITION
 
@@ -166,6 +178,8 @@ Sets the object's absolute position.
 VGO^SETPOSITION($1,$2);
 ```
 
+**Compatibility:** `SETPOSITION` - `PIKLIB61.DLL` ❌, `PIKLIB71.DLL` ❌, `PIKLIB72.DLL` ❌, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
+
 ### SETPRIORITY
 
 ```
@@ -184,6 +198,8 @@ Sets the render priority (Z position) — equivalent to the [`PRIORITY`](#priori
 VGO^SETPRIORITY(1000);
 ```
 
+**Compatibility:** `SETPRIORITY` - `PIKLIB61.DLL` ❌, `PIKLIB71.DLL` ❌, `PIKLIB72.DLL` ❌, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
+
 ### SETSOURCE
 
 ```
@@ -201,6 +217,8 @@ Sets the graphics variable referenced by [`SOURCE`](#source).
 ```
 VGO^SETSOURCE($2);
 ```
+
+**Compatibility:** `SETSOURCE` - `PIKLIB61.DLL` ❌, `PIKLIB71.DLL` ❌, `PIKLIB72.DLL` ❌, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
 
 ## Signals
 

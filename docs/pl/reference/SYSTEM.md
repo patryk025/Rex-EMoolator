@@ -14,6 +14,8 @@ Zwraca bieżącą datę zakodowaną jako liczba całkowita w formacie `(rok-2000
 
 **Zwraca**: zakodowaną datę.
 
+**Kompatybilność:** `GETDATE` - `PIKLIB61.DLL` ✅, `PIKLIB71.DLL` ✅, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
+
 ### GETMHZ
 
 ```
@@ -24,6 +26,8 @@ Zwraca taktowanie procesora w megahercach.
 
 **Zwraca**: częstotliwość CPU w MHz.
 
+**Kompatybilność:** `GETMHZ` - `PIKLIB61.DLL` ❌, `PIKLIB71.DLL` ❌, `PIKLIB72.DLL` ❌, `PIKLIB8.DLL` ⚠️ (8/10), `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
+
 ### GETSYSTEMTIME
 
 ```
@@ -33,3 +37,5 @@ INTEGER GETSYSTEMTIME()
 Zwraca czas pracy systemu operacyjnego w milisekundach.
 
 **Zwraca**: uptime w milisekundach.
+
+**Kompatybilność:** `GETSYSTEMTIME` - `PIKLIB61.DLL` ❌, `PIKLIB71.DLL` ✅, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.

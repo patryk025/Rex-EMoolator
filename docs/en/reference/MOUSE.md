@@ -28,6 +28,8 @@ Disables mouse input — the cursor stops updating its position, and no signals 
 MOUSE^DISABLE();
 ```
 
+**Compatibility:** `DISABLE` - `PIKLIB61.DLL` ✅, `PIKLIB71.DLL` ✅, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
+
 ### DISABLESIGNAL
 
 ```
@@ -41,6 +43,8 @@ Disables mouse signal emission. Unlike [`DISABLE`](#disable), the cursor's posit
 ```
 MOUSE^DISABLESIGNAL();
 ```
+
+**Compatibility:** `DISABLESIGNAL` - `PIKLIB61.DLL` ❌, `PIKLIB71.DLL` ❌, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
 
 ### ENABLE
 
@@ -56,6 +60,8 @@ Enables mouse input.
 MOUSE^ENABLE();
 ```
 
+**Compatibility:** `ENABLE` - `PIKLIB61.DLL` ✅, `PIKLIB71.DLL` ✅, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
+
 ### ENABLESIGNAL
 
 ```
@@ -69,6 +75,8 @@ Enables mouse signal emission.
 ```
 MOUSE^ENABLESIGNAL();
 ```
+
+**Compatibility:** `ENABLESIGNAL` - `PIKLIB61.DLL` ❌, `PIKLIB71.DLL` ❌, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
 
 ### GETPOSX
 
@@ -86,6 +94,8 @@ Returns the current X coordinate of the cursor.
 MOUSE^GETPOSX();
 ```
 
+**Compatibility:** `GETPOSX` - `PIKLIB61.DLL` ✅, `PIKLIB71.DLL` ✅, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
+
 ### GETPOSY
 
 ```
@@ -102,6 +112,8 @@ Returns the current Y coordinate of the cursor.
 MOUSE^GETPOSY();
 ```
 
+**Compatibility:** `GETPOSY` - `PIKLIB61.DLL` ✅, `PIKLIB71.DLL` ✅, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
+
 ### HIDE
 
 ```
@@ -115,6 +127,8 @@ Hides the mouse cursor.
 ```
 MOUSE^HIDE();
 ```
+
+**Compatibility:** `HIDE` - `PIKLIB61.DLL` ✅, `PIKLIB71.DLL` ✅, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
 
 ### ISLBUTTONDOWN
 
@@ -131,6 +145,8 @@ Checks whether the left mouse button is currently pressed.
 ```
 MOUSE^ISLBUTTONDOWN();
 ```
+
+**Compatibility:** `ISLBUTTONDOWN` - `PIKLIB61.DLL` ❌, `PIKLIB71.DLL` ❌, `PIKLIB72.DLL` ❌, `PIKLIB8.DLL` ❌, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ⚠️ (4/5).
 
 ### SET
 
@@ -150,6 +166,8 @@ Sets the cursor's style.
 MOUSE^SET("ACTIVE");
 MOUSE^SET("ARROW");
 ```
+
+**Compatibility:** `SET` - `PIKLIB61.DLL` ✅, `PIKLIB71.DLL` ✅, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
 
 ### SETPOSITION
 
@@ -172,6 +190,8 @@ MOUSE^SETPOSITION(MOUSE^GETPOSX(), VARINT0);
 MOUSE^SETPOSITION(ANNMUCHA0^GETCENTERX(), ANNMUCHA0^GETCENTERY());
 ```
 
+**Compatibility:** `SETPOSITION` - `PIKLIB61.DLL` ✅, `PIKLIB71.DLL` ✅, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
+
 ### SHOW
 
 ```
@@ -179,6 +199,8 @@ void SHOW()
 ```
 
 Shows the mouse cursor.
+
+**Compatibility:** `SHOW` - `PIKLIB61.DLL` ✅, `PIKLIB71.DLL` ✅, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
 
 ## Signals
 

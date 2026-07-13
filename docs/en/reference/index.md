@@ -2,6 +2,10 @@
 
 List of data types available in scripts for the Piklib/BlooMoo engine, grouped by topic.
 
+## Compatibility
+
+Every method description includes the libraries in which the automated API comparison found it. `PIKLIB8.DLL (5/10 variants)` means that the method occurs in five of ten identified variants of that library. APIs dynamically loaded through `CMC_ExternObject`, such as `WORLD` and `INERTIA`, are not visible in this export and are labelled separately. See [`compatibility-audit.md`](../../compatibility-audit.md) for the full list of gaps and limitations.
+
 ## Types used in scripts
 
 ### Primitives

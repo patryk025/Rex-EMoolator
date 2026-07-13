@@ -34,6 +34,8 @@ Zwraca wartość pola o podanym indeksie (liczonym od zera). Typ zwracanej warto
 STLEVEL^GETFIELD(0);
 ```
 
+**Kompatybilność:** `GETFIELD` - `PIKLIB61.DLL` ❌, `PIKLIB71.DLL` ❌, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
+
 ### SET
 
 ```
@@ -51,6 +53,8 @@ Synchronizuje strukturę z bieżącym wierszem wskazywanym przez kursor [`DATABA
 ```
 SOBJECT^SET("DBOBJECTS_CURSOR");
 ```
+
+**Kompatybilność:** `SET` - `PIKLIB61.DLL` ❌, `PIKLIB71.DLL` ❌, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
 
 ## Sygnały
 

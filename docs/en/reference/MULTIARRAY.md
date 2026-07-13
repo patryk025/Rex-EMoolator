@@ -36,6 +36,8 @@ ARRMAPA^GET([IPLAYERPOSX-1], IPLAYERPOSY);
 ARRMAPA^GET(_I_, I1);
 ```
 
+**Compatibility:** `GET` - `PIKLIB61.DLL` ❌, `PIKLIB71.DLL` ❌, `PIKLIB72.DLL` ❌, `PIKLIB8.DLL` ⚠️ (16/10), `BlooMooWEB.dll` ⚠️ (2/1), `BlooMooDLL.dll` ⚠️ (10/5).
+
 ### SET
 
 ```
@@ -58,6 +60,8 @@ ARRMAPA^SET(IPLAYERGOONX, IPLAYERGOONY, "PLAYER");
 ARRMAPA^SET([IPLAYERPOSX+ILASTDIRX], [IPLAYERPOSY+ILASTDIRY], IPLAYER);
 ```
 
+**Compatibility:** `SET` - `PIKLIB61.DLL` ❌, `PIKLIB71.DLL` ❌, `PIKLIB72.DLL` ❌, `PIKLIB8.DLL` ⚠️ (16/10), `BlooMooWEB.dll` ⚠️ (2/1), `BlooMooDLL.dll` ⚠️ (10/5).
+
 ### GETSIZE
 
 ```
@@ -72,6 +76,8 @@ Returns the size of the given dimension of the array.
 
 **Returns**: the dimension's size, or `0` for an invalid index.
 
+**Compatibility:** `GETSIZE` - `PIKLIB61.DLL` ❌, `PIKLIB71.DLL` ❌, `PIKLIB72.DLL` ❌, `PIKLIB8.DLL` ⚠️ (16/10), `BlooMooWEB.dll` ⚠️ (2/1), `BlooMooDLL.dll` ⚠️ (10/5).
+
 ### LOAD
 
 ```
@@ -84,6 +90,8 @@ Replaces the array's contents with data read from a binary file. The format incl
 
 - `path` — file path in the game's VFS.
 
+**Compatibility:** `LOAD` - `PIKLIB61.DLL` ❌, `PIKLIB71.DLL` ❌, `PIKLIB72.DLL` ❌, `PIKLIB8.DLL` ⚠️ (16/10), `BlooMooWEB.dll` ⚠️ (2/1), `BlooMooDLL.dll` ⚠️ (10/5).
+
 ### SAVE
 
 ```
@@ -95,6 +103,8 @@ Writes the array's contents to a binary file.
 **Parameters**
 
 - `path` — destination file path in the game's VFS.
+
+**Compatibility:** `SAVE` - `PIKLIB61.DLL` ❌, `PIKLIB71.DLL` ❌, `PIKLIB72.DLL` ❌, `PIKLIB8.DLL` ⚠️ (16/10), `BlooMooWEB.dll` ⚠️ (2/1), `BlooMooDLL.dll` ⚠️ (10/5).
 
 ## Signals
 

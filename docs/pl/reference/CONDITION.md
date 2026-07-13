@@ -64,6 +64,8 @@ COND1^BREAK(TRUE);
 CONDKONTROLA^BREAK(TRUE);
 ```
 
+**Kompatybilność:** `BREAK` - `PIKLIB61.DLL` ⚠️ (2/4), `PIKLIB71.DLL` ✅, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
+
 ### CHECK
 
 ```
@@ -85,6 +87,8 @@ CONPR1^CHECK(TRUE);
 CONPR2^CHECK(TRUE);
 ```
 
+**Kompatybilność:** `CHECK` - `PIKLIB61.DLL` ✅, `PIKLIB71.DLL` ✅, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
+
 ### ONE_BREAK
 
 ```
@@ -103,6 +107,8 @@ Ewaluuje warunek. Jeżeli wynik jest `TRUE`, przerywa wyłącznie bieżącą pro
 COND1^ONE_BREAK(TRUE);
 CONDREMOVEMENUITEM^ONE_BREAK(TRUE);
 ```
+
+**Kompatybilność:** `ONE_BREAK` - `PIKLIB61.DLL` ❌, `PIKLIB71.DLL` ❌, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
 
 ## Sygnały
 

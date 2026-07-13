@@ -54,6 +54,8 @@ COC_END^BREAK(TRUE);
 CCONDISATPOS^BREAK(TRUE);
 ```
 
+**Compatibility:** `BREAK` - `PIKLIB61.DLL` ⚠️ (2/4), `PIKLIB71.DLL` ✅, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
+
 ### CHECK
 
 ```
@@ -74,6 +76,8 @@ Evaluates the compound condition and returns the result.
 CCONDTESTEND^CHECK(TRUE);
 ```
 
+**Compatibility:** `CHECK` - `PIKLIB61.DLL` ✅, `PIKLIB71.DLL` ✅, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
+
 ### ONE_BREAK
 
 ```
@@ -92,6 +96,8 @@ Evaluates the compound condition. If the result is `TRUE`, aborts only the curre
 COC_END^ONE_BREAK(TRUE);
 CCONDISATPOS^ONE_BREAK(TRUE);
 ```
+
+**Compatibility:** `ONE_BREAK` - `PIKLIB61.DLL` ❌, `PIKLIB71.DLL` ❌, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
 
 ## Signals
 

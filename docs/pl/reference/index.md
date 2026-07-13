@@ -2,6 +2,10 @@
 
 Spis typów danych dostępnych w skryptach silnika Piklib/BlooMoo, pogrupowanych tematycznie.
 
+## Kompatybilność
+
+Pod opisem każdej metody znajduje się lista bibliotek, w których wykrył ją automatyczny porównywacz API. Zapis `PIKLIB8.DLL (5/10 wariantów)` oznacza, że metoda występuje w pięciu z dziesięciu rozpoznanych wariantów tej biblioteki. API doładowywane przez `CMC_ExternObject`, takie jak `WORLD` i `INERTIA`, nie jest widoczne w tym eksporcie i jest oznaczone osobno. Pełna lista luk oraz ograniczeń jest w [`compatibility-audit.md`](../../compatibility-audit.md).
+
 ## Typy używane w skryptach
 
 ### Prymitywne

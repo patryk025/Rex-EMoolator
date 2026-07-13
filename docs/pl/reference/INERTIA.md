@@ -26,6 +26,8 @@ EXTWORLD^ADDFORCE(1,-500,0);
 EXTWORLD^ADDFORCE(1,0,-50);
 ```
 
+**Kompatybilność:** `ADDFORCE` - typ z doładowywanej biblioteki, poza zakresem bieżącego eksportu `compat.json`.
+
 ### CREATESPHERE
 
 ```
@@ -46,6 +48,8 @@ Tworzy w silniku fizycznym sferę o podanej pozycji środka i promieniu, przypis
 EXTWORLD^CREATESPHERE(5,10,10,10);
 ```
 
+**Kompatybilność:** `CREATESPHERE` - typ z doładowywanej biblioteki, poza zakresem bieżącego eksportu `compat.json`.
+
 ### DELETEBODY
 
 ```
@@ -65,6 +69,8 @@ EXTWORLD^DELETEBODY(IHANDLEDEL);
 EXTWORLD^DELETEBODY(IRAKIETAOBJ);
 ```
 
+**Kompatybilność:** `DELETEBODY` - typ z doładowywanej biblioteki, poza zakresem bieżącego eksportu `compat.json`.
+
 ### GETPOSITIONX
 
 ```
@@ -78,6 +84,8 @@ Zwraca aktualną pozycję X obiektu o podanym identyfikatorze.
 - `objectId` — identyfikator obiektu.
 
 **Zwraca**: [`INTEGER`](INTEGER.md) — koordynata X.
+
+**Kompatybilność:** `GETPOSITIONX` - typ z doładowywanej biblioteki, poza zakresem bieżącego eksportu `compat.json`.
 
 ### GETPOSITIONY
 
@@ -93,6 +101,8 @@ Zwraca aktualną pozycję Y obiektu o podanym identyfikatorze.
 
 **Zwraca**: [`INTEGER`](INTEGER.md) — koordynata Y.
 
+**Kompatybilność:** `GETPOSITIONY` - typ z doładowywanej biblioteki, poza zakresem bieżącego eksportu `compat.json`.
+
 ### GETSPEED
 
 ```
@@ -106,6 +116,8 @@ Zwraca prędkość obiektu o podanym identyfikatorze (długość wektora prędko
 - `objectId` — identyfikator obiektu.
 
 **Zwraca**: [`DOUBLE`](DOUBLE.md) — wartość prędkości.
+
+**Kompatybilność:** `GETSPEED` - typ z doładowywanej biblioteki, poza zakresem bieżącego eksportu `compat.json`.
 
 ### LINK
 
@@ -128,6 +140,8 @@ EXTWORLD^LINK(1,"ANNSZCZUREK",TRUE,TRUE);
 EXTWORLD^LINK(IOBIEKT,["ANNSTRZAL_"+ISTRZAL],TRUE,TRUE);
 ```
 
+**Kompatybilność:** `LINK` - typ z doładowywanej biblioteki, poza zakresem bieżącego eksportu `compat.json`.
+
 ### LOAD
 
 ```
@@ -146,6 +160,8 @@ void LOAD(STRING path)
 EXTWORLD^LOAD("WORLD.INE");
 ```
 
+**Kompatybilność:** `LOAD` - typ z doładowywanej biblioteki, poza zakresem bieżącego eksportu `compat.json`.
+
 ### RESETTIMER
 
 ```
@@ -159,6 +175,8 @@ Resetuje wewnętrzny zegar symulacji.
 ```
 EXTWORLD^RESETTIMER();
 ```
+
+**Kompatybilność:** `RESETTIMER` - typ z doładowywanej biblioteki, poza zakresem bieżącego eksportu `compat.json`.
 
 ### SETGRAVITY
 
@@ -177,6 +195,8 @@ Ustawia globalny wektor grawitacji. Wartość `(0, 0)` wyłącza grawitację.
 ```
 EXTWORLD^SETGRAVITY(0,0);
 ```
+
+**Kompatybilność:** `SETGRAVITY` - typ z doładowywanej biblioteki, poza zakresem bieżącego eksportu `compat.json`.
 
 ### SETLINEARDAMPING
 
@@ -197,6 +217,8 @@ Ustawia tłumienie liniowe (stopniowe spowalnianie prędkości liniowej) dla obi
 EXTWORLD^SETLINEARDAMPING(1,300);
 ```
 
+**Kompatybilność:** `SETLINEARDAMPING` - typ z doładowywanej biblioteki, poza zakresem bieżącego eksportu `compat.json`.
+
 ### SETMATERIAL
 
 ```
@@ -215,6 +237,8 @@ Ustawia materiał obiektu. Materiały kontrolują, w jaki sposób obiekty reaguj
 ```
 EXTWORLD^SETMATERIAL(IOBIEKT,"TRIGGER");
 ```
+
+**Kompatybilność:** `SETMATERIAL` - typ z doładowywanej biblioteki, poza zakresem bieżącego eksportu `compat.json`.
 
 ### SETPOSITION
 
@@ -236,6 +260,8 @@ EXTWORLD^SETPOSITION(IOBIEKT,[ANNSZCZUREK^GETCENTERX()+70],[ANNSZCZUREK^GETCENTE
 EXTWORLD^SETPOSITION(IRAKIETAOBJ,ANNDODATKI_7^GETPOSITIONX(),ANNDODATKI_7^GETPOSITIONY());
 ```
 
+**Kompatybilność:** `SETPOSITION` - typ z doładowywanej biblioteki, poza zakresem bieżącego eksportu `compat.json`.
+
 ### SETVELOCITY
 
 ```
@@ -256,6 +282,8 @@ EXTWORLD^SETVELOCITY(1,0,0);
 EXTWORLD^SETVELOCITY(IOBIEKT,8,0);
 ```
 
+**Kompatybilność:** `SETVELOCITY` - typ z doładowywanej biblioteki, poza zakresem bieżącego eksportu `compat.json`.
+
 ### TICK
 
 ```
@@ -269,6 +297,8 @@ Wykonuje pojedynczy krok symulacji. Bez wywołania `TICK` świat fizyczny pozost
 ```
 EXTWORLD^TICK();
 ```
+
+**Kompatybilność:** `TICK` - typ z doładowywanej biblioteki, poza zakresem bieżącego eksportu `compat.json`.
 
 ### UNLINK
 
@@ -288,6 +318,8 @@ Zrywa powiązanie obiektu z animacją utworzone metodą [`LINK`](#link).
 EXTWORLD^UNLINK(IID);
 EXTWORLD^UNLINK(1);
 ```
+
+**Kompatybilność:** `UNLINK` - typ z doładowywanej biblioteki, poza zakresem bieżącego eksportu `compat.json`.
 
 ## Sygnały
 

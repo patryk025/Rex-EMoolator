@@ -68,6 +68,8 @@ IMGLEVEL^GETALPHA(VARX, VARY);
 IMGALPHA^GETALPHA(EXPMASKX, EXPMASKY);
 ```
 
+**Compatibility:** `GETALPHA` - `PIKLIB61.DLL` ✅, `PIKLIB71.DLL` ✅, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
+
 ### GETCENTERX
 
 ```
@@ -78,6 +80,8 @@ Returns the X coordinate of the centre of the image's bounding rectangle.
 
 **Returns**: centre X.
 
+**Compatibility:** `GETCENTERX` - `PIKLIB61.DLL` ⚠️ (2/4), `PIKLIB71.DLL` ✅, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
+
 ### GETCENTERY
 
 ```
@@ -87,6 +91,8 @@ INTEGER GETCENTERY()
 Returns the Y coordinate of the centre of the image's bounding rectangle.
 
 **Returns**: centre Y.
+
+**Compatibility:** `GETCENTERY` - `PIKLIB61.DLL` ⚠️ (2/4), `PIKLIB71.DLL` ✅, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
 
 ### GETHEIGHT
 
@@ -103,6 +109,8 @@ Returns the image's height in pixels.
 ```
 IMGLINA^GETHEIGHT();
 ```
+
+**Compatibility:** `GETHEIGHT` - `PIKLIB61.DLL` ✅, `PIKLIB71.DLL` ✅, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
 
 ### GETPIXEL
 
@@ -125,6 +133,8 @@ Returns the pixel value at the given coordinates as an integer encoded per the i
 IMGMASK^GETPIXEL(IKONNEWX, IKONNEWY);
 ```
 
+**Compatibility:** `GETPIXEL` - `PIKLIB61.DLL` ✅, `PIKLIB71.DLL` ✅, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
+
 ### GETPOSITIONX
 
 ```
@@ -135,6 +145,8 @@ Returns the X coordinate of the image's top-left corner.
 
 **Returns**: position X.
 
+**Compatibility:** `GETPOSITIONX` - `PIKLIB61.DLL` ✅, `PIKLIB71.DLL` ✅, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
+
 ### GETPOSITIONY
 
 ```
@@ -144,6 +156,8 @@ INTEGER GETPOSITIONY()
 Returns the Y coordinate of the image's top-left corner.
 
 **Returns**: position Y.
+
+**Compatibility:** `GETPOSITIONY` - `PIKLIB61.DLL` ✅, `PIKLIB71.DLL` ✅, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
 
 ### GETWIDTH
 
@@ -161,6 +175,8 @@ Returns the image's width in pixels.
 IMGPASEK^GETWIDTH();
 ```
 
+**Compatibility:** `GETWIDTH` - `PIKLIB61.DLL` ✅, `PIKLIB71.DLL` ✅, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
+
 ### HIDE
 
 ```
@@ -174,6 +190,8 @@ Hides the image (sets [`VISIBLE`](#visible) to `FALSE`).
 ```
 G_IMGPAGE^HIDE();
 ```
+
+**Compatibility:** `HIDE` - `PIKLIB61.DLL` ✅, `PIKLIB71.DLL` ✅, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
 
 ### INVALIDATE
 
@@ -189,6 +207,8 @@ Applies the pending opacity value previously set with [`SETOPACITY`](#setopacity
 G_IMGPAGE^INVALIDATE();
 ```
 
+**Compatibility:** `INVALIDATE` - `PIKLIB61.DLL` ✅, `PIKLIB71.DLL` ✅, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
+
 ### ISAT
 
 ```
@@ -203,6 +223,8 @@ Checks whether the point at the given coordinates lies inside the image's boundi
 - `posY` — point Y coordinate.
 
 **Returns**: [`BOOL`](BOOL.md) — `TRUE` if the point is inside the image's rectangle.
+
+**Compatibility:** `ISAT` - `PIKLIB61.DLL` ❌, `PIKLIB71.DLL` ❌, `PIKLIB72.DLL` ❌, `PIKLIB8.DLL` ⚠️ (8/10), `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
 
 ### LOAD
 
@@ -223,6 +245,8 @@ G_IMGPAGE^LOAD("$COMMON\PAGE.IMG");
 IMGTLO^LOAD(VARSTEMP0);
 IMGSCR^LOAD(["$COMMON\SAVE_BD\BD_SCR"+VARIACTIVESLOT+".IMG"]);
 ```
+
+**Compatibility:** `LOAD` - `PIKLIB61.DLL` ✅, `PIKLIB71.DLL` ✅, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
 
 ### MERGEALPHA
 
@@ -245,6 +269,8 @@ IMGDARK^MERGEALPHA([ANNPLAYER0^GETCENTERX()-75], [ANNPLAYER0^GETCENTERY()-75], "
 IMG_WODA^MERGEALPHA(800, VARI_Y, "IMG_LIGHT");
 ```
 
+**Compatibility:** `MERGEALPHA` - `PIKLIB61.DLL` ✅, `PIKLIB71.DLL` ✅, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
+
 ### MONITORCOLLISION {#monitorcollision-1}
 
 ```
@@ -253,6 +279,8 @@ void MONITORCOLLISION()
 
 Enables collision monitoring between this image and other objects. After the call, the [`MONITORCOLLISION`](#monitorcollision) field is `TRUE` and the image is registered with the collision-detection mechanism.
 
+**Compatibility:** `MONITORCOLLISION` - `PIKLIB61.DLL` ✅, `PIKLIB71.DLL` ✅, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
+
 ### MONITORCOLLISIONALPHA {#monitorcollisionalpha-1}
 
 ```
@@ -260,6 +288,8 @@ void MONITORCOLLISIONALPHA()
 ```
 
 Enables alpha-channel awareness in collision detection. After the call, the [`MONITORCOLLISIONALPHA`](#monitorcollisionalpha) field is `TRUE`.
+
+**Compatibility:** `MONITORCOLLISIONALPHA` - not present in the libraries analysed in `compat.json`.
 
 ### MOVE
 
@@ -282,6 +312,8 @@ IMGLINA^MOVE(0, IMOVDY);
 IMRECT^MOVE(IGSX, 0);
 ```
 
+**Compatibility:** `MOVE` - `PIKLIB61.DLL` ✅, `PIKLIB71.DLL` ✅, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
+
 ### REMOVEMONITORCOLLISION
 
 ```
@@ -290,6 +322,8 @@ void REMOVEMONITORCOLLISION()
 
 Disables collision monitoring previously enabled by [`MONITORCOLLISION`](#monitorcollision-1).
 
+**Compatibility:** `REMOVEMONITORCOLLISION` - `PIKLIB61.DLL` ✅, `PIKLIB71.DLL` ✅, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
+
 ### REMOVEMONITORCOLLISIONALPHA
 
 ```
@@ -297,6 +331,8 @@ void REMOVEMONITORCOLLISIONALPHA()
 ```
 
 Disables alpha-channel awareness in collision detection, previously enabled by [`MONITORCOLLISIONALPHA`](#monitorcollisionalpha-1).
+
+**Compatibility:** `REMOVEMONITORCOLLISIONALPHA` - not present in the libraries analysed in `compat.json`.
 
 ### SETCLIPPING
 
@@ -316,6 +352,8 @@ Restricts the image's drawing area to the rectangle defined by the given edges. 
 G_IMGPAGE^SETCLIPPING(0, 0, G_IPAGE, 600);
 ```
 
+**Compatibility:** `SETCLIPPING` - `PIKLIB61.DLL` ✅, `PIKLIB71.DLL` ✅, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
+
 ### SETOPACITY
 
 ```
@@ -334,6 +372,8 @@ Sets the pending opacity value in the `0–255` scale (`0` — fully transparent
 AIDEMMEDIA^SETOPACITY(VARNR);
 IMGBRIDGE^SETOPACITY(200);
 ```
+
+**Compatibility:** `SETOPACITY` - `PIKLIB61.DLL` ❌, `PIKLIB71.DLL` ✅, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
 
 ### SETPOSITION
 
@@ -356,6 +396,8 @@ IMGKOLKO^SETPOSITION(-500, -500);
 IMGNAKLADKA^SETPOSITION(VARIPOSX, 0);
 ```
 
+**Compatibility:** `SETPOSITION` - `PIKLIB61.DLL` ✅, `PIKLIB71.DLL` ✅, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
+
 ### SETPRIORITY
 
 ```
@@ -375,6 +417,8 @@ G_IMGPAGE^SETPRIORITY(3000);
 AIDEMMEDIA^SETPRIORITY(3);
 ```
 
+**Compatibility:** `SETPRIORITY` - `PIKLIB61.DLL` ✅, `PIKLIB71.DLL` ✅, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
+
 ### SHOW
 
 ```
@@ -389,6 +433,8 @@ Shows the image (sets [`VISIBLE`](#visible) to `TRUE`).
 G_IMGPAGE^SHOW();
 REX^SHOW();
 ```
+
+**Compatibility:** `SHOW` - `PIKLIB61.DLL` ✅, `PIKLIB71.DLL` ✅, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
 
 ## Signals
 

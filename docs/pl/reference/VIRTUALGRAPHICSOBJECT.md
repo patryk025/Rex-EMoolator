@@ -82,6 +82,8 @@ Zwraca wysokość obiektu w pikselach.
 
 **Zwraca**: [`INTEGER`](INTEGER.md) — wysokość.
 
+**Kompatybilność:** `GETHEIGHT` - `PIKLIB61.DLL` ❌, `PIKLIB71.DLL` ❌, `PIKLIB72.DLL` ❌, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
+
 ### GETPOSITIONX
 
 ```
@@ -91,6 +93,8 @@ INTEGER GETPOSITIONX()
 Zwraca pozycję X obiektu.
 
 **Zwraca**: [`INTEGER`](INTEGER.md) — koordynata X.
+
+**Kompatybilność:** `GETPOSITIONX` - `PIKLIB61.DLL` ❌, `PIKLIB71.DLL` ❌, `PIKLIB72.DLL` ❌, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
 
 ### GETPOSITIONY
 
@@ -102,6 +106,8 @@ Zwraca pozycję Y obiektu.
 
 **Zwraca**: [`INTEGER`](INTEGER.md) — koordynata Y.
 
+**Kompatybilność:** `GETPOSITIONY` - `PIKLIB61.DLL` ❌, `PIKLIB71.DLL` ❌, `PIKLIB72.DLL` ❌, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
+
 ### GETWIDTH
 
 ```
@@ -111,6 +117,8 @@ INTEGER GETWIDTH()
 Zwraca szerokość obiektu w pikselach.
 
 **Zwraca**: [`INTEGER`](INTEGER.md) — szerokość.
+
+**Kompatybilność:** `GETWIDTH` - `PIKLIB61.DLL` ❌, `PIKLIB71.DLL` ❌, `PIKLIB72.DLL` ❌, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
 
 ### MOVE
 
@@ -130,6 +138,8 @@ Przesuwa obiekt o zadane wartości względem aktualnej pozycji.
 VGO^MOVE($1,$2);
 ```
 
+**Kompatybilność:** `MOVE` - `PIKLIB61.DLL` ❌, `PIKLIB71.DLL` ❌, `PIKLIB72.DLL` ❌, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
+
 ### SETMASK
 
 ```
@@ -147,6 +157,8 @@ Ustawia maskę wycinającą — odpowiednik pola [`MASK`](#mask).
 ```
 VGO^SETMASK(MSK);
 ```
+
+**Kompatybilność:** `SETMASK` - `PIKLIB61.DLL` ❌, `PIKLIB71.DLL` ❌, `PIKLIB72.DLL` ❌, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
 
 ### SETPOSITION
 
@@ -166,6 +178,8 @@ Ustawia bezwzględną pozycję obiektu.
 VGO^SETPOSITION($1,$2);
 ```
 
+**Kompatybilność:** `SETPOSITION` - `PIKLIB61.DLL` ❌, `PIKLIB71.DLL` ❌, `PIKLIB72.DLL` ❌, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
+
 ### SETPRIORITY
 
 ```
@@ -184,6 +198,8 @@ Ustawia priorytet rysowania (pozycję w osi Z) — odpowiednik pola [`PRIORITY`]
 VGO^SETPRIORITY(1000);
 ```
 
+**Kompatybilność:** `SETPRIORITY` - `PIKLIB61.DLL` ❌, `PIKLIB71.DLL` ❌, `PIKLIB72.DLL` ❌, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
+
 ### SETSOURCE
 
 ```
@@ -201,6 +217,8 @@ Ustawia zmienną graficzną wskazywaną przez pole [`SOURCE`](#source).
 ```
 VGO^SETSOURCE($2);
 ```
+
+**Kompatybilność:** `SETSOURCE` - `PIKLIB61.DLL` ❌, `PIKLIB71.DLL` ❌, `PIKLIB72.DLL` ❌, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
 
 ## Sygnały
 

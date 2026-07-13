@@ -92,6 +92,8 @@ Returns the currently configured anchor, in the form passed to [`SETANCHOR`](#se
 
 **Returns**: the anchor name or its coordinates.
 
+**Compatibility:** `GETANCHOR` - `PIKLIB61.DLL` ❌, `PIKLIB71.DLL` ❌, `PIKLIB72.DLL` ❌, `PIKLIB8.DLL` ⚠️ (5/10), `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
+
 ### GETCENTERX
 
 ```
@@ -108,6 +110,8 @@ Returns the X coordinate of the centre of the current frame's bounding box.
 ANNREX^GETCENTERX();
 ```
 
+**Compatibility:** `GETCENTERX` - `PIKLIB61.DLL` ⚠️ (2/4), `PIKLIB71.DLL` ✅, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
+
 ### GETCENTERY
 
 ```
@@ -117,6 +121,8 @@ INTEGER GETCENTERY()
 Returns the Y coordinate of the centre of the current frame's bounding box.
 
 **Returns**: centre Y.
+
+**Compatibility:** `GETCENTERY` - `PIKLIB61.DLL` ⚠️ (2/4), `PIKLIB71.DLL` ✅, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
 
 ### GETCFRAMEINEVENT
 
@@ -134,6 +140,8 @@ Returns the index of the current frame inside the currently playing event (count
 ANNREX^GETCFRAMEINEVENT();
 ```
 
+**Compatibility:** `GETCFRAMEINEVENT` - `PIKLIB61.DLL` ❌, `PIKLIB71.DLL` ✅, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
+
 ### GETCURRFRAMEPOSX
 
 ```
@@ -143,6 +151,8 @@ INTEGER GETCURRFRAMEPOSX()
 Returns the X offset of the currently displayed frame image (per-frame, defined in the animation file).
 
 **Returns**: frame X offset.
+
+**Compatibility:** `GETCURRFRAMEPOSX` - `PIKLIB61.DLL` ⚠️ (3/4), `PIKLIB71.DLL` ✅, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
 
 ### GETCURRFRAMEPOSY
 
@@ -154,6 +164,8 @@ Returns the Y offset of the currently displayed frame image.
 
 **Returns**: frame Y offset.
 
+**Compatibility:** `GETCURRFRAMEPOSY` - `PIKLIB61.DLL` ⚠️ (3/4), `PIKLIB71.DLL` ✅, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
+
 ### GETENDX
 
 ```
@@ -164,6 +176,8 @@ Returns the right edge of the current frame's bounding box.
 
 **Returns**: right edge X.
 
+**Compatibility:** `GETENDX` - `PIKLIB61.DLL` ❌, `PIKLIB71.DLL` ❌, `PIKLIB72.DLL` ❌, `PIKLIB8.DLL` ❌, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ⚠️ (4/5).
+
 ### GETENDY
 
 ```
@@ -173,6 +187,8 @@ INTEGER GETENDY()
 Returns the bottom edge of the current frame's bounding box.
 
 **Returns**: bottom edge Y.
+
+**Compatibility:** `GETENDY` - `PIKLIB61.DLL` ❌, `PIKLIB71.DLL` ❌, `PIKLIB72.DLL` ❌, `PIKLIB8.DLL` ❌, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ⚠️ (4/5).
 
 ### GETEVENTNAME
 
@@ -190,6 +206,8 @@ Returns the name of the currently playing event.
 ANNREX^GETEVENTNAME();
 ```
 
+**Compatibility:** `GETEVENTNAME` - `PIKLIB61.DLL` ✅, `PIKLIB71.DLL` ✅, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
+
 ### GETFRAME
 
 ```
@@ -199,6 +217,8 @@ INTEGER GETFRAME()
 Returns the global index of the currently displayed frame (independent of the event subdivision).
 
 **Returns**: the global frame index.
+
+**Compatibility:** `GETFRAME` - `PIKLIB61.DLL` ✅, `PIKLIB71.DLL` ✅, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
 
 ### GETFRAMENAME
 
@@ -210,6 +230,8 @@ Returns the name of the currently displayed frame (the frame image file name).
 
 **Returns**: the frame name.
 
+**Compatibility:** `GETFRAMENAME` - `PIKLIB61.DLL` ✅, `PIKLIB71.DLL` ✅, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
+
 ### GETHEIGHT
 
 ```
@@ -220,6 +242,8 @@ Returns the height of the current animation frame.
 
 **Returns**: height in pixels.
 
+**Compatibility:** `GETHEIGHT` - `PIKLIB61.DLL` ✅, `PIKLIB71.DLL` ✅, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
+
 ### GETMAXHEIGHT
 
 ```
@@ -229,6 +253,8 @@ INTEGER GETMAXHEIGHT()
 Returns the maximum height across all of the animation's frames.
 
 **Returns**: the largest height in pixels.
+
+**Compatibility:** `GETMAXHEIGHT` - `PIKLIB61.DLL` ⚠️ (1/4), `PIKLIB71.DLL` ✅, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
 
 ### GETMAXWIDTH
 
@@ -246,6 +272,8 @@ Returns the maximum width across all of the animation's frames.
 ANN_STATEK^GETMAXWIDTH();
 ```
 
+**Compatibility:** `GETMAXWIDTH` - `PIKLIB61.DLL` ⚠️ (1/4), `PIKLIB71.DLL` ✅, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
+
 ### GETNAME
 
 ```
@@ -255,6 +283,8 @@ STRING GETNAME()
 Returns the animation variable's name.
 
 **Returns**: the variable's name.
+
+**Compatibility:** `GETNAME` - `PIKLIB61.DLL` ❌, `PIKLIB71.DLL` ✅, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
 
 ### GETNOE
 
@@ -273,6 +303,8 @@ ANNLISCIESLOTY^GETNOE();
 ANNBTN^GETNOE();
 ```
 
+**Compatibility:** `GETNOE` - `PIKLIB61.DLL` ⚠️ (1/4), `PIKLIB71.DLL` ✅, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
+
 ### GETNOF
 
 ```
@@ -282,6 +314,8 @@ INTEGER GETNOF()
 Returns the total number of frames in the animation (short for *Number Of Frames*).
 
 **Returns**: frame count.
+
+**Compatibility:** `GETNOF` - `PIKLIB61.DLL` ⚠️ (1/4), `PIKLIB71.DLL` ✅, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
 
 ### GETNOFINEVENT
 
@@ -306,6 +340,8 @@ ANNUKLAD^GETNOFINEVENT(0);
 ANNPLANNAK^GETNOFINEVENT("IDLE");
 ```
 
+**Compatibility:** `GETNOFINEVENT` - `PIKLIB61.DLL` ⚠️ (1/4), `PIKLIB71.DLL` ✅, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
+
 ### GETPOSITIONX
 
 ```
@@ -319,6 +355,8 @@ Returns the X coordinate of the current frame's top-left corner on the canvas. T
 - `absolute` — (optional) `TRUE` to skip per-frame offsets.
 
 **Returns**: position X.
+
+**Compatibility:** `GETPOSITIONX` - `PIKLIB61.DLL` ✅, `PIKLIB71.DLL` ✅, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
 
 ### GETPOSITIONY
 
@@ -334,6 +372,8 @@ Returns the Y coordinate of the current frame's top-left corner on the canvas. T
 
 **Returns**: position Y.
 
+**Compatibility:** `GETPOSITIONY` - `PIKLIB61.DLL` ✅, `PIKLIB71.DLL` ✅, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
+
 ### GETPRIORITY
 
 ```
@@ -343,6 +383,8 @@ INTEGER GETPRIORITY()
 Returns the animation's rendering priority (`Z`).
 
 **Returns**: the value of the [`PRIORITY`](#priority) field.
+
+**Compatibility:** `GETPRIORITY` - `PIKLIB61.DLL` ❌, `PIKLIB71.DLL` ❌, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
 
 ### GETWIDTH
 
@@ -354,6 +396,8 @@ Returns the width of the current animation frame.
 
 **Returns**: width in pixels.
 
+**Compatibility:** `GETWIDTH` - `PIKLIB61.DLL` ✅, `PIKLIB71.DLL` ✅, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
+
 ### HIDE
 
 ```
@@ -361,6 +405,8 @@ void HIDE()
 ```
 
 Hides the animation visually without stopping its playback. Calling [`PLAY`](#play) automatically restores visibility.
+
+**Compatibility:** `HIDE` - `PIKLIB61.DLL` ✅, `PIKLIB71.DLL` ✅, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
 
 ### ISAT
 
@@ -376,6 +422,8 @@ Checks whether the point at the given coordinates lies inside the current frame'
 - `posY` — point Y coordinate.
 
 **Returns**: [`BOOL`](BOOL.md) — `TRUE` if the point is inside the bounding box.
+
+**Compatibility:** `ISAT` - `PIKLIB61.DLL` ❌, `PIKLIB71.DLL` ❌, `PIKLIB72.DLL` ❌, `PIKLIB8.DLL` ⚠️ (8/10), `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
 
 ### ISNEAR
 
@@ -399,6 +447,8 @@ ENEMY^ISNEAR("HERO", 1);
 ANNORKA^ISNEAR("ANNLODKA", 12);
 ```
 
+**Compatibility:** `ISNEAR` - `PIKLIB61.DLL` ✅, `PIKLIB71.DLL` ✅, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
+
 ### ISPLAYING
 
 ```
@@ -421,6 +471,8 @@ ANNREX^ISPLAYING();
 ANNREXGLOWA^ISPLAYING("SPI");
 ```
 
+**Compatibility:** `ISPLAYING` - `PIKLIB61.DLL` ✅, `PIKLIB71.DLL` ✅, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
+
 ### ISVISIBLE
 
 ```
@@ -430,6 +482,8 @@ BOOL ISVISIBLE()
 Returns the animation's visibility state (`VISIBLE`). It does not check whether [`TOCANVAS`](#tocanvas) registered the object on the canvas.
 
 **Returns**: [`BOOL`](BOOL.md) — `TRUE` if the animation is visible.
+
+**Compatibility:** `ISVISIBLE` - `PIKLIB61.DLL` ⚠️ (2/4), `PIKLIB71.DLL` ✅, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
 
 ### LOAD
 
@@ -451,6 +505,8 @@ ANNCHARACTER^LOAD("PIXEL.ANN");
 ANNMINIMAPA^LOAD([""+ILEVEL+"_MINIMAPA.ANN"]);
 ```
 
+**Compatibility:** `LOAD` - `PIKLIB61.DLL` ✅, `PIKLIB71.DLL` ✅, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
+
 ### MONITORCOLLISION {#monitorcollision-1}
 
 ```
@@ -459,6 +515,8 @@ void MONITORCOLLISION()
 
 Enables collision monitoring between this animation and other objects.
 
+**Compatibility:** `MONITORCOLLISION` - `PIKLIB61.DLL` ✅, `PIKLIB71.DLL` ✅, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
+
 ### MONITORCOLLISIONALPHA {#monitorcollisionalpha-1}
 
 ```
@@ -466,6 +524,8 @@ void MONITORCOLLISIONALPHA()
 ```
 
 Enables alpha-channel awareness in collision detection.
+
+**Compatibility:** `MONITORCOLLISIONALPHA` - not present in the libraries analysed in `compat.json`.
 
 ### MOVE
 
@@ -488,6 +548,8 @@ ANNPLAYER^MOVE(VARDX, VARDY);
 ANNITEMDRAGGING^MOVE([IMOUSEX-IMOUSELASTX], [IMOUSEY-IMOUSELASTY]);
 ```
 
+**Compatibility:** `MOVE` - `PIKLIB61.DLL` ✅, `PIKLIB71.DLL` ✅, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
+
 ### NEXTFRAME
 
 ```
@@ -495,6 +557,8 @@ void NEXTFRAME()
 ```
 
 Advances the animation to the next frame of the current event.
+
+**Compatibility:** `NEXTFRAME` - `PIKLIB61.DLL` ✅, `PIKLIB71.DLL` ✅, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
 
 ### NPLAY
 
@@ -515,6 +579,8 @@ ANNDARK0^NPLAY(VARITEMP2);
 CZAS^NPLAY(0);
 ```
 
+**Compatibility:** `NPLAY` - `PIKLIB61.DLL` ❌, `PIKLIB71.DLL` ❌, `PIKLIB72.DLL` ❌, `PIKLIB8.DLL` ⚠️ (9/10), `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
+
 ### PAUSE
 
 ```
@@ -522,6 +588,8 @@ void PAUSE()
 ```
 
 Pauses the animation on the current frame.
+
+**Compatibility:** `PAUSE` - `PIKLIB61.DLL` ✅, `PIKLIB71.DLL` ✅, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
 
 ### PLAY
 
@@ -544,6 +612,8 @@ ANNKRET^PLAY(["IDLE_"+ANNKRET^GETEVENTNAME()]);
 ANIMOREKSIO^PLAY($1);
 ```
 
+**Compatibility:** `PLAY` - `PIKLIB61.DLL` ✅, `PIKLIB71.DLL` ✅, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
+
 ### PREVFRAME
 
 ```
@@ -551,6 +621,8 @@ void PREVFRAME()
 ```
 
 Moves the animation to the previous frame of the current event.
+
+**Compatibility:** `PREVFRAME` - `PIKLIB61.DLL` ✅, `PIKLIB71.DLL` ✅, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
 
 ### REMOVEMONITORCOLLISION
 
@@ -560,6 +632,8 @@ void REMOVEMONITORCOLLISION()
 
 Disables collision monitoring previously enabled by [`MONITORCOLLISION`](#monitorcollision-1).
 
+**Compatibility:** `REMOVEMONITORCOLLISION` - `PIKLIB61.DLL` ✅, `PIKLIB71.DLL` ✅, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
+
 ### REMOVEMONITORCOLLISIONALPHA
 
 ```
@@ -568,6 +642,8 @@ void REMOVEMONITORCOLLISIONALPHA()
 
 Disables alpha-channel awareness in collision detection, previously enabled by [`MONITORCOLLISIONALPHA`](#monitorcollisionalpha-1).
 
+**Compatibility:** `REMOVEMONITORCOLLISIONALPHA` - not present in the libraries analysed in `compat.json`.
+
 ### RESUME
 
 ```
@@ -575,6 +651,8 @@ void RESUME()
 ```
 
 Resumes playback paused with [`PAUSE`](#pause).
+
+**Compatibility:** `RESUME` - `PIKLIB61.DLL` ✅, `PIKLIB71.DLL` ✅, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
 
 ### SETANCHOR
 
@@ -602,6 +680,8 @@ ANNREX^SETANCHOR("LEFTLOWER");
 ANNREX^SETANCHOR(0, -100);
 ```
 
+**Compatibility:** `SETANCHOR` - `PIKLIB61.DLL` ❌, `PIKLIB71.DLL` ❌, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
+
 ### SETASBUTTON
 
 ```
@@ -622,6 +702,8 @@ ANNEXIT^SETASBUTTON(TRUE, TRUE);
 ANIMOPOWROT^SETASBUTTON(FALSE, FALSE);
 ```
 
+**Compatibility:** `SETASBUTTON` - `PIKLIB61.DLL` ❌, `PIKLIB71.DLL` ✅, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
+
 ### SETBACKWARD
 
 ```
@@ -630,6 +712,8 @@ void SETBACKWARD()
 
 Sets the playback direction to backwards.
 
+**Compatibility:** `SETBACKWARD` - `PIKLIB61.DLL` ✅, `PIKLIB71.DLL` ✅, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
+
 ### SETFORWARD
 
 ```
@@ -637,6 +721,8 @@ void SETFORWARD()
 ```
 
 Sets the playback direction to forward (the natural direction).
+
+**Compatibility:** `SETFORWARD` - `PIKLIB61.DLL` ✅, `PIKLIB71.DLL` ✅, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
 
 ### SETFPS
 
@@ -657,6 +743,8 @@ STLMAGIC^SETFPS(5);
 ANNMUCHA1^SETFPS(30);
 ANNKON^SETFPS([IKONFPS*8]);
 ```
+
+**Compatibility:** `SETFPS` - `PIKLIB61.DLL` ✅, `PIKLIB71.DLL` ✅, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
 
 ### SETFRAME
 
@@ -687,6 +775,8 @@ OFERTA^SETFRAME(3);
 ANN_H_PIECYK^SETFRAME("ROT", "PIECYK4");
 ```
 
+**Compatibility:** `SETFRAME` - `PIKLIB61.DLL` ✅, `PIKLIB71.DLL` ✅, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
+
 ### SETFRAMENAME
 
 ```
@@ -708,6 +798,8 @@ ANNKALAREPA^SETFRAMENAME(0, 0, "200");
 ANNKALAREPA^SETFRAMENAME(1, 0, "300");
 ```
 
+**Compatibility:** `SETFRAMENAME` - `PIKLIB61.DLL` ❌, `PIKLIB71.DLL` ❌, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
+
 ### SETOPACITY
 
 ```
@@ -726,6 +818,8 @@ Sets the animation's opacity in the `0–255` scale (`0` — fully transparent, 
 ANNPLAYER0^SETOPACITY(255);
 ANNPLAYER^SETOPACITY(100);
 ```
+
+**Compatibility:** `SETOPACITY` - `PIKLIB61.DLL` ❌, `PIKLIB71.DLL` ✅, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
 
 ### SETPOSITION
 
@@ -748,6 +842,8 @@ ANNEXIT^SETPOSITION(-700, -450);
 ANNBKG^SETPOSITION([VARIBKGOFFSETX-VARDTEMP0], [VARIBKGOFFSETY-VARDTEMP1]);
 ```
 
+**Compatibility:** `SETPOSITION` - `PIKLIB61.DLL` ✅, `PIKLIB71.DLL` ✅, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
+
 ### SETPRIORITY
 
 ```
@@ -767,6 +863,8 @@ ANNREX^SETPRIORITY(VARIPRIORITY);
 ANNHEAD1^SETPRIORITY(15);
 ```
 
+**Compatibility:** `SETPRIORITY` - `PIKLIB61.DLL` ✅, `PIKLIB71.DLL` ✅, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
+
 ### SHOW
 
 ```
@@ -774,6 +872,8 @@ void SHOW()
 ```
 
 Shows the animation (sets [`VISIBLE`](#visible) to `TRUE`).
+
+**Compatibility:** `SHOW` - `PIKLIB61.DLL` ✅, `PIKLIB71.DLL` ✅, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
 
 ### STOP
 
@@ -794,6 +894,18 @@ G_STLPAGE^STOP(FALSE);
 ANNREX^STOP(FALSE);
 ANNBLANK^STOP();
 ```
+
+**Compatibility:** `STOP` - `PIKLIB61.DLL` ✅, `PIKLIB71.DLL` ✅, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
+
+## Compatibility
+
+### TOP
+
+```
+void TOP()
+```
+
+This method is recognised for script compatibility, but currently does not change rendering order or animation state.
 
 ## Signals
 

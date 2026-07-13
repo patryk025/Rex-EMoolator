@@ -34,6 +34,8 @@ Returns the value of the field at the given (zero-based) index. The return type 
 STLEVEL^GETFIELD(0);
 ```
 
+**Compatibility:** `GETFIELD` - `PIKLIB61.DLL` ❌, `PIKLIB71.DLL` ❌, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
+
 ### SET
 
 ```
@@ -51,6 +53,8 @@ Synchronises the struct with the row currently pointed to by a [`DATABASE`](DATA
 ```
 SOBJECT^SET("DBOBJECTS_CURSOR");
 ```
+
+**Compatibility:** `SET` - `PIKLIB61.DLL` ❌, `PIKLIB71.DLL` ❌, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
 
 ## Signals
 

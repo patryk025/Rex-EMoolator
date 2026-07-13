@@ -27,6 +27,8 @@ CANVASOBSERVER^ADD("ANNMKORBA2");
 CANVASOBSERVER^ADD("ANNMPRZEGRYZA");
 ```
 
+**Kompatybilność:** `ADD` - `PIKLIB61.DLL` ✅, `PIKLIB71.DLL` ✅, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
+
 ### ENABLENOTIFY
 
 ```
@@ -45,6 +47,8 @@ Włącza lub wyłącza emitowanie sygnałów o zmianie fokusu okna gry ([`ONWIND
 CANVASOBSERVER^ENABLENOTIFY(TRUE);
 ```
 
+**Kompatybilność:** `ENABLENOTIFY` - `PIKLIB61.DLL` ❌, `PIKLIB71.DLL` ❌, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
+
 ### GETBPP
 
 ```
@@ -54,6 +58,8 @@ INTEGER GETBPP()
 Zwraca głębię koloru kanwy w bitach na piksel. Oryginalny silnik BlooMoo działa w trybie 16 bpp (RGB565) — metoda zawsze zwraca `16`.
 
 **Zwraca**: [`INTEGER`](INTEGER.md) — głębia koloru w bitach (`16`).
+
+**Kompatybilność:** `GETBPP` - `PIKLIB61.DLL` ❌, `PIKLIB71.DLL` ❌, `PIKLIB72.DLL` ❌, `PIKLIB8.DLL` ⚠️ (4/10), `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
 
 ### GETGRAPHICSAT
 
@@ -80,6 +86,8 @@ CANVASOBSERVER^GETGRAPHICSAT(MOUSE^GETPOSX(),MOUSE^GETPOSY(),TRUE,2998,2998,FALS
 CANVASOBSERVER^GETGRAPHICSAT(VARICURSORX,VARICURSORY,TRUE,40,40,TRUE);
 ```
 
+**Kompatybilność:** `GETGRAPHICSAT` - `PIKLIB61.DLL` ✅, `PIKLIB71.DLL` ✅, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
+
 ### GETGRAPHICSAT2
 
 ```
@@ -88,6 +96,8 @@ STRING GETGRAPHICSAT2(INTEGER posX, INTEGER posY, BOOL onlyVisible, INTEGER minZ
 ```
 
 Wariant [`GETGRAPHICSAT`](#getgraphicsat) przeszukujący nie tylko bieżącą scenę, ale również nadrzędne kontenery (epizod, root).
+
+**Kompatybilność:** `GETGRAPHICSAT2` - `PIKLIB61.DLL` ❌, `PIKLIB71.DLL` ❌, `PIKLIB72.DLL` ❌, `PIKLIB8.DLL` ❌, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ⚠️ (4/5).
 
 ### MOVEBKG
 
@@ -107,6 +117,8 @@ Przesuwa tło o zadane wartości w osiach X i Y (względem aktualnej pozycji).
 CANVASOBSERVER^MOVEBKG(0,ARRAYDY^GET(0));
 CANVASOBSERVER^MOVEBKG(ISCROLLMOVEX,ISCROLLMOVEY);
 ```
+
+**Kompatybilność:** `MOVEBKG` - `PIKLIB61.DLL` ❌, `PIKLIB71.DLL` ✅, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
 
 ### PASTE
 
@@ -128,6 +140,8 @@ CANVASOBSERVER^PASTE("ANNBUM",[I1-IPLANPOSX],[I2-IPLANPOSY]);
 CANVASOBSERVER^PASTE("IMG1",0,0);
 ```
 
+**Kompatybilność:** `PASTE` - `PIKLIB61.DLL` ❌, `PIKLIB71.DLL` ❌, `PIKLIB72.DLL` ❌, `PIKLIB8.DLL` ❌, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ⚠️ (4/5).
+
 ### REDRAW
 
 ```
@@ -136,6 +150,8 @@ void REDRAW()
 
 W oryginalnym silniku oznacza kanwę jako wymagającą ponownego rysowania. W praktyce silnik i tak rysuje całość każdą klatkę, więc metoda zachowuje się jak no-op.
 
+**Kompatybilność:** `REDRAW` - `PIKLIB61.DLL` ❌, `PIKLIB71.DLL` ❌, `PIKLIB72.DLL` ❌, `PIKLIB8.DLL` ⚠️ (8/10), `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
+
 ### REFRESH
 
 ```
@@ -143,6 +159,8 @@ void REFRESH()
 ```
 
 Wymusza ponowne narysowanie wszystkich obiektów [`IMAGE`](IMAGE.md) w bieżącej scenie — wewnętrznie wywołuje na nich metodę [`INVALIDATE`](IMAGE.md#invalidate).
+
+**Kompatybilność:** `REFRESH` - `PIKLIB61.DLL` ✅, `PIKLIB71.DLL` ✅, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
 
 ### REMOVE
 
@@ -162,6 +180,8 @@ Ukrywa wymienione obiekty graficzne na kanwie (ustawia ich widoczność na `FALS
 CANVASOBSERVER^REMOVE("ZLY");
 CANVASOBSERVER^REMOVE("ANNAUTOR","ANNAUTOL","ANNAUTORMASK","ANNAUTOLMASK");
 ```
+
+**Kompatybilność:** `REMOVE` - `PIKLIB61.DLL` ✅, `PIKLIB71.DLL` ✅, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
 
 ### SAVE
 
@@ -186,6 +206,8 @@ CANVASOBSERVER^SAVE("$COMMON\ZOOM.IMG",2,2,$1,$2,$3,$4);
 CANVASOBSERVER^SAVE(["$COMMON\SAVE_BD\BD_SCR"+VARISLOTNO+".IMG"],0.5,0.5);
 ```
 
+**Kompatybilność:** `SAVE` - `PIKLIB61.DLL` ❌, `PIKLIB71.DLL` ❌, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
+
 ### SETBACKGROUND
 
 ```
@@ -205,6 +227,8 @@ CANVASOBSERVER^SETBACKGROUND(SOBJECT|NAME);
 CANVASOBSERVER^SETBACKGROUND("LOGO.IMG");
 ```
 
+**Kompatybilność:** `SETBACKGROUND` - `PIKLIB61.DLL` ✅, `PIKLIB71.DLL` ✅, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
+
 ### SETBKGPOS
 
 ```
@@ -223,6 +247,8 @@ Ustawia bezwzględną pozycję tła w osiach X i Y.
 CANVASOBSERVER^SETBKGPOS([VARI_BKGX-VARI_BKGXOFFSET],[VARI_BKGY-VARI_BKGYOFFSET]);
 CANVASOBSERVER^SETBKGPOS(VARI_TMPX,0);
 ```
+
+**Kompatybilność:** `SETBKGPOS` - `PIKLIB61.DLL` ❌, `PIKLIB71.DLL` ✅, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
 
 ## Sygnały
 

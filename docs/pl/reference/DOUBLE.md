@@ -43,6 +43,8 @@ VARDTMP2^ABS(VARDTMP2);
 DKIERUNEKY^ABS(DKIERUNEKY);
 ```
 
+**Kompatybilność:** `ABS` - `PIKLIB61.DLL` ⚠️ (2/4), `PIKLIB71.DLL` ✅, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
+
 ### ADD
 
 ```
@@ -65,6 +67,8 @@ VARDTIME^ADD(1.0);
 STREX|DPOSX^ADD(STREX|FORCEX);
 ```
 
+**Kompatybilność:** `ADD` - `PIKLIB61.DLL` ✅, `PIKLIB71.DLL` ✅, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
+
 ### ARCTAN
 
 ```
@@ -84,6 +88,8 @@ Zapisuje w zmiennej arcus tangens argumentu wyrażony w stopniach i zwraca tę w
 ```
 VARDTMP1^ARCTAN(VARDTMP1);
 ```
+
+**Kompatybilność:** `ARCTAN` - `PIKLIB61.DLL` ❌, `PIKLIB71.DLL` ✅, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
 
 ### ARCTANEX
 
@@ -106,6 +112,8 @@ Zapisuje w zmiennej wartość funkcji `atan2(y, x)` wyrażoną w stopniach i zwr
 VARDTEMP1^ARCTANEX(VARIDIRY, VARIDIRX);
 VARDTEMP2^ARCTANEX(VREFLECT^GET(1), VREFLECT^GET(0));
 ```
+
+**Kompatybilność:** `ARCTANEX` - `PIKLIB61.DLL` ❌, `PIKLIB71.DLL` ✅, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
 
 ### CLAMP
 
@@ -130,6 +138,8 @@ VARDTMP1^CLAMP(-15.0, 15.0);
 DKONSPEED^CLAMP(0.0, DKONSPEEDMAX);
 ```
 
+**Kompatybilność:** `CLAMP` - `PIKLIB61.DLL` ❌, `PIKLIB71.DLL` ✅, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
+
 ### CLEAR
 
 ```
@@ -139,6 +149,8 @@ DOUBLE CLEAR()
 Ustawia wartość zmiennej na `0.0` i zwraca tę wartość.
 
 **Zwraca**: `0.0`.
+
+**Kompatybilność:** `CLEAR` - `PIKLIB61.DLL` ✅, `PIKLIB71.DLL` ❌, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
 
 ### COSINUS
 
@@ -161,6 +173,8 @@ VARDTEMP0^COSINUS(VARDANGLE);
 VARDTEMP1^COSINUS(ARRANGLE^GET(VARPLAYER));
 ```
 
+**Kompatybilność:** `COSINUS` - `PIKLIB61.DLL` ❌, `PIKLIB71.DLL` ✅, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
+
 ### DEC
 
 ```
@@ -170,6 +184,8 @@ DOUBLE DEC()
 Zmniejsza wartość zmiennej o `1.0`.
 
 **Zwraca**: nową wartość zmiennej.
+
+**Kompatybilność:** `DEC` - `PIKLIB61.DLL` ✅, `PIKLIB71.DLL` ✅, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
 
 ### DIV
 
@@ -193,6 +209,8 @@ DKONSPEED^DIV(6.0);
 VARDTMP2^DIV(15);
 ```
 
+**Kompatybilność:** `DIV` - `PIKLIB61.DLL` ⚠️ (3/4), `PIKLIB71.DLL` ✅, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
+
 ### GET
 
 ```
@@ -203,6 +221,8 @@ Zwraca aktualną wartość zmiennej.
 
 **Zwraca**: bieżąca wartość pola `VALUE`.
 
+**Kompatybilność:** `GET` - `PIKLIB61.DLL` ❌, `PIKLIB71.DLL` ✅, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
+
 ### INC
 
 ```
@@ -212,6 +232,8 @@ DOUBLE INC()
 Zwiększa wartość zmiennej o `1.0`.
 
 **Zwraca**: nową wartość zmiennej.
+
+**Kompatybilność:** `INC` - `PIKLIB61.DLL` ✅, `PIKLIB71.DLL` ✅, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
 
 ### LENGTH
 
@@ -234,6 +256,8 @@ Wyznacza długość wektora `(x, y)` jako `sqrt(x² + y²)`, zapisuje wynik i zw
 VARDTEMP0^LENGTH(VARIDIRX, VARIDIRY);
 ```
 
+**Kompatybilność:** `LENGTH` - `PIKLIB61.DLL` ❌, `PIKLIB71.DLL` ✅, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
+
 ### LOG
 
 ```
@@ -247,6 +271,8 @@ Zapisuje w zmiennej logarytm naturalny argumentu i zwraca tę wartość.
 - `value` — liczba, której logarytm jest wyznaczany.
 
 **Zwraca**: nową wartość zmiennej.
+
+**Kompatybilność:** `LOG` - `PIKLIB61.DLL` ❌, `PIKLIB71.DLL` ❌, `PIKLIB72.DLL` ❌, `PIKLIB8.DLL` ❌, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ⚠️ (4/5).
 
 ### MAXA
 
@@ -268,6 +294,8 @@ Wyznacza maksimum spośród podanych argumentów, zapisuje wynik i zwraca go. Wy
 VARDPOWER^MAXA(0.0, VARDPOWER);
 ```
 
+**Kompatybilność:** `MAXA` - `PIKLIB61.DLL` ❌, `PIKLIB71.DLL` ✅, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
+
 ### MINA
 
 ```
@@ -288,6 +316,8 @@ Wyznacza minimum spośród podanych argumentów, zapisuje wynik i zwraca go. Wym
 VARDPOWER^MINA(VARDPOWER, 9.0);
 ```
 
+**Kompatybilność:** `MINA` - `PIKLIB61.DLL` ❌, `PIKLIB71.DLL` ✅, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
+
 ### MOD
 
 ```
@@ -301,6 +331,8 @@ Wyznacza resztę z dzielenia bieżącej wartości zmiennej przez argument, obcin
 - `divisor` — dzielnik.
 
 **Zwraca**: nową wartość zmiennej (lub niezmienioną wartość, jeśli `divisor` był równy `0.0`).
+
+**Kompatybilność:** `MOD` - `PIKLIB61.DLL` ⚠️ (3/4), `PIKLIB71.DLL` ✅, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
 
 ### MUL
 
@@ -324,6 +356,8 @@ VARCATFORCEX^MUL(1000000);
 STREX|FORCEX^MUL(STREX|DEFIANCE);
 ```
 
+**Kompatybilność:** `MUL` - `PIKLIB61.DLL` ✅, `PIKLIB71.DLL` ✅, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
+
 ### RESETINI
 
 ```
@@ -333,6 +367,8 @@ DOUBLE RESETINI()
 Przywraca wartość zmiennej do wartości resetu zdefiniowanej w atrybutach obiektu w skrypcie. Silnik szuka wartości w kolejności: `DEFAULT` → `INIT_VALUE` → `VALUE`; używana jest pierwsza znaleziona. Jeśli żadna z nich nie jest ustawiona, wartość ustawiana jest na `0.0`.
 
 **Zwraca**: nową wartość zmiennej.
+
+**Kompatybilność:** `RESETINI` - `PIKLIB61.DLL` ✅, `PIKLIB71.DLL` ✅, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
 
 ### SET
 
@@ -356,6 +392,8 @@ VARDMAXVELKRET^SET([0.6*VARDMAXVEL]);
 VARD_KRETSPEED^SET($1);
 ```
 
+**Kompatybilność:** `SET` - `PIKLIB61.DLL` ✅, `PIKLIB71.DLL` ✅, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
+
 ### SGN
 
 ```
@@ -365,6 +403,8 @@ INTEGER SGN()
 Zwraca znak bieżącej wartości zmiennej: `-1` dla wartości ujemnych, `1` dla dodatnich, `0` dla zera. Metoda nie modyfikuje wartości zmiennej i jako jedyna w tym typie zwraca [`INTEGER`](INTEGER.md), nie `DOUBLE`.
 
 **Zwraca**: znak wartości zmiennej (`-1`, `0` lub `1`).
+
+**Kompatybilność:** `SGN` - `PIKLIB61.DLL` ❌, `PIKLIB71.DLL` ❌, `PIKLIB72.DLL` ❌, `PIKLIB8.DLL` ⚠️ (8/10), `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
 
 ### SINUS
 
@@ -386,6 +426,8 @@ Zapisuje w zmiennej sinus podanego kąta i zwraca tę wartość. Kąt podawany j
 VARDTEMP1^SINUS(VARDANGLE);
 VARDTEMP2^SINUS(ARRANGLE^GET(VARPLAYER));
 ```
+
+**Kompatybilność:** `SINUS` - `PIKLIB61.DLL` ❌, `PIKLIB71.DLL` ✅, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
 
 ### SQRT
 
@@ -411,6 +453,8 @@ Zapisuje w zmiennej pierwiastek kwadratowy i zwraca tę wartość.
 VARDODLEGLOSC^SQRT(VARDODLEGLOSC);
 ```
 
+**Kompatybilność:** `SQRT` - `PIKLIB61.DLL` ❌, `PIKLIB71.DLL` ✅, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
+
 ### SUB
 
 ```
@@ -432,6 +476,8 @@ VARDANGLE^SUB(VARDTEMP2);
 DKONSPEED^SUB([DKONACCELERATION*D3]);
 ```
 
+**Kompatybilność:** `SUB` - `PIKLIB61.DLL` ⚠️ (3/4), `PIKLIB71.DLL` ✅, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
+
 ### SWITCH
 
 ```
@@ -446,6 +492,8 @@ Jeżeli bieżąca wartość zmiennej jest równa `valueA`, zmiennej zostaje przy
 - `valueB` — druga wartość.
 
 **Zwraca**: nową wartość zmiennej.
+
+**Kompatybilność:** `SWITCH` - `PIKLIB61.DLL` ✅, `PIKLIB71.DLL` ✅, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
 
 ## Sygnały
 

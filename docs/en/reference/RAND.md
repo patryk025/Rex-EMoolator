@@ -33,6 +33,8 @@ RANDOM^GET(VARI_TMP3);
 RANDOM^GET(0, 3);
 ```
 
+**Compatibility:** `GET` - `PIKLIB61.DLL` ✅, `PIKLIB71.DLL` ✅, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
+
 ### GETPLENTY
 
 ```
@@ -50,3 +52,5 @@ If `onlyUnique` is `TRUE`, every generated value must be different from the prev
 - `offset` — start of the range (inclusive).
 - `range` — size of the range (the upper bound is exclusive).
 - `onlyUnique` — `TRUE` to enforce uniqueness among the generated values.
+
+**Compatibility:** `GETPLENTY` - `PIKLIB61.DLL` ✅, `PIKLIB71.DLL` ✅, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.

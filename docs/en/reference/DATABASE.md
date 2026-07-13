@@ -40,6 +40,8 @@ DBOBJECTS^FIND("TYPE",102,0);
 DBDIALOGI^FIND("ID",SDIALOGNAME,IDIALOGINDEKS);
 ```
 
+**Compatibility:** `FIND` - `PIKLIB61.DLL` ❌, `PIKLIB71.DLL` ❌, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
+
 ### GETROWSNO
 
 ```
@@ -55,6 +57,20 @@ Returns the number of rows in the database.
 ```
 DBOBJECTS^GETROWSNO();
 ```
+
+**Compatibility:** `GETROWSNO` - `PIKLIB61.DLL` ❌, `PIKLIB71.DLL` ❌, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
+
+### GETCURSORPOS
+
+```
+INTEGER GETCURSORPOS()
+```
+
+Returns the row index currently selected by the database cursor. The index is zero-based; calls such as [`SELECT`](#select), [`NEXT`](#next), and [`FIND`](#find) change it.
+
+**Returns**: [`INTEGER`](INTEGER.md) — current cursor index.
+
+**Compatibility:** `GETCURSORPOS` - `PIKLIB61.DLL` ❌, `PIKLIB71.DLL` ❌, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
 
 ### LOAD
 
@@ -75,6 +91,8 @@ DBOBJECTS^LOAD(VARSCURRARCADE);
 DBITEMS^LOAD("$COMMON\ITEMS0.DTA");
 ```
 
+**Compatibility:** `LOAD` - `PIKLIB61.DLL` ❌, `PIKLIB71.DLL` ❌, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
+
 ### NEXT
 
 ```
@@ -89,6 +107,8 @@ Advances the cursor to the next row.
 DBSCENE^NEXT();
 ```
 
+**Compatibility:** `NEXT` - `PIKLIB61.DLL` ❌, `PIKLIB71.DLL` ❌, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
+
 ### REMOVEALL
 
 ```
@@ -102,6 +122,8 @@ Drops every row from the database. The schema ([`MODEL`](#model)) is preserved.
 ```
 DBITEMS^REMOVEALL();
 ```
+
+**Compatibility:** `REMOVEALL` - `PIKLIB61.DLL` ❌, `PIKLIB71.DLL` ❌, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
 
 ### SAVE
 
@@ -122,6 +144,8 @@ DBOBJECTS^SAVE(VARSCURRARCADE);
 DBLEVEL^SAVE(["$COMMON\SAVE_BD\BD_CLEV"+VARIACTIVESLOT+".FLD"]);
 ```
 
+**Compatibility:** `SAVE` - `PIKLIB61.DLL` ❌, `PIKLIB71.DLL` ❌, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
+
 ### SELECT
 
 ```
@@ -140,6 +164,8 @@ Moves the cursor to the row at the given (zero-based) index.
 DBOBJECTS^SELECT(0);
 DBOBJECTS^SELECT(VARITER);
 ```
+
+**Compatibility:** `SELECT` - `PIKLIB61.DLL` ❌, `PIKLIB71.DLL` ❌, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
 
 ## Signals
 

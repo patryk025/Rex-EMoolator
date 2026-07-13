@@ -64,18 +64,23 @@ WORLD^ADDBODY(100,10,0.0,10000.0,0.0,0.0,40000,1,2,30,16,16);
 WORLD^ADDBODY(VARINT0,0.1,0.5,0.5,0.0,0.0,100000,1,2,16,16,16);
 ```
 
+**Compatibility:** `ADDBODY` - type from a dynamically loaded library, outside the scope of the current `compat.json` export.
+
 ### ADDFORCE
 
 ```
 void ADDFORCE(INTEGER objectId, DOUBLE forceX, DOUBLE forceY, [DOUBLE forceZ])
+void ADDFORCE(INTEGER objectId, DOUBLE forceX, DOUBLE forceY, DOUBLE forceZ,
+              DOUBLE pointX, DOUBLE pointY, DOUBLE pointZ)
 ```
 
-Applies a force to the body along three axes. Omitting `forceZ` is equivalent to passing `0.0`.
+Applies a force to the body along three axes. Omitting `forceZ` is equivalent to passing `0.0`. The seven-argument form applies the force at `(pointX, pointY, pointZ)`, so it can also rotate the body.
 
 **Parameters**
 
 - `objectId` — body identifier.
 - `forceX`, `forceY`, `forceZ` — force components.
+- `pointX`, `pointY`, `pointZ` — world-space application point (seven-argument form only).
 
 **Examples**
 
@@ -84,19 +89,55 @@ WORLD^ADDFORCE(100,VARFORCEX,VARFORCEY,0);
 WTEST^ADDFORCE(501,0,VARD_TMP1,0);
 ```
 
+**Compatibility:** `ADDFORCE` - type from a dynamically loaded library, outside the scope of the current `compat.json` export.
+
 ### ADDGRAVITYEX
 
 ```
 void ADDGRAVITYEX(INTEGER objectId, INTEGER secondObjectId, BOOL gravityEx)
 ```
 
-Adds an extended gravity interaction between two bodies. The exact behaviour has not been established.
+Controls an exception to central gravity. When `gravityEx` is `TRUE`, `objectId` is **not attracted** by the centre `secondObjectId`; `FALSE` removes that exception and re-enables its influence. This method does not create a gravity field: the centre still needs [`SETGRAVITYCENTER`](#setgravitycenter) enabled and a non-zero [`SETG`](#setg).
+
+Despite its name, this is effectively an "add gravity exclusion" call.
+
+**Parameters**
+
+- `objectId` — body affected by the exception.
+- `secondObjectId` — gravity-centre identifier to exclude.
+- `gravityEx` — `TRUE` adds the exclusion, `FALSE` removes it; an omitted argument behaves as `TRUE`.
 
 **Examples**
 
 ```
 WTEST^ADDGRAVITYEX(VARI_ID,_I_,TRUE);
 ```
+
+**Compatibility:** `ADDGRAVITYEX` - type from a dynamically loaded library, outside the scope of the current `compat.json` export.
+
+### ADDOBJECT
+
+```
+void ADDOBJECT(INTEGER objectId, DOUBLE x, DOUBLE y, DOUBLE z,
+               DOUBLE dim1, DOUBLE dim2, DOUBLE dim3, DOUBLE mass,
+               INTEGER rigidFlag, DOUBLE maxSpeed)
+```
+
+Legacy shorthand for creating a dynamic sphere and placing it. `rigidFlag` is accepted for compatibility but not used by the emulator. New code should prefer [`ADDBODY`](#addbody), which makes geometry and contact settings explicit.
+
+**Compatibility:** `ADDOBJECT` - type from a dynamically loaded library, outside the scope of the current `compat.json` export.
+
+### SETFORCE / SETOBJECTFORCE
+
+```
+void SETFORCE(INTEGER objectId, DOUBLE forceX, DOUBLE forceY, [DOUBLE forceZ])
+void SETOBJECTFORCE(INTEGER objectId, DOUBLE forceX, DOUBLE forceY, [DOUBLE forceZ])
+```
+
+Both names are aliases for the regular [`ADDFORCE`](#addforce) form. They do not set a persistent force; they add force for the current simulation step.
+
+**Compatibility:** `SETFORCE` - type from a dynamically loaded library, outside the scope of the current `compat.json` export.
+**Compatibility:** `SETOBJECTFORCE` - type from a dynamically loaded library, outside the scope of the current `compat.json` export.
 
 ### FINDPATH
 
@@ -123,6 +164,8 @@ WPATH^FINDPATH(100,VARIPATHID,$3,$4,0,TRUE,FALSE);
 WPATH^FINDPATH(101,VARIPATHID,VARIKRETGOX,VARIKRETGOY,0,FALSE);
 ```
 
+**Compatibility:** `FINDPATH` - type from a dynamically loaded library, outside the scope of the current `compat.json` export.
+
 ### FOLLOWPATH
 
 ```
@@ -147,6 +190,8 @@ WPATH^FOLLOWPATH(100,20,0.5,VARDMAXVEL);
 WPATH^FOLLOWPATH(101,20,0.5,VARD_KRETSPEED);
 ```
 
+**Compatibility:** `FOLLOWPATH` - type from a dynamically loaded library, outside the scope of the current `compat.json` export.
+
 ### GETANGLE
 
 ```
@@ -161,6 +206,8 @@ Returns the angle derived from the body's velocity vector (in degrees).
 
 **Returns**: [`DOUBLE`](DOUBLE.md) — angle in degrees.
 
+**Compatibility:** `GETANGLE` - type from a dynamically loaded library, outside the scope of the current `compat.json` export.
+
 ### GETBKGPOSX
 
 ```
@@ -169,6 +216,8 @@ INTEGER GETBKGPOSX()
 
 Returns the X position of the background associated with the physics world.
 
+**Compatibility:** `GETBKGPOSX` - type from a dynamically loaded library, outside the scope of the current `compat.json` export.
+
 ### GETBKGPOSY
 
 ```
@@ -176,6 +225,18 @@ INTEGER GETBKGPOSY()
 ```
 
 Returns the Y position of the background associated with the physics world.
+
+**Compatibility:** `GETBKGPOSY` - type from a dynamically loaded library, outside the scope of the current `compat.json` export.
+
+### GETCOLLISION
+
+```
+BOOL GETCOLLISION(INTEGER objectId, [INTEGER otherObjectId])
+```
+
+Returns `TRUE` when the body collided during the current simulation step. With `otherObjectId`, it checks specifically for a collision with that body. The result is reported only for bodies whose collision monitoring is enabled with [`SETACTIVE`](#setactive).
+
+**Compatibility:** `GETCOLLISION` - type from a dynamically loaded library, outside the scope of the current `compat.json` export.
 
 ### GETMOVEDISTANCE
 
@@ -189,29 +250,37 @@ Returns the distance the body has covered since the measurement was last reset.
 
 - `objectId` — body identifier.
 
+**Compatibility:** `GETMOVEDISTANCE` - type from a dynamically loaded library, outside the scope of the current `compat.json` export.
+
 ### GETPOSITIONX
 
 ```
-INTEGER GETPOSITIONX(INTEGER objectId)
+DOUBLE GETPOSITIONX(INTEGER objectId)
 ```
 
 Returns the body's X position in screen-space (offset by `+400` from the physics origin).
 
+**Compatibility:** `GETPOSITIONX` - type from a dynamically loaded library, outside the scope of the current `compat.json` export.
+
 ### GETPOSITIONY
 
 ```
-INTEGER GETPOSITIONY(INTEGER objectId)
+DOUBLE GETPOSITIONY(INTEGER objectId)
 ```
 
 Returns the body's Y position in screen-space (axis flipped — `300 - Y`).
 
+**Compatibility:** `GETPOSITIONY` - type from a dynamically loaded library, outside the scope of the current `compat.json` export.
+
 ### GETPOSITIONZ
 
 ```
-INTEGER GETPOSITIONZ(INTEGER objectId)
+DOUBLE GETPOSITIONZ(INTEGER objectId)
 ```
 
 Returns the body's Z position.
+
+**Compatibility:** `GETPOSITIONZ` - type from a dynamically loaded library, outside the scope of the current `compat.json` export.
 
 ### GETROTATIONZ
 
@@ -221,6 +290,20 @@ DOUBLE GETROTATIONZ(INTEGER objectId)
 
 Returns the body's rotation around the Z axis (in degrees).
 
+**Compatibility:** `GETROTATIONZ` - type from a dynamically loaded library, outside the scope of the current `compat.json` export.
+
+### GETROTATIONX / GETROTATIONY
+
+```
+DOUBLE GETROTATIONX(INTEGER objectId)
+DOUBLE GETROTATIONY(INTEGER objectId)
+```
+
+Return the body's rotation around the X or Y axis, respectively, in degrees.
+
+**Compatibility:** `GETROTATIONX` - type from a dynamically loaded library, outside the scope of the current `compat.json` export.
+**Compatibility:** `GETROTATIONY` - type from a dynamically loaded library, outside the scope of the current `compat.json` export.
+
 ### GETSPEED
 
 ```
@@ -229,23 +312,25 @@ DOUBLE GETSPEED(INTEGER objectId)
 
 Returns the body's speed (linear velocity magnitude).
 
+**Compatibility:** `GETSPEED` - type from a dynamically loaded library, outside the scope of the current `compat.json` export.
+
 ### JOIN
 
 ```
 void JOIN(INTEGER firstId, INTEGER secondId,
-          DOUBLE anchorX, DOUBLE anchorY, DOUBLE anchorZ,
-          DOUBLE limitMotor, DOUBLE lowStop, DOUBLE highStop,
-          [DOUBLE hingeAxisX, DOUBLE hingeAxisY, DOUBLE hingeAxisZ])
+          DOUBLE anchorX, DOUBLE anchorY, DOUBLE anchorZ, DOUBLE limitMotor,
+          [DOUBLE lowStop, DOUBLE highStop,
+           DOUBLE hingeAxisX, DOUBLE hingeAxisY, DOUBLE hingeAxisZ])
 ```
 
-Creates a hinge joint between two bodies. The optional axis arguments specify the rotation axis — defaults to `(0, 0, 1)`.
+Creates a hinge joint between two bodies. Valid variants have 6, 8, or 11 arguments. Without stops, the rotation range is `-90` to `90` degrees; the default axis is Y, `(0, 1, 0)`.
 
 **Parameters**
 
 - `firstId`, `secondId` — body identifiers to join.
 - `anchorX`, `anchorY`, `anchorZ` — joint anchor point.
 - `limitMotor` — force required to break the joint.
-- `lowStop`, `highStop` — rotation limits.
+- `lowStop`, `highStop` — optional rotation limits, in degrees.
 - `hingeAxisX`, `hingeAxisY`, `hingeAxisZ` — (optional) rotation axis.
 
 **Examples**
@@ -254,6 +339,27 @@ Creates a hinge joint between two bodies. The optional axis arguments specify th
 WORLD^JOIN(199,200,400,300,0,0,-180,180);
 WTEST^JOIN(VARI_ID,VARI_TMP1,VARI_X,VARI_TMP2,0,0,-180,180,0,1,0);
 ```
+
+**Compatibility:** `JOIN` - type from a dynamically loaded library, outside the scope of the current `compat.json` export.
+
+### JOIN2, JOINTSTEER, JOINTSPEED, and BREAK
+
+```
+void JOIN2(INTEGER firstId, INTEGER secondId,
+           DOUBLE anchorX, DOUBLE anchorY, DOUBLE anchorZ,
+           DOUBLE axis1X, DOUBLE axis1Y, DOUBLE axis1Z,
+           DOUBLE axis2X, DOUBLE axis2Y, DOUBLE axis2Z)
+void JOINTSTEER(INTEGER objectId, DOUBLE angle)
+void JOINTSPEED(INTEGER objectId, DOUBLE speed)
+void BREAK(INTEGER objectId)
+```
+
+`JOIN2` creates a two-axis (`hinge2`) joint, used for example by wheels. `JOINTSTEER` controls its steering and `JOINTSPEED` its motor speed; `BREAK` destroys the joint assigned to the body. Steering and speed have no effect on an ordinary `JOIN` hinge.
+
+**Compatibility:** `JOIN2` - type from a dynamically loaded library, outside the scope of the current `compat.json` export.
+**Compatibility:** `JOINTSTEER` - type from a dynamically loaded library, outside the scope of the current `compat.json` export.
+**Compatibility:** `JOINTSPEED` - type from a dynamically loaded library, outside the scope of the current `compat.json` export.
+**Compatibility:** `BREAK` - type from a dynamically loaded library, outside the scope of the current `compat.json` export.
 
 ### LINK
 
@@ -275,6 +381,8 @@ WPATH^LINK(100,"ANNREX");
 WORLD^LINK(VARINT0,VARSTRING0);
 ```
 
+**Compatibility:** `LINK` - type from a dynamically loaded library, outside the scope of the current `compat.json` export.
+
 ### LOAD
 
 ```
@@ -293,6 +401,8 @@ Resets the physics engine and loads the world from a `.SEK` file.
 WPATH^LOAD(SOBJECT|NAME);
 ```
 
+**Compatibility:** `LOAD` - type from a dynamically loaded library, outside the scope of the current `compat.json` export.
+
 ### MOVEOBJECTS
 
 ```
@@ -309,6 +419,20 @@ Steps the simulation forward by one frame and moves every body according to the 
 WORLD^MOVEOBJECTS();
 ```
 
+**Compatibility:** `MOVEOBJECTS` - type from a dynamically loaded library, outside the scope of the current `compat.json` export.
+
+### PAUSELINK / RESUMELINK
+
+```
+void PAUSELINK(INTEGER objectId)
+void RESUMELINK(INTEGER objectId)
+```
+
+Pause or resume updates of the graphic bound through [`LINK`](#link). The body's physics continues to run; only propagation of its position to `ANIMO` or `IMAGE` is paused.
+
+**Compatibility:** `PAUSELINK` - type from a dynamically loaded library, outside the scope of the current `compat.json` export.
+**Compatibility:** `RESUMELINK` - type from a dynamically loaded library, outside the scope of the current `compat.json` export.
+
 ### REMOVEOBJECT
 
 ```
@@ -323,25 +447,29 @@ Removes a body from the physics engine.
 WTEST^REMOVEOBJECT(60);
 ```
 
+**Compatibility:** `REMOVEOBJECT` - type from a dynamically loaded library, outside the scope of the current `compat.json` export.
+
 ### SETACTIVE
 
 ```
-void SETACTIVE(INTEGER objectId, BOOL active, BOOL collidable)
+void SETACTIVE(INTEGER objectId, BOOL active, [BOOL monitorCollisions])
 ```
 
-Sets a body's activity state.
+Sets the body's active state and, separately, collision reporting through [`GETCOLLISION`](#getcollision). The second flag does not disable physical contacts; it disables their reporting to the script. When omitted, it defaults to `active`.
 
 **Parameters**
 
 - `objectId` — body identifier.
 - `active` — whether the body participates in the simulation.
-- `collidable` — whether the body participates in collision detection.
+- `monitorCollisions` — whether collisions are recorded and reported to the script.
 
 **Examples**
 
 ```
 WPATH^SETACTIVE(VARI_3DPATHID,$1,$2);
 ```
+
+**Compatibility:** `SETACTIVE` - type from a dynamically loaded library, outside the scope of the current `compat.json` export.
 
 ### SETBKGSIZE
 
@@ -350,6 +478,8 @@ void SETBKGSIZE(INTEGER leftX, INTEGER rightX, INTEGER topY, INTEGER bottomY)
 ```
 
 Sets the size of the background rectangle associated with the world.
+
+**Compatibility:** `SETBKGSIZE` - type from a dynamically loaded library, outside the scope of the current `compat.json` export.
 
 ### SETG
 
@@ -371,6 +501,34 @@ WTEST^SETG(VARI_ID,VARD_MAGNESREACT);
 WTEST^SETG(501,-7000000);
 ```
 
+**Compatibility:** `SETG` - type from a dynamically loaded library, outside the scope of the current `compat.json` export.
+
+### SETMASS, SETBODYPROPERTIES, and SETBODYDYNAMICS
+
+```
+void SETMASS(INTEGER objectId, DOUBLE mass)
+void SETBODYPROPERTIES(INTEGER objectId, DOUBLE mass,
+                       DOUBLE sizeX, DOUBLE sizeY, DOUBLE sizeZ)
+void SETBODYDYNAMICS(INTEGER objectId, DOUBLE mu, DOUBLE mu2,
+                     DOUBLE bounce, DOUBLE bounceVelocity, DOUBLE maxVelocity)
+```
+
+`SETMASS` changes only mass. `SETBODYPROPERTIES` changes mass and geometry dimensions together, while `SETBODYDYNAMICS` changes contact settings and the speed cap. These calls let scripts adjust an existing body without recreating it.
+
+**Compatibility:** `SETMASS` - type from a dynamically loaded library, outside the scope of the current `compat.json` export.
+**Compatibility:** `SETBODYPROPERTIES` - type from a dynamically loaded library, outside the scope of the current `compat.json` export.
+**Compatibility:** `SETBODYDYNAMICS` - type from a dynamically loaded library, outside the scope of the current `compat.json` export.
+
+### SETCOLLISIONTYPE
+
+```
+void SETCOLLISIONTYPE(INTEGER objectId, INTEGER collisionType)
+```
+
+Assigns a numeric collision type. The emulator retains this value for compatibility but does not yet use it to filter contacts.
+
+**Compatibility:** `SETCOLLISIONTYPE` - type from a dynamically loaded library, outside the scope of the current `compat.json` export.
+
 ### SETGRAVITY
 
 ```
@@ -390,6 +548,8 @@ WORLD^SETGRAVITY(0,0,-1000);
 WORLD^SETGRAVITY(0,-15,0);
 ```
 
+**Compatibility:** `SETGRAVITY` - type from a dynamically loaded library, outside the scope of the current `compat.json` export.
+
 ### SETGRAVITYCENTER
 
 ```
@@ -402,6 +562,8 @@ Toggles whether a body is treated as the source of a central gravitational field
 
 - `objectId` — body identifier.
 - `gravityCenter` — toggle flag.
+
+**Compatibility:** `SETGRAVITYCENTER` - type from a dynamically loaded library, outside the scope of the current `compat.json` export.
 
 ### SETLIMIT
 
@@ -424,6 +586,8 @@ Limits the body's position to a box-shaped region.
 WORLD^SETLIMIT(100,0,0,0,800,600,999999);
 ```
 
+**Compatibility:** `SETLIMIT` - type from a dynamically loaded library, outside the scope of the current `compat.json` export.
+
 ### SETMAXSPEED
 
 ```
@@ -438,19 +602,23 @@ Caps the body's speed.
 WORLD^SETMAXSPEED(100,200);
 ```
 
+**Compatibility:** `SETMAXSPEED` - type from a dynamically loaded library, outside the scope of the current `compat.json` export.
+
 ### SETMOVEFLAGS
 
 ```
-void SETMOVEFLAGS(BOOL moveX, BOOL moveY)
+void SETMOVEFLAGS(DOUBLE moveX, DOUBLE moveY)
 ```
 
-Enables or disables movement along the X and Y axes. Full meaning and context of use have not been established.
+Controls camera tracking on the X and Y axes for the body selected by [`SETREFOBJECT`](#setrefobject). A non-negative value enables tracking on an axis; a negative value disables it. It does not affect physical movement.
 
 **Examples**
 
 ```
 WPATH^SETMOVEFLAGS(VARITEMP0,VARITEMP1);
 ```
+
+**Compatibility:** `SETMOVEFLAGS` - type from a dynamically loaded library, outside the scope of the current `compat.json` export.
 
 ### SETPOSITION
 
@@ -467,6 +635,30 @@ WORLD^SETPOSITION(100,150,400,0);
 WTEST^SETPOSITION(VARI_ID,VARI_X,VARI_Y,0);
 ```
 
+**Compatibility:** `SETPOSITION` - type from a dynamically loaded library, outside the scope of the current `compat.json` export.
+
+### SETPOSITIONCOORD
+
+```
+void SETPOSITIONCOORD(INTEGER objectId, INTEGER coordIndex, DOUBLE value)
+```
+
+Sets one position component: `coordIndex = 0` is X and `1` is Y. Other indices are ignored. X and Y use screen coordinates, just like `SETPOSITION`.
+
+**Compatibility:** `SETPOSITIONCOORD` - type from a dynamically loaded library, outside the scope of the current `compat.json` export.
+
+### ROTATE and ZEROALL
+
+```
+void ROTATE(INTEGER objectId, [DOUBLE ignored], DOUBLE angle)
+void ZEROALL(INTEGER objectId)
+```
+
+`ROTATE` sets an absolute rotation around Z in degrees. With three arguments, the middle argument is ignored; with two, the second is the angle. `ZEROALL` clears linear and angular velocity, accumulated force, and torque.
+
+**Compatibility:** `ROTATE` - type from a dynamically loaded library, outside the scope of the current `compat.json` export.
+**Compatibility:** `ZEROALL` - type from a dynamically loaded library, outside the scope of the current `compat.json` export.
+
 ### SETREFOBJECT
 
 ```
@@ -480,6 +672,8 @@ Marks a body as the reference object — used when computing positions relative 
 ```
 WPATH^SETREFOBJECT(100);
 ```
+
+**Compatibility:** `SETREFOBJECT` - type from a dynamically loaded library, outside the scope of the current `compat.json` export.
 
 ### SETVELOCITY
 
@@ -496,6 +690,8 @@ WORLD^SETVELOCITY(207,5000000,0,0);
 WORLD^SETVELOCITY(VARPLAYERID,0,0,0);
 ```
 
+**Compatibility:** `SETVELOCITY` - type from a dynamically loaded library, outside the scope of the current `compat.json` export.
+
 ### START
 
 ```
@@ -509,6 +705,8 @@ Starts the simulation (enables the physics engine's timer).
 ```
 WORLD^START();
 ```
+
+**Compatibility:** `START` - type from a dynamically loaded library, outside the scope of the current `compat.json` export.
 
 ### STOP
 
@@ -524,6 +722,8 @@ Stops the simulation (disables the physics engine's timer). Body state is preser
 WORLD^STOP();
 ```
 
+**Compatibility:** `STOP` - type from a dynamically loaded library, outside the scope of the current `compat.json` export.
+
 ### UNLINK
 
 ```
@@ -537,6 +737,14 @@ Breaks the animation binding established by [`LINK`](#link).
 ```
 WTEST^UNLINK(VARI_TMP2);
 ```
+
+**Compatibility:** `UNLINK` - type from a dynamically loaded library, outside the scope of the current `compat.json` export.
+
+## Compatibility stubs
+
+The following calls are recognised so scripts do not fail on an unknown method, but currently do nothing in the emulator: `SETANGLE`, `SETSPEED`, `SETDISPERSION`, `SETALWAYSACTIVE`, `ENABLEMESH`, `COLLIDEMESH`, `USEFF`, and `ADDMESHWAYPOINT`. `ISMESHENABLED` and `ISMESHCOLLIDING` always return `FALSE`.
+
+The navigation calls `SETOBJECTPROPERTIES`, `FOLLOW`, `MOVETO`, `MOVETOPATH`, `GOTOPATH`, `ADDTOPATH`, `ADDWAYPOINT`, `REMOVEWAYPOINT`, `REMOVEROUTE`, and `FOLLOWROUTE` are likewise accepted but not implemented yet. For working graph navigation, use [`FINDPATH`](#findpath) and [`FOLLOWPATH`](#followpath).
 
 ## Signals
 

@@ -23,6 +23,8 @@ GRPHIDE^HIDE();
 GRPMOVE^SETPOSITION(VARX,VARY);
 ```
 
+
+
 ### ADD
 
 ```
@@ -42,6 +44,8 @@ GRPHIDE^ADD("ANNREX");
 GRPMOVE^ADD("ANNBODY1","ANNWAND1","ANNHEAD1");
 GALL^ADD(["ANNPOLA_"+ICLONENO]);
 ```
+
+**Kompatybilność:** `ADD` - `PIKLIB61.DLL` ✅, `PIKLIB71.DLL` ✅, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
 
 ### ADDCLONES
 
@@ -65,6 +69,8 @@ GTRASA^ADDCLONES("ANNSKRZYNIA",1,ITMPCLONENO);
 GRPLANS^ADDCLONES("IMGPLAN1",1,10);
 ```
 
+**Kompatybilność:** `ADDCLONES` - `PIKLIB61.DLL` ❌, `PIKLIB71.DLL` ✅, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
+
 ### GETSIZE
 
 ```
@@ -80,6 +86,8 @@ Zwraca liczbę elementów w grupie.
 ```
 GRPHIDE^GETSIZE();
 ```
+
+**Kompatybilność:** `GETSIZE` - `PIKLIB61.DLL` ✅, `PIKLIB71.DLL` ✅, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
 
 ### NEXT
 
@@ -98,6 +106,8 @@ GENEMIES^NEXT();
 GBAZUK^NEXT();
 ```
 
+**Kompatybilność:** `NEXT` - `PIKLIB61.DLL` ❌, `PIKLIB71.DLL` ✅, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
+
 ### PREV
 
 ```
@@ -107,6 +117,8 @@ mixed PREV()
 Przesuwa marker o jedno w lewo (do poprzedniego elementu, ograniczony zerem) i zwraca referencję do elementu pod nowym markerem.
 
 **Zwraca**: referencja do elementu pod nowym markerem.
+
+**Kompatybilność:** `PREV` - `PIKLIB61.DLL` ❌, `PIKLIB71.DLL` ✅, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
 
 ### REMOVE
 
@@ -127,6 +139,8 @@ GOBJ^REMOVE(S1);
 GOBJ^REMOVE("ANNTNTR");
 ```
 
+**Kompatybilność:** `REMOVE` - `PIKLIB61.DLL` ✅, `PIKLIB71.DLL` ✅, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
+
 ### REMOVEALL
 
 ```
@@ -141,6 +155,8 @@ Czyści grupę z wszystkich elementów i resetuje marker.
 GRPHIDE^REMOVEALL();
 ```
 
+**Kompatybilność:** `REMOVEALL` - `PIKLIB61.DLL` ✅, `PIKLIB71.DLL` ✅, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
+
 ### RESETMARKER
 
 ```
@@ -154,6 +170,8 @@ Ustawia marker na pierwszy element grupy (indeks `0`). Dla pustej grupy marker p
 ```
 GENEMIES^RESETMARKER();
 ```
+
+**Kompatybilność:** `RESETMARKER` - `PIKLIB61.DLL` ❌, `PIKLIB71.DLL` ✅, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
 
 ## Sygnały
 

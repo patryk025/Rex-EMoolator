@@ -25,6 +25,8 @@ CNVLOADER^LOAD(VARSTEMP0);
 CNVLOADER^LOAD([G_SCUTSCENE+".CNV"]);
 ```
 
+**Compatibility:** `LOAD` - `PIKLIB61.DLL` ✅, `PIKLIB71.DLL` ✅, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
+
 ### RELEASE
 
 ```
@@ -43,6 +45,8 @@ Unloads a previously loaded file — removes from the current context every vari
 CNVLOADER^RELEASE([G_SCUTSCENE+".CNV"]);
 CNVLOADER^RELEASE("WYNURZENIE.CNV");
 ```
+
+**Compatibility:** `RELEASE` - `PIKLIB61.DLL` ✅, `PIKLIB71.DLL` ✅, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
 
 ## Signals
 

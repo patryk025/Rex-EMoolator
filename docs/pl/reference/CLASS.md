@@ -48,6 +48,8 @@ CLSEIFELENEMYOBJ^NEW("ENEMY0", "1_ENEMY0.ANN", 2, 5, 16, 4, 0, 2, 18);
 CLSBDENEMYOBJ^NEW(["BDENEMY"+I2], _I_, I1, I2, IBDKRAINA);
 ```
 
+**Kompatybilność:** `NEW` - `PIKLIB61.DLL` ❌, `PIKLIB71.DLL` ❌, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
+
 ### DELETE
 
 ```
@@ -62,6 +64,8 @@ Usuwa instancję klasy o nazwie `varName`. Jeżeli definicja klasy zawiera proce
 - `param1, …, paramN` — (opcjonalnie) argumenty przekazywane do procedury `DESTRUCTOR`.
 
 **Zwraca**: wartość zwróconą przez procedurę `DESTRUCTOR` lub `NULL`.
+
+**Kompatybilność:** `DELETE` - `PIKLIB61.DLL` ❌, `PIKLIB71.DLL` ❌, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
 
 ## Sygnały
 

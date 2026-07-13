@@ -28,6 +28,8 @@ Wyłącza odbieranie zdarzeń myszy — kursor przestaje aktualizować pozycję,
 MOUSE^DISABLE();
 ```
 
+**Kompatybilność:** `DISABLE` - `PIKLIB61.DLL` ✅, `PIKLIB71.DLL` ✅, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
+
 ### DISABLESIGNAL
 
 ```
@@ -41,6 +43,8 @@ Wyłącza emisję sygnałów myszy. W przeciwieństwie do [`DISABLE`](#disable) 
 ```
 MOUSE^DISABLESIGNAL();
 ```
+
+**Kompatybilność:** `DISABLESIGNAL` - `PIKLIB61.DLL` ❌, `PIKLIB71.DLL` ❌, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
 
 ### ENABLE
 
@@ -56,6 +60,8 @@ Włącza odbieranie zdarzeń myszy.
 MOUSE^ENABLE();
 ```
 
+**Kompatybilność:** `ENABLE` - `PIKLIB61.DLL` ✅, `PIKLIB71.DLL` ✅, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
+
 ### ENABLESIGNAL
 
 ```
@@ -69,6 +75,8 @@ Włącza emisję sygnałów myszy.
 ```
 MOUSE^ENABLESIGNAL();
 ```
+
+**Kompatybilność:** `ENABLESIGNAL` - `PIKLIB61.DLL` ❌, `PIKLIB71.DLL` ❌, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
 
 ### GETPOSX
 
@@ -86,6 +94,8 @@ Zwraca aktualną pozycję kursora w osi X.
 MOUSE^GETPOSX();
 ```
 
+**Kompatybilność:** `GETPOSX` - `PIKLIB61.DLL` ✅, `PIKLIB71.DLL` ✅, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
+
 ### GETPOSY
 
 ```
@@ -102,6 +112,8 @@ Zwraca aktualną pozycję kursora w osi Y.
 MOUSE^GETPOSY();
 ```
 
+**Kompatybilność:** `GETPOSY` - `PIKLIB61.DLL` ✅, `PIKLIB71.DLL` ✅, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
+
 ### HIDE
 
 ```
@@ -115,6 +127,8 @@ Ukrywa kursor myszy.
 ```
 MOUSE^HIDE();
 ```
+
+**Kompatybilność:** `HIDE` - `PIKLIB61.DLL` ✅, `PIKLIB71.DLL` ✅, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
 
 ### ISLBUTTONDOWN
 
@@ -131,6 +145,8 @@ Sprawdza, czy lewy przycisk myszy jest aktualnie wciśnięty.
 ```
 MOUSE^ISLBUTTONDOWN();
 ```
+
+**Kompatybilność:** `ISLBUTTONDOWN` - `PIKLIB61.DLL` ❌, `PIKLIB71.DLL` ❌, `PIKLIB72.DLL` ❌, `PIKLIB8.DLL` ❌, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ⚠️ (4/5).
 
 ### SET
 
@@ -150,6 +166,8 @@ Ustawia styl kursora.
 MOUSE^SET("ACTIVE");
 MOUSE^SET("ARROW");
 ```
+
+**Kompatybilność:** `SET` - `PIKLIB61.DLL` ✅, `PIKLIB71.DLL` ✅, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
 
 ### SETPOSITION
 
@@ -172,6 +190,8 @@ MOUSE^SETPOSITION(MOUSE^GETPOSX(), VARINT0);
 MOUSE^SETPOSITION(ANNMUCHA0^GETCENTERX(), ANNMUCHA0^GETCENTERY());
 ```
 
+**Kompatybilność:** `SETPOSITION` - `PIKLIB61.DLL` ✅, `PIKLIB71.DLL` ✅, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
+
 ### SHOW
 
 ```
@@ -179,6 +199,8 @@ void SHOW()
 ```
 
 Wyświetla kursor myszy.
+
+**Kompatybilność:** `SHOW` - `PIKLIB61.DLL` ✅, `PIKLIB71.DLL` ✅, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
 
 ## Sygnały
 

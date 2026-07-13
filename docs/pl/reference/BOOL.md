@@ -34,6 +34,8 @@ Zwraca aktualną wartość zmiennej.
 
 - `BOOL` — bieżąca wartość pola `VALUE`.
 
+**Kompatybilność:** `GET` - `PIKLIB61.DLL` ❌, `PIKLIB71.DLL` ✅, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
+
 ### RESETINI
 
 ```
@@ -41,6 +43,8 @@ void RESETINI()
 ```
 
 Przywraca wartość zmiennej do wartości resetu zdefiniowanej w atrybutach obiektu w skrypcie. Silnik szuka wartości w kolejności: `DEFAULT` → `INIT_VALUE` → `VALUE`; używana jest pierwsza znaleziona.
+
+**Kompatybilność:** `RESETINI` - `PIKLIB61.DLL` ✅, `PIKLIB71.DLL` ✅, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
 
 ### SET
 
@@ -62,6 +66,8 @@ __KEYB__^SET(KEYBOARD^ISENABLED());
 VARBTEMP1^SET($2);
 ```
 
+**Kompatybilność:** `SET` - `PIKLIB61.DLL` ✅, `PIKLIB71.DLL` ✅, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
+
 ### SWITCH
 
 ```
@@ -80,6 +86,8 @@ Przełącza wartość zmiennej między wartościami podanymi w argumentach. Meto
 ```
 B_0^SWITCH(TRUE, FALSE);
 ```
+
+**Kompatybilność:** `SWITCH` - `PIKLIB61.DLL` ✅, `PIKLIB71.DLL` ✅, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
 
 ## Sygnały
 

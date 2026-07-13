@@ -64,6 +64,8 @@ COND1^BREAK(TRUE);
 CONDKONTROLA^BREAK(TRUE);
 ```
 
+**Compatibility:** `BREAK` - `PIKLIB61.DLL` ⚠️ (2/4), `PIKLIB71.DLL` ✅, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
+
 ### CHECK
 
 ```
@@ -85,6 +87,8 @@ CONPR1^CHECK(TRUE);
 CONPR2^CHECK(TRUE);
 ```
 
+**Compatibility:** `CHECK` - `PIKLIB61.DLL` ✅, `PIKLIB71.DLL` ✅, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
+
 ### ONE_BREAK
 
 ```
@@ -103,6 +107,8 @@ Evaluates the condition. If the result is `TRUE`, aborts only the current proced
 COND1^ONE_BREAK(TRUE);
 CONDREMOVEMENUITEM^ONE_BREAK(TRUE);
 ```
+
+**Compatibility:** `ONE_BREAK` - `PIKLIB61.DLL` ❌, `PIKLIB71.DLL` ❌, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
 
 ## Signals
 

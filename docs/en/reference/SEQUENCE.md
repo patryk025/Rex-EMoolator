@@ -30,6 +30,8 @@ Returns the name of the sequence event currently being played.
 SEQSFX^GETEVENTNAME();
 ```
 
+**Compatibility:** `GETEVENTNAME` - `PIKLIB61.DLL` ❌, `PIKLIB71.DLL` ❌, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
+
 ### GETPLAYING
 
 ```
@@ -39,6 +41,8 @@ STRING GETPLAYING()
 Returns the name of the [`ANIMO`](ANIMO.md) variable being played as part of the currently active event. If no event is active, an empty string is returned.
 
 **Returns**: the animation name or `""`.
+
+**Compatibility:** `GETPLAYING` - `PIKLIB61.DLL` ❌, `PIKLIB71.DLL` ❌, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
 
 ### HIDE
 
@@ -54,6 +58,8 @@ Hides every animation belonging to the sequence.
 SEQJEAN^HIDE();
 SEQKRET^HIDE();
 ```
+
+**Compatibility:** `HIDE` - `PIKLIB61.DLL` ✅, `PIKLIB71.DLL` ✅, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
 
 ### ISPLAYING
 
@@ -72,6 +78,8 @@ SEQBLANK^ISPLAYING();
 SEQMANDOLINA^ISPLAYING();
 ```
 
+**Compatibility:** `ISPLAYING` - `PIKLIB61.DLL` ✅, `PIKLIB71.DLL` ✅, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
+
 ### PAUSE
 
 ```
@@ -85,6 +93,8 @@ Pauses the sequence's playback.
 ```
 SEQCS^PAUSE();
 ```
+
+**Compatibility:** `PAUSE` - `PIKLIB61.DLL` ✅, `PIKLIB71.DLL` ✅, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
 
 ### PLAY
 
@@ -107,6 +117,8 @@ SEQLAB^PLAY(["PLAYER"+VARINT0]);
 SEQREKSIO^PLAY($1);
 ```
 
+**Compatibility:** `PLAY` - `PIKLIB61.DLL` ✅, `PIKLIB71.DLL` ✅, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
+
 ### RESUME
 
 ```
@@ -121,6 +133,8 @@ Resumes a sequence paused with [`PAUSE`](#pause).
 SEQCS^RESUME();
 ```
 
+**Compatibility:** `RESUME` - `PIKLIB61.DLL` ✅, `PIKLIB71.DLL` ✅, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
+
 ### SETFREQ
 
 ```
@@ -132,6 +146,8 @@ Sets the sample rate used by the sound attached to the currently active sequence
 **Parameters**
 
 - `sampleRate` — the target sample rate in Hz.
+
+**Compatibility:** `SETFREQ` - `PIKLIB61.DLL` ❌, `PIKLIB71.DLL` ✅, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
 
 ### SETPAN
 
@@ -145,6 +161,8 @@ Sets the stereo panning (left/right balance) of the active event's sound. A valu
 
 - `pan` — panning value in the `0–800` range.
 
+**Compatibility:** `SETPAN` - `PIKLIB61.DLL` ❌, `PIKLIB71.DLL` ✅, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
+
 ### SETVOLUME
 
 ```
@@ -157,6 +175,8 @@ Sets the active event sound's volume. A value of `1600` corresponds to maximum v
 
 - `volume` — volume value in the `0–1600` range.
 
+**Compatibility:** `SETVOLUME` - `PIKLIB61.DLL` ❌, `PIKLIB71.DLL` ✅, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
+
 ### SHOW
 
 ```
@@ -164,6 +184,8 @@ void SHOW()
 ```
 
 Shows every animation belonging to the sequence.
+
+**Compatibility:** `SHOW` - `PIKLIB61.DLL` ✅, `PIKLIB71.DLL` ✅, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
 
 ### STOP
 
@@ -184,6 +206,8 @@ SEQBLANK^STOP(FALSE);
 SEQMENU^STOP(TRUE);
 SEQZMIANAWAGIREX^STOP();
 ```
+
+**Compatibility:** `STOP` - `PIKLIB61.DLL` ✅, `PIKLIB71.DLL` ✅, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
 
 ## Signals
 

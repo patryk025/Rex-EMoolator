@@ -35,6 +35,8 @@ ARRFLAMESDIR^ADD("R", "R", "R", "L", "L");
 ARR_JOINTS^ADD(FALSE, 6, "B", 10, "A", 4);
 ```
 
+**Compatibility:** `ADD` - `PIKLIB61.DLL` ✅, `PIKLIB71.DLL` ✅, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
+
 ### ADDAT
 
 ```
@@ -55,6 +57,8 @@ ARRIDLETIME^ADDAT(0, 1);
 ARRENEMYY^ADDAT(VARITMPINDEX, VARITMP1);
 ARRSPEED^ADDAT(0, 2.0);
 ```
+
+**Compatibility:** `ADDAT` - `PIKLIB61.DLL` ❌, `PIKLIB71.DLL` ✅, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
 
 ### CHANGEAT
 
@@ -77,6 +81,8 @@ G_ARRREXSPELLS^CHANGEAT(VARIREPEATSPELL, 1);
 ARRAYPLAYERSSTATE^CHANGEAT([VARCLONE-1], "NULL");
 ```
 
+**Compatibility:** `CHANGEAT` - `PIKLIB61.DLL` ✅, `PIKLIB71.DLL` ✅, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
+
 ### CLAMPAT
 
 ```
@@ -97,6 +103,8 @@ Clamps the value at position `index` to the inclusive range `[rangeMin, rangeMax
 ARRSPEED^CLAMPAT(VARPLAYER, 0.0, 100.0);
 ARRSPEED^CLAMPAT(0, 0.0, 17.0);
 ```
+
+**Compatibility:** `CLAMPAT` - `PIKLIB61.DLL` ❌, `PIKLIB71.DLL` ✅, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
 
 ### CONTAINS
 
@@ -119,6 +127,8 @@ ART0^CONTAINS(ICIK);
 ARRAYWARSZTATPRZEDMIOTY^CONTAINS(ARRAYTEMP^GET($1));
 ```
 
+**Compatibility:** `CONTAINS` - `PIKLIB61.DLL` ⚠️ (3/4), `PIKLIB71.DLL` ✅, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
+
 ### COPYTO
 
 ```
@@ -136,6 +146,8 @@ Appends the contents of this array to the end of the array named in the argument
 ```
 ARAG^COPYTO("ARTMP");
 ```
+
+**Compatibility:** `COPYTO` - `PIKLIB61.DLL` ❌, `PIKLIB71.DLL` ❌, `PIKLIB72.DLL` ❌, `PIKLIB8.DLL` ⚠️ (5/10), `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
 
 ### FIND
 
@@ -159,6 +171,8 @@ ARRSTARTNAME0^FIND("NULL");
 ARRCLONES^FIND(-1);
 ```
 
+**Compatibility:** `FIND` - `PIKLIB61.DLL` ⚠️ (3/4), `PIKLIB71.DLL` ✅, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
+
 ### GET
 
 ```
@@ -181,6 +195,8 @@ ARRACTIVESPELLS^GET(_I_);
 ARRAYPLAYERSSTATE^GET([VARCLONE-1]);
 ```
 
+**Compatibility:** `GET` - `PIKLIB61.DLL` ✅, `PIKLIB71.DLL` ✅, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
+
 ### GETSIZE
 
 ```
@@ -198,6 +214,8 @@ G_ARRSETTINGS^GETSIZE();
 ARRENEMYROUTEX^GETSIZE();
 ```
 
+**Compatibility:** `GETSIZE` - `PIKLIB61.DLL` ✅, `PIKLIB71.DLL` ✅, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
+
 ### GETSUMVALUE
 
 ```
@@ -213,6 +231,8 @@ Returns the sum of all element values. Each element is cast to `DOUBLE` per the 
 ```
 ARCONTAINER^GETSUMVALUE();
 ```
+
+**Compatibility:** `GETSUMVALUE` - `PIKLIB61.DLL` ❌, `PIKLIB71.DLL` ✅, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
 
 ### INSERTAT
 
@@ -234,6 +254,8 @@ ARRTURNIEJ^INSERTAT(I3, I1);
 ARRTURNIEJ^INSERTAT(4, I1);
 ```
 
+**Compatibility:** `INSERTAT` - `PIKLIB61.DLL` ✅, `PIKLIB71.DLL` ✅, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
+
 ### LOAD
 
 ```
@@ -252,6 +274,8 @@ Replaces the array's contents with data read from a binary `.ARR` file. The file
 G_ARRSETTINGS^LOAD("$COMMON\SETTINGS.ARR");
 ARRPATH^LOAD(["MAPA"+ILEVEL+".ARR"]);
 ```
+
+**Compatibility:** `LOAD` - `PIKLIB61.DLL` ❌, `PIKLIB71.DLL` ✅, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
 
 ### LOADINI
 
@@ -273,6 +297,8 @@ Each element is interpreted in order as [`INTEGER`](INTEGER.md), [`DOUBLE`](DOUB
 ARRAYWARSZTATMENUPRZEDMIOTY^LOADINI();
 ```
 
+**Compatibility:** `LOADINI` - `PIKLIB61.DLL` ⚠️ (2/4), `PIKLIB71.DLL` ✅, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
+
 ### MODAT
 
 ```
@@ -291,6 +317,8 @@ Stores the remainder of dividing the element at position `index` by the argument
 ```
 ARRANGLE^MODAT(VARPLAYER, 360);
 ```
+
+**Compatibility:** `MODAT` - `PIKLIB61.DLL` ❌, `PIKLIB71.DLL` ✅, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
 
 ### MULAT
 
@@ -312,6 +340,8 @@ ARRDIRY^MULAT(VARPLAYER, -1.0);
 ARRDIRX^MULAT(VARPLAYER, -1);
 ```
 
+**Compatibility:** `MULAT` - `PIKLIB61.DLL` ❌, `PIKLIB71.DLL` ✅, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
+
 ### REMOVEALL
 
 ```
@@ -326,6 +356,8 @@ Removes all elements from the array.
 G_ARRSETTINGS^REMOVEALL();
 ARRTEMP^REMOVEALL();
 ```
+
+**Compatibility:** `REMOVEALL` - `PIKLIB61.DLL` ✅, `PIKLIB71.DLL` ✅, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
 
 ### REMOVEAT
 
@@ -345,6 +377,8 @@ Removes the element at position `index`, shifting the remaining elements to the 
 ARRTEMP^REMOVEAT(VARITEMP2);
 ARRENEMYROUTEX^REMOVEAT(0);
 ```
+
+**Compatibility:** `REMOVEAT` - `PIKLIB61.DLL` ✅, `PIKLIB71.DLL` ✅, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
 
 ### REVERSEFIND
 
@@ -366,6 +400,8 @@ Works like [`FIND`](#find), but scans the array from the end. The same type-depe
 ARRAYKURNIKFREESLOTS^REVERSEFIND(0);
 ```
 
+**Compatibility:** `REVERSEFIND` - `PIKLIB61.DLL` ❌, `PIKLIB71.DLL` ✅, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
+
 ### SAVE
 
 ```
@@ -385,6 +421,8 @@ G_ARRSETTINGS^SAVE("$COMMON\SETTINGS.ARR");
 ARRPATH^SAVE(["MAPA"+ILEVEL+".ARR"]);
 ```
 
+**Compatibility:** `SAVE` - `PIKLIB61.DLL` ❌, `PIKLIB71.DLL` ✅, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
+
 ### SAVEINI
 
 ```
@@ -398,6 +436,8 @@ Serialises the array's contents to the game's INI file under the key matching th
 ```
 ARRAYPLATFORMOWKAPRZEDMIOTY^SAVEINI();
 ```
+
+**Compatibility:** `SAVEINI` - `PIKLIB61.DLL` ⚠️ (2/4), `PIKLIB71.DLL` ✅, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
 
 ### SUB
 
@@ -416,6 +456,8 @@ Subtracts the argument from every element of the array. Each element is converte
 ```
 ARRAYBKGA^SUB([0-VARINT2]);
 ```
+
+**Compatibility:** `SUB` - `PIKLIB61.DLL` ❌, `PIKLIB71.DLL` ✅, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
 
 ### SUBAT
 
@@ -437,6 +479,8 @@ ARRBUTTONPRESSED^SUBAT(IBUTTONNR, 1);
 ARRSPEED^SUBAT(VARPLAYER, 0.15);
 ```
 
+**Compatibility:** `SUBAT` - `PIKLIB61.DLL` ❌, `PIKLIB71.DLL` ✅, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
+
 ### SUM
 
 ```
@@ -455,6 +499,8 @@ Adds the argument to every element of the array. Each element is converted to `D
 ARRCHICKENX^SUM(-60);
 ARRCHICKENY^SUM(-110);
 ```
+
+**Compatibility:** `SUM` - `PIKLIB61.DLL` ❌, `PIKLIB71.DLL` ✅, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
 
 ## Signals
 

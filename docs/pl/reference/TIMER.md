@@ -46,6 +46,8 @@ Wyłącza timer. Sygnał [`ONTICK`](#ontick) przestaje być emitowany; bieżąca
 TIMER1^DISABLE();
 ```
 
+**Kompatybilność:** `DISABLE` - `PIKLIB61.DLL` ✅, `PIKLIB71.DLL` ❌, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
+
 ### ENABLE
 
 ```
@@ -60,6 +62,8 @@ Włącza timer i ustawia punkt odniesienia odmierzania na *teraz*. Pierwszy tick
 TIMCNV^ENABLE();
 TIMER2^ENABLE();
 ```
+
+**Kompatybilność:** `ENABLE` - `PIKLIB61.DLL` ✅, `PIKLIB71.DLL` ❌, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
 
 ### GETTICKS
 
@@ -77,6 +81,8 @@ Zwraca liczbę dotychczas wykonanych tyknięć (zmierzoną od ostatniego wywoła
 TIMER1^GETTICKS();
 ```
 
+**Kompatybilność:** `GETTICKS` - `PIKLIB61.DLL` ✅, `PIKLIB71.DLL` ❌, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
+
 ### RESET
 
 ```
@@ -91,6 +97,8 @@ Zeruje licznik tyknięć i ustawia punkt odniesienia odmierzania na *teraz*.
 TIMER1^RESET();
 ```
 
+**Kompatybilność:** `RESET` - `PIKLIB61.DLL` ✅, `PIKLIB71.DLL` ❌, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
+
 ### SET
 
 ```
@@ -102,6 +110,8 @@ Ustawia limit tyknięć w polu [`TICKS`](#ticks). Wartość `0` znosi limit (tim
 **Parametry**
 
 - `ticks` — nowy limit cykli.
+
+**Kompatybilność:** `SET` - `PIKLIB61.DLL` ✅, `PIKLIB71.DLL` ❌, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
 
 ### SETELAPSE
 
@@ -122,6 +132,8 @@ TIMERSEQ^SETELAPSE(RANDOM^GET(30000,10000));
 TIMERPIECHUR^SETELAPSE(ARRAYPIECHURZYPARAM^GET(0));
 TIMER1^SETELAPSE(VARTIMEUFO);
 ```
+
+**Kompatybilność:** `SETELAPSE` - `PIKLIB61.DLL` ⚠️ (2/4), `PIKLIB71.DLL` ❌, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
 
 ## Sygnały
 

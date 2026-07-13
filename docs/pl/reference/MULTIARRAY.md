@@ -36,6 +36,8 @@ ARRMAPA^GET([IPLAYERPOSX-1], IPLAYERPOSY);
 ARRMAPA^GET(_I_, I1);
 ```
 
+**Kompatybilność:** `GET` - `PIKLIB61.DLL` ❌, `PIKLIB71.DLL` ❌, `PIKLIB72.DLL` ❌, `PIKLIB8.DLL` ⚠️ (16/10), `BlooMooWEB.dll` ⚠️ (2/1), `BlooMooDLL.dll` ⚠️ (10/5).
+
 ### SET
 
 ```
@@ -58,6 +60,8 @@ ARRMAPA^SET(IPLAYERGOONX, IPLAYERGOONY, "PLAYER");
 ARRMAPA^SET([IPLAYERPOSX+ILASTDIRX], [IPLAYERPOSY+ILASTDIRY], IPLAYER);
 ```
 
+**Kompatybilność:** `SET` - `PIKLIB61.DLL` ❌, `PIKLIB71.DLL` ❌, `PIKLIB72.DLL` ❌, `PIKLIB8.DLL` ⚠️ (16/10), `BlooMooWEB.dll` ⚠️ (2/1), `BlooMooDLL.dll` ⚠️ (10/5).
+
 ### GETSIZE
 
 ```
@@ -72,6 +76,8 @@ Zwraca rozmiar podanego wymiaru tablicy.
 
 **Zwraca**: rozmiar wymiaru lub `0` dla nieprawidłowego indeksu.
 
+**Kompatybilność:** `GETSIZE` - `PIKLIB61.DLL` ❌, `PIKLIB71.DLL` ❌, `PIKLIB72.DLL` ❌, `PIKLIB8.DLL` ⚠️ (16/10), `BlooMooWEB.dll` ⚠️ (2/1), `BlooMooDLL.dll` ⚠️ (10/5).
+
 ### LOAD
 
 ```
@@ -84,6 +90,8 @@ Zastępuje zawartość tablicy danymi wczytanymi z pliku binarnego. Format obejm
 
 - `path` — ścieżka pliku w VFS gry.
 
+**Kompatybilność:** `LOAD` - `PIKLIB61.DLL` ❌, `PIKLIB71.DLL` ❌, `PIKLIB72.DLL` ❌, `PIKLIB8.DLL` ⚠️ (16/10), `BlooMooWEB.dll` ⚠️ (2/1), `BlooMooDLL.dll` ⚠️ (10/5).
+
 ### SAVE
 
 ```
@@ -95,6 +103,8 @@ Zapisuje zawartość tablicy do pliku binarnego.
 **Parametry**
 
 - `path` — ścieżka docelowego pliku w VFS gry.
+
+**Kompatybilność:** `SAVE` - `PIKLIB61.DLL` ❌, `PIKLIB71.DLL` ❌, `PIKLIB72.DLL` ❌, `PIKLIB8.DLL` ⚠️ (16/10), `BlooMooWEB.dll` ⚠️ (2/1), `BlooMooDLL.dll` ⚠️ (10/5).
 
 ## Sygnały
 

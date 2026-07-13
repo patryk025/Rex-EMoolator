@@ -78,6 +78,8 @@ void HIDE()
 
 Hides the text (sets [`VISIBLE`](#visible) to `FALSE`).
 
+**Compatibility:** `HIDE` - `PIKLIB61.DLL` ✅, `PIKLIB71.DLL` ✅, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
+
 ### SETJUSTIFY
 
 ```
@@ -92,6 +94,8 @@ Sets the drawing rectangle ([`RECT`](#rect)) and the horizontal ([`HJUSTIFY`](#h
 - `hJustify` — horizontal alignment (`LEFT`, `RIGHT`, `CENTER`).
 - `vJustify` — vertical alignment (`TOP`, `BOTTOM`, `CENTER`).
 
+**Compatibility:** `SETJUSTIFY` - `PIKLIB61.DLL` ✅, `PIKLIB71.DLL` ✅, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
+
 ### SETPRIORITY
 
 ```
@@ -103,6 +107,8 @@ Sets the text's rendering priority.
 **Parameters**
 
 - `priority` — the new value of the [`PRIORITY`](#priority) field.
+
+**Compatibility:** `SETPRIORITY` - `PIKLIB61.DLL` ✅, `PIKLIB71.DLL` ✅, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
 
 ### SETTEXT
 
@@ -123,6 +129,8 @@ TXTDEBUG^SETTEXT(ARRPX^GETSIZE());
 TXTDEBUG^SETTEXT("SAVED");
 ```
 
+**Compatibility:** `SETTEXT` - `PIKLIB61.DLL` ✅, `PIKLIB71.DLL` ✅, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
+
 ### SHOW
 
 ```
@@ -130,6 +138,8 @@ void SHOW()
 ```
 
 Shows the text (sets [`VISIBLE`](#visible) to `TRUE`).
+
+**Compatibility:** `SHOW` - `PIKLIB61.DLL` ✅, `PIKLIB71.DLL` ✅, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
 
 ## Signals
 

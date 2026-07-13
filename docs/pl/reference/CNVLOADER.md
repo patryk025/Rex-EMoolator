@@ -25,6 +25,8 @@ CNVLOADER^LOAD(VARSTEMP0);
 CNVLOADER^LOAD([G_SCUTSCENE+".CNV"]);
 ```
 
+**Kompatybilność:** `LOAD` - `PIKLIB61.DLL` ✅, `PIKLIB71.DLL` ✅, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
+
 ### RELEASE
 
 ```
@@ -43,6 +45,8 @@ Zwalnia wcześniej załadowany plik — usuwa z bieżącego kontekstu wszystkie 
 CNVLOADER^RELEASE([G_SCUTSCENE+".CNV"]);
 CNVLOADER^RELEASE("WYNURZENIE.CNV");
 ```
+
+**Kompatybilność:** `RELEASE` - `PIKLIB61.DLL` ✅, `PIKLIB71.DLL` ✅, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
 
 ## Sygnały
 

@@ -78,6 +78,8 @@ void HIDE()
 
 Ukrywa tekst (ustawia [`VISIBLE`](#visible) na `FALSE`).
 
+**Kompatybilność:** `HIDE` - `PIKLIB61.DLL` ✅, `PIKLIB71.DLL` ✅, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
+
 ### SETJUSTIFY
 
 ```
@@ -92,6 +94,8 @@ Ustawia w jednym wywołaniu prostokąt rysowania ([`RECT`](#rect)) oraz wyrówna
 - `hJustify` — wyrównanie poziome (`LEFT`, `RIGHT`, `CENTER`).
 - `vJustify` — wyrównanie pionowe (`TOP`, `BOTTOM`, `CENTER`).
 
+**Kompatybilność:** `SETJUSTIFY` - `PIKLIB61.DLL` ✅, `PIKLIB71.DLL` ✅, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
+
 ### SETPRIORITY
 
 ```
@@ -103,6 +107,8 @@ Ustawia priorytet renderowania tekstu.
 **Parametry**
 
 - `priority` — nowa wartość pola [`PRIORITY`](#priority).
+
+**Kompatybilność:** `SETPRIORITY` - `PIKLIB61.DLL` ✅, `PIKLIB71.DLL` ✅, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
 
 ### SETTEXT
 
@@ -123,6 +129,8 @@ TXTDEBUG^SETTEXT(ARRPX^GETSIZE());
 TXTDEBUG^SETTEXT("SAVED");
 ```
 
+**Kompatybilność:** `SETTEXT` - `PIKLIB61.DLL` ✅, `PIKLIB71.DLL` ✅, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
+
 ### SHOW
 
 ```
@@ -130,6 +138,8 @@ void SHOW()
 ```
 
 Pokazuje tekst (ustawia [`VISIBLE`](#visible) na `TRUE`).
+
+**Kompatybilność:** `SHOW` - `PIKLIB61.DLL` ✅, `PIKLIB71.DLL` ✅, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
 
 ## Sygnały
 

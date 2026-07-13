@@ -44,6 +44,8 @@ VARSMUSIC^ADD(".WAV");
 S_0^ADD($1);
 ```
 
+**Compatibility:** `ADD` - `PIKLIB61.DLL` ✅, `PIKLIB71.DLL` ✅, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
+
 ### CHANGEAT
 
 ```
@@ -65,6 +67,8 @@ Replaces the single character at position `index` with the `replacement` string.
 *VARARRAYNAME^CHANGEAT([VARCLONE-1], "NULL");
 *VARENEMYSTATE^CHANGEAT([VARINT1-1], VARSTRING1);
 ```
+
+**Compatibility:** `CHANGEAT` - not present in the libraries analysed in `compat.json`.
 
 ### COPYFILE
 
@@ -88,6 +92,8 @@ VARSTEMP0^COPYFILE("$COMMON\ITEMS_DEF.DTA", "$COMMON\ITEMS0.DTA");
 S1^COPYFILE(S1, S2);
 ```
 
+**Compatibility:** `COPYFILE` - `PIKLIB61.DLL` ❌, `PIKLIB71.DLL` ❌, `PIKLIB72.DLL` ❌, `PIKLIB8.DLL` ⚠️ (6/10), `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
+
 ### CUT
 
 ```
@@ -108,6 +114,8 @@ Replaces the variable's value with a substring of the current value, starting at
 ```
 VARSTRING0^CUT(0, VARSTRING0^FIND("_"));
 ```
+
+**Compatibility:** `CUT` - `PIKLIB61.DLL` ❌, `PIKLIB71.DLL` ❌, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
 
 ### FIND
 
@@ -131,6 +139,8 @@ Searches the variable's current value for the first occurrence of the given stri
 VARSTEMP0^FIND("IDLE");
 SWYRAZ^FIND(S1);
 ```
+
+**Compatibility:** `FIND` - `PIKLIB61.DLL` ❌, `PIKLIB71.DLL` ❌, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
 
 ### GET
 
@@ -162,6 +172,8 @@ VARENEMYNAME^GET(0, VARENEMYNAME^FIND("_"));
 SOBJNAME^GET(0, 1);
 ```
 
+**Compatibility:** `GET` - `PIKLIB61.DLL` ❌, `PIKLIB71.DLL` ✅, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
+
 ### LENGTH
 
 ```
@@ -178,6 +190,8 @@ Returns the length of the variable's current value. This method does not modify 
 VARSTEMP0^LENGTH();
 ```
 
+**Compatibility:** `LENGTH` - `PIKLIB61.DLL` ❌, `PIKLIB71.DLL` ✅, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
+
 ### LOWER
 
 ```
@@ -187,6 +201,8 @@ STRING LOWER()
 Converts all letters in the variable's current value to lowercase.
 
 **Returns**: the new value of the variable.
+
+**Compatibility:** `LOWER` - `PIKLIB61.DLL` ❌, `PIKLIB71.DLL` ❌, `PIKLIB72.DLL` ❌, `PIKLIB8.DLL` ❌, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ⚠️ (3/5).
 
 ### REPLACEAT
 
@@ -211,6 +227,8 @@ S3^REPLACEAT(0, 1, S1);
 VARSTMP2^REPLACEAT(8, 2, ["00"+VARIKRAINANO]);
 ```
 
+**Compatibility:** `REPLACEAT` - `PIKLIB61.DLL` ❌, `PIKLIB71.DLL` ❌, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
+
 ### RESETINI
 
 ```
@@ -220,6 +238,8 @@ STRING RESETINI()
 Resets the variable's value to the reset value defined in the object's script attributes. The engine looks up the value in the following order: `DEFAULT` → `INIT_VALUE` → `VALUE`; the first one found is used. If none of them is set, the value is reset to an empty string.
 
 **Returns**: the new value of the variable.
+
+**Compatibility:** `RESETINI` - `PIKLIB61.DLL` ✅, `PIKLIB71.DLL` ✅, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
 
 ### SET
 
@@ -243,6 +263,8 @@ VARSTEMP0^SET(["BEHCLICK_"+SOBJECT|IDNAME]);
 VARSTEMP0^SET($1);
 ```
 
+**Compatibility:** `SET` - `PIKLIB61.DLL` ✅, `PIKLIB71.DLL` ✅, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
+
 ### SUB
 
 ```
@@ -265,6 +287,8 @@ VARSTEMP0^SUB(0, 5);
 VARSTEMP0^SUB(VARITEMP0, [VARSTEMP0^LENGTH()-VARITEMP0]);
 ```
 
+**Compatibility:** `SUB` - `PIKLIB61.DLL` ⚠️ (3/4), `PIKLIB71.DLL` ✅, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
+
 ### UPPER
 
 ```
@@ -281,6 +305,8 @@ Converts all letters in the variable's current value to uppercase.
 SDIALOGWAVENAME^UPPER();
 SDIALOGPERSON^UPPER();
 ```
+
+**Compatibility:** `UPPER` - `PIKLIB61.DLL` ❌, `PIKLIB71.DLL` ❌, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
 
 ## Signals
 

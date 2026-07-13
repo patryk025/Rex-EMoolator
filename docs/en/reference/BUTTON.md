@@ -126,6 +126,8 @@ Disables the button and hides all linked graphics ([`GFXSTANDARD`](#gfxstandard)
 B_GLOBAL_PAUSE^DISABLE();
 ```
 
+**Compatibility:** `DISABLE` - `PIKLIB61.DLL` ✅, `PIKLIB71.DLL` ✅, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
+
 ### DISABLEBUTVISIBLE
 
 ```
@@ -140,6 +142,8 @@ Disables the button but keeps the [`GFXSTANDARD`](#gfxstandard) graphic visible 
 BTNBONE^DISABLEBUTVISIBLE();
 BTNFORGOT^DISABLEBUTVISIBLE();
 ```
+
+**Compatibility:** `DISABLEBUTVISIBLE` - `PIKLIB61.DLL` ✅, `PIKLIB71.DLL` ✅, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
 
 ### ENABLE
 
@@ -156,6 +160,8 @@ B_GLOBAL_PAUSE^ENABLE();
 BTNEXIT^ENABLE();
 ```
 
+**Compatibility:** `ENABLE` - `PIKLIB61.DLL` ✅, `PIKLIB71.DLL` ✅, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
+
 ### ENABLEDRAGGING
 
 ```
@@ -164,6 +170,8 @@ void ENABLEDRAGGING()
 
 Enables dragging, equivalent to setting [`DRAGGABLE`](#draggable) to `TRUE`.
 
+**Compatibility:** `ENABLEDRAGGING` - `PIKLIB61.DLL` ✅, `PIKLIB71.DLL` ✅, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
+
 ### DISABLEDRAGGING
 
 ```
@@ -171,6 +179,8 @@ void DISABLEDRAGGING()
 ```
 
 Prevents new drag operations from starting.
+
+**Compatibility:** `DISABLEDRAGGING` - `PIKLIB61.DLL` ✅, `PIKLIB71.DLL` ✅, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
 
 ### SETPRIORITY
 
@@ -190,6 +200,8 @@ Sets the rendering priority (Z position) of all three linked graphics ([`GFXSTAN
 B_GLOBAL_PAUSE^SETPRIORITY(5001);
 BTNNULLFADE^SETPRIORITY(40000);
 ```
+
+**Compatibility:** `SETPRIORITY` - `PIKLIB61.DLL` ⚠️ (2/4), `PIKLIB71.DLL` ✅, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
 
 ### SETRECT
 
@@ -212,6 +224,8 @@ EXITPROGAM^SETRECT("ANNEXIT");
 *STMP0^SETRECT([ITMPX+[ITMPDX*_I_]],[ITMPY+[ITMPDY*_I_]],[ITMPX+15+[ITMPDX*_I_]],[ITMPY+15+[ITMPDY*_I_]]);
 ```
 
+**Compatibility:** `SETRECT` - `PIKLIB61.DLL` ✅, `PIKLIB71.DLL` ✅, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
+
 ### SETSTD
 
 ```
@@ -233,6 +247,8 @@ BTNEXIT^SETSTD("ANNOBJECT2");
 B_GLOBAL_PAUSE^SETSTD("",FALSE);
 BTNBAD^SETSTD("ZLY",FALSE);
 ```
+
+**Compatibility:** `SETSTD` - `PIKLIB61.DLL` ✅, `PIKLIB71.DLL` ✅, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
 
 ## Signals
 

@@ -54,6 +54,8 @@ Wraca do sceny odtwarzanej bezpośrednio przed bieżącą.
 PRZYGODA^BACK();
 ```
 
+**Kompatybilność:** `BACK` - `PIKLIB61.DLL` ✅, `PIKLIB71.DLL` ✅, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
+
 ### GETCURRENTSCENE
 
 ```
@@ -70,6 +72,8 @@ Zwraca nazwę aktualnie aktywnej sceny.
 PRZYGODA^GETCURRENTSCENE();
 ```
 
+**Kompatybilność:** `GETCURRENTSCENE` - `PIKLIB61.DLL` ❌, `PIKLIB71.DLL` ❌, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
+
 ### GETLATESTSCENE
 
 ```
@@ -79,6 +83,8 @@ STRING GETLATESTSCENE()
 Zwraca nazwę sceny odtwarzanej przed bieżącą — tej, do której wróciłoby wywołanie [`BACK`](#back).
 
 **Zwraca**: nazwa poprzedniej sceny.
+
+**Kompatybilność:** `GETLATESTSCENE` - `PIKLIB61.DLL` ✅, `PIKLIB71.DLL` ✅, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
 
 ### GOTO
 
@@ -100,3 +106,5 @@ PRZYGODA^GOTO("MAGIC");
 PRZYGODA^GOTO(G_SARCADEOBJECTS);
 PRZYGODA^GOTO(UFO^RUN(["VARLEVEL"+VARNR], "GET"));
 ```
+
+**Kompatybilność:** `GOTO` - `PIKLIB61.DLL` ✅, `PIKLIB71.DLL` ✅, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.

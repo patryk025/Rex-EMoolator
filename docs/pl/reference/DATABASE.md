@@ -40,6 +40,8 @@ DBOBJECTS^FIND("TYPE",102,0);
 DBDIALOGI^FIND("ID",SDIALOGNAME,IDIALOGINDEKS);
 ```
 
+**Kompatybilność:** `FIND` - `PIKLIB61.DLL` ❌, `PIKLIB71.DLL` ❌, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
+
 ### GETROWSNO
 
 ```
@@ -55,6 +57,20 @@ Zwraca liczbę wierszy w bazie.
 ```
 DBOBJECTS^GETROWSNO();
 ```
+
+**Kompatybilność:** `GETROWSNO` - `PIKLIB61.DLL` ❌, `PIKLIB71.DLL` ❌, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
+
+### GETCURSORPOS
+
+```
+INTEGER GETCURSORPOS()
+```
+
+Zwraca indeks wiersza, na którym aktualnie stoi kursor bazy. Indeks jest liczony od `0`; pozycję zmieniają między innymi [`SELECT`](#select), [`NEXT`](#next) i [`FIND`](#find).
+
+**Zwraca**: [`INTEGER`](INTEGER.md) — bieżący indeks kursora.
+
+**Kompatybilność:** `GETCURSORPOS` - `PIKLIB61.DLL` ❌, `PIKLIB71.DLL` ❌, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
 
 ### LOAD
 
@@ -75,6 +91,8 @@ DBOBJECTS^LOAD(VARSCURRARCADE);
 DBITEMS^LOAD("$COMMON\ITEMS0.DTA");
 ```
 
+**Kompatybilność:** `LOAD` - `PIKLIB61.DLL` ❌, `PIKLIB71.DLL` ❌, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
+
 ### NEXT
 
 ```
@@ -89,6 +107,8 @@ Przesuwa kursor do kolejnego wiersza.
 DBSCENE^NEXT();
 ```
 
+**Kompatybilność:** `NEXT` - `PIKLIB61.DLL` ❌, `PIKLIB71.DLL` ❌, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
+
 ### REMOVEALL
 
 ```
@@ -102,6 +122,8 @@ Usuwa wszystkie wiersze z bazy. Schemat ([`MODEL`](#model)) pozostaje bez zmian.
 ```
 DBITEMS^REMOVEALL();
 ```
+
+**Kompatybilność:** `REMOVEALL` - `PIKLIB61.DLL` ❌, `PIKLIB71.DLL` ❌, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
 
 ### SAVE
 
@@ -122,6 +144,8 @@ DBOBJECTS^SAVE(VARSCURRARCADE);
 DBLEVEL^SAVE(["$COMMON\SAVE_BD\BD_CLEV"+VARIACTIVESLOT+".FLD"]);
 ```
 
+**Kompatybilność:** `SAVE` - `PIKLIB61.DLL` ❌, `PIKLIB71.DLL` ❌, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
+
 ### SELECT
 
 ```
@@ -140,6 +164,8 @@ Ustawia kursor na wiersz o podanym indeksie (liczonym od zera).
 DBOBJECTS^SELECT(0);
 DBOBJECTS^SELECT(VARITER);
 ```
+
+**Kompatybilność:** `SELECT` - `PIKLIB61.DLL` ❌, `PIKLIB71.DLL` ❌, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
 
 ## Sygnały
 

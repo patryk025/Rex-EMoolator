@@ -46,6 +46,8 @@ VTEMP2^ADD("VTOCENTER");
 VTEMP2^ADD(VTOCENTER);
 ```
 
+**Compatibility:** `ADD` - type visible in the export, but with no resolved C++ class - no method data.
+
 ### ASSIGN
 
 ```
@@ -69,6 +71,8 @@ VTEMP1^ASSIGN(ARRDIRX^GET(VARPLAYER),ARRDIRY^GET(VARPLAYER));
 VNORMAL^ASSIGN([ARRPOSX^GET(VARPLAYER)+ARRHWIDTH^GET(VARPLAYER)],[ARRPOSY^GET(VARPLAYER)+ARRHHEIGHT^GET(VARPLAYER)]);
 ```
 
+**Compatibility:** `ASSIGN` - type visible in the export, but with no resolved C++ class - no method data.
+
 ### GET
 
 ```
@@ -90,6 +94,8 @@ VTEMP1^GET(0);
 VTEMP1^GET(1);
 ```
 
+**Compatibility:** `GET` - type visible in the export, but with no resolved C++ class - no method data.
+
 ### LEN
 
 ```
@@ -99,6 +105,8 @@ DOUBLE LEN()
 Returns the vector's Euclidean length.
 
 **Returns**: [`DOUBLE`](DOUBLE.md) — the vector length.
+
+**Compatibility:** `LEN` - type visible in the export, but with no resolved C++ class - no method data.
 
 ### MUL
 
@@ -120,6 +128,8 @@ VTEMP1^MUL(ARRSPEED^GET(VARPLAYER));
 VTEMP2^MUL(-1);
 ```
 
+**Compatibility:** `MUL` - type visible in the export, but with no resolved C++ class - no method data.
+
 ### NORMALIZE
 
 ```
@@ -134,6 +144,8 @@ Normalises the vector to length `1` (divides each component by the current lengt
 VNORMAL^NORMALIZE();
 VTEMP1^NORMALIZE();
 ```
+
+**Compatibility:** `NORMALIZE` - type visible in the export, but with no resolved C++ class - no method data.
 
 ### REFLECT
 
@@ -157,6 +169,8 @@ Reflects this vector about the given normal vector and writes the result into th
 VINCIDENT^REFLECT("VNORMAL","VREFLECT");
 VINCIDENT^REFLECT(VNORMAL,VREFLECT);
 ```
+
+**Compatibility:** `REFLECT` - type visible in the export, but with no resolved C++ class - no method data.
 
 ## Signals
 

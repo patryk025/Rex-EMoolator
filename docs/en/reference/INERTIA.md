@@ -26,6 +26,8 @@ EXTWORLD^ADDFORCE(1,-500,0);
 EXTWORLD^ADDFORCE(1,0,-50);
 ```
 
+**Compatibility:** `ADDFORCE` - type from a dynamically loaded library, outside the scope of the current `compat.json` export.
+
 ### CREATESPHERE
 
 ```
@@ -46,6 +48,8 @@ Creates a sphere of the given centre position and radius in the physics world, a
 EXTWORLD^CREATESPHERE(5,10,10,10);
 ```
 
+**Compatibility:** `CREATESPHERE` - type from a dynamically loaded library, outside the scope of the current `compat.json` export.
+
 ### DELETEBODY
 
 ```
@@ -65,6 +69,8 @@ EXTWORLD^DELETEBODY(IHANDLEDEL);
 EXTWORLD^DELETEBODY(IRAKIETAOBJ);
 ```
 
+**Compatibility:** `DELETEBODY` - type from a dynamically loaded library, outside the scope of the current `compat.json` export.
+
 ### GETPOSITIONX
 
 ```
@@ -78,6 +84,8 @@ Returns the body's current X position.
 - `objectId` — body identifier.
 
 **Returns**: [`INTEGER`](INTEGER.md) — X coordinate.
+
+**Compatibility:** `GETPOSITIONX` - type from a dynamically loaded library, outside the scope of the current `compat.json` export.
 
 ### GETPOSITIONY
 
@@ -93,6 +101,8 @@ Returns the body's current Y position.
 
 **Returns**: [`INTEGER`](INTEGER.md) — Y coordinate.
 
+**Compatibility:** `GETPOSITIONY` - type from a dynamically loaded library, outside the scope of the current `compat.json` export.
+
 ### GETSPEED
 
 ```
@@ -106,6 +116,8 @@ Returns the body's speed (linear velocity magnitude).
 - `objectId` — body identifier.
 
 **Returns**: [`DOUBLE`](DOUBLE.md) — speed value.
+
+**Compatibility:** `GETSPEED` - type from a dynamically loaded library, outside the scope of the current `compat.json` export.
 
 ### LINK
 
@@ -128,6 +140,8 @@ EXTWORLD^LINK(1,"ANNSZCZUREK",TRUE,TRUE);
 EXTWORLD^LINK(IOBIEKT,["ANNSTRZAL_"+ISTRZAL],TRUE,TRUE);
 ```
 
+**Compatibility:** `LINK` - type from a dynamically loaded library, outside the scope of the current `compat.json` export.
+
 ### LOAD
 
 ```
@@ -146,6 +160,8 @@ Loads a physics-world definition from an `.INE` file.
 EXTWORLD^LOAD("WORLD.INE");
 ```
 
+**Compatibility:** `LOAD` - type from a dynamically loaded library, outside the scope of the current `compat.json` export.
+
 ### RESETTIMER
 
 ```
@@ -159,6 +175,8 @@ Resets the simulation's internal timer.
 ```
 EXTWORLD^RESETTIMER();
 ```
+
+**Compatibility:** `RESETTIMER` - type from a dynamically loaded library, outside the scope of the current `compat.json` export.
 
 ### SETGRAVITY
 
@@ -177,6 +195,8 @@ Sets the global gravity vector. A value of `(0, 0)` disables gravity.
 ```
 EXTWORLD^SETGRAVITY(0,0);
 ```
+
+**Compatibility:** `SETGRAVITY` - type from a dynamically loaded library, outside the scope of the current `compat.json` export.
 
 ### SETLINEARDAMPING
 
@@ -197,6 +217,8 @@ Sets linear damping (gradual reduction of linear velocity) for a body.
 EXTWORLD^SETLINEARDAMPING(1,300);
 ```
 
+**Compatibility:** `SETLINEARDAMPING` - type from a dynamically loaded library, outside the scope of the current `compat.json` export.
+
 ### SETMATERIAL
 
 ```
@@ -215,6 +237,8 @@ Sets the body's material. Materials control how bodies respond to contact (rigid
 ```
 EXTWORLD^SETMATERIAL(IOBIEKT,"TRIGGER");
 ```
+
+**Compatibility:** `SETMATERIAL` - type from a dynamically loaded library, outside the scope of the current `compat.json` export.
 
 ### SETPOSITION
 
@@ -236,6 +260,8 @@ EXTWORLD^SETPOSITION(IOBIEKT,[ANNSZCZUREK^GETCENTERX()+70],[ANNSZCZUREK^GETCENTE
 EXTWORLD^SETPOSITION(IRAKIETAOBJ,ANNDODATKI_7^GETPOSITIONX(),ANNDODATKI_7^GETPOSITIONY());
 ```
 
+**Compatibility:** `SETPOSITION` - type from a dynamically loaded library, outside the scope of the current `compat.json` export.
+
 ### SETVELOCITY
 
 ```
@@ -256,6 +282,8 @@ EXTWORLD^SETVELOCITY(1,0,0);
 EXTWORLD^SETVELOCITY(IOBIEKT,8,0);
 ```
 
+**Compatibility:** `SETVELOCITY` - type from a dynamically loaded library, outside the scope of the current `compat.json` export.
+
 ### TICK
 
 ```
@@ -269,6 +297,8 @@ Advances the simulation by one step. Without `TICK` the physics world stays froz
 ```
 EXTWORLD^TICK();
 ```
+
+**Compatibility:** `TICK` - type from a dynamically loaded library, outside the scope of the current `compat.json` export.
 
 ### UNLINK
 
@@ -288,6 +318,8 @@ Breaks an animation binding established with [`LINK`](#link).
 EXTWORLD^UNLINK(IID);
 EXTWORLD^UNLINK(1);
 ```
+
+**Compatibility:** `UNLINK` - type from a dynamically loaded library, outside the scope of the current `compat.json` export.
 
 ## Signals
 

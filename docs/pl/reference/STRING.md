@@ -44,6 +44,8 @@ VARSMUSIC^ADD(".WAV");
 S_0^ADD($1);
 ```
 
+**Kompatybilność:** `ADD` - `PIKLIB61.DLL` ✅, `PIKLIB71.DLL` ✅, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
+
 ### CHANGEAT
 
 ```
@@ -65,6 +67,8 @@ Zastępuje pojedynczy znak na pozycji `index` ciągiem `replacement`. Jeżeli `r
 *VARARRAYNAME^CHANGEAT([VARCLONE-1], "NULL");
 *VARENEMYSTATE^CHANGEAT([VARINT1-1], VARSTRING1);
 ```
+
+**Kompatybilność:** `CHANGEAT` - brak w przeanalizowanych bibliotekach z `compat.json`.
 
 ### COPYFILE
 
@@ -88,6 +92,8 @@ VARSTEMP0^COPYFILE("$COMMON\ITEMS_DEF.DTA", "$COMMON\ITEMS0.DTA");
 S1^COPYFILE(S1, S2);
 ```
 
+**Kompatybilność:** `COPYFILE` - `PIKLIB61.DLL` ❌, `PIKLIB71.DLL` ❌, `PIKLIB72.DLL` ❌, `PIKLIB8.DLL` ⚠️ (6/10), `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
+
 ### CUT
 
 ```
@@ -108,6 +114,8 @@ Zastępuje wartość zmiennej fragmentem bieżącego ciągu, zaczynającym się 
 ```
 VARSTRING0^CUT(0, VARSTRING0^FIND("_"));
 ```
+
+**Kompatybilność:** `CUT` - `PIKLIB61.DLL` ❌, `PIKLIB71.DLL` ❌, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
 
 ### FIND
 
@@ -131,6 +139,8 @@ Wyszukuje w bieżącej wartości zmiennej pozycję pierwszego wystąpienia podan
 VARSTEMP0^FIND("IDLE");
 SWYRAZ^FIND(S1);
 ```
+
+**Kompatybilność:** `FIND` - `PIKLIB61.DLL` ❌, `PIKLIB71.DLL` ❌, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
 
 ### GET
 
@@ -162,6 +172,8 @@ VARENEMYNAME^GET(0, VARENEMYNAME^FIND("_"));
 SOBJNAME^GET(0, 1);
 ```
 
+**Kompatybilność:** `GET` - `PIKLIB61.DLL` ❌, `PIKLIB71.DLL` ✅, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
+
 ### LENGTH
 
 ```
@@ -178,6 +190,8 @@ Zwraca długość bieżącej wartości zmiennej. Metoda nie modyfikuje wartości
 VARSTEMP0^LENGTH();
 ```
 
+**Kompatybilność:** `LENGTH` - `PIKLIB61.DLL` ❌, `PIKLIB71.DLL` ✅, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
+
 ### LOWER
 
 ```
@@ -187,6 +201,8 @@ STRING LOWER()
 Zamienia wszystkie litery w bieżącej wartości zmiennej na małe.
 
 **Zwraca**: nową wartość zmiennej.
+
+**Kompatybilność:** `LOWER` - `PIKLIB61.DLL` ❌, `PIKLIB71.DLL` ❌, `PIKLIB72.DLL` ❌, `PIKLIB8.DLL` ❌, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ⚠️ (3/5).
 
 ### REPLACEAT
 
@@ -211,6 +227,8 @@ S3^REPLACEAT(0, 1, S1);
 VARSTMP2^REPLACEAT(8, 2, ["00"+VARIKRAINANO]);
 ```
 
+**Kompatybilność:** `REPLACEAT` - `PIKLIB61.DLL` ❌, `PIKLIB71.DLL` ❌, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
+
 ### RESETINI
 
 ```
@@ -220,6 +238,8 @@ STRING RESETINI()
 Przywraca wartość zmiennej do wartości resetu zdefiniowanej w atrybutach obiektu w skrypcie. Silnik szuka wartości w kolejności: `DEFAULT` → `INIT_VALUE` → `VALUE`; używana jest pierwsza znaleziona. Jeśli żadna z nich nie jest ustawiona, wartość ustawiana jest na pusty ciąg.
 
 **Zwraca**: nową wartość zmiennej.
+
+**Kompatybilność:** `RESETINI` - `PIKLIB61.DLL` ✅, `PIKLIB71.DLL` ✅, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
 
 ### SET
 
@@ -243,6 +263,8 @@ VARSTEMP0^SET(["BEHCLICK_"+SOBJECT|IDNAME]);
 VARSTEMP0^SET($1);
 ```
 
+**Kompatybilność:** `SET` - `PIKLIB61.DLL` ✅, `PIKLIB71.DLL` ✅, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
+
 ### SUB
 
 ```
@@ -265,6 +287,8 @@ VARSTEMP0^SUB(0, 5);
 VARSTEMP0^SUB(VARITEMP0, [VARSTEMP0^LENGTH()-VARITEMP0]);
 ```
 
+**Kompatybilność:** `SUB` - `PIKLIB61.DLL` ⚠️ (3/4), `PIKLIB71.DLL` ✅, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
+
 ### UPPER
 
 ```
@@ -281,6 +305,8 @@ Zamienia wszystkie litery w bieżącej wartości zmiennej na wielkie.
 SDIALOGWAVENAME^UPPER();
 SDIALOGPERSON^UPPER();
 ```
+
+**Kompatybilność:** `UPPER` - `PIKLIB61.DLL` ❌, `PIKLIB71.DLL` ❌, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
 
 ## Sygnały
 

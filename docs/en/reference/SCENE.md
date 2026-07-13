@@ -79,6 +79,8 @@ STRING GETDRAGGEDNAME()
 
 Returns the name of the graphics object currently dragged by a [`BUTTON`](BUTTON.md). Returns an empty string outside a drag operation.
 
+**Compatibility:** `GETDRAGGEDNAME` - `PIKLIB61.DLL` ✅, `PIKLIB71.DLL` ✅, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
+
 ### GETMAXHSPRIORITY
 
 ```
@@ -89,6 +91,8 @@ Returns the maximum priority of the scene's active hotspots.
 
 **Returns**: the current value of the [`MAXHSPRIORITY`](#maxhspriority) field.
 
+**Compatibility:** `GETMAXHSPRIORITY` - `PIKLIB61.DLL` ❌, `PIKLIB71.DLL` ❌, `PIKLIB72.DLL` ❌, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
+
 ### GETMINHSPRIORITY
 
 ```
@@ -98,6 +102,8 @@ INTEGER GETMINHSPRIORITY()
 Returns the minimum priority of the scene's active hotspots.
 
 **Returns**: the current value of the [`MINHSPRIORITY`](#minhspriority) field.
+
+**Compatibility:** `GETMINHSPRIORITY` - `PIKLIB61.DLL` ❌, `PIKLIB71.DLL` ❌, `PIKLIB72.DLL` ❌, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
 
 ### GETPLAYINGANIMO
 
@@ -110,6 +116,8 @@ Fills the [`GROUP`](index.md) variable named `groupName` with the names of every
 **Parameters**
 
 - `groupName` — name of the `GROUP` variable to populate.
+
+**Compatibility:** `GETPLAYINGANIMO` - `PIKLIB61.DLL` ❌, `PIKLIB71.DLL` ❌, `PIKLIB72.DLL` ❌, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
 
 ### PAUSE
 
@@ -124,6 +132,8 @@ Pauses the scene's music and every playing [`ANIMO`](index.md).
 ```
 BARANDALF^PAUSE();
 ```
+
+**Compatibility:** `PAUSE` - `PIKLIB61.DLL` ❌, `PIKLIB71.DLL` ❌, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
 
 ### REMOVECLONES
 
@@ -146,6 +156,8 @@ ARCADE^REMOVECLONES(VARSCURRENTITEMOBJECT, -1, -1);
 CUTSCENKI^REMOVECLONES(SANN, -1, -1);
 ```
 
+**Compatibility:** `REMOVECLONES` - `PIKLIB61.DLL` ❌, `PIKLIB71.DLL` ✅, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
+
 ### RESUME
 
 ```
@@ -160,6 +172,8 @@ Resumes the scene's music (with the volume from the [`MUSICVOLUME`](#musicvolume
 BARANDALF^RESUME();
 ```
 
+**Compatibility:** `RESUME` - `PIKLIB61.DLL` ❌, `PIKLIB71.DLL` ❌, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
+
 ### RESUMEONLY
 
 ```
@@ -171,6 +185,8 @@ Resumes only those paused animations whose names appear in the [`GROUP`](index.m
 **Parameters**
 
 - `groupName` — name of the `GROUP` variable holding the animations to resume.
+
+**Compatibility:** `RESUMEONLY` - `PIKLIB61.DLL` ❌, `PIKLIB71.DLL` ❌, `PIKLIB72.DLL` ❌, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
 
 ### RUN
 
@@ -196,6 +212,8 @@ S16_SPACEINVADERS^RUN(VARNAME, "PLAY", VARTEMPSTRING);
 S16_SPACEINVADERS^RUN(VARUFOHIT, "PLAY", ["TRAFIONY"+RANDOM^GET(0,2)]);
 ```
 
+**Compatibility:** `RUN` - `PIKLIB61.DLL` ✅, `PIKLIB71.DLL` ✅, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
+
 ### RUNCLONES
 
 ```
@@ -218,6 +236,8 @@ S16_SPACEINVADERS^RUNCLONES("ANIMOUFO", -1, -1, "BEHINITUFO");
 S71_DROGA^RUNCLONES("ANNKURA", -1, -1, "BEHINITCLONES");
 ```
 
+**Compatibility:** `RUNCLONES` - `PIKLIB61.DLL` ❌, `PIKLIB71.DLL` ✅, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
+
 ### SETMAXHSPRIORITY
 
 ```
@@ -229,6 +249,8 @@ Sets the maximum priority of the scene's active hotspots.
 **Parameters**
 
 - `maxHSPriority` — the new maximum priority.
+
+**Compatibility:** `SETMAXHSPRIORITY` - `PIKLIB61.DLL` ❌, `PIKLIB71.DLL` ❌, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
 
 ### SETMINHSPRIORITY
 
@@ -248,6 +270,8 @@ Sets the minimum priority of the scene's active hotspots.
 MENUGLOWNE^SETMINHSPRIORITY(999);
 MENUGLOWNE^SETMINHSPRIORITY(0);
 ```
+
+**Compatibility:** `SETMINHSPRIORITY` - `PIKLIB61.DLL` ❌, `PIKLIB71.DLL` ❌, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
 
 ### SETMUSICVOLUME
 
@@ -269,6 +293,8 @@ INTRO_2^SETMUSICVOLUME(500);
 DIALOGS^SETMUSICVOLUME([0.8*G_ARRSETTINGS^GET(1)]);
 ```
 
+**Compatibility:** `SETMUSICVOLUME` - `PIKLIB61.DLL` ❌, `PIKLIB71.DLL` ✅, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
+
 ### STARTMUSIC
 
 ```
@@ -288,3 +314,5 @@ ARCADE^STARTMUSIC(VARSMUSIC);
 MAGIC^STARTMUSIC("POJEDYNEK.WAV");
 DIALOGS^STARTMUSIC("GABINETY.WAV");
 ```
+
+**Compatibility:** `STARTMUSIC` - `PIKLIB61.DLL` ✅, `PIKLIB71.DLL` ✅, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.

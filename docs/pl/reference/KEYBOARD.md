@@ -18,6 +18,8 @@ Wyłącza obsługę zdarzeń klawiatury — sygnały klawiszy przestają być em
 KEYBOARD^DISABLE();
 ```
 
+**Kompatybilność:** `DISABLE` - `PIKLIB61.DLL` ✅, `PIKLIB71.DLL` ✅, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
+
 ### ENABLE
 
 ```
@@ -31,6 +33,8 @@ Włącza obsługę zdarzeń klawiatury.
 ```
 KEYBOARD^ENABLE();
 ```
+
+**Kompatybilność:** `ENABLE` - `PIKLIB61.DLL` ✅, `PIKLIB71.DLL` ✅, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
 
 ### GETLATESTKEY
 
@@ -48,6 +52,8 @@ Zwraca nazwę ostatnio wciśniętego klawisza.
 KEYBOARD^GETLATESTKEY();
 ```
 
+**Kompatybilność:** `GETLATESTKEY` - `PIKLIB61.DLL` ⚠️ (1/4), `PIKLIB71.DLL` ✅, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
+
 ### ISENABLED
 
 ```
@@ -63,6 +69,8 @@ Sprawdza, czy obsługa klawiatury jest włączona.
 ```
 KEYBOARD^ISENABLED();
 ```
+
+**Kompatybilność:** `ISENABLED` - `PIKLIB61.DLL` ❌, `PIKLIB71.DLL` ❌, `PIKLIB72.DLL` ❌, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
 
 ### ISKEYDOWN
 
@@ -86,6 +94,8 @@ KEYBOARD^ISKEYDOWN("LEFT");
 KEYBOARD^ISKEYDOWN(ARRAYKEYBOARD^GET(0));
 ```
 
+**Kompatybilność:** `ISKEYDOWN` - `PIKLIB61.DLL` ⚠️ (3/4), `PIKLIB71.DLL` ✅, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
+
 ### SETAUTOREPEAT
 
 ```
@@ -103,6 +113,8 @@ Ustawia, czy sygnał [`ONKEYDOWN`](#onkeydown) ma być emitowany cyklicznie tak 
 ```
 KEYBOARD^SETAUTOREPEAT(FALSE);
 ```
+
+**Kompatybilność:** `SETAUTOREPEAT` - `PIKLIB61.DLL` ⚠️ (3/4), `PIKLIB71.DLL` ✅, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
 
 ## Sygnały
 

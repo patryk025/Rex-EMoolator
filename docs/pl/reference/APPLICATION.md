@@ -55,6 +55,8 @@ Kończy działanie aplikacji.
 GAME^EXIT();
 ```
 
+**Kompatybilność:** `EXIT` - `PIKLIB61.DLL` ✅, `PIKLIB71.DLL` ✅, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
+
 ### GETLANGUAGE
 
 ```
@@ -70,6 +72,8 @@ Zwraca aktualnie ustawiony język aplikacji. Wartością domyślną jest `"POL"`
 ```
 UFO^GETLANGUAGE();
 ```
+
+**Kompatybilność:** `GETLANGUAGE` - `PIKLIB61.DLL` ⚠️ (3/4), `PIKLIB71.DLL` ✅, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
 
 ### RUN
 
@@ -97,6 +101,8 @@ UFO^RUN($1, "PLAY", $2);
 UFO^RUN(ARRCARS^GET(VARPLAYER), "SETPRIORITY", ARRPRIORITY^GET(VARPLAYER));
 ```
 
+**Kompatybilność:** `RUN` - `PIKLIB61.DLL` ⚠️ (2/4), `PIKLIB71.DLL` ✅, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
+
 ### RUNENV
 
 ```
@@ -119,6 +125,8 @@ GAME^RUNENV(SCENENAME, "__HELPSTART__");
 GAME^RUNENV(SCENENAME, "B_PAUSE_START");
 GAME^RUNENV(SCENENAME, "__CUTINIT__");
 ```
+
+**Kompatybilność:** `RUNENV` - `PIKLIB61.DLL` ❌, `PIKLIB71.DLL` ❌, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
 
 ### SETLANGUAGE
 
@@ -155,3 +163,5 @@ UFO^SETLANGUAGE("0415");
 UFO^SETLANGUAGE("040E");
 UFO^SETLANGUAGE("0419");
 ```
+
+**Kompatybilność:** `SETLANGUAGE` - `PIKLIB61.DLL` ⚠️ (3/4), `PIKLIB71.DLL` ✅, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.

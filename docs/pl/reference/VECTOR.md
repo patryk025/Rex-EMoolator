@@ -46,6 +46,8 @@ VTEMP2^ADD("VTOCENTER");
 VTEMP2^ADD(VTOCENTER);
 ```
 
+**Kompatybilność:** `ADD` - typ widoczny w eksporcie, ale bez rozpoznanej klasy C++ - brak danych o metodach.
+
 ### ASSIGN
 
 ```
@@ -69,6 +71,8 @@ VTEMP1^ASSIGN(ARRDIRX^GET(VARPLAYER),ARRDIRY^GET(VARPLAYER));
 VNORMAL^ASSIGN([ARRPOSX^GET(VARPLAYER)+ARRHWIDTH^GET(VARPLAYER)],[ARRPOSY^GET(VARPLAYER)+ARRHHEIGHT^GET(VARPLAYER)]);
 ```
 
+**Kompatybilność:** `ASSIGN` - typ widoczny w eksporcie, ale bez rozpoznanej klasy C++ - brak danych o metodach.
+
 ### GET
 
 ```
@@ -90,6 +94,8 @@ VTEMP1^GET(0);
 VTEMP1^GET(1);
 ```
 
+**Kompatybilność:** `GET` - typ widoczny w eksporcie, ale bez rozpoznanej klasy C++ - brak danych o metodach.
+
 ### LEN
 
 ```
@@ -99,6 +105,8 @@ DOUBLE LEN()
 Zwraca długość euklidesową wektora.
 
 **Zwraca**: [`DOUBLE`](DOUBLE.md) — długość wektora.
+
+**Kompatybilność:** `LEN` - typ widoczny w eksporcie, ale bez rozpoznanej klasy C++ - brak danych o metodach.
 
 ### MUL
 
@@ -120,6 +128,8 @@ VTEMP1^MUL(ARRSPEED^GET(VARPLAYER));
 VTEMP2^MUL(-1);
 ```
 
+**Kompatybilność:** `MUL` - typ widoczny w eksporcie, ale bez rozpoznanej klasy C++ - brak danych o metodach.
+
 ### NORMALIZE
 
 ```
@@ -134,6 +144,8 @@ Normalizuje wektor do długości `1` (dzieli każdą współrzędną przez aktua
 VNORMAL^NORMALIZE();
 VTEMP1^NORMALIZE();
 ```
+
+**Kompatybilność:** `NORMALIZE` - typ widoczny w eksporcie, ale bez rozpoznanej klasy C++ - brak danych o metodach.
 
 ### REFLECT
 
@@ -157,6 +169,8 @@ Oblicza odbicie bieżącego wektora względem wektora normalnego i zapisuje wyni
 VINCIDENT^REFLECT("VNORMAL","VREFLECT");
 VINCIDENT^REFLECT(VNORMAL,VREFLECT);
 ```
+
+**Kompatybilność:** `REFLECT` - typ widoczny w eksporcie, ale bez rozpoznanej klasy C++ - brak danych o metodach.
 
 ## Sygnały
 
