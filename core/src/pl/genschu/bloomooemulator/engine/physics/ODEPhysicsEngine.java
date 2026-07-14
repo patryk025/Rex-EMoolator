@@ -198,7 +198,8 @@ public class ODEPhysicsEngine implements IPhysicsEngine {
             int bodyType, int geomType,
             double dim0, double dim1, double dim2
     ) {
-        GameObject go = toGameObject(objectId, mass, mu, mu2, bounce, bounceVelocity, maxVelocity, geomType, dim0, dim1, dim2);
+        GameObject go = toGameObject(objectId, mass, mu, mu2, bounce, bounceVelocity,
+                maxVelocity, bodyType, geomType, dim0, dim1, dim2);
 
         DBody body = createBasicBody(objectId, 0, 0, 0);
         objects.putIfAbsent(objectId, new ArrayList<>());
@@ -209,6 +210,11 @@ public class ODEPhysicsEngine implements IPhysicsEngine {
 
         attachGeometry(body, geomType);
         setMass(body, mass, geomType);
+        if (bodyType == 0) {
+            // Sekai's bodyType=0 has collision geometry and a script-visible position, but no
+            // dynamic ODE body. Kinematic mode must be set after mass initialization in ode4j.
+            body.setKinematic();
+        }
 
         DJoint.DJointFeedback jointFeedback = OdeHelper.createJointFeedback();
         go.setJointFeedback(jointFeedback);
@@ -289,7 +295,7 @@ public class ODEPhysicsEngine implements IPhysicsEngine {
     private GameObject toGameObject(
             int objectId, double mass, double mu, double mu2,
             double bounce, double bounceVelocity, double maxVelocity,
-            int geomType, double dim0, double dim1, double dim2
+            int bodyType, int geomType, double dim0, double dim1, double dim2
     ) {
         return GameObject.builder()
                 .id(objectId)
@@ -299,6 +305,7 @@ public class ODEPhysicsEngine implements IPhysicsEngine {
                 .bounce(bounce)
                 .bounceVelocity(bounceVelocity)
                 .maxVelocity(maxVelocity)
+                .rigidBody(bodyType != 0)
                 .geomType(geomType)
                 .dimensions(new float[]{(float) dim0, (float) dim1, (float) dim2})
                 .position(0, 0, 0)
@@ -633,6 +640,7 @@ public class ODEPhysicsEngine implements IPhysicsEngine {
             DVector3C pc = centerBody.getPosition();
 
             for (GameObject go2 : gameObjects) {
+                if (!go2.isRigidBody()) continue;
                 DBody other = (DBody) go2.getBody();
                 if (other == centerBody) continue;
                 if (other == null) continue; // ignore non-rigid bodies
@@ -1238,6 +1246,9 @@ public class ODEPhysicsEngine implements IPhysicsEngine {
             }
             if (go1 == go2) {
                 return; // Skip self-collisions
+            }
+            if (!go1.isRigidBody() && !go2.isRigidBody()) {
+                return; // Sekai does not collide two objects without dynamic bodies
             }
 
             DBody body1 = g1.getBody();

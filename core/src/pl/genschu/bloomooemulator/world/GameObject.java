@@ -83,7 +83,7 @@ public class GameObject {
             obj.bounce = 0.0f;
             obj.bounceVelocity = 0.0f;
             obj.maxVelocity = 10.0f;
-            obj.G = 0.0f;
+            obj.G = 6.67e-11;
             obj.gravityCenter = false;
             obj.gravityExclusions = new HashSet<>();
             obj.active = true;
