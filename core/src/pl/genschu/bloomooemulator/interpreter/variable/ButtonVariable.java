@@ -403,6 +403,15 @@ public record ButtonVariable(
             return MethodResult.noReturn();
         })),
 
+        Map.entry("GETSTD", MethodSpec.of((self, args, ctx) -> {
+            ButtonVariable btn = (ButtonVariable) self;
+            String stdName = btn.state.gfxStandardName;
+            if(stdName.isEmpty()) {
+                return MethodResult.returns(new StringValue("UNKNOWN"));
+            }
+            return MethodResult.returns(new StringValue(stdName));
+        })),
+
         Map.entry("SETPRIORITY", MethodSpec.of((self, args, ctx) -> {
             ButtonVariable btn = (ButtonVariable) self;
             int priority = ArgumentHelper.getInt(args.get(0));
