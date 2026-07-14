@@ -109,9 +109,15 @@ public record ArrayVariable(
             if (index < 0 || index >= thisVar.elements.size()) {
                 return MethodResult.noReturn();
             }
-            double addend = ArgumentHelper.getDouble(args.get(1));
-            double current = ArgumentHelper.getDouble(thisVar.elements.get(index));
-            thisVar.elements.set(index, new DoubleValue(current + addend));
+            Value current = thisVar.elements.get(index);
+            if (current instanceof IntValue intValue) {
+                thisVar.elements.set(index,
+                        new IntValue(intValue.value() + ArgumentHelper.getInt(args.get(1))));
+            } else {
+                double addend = ArgumentHelper.getDouble(args.get(1));
+                thisVar.elements.set(index,
+                        new DoubleValue(ArgumentHelper.getDouble(current) + addend));
+            }
             return MethodResult.noReturn();
         })),
 
@@ -212,6 +218,28 @@ public record ArrayVariable(
                 sum += ArgumentHelper.getDouble(element);
             }
             return MethodResult.returns(new DoubleValue(sum));
+        })),
+
+        Map.entry("MAX", MethodSpec.of((self, args, ctx) -> {
+            ArrayVariable thisVar = (ArrayVariable) self;
+            int max = 0;
+            for (Value element : thisVar.elements) {
+                if (element instanceof IntValue intValue) {
+                    max = Math.max(max, intValue.value());
+                }
+            }
+            return MethodResult.returns(new IntValue(max));
+        })),
+
+        Map.entry("MIN", MethodSpec.of((self, args, ctx) -> {
+            ArrayVariable thisVar = (ArrayVariable) self;
+            int min = 1_000_000;
+            for (Value element : thisVar.elements) {
+                if (element instanceof IntValue intValue) {
+                    min = Math.min(min, intValue.value());
+                }
+            }
+            return MethodResult.returns(new IntValue(min));
         })),
 
         Map.entry("INSERTAT", MethodSpec.of((self, args, ctx) -> {

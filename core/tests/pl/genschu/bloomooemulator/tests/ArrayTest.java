@@ -150,6 +150,19 @@ class ArrayTest {
     }
 
     @Test
+    void maxKeepsIntegerScoreAfterAddAt_footballMatchRegression() {
+        arrayVar.callMethod("ADD", List.of(new IntValue(0), new IntValue(0)));
+        arrayVar.callMethod("ADDAT", List.of(new IntValue(1), new IntValue(1)));
+
+        Value score = arrayVar.callMethod("GET", List.of(new IntValue(1))).getReturnValue();
+        Value max = arrayVar.callMethod("MAX", List.of()).getReturnValue();
+
+        assertInstanceOf(IntValue.class, score);
+        assertEquals(1, ((IntValue) score).value());
+        assertEquals(1, ((IntValue) max).value());
+    }
+
+    @Test
     void testFindExactMatch() {
         arrayVar.callMethod("ADD",
                 List.of(new IntValue(1),
