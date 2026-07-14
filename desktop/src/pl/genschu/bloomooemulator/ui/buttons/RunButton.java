@@ -3,11 +3,14 @@ package pl.genschu.bloomooemulator.ui.buttons;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3Application;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3ApplicationConfiguration;
 import pl.genschu.bloomooemulator.BlooMooEngine;
+import pl.genschu.bloomooemulator.GameRunQueue;
 import pl.genschu.bloomooemulator.logic.GameEntry;
 import pl.genschu.bloomooemulator.logic.GameManager;
+import pl.genschu.bloomooemulator.platform.AwtPrinterService;
 import pl.genschu.bloomooemulator.ui.ButtonColumn;
 
 import javax.swing.*;
+import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.io.IOException;
 
@@ -41,12 +44,26 @@ public class RunButton extends ButtonColumn {
     }
 
     private void launchGameInProcess(GameEntry game) {
-        Lwjgl3ApplicationConfiguration config = new Lwjgl3ApplicationConfiguration();
-        config.setForegroundFPS(60);
-        config.setWindowedMode(800, 600); // temporary for testing
-        config.setTitle("Rex-EMoolator");
+        // The GLFW loop must not run on the EDT (see GameRunQueue); the list
+        // window hides for the duration of the game and comes back afterward.
+        Window listWindow = SwingUtilities.getWindowAncestor(table);
+        if (listWindow != null) {
+            listWindow.setVisible(false);
+        }
+        GameRunQueue.submit(() -> {
+            try {
+                Lwjgl3ApplicationConfiguration config = new Lwjgl3ApplicationConfiguration();
+                config.setForegroundFPS(60);
+                config.setWindowedMode(800, 600); // temporary for testing
+                config.setTitle("Rex-EMoolator");
 
-        new Lwjgl3Application(new BlooMooEngine(game), config);
+                new Lwjgl3Application(new BlooMooEngine(game, new AwtPrinterService()), config);
+            } finally {
+                if (listWindow != null) {
+                    SwingUtilities.invokeLater(() -> listWindow.setVisible(true));
+                }
+            }
+        });
     }
 
     private void launchGameSubprocess(int gameIndex) {

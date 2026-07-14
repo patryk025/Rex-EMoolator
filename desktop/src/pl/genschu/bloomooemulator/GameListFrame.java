@@ -90,6 +90,8 @@ public class GameListFrame extends JFrame {
         SwingUtilities.invokeLater(() -> {
             new GameListFrame().setVisible(true);
         });
+        // Keep the main thread as the game-loop thread (see GameRunQueue).
+        GameRunQueue.runLoop();
     }
 
     private String getFolderPath() {
