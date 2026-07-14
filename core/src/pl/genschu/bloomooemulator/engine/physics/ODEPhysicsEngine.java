@@ -611,14 +611,11 @@ public class ODEPhysicsEngine implements IPhysicsEngine {
     }
 
     private void calculateBodiesAttraction() {
-        // Magnet attraction as in Sekai (RiWC magnets): |F| = G_center · G_other · K / |r|,
-        // pulled toward the center. The G's come from SETG (not masses) and K is Newton's
-        // constant baked into the object ctor — that's why scripts pass SETG in the millions.
-        // Note the 1/|r| falloff (not 1/r²) and that both G's default to 0, so only pairs
-        // with SETG set on both sides attract at all.
+        // SETG belongs to the gravity center only. Sekai multiplies it by both bodies' masses:
+        // |F| = G_center * mass_center * mass_other / r². FootballMatch deliberately never
+        // calls SETG on the ball, so treating the other body's G as a factor disables magnets.
         if (world == null) return;
 
-        final double NEWTON_G = 6.674e-11;
         // The original has no r=0 guard (NaN/explosion); we keep a small epsilon instead.
         final double EPS2 = 1e-6;
 
@@ -630,8 +627,8 @@ public class ODEPhysicsEngine implements IPhysicsEngine {
 
             if(centerBody == null) continue; // ignore non-rigid bodies
 
-            double gCenter = go.getG();
-            if (gCenter == 0.0) continue;
+            double centerStrength = go.getG() * go.getMass();
+            if (centerStrength == 0.0) continue;
 
             DVector3C pc = centerBody.getPosition();
 
@@ -643,9 +640,6 @@ public class ODEPhysicsEngine implements IPhysicsEngine {
                 if(!go2.isActive()) continue;
                 if(go2.isGravityExcluded(go.getId())) continue; // ADDGRAVITYEX
 
-                double gOther = go2.getG();
-                if (gOther == 0.0) continue;
-
                 DVector3C po = other.getPosition();
 
                 double dx = pc.get0() - po.get0();
@@ -655,8 +649,8 @@ public class ODEPhysicsEngine implements IPhysicsEngine {
                 double r2 = dx*dx + dy*dy + dz*dz;
                 if (r2 < EPS2) continue;
 
-                // components = (d/|r|) · |F| = d · gCenter·gOther·K / r²
-                double scalar = gCenter * gOther * NEWTON_G / r2;
+                // Components are the normalized direction multiplied by |F|.
+                double scalar = centerStrength * go2.getMass() / (r2 * Math.sqrt(r2));
 
                 other.addForce(dx * scalar, dy * scalar, dz * scalar);
             }
