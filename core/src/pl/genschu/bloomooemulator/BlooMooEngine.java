@@ -16,6 +16,7 @@ import pl.genschu.bloomooemulator.engine.input.InputManager;
 import pl.genschu.bloomooemulator.engine.render.RenderManager;
 import pl.genschu.bloomooemulator.engine.update.UpdateManager;
 import pl.genschu.bloomooemulator.engine.debug.DebugManager;
+import pl.genschu.bloomooemulator.platform.PrinterService;
 
 public class BlooMooEngine extends ApplicationAdapter {
     private static final float VIRTUAL_WIDTH = 800;
@@ -38,13 +39,24 @@ public class BlooMooEngine extends ApplicationAdapter {
 
     private final GameEntry gameEntry;
     private final EngineConfig config;
+    private final PrinterService printerService;
 
     public BlooMooEngine(GameEntry gameEntry) {
+        this(gameEntry, null);
+    }
+
+    public BlooMooEngine(GameEntry gameEntry, PrinterService printerService) {
         this.gameEntry = gameEntry;
+        this.printerService = printerService;
         this.config = new EngineConfig();
         if (gameEntry != null) {
             this.config.setShowFpsCounter(gameEntry.isShowFpsCounter());
         }
+    }
+
+    /** Platform printing hook; null when the launcher provides none. */
+    public PrinterService getPrinterService() {
+        return printerService;
     }
 
     @Override

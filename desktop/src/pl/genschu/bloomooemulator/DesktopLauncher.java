@@ -5,6 +5,7 @@ import com.badlogic.gdx.backends.lwjgl3.Lwjgl3ApplicationConfiguration;
 import pl.genschu.bloomooemulator.logic.AppPaths;
 import pl.genschu.bloomooemulator.logic.GameEntry;
 import pl.genschu.bloomooemulator.logic.GameManager;
+import pl.genschu.bloomooemulator.platform.AwtPrinterService;
 
 // On macOS application needs to be started with the -XstartOnFirstThread JVM argument
 public class DesktopLauncher {
@@ -24,6 +25,6 @@ public class DesktopLauncher {
 			}
 		}
 
-		new Lwjgl3Application(new BlooMooEngine(game), config);
+		new Lwjgl3Application(new BlooMooEngine(game, new AwtPrinterService()), config);
 	}
 }

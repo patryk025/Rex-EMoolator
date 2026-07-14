@@ -13,6 +13,7 @@ import pl.genschu.bloomooemulator.interpreter.variable.capabilities.Initializabl
 import pl.genschu.bloomooemulator.loader.PtrLoader;
 import pl.genschu.bloomooemulator.loader.SoundLoader;
 import pl.genschu.bloomooemulator.objects.Image;
+import pl.genschu.bloomooemulator.platform.PrinterService;
 import pl.genschu.bloomooemulator.utils.FileUtils;
 
 import java.util.*;
@@ -792,8 +793,28 @@ public record KolorowankaVariable(
         })),
 
         Map.entry("PRINT", MethodSpec.of((self, args, ctx) -> {
-            // Original prints the window on the system printer — intentionally a no-op here
-            Gdx.app.log("KolorowankaVariable", ((KolorowankaVariable) self).name + ": PRINT ignored (no printer support for now)");
+            KolorowankaVariable klr = (KolorowankaVariable) self;
+            PrinterService printer = ctx.getGame() != null && ctx.getGame().getEmulator() != null
+                    ? ctx.getGame().getEmulator().getPrinterService()
+                    : null;
+            if (printer == null || !printer.isSupported()) {
+                Gdx.app.log("KolorowankaVariable", klr.name + ": PRINT ignored (no printer support on this platform)");
+                return MethodResult.noReturn();
+            }
+            if (klr.state.pixmap == null) {
+                return MethodResult.noReturn();
+            }
+            // The original prints the painter window; here the picture is composited
+            // on white paper instead of the transparent scene background.
+            Pixmap page = new Pixmap(klr.state.pixmap.getWidth(), klr.state.pixmap.getHeight(), Pixmap.Format.RGBA8888);
+            page.setColor(1, 1, 1, 1);
+            page.fill();
+            page.drawPixmap(klr.state.pixmap, 0, 0);
+            try {
+                printer.printImage(page, klr.name);
+            } finally {
+                page.dispose();
+            }
             return MethodResult.noReturn();
         })),
 
