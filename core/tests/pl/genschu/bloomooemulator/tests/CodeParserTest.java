@@ -42,6 +42,7 @@ public class CodeParserTest {
                 .withVariable("INTEGER", "TEST_NO", 1)
                 .withVariable("INTEGER", "TEST_VALUE_1", 5)
                 .withVariable("STRING", "TEST_VALUE_NAME", "TEST_VALUE_1")
+                .withVariable("STRING", "EMPTY_TARGET", "")
                 .build();
 
         BehaviourVariable behaviour = (BehaviourVariable) new BehaviourVariable("TEST_BEH", new BlockNode(List.of(), SourceLocation.UNKNOWN), null)
@@ -210,6 +211,8 @@ public class CodeParserTest {
                 // A bracket in the method arguments belongs to the argument,
                 // not to the pointer target.
                 arguments("{*TEST_VALUE_NAME^SET([TEST_BEH^RUN()+5]);@RETURN(TEST_VALUE_1);}", 7),
+                // Empty dynamic targets are disabled/no-op pointers.
+                arguments("{*EMPTY_TARGET^SET(99);@RETURN(TEST_VALUE_1);}", 5),
                 // Struct fields are writable method targets (used by DARRAY).
                 arguments("{TEST_STRUCT|VAL^SET(9);@RETURN(TEST_STRUCT|VAL);}", 9),
 

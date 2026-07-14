@@ -163,6 +163,12 @@ public class ASTInterpreter {
     // === LITERALS ===
 
     private ExecutionResult executeLiteral(LiteralNode node) {
+        if (node.value() instanceof StringValue stringValue && stringValue.value().contains("$")) {
+            // Parameters are substituted textually by the original engine,
+            // including inside quoted strings. DARRAY.CLASS relies on this in
+            // DBFIELD^LOAD("$1"), where $1 is the requested DTA path.
+            return new NormalResult(new StringValue(interpolateParamRefs(stringValue.value())));
+        }
         return new NormalResult(node.value());
     }
 
@@ -215,8 +221,13 @@ public class ASTInterpreter {
      */
     private Variable resolveParamReference(String rawName) {
         String resolved = interpolateParamRefs(rawName);
-        Variable variable = context.getVariable(resolved);
-        if (variable == null && !resolved.equals(rawName)) {
+        if (resolved.equals(rawName)) {
+            return context.getVariable(rawName);
+        }
+        Variable variable = context.hasVariable(resolved)
+            ? context.getVariable(resolved)
+            : null;
+        if (variable == null && !resolved.equals(rawName) && context.hasVariable(rawName)) {
             variable = context.getVariable(rawName);
         }
         return variable;
@@ -237,8 +248,17 @@ public class ASTInterpreter {
                     if (!lastResult.shouldContinue()) {
                         return lastResult; // Propagate break/return
                     }
-                } catch(InterpreterException e) {
+                } catch (InterpreterException e) {
                     Gdx.app.error("ASTInterpreter", "Caught error executing instruction in block statement: " + e.getMessage());
+                    // skip that instruction and continue
+                } catch (RuntimeException e) {
+                    InterpreterException wrapped = new InterpreterException(
+                        "Unhandled interpreter failure",
+                        exec,
+                        stmt.location(),
+                        e
+                    );
+                    Gdx.app.error("ASTInterpreter", "Caught error executing instruction in block statement: " + wrapped.getMessage());
                     // skip that instruction and continue
                 }
             }
@@ -441,6 +461,9 @@ public class ASTInterpreter {
         Variable target = structAccess != null
             ? resolveStructFieldMethodTarget(structAccess)
             : resolveMethodTarget(node.target(), node.location());
+        if (target == null) {
+            return new NormalResult(NullValue.INSTANCE);
+        }
 
         // Evaluate all arguments
         List<Value> arguments = new ArrayList<>(node.arguments().size());
@@ -528,6 +551,9 @@ public class ASTInterpreter {
             case VariableValue variableValue -> variableValue.variable().name();
             default -> ArgumentHelper.getString(exprResult.getValue());
         };
+        if (varName == null || varName.isBlank()) {
+            return new NormalResult(NullValue.INSTANCE);
+        }
         Variable resolved = context.getVariable(varName);
         if (resolved == null) {
             throw new InterpreterException(
@@ -633,6 +659,11 @@ public class ASTInterpreter {
         if (target instanceof PointerDerefNode pointerDerefNode) {
             ExecutionResult result = execute(pointerDerefNode.expression());
             String resolvedName = interpolateParamRefs(result.getValue().toDisplayString());
+            // Empty strings intentionally disable dynamic targets, e.g.
+            // *VARSBALL before a footballer has been selected.
+            if (resolvedName.isBlank()) {
+                return null;
+            }
             return resolveMethodTarget(new VariableNode(resolvedName, location), location);
         }
 

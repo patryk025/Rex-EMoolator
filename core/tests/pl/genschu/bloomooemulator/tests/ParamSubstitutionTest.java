@@ -43,6 +43,7 @@ public class ParamSubstitutionTest {
     void setUp() {
         ctx = new ContextBuilder()
                 .withVariable("INTEGER", "VARNR", 0)
+                .withVariable("STRING", "RESULT", "")
                 .build();
     }
 
@@ -108,6 +109,24 @@ public class ParamSubstitutionTest {
         defineBehaviour("CHILD", "{VARNR^SET($1);}");
         runTop("{CHILD^RUN(9);}");
         assertEquals(9, readInt("VARNR"));
+    }
+
+    @Test
+    void numericParamRemainsNumericInArithmetic() {
+        defineBehaviour("CHILD", "{VARNR^SET([$1+1]);}");
+        runTop("{CHILD^RUN(3);}");
+        assertEquals(4, readInt("VARNR"));
+    }
+
+    /**
+     * Quoted parameters are still textually substituted. DARRAY.CLASS uses
+     * exactly this form to forward its filename: DBFIELD^LOAD("$1").
+     */
+    @Test
+    void quotedValuePositionInterpolatesParamText() {
+        defineBehaviour("CHILD", "{RESULT^SET(\"$1\");}");
+        runTop("{CHILD^RUN(\"$COMMON/BOICHO.DTA\");}");
+        assertEquals("$COMMON/BOICHO.DTA", ctx.getVariable("RESULT").value().toDisplayString());
     }
 
     /**
