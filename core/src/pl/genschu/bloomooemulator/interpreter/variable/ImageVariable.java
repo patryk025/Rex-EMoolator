@@ -35,6 +35,8 @@ public record ImageVariable(
         public Image image;
         public int posX = 0;
         public int posY = 0;
+        public int anchorX = 0;
+        public int anchorY = 0;
         public float opacity = 1f;
         public float pendingOpacity = 1f;
         public Box2D rect = new Box2D(0, 0, 0, 0);
@@ -55,6 +57,8 @@ public record ImageVariable(
             copy.image = this.image;
             copy.posX = this.posX;
             copy.posY = this.posY;
+            copy.anchorX = this.anchorX;
+            copy.anchorY = this.anchorY;
             copy.opacity = this.opacity;
             copy.pendingOpacity = this.pendingOpacity;
             copy.rect = new Box2D(rect.getXLeft(), rect.getYBottom(), rect.getXRight(), rect.getYTop());
@@ -435,11 +439,68 @@ public record ImageVariable(
 
         Map.entry("SETPOSITION", MethodSpec.of((self, args, ctx) -> {
             ImageVariable img = (ImageVariable) self;
-            img.state.posX = ArgumentHelper.getInt(args.get(0));
-            img.state.posY = ArgumentHelper.getInt(args.get(1));
+            img.state.posX = ArgumentHelper.getInt(args.get(0)) - img.state.anchorX;
+            img.state.posY = ArgumentHelper.getInt(args.get(1)) - img.state.anchorY;
             img.state.updateRect();
             if (ctx != null && ctx.getGame() != null) {
                 ctx.getGame().markCollisionDirty(img);
+            }
+            return MethodResult.noReturn();
+        })),
+
+        Map.entry("SETANCHOR", MethodSpec.of((self, args, ctx) -> {
+            ImageVariable img = (ImageVariable) self;
+            if (args.isEmpty()) {
+                throw new IllegalArgumentException("SETANCHOR requires arguments");
+            }
+
+            if (args.size() >= 2) {
+                img.state.anchorX = ArgumentHelper.getInt(args.get(0));
+                img.state.anchorY = ArgumentHelper.getInt(args.get(1));
+                return MethodResult.noReturn();
+            }
+
+            String anchor = ArgumentHelper.getString(args.get(0)).toUpperCase(Locale.ROOT);
+            int width = img.state.image != null ? img.state.image.width : img.state.rect.getWidth();
+            int height = img.state.image != null ? img.state.image.height : img.state.rect.getHeight();
+            switch (anchor) {
+                case "CENTER" -> {
+                    img.state.anchorX = width / 2;
+                    img.state.anchorY = height / 2;
+                }
+                case "LEFTUPPER" -> {
+                    img.state.anchorX = 0;
+                    img.state.anchorY = 0;
+                }
+                case "RIGHTUPPER" -> {
+                    img.state.anchorX = width;
+                    img.state.anchorY = 0;
+                }
+                case "LEFTLOWER" -> {
+                    img.state.anchorX = 0;
+                    img.state.anchorY = height;
+                }
+                case "RIGHTLOWER" -> {
+                    img.state.anchorX = width;
+                    img.state.anchorY = height;
+                }
+                case "LEFT" -> {
+                    img.state.anchorX = 0;
+                    img.state.anchorY = height / 2;
+                }
+                case "RIGHT" -> {
+                    img.state.anchorX = width;
+                    img.state.anchorY = height / 2;
+                }
+                case "TOP" -> {
+                    img.state.anchorX = width / 2;
+                    img.state.anchorY = 0;
+                }
+                case "BOTTOM" -> {
+                    img.state.anchorX = width / 2;
+                    img.state.anchorY = height;
+                }
+                default -> Gdx.app.log("ImageVariable", "Unknown anchor: " + anchor);
             }
             return MethodResult.noReturn();
         })),
