@@ -2,10 +2,13 @@ package pl.genschu.bloomooemulator.interpreter.variable;
 
 import com.badlogic.gdx.Gdx;
 import pl.genschu.bloomooemulator.annotations.InternalMutable;
+import pl.genschu.bloomooemulator.engine.Game;
 import pl.genschu.bloomooemulator.engine.physics.IPhysicsEngine;
 import pl.genschu.bloomooemulator.engine.physics.ODEPhysicsEngine;
+import pl.genschu.bloomooemulator.interpreter.context.Context;
 import pl.genschu.bloomooemulator.interpreter.helpers.ArgumentHelper;
 import pl.genschu.bloomooemulator.interpreter.values.*;
+import pl.genschu.bloomooemulator.interpreter.variable.capabilities.Initializable;
 import pl.genschu.bloomooemulator.loader.SEKLoadable;
 import pl.genschu.bloomooemulator.loader.SEKLoader;
 import pl.genschu.bloomooemulator.utils.FileUtils;
@@ -22,7 +25,7 @@ public record WorldVariable(
     String name,
     @InternalMutable WorldState state,
     Map<String, SignalHandler> signals
-) implements Variable, SEKLoadable {
+) implements Variable, SEKLoadable, Initializable {
 
     public static final class WorldState {
         public final IPhysicsEngine physicsEngine = new ODEPhysicsEngine();
@@ -103,6 +106,32 @@ public record WorldVariable(
     public void setSekVersion(String sekVersion) { state.sekVersion = sekVersion; }
     @Override public String getFilename() { return state.filename != null ? state.filename : ""; }
     @Override public pl.genschu.bloomooemulator.engine.Game getGameReference() { return state.gameRef; }
+
+    @Override
+    public void init(Context context) {
+        String filename = context.attributes().get(name, "FILENAME");
+        if (filename != null) {
+            state.filename = filename;
+        }
+        reload(context.getGame());
+    }
+
+    private void reload(Game game) {
+        state.gameRef = game;
+        state.physicsEngine.shutdown();
+        state.physicsEngine.init();
+
+        if (game == null || state.filename == null || state.filename.isBlank()) {
+            return;
+        }
+
+        String vfsPath = FileUtils.resolveVfsPath(game, state.filename);
+        try (java.io.InputStream is = game.getVfs().openRead(vfsPath)) {
+            SEKLoader.loadSek(this, is);
+        } catch (java.io.IOException e) {
+            Gdx.app.error("WorldVariable", "Failed to open SEK via VFS: " + vfsPath, e);
+        }
+    }
 
     // ========================================
     // METHODS
@@ -368,17 +397,8 @@ public record WorldVariable(
 
         Map.entry("LOAD", MethodSpec.of((self, args, ctx) -> {
             WorldVariable w = (WorldVariable) self;
-            String filename = ArgumentHelper.getString(args.get(0));
-            w.state.filename = filename;
-            w.state.gameRef = ctx.getGame();
-            w.state.physicsEngine.shutdown();
-            w.state.physicsEngine.init();
-            String vfsPath = FileUtils.resolveVfsPath(ctx.getGame(), filename);
-            try (java.io.InputStream is = ctx.getGame().getVfs().openRead(vfsPath)) {
-                SEKLoader.loadSek(w, is);
-            } catch (java.io.IOException e) {
-                com.badlogic.gdx.Gdx.app.error("WorldVariable", "Failed to open SEK via VFS: " + vfsPath, e);
-            }
+            w.state.filename = ArgumentHelper.getString(args.get(0));
+            w.reload(ctx.getGame());
             return MethodResult.noReturn();
         })),
 
