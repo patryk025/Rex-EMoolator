@@ -74,13 +74,11 @@ public class CameraAnchor {
     }
 
     /**
-     * WORLD.SETMOVEFLAGS — the script passes the per-axis max scroll amounts (tx, ty),
-     * not bit flags. An axis scrolls only when its background is larger than the screen
-     * (amount &gt;= 0); otherwise it stays pinned (scroll 0).
+     * WORLD.SETMOVEFLAGS — two boolean values selecting the tracked axes.
      */
     public void setMoveFlags(float moveX, float moveY) {
-        trackX = moveX >= 0;
-        trackY = moveY >= 0;
+        trackX = moveX != 0;
+        trackY = moveY != 0;
         if (!trackX) scrollX = 0;
         if (!trackY) scrollY = 0;
     }

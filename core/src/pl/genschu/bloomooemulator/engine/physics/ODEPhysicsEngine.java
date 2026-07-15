@@ -694,25 +694,27 @@ public class ODEPhysicsEngine implements IPhysicsEngine {
         }
 
         calculateBodiesAttraction();
-        space.collide(this, nearCallback);
 
         // RiWC substepping: internally ~60 Hz (dt=0.03 → 2 × 0.015); the n=1 case matches
-        // RiC's single step for ordinary frames. Collisions are gathered once per frame and
-        // the contact group is cleared after all substeps, as in the original.
+        // RiC's single step for ordinary frames. Each substep gathers fresh contacts and
+        // clears its temporary contact group, as in the original.
         // dWorldStep (Dantzig LCP), not quickStep — the original never used SOR.
         int substeps = 1 + (int) (deltaTime * 60.0);
         // TODO: cap substeps for Reksio i Czarodzieje
         double h = deltaTime / substeps;
         for (int i = 0; i < substeps; i++) {
+            space.collide(this, nearCallback);
             world.step(h);
+            jointGroup.clear();
         }
-        jointGroup.clear();
 
         for (GameObject go : getGameObjects()) {
             DBody body = (DBody) go.getBody();
             if (body == null) {
                 continue; // Skip null bodies
             }
+
+            enforcePositionLimits(go, body);
 
             // check joints
             if(go.getJoint() != null) {
@@ -734,6 +736,20 @@ public class ODEPhysicsEngine implements IPhysicsEngine {
 
         synchronizeObjects();
         return deltaTime;
+    }
+
+    /**
+     * Sekai clamps every coordinate after the ODE step and writes the clamped position back
+     * to the body. It deliberately leaves velocity untouched.
+     */
+    private void enforcePositionLimits(GameObject go, DBody body) {
+        DVector3C position = body.getPosition();
+        double x = Math.max(go.getMinXLimit(), Math.min(go.getMaxXLimit(), position.get0()));
+        double y = Math.max(go.getMinYLimit(), Math.min(go.getMaxYLimit(), position.get1()));
+        double z = Math.max(go.getMinZLimit(), Math.min(go.getMaxZLimit(), position.get2()));
+        if (x != position.get0() || y != position.get1() || z != position.get2()) {
+            body.setPosition(x, y, z);
+        }
     }
 
     @Override
@@ -788,7 +804,9 @@ public class ODEPhysicsEngine implements IPhysicsEngine {
             return;
         }
         GameObject go2 = getObject(secondId);
-        DBody body2 = (go2 != null) ? (DBody) go2.getBody() : null;
+        // bodyType=0 has no dBody in Sekai. We keep a kinematic carrier in ode4j so its
+        // geometry and script-visible position work, but joints must still attach to world.
+        DBody body2 = (go2 != null && go2.isRigidBody()) ? (DBody) go2.getBody() : null;
         if (body2 == null) {
             Gdx.app.log("ODEPhysicsEngine", "No second body supplied for joint. Joining to world.");
         }
@@ -828,7 +846,7 @@ public class ODEPhysicsEngine implements IPhysicsEngine {
             return;
         }
         GameObject go2 = getObject(secondId);
-        DBody body2 = (go2 != null) ? (DBody) go2.getBody() : null;
+        DBody body2 = (go2 != null && go2.isRigidBody()) ? (DBody) go2.getBody() : null;
 
         if (go.getJoint() != null) {
             DJoint oldJoint = (DJoint) go.getJoint();

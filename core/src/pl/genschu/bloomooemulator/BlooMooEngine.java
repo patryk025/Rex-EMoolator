@@ -120,7 +120,7 @@ public class BlooMooEngine extends ApplicationAdapter {
         PerformanceMonitor.endOperation("Render - processing input");
 
         PerformanceMonitor.startOperation("Render - updating game state");
-        // update objects on a fixed 16.67 ms grid (matches BlooMooDLL's worker thread)
+        // update objects on a fixed 16.67 ms grid
         if (forceSingleStep) {
             updateManager.tick(TICK);
         } else {

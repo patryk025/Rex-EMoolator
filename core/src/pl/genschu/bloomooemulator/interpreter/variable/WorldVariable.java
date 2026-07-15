@@ -481,13 +481,16 @@ public record WorldVariable(
         Map.entry("SETLIMIT", MethodSpec.of((self, args, ctx) -> {
             WorldVariable w = (WorldVariable) self;
             int objectId = ArgumentHelper.getInt(args.get(0));
-            int minX = ArgumentHelper.getInt(args.get(1));
-            int minY = ArgumentHelper.getInt(args.get(2));
-            int minZ = ArgumentHelper.getInt(args.get(3));
-            int maxX = ArgumentHelper.getInt(args.get(4));
-            int maxY = ArgumentHelper.getInt(args.get(5));
-            int maxZ = ArgumentHelper.getInt(args.get(6));
-            w.state.physicsEngine.setLimit(objectId, minX, minY, minZ, maxX, maxY, maxZ);
+            double minX = ArgumentHelper.getDouble(args.get(1));
+            double minY = ArgumentHelper.getDouble(args.get(2));
+            double minZ = ArgumentHelper.getDouble(args.get(3));
+            double maxX = ArgumentHelper.getDouble(args.get(4));
+            double maxY = ArgumentHelper.getDouble(args.get(5));
+            double maxZ = ArgumentHelper.getDouble(args.get(6));
+            // CWorld converts the screen-space box to Sekai's centred, Y-up world space.
+            w.state.physicsEngine.setLimit(objectId,
+                    minX - 400, 300 - maxY, minZ,
+                    maxX - 400, 300 - minY, maxZ);
             return MethodResult.noReturn();
         })),
 
