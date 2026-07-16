@@ -1,5 +1,7 @@
 package pl.genschu.bloomooemulator.engine.physics;
 
+import org.ode4j.math.DVector3C;
+import org.ode4j.ode.DBody;
 import pl.genschu.bloomooemulator.world.GameObject;
 
 import java.io.BufferedWriter;
@@ -25,7 +27,7 @@ import java.util.Map;
 final class PhysicsTraceWriter implements Closeable {
     static final String ENV_PATH = "REX_PHYSICS_TRACE";
     static final String PROPERTY_PATH = "rex.physics.trace";
-    static final int SCHEMA_VERSION = 1;
+    static final int SCHEMA_VERSION = 2;
     private static final int FLUSH_INTERVAL = 120;
 
     private final BufferedWriter writer;
@@ -89,6 +91,9 @@ final class PhysicsTraceWriter implements Closeable {
 
             int ordinal = ordinals.getOrDefault(object.getId(), 0);
             ordinals.put(object.getId(), ordinal + 1);
+            DVector3C velocity = object.getBody() instanceof DBody body
+                    ? body.getLinearVel()
+                    : null;
             line.append("{\"id\":").append(object.getId())
                     .append(",\"ordinal\":").append(ordinal)
                     .append(",\"x\":").append(jsonNumber(object.getX()))
@@ -96,6 +101,13 @@ final class PhysicsTraceWriter implements Closeable {
                     .append(",\"z\":").append(jsonNumber(object.getZ()))
                     .append(",\"active\":").append(object.isActive())
                     .append(",\"dynamic\":").append(object.isRigidBody())
+                    .append(",\"gravity_center\":").append(object.isGravityCenter())
+                    .append(",\"mass\":").append(jsonNumber(object.getMass()))
+                    .append(",\"g\":").append(jsonNumber(object.getG()))
+                    .append(",\"max_velocity\":").append(jsonNumber(object.getMaxVelocity()))
+                    .append(",\"vx\":").append(velocity != null ? jsonNumber(velocity.get0()) : "null")
+                    .append(",\"vy\":").append(velocity != null ? jsonNumber(velocity.get1()) : "null")
+                    .append(",\"vz\":").append(velocity != null ? jsonNumber(velocity.get2()) : "null")
                     .append('}');
         }
         line.append("]}");

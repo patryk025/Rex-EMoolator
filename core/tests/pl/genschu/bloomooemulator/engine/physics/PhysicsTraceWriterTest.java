@@ -28,7 +28,7 @@ class PhysicsTraceWriterTest {
 
         List<String> lines = Files.readAllLines(output);
         assertEquals(3, lines.size());
-        assertTrue(lines.get(0).contains("\"schema\":1"));
+        assertTrue(lines.get(0).contains("\"schema\":2"));
         assertTrue(lines.get(0).contains("\"coordinate_system\":\"sekai_world_x_y_up_z\""));
 
         String firstFrame = lines.get(1);
@@ -38,6 +38,8 @@ class PhysicsTraceWriterTest {
         assertTrue(firstFrame.contains("\"id\":7,\"ordinal\":0"));
         assertTrue(firstFrame.contains("\"id\":7,\"ordinal\":1"));
         assertTrue(firstFrame.contains("\"x\":-1.0,\"y\":-2.0,\"z\":-3.0"));
+        assertTrue(firstFrame.contains("\"gravity_center\":false"));
+        assertTrue(firstFrame.contains("\"vx\":null,\"vy\":null,\"vz\":null"));
         assertTrue(lines.get(2).contains("\"frame\":1,\"reported_dt\":0.05,\"dt\":0.02,\"time\":0.03"));
     }
 

@@ -152,15 +152,14 @@ public record DoubleVariable(
             }
             double y = ArgumentHelper.getDouble(args.get(0));
             double x = ArgumentHelper.getDouble(args.get(1));
-            double atanDegrees;
+            double atanDegrees = Math.toDegrees(Math.atan2(y, x));
+            if (atanDegrees < 0) {
+                atanDegrees += 360.0;
+            }
             if (args.size() >= 3) {
-                // 3-argument form: return the third argument reduced modulo 360.
-                atanDegrees = (long) ArgumentHelper.getDouble(args.get(2)) % 360;
-            } else {
-                atanDegrees = Math.toDegrees(Math.atan2(y, x));
-                if (atanDegrees < 0) {
-                    atanDegrees += 360.0;
-                }
+                // BlooMoo treats the third argument as an angular offset, truncates
+                // the sum to an integer, then applies C's signed remainder.
+                atanDegrees = (long) (atanDegrees + ArgumentHelper.getDouble(args.get(2))) % 360;
             }
             DoubleValue result = new DoubleValue(atanDegrees);
             thisVar.setValue(result);

@@ -17,6 +17,10 @@ const OFFSETS = {
     id: 0x08,
     active: 0x18,
     body: 0x1c,
+    gravityCenter: 0x1b,
+    maxVelocity: 0x48,
+    mass: 0x58,
+    g: 0x60,
     x: 0x68,
     y: 0x6c,
     z: 0x70
@@ -68,6 +72,10 @@ function readObjects(sekai) {
                 z: finiteOrNull(object.add(OFFSETS.z).readFloat()),
                 active: object.add(OFFSETS.active).readU8() !== 0,
                 dynamic: !object.add(OFFSETS.body).readPointer().isNull(),
+                gravity_center: object.add(OFFSETS.gravityCenter).readU8() !== 0,
+                mass: finiteOrNull(object.add(OFFSETS.mass).readFloat()),
+                g: finiteOrNull(object.add(OFFSETS.g).readDouble()),
+                max_velocity: finiteOrNull(object.add(OFFSETS.maxVelocity).readFloat()),
                 storageIndex: i
             });
         } catch (error) {
@@ -139,7 +147,7 @@ function install(sekai) {
     traceFile = new File(CONFIG.outputPath, "w");
     writeLine({
         type: "meta",
-        schema: 1,
+        schema: 2,
         source: "original",
         coordinate_system: "sekai_world_x_y_up_z",
         module: sekai.name,

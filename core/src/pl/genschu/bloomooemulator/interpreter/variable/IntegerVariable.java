@@ -156,6 +156,25 @@ public record IntegerVariable(
             return MethodResult.returns(result);
         })),
 
+        Map.entry("ARCTANEX", MethodSpec.of((self, args, ctx) -> {
+            IntegerVariable thisVar = (IntegerVariable) self;
+            if (args.size() < 2) {
+                throw new IllegalArgumentException("ARCTANEX requires 2 arguments");
+            }
+            double y = ArgumentHelper.getDouble(args.get(0));
+            double x = ArgumentHelper.getDouble(args.get(1));
+            double angle = Math.toDegrees(Math.atan2(y, x));
+            if (angle < 0) {
+                angle += 360.0;
+            }
+            if (args.size() >= 3) {
+                angle = (long) (angle + ArgumentHelper.getDouble(args.get(2))) % 360;
+            }
+            IntValue result = new IntValue((int) angle);
+            thisVar.setValue(result);
+            return MethodResult.returns(result);
+        })),
+
         Map.entry("CLAMP", MethodSpec.of((self, args, ctx) -> {
             IntegerVariable thisVar = (IntegerVariable) self;
             if (args.size() < 2) {
