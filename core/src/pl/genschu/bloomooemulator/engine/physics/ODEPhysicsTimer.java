@@ -1,14 +1,25 @@
 package pl.genschu.bloomooemulator.engine.physics;
 
+import java.util.Objects;
+import java.util.function.LongSupplier;
+
 public class ODEPhysicsTimer {
     private boolean pausedFlag;
     private boolean useHighPrecision;
 
-    private long nanoFrequency = 1_000_000_000L;
+    private static final long NANO_FREQUENCY = 1_000_000_000L;
+    private final LongSupplier nanoClock;
+    private final LongSupplier milliClock;
     private long nanoPrevStamp;
     private long prevTime;
 
     public ODEPhysicsTimer() {
+        this(System::nanoTime, System::currentTimeMillis);
+    }
+
+    ODEPhysicsTimer(LongSupplier nanoClock, LongSupplier milliClock) {
+        this.nanoClock = Objects.requireNonNull(nanoClock);
+        this.milliClock = Objects.requireNonNull(milliClock);
         initializeTimer();
     }
 
@@ -34,7 +45,7 @@ public class ODEPhysicsTimer {
     }
 
     private double calculateHighPrecisionStep() {
-        long currentStamp = System.nanoTime();
+        long currentStamp = nanoClock.getAsLong();
 
         long prevStamp = this.nanoPrevStamp;
         this.nanoPrevStamp = currentStamp;
@@ -45,11 +56,11 @@ public class ODEPhysicsTimer {
 
         long deltaTime = currentStamp - prevStamp;
 
-        return (double) deltaTime / this.nanoFrequency;
+        return (double) deltaTime / NANO_FREQUENCY;
     }
 
     private double calculateFallbackStep() {
-        long currentTime = System.currentTimeMillis();
+        long currentTime = milliClock.getAsLong();
 
         double deltaTime = (currentTime - this.prevTime) / 1000.0;
         this.prevTime = currentTime;
@@ -62,9 +73,15 @@ public class ODEPhysicsTimer {
     }
 
     public void resume() {
+        if (!this.pausedFlag) {
+            return;
+        }
         this.pausedFlag = false;
-        this.nanoPrevStamp = 0L;
-        this.prevTime = 0L;
+        // Sekai snapshots QueryPerformanceCounter/timeGetTime while resuming. The first
+        // MoveObjects call therefore consumes forces with a small positive step instead
+        // of returning zero and leaving ODE's one-shot force accumulator armed.
+        this.nanoPrevStamp = nanoClock.getAsLong();
+        this.prevTime = milliClock.getAsLong();
     }
 
     public boolean isPaused() {
