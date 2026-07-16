@@ -12,6 +12,7 @@ import pl.genschu.bloomooemulator.interpreter.values.StringValue;
 import pl.genschu.bloomooemulator.interpreter.variable.Variable;
 import pl.genschu.bloomooemulator.world.*;
 
+import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -28,6 +29,7 @@ public class ODEPhysicsEngine implements IPhysicsEngine {
     private final Set<Integer> pausedLinkIds = new HashSet<>();
     private int referenceObjectId = 0;
     private final List<DTriMeshData> triMeshDatas = new ArrayList<>();
+    private PhysicsTraceWriter traceWriter;
 
     // Session-long running dt average for lag-spike smoothing
     private double dtTotal = 0.0;
@@ -70,6 +72,13 @@ public class ODEPhysicsEngine implements IPhysicsEngine {
         jointGroup = OdeHelper.createJointGroup();
 
         timer = new ODEPhysicsTimer();
+
+        try {
+            traceWriter = PhysicsTraceWriter.openConfigured();
+        } catch (IOException e) {
+            traceWriter = null;
+            Gdx.app.error("ODEPhysicsEngine", "Cannot open physics trace", e);
+        }
     }
 
     /**
@@ -517,7 +526,25 @@ public class ODEPhysicsEngine implements IPhysicsEngine {
 
     @Override
     public double stepSimulation() {
-        return stepSimulation(smoothDeltaTime(timer.calculateStepSize()));
+        double reportedDt = smoothDeltaTime(timer.calculateStepSize());
+        double usedDt = stepSimulation(reportedDt);
+        writeTraceFrame(reportedDt, usedDt);
+        return usedDt;
+    }
+
+    private void writeTraceFrame(double reportedDt, double usedDt) {
+        if (traceWriter == null) return;
+        try {
+            traceWriter.writeFrame(reportedDt, usedDt, getGameObjects());
+        } catch (IOException e) {
+            Gdx.app.error("ODEPhysicsEngine", "Disabling physics trace after a write error", e);
+            try {
+                traceWriter.close();
+            } catch (IOException ignored) {
+                // Preserve the original write failure.
+            }
+            traceWriter = null;
+        }
     }
 
     /**
@@ -1226,6 +1253,15 @@ public class ODEPhysicsEngine implements IPhysicsEngine {
     @Override
     public void shutdown() {
         boolean wasInitialized = world != null;
+
+        if (traceWriter != null) {
+            try {
+                traceWriter.close();
+            } catch (IOException e) {
+                Gdx.app.error("ODEPhysicsEngine", "Cannot close physics trace", e);
+            }
+            traceWriter = null;
+        }
 
         for (Integer id : new ArrayList<>(objects.keySet())) {
             destroyBody(id);
