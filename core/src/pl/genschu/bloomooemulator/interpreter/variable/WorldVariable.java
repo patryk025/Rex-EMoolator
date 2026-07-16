@@ -282,7 +282,11 @@ public record WorldVariable(
             if (position == null || position.length < 3) {
                 throw new IllegalArgumentException("Object with ID " + objectId + " does not exist or has no position.");
             }
-            return MethodResult.returns(new DoubleValue(position[0] + 400));
+            // World.dll uses the camera origin maintained by CWorld::MoveObjects
+            // (world + 0xe8), not a fixed canvas centre. With a scrolling
+            // background this is equivalent to 400 + worldX - bkgPosX.
+            return MethodResult.returns(new DoubleValue(
+                    position[0] + 400 - w.state.physicsEngine.getBkgPosX()));
         })),
 
         Map.entry("GETPOSITIONY", MethodSpec.of((self, args, ctx) -> {
@@ -292,7 +296,11 @@ public record WorldVariable(
             if (position == null || position.length < 3) {
                 throw new IllegalArgumentException("Object with ID " + objectId + " does not exist or has no position.");
             }
-            return MethodResult.returns(new DoubleValue(300 - position[1]));
+            // Disassembly of World.dll FUN_100020d0: [CWorld+0xec] - worldY.
+            // CWorld+0xec is 300 - bkgPosY, so GETPOSITIONY already includes
+            // the current camera scroll.
+            return MethodResult.returns(new DoubleValue(
+                    300 - position[1] - w.state.physicsEngine.getBkgPosY()));
         })),
 
         Map.entry("GETPOSITIONZ", MethodSpec.of((self, args, ctx) -> {
