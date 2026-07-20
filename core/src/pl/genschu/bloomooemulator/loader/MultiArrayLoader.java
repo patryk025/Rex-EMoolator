@@ -2,57 +2,31 @@ package pl.genschu.bloomooemulator.loader;
 
 import com.badlogic.gdx.Gdx;
 import pl.genschu.bloomooemulator.interpreter.values.*;
+import pl.genschu.bloomooemulator.loader.helpers.BinaryReader;
+import pl.genschu.bloomooemulator.loader.helpers.InputStreamBinaryReader;
+import pl.genschu.bloomooemulator.interpreter.variable.MultiArrayVariable;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
 import java.nio.charset.StandardCharsets;
 import java.util.Locale;
 
 public class MultiArrayLoader {
-    private static int readInt(InputStream f) throws IOException {
-        byte[] bytes = new byte[4];
-        f.read(bytes);
-        return ByteBuffer.wrap(bytes).order(ByteOrder.LITTLE_ENDIAN).getInt();
-    }
-
-    private static double readDouble(InputStream f) throws IOException {
-        byte[] bytes = new byte[4];
-        f.read(bytes);
-        return ByteBuffer.wrap(bytes).order(ByteOrder.LITTLE_ENDIAN).getInt() / 10000f;
-    }
-
-    private static boolean readBoolean(InputStream f) throws IOException {
-        byte[] bytes = new byte[1];
-        f.read(bytes);
-        return ByteBuffer.wrap(bytes).order(ByteOrder.LITTLE_ENDIAN).get() != 0;
-    }
-
-    private static String readString(InputStream f) throws IOException {
-        byte[] bytes = new byte[4];
-        f.read(bytes);
-        int length = ByteBuffer.wrap(bytes).order(ByteOrder.LITTLE_ENDIAN).getInt();
-        bytes = new byte[length];
-        f.read(bytes);
-        return new String(bytes, StandardCharsets.UTF_8).split("\0")[0];
-    }
-
-    public static void loadMultiArray(pl.genschu.bloomooemulator.interpreter.variable.MultiArrayVariable variable, InputStream f) {
+    public static void loadMultiArray(MultiArrayVariable variable, InputStream f) {
         try {
-            readMultiArrayV2(variable, f);
+            readMultiArrayV2(variable, new InputStreamBinaryReader(f));
         } catch (IOException e) {
             Gdx.app.error("MultiArrayLoader", "Error while loading multi-array: " + e.getMessage());
         }
     }
 
-    private static void readMultiArrayV2(pl.genschu.bloomooemulator.interpreter.variable.MultiArrayVariable variable, InputStream f) throws IOException {
-        int dimensionsCount = readInt(f);
+    private static void readMultiArrayV2(MultiArrayVariable variable, BinaryReader reader) throws IOException {
+        int dimensionsCount = reader.readI32LE();
         int[] dimensions = new int[dimensionsCount];
 
         int totalElements = 1;
         for (int i = 0; i < dimensionsCount; i++) {
-            dimensions[i] = readInt(f);
+            dimensions[i] = reader.readI32LE();
             totalElements *= dimensions[i];
         }
 
@@ -63,8 +37,8 @@ public class MultiArrayLoader {
 
         int loadedCount = 0;
         try {
-            while (f.available() > 0) {
-                int index = readInt(f);
+            while (true) {
+                int index = reader.readI32LE();
 
                 if (index == totalElements) {
                     Gdx.app.log("MultiArrayLoader", "Found terminator at index " + index);
@@ -76,7 +50,7 @@ public class MultiArrayLoader {
                     break;
                 }
 
-                Value val = readValue(f);
+                Value val = readValue(reader);
                 variable.getData()[index] = val;
                 loadedCount++;
             }
@@ -88,17 +62,17 @@ public class MultiArrayLoader {
                 loadedCount, totalElements, 100.0 * loadedCount / totalElements));
     }
 
-    private static Value readValue(InputStream f) throws IOException {
-        int dataType = readInt(f);
+    private static Value readValue(BinaryReader reader) throws IOException {
+        int dataType = reader.readI32LE();
 
         if (dataType == 1) {
-            return new IntValue(readInt(f));
+            return new IntValue(reader.readI32LE());
         } else if (dataType == 4) {
-            return new DoubleValue(readDouble(f));
+            return new DoubleValue(reader.readI32LE() / 10000.0);
         } else if (dataType == 2) {
-            return new StringValue(readString(f));
+            return new StringValue(reader.readLengthPrefixedString32LE(StandardCharsets.UTF_8, true));
         } else if (dataType == 3) {
-            return new BoolValue(readBoolean(f));
+            return new BoolValue(reader.readU8() != 0);
         } else {
             throw new IllegalArgumentException("Unknown data type: " + dataType);
         }

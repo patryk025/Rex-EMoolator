@@ -12,6 +12,7 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
+@SuppressWarnings("deprecation")
 public class SEKLoader {
     public static void loadSek(SEKLoadable variable, InputStream stream) {
         Gdx.app.log("SEKLoader", "Loading SEK: " + variable.getName());
@@ -50,7 +51,7 @@ public class SEKLoader {
                             break;
                         default:
                             Gdx.app.log("SEKLoader", "Unknown entity type: " + typeId);
-                            f.skip(length); // skip unknown entity data
+                            BinaryHelper.skipFully(f, length); // skip unknown entity data
                             break;
                     }
                 }
@@ -82,7 +83,7 @@ public class SEKLoader {
         int numProps = BinaryHelper.readIntLE(f);
         for (int i = 0; i < numProps; i++) {
             String name = BinaryHelper.readString(f);
-            f.skip(4); // padding?
+            BinaryHelper.skipFully(f, 4); // padding?
             String value = BinaryHelper.readString(f);
 
             if(name.trim().equals("entityDef")) {
@@ -233,7 +234,7 @@ public class SEKLoader {
             float x = BinaryHelper.readFloatLE(f);
             float y = BinaryHelper.readFloatLE(f);
             float z = BinaryHelper.readFloatLE(f);
-            f.skip(4); // padding (4th value in dVector3, used for better alignment)
+            BinaryHelper.skipFully(f, 4); // padding (4th value in dVector3, used for better alignment)
             obj.addPoint(new Point3D(x, y, z));
         }
 

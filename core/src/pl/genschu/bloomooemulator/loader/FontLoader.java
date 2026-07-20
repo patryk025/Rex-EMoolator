@@ -4,11 +4,11 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import pl.genschu.bloomooemulator.objects.FontCropping;
 import pl.genschu.bloomooemulator.objects.Image;
+import pl.genschu.bloomooemulator.loader.helpers.BinaryReader;
+import pl.genschu.bloomooemulator.loader.helpers.InputStreamBinaryReader;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
 import java.nio.charset.StandardCharsets;
 
 public class FontLoader {
@@ -22,35 +22,30 @@ public class FontLoader {
     }
 
     private static void readFont(FontLoadable fontVariable, InputStream fileInputStream) throws IOException {
-        byte[] headerBuffer = new byte[4];
-        fileInputStream.read(headerBuffer);
-        String magicId = new String(headerBuffer, StandardCharsets.UTF_8);
+        BinaryReader reader = new InputStreamBinaryReader(fileInputStream);
+        String magicId = reader.readFixedString(4, StandardCharsets.UTF_8, false);
 
         if (!"FNT\0".equals(magicId)) {
             throw new IOException("Invalid FNT file format");
         }
 
-        ByteBuffer buffer = ByteBuffer.allocate(16).order(ByteOrder.LITTLE_ENDIAN);
-        fileInputStream.read(buffer.array());
-        int lineLength = buffer.getInt();
-        int charHeight = buffer.getInt();
-        int charWidth = buffer.getInt();
-        int numChars = buffer.getInt();
+        int lineLength = reader.readI32LE();
+        int charHeight = reader.readI32LE();
+        int charWidth = reader.readI32LE();
+        int numChars = reader.readI32LE();
 
         fontVariable.setCharHeight(charHeight);
         fontVariable.setCharWidth(charWidth);
 
         for (int i = 0; i < numChars; i++) {
-            int byteValue = fileInputStream.read();
-
-            String charString = new String(new byte[] {(byte) byteValue}, "CP1250");
+            int byteValue = reader.readU8();
+            String charString = new String(new byte[] {(byte) byteValue}, java.nio.charset.Charset.forName("windows-1250"));
             char character = charString.charAt(0);
 
             fontVariable.setCharTexture(character, null);
         }
 
-        byte[] kerningData = new byte[numChars * numChars];
-        fileInputStream.read(kerningData);
+        byte[] kerningData = reader.readBytes(Math.multiplyExact(numChars, numChars));
 
         for (int i = 0; i < numChars; i++) {
             fontVariable.setCharKerning(i, new int[numChars]);
@@ -60,18 +55,17 @@ public class FontLoader {
         }
 
         for (int i = 0; i < numChars; i++) {
-            int kerningLeft = fileInputStream.read();
+            int kerningLeft = reader.readU8();
             fontVariable.setCharCropping(fontVariable.getCharTextureKeys().get(i), new FontCropping(kerningLeft, 0));
         }
 
         for (int i = 0; i < numChars; i++) {
-            int kerningRight = fileInputStream.read();
+            int kerningRight = reader.readU8();
             FontCropping cropping = fontVariable.getCharCropping(fontVariable.getCharTextureKeys().get(i));
             cropping.setRight(kerningRight);
         }
 
-        byte[] imageData = new byte[lineLength * charHeight * 2];
-        fileInputStream.read(imageData);
+        byte[] imageData = reader.readBytes(Math.multiplyExact(Math.multiplyExact(lineLength, charHeight), 2));
 
         // DEBUG: invert all colors
         for (int i = 0; i < imageData.length; i += 2) {
@@ -79,8 +73,7 @@ public class FontLoader {
             imageData[i + 1] = (byte) (0xFF - imageData[i + 1]);
         }
 
-        byte[] alphaData = new byte[lineLength * charHeight];
-        fileInputStream.read(alphaData);
+        byte[] alphaData = reader.readBytes(Math.multiplyExact(lineLength, charHeight));
         // DEBUG: fill alpha data with 0xFF
         /*for (int i = 0; i < alphaData.length; i++) {
             alphaData[i] = (byte) 0xFF;

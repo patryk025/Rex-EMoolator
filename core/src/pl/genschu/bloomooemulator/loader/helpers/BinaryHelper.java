@@ -1,61 +1,49 @@
 package pl.genschu.bloomooemulator.loader.helpers;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
 import java.nio.charset.StandardCharsets;
 
-public class BinaryHelper {
+/** @deprecated Prefer passing a {@link BinaryReader} through the loader. */
+@Deprecated
+public final class BinaryHelper {
+    private BinaryHelper() {}
+
     public static int readIntLE(InputStream in) throws IOException {
-        byte[] buffer = readFully(in, 4);
-        return ByteBuffer.wrap(buffer).order(ByteOrder.LITTLE_ENDIAN).getInt();
+        return reader(in).readI32LE();
     }
 
     public static float readFloatLE(InputStream in) throws IOException {
-        byte[] buffer = readFully(in, 4);
-        return ByteBuffer.wrap(buffer).order(ByteOrder.LITTLE_ENDIAN).getFloat();
+        return reader(in).readF32LE();
     }
 
     public static short readShortLE(InputStream in) throws IOException {
-        byte[] buffer = readFully(in, 2);
-        return ByteBuffer.wrap(buffer).order(ByteOrder.LITTLE_ENDIAN).getShort();
+        return reader(in).readI16LE();
     }
 
     public static byte readByte(InputStream in) throws IOException {
-        byte[] buffer = readFully(in, 1);
-        return buffer[0];
+        return reader(in).readI8();
     }
 
     // read NUL-terminated string
     public static String readString(InputStream in) throws IOException {
-        ByteArrayOutputStream buffer = new ByteArrayOutputStream();
-        int b;
-        while ((b = in.read()) != -1 && b != 0) {
-            buffer.write(b);
-        }
-        // Yeah, I know, "Inefficient conversion from ByteArrayOutputStream"
-        return new String(buffer.toByteArray(), StandardCharsets.UTF_8);
+        return reader(in).readNullTerminatedString(StandardCharsets.UTF_8);
     }
 
     // read string with known length
     public static String readString(InputStream in, int length) throws IOException {
-        byte[] buffer = readFully(in, length);
-        return new String(buffer, StandardCharsets.UTF_8);
+        return reader(in).readFixedString(length, StandardCharsets.UTF_8, false);
     }
 
     public static byte[] readFully(InputStream in, int length) throws IOException {
-        byte[] buffer = new byte[length];
-        int offset = 0;
-        while (offset < length) {
-            int bytesRead = in.read(buffer, offset, length - offset);
-            if (bytesRead == -1) {
-                throw new IOException("Unexpected end of stream");
-            }
-            offset += bytesRead;
-        }
-        return buffer;
+        return reader(in).readBytes(length);
+    }
+
+    public static void skipFully(InputStream in, long length) throws IOException {
+        reader(in).skipFully(length);
+    }
+
+    private static BinaryReader reader(InputStream in) {
+        return new InputStreamBinaryReader(in);
     }
 }
-

@@ -2,10 +2,11 @@ package pl.genschu.bloomooemulator.loader;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.files.FileHandle;
+import pl.genschu.bloomooemulator.loader.helpers.BinaryReader;
+import pl.genschu.bloomooemulator.loader.helpers.InputStreamBinaryReader;
 
-import java.io.IOException;
 import java.io.InputStream;
-import java.util.Arrays;
+import java.nio.charset.StandardCharsets;
 
 public class SoundLoader {
     public static void loadSound(pl.genschu.bloomooemulator.interpreter.variable.SoundVariable variable, FileHandle handle) {
@@ -18,35 +19,33 @@ public class SoundLoader {
     }
 
     private static void parseWavHeader(FileHandle fileHandle, pl.genschu.bloomooemulator.interpreter.variable.SoundVariable variable) {
-        try {
-            InputStream is = fileHandle.read();
-            byte[] chunkId = new byte[4];
-            is.read(chunkId);
-            if (!Arrays.equals(chunkId, "RIFF".getBytes())) throw new IllegalArgumentException("Not a RIFF file");
-            readLittleEndianInt(is); // chunkSize
-            byte[] wavFormat = new byte[4];
-            is.read(wavFormat);
-            if (!Arrays.equals(wavFormat, "WAVE".getBytes())) throw new IllegalArgumentException("Not a WAVE file");
-            byte[] subChunk1Id = new byte[4];
-            is.read(subChunk1Id);
-            if (!Arrays.equals(subChunk1Id, "fmt ".getBytes())) throw new IllegalArgumentException("fmt chunk not found");
-            int subChunk1Size = readLittleEndianInt(is);
-            readLittleEndianShort(is); // audioFormat
-            int numChannels = readLittleEndianShort(is);
-            int sampleRate = readLittleEndianInt(is);
-            readLittleEndianInt(is); // byteRate
-            readLittleEndianShort(is); // blockAlign
-            int bitsPerSample = readLittleEndianShort(is);
-            if (subChunk1Size > 16) is.skip(subChunk1Size - 16);
-            byte[] subChunk2Id = new byte[4];
-            is.read(subChunk2Id);
-            while (!Arrays.equals(subChunk2Id, "data".getBytes())) {
-                int skip = readLittleEndianInt(is);
-                is.skip(skip);
-                is.read(subChunk2Id);
+        try (InputStream input = fileHandle.read()) {
+            BinaryReader reader = new InputStreamBinaryReader(input);
+            if (!"RIFF".equals(reader.readFixedString(4, StandardCharsets.US_ASCII, false))) {
+                throw new IllegalArgumentException("Not a RIFF file");
             }
-            int subChunk2Size = readLittleEndianInt(is);
-            is.close();
+            reader.readI32LE(); // chunkSize
+            if (!"WAVE".equals(reader.readFixedString(4, StandardCharsets.US_ASCII, false))) {
+                throw new IllegalArgumentException("Not a WAVE file");
+            }
+            if (!"fmt ".equals(reader.readFixedString(4, StandardCharsets.US_ASCII, false))) {
+                throw new IllegalArgumentException("fmt chunk not found");
+            }
+            int subChunk1Size = reader.readI32LE();
+            reader.readU16LE(); // audioFormat
+            int numChannels = reader.readU16LE();
+            int sampleRate = reader.readI32LE();
+            reader.readI32LE(); // byteRate
+            reader.readU16LE(); // blockAlign
+            int bitsPerSample = reader.readU16LE();
+            if (subChunk1Size > 16) reader.skipFully(subChunk1Size - 16L);
+            String subChunk2Id = reader.readFixedString(4, StandardCharsets.US_ASCII, false);
+            while (!"data".equals(subChunk2Id)) {
+                long skip = reader.readU32LE();
+                reader.skipFully(skip);
+                subChunk2Id = reader.readFixedString(4, StandardCharsets.US_ASCII, false);
+            }
+            long subChunk2Size = reader.readU32LE();
             int bytesPerSample = bitsPerSample / 8;
             long totalSamples = subChunk2Size / ((long) numChannels * bytesPerSample);
             float duration = (float) totalSamples / sampleRate;
@@ -65,18 +64,4 @@ public class SoundLoader {
         }
     }
 
-    private static int readLittleEndianInt(InputStream is) throws IOException {
-        byte[] bytes = new byte[4];
-        is.read(bytes);
-        return (bytes[0] & 0xFF) |
-                ((bytes[1] & 0xFF) << 8) |
-                ((bytes[2] & 0xFF) << 16) |
-                ((bytes[3] & 0xFF) << 24);
-    }
-
-    private static int readLittleEndianShort(InputStream is) throws IOException {
-        byte[] bytes = new byte[2];
-        is.read(bytes);
-        return (bytes[0] & 0xFF) | ((bytes[1] & 0xFF) << 8);
-    }
 }

@@ -4,56 +4,48 @@ import pl.genschu.bloomooemulator.interpreter.variable.AnimoVariable;
 import pl.genschu.bloomooemulator.objects.Event;
 import pl.genschu.bloomooemulator.objects.FrameData;
 import pl.genschu.bloomooemulator.objects.Image;
+import pl.genschu.bloomooemulator.loader.helpers.BinaryReader;
+import pl.genschu.bloomooemulator.loader.helpers.InputStreamBinaryReader;
 import pl.genschu.bloomooemulator.utils.StringUtils;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 public class AnimoLoader {
 
     public static AnimoVariable.AnimoData load(InputStream input) throws IOException {
+        BinaryReader reader = new InputStreamBinaryReader(input);
         // Header
-        byte[] magicIdBytes = new byte[4];
-        input.read(magicIdBytes);
-        String magicId = new String(magicIdBytes, StandardCharsets.UTF_8);
+        String magicId = reader.readFixedString(4, StandardCharsets.UTF_8, false);
         if (!magicId.equals("NVP\0")) {
             throw new IllegalArgumentException("Invalid animation file. Expected: NVP\\0, got: " + magicId);
         }
 
-        byte[] headerBytes = new byte[44];
-        input.read(headerBytes);
-        ByteBuffer buffer = ByteBuffer.wrap(headerBytes).order(ByteOrder.LITTLE_ENDIAN);
+        int imagesCount = reader.readU16LE();
+        int colorDepth = reader.readU16LE();
+        int eventsCount = reader.readU16LE();
 
-        int imagesCount = buffer.getShort() & 0xFFFF;
-        int colorDepth = buffer.getShort() & 0xFFFF;
-        int eventsCount = buffer.getShort() & 0xFFFF;
-
-        byte[] descriptionBytes = new byte[13];
-        buffer.get(descriptionBytes);
+        byte[] descriptionBytes = reader.readBytes(13);
         String description = StringUtils.convertNullTerminatedText(descriptionBytes, StandardCharsets.UTF_8);
 
-        int fps = buffer.getInt();
+        int fps = reader.readI32LE();
+        reader.skipFully(4);
+        int opacity = reader.readU8();
+        reader.skipFully(12);
+        int signatureLength = reader.readI32LE();
 
-        buffer.position(buffer.position() + 4);
-        int opacity = buffer.get() & 0xFF;
-        buffer.position(buffer.position() + 12);
-        int signatureLength = buffer.getInt();
-
-        byte[] signatureBytes = new byte[signatureLength];
-        input.read(signatureBytes);
+        byte[] signatureBytes = reader.readBytes(signatureLength);
         String signature = new String(signatureBytes, StandardCharsets.UTF_8);
 
-        input.skip(4); // padding
+        reader.skipFully(4); // padding
 
         // Events
-        List<Event> events = readEvents(input, eventsCount);
+        List<Event> events = readEvents(reader, eventsCount);
 
         // Images
-        List<Image> images = readImages(input, imagesCount, colorDepth, events);
+        List<Image> images = readImages(reader, imagesCount, colorDepth, events);
 
         int maxWidth = 0, maxHeight = 0;
         for (Image img : images) {
@@ -66,44 +58,36 @@ public class AnimoLoader {
         );
     }
 
-    private static List<Event> readEvents(InputStream input, int eventsCount) throws IOException {
+    private static List<Event> readEvents(BinaryReader reader, int eventsCount) throws IOException {
         List<Event> events = new ArrayList<>();
 
         for (int i = 0; i < eventsCount; i++) {
             Event event = new Event();
-            byte[] eventBytes = new byte[67];
-            input.read(eventBytes);
-            ByteBuffer buffer = ByteBuffer.wrap(eventBytes).order(ByteOrder.LITTLE_ENDIAN);
-
-            byte[] eventNameBytes = new byte[32];
-            buffer.get(eventNameBytes);
+            byte[] eventNameBytes = reader.readBytes(32);
             String eventName = StringUtils.convertNullTerminatedText(eventNameBytes, StandardCharsets.ISO_8859_1).toUpperCase();
             event.setName(eventName);
 
-            event.setFramesCount(buffer.getShort() & 0xFFFF);
-            buffer.position(buffer.position() + 4);
-            event.setLoopStart(buffer.getShort() & 0xFFFF);
-            event.setLoopEnd(buffer.getShort() & 0xFFFF);
-            event.setRepeatCount(buffer.getShort() & 0xFFFF);
-            event.setRepeatCounter(buffer.getShort() & 0xFFFF);
-            buffer.position(buffer.position() + 4);
-            event.setFlags(buffer.getInt());
-            event.setOpacity(buffer.get() & 0xFF);
-            buffer.position(buffer.position() + 12);
+            event.setFramesCount(reader.readU16LE());
+            reader.skipFully(4);
+            event.setLoopStart(reader.readU16LE());
+            event.setLoopEnd(reader.readU16LE());
+            event.setRepeatCount(reader.readU16LE());
+            event.setRepeatCounter(reader.readU16LE());
+            reader.skipFully(4);
+            event.setFlags(reader.readI32LE());
+            event.setOpacity(reader.readU8());
+            reader.skipFully(12);
 
             int numberOfFrames = event.getFramesCount();
             List<Integer> assignedFrames = new ArrayList<>();
-            byte[] assignedFramesBytes = new byte[numberOfFrames * 2];
-            input.read(assignedFramesBytes);
-            ByteBuffer afBuffer = ByteBuffer.wrap(assignedFramesBytes).order(ByteOrder.LITTLE_ENDIAN);
             for (int j = 0; j < numberOfFrames; j++) {
-                assignedFrames.add(afBuffer.getShort() & 0xFFFF);
+                assignedFrames.add(reader.readU16LE());
             }
             event.setFramesNumbers(assignedFrames);
 
             List<FrameData> frames = new ArrayList<>();
             for (int j = 0; j < numberOfFrames; j++) {
-                FrameData frame = readFrameData(input);
+                FrameData frame = readFrameData(reader);
                 frames.add(frame);
             }
             event.setFrameData(frames);
@@ -113,36 +97,25 @@ public class AnimoLoader {
         return events;
     }
 
-    private static FrameData readFrameData(InputStream input) throws IOException {
-        byte[] frameBytes = new byte[34];
-        input.read(frameBytes);
-        ByteBuffer fbBuffer = ByteBuffer.wrap(frameBytes).order(ByteOrder.LITTLE_ENDIAN);
-
+    private static FrameData readFrameData(BinaryReader reader) throws IOException {
         FrameData frame = new FrameData();
-        byte[] startingBytes = new byte[4];
-        fbBuffer.get(startingBytes);
-        frame.setStartingBytes(startingBytes);
+        frame.setStartingBytes(reader.readBytes(4));
+        reader.skipFully(4);
+        frame.setOffsetX(reader.readI16LE());
+        frame.setOffsetY(reader.readI16LE());
+        reader.skipFully(4);
+        frame.setSfxRandomSeed(reader.readI32LE());
+        reader.skipFully(4);
+        frame.setOpacity(reader.readU8());
+        reader.skipFully(5);
+        int nameLength = reader.readI32LE();
 
-        fbBuffer.position(fbBuffer.position() + 4);
-        frame.setOffsetX(fbBuffer.getShort());
-        frame.setOffsetY(fbBuffer.getShort());
-        fbBuffer.position(fbBuffer.position() + 4);
-        frame.setSfxRandomSeed(fbBuffer.getInt());
-        fbBuffer.position(fbBuffer.position() + 4);
-        frame.setOpacity(fbBuffer.get() & 0xFF);
-        fbBuffer.position(fbBuffer.position() + 5);
-        int nameLength = fbBuffer.getInt();
-
-        byte[] nameBytes = new byte[nameLength];
-        input.read(nameBytes);
+        byte[] nameBytes = reader.readBytes(nameLength);
         frame.setName(StringUtils.convertNullTerminatedText(nameBytes, StandardCharsets.UTF_8));
 
         if (frame.getSfxRandomSeed() > 0) {
-            byte[] sfxDescriptionLengthBytes = new byte[4];
-            input.read(sfxDescriptionLengthBytes);
-            int sfxDescriptionLength = ByteBuffer.wrap(sfxDescriptionLengthBytes).order(ByteOrder.LITTLE_ENDIAN).getInt();
-            byte[] sfxDescriptionBytes = new byte[sfxDescriptionLength];
-            input.read(sfxDescriptionBytes);
+            int sfxDescriptionLength = reader.readI32LE();
+            byte[] sfxDescriptionBytes = reader.readBytes(sfxDescriptionLength);
             String sfxDescription = StringUtils.convertNullTerminatedText(sfxDescriptionBytes, StandardCharsets.UTF_8);
             frame.setSfxDescription(sfxDescription);
         }
@@ -151,26 +124,21 @@ public class AnimoLoader {
         return frame;
     }
 
-    private static List<Image> readImages(InputStream input, int imagesCount, int colorDepth, List<Event> events) throws IOException {
+    private static List<Image> readImages(BinaryReader reader, int imagesCount, int colorDepth, List<Event> events) throws IOException {
         List<Map<String, Object>> imagesMetadata = new ArrayList<>();
 
         for (int i = 0; i < imagesCount; i++) {
-            byte[] metadataBytes = new byte[52];
-            input.read(metadataBytes);
-            ByteBuffer buffer = ByteBuffer.wrap(metadataBytes).order(ByteOrder.LITTLE_ENDIAN);
-
             Map<String, Object> metadata = new HashMap<>();
-            metadata.put("width", buffer.getShort() & 0xFFFF);
-            metadata.put("height", buffer.getShort() & 0xFFFF);
-            metadata.put("offset_x", (int) buffer.getShort());
-            metadata.put("offset_y", (int) buffer.getShort());
-            metadata.put("compression_type", buffer.getShort() & 0xFFFF);
-            metadata.put("image_size", buffer.getInt());
-            buffer.position(buffer.position() + 14);
-            metadata.put("alpha_size", buffer.getInt());
+            metadata.put("width", reader.readU16LE());
+            metadata.put("height", reader.readU16LE());
+            metadata.put("offset_x", (int) reader.readI16LE());
+            metadata.put("offset_y", (int) reader.readI16LE());
+            metadata.put("compression_type", reader.readU16LE());
+            metadata.put("image_size", reader.readI32LE());
+            reader.skipFully(14);
+            metadata.put("alpha_size", reader.readI32LE());
 
-            byte[] nameBytes = new byte[20];
-            buffer.get(nameBytes);
+            byte[] nameBytes = reader.readBytes(20);
             metadata.put("name", StringUtils.convertNullTerminatedText(nameBytes, StandardCharsets.ISO_8859_1));
 
             imagesMetadata.add(metadata);
@@ -178,10 +146,8 @@ public class AnimoLoader {
 
         List<Image> images = new ArrayList<>();
         for (Map<String, Object> imageMetadata : imagesMetadata) {
-            byte[] imageData = new byte[(int) imageMetadata.get("image_size")];
-            input.read(imageData);
-            byte[] alphaData = new byte[(int) imageMetadata.get("alpha_size")];
-            input.read(alphaData);
+            byte[] imageData = reader.readBytes((int) imageMetadata.get("image_size"));
+            byte[] alphaData = reader.readBytes((int) imageMetadata.get("alpha_size"));
 
             Image image = new Image(
                 (int) imageMetadata.get("width"),
