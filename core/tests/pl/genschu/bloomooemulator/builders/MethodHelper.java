@@ -2,10 +2,6 @@ package pl.genschu.bloomooemulator.builders;
 
 import pl.genschu.bloomooemulator.interpreter.context.Context;
 import pl.genschu.bloomooemulator.interpreter.runtime.ASTInterpreter;
-import pl.genschu.bloomooemulator.interpreter.runtime.BreakResult;
-import pl.genschu.bloomooemulator.interpreter.runtime.ExecutionContext;
-import pl.genschu.bloomooemulator.interpreter.runtime.ExecutionResult;
-import pl.genschu.bloomooemulator.interpreter.runtime.NormalResult;
 import pl.genschu.bloomooemulator.interpreter.values.*;
 import pl.genschu.bloomooemulator.interpreter.variable.*;
 
@@ -24,65 +20,7 @@ public final class MethodHelper {
      * Creates a MethodContext adapter from a Context for test use.
      */
     public static MethodContext createMethodContext(Context context) {
-        return new MethodContext() {
-            @Override
-            public Variable getVariable(String name) {
-                return context.getVariable(name);
-            }
-
-            @Override
-            public void setVariable(String name, Variable variable) {
-                context.setVariable(name, variable);
-            }
-
-            @Override
-            public boolean removeVariable(String name) {
-                return context.removeVariableInHierarchy(name);
-            }
-
-            @Override
-            public boolean updateVariable(String name, Variable variable) {
-                return context.updateVariableInHierarchy(name, variable);
-            }
-
-            @Override
-            public pl.genschu.bloomooemulator.engine.Game getGame() {
-                return context.getGame();
-            }
-
-            @Override
-            public ExecutionResult runBehaviour(String frameName, Variable thisVar, BehaviourVariable behaviour, List<Value> args) {
-                ExecutionContext exec = context.exec();
-                exec.pushFrame(frameName, behaviour.name(), null);
-                try {
-                    if (thisVar != null) {
-                        exec.setThis(thisVar);
-                    }
-                    ASTInterpreter interpreter = new ASTInterpreter(context);
-                    ExecutionResult execResult = interpreter.execute(behaviour.astForArguments(args, context));
-                    if (execResult instanceof BreakResult) {
-                        return BreakResult.INSTANCE;
-                    }
-                    Value returnValue = interpreter.getPendingReturnValue();
-                    if (returnValue == null) {
-                        returnValue = NullValue.INSTANCE;
-                    }
-                    return new NormalResult(returnValue);
-                } finally {
-                    exec.popFrame();
-                }
-            }
-
-            @Override
-            public pl.genschu.bloomooemulator.interpreter.context.CloneRegistry clones() {
-                return context.clones();
-            }
-
-            @Override
-            public Context context() {
-                return context;
-            }
-        };
+        return new ASTInterpreter(context).getMethodContext();
     }
 
     /**

@@ -19,13 +19,16 @@ import java.util.List;
  * Interprets AST nodes and produces execution results.
  */
 public class ASTInterpreter {
+    /**
+     * Name of the container variable the original engine materializes @RETURN
+     * results into (PIK FUN_10067200 / BM FUN_100551a0). RUN/RUNC/RUNLOOPED read
+     * it after execution and scripts can reference it directly.
+     */
+    public static final String RETURN_VARIABLE = "__RETURN__";
+
     private final Context context;
     private final ExecutionContext exec;
     private final MethodContext methodContext;
-
-    // @RETURN does not exit the behaviour — it stores the value here.
-    // Each subsequent @RETURN overrides the previous value.
-    private Value pendingReturnValue;
 
     public ASTInterpreter(Context context) {
         if (context == null) {
@@ -34,13 +37,6 @@ public class ASTInterpreter {
         this.context = context;
         this.exec = context.exec();
         this.methodContext = createMethodContext();
-    }
-
-    /**
-     * Returns the pending return value set by @RETURN, or null if none was set.
-     */
-    public Value getPendingReturnValue() {
-        return pendingReturnValue;
     }
 
     /**
@@ -107,11 +103,11 @@ public class ASTInterpreter {
 
                     // @ONEBREAK is procedure-local: swallow it here so the caller continues.
                     // NormalResult / OneBreakResult / ReturnResult all collapse to a normal
-                    // return carrying the pending @RETURN value (if any).
-                    Value returnValue = interpreter.getPendingReturnValue();
-                    if (returnValue == null) {
-                        returnValue = NullValue.INSTANCE;
-                    }
+                    // return carrying the current __RETURN__ value. Like the original,
+                    // __RETURN__ is not cleared before the run, so a behaviour without
+                    // @RETURN yields whatever an earlier behaviour left there.
+                    Variable returnVar = context.getVariable(RETURN_VARIABLE);
+                    Value returnValue = returnVar != null ? returnVar.value() : NullValue.INSTANCE;
                     return new NormalResult(returnValue);
                 } finally {
                     exec.popFrame();
@@ -391,14 +387,37 @@ public class ASTInterpreter {
     }
 
     private ExecutionResult executeReturn(ReturnNode node) {
+        Value value = NullValue.INSTANCE;
         if (node.hasValue()) {
             ExecutionResult valueResult = execute(node.value());
             if (!valueResult.shouldContinue()) return valueResult;
-            pendingReturnValue = valueResult.getValue();
-        } else {
-            pendingReturnValue = NullValue.INSTANCE;
+            value = valueResult.getValue();
         }
-        return new NormalResult(pendingReturnValue);
+        storeReturnValue(value);
+        return new NormalResult(value);
+    }
+
+    /**
+     * @RETURN does not exit the behaviour — like the original engine it destroys
+     * the previous __RETURN__ container variable and creates a fresh one typed
+     * after the value (INTEGER/STRING/BOOL/DOUBLE). Each subsequent @RETURN
+     * overrides the previous value.
+     */
+    private void storeReturnValue(Value value) {
+        context.removeVariableInHierarchy(RETURN_VARIABLE);
+        if (value == NullValue.INSTANCE) {
+            return;
+        }
+        Variable returnVar = switch (value) {
+            case IntValue v -> new IntegerVariable(RETURN_VARIABLE, v.value());
+            case DoubleValue v -> new DoubleVariable(RETURN_VARIABLE, v.value());
+            case BoolValue v -> new BoolVariable(RETURN_VARIABLE, v.value());
+            // Keep object results (e.g. VECTOR) by reference instead of flattening
+            // them through toDisplayString.
+            case VariableValue v -> v.variable();
+            default -> new StringVariable(RETURN_VARIABLE, value.toDisplayString());
+        };
+        context.setVariable(RETURN_VARIABLE, returnVar);
     }
 
     // === METHOD CALLS ===
