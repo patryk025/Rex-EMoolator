@@ -55,16 +55,11 @@ public final class MethodHelper {
                 ExecutionContext exec = context.exec();
                 exec.pushFrame(frameName, behaviour.name(), null);
                 try {
-                    if (args != null && !args.isEmpty()) {
-                        for (int i = 0; i < args.size(); i++) {
-                            exec.setLocal("$" + (i + 1), valueToVariable("$" + (i + 1), args.get(i)));
-                        }
-                    }
                     if (thisVar != null) {
                         exec.setThis(thisVar);
                     }
                     ASTInterpreter interpreter = new ASTInterpreter(context);
-                    ExecutionResult execResult = interpreter.execute(behaviour.ast());
+                    ExecutionResult execResult = interpreter.execute(behaviour.astForArguments(args, context));
                     if (execResult instanceof BreakResult) {
                         return BreakResult.INSTANCE;
                     }
@@ -111,13 +106,4 @@ public final class MethodHelper {
         return callWithContext(context, variable, methodName, arguments);
     }
 
-    private static Variable valueToVariable(String name, Value value) {
-        return switch (value) {
-            case IntValue v    -> new IntegerVariable(name, v.value());
-            case DoubleValue v -> new DoubleVariable(name, v.value());
-            case StringValue v -> new StringVariable(name, v.value());
-            case BoolValue v   -> new BoolVariable(name, v.value());
-            default            -> new StringVariable(name, value.toDisplayString());
-        };
-    }
 }

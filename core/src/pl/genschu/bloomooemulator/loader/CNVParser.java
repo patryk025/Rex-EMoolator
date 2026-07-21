@@ -2,7 +2,6 @@ package pl.genschu.bloomooemulator.loader;
 
 import com.badlogic.gdx.Gdx;
 import pl.genschu.bloomooemulator.encoding.ScriptDecypher;
-import pl.genschu.bloomooemulator.interpreter.ast.ASTNode;
 import pl.genschu.bloomooemulator.interpreter.context.Context;
 import pl.genschu.bloomooemulator.interpreter.factories.VariableFactory;
 import pl.genschu.bloomooemulator.interpreter.runtime.ASTInterpreter;
@@ -247,8 +246,7 @@ public class CNVParser {
                     code = "{}";  // Empty block
                 }
 
-                ASTNode ast = BehaviourCodeParser.parseCode(code, objectName);
-                yield new BehaviourVariable(objectName, ast, Map.of());
+                yield BehaviourVariable.fromScript(objectName, code, Map.of());
             }
             case "ARRAY" -> new ArrayVariable(objectName);
             case "MULTIARRAY" -> new MultiArrayVariable(objectName);
@@ -447,8 +445,7 @@ public class CNVParser {
         // Check if inline code block
         if (signalCode.startsWith("{") && signalCode.endsWith("}")) {
             // Inline anonymous behaviour
-            ASTNode ast = BehaviourCodeParser.parseCode(signalCode, varName + "." + signalName);
-            behaviour = new BehaviourVariable("", ast, Map.of());
+            behaviour = BehaviourVariable.fromScript("", signalCode, Map.of());
         } else {
             // Reference to existing behaviour
             // Check if has parameters: BehaviourName(param1, param2)

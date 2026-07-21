@@ -1,8 +1,6 @@
 package pl.genschu.bloomooemulator.builders;
 
-import pl.genschu.bloomooemulator.interpreter.ast.ASTNode;
 import pl.genschu.bloomooemulator.interpreter.context.Context;
-import pl.genschu.bloomooemulator.interpreter.parser.CodeParser;
 import pl.genschu.bloomooemulator.interpreter.runtime.ExecutionContext;
 import pl.genschu.bloomooemulator.interpreter.variable.*;
 
@@ -76,8 +74,7 @@ public final class ContextBuilder {
             case "BOOLEAN", "BOOL" -> new BoolVariable(name, (Boolean) value);
             case "BEHAVIOUR" -> {
                 String code = value.toString();
-                ASTNode ast = CodeParser.parseCode(code);
-                yield new BehaviourVariable(name, ast, java.util.Map.of());
+                yield BehaviourVariable.fromScript(name, code, java.util.Map.of());
             }
             default -> throw new IllegalArgumentException("Unsupported type: " + type);
         };

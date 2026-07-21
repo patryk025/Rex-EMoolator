@@ -16,6 +16,15 @@ import java.util.List;
 public class BehaviourCodeParser {
 
     /**
+     * The original CODE scanner discards every ASCII space before it builds
+     * instructions. It does this even between quotes; tabs and line endings are
+     * not part of that rule.
+     */
+    public static String normalizeCode(String code) {
+        return code == null ? "" : code.replace(" ", "");
+    }
+
+    /**
      * Parses BEHAVIOUR code string to AST.
      *
      * @param code The code to parse
@@ -23,14 +32,15 @@ public class BehaviourCodeParser {
      * @return Parsed ASTNode (BlockNode)
      */
     public static ASTNode parseCode(String code, String name) {
-        if (code == null || code.trim().isEmpty()) {
+        String normalizedCode = normalizeCode(code);
+        if (normalizedCode.trim().isEmpty()) {
             Gdx.app.log("BehaviourCodeParser", "Empty code for " + name);
             return createEmptyBlock();
         }
 
         try {
-            Gdx.app.log("BehaviourCodeParser", "Parsing code for " + name + " (length=" + code.length() + ")");
-            ASTNode ast = CodeParser.parseCode(code);
+            Gdx.app.log("BehaviourCodeParser", "Parsing code for " + name + " (length=" + normalizedCode.length() + ")");
+            ASTNode ast = CodeParser.parseCode(normalizedCode);
 
             if (ast == null) {
                 Gdx.app.error("BehaviourCodeParser", "Parser returned null for " + name);

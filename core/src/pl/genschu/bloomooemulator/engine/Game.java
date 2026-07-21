@@ -19,8 +19,6 @@ import pl.genschu.bloomooemulator.interpreter.runtime.ExecutionContext;
 import pl.genschu.bloomooemulator.interpreter.runtime.ASTInterpreter;
 import pl.genschu.bloomooemulator.interpreter.variable.*;
 import pl.genschu.bloomooemulator.interpreter.values.StringValue;
-import pl.genschu.bloomooemulator.interpreter.ast.ASTNode;
-import pl.genschu.bloomooemulator.loader.BehaviourCodeParser;
 import pl.genschu.bloomooemulator.loader.CNVParser;
 import pl.genschu.bloomooemulator.loader.ImageLoader;
 import pl.genschu.bloomooemulator.logic.AppPaths;
@@ -658,8 +656,7 @@ public class Game {
             return false;
         }
         try {
-            ASTNode ast = BehaviourCodeParser.parseCode(code, "__SCRIPT__");
-            BehaviourVariable behaviour = new BehaviourVariable("__SCRIPT__", ast, Map.of());
+            BehaviourVariable behaviour = BehaviourVariable.fromScript("__SCRIPT__", code, Map.of());
             ASTInterpreter interpreter = new ASTInterpreter(currentSceneContext);
             interpreter.runBehaviour("__SCRIPT__", behaviour, behaviour, List.of());
             return true;

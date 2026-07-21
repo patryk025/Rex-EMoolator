@@ -23,8 +23,8 @@ import static pl.genschu.bloomooemulator.builders.MethodHelper.createMethodConte
  *
  * <p>The original engine substitutes a behaviour's arguments <em>textually</em>
  * and re-parses the body, so a $N token is read as a bare reference — it denotes
- * the variable it names if one exists, otherwise the literal text. We bind $N by
- * value, and these tests pin the three positions where that difference surfaces:
+ * the variable it names if one exists, otherwise the literal text. We splice the
+ * argument text, and these tests pin the positions where that difference surfaces:
  * <ol>
  *   <li>target position — {@code $1^METHOD} and concatenation {@code PREFIX$1^METHOD}</li>
  *   <li>value position — {@code VARNR^SET($1)} where $1 names another variable</li>
@@ -141,5 +141,60 @@ public class ParamSubstitutionTest {
         defineBehaviour("MID", "{APP^RUN($1,\"SET\",99);}");
         runTop("{MID^RUN(\"VARSTEMP1\");}");
         assertEquals(99, readInt("VARNR"));
+    }
+
+    @Test
+    void substitutesMethodNameBeforeParsing() {
+        defineBehaviour("CHILD", "{VARNR^$1(5);}");
+        runTop("{CHILD^RUN(\"SET\");}");
+        assertEquals(5, readInt("VARNR"));
+    }
+
+    @Test
+    void parameterSelectorConsumesExactlyOneDigit() {
+        defineBehaviour("CHILD", "{RESULT^SET(\"$10\");}");
+        runTop("{CHILD^RUN(\"A\");}");
+        assertEquals("A0", ctx.getVariable("RESULT").value().toDisplayString());
+    }
+
+    @Test
+    void zeroIsNotAParameterSelector() {
+        defineBehaviour("CHILD", "{RESULT^SET(\"$0\");}");
+        runTop("{CHILD^RUN(\"A\");}");
+        assertEquals("$0", ctx.getVariable("RESULT").value().toDisplayString());
+    }
+
+    @Test
+    void missingParameterDoesNotLeakFromCallingBehaviour() {
+        defineBehaviour("CHILD", "{RESULT^SET(\"$2\");}");
+        defineBehaviour("MID", "{CHILD^RUN();}");
+        runTop("{MID^RUN(\"FIRST\",\"LEAK\");}");
+        assertEquals("$2", ctx.getVariable("RESULT").value().toDisplayString());
+    }
+
+    @Test
+    void concatenatedParameterCanChangeValueTokenIntoVariableReference() {
+        ctx.setVariable("VARNR2", new pl.genschu.bloomooemulator.interpreter.variable.IntegerVariable("VARNR2", 77));
+        defineBehaviour("CHILD", "{RESULT^SET(VARN$1);}");
+        runTop("{CHILD^RUN(\"R2\");}");
+        assertEquals("77", ctx.getVariable("RESULT").value().toDisplayString());
+    }
+
+    @Test
+    void stripsAsciiSpacesInsideQuotedLiterals() {
+        runTop("{RESULT^SET(\"A B C\");}");
+        assertEquals("ABC", ctx.getVariable("RESULT").value().toDisplayString());
+    }
+
+    @Test
+    void wildSubstitutionCanChooseTargetMethodAndArity() {
+        defineBehaviour("TEST_BEH", "{$1^$2($3);}");
+
+        runTop("{TEST_BEH^RUN(\"RESULT\",\"ADD\",\"TEST\");"
+            + "TEST_BEH^RUN(\"VARNR\",\"ADD\",1);"
+            + "TEST_BEH^RUN(\"VARNR\",\"INC\");}");
+
+        assertEquals("TEST", ctx.getVariable("RESULT").value().toDisplayString());
+        assertEquals(2, readInt("VARNR"));
     }
 }
