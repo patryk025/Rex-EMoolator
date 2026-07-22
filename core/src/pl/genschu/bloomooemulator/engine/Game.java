@@ -820,7 +820,8 @@ public class Game {
     private void emitCollisionSignal(EngineVariable variable, String signalName, String otherName) {
         String normalizedName = otherName.toUpperCase(Locale.ROOT);
         if (variable instanceof Variable v2Var) {
-            v2Var.emitSignal(signalName, new StringValue(normalizedName));
+            v2Var.emitSignal(signalName, new StringValue(normalizedName),
+                new StringValue(v2Var.name()), new StringValue(normalizedName));
         }
     }
 

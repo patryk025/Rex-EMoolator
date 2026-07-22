@@ -5,7 +5,6 @@ import pl.genschu.bloomooemulator.encoding.ScriptDecypher;
 import pl.genschu.bloomooemulator.interpreter.context.Context;
 import pl.genschu.bloomooemulator.interpreter.factories.VariableFactory;
 import pl.genschu.bloomooemulator.interpreter.runtime.ASTInterpreter;
-import pl.genschu.bloomooemulator.interpreter.values.StringValue;
 import pl.genschu.bloomooemulator.interpreter.values.Value;
 import pl.genschu.bloomooemulator.interpreter.variable.*;
 import pl.genschu.bloomooemulator.interpreter.variable.db.DatabaseState;
@@ -440,69 +439,28 @@ public class CNVParser {
 
         // Parse signal code
         BehaviourVariable behaviour;
-        String[] params = null;
+        List<String> declaredArguments = List.of();
 
         // Check if inline code block
         if (signalCode.startsWith("{") && signalCode.endsWith("}")) {
             // Inline anonymous behaviour
-            behaviour = BehaviourVariable.fromScript("", signalCode, Map.of());
+            behaviour = BehaviourVariable.fromScript(
+                "beh_" + varName + "_" + signalName, signalCode, Map.of());
         } else {
-            // Reference to existing behaviour
-            // Check if has parameters: BehaviourName(param1, param2)
-            if (signalCode.contains("(") && signalCode.endsWith(")")) {
-                int parenIndex = signalCode.indexOf('(');
-                String behaviourName = signalCode.substring(0, parenIndex);
-                String paramsString = signalCode.substring(parenIndex + 1, signalCode.length() - 1);
-
-                if (!paramsString.isEmpty()) {
-                    params = paramsString.split(",");
-                    for (int i = 0; i < params.length; i++) {
-                        params[i] = params[i].trim();
-                    }
-                }
-
-                Variable behVar = context.getVariable(behaviourName);
-                if (behVar == null || behVar.type() != VariableType.BEHAVIOUR) {
-                    Gdx.app.error("CNVParser", "Signal " + signalName + " references non-existent BEHAVIOUR: " + behaviourName);
-                    return;
-                }
-                behaviour = (BehaviourVariable) behVar;
-            } else {
-                // Simple behaviour reference
-                Variable behVar = context.getVariable(signalCode);
-                if (behVar == null || behVar.type() != VariableType.BEHAVIOUR) {
-                    Gdx.app.error("CNVParser", "Signal " + signalName + " references non-existent BEHAVIOUR: " + signalCode);
-                    return;
-                }
-                behaviour = (BehaviourVariable) behVar;
+            BehaviourSignalSpec specification = BehaviourSignalSpec.parse(signalCode);
+            Variable behVar = context.getVariable(specification.behaviourName());
+            if (!(behVar instanceof BehaviourVariable parsedBehaviour)) {
+                Gdx.app.error("CNVParser", "Signal " + signalName
+                    + " references non-existent BEHAVIOUR: " + specification.behaviourName());
+                return;
             }
+            behaviour = parsedBehaviour;
+            declaredArguments = specification.declaredArguments();
         }
 
-        // Create signal handler
-        final BehaviourVariable finalBehaviour = behaviour;
-        final String[] finalParams = params;
-
-        SignalHandler handler = (var, signal, args) -> {
-            try {
-                ASTInterpreter interpreter = new ASTInterpreter(context);
-                // If behaviour has a CONDITION attribute, check it before running (RUNC semantics)
-                if (!BehaviourVariable.checkCondition(finalBehaviour, interpreter.getMethodContext())) {
-                    Gdx.app.debug("CNVParser", "Signal " + signal + " on " + var.name() + " skipped - CONDITION not met");
-                    return;
-                }
-                // Explicitly declared params win (e.g. ONFRAMECHANGED^IDLE=BEHCOMMAND(0)
-                // must pass 0 as $1, NOT the frame name the signal emits). $N inside
-                // those params still resolves from the emitted signal args. Only when
-                // the handler declares no params do we forward the emitted args, so bare
-                // references and inline {code} can read them via $1.
-                List<Value> resolvedArgs = finalParams != null
-                        ? resolveSignalParams(finalParams, context, args)
-                        : (args != null ? Arrays.asList(args) : List.of());
-                interpreter.runBehaviour("Signal:" + signal + " on " + var.name(), var, finalBehaviour, resolvedArgs);
-            } catch (Exception e) {
-                Gdx.app.error("CNVParser", "Error executing signal " + signal + " on " + var.name(), e);
-            }
-        };
+        MethodContext methodContext = new ASTInterpreter(context).getMethodContext();
+        SignalHandler handler = new BehaviourSignalHandler(varName, signalName,
+            behaviour, declaredArguments, methodContext);
 
         // Attach handler to variable
         Variable updatedVar = variable.withSignal(signalName, handler);
@@ -548,39 +506,6 @@ public class CNVParser {
             Gdx.app.log("CNVParser", "ONINIT for " + varName + " (" + variable.type() + ")");
             variable.emitSignal("ONINIT");
         }
-    }
-
-    /**
-     * Resolves signal parameter strings to Values at signal execution time.
-     * Parameters can be: string literals ("text"), variable names, or plain strings.
-     */
-    private List<Value> resolveSignalParams(String[] params, Context context, Value[] signalArgs) {
-        if (params == null) return List.of();
-        List<Value> resolved = new ArrayList<>(params.length);
-        for (String param : params) {
-            param = param.trim();
-            if (param.startsWith("\"") && param.endsWith("\"")) {
-                resolved.add(new StringValue(param.substring(1, param.length() - 1)));
-                continue;
-            }
-            // $N references resolve from the emitted signal arguments (positional).
-            if (param.length() > 1 && param.charAt(0) == '$') {
-                try {
-                    int idx = Integer.parseInt(param.substring(1)) - 1;
-                    if (signalArgs != null && idx >= 0 && idx < signalArgs.length) {
-                        resolved.add(signalArgs[idx]);
-                        continue;
-                    }
-                } catch (NumberFormatException ignored) {}
-            }
-            Variable paramVar = context.getVariable(param);
-            if (paramVar != null) {
-                resolved.add(paramVar.value());
-            } else {
-                resolved.add(new StringValue(param));
-            }
-        }
-        return resolved;
     }
 
     /**

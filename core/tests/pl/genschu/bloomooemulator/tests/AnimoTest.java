@@ -66,9 +66,8 @@ class AnimoTest {
             return (var, signalName, args) -> {
                 if (signals.size() >= eventLimit) throw new RuntimeException("Too many signals");
                 AnimoVariable av = (AnimoVariable) var;
-                // Use signalName directly: event cascade already encodes the
-                // frame/event suffix in the signal name, and args[0] now carries the per-frame
-                // parameter rather than being part of the key.
+                // The event cascade encodes the frame/event qualifier only in
+                // the signal name. It is not an emitted argument.
                 signals.add(signalName);
                 frames.add(av.getCurrentFrameNumber());
                 images.add(av.getCurrentImageNumber());
