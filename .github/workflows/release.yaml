@@ -351,7 +351,7 @@ jobs:
         uses: softprops/action-gh-release@v3
         with:
           tag_name: ${{ needs.prepare.outputs.version_name }}
-          name: Rex-EMoolator ${{ needs.prepare.outputs.version_name }}
+          name: ${{ needs.prepare.outputs.version_name }}
           target_commitish: ${{ github.sha }}
           draft: ${{ needs.prepare.outputs.draft }}
           prerelease: ${{ needs.prepare.outputs.prerelease }}
