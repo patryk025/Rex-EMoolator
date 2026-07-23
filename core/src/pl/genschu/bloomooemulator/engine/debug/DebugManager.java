@@ -16,6 +16,8 @@ import pl.genschu.bloomooemulator.engine.config.EngineConfig;
 import pl.genschu.bloomooemulator.engine.context.EngineVariable;
 import pl.genschu.bloomooemulator.engine.context.GameContext;
 import pl.genschu.bloomooemulator.geometry.points.Point3D;
+import pl.genschu.bloomooemulator.interpreter.context.Context;
+import pl.genschu.bloomooemulator.interpreter.runtime.ASTInterpreter;
 import pl.genschu.bloomooemulator.interpreter.values.StringValue;
 import pl.genschu.bloomooemulator.interpreter.variable.*;
 import pl.genschu.bloomooemulator.geometry.shapes.Box2D;
@@ -864,6 +866,7 @@ public class DebugManager implements Disposable {
     private void generateDebugVariablesText() {
         StringBuilder sb = new StringBuilder();
         GameContext context = game.getCurrentSceneContext();
+        MethodContext methodContext = new ASTInterpreter((Context) context).getMethodContext();
 
         sb.append("Scena: ").append(game.getCurrentScene()).append("\n");
 
@@ -873,7 +876,10 @@ public class DebugManager implements Disposable {
                 String arcadeScene = switch(SceneLoaderScripts.familyId(game.getGame().getGameName())) {
                     case "CZARODZIEJE" -> ((StringVariable) context.getVariable("G_SARCADEOBJECTS")).getString();
                     case "WEHIKUL" -> ((StringVariable) context.getVariable("G_SARCADESCENE")).getString();
-                    case "NEMO" -> ((Variable) context.getVariable("GSAVE")).callMethod("GET", new StringValue("ARCADE_SCENE_NAME")).getReturnValue().toDisplayString();
+                    case "NEMO" -> ((Variable) context.getVariable("GSAVE"))
+                            .callMethod("GET", List.of(new StringValue("ARCADE_SCENE_NAME")), methodContext)
+                            .getReturnValue()
+                            .toDisplayString();
                     default -> "NULL";
                 };
                 sb.append(arcadeScene).append("\n");
@@ -881,8 +887,14 @@ public class DebugManager implements Disposable {
             case "CUTSCENKI" -> {
                 sb.append("Cutscenka: ");
                 String cutsceneScene = switch(SceneLoaderScripts.familyId(game.getGame().getGameName())) {
-                    case "NEMO" -> ((Variable) context.getVariable("GSAVE")).callMethod("GET", new StringValue("CS_SCENE_NAME")).getReturnValue().toDisplayString();
-                    case "KRETES" -> ((Variable) context.getVariable("GSAVE")).callMethod("GET", new StringValue("CS_NAME")).getReturnValue().toDisplayString();
+                    case "NEMO" -> ((Variable) context.getVariable("GSAVE"))
+                            .callMethod("GET", List.of(new StringValue("CS_SCENE_NAME")), methodContext)
+                            .getReturnValue()
+                            .toDisplayString();
+                    case "KRETES" -> ((Variable) context.getVariable("GSAVE"))
+                            .callMethod("GET", List.of(new StringValue("CS_NAME")), methodContext)
+                            .getReturnValue()
+                            .toDisplayString();
                     default -> "NULL";
                 };
                 sb.append(cutsceneScene).append("\n");
