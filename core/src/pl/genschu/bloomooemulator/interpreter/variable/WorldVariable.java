@@ -3,6 +3,7 @@ package pl.genschu.bloomooemulator.interpreter.variable;
 import com.badlogic.gdx.Gdx;
 import pl.genschu.bloomooemulator.annotations.InternalMutable;
 import pl.genschu.bloomooemulator.engine.Game;
+import pl.genschu.bloomooemulator.engine.compatibility.CompatibilityProfile;
 import pl.genschu.bloomooemulator.engine.physics.IPhysicsEngine;
 import pl.genschu.bloomooemulator.engine.physics.ODEPhysicsEngine;
 import pl.genschu.bloomooemulator.interpreter.context.Context;
@@ -119,6 +120,8 @@ public record WorldVariable(
     private void reload(Game game) {
         state.gameRef = game;
         state.physicsEngine.shutdown();
+        state.physicsEngine.configureCompatibility(
+                game != null ? game.getCompatibilityProfile() : CompatibilityProfile.unknown());
         state.physicsEngine.init();
 
         if (game == null || state.filename == null || state.filename.isBlank()) {

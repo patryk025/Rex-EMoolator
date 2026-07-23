@@ -4,7 +4,9 @@ import pl.genschu.bloomooemulator.annotations.InternalMutable;
 import pl.genschu.bloomooemulator.interpreter.ast.ComparisonNode;
 import pl.genschu.bloomooemulator.interpreter.helpers.ArgumentHelper;
 import pl.genschu.bloomooemulator.interpreter.ops.ValueOps;
+import pl.genschu.bloomooemulator.interpreter.serialization.ArrayValueCodec;
 import pl.genschu.bloomooemulator.interpreter.values.*;
+import pl.genschu.bloomooemulator.loader.helpers.InputStreamBinaryReader;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -372,20 +374,11 @@ public record ArrayVariable(
             String vfsPath = pl.genschu.bloomooemulator.utils.FileUtils.resolveVfsPath(ctx.getGame(), path);
             thisVar.elements.clear();
             try (java.io.InputStream f = ctx.getGame().getVfs().openRead(vfsPath)) {
-                java.nio.ByteOrder LE = java.nio.ByteOrder.LITTLE_ENDIAN;
-                byte[] buf4 = new byte[4];
-                f.read(buf4);
-                int arrayLength = java.nio.ByteBuffer.wrap(buf4).order(LE).getInt();
+                InputStreamBinaryReader reader = new InputStreamBinaryReader(f);
+                int arrayLength = reader.readI32LE();
                 for (int i = 0; i < arrayLength; i++) {
-                    f.read(buf4);
-                    int dataType = java.nio.ByteBuffer.wrap(buf4).order(LE).getInt();
-                    switch (dataType) {
-                        case 1 -> { f.read(buf4); thisVar.elements.add(new IntValue(java.nio.ByteBuffer.wrap(buf4).order(LE).getInt())); }
-                        case 2 -> { f.read(buf4); int len = java.nio.ByteBuffer.wrap(buf4).order(LE).getInt(); byte[] sb = new byte[len]; f.read(sb); thisVar.elements.add(new StringValue(new String(sb, java.nio.charset.StandardCharsets.UTF_8).split("\0")[0])); }
-                        case 3 -> { byte[] b = new byte[1]; f.read(b); thisVar.elements.add(new BoolValue(b[0] != 0)); }
-                        case 4 -> { f.read(buf4); thisVar.elements.add(new DoubleValue(java.nio.ByteBuffer.wrap(buf4).order(LE).getInt() / 10000.0)); }
-                        default -> throw new IllegalArgumentException("Unknown array data type: " + dataType);
-                    }
+                    thisVar.elements.add(ArrayValueCodec.read(
+                            reader, ctx.compatibilityProfile()));
                 }
             } catch (java.io.IOException e) {
                 com.badlogic.gdx.Gdx.app.error("ArrayVariable", "Error loading array: " + e.getMessage());
@@ -423,16 +416,9 @@ public record ArrayVariable(
             String path = ArgumentHelper.getString(args.get(0));
             String vfsPath = pl.genschu.bloomooemulator.utils.FileUtils.resolveVfsPath(ctx.getGame(), path);
             try (java.io.OutputStream f = ctx.getGame().getVfs().openWrite(vfsPath)) {
-                java.nio.ByteOrder LE = java.nio.ByteOrder.LITTLE_ENDIAN;
-                f.write(java.nio.ByteBuffer.allocate(4).order(LE).putInt(thisVar.elements.size()).array());
+                ArrayValueCodec.writeInt(f, thisVar.elements.size());
                 for (Value element : thisVar.elements) {
-                    switch (element) {
-                        case IntValue iv -> { f.write(java.nio.ByteBuffer.allocate(4).order(LE).putInt(1).array()); f.write(java.nio.ByteBuffer.allocate(4).order(LE).putInt(iv.value()).array()); }
-                        case DoubleValue dv -> { f.write(java.nio.ByteBuffer.allocate(4).order(LE).putInt(4).array()); f.write(java.nio.ByteBuffer.allocate(4).order(LE).putInt((int)(dv.value() * 10000)).array()); }
-                        case StringValue sv -> { f.write(java.nio.ByteBuffer.allocate(4).order(LE).putInt(2).array()); byte[] sb = sv.value().getBytes(java.nio.charset.StandardCharsets.UTF_8); f.write(java.nio.ByteBuffer.allocate(4).order(LE).putInt(sb.length + 1).array()); f.write(sb); f.write(0); }
-                        case BoolValue bv -> { f.write(java.nio.ByteBuffer.allocate(4).order(LE).putInt(3).array()); f.write(bv.value() ? 1 : 0); }
-                        default -> throw new IllegalArgumentException("Unsupported array element type for save");
-                    }
+                    ArrayValueCodec.write(f, element, ctx.compatibilityProfile());
                 }
             } catch (java.io.IOException e) {
                 com.badlogic.gdx.Gdx.app.error("ArrayVariable", "Error saving array: " + e.getMessage());

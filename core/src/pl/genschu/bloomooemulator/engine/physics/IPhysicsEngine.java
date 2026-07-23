@@ -1,5 +1,6 @@
 package pl.genschu.bloomooemulator.engine.physics;
 
+import pl.genschu.bloomooemulator.engine.compatibility.CompatibilityProfile;
 import pl.genschu.bloomooemulator.engine.context.EngineVariable;
 import pl.genschu.bloomooemulator.world.GameObject;
 import pl.genschu.bloomooemulator.world.Mesh;
@@ -7,6 +8,12 @@ import pl.genschu.bloomooemulator.world.Mesh;
 import java.util.List;
 
 public interface IPhysicsEngine {
+    /**
+     * Supplies engine- and game-specific compatibility information before init.
+     * Implementations which do not need it may ignore it.
+     */
+    default void configureCompatibility(CompatibilityProfile profile) {}
+
     void init();
 
     void createBody(

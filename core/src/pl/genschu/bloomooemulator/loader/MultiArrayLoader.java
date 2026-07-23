@@ -1,26 +1,33 @@
 package pl.genschu.bloomooemulator.loader;
 
 import com.badlogic.gdx.Gdx;
-import pl.genschu.bloomooemulator.interpreter.values.*;
+import pl.genschu.bloomooemulator.engine.compatibility.CompatibilityProfile;
+import pl.genschu.bloomooemulator.interpreter.serialization.ArrayValueCodec;
+import pl.genschu.bloomooemulator.interpreter.values.Value;
 import pl.genschu.bloomooemulator.loader.helpers.BinaryReader;
 import pl.genschu.bloomooemulator.loader.helpers.InputStreamBinaryReader;
 import pl.genschu.bloomooemulator.interpreter.variable.MultiArrayVariable;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
 import java.util.Locale;
 
 public class MultiArrayLoader {
     public static void loadMultiArray(MultiArrayVariable variable, InputStream f) {
+        loadMultiArray(variable, f, CompatibilityProfile.unknown());
+    }
+
+    public static void loadMultiArray(MultiArrayVariable variable, InputStream f,
+                                      CompatibilityProfile profile) {
         try {
-            readMultiArrayV2(variable, new InputStreamBinaryReader(f));
+            readMultiArrayV2(variable, new InputStreamBinaryReader(f), profile);
         } catch (IOException e) {
             Gdx.app.error("MultiArrayLoader", "Error while loading multi-array: " + e.getMessage());
         }
     }
 
-    private static void readMultiArrayV2(MultiArrayVariable variable, BinaryReader reader) throws IOException {
+    private static void readMultiArrayV2(MultiArrayVariable variable, BinaryReader reader,
+                                         CompatibilityProfile profile) throws IOException {
         int dimensionsCount = reader.readI32LE();
         int[] dimensions = new int[dimensionsCount];
 
@@ -50,7 +57,7 @@ public class MultiArrayLoader {
                     break;
                 }
 
-                Value val = readValue(reader);
+                Value val = ArrayValueCodec.read(reader, profile);
                 variable.getData()[index] = val;
                 loadedCount++;
             }
@@ -60,22 +67,6 @@ public class MultiArrayLoader {
 
         Gdx.app.log("MultiArrayLoader", String.format(Locale.getDefault(), "Successfully loaded %d/%d elements (%.1f%% filled)",
                 loadedCount, totalElements, 100.0 * loadedCount / totalElements));
-    }
-
-    private static Value readValue(BinaryReader reader) throws IOException {
-        int dataType = reader.readI32LE();
-
-        if (dataType == 1) {
-            return new IntValue(reader.readI32LE());
-        } else if (dataType == 4) {
-            return new DoubleValue(reader.readI32LE() / 10000.0);
-        } else if (dataType == 2) {
-            return new StringValue(reader.readLengthPrefixedString32LE(StandardCharsets.UTF_8, true));
-        } else if (dataType == 3) {
-            return new BoolValue(reader.readU8() != 0);
-        } else {
-            throw new IllegalArgumentException("Unknown data type: " + dataType);
-        }
     }
 
 }

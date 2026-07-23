@@ -1,6 +1,7 @@
 package pl.genschu.bloomooemulator.interpreter.variable;
 
 import pl.genschu.bloomooemulator.engine.Game;
+import pl.genschu.bloomooemulator.engine.compatibility.CompatibilityProfile;
 import pl.genschu.bloomooemulator.interpreter.context.CloneRegistry;
 import pl.genschu.bloomooemulator.interpreter.context.Context;
 import pl.genschu.bloomooemulator.interpreter.runtime.ExecutionResult;
@@ -46,6 +47,21 @@ public interface MethodContext {
      * May return null in test contexts.
      */
     Game getGame();
+
+    /**
+     * The compatibility profile of the running game, for methods that read or
+     * write engine-specific file formats (ARRAY/MULTIARRAY LOAD and SAVE).
+     *
+     * <p>Value conversions must <em>not</em> use this — they read the ambient
+     * {@link pl.genschu.bloomooemulator.engine.compatibility.Compatibility},
+     * so that no call site can forget to pass the profile along.</p>
+     */
+    default CompatibilityProfile compatibilityProfile() {
+        Game game = getGame();
+        return game != null
+                ? game.getCompatibilityProfile()
+                : CompatibilityProfile.unknown();
+    }
 
     /**
      * Executes a BehaviourVariable in a new frame.

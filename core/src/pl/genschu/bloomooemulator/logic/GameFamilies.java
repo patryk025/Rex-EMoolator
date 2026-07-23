@@ -27,6 +27,9 @@ import static java.util.Map.entry;
 public final class GameFamilies {
     private GameFamilies() {}
 
+    /** Slugs referenced from engine code, so the literals stay in one place. */
+    public static final String REKSIO_CZARODZIEJE = "reksio-czarodzieje";
+
     private static final Map<String, String> families = Map.ofEntries(
             // Reksio i Skarb Piratów
             entry("715272459E13BD77749B2634356B3F3B8A86015E", "reksio-skarb-piratow"),
@@ -43,9 +46,9 @@ public final class GameFamilies {
             entry("C5B899F8FA93620A902DA117849289A542E3AF3E", "reksio-ufo"),
 
             // Reksio i Czarodzieje
-            entry("A70F97E970C6301166E90E8872F499DA59961464", "reksio-czarodzieje"),
-            entry("130BD02553829B28FAE9757A82E24881C5B6E4F2", "reksio-czarodzieje"),
-            entry("92D602BBEA05CBDA48B39DC69C90D0980BB563A0", "reksio-czarodzieje"),
+            entry("A70F97E970C6301166E90E8872F499DA59961464", REKSIO_CZARODZIEJE),
+            entry("130BD02553829B28FAE9757A82E24881C5B6E4F2", REKSIO_CZARODZIEJE),
+            entry("92D602BBEA05CBDA48B39DC69C90D0980BB563A0", REKSIO_CZARODZIEJE),
 
             // Reksio i Wehikuł Czasu
             entry("2679920B3735624D746FDF24D7BB507A23B31A08", "reksio-wehikul-czasu"),
@@ -81,7 +84,7 @@ public final class GameFamilies {
     static {
         familyByNamePrefix.put("Reksio i Skarb Piratów", "reksio-skarb-piratow");
         familyByNamePrefix.put("Reksio i UFO", "reksio-ufo");
-        familyByNamePrefix.put("Reksio i Czarodzieje", "reksio-czarodzieje");
+        familyByNamePrefix.put("Reksio i Czarodzieje", REKSIO_CZARODZIEJE);
         familyByNamePrefix.put("Reksio i Wehikuł Czasu", "reksio-wehikul-czasu");
         familyByNamePrefix.put("Reksio i Kapitan Nemo", "reksio-kapitan-nemo");
         familyByNamePrefix.put("Reksio i Kretes w Akcji", "reksio-kretes-w-akcji");

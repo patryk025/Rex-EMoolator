@@ -3,9 +3,11 @@ package pl.genschu.bloomooemulator.engine.physics;
 import com.badlogic.gdx.Gdx;
 import org.ode4j.math.*;
 import org.ode4j.ode.*;
+import pl.genschu.bloomooemulator.engine.compatibility.CompatibilityProfile;
 import pl.genschu.bloomooemulator.engine.physics.camera.CameraAnchor;
 import pl.genschu.bloomooemulator.engine.physics.pathfinding.AStar;
 import pl.genschu.bloomooemulator.geometry.points.Point3D;
+import pl.genschu.bloomooemulator.logic.GameFamilies;
 import pl.genschu.bloomooemulator.engine.context.EngineVariable;
 import pl.genschu.bloomooemulator.interpreter.values.IntValue;
 import pl.genschu.bloomooemulator.interpreter.values.StringValue;
@@ -19,6 +21,7 @@ import java.util.stream.Collectors;
 import static org.ode4j.ode.OdeConstants.*;
 
 public class ODEPhysicsEngine implements IPhysicsEngine {
+    private CompatibilityProfile compatibilityProfile = CompatibilityProfile.unknown();
     DWorld world;
     DSpace space;
     ODEPhysicsTimer timer;
@@ -41,6 +44,17 @@ public class ODEPhysicsEngine implements IPhysicsEngine {
         SPHERE,
         TRI_MESH,
         CAR // wait, what? id == 4, 4 spheres, 1 box
+    }
+
+    @Override
+    public void configureCompatibility(CompatibilityProfile profile) {
+        compatibilityProfile = profile != null
+                ? profile
+                : CompatibilityProfile.unknown();
+    }
+
+    public CompatibilityProfile getCompatibilityProfile() {
+        return compatibilityProfile;
     }
 
     // class for faster and safer lookup of vertices
@@ -722,12 +736,12 @@ public class ODEPhysicsEngine implements IPhysicsEngine {
 
         calculateBodiesAttraction();
 
-        // RiWC substepping: internally ~60 Hz (dt=0.03 → 2 × 0.015); the n=1 case matches
-        // RiC's single step for ordinary frames. Each substep gathers fresh contacts and
-        // clears its temporary contact group, as in the original.
+        // RiC predates substepping and always performs exactly one world step.
+        // RiWC introduced internal ~60 Hz substeps (dt=0.03 → 2 × 0.015).
+        // Each substep gathers fresh contacts and clears its temporary contact group,
+        // as in the original.
         // dWorldStep (Dantzig LCP), not quickStep — the original never used SOR.
-        int substeps = 1 + (int) (deltaTime * 60.0);
-        // TODO: cap substeps for Reksio i Czarodzieje
+        int substeps = calculateSubstepCount(deltaTime);
         double h = deltaTime / substeps;
         for (int i = 0; i < substeps; i++) {
             space.collide(this, nearCallback);
@@ -777,6 +791,13 @@ public class ODEPhysicsEngine implements IPhysicsEngine {
         if (x != position.get0() || y != position.get1() || z != position.get2()) {
             body.setPosition(x, y, z);
         }
+    }
+
+    int calculateSubstepCount(double deltaTime) {
+        if (compatibilityProfile.isGameFamily(GameFamilies.REKSIO_CZARODZIEJE)) {
+            return 1;
+        }
+        return 1 + (int) (deltaTime * 60.0);
     }
 
     @Override

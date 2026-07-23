@@ -1,71 +1,62 @@
 # Format MAR — tablice wielowymiarowe
 
-Plik `.MAR` to binarny zrzut tablicy wielowymiarowej ([`MULTIARRAY`](../reference/MULTIARRAY.md)). W odróżnieniu od [`ARR`](ARR.md) jest **świadomy wymiarów** i **rzadki** (ang. *sparse*): zapisuje nagłówek z rozmiarami wymiarów, a następnie tylko te komórki, które faktycznie mają wartość. Wszystkie liczby są **little-endian**. Układ odpowiada parserowi `MultiArrayLoader` (wariant V2 — ten, który czyta emulator).
-
-## Struktura pliku
-
-```mermaid
-flowchart LR
-    A["liczba wymiarów: int32"] --> B["rozmiary wymiarów<br/>int32 × liczba wymiarów"]
-    B --> C["wpisy (indeks + wartość)<br/>powtarzane"]
-    C --> T["terminator:<br/>indeks = liczba elementów"]
-```
+Plik `.MAR` to binarny zrzut [`MULTIARRAY`](../reference/MULTIARRAY.md).
+Jest świadomy wymiarów i rzadki: zapisuje nagłówek, a następnie tylko
+komórki mające wartość. Wszystkie liczby są little-endian.
 
 ## Nagłówek
 
 | Pole | Typ | Opis |
 |---|---|---|
-| liczba wymiarów | `int32` | ile wymiarów ma tablica |
-| rozmiary wymiarów | `int32 × liczba wymiarów` | rozmiar każdego wymiaru |
+| liczba wymiarów | `int32` | liczba wymiarów tablicy |
+| rozmiary | `int32 × liczba wymiarów` | rozmiar każdego wymiaru |
 
-Łączna liczba komórek to iloczyn rozmiarów wszystkich wymiarów (`liczba elementów`). Jest ona potrzebna do rozpoznania terminatora.
+Łączna liczba komórek jest iloczynem rozmiarów.
 
 ## Wpisy
 
-Po nagłówku następuje ciąg wpisów. Każdy zaczyna się od **indeksu** (`int32`):
+Każdy wpis zaczyna się płaskim indeksem (`int32`):
 
-- jeżeli `indeks == liczba elementów` → to **terminator**, koniec danych,
-- jeżeli `indeks` jest poza zakresem `[0, liczba elementów)` → plik jest uszkodzony, wczytywanie się zatrzymuje,
-- w przeciwnym razie po indeksie następuje **wartość** (typ + dane).
+- indeks równy liczbie komórek jest terminatorem,
+- indeks spoza zakresu oznacza uszkodzony plik,
+- po poprawnym indeksie następuje kod typu i wartość.
 
-Indeks jest **płaski** (jednowymiarowy) i odwzorowuje współrzędne wielowymiarowe w porządku wierszowym (row-major).
-
-!!! note "Format rzadki"
-    Zapisywane są wyłącznie komórki, którym nadano wartość. Komórki nieobecne w pliku pozostają niewypełnione. To kluczowa różnica względem gęstego [`ARR`](ARR.md), który przechowuje wszystkie elementy po kolei.
+Zapisywane są wyłącznie ustawione komórki.
 
 ## Typy danych
 
-Każda wartość zaczyna się od **kodu typu** (`int32`), po którym następują dane:
+Kodowanie wartości jest wspólne z [`ARR`](ARR.md):
 
-| Kod | Typ | Dane |
+| Kod | Typ | Wartość |
 |---:|---|---|
 | `1` | `INTEGER` | `int32` |
-| `2` | `STRING` | `int32` długość, a po niej tyle bajtów tekstu (UTF-8) |
-| `3` | `BOOL` | `1 bajt` — `TRUE`, gdy `≠ 0` |
-| `4` | `DOUBLE` | `int32` — wartość rzeczywista to liczba ÷ `10000` (stałoprzecinkowo) |
+| `2` | `STRING` | `int32` długość i dokładnie tyle bajtów tekstu; bez terminatora `NUL` |
+| `3` | `BOOL` | `int32`; `TRUE`, gdy wartość jest niezerowa |
+| `4` | `DOUBLE` | stałoprzecinkowy `int32`, dzielony przez skalę silnika |
 
-!!! warning "BOOL ma tu 1 bajt"
-    W `MAR` wartość logiczna zajmuje **jeden bajt**, podczas gdy w [`ARR`](ARR.md) jest to `int32` (4 bajty). Poza tym kody typów są wspólne dla obu formatów.
+BlooMoo używa skali `10000`, a Piklib 8 skali `1000`. `ARRAY` i
+`MULTIARRAY` korzystają w oryginalnych silnikach z tych samych metod
+zapisu i odczytu zmiennych.
 
 ## Dekodowanie
 
 ```mermaid
 flowchart TD
-    A["liczba wymiarów + rozmiary"] --> N["oblicz liczbę elementów<br/>(iloczyn rozmiarów)"]
+    A["liczba wymiarów + rozmiary"] --> N["oblicz liczbę komórek"]
     N --> B{{kolejny wpis}}
     B --> I["indeks: int32"]
-    I --> T{indeks = liczba elementów?}
+    I --> T{indeks = liczba komórek?}
     T -->|tak| Z([koniec])
     T -->|nie| K["kod typu: int32"]
     K -->|1 INTEGER| D1["int32"]
     K -->|2 STRING| D2["długość + tekst"]
-    K -->|3 BOOL| D3["1 bajt ≠ 0"]
-    K -->|4 DOUBLE| D4["int32 ÷ 10000"]
-    D1 & D2 & D3 & D4 --> S["zapisz w komórce [indeks]"]
+    K -->|3 BOOL| D3["int32 ≠ 0"]
+    K -->|4 DOUBLE| D4["int32 ÷ skala silnika"]
+    D1 & D2 & D3 & D4 --> S["zapisz pod indeksem"]
     S --> B
 ```
 
 ## Zobacz też
 
-- [`MULTIARRAY`](../reference/MULTIARRAY.md) — tablica wielowymiarowa z automatycznym rozszerzaniem.
-- [Format ARR](ARR.md) — gęsty, jednowymiarowy odpowiednik dla [`ARRAY`](../reference/ARRAY.md).
+- [`MULTIARRAY`](../reference/MULTIARRAY.md)
+- [Format ARR](ARR.md)

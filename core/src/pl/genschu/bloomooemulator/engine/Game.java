@@ -9,6 +9,8 @@ import com.badlogic.gdx.utils.GdxRuntimeException;
 import pl.genschu.bloomooemulator.BlooMooEngine;
 import pl.genschu.bloomooemulator.engine.context.EngineVariable;
 import pl.genschu.bloomooemulator.engine.context.GameContext;
+import pl.genschu.bloomooemulator.engine.compatibility.Compatibility;
+import pl.genschu.bloomooemulator.engine.compatibility.CompatibilityProfile;
 import pl.genschu.bloomooemulator.engine.filesystem.AssetSourceDispatcher;
 import pl.genschu.bloomooemulator.engine.filesystem.AudioFileResolver;
 import pl.genschu.bloomooemulator.engine.filesystem.IFileSystem;
@@ -48,6 +50,7 @@ public class Game {
     private final VFS vfs = new VFS();
     private Context definitionContext;
     private GameEntry game;
+    private CompatibilityProfile compatibilityProfile = CompatibilityProfile.unknown();
     private String currentEpisode = "";
     private String currentScene = "";
     private String currentApplicationFile = null; // VFS-relative path to .cnv
@@ -109,6 +112,7 @@ public class Game {
 
         musicCache = Collections.synchronizedMap(new HashMap<>());
 
+        refreshCompatibilityProfile();
         definitionContext.setGame(this);
     }
 
@@ -870,8 +874,24 @@ public class Game {
         return game;
     }
 
+    public CompatibilityProfile getCompatibilityProfile() {
+        return compatibilityProfile;
+    }
+
     public void setGamePath(GameEntry game) {
         this.game = game;
+        refreshCompatibilityProfile();
+    }
+
+    /**
+     * Resolves the profile once per game and publishes it as the ambient one.
+     * Resolving involves parsing the DLL version and hashing lookups, so it must
+     * not happen per value conversion — the interpreter reads the profile on
+     * every arithmetic node.
+     */
+    private void refreshCompatibilityProfile() {
+        compatibilityProfile = CompatibilityProfile.from(game);
+        Compatibility.install(compatibilityProfile);
     }
 
     public void setDefinitionContext(GameContext definitionContext) {

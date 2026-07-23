@@ -186,7 +186,8 @@ public record MultiArrayVariable(
             String path = ArgumentHelper.getString(args.get(0));
             String vfsPath = FileUtils.resolveVfsPath(ctx.getGame(), path);
             try (java.io.OutputStream os = ctx.getGame().getVfs().openWrite(vfsPath)) {
-                MultiArraySaver.saveMultiArray(thisVar, os);
+                MultiArraySaver.saveMultiArray(
+                        thisVar, os, ctx.compatibilityProfile());
             } catch (java.io.IOException e) {
                 Gdx.app.error("MultiArrayVariable", "Error saving multi-array: " + e.getMessage());
             }
@@ -198,7 +199,8 @@ public record MultiArrayVariable(
             String path = ArgumentHelper.getString(args.get(0));
             String vfsPath = FileUtils.resolveVfsPath(ctx.getGame(), path);
             try (java.io.InputStream is = ctx.getGame().getVfs().openRead(vfsPath)) {
-                MultiArrayLoader.loadMultiArray(thisVar, is);
+                MultiArrayLoader.loadMultiArray(
+                        thisVar, is, ctx.compatibilityProfile());
             } catch (java.io.IOException e) {
                 Gdx.app.error("MultiArrayVariable", "Error loading multi-array: " + e.getMessage());
             }
