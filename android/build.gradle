@@ -48,6 +48,16 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
+
+    lint {
+        abortOnError = true
+        enable += ['NewApi']
+        error += ['NewApi']
+
+        if (providers.gradleProperty('androidApiCheck').isPresent()) {
+            checkOnly += ['NewApi']
+        }
+    }
 }
 
 
