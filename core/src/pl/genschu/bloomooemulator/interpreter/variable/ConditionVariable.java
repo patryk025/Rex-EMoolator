@@ -195,14 +195,12 @@ public record ConditionVariable(
         });
         ASTInterpreter interpreter = new ASTInterpreter(ctx.context());
         ExecutionResult result = interpreter.execute(executable);
-
-        Value returnValue = interpreter.getPendingReturnValue();
-        return returnValue != null ? returnValue : result.getValue();
+        return result.getValue();
     }
 
     private static ASTNode unwrapSingleStatement(ASTNode parsed) {
         if (parsed instanceof BlockNode block && block.statements().size() == 1) {
-            return block.statements().getFirst();
+            return block.statements().get(0);
         }
         return parsed;
     }

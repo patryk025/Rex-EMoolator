@@ -2,6 +2,7 @@ package pl.genschu.bloomooemulator.interpreter.variable;
 
 import com.badlogic.gdx.Gdx;
 import pl.genschu.bloomooemulator.interpreter.ast.ASTNode;
+import pl.genschu.bloomooemulator.interpreter.context.Context;
 import pl.genschu.bloomooemulator.interpreter.runtime.BreakResult;
 import pl.genschu.bloomooemulator.interpreter.runtime.ExecutionResult;
 import pl.genschu.bloomooemulator.interpreter.values.*;
@@ -10,28 +11,57 @@ import pl.genschu.bloomooemulator.loader.BehaviourCodeParser;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 /**
- * BehaviourVariable stores executable code (AST).
+ * BehaviourVariable stores CODE source and its compiled AST.
  **/
-public record BehaviourVariable(
-    String name,
-    ASTNode ast,
-    Map<String, SignalHandler> signals
-) implements Variable {
+public final class BehaviourVariable implements Variable {
+    private final String name;
+    private final ASTNode ast;
+    private final Map<String, SignalHandler> signals;
+    private final String sourceCode;
+    private final ConcurrentMap<List<String>, ASTNode> parameterizedAsts;
 
-    public BehaviourVariable {
-        if (name == null) {
-            name = "";  // Allow empty name for anonymous behaviours
-        }
+    /** Compatibility constructor for callers which only have a compiled AST. */
+    public BehaviourVariable(String name, ASTNode ast, Map<String, SignalHandler> signals) {
+        this(name, ast, signals, null, new ConcurrentHashMap<>());
+    }
+
+    private BehaviourVariable(String name, ASTNode ast, Map<String, SignalHandler> signals,
+                              String sourceCode, ConcurrentMap<List<String>, ASTNode> parameterizedAsts) {
+        this.name = name != null ? name : "";
         if (ast == null) {
             throw new IllegalArgumentException("AST cannot be null for behaviour");
         }
-        if (signals == null) {
-            signals = Map.of();
-        } else {
-            signals = Map.copyOf(signals);
-        }
+        this.ast = ast;
+        this.signals = signals == null ? Map.of() : Map.copyOf(signals);
+        this.sourceCode = sourceCode;
+        this.parameterizedAsts = parameterizedAsts;
+    }
+
+    public static BehaviourVariable fromScript(String name, String code, Map<String, SignalHandler> signals) {
+        ASTNode ast = BehaviourCodeParser.parseCode(code, name);
+        return new BehaviourVariable(name, ast, signals, code, new ConcurrentHashMap<>());
+    }
+
+    @Override
+    public String name() {
+        return name;
+    }
+
+    public ASTNode ast() {
+        return ast;
+    }
+
+    @Override
+    public Map<String, SignalHandler> signals() {
+        return signals;
+    }
+
+    public String sourceCode() {
+        return sourceCode;
     }
 
     @Override
@@ -50,9 +80,59 @@ public record BehaviourVariable(
     }
 
     public Variable withScript(String code) {
-        // fire up a parser to create a new AST from the script
-        ASTNode ast = BehaviourCodeParser.parseCode(code, name());
-        return new BehaviourVariable(name, ast, signals);
+        return fromScript(name, code, signals);
+    }
+
+    /** Compiles CODE after original-style whole-source $1..$9 substitution. */
+    public ASTNode astForArguments(List<Value> args, Context context) {
+        if (sourceCode == null || args == null || args.isEmpty()) {
+            return ast;
+        }
+
+        List<String> parameterTexts = args.stream()
+            .map(value -> parameterText(value, context))
+            .toList();
+        List<String> cacheKey = List.copyOf(parameterTexts);
+        return parameterizedAsts.computeIfAbsent(cacheKey, key ->
+            BehaviourCodeParser.parseCode(spliceParameters(sourceCode, key), name + key));
+    }
+
+    /**
+     * Safe reconstruction of fillParams. One character after '$' selects a
+     * 1-based parameter; invalid and missing references remain literal.
+     */
+    public static String spliceParameters(String source, List<String> parameterTexts) {
+        if (source == null || source.isEmpty() || parameterTexts == null || parameterTexts.isEmpty()) {
+            return source == null ? "" : source;
+        }
+
+        StringBuilder result = new StringBuilder(source.length());
+        for (int i = 0; i < source.length(); i++) {
+            char current = source.charAt(i);
+            if (current == '$' && i + 1 < source.length()) {
+                char selector = source.charAt(i + 1);
+                int index = selector - '1';
+                if (selector >= '1' && selector <= '9' && index < parameterTexts.size()) {
+                    result.append(parameterTexts.get(index));
+                    i++;
+                    continue;
+                }
+            }
+            result.append(current);
+        }
+        return result.toString();
+    }
+
+    private static String parameterText(Value value, Context context) {
+        String text = switch (value) {
+            case VariableRef ref -> ref.name();
+            case VariableValue wrapped -> wrapped.variable().name();
+            default -> value.toDisplayString();
+        };
+        Variable namedObject = context != null ? context.getVariable(text) : null;
+        return namedObject != null && !namedObject.type().isPrimitive()
+            ? "\"" + text + "\""
+            : text;
     }
 
     @Override
@@ -182,6 +262,6 @@ public record BehaviourVariable(
         } else {
             newSignals.put(signalName, handler);
         }
-        return new BehaviourVariable(name, ast, newSignals);
+        return new BehaviourVariable(name, ast, newSignals, sourceCode, parameterizedAsts);
     }
 }

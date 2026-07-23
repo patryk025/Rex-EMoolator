@@ -48,8 +48,9 @@ public interface MethodContext {
     Game getGame();
 
     /**
-     * Executes a BehaviourVariable's AST in a new frame.
-     * Handles $1/$2 locals setup, THIS assignment, and frame push/pop.
+     * Executes a BehaviourVariable in a new frame.
+     * Handles whole-source parameter substitution, THIS assignment, and frame
+     * push/pop.
      *
      * <p>The returned {@link ExecutionResult} carries control-flow info so that
      * {@code @BREAK} can propagate across procedure boundaries (terminating the
@@ -59,7 +60,7 @@ public interface MethodContext {
      * @param frameName  Label for the stack frame (e.g. "RUN:myBehaviour")
      * @param thisVar    Variable to set as THIS (may be null)
      * @param behaviour  The BehaviourVariable whose AST to execute
-     * @param args       Arguments to bind as $1, $2, ...
+     * @param args       Arguments whose source text replaces $1, $2, ...
      * @return Either {@link pl.genschu.bloomooemulator.interpreter.runtime.NormalResult}
      *         with the behaviour's return value (or NullValue) or
      *         {@link pl.genschu.bloomooemulator.interpreter.runtime.BreakResult}

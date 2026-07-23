@@ -19,13 +19,16 @@ import java.util.List;
  * Interprets AST nodes and produces execution results.
  */
 public class ASTInterpreter {
+    /**
+     * Name of the container variable the original engine materializes @RETURN
+     * results into (PIK FUN_10067200 / BM FUN_100551a0). RUN/RUNC/RUNLOOPED read
+     * it after execution and scripts can reference it directly.
+     */
+    public static final String RETURN_VARIABLE = "__RETURN__";
+
     private final Context context;
     private final ExecutionContext exec;
     private final MethodContext methodContext;
-
-    // @RETURN does not exit the behaviour — it stores the value here.
-    // Each subsequent @RETURN overrides the previous value.
-    private Value pendingReturnValue;
 
     public ASTInterpreter(Context context) {
         if (context == null) {
@@ -34,13 +37,6 @@ public class ASTInterpreter {
         this.context = context;
         this.exec = context.exec();
         this.methodContext = createMethodContext();
-    }
-
-    /**
-     * Returns the pending return value set by @RETURN, or null if none was set.
-     */
-    public Value getPendingReturnValue() {
-        return pendingReturnValue;
     }
 
     /**
@@ -92,16 +88,11 @@ public class ASTInterpreter {
                                                 BehaviourVariable behaviour, List<Value> args) {
                 exec.pushFrame(frameName, behaviour.name(), null);
                 try {
-                    if (args != null && !args.isEmpty()) {
-                        for (int i = 0; i < args.size(); i++) {
-                            exec.setLocal("$" + (i + 1), valueToVariable("$" + (i + 1), args.get(i)));
-                        }
-                    }
                     if (thisVar != null) {
                         exec.setThis(thisVar);
                     }
                     ASTInterpreter interpreter = new ASTInterpreter(context);
-                    ExecutionResult execResult = interpreter.execute(behaviour.ast());
+                    ExecutionResult execResult = interpreter.execute(behaviour.astForArguments(args, context));
 
                     // @BREAK escapes the procedure boundary — let the caller decide
                     // how far to keep propagating (it'll bubble through executeMethodCall
@@ -112,11 +103,11 @@ public class ASTInterpreter {
 
                     // @ONEBREAK is procedure-local: swallow it here so the caller continues.
                     // NormalResult / OneBreakResult / ReturnResult all collapse to a normal
-                    // return carrying the pending @RETURN value (if any).
-                    Value returnValue = interpreter.getPendingReturnValue();
-                    if (returnValue == null) {
-                        returnValue = NullValue.INSTANCE;
-                    }
+                    // return carrying the current __RETURN__ value. Like the original,
+                    // __RETURN__ is not cleared before the run, so a behaviour without
+                    // @RETURN yields whatever an earlier behaviour left there.
+                    Variable returnVar = context.getVariable(RETURN_VARIABLE);
+                    Value returnValue = returnVar != null ? returnVar.value() : NullValue.INSTANCE;
                     return new NormalResult(returnValue);
                 } finally {
                     exec.popFrame();
@@ -163,12 +154,6 @@ public class ASTInterpreter {
     // === LITERALS ===
 
     private ExecutionResult executeLiteral(LiteralNode node) {
-        if (node.value() instanceof StringValue stringValue && stringValue.value().contains("$")) {
-            // Parameters are substituted textually by the original engine,
-            // including inside quoted strings. DARRAY.CLASS relies on this in
-            // DBFIELD^LOAD("$1"), where $1 is the requested DTA path.
-            return new NormalResult(new StringValue(interpolateParamRefs(stringValue.value())));
-        }
         return new NormalResult(node.value());
     }
 
@@ -187,50 +172,8 @@ public class ASTInterpreter {
             case ConditionVariable cond -> new NormalResult(cond.evaluate(methodContext));
             case ComplexConditionVariable complex -> new NormalResult(complex.evaluate(methodContext));
             case VectorVariable vec -> new NormalResult(new VariableValue(vec));
-            default -> new NormalResult(resolveParamValue(node, variable));
+            default -> new NormalResult(variable.value());
         };
-    }
-
-    /**
-     * Resolves the value a variable reference yields. For a $N parameter the
-     * original engine substitutes the argument textually, so a param holding a
-     * variable name resolves as a bare reference to that variable — e.g.
-     * {@code VARNR^SET($1)} with {@code $1="VARLEBIODKA"} sets VARNR to
-     * VARLEBIODKA's value, not the literal string. This is the value-position
-     * use of {@link #resolveParamReference}: when the $N token denotes a known
-     * variable, dereference one level; otherwise (numbers, animation names like
-     * "GRA0"/"POJAWIA" that match no variable) fall through to the literal value.
-     */
-    private Value resolveParamValue(VariableNode node, Variable variable) {
-        if (node.name().startsWith("$")) {
-            Variable referenced = resolveParamReference(node.name());
-            if (referenced != null && referenced != variable) {
-                return referenced.value();
-            }
-        }
-        return variable.value();
-    }
-
-    /**
-     * The single rule behind all $N handling. Mirrors the original engine's
-     * textual substitution: the param text is spliced into {@code rawName}
-     * (handling concatenation like {@code PREFIX$1} via {@link #interpolateParamRefs})
-     * and, if the result names a known variable, that variable is returned —
-     * a bare reference. Returns {@code null} when no variable matches, so callers
-     * fall back to literal handling. Used identically in target and value position.
-     */
-    private Variable resolveParamReference(String rawName) {
-        String resolved = interpolateParamRefs(rawName);
-        if (resolved.equals(rawName)) {
-            return context.getVariable(rawName);
-        }
-        Variable variable = context.hasVariable(resolved)
-            ? context.getVariable(resolved)
-            : null;
-        if (variable == null && !resolved.equals(rawName) && context.hasVariable(rawName)) {
-            variable = context.getVariable(rawName);
-        }
-        return variable;
     }
 
     // === BLOCKS ===
@@ -444,14 +387,37 @@ public class ASTInterpreter {
     }
 
     private ExecutionResult executeReturn(ReturnNode node) {
+        Value value = NullValue.INSTANCE;
         if (node.hasValue()) {
             ExecutionResult valueResult = execute(node.value());
             if (!valueResult.shouldContinue()) return valueResult;
-            pendingReturnValue = valueResult.getValue();
-        } else {
-            pendingReturnValue = NullValue.INSTANCE;
+            value = valueResult.getValue();
         }
-        return new NormalResult(pendingReturnValue);
+        storeReturnValue(value);
+        return new NormalResult(value);
+    }
+
+    /**
+     * @RETURN does not exit the behaviour — like the original engine it destroys
+     * the previous __RETURN__ container variable and creates a fresh one typed
+     * after the value (INTEGER/STRING/BOOL/DOUBLE). Each subsequent @RETURN
+     * overrides the previous value.
+     */
+    private void storeReturnValue(Value value) {
+        context.removeVariableInHierarchy(RETURN_VARIABLE);
+        if (value == NullValue.INSTANCE) {
+            return;
+        }
+        Variable returnVar = switch (value) {
+            case IntValue v -> new IntegerVariable(RETURN_VARIABLE, v.value());
+            case DoubleValue v -> new DoubleVariable(RETURN_VARIABLE, v.value());
+            case BoolValue v -> new BoolVariable(RETURN_VARIABLE, v.value());
+            // Keep object results (e.g. VECTOR) by reference instead of flattening
+            // them through toDisplayString.
+            case VariableValue v -> v.variable();
+            default -> new StringVariable(RETURN_VARIABLE, value.toDisplayString());
+        };
+        context.setVariable(RETURN_VARIABLE, returnVar);
     }
 
     // === METHOD CALLS ===
@@ -631,7 +597,7 @@ public class ASTInterpreter {
     private Variable resolveMethodTarget(ASTNode target, SourceLocation location) {
         if (target instanceof VariableNode variableNode) {
             String name = variableNode.name();
-            Variable variable = resolveParamReference(name);
+            Variable variable = context.getVariable(name);
             if (variable == null) {
                 throw new InterpreterException(
                     "Variable not found: " + name,
@@ -645,10 +611,10 @@ public class ASTInterpreter {
 
         if (target instanceof LiteralNode literalNode) {
             String template = literalNode.value().toDisplayString();
-            Variable variable = resolveParamReference(template);
+            Variable variable = context.getVariable(template);
             if (variable == null) {
                 throw new InterpreterException(
-                    "Variable not found: " + interpolateParamRefs(template) + " (from template " + template + ")",
+                    "Variable not found: " + template,
                     exec,
                     location
                 );
@@ -658,7 +624,7 @@ public class ASTInterpreter {
 
         if (target instanceof PointerDerefNode pointerDerefNode) {
             ExecutionResult result = execute(pointerDerefNode.expression());
-            String resolvedName = interpolateParamRefs(result.getValue().toDisplayString());
+            String resolvedName = result.getValue().toDisplayString();
             // Empty strings intentionally disable dynamic targets, e.g.
             // *VARSBALL before a footballer has been selected.
             if (resolvedName.isBlank()) {
@@ -674,43 +640,4 @@ public class ASTInterpreter {
         );
     }
 
-    /**
-     * Replaces $N parameter references in a string with their values from
-     * the current execution frame locals (e.g. "ANIMOPOLE$1" with $1=3
-     * becomes "ANIMOPOLE3").
-     */
-    private String interpolateParamRefs(String template) {
-        if (!template.contains("$")) return template;
-        StringBuilder sb = new StringBuilder();
-        int i = 0;
-        while (i < template.length()) {
-            if (template.charAt(i) == '$' && i + 1 < template.length()
-                    && Character.isDigit(template.charAt(i + 1))) {
-                int j = i + 1;
-                while (j < template.length() && Character.isDigit(template.charAt(j))) j++;
-                String paramName = template.substring(i, j);
-                Variable paramVar = exec.getLocal(paramName);
-                if (paramVar != null) {
-                    sb.append(paramVar.value().toDisplayString());
-                } else {
-                    sb.append(paramName);
-                }
-                i = j;
-            } else {
-                sb.append(template.charAt(i));
-                i++;
-            }
-        }
-        return sb.toString();
-    }
-
-    private static Variable valueToVariable(String name, Value value) {
-        return switch (value) {
-            case IntValue v    -> new IntegerVariable(name, v.value());
-            case DoubleValue v -> new DoubleVariable(name, v.value());
-            case StringValue v -> new StringVariable(name, v.value());
-            case BoolValue v   -> new BoolVariable(name, v.value());
-            default            -> new StringVariable(name, value.toDisplayString());
-        };
-    }
 }

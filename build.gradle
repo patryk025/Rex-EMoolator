@@ -12,7 +12,7 @@ buildscript {
         google()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:9.0.1'
+        classpath 'com.android.tools.build:gradle:9.1.1'
         classpath 'com.gradleup.shadow:shadow-gradle-plugin:9.4.3'
         classpath 'com.github.jk1:gradle-license-report:3.1.2'
     }

@@ -117,10 +117,9 @@ public record ApplicationVariable(
             // A behaviour can't name its caller statically, so it stashes the
             // caller's name in a temp STRING and hands RUN the *name of that temp*
             // via $N (e.g. UFO^RUN($1,"GETCENTERX") with $1 naming VARSTEMP1, a
-            // STRING holding "WALK0"). The original substitutes $N textually, so
-            // VARSTEMP1 is read as a bare reference and yields "WALK0" before RUN
-            // sees it — which ASTInterpreter.resolveParamReference already does
-            // when the $N argument is evaluated, so varName arrives resolved here.
+            // STRING holding "WALK0"). Whole-source parameter substitution turns
+            // $1 into the bare VARSTEMP1 reference before this call is parsed, so
+            // varName arrives here as the resolved value "WALK0".
             return target.callMethod(methodName, params, ctx);
         })),
 

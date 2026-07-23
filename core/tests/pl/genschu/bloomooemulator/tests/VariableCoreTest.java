@@ -146,7 +146,8 @@ class VariableCoreTest {
 
         MethodHelper.callWithContext(testCtx, "HOST", "ADDBEHAVIOUR",
                 new StringValue("ONTEST"),
-                new StringValue("B_WITH_PARAMS(\"param1\")"));
+                new StringValue("B_WITH_PARAMS"),
+                new StringValue("param1"));
 
         // Get updated variable from context
         host = testCtx.getVariable("HOST");
@@ -164,7 +165,8 @@ class VariableCoreTest {
 
         MethodHelper.callWithContext(testCtx, "HOST", "ADDBEHAVIOUR",
                 new StringValue("ONTEST"),
-                new StringValue("B_WITH_PARAMS(PARAM)"));
+                new StringValue("B_WITH_PARAMS"),
+                new StringValue("PARAM"));
 
         Variable host = testCtx.getVariable("HOST");
         host.emitSignal("ONTEST");

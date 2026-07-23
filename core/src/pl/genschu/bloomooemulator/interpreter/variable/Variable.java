@@ -6,7 +6,6 @@ import pl.genschu.bloomooemulator.interpreter.context.Context;
 import pl.genschu.bloomooemulator.interpreter.helpers.ArgumentHelper;
 import pl.genschu.bloomooemulator.interpreter.values.*;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -144,36 +143,17 @@ public sealed interface Variable extends EngineVariable permits
                 }
                 String rawSignalName = ArgumentHelper.getString(args.get(0));
                 String signalName = rawSignalName.replace("$", "^");
-                String behaviourSpec = ArgumentHelper.getString(args.get(1));
-
-                // Parse behaviour spec - may have parameters like "MYBEHAVIOUR(\"param1\", VAR)"
-                String behaviourName = behaviourSpec;
-                String[] params = null;
-                if (behaviourSpec.contains("(") && behaviourSpec.endsWith(")")) {
-                    int parenStart = behaviourSpec.indexOf('(');
-                    behaviourName = behaviourSpec.substring(0, parenStart).trim();
-                    String paramStr = behaviourSpec.substring(parenStart + 1, behaviourSpec.length() - 1);
-                    if (!paramStr.isEmpty()) {
-                        params = paramStr.split(",");
-                        for (int i = 0; i < params.length; i++) {
-                            params[i] = params[i].trim();
-                        }
-                    }
-                }
-
-                Variable behaviourVar = ctx.getVariable(behaviourName.trim());
+                String behaviourName = ArgumentHelper.getString(args.get(1));
+                Variable behaviourVar = ctx.getVariable(behaviourName);
                 if (!(behaviourVar instanceof BehaviourVariable behaviour)) {
                     return MethodResult.noReturn();
                 }
+                List<String> declaredArguments = args.subList(2, args.size()).stream()
+                    .map(Value::toDisplayString)
+                    .toList();
 
-                final String[] finalParams = params;
-                SignalHandler handler = (variable, signal, signalArgs) -> {
-                    List<Value> resolvedParams = resolveSignalParams(finalParams, ctx, signalArgs);
-                    // Signals are top-level entry points — discard the ExecutionResult.
-                    // A @BREAK inside the handler has no caller procedure to terminate.
-                    ctx.runBehaviour("Signal:" + signal, variable, behaviour, resolvedParams);
-                };
-
+                SignalHandler handler = new BehaviourSignalHandler(self.name(), signalName,
+                    behaviour, declaredArguments, ctx);
                 Variable updated = self.withSignal(signalName, handler);
                 ctx.updateVariable(self.name(), updated);
                 return MethodResult.noReturn();
@@ -306,22 +286,51 @@ public sealed interface Variable extends EngineVariable permits
      * This executes the signal handler if one is registered.
      */
     default void emitSignal(String signalName) {
-        emitSignal(signalName, null);
+        dispatchSignal(signalName, null, List.of(), false);
     }
 
-    default void emitSignal(String signalName, Value newValue, Value... arguments) {
+    /**
+     * Emits a qualified signal. If no qualified binding exists, the base binding
+     * is used and {@code fallbackPayload} becomes its explicit payload.
+     */
+    default void emitSignal(String signalName, Value qualifier, Value... fallbackPayload) {
+        List<Value> payload = fallbackPayload == null
+            ? List.of()
+            : List.of(fallbackPayload);
+        dispatchSignal(signalName, qualifier, payload, !payload.isEmpty());
+    }
+
+    /** Emits an unqualified signal whose payload replaces declared arguments. */
+    default void emitSignalWithPayload(String signalName, Value... arguments) {
+        List<Value> payload = arguments == null ? List.of() : List.of(arguments);
+        dispatchSignal(signalName, null, payload, true);
+    }
+
+    private void dispatchSignal(String signalName, Value qualifier,
+                                List<Value> fallbackPayload, boolean hasFallbackPayload) {
         Map<String, SignalHandler> registeredSignals = signals();
-        String fullSignalName = signalName + (newValue != null ? "^" + newValue.toDisplayString() : "");
-        Gdx.app.debug(getTypeName(), "Emitting signal: " + fullSignalName + " for " + name() + " with arguments: " + (arguments == null ? List.of() : List.of(arguments)));
-        if(registeredSignals != null) {
-            SignalHandler handler = registeredSignals.get(fullSignalName);
-            if (handler == null) {
-                handler = registeredSignals.get(signalName);
-            }
-            if (handler != null) {
-                Gdx.app.debug(getTypeName(), "Executing signal: " + fullSignalName + " for " + name());
-                handler.handle(this, fullSignalName, arguments);
-            }
+        String emittedName = signalName + (qualifier != null ? "^" + qualifier.toDisplayString() : "");
+        Gdx.app.debug(getTypeName(), "Emitting signal: " + emittedName + " for " + name()
+            + " with fallback payload: " + fallbackPayload);
+        if (registeredSignals == null) {
+            return;
+        }
+
+        boolean qualifiedEmission = qualifier != null;
+        String bindingName = emittedName;
+        SignalHandler handler = qualifiedEmission ? registeredSignals.get(bindingName) : null;
+        boolean exactBinding = qualifiedEmission && handler != null;
+        if (handler == null) {
+            bindingName = signalName;
+            handler = registeredSignals.get(bindingName);
+        }
+        if (handler != null) {
+            List<Value> effectivePayload = exactBinding ? List.of() : fallbackPayload;
+            boolean hasExplicitPayload = !exactBinding && hasFallbackPayload;
+            SignalEmission emission = new SignalEmission(emittedName, bindingName,
+                effectivePayload, hasExplicitPayload);
+            Gdx.app.debug(getTypeName(), "Executing signal: " + emission + " for " + name());
+            handler.handle(this, emission);
         }
     }
 
@@ -390,36 +399,6 @@ public sealed interface Variable extends EngineVariable permits
         if (section != null) {
             game.getGameINI().put(section, name().toUpperCase(), value().toDisplayString());
         }
-    }
-
-    private static List<Value> resolveSignalParams(String[] params, MethodContext ctx, Value[] signalArgs) {
-        if (params == null) return List.of();
-        List<Value> resolved = new ArrayList<>(params.length);
-        for (String param : params) {
-            param = param.trim();
-            if (param.startsWith("\"") && param.endsWith("\"")) {
-                param = param.substring(1, param.length() - 1);
-                resolved.add(new StringValue(param));
-                continue;
-            }
-            // $N references resolve from signalArgs (positional emitSignal arguments)
-            if (param.length() > 1 && param.charAt(0) == '$') {
-                try {
-                    int idx = Integer.parseInt(param.substring(1)) - 1;
-                    if (signalArgs != null && idx >= 0 && idx < signalArgs.length) {
-                        resolved.add(signalArgs[idx]);
-                        continue;
-                    }
-                } catch (NumberFormatException ignored) {}
-            }
-            Variable paramVar = ctx.getVariable(param);
-            if (paramVar != null) {
-                resolved.add(paramVar.value());
-                continue;
-            }
-            resolved.add(new StringValue(param));
-        }
-        return resolved;
     }
 
 }

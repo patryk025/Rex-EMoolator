@@ -451,9 +451,9 @@ public record MatrixVariable(
             Value argSrcY = new IntValue(srcY);
             Value argCode = new IntValue(code);
             if (s.currentMoveIndex == s.pendingMoves.size() - 1) {
-                m.emitSignal("ONLATEST", null, argSrcX, argSrcY, argCode);
+                m.emitSignalWithPayload("ONLATEST", argSrcX, argSrcY, argCode);
             } else {
-                m.emitSignal("ONNEXT", null, argSrcX, argSrcY, argCode);
+                m.emitSignalWithPayload("ONNEXT", argSrcX, argSrcY, argCode);
             }
 
             if (code == MOVEMENT_DOWN) {
