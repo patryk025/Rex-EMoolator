@@ -167,15 +167,15 @@ Szacowane poziomy grywalności są wyznaczane na podstawie ilości scen, które 
 </tr>
 <tr>
 <td>Reksio i Kapitan Nemo</td>
-<td><img alt="Niegrywalne" src="https://img.shields.io/badge/Niegrywalne-red"/></td>
-<td>Podczas uruchamiania w którymś miejscu pojawia się StackOverflowError, gra próbuje ładować cutscenkę "NULL", co się nie udaje, gdyż nie istnieje.</td>
+<td><img alt="W grze" src="https://img.shields.io/badge/W%20grze-yellow"/></td>
+<td>Intro działa, jednak szuflady zapisów nie działają, jedynie przycisk wyjścia.</td>
 <td>N/D</td>
 <td><a href="https://github.com/users/patryk025/projects/10">Link</a></td>
 </tr>
 <tr>
 <td>Reksio i Kretes w Akcji!</td>
-<td><img alt="Niegrywalne" src="https://img.shields.io/badge/Niegrywalne-red"/></td>
-<td>Analogiczna sytuacja, jak w Reksio i Kapitan Nemo, próba załadowania cutscenki "NULL"</td>
+<td><img alt="W grze" src="https://img.shields.io/badge/W%20grze-yellow"/></td>
+<td>Cutscenki prawie działają (czasami się nie pokazują postaci). Minigierki próbują się włączać. Czasami są to problemy z koordynatami, czasami są problemy z przewijaniem i tłami, a przy "Reksio i Ufo" są problemy wynikające z braku implementacji silnika Inertia.</td>
 <td>N/D</td>
 <td><a href="https://github.com/users/patryk025/projects/11">Link</a></td>
 </tr>

@@ -167,15 +167,15 @@ Playability estimates are based on the number of scenes that play correctly acco
 </tr>
 <tr>
 <td>Reksio i Kapitan Nemo</td>
-<td><img alt="Unplayable" src="https://img.shields.io/badge/Unplayable-red"/></td>
-<td>During startup, a StackOverflowError occurs, the game tries to load the "NULL" cutscene, which fails because it doesn't exist.</td>
+<td><img alt="In-game" src="https://img.shields.io/badge/In--game-yellow"/></td>
+<td>The intro works, but the save slots don't work, only the exit button does.</td>
 <td>N/A</td>
 <td><a href="https://github.com/users/patryk025/projects/10">Link</a></td>
 </tr>
 <tr>
 <td>Reksio i Kretes w Akcji!</td>
-<td><img alt="Unplayable" src="https://img.shields.io/badge/Unplayable-red"/></td>
-<td>Similar situation to Reksio i Kapitan Nemo, attempting to load the "NULL" cutscene.</td>
+<td><img alt="In-game" src="https://img.shields.io/badge/In--game-yellow"/></td>
+<td>The cutscenes mostly work (sometimes the characters don't appear). The mini-games try to load. Sometimes there are issues with coordinates, sometimes with scrolling and backgrounds, and in the "Reksio i UFO" level, there are problems caused by the lack of implementation of the Inertia engine.</td>
 <td>N/A</td>
 <td><a href="https://github.com/users/patryk025/projects/11">Link</a></td>
 </tr>
