@@ -124,3 +124,5 @@ storage
 
 ## Python tooling
 __pycache__/
+*.egg-info/
+tools/*/build/

@@ -1,0 +1,20 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "rex-cnv-pygments"
+version = "0.1.0"
+description = "Pygments lexer template for Aidem Media CNV scripts"
+readme = "README.md"
+requires-python = ">=3.9"
+dependencies = ["Pygments>=2.16"]
+
+[project.entry-points."pygments.lexers"]
+cnv = "rex_cnv_pygments.lexer:CnvLexer"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-dir]
+"" = "src"

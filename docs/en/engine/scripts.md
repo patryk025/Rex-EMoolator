@@ -12,7 +12,7 @@ The engine treats all script content as uppercase and is case-insensitive. By co
 
 Files shipped with the game are encrypted by default using a transposition cipher with a variable offset. An encrypted file begins with a header of the form:
 
-```
+```cnv
 {<X:N>}
 ```
 
@@ -22,7 +22,7 @@ where `X` is a letter indicating the direction of the offset (`D` means a negati
 
 An object begins with a line containing the `OBJECT` keyword:
 
-```
+```cnv
 OBJECT=OBJECT_NAME
 ```
 
@@ -34,13 +34,13 @@ If the same object is declared more than once in a single file, its properties a
 
 Properties are written as `objectName:property=value`:
 
-```
+```cnv
 OBJECT_NAME:PROPERTY=VALUE
 ```
 
 Signals can take an additional parameter after a caret (`^`):
 
-```
+```cnv
 OBJECT_NAME:ONBRUTALCHANGED^3=PROCEDURE_NAME
 ```
 
@@ -50,7 +50,7 @@ In both cases, the engine accepts both `KEY=VALUE` and `KEY = VALUE` (with space
 
 The type is essential — without it, the engine does not know how to handle the object, and the result is usually a hard crash. The type is declared with the `TYPE` property:
 
-```
+```cnv
 OBJECT_NAME:TYPE=STRING
 ```
 
@@ -69,7 +69,7 @@ Floating-point numbers accept both standard notation (`1.234`) and scientific no
 
 Code blocks — used as the value of a signal or as the body of a procedure — are written inside curly braces. Statements are separated by semicolons; the final statement must also end with a semicolon, otherwise it may not be executed.
 
-```
+```cnv
 OBJECT_NAME:ONCHANGED={VARIABLE2^PLAY("TADA");}
 ```
 
@@ -86,7 +86,7 @@ The engine recognises two forms of comments:
 
 Methods are called using the caret (`^`):
 
-```
+```cnv
 OBJECT_NAME^METHOD(arg1, arg2);
 ```
 
@@ -94,7 +94,7 @@ OBJECT_NAME^METHOD(arg1, arg2);
 
 Computational expressions are written inside square brackets:
 
-```
+```cnv
 VARIABLE_NAME^SET([VARIABLE_NAME^GET()+"2"]);
 ```
 
@@ -104,7 +104,7 @@ Operators and typing rules are described in the [Arithmetic](arithmetic.md) chap
 
 A `*` before a variable name or an expression means that the value is to be used as the name of another variable. This allows dynamic references built from text:
 
-```
+```cnv
 *VARIABLE_NAME^PLAY();
 *["ANIMO_"+_I_]^PLAY();
 ```
@@ -115,7 +115,7 @@ In the first form, `VARIABLE_NAME` should be a [`STRING`](../reference/STRING.md
 
 Inside the body of a procedure, arguments are accessed with a dollar sign followed by a number (numbered from `1`):
 
-```
+```cnv
 PROCEDURE:CODE={VARIABLE_NAME^SET($1);}
 ```
 
@@ -134,13 +134,13 @@ Calling another type-specific method (e.g. `GETCFRAMEINEVENT` on [`ANIMO`](../re
 
 ### @LOOP
 
-```
+```cnv
 @LOOP(BEHAVIOUR code, INTEGER start, INTEGER delta, INTEGER increment)
 ```
 
 Executes `code` for counter values `_I_` in the range `[start, start + delta)` with step `increment`. In pseudocode:
 
-```
+```java
 for (int _I_ = start; _I_ < start + delta; _I_ += increment) {
     code;
 }
@@ -148,7 +148,7 @@ for (int _I_ = start; _I_ < start + delta; _I_ += increment) {
 
 ### @FOR (BlooMoo)
 
-```
+```cnv
 @FOR(INTEGER counter, BEHAVIOUR code, INTEGER start, INTEGER delta, INTEGER increment)
 ```
 
@@ -156,7 +156,7 @@ Identical to `@LOOP`, except that the first argument selects a custom variable t
 
 ### @WHILE
 
-```
+```cnv
 @WHILE(mixed value1, STRING comparator, mixed value2, BEHAVIOUR code)
 ```
 
@@ -168,7 +168,7 @@ The engine provides two forms of `@IF`.
 
 ### Simple condition
 
-```
+```cnv
 @IF(mixed value1, STRING comparator, mixed value2, BEHAVIOUR codeTrue, BEHAVIOUR codeFalse)
 ```
 
@@ -185,7 +185,7 @@ Available comparators:
 
 ### Compound condition
 
-```
+```cnv
 @IF(STRING condition, BEHAVIOUR codeTrue, BEHAVIOUR codeFalse)
 ```
 
@@ -209,7 +209,7 @@ In a compound condition, the equals sign is written as an apostrophe (`'`) rathe
 
 Variables can be created on the fly inside a code block:
 
-```
+```cnv
 @INT(STRING name, INTEGER value)
 @DOUBLE(STRING name, DOUBLE value)
 @STRING(STRING name, STRING value)
@@ -237,7 +237,7 @@ The engine starts from `Application.def` in the `dane` subdirectory. This file d
 
 Example contents:
 
-```
+```cnv
 OBJECT=GAME
 GAME:TYPE=APPLICATION
 GAME:PATH=GAME
