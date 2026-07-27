@@ -15,6 +15,7 @@ buildscript {
         classpath 'com.android.tools.build:gradle:9.1.1'
         classpath 'com.gradleup.shadow:shadow-gradle-plugin:9.4.3'
         classpath 'com.github.jk1:gradle-license-report:3.1.2'
+        classpath 'ru.vyarus:gradle-animalsniffer-plugin:2.0.1'
     }
 }
 
@@ -562,6 +563,10 @@ project(":android") {
 
 project(":core") {
     apply plugin: "java-library"
+    // Android Lint cannot check this module: ApiDetector reads minSdk from the module
+    // being analysed, and a JVM module has none, so NewApi is silently skipped there.
+    // Animal Sniffer verifies the compiled bytecode against the API 24 signature instead.
+    apply plugin: "ru.vyarus.animalsniffer"
 
     java {
         sourceCompatibility = JavaVersion.VERSION_21
@@ -590,6 +595,18 @@ project(":core") {
 
         testImplementation("org.openjdk.jmh:jmh-core:1.37")
         testAnnotationProcessor("org.openjdk.jmh:jmh-generator-annprocess:1.37")
+
+        // API surface of android.jar at minSdk 24, matching :android's minSdk.
+        signature "net.sf.androidscents.signature:android-api-level-24:7.0_r2@signature"
+    }
+
+    animalsniffer {
+        // Production code only - tests and benchmarks never run on a device.
+        sourceSets = [project.sourceSets.main]
+        ignoreFailures = false
+        // Emitted by javac for records and pattern-matching switches. D8 rewrites both
+        // when building the APK, so they are not real API 24 violations.
+        ignore 'java.lang.Record', 'java.lang.MatchException'
     }
 
     test {

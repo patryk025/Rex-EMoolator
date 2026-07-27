@@ -37,15 +37,25 @@ jobs:
       - name: Make gradlew executable
         run: chmod +x gradlew
 
-      - name: Check Android API 24 compatibility
+      # Covers the :android sources only - lint's ApiDetector reads minSdk from the
+      # module it analyses, and :core is a plain JVM module without one.
+      - name: Check Android API 24 compatibility (:android)
         run: ./gradlew :android:lintDebug -PandroidApiCheck --no-daemon
+
+      # Covers :core, where almost all of the emulator lives, by matching the compiled
+      # bytecode against the android.jar API 24 signature.
+      - name: Check Android API 24 compatibility (:core)
+        if: always()
+        run: ./gradlew :core:animalsnifferMain --no-daemon
 
       - name: Upload Android lint report
         uses: actions/upload-artifact@v6
         if: always()
         with:
           name: android-api-compatibility-report
-          path: android/build/reports/lint-results-debug.*
+          path: |
+            android/build/reports/lint-results-debug.*
+            core/build/reports/animalsniffer/main.*
 
   test:
     runs-on: ubuntu-latest
