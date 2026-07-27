@@ -31,6 +31,7 @@ public record TextVariable(
         public String hJustify = "LEFT";
         public String vJustify = "TOP";
         public String fontName = null;
+        public int color = 0xFFFFFF;
         public boolean toCanvas = false;
         public long renderOrder = RenderOrder.next();
 
@@ -47,6 +48,7 @@ public record TextVariable(
             copy.hJustify = this.hJustify;
             copy.vJustify = this.vJustify;
             copy.fontName = this.fontName;
+            copy.color = this.color;
             copy.toCanvas = this.toCanvas;
             copy.renderOrder = RenderOrder.next();
             return copy;
@@ -185,6 +187,7 @@ public record TextVariable(
     public String getHJustify() { return state.hJustify; }
     public String getVJustify() { return state.vJustify; }
     public String getFontName() { return state.fontName; }
+    public int getColor() { return state.color; }
 
     // ========================================
     // METHODS DEFINITION
@@ -213,6 +216,14 @@ public record TextVariable(
             return MethodResult.noReturn();
         })),
 
+        Map.entry("SETCOLOR", MethodSpec.of((self, args, ctx) -> {
+            int red = clampColorChannel(ArgumentHelper.getInt(args.get(0)));
+            int green = clampColorChannel(ArgumentHelper.getInt(args.get(1)));
+            int blue = clampColorChannel(ArgumentHelper.getInt(args.get(2)));
+            ((TextVariable) self).state.color = (red << 16) | (green << 8) | blue;
+            return MethodResult.noReturn();
+        })),
+
         Map.entry("SETTEXT", MethodSpec.of((self, args, ctx) -> {
             ((TextVariable) self).state.text = ArgumentHelper.getString(args.get(0));
             return MethodResult.noReturn();
@@ -223,6 +234,10 @@ public record TextVariable(
             return MethodResult.noReturn();
         }))
     );
+
+    private static int clampColorChannel(int value) {
+        return Math.max(0, Math.min(255, value));
+    }
 
     @Override
     public String toString() {

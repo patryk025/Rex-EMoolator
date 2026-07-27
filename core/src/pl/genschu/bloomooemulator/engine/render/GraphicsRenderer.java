@@ -147,6 +147,7 @@ class TextRenderer implements Disposable {
         PiklibTextLayout.Layout layout = PiklibTextLayout.layout(
                 font,
                 textVariable.getText(),
+                textVariable.getColor(),
                 rect,
                 textVariable.getHJustify(),
                 textVariable.getVJustify()
@@ -170,11 +171,21 @@ class TextRenderer implements Disposable {
 
         batch.setColor(1, 1, 1, 1);
         try {
+            int activeColor = -1;
             for (PiklibTextLayout.Line line : layout.lines()) {
                 for (PiklibTextLayout.GlyphPlacement glyph : line.glyphs()) {
                     TextureRegion region = font.getCharTexture(glyph.character());
                     if (region == null || region.getRegionWidth() <= 0) {
                         continue;
+                    }
+                    if (activeColor != glyph.color()) {
+                        activeColor = glyph.color();
+                        batch.setColor(
+                                ((activeColor >>> 16) & 0xFF) / 255f,
+                                ((activeColor >>> 8) & 0xFF) / 255f,
+                                (activeColor & 0xFF) / 255f,
+                                1f
+                        );
                     }
                     batch.draw(
                             region,

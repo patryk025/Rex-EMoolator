@@ -51,6 +51,12 @@ The `|` character and CR start a new line, while a bare LF is ignored. Text
 wraps at word boundaries to the width of [`RECT`](#rect). Metrics and pair
 adjustments come directly from the [FNT format](../formats/FNT.md).
 
+Piklib can change the color of a text span with a `<COLORn>` code, where `n`
+is the decimal value of an RGB555 or RGB565 color. For example,
+`<COLOR63488>` is red in RGB565. Values containing commas inside a `SETTEXT`
+argument are split by the script parser, so the numeric form should be used
+there.
+
 ### TOCANVAS
 
 ```
@@ -86,6 +92,20 @@ void HIDE()
 Hides the text (sets [`VISIBLE`](#visible) to `FALSE`).
 
 **Compatibility:** `HIDE` - `PIKLIB61.DLL` ✅, `PIKLIB71.DLL` ✅, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
+
+### SETCOLOR
+
+```
+void SETCOLOR(INTEGER red, INTEGER green, INTEGER blue)
+```
+
+Sets the base text color. Components range from 0 to 255.
+
+```
+LABEL^SETCOLOR(255, 0, 0);
+```
+
+**Compatibility:** `PIKLIB8.DLL` ✅.
 
 ### SETJUSTIFY
 
