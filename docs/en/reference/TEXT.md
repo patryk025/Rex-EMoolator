@@ -34,7 +34,10 @@ The text's rendering priority (`Z`) relative to other scene objects.
 INTEGER,INTEGER,INTEGER,INTEGER RECT
 ```
 
-The rectangle in which the text is drawn — four comma-separated integers: `xLeft, yBottom, xRight, yTop`. In a script, the field can also reference a variable of type [`ANIMO`](index.md) or [`IMAGE`](IMAGE.md), in which case its bounds are taken from that object.
+The rectangle in which the text is drawn — four comma-separated integers:
+`xLeft, yTop, xRight, yBottom`. In a script, the field can also reference a
+variable of type [`ANIMO`](index.md) or [`IMAGE`](IMAGE.md), in which case its
+bounds are taken from that object.
 
 ### TEXT
 
@@ -43,6 +46,10 @@ STRING TEXT
 ```
 
 The displayed text. Modified through [`SETTEXT`](#settext).
+
+The `|` character and CR start a new line, while a bare LF is ignored. Text
+wraps at word boundaries to the width of [`RECT`](#rect). Metrics and pair
+adjustments come directly from the [FNT format](../formats/FNT.md).
 
 ### TOCANVAS
 
@@ -83,14 +90,14 @@ Hides the text (sets [`VISIBLE`](#visible) to `FALSE`).
 ### SETJUSTIFY
 
 ```
-void SETJUSTIFY(INTEGER xLeft, INTEGER yBottom, INTEGER xRight, INTEGER yTop, STRING hJustify, STRING vJustify)
+void SETJUSTIFY(INTEGER xLeft, INTEGER yTop, INTEGER xRight, INTEGER yBottom, STRING hJustify, STRING vJustify)
 ```
 
 Sets the drawing rectangle ([`RECT`](#rect)) and the horizontal ([`HJUSTIFY`](#hjustify)) and vertical ([`VJUSTIFY`](#vjustify)) alignment in a single call.
 
 **Parameters**
 
-- `xLeft, yBottom, xRight, yTop` — rectangle coordinates.
+- `xLeft, yTop, xRight, yBottom` — rectangle coordinates.
 - `hJustify` — horizontal alignment (`LEFT`, `RIGHT`, `CENTER`).
 - `vJustify` — vertical alignment (`TOP`, `BOTTOM`, `CENTER`).
 

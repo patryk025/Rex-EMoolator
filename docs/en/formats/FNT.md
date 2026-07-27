@@ -1,69 +1,123 @@
 # FNT format — fonts
 
-The `.FNT` file holds a **bitmap** font: a set of fixed-height characters, their metrics, and one shared bitmap with all the glyphs. It is the format of [`FONT`](../reference/FONT.md) objects used by [`TEXT`](../reference/TEXT.md). Numbers are **little-endian**. The layout matches the `FontLoader` parser.
+An `.FNT` file stores a Piklib bitmap font: character identifiers, metrics, a
+pair-adjustment matrix, and one shared color/alpha atlas. It is used by
+[`FONT`](../reference/FONT.md) and [`TEXT`](../reference/TEXT.md) objects.
+All multi-byte numbers are little-endian.
 
-!!! warning "Format not fully figured out"
-    `.FNT` is still being analysed. The split into sections and how the parser reads them is certain, but some details remain open — among them the **exact semantics of the kerning matrix** (how the values translate into spacing), the interpretation of the `lineLength` field as a count of "cells", and the small **`+1` px gap** when cutting out glyphs. Treat those spots as provisional.
+## File layout
 
-## File structure
+|      Section Name      |  Section Length  |
+|:----------------------:|:----------------:|
+|         header         |       20 B       |
+| character identifiers  |       N B        |
+| pair-adjustment matrix |      N*N B       |
+|       left trims       |       N B        |
+|      right trims       |       N B        |
+|  RGB555/RGB565 atlas   |     W*H*2 B      |
+|      alpha atlas       |      W*H B       |
 
-```mermaid
-flowchart TD
-    A["Signature FNT\0"] --> B[Header 16 B]
-    B --> C["Character list<br/>(N bytes, CP1250)"]
-    C --> D["Kerning matrix<br/>(N × N bytes)"]
-    D --> E["Crop from left<br/>(N bytes)"]
-    E --> F["Crop from right<br/>(N bytes)"]
-    F --> G["RGB565 bitmap<br/>(lineLength × height × 2)"]
-    G --> H["Alpha channel<br/>(lineLength × height)"]
+The exact file size is:
+
+```text
+20 + N*N + 3*N + 3*W*H
 ```
 
 ## Header
 
-The signature `FNT\0` (4 bytes), followed by a 16-byte block:
+|  Offset | Field         | Type      | Meaning                        |
+|--------:|---------------|-----------|--------------------------------|
+|  `0x00` | `magic`       | `char[4]` | `46 4E 54 00`, or `FNT\0`      |
+|  `0x04` | `atlasWidth`  | `uint32`  | full atlas width `W`           |
+|  `0x08` | `atlasHeight` | `uint32`  | atlas and glyph-row height `H` |
+|  `0x0C` | `pixelFormat` | `uint32`  | `15` = RGB555, `16` = RGB565   |
+|  `0x10` | `glyphCount`  | `uint32`  | glyph count `N`                |
 
-| Offset | Field | Type | Description |
-|---:|---|---|---|
-| 0 | magic | `char[4]` | `46 4E 54 00` (`FNT\0`) |
-| 4 | `lineLength` | `uint32` | the length of one bitmap line in "cells" (total across all characters) |
-| 8 | character height | `uint32` | in pixels |
-| 12 | character width | `uint32` | in pixels |
-| 16 | character count `N` | `uint32` | size of the set |
+The uniform atlas cell width is calculated as:
 
-## Variable-length sections
-
-The header is followed, in order, by (where `N` = character count):
-
-| Section | Size | Description |
-|---|---|---|
-| character list | `N` B | character codes in **CP1250** encoding (one byte per character) |
-| kerning matrix | `N × N` B | an "each with each" relation |
-| crop from left | `N` B | how many pixels to cut from each character's left edge |
-| crop from right | `N` B | how many pixels to cut from the right edge |
-| bitmap | `lineLength × height × 2` B | RGB565 colour data |
-| alpha channel | `lineLength × height` B | one transparency byte per pixel |
-
-!!! tip "Refinement over the old notes"
-    The crop parameters are read as **two separate blocks** (first all the left values, then all the right ones), not as interleaved `L,R,L,R` pairs. This is the behaviour of the `FontLoader` parser.
-
-## Quirk: one long bitmap
-
-Glyphs are not stored as separate images. All characters form **one long bitmap**, read line by line — within each line, fragments of all characters in sequence. The alpha data has an identical layout, but one byte per pixel (instead of two).
-
-When building per-character textures, the engine cuts regions of `character width` out of this bitmap, with a small gap between characters:
-
-```
-region of character i = x: i × width + i × 2 + 1, width: character width
+```text
+cellWidth = atlasWidth / glyphCount
 ```
 
-```mermaid
-flowchart LR
-    BMP["[ A ][ Ą ][ B ][ C ] … one bitmap, line by line"] --> R0["region 0 → 'A'"]
-    BMP --> R1["region 1 → 'Ą'"]
-    BMP --> R2["region 2 → 'B'"]
+The atlas width must be divisible by the glyph count.
+
+## Characters and encoding
+
+Each glyph has a one-byte identifier. FNT does not record an encoding name;
+the encoding must match the game's text encoding. `arial14.fnt` use Windows-1250.
+
+The renderer has several special cases:
+
+- space is not drawn from the atlas and uses the width of lowercase `l`;
+- `~` is not drawn and has a width of 1 px;
+- NUL terminates the text;
+- an unknown character is not drawn, but the text loop still adds 2 px.
+
+## Trims and glyph regions
+
+Left and right trims are two separate `N`-byte blocks:
+
+```text
+cellStart(i) = i * cellWidth
+sourceX(i)   = cellStart(i) + leftTrim[i]
+inkWidth(i)  = cellWidth - leftTrim[i] - rightTrim[i]
 ```
+
+The renderer extracts the atlas region at `sourceX` with width `inkWidth`.
+
+## Pair-adjustment matrix
+
+The matrix contains `N*N` **signed int8** values in row-major order:
+
+```text
+K(previous, current) = matrix[previousIndex * N + currentIndex]
+```
+
+For the current glyph:
+
+```text
+drawX   = penX - K(previous, current)
+advance = inkWidth(current) - K(previous, current) + 2
+```
+
+A positive value moves the glyph left and shortens the advance; a negative
+value moves it right and increases the advance. `K=0` is used for the first
+character or an unknown previous character.
+
+The generator in `Piklib8.dll` is defective and produces almost exclusively
+`+1`; all `118*118` entries in `arial14.fnt` have that value. The newer
+`BlooMooDLL.dll` fixes the pair-dependent calculation without changing the
+file format.
+
+## Color and alpha
+
+The color atlas stores one `uint16` per pixel:
+
+- `pixelFormat=15`: RGB555;
+- `pixelFormat=16`: RGB565.
+
+It is followed by an eight-bit alpha atlas with the same dimensions. `0` is
+transparent, `255` is opaque, and intermediate values are blended. Both
+planes are stored row by row for the entire atlas.
+
+The stored RGB plane is not necessarily the color seen on screen.
+`CSimpleFont6` and `CText6` default to `0xFFFF` (white), and
+`CSimpleFont6::setColor` replaces every 16-bit value in the color plane while
+leaving alpha unchanged. For example, `arial14.fnt` stores black glyph RGB but
+is normally rendered as a white alpha mask. Rex-EMoolator applies the same
+default-white colorisation when loading an FNT.
+
+## `arial14.fnt` example
+
+| Field      |          Value |
+|------------|---------------:|
+| atlas      | `2124 × 22 px` |
+| format     |  `16` (RGB565) |
+| glyphs     |          `118` |
+| cell width |        `18 px` |
+| file size  |     `154482 B` |
 
 ## See also
 
-- [`FONT`](../reference/FONT.md) — the scripting object based on `.FNT`.
-- [`TEXT`](../reference/TEXT.md) — displaying text with a font.
+- [`FONT`](../reference/FONT.md) — a collection of `.FNT` variants;
+- [`TEXT`](../reference/TEXT.md) — text layout and display.

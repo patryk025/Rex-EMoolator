@@ -9,8 +9,10 @@ import java.util.List;
  * Variables loadable by {@link FontLoader}.
  */
 public interface FontLoadable {
+    void clearFontData();
     void setCharHeight(int charHeight);
     void setCharWidth(int charWidth);
+    void setPixelFormat(int pixelFormat);
     void setCharTexture(char c, TextureRegion texture);
     void setCharKerning(int i, int[] kernings);
     void setCharKerning(int i, int j, int kerning);

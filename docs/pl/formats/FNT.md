@@ -1,69 +1,121 @@
 # Format FNT — czcionki
 
-Plik `.FNT` przechowuje **bitmapową** czcionkę: zestaw znaków o stałej wysokości, ich metryki oraz jedną wspólną bitmapę ze wszystkimi glifami. To format obiektów [`FONT`](../reference/FONT.md) używanych przez [`TEXT`](../reference/TEXT.md). Liczby są **little-endian**. Układ odpowiada parserowi `FontLoader`.
+Plik `.FNT` przechowuje bitmapową czcionkę: tabelę znaków, metryki,
+macierz korekt par oraz jeden wspólny atlas koloru i alfy. To format używany
+przez obiekty [`FONT`](../reference/FONT.md) i [`TEXT`](../reference/TEXT.md).
+Wszystkie liczby wielobajtowe są zapisane jako little-endian.
 
-!!! warning "Format nie do końca rozpracowany"
-    `.FNT` jest jeszcze analizowany. Pewny jest podział na sekcje i to, jak parser je czyta, ale część szczegółów pozostaje otwarta — m.in. **dokładna semantyka macierzy kerningu** (jak wartości przekładają się na odstępy), interpretacja pola `lineLength` jako liczby „komórek" oraz drobny **odstęp `+1` px** przy wycinaniu glifów. Te miejsca traktuj jako robocze.
+## Układ pliku
+|       Nazwa sekcji       |  Długość sekcji  |
+|:------------------------:|:----------------:|
+|         nagłówek         |       20 B       |
+|  identyfikatory znaków   |       N B        |
+|    macierz korekt par    |      N*N B       |
+|     lewe przycięcia      |       N B        |
+|     prawe przycięcia     |       N B        |
+|   atlas RGB555/RGB565    |     W*H*2 B      |
+|        atlas alfa        |      W*H B       |
 
-## Struktura pliku
+Całkowity rozmiar pliku wynosi:
 
-```mermaid
-flowchart TD
-    A["Sygnatura FNT\0"] --> B[Nagłówek 16 B]
-    B --> C["Lista znaków<br/>(N bajtów, CP1250)"]
-    C --> D["Macierz kerningu<br/>(N × N bajtów)"]
-    D --> E["Przycięcie z lewej<br/>(N bajtów)"]
-    E --> F["Przycięcie z prawej<br/>(N bajtów)"]
-    F --> G["Bitmapa RGB565<br/>(lineLength × wysokość × 2)"]
-    G --> H["Kanał alfa<br/>(lineLength × wysokość)"]
+```text
+20 + N*N + 3*N + 3*W*H
 ```
 
 ## Nagłówek
 
-Sygnatura `FNT\0` (4 bajty), a po niej blok 16 bajtów:
+|  Offset | Pole          | Typ       | Znaczenie                           |
+|--------:|---------------|-----------|-------------------------------------|
+|  `0x00` | `magic`       | `char[4]` | `46 4E 54 00`, czyli `FNT\0`        |
+|  `0x04` | `atlasWidth`  | `uint32`  | szerokość całego atlasu `W`         |
+|  `0x08` | `atlasHeight` | `uint32`  | wysokość atlasu i wiersza glifu `H` |
+|  `0x0C` | `pixelFormat` | `uint32`  | `15` = RGB555, `16` = RGB565        |
+|  `0x10` | `glyphCount`  | `uint32`  | liczba glifów `N`                   |
 
-| Offset | Pole | Typ | Opis |
-|---:|---|---|---|
-| 0 | magic | `char[4]` | `46 4E 54 00` (`FNT\0`) |
-| 4 | `lineLength` | `uint32` | długość jednej linii bitmapy w „komórkach" (łącznie dla wszystkich znaków) |
-| 8 | wysokość znaku | `uint32` | w pikselach |
-| 12 | szerokość znaku | `uint32` | w pikselach |
-| 16 | liczba znaków `N` | `uint32` | rozmiar zestawu |
+Szerokość jednakowej komórki atlasu jest wyliczana:
 
-## Sekcje zmiennej długości
-
-Po nagłówku następują kolejno (gdzie `N` = liczba znaków):
-
-| Sekcja | Rozmiar | Opis |
-|---|---|---|
-| lista znaków | `N` B | kody znaków w kodowaniu **CP1250** (jeden bajt na znak) |
-| macierz kerningu | `N × N` B | relacja „każdy z każdym" |
-| przycięcie z lewej | `N` B | ile pikseli uciąć z lewej krawędzi każdego znaku |
-| przycięcie z prawej | `N` B | ile pikseli uciąć z prawej krawędzi |
-| bitmapa | `lineLength × wysokość × 2` B | dane koloru RGB565 |
-| kanał alfa | `lineLength × wysokość` B | jeden bajt przezroczystości na piksel |
-
-!!! tip "Refinement względem dawnych notatek"
-    Parametry przycięcia czytane są jako **dwa osobne bloki** (najpierw wszystkie wartości lewe, potem wszystkie prawe), a nie jako przeplatane pary `L,R,L,R`. To zachowanie parsera `FontLoader`.
-
-## Kwirk: jedna długa bitmapa
-
-Glify nie są zapisywane jako osobne obrazki. Wszystkie znaki tworzą **jedną długą bitmapę**, odczytywaną linia po linii — w obrębie każdej linii kolejno fragmenty wszystkich znaków. Dane alfa mają identyczny układ, ale jeden bajt na piksel (zamiast dwóch).
-
-Przy budowaniu tekstur poszczególnych znaków silnik wycina z tej bitmapy regiony o szerokości `szerokość znaku`, z niewielkim odstępem między znakami:
-
-```
-region znaku i = x: i × szerokość + i × 2 + 1, szerokość: szerokość znaku
+```text
+cellWidth = atlasWidth / glyphCount
 ```
 
-```mermaid
-flowchart LR
-    BMP["[ A ][ Ą ][ B ][ C ] … jedna bitmapa, linia po linii"] --> R0["region 0 → 'A'"]
-    BMP --> R1["region 1 → 'Ą'"]
-    BMP --> R2["region 2 → 'B'"]
+Szerokość atlasu musi być podzielna przez liczbę glifów.
+
+## Znaki i kodowanie
+
+Każdy glif ma jednobajtowy identyfikator. FNT nie zapisuje nazwy kodowania;
+musi ono odpowiadać kodowaniu tekstów gry. `arial14.fnt` używa Windows-1250.
+
+Silnik ma kilka przypadków specjalnych:
+
+- spacja nie jest pobierana z atlasu i ma szerokość małego `l`;
+- `~` nie jest rysowane i ma szerokość 1 px;
+- NUL kończy tekst;
+- nieznany znak nie jest rysowany, lecz pętla tekstu nadal dodaje odstęp 2 px.
+
+## Przycięcia i region glifu
+
+Lewe i prawe przycięcia są dwoma osobnymi blokami po `N` bajtów:
+
+```text
+cellStart(i) = i * cellWidth
+sourceX(i)   = cellStart(i) + leftTrim[i]
+inkWidth(i)  = cellWidth - leftTrim[i] - rightTrim[i]
 ```
+
+Renderer wycina z atlasu tylko obszar od `sourceX` o szerokości `inkWidth`.
+
+## Macierz korekt par
+
+Macierz ma `N*N` elementów typu **signed int8** i jest zapisana wierszami:
+
+```text
+K(previous, current) = matrix[previousIndex * N + currentIndex]
+```
+
+Dla bieżącego glifu:
+
+```text
+drawX   = penX - K(previous, current)
+advance = inkWidth(current) - K(previous, current) + 2
+```
+
+Dodatnia korekta przesuwa glif w lewo i skraca przesunięcie pióra, a ujemna
+przesuwa go w prawo i zwiększa przesunięcie. Dla pierwszego znaku albo
+nieznanego poprzednika używane jest `K=0`.
+
+Generator z `Piklib8.dll` ma błąd i praktycznie generuje samo `+1`;
+`arial14.fnt` ma `118*118` takich wartości. Nowszy `BlooMooDLL.dll` naprawia
+obliczanie zależne od obu glifów, bez zmiany formatu pliku.
+
+## Kolor i alfa
+
+Atlas koloru zawiera jeden `uint16` na piksel:
+
+- `pixelFormat=15`: RGB555;
+- `pixelFormat=16`: RGB565.
+
+Po nim znajduje się ośmiobitowy atlas alfa o tych samych wymiarach. Wartość
+`0` jest przezroczysta, `255` nieprzezroczysta, a wartości pośrednie są
+blendowane. Oba obrazy są zapisane wierszami dla całego atlasu.
+
+RGB zapisane w pliku nie musi być kolorem widocznym na ekranie.
+`CSimpleFont6` i `CText6` domyślnie używają `0xFFFF` (bieli), a
+`CSimpleFont6::setColor` zastępuje każdą 16-bitową wartość w atlasie koloru,
+nie zmieniając alfy. Przykładowo `arial14.fnt` przechowuje czarne RGB glifów,
+ale jest standardowo renderowany jako biała maska alfa. Rex-EMoolator stosuje
+takie samo domyślne kolorowanie na biało podczas ładowania FNT.
+
+## Przykład `arial14.fnt`
+
+| Pole              |        Wartość |
+|-------------------|---------------:|
+| atlas             | `2124 × 22 px` |
+| format            |  `16` (RGB565) |
+| glify             |          `118` |
+| szerokość komórki |        `18 px` |
+| rozmiar pliku     |     `154482 B` |
 
 ## Zobacz też
 
-- [`FONT`](../reference/FONT.md) — obiekt skryptowy oparty na `.FNT`.
-- [`TEXT`](../reference/TEXT.md) — wyświetlanie tekstu czcionką.
+- [`FONT`](../reference/FONT.md) — kolekcja wariantów `.FNT`;
+- [`TEXT`](../reference/TEXT.md) — układ i wyświetlanie tekstu.

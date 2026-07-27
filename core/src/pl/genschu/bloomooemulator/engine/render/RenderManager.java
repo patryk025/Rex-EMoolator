@@ -35,7 +35,7 @@ public class RenderManager implements Disposable {
         this.config = config;
 
         this.graphicsRenderer = new GraphicsRenderer(batch, camera);
-        this.textRenderer = new TextRenderer(batch);
+        this.textRenderer = new TextRenderer(batch, camera);
         this.maskRenderer = new MaskRenderer(batch);
         this.alphaMaskRenderer = new AlphaMaskRenderer(batch);
     }
@@ -54,15 +54,10 @@ public class RenderManager implements Disposable {
         renderPastedGraphics();
 
         // Obtain draw list and sort by priority
-        List<Variable> drawList = getGraphicsVariables();
+        List<Variable> drawList = getDrawableVariables(context);
         sortByPriority(drawList);
 
-        // TODO: technically text is also graphics so it should be rendered along with graphics
-        // Render graphics
-        renderGraphics(drawList);
-
-        // Render text
-        renderTexts(context);
+        renderDrawList(drawList, context);
 
         batch.end();
     }
@@ -94,7 +89,7 @@ public class RenderManager implements Disposable {
         }
     }
 
-    private void renderGraphics(List<Variable> drawList) {
+    private void renderDrawList(List<Variable> drawList, GameContext context) {
         for (Variable variable : drawList) {
             if (variable instanceof ImageVariable img) {
                 renderImage(img);
@@ -102,6 +97,8 @@ public class RenderManager implements Disposable {
                 renderAnimo(animo);
             } else if (variable instanceof KolorowankaVariable klr) {
                 renderKolorowanka(klr);
+            } else if (variable instanceof TextVariable text) {
+                textRenderer.renderText(text, context);
             }
         }
     }
@@ -149,18 +146,19 @@ public class RenderManager implements Disposable {
         graphicsRenderer.renderAnimo(animoVariable);
     }
 
-    private void renderTexts(GameContext context) {
-        for (EngineVariable variable : new ArrayList<>(context.getTextVariables().values())) {
-            if (variable instanceof TextVariable textVar) {
-                textRenderer.renderText(textVar);
+    private List<Variable> getDrawableVariables(GameContext context) {
+        Set<Variable> variables = new LinkedHashSet<>();
+        for (EngineVariable variable : context.getGraphicsVariables().values()) {
+            if (variable instanceof Variable drawable) {
+                variables.add(drawable);
             }
         }
-    }
-
-    @SuppressWarnings("unchecked")
-    private List<Variable> getGraphicsVariables() {
-        GameContext context = game.getCurrentSceneContext();
-        return new ArrayList<>((Collection<? extends Variable>) context.getGraphicsVariables().values());
+        for (EngineVariable variable : context.getTextVariables().values()) {
+            if (variable instanceof Variable drawable) {
+                variables.add(drawable);
+            }
+        }
+        return new ArrayList<>(variables);
     }
 
     private void sortByPriority(List<Variable> drawList) {
@@ -182,6 +180,8 @@ public class RenderManager implements Disposable {
             return animo.getPriority();
         } else if (variable instanceof KolorowankaVariable klr) {
             return klr.getPriority();
+        } else if (variable instanceof TextVariable text) {
+            return text.getPriority();
         }
         return 0;
     }
@@ -193,6 +193,8 @@ public class RenderManager implements Disposable {
             return animo.getRenderOrder();
         } else if (variable instanceof KolorowankaVariable klr) {
             return klr.getRenderOrder();
+        } else if (variable instanceof TextVariable text) {
+            return text.getRenderOrder();
         }
         return 0;
     }

@@ -34,7 +34,10 @@ Priorytet renderowania (`Z`) tekstu względem innych obiektów na scenie.
 INTEGER,INTEGER,INTEGER,INTEGER RECT
 ```
 
-Prostokąt, w którym tekst jest rysowany — cztery liczby oddzielone przecinkami: `xLeft, yBottom, xRight, yTop`. W skrypcie pole może też wskazywać na nazwę zmiennej typu [`ANIMO`](index.md) lub [`IMAGE`](IMAGE.md), z której przejmowane są wymiary.
+Prostokąt, w którym tekst jest rysowany — cztery liczby oddzielone przecinkami:
+`xLeft, yTop, xRight, yBottom`. W skrypcie pole może też wskazywać na nazwę
+zmiennej typu [`ANIMO`](index.md) lub [`IMAGE`](IMAGE.md), z której przejmowane
+są wymiary.
 
 ### TEXT
 
@@ -43,6 +46,10 @@ STRING TEXT
 ```
 
 Wyświetlany tekst. Modyfikowany metodą [`SETTEXT`](#settext).
+
+Znak `|` oraz CR rozpoczynają nowy wiersz, a sam LF jest pomijany. Tekst jest
+zawijany na granicach słów do szerokości [`RECT`](#rect). Metryki i korekty par
+pochodzą bezpośrednio z [formatu FNT](../formats/FNT.md).
 
 ### TOCANVAS
 
@@ -83,14 +90,14 @@ Ukrywa tekst (ustawia [`VISIBLE`](#visible) na `FALSE`).
 ### SETJUSTIFY
 
 ```
-void SETJUSTIFY(INTEGER xLeft, INTEGER yBottom, INTEGER xRight, INTEGER yTop, STRING hJustify, STRING vJustify)
+void SETJUSTIFY(INTEGER xLeft, INTEGER yTop, INTEGER xRight, INTEGER yBottom, STRING hJustify, STRING vJustify)
 ```
 
 Ustawia w jednym wywołaniu prostokąt rysowania ([`RECT`](#rect)) oraz wyrównanie poziome ([`HJUSTIFY`](#hjustify)) i pionowe ([`VJUSTIFY`](#vjustify)).
 
 **Parametry**
 
-- `xLeft, yBottom, xRight, yTop` — współrzędne prostokąta.
+- `xLeft, yTop, xRight, yBottom` — współrzędne prostokąta.
 - `hJustify` — wyrównanie poziome (`LEFT`, `RIGHT`, `CENTER`).
 - `vJustify` — wyrównanie pionowe (`TOP`, `BOTTOM`, `CENTER`).
 

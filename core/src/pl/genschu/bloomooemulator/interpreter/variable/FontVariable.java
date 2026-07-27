@@ -6,9 +6,10 @@ import com.badlogic.gdx.graphics.PixmapIO;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.utils.GdxRuntimeException;
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import pl.genschu.bloomooemulator.annotations.InternalMutable;
+import pl.genschu.bloomooemulator.interpreter.context.Context;
 import pl.genschu.bloomooemulator.interpreter.values.*;
+import pl.genschu.bloomooemulator.interpreter.variable.capabilities.Initializable;
 import pl.genschu.bloomooemulator.loader.FontLoadable;
 import pl.genschu.bloomooemulator.loader.FontLoader;
 import pl.genschu.bloomooemulator.objects.FontCropping;
@@ -25,7 +26,7 @@ public record FontVariable(
     String name,
     @InternalMutable FontState state,
     Map<String, SignalHandler> signals
-) implements Variable, FontLoadable {
+) implements Variable, FontLoadable, Initializable {
 
     public static final class FontState {
         public final Map<Character, TextureRegion> charTextures = new LinkedHashMap<>();
@@ -33,8 +34,18 @@ public record FontVariable(
         public final Map<Character, Map<Character, Integer>> charKerningsMap = new HashMap<>();
         public int charHeight;
         public int charWidth;
+        public int pixelFormat;
 
         public FontState() {}
+
+        public void clear() {
+            charTextures.clear();
+            charCroppings.clear();
+            charKerningsMap.clear();
+            charHeight = 0;
+            charWidth = 0;
+            pixelFormat = 0;
+        }
 
         public void setCharTexture(char c, TextureRegion texture) {
             charTextures.put(c, texture);
@@ -87,13 +98,12 @@ public record FontVariable(
             }
             copy.charHeight = this.charHeight;
             copy.charWidth = this.charWidth;
+            copy.pixelFormat = this.pixelFormat;
             return copy;
         }
 
         public void dispose() {
-            charTextures.clear();
-            charCroppings.clear();
-            charKerningsMap.clear();
+            clear();
         }
 
         // Debug: export character textures to files
@@ -183,14 +193,111 @@ public record FontVariable(
     // FontLoadable IMPLEMENTATION
     // ========================================
 
+    @Override public void clearFontData() { state.clear(); }
     @Override public void setCharHeight(int charHeight) { state.charHeight = charHeight; }
     @Override public void setCharWidth(int charWidth) { state.charWidth = charWidth; }
+    @Override public void setPixelFormat(int pixelFormat) { state.pixelFormat = pixelFormat; }
     @Override public void setCharTexture(char c, TextureRegion texture) { state.setCharTexture(c, texture); }
     @Override public void setCharKerning(int i, int[] kernings) { state.setCharKerning(i, kernings); }
     @Override public void setCharKerning(int i, int j, int kerning) { state.setCharKerning(i, j, kerning); }
     @Override public void setCharCropping(char c, FontCropping cropping) { state.setCharCropping(c, cropping); }
     @Override public FontCropping getCharCropping(char c) { return state.getCharCropping(c); }
     @Override public java.util.List<Character> getCharTextureKeys() { return state.getCharTextureKeys(); }
+
+    public TextureRegion getCharTexture(char character) {
+        return state.getCharTexture(character);
+    }
+
+    public boolean hasCharacter(char character) {
+        return state.charTextures.containsKey(character);
+    }
+
+    public int getCharKerning(char previous, char current) {
+        return state.getCharKerning(previous, current);
+    }
+
+    public int getCharHeight() {
+        return state.charHeight;
+    }
+
+    public int getCharWidth() {
+        return state.charWidth;
+    }
+
+    public int getPixelFormat() {
+        return state.pixelFormat;
+    }
+
+    public boolean isLoaded() {
+        return state.charHeight > 0 && !state.charTextures.isEmpty();
+    }
+
+    /**
+     * Piklib's getLetterWidth result, before CText6 adds its fixed 2 px spacing.
+     */
+    public int getLetterWidth(char previous, char current) {
+        if (current == ' ') {
+            return getLetterWidth('\0', 'l');
+        }
+        if (current == '~') {
+            return 1;
+        }
+        if (!state.charTextures.containsKey(current)) {
+            return 0;
+        }
+
+        FontCropping cropping = state.getCharCropping(current);
+        int inkWidth = state.charWidth - cropping.getLeft() - cropping.getRight();
+        if (!state.charTextures.containsKey(previous)) {
+            return inkWidth;
+        }
+        return inkWidth - state.getCharKerning(previous, current);
+    }
+
+    public int getAdvance(char previous, char current) {
+        return getLetterWidth(previous, current) + 2;
+    }
+
+    // ========================================
+    // INITIALIZABLE
+    // ========================================
+
+    @Override
+    public void init(Context context) {
+        if (context.getGame() == null) {
+            Gdx.app.error("FontVariable", "Cannot initialize " + name + " without a Game");
+            return;
+        }
+
+        List<Map.Entry<String, String>> definitions = context.attributes()
+                .getAll(name)
+                .entrySet()
+                .stream()
+                .filter(entry -> entry.getKey().toUpperCase(Locale.ROOT).startsWith("DEF_"))
+                .sorted(Comparator
+                        .comparing((Map.Entry<String, String> entry) ->
+                                !entry.getKey().toUpperCase(Locale.ROOT).contains("_STANDARD_"))
+                        .thenComparing(Map.Entry::getKey, String.CASE_INSENSITIVE_ORDER))
+                .toList();
+
+        if (definitions.isEmpty()) {
+            Gdx.app.error("FontVariable", "No DEF_* font definition for " + name);
+            return;
+        }
+
+        // FontState currently represents the base face. Prefer STANDARD when a
+        // collection contains style variants; inline style switching can be
+        // layered on top without changing the FNT decoder or base renderer.
+        loadFromDefinition(context.getGame(), definitions.get(0).getValue());
+        if (definitions.size() > 1) {
+            Gdx.app.debug(
+                    "FontVariable",
+                    name + ": loaded base face " + definitions.get(0).getKey()
+                            + "; " + (definitions.size() - 1)
+                            + " additional style face(s) are not selected yet"
+            );
+        }
+    }
 
     /**
      * Called during attribute processing to load font data from a DEF_ attribute.

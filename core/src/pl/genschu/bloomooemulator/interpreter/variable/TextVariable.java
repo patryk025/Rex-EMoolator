@@ -5,6 +5,7 @@ import pl.genschu.bloomooemulator.interpreter.context.Context;
 import pl.genschu.bloomooemulator.interpreter.helpers.ArgumentHelper;
 import pl.genschu.bloomooemulator.interpreter.values.*;
 import pl.genschu.bloomooemulator.interpreter.variable.capabilities.Initializable;
+import pl.genschu.bloomooemulator.engine.render.RenderOrder;
 import pl.genschu.bloomooemulator.geometry.shapes.Box2D;
 
 import java.util.*;
@@ -31,6 +32,7 @@ public record TextVariable(
         public String vJustify = "TOP";
         public String fontName = null;
         public boolean toCanvas = false;
+        public long renderOrder = RenderOrder.next();
 
         public TextState() {}
 
@@ -46,6 +48,7 @@ public record TextVariable(
             copy.vJustify = this.vJustify;
             copy.fontName = this.fontName;
             copy.toCanvas = this.toCanvas;
+            copy.renderOrder = RenderOrder.next();
             return copy;
         }
 
@@ -162,10 +165,10 @@ public record TextVariable(
             String[] parts = rectAttr.split(",");
             if (parts.length >= 4) {
                 int xL = Integer.parseInt(parts[0].trim());
-                int yB = Integer.parseInt(parts[1].trim());
+                int yTop = Integer.parseInt(parts[1].trim());
                 int xR = Integer.parseInt(parts[2].trim());
-                int yT = Integer.parseInt(parts[3].trim());
-                state.rect = new Box2D(xL, yB, xR, yT);
+                int yBottom = Integer.parseInt(parts[3].trim());
+                state.rect = new Box2D(xL, yTop, xR, yBottom);
             }
         } catch (NumberFormatException ignored) {}
     }
@@ -177,6 +180,7 @@ public record TextVariable(
     public String getText() { return state.text; }
     public boolean isVisible() { return state.visible && state.toCanvas; }
     public int getPriority() { return state.priority; }
+    public long getRenderOrder() { return state.renderOrder; }
     public Box2D getRect() { return state.rect; }
     public String getHJustify() { return state.hJustify; }
     public String getVJustify() { return state.vJustify; }
@@ -195,10 +199,10 @@ public record TextVariable(
         Map.entry("SETJUSTIFY", MethodSpec.of((self, args, ctx) -> {
             TextVariable txt = (TextVariable) self;
             int xL = ArgumentHelper.getInt(args.get(0));
-            int yB = ArgumentHelper.getInt(args.get(1));
+            int yTop = ArgumentHelper.getInt(args.get(1));
             int xR = ArgumentHelper.getInt(args.get(2));
-            int yT = ArgumentHelper.getInt(args.get(3));
-            txt.state.rect = new Box2D(xL, yB, xR, yT);
+            int yBottom = ArgumentHelper.getInt(args.get(3));
+            txt.state.rect = new Box2D(xL, yTop, xR, yBottom);
             txt.state.hJustify = ArgumentHelper.getString(args.get(4)).toUpperCase();
             txt.state.vJustify = ArgumentHelper.getString(args.get(5)).toUpperCase();
             return MethodResult.noReturn();

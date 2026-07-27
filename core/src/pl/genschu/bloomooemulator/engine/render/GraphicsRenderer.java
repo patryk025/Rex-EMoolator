@@ -6,11 +6,17 @@ import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.utils.Disposable;
+import com.badlogic.gdx.scenes.scene2d.utils.ScissorStack;
+import pl.genschu.bloomooemulator.engine.context.EngineVariable;
+import pl.genschu.bloomooemulator.engine.context.GameContext;
 import pl.genschu.bloomooemulator.engine.filters.Filter;
 import pl.genschu.bloomooemulator.interpreter.variable.AnimoVariable;
+import pl.genschu.bloomooemulator.interpreter.variable.FontVariable;
 import pl.genschu.bloomooemulator.interpreter.variable.ImageVariable;
 import pl.genschu.bloomooemulator.interpreter.variable.TextVariable;
 import pl.genschu.bloomooemulator.interpreter.variable.Variable;
@@ -103,17 +109,19 @@ public class GraphicsRenderer implements Disposable {
  */
 class TextRenderer implements Disposable {
     private final SpriteBatch batch;
-    private BitmapFont defaultFont;
+    private final OrthographicCamera camera;
+    private final BitmapFont defaultFont;
 
-    public TextRenderer(SpriteBatch batch) {
+    public TextRenderer(SpriteBatch batch, OrthographicCamera camera) {
         this.batch = batch;
+        this.camera = camera;
         this.defaultFont = new BitmapFont();
     }
 
     /**
-     * Renders a TextVariable using BitmapFont.
+     * Renders a TextVariable using its script-selected Piklib FONT.
      */
-    public void renderText(TextVariable textVariable) {
+    public void renderText(TextVariable textVariable, GameContext context) {
         if (!textVariable.isVisible()) {
             return;
         }
@@ -124,11 +132,71 @@ class TextRenderer implements Disposable {
         Box2D rect = textVariable.getRect();
         if (rect == null) return;
 
-        float startX = rect.getXLeft();
-        float startY = 600 - rect.getYTop();
+        EngineVariable selectedFont = textVariable.getFontName() == null
+                ? null
+                : context.getVariable(textVariable.getFontName());
+        if (selectedFont instanceof FontVariable font && font.isLoaded()) {
+            renderPiklibText(textVariable, font, rect);
+            return;
+        }
 
-        // Split on '|' for multi-line support
-        String[] lines = text.split("\\|");
+        renderFallbackText(text, rect);
+    }
+
+    private void renderPiklibText(TextVariable textVariable, FontVariable font, Box2D rect) {
+        PiklibTextLayout.Layout layout = PiklibTextLayout.layout(
+                font,
+                textVariable.getText(),
+                rect,
+                textVariable.getHJustify(),
+                textVariable.getVJustify()
+        );
+
+        boolean clippingPushed = false;
+        if (rect.getWidth() > 0 && rect.getHeight() > 0) {
+            Rectangle bounds = new Rectangle(
+                    rect.getXLeft(),
+                    GraphicsRenderer.VIRTUAL_HEIGHT - rect.getYTop(),
+                    rect.getWidth(),
+                    rect.getHeight()
+            );
+            Rectangle scissors = new Rectangle();
+            ScissorStack.calculateScissors(camera, batch.getTransformMatrix(), bounds, scissors);
+            clippingPushed = ScissorStack.pushScissors(scissors);
+            if (!clippingPushed) {
+                return;
+            }
+        }
+
+        batch.setColor(1, 1, 1, 1);
+        try {
+            for (PiklibTextLayout.Line line : layout.lines()) {
+                for (PiklibTextLayout.GlyphPlacement glyph : line.glyphs()) {
+                    TextureRegion region = font.getCharTexture(glyph.character());
+                    if (region == null || region.getRegionWidth() <= 0) {
+                        continue;
+                    }
+                    batch.draw(
+                            region,
+                            glyph.x(),
+                            GraphicsRenderer.VIRTUAL_HEIGHT - glyph.top() - font.getCharHeight()
+                    );
+                }
+            }
+        } finally {
+            if (clippingPushed) {
+                batch.flush();
+                ScissorStack.popScissors();
+            }
+            batch.setColor(1, 1, 1, 1);
+        }
+    }
+
+    private void renderFallbackText(String text, Box2D rect) {
+        float startX = rect.getXLeft();
+        float startY = GraphicsRenderer.VIRTUAL_HEIGHT - rect.getYBottom();
+
+        String[] lines = text.replace("\n", "").replace('\r', '|').split("\\|", -1);
         float lineHeight = defaultFont.getLineHeight();
 
         for (int i = 0; i < lines.length; i++) {
@@ -138,9 +206,7 @@ class TextRenderer implements Disposable {
 
     @Override
     public void dispose() {
-        if (defaultFont != null) {
-            defaultFont.dispose();
-        }
+        defaultFont.dispose();
     }
 }
 
