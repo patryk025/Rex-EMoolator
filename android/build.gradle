@@ -52,7 +52,7 @@ android {
     lint {
         abortOnError = true
         // Only covers this module's own sources. :core is a plain JVM module, so lint
-        // skips NewApi there entirely - it is checked by :core:animalsnifferMain instead.
+        // skips NewApi there entirely - the :core-lint module covers it instead.
         enable += ['NewApi']
         error += ['NewApi']
 

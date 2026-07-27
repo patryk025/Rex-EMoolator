@@ -15,7 +15,6 @@ buildscript {
         classpath 'com.android.tools.build:gradle:9.1.1'
         classpath 'com.gradleup.shadow:shadow-gradle-plugin:9.4.3'
         classpath 'com.github.jk1:gradle-license-report:3.1.2'
-        classpath 'ru.vyarus:gradle-animalsniffer-plugin:2.0.1'
     }
 }
 
@@ -561,29 +560,33 @@ project(":android") {
     }
 }
 
+// Shared by :core and by :core-lint, which compiles the very same sources as an Android
+// library to make them visible to Android Lint. Declared once so the two cannot drift -
+// a dependency added to :core alone would break :core-lint's compilation, and the API 24
+// check would then fail for a reason that has nothing to do with API levels.
+def coreProductionDependencies = {
+    api "com.badlogicgames.gdx:gdx:$gdxVersion"
+    api "com.badlogicgames.gdx-controllers:gdx-controllers-core:$gdxControllersVersion"
+    api "com.badlogicgames.gdx:gdx-freetype:$gdxVersion"
+    implementation "org.ini4j:ini4j:$ini4jVersion"
+    implementation("com.github.oshi:oshi-core:$oshiVersion") {
+        exclude group: 'net.java.dev.jna', module: 'jna'
+    }
+    implementation "org.ode4j:core:$ode4jVersion"
+    implementation "com.github.junrar:junrar:7.6.0"
+}
+
 project(":core") {
     apply plugin: "java-library"
-    // Android Lint cannot check this module: ApiDetector reads minSdk from the module
-    // being analysed, and a JVM module has none, so NewApi is silently skipped there.
-    // Animal Sniffer verifies the compiled bytecode against the API 24 signature instead.
-    apply plugin: "ru.vyarus.animalsniffer"
 
     java {
         sourceCompatibility = JavaVersion.VERSION_21
         targetCompatibility = JavaVersion.VERSION_21
     }
 
-    dependencies {
-        api "com.badlogicgames.gdx:gdx:$gdxVersion"
-        api "com.badlogicgames.gdx-controllers:gdx-controllers-core:$gdxControllersVersion"
-        api "com.badlogicgames.gdx:gdx-freetype:$gdxVersion"
-        implementation "org.ini4j:ini4j:$ini4jVersion"
-        implementation("com.github.oshi:oshi-core:$oshiVersion") {
-            exclude group: 'net.java.dev.jna', module: 'jna'
-        }
-        implementation "org.ode4j:core:$ode4jVersion"
-        implementation "com.github.junrar:junrar:7.6.0"
+    dependencies coreProductionDependencies
 
+    dependencies {
         testImplementation 'org.junit.jupiter:junit-jupiter:6.1.0'
         testRuntimeOnly "org.junit.platform:junit-platform-launcher:6.1.0"
         testImplementation 'org.mockito:mockito-core:5.23.0'
@@ -595,18 +598,6 @@ project(":core") {
 
         testImplementation("org.openjdk.jmh:jmh-core:1.37")
         testAnnotationProcessor("org.openjdk.jmh:jmh-generator-annprocess:1.37")
-
-        // API surface of android.jar at minSdk 24, matching :android's minSdk.
-        signature "net.sf.androidscents.signature:android-api-level-24:7.0_r2@signature"
-    }
-
-    animalsniffer {
-        // Production code only - tests and benchmarks never run on a device.
-        sourceSets = [project.sourceSets.main]
-        ignoreFailures = false
-        // Emitted by javac for records and pattern-matching switches. D8 rewrites both
-        // when building the APK, so they are not real API 24 violations.
-        ignore 'java.lang.Record', 'java.lang.MatchException'
     }
 
     test {
@@ -640,6 +631,13 @@ project(":core") {
             args project.property('jmhIncludeRegex')
         }
     }
+}
+
+// Lint-only module - see core-lint/build.gradle for why it exists.
+project(":core-lint") {
+    apply plugin: "com.android.library"
+
+    dependencies coreProductionDependencies
 }
 
 subprojects {

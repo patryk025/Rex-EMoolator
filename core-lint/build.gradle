@@ -1,0 +1,48 @@
+// Lint-only module. It ships nothing and is never a dependency of :android or :desktop.
+//
+// It exists because Android Lint's ApiDetector reads minSdk from the module it analyses:
+//
+//     val project = if (context.isGlobalAnalysis()) context.mainProject else context.project
+//     return if (!project.isAndroidProject) null else project.minSdkVersions
+//
+// AGP always runs lint in partial-analysis mode, so for the plain JVM module :core that
+// resolves to null and NewApi is silently skipped - even with lint.checkDependencies=true.
+// Compiling the same sources as an Android library gives them a real minSdk, which makes
+// lint report exactly what the IDE reports for :core.
+//
+// The plugin and the dependencies (shared with :core, so they cannot drift) are applied
+// from the root build.gradle, matching how :android is configured.
+
+android {
+    namespace = 'pl.genschu.bloomooemulator.corelint'
+
+    sourceSets {
+        main {
+            // Analysed in place - the sources are not copied or duplicated.
+            java.srcDirs = ['../core/src']
+            res.srcDirs = []
+            assets.srcDirs = []
+        }
+    }
+
+    defaultConfig {
+        // Must mirror :android, that is what the check is asserting against.
+        compileSdk = 36
+        minSdk = 24
+        targetSdk = 34
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_21
+        targetCompatibility JavaVersion.VERSION_21
+    }
+
+    lint {
+        abortOnError = true
+        // Sole purpose of this module - never let unrelated checks fail the build here.
+        checkOnly += ['NewApi']
+        enable += ['NewApi']
+        error += ['NewApi']
+    }
+}
+

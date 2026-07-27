@@ -61,6 +61,7 @@ com_crashlytics_export_strings.xml
 /build/
 /android/build/
 /core/build/
+/core-lint/build/
 /desktop/build/
 /html/build/
 /ios/build/
@@ -97,6 +98,7 @@ gradle-app.setting
 /build/
 /android/build/
 /core/build/
+/core-lint/build/
 /desktop/build/
 /html/build/
 /ios/build/
