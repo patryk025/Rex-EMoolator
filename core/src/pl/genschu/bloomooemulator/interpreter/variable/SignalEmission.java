@@ -25,6 +25,6 @@ public record SignalEmission(
     }
 
     public Value[] argumentArray() {
-        return arguments.toArray(Value[]::new);
+        return arguments.toArray(new Value[0]);
     }
 }

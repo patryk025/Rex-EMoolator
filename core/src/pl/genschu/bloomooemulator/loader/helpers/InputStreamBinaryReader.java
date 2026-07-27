@@ -101,7 +101,7 @@ public final class InputStreamBinaryReader implements BinaryReader {
         while ((value = readU8()) != 0) {
             bytes.write(value);
         }
-        return bytes.toString(charset);
+        return new String(bytes.toByteArray(), charset);
     }
 
     @Override

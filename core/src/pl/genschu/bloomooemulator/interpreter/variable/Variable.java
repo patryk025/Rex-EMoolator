@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.BiFunction;
+import java.util.stream.Collectors;
 
 public sealed interface Variable extends EngineVariable permits
         IntegerVariable,
@@ -150,7 +151,7 @@ public sealed interface Variable extends EngineVariable permits
                 }
                 List<String> declaredArguments = args.subList(2, args.size()).stream()
                     .map(Value::toDisplayString)
-                    .toList();
+                    .collect(Collectors.toList());
 
                 SignalHandler handler = new BehaviourSignalHandler(self.name(), signalName,
                     behaviour, declaredArguments, ctx);

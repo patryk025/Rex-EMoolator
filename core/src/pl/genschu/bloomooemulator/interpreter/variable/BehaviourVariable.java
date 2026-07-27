@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.stream.Collectors;
 
 /**
  * BehaviourVariable stores CODE source and its compiled AST.
@@ -91,7 +92,7 @@ public final class BehaviourVariable implements Variable {
 
         List<String> parameterTexts = args.stream()
             .map(value -> parameterText(value, context))
-            .toList();
+            .collect(Collectors.toList());
         List<String> cacheKey = List.copyOf(parameterTexts);
         return parameterizedAsts.computeIfAbsent(cacheKey, key ->
             BehaviourCodeParser.parseCode(spliceParameters(sourceCode, key), name + key));

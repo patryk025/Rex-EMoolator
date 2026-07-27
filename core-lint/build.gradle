@@ -39,6 +39,7 @@ android {
 
     lint {
         abortOnError = true
+        lintConfig = file('lint.xml')
         // Sole purpose of this module - never let unrelated checks fail the build here.
         checkOnly += ['NewApi']
         enable += ['NewApi']

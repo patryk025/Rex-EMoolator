@@ -15,6 +15,7 @@ import pl.genschu.bloomooemulator.loader.FontLoader;
 import pl.genschu.bloomooemulator.objects.FontCropping;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * FontVariable represents a bitmap font loaded from game resources.
@@ -278,7 +279,7 @@ public record FontVariable(
                         .comparing((Map.Entry<String, String> entry) ->
                                 !entry.getKey().toUpperCase(Locale.ROOT).contains("_STANDARD_"))
                         .thenComparing(Map.Entry::getKey, String.CASE_INSENSITIVE_ORDER))
-                .toList();
+                .collect(Collectors.toList());
 
         if (definitions.isEmpty()) {
             Gdx.app.error("FontVariable", "No DEF_* font definition for " + name);

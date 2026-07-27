@@ -7,6 +7,7 @@ import pl.genschu.bloomooemulator.interpreter.values.Value;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 /** Debugger-friendly signal binding which executes a BEHAVIOUR synchronously. */
 public final class BehaviourSignalHandler implements SignalHandler {
@@ -60,7 +61,8 @@ public final class BehaviourSignalHandler implements SignalHandler {
 
         List<Value> effectiveArguments = emission.hasExplicitPayload()
             ? emission.arguments()
-            : declaredArgumentTexts.stream().<Value>map(StringValue::new).toList();
+            : List.copyOf(declaredArgumentTexts.stream().<Value>map(StringValue::new)
+                .collect(Collectors.toList()));
 
         // Signals are top-level entry points. A BREAK has no caller to escape into.
         context.runBehaviour("Signal:" + emission.emittedName() + " on " + variable.name(),

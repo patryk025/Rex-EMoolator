@@ -87,7 +87,7 @@ public class ScriptDecypher {
             out.write((b + shift * direction) & 0xFF);
             i++;
         }
-        return out.toString(SCRIPT_CHARSET);
+        return new String(out.toByteArray(), SCRIPT_CHARSET);
     }
 
     private static int indexOf(byte[] bytes, byte target) {
