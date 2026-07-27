@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<lint>
+    <!--
+      PhysicsTraceWriter is debug-only tracing that is scheduled for removal, so its
+      java.nio.file usage (API 26+) is knowingly exempted rather than rewritten.
+      Delete this exemption together with the class.
+    -->
+    <issue id="NewApi">
+        <ignore regexp="PhysicsTraceWriter\.java" />
+    </issue>
+</lint>
