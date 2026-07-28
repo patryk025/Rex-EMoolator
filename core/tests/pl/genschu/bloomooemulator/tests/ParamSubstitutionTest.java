@@ -11,6 +11,8 @@ import pl.genschu.bloomooemulator.interpreter.errors.SourceLocation;
 import pl.genschu.bloomooemulator.interpreter.values.StringValue;
 import pl.genschu.bloomooemulator.interpreter.variable.ApplicationVariable;
 import pl.genschu.bloomooemulator.interpreter.variable.BehaviourVariable;
+import pl.genschu.bloomooemulator.interpreter.variable.IntegerVariable;
+import pl.genschu.bloomooemulator.interpreter.variable.StringVariable;
 import pl.genschu.bloomooemulator.interpreter.variable.MethodContext;
 
 import java.util.List;
@@ -93,7 +95,7 @@ public class ParamSubstitutionTest {
      */
     @Test
     void valuePositionDereferencesParamNamingAVariable() {
-        ctx.setVariable("VARSRC", new pl.genschu.bloomooemulator.interpreter.variable.IntegerVariable("VARSRC", 42));
+        ctx.setVariable("VARSRC", new IntegerVariable("VARSRC", 42));
         defineBehaviour("CHILD", "{VARNR^SET($1);}");
         runTop("{CHILD^RUN(\"VARSRC\");}");
         assertEquals(42, readInt("VARNR"));
@@ -137,7 +139,7 @@ public class ParamSubstitutionTest {
     @Test
     void runIndirectionThroughTempStringResolvesToObject() {
         ctx.setVariable("APP", new ApplicationVariable("APP"));
-        ctx.setVariable("VARSTEMP1", new pl.genschu.bloomooemulator.interpreter.variable.StringVariable("VARSTEMP1", "VARNR"));
+        ctx.setVariable("VARSTEMP1", new StringVariable("VARSTEMP1", "VARNR"));
         defineBehaviour("MID", "{APP^RUN($1,\"SET\",99);}");
         runTop("{MID^RUN(\"VARSTEMP1\");}");
         assertEquals(99, readInt("VARNR"));
@@ -174,7 +176,7 @@ public class ParamSubstitutionTest {
 
     @Test
     void concatenatedParameterCanChangeValueTokenIntoVariableReference() {
-        ctx.setVariable("VARNR2", new pl.genschu.bloomooemulator.interpreter.variable.IntegerVariable("VARNR2", 77));
+        ctx.setVariable("VARNR2", new IntegerVariable("VARNR2", 77));
         defineBehaviour("CHILD", "{RESULT^SET(VARN$1);}");
         runTop("{CHILD^RUN(\"R2\");}");
         assertEquals("77", ctx.getVariable("RESULT").value().toDisplayString());

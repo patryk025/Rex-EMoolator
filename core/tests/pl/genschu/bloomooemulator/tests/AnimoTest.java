@@ -16,6 +16,7 @@ import pl.genschu.bloomooemulator.interpreter.variable.*;
 import pl.genschu.bloomooemulator.loader.CNVParser;
 import pl.genschu.bloomooemulator.loader.AnimoLoader;
 import pl.genschu.bloomooemulator.objects.Event;
+import pl.genschu.bloomooemulator.objects.Image;
 import pl.genschu.bloomooemulator.objects.FrameData;
 
 import java.io.FileInputStream;
@@ -126,7 +127,7 @@ class AnimoTest {
         FrameData brushFrame = new FrameData();
         brushFrame.setName("BRUSH");
         FrameData secondFrame = new FrameData();
-        pl.genschu.bloomooemulator.objects.Image image = mock(pl.genschu.bloomooemulator.objects.Image.class);
+        Image image = mock(Image.class);
 
         Event firstEvent = new Event();
         firstEvent.setName("FIRST");

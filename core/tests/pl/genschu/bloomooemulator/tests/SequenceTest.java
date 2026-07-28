@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Test;
 import pl.genschu.bloomooemulator.TestEnvironment;
 import pl.genschu.bloomooemulator.builders.ContextBuilder;
 import pl.genschu.bloomooemulator.interpreter.context.Context;
+import pl.genschu.bloomooemulator.interpreter.values.BoolValue;
 import pl.genschu.bloomooemulator.interpreter.values.StringValue;
 import pl.genschu.bloomooemulator.interpreter.variable.*;
 import pl.genschu.bloomooemulator.interpreter.variable.SequenceVariable.*;
@@ -103,7 +104,7 @@ class SequenceTest {
 
         // Stop with signal. EVENT1 is the top-level played event → ONFINISHED^EVENT1
         // (with fallback to a bare ONFINISHED handler).
-        seq.callMethod("STOP", new pl.genschu.bloomooemulator.interpreter.values.BoolValue(true));
+        seq.callMethod("STOP", new BoolValue(true));
         assertEquals(2, capturedSignals.size());
         assertEquals("TEST_SEQ_ONFINISHED^EVENT1", capturedSignals.get(1));
     }
@@ -209,7 +210,7 @@ class SequenceTest {
         assertEquals("SEQ_A_ONSTARTED^A1", capturedSignals.get(0));
 
         // Stop A1 with signal - should trigger B1
-        seqA.callMethod("STOP", new pl.genschu.bloomooemulator.interpreter.values.BoolValue(true));
+        seqA.callMethod("STOP", new BoolValue(true));
 
         // Verify A finished and B started. A1 is the top-level played event of SEQ_A
         // → ONFINISHED^A1 (with fallback to bare ONFINISHED).
@@ -301,7 +302,7 @@ class SequenceTest {
 
         // ISPLAYING returns false
         result = seq.callMethod("ISPLAYING");
-        assertFalse(((pl.genschu.bloomooemulator.interpreter.values.BoolValue) result.returnValue()).value());
+        assertFalse(((BoolValue) result.returnValue()).value());
 
         // Add event and play
         SequenceEvent event = new SequenceEvent("PLAYING_EVENT", EventType.SIMPLE);
@@ -313,7 +314,7 @@ class SequenceTest {
         assertEquals("PLAYING_EVENT", ((StringValue) result.returnValue()).value());
 
         result = seq.callMethod("ISPLAYING");
-        assertTrue(((pl.genschu.bloomooemulator.interpreter.values.BoolValue) result.returnValue()).value());
+        assertTrue(((BoolValue) result.returnValue()).value());
     }
 
     /**
