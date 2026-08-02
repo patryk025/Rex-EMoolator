@@ -14,7 +14,7 @@
 // from the root build.gradle, matching how :android is configured.
 
 android {
-    namespace = 'pl.genschu.bloomooemulator.corelint'
+    namespace = 'pl.genschu.bloomooemulator.androidapicheck'
 
     sourceSets {
         main {

@@ -42,10 +42,10 @@ jobs:
       - name: Check Android API 24 compatibility (:android)
         run: ./gradlew :android:lintDebug -PandroidApiCheck --no-daemon
 
-      # Covers :core via the lint-only :core-lint wrapper. See core-lint/build.gradle.
+      # Covers :core via the lint-only :android-api-check wrapper. See android-api-check/build.gradle.
       - name: Check Android API 24 compatibility (:core)
         if: always()
-        run: ./gradlew :core-lint:lintDebug --no-daemon
+        run: ./gradlew :android-api-check:lintDebug --no-daemon
 
       - name: Upload Android lint reports
         uses: actions/upload-artifact@v6
@@ -54,7 +54,7 @@ jobs:
           name: android-api-compatibility-report
           path: |
             android/build/reports/lint-results-debug.*
-            core-lint/build/reports/lint-results-debug.*
+            android-api-check/build/reports/lint-results-debug.*
 
   test:
     runs-on: ubuntu-latest
