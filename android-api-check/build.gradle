@@ -13,13 +13,21 @@
 // The plugin and the dependencies (shared with :core, so they cannot drift) are applied
 // from the root build.gradle, matching how :android is configured.
 
+// IntelliJ cannot assign the same physical source directory to both :core and this
+// synthetic Android module. Keep the module importable, but expose its borrowed sources
+// only to regular Gradle builds. This can go away once the standalone com.android.lint
+// plugin supports configuring minSdk for JVM modules (https://issuetracker.google.com/issues/307994547).
+def ideSyncActive = providers.systemProperty('idea.sync.active')
+        .map { it.toBoolean() }
+        .orElse(false)
+
 android {
     namespace = 'pl.genschu.bloomooemulator.androidapicheck'
 
     sourceSets {
         main {
             // Analysed in place - the sources are not copied or duplicated.
-            java.srcDirs = ['../core/src']
+            java.srcDirs = ideSyncActive.get() ? [] : ['../core/src']
             res.srcDirs = []
             assets.srcDirs = []
         }
