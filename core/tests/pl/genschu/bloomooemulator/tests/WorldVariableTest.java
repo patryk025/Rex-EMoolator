@@ -7,6 +7,8 @@ import pl.genschu.bloomooemulator.TestEnvironment;
 import pl.genschu.bloomooemulator.builders.ContextBuilder;
 import pl.genschu.bloomooemulator.engine.Game;
 import pl.genschu.bloomooemulator.engine.filesystem.LocalFileSystem;
+import pl.genschu.bloomooemulator.engine.compatibility.CompatibilityProfile;
+import pl.genschu.bloomooemulator.engine.compatibility.EngineVariant;
 import pl.genschu.bloomooemulator.engine.physics.ODEPhysicsEngine;
 import pl.genschu.bloomooemulator.interpreter.context.Context;
 import pl.genschu.bloomooemulator.interpreter.values.DoubleValue;
@@ -116,6 +118,62 @@ class WorldVariableTest {
             assertEquals(140, physics.getPosition(102)[0], 0.0001);
             assertTrue(physics.getCollision(1000, 101),
                     "A static player must still report its collision with the dynamic ball");
+        } finally {
+            physics.shutdown();
+        }
+    }
+
+    @Test
+    void setVelocityClampsImmediatelyToFractionalMaxSpeed_barandalfRegression() {
+        ODEPhysicsEngine physics = new ODEPhysicsEngine();
+        physics.configureCompatibility(CompatibilityProfile.forEngine(EngineVariant.PIKLIB_8));
+        physics.init();
+        try {
+            physics.setGravity(0, 0, 0);
+            physics.createBody(100, 1, 0, 0, 0, 0, 0, 1, 2, 1, 1, 1);
+            physics.setMaxVelocity(100, 50.0);
+
+            physics.setSpeed(100, 60.0, 80.0, 0.0);
+
+            double[] velocity = physics.getSpeed(100);
+            assertEquals(30.0, velocity[0], 1e-9);
+            assertEquals(40.0, velocity[1], 1e-9);
+            assertEquals(50.0, Math.hypot(velocity[0], velocity[1]), 1e-9);
+
+            physics.stepSimulation(0.03);
+            double[] position = physics.getPosition(100);
+            assertEquals(0.9, position[0], 1e-6);
+            assertEquals(1.2, position[1], 1e-6);
+            assertEquals(1.5, Math.hypot(position[0], position[1]), 1e-6);
+
+            physics.setSpeed(100, 3.0, 4.0, 0.0);
+            velocity = physics.getSpeed(100);
+            assertEquals(3.0, velocity[0], 1e-9, "a vector below the limit is unchanged");
+            assertEquals(4.0, velocity[1], 1e-9);
+
+            physics.setSpeed(100, 0.0, 0.0, 0.0);
+            velocity = physics.getSpeed(100);
+            assertEquals(0.0, Math.hypot(velocity[0], velocity[1]), 1e-9);
+        } finally {
+            physics.shutdown();
+        }
+    }
+
+    @Test
+    void worldSetMaxSpeedPreservesFractionalValue() {
+        WorldVariable world = new WorldVariable("WORLD");
+        ODEPhysicsEngine physics = (ODEPhysicsEngine) world.getPhysicsEngine();
+        physics.init();
+        try {
+            physics.setGravity(0, 0, 0);
+            physics.createBody(100, 1, 0, 0, 0, 0, 0, 1, 2, 1, 1, 1);
+
+            world.callMethod("SETMAXSPEED", new IntValue(100), new DoubleValue(5.5));
+            world.callMethod("SETVELOCITY", new IntValue(100),
+                    new DoubleValue(6.6), new DoubleValue(8.8), new DoubleValue(0));
+
+            double[] velocity = physics.getSpeed(100);
+            assertEquals(5.5, Math.hypot(velocity[0], velocity[1]), 1e-9);
         } finally {
             physics.shutdown();
         }
