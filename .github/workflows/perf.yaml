@@ -5,6 +5,7 @@ on:
     branches:
       - main
       - feat/**
+      - fix/**
       - perf/**
 
 # github-action-benchmark pushes history to gh-pages and comments on regressions
