@@ -16,6 +16,9 @@ import pl.genschu.bloomooemulator.engine.filesystem.AudioFileResolver;
 import pl.genschu.bloomooemulator.engine.filesystem.IFileSystem;
 import pl.genschu.bloomooemulator.engine.input.InputManager;
 import pl.genschu.bloomooemulator.engine.render.PastedGraphic;
+import pl.genschu.bloomooemulator.engine.time.LegacyClock;
+import pl.genschu.bloomooemulator.engine.time.LegacyClockProfile;
+import pl.genschu.bloomooemulator.engine.time.QuantizedLegacyClock;
 import pl.genschu.bloomooemulator.interpreter.context.Context;
 import pl.genschu.bloomooemulator.interpreter.runtime.ExecutionContext;
 import pl.genschu.bloomooemulator.interpreter.runtime.ASTInterpreter;
@@ -91,6 +94,10 @@ public class Game {
     // Decoupled from System.currentTimeMillis() so OS hiccups can't double-fire timers.
     private double engineTimeMsAccum = 0.0;
 
+    // GetTickCount-compatible clock used by legacy schedulers. Its granularity
+    // is selected independently from render cadence.
+    private final LegacyClock legacyClock;
+
     private Map<String, Music> musicCache;
     private Music currentSceneMusic = null;
 
@@ -105,15 +112,28 @@ public class Game {
     private final BlooMooEngine emulator;
 
     public Game(GameEntry game, BlooMooEngine emulator) {
+        this(game, emulator, createLegacyClock(emulator));
+    }
+
+    public Game(GameEntry game, BlooMooEngine emulator, LegacyClock legacyClock) {
         this.definitionContext = new Context(new ExecutionContext());
         this.game = game;
         this.quadTree = new QuadTree(0, new Box2D(0, 0, 800, 600));
         this.emulator = emulator;
+        this.legacyClock = Objects.requireNonNull(legacyClock, "legacyClock");
 
         musicCache = Collections.synchronizedMap(new HashMap<>());
 
         refreshCompatibilityProfile();
         definitionContext.setGame(this);
+    }
+
+    private static LegacyClock createLegacyClock(BlooMooEngine emulator) {
+        LegacyClockProfile profile = LegacyClockProfile.defaultProfile();
+        if (emulator != null && emulator.getConfig() != null) {
+            profile = emulator.getConfig().getLegacyClockProfile();
+        }
+        return new QuantizedLegacyClock(profile);
     }
 
     public void loadGame() {
