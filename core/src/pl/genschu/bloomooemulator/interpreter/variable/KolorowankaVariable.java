@@ -325,8 +325,8 @@ public record KolorowankaVariable(
             s.lastFadeTimeMs = engineTimeMs;
             return;
         }
-        while (engineTimeMs - s.lastFadeTimeMs >= FADE_STEP_MS) {
-            s.lastFadeTimeMs += FADE_STEP_MS;
+        if (engineTimeMs - s.lastFadeTimeMs >= FADE_STEP_MS) {
+            s.lastFadeTimeMs = engineTimeMs;
             fadeTick();
         }
     }
