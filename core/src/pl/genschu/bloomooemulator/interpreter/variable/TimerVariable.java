@@ -1,6 +1,7 @@
 package pl.genschu.bloomooemulator.interpreter.variable;
 
 import pl.genschu.bloomooemulator.annotations.InternalMutable;
+import pl.genschu.bloomooemulator.engine.time.LegacyClock;
 import pl.genschu.bloomooemulator.interpreter.helpers.ArgumentHelper;
 import pl.genschu.bloomooemulator.interpreter.values.*;
 
@@ -127,17 +128,34 @@ public record TimerVariable(
     public int currentTickCount() { return state.currentTickCount; }
 
     public UpdateResult update(long currentTime) {
-        if (!state.enabled || state.elapse <= 0) {
+        return update(currentTime, () -> currentTime);
+    }
+
+    public UpdateResult update(LegacyClock clock) {
+        if (clock == null) {
+            throw new IllegalArgumentException("clock cannot be null");
+        }
+        return update(clock.nowMillis(), clock::nowMillis);
+    }
+
+    private UpdateResult update(long currentTime, java.util.function.LongSupplier completionClock) {
+        if (!state.enabled || state.elapse < 0) {
             return new UpdateResult(this, false);
         }
 
         if (currentTime - state.lastTickTime >= state.elapse) {
             state.currentTickCount++;
-            state.lastTickTime = currentTime;
-            emitSignal("ONTICK", new IntValue(state.currentTickCount));
-
             if (state.ticks != 0 && state.currentTickCount >= state.ticks) {
+                // CMC_Timer disables a finite timer before its final handler.
+                // The handler can therefore call ENABLE and keep it running.
                 state.enabled = false;
+            }
+            try {
+                emitSignal("ONTICK", new IntValue(state.currentTickCount));
+            } finally {
+                // CXTimer re-reads GetTickCount after the callback. Callback
+                // execution time is not part of the next interval.
+                state.lastTickTime = completionClock.getAsLong();
             }
             return new UpdateResult(this, true);
         }
