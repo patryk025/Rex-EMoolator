@@ -305,12 +305,7 @@ class AnimoTest {
     }
 
     @Test
-    void testPlayDoesNotLingerOnStaticFrameZeroAtLowFps() throws Exception {
-        // Regression guard for s67_Wyscigi's ODLICZANIE.ANN countdown. The scene
-        // forces 1 FPS, so frame 0 would otherwise hold for a full second. On a
-        // cold start the tick clock is stale, so the original engine advances off
-        // the static frame 0 on the very next update pass, long before a full
-        // frame period elapsed.
+    void freshlyRegisteredAnimationWaitsForItsFirstFullPeriod() throws Exception {
         Context ctx = new ContextBuilder().build();
 
         String absPath = Gdx.files.internal("../assets/test-assets/odliczanie.ann").file().getAbsolutePath();
@@ -323,13 +318,35 @@ class AnimoTest {
         ctx.setVariable("ANNLAMPKI", animo);
 
         animo.setFps(1);
+        animo.registerAnimationClock(0L);
         animo.callMethod("PLAY", new StringValue("PLAY"));
         assertEquals(0, animo.getCurrentFrameNumber(), "play starts on the static frame 0");
 
-        // One engine frame (~50 ms) is far below the 1 s frame period, yet the
-        // animation must already have stepped onto frame 1.
         animo.updateAnimation(50);
-        assertEquals(1, animo.getCurrentFrameNumber(), "first tick advances off the static frame 0");
+        assertEquals(0, animo.getCurrentFrameNumber(), "a fresh timing slot has not reached one second");
+
+        animo.updateAnimation(1000);
+        assertEquals(1, animo.getCurrentFrameNumber());
+    }
+
+    @Test
+    void playDoesNotResetAnAgedAnimationTimingSlot() throws Exception {
+        String absPath = Gdx.files.internal("../assets/test-assets/odliczanie.ann").file().getAbsolutePath();
+        AnimoVariable.AnimoData data;
+        try (InputStream is = new FileInputStream(absPath)) {
+            data = AnimoLoader.load(is);
+        }
+
+        AnimoVariable animo = new AnimoVariable("ANNLAMPKI").withData(data);
+        animo.setFps(1);
+        animo.registerAnimationClock(0L);
+
+        // CAnimationManager owns the timestamp while the animation is stopped.
+        // PLAY changes playback state, but does not allocate a new timing slot.
+        animo.callMethod("PLAY", new StringValue("PLAY"));
+        animo.updateAnimation(1500L);
+
+        assertEquals(1, animo.getCurrentFrameNumber());
     }
 
     @Test
@@ -357,6 +374,7 @@ class AnimoTest {
         assertTrue(animo.getEventsCount() > 0);
 
         // Play animation (only one frame update)
+        animo.registerAnimationClock(0L);
         animo.callMethod("PLAY", new StringValue("ELAPSE"));
 
         animo.updateAnimation(1000L / animo.getFps());
@@ -716,5 +734,36 @@ class AnimoTest {
         assertEquals(1000, first.getPriority());
         assertEquals(1000, second.getPriority());
         assertEquals("ANIMOKURA4", second.name());
+    }
+
+    @Test
+    void explicitFifteenFpsAttributeOverridesDifferentAnnHeader() throws Exception {
+        Path sourceAnn = Gdx.files.internal("../assets/test-assets/MLYNEK.ANN").file().toPath();
+        Files.copy(sourceAnn, tempDir.resolve("MLYNEK.ANN"));
+
+        Path cnv = tempDir.resolve("FPS15.CNV");
+        Files.writeString(cnv, """
+            OBJECT=ANIMO
+            ANIMO:TYPE=ANIMO
+            ANIMO:FILENAME=MLYNEK.ANN
+            ANIMO:FPS=15
+            """);
+
+        Context ctx = new ContextBuilder().build();
+        Game game = mock(Game.class);
+        when(game.getLanguage()).thenReturn("POL");
+        VFS vfs = new VFS();
+        vfs.mountAssets(new LocalFileSystem(tempDir.toFile()));
+        when(game.getVfs()).thenReturn(vfs);
+        ctx.setGame(game);
+
+        try (InputStream cnvStream = new FileInputStream(cnv.toFile())) {
+            new CNVParser().parse(cnvStream, cnv.getFileName().toString(), ctx);
+        }
+
+        AnimoVariable animo = (AnimoVariable) ctx.getVariable("ANIMO");
+        assertNotNull(animo);
+        assertEquals(16, animo.data().fps(), "test asset must keep its ANN header FPS");
+        assertEquals(15, animo.getFps(), "explicit CNV FPS=15 must not be mistaken for a default");
     }
 }

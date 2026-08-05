@@ -10,6 +10,7 @@ import pl.genschu.bloomooemulator.engine.decision.states.AnimoState;
 import pl.genschu.bloomooemulator.engine.decision.states.ButtonState;
 import pl.genschu.bloomooemulator.engine.filters.Filter;
 import pl.genschu.bloomooemulator.engine.render.RenderOrder;
+import pl.genschu.bloomooemulator.engine.time.LegacyClock;
 import pl.genschu.bloomooemulator.geometry.shapes.Box2D;
 import pl.genschu.bloomooemulator.interpreter.context.Context;
 import pl.genschu.bloomooemulator.interpreter.helpers.ArgumentHelper;
@@ -89,6 +90,9 @@ public record AnimoVariable(
         // File attributes
         public String filename = "";
         public int fps = 15;
+        // Distinguishes an explicit CNV override of 15 FPS from the default
+        // value of 15. The numeric value alone cannot carry that information.
+        public boolean fpsExplicit = false;
 
         public AnimoPlaybackState() {}
 
@@ -119,6 +123,7 @@ public record AnimoVariable(
             copy.currentSfx = this.currentSfx;
             copy.filename = this.filename;
             copy.fps = this.fps;
+            copy.fpsExplicit = this.fpsExplicit;
             return copy;
         }
     }
@@ -243,6 +248,7 @@ public record AnimoVariable(
 
         AnimoVariable aliased = aliasFromPreviouslyLoadedVariable(context, vfsPath);
         if (aliased != null) {
+            aliased.registerAnimationClock(game != null ? game.getEngineTimeMs() : 0L);
             context.setVariable(name, aliased);
             Gdx.app.log("AnimoVariable", name + ": Reused ANIMO from " + vfsPath + " via alias copy");
             return;
@@ -252,8 +258,9 @@ public record AnimoVariable(
             AnimoData loadedData = AnimoLoader.load(is);
             AnimoVariable updated = this.withData(loadedData);
             // FPS: attribute override > file value > default
-            if (state.fps != 15) {
-                // Attribute already set a custom FPS, keep it
+            if (state.fpsExplicit) {
+                // A CNV override wins even when its value happens to equal the
+                // engine default (15 FPS).
                 updated.state.fps = state.fps;
             } else if (loadedData.fps() > 0) {
                 updated.state.fps = loadedData.fps();
@@ -303,6 +310,9 @@ public record AnimoVariable(
 
     private static AnimoVariable copyFromTemplate(AnimoVariable template, String newName, Map<String, SignalHandler> newSignals) {
         AnimoPlaybackState copiedState = template.state.copy();
+        // CAnimationManager::add creates a fresh timing slot for aliases and
+        // clones. Playback state is copied, scheduler phase is not.
+        copiedState.lastTickAtMs = -1L;
         AnimoData copiedData = copyData(template.data);
         rebindStateToCopiedData(template, copiedState, copiedData);
         return new AnimoVariable(newName, copiedState, copiedData, newSignals);
@@ -455,6 +465,7 @@ public record AnimoVariable(
                 int fps = Integer.parseInt(fpsAttr);
                 if (fps > 0) {
                     state.fps = fps;
+                    state.fpsExplicit = true;
                 }
             } catch (NumberFormatException ignored) {}
         }
@@ -891,23 +902,74 @@ public record AnimoVariable(
     // ANIMATION UPDATE
     // ========================================
 
-    /**
-     * Advances the animation against the monotonic engine clock. Mirrors
-     * CAnimationManager::domodal in the original engine: a tick fires when at
-     * least 1000/fps ms (integer division) elapsed since the last tick, the
-     * timestamp is then re-read from the clock (no remainder carry-over), and at
-     * most one frame advances per update pass. PLAY never resets the clock, so a
-     * cold start ticks immediately while a chained PLAY waits out the current
-     * period.
-     */
-    public void updateAnimation(long engineTimeMs) {
-        if (state.currentEvent == null || !isPlaying()) return;
+    /** Registers the animation in the manager clock without changing playback. */
+    public void registerAnimationClock(long engineTimeMs) {
+        if (state.lastTickAtMs < 0L) {
+            state.lastTickAtMs = engineTimeMs;
+        }
+    }
 
-        if (state.lastTickAtMs >= 0 && engineTimeMs - state.lastTickAtMs < framePeriodMs()) {
-            return;
+    /**
+     * First phase of CAnimationManager::domodal: determine whether this object
+     * is due and move its timestamp before any animation callbacks execute.
+     */
+    public boolean prepareAnimationTick(long engineTimeMs) {
+        if (state.currentEvent == null || !isPlaying()) return false;
+
+        if (state.lastTickAtMs < 0L) {
+            registerAnimationClock(engineTimeMs);
+            return false;
+        }
+        if (engineTimeMs - state.lastTickAtMs < framePeriodMs()) {
+            return false;
         }
         state.lastTickAtMs = engineTimeMs;
+        return true;
+    }
+
+    public boolean prepareAnimationTick(LegacyClock clock) {
+        if (clock == null) {
+            throw new IllegalArgumentException("clock cannot be null");
+        }
+        return prepareAnimationTick(clock.nowMillis(), clock);
+    }
+
+    /**
+     * Uses the manager-wide observation for the due test, then re-reads the
+     * clock only when committing this object's slot. CAnimationManager samples
+     * one common {@code now} before scanning its playables.
+     */
+    public boolean prepareAnimationTick(long observedTime, LegacyClock completionClock) {
+        if (completionClock == null) {
+            throw new IllegalArgumentException("completionClock cannot be null");
+        }
+        if (state.currentEvent == null || !isPlaying()) return false;
+        if (state.lastTickAtMs < 0L) {
+            registerAnimationClock(observedTime);
+            return false;
+        }
+        if (observedTime - state.lastTickAtMs < framePeriodMs()) {
+            return false;
+        }
+        // CAnimationManager samples GetTickCount again when committing the
+        // selected slot, before any Next callback is invoked.
+        state.lastTickAtMs = completionClock.nowMillis();
+        return true;
+    }
+
+    /** Executes a tick selected during the manager's snapshot phase. */
+    public void advancePreparedAnimationTick() {
         advanceAnimationTick();
+    }
+
+    /**
+     * Convenience entry point for isolated callers. Production scheduling uses
+     * {@link #prepareAnimationTick(long, LegacyClock)} in a two-phase manager pass.
+     */
+    public void updateAnimation(long engineTimeMs) {
+        if (prepareAnimationTick(engineTimeMs)) {
+            advancePreparedAnimationTick();
+        }
     }
 
     private void advanceAnimationTick() {
