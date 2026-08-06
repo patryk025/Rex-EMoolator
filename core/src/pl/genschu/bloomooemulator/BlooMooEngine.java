@@ -9,11 +9,13 @@ import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.StretchViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import pl.genschu.bloomooemulator.engine.config.EngineConfig;
+import pl.genschu.bloomooemulator.engine.compatibility.EngineVariant;
 import pl.genschu.bloomooemulator.engine.debug.PerformanceMonitor;
 import pl.genschu.bloomooemulator.logic.GameEntry;
 import pl.genschu.bloomooemulator.engine.Game;
 import pl.genschu.bloomooemulator.engine.input.InputManager;
 import pl.genschu.bloomooemulator.engine.render.RenderManager;
+import pl.genschu.bloomooemulator.engine.time.LegacyPulseGate;
 import pl.genschu.bloomooemulator.engine.update.UpdateManager;
 import pl.genschu.bloomooemulator.engine.debug.DebugManager;
 import pl.genschu.bloomooemulator.platform.PrinterService;
@@ -21,9 +23,6 @@ import pl.genschu.bloomooemulator.platform.PrinterService;
 public class BlooMooEngine extends ApplicationAdapter {
     private static final float VIRTUAL_WIDTH = 800;
     private static final float VIRTUAL_HEIGHT = 600;
-
-    private static final float TICK = 1f / 60f;
-    private static final int MAX_STEPS = 5;
 
     private SpriteBatch batch;
     private OrthographicCamera camera;
@@ -34,8 +33,7 @@ public class BlooMooEngine extends ApplicationAdapter {
     private RenderManager renderManager;
     private UpdateManager updateManager;
     private DebugManager debugManager;
-
-    private float updateAccumulator = 0f;
+    private LegacyPulseGate legacyPulseGate;
 
     private final GameEntry gameEntry;
     private final EngineConfig config;
@@ -51,6 +49,7 @@ public class BlooMooEngine extends ApplicationAdapter {
         this.config = new EngineConfig();
         if (gameEntry != null) {
             this.config.setShowFpsCounter(gameEntry.isShowFpsCounter());
+            this.config.setLegacyClockProfile(gameEntry.getLegacyClockProfileEnum());
         }
     }
 
@@ -62,6 +61,8 @@ public class BlooMooEngine extends ApplicationAdapter {
     @Override
     public void create() {
         // initialise LibGDX
+        legacyPulseGate = new LegacyPulseGate(config.getLegacyPulseHz());
+
         batch = new SpriteBatch();
         camera = new OrthographicCamera();
 
@@ -93,15 +94,17 @@ public class BlooMooEngine extends ApplicationAdapter {
     @Override
     public void render() {
         float deltaTime = Gdx.graphics.getDeltaTime();
-        boolean forceSingleStep = false;
+        boolean stepFrame = config.isStepFrame();
+        boolean runLegacyPulse = false;
 
-        if(config.isPaused() && !config.isStepFrame()) {
+        if (config.isPaused() && !stepFrame) {
             deltaTime = 0;
         }
-        if(config.isStepFrame()) {
+        if (stepFrame) {
             config.toggleStepFrame();
-            deltaTime = TICK;
-            forceSingleStep = true;
+            runLegacyPulse = true;
+        } else if (!config.isPaused()) {
+            runLegacyPulse = legacyPulseGate.tryAcquirePulse();
         }
 
         PerformanceMonitor.startOperation("Render - frame time");
@@ -121,20 +124,8 @@ public class BlooMooEngine extends ApplicationAdapter {
 
         PerformanceMonitor.startOperation("Render - updating game state");
         // update objects on a fixed 16.67 ms grid
-        if (forceSingleStep) {
-            updateManager.tick(TICK);
-        } else {
-            // Fix Your Timestep! See https://gafferongames.com/post/fix_your_timestep/ for details.
-            updateAccumulator += deltaTime;
-            int steps = 0;
-            while (updateAccumulator >= TICK && steps < MAX_STEPS) {
-                updateManager.tick(TICK);
-                updateAccumulator -= TICK;
-                steps++;
-            }
-            if (steps == MAX_STEPS) {
-                updateAccumulator = 0f; // anti-spiral when a frame stalls badly
-            }
+        if (runLegacyPulse) {
+            updateManager.pulse();
         }
         PerformanceMonitor.endOperation("Render - updating game state");
 
@@ -196,5 +187,9 @@ public class BlooMooEngine extends ApplicationAdapter {
 
     public UpdateManager getUpdateManager() {
         return updateManager;
+    }
+
+    public RenderManager getRenderManager() {
+        return renderManager;
     }
 }

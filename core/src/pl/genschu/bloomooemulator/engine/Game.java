@@ -90,10 +90,6 @@ public class Game {
 
     private List<EngineVariable> playingAudios = new ArrayList<>();
 
-    // Monotonic engine clock — advanced by UpdateManager.tick() at a fixed step.
-    // Decoupled from System.currentTimeMillis() so OS hiccups can't double-fire timers.
-    private double engineTimeMsAccum = 0.0;
-
     // GetTickCount-compatible clock used by legacy schedulers. Its granularity
     // is selected independently from render cadence.
     private final LegacyClock legacyClock;
@@ -1036,11 +1032,11 @@ public class Game {
     }
 
     public long getEngineTimeMs() {
-        return (long) engineTimeMsAccum;
+        return legacyClock.nowMillis();
     }
 
-    public void advanceEngineTime(float deltaSec) {
-        engineTimeMsAccum += deltaSec * 1000.0;
+    public LegacyClock getLegacyClock() {
+        return legacyClock;
     }
 
     public List<EngineVariable> getPlayingAudios() {
