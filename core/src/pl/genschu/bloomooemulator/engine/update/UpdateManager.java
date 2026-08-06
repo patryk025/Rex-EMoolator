@@ -42,6 +42,7 @@ public class UpdateManager implements Disposable {
         updateTimers();
         updateAnimations();
         updateAudio();
+        updateCollisions();
     }
 
     private void updateTimers() {

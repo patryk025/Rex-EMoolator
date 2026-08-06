@@ -118,16 +118,43 @@ public class BlooMooEngine extends ApplicationAdapter {
         batch.setProjectionMatrix(camera.combined);
 
         PerformanceMonitor.startOperation("Render - processing input");
-        // handle input
-        inputManager.processInput(deltaTime);
+        // Debug controls must remain responsive while paused.
+        inputManager.processHostInput(deltaTime);
         PerformanceMonitor.endOperation("Render - processing input");
 
+        // Script-visible input belongs to the gated legacy pump. The explicit
+        // plan also preserves BlooMoo's render -> input -> managers order,
+        // which cannot be represented by a simple render-before boolean.
+        float renderDeltaTime = deltaTime;
+        game.getCompatibilityProfile().engine().legacyFrameOrder().execute(
+                runLegacyPulse,
+                this::processLegacyInput,
+                () -> renderFrame(renderDeltaTime),
+                this::runLegacyPulse);
+
+        PerformanceMonitor.endOperation("Render - frame time");
+    }
+
+    private void processLegacyInput() {
+        PerformanceMonitor.startOperation("Render - processing legacy input");
+        // Polling this on every 90/120/144 Hz render would accelerate key
+        // repeat, mouse-move handlers and button state machines.
+        inputManager.processLegacyInput();
+        PerformanceMonitor.endOperation("Render - processing legacy input");
+    }
+
+    private void runLegacyPulse() {
         PerformanceMonitor.startOperation("Render - updating game state");
-        // update objects on a fixed 16.67 ms grid
-        if (runLegacyPulse) {
-            updateManager.pulse();
-        }
+        updateManager.pulse();
         PerformanceMonitor.endOperation("Render - updating game state");
+    }
+
+    private void renderFrame(float deltaTime) {
+        Gdx.gl.glClearColor(0, 0, 0, 1);
+        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+
+        camera.update();
+        batch.setProjectionMatrix(camera.combined);
 
         PerformanceMonitor.startOperation("Render - rendering");
         // render objects

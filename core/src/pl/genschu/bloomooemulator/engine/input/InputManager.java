@@ -101,11 +101,14 @@ public class InputManager implements Disposable {
     }
 
     public void processInput(float deltaTime) {
+        processHostInput(deltaTime);
+        processLegacyInput();
+    }
+
+    /** Processes emulator/debug controls once per rendered host frame. */
+    public void processHostInput(float deltaTime) {
         GameContext context = game.getCurrentSceneContext();
         if (context == null) return;
-
-        List<MouseVariable> mouseVariables = getMouseListeners(context);
-        List<KeyboardVariable> keyboardVariables = getKeyboardListeners(context);
 
         var debugManager = game.getEmulator().getDebugManager();
         debugManager.handleSceneSelectorInput(deltaTime);
@@ -119,14 +122,24 @@ public class InputManager implements Disposable {
             Gdx.input.setInputProcessor(keyboardCharInput);
         }
 
+        // Debug hotkeys are intentionally not gated by the legacy pulse: F11
+        // and F12 must still be able to resume/step a paused game.
+        processDebugInput();
+    }
+
+    /** Processes script-visible input exactly once for an admitted legacy pulse. */
+    public void processLegacyInput() {
+        GameContext context = game.getCurrentSceneContext();
+        if (context == null) return;
+
+        List<MouseVariable> mouseVariables = getMouseListeners(context);
+        List<KeyboardVariable> keyboardVariables = getKeyboardListeners(context);
+
         // Handle mouse input
         processMouseInput(mouseVariables);
 
         // Handle keyboard input
         processKeyboardInput(keyboardVariables);
-
-        // Handle debugging (F1, F2 keys)
-        processDebugInput();
     }
 
     private List<MouseVariable> getMouseListeners(GameContext context) {
