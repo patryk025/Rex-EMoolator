@@ -516,7 +516,7 @@ public record WorldVariable(
         Map.entry("SETMAXSPEED", MethodSpec.of((self, args, ctx) -> {
             WorldVariable w = (WorldVariable) self;
             int objectId = ArgumentHelper.getInt(args.get(0));
-            int maxSpeed = ArgumentHelper.getInt(args.get(1));
+            double maxSpeed = ArgumentHelper.getDouble(args.get(1));
             w.state.physicsEngine.setMaxVelocity(objectId, maxSpeed);
             return MethodResult.noReturn();
         })),

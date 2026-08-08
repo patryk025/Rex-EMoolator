@@ -2,6 +2,7 @@ package pl.genschu.bloomooemulator.engine.context;
 
 import pl.genschu.bloomooemulator.engine.Game;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -51,6 +52,26 @@ public interface GameContext {
      * Gets all timer variables from context hierarchy.
      */
     Map<String, ? extends EngineVariable> getTimerVariables();
+
+    /**
+     * Gets an identity-preserving snapshot of graphics objects for scheduler passes.
+     *
+     * <p>Unlike the name-keyed lookup view, this collection may contain multiple
+     * objects with the same name when they belong to different active contexts.
+     */
+    default List<? extends EngineVariable> getGraphicsVariablesForScheduling() {
+        return List.copyOf(getGraphicsVariables().values());
+    }
+
+    /**
+     * Gets an identity-preserving snapshot of timers for scheduler passes.
+     *
+     * <p>Unlike the name-keyed lookup view, this collection may contain multiple
+     * objects with the same name when they belong to different active contexts.
+     */
+    default List<? extends EngineVariable> getTimerVariablesForScheduling() {
+        return List.copyOf(getTimerVariables().values());
+    }
 
     /**
      * Gets all text variables from context hierarchy.

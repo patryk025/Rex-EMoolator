@@ -44,6 +44,12 @@ public interface IPhysicsEngine {
 
     void setSpeed(int objectId, double speedX, double speedY, double speedZ);
 
+    /**
+     * Writes the linear velocity during Sekai's post-step damping without
+     * invoking the extra angular reset performed by script-facing SetVelocity.
+     */
+    void setDampedSpeed(int objectId, double speedX, double speedY, double speedZ);
+
     void setMass(int objectId, double mass, int geomType);
 
     void setMass(int objectId, double mass);

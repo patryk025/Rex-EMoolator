@@ -2,6 +2,7 @@ package pl.genschu.bloomooemulator.logic;
 
 import pl.genschu.bloomooemulator.engine.filesystem.AssetSourceDispatcher;
 import pl.genschu.bloomooemulator.engine.filesystem.IFileSystem;
+import pl.genschu.bloomooemulator.engine.time.LegacyClockProfile;
 
 import java.io.File;
 import java.io.IOException;
@@ -25,6 +26,7 @@ public class GameEntry implements Serializable {
     private String iniPath;
     private String storageId;
     private String mouseMode;
+    private String legacyClockProfile;
     private boolean mouseVirtualJoystick;
     private boolean skipLicenceCode;
     private boolean maintainAspectRatio;
@@ -307,6 +309,17 @@ public class GameEntry implements Serializable {
     /** Stores {@code mode} by its stable {@link MouseMode#key()}. */
     public void setMouseMode(MouseMode mode) {
         this.mouseMode = (mode == null ? MouseMode.defaultMode() : mode).key();
+    }
+
+    public LegacyClockProfile getLegacyClockProfileEnum() {
+        return LegacyClockProfile.fromStored(legacyClockProfile);
+    }
+
+    public void setLegacyClockProfile(LegacyClockProfile profile) {
+        LegacyClockProfile effective = profile != null
+                ? profile
+                : LegacyClockProfile.defaultProfile();
+        this.legacyClockProfile = effective.name();
     }
 
     /**

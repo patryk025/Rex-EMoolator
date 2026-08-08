@@ -1,6 +1,7 @@
 package pl.genschu.bloomooemulator.engine.config;
 
 import com.badlogic.gdx.Application;
+import pl.genschu.bloomooemulator.engine.time.LegacyClockProfile;
 
 /**
  * Class containing game engine configuration.
@@ -25,8 +26,10 @@ public class EngineConfig {
     private boolean maintainAspectRatio = true;
     private boolean vsync = true;
     private int targetFPS = 60;
+    private int legacyPulseHz = 60;
     private boolean paused = false;
     private boolean stepFrame = false;
+    private LegacyClockProfile legacyClockProfile = LegacyClockProfile.defaultProfile();
 
     // log level settings
     private int logLevel = Application.LOG_DEBUG;
@@ -166,6 +169,14 @@ public class EngineConfig {
         this.targetFPS = targetFPS;
     }
 
+    public int getLegacyPulseHz() {
+        return legacyPulseHz;
+    }
+
+    public void setLegacyPulseHz(int legacyPulseHz) {
+        this.legacyPulseHz = legacyPulseHz;
+    }
+
     public int getLogLevel() {
         return logLevel;
     }
@@ -214,6 +225,16 @@ public class EngineConfig {
         this.stepFrame = !this.stepFrame;
     }
 
+    public LegacyClockProfile getLegacyClockProfile() {
+        return legacyClockProfile;
+    }
+
+    public void setLegacyClockProfile(LegacyClockProfile legacyClockProfile) {
+        this.legacyClockProfile = legacyClockProfile != null
+                ? legacyClockProfile
+                : LegacyClockProfile.defaultProfile();
+    }
+
     public boolean isUseOriginalDoubleRepresentation() {
         return useOriginalDoubleRepresentation;
     }
@@ -259,6 +280,8 @@ public class EngineConfig {
         maintainAspectRatio = true;
         vsync = true;
         targetFPS = 60;
+        legacyPulseHz = 60;
+        legacyClockProfile = LegacyClockProfile.defaultProfile();
 
         logLevel = Application.LOG_DEBUG;
 

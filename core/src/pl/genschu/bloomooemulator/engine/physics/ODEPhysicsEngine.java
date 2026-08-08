@@ -377,8 +377,36 @@ public class ODEPhysicsEngine implements IPhysicsEngine {
 
     @Override
     public void setSpeed(int objectId, double speedX, double speedY, double speedZ) {
+        DBody body = setLinearSpeed(objectId, speedX, speedY, speedZ, true);
+        if (body != null) {
+            // Sekai's public SetVelocity path also cancels angular movement.
+            body.setAngularVel(0.0, 0.0, 0.0);
+        }
+    }
+
+    @Override
+    public void setDampedSpeed(int objectId, double speedX, double speedY, double speedZ) {
+        // The post-step damping path in Sekai writes only dBodySetLinearVel.
+        setLinearSpeed(objectId, speedX, speedY, speedZ, false);
+    }
+
+    private DBody setLinearSpeed(int objectId, double speedX, double speedY, double speedZ,
+                                 boolean clampToMaxVelocity) {
         GameObject go = getObject(objectId);
-        if (go == null) return;
+        if (go == null) return null;
+
+        if (clampToMaxVelocity) {
+            double magnitude = Math.sqrt(speedX * speedX + speedY * speedY + speedZ * speedZ);
+            double maxVelocity = Math.max(0.0, go.getMaxVelocity());
+            if (Double.isFinite(magnitude) && Double.isFinite(maxVelocity)
+                    && magnitude > maxVelocity && magnitude > 0.0) {
+                double scale = maxVelocity / magnitude;
+                speedX *= scale;
+                speedY *= scale;
+                speedZ *= scale;
+            }
+        }
+
         // Remember the heading while actually moving so a later stop keeps the facing direction.
         if (speedX != 0.0 || speedY != 0.0) {
             go.setLastAngle(Math.atan2(speedY, speedX));
@@ -386,9 +414,11 @@ public class ODEPhysicsEngine implements IPhysicsEngine {
         DBody body = (DBody) go.getBody();
         try {
             body.setLinearVel(speedX, speedY, speedZ);
+            return body;
         }
         catch (NullPointerException e) {
             Gdx.app.error("ODEPhysicsEngine", "Failed to set linear velocity to object " + objectId + ". Body is null (object is not rigid body)");
+            return null;
         }
     }
 

@@ -7,11 +7,7 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.math.Vector3;
-import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.utils.Disposable;
-import com.badlogic.gdx.scenes.scene2d.utils.ScissorStack;
 import pl.genschu.bloomooemulator.engine.context.EngineVariable;
 import pl.genschu.bloomooemulator.engine.context.GameContext;
 import pl.genschu.bloomooemulator.engine.filters.Filter;
@@ -27,6 +23,7 @@ import pl.genschu.bloomooemulator.geometry.shapes.Box2D;
  * Class responsible for rendering graphics.
  */
 public class GraphicsRenderer implements Disposable {
+    protected static final float VIRTUAL_WIDTH = 800;
     protected static final float VIRTUAL_HEIGHT = 600;
 
     private final SpriteBatch batch;
@@ -104,17 +101,43 @@ public class GraphicsRenderer implements Disposable {
     }
 }
 
+/** Applies clipping in fixed FBO pixels, bypassing backbuffer/HiDPI scaling. */
+final class LogicalScissor {
+    private LogicalScissor() {}
+
+    static boolean enable(SpriteBatch batch, Box2D rect) {
+        int x = Math.max(0, rect.getXLeft());
+        int right = Math.min((int) GraphicsRenderer.VIRTUAL_WIDTH, rect.getXRight());
+        int y = Math.max(0, (int) GraphicsRenderer.VIRTUAL_HEIGHT - rect.getYTop());
+        int top = Math.min((int) GraphicsRenderer.VIRTUAL_HEIGHT,
+                (int) GraphicsRenderer.VIRTUAL_HEIGHT - rect.getYBottom());
+        int width = right - x;
+        int height = top - y;
+        if (width <= 0 || height <= 0) {
+            return false;
+        }
+
+        batch.flush();
+        Gdx.gl.glEnable(GL20.GL_SCISSOR_TEST);
+        Gdx.gl.glScissor(x, y, width, height);
+        return true;
+    }
+
+    static void disable(SpriteBatch batch) {
+        batch.flush();
+        Gdx.gl.glDisable(GL20.GL_SCISSOR_TEST);
+    }
+}
+
 /**
  * Class responsible for rendering text.
  */
 class TextRenderer implements Disposable {
     private final SpriteBatch batch;
-    private final OrthographicCamera camera;
     private final BitmapFont defaultFont;
 
-    public TextRenderer(SpriteBatch batch, OrthographicCamera camera) {
+    public TextRenderer(SpriteBatch batch) {
         this.batch = batch;
-        this.camera = camera;
         this.defaultFont = new BitmapFont();
     }
 
@@ -155,15 +178,7 @@ class TextRenderer implements Disposable {
 
         boolean clippingPushed = false;
         if (rect.getWidth() > 0 && rect.getHeight() > 0) {
-            Rectangle bounds = new Rectangle(
-                    rect.getXLeft(),
-                    GraphicsRenderer.VIRTUAL_HEIGHT - rect.getYTop(),
-                    rect.getWidth(),
-                    rect.getHeight()
-            );
-            Rectangle scissors = new Rectangle();
-            ScissorStack.calculateScissors(camera, batch.getTransformMatrix(), bounds, scissors);
-            clippingPushed = ScissorStack.pushScissors(scissors);
+            clippingPushed = LogicalScissor.enable(batch, rect);
             if (!clippingPushed) {
                 return;
             }
@@ -196,8 +211,7 @@ class TextRenderer implements Disposable {
             }
         } finally {
             if (clippingPushed) {
-                batch.flush();
-                ScissorStack.popScissors();
+                LogicalScissor.disable(batch);
             }
             batch.setColor(1, 1, 1, 1);
         }
@@ -239,40 +253,18 @@ class MaskRenderer implements Disposable {
             return;
         }
 
-        int xLeft = clippingRect.getXLeft();
-        int yTop = (int) (GraphicsRenderer.VIRTUAL_HEIGHT - clippingRect.getYTop());
-        int xRight = clippingRect.getXRight();
-        int yBottom = (int) (GraphicsRenderer.VIRTUAL_HEIGHT - clippingRect.getYBottom());
-
-        batch.flush();
-        Gdx.gl.glEnable(GL20.GL_SCISSOR_TEST);
-
-        // Calculate clipping area coordinates in screen pixels
-        Vector2 projectedCoordsLeftTop = cameraToWindowCoordinates(xLeft, yTop);
-        Vector2 projectedCoordsRightBottom = cameraToWindowCoordinates(xRight, yBottom);
-
-        int scissorX = (int) projectedCoordsLeftTop.x;
-        int scissorY = (int) projectedCoordsLeftTop.y;
-        int scissorWidth = (int) (projectedCoordsRightBottom.x - projectedCoordsLeftTop.x);
-        int scissorHeight = (int) (projectedCoordsRightBottom.y - projectedCoordsLeftTop.y);
-
-        Gdx.gl.glScissor(scissorX, scissorY, scissorWidth, scissorHeight);
-
-        batch.draw(image.getImageTexture(),
-                rect.getXLeft(),
-                GraphicsRenderer.VIRTUAL_HEIGHT - rect.getYTop() - image.height,
-                image.width,
-                image.height);
-
-        batch.flush();
-        Gdx.gl.glDisable(GL20.GL_SCISSOR_TEST);
-    }
-
-    private Vector2 cameraToWindowCoordinates(float x, float y) {
-        Vector3 worldCoordinates = new Vector3(x, y, 0);
-        Vector3 windowCoordinates = new Vector3();
-
-        return new Vector2(windowCoordinates.x, windowCoordinates.y);
+        if (!LogicalScissor.enable(batch, clippingRect)) {
+            return;
+        }
+        try {
+            batch.draw(image.getImageTexture(),
+                    rect.getXLeft(),
+                    GraphicsRenderer.VIRTUAL_HEIGHT - rect.getYTop() - image.height,
+                    image.width,
+                    image.height);
+        } finally {
+            LogicalScissor.disable(batch);
+        }
     }
 
     @Override
@@ -350,33 +342,18 @@ class AlphaMaskRenderer implements Disposable {
     }
 
     private void renderWithClipping(Image image, Box2D rect, Box2D clippingRect) {
-        int xLeft = clippingRect.getXLeft();
-        int yTop = (int) (VIRTUAL_HEIGHT - clippingRect.getYTop());
-        int xRight = clippingRect.getXRight();
-        int yBottom = (int) (VIRTUAL_HEIGHT - clippingRect.getYBottom());
-
-        batch.flush();
-        Gdx.gl.glEnable(GL20.GL_SCISSOR_TEST);
-
-        // Calculate clipping area coordinates in screen pixels
-        Vector2 projectedCoordsLeftTop = new Vector2(xLeft, yTop);  // Temporary, need proper implementation
-        Vector2 projectedCoordsRightBottom = new Vector2(xRight, yBottom);  // Temporary
-
-        int scissorX = (int) projectedCoordsLeftTop.x;
-        int scissorY = (int) projectedCoordsLeftTop.y;
-        int scissorWidth = (int) (projectedCoordsRightBottom.x - projectedCoordsLeftTop.x);
-        int scissorHeight = (int) (projectedCoordsRightBottom.y - projectedCoordsLeftTop.y);
-
-        Gdx.gl.glScissor(scissorX, scissorY, scissorWidth, scissorHeight);
-
-        batch.draw(image.getImageTexture(),
-                rect.getXLeft(),
-                VIRTUAL_HEIGHT - rect.getYTop() - image.height,
-                image.width,
-                image.height);
-
-        batch.flush();
-        Gdx.gl.glDisable(GL20.GL_SCISSOR_TEST);
+        if (!LogicalScissor.enable(batch, clippingRect)) {
+            return;
+        }
+        try {
+            batch.draw(image.getImageTexture(),
+                    rect.getXLeft(),
+                    VIRTUAL_HEIGHT - rect.getYTop() - image.height,
+                    image.width,
+                    image.height);
+        } finally {
+            LogicalScissor.disable(batch);
+        }
     }
 
     @Override

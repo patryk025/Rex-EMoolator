@@ -1,1 +1,1 @@
-include 'desktop', 'android', 'core', 'core-lint'
+include 'desktop', 'android', 'core', 'android-api-check'

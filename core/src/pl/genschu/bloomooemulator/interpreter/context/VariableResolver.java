@@ -130,6 +130,30 @@ public class VariableResolver {
     }
 
     /**
+     * Collects graphics for an update pass without collapsing equal names from
+     * separate active contexts. A variable object reachable through more than one
+     * graph edge is still returned only once, by identity.
+     */
+    public List<Variable> collectGraphicsForScheduling(Context context) {
+        return collectByTypePreservingIdentity(
+            context,
+            ctx -> ctx.store().getCacheIndex().getGraphics()
+        );
+    }
+
+    /**
+     * Collects timers for an update pass without collapsing equal names from
+     * separate active contexts. A variable object reachable through more than one
+     * graph edge is still returned only once, by identity.
+     */
+    public List<Variable> collectTimersForScheduling(Context context) {
+        return collectByTypePreservingIdentity(
+            context,
+            ctx -> ctx.store().getCacheIndex().getTimers()
+        );
+    }
+
+    /**
      * Collects texts from context hierarchy including additionalContexts and class instances.
      */
     public Map<String, Variable> collectTexts(Context context) {
@@ -189,6 +213,76 @@ public class VariableResolver {
         }
 
         return result;
+    }
+
+    /**
+     * Scheduler variant of {@link #collectByType(Context, Function)}.
+     * Traversal order intentionally matches the name-keyed collector:
+     * class instances -> additional contexts -> current -> parent.
+     */
+    private List<Variable> collectByTypePreservingIdentity(
+        Context context,
+        Function<Context, Map<String, Variable>> extractor
+    ) {
+        List<Variable> result = new ArrayList<>();
+        Set<Context> visitedContexts = Collections.newSetFromMap(new IdentityHashMap<>());
+        Set<Variable> visitedVariables = Collections.newSetFromMap(new IdentityHashMap<>());
+        collectByTypePreservingIdentity(
+            context,
+            extractor,
+            visitedContexts,
+            visitedVariables,
+            result
+        );
+        return List.copyOf(result);
+    }
+
+    private void collectByTypePreservingIdentity(
+        Context context,
+        Function<Context, Map<String, Variable>> extractor,
+        Set<Context> visitedContexts,
+        Set<Variable> visitedVariables,
+        List<Variable> result
+    ) {
+        if (context == null || !visitedContexts.add(context)) {
+            return;
+        }
+
+        for (Variable variable : context.store().getAll().values()) {
+            if (variable instanceof HasInstanceContext hic) {
+                collectByTypePreservingIdentity(
+                    hic.getInstanceContext(),
+                    extractor,
+                    visitedContexts,
+                    visitedVariables,
+                    result
+                );
+            }
+        }
+
+        for (Context additional : context.getAdditionalContexts()) {
+            collectByTypePreservingIdentity(
+                additional,
+                extractor,
+                visitedContexts,
+                visitedVariables,
+                result
+            );
+        }
+
+        for (Variable variable : extractor.apply(context).values()) {
+            if (visitedVariables.add(variable)) {
+                result.add(variable);
+            }
+        }
+
+        collectByTypePreservingIdentity(
+            context.getParent(),
+            extractor,
+            visitedContexts,
+            visitedVariables,
+            result
+        );
     }
 
     /**

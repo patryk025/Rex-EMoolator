@@ -9,11 +9,13 @@ import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.StretchViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import pl.genschu.bloomooemulator.engine.config.EngineConfig;
+import pl.genschu.bloomooemulator.engine.compatibility.EngineVariant;
 import pl.genschu.bloomooemulator.engine.debug.PerformanceMonitor;
 import pl.genschu.bloomooemulator.logic.GameEntry;
 import pl.genschu.bloomooemulator.engine.Game;
 import pl.genschu.bloomooemulator.engine.input.InputManager;
 import pl.genschu.bloomooemulator.engine.render.RenderManager;
+import pl.genschu.bloomooemulator.engine.time.LegacyPulseGate;
 import pl.genschu.bloomooemulator.engine.update.UpdateManager;
 import pl.genschu.bloomooemulator.engine.debug.DebugManager;
 import pl.genschu.bloomooemulator.platform.PrinterService;
@@ -21,9 +23,6 @@ import pl.genschu.bloomooemulator.platform.PrinterService;
 public class BlooMooEngine extends ApplicationAdapter {
     private static final float VIRTUAL_WIDTH = 800;
     private static final float VIRTUAL_HEIGHT = 600;
-
-    private static final float TICK = 1f / 60f;
-    private static final int MAX_STEPS = 5;
 
     private SpriteBatch batch;
     private OrthographicCamera camera;
@@ -34,8 +33,7 @@ public class BlooMooEngine extends ApplicationAdapter {
     private RenderManager renderManager;
     private UpdateManager updateManager;
     private DebugManager debugManager;
-
-    private float updateAccumulator = 0f;
+    private LegacyPulseGate legacyPulseGate;
 
     private final GameEntry gameEntry;
     private final EngineConfig config;
@@ -51,6 +49,7 @@ public class BlooMooEngine extends ApplicationAdapter {
         this.config = new EngineConfig();
         if (gameEntry != null) {
             this.config.setShowFpsCounter(gameEntry.isShowFpsCounter());
+            this.config.setLegacyClockProfile(gameEntry.getLegacyClockProfileEnum());
         }
     }
 
@@ -62,6 +61,15 @@ public class BlooMooEngine extends ApplicationAdapter {
     @Override
     public void create() {
         // initialise LibGDX
+
+        // Legacy managers are polled once per host render. Apply the existing
+        // cadence configuration on every backend (not only the desktop
+        // launcher). It is only a scheduling hint: AndroidGraphics currently
+        // ignores setForegroundFPS, so LegacyPulseGate below is authoritative.
+        Gdx.graphics.setVSync(config.isVsync());
+        Gdx.graphics.setForegroundFPS(config.getTargetFPS());
+        legacyPulseGate = new LegacyPulseGate(config.getLegacyPulseHz());
+
         batch = new SpriteBatch();
         camera = new OrthographicCamera();
 
@@ -77,7 +85,7 @@ public class BlooMooEngine extends ApplicationAdapter {
 
         // initialise emulator components
         game = new Game(gameEntry, this);
-        renderManager = new RenderManager(batch, camera, game, config);
+        renderManager = new RenderManager(batch, camera, viewport, game, config);
         inputManager = new InputManager(camera, viewport, game, config);
         updateManager = new UpdateManager(game, config);
         debugManager = new DebugManager(batch, camera, game, config);
@@ -93,50 +101,59 @@ public class BlooMooEngine extends ApplicationAdapter {
     @Override
     public void render() {
         float deltaTime = Gdx.graphics.getDeltaTime();
-        boolean forceSingleStep = false;
+        boolean stepFrame = config.isStepFrame();
+        boolean runLegacyPulse = false;
 
-        if(config.isPaused() && !config.isStepFrame()) {
+        if (config.isPaused() && !stepFrame) {
             deltaTime = 0;
         }
-        if(config.isStepFrame()) {
+        if (stepFrame) {
             config.toggleStepFrame();
-            deltaTime = TICK;
-            forceSingleStep = true;
+            runLegacyPulse = true;
+        } else if (!config.isPaused()) {
+            runLegacyPulse = legacyPulseGate.tryAcquirePulse();
         }
 
         PerformanceMonitor.startOperation("Render - frame time");
 
-        // clear screen
+        PerformanceMonitor.startOperation("Render - processing input");
+        // Debug controls must remain responsive while paused.
+        inputManager.processHostInput(deltaTime);
+        PerformanceMonitor.endOperation("Render - processing input");
+
+        // Script-visible input belongs to the gated legacy pump. The explicit
+        // plan also preserves BlooMoo's render -> input -> managers order,
+        // which cannot be represented by a simple render-before boolean.
+        float renderDeltaTime = deltaTime;
+        game.getCompatibilityProfile().engine().legacyFrameOrder().execute(
+                runLegacyPulse,
+                this::processLegacyInput,
+                () -> renderFrame(renderDeltaTime),
+                this::runLegacyPulse);
+
+        PerformanceMonitor.endOperation("Render - frame time");
+    }
+
+    private void processLegacyInput() {
+        PerformanceMonitor.startOperation("Render - processing legacy input");
+        // Polling this on every 90/120/144 Hz render would accelerate key
+        // repeat, mouse-move handlers and button state machines.
+        inputManager.processLegacyInput();
+        PerformanceMonitor.endOperation("Render - processing legacy input");
+    }
+
+    private void runLegacyPulse() {
+        PerformanceMonitor.startOperation("Render - updating game state");
+        updateManager.pulse();
+        PerformanceMonitor.endOperation("Render - updating game state");
+    }
+
+    private void renderFrame(float deltaTime) {
         Gdx.gl.glClearColor(0, 0, 0, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
-        // update camera and set projection matrix
         camera.update();
         batch.setProjectionMatrix(camera.combined);
-
-        PerformanceMonitor.startOperation("Render - processing input");
-        // handle input
-        inputManager.processInput(deltaTime);
-        PerformanceMonitor.endOperation("Render - processing input");
-
-        PerformanceMonitor.startOperation("Render - updating game state");
-        // update objects on a fixed 16.67 ms grid
-        if (forceSingleStep) {
-            updateManager.tick(TICK);
-        } else {
-            // Fix Your Timestep! See https://gafferongames.com/post/fix_your_timestep/ for details.
-            updateAccumulator += deltaTime;
-            int steps = 0;
-            while (updateAccumulator >= TICK && steps < MAX_STEPS) {
-                updateManager.tick(TICK);
-                updateAccumulator -= TICK;
-                steps++;
-            }
-            if (steps == MAX_STEPS) {
-                updateAccumulator = 0f; // anti-spiral when a frame stalls badly
-            }
-        }
-        PerformanceMonitor.endOperation("Render - updating game state");
 
         PerformanceMonitor.startOperation("Render - rendering");
         // render objects
@@ -147,11 +164,6 @@ public class BlooMooEngine extends ApplicationAdapter {
         // render debug info
         debugManager.render(deltaTime);
         PerformanceMonitor.endOperation("Render - rendering debug info");
-
-        // take screenshot for CanvasObserver
-        game.takeScreenshot();
-
-        PerformanceMonitor.endOperation("Render - frame time");
     }
 
     @Override
@@ -196,5 +208,9 @@ public class BlooMooEngine extends ApplicationAdapter {
 
     public UpdateManager getUpdateManager() {
         return updateManager;
+    }
+
+    public RenderManager getRenderManager() {
+        return renderManager;
     }
 }

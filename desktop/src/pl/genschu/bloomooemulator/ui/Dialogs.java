@@ -1,6 +1,7 @@
 package pl.genschu.bloomooemulator.ui;
 
 import pl.genschu.bloomooemulator.GameListFrame;
+import pl.genschu.bloomooemulator.engine.time.LegacyClockProfile;
 import pl.genschu.bloomooemulator.logic.AppPaths;
 import pl.genschu.bloomooemulator.logic.GameEntry;
 import pl.genschu.bloomooemulator.logic.GameManager;
@@ -49,7 +50,7 @@ public class Dialogs {
     public void showGameDialog(GameEntry game) {
         JDialog dialog = new JDialog(gameListFrame, game == null ? resourceBundle.getString("add_game") : resourceBundle.getString("edit_game"), true);
         dialog.setLayout(new GridLayout(0, 1, 10, 10));
-        dialog.setSize(500, 500);
+        dialog.setSize(500, 560);
 
         // center dialog
         Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
@@ -68,6 +69,13 @@ public class Dialogs {
             mouseModeLabels[i] = mouseModeLabel(mouseModes[i]);
         }
         JComboBox<String> mouseModeSelectBox = new JComboBox<>(mouseModeLabels);
+        final LegacyClockProfile[] legacyClockProfiles = LegacyClockProfile.values();
+        String[] legacyClockProfileLabels = new String[legacyClockProfiles.length];
+        for (int i = 0; i < legacyClockProfiles.length; i++) {
+            legacyClockProfileLabels[i] = legacyClockProfiles[i].displayName();
+        }
+        JComboBox<String> legacyClockProfileSelectBox = new JComboBox<>(legacyClockProfileLabels);
+        legacyClockProfileSelectBox.setSelectedIndex(LegacyClockProfile.defaultProfile().ordinal());
         JCheckBox joystickCheckbox = new JCheckBox(resourceBundle.getString("use_virtual_joystick"));
         JCheckBox skipPoliceCheckbox = new JCheckBox(resourceBundle.getString("skip_code"));
         JCheckBox fullscreenCheckbox = new JCheckBox(resourceBundle.getString("stretch_fullscreen"));
@@ -82,6 +90,7 @@ public class Dialogs {
 
         if (game != null) {
             mouseModeSelectBox.setSelectedIndex(game.getMouseModeEnum().ordinal());
+            legacyClockProfileSelectBox.setSelectedIndex(game.getLegacyClockProfileEnum().ordinal());
             joystickCheckbox.setSelected(game.isMouseVirtualJoystick());
             skipPoliceCheckbox.setSelected(game.isSkipLicenceCode());
             fullscreenCheckbox.setSelected(!game.isMaintainAspectRatio());
@@ -94,6 +103,8 @@ public class Dialogs {
         dialog.add(pathPanel);
         dialog.add(new JLabel(resourceBundle.getString("mouse_mode")));
         dialog.add(mouseModeSelectBox);
+        dialog.add(new JLabel(resourceBundle.getString("legacy_clock_profile")));
+        dialog.add(legacyClockProfileSelectBox);
         dialog.add(joystickCheckbox);
         dialog.add(skipPoliceCheckbox);
         dialog.add(fullscreenCheckbox);
@@ -113,6 +124,7 @@ public class Dialogs {
                         !fullscreenCheckbox.isSelected());
                 newGame.setShowFpsCounter(fpsCounterCheckbox.isSelected());
                 newGame.setFamilyOverride(familyField.getText());
+                newGame.setLegacyClockProfile(legacyClockProfiles[legacyClockProfileSelectBox.getSelectedIndex()]);
                 gameManager.addGame(newGame);
             } else {
                 game.setName(nameField.getText());
@@ -123,6 +135,7 @@ public class Dialogs {
                 game.setMaintainAspectRatio(!fullscreenCheckbox.isSelected());
                 game.setShowFpsCounter(fpsCounterCheckbox.isSelected());
                 game.setFamilyOverride(familyField.getText());
+                game.setLegacyClockProfile(legacyClockProfiles[legacyClockProfileSelectBox.getSelectedIndex()]);
                 gameManager.updateGame(game);
             }
             gameListFrame.refreshGameList();

@@ -18,6 +18,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import pl.genschu.bloomooemulator.adapters.GameListAdapter;
+import pl.genschu.bloomooemulator.engine.time.LegacyClockProfile;
 import pl.genschu.bloomooemulator.logic.GameEntry;
 import pl.genschu.bloomooemulator.logic.GameManager;
 import pl.genschu.bloomooemulator.logic.MouseMode;
@@ -136,6 +137,7 @@ public class GameListActivity extends AppCompatActivity {
         Button chooseFolderButton = dialogView.findViewById(R.id.chooseFolderButton);
         Button chooseIsoButton = dialogView.findViewById(R.id.chooseIsoButton);
         Spinner mouseModeSelectBox = dialogView.findViewById(R.id.mouseModeSelectBox);
+        Spinner legacyClockProfileSelectBox = dialogView.findViewById(R.id.legacyClockProfileSelectBox);
         CheckBox joystickCheckbox = dialogView.findViewById(R.id.joystickCheckbox);
         CheckBox skipPoliceCheckbox = dialogView.findViewById(R.id.skipPoliceCheckbox);
         CheckBox fullscreenCheckbox = dialogView.findViewById(R.id.fullscreenCheckbox);
@@ -156,10 +158,23 @@ public class GameListActivity extends AppCompatActivity {
         mouseModeAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         mouseModeSelectBox.setAdapter(mouseModeAdapter);
 
+        // Display names may evolve, while GameEntry persists the stable enum name.
+        final LegacyClockProfile[] legacyClockProfiles = LegacyClockProfile.values();
+        String[] legacyClockProfileLabels = new String[legacyClockProfiles.length];
+        for (int i = 0; i < legacyClockProfiles.length; i++) {
+            legacyClockProfileLabels[i] = legacyClockProfiles[i].displayName();
+        }
+        ArrayAdapter<String> legacyClockProfileAdapter = new ArrayAdapter<>(
+                this, android.R.layout.simple_spinner_item, legacyClockProfileLabels);
+        legacyClockProfileAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        legacyClockProfileSelectBox.setAdapter(legacyClockProfileAdapter);
+        legacyClockProfileSelectBox.setSelection(LegacyClockProfile.defaultProfile().ordinal());
+
         if (game != null) {
             nameField.setText(game.getName());
             pathField.setText(game.getPath());
             mouseModeSelectBox.setSelection(game.getMouseModeEnum().ordinal());
+            legacyClockProfileSelectBox.setSelection(game.getLegacyClockProfileEnum().ordinal());
             joystickCheckbox.setChecked(game.isMouseVirtualJoystick());
             skipPoliceCheckbox.setChecked(game.isSkipLicenceCode());
             fullscreenCheckbox.setChecked(!game.isMaintainAspectRatio());
@@ -180,6 +195,7 @@ public class GameListActivity extends AppCompatActivity {
                         !fullscreenCheckbox.isChecked());
                 newGame.setShowFpsCounter(fpsCounterCheckbox.isChecked());
                 newGame.setFamilyOverride(familyField.getText().toString());
+                newGame.setLegacyClockProfile(legacyClockProfiles[legacyClockProfileSelectBox.getSelectedItemPosition()]);
                 gameManager.addGame(newGame);
 
                 adapter.notifyItemInserted(gameManager.getGames().indexOf(newGame, true));
@@ -192,6 +208,7 @@ public class GameListActivity extends AppCompatActivity {
                 game.setMaintainAspectRatio(!fullscreenCheckbox.isChecked());
                 game.setShowFpsCounter(fpsCounterCheckbox.isChecked());
                 game.setFamilyOverride(familyField.getText().toString());
+                game.setLegacyClockProfile(legacyClockProfiles[legacyClockProfileSelectBox.getSelectedItemPosition()]);
                 gameManager.updateGame(game);
 
                 adapter.notifyItemChanged(gameManager.getGames().indexOf(game, true));

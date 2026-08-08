@@ -47,6 +47,7 @@
     <string name="mouse_mode_label">Tryb pracy myszy:</string>
     <string name="mouse_mode_touch">Dotykowo</string>
     <string name="mouse_mode_physical">Fizyczny kursor</string>
+    <string name="legacy_clock_profile_label">Rozdzielczość starego zegara (GetTickCount):</string>
     <string name="use_joystick">Używaj wirtualnego joysticka do obsługi myszy</string>
     <string name="skip_police_code">Pomiń wprowadzanie kodu (Pana Policjanta)</string>
     <string name="stretch_fullscreen">Rozciągaj na cały ekran (ignoruj proporcje ekranu)</string>

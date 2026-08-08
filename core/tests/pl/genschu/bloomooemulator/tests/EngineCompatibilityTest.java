@@ -113,6 +113,33 @@ class EngineCompatibilityTest {
     }
 
     @Test
+    void legacyWindowPhaseOrderMatchesEngineGeneration() {
+        assertFrameOrder(EngineVariant.PIKLIB_6_1, "input", "managers", "render");
+        assertFrameOrder(EngineVariant.PIKLIB_7_1, "input", "managers", "render");
+        assertFrameOrder(EngineVariant.PIKLIB_7_2, "input", "managers", "render");
+        assertFrameOrder(EngineVariant.PIKLIB_8, "input", "render", "managers");
+        assertFrameOrder(EngineVariant.BLOOMOO, "render", "input", "managers");
+
+        List<String> withoutPulse = new java.util.ArrayList<>();
+        EngineVariant.BLOOMOO.legacyFrameOrder().execute(
+                false,
+                () -> withoutPulse.add("input"),
+                () -> withoutPulse.add("render"),
+                () -> withoutPulse.add("managers"));
+        assertEquals(List.of("render"), withoutPulse);
+    }
+
+    private static void assertFrameOrder(EngineVariant variant, String... expected) {
+        List<String> phases = new java.util.ArrayList<>();
+        variant.legacyFrameOrder().execute(
+                true,
+                () -> phases.add("input"),
+                () -> phases.add("render"),
+                () -> phases.add("managers"));
+        assertEquals(List.of(expected), phases);
+    }
+
+    @Test
     void loadingAGameInstallsItsProfileForPlainValueConversions() {
         // No MethodContext involved: conversions must pick the engine up on their own.
         newGame("Piklib v8");

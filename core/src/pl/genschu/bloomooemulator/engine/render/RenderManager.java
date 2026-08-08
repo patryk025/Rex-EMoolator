@@ -1,9 +1,15 @@
 package pl.genschu.bloomooemulator.engine.render;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.Pixmap;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.graphics.glutils.FrameBuffer;
 import com.badlogic.gdx.utils.Disposable;
+import com.badlogic.gdx.utils.viewport.Viewport;
 import pl.genschu.bloomooemulator.engine.Game;
 import pl.genschu.bloomooemulator.engine.config.EngineConfig;
 import pl.genschu.bloomooemulator.engine.context.EngineVariable;
@@ -15,51 +21,165 @@ import pl.genschu.bloomooemulator.geometry.shapes.Box2D;
 import java.util.*;
 
 public class RenderManager implements Disposable {
+    private static final int VIRTUAL_WIDTH = 800;
     private static final float VIRTUAL_HEIGHT = 600;
 
     private final SpriteBatch batch;
     private final OrthographicCamera camera;
+    private final Viewport viewport;
     private final Game game;
     private final EngineConfig config;
+
+    /**
+     * Persistent 800x600 logical canvas. Keeping the fixed-size surface here
+     * makes the displayed frame and CANVAS_OBSERVER.SAVE use the same complete
+     * image. RGBA8888 is intentional: renderers using destination alpha need an
+     * alpha channel; SAVE converts its on-demand snapshot to legacy RGB565.
+     */
+    private final FrameBuffer canvasBuffer;
+    private final TextureRegion canvasRegion;
 
     private final GraphicsRenderer graphicsRenderer;
     private final TextRenderer textRenderer;
     private final MaskRenderer maskRenderer;
     private final AlphaMaskRenderer alphaMaskRenderer;
 
-    // TODO: move
-    public RenderManager(SpriteBatch batch, OrthographicCamera camera, Game game, EngineConfig config) {
+    public RenderManager(SpriteBatch batch, OrthographicCamera camera, Viewport viewport,
+                         Game game, EngineConfig config) {
         this.batch = batch;
         this.camera = camera;
+        this.viewport = viewport;
         this.game = game;
         this.config = config;
 
+        this.canvasBuffer = new FrameBuffer(Pixmap.Format.RGBA8888, VIRTUAL_WIDTH, (int) VIRTUAL_HEIGHT, false);
+        this.canvasRegion = new TextureRegion(canvasBuffer.getColorBufferTexture());
+        // Frame-buffer textures use OpenGL's bottom-left origin. Flip only the
+        // presentation view; readback retains its native orientation and SAVE
+        // converts it exactly once.
+        this.canvasRegion.flip(false, true);
+        canvasBuffer.getColorBufferTexture().setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
+
         this.graphicsRenderer = new GraphicsRenderer(batch, camera);
-        this.textRenderer = new TextRenderer(batch, camera);
+        this.textRenderer = new TextRenderer(batch);
         this.maskRenderer = new MaskRenderer(batch);
         this.alphaMaskRenderer = new AlphaMaskRenderer(batch);
+
+        clearLogicalCanvas();
     }
 
     public void render(float deltaTime) {
-        GameContext context = game.getCurrentSceneContext();
+        renderLogicalCanvas();
+        presentLogicalCanvas();
+    }
 
-        // start rendering
+    private void renderLogicalCanvas() {
+        canvasBuffer.begin();
+        try {
+            Gdx.gl.glClearColor(0, 0, 0, 1);
+            Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+
+            camera.update();
+            batch.setProjectionMatrix(camera.combined);
+
+            GameContext context = game.getCurrentSceneContext();
+            batch.begin();
+            batch.setBlendFunction(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
+
+            // Render background
+            renderBackground();
+
+            // Render graphics pasted onto background by CANVAS_OBSERVER.PASTE
+            renderPastedGraphics();
+
+            // Obtain draw list and sort by priority
+            List<Variable> drawList = getDrawableVariables(context);
+            sortByPriority(drawList);
+
+            renderDrawList(drawList, context);
+        } finally {
+            if (batch.isDrawing()) {
+                batch.end();
+            }
+            canvasBuffer.end();
+            restorePresentationViewport();
+        }
+    }
+
+    private void presentLogicalCanvas() {
+        restorePresentationViewport();
+
         batch.begin();
+        batch.setColor(1, 1, 1, 1);
+        // Destination alpha is working state for AlphaMaskRenderer. The
+        // original DirectDraw canvas is opaque at presentation time, so using
+        // SRC_ALPHA here would apply the mask a second time.
+        batch.disableBlending();
+        batch.draw(canvasRegion, 0, 0, VIRTUAL_WIDTH, VIRTUAL_HEIGHT);
+        batch.enableBlending();
         batch.setBlendFunction(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
-
-        // Render background
-        renderBackground();
-
-        // Render graphics pasted onto background by CANVAS_OBSERVER.PASTE
-        renderPastedGraphics();
-
-        // Obtain draw list and sort by priority
-        List<Variable> drawList = getDrawableVariables(context);
-        sortByPriority(drawList);
-
-        renderDrawList(drawList, context);
-
         batch.end();
+    }
+
+    private void clearLogicalCanvas() {
+        canvasBuffer.begin();
+        try {
+            Gdx.gl.glClearColor(0, 0, 0, 1);
+            Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+        } finally {
+            canvasBuffer.end();
+            restorePresentationViewport();
+        }
+    }
+
+    private void restorePresentationViewport() {
+        viewport.apply();
+        camera.update();
+        batch.setProjectionMatrix(camera.combined);
+    }
+
+    /**
+     * Reads the current logical canvas on demand. The returned pixmap is an
+     * independent, caller-owned RGB565 snapshot in OpenGL (bottom-up) order.
+     * Reading RGBA/UNSIGNED_BYTE first uses the portable GLES2 readback path;
+     * the CPU-side conversion retains the 16-bpp contract exposed to games.
+     */
+    public Pixmap captureLogicalCanvas() {
+        Pixmap readback = new Pixmap(VIRTUAL_WIDTH, (int) VIRTUAL_HEIGHT, Pixmap.Format.RGBA8888);
+        Pixmap snapshot = null;
+        boolean success = false;
+        boolean bufferBound = false;
+        try {
+            canvasBuffer.begin();
+            bufferBound = true;
+            readback.getPixels().position(0);
+            Gdx.gl.glReadPixels(
+                    0,
+                    0,
+                    VIRTUAL_WIDTH,
+                    (int) VIRTUAL_HEIGHT,
+                    GL20.GL_RGBA,
+                    GL20.GL_UNSIGNED_BYTE,
+                    readback.getPixels());
+
+            snapshot = new Pixmap(VIRTUAL_WIDTH, (int) VIRTUAL_HEIGHT, Pixmap.Format.RGB565);
+            snapshot.setBlending(Pixmap.Blending.None);
+            snapshot.drawPixmap(readback, 0, 0);
+            success = true;
+            return snapshot;
+        } finally {
+            if (bufferBound) {
+                try {
+                    canvasBuffer.end();
+                } finally {
+                    restorePresentationViewport();
+                }
+            }
+            readback.dispose();
+            if (!success && snapshot != null) {
+                snapshot.dispose();
+            }
+        }
     }
 
     private void renderBackground() {
@@ -206,6 +326,7 @@ public class RenderManager implements Disposable {
         textRenderer.dispose();
         maskRenderer.dispose();
         alphaMaskRenderer.dispose();
+        canvasBuffer.dispose();
     }
 
     // Helper method for debugging
