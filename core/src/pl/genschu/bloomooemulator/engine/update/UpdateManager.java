@@ -5,6 +5,7 @@ import pl.genschu.bloomooemulator.engine.Game;
 import pl.genschu.bloomooemulator.engine.config.EngineConfig;
 import pl.genschu.bloomooemulator.engine.context.EngineVariable;
 import pl.genschu.bloomooemulator.engine.context.GameContext;
+import pl.genschu.bloomooemulator.engine.time.LegacyClock;
 import pl.genschu.bloomooemulator.interpreter.variable.*;
 import pl.genschu.bloomooemulator.geometry.shapes.Box2D;
 import pl.genschu.bloomooemulator.utils.CollisionChecker;
@@ -18,6 +19,7 @@ import java.util.Set;
 public class UpdateManager implements Disposable {
     private final Game game;
     private final EngineConfig config;
+    private final LegacyClock legacyClock;
 
     private final CollisionManager collisionManager;
     private final TimerManager timerManager;
@@ -27,6 +29,7 @@ public class UpdateManager implements Disposable {
     public UpdateManager(Game game, EngineConfig config) {
         this.game = game;
         this.config = config;
+        this.legacyClock = game.getLegacyClock();
 
         this.collisionManager = new CollisionManager(game);
         this.timerManager = new TimerManager(game);
@@ -34,22 +37,16 @@ public class UpdateManager implements Disposable {
         this.audioManager = new AudioManager(game);
     }
 
-    /**
-     * Advances all managed subsystems by one fixed step. Timers tick on the
-     * engine's monotonic clock; animations, collisions, and audio take the
-     * fixed delta directly.
-     */
-    public void tick(float fixedDt) {
-        game.advanceEngineTime(fixedDt);
-
-        updateTimers(game.getEngineTimeMs());
-        updateAnimations(game.getEngineTimeMs());
+    /** Performs one legacy engine pulse. Missed pulses are never replayed. */
+    public void pulse() {
+        updateTimers();
+        updateAnimations();
+        updateAudio();
         updateCollisions();
-        updateAudio(fixedDt);
     }
 
-    private void updateTimers(long engineTimeMs) {
-        timerManager.updateTimers(engineTimeMs);
+    private void updateTimers() {
+        timerManager.updateTimers(legacyClock);
     }
 
     private void updateCollisions() {
@@ -69,12 +66,12 @@ public class UpdateManager implements Disposable {
         collisionManager.checkCollisions(object);
     }
 
-    private void updateAnimations(long engineTimeMs) {
-        animationManager.updateAnimations(engineTimeMs);
+    private void updateAnimations() {
+        animationManager.updateAnimations(legacyClock);
     }
 
-    private void updateAudio(float deltaTime) {
-        audioManager.update(deltaTime);
+    private void updateAudio() {
+        audioManager.update();
     }
 
     @Override
@@ -141,17 +138,29 @@ public class UpdateManager implements Disposable {
             this.game = game;
         }
 
-        public void updateTimers(long engineTimeMs) {
+        public void updateTimers(LegacyClock clock) {
             GameContext context = game.getCurrentSceneContext();
-            for (EngineVariable variable : new ArrayList<>(context.getTimerVariables().values())) {
-                if (variable instanceof TimerVariable timer) {
+            Set<TimerVariable.TimerState> seenStates =
+                    Collections.newSetFromMap(new IdentityHashMap<>());
+            for (EngineVariable variable : new ArrayList<>(context.getTimerVariablesForScheduling())) {
+                if (variable instanceof TimerVariable candidate
+                        && seenStates.add(candidate.state())) {
+                    TimerVariable timer = resolveCanonicalTimer(context, candidate);
                     try {
-                        timer.update(engineTimeMs);
+                        timer.update(clock);
                     } catch (Exception ignored) {
                         // simple break, nothing special
                     }
                 }
             }
+        }
+
+        private TimerVariable resolveCanonicalTimer(GameContext context, TimerVariable candidate) {
+            EngineVariable resolved = context.getVariable(candidate.name());
+            if (resolved instanceof TimerVariable timer && timer.state() == candidate.state()) {
+                return timer;
+            }
+            return candidate;
         }
 
         @Override
@@ -168,20 +177,98 @@ public class UpdateManager implements Disposable {
             this.game = game;
         }
 
-        public void updateAnimations(long engineTimeMs) {
+        public void updateAnimations(LegacyClock clock) {
             GameContext context = game.getCurrentSceneContext();
-            List<? extends EngineVariable> graphicsVariables = new ArrayList<>(context.getGraphicsVariables().values());
+            List<? extends EngineVariable> graphicsVariables =
+                    new ArrayList<>(context.getGraphicsVariablesForScheduling());
+            List<ScheduledAnimo> dueAnimations = new ArrayList<>();
+            Set<AnimoVariable.AnimoPlaybackState> seen =
+                    Collections.newSetFromMap(new IdentityHashMap<>());
+            List<ScheduledKolorowanka> kolorowankas = new ArrayList<>();
+            Set<KolorowankaVariable.KolorowankaState> seenKolorowankaStates =
+                    Collections.newSetFromMap(new IdentityHashMap<>());
+            // CAnimationManager takes one GetTickCount sample for the entire
+            // due scan. Only a selected slot gets a second sample on commit.
+            long observedTime = clock.nowMillis();
 
             for (EngineVariable variable : graphicsVariables) {
-                if (variable instanceof AnimoVariable animoVariable) {
-                    if (animoVariable.isPlaying()) {
-                        animoVariable.updateAnimation(engineTimeMs);
+                if (variable instanceof AnimoVariable animoVariable
+                        && seen.add(animoVariable.state())) {
+                    // Registration is independent of PLAYING. A stopped object
+                    // keeps ageing in CAnimationManager and may be due as soon
+                    // as PLAY starts later.
+                    animoVariable.registerAnimationClock(observedTime);
+                    if (animoVariable.prepareAnimationTick(observedTime, clock)) {
+                        // withSignal/ADDBEHAVIOUR can replace the immutable
+                        // record wrapper while retaining this mutable logical
+                        // playable. The scheduler slot belongs to the state,
+                        // not to a transient wrapper instance.
+                        dueAnimations.add(new ScheduledAnimo(animoVariable.name(), animoVariable.state()));
                     }
-                } else if (variable instanceof KolorowankaVariable kolorowanka) {
-                    kolorowanka.update(engineTimeMs);
+                } else if (variable instanceof KolorowankaVariable kolorowanka
+                        && seenKolorowankaStates.add(kolorowanka.state())) {
+                    kolorowankas.add(new ScheduledKolorowanka(
+                            kolorowanka.name(), kolorowanka.state()));
+                }
+            }
+
+            // The original manager selects every due playable before running
+            // any Next callback. Re-check registration because an earlier
+            // callback can unload/remove a later object.
+            for (ScheduledAnimo due : dueAnimations) {
+                GameContext current = game.getCurrentSceneContext();
+                EngineVariable resolved = current.getVariable(due.name());
+                if (resolved instanceof AnimoVariable canonical
+                        && canonical.state() == due.state()) {
+                    canonical.advancePreparedAnimationTick();
+                    continue;
+                }
+                current.getGraphicsVariablesForScheduling().stream()
+                        .filter(AnimoVariable.class::isInstance)
+                        .map(AnimoVariable.class::cast)
+                        .filter(candidate -> candidate.state() == due.state())
+                        .findFirst()
+                        .ifPresent(AnimoVariable::advancePreparedAnimationTick);
+            }
+
+            // KOLOROWANKA has its own tick/callback phase. Keeping it outside
+            // the ANIMO due scan prevents a fade callback from changing which
+            // later animations were selected in this pass.
+            for (ScheduledKolorowanka scheduled : kolorowankas) {
+                GameContext current = game.getCurrentSceneContext();
+                KolorowankaVariable kolorowanka = resolveKolorowanka(current, scheduled);
+                if (kolorowanka != null) {
+                    kolorowanka.update(clock.nowMillis());
                 }
             }
         }
+
+        private KolorowankaVariable resolveKolorowanka(
+                GameContext context,
+                ScheduledKolorowanka scheduled
+        ) {
+            EngineVariable resolved = context.getVariable(scheduled.name());
+            if (resolved instanceof KolorowankaVariable canonical
+                    && canonical.state() == scheduled.state()) {
+                return canonical;
+            }
+            return context.getGraphicsVariablesForScheduling().stream()
+                    .filter(KolorowankaVariable.class::isInstance)
+                    .map(KolorowankaVariable.class::cast)
+                    .filter(candidate -> candidate.state() == scheduled.state())
+                    .findFirst()
+                    .orElse(null);
+        }
+
+        private record ScheduledAnimo(
+                String name,
+                AnimoVariable.AnimoPlaybackState state
+        ) {}
+
+        private record ScheduledKolorowanka(
+                String name,
+                KolorowankaVariable.KolorowankaState state
+        ) {}
 
         @Override
         public void dispose() {
@@ -197,7 +284,7 @@ public class UpdateManager implements Disposable {
             this.game = game;
         }
 
-        public void update(float deltaTime) {
+        public void update() {
             List<EngineVariable> playingAudios = new ArrayList<>(game.getPlayingAudios());
             for (EngineVariable ev : playingAudios) {
                 if (ev instanceof SoundVariable sound) {

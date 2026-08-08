@@ -299,6 +299,11 @@ public class Context implements GameContext {
         return resolver.collectGraphics(this);
     }
 
+    @Override
+    public List<Variable> getGraphicsVariablesForScheduling() {
+        return resolver.collectGraphicsForScheduling(this);
+    }
+
     /**
      * Gets all button variables from context hierarchy.
      * includes additionalContexts and classInstances.
@@ -378,6 +383,11 @@ public class Context implements GameContext {
      */
     public Map<String, Variable> getTimerVariables() {
         return resolver.collectTimers(this);
+    }
+
+    @Override
+    public List<Variable> getTimerVariablesForScheduling() {
+        return resolver.collectTimersForScheduling(this);
     }
 
     /**

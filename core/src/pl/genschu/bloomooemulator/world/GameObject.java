@@ -232,7 +232,7 @@ public class GameObject {
         double nz = vz * scale;
 
         if (Double.isFinite(nx) && Double.isFinite(ny) && Double.isFinite(nz)) {
-            physicsEngine.setSpeed(id, nx, ny, nz);
+            physicsEngine.setDampedSpeed(id, nx, ny, nz);
         }
 
         this.setVelocity((float)nx, (float)ny, (float)nz);

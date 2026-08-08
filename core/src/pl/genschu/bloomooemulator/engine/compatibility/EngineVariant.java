@@ -46,6 +46,53 @@ public enum EngineVariant {
         return piklibDoubleStringQuirk;
     }
 
+    /** Observable ordering of script input, canvas presentation and managers. */
+    public LegacyFrameOrder legacyFrameOrder() {
+        return switch (this) {
+            case BLOOMOO -> LegacyFrameOrder.RENDER_INPUT_MANAGERS;
+            case PIKLIB_8 -> LegacyFrameOrder.INPUT_RENDER_MANAGERS;
+            default -> LegacyFrameOrder.INPUT_MANAGERS_RENDER;
+        };
+    }
+
+    public enum LegacyFrameOrder {
+        INPUT_MANAGERS_RENDER,
+        INPUT_RENDER_MANAGERS,
+        RENDER_INPUT_MANAGERS;
+
+        /** Runs one host frame; input/managers are skipped when no pulse was admitted. */
+        public void execute(boolean runLegacyPulse,
+                            Runnable legacyInput,
+                            Runnable render,
+                            Runnable managers) {
+            switch (this) {
+                case INPUT_MANAGERS_RENDER -> {
+                    if (runLegacyPulse) {
+                        legacyInput.run();
+                        managers.run();
+                    }
+                    render.run();
+                }
+                case INPUT_RENDER_MANAGERS -> {
+                    if (runLegacyPulse) {
+                        legacyInput.run();
+                    }
+                    render.run();
+                    if (runLegacyPulse) {
+                        managers.run();
+                    }
+                }
+                case RENDER_INPUT_MANAGERS -> {
+                    render.run();
+                    if (runLegacyPulse) {
+                        legacyInput.run();
+                        managers.run();
+                    }
+                }
+            }
+        }
+    }
+
     public static EngineVariant fromVersion(String version) {
         if (version == null || version.isBlank()) {
             return UNKNOWN;

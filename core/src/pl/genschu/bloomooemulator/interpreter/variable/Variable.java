@@ -173,6 +173,11 @@ public sealed interface Variable extends EngineVariable permits
                         String cloneName = baseName + "_" + (existing + i + 1);
                         Variable clone = self.copyAs(cloneName);
                         ctx.setVariable(cloneName, clone);
+                        if (clone instanceof AnimoVariable animo && ctx.getGame() != null) {
+                            // CAnimationManager::add creates the timing slot at
+                            // registration, not at the next manager pass.
+                            animo.registerAnimationClock(ctx.getGame().getEngineTimeMs());
+                        }
                         ctx.clones().registerClone(baseName, cloneName);
                     }
                 }

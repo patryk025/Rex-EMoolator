@@ -341,7 +341,12 @@ public class CNVParser {
             }
             case "ANIMO" -> {
                 String filename = properties.get(objectName + ":FILENAME");
-                yield filename != null ? new AnimoVariable(objectName, filename) : new AnimoVariable(objectName);
+                AnimoVariable animo = filename != null
+                        ? new AnimoVariable(objectName, filename)
+                        : new AnimoVariable(objectName);
+                long now = context.getGame() != null ? context.getGame().getEngineTimeMs() : 0L;
+                animo.registerAnimationClock(now);
+                yield animo;
             }
             case "SEQUENCE" -> {
                 String filename = properties.get(objectName + ":FILENAME");

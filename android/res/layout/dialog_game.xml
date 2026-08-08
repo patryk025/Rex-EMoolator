@@ -1,10 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
+<ScrollView
      xmlns:android="http://schemas.android.com/apk/res/android"
      android:layout_height="wrap_content"
      android:layout_width="match_parent"
-     android:padding="16dp"
-     android:orientation="vertical">
+     android:fillViewport="true">
+
+    <LinearLayout
+         android:layout_height="wrap_content"
+         android:layout_width="match_parent"
+         android:padding="16dp"
+         android:orientation="vertical">
 
     <TextView
          android:layout_height="wrap_content"
@@ -61,6 +66,16 @@
 
     </Spinner>
 
+    <TextView
+         android:layout_height="wrap_content"
+         android:layout_width="match_parent"
+         android:text="@string/legacy_clock_profile_label" />
+
+    <Spinner
+         android:layout_height="wrap_content"
+         android:layout_width="match_parent"
+         android:id="@+id/legacyClockProfileSelectBox" />
+
     <CheckBox
          android:layout_height="wrap_content"
          android:layout_width="match_parent"
@@ -97,4 +112,6 @@
          android:inputType="text"
          android:id="@+id/familyField" />
 
-</LinearLayout>
+    </LinearLayout>
+
+</ScrollView>

@@ -3,7 +3,6 @@ package pl.genschu.bloomooemulator.engine;
 import com.badlogic.gdx.Application;
 import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.files.FileHandle;
-import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 import pl.genschu.bloomooemulator.BlooMooEngine;
@@ -16,6 +15,9 @@ import pl.genschu.bloomooemulator.engine.filesystem.AudioFileResolver;
 import pl.genschu.bloomooemulator.engine.filesystem.IFileSystem;
 import pl.genschu.bloomooemulator.engine.input.InputManager;
 import pl.genschu.bloomooemulator.engine.render.PastedGraphic;
+import pl.genschu.bloomooemulator.engine.time.LegacyClock;
+import pl.genschu.bloomooemulator.engine.time.LegacyClockProfile;
+import pl.genschu.bloomooemulator.engine.time.QuantizedLegacyClock;
 import pl.genschu.bloomooemulator.interpreter.context.Context;
 import pl.genschu.bloomooemulator.interpreter.runtime.ExecutionContext;
 import pl.genschu.bloomooemulator.interpreter.runtime.ASTInterpreter;
@@ -87,9 +89,9 @@ public class Game {
 
     private List<EngineVariable> playingAudios = new ArrayList<>();
 
-    // Monotonic engine clock — advanced by UpdateManager.tick() at a fixed step.
-    // Decoupled from System.currentTimeMillis() so OS hiccups can't double-fire timers.
-    private double engineTimeMsAccum = 0.0;
+    // GetTickCount-compatible clock used by legacy schedulers. Its granularity
+    // is selected independently from render cadence.
+    private final LegacyClock legacyClock;
 
     private Map<String, Music> musicCache;
     private Music currentSceneMusic = null;
@@ -100,20 +102,31 @@ public class Game {
     // Snapshots pasted onto the background by CANVAS_OBSERVER.PASTE - rendered between bkg and scene.
     private final List<PastedGraphic> pastedGraphics = new ArrayList<>();
 
-    private Pixmap lastFrame;
-
     private final BlooMooEngine emulator;
 
     public Game(GameEntry game, BlooMooEngine emulator) {
+        this(game, emulator, createLegacyClock(emulator));
+    }
+
+    public Game(GameEntry game, BlooMooEngine emulator, LegacyClock legacyClock) {
         this.definitionContext = new Context(new ExecutionContext());
         this.game = game;
         this.quadTree = new QuadTree(0, new Box2D(0, 0, 800, 600));
         this.emulator = emulator;
+        this.legacyClock = Objects.requireNonNull(legacyClock, "legacyClock");
 
         musicCache = Collections.synchronizedMap(new HashMap<>());
 
         refreshCompatibilityProfile();
         definitionContext.setGame(this);
+    }
+
+    private static LegacyClock createLegacyClock(BlooMooEngine emulator) {
+        LegacyClockProfile profile = LegacyClockProfile.defaultProfile();
+        if (emulator != null && emulator.getConfig() != null) {
+            profile = emulator.getConfig().getLegacyClockProfile();
+        }
+        return new QuantizedLegacyClock(profile);
     }
 
     public void loadGame() {
@@ -739,12 +752,15 @@ public class Game {
         return currentScene.toUpperCase();
     }
 
-    public void takeScreenshot() {
-        // save frame for CanvasObserver
-        if(lastFrame != null && !lastFrame.isDisposed())
-            lastFrame.dispose();
-        lastFrame = new Pixmap(Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), Pixmap.Format.RGB565);
-        Gdx.gl.glReadPixels(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), GL20.GL_RGB, GL20.GL_UNSIGNED_SHORT_5_6_5, lastFrame.getPixels());
+    /**
+     * Returns an independent snapshot of the fixed 800x600 logical canvas.
+     * The caller owns the returned pixmap and must dispose it.
+     */
+    public Pixmap captureCanvas() {
+        if (emulator == null || emulator.getRenderManager() == null) {
+            return null;
+        }
+        return emulator.getRenderManager().captureLogicalCanvas();
     }
 
     // ========================================
@@ -971,14 +987,6 @@ public class Game {
         return previousScene;
     }
 
-    public Pixmap getLastFrame() {
-        return lastFrame;
-    }
-
-    public void setLastFrame(Pixmap lastFrame) {
-        this.lastFrame = lastFrame;
-    }
-
     public Map<String, Music> getMusicCache() {
         return musicCache;
     }
@@ -1016,11 +1024,11 @@ public class Game {
     }
 
     public long getEngineTimeMs() {
-        return (long) engineTimeMsAccum;
+        return legacyClock.nowMillis();
     }
 
-    public void advanceEngineTime(float deltaSec) {
-        engineTimeMsAccum += deltaSec * 1000.0;
+    public LegacyClock getLegacyClock() {
+        return legacyClock;
     }
 
     public List<EngineVariable> getPlayingAudios() {

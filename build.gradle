@@ -560,9 +560,9 @@ project(":android") {
     }
 }
 
-// Shared by :core and by :core-lint, which compiles the very same sources as an Android
+// Shared by :core and by :android-api-check, which compiles the very same sources as an Android
 // library to make them visible to Android Lint. Declared once so the two cannot drift -
-// a dependency added to :core alone would break :core-lint's compilation, and the API 24
+// a dependency added to :core alone would break :android-api-check's compilation, and the API 24
 // check would then fail for a reason that has nothing to do with API levels.
 def coreProductionDependencies = {
     api "com.badlogicgames.gdx:gdx:$gdxVersion"
@@ -633,8 +633,8 @@ project(":core") {
     }
 }
 
-// Lint-only module - see core-lint/build.gradle for why it exists.
-project(":core-lint") {
+// Lint-only module - see android-api-check/build.gradle for why it exists.
+project(":android-api-check") {
     apply plugin: "com.android.library"
 
     dependencies coreProductionDependencies
