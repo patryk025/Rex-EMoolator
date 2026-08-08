@@ -3,7 +3,6 @@ package pl.genschu.bloomooemulator.engine;
 import com.badlogic.gdx.Application;
 import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.files.FileHandle;
-import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 import pl.genschu.bloomooemulator.BlooMooEngine;
@@ -102,8 +101,6 @@ public class Game {
 
     // Snapshots pasted onto the background by CANVAS_OBSERVER.PASTE - rendered between bkg and scene.
     private final List<PastedGraphic> pastedGraphics = new ArrayList<>();
-
-    private Pixmap lastFrame;
 
     private final BlooMooEngine emulator;
 
@@ -755,12 +752,15 @@ public class Game {
         return currentScene.toUpperCase();
     }
 
-    public void takeScreenshot() {
-        // save frame for CanvasObserver
-        if(lastFrame != null && !lastFrame.isDisposed())
-            lastFrame.dispose();
-        lastFrame = new Pixmap(Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), Pixmap.Format.RGB565);
-        Gdx.gl.glReadPixels(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), GL20.GL_RGB, GL20.GL_UNSIGNED_SHORT_5_6_5, lastFrame.getPixels());
+    /**
+     * Returns an independent snapshot of the fixed 800x600 logical canvas.
+     * The caller owns the returned pixmap and must dispose it.
+     */
+    public Pixmap captureCanvas() {
+        if (emulator == null || emulator.getRenderManager() == null) {
+            return null;
+        }
+        return emulator.getRenderManager().captureLogicalCanvas();
     }
 
     // ========================================
@@ -985,14 +985,6 @@ public class Game {
 
     public String getPreviousScene() {
         return previousScene;
-    }
-
-    public Pixmap getLastFrame() {
-        return lastFrame;
-    }
-
-    public void setLastFrame(Pixmap lastFrame) {
-        this.lastFrame = lastFrame;
     }
 
     public Map<String, Music> getMusicCache() {

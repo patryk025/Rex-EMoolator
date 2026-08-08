@@ -1,7 +1,6 @@
 package pl.genschu.bloomooemulator.interpreter.variable;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.TextureData;
@@ -260,28 +259,68 @@ public record CanvasObserverVariable(
                 yBottom = ArgumentHelper.getInt(args.get(6));
             }
 
-            Pixmap pixmap = ctx.getGame().getLastFrame();
+            Pixmap pixmap = ctx.getGame().captureCanvas();
             if (pixmap == null) {
-                Gdx.app.error("CanvasObserverVariable", "Pixmap is null, screenshots may be not captured correctly");
-                pixmap = new Pixmap(Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), Pixmap.Format.RGB565);
-                Gdx.gl.glReadPixels(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), GL20.GL_RGB, GL20.GL_UNSIGNED_SHORT_5_6_5, pixmap.getPixels());
+                Gdx.app.error("CanvasObserverVariable", "Logical canvas is not available; screenshot was not saved");
+                return MethodResult.noReturn();
             }
 
-            flipPixmapVertically(pixmap);
+            Pixmap croppedPixmap = null;
+            Pixmap scaledPixmap = null;
+            try {
+                int cropWidth = xRight - xLeft;
+                int cropHeight = yBottom - yTop;
+                int scaledWidth = (int) (cropWidth * xScaleFactor);
+                int scaledHeight = (int) (cropHeight * yScaleFactor);
+                boolean cropOutsideCanvas = xLeft < 0
+                        || yTop < 0
+                        || xRight > pixmap.getWidth()
+                        || yBottom > pixmap.getHeight();
+                if (cropWidth <= 0
+                        || cropHeight <= 0
+                        || scaledWidth <= 0
+                        || scaledHeight <= 0
+                        || cropOutsideCanvas) {
+                    Gdx.app.error("CanvasObserverVariable", "Invalid screenshot rectangle or scale");
+                    return MethodResult.noReturn();
+                }
 
-            Pixmap croppedPixmap = new Pixmap(xRight - xLeft, yBottom - yTop, pixmap.getFormat());
-            croppedPixmap.drawPixmap(pixmap, 0, 0, xLeft, yTop, xRight - xLeft, yBottom - yTop);
-            pixmap.dispose();
+                flipPixmapVertically(pixmap);
 
-            Pixmap scaledPixmap = new Pixmap((int) ((xRight - xLeft) * xScaleFactor), (int) ((yBottom - yTop) * yScaleFactor), croppedPixmap.getFormat());
-            scaledPixmap.drawPixmap(croppedPixmap, 0, 0, croppedPixmap.getWidth(), croppedPixmap.getHeight(), 0, 0, scaledPixmap.getWidth(), scaledPixmap.getHeight());
-            croppedPixmap.dispose();
+                croppedPixmap = new Pixmap(cropWidth, cropHeight, pixmap.getFormat());
+                croppedPixmap.setBlending(Pixmap.Blending.None);
+                croppedPixmap.drawPixmap(pixmap, 0, 0, xLeft, yTop, cropWidth, cropHeight);
 
-            int width = scaledPixmap.getWidth();
-            int height = scaledPixmap.getHeight();
+                scaledPixmap = new Pixmap(scaledWidth, scaledHeight, croppedPixmap.getFormat());
+                scaledPixmap.setBlending(Pixmap.Blending.None);
+                scaledPixmap.drawPixmap(
+                        croppedPixmap,
+                        0,
+                        0,
+                        croppedPixmap.getWidth(),
+                        croppedPixmap.getHeight(),
+                        0,
+                        0,
+                        scaledPixmap.getWidth(),
+                        scaledPixmap.getHeight());
 
-            ImageSaver.saveScreenshot(ctx.getGame(), imgFileName, pixmapToByteArray(scaledPixmap), width, height);
-            scaledPixmap.dispose();
+                ImageSaver.saveScreenshot(
+                        ctx.getGame(),
+                        imgFileName,
+                        pixmapToByteArray(scaledPixmap),
+                        scaledPixmap.getWidth(),
+                        scaledPixmap.getHeight());
+            } finally {
+                if (scaledPixmap != null && !scaledPixmap.isDisposed()) {
+                    scaledPixmap.dispose();
+                }
+                if (croppedPixmap != null && !croppedPixmap.isDisposed()) {
+                    croppedPixmap.dispose();
+                }
+                if (!pixmap.isDisposed()) {
+                    pixmap.dispose();
+                }
+            }
 
             return MethodResult.noReturn();
         })),

@@ -61,6 +61,13 @@ public class BlooMooEngine extends ApplicationAdapter {
     @Override
     public void create() {
         // initialise LibGDX
+
+        // Legacy managers are polled once per host render. Apply the existing
+        // cadence configuration on every backend (not only the desktop
+        // launcher). It is only a scheduling hint: AndroidGraphics currently
+        // ignores setForegroundFPS, so LegacyPulseGate below is authoritative.
+        Gdx.graphics.setVSync(config.isVsync());
+        Gdx.graphics.setForegroundFPS(config.getTargetFPS());
         legacyPulseGate = new LegacyPulseGate(config.getLegacyPulseHz());
 
         batch = new SpriteBatch();
@@ -78,7 +85,7 @@ public class BlooMooEngine extends ApplicationAdapter {
 
         // initialise emulator components
         game = new Game(gameEntry, this);
-        renderManager = new RenderManager(batch, camera, game, config);
+        renderManager = new RenderManager(batch, camera, viewport, game, config);
         inputManager = new InputManager(camera, viewport, game, config);
         updateManager = new UpdateManager(game, config);
         debugManager = new DebugManager(batch, camera, game, config);
@@ -108,14 +115,6 @@ public class BlooMooEngine extends ApplicationAdapter {
         }
 
         PerformanceMonitor.startOperation("Render - frame time");
-
-        // clear screen
-        Gdx.gl.glClearColor(0, 0, 0, 1);
-        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-
-        // update camera and set projection matrix
-        camera.update();
-        batch.setProjectionMatrix(camera.combined);
 
         PerformanceMonitor.startOperation("Render - processing input");
         // Debug controls must remain responsive while paused.
@@ -165,11 +164,6 @@ public class BlooMooEngine extends ApplicationAdapter {
         // render debug info
         debugManager.render(deltaTime);
         PerformanceMonitor.endOperation("Render - rendering debug info");
-
-        // take screenshot for CanvasObserver
-        game.takeScreenshot();
-
-        PerformanceMonitor.endOperation("Render - frame time");
     }
 
     @Override
