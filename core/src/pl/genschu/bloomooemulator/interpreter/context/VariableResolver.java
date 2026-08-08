@@ -123,6 +123,18 @@ public class VariableResolver {
     }
 
     /**
+     * Collects buttons for an input pass without collapsing equal names from
+     * separate active contexts. A variable object reachable through more than one
+     * graph edge is still returned only once, by identity.
+     */
+    public List<Variable> collectButtonsForInput(Context context) {
+        return collectByTypePreservingIdentity(
+            context,
+            ctx -> ctx.store().getCacheIndex().getButtons()
+        );
+    }
+
+    /**
      * Collects timers from context hierarchy including additionalContexts and class instances.
      */
     public Map<String, Variable> collectTimers(Context context) {

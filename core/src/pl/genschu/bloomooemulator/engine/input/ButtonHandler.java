@@ -12,7 +12,6 @@ import pl.genschu.bloomooemulator.objects.FrameData;
 import pl.genschu.bloomooemulator.objects.Image;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
 public class ButtonHandler {
@@ -34,9 +33,9 @@ public class ButtonHandler {
 
         Context sceneContext = (Context) game.getCurrentSceneContext();
 
-        // Get all buttons from the context and class instances
-        @SuppressWarnings("unchecked")
-        List<Variable> buttons = new ArrayList<>((Collection<? extends Variable>) sceneContext.getButtonsVariables().values());
+        // Keep distinct buttons that happen to use the same script name in separate
+        // class instances (for example MAINMENU.BTNEXIT and INVESTIGATION.BTNEXIT).
+        List<Variable> buttons = new ArrayList<>(sceneContext.getButtonVariablesForInput());
 
         // A button defined inside a class instance lives in that instance context, not
         // the scene; use the concrete variable instance so duplicate names do not

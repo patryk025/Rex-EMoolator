@@ -49,6 +49,16 @@ public interface GameContext {
     Map<String, ? extends EngineVariable> getButtonsVariables();
 
     /**
+     * Gets an identity-preserving snapshot of buttons for input passes.
+     *
+     * <p>Unlike the name-keyed lookup view, this collection may contain multiple
+     * buttons with the same name when they belong to different active contexts.
+     */
+    default List<? extends EngineVariable> getButtonVariablesForInput() {
+        return List.copyOf(getButtonsVariables().values());
+    }
+
+    /**
      * Gets all timer variables from context hierarchy.
      */
     Map<String, ? extends EngineVariable> getTimerVariables();

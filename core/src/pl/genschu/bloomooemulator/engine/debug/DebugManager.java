@@ -357,7 +357,7 @@ public class DebugManager implements Disposable {
     }
 
     private void renderButtonBorders() {
-        List<EngineVariable> buttons = new ArrayList<>(game.getCurrentSceneContext().getButtonsVariables().values());
+        List<EngineVariable> buttons = new ArrayList<>(game.getCurrentSceneContext().getButtonVariablesForInput());
         Vector2 mousePos = getMousePosition();
 
         shapeRenderer.setProjectionMatrix(camera.combined);
@@ -939,8 +939,8 @@ public class DebugManager implements Disposable {
     }
 
     private EngineVariable getButtonAt(int x, int y) {
-        GameContext context = game.getCurrentSceneContext();
-        List<EngineVariable> buttons = new ArrayList<>(context.getButtonsVariables().values());
+        Context context = (Context) game.getCurrentSceneContext();
+        List<EngineVariable> buttons = new ArrayList<>(context.getButtonVariablesForInput());
 
         int minHSPriority = game.getCurrentSceneVariable().minHotSpotZ();
         int maxHSPriority = game.getCurrentSceneVariable().maxHotSpotZ();
@@ -949,7 +949,8 @@ public class DebugManager implements Disposable {
             if (variable instanceof ButtonVariable btn) {
                 String gfxName = btn.getCurrentGfxName();
                 if (gfxName != null) {
-                    EngineVariable gfx = context.getVariable(gfxName);
+                    Context owner = context.findOwningContext(btn);
+                    EngineVariable gfx = (owner != null ? owner : context).getVariable(gfxName);
                     if (gfx != null) {
                         int priority = getPriority(gfx);
                         if (priority < minHSPriority || priority > maxHSPriority) continue;

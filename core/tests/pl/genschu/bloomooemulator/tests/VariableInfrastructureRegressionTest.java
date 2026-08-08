@@ -177,6 +177,28 @@ class VariableInfrastructureRegressionTest {
     }
 
     @Test
+    void testButtonInputCollectionPreservesDuplicateNamesAcrossClassInstances() {
+        Context scene = new ContextBuilder().build();
+        Context menuContext = new Context(new ExecutionContext(), scene);
+        Context investigationContext = new Context(new ExecutionContext(), scene);
+
+        ButtonVariable menuExit = new ButtonVariable("BTNEXIT");
+        ButtonVariable investigationExit = new ButtonVariable("BTNEXIT");
+        menuContext.setVariable("BTNEXIT", menuExit);
+        investigationContext.setVariable("BTNEXIT", investigationExit);
+
+        scene.setVariable("MENU", new InstanceVariable("MENU", menuContext));
+        scene.setVariable("G_CARD", new InstanceVariable("G_CARD", investigationContext));
+
+        // The lookup-oriented map intentionally remains name-keyed, so it can expose
+        // only one BTNEXIT. Input passes must retain both concrete button objects.
+        assertEquals(1, scene.getButtonsVariables().size());
+        assertEquals(List.of(menuExit, investigationExit), scene.getButtonVariablesForInput());
+        assertSame(menuContext, scene.findOwningContext(menuExit));
+        assertSame(investigationContext, scene.findOwningContext(investigationExit));
+    }
+
+    @Test
     void testRunEnvExecutesBehaviourInItsDefiningContextNotTheLiveScene() {
         // Regression guard for the RUNENV context leak.
         //

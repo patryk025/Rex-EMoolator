@@ -314,6 +314,11 @@ public class Context implements GameContext {
         return resolver.collectButtons(this);
     }
 
+    @Override
+    public List<Variable> getButtonVariablesForInput() {
+        return resolver.collectButtonsForInput(this);
+    }
+
     /**
      * Registers a variable as a button in this context's cache.
      * Used for AnimoVariables with ASBUTTON that need to appear in button lists.
@@ -334,7 +339,7 @@ public class Context implements GameContext {
      * same graph the cached collectors use: class instances -> additional contexts ->
      * current -> parent. Returns null if not found anywhere in the hierarchy.
      *
-     * <p>Buttons collected by {@link #getButtonsVariables()} may live inside a class
+     * <p>Buttons collected by {@link #getButtonVariablesForInput()} may live inside a class
      * instance context whose GFX/SND variables are invisible to a plain
      * {@link #getVariable(String)} from the scene (lookup only walks up, never down
      * into instances). The input handler uses this to resolve a button's graphics and
