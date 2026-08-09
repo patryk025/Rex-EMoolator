@@ -6,6 +6,7 @@ import android.os.Bundle;
 
 import com.badlogic.gdx.backends.android.AndroidApplication;
 import com.badlogic.gdx.backends.android.AndroidApplicationConfiguration;
+import pl.genschu.bloomooemulator.platform.AndroidGcMetricsSource;
 import pl.genschu.bloomooemulator.platform.AndroidPrinterService;
 
 public class AndroidLauncher extends AndroidApplication {
@@ -17,6 +18,7 @@ public class AndroidLauncher extends AndroidApplication {
         GameEntry game = (GameEntry) i.getSerializableExtra("game");
         
 		AndroidApplicationConfiguration config = new AndroidApplicationConfiguration();
-		initialize(new BlooMooEngine(game, new AndroidPrinterService(this)), config);
+		initialize(new BlooMooEngine(
+				game, new AndroidPrinterService(this), new AndroidGcMetricsSource()), config);
 	}
 }

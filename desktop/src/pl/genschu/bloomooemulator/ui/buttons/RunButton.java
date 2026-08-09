@@ -7,6 +7,7 @@ import pl.genschu.bloomooemulator.GameRunQueue;
 import pl.genschu.bloomooemulator.logic.GameEntry;
 import pl.genschu.bloomooemulator.logic.GameManager;
 import pl.genschu.bloomooemulator.platform.AwtPrinterService;
+import pl.genschu.bloomooemulator.platform.JvmGcMetricsSource;
 import pl.genschu.bloomooemulator.ui.ButtonColumn;
 
 import javax.swing.*;
@@ -57,7 +58,8 @@ public class RunButton extends ButtonColumn {
                 config.setWindowedMode(800, 600); // temporary for testing
                 config.setTitle("Rex-EMoolator");
 
-                new Lwjgl3Application(new BlooMooEngine(game, new AwtPrinterService()), config);
+                new Lwjgl3Application(new BlooMooEngine(
+                        game, new AwtPrinterService(), new JvmGcMetricsSource()), config);
             } finally {
                 if (listWindow != null) {
                     SwingUtilities.invokeLater(() -> listWindow.setVisible(true));

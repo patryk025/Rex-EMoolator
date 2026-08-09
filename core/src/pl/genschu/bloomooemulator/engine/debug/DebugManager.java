@@ -1,5 +1,6 @@
 package pl.genschu.bloomooemulator.engine.debug;
 
+import com.badlogic.gdx.Application;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputAdapter;
@@ -11,23 +12,25 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Disposable;
+import com.badlogic.gdx.utils.TimeUtils;
 import pl.genschu.bloomooemulator.engine.Game;
 import pl.genschu.bloomooemulator.engine.config.EngineConfig;
 import pl.genschu.bloomooemulator.engine.context.EngineVariable;
 import pl.genschu.bloomooemulator.engine.context.GameContext;
+import pl.genschu.bloomooemulator.engine.metrics.EngineMetrics;
 import pl.genschu.bloomooemulator.geometry.points.Point3D;
 import pl.genschu.bloomooemulator.interpreter.context.Context;
 import pl.genschu.bloomooemulator.interpreter.runtime.ASTInterpreter;
 import pl.genschu.bloomooemulator.interpreter.values.StringValue;
 import pl.genschu.bloomooemulator.interpreter.variable.*;
 import pl.genschu.bloomooemulator.geometry.shapes.Box2D;
+import pl.genschu.bloomooemulator.platform.GcMetricsSource;
 import pl.genschu.bloomooemulator.world.GameObject;
 import pl.genschu.bloomooemulator.world.Mesh;
 import pl.genschu.bloomooemulator.world.MeshTriangle;
 import pl.genschu.bloomooemulator.world.TriangleVertex;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Deque;
 import java.util.HashSet;
@@ -37,15 +40,19 @@ import java.util.Set;
 
 public class DebugManager implements Disposable {
     private static final float VIRTUAL_HEIGHT = 600;
+    private static final long RUNTIME_METRICS_INTERVAL_NANOS = 500_000_000L;
 
     private final SpriteBatch batch;
     private final OrthographicCamera camera;
     private final Game game;
     private final EngineConfig config;
+    private final EngineMetrics engineMetrics;
+    private final GcMetricsSource gcMetricsSource;
 
     private final ShapeRenderer shapeRenderer;
     private final BitmapFont font;
-    private final FpsCounter fpsCounter = new FpsCounter();
+    private long lastRuntimeMetricsSampleAt = Long.MIN_VALUE;
+    private boolean runtimeMetricsSampling;
 
     private String tooltipText = "";
     private final Vector2 tooltipPosition = new Vector2();
@@ -113,18 +120,30 @@ public class DebugManager implements Disposable {
     };
 
 
-    public DebugManager(SpriteBatch batch, OrthographicCamera camera, Game game, EngineConfig config) {
+    public DebugManager(SpriteBatch batch, OrthographicCamera camera, Game game, EngineConfig config,
+                        EngineMetrics engineMetrics, GcMetricsSource gcMetricsSource) {
         this.batch = batch;
         this.camera = camera;
         this.game = game;
         this.config = config;
+        this.engineMetrics = engineMetrics;
+        this.gcMetricsSource = gcMetricsSource;
 
         this.shapeRenderer = new ShapeRenderer();
         this.font = new BitmapFont();
     }
 
     public void render(float deltaTime) {
-        fpsCounter.update(Gdx.graphics.getDeltaTime());
+        EngineMetrics.Snapshot metricsSnapshot = null;
+        if (config.isMonitorPerformance() || config.isShowFpsCounter()) {
+            if (config.isMonitorPerformance()) {
+                recordRuntimeMetricsIfDue();
+            }
+            metricsSnapshot = engineMetrics.snapshot();
+        }
+        if (!config.isMonitorPerformance()) {
+            runtimeMetricsSampling = false;
+        }
 
         // render if in debug mode
         if (config.isDebugGraphics()) {
@@ -140,7 +159,7 @@ public class DebugManager implements Disposable {
         }
 
         if (config.isMonitorPerformance()) {
-            renderMonitorPerformance();
+            renderMonitorPerformance(metricsSnapshot);
         }
 
         if (config.isDebugWorld()) {
@@ -178,8 +197,33 @@ public class DebugManager implements Disposable {
         }
 
         if (config.isShowFpsCounter()) {
-            renderFpsCounter();
+            renderFpsCounter(metricsSnapshot);
         }
+    }
+
+    private void recordRuntimeMetricsIfDue() {
+        long now = TimeUtils.nanoTime();
+        if (!runtimeMetricsSampling) {
+            runtimeMetricsSampling = true;
+            lastRuntimeMetricsSampleAt = Long.MIN_VALUE;
+        }
+        if (lastRuntimeMetricsSampleAt != Long.MIN_VALUE
+                && now >= lastRuntimeMetricsSampleAt
+                && now - lastRuntimeMetricsSampleAt < RUNTIME_METRICS_INTERVAL_NANOS) {
+            return;
+        }
+        lastRuntimeMetricsSampleAt = now;
+
+        Runtime runtime = Runtime.getRuntime();
+        long nativeHeap = Gdx.app.getType() == Application.ApplicationType.Android
+                ? Gdx.app.getNativeHeap()
+                : 0L;
+        engineMetrics.recordMemory(
+                Gdx.app.getJavaHeap(),
+                runtime.totalMemory(),
+                runtime.maxMemory(),
+                nativeHeap);
+        engineMetrics.recordGarbageCollection(gcMetricsSource.sample());
     }
 
     private void renderObjectBoundingBoxes() {
@@ -269,18 +313,145 @@ public class DebugManager implements Disposable {
         batch.end();
     }
 
-    private void renderMonitorPerformance() {
-        String performanceMetrics = PerformanceMonitor.printStats();
+    private void renderMonitorPerformance(EngineMetrics.Snapshot snapshot) {
+        StringBuilder performanceMetrics = new StringBuilder("=== Runtime Metrics [F6] ===\n");
+        performanceMetrics.append(String.format(Locale.ROOT,
+                "Host: %.1f FPS | avg %.2f ms | p95 %.2f | p99 %.2f | max %.2f\n",
+                snapshot.hostFps(),
+                snapshot.frameTimes().averageMs(),
+                snapshot.frameTimes().p95Ms(),
+                snapshot.frameTimes().p99Ms(),
+                snapshot.frameTimes().maxMs()));
+
+        if (snapshot.paused()) {
+            performanceMetrics.append("Pulse: PAUSED\n");
+        } else if (snapshot.targetPulseHz() > 0) {
+            performanceMetrics.append(String.format(Locale.ROOT,
+                    "Pulse: %.1f/%d Hz | missed %d\n",
+                    snapshot.pulseHz(),
+                    snapshot.targetPulseHz(),
+                    snapshot.missedPulsePeriods()));
+            performanceMetrics.append(String.format(Locale.ROOT,
+                    "Cadence: jitter p99 %.2f ms | late p99 %.2f | max %.2f ms\n",
+                    snapshot.pulseJitterP99Ms(),
+                    snapshot.pulseLatenessP99Ms(),
+                    snapshot.pulseLatenessMaxMs()));
+        } else {
+            performanceMetrics.append(String.format(Locale.ROOT,
+                    "Pulse: %.1f Hz | missed %d\n",
+                    snapshot.pulseHz(), snapshot.missedPulsePeriods()));
+        }
+
+        performanceMetrics.append("Stalls: >33 ms ")
+                .append(snapshot.stallsOver33Ms())
+                .append(" | >50 ms ")
+                .append(snapshot.stallsOver50Ms())
+                .append('\n');
+
+        EngineMetrics.RenderStats render = snapshot.render();
+        performanceMetrics.append(String.format(Locale.ROOT,
+                "Scene: drawables %d | sprites %d | text %d | pasted %d\n",
+                render.drawableObjects(), render.visibleSpriteObjects(),
+                render.visibleTextObjects(), render.pastedGraphics()));
+        performanceMetrics.append(String.format(Locale.ROOT,
+                "Paths: filters %d | clips %d | alpha masks %d\n",
+                render.filteredSprites(), render.clippedSprites(), render.maskedSprites()));
+
+        EngineMetrics.GlStats gl = snapshot.gl();
+        performanceMetrics.append(String.format(Locale.ROOT,
+                "GL: draw %d | calls %d | binds %d | shaders %d | submitted %d\n",
+                gl.drawCalls(), gl.calls(), gl.textureBindings(),
+                gl.shaderSwitches(), gl.submittedVertices()));
+
+        EngineMetrics.MemoryStats memory = snapshot.memory();
+        performanceMetrics.append(String.format(Locale.ROOT,
+                "Heap: %.1f / %.1f / %.1f MiB (used/committed/max)",
+                toMebibytes(memory.javaHeapUsedBytes()),
+                toMebibytes(memory.javaHeapCommittedBytes()),
+                toMebibytes(memory.javaHeapMaxBytes())));
+        if (memory.nativeHeapUsedBytes() > 0L) {
+            performanceMetrics.append(String.format(Locale.ROOT,
+                    " | native %.1f MiB", toMebibytes(memory.nativeHeapUsedBytes())));
+        }
+        performanceMetrics.append('\n');
+
+        appendGarbageCollectionMetrics(performanceMetrics, snapshot.gc());
+        performanceMetrics.append("CPU phase: avg | p95 | max ms\n");
+
+        for (EngineMetrics.Phase phase : EngineMetrics.Phase.values()) {
+            EngineMetrics.TimingStats timing = snapshot.phase(phase);
+            performanceMetrics.append(String.format(Locale.ROOT,
+                    "%-12s %6.2f | %6.2f | %6.2f\n",
+                    phase.displayName(), timing.averageMs(), timing.p95Ms(), timing.maxMs()));
+        }
 
         batch.begin();
         font.setColor(Color.WHITE);
-        font.draw(batch, performanceMetrics, 350, VIRTUAL_HEIGHT - 5);
+        font.draw(batch, performanceMetrics, 310, VIRTUAL_HEIGHT - 5);
         batch.end();
     }
 
-    private void renderFpsCounter() {
-        FpsCounter.Snapshot snapshot = fpsCounter.getSnapshot();
-        String text = String.format(Locale.ROOT, "%.0f FPS | low %.0f", snapshot.fps, snapshot.lowOnePercentFps);
+    private static void appendGarbageCollectionMetrics(
+            StringBuilder target, EngineMetrics.GcStats gc) {
+        if (!gc.available()) {
+            target.append("GC: unavailable\n");
+            return;
+        }
+
+        target.append(String.format(Locale.ROOT,
+                "GC: %.1f/min | time %.2f%% | total %d / %d ms",
+                gc.collectionsPerMinute(), gc.recentTimePercent(),
+                gc.collectionCount(), gc.collectionTimeMillis()));
+        if (gc.lastCollectionAgeMillis() >= 0L) {
+            target.append(String.format(Locale.ROOT,
+                    " | last %.1f s", gc.lastCollectionAgeMillis() / 1000.0));
+        }
+        target.append('\n');
+
+        if (gc.allocatedBytesPerSecond() >= 0.0) {
+            target.append(String.format(Locale.ROOT,
+                    "Alloc: %.1f MiB/s", toMebibytes(gc.allocatedBytesPerSecond())));
+            if (gc.reclaimedBytesPerSecond() >= 0.0) {
+                target.append(String.format(Locale.ROOT,
+                        " | reclaim%s %.1f MiB/s",
+                        gc.reclaimedEstimated() ? "~" : "",
+                        toMebibytes(gc.reclaimedBytesPerSecond())));
+            }
+            target.append('\n');
+        }
+
+        if (gc.blockingStatsAvailable()) {
+            target.append(String.format(Locale.ROOT,
+                    "Blocking GC: %.1f/min | time %.2f%% | total %d / %d ms\n",
+                    gc.blockingCollectionsPerMinute(), gc.recentBlockingTimePercent(),
+                    gc.blockingCollectionCount(), gc.blockingCollectionTimeMillis()));
+        }
+    }
+
+    private static double toMebibytes(long bytes) {
+        return bytes / (1024.0 * 1024.0);
+    }
+
+    private static double toMebibytes(double bytes) {
+        return bytes / (1024.0 * 1024.0);
+    }
+
+    private void renderFpsCounter(EngineMetrics.Snapshot snapshot) {
+        String text;
+        if (snapshot.paused()) {
+            text = String.format(Locale.ROOT,
+                    "%.0f FPS | pulse PAUSED | p99 %.1f ms",
+                    snapshot.hostFps(), snapshot.frameTimes().p99Ms());
+        } else if (snapshot.targetPulseHz() > 0) {
+            text = String.format(Locale.ROOT,
+                    "%.0f FPS | pulse %.1f/%d | p99 %.1f ms | missed %d",
+                    snapshot.hostFps(), snapshot.pulseHz(), snapshot.targetPulseHz(),
+                    snapshot.frameTimes().p99Ms(), snapshot.missedPulsePeriods());
+        } else {
+            text = String.format(Locale.ROOT,
+                    "%.0f FPS | pulse %.1f Hz | p99 %.1f ms",
+                    snapshot.hostFps(), snapshot.pulseHz(), snapshot.frameTimes().p99Ms());
+        }
         GlyphLayout layout = new GlyphLayout(font, text);
         float x = 8;
         float y = VIRTUAL_HEIGHT - 8;
@@ -299,14 +470,30 @@ public class DebugManager implements Disposable {
         shapeRenderer.end();
 
         batch.begin();
-        font.setColor(fpsColor(snapshot.lowOnePercentFps));
+        font.setColor(metricsColor(snapshot));
         font.draw(batch, text, x, y);
         batch.end();
     }
 
-    private Color fpsColor(float lowOnePercentFps) {
-        if (lowOnePercentFps >= 55f) return Color.GREEN;
-        if (lowOnePercentFps >= 30f) return Color.YELLOW;
+    private Color metricsColor(EngineMetrics.Snapshot snapshot) {
+        if (snapshot.hostFps() <= 0.0 || snapshot.paused()) {
+            return Color.WHITE;
+        }
+        if (snapshot.missedPulsePeriods() > 0) {
+            return Color.RED;
+        }
+        if (snapshot.targetPulseHz() > 0 && snapshot.pulseHz() > 0.0
+                && snapshot.pulseHz() < snapshot.targetPulseHz() * 0.95) {
+            return Color.YELLOW;
+        }
+
+        int targetFps = config.getTargetFPS();
+        if (targetFps <= 0 || snapshot.frameTimes().p99Ms() <= 0.0) {
+            return Color.GREEN;
+        }
+        double frameBudgetMs = 1000.0 / targetFps;
+        if (snapshot.frameTimes().p99Ms() <= frameBudgetMs * 1.10) return Color.GREEN;
+        if (snapshot.frameTimes().p99Ms() <= frameBudgetMs * 2.0) return Color.YELLOW;
         return Color.RED;
     }
 
@@ -1456,67 +1643,4 @@ public class DebugManager implements Disposable {
         font.dispose();
     }
 
-    private static final class FpsCounter {
-        private static final int MAX_SAMPLES = 600;
-        private static final float WINDOW_SECONDS = 5.0f;
-        private static final float REFRESH_SECONDS = 0.5f;
-
-        private final float[] frameTimes = new float[MAX_SAMPLES];
-        private int nextIndex = 0;
-        private int sampleCount = 0;
-        private float totalSeconds = 0;
-        private float refreshTimer = 0;
-        private Snapshot snapshot = new Snapshot(0, 0);
-
-        void update(float deltaTime) {
-            if (deltaTime <= 0) return;
-
-            float frameTime = Math.min(deltaTime, 1.0f);
-            if (sampleCount < MAX_SAMPLES) {
-                sampleCount++;
-            } else {
-                totalSeconds -= frameTimes[nextIndex];
-            }
-
-            frameTimes[nextIndex] = frameTime;
-            totalSeconds += frameTime;
-            nextIndex = (nextIndex + 1) % MAX_SAMPLES;
-
-            while (sampleCount > 1 && totalSeconds > WINDOW_SECONDS) {
-                int oldestIndex = (nextIndex - sampleCount + MAX_SAMPLES) % MAX_SAMPLES;
-                totalSeconds -= frameTimes[oldestIndex];
-                sampleCount--;
-            }
-
-            refreshTimer += frameTime;
-            if (refreshTimer >= REFRESH_SECONDS || snapshot.fps == 0) {
-                refreshTimer = 0;
-                snapshot = calculateSnapshot();
-            }
-        }
-
-        Snapshot getSnapshot() {
-            return snapshot;
-        }
-
-        private Snapshot calculateSnapshot() {
-            if (sampleCount == 0 || totalSeconds <= 0) {
-                return new Snapshot(0, 0);
-            }
-
-            float fps = sampleCount / totalSeconds;
-            float[] sorted = new float[sampleCount];
-            for (int i = 0; i < sampleCount; i++) {
-                int index = (nextIndex - sampleCount + i + MAX_SAMPLES) % MAX_SAMPLES;
-                sorted[i] = frameTimes[index];
-            }
-            Arrays.sort(sorted);
-
-            int percentile99Index = Math.min(sorted.length - 1, (int) Math.ceil(sorted.length * 0.99f) - 1);
-            float lowOnePercentFps = 1.0f / sorted[percentile99Index];
-            return new Snapshot(fps, lowOnePercentFps);
-        }
-
-        record Snapshot(float fps, float lowOnePercentFps) {}
-    }
 }

@@ -15,6 +15,7 @@ public final class LegacyPulseGate {
 
     private final LongSupplier nanoTimeSource;
     private final long periodNanos;
+    private final PulseDecision pulseDecision = new PulseDecision();
     private boolean initialized;
     private long nextPulseAtNanos;
 
@@ -34,24 +35,66 @@ public final class LegacyPulseGate {
      * A late poll moves the deadline past the current time in one operation.
      */
     public boolean tryAcquirePulse() {
+        return poll().admitted();
+    }
+
+    /**
+     * Polls the gate and exposes deadline details for runtime diagnostics.
+     * {@code missedPeriods} counts scheduled pulses discarded before the one
+     * admitted by this poll; ordinary high-refresh polls return zero. The
+     * returned object is reused by the gate and is valid until the next poll.
+     */
+    public PulseDecision poll() {
+        long now = nanoTimeSource.getAsLong();
         if (periodNanos == 0L) {
-            return true;
+            return pulseDecision.set(true, now, 0L, 0L);
         }
 
-        long now = nanoTimeSource.getAsLong();
         if (!initialized) {
             initialized = true;
             nextPulseAtNanos = now + periodNanos;
-            return true;
+            return pulseDecision.set(true, now, 0L, 0L);
         }
 
         long overdueNanos = now - nextPulseAtNanos;
         if (overdueNanos < 0L) {
-            return false;
+            return pulseDecision.set(false, now, 0L, 0L);
         }
 
         long elapsedPeriods = overdueNanos / periodNanos;
         nextPulseAtNanos += (elapsedPeriods + 1L) * periodNanos;
-        return true;
+        return pulseDecision.set(true, now, overdueNanos, elapsedPeriods);
+    }
+
+    public static final class PulseDecision {
+        private boolean admitted;
+        private long timestampNanos;
+        private long latenessNanos;
+        private long missedPeriods;
+
+        private PulseDecision set(boolean admitted, long timestampNanos,
+                                  long latenessNanos, long missedPeriods) {
+            this.admitted = admitted;
+            this.timestampNanos = timestampNanos;
+            this.latenessNanos = latenessNanos;
+            this.missedPeriods = missedPeriods;
+            return this;
+        }
+
+        public boolean admitted() {
+            return admitted;
+        }
+
+        public long timestampNanos() {
+            return timestampNanos;
+        }
+
+        public long latenessNanos() {
+            return latenessNanos;
+        }
+
+        public long missedPeriods() {
+            return missedPeriods;
+        }
     }
 }

@@ -23,7 +23,10 @@ class LegacyPulseGateTest {
 
         assertTrue(gate.tryAcquirePulse());
         nanos.set(500_000_000L);
-        assertTrue(gate.tryAcquirePulse());
+        LegacyPulseGate.PulseDecision stalled = gate.poll();
+        assertTrue(stalled.admitted());
+        assertEquals(29, stalled.missedPeriods());
+        assertEquals(483_333_334L, stalled.latenessNanos());
         nanos.set(501_000_000L);
         assertFalse(gate.tryAcquirePulse());
         nanos.set(516_666_667L);

@@ -43,6 +43,7 @@ public class RenderManager implements Disposable {
     private final TextRenderer textRenderer;
     private final MaskRenderer maskRenderer;
     private final AlphaMaskRenderer alphaMaskRenderer;
+    private final RenderStats lastRenderStats = new RenderStats();
 
     public RenderManager(SpriteBatch batch, OrthographicCamera camera, Viewport viewport,
                          Game game, EngineConfig config) {
@@ -69,6 +70,7 @@ public class RenderManager implements Disposable {
     }
 
     public void render(float deltaTime) {
+        lastRenderStats.reset();
         renderLogicalCanvas();
         presentLogicalCanvas();
     }
@@ -94,6 +96,7 @@ public class RenderManager implements Disposable {
 
             // Obtain draw list and sort by priority
             List<Variable> drawList = getDrawableVariables(context);
+            lastRenderStats.drawableObjects = drawList.size();
             sortByPriority(drawList);
 
             renderDrawList(drawList, context);
@@ -193,6 +196,7 @@ public class RenderManager implements Disposable {
                         VIRTUAL_HEIGHT - image.offsetY - image.height,
                         image.width,
                         image.height);
+                lastRenderStats.visibleSpriteObjects++;
             }
         }
     }
@@ -206,18 +210,23 @@ public class RenderManager implements Disposable {
                     VIRTUAL_HEIGHT - p.y() - p.height(),
                     p.width(),
                     p.height());
+            lastRenderStats.visibleSpriteObjects++;
+            lastRenderStats.pastedGraphics++;
         }
     }
 
     private void renderDrawList(List<Variable> drawList, GameContext context) {
         for (Variable variable : drawList) {
             if (variable instanceof ImageVariable img) {
+                recordImageWorkload(img);
                 renderImage(img);
             } else if (variable instanceof AnimoVariable animo) {
+                recordAnimoWorkload(animo);
                 renderAnimo(animo);
             } else if (variable instanceof KolorowankaVariable klr) {
                 renderKolorowanka(klr);
             } else if (variable instanceof TextVariable text) {
+                recordTextWorkload(text);
                 textRenderer.renderText(text, context);
             }
         }
@@ -231,6 +240,7 @@ public class RenderManager implements Disposable {
         if (texture == null) {
             return;
         }
+        lastRenderStats.visibleSpriteObjects++;
         batch.setColor(1, 1, 1, 1);
         batch.draw(texture,
                 klr.getPosX(),
@@ -264,6 +274,47 @@ public class RenderManager implements Disposable {
 
     private void renderAnimo(AnimoVariable animoVariable) {
         graphicsRenderer.renderAnimo(animoVariable);
+    }
+
+    private void recordImageWorkload(ImageVariable imageVariable) {
+        Image image = imageVariable.getImage();
+        if (!imageVariable.isVisible() || image == null || image.getImageTexture() == null) {
+            return;
+        }
+        lastRenderStats.visibleSpriteObjects++;
+        if (imageVariable.hasFilters()) {
+            lastRenderStats.filteredSprites++;
+        }
+        if (imageVariable.getClippingRect() != null) {
+            lastRenderStats.clippedSprites++;
+        }
+        if (imageVariable.getAlphaMask() != null) {
+            lastRenderStats.maskedSprites++;
+        }
+    }
+
+    private void recordAnimoWorkload(AnimoVariable animoVariable) {
+        Image image = animoVariable.getCurrentImage();
+        if (!animoVariable.isVisible() || !animoVariable.isRenderedOnCanvas()
+                || image == null || image.getImageTexture() == null) {
+            return;
+        }
+        lastRenderStats.visibleSpriteObjects++;
+        if (animoVariable.hasFilters()) {
+            lastRenderStats.filteredSprites++;
+        }
+    }
+
+    private void recordTextWorkload(TextVariable textVariable) {
+        String text = textVariable.getText();
+        if (textVariable.isVisible() && text != null && !text.isEmpty()
+                && textVariable.getRect() != null) {
+            lastRenderStats.visibleTextObjects++;
+        }
+    }
+
+    public RenderStats getLastRenderStats() {
+        return lastRenderStats;
     }
 
     private List<Variable> getDrawableVariables(GameContext context) {
@@ -317,6 +368,55 @@ public class RenderManager implements Disposable {
             return text.getRenderOrder();
         }
         return 0;
+    }
+
+    /** Primitive, reused workload snapshot for the most recently rendered scene. */
+    public static final class RenderStats {
+        private int drawableObjects;
+        private int visibleSpriteObjects;
+        private int visibleTextObjects;
+        private int pastedGraphics;
+        private int filteredSprites;
+        private int clippedSprites;
+        private int maskedSprites;
+
+        private void reset() {
+            drawableObjects = 0;
+            visibleSpriteObjects = 0;
+            visibleTextObjects = 0;
+            pastedGraphics = 0;
+            filteredSprites = 0;
+            clippedSprites = 0;
+            maskedSprites = 0;
+        }
+
+        public int drawableObjects() {
+            return drawableObjects;
+        }
+
+        public int visibleSpriteObjects() {
+            return visibleSpriteObjects;
+        }
+
+        public int visibleTextObjects() {
+            return visibleTextObjects;
+        }
+
+        public int pastedGraphics() {
+            return pastedGraphics;
+        }
+
+        public int filteredSprites() {
+            return filteredSprites;
+        }
+
+        public int clippedSprites() {
+            return clippedSprites;
+        }
+
+        public int maskedSprites() {
+            return maskedSprites;
+        }
     }
 
     @Override
