@@ -1239,9 +1239,11 @@ public record AnimoVariable(
             }
             int eventId = ArgumentHelper.getInt(args.get(0));
             List<Event> events = thisVar.data.events();
-            if (eventId >= 0 && eventId < events.size()) {
-                Event event = events.get(eventId);
-                thisVar.playEventFromStart(event);
+
+            if (eventId == -1) {
+                thisVar.playCurrentEventFromStart();
+            } else if (eventId >= 0 && eventId < events.size()) {
+                thisVar.playEventFromStart(events.get(eventId));
             } else {
                 Gdx.app.error("AnimoVariable", "Event with id " + eventId + " not found");
             }
