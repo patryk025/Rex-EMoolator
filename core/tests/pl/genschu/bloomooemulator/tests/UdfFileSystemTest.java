@@ -49,7 +49,7 @@ class UdfFileSystemTest {
     }
 
     @Test
-    void indexesKnownIsoEntriesCaseInsensitively() {
+    void indexesKnownUdfEntriesCaseInsensitively() {
         UdfFileSystem fs = new UdfFileSystem(isoFixture());
 
         assertTrue(fs.exists("README.md"));
@@ -76,7 +76,7 @@ class UdfFileSystemTest {
     }
 
     @Test
-    void readsKnownFilesFromIsoAndReportsTheirLength() throws IOException {
+    void readsKnownFilesFromUdfAndReportsTheirLength() throws IOException {
         UdfFileSystem fs = new UdfFileSystem(isoFixture());
 
         byte[] applicationDefBytes;
@@ -94,7 +94,7 @@ class UdfFileSystemTest {
     }
 
     @Test
-    void vfsCanMountIsoAndReadScriptsThroughDispatcher() throws IOException {
+    void vfsCanMountUdfAndReadScriptsThroughDispatcher() throws IOException {
         VFS vfs = new VFS();
         vfs.mountAssets(AssetSourceDispatcher.openAssets(isoFixture()));
 
