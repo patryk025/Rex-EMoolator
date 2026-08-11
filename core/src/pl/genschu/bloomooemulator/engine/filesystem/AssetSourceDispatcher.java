@@ -12,15 +12,22 @@ public final class AssetSourceDispatcher {
             return new LocalFileSystem(path);
         }
 
-        String name = path.getName().toLowerCase(Locale.ROOT);
-        // TODO: implement more robust checking
-        if (name.endsWith(".iso")) {
-            return new IsoFileSystem(path);
-        }
-        if (name.endsWith(".zip")) {
-            return new ZipFileSystem(path);
-        }
+        FileSystemType type = FileSystemDetector.detectFileSystemType(path);
 
-        throw new IOException("Unsupported game asset source: " + path);
+        switch (type) {
+            case DIRECTORY -> {
+                return new LocalFileSystem(path);
+            }
+            case ZIP -> {
+                return new ZipFileSystem(path);
+            }
+            case ISO9660 -> {
+                return new IsoFileSystem(path);
+            }
+            case UDF -> {
+                return new UdfFileSystem(path);
+            }
+            default -> throw new IOException("Unsupported game asset source: " + path);
+        }
     }
 }
