@@ -8,10 +8,6 @@ public final class AssetSourceDispatcher {
     private AssetSourceDispatcher() {}
 
     public static IFileSystem openAssets(File path) throws IOException {
-        if (path.isDirectory()) {
-            return new LocalFileSystem(path);
-        }
-
         FileSystemType type = FileSystemDetector.detectFileSystemType(path);
 
         switch (type) {

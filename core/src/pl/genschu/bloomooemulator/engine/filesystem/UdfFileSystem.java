@@ -41,20 +41,5 @@ public class UdfFileSystem implements IFileSystem {
         return 0;
     }
 
-    private int crc16CCITT(byte[] data, int offset, int length) {
-        int crc = 0x0000;
-        for (int i = offset; i < offset + length; i++) {
-            crc ^= (data[i] & 0xFF) << 8;
-            for (int j = 0; j < 8; j++) {
-                if ((crc & 0x8000) != 0) {
-                    crc = (crc << 1) ^ 0x1021;
-                } else {
-                    crc <<= 1;
-                }
-            }
-        }
-        return crc & 0xFFFF;
-    }
-
     private record Entry(boolean directory, long offset, long length) {}
 }
