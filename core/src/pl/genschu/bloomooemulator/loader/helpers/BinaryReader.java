@@ -31,6 +31,8 @@ public interface BinaryReader {
 
     String readFixedString(int length, Charset charset, boolean trimAtNull) throws IOException;
 
+    long length() throws IOException;
+
     default String readLengthPrefixedString32LE(Charset charset, boolean trimAtNull) throws IOException {
         int length = readI32LE();
         if (length < 0) {

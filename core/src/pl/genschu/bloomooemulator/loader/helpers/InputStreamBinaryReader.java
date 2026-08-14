@@ -118,4 +118,9 @@ public final class InputStreamBinaryReader implements BinaryReader {
         }
         return new String(bytes, 0, decodedLength, charset);
     }
+
+    @Override
+    public long length() throws IOException {
+        return input.available();
+    }
 }

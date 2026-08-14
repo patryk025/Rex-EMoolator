@@ -97,6 +97,11 @@ public final class RandomAccessFileBinaryReader implements SeekableBinaryReader 
     }
 
     @Override
+    public long length() throws IOException {
+        return input.length();
+    }
+
+    @Override
     public long position() throws IOException {
         return input.getFilePointer();
     }

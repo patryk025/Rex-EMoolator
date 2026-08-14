@@ -10,6 +10,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.RandomAccessFile;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.List;
 
 public class UdfFileSystem implements IFileSystem {
     private static final int SECTOR_SIZE = 2048;
@@ -57,13 +59,13 @@ public class UdfFileSystem implements IFileSystem {
             SeekableBinaryReader reader = new RandomAccessFileBinaryReader(raf);
 
             // Pre-flight check for UDF signatures
-            raf.seek(VRS_START_SECTOR * SECTOR_SIZE);
+            reader.seek(VRS_START_SECTOR * SECTOR_SIZE);
 
             boolean hasBea = false;
             boolean hasTea = false;
             boolean isUdf = false;
 
-            while (raf.getFilePointer() < (VRS_START_SECTOR + 32) * SECTOR_SIZE && !hasTea) {
+            while (reader.position() < (VRS_START_SECTOR + 32) * SECTOR_SIZE && !hasTea) {
                 VolumeStructureDescriptor vsd = VolumeStructureDescriptor.readFrom(reader);
 
                 if (vsd.type != 0x00) {
@@ -94,36 +96,45 @@ public class UdfFileSystem implements IFileSystem {
             // Parse the Anchor Volume Descriptor Pointer (AVDP)
             // Find it at 3 locations: sector 256, N - 256 and N - 1, where N is the total number of sectors in the volume.
             // ECMA TR/112-2, Page 23
-            long totalSectors = raf.length() / SECTOR_SIZE;
+            long totalSectors = reader.length() / SECTOR_SIZE;
             long[] anchorSectors = {256, totalSectors - 256, totalSectors - 1};
 
-            int validAvdpCount = 0;
-            AnchorVolumeDescriptorPointer avdp = null;
+            List<AnchorVolumeDescriptorPointer> pointers = new ArrayList<>();
+
             for (long sector : anchorSectors) {
-                raf.seek(sector * SECTOR_SIZE);
-                avdp = AnchorVolumeDescriptorPointer.readFrom(reader);
-                if (avdp.tag.tagIdentifier == 2) { // Check for valid AVDP tag identifier
-                    validAvdpCount++;
-                }
-                else {
-                    avdp = null; // Reset if not valid
+                reader.seek(sector * SECTOR_SIZE);
+
+                AnchorVolumeDescriptorPointer candidate =
+                        AnchorVolumeDescriptorPointer.readFrom(reader);
+
+                if (candidate.tag.tagIdentifier == 2) { // Check for valid AVDP tag identifier
+                    pointers.add(candidate);
                 }
             }
 
-            if (avdp == null) {
-                throw new IOException("No valid Anchor Volume Descriptor Pointer (AVDP) found in the UDF volume.");
+            if (pointers.isEmpty()) {
+                throw new IOException(
+                        "No valid Anchor Volume Descriptor Pointer (AVDP) found in the UDF volume."
+                );
             }
 
-            if (validAvdpCount < 2) {
-                Gdx.app.log("UdfFileSystem", "Warning: Only one valid AVDP found. UDF volume may be incomplete or corrupted.");
+            if (pointers.size() < 2) {
+                Gdx.app.log(
+                        "UdfFileSystem",
+                        "Warning: Only one valid AVDP found. UDF volume may be incomplete or corrupted."
+                );
             }
+
+            AnchorVolumeDescriptorPointer avdp = pointers.get(0);
 
             // Let's read a Volume Descriptor Sequence (VDS) from the main volume descriptor sequence extent
-            raf.seek(avdp.mainVolumeDescriptorSequenceExtent.extentLocation * SECTOR_SIZE);
-            long vdsEnd = avdp.mainVolumeDescriptorSequenceExtent.extentLocation * SECTOR_SIZE + avdp.mainVolumeDescriptorSequenceExtent.extentLength;
+            long vdsStart = avdp.mainVolumeDescriptorSequenceExtent.extentLocation * SECTOR_SIZE;
+            long vdsEnd = vdsStart + avdp.mainVolumeDescriptorSequenceExtent.extentLength;
+
+            reader.seek(vdsStart);
 
             int offset = 0;
-            while (raf.getFilePointer() < vdsEnd) {
+            while (reader.position() < vdsEnd) {
                 Tag tag = Tag.readFrom(reader);
                 offset += 16; // Size of the tag
 
