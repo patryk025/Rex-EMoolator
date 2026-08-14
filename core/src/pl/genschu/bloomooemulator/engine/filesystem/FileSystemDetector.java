@@ -63,26 +63,19 @@ public class FileSystemDetector {
     }
 
     private static boolean isUdf(RandomAccessFile raf) throws IOException {
-        // Volume Recognition Sequence
-        long base = 16L * SECTOR_SIZE;
+        final int maxSectorsToScan = 32;
+        final long startSector = 16;
 
-        if (!hasSignature(raf, base + 1, "BEA01")) {
-            return false;
+        for (int i = 0; i < maxSectorsToScan; i++) {
+            long sectorOffset = (startSector + i) * SECTOR_SIZE;
+
+            if (hasSignature(raf, sectorOffset + 1, "NSR02") ||
+                    hasSignature(raf, sectorOffset + 1, "NSR03")) {
+                return true;
+            }
         }
 
-        boolean nsr =
-                hasSignature(raf, base + SECTOR_SIZE + 1, "NSR02")
-                        || hasSignature(raf, base + SECTOR_SIZE + 1, "NSR03");
-
-        if (!nsr) {
-            return false;
-        }
-
-        return hasSignature(
-                raf,
-                base + 2L * SECTOR_SIZE + 1,
-                "TEA01"
-        );
+        return false;
     }
 
     public static boolean isValidZip(File file) {
