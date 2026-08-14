@@ -1,10 +1,7 @@
 package pl.genschu.bloomooemulator.tests;
 
 import org.junit.jupiter.api.Test;
-import pl.genschu.bloomooemulator.engine.filesystem.AssetSourceDispatcher;
-import pl.genschu.bloomooemulator.engine.filesystem.IsoFileSystem;
-import pl.genschu.bloomooemulator.engine.filesystem.UdfFileSystem;
-import pl.genschu.bloomooemulator.engine.filesystem.VFS;
+import pl.genschu.bloomooemulator.engine.filesystem.*;
 
 import java.io.File;
 import java.io.IOException;
@@ -108,5 +105,11 @@ class UdfFileSystemTest {
         String script = readAll(vfs.openRead("dane/game/bf/bf.cnv"));
         assertTrue(script.contains("CLSBFOBJ:DEF=CLSBF.CLASS"));
         assertEquals(script.getBytes(StandardCharsets.UTF_8).length, vfs.length("DANE/GAME/BF/BF.CNV"));
+    }
+
+    @Test
+    void fileSystemTypeDetectionDetectsUdf() throws IOException {
+        File udfFile = isoFixture();
+        assertEquals("UDF", FileSystemDetector.detectFileSystemType(udfFile).name());
     }
 }
