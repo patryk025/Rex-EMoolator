@@ -27,21 +27,21 @@ public class AnimoLoader {
         int colorDepth = reader.readU16LE();
         int eventsCount = reader.readU16LE();
 
-        byte[] descriptionBytes = reader.readBytes(13);
-        String description = StringUtils.convertNullTerminatedText(descriptionBytes, StandardCharsets.UTF_8);
+        reader.skipFully(13);
 
         int fps = reader.readI32LE();
         reader.skipFully(4);
         int opacity = reader.readU8();
         reader.skipFully(12);
-        int signatureLength = reader.readI32LE();
+        int authorLength = reader.readI32LE();
+        byte[] authorBytes = reader.readBytes(authorLength);
+        String author = new String(authorBytes, StandardCharsets.UTF_8);
 
-        byte[] signatureBytes = reader.readBytes(signatureLength);
-        String signature = new String(signatureBytes, StandardCharsets.UTF_8);
+        int descriptionLength = reader.readI32LE();
+        byte[] descriptionBytes = reader.readBytes(descriptionLength);
+        String description = new String(descriptionBytes, StandardCharsets.UTF_8);
 
-        reader.skipFully(4); // padding
-
-        // Events
+// Events
         List<Event> events = readEvents(reader, eventsCount);
 
         // Images
@@ -54,7 +54,7 @@ public class AnimoLoader {
         }
 
         return new AnimoVariable.AnimoData(
-            events, images, images.size(), events.size(), colorDepth, fps, opacity, maxWidth, maxHeight, description, signature
+            events, images, images.size(), events.size(), colorDepth, fps, opacity, maxWidth, maxHeight, description, author
         );
     }
 

@@ -142,7 +142,7 @@ public record AnimoVariable(
         int maxWidth,
         int maxHeight,
         String description,
-        String signature
+        String author
     ) {
         public static final AnimoData EMPTY = new AnimoData(
             List.of(), List.of(), 0, 0, 16, 15, 255, 0, 0, "", ""
@@ -152,7 +152,7 @@ public record AnimoVariable(
             if (events == null) events = List.of();
             if (images == null) images = List.of();
             if (description == null) description = "";
-            if (signature == null) signature = "";
+            if (author == null) author = "";
         }
     }
 
@@ -376,7 +376,7 @@ public record AnimoVariable(
             source.maxWidth(),
             source.maxHeight(),
             source.description(),
-            source.signature()
+            source.author()
         );
     }
 
