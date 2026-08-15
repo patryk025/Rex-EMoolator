@@ -11,6 +11,7 @@ import java.io.InputStream;
 import java.io.RandomAccessFile;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class UdfFileSystem implements IFileSystem {
@@ -97,7 +98,7 @@ public class UdfFileSystem implements IFileSystem {
             // Find it at 3 locations: sector 256, N - 256 and N - 1, where N is the total number of sectors in the volume.
             // ECMA TR/112-2, Page 23
             long totalSectors = reader.length() / SECTOR_SIZE;
-            long[] anchorSectors = {256, totalSectors - 256, totalSectors - 1};
+            long[] anchorSectors = {AVDP_START_SECTOR, totalSectors - AVDP_START_SECTOR, totalSectors - 1};
 
             List<AnchorVolumeDescriptorPointer> pointers = new ArrayList<>();
 
@@ -118,6 +119,12 @@ public class UdfFileSystem implements IFileSystem {
                 );
             }
 
+            // ECMA TR/112-2 says:
+            // "As specified in section 6.11.2, unclosed sequential Write-Once media may have
+            // a single AVDP present at either sector 256 or 512. If on an unclosed disc a single
+            // AVDP is recorded on sector 256, any AVDP recorded on sector 512 must be ignored."
+            // At this moment, I don't check for unclosed discs and does not check for sector 512,
+            // so I will just log a warning if only one AVDP is found.
             if (pointers.size() < 2) {
                 Gdx.app.log(
                         "UdfFileSystem",
@@ -127,16 +134,30 @@ public class UdfFileSystem implements IFileSystem {
 
             AnchorVolumeDescriptorPointer avdp = pointers.get(0);
 
+            long minVdsLength = 16L * SECTOR_SIZE;
+
+            if (avdp.mainVolumeDescriptorSequenceExtent.extentLength < minVdsLength) {
+                Gdx.app.log(
+                        "UdfFileSystem",
+                        "Warning: Main Volume Descriptor Sequence extent length is less than 16 sectors."
+                );
+            }
+
+            if (avdp.reserveVolumeDescriptorSequenceExtent.extentLength < minVdsLength) {
+                Gdx.app.log(
+                        "UdfFileSystem",
+                        "Warning: Reserve Volume Descriptor Sequence extent length is less than 16 sectors."
+                );
+            }
+
             // Let's read a Volume Descriptor Sequence (VDS) from the main volume descriptor sequence extent
             long vdsStart = avdp.mainVolumeDescriptorSequenceExtent.extentLocation * SECTOR_SIZE;
             long vdsEnd = vdsStart + avdp.mainVolumeDescriptorSequenceExtent.extentLength;
 
             reader.seek(vdsStart);
 
-            int offset = 0;
             while (reader.position() < vdsEnd) {
                 Tag tag = Tag.readFrom(reader);
-                offset += 16; // Size of the tag
 
                 switch (TagType.fromValue(tag.tagIdentifier)) {
                     case Unknown -> {
@@ -155,10 +176,10 @@ public class UdfFileSystem implements IFileSystem {
                         // Handle Implementation Use Volume Descriptor
                     }
                     case PartitionDescriptor -> {
-                        // Handle Partition Descriptor
+                        PartitionDescriptor partitionDescriptor = PartitionDescriptor.readFrom(reader);
                     }
                     case LogicalVolumeDescriptor -> {
-                        // Handle Logical Volume Descriptor
+                        LogicalVolumeDescriptor logicalVolumeDescriptor = LogicalVolumeDescriptor.readFrom(reader);
                     }
                     case UnallocatedSpaceDescriptor -> {
                         // Handle Unallocated Space Descriptor
@@ -203,6 +224,37 @@ public class UdfFileSystem implements IFileSystem {
         }
     }
 
+    // ECMA 167, section 7.2.1.1
+    private enum CharsetSetType {
+        RESERVED(-1),
+        CS0(0),
+        CS1(1),
+        CS2(2),
+        CS3(3),
+        CS4(4),
+        CS5(5),
+        CS6(6),
+        CS7(7),
+        CS8(8);
+
+        private final int value;
+        CharsetSetType(int value) {
+            this.value = value;
+        }
+
+        public static CharsetSetType fromValue(int value) {
+            for (CharsetSetType type : values()) {
+                if (type.value == value) {
+                    return type;
+                }
+            }
+            if(value > 8 && value <= 255) {
+                return RESERVED;
+            }
+            throw new IllegalArgumentException("Unknown CharsetSetTypes value: " + value);
+        }
+    }
+
     public record Tag(int tagIdentifier, int descriptorVersion, int tagChecksum, int reserved, int tagSerialNumber, int descriptorCRC, int descriptorCRCLength, long tagLocation) {
         public static Tag readFrom(BinaryReader reader) throws IOException {
             int tagIdentifier = reader.readU16LE();
@@ -214,6 +266,61 @@ public class UdfFileSystem implements IFileSystem {
             int descriptorCRCLength = reader.readU16LE();
             long tagLocation = reader.readU32LE();
             return new Tag(tagIdentifier, descriptorVersion, tagChecksum, reserved, tagSerialNumber, descriptorCRC, descriptorCRCLength, tagLocation);
+        }
+    }
+
+    public record DString(byte[] data, int usedLength) {
+
+        public static DString readFrom(BinaryReader reader, int fieldLength)
+                throws IOException {
+
+            if (fieldLength < 1) {
+                throw new IllegalArgumentException(
+                        "dstring field length must be at least 1"
+                );
+            }
+
+            byte[] raw = reader.readBytes(fieldLength);
+            int usedLength = raw[fieldLength - 1] & 0xFF;
+
+            if (usedLength > fieldLength - 1) {
+                throw new IOException(
+                        "Invalid dstring length: " + usedLength +
+                                " for field of " + fieldLength + " bytes"
+                );
+            }
+
+            return new DString(
+                    Arrays.copyOf(raw, usedLength),
+                    usedLength
+            );
+        }
+    }
+
+    public record Timestamp(
+            int typeAndTimezone,
+            int year,
+            int month,
+            int day,
+            int hour,
+            int minute,
+            int second,
+            int centiseconds,
+            int hundredsOfMicroseconds,
+            int microseconds
+    ) {
+        public static Timestamp readFrom(BinaryReader reader) throws IOException {
+            int typeAndTimezone = reader.readU16LE();
+            int year = reader.readU16LE();
+            int month = reader.readU8();
+            int day = reader.readU8();
+            int hour = reader.readU8();
+            int minute = reader.readU8();
+            int second = reader.readU8();
+            int centiseconds = reader.readU8();
+            int hundredsOfMicroseconds = reader.readU8();
+            int microseconds = reader.readU8();
+            return new Timestamp(typeAndTimezone, year, month, day, hour, minute, second, centiseconds, hundredsOfMicroseconds, microseconds);
         }
     }
 
@@ -251,6 +358,109 @@ public class UdfFileSystem implements IFileSystem {
             ExtentAllocationDescriptor mainVolumeDescriptorSequenceExtent = ExtentAllocationDescriptor.readFrom(reader);
             ExtentAllocationDescriptor reserveVolumeDescriptorSequenceExtent = ExtentAllocationDescriptor.readFrom(reader);
             return new AnchorVolumeDescriptorPointer(tag, mainVolumeDescriptorSequenceExtent, reserveVolumeDescriptorSequenceExtent);
+        }
+    }
+
+    public record EntityIdentifier(byte[] flags, byte[] identifier, byte[] identifierSuffix) {
+        public static EntityIdentifier readFrom(BinaryReader reader) throws IOException {
+            byte[] flags = reader.readBytes(1);
+            byte[] identifier = reader.readBytes(23);
+            byte[] identifierSuffix = reader.readBytes(8);
+            return new EntityIdentifier(flags, identifier, identifierSuffix);
+        }
+    }
+
+    public record PartitionDescriptor(
+            long volumeDescriptorSequenceNumber,
+            int partitionFlags,
+            int partitionNumber,
+            EntityIdentifier partitionContents,
+            byte[] partitionContentsUse,
+            long accessType,
+            long partitionStartingLocation,
+            long partitionLength,
+            EntityIdentifier implementationIdentifier,
+            byte[] implementationUse,
+            byte[] reserved
+    ) {
+        public static PartitionDescriptor readFrom(BinaryReader reader) throws IOException {
+            long volumeDescriptorSequenceNumber = reader.readU32LE();
+            int partitionFlags = reader.readU16LE();
+            int partitionNumber = reader.readU16LE();
+            EntityIdentifier partitionContents = EntityIdentifier.readFrom(reader);
+            byte[] partitionContentsUse = reader.readBytes(128);
+            long accessType = reader.readU32LE();
+            long partitionStartingLocation = reader.readU32LE();
+            long partitionLength = reader.readU32LE();
+            EntityIdentifier implementationIdentifier = EntityIdentifier.readFrom(reader);
+            byte[] implementationUse = reader.readBytes(128);
+            byte[] reserved = reader.readBytes(156);
+            return new PartitionDescriptor(
+                    volumeDescriptorSequenceNumber,
+                    partitionFlags,
+                    partitionNumber,
+                    partitionContents,
+                    partitionContentsUse,
+                    accessType,
+                    partitionStartingLocation,
+                    partitionLength,
+                    implementationIdentifier,
+                    implementationUse,
+                    reserved
+            );
+        }
+    }
+
+    public record LogicalVolumeDescriptor(
+            long volumeDescriptorSequenceNumber,
+            CharsetSetType descriptorCharacterSet,
+            DString logicalVolumeIdentifier,
+            long logicalBlockSize,
+            EntityIdentifier domainIdentifier,
+            int[] logicalVolumeContentsUse,
+            long mapTableLength,
+            long numberOfPartitionMaps,
+            EntityIdentifier implementationIdentifier,
+            int[] implementationUse,
+            ExtentAllocationDescriptor integritySequenceExtent,
+            int[] partitionMaps
+    ) {
+        public static LogicalVolumeDescriptor readFrom(BinaryReader reader) throws IOException {
+            long volumeDescriptorSequenceNumber = reader.readU32LE();
+            CharsetSetType descriptorCharacterSet = CharsetSetType.fromValue(reader.readU8());
+            DString logicalVolumeIdentifier = DString.readFrom(reader, 128);
+            long logicalBlockSize = reader.readU32LE();
+            EntityIdentifier domainIdentifier = EntityIdentifier.readFrom(reader);
+            int[] logicalVolumeContentsUse = new int[16];
+            for (int i = 0; i < 16; i++) {
+                logicalVolumeContentsUse[i] = reader.readU8();
+            }
+            long mapTableLength = reader.readU32LE();
+            long numberOfPartitionMaps = reader.readU32LE();
+            EntityIdentifier implementationIdentifier = EntityIdentifier.readFrom(reader);
+            int[] implementationUse = new int[128];
+            for (int i = 0; i < 128; i++) {
+                implementationUse[i] = reader.readU8();
+            }
+            ExtentAllocationDescriptor integritySequenceExtent = ExtentAllocationDescriptor.readFrom(reader);
+            int[] partitionMaps = new int[(int) numberOfPartitionMaps];
+            for (int i = 0; i < numberOfPartitionMaps; i++) {
+                partitionMaps[i] = reader.readU8();
+            }
+            return new LogicalVolumeDescriptor(
+                    volumeDescriptorSequenceNumber,
+                    descriptorCharacterSet,
+                    logicalVolumeIdentifier,
+                    logicalBlockSize,
+                    domainIdentifier,
+                    logicalVolumeContentsUse,
+                    mapTableLength,
+                    numberOfPartitionMaps,
+                    implementationIdentifier,
+                    implementationUse,
+                    integritySequenceExtent,
+                    partitionMaps
+            );
         }
     }
 }
