@@ -108,7 +108,7 @@ public class UdfFileSystem implements IFileSystem {
                 AnchorVolumeDescriptorPointer candidate =
                         AnchorVolumeDescriptorPointer.readFrom(reader);
 
-                if (candidate.tag.tagIdentifier == 2) { // Check for valid AVDP tag identifier
+                if (candidate.tag.tagIdentifier == TagType.AnchorVolumeDescriptorPointer.value) { // Check for valid AVDP tag identifier
                     pointers.add(candidate);
                 }
             }
@@ -156,40 +156,59 @@ public class UdfFileSystem implements IFileSystem {
 
             reader.seek(vdsStart);
 
-            while (reader.position() < vdsEnd) {
+            boolean foundTerminatingDescriptor = false;
+            PartitionDescriptor partitionDescriptor = null;
+            LogicalVolumeDescriptor logicalVolumeDescriptor = null;
+
+            while (reader.position() < vdsEnd && !foundTerminatingDescriptor) {
+                long descriptorStart = reader.position();
                 Tag tag = Tag.readFrom(reader);
 
                 switch (TagType.fromValue(tag.tagIdentifier)) {
                     case Unknown -> {
-                        // blank sector or unknown descriptor, skip to next sector
+                        // Unspecified/unknown descriptor type; skip the remainder of this logical block.
+                        reader.seek(descriptorStart + SECTOR_SIZE);
                     }
                     case PrimaryVolumeDescriptor -> {
-                        // Handle Primary Volume Descriptor
-                    }
-                    case AnchorVolumeDescriptorPointer -> {
-                        // Handle Anchor Volume Descriptor Pointer
+                        // Information about the primary volume descriptor can be read here if needed
+                        reader.skipFully(512 - 16);
                     }
                     case VolumeDescriptorSequence -> {
                         // Handle Volume Descriptor Sequence
+                        reader.skipFully(512 - 16);
                     }
                     case ImplementationUseVolumeDescriptor -> {
                         // Handle Implementation Use Volume Descriptor
+                        reader.skipFully(512 - 16);
                     }
                     case PartitionDescriptor -> {
-                        PartitionDescriptor partitionDescriptor = PartitionDescriptor.readFrom(reader);
+                        partitionDescriptor = PartitionDescriptor.readFrom(reader);
                     }
                     case LogicalVolumeDescriptor -> {
-                        LogicalVolumeDescriptor logicalVolumeDescriptor = LogicalVolumeDescriptor.readFrom(reader);
+                        logicalVolumeDescriptor = LogicalVolumeDescriptor.readFrom(reader);
                     }
                     case UnallocatedSpaceDescriptor -> {
                         // Handle Unallocated Space Descriptor
+                        reader.skipFully(512 - 16);
                     }
                     case TerminatingDescriptor -> {
-                        // Handle Terminating Descriptor
+                        // Terminating Descriptor has only the tag, so we can skip the rest of the sector
+                        reader.skipFully(512 - 16);
+                        foundTerminatingDescriptor = true;
                     }
                     default -> throw new IOException("Unknown TagType: " + tag.tagIdentifier);
                 }
             }
+
+            if(partitionDescriptor == null) {
+                throw new IOException("No valid Partition Descriptor found in the Volume Structure Descriptor.");
+            }
+
+            if(logicalVolumeDescriptor == null) {
+                throw new IOException("No valid Logical Volume Descriptor found in the Volume Structure Descriptor.");
+            }
+
+
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -225,6 +244,20 @@ public class UdfFileSystem implements IFileSystem {
     }
 
     // ECMA 167, section 7.2.1.1
+    public record CharSpec(
+            CharsetSetType type,
+            byte[] information
+    ) {
+        public static CharSpec readFrom(BinaryReader reader) throws IOException {
+            CharsetSetType type =
+                    CharsetSetType.fromValue(reader.readU8());
+
+            byte[] information = reader.readBytes(63);
+
+            return new CharSpec(type, information);
+        }
+    }
+
     private enum CharsetSetType {
         RESERVED(-1),
         CS0(0),
@@ -324,6 +357,34 @@ public class UdfFileSystem implements IFileSystem {
         }
     }
 
+    public record LogicalBlockAddress(
+            long logicalBlockNumber,
+            int partitionReferenceNumber
+    ) {
+        public static LogicalBlockAddress readFrom(BinaryReader reader)
+                throws IOException {
+            return new LogicalBlockAddress(
+                    reader.readU32LE(),
+                    reader.readU16LE()
+            );
+        }
+    }
+
+    public record LongAllocationDescriptor(
+            long extentLength,
+            LogicalBlockAddress extentLocation,
+            byte[] implementationUse
+    ) {
+        public static LongAllocationDescriptor readFrom(BinaryReader reader)
+                throws IOException {
+            return new LongAllocationDescriptor(
+                    reader.readU32LE(),
+                    LogicalBlockAddress.readFrom(reader),
+                    reader.readBytes(6)
+            );
+        }
+    }
+
     public record VolumeStructureDescriptor(byte type, byte[] identifier, byte version, byte[] data) {
         public static VolumeStructureDescriptor readFrom(BinaryReader reader) throws IOException {
             byte type = reader.readI8();
@@ -413,40 +474,37 @@ public class UdfFileSystem implements IFileSystem {
 
     public record LogicalVolumeDescriptor(
             long volumeDescriptorSequenceNumber,
-            CharsetSetType descriptorCharacterSet,
+            CharSpec descriptorCharacterSet,
             DString logicalVolumeIdentifier,
             long logicalBlockSize,
             EntityIdentifier domainIdentifier,
-            int[] logicalVolumeContentsUse,
+            LongAllocationDescriptor logicalVolumeContentsUse,
             long mapTableLength,
             long numberOfPartitionMaps,
             EntityIdentifier implementationIdentifier,
-            int[] implementationUse,
+            byte[] implementationUse,
             ExtentAllocationDescriptor integritySequenceExtent,
-            int[] partitionMaps
+            byte[] partitionMaps
     ) {
         public static LogicalVolumeDescriptor readFrom(BinaryReader reader) throws IOException {
             long volumeDescriptorSequenceNumber = reader.readU32LE();
-            CharsetSetType descriptorCharacterSet = CharsetSetType.fromValue(reader.readU8());
+            CharSpec descriptorCharacterSet = CharSpec.readFrom(reader);
             DString logicalVolumeIdentifier = DString.readFrom(reader, 128);
             long logicalBlockSize = reader.readU32LE();
             EntityIdentifier domainIdentifier = EntityIdentifier.readFrom(reader);
-            int[] logicalVolumeContentsUse = new int[16];
-            for (int i = 0; i < 16; i++) {
-                logicalVolumeContentsUse[i] = reader.readU8();
-            }
+            LongAllocationDescriptor logicalVolumeContentsUse = LongAllocationDescriptor.readFrom(reader);
             long mapTableLength = reader.readU32LE();
             long numberOfPartitionMaps = reader.readU32LE();
             EntityIdentifier implementationIdentifier = EntityIdentifier.readFrom(reader);
-            int[] implementationUse = new int[128];
-            for (int i = 0; i < 128; i++) {
-                implementationUse[i] = reader.readU8();
-            }
+            byte[] implementationUse = reader.readBytes(128);
             ExtentAllocationDescriptor integritySequenceExtent = ExtentAllocationDescriptor.readFrom(reader);
-            int[] partitionMaps = new int[(int) numberOfPartitionMaps];
-            for (int i = 0; i < numberOfPartitionMaps; i++) {
-                partitionMaps[i] = reader.readU8();
+
+            if (mapTableLength > Integer.MAX_VALUE) {
+                throw new IOException("Partition map table too large: " + mapTableLength);
             }
+
+            byte[] partitionMaps = reader.readBytes((int) mapTableLength);
+
             return new LogicalVolumeDescriptor(
                     volumeDescriptorSequenceNumber,
                     descriptorCharacterSet,
