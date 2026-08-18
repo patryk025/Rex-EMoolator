@@ -52,6 +52,20 @@ public final class RandomAccessFileBinaryReader implements SeekableBinaryReader 
     }
 
     @Override
+    public long readI64LE() throws IOException {
+        long low = readU32LE();
+        long high = readU32LE();
+
+        return low | (high << 32);
+    }
+
+    @Override
+    public long readU64LE() throws IOException {
+        // so... Java doesn't have unsigned longs, so we just read it as a signed long and treat it as unsigned
+        return readI64LE();
+    }
+
+    @Override
     public byte[] readBytes(int length) throws IOException {
         if (length < 0) {
             throw new IOException("Negative byte count: " + length);

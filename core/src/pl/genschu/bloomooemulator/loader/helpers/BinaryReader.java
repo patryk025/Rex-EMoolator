@@ -23,6 +23,10 @@ public interface BinaryReader {
 
     float readF32LE() throws IOException;
 
+    long readI64LE() throws IOException;
+
+    long readU64LE() throws IOException;
+
     byte[] readBytes(int length) throws IOException;
 
     void skipFully(long length) throws IOException;

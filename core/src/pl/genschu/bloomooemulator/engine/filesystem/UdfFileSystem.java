@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.RandomAccessFile;
 import java.nio.charset.StandardCharsets;
+import java.sql.Time;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -157,7 +158,7 @@ public class UdfFileSystem implements IFileSystem {
             reader.seek(vdsStart);
 
             boolean foundTerminatingDescriptor = false;
-            PartitionDescriptor partitionDescriptor = null;
+            List<PartitionDescriptor> partitions = new ArrayList<>();
             LogicalVolumeDescriptor logicalVolumeDescriptor = null;
 
             while (reader.position() < vdsEnd && !foundTerminatingDescriptor) {
@@ -166,8 +167,9 @@ public class UdfFileSystem implements IFileSystem {
 
                 switch (TagType.fromValue(tag.tagIdentifier)) {
                     case Unknown -> {
-                        // Unspecified/unknown descriptor type; skip the remainder of this logical block.
-                        reader.seek(descriptorStart + SECTOR_SIZE);
+                        // Unspecified/unknown descriptor type; skip the remainder of this logical block and jump to the next sector
+                        long nextSector = ((descriptorStart+SECTOR_SIZE-1)/SECTOR_SIZE) * SECTOR_SIZE;
+                        reader.seek(nextSector);
                     }
                     case PrimaryVolumeDescriptor -> {
                         // Information about the primary volume descriptor can be read here if needed
@@ -182,7 +184,7 @@ public class UdfFileSystem implements IFileSystem {
                         reader.skipFully(512 - 16);
                     }
                     case PartitionDescriptor -> {
-                        partitionDescriptor = PartitionDescriptor.readFrom(reader);
+                        partitions.add(PartitionDescriptor.readFrom(reader));
                     }
                     case LogicalVolumeDescriptor -> {
                         logicalVolumeDescriptor = LogicalVolumeDescriptor.readFrom(reader);
@@ -192,7 +194,7 @@ public class UdfFileSystem implements IFileSystem {
                         reader.skipFully(512 - 16);
                     }
                     case TerminatingDescriptor -> {
-                        // Terminating Descriptor has only the tag, so we can skip the rest of the sector
+                        // Terminating Descriptor has only the tag, so we can skip the rest of the descriptor bytes
                         reader.skipFully(512 - 16);
                         foundTerminatingDescriptor = true;
                     }
@@ -200,7 +202,7 @@ public class UdfFileSystem implements IFileSystem {
                 }
             }
 
-            if(partitionDescriptor == null) {
+            if(partitions.isEmpty()) {
                 throw new IOException("No valid Partition Descriptor found in the Volume Structure Descriptor.");
             }
 
@@ -208,6 +210,88 @@ public class UdfFileSystem implements IFileSystem {
                 throw new IOException("No valid Logical Volume Descriptor found in the Volume Structure Descriptor.");
             }
 
+            Gdx.app.log("UdfFileSystem", "Logical Volume Identifier: " + logicalVolumeDescriptor.logicalVolumeIdentifier.decode(logicalVolumeDescriptor.descriptorCharacterSet));
+
+            // LVD fields
+            List<PartitionMap> partitionMaps = logicalVolumeDescriptor.partitionMaps;
+            long numberOfPartitionMaps = logicalVolumeDescriptor.numberOfPartitionMaps;
+            long mapTableLength = logicalVolumeDescriptor.mapTableLength;
+
+            // let's find partition, where FSD (File Set Descriptor) is located
+            LongAllocationDescriptor fsdExtent =
+                    logicalVolumeDescriptor.logicalVolumeContentsUse;
+
+            int partitionReferenceNumber = fsdExtent.extentLocation().partitionReferenceNumber();
+            PartitionMap fsdMap = partitionMaps.get(partitionReferenceNumber);
+            PartitionDescriptor fsdPartition = resolvePartitionDescriptor(fsdMap, partitions);
+
+            // Calculate the offset of the FSD in the ISO file
+            long logicalBlockNumber = fsdExtent.extentLocation().logicalBlockNumber();
+            long physicalBlock = fsdPartition.partitionStartingLocation() + logicalBlockNumber;
+            long fsdOffset = physicalBlock * logicalVolumeDescriptor.logicalBlockSize();
+
+            reader.seek(fsdOffset);
+
+            Tag fsdTag = Tag.readFrom(reader);
+
+            if (fsdTag.tagIdentifier() != 256) {
+                throw new IOException(
+                        "Expected File Set Descriptor (tag 256), got: "
+                                + fsdTag.tagIdentifier()
+                );
+            }
+
+            // Read the File Set Descriptor (FSD) from the calculated offset
+            FileSetDescriptor fsd = FileSetDescriptor.readFrom(reader);
+
+            LongAllocationDescriptor rootDirExtent = fsd.rootDirectoryICB();
+            int rootDirPartitionRef = rootDirExtent.extentLocation().partitionReferenceNumber();
+            PartitionMap rootDirMap = partitionMaps.get(rootDirPartitionRef);
+            PartitionDescriptor rootDirPartition = resolvePartitionDescriptor(rootDirMap, partitions);
+
+            long rootDirLogicalBlock = rootDirExtent.extentLocation().logicalBlockNumber();
+            long rootDirPhysicalBlock = rootDirPartition.partitionStartingLocation() + rootDirLogicalBlock;
+            long rootDirOffset = rootDirPhysicalBlock * logicalVolumeDescriptor.logicalBlockSize();
+
+            reader.seek(rootDirOffset);
+
+            // Finally, after this long journey we are reading our first File Entry
+            Tag rootTag = Tag.readFrom(reader);
+
+            if (rootTag.tagIdentifier() != 261) {
+                throw new IOException(
+                        "Expected File Entry for root directory, got tag: "
+                                + rootTag.tagIdentifier()
+                );
+            }
+
+            FileEntry rootEntry = FileEntry.readFrom(reader);
+
+            // Not so fast. Is it directory?
+            if (rootEntry.icbTag().fileType() != FileType.Directory) {
+                throw new IOException(
+                        "Root Directory ICB does not describe a directory. FileType="
+                                + rootEntry.icbTag().fileType()
+                );
+            }
+
+            // Geez, let's read the directory name
+            // of course we have FOUR different structs for allocating allocationDescriptors...
+            AllocationDescriptorType icbAllocationType = rootEntry.icbTag().allocationDescriptorType();
+            switch (icbAllocationType) {
+                case Short -> {
+
+                }
+                case Long -> {
+
+                }
+                case Extended -> {
+
+                }
+                case Inline -> {
+
+                }
+            }
 
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -328,6 +412,63 @@ public class UdfFileSystem implements IFileSystem {
                     usedLength
             );
         }
+
+        public String decode(CharSpec charSpec) throws IOException {
+            if (data.length == 0) {
+                return "";
+            }
+
+            if (charSpec.type() != CharsetSetType.CS0) {
+                throw new IOException(
+                        "Unsupported character set type: " + charSpec.type()
+                );
+            }
+
+            String charsetInfo = new String(
+                    charSpec.information(),
+                    StandardCharsets.US_ASCII
+            ).replace("\0", "");
+
+            if (!"OSTA Compressed Unicode".equals(charsetInfo)) {
+                throw new IOException(
+                        "Unsupported CS0 character set: " + charsetInfo
+                );
+            }
+
+            int compressionId = data[0] & 0xFF;
+            StringBuilder result = new StringBuilder();
+
+            switch (compressionId) {
+                case 8 -> {
+                    for (int i = 1; i < data.length; i++) {
+                        result.append((char) (data[i] & 0xFF));
+                    }
+                }
+
+                case 16 -> {
+                    if (((data.length - 1) & 1) != 0) {
+                        throw new IOException(
+                                "Invalid OSTA Compressed Unicode 16-bit length: "
+                                        + data.length
+                        );
+                    }
+
+                    for (int i = 1; i < data.length; i += 2) {
+                        int ch = ((data[i] & 0xFF) << 8)
+                                | (data[i + 1] & 0xFF);
+
+                        result.append((char) ch);
+                    }
+                }
+
+                default -> throw new IOException(
+                        "Unsupported OSTA Compressed Unicode compression ID: "
+                                + compressionId
+                );
+            }
+
+            return result.toString();
+        }
     }
 
     public record Timestamp(
@@ -355,6 +496,182 @@ public class UdfFileSystem implements IFileSystem {
             int microseconds = reader.readU8();
             return new Timestamp(typeAndTimezone, year, month, day, hour, minute, second, centiseconds, hundredsOfMicroseconds, microseconds);
         }
+    }
+
+    public sealed interface PartitionMap
+            permits Type1PartitionMap, Type2PartitionMap, UnknownPartitionMap {
+
+        int type();
+        int length();
+    }
+
+    public record Type1PartitionMap(
+            int volumeSequenceNumber,
+            int partitionNumber
+    ) implements PartitionMap {
+
+        @Override
+        public int type() {
+            return 1;
+        }
+
+        @Override
+        public int length() {
+            return 6;
+        }
+    }
+
+    public record Type2PartitionMap(
+            byte[] partitionIdentifier
+    ) implements PartitionMap {
+
+        @Override
+        public int type() {
+            return 2;
+        }
+
+        @Override
+        public int length() {
+            return 64;
+        }
+    }
+
+    public record UnknownPartitionMap(
+            int type,
+            int length,
+            byte[] data
+    ) implements PartitionMap {
+    }
+
+    private static List<PartitionMap> parsePartitionMaps(
+            byte[] data,
+            long expectedCount
+    ) throws IOException {
+
+        List<PartitionMap> maps = new ArrayList<>();
+
+        int offset = 0;
+
+        while (offset < data.length && maps.size() < expectedCount) {
+            if (offset + 2 > data.length) {
+                throw new IOException("Truncated partition map header");
+            }
+
+            int type = data[offset] & 0xFF;
+            int length = data[offset + 1] & 0xFF;
+
+            if (length < 2) {
+                throw new IOException(
+                        "Invalid partition map length: " + length
+                );
+            }
+
+            if (offset + length > data.length) {
+                throw new IOException(
+                        "Partition map exceeds map table length"
+                );
+            }
+
+            switch (type) {
+                case 1 -> {
+                    if (length != 6) {
+                        throw new IOException(
+                                "Invalid Type 1 partition map length: " + length
+                        );
+                    }
+
+                    int volumeSequenceNumber =
+                            (data[offset + 2] & 0xFF)
+                                    | ((data[offset + 3] & 0xFF) << 8);
+
+                    int partitionNumber =
+                            (data[offset + 4] & 0xFF)
+                                    | ((data[offset + 5] & 0xFF) << 8);
+
+                    maps.add(new Type1PartitionMap(
+                            volumeSequenceNumber,
+                            partitionNumber
+                    ));
+                }
+
+                case 2 -> {
+                    if (length != 64) {
+                        throw new IOException(
+                                "Invalid Type 2 partition map length: " + length
+                        );
+                    }
+
+                    maps.add(new Type2PartitionMap(
+                            Arrays.copyOfRange(
+                                    data,
+                                    offset + 2,
+                                    offset + 64
+                            )
+                    ));
+                }
+
+                default -> {
+                    maps.add(new UnknownPartitionMap(
+                            type,
+                            length,
+                            Arrays.copyOfRange(
+                                    data,
+                                    offset + 2,
+                                    offset + length
+                            )
+                    ));
+                }
+            }
+
+            offset += length;
+        }
+
+        if (maps.size() != expectedCount) {
+            throw new IOException(
+                    "Partition map count mismatch: expected "
+                            + expectedCount
+                            + ", got "
+                            + maps.size()
+            );
+        }
+
+        if (offset != data.length) {
+            throw new IOException(
+                    "Partition map table length mismatch: consumed "
+                            + offset
+                            + " of "
+                            + data.length
+            );
+        }
+
+        return maps;
+    }
+
+    private PartitionDescriptor resolvePartitionDescriptor(
+            PartitionMap map,
+            List<PartitionDescriptor> descriptors
+    ) throws IOException {
+
+        return switch (map) {
+            case Type1PartitionMap type1 ->
+                    descriptors.stream()
+                            .filter(p -> p.partitionNumber() == type1.partitionNumber())
+                            .findFirst()
+                            .orElseThrow(() -> new IOException(
+                                    "Partition Descriptor not found for partition number: "
+                                            + type1.partitionNumber()
+                            ));
+
+            case Type2PartitionMap type2 ->
+                    throw new IOException(
+                            "Type 2 partition maps are not supported yet"
+                    );
+
+            case UnknownPartitionMap unknown ->
+                    throw new IOException(
+                            "Unsupported partition map type: " + unknown.type()
+                    );
+        };
     }
 
     public record LogicalBlockAddress(
@@ -484,7 +801,7 @@ public class UdfFileSystem implements IFileSystem {
             EntityIdentifier implementationIdentifier,
             byte[] implementationUse,
             ExtentAllocationDescriptor integritySequenceExtent,
-            byte[] partitionMaps
+            List<PartitionMap> partitionMaps
     ) {
         public static LogicalVolumeDescriptor readFrom(BinaryReader reader) throws IOException {
             long volumeDescriptorSequenceNumber = reader.readU32LE();
@@ -503,7 +820,10 @@ public class UdfFileSystem implements IFileSystem {
                 throw new IOException("Partition map table too large: " + mapTableLength);
             }
 
-            byte[] partitionMaps = reader.readBytes((int) mapTableLength);
+            List<PartitionMap> partitionMaps = parsePartitionMaps(
+                    reader.readBytes((int) mapTableLength),
+                    numberOfPartitionMaps
+            );
 
             return new LogicalVolumeDescriptor(
                     volumeDescriptorSequenceNumber,
@@ -518,6 +838,341 @@ public class UdfFileSystem implements IFileSystem {
                     implementationUse,
                     integritySequenceExtent,
                     partitionMaps
+            );
+        }
+    }
+
+    public record FileSetDescriptor (
+            Timestamp recordingDateAndTime,
+            int interchangeLevel,
+            int maximumInterchangeLevel,
+            long characterSetList,
+            long maximumCharacterSetList,
+            long fileSetNumber,
+            long fileSetDescriptorNumber,
+            CharSpec logicalVolumeIdentifierCharacterSet,
+            DString logicalVolumeIdentifier,
+            CharSpec fileSetCharacterSet,
+            DString fileSetIdentifier,
+            DString copyrightFileIdentifier,
+            DString abstractFileIdentifier,
+            LongAllocationDescriptor rootDirectoryICB,
+            EntityIdentifier domainIdentifier,
+            LongAllocationDescriptor nextExtent,
+            LongAllocationDescriptor systemStreamDirectoryICB,
+            byte[] reserved
+    ) {
+        public static FileSetDescriptor readFrom(BinaryReader reader) throws IOException {
+            Timestamp recordingDateAndTime = Timestamp.readFrom(reader);
+            int interchangeLevel = reader.readU16LE();
+            int maximumInterchangeLevel = reader.readU16LE();
+            long characterSetList = reader.readU32LE();
+            long maximumCharacterSetList = reader.readU32LE();
+            long fileSetNumber = reader.readU32LE();
+            long fileSetDescriptorNumber = reader.readU32LE();
+            CharSpec logicalVolumeIdentifierCharacterSet = CharSpec.readFrom(reader);
+            DString logicalVolumeIdentifier = DString.readFrom(reader, 128);
+            CharSpec fileSetCharacterSet = CharSpec.readFrom(reader);
+            DString fileSetIdentifier = DString.readFrom(reader, 32);
+            DString copyrightFileIdentifier = DString.readFrom(reader, 32);
+            DString abstractFileIdentifier = DString.readFrom(reader, 32);
+            LongAllocationDescriptor rootDirectoryICB = LongAllocationDescriptor.readFrom(reader);
+            EntityIdentifier domainIdentifier = EntityIdentifier.readFrom(reader);
+            LongAllocationDescriptor nextExtent = LongAllocationDescriptor.readFrom(reader);
+            LongAllocationDescriptor systemStreamDirectoryICB = LongAllocationDescriptor.readFrom(reader);
+            byte[] reserved = reader.readBytes(32);
+
+            return new FileSetDescriptor(
+                    recordingDateAndTime,
+                    interchangeLevel,
+                    maximumInterchangeLevel,
+                    characterSetList,
+                    maximumCharacterSetList,
+                    fileSetNumber,
+                    fileSetDescriptorNumber,
+                    logicalVolumeIdentifierCharacterSet,
+                    logicalVolumeIdentifier,
+                    fileSetCharacterSet,
+                    fileSetIdentifier,
+                    copyrightFileIdentifier,
+                    abstractFileIdentifier,
+                    rootDirectoryICB,
+                    domainIdentifier,
+                    nextExtent,
+                    systemStreamDirectoryICB,
+                    reserved
+            );
+        }
+    }
+
+    public enum FileType {
+        Unspecified(0),
+        UnallocatedSpaceEntry(1),
+        PartitionIntegrityEntry(2),
+        IndirectEntry(3),
+        Directory(4),
+        RegularFile(5),   // byte-addressable file
+        BlockDevice(6),
+        CharacterDevice(7),
+        ExtendedAttribute(8),
+        Fifo(9),
+        Socket(10),
+        TerminalEntry(11),
+        SymbolicLink(12),
+        StreamDirectory(13),
+
+        // UDF specific
+        Vat(248),
+        RealTimeFile(249),
+        MetadataFile(250),
+        MetadataMirrorFile(251),
+        MetadataBitmapFile(252),
+
+        Reserved(-1);
+
+        private final int value;
+
+        FileType(int value) {
+            this.value = value;
+        }
+
+        public int value() {
+            return value;
+        }
+
+        public static FileType fromValue(int value) {
+            for (FileType type : values()) {
+                if (type.value == value) {
+                    return type;
+                }
+            }
+
+            if (value >= 14 && value <= 247) {
+                return Reserved;
+            }
+
+            throw new IllegalArgumentException(
+                    "Invalid ICB file type: " + value
+            );
+        }
+    }
+
+    public enum AllocationDescriptorType {
+        Short(0),  // short_ad
+        Long(1),  // long_ad
+        Extended(2),  // ext_ad
+        Inline(3);  // inline in File Entry
+
+        private final int value;
+
+        AllocationDescriptorType(int value) {
+            this.value = value;
+        }
+
+        public int value() {
+            return value;
+        }
+        public static AllocationDescriptorType fromValue(int value) {
+            for (AllocationDescriptorType type : values()) {
+                if (type.value == value) {
+                    return type;
+                }
+            }
+
+            throw new IllegalArgumentException(
+                    "Invalid allocation descriptor type: " + value
+            );
+        }
+    }
+
+    public record IcbTag(
+            long priorRecordedNumberOfDirectEntries,
+            int strategyType,
+            byte[] strategyParameter,
+            int maximumNumberOfEntries,
+            int reserved,
+            FileType fileType,
+            LogicalBlockAddress parentIcbLocation,
+            int flags
+    ) {
+        public static IcbTag readFrom(BinaryReader reader) throws IOException {
+            return new IcbTag(
+                    reader.readU32LE(),
+                    reader.readU16LE(),
+                    reader.readBytes(2),
+                    reader.readU16LE(),
+                    reader.readU8(),
+                    FileType.fromValue(reader.readU8()),
+                    LogicalBlockAddress.readFrom(reader),
+                    reader.readU16LE()
+            );
+        }
+
+        public AllocationDescriptorType allocationDescriptorType() {
+            return AllocationDescriptorType.fromValue(flags & 0x07);
+        }
+    }
+
+    public record FileEntry(
+            IcbTag icbTag,
+            long uid,
+            long gid,
+            long permissions,
+            int fileLinkCount,
+            int recordFormat,
+            int recordDisplayAttributes,
+            long recordLength,
+            long informationLength,
+            long logicalBlocksRecorded,
+            Timestamp accessDateAndTime,
+            Timestamp modificationDateAndTime,
+            Timestamp attributeDateAndTime,
+            long checkpoint,
+            LongAllocationDescriptor extendedAttributeICB,
+            EntityIdentifier implementationIdentifier,
+            long uniqueId,
+            long lengthOfExtendedAttributes,
+            long lengthOfAllocationDescriptors,
+            byte[] extendedAttributes,
+            byte[] allocationDescriptors
+    ) {
+        public static FileEntry readFrom(BinaryReader reader)
+                throws IOException {
+
+            IcbTag icbTag = IcbTag.readFrom(reader);
+
+            long uid = reader.readU32LE();
+            long gid = reader.readU32LE();
+            long permissions = reader.readU32LE();
+
+            int fileLinkCount = reader.readU16LE();
+            int recordFormat = reader.readU8();
+            int recordDisplayAttributes = reader.readU8();
+
+            long recordLength = reader.readU32LE();
+
+            long informationLength = reader.readU64LE();
+            long logicalBlocksRecorded = reader.readU64LE();
+
+            Timestamp accessDateAndTime =
+                    Timestamp.readFrom(reader);
+
+            Timestamp modificationDateAndTime =
+                    Timestamp.readFrom(reader);
+
+            Timestamp attributeDateAndTime =
+                    Timestamp.readFrom(reader);
+
+            long checkpoint = reader.readU32LE();
+
+            LongAllocationDescriptor extendedAttributeICB =
+                    LongAllocationDescriptor.readFrom(reader);
+
+            EntityIdentifier implementationIdentifier =
+                    EntityIdentifier.readFrom(reader);
+
+            long uniqueId = reader.readU64LE();
+
+            long lengthOfExtendedAttributes =
+                    reader.readU32LE();
+
+            long lengthOfAllocationDescriptors =
+                    reader.readU32LE();
+
+            if (lengthOfExtendedAttributes > Integer.MAX_VALUE) {
+                throw new IOException(
+                        "Extended attributes too large: "
+                                + lengthOfExtendedAttributes
+                );
+            }
+
+            if (lengthOfAllocationDescriptors > Integer.MAX_VALUE) {
+                throw new IOException(
+                        "Allocation descriptors too large: "
+                                + lengthOfAllocationDescriptors
+                );
+            }
+
+            byte[] extendedAttributes =
+                    reader.readBytes((int) lengthOfExtendedAttributes);
+
+            byte[] allocationDescriptors =
+                    reader.readBytes((int) lengthOfAllocationDescriptors);
+
+            return new FileEntry(
+                    icbTag,
+                    uid,
+                    gid,
+                    permissions,
+                    fileLinkCount,
+                    recordFormat,
+                    recordDisplayAttributes,
+                    recordLength,
+                    informationLength,
+                    logicalBlocksRecorded,
+                    accessDateAndTime,
+                    modificationDateAndTime,
+                    attributeDateAndTime,
+                    checkpoint,
+                    extendedAttributeICB,
+                    implementationIdentifier,
+                    uniqueId,
+                    lengthOfExtendedAttributes,
+                    lengthOfAllocationDescriptors,
+                    extendedAttributes,
+                    allocationDescriptors
+            );
+        }
+    }
+
+    public record FileIdentifierDescriptor(
+            int fileVersionNumber,
+            int fileCharacteristics,
+            int lengthOfFileIdentifier,
+            LongAllocationDescriptor icb,
+            int lengthOfImplementationUse,
+            byte[] implementationUse,
+            byte[] fileIdentifier,
+            byte[] padding
+    ) {
+        public static FileIdentifierDescriptor readFrom(BinaryReader reader)
+                throws IOException {
+
+            int fileVersionNumber = reader.readU16LE();
+            int fileCharacteristics = reader.readU8();
+            int lengthOfFileIdentifier = reader.readU8();
+
+            LongAllocationDescriptor icb =
+                    LongAllocationDescriptor.readFrom(reader);
+
+            int lengthOfImplementationUse = reader.readU16LE();
+
+            byte[] implementationUse =
+                    reader.readBytes(lengthOfImplementationUse);
+
+            byte[] fileIdentifier =
+                    reader.readBytes(lengthOfFileIdentifier);
+
+            int descriptorLength =
+                    38
+                            + lengthOfImplementationUse
+                            + lengthOfFileIdentifier;
+
+            int paddingLength =
+                    (4 - (descriptorLength % 4)) % 4;
+
+            byte[] padding =
+                    reader.readBytes(paddingLength);
+
+            return new FileIdentifierDescriptor(
+                    fileVersionNumber,
+                    fileCharacteristics,
+                    lengthOfFileIdentifier,
+                    icb,
+                    lengthOfImplementationUse,
+                    implementationUse,
+                    fileIdentifier,
+                    padding
             );
         }
     }

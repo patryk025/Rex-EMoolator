@@ -57,6 +57,17 @@ public final class InputStreamBinaryReader implements BinaryReader {
     }
 
     @Override
+    public long readI64LE() throws IOException {
+        return readU32LE() | (readU32LE() << 32);
+    }
+
+    @Override
+    public long readU64LE() throws IOException {
+        // so... Java doesn't have unsigned longs, so we just read it as a signed long and treat it as unsigned
+        return readI64LE();
+    }
+
+    @Override
     public byte[] readBytes(int length) throws IOException {
         if (length < 0) {
             throw new IOException("Negative byte count: " + length);

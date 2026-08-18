@@ -1,7 +1,10 @@
 package pl.genschu.bloomooemulator.tests;
 
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import pl.genschu.bloomooemulator.TestEnvironment;
 import pl.genschu.bloomooemulator.engine.filesystem.*;
+import pl.genschu.bloomooemulator.interpreter.variable.TextVariable;
 
 import java.io.File;
 import java.io.IOException;
@@ -43,6 +46,13 @@ class UdfFileSystemTest {
         return Arrays.stream(names)
                 .map(name -> name.toLowerCase(Locale.ROOT))
                 .collect(Collectors.toSet());
+    }
+
+
+    @BeforeAll
+    static void boot() {
+        TestEnvironment.init();
+        TestEnvironment.enableLogs();
     }
 
     @Test
