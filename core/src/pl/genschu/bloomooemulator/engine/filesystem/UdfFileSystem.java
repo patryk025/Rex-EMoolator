@@ -2,15 +2,12 @@ package pl.genschu.bloomooemulator.engine.filesystem;
 
 import com.badlogic.gdx.Gdx;
 import pl.genschu.bloomooemulator.loader.helpers.BinaryReader;
+import pl.genschu.bloomooemulator.loader.helpers.InputStreamBinaryReader;
 import pl.genschu.bloomooemulator.loader.helpers.RandomAccessFileBinaryReader;
 import pl.genschu.bloomooemulator.loader.helpers.SeekableBinaryReader;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.RandomAccessFile;
+import java.io.*;
 import java.nio.charset.StandardCharsets;
-import java.sql.Time;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -278,18 +275,42 @@ public class UdfFileSystem implements IFileSystem {
             // Geez, let's read the directory name
             // of course we have FOUR different structs for allocating allocationDescriptors...
             AllocationDescriptorType icbAllocationType = rootEntry.icbTag().allocationDescriptorType();
+            byte[] allocationDescriptors = rootEntry.allocationDescriptors;
+            BinaryReader allocationReader =
+                    new InputStreamBinaryReader(
+                            new ByteArrayInputStream(allocationDescriptors)
+                    );
+
+            long fidOffset = 0;
+            long icbPhysicalBlock = 0;
+
             switch (icbAllocationType) {
                 case Short -> {
+                    ShortAllocationDescriptor shortAd = ShortAllocationDescriptor.readFrom(allocationReader);
+                    icbPhysicalBlock = rootDirPartition.partitionStartingLocation() + shortAd.extentLocation();
 
+                    fidOffset = icbPhysicalBlock * logicalVolumeDescriptor.logicalBlockSize();
                 }
                 case Long -> {
+                    LongAllocationDescriptor ad = LongAllocationDescriptor.readFrom(allocationReader);
+                    int partitionRef = ad.extentLocation().partitionReferenceNumber();
+                    PartitionMap map = partitionMaps.get(partitionRef);
+                    PartitionDescriptor partition = resolvePartitionDescriptor(map, partitions);
 
+                    icbPhysicalBlock = partition.partitionStartingLocation() + ad.extentLocation().logicalBlockNumber();
+                    fidOffset = icbPhysicalBlock * logicalVolumeDescriptor.logicalBlockSize();
                 }
                 case Extended -> {
+                    ExtendedAllocationDescriptor ad = ExtendedAllocationDescriptor.readFrom(allocationReader);
+                    int partitionRef = ad.extentLocation().partitionReferenceNumber();
+                    PartitionMap map = partitionMaps.get(partitionRef);
+                    PartitionDescriptor partition = resolvePartitionDescriptor(map, partitions);
 
+                    icbPhysicalBlock = partition.partitionStartingLocation() + ad.extentLocation().logicalBlockNumber();
+                    fidOffset = icbPhysicalBlock * logicalVolumeDescriptor.logicalBlockSize();
                 }
                 case Inline -> {
-
+                    // data are in allocationDescriptors, so we can read them directly
                 }
             }
 
@@ -712,29 +733,72 @@ public class UdfFileSystem implements IFileSystem {
         }
     }
 
-    public record ExtentAllocationDescriptor(
+    public record ShortAllocationDescriptor(
             long extentLength,
             long extentLocation
     ) {
-        public static ExtentAllocationDescriptor readFrom(BinaryReader reader)
+        public static ShortAllocationDescriptor readFrom(BinaryReader reader)
                 throws IOException {
 
-            return new ExtentAllocationDescriptor(
+            return new ShortAllocationDescriptor(
                     reader.readU32LE(),
                     reader.readU32LE()
             );
         }
     }
 
+    public record ExtendedAllocationDescriptor(
+            long extentLength,
+            long recordedLength,
+            long informationLength,
+            LogicalBlockAddress extentLocation,
+            byte[] implementationUse
+    ) {
+        public static ExtendedAllocationDescriptor readFrom(BinaryReader reader)
+                throws IOException {
+
+            return new ExtendedAllocationDescriptor(
+                    reader.readU32LE(),
+                    reader.readU32LE(),
+                    reader.readU32LE(),
+                    LogicalBlockAddress.readFrom(reader),
+                    reader.readBytes(2)
+            );
+        }
+    }
+
+    public enum ExtentType {
+        RecordedAndAllocated(0),
+        NotRecordedButAllocated(1),
+        NotRecordedAndNotAllocated(2),
+        NextExtentOfAllocationDescriptors(3);
+
+        private final int value;
+
+        ExtentType(int value) {
+            this.value = value;
+        }
+
+        public static ExtentType fromValue(int value) {
+            return switch (value) {
+                case 0 -> RecordedAndAllocated;
+                case 1 -> NotRecordedButAllocated;
+                case 2 -> NotRecordedAndNotAllocated;
+                case 3 -> NextExtentOfAllocationDescriptors;
+                default -> throw new IllegalArgumentException();
+            };
+        }
+    }
+
     public record AnchorVolumeDescriptorPointer(
             Tag tag,
-            ExtentAllocationDescriptor mainVolumeDescriptorSequenceExtent,
-            ExtentAllocationDescriptor reserveVolumeDescriptorSequenceExtent
+            ShortAllocationDescriptor mainVolumeDescriptorSequenceExtent,
+            ShortAllocationDescriptor reserveVolumeDescriptorSequenceExtent
     ) {
         public static AnchorVolumeDescriptorPointer readFrom(BinaryReader reader) throws IOException {
             Tag tag = Tag.readFrom(reader);
-            ExtentAllocationDescriptor mainVolumeDescriptorSequenceExtent = ExtentAllocationDescriptor.readFrom(reader);
-            ExtentAllocationDescriptor reserveVolumeDescriptorSequenceExtent = ExtentAllocationDescriptor.readFrom(reader);
+            ShortAllocationDescriptor mainVolumeDescriptorSequenceExtent = ShortAllocationDescriptor.readFrom(reader);
+            ShortAllocationDescriptor reserveVolumeDescriptorSequenceExtent = ShortAllocationDescriptor.readFrom(reader);
             return new AnchorVolumeDescriptorPointer(tag, mainVolumeDescriptorSequenceExtent, reserveVolumeDescriptorSequenceExtent);
         }
     }
@@ -800,7 +864,7 @@ public class UdfFileSystem implements IFileSystem {
             long numberOfPartitionMaps,
             EntityIdentifier implementationIdentifier,
             byte[] implementationUse,
-            ExtentAllocationDescriptor integritySequenceExtent,
+            ShortAllocationDescriptor integritySequenceExtent,
             List<PartitionMap> partitionMaps
     ) {
         public static LogicalVolumeDescriptor readFrom(BinaryReader reader) throws IOException {
@@ -814,7 +878,7 @@ public class UdfFileSystem implements IFileSystem {
             long numberOfPartitionMaps = reader.readU32LE();
             EntityIdentifier implementationIdentifier = EntityIdentifier.readFrom(reader);
             byte[] implementationUse = reader.readBytes(128);
-            ExtentAllocationDescriptor integritySequenceExtent = ExtentAllocationDescriptor.readFrom(reader);
+            ShortAllocationDescriptor integritySequenceExtent = ShortAllocationDescriptor.readFrom(reader);
 
             if (mapTableLength > Integer.MAX_VALUE) {
                 throw new IOException("Partition map table too large: " + mapTableLength);
@@ -1054,30 +1118,18 @@ public class UdfFileSystem implements IFileSystem {
             long informationLength = reader.readU64LE();
             long logicalBlocksRecorded = reader.readU64LE();
 
-            Timestamp accessDateAndTime =
-                    Timestamp.readFrom(reader);
-
-            Timestamp modificationDateAndTime =
-                    Timestamp.readFrom(reader);
-
-            Timestamp attributeDateAndTime =
-                    Timestamp.readFrom(reader);
+            Timestamp accessDateAndTime = Timestamp.readFrom(reader);
+            Timestamp modificationDateAndTime = Timestamp.readFrom(reader);
+            Timestamp attributeDateAndTime = Timestamp.readFrom(reader);
 
             long checkpoint = reader.readU32LE();
 
-            LongAllocationDescriptor extendedAttributeICB =
-                    LongAllocationDescriptor.readFrom(reader);
-
-            EntityIdentifier implementationIdentifier =
-                    EntityIdentifier.readFrom(reader);
+            LongAllocationDescriptor extendedAttributeICB = LongAllocationDescriptor.readFrom(reader);
+            EntityIdentifier implementationIdentifier = EntityIdentifier.readFrom(reader);
 
             long uniqueId = reader.readU64LE();
-
-            long lengthOfExtendedAttributes =
-                    reader.readU32LE();
-
-            long lengthOfAllocationDescriptors =
-                    reader.readU32LE();
+            long lengthOfExtendedAttributes = reader.readU32LE();
+            long lengthOfAllocationDescriptors = reader.readU32LE();
 
             if (lengthOfExtendedAttributes > Integer.MAX_VALUE) {
                 throw new IOException(
@@ -1093,11 +1145,8 @@ public class UdfFileSystem implements IFileSystem {
                 );
             }
 
-            byte[] extendedAttributes =
-                    reader.readBytes((int) lengthOfExtendedAttributes);
-
-            byte[] allocationDescriptors =
-                    reader.readBytes((int) lengthOfAllocationDescriptors);
+            byte[] extendedAttributes = reader.readBytes((int) lengthOfExtendedAttributes);
+            byte[] allocationDescriptors = reader.readBytes((int) lengthOfAllocationDescriptors);
 
             return new FileEntry(
                     icbTag,
@@ -1142,27 +1191,14 @@ public class UdfFileSystem implements IFileSystem {
             int fileCharacteristics = reader.readU8();
             int lengthOfFileIdentifier = reader.readU8();
 
-            LongAllocationDescriptor icb =
-                    LongAllocationDescriptor.readFrom(reader);
-
+            LongAllocationDescriptor icb = LongAllocationDescriptor.readFrom(reader);
             int lengthOfImplementationUse = reader.readU16LE();
+            byte[] implementationUse = reader.readBytes(lengthOfImplementationUse);
+            byte[] fileIdentifier = reader.readBytes(lengthOfFileIdentifier);
+            int descriptorLength = 38 + lengthOfImplementationUse + lengthOfFileIdentifier;
 
-            byte[] implementationUse =
-                    reader.readBytes(lengthOfImplementationUse);
-
-            byte[] fileIdentifier =
-                    reader.readBytes(lengthOfFileIdentifier);
-
-            int descriptorLength =
-                    38
-                            + lengthOfImplementationUse
-                            + lengthOfFileIdentifier;
-
-            int paddingLength =
-                    (4 - (descriptorLength % 4)) % 4;
-
-            byte[] padding =
-                    reader.readBytes(paddingLength);
+            int paddingLength = (4 - (descriptorLength % 4)) % 4;
+            byte[] padding = reader.readBytes(paddingLength);
 
             return new FileIdentifierDescriptor(
                     fileVersionNumber,
