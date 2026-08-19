@@ -281,42 +281,141 @@ public class UdfFileSystem implements IFileSystem {
                             new ByteArrayInputStream(allocationDescriptors)
                     );
 
-            long fidOffset = 0;
             long icbPhysicalBlock = 0;
+            byte[] directoryData;
 
             switch (icbAllocationType) {
                 case Short -> {
-                    ShortAllocationDescriptor shortAd = ShortAllocationDescriptor.readFrom(allocationReader);
-                    icbPhysicalBlock = rootDirPartition.partitionStartingLocation() + shortAd.extentLocation();
+                    ShortAllocationDescriptor ad = ShortAllocationDescriptor.readFrom(allocationReader);
+                    icbPhysicalBlock = rootDirPartition.partitionStartingLocation() + ad.extentLocation();
 
-                    fidOffset = icbPhysicalBlock * logicalVolumeDescriptor.logicalBlockSize();
+                    long offset = icbPhysicalBlock * logicalVolumeDescriptor.logicalBlockSize();
+                    reader.seek(offset);
+
+                    directoryData = reader.readBytes(
+                            Math.toIntExact(rootEntry.informationLength())
+                    );
                 }
                 case Long -> {
                     LongAllocationDescriptor ad = LongAllocationDescriptor.readFrom(allocationReader);
                     int partitionRef = ad.extentLocation().partitionReferenceNumber();
+
                     PartitionMap map = partitionMaps.get(partitionRef);
                     PartitionDescriptor partition = resolvePartitionDescriptor(map, partitions);
-
                     icbPhysicalBlock = partition.partitionStartingLocation() + ad.extentLocation().logicalBlockNumber();
-                    fidOffset = icbPhysicalBlock * logicalVolumeDescriptor.logicalBlockSize();
+
+                    long offset = icbPhysicalBlock * logicalVolumeDescriptor.logicalBlockSize();
+                    reader.seek(offset);
+
+                    directoryData = reader.readBytes(
+                            Math.toIntExact(rootEntry.informationLength())
+                    );
                 }
                 case Extended -> {
                     ExtendedAllocationDescriptor ad = ExtendedAllocationDescriptor.readFrom(allocationReader);
                     int partitionRef = ad.extentLocation().partitionReferenceNumber();
+
                     PartitionMap map = partitionMaps.get(partitionRef);
                     PartitionDescriptor partition = resolvePartitionDescriptor(map, partitions);
-
                     icbPhysicalBlock = partition.partitionStartingLocation() + ad.extentLocation().logicalBlockNumber();
-                    fidOffset = icbPhysicalBlock * logicalVolumeDescriptor.logicalBlockSize();
+
+                    long offset = icbPhysicalBlock * logicalVolumeDescriptor.logicalBlockSize();
+                    reader.seek(offset);
+
+                    directoryData = reader.readBytes(
+                            Math.toIntExact(rootEntry.informationLength())
+                    );
                 }
                 case Inline -> {
-                    // data are in allocationDescriptors, so we can read them directly
+                    if (allocationDescriptors.length < rootEntry.informationLength()) {
+                        throw new IOException("Inline directory data is truncated");
+                    }
+                    directoryData = allocationDescriptors;
                 }
+                default -> throw new IOException(
+                        "Unsupported allocation descriptor type: "
+                                + icbAllocationType
+                );
+            }
+
+            ByteArrayInputStream fidStream = new ByteArrayInputStream(directoryData);
+            BinaryReader fidReader = new InputStreamBinaryReader(fidStream);
+
+            while (fidStream.available() > 0) {
+                if (fidStream.available() < 16) {
+                    throw new IOException(
+                            "Truncated directory data: "
+                                    + fidStream.available()
+                                    + " bytes remaining"
+                    );
+                }
+
+                Tag fidTag = Tag.readFrom(fidReader);
+
+                if (fidTag.tagIdentifier() != 257) {
+                    throw new IOException(
+                            "Expected File Identifier Descriptor (257), got "
+                                    + fidTag.tagIdentifier()
+                    );
+                }
+
+                FileIdentifierDescriptor fid =
+                        FileIdentifierDescriptor.readFrom(fidReader);
+
+                String name =
+                        decodeOstaCompressedUnicode(fid.fileIdentifier());
+
+                Gdx.app.log(
+                        "UdfFileSystem",
+                        "FID: " + name
+                                + " characteristics=" + fid.fileCharacteristics()
+                );
             }
 
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public static String decodeOstaCompressedUnicode(byte[] data)
+            throws IOException {
+
+        if (data.length == 0) {
+            return "";
+        }
+
+        int compressionId = data[0] & 0xFF;
+        StringBuilder result = new StringBuilder();
+
+        switch (compressionId) {
+            case 8 -> {
+                for (int i = 1; i < data.length; i++) {
+                    result.append((char) (data[i] & 0xFF));
+                }
+            }
+
+            case 16 -> {
+                if (((data.length - 1) & 1) != 0) {
+                    throw new IOException(
+                            "Invalid OSTA Compressed Unicode length: "
+                                    + data.length
+                    );
+                }
+
+                for (int i = 1; i < data.length; i += 2) {
+                    int ch = ((data[i] & 0xFF) << 8)
+                            | (data[i + 1] & 0xFF);
+
+                    result.append((char) ch);
+                }
+            }
+
+            default -> throw new IOException(
+                    "Unsupported compression ID: " + compressionId
+            );
+        }
+
+        return result.toString();
     }
 
     private record Entry(boolean directory, long offset, long length) {}
