@@ -211,17 +211,19 @@ public class VariableResolver {
         Context context,
         Function<Context, Map<String, Variable>> extractor
     ) {
-        return collectByType(context, extractor, new HashSet<>());
+        Map<String, Variable> result = new LinkedHashMap<>();
+        collectByType(context, extractor, new HashSet<>(), result);
+        return result;
     }
 
-    private Map<String, Variable> collectByType(
+    private void collectByType(
         Context context,
         Function<Context, Map<String, Variable>> extractor,
-        Set<Context> visited
+        Set<Context> visited,
+        Map<String, Variable> result
     ) {
-        Map<String, Variable> result = new LinkedHashMap<>();
         if (context == null || !visited.add(context)) {
-            return result;
+            return;
         }
 
         // From class instances (getInstanceContext() on Variable)
@@ -229,14 +231,14 @@ public class VariableResolver {
             if(var instanceof HasInstanceContext hic) {
                 Context instanceCtx = hic.getInstanceContext();
                 if (instanceCtx != null) {
-                    result.putAll(collectByType(instanceCtx, extractor, visited));
+                    collectByType(instanceCtx, extractor, visited, result);
                 }
             }
         }
 
         // From additional contexts
         for (Context additional : context.getAdditionalContexts()) {
-            result.putAll(collectByType(additional, extractor, visited));
+            collectByType(additional, extractor, visited, result);
         }
 
         // From current
@@ -244,10 +246,8 @@ public class VariableResolver {
 
         // From parent (recursive)
         if (context.getParent() != null) {
-            result.putAll(collectByType(context.getParent(), extractor, visited));
+            collectByType(context.getParent(), extractor, visited, result);
         }
-
-        return result;
     }
 
     /**
