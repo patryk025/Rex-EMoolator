@@ -33,11 +33,28 @@ public class OriginalEngineQuirksHandler {
         }
 
         // 3. Handle clone suffix _\d+
-        if (name.matches(".*_\\d+$")) {
+        if (hasNumericSuffix(name)) {
             return resolveClone(name, context);
         }
 
         return null;
+    }
+
+    private boolean hasNumericSuffix(String name) {
+        int underscore = name.lastIndexOf('_');
+
+        if (underscore < 0 || underscore == name.length() - 1) {
+            return false;
+        }
+
+        for (int i = underscore + 1; i < name.length(); i++) {
+            char c = name.charAt(i);
+            if (c < '0' || c > '9') {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     /**
