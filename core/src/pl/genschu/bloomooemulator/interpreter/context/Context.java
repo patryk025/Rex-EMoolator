@@ -22,6 +22,7 @@ public class Context implements GameContext {
 
     private Context parent;
     private final List<Context> additionalContexts = new ArrayList<>();
+    private final List<Context> additionalContextsView = Collections.unmodifiableList(additionalContexts);
 
     private Game game;
 
@@ -320,6 +321,19 @@ public class Context implements GameContext {
     }
 
     /**
+     * A variable paired with the context that directly owns it.
+     */
+    public record ScopedVariable(Variable variable, Context owner) {}
+
+    /**
+     * Gets the identity-preserving button snapshot together with owner contexts.
+     * Input handling uses the owner to resolve each button's graphics locally.
+     */
+    public List<ScopedVariable> getScopedButtonVariablesForInput() {
+        return resolver.collectScopedButtonsForInput(this);
+    }
+
+    /**
      * Registers a variable as a button in this context's cache.
      * Used for AnimoVariables with ASBUTTON that need to appear in button lists.
      */
@@ -567,7 +581,7 @@ public class Context implements GameContext {
      * @return List of additional contexts
      */
     public List<Context> getAdditionalContexts() {
-        return Collections.unmodifiableList(additionalContexts);
+        return additionalContextsView;
     }
 
     /**

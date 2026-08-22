@@ -9,6 +9,7 @@ import java.util.*;
  */
 public class VariableStore {
     private final Map<String, Variable> variables = new LinkedHashMap<>();
+    private final Map<String, Variable> variablesView = Collections.unmodifiableMap(variables);
     private final VariableCacheIndex cacheIndex = new VariableCacheIndex();
 
     /**
@@ -60,7 +61,7 @@ public class VariableStore {
      * Returns all variables in this store (unmodifiable).
      */
     public Map<String, Variable> getAll() {
-        return Collections.unmodifiableMap(variables);
+        return variablesView;
     }
 
     /**

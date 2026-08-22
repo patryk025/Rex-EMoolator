@@ -4,6 +4,7 @@ import pl.genschu.bloomooemulator.interpreter.variable.Variable;
 import pl.genschu.bloomooemulator.interpreter.variable.capabilities.HasInstanceContext;
 
 import java.util.*;
+import java.util.function.BiFunction;
 import java.util.function.Function;
 
 /**
@@ -66,13 +67,22 @@ public class VariableResolver {
             return builtin;
         }
 
-        // 3. Context graph (current -> additional contexts -> parent)
+        // 3. Current context. Most runtime lookups are local, so avoid allocating
+        // cycle-detection state unless the graph actually has to be traversed.
+        if (context != null) {
+            Variable local = context.store().get(name);
+            if (local != null) {
+                return local;
+            }
+        }
+
+        // 4. Context graph (current -> additional contexts -> parent)
         Variable resolved = findInContextGraph(name, context, new HashSet<>());
         if (resolved != null) {
             return resolved;
         }
 
-        // 4. Fallback strategy
+        // 5. Fallback strategy
         if (fallbackStrategy != null) {
             return fallbackStrategy.createFallback(name, context);
         }
@@ -85,8 +95,9 @@ public class VariableResolver {
             return null;
         }
 
-        if (context.store().has(name)) {
-            return context.store().get(name);
+        Variable local = context.store().get(name);
+        if (local != null) {
+            return local;
         }
 
         for (Context additional : context.getAdditionalContexts()) {
@@ -131,6 +142,18 @@ public class VariableResolver {
         return collectByTypePreservingIdentity(
             context,
             ctx -> ctx.store().getCacheIndex().getButtons()
+        );
+    }
+
+    /**
+     * Collects buttons together with the context in which each variable was found.
+     * This avoids a second full graph traversal per button in input handling.
+     */
+    public List<Context.ScopedVariable> collectScopedButtonsForInput(Context context) {
+        return collectByTypePreservingIdentity(
+            context,
+            ctx -> ctx.store().getCacheIndex().getButtons(),
+            (owner, variable) -> new Context.ScopedVariable(variable, owner)
         );
     }
 
@@ -236,12 +259,21 @@ public class VariableResolver {
         Context context,
         Function<Context, Map<String, Variable>> extractor
     ) {
-        List<Variable> result = new ArrayList<>();
+        return collectByTypePreservingIdentity(context, extractor, (owner, variable) -> variable);
+    }
+
+    private <T> List<T> collectByTypePreservingIdentity(
+        Context context,
+        Function<Context, Map<String, Variable>> extractor,
+        BiFunction<Context, Variable, T> mapper
+    ) {
+        List<T> result = new ArrayList<>();
         Set<Context> visitedContexts = Collections.newSetFromMap(new IdentityHashMap<>());
         Set<Variable> visitedVariables = Collections.newSetFromMap(new IdentityHashMap<>());
         collectByTypePreservingIdentity(
             context,
             extractor,
+            mapper,
             visitedContexts,
             visitedVariables,
             result
@@ -249,12 +281,13 @@ public class VariableResolver {
         return List.copyOf(result);
     }
 
-    private void collectByTypePreservingIdentity(
+    private <T> void collectByTypePreservingIdentity(
         Context context,
         Function<Context, Map<String, Variable>> extractor,
+        BiFunction<Context, Variable, T> mapper,
         Set<Context> visitedContexts,
         Set<Variable> visitedVariables,
-        List<Variable> result
+        List<T> result
     ) {
         if (context == null || !visitedContexts.add(context)) {
             return;
@@ -265,6 +298,7 @@ public class VariableResolver {
                 collectByTypePreservingIdentity(
                     hic.getInstanceContext(),
                     extractor,
+                    mapper,
                     visitedContexts,
                     visitedVariables,
                     result
@@ -276,6 +310,7 @@ public class VariableResolver {
             collectByTypePreservingIdentity(
                 additional,
                 extractor,
+                mapper,
                 visitedContexts,
                 visitedVariables,
                 result
@@ -284,13 +319,14 @@ public class VariableResolver {
 
         for (Variable variable : extractor.apply(context).values()) {
             if (visitedVariables.add(variable)) {
-                result.add(variable);
+                result.add(mapper.apply(context, variable));
             }
         }
 
         collectByTypePreservingIdentity(
             context.getParent(),
             extractor,
+            mapper,
             visitedContexts,
             visitedVariables,
             result

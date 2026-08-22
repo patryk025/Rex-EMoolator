@@ -35,16 +35,24 @@ public class ButtonHandler {
 
         // Keep distinct buttons that happen to use the same script name in separate
         // class instances (for example MAINMENU.BTNEXIT and INVESTIGATION.BTNEXIT).
-        List<Variable> buttons = new ArrayList<>(sceneContext.getButtonVariablesForInput());
+        List<Context.ScopedVariable> buttons = sceneContext.getScopedButtonVariablesForInput();
 
-        // A button defined inside a class instance lives in that instance context, not
-        // the scene; use the concrete variable instance so duplicate names do not
-        // accidentally resolve to a different owner.
+        // Resolve each hit-test graphic once per input pass. The sort comparator and
+        // hit testing below reuse this snapshot instead of traversing the context graph
+        // O(n log n) times.
         List<ScopedButton> scopedButtons = new ArrayList<>(buttons.size());
         for (int i = 0; i < buttons.size(); i++) {
-            Variable button = buttons.get(i);
-            Context owner = sceneContext.findOwningContext(button);
-            scopedButtons.add(new ScopedButton(button, owner != null ? owner : sceneContext, i));
+            Context.ScopedVariable scoped = buttons.get(i);
+            Variable button = scoped.variable();
+            Variable hitGfx = getButtonGfx(button, scoped.owner());
+            scopedButtons.add(new ScopedButton(
+                    button,
+                    scoped.owner(),
+                    hitGfx,
+                    getPriority(hitGfx),
+                    getRenderOrder(hitGfx),
+                    i
+            ));
         }
 
         // Get the priority ranges of hotspots from the scene
@@ -59,7 +67,14 @@ public class ButtonHandler {
         handleButtonRelease(justReleased, scopedButtons);
     }
 
-    private record ScopedButton(Variable variable, Context owner, int order) {}
+    private record ScopedButton(
+            Variable variable,
+            Context owner,
+            Variable hitGfx,
+            int hitPriority,
+            long hitRenderOrder,
+            int order
+    ) {}
 
     private Variable getButtonGfx(Variable button, Context context) {
         if (button instanceof ButtonVariable btn) {
@@ -93,16 +108,16 @@ public class ButtonHandler {
         List<ScopedButton> hitTestOrder = new ArrayList<>(buttons);
         hitTestOrder.sort((left, right) -> {
             int priorityComparison = Integer.compare(
-                    getHitPriority(right.variable(), right.owner()),
-                    getHitPriority(left.variable(), left.owner())
+                    right.hitPriority(),
+                    left.hitPriority()
             );
             if (priorityComparison != 0) {
                 return priorityComparison;
             }
 
             int orderComparison = Long.compare(
-                    getHitRenderOrder(right.variable(), right.owner()),
-                    getHitRenderOrder(left.variable(), left.owner())
+                    right.hitRenderOrder(),
+                    left.hitRenderOrder()
             );
             if (orderComparison != 0) {
                 return orderComparison;
@@ -120,11 +135,11 @@ public class ButtonHandler {
         for (ScopedButton scopedButton : (mouseEnabled ? hitTestOrder : List.<ScopedButton>of())) {
             Variable variable = scopedButton.variable();
             if (variable instanceof ButtonVariable btn) {
-                Variable image = getButtonGfx(btn, scopedButton.owner());
+                Variable image = scopedButton.hitGfx();
 
                 // Filter by hotspot priority
                 if (image != null) {
-                    int priority = getPriority(image);
+                    int priority = scopedButton.hitPriority();
                     if (priority < minHSPriority || priority > maxHSPriority) continue;
                     if (pixelPerfect) {
                         if (getAlpha(image, x, y) == 0) continue;
@@ -190,25 +205,6 @@ public class ButtonHandler {
                 }
             }
         }
-    }
-
-    private int getHitPriority(Variable variable, Context context) {
-        if (variable instanceof ButtonVariable btn) {
-            Variable gfx = getButtonGfx(btn, context);
-            return gfx != null ? getPriority(gfx) : 0;
-        }
-        if (variable instanceof AnimoVariable animo) {
-            return animo.getPriority();
-        }
-        return 0;
-    }
-
-    private long getHitRenderOrder(Variable variable, Context context) {
-        if (variable instanceof ButtonVariable btn) {
-            Variable gfx = getButtonGfx(btn, context);
-            return getRenderOrder(gfx);
-        }
-        return getRenderOrder(variable);
     }
 
     private long getRenderOrder(Variable variable) {

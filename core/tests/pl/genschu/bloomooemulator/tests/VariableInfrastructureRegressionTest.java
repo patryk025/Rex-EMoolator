@@ -130,8 +130,8 @@ class VariableInfrastructureRegressionTest {
         // getButtonsVariables (so the input handler iterates it), but its GFX/SND
         // siblings live in the instance context, invisible to a scene-level
         // getVariable(), which only walks up the parent chain, never down into
-        // instances. ButtonHandler must resolve state changes against the owning
-        // context, located via findOwningContext.
+        // instances. The input snapshot must retain the owning context so
+        // ButtonHandler can resolve state changes without another graph traversal.
         Context scene = new ContextBuilder().build();
 
         Path commonClasses = tempDir.resolve("COMMON/classes");
@@ -168,9 +168,10 @@ class VariableInfrastructureRegressionTest {
         assertInstanceOf(StringVariable.class, sceneGfx);
         assertEquals("MYGFX", sceneGfx.value().toDisplayString());
 
-        // The fix: the scene can locate the context that actually owns the button,
-        // and from there the real sibling GFX resolves.
-        assertSame(instanceCtx, scene.findOwningContext(scene.getButtonsVariables().get("MYBTN")));
+        // The scoped input view carries the owner discovered during collection.
+        Context.ScopedVariable scopedButton = scene.getScopedButtonVariablesForInput().getFirst();
+        assertSame(scene.getButtonsVariables().get("MYBTN"), scopedButton.variable());
+        assertSame(instanceCtx, scopedButton.owner());
         Variable ownerGfx = instanceCtx.getVariable("MYGFX");
         assertInstanceOf(IntegerVariable.class, ownerGfx);
         assertEquals(7, ownerGfx.value().toInt().value());
@@ -194,8 +195,21 @@ class VariableInfrastructureRegressionTest {
         // only one BTNEXIT. Input passes must retain both concrete button objects.
         assertEquals(1, scene.getButtonsVariables().size());
         assertEquals(List.of(menuExit, investigationExit), scene.getButtonVariablesForInput());
-        assertSame(menuContext, scene.findOwningContext(menuExit));
-        assertSame(investigationContext, scene.findOwningContext(investigationExit));
+
+        List<Context.ScopedVariable> scopedButtons = scene.getScopedButtonVariablesForInput();
+        assertEquals(2, scopedButtons.size());
+        assertSame(menuExit, scopedButtons.get(0).variable());
+        assertSame(menuContext, scopedButtons.get(0).owner());
+        assertSame(investigationExit, scopedButtons.get(1).variable());
+        assertSame(investigationContext, scopedButtons.get(1).owner());
+    }
+
+    @Test
+    void testContextCollectionViewsAreReused() {
+        Context context = new ContextBuilder().build();
+
+        assertSame(context.store().getAll(), context.store().getAll());
+        assertSame(context.getAdditionalContexts(), context.getAdditionalContexts());
     }
 
     @Test
