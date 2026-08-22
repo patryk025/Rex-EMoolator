@@ -189,10 +189,11 @@ public class DebugManager implements Disposable {
             renderSceneSelector();
         }
 
-        // get matrix variables
-        for (EngineVariable ev : game.getCurrentSceneContext().getVariables().values()) {
-            if (ev instanceof MatrixVariable mv) {
-                debugMatrix(mv);
+        if (config.isDebugMatrix()) {
+            for (EngineVariable ev : game.getCurrentSceneContext().getVariables().values()) {
+                if (ev instanceof MatrixVariable mv) {
+                    debugMatrix(mv);
+                }
             }
         }
 
@@ -742,8 +743,6 @@ public class DebugManager implements Disposable {
     }
 
     private void debugMatrix(MatrixVariable matrixVariable) {
-        if (!config.isDebugMatrix()) return;
-
         MatrixVariable.MatrixState ms = matrixVariable.state();
         if (ms.data == null) return;
 
