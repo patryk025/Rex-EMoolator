@@ -220,6 +220,24 @@ Returns the global index of the currently displayed frame (independent of the ev
 
 **Compatibility:** `GETFRAME` - `PIKLIB61.DLL` ✅, `PIKLIB71.DLL` ✅, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
 
+### GETFRAMENO
+
+```
+INTEGER GETFRAMENO()
+```
+
+Returns the global image index of the current frame. This is not the frame index inside the event, which is returned by [`GETCFRAMEINEVENT`](#getcframeinevent). The no-argument behaviour was confirmed in `CAnimo::GetFrameNo()` from `PIKLIB8.DLL`.
+
+**Returns**: the current frame's global image index.
+
+**Examples**
+
+```
+ANNZAORANE^GETFRAMENO();
+```
+
+**Compatibility:** `GETFRAMENO` - `PIKLIB8.DLL` ✅.
+
 ### GETFRAMENAME
 
 ```
@@ -411,7 +429,7 @@ Hides the animation visually without stopping its playback. Calling [`PLAY`](#pl
 ### ISAT
 
 ```
-BOOL ISAT(INTEGER posX, INTEGER posY)
+BOOL ISAT(INTEGER posX, INTEGER posY, BOOL checkAlpha)
 ```
 
 Checks whether the point at the given coordinates lies inside the current frame's bounding box.
@@ -420,8 +438,9 @@ Checks whether the point at the given coordinates lies inside the current frame'
 
 - `posX` — point X coordinate.
 - `posY` — point Y coordinate.
+- `checkAlpha` — when `TRUE`, the point only hits an opaque pixel of the current frame.
 
-**Returns**: [`BOOL`](BOOL.md) — `TRUE` if the point is inside the bounding box.
+**Returns**: [`BOOL`](BOOL.md) — `TRUE` if the point is inside the bounding box and, when `checkAlpha` is enabled, its pixel is opaque.
 
 **Compatibility:** `ISAT` - `PIKLIB61.DLL` ❌, `PIKLIB71.DLL` ❌, `PIKLIB72.DLL` ❌, `PIKLIB8.DLL` ⚠️ (8/10), `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
 

@@ -220,6 +220,24 @@ Zwraca globalny indeks aktualnie odtwarzanej klatki (niezależny od podziału na
 
 **Kompatybilność:** `GETFRAME` - `PIKLIB61.DLL` ✅, `PIKLIB71.DLL` ✅, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
 
+### GETFRAMENO
+
+```
+INTEGER GETFRAMENO()
+```
+
+Zwraca globalny indeks obrazka aktualnej klatki. Nie jest to indeks klatki wewnątrz zdarzenia — ten zwraca [`GETCFRAMEINEVENT`](#getcframeinevent). Bezargumentowe zachowanie potwierdzono w `CAnimo::GetFrameNo()` z `PIKLIB8.DLL`.
+
+**Zwraca**: globalny indeks obrazka aktualnej klatki.
+
+**Przykłady**
+
+```
+ANNZAORANE^GETFRAMENO();
+```
+
+**Kompatybilność:** `GETFRAMENO` - `PIKLIB8.DLL` ✅.
+
 ### GETFRAMENAME
 
 ```
@@ -411,7 +429,7 @@ Ukrywa animację wizualnie, nie przerywając jej odtwarzania. Po wywołaniu [`PL
 ### ISAT
 
 ```
-BOOL ISAT(INTEGER posX, INTEGER posY)
+BOOL ISAT(INTEGER posX, INTEGER posY, BOOL checkAlpha)
 ```
 
 Sprawdza, czy punkt o podanych współrzędnych znajduje się wewnątrz bounding boxa aktualnej klatki.
@@ -420,8 +438,9 @@ Sprawdza, czy punkt o podanych współrzędnych znajduje się wewnątrz bounding
 
 - `posX` — współrzędna X punktu.
 - `posY` — współrzędna Y punktu.
+- `checkAlpha` — jeżeli `TRUE`, punkt trafia tylko w nieprzezroczysty piksel bieżącej klatki.
 
-**Zwraca**: [`BOOL`](BOOL.md) — `TRUE`, jeżeli punkt jest wewnątrz bounding boxa.
+**Zwraca**: [`BOOL`](BOOL.md) — `TRUE`, jeżeli punkt jest wewnątrz bounding boxa i, gdy włączono `checkAlpha`, odpowiadający mu piksel jest nieprzezroczysty.
 
 **Kompatybilność:** `ISAT` - `PIKLIB61.DLL` ❌, `PIKLIB71.DLL` ❌, `PIKLIB72.DLL` ❌, `PIKLIB8.DLL` ⚠️ (8/10), `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
 

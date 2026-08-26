@@ -212,7 +212,7 @@ G_IMGPAGE^INVALIDATE();
 ### ISAT
 
 ```
-BOOL ISAT(INTEGER posX, INTEGER posY)
+BOOL ISAT(INTEGER posX, INTEGER posY, BOOL checkAlpha)
 ```
 
 Sprawdza, czy punkt o podanych współrzędnych znajduje się wewnątrz prostokąta zajmowanego przez obraz.
@@ -221,8 +221,9 @@ Sprawdza, czy punkt o podanych współrzędnych znajduje się wewnątrz prostok�
 
 - `posX` — współrzędna X punktu.
 - `posY` — współrzędna Y punktu.
+- `checkAlpha` — jeżeli `TRUE`, punkt trafia tylko w nieprzezroczysty piksel obrazu.
 
-**Zwraca**: [`BOOL`](BOOL.md) — `TRUE`, jeżeli punkt jest wewnątrz prostokąta obrazu.
+**Zwraca**: [`BOOL`](BOOL.md) — `TRUE`, jeżeli punkt jest wewnątrz prostokąta obrazu i, gdy włączono `checkAlpha`, odpowiadający mu piksel jest nieprzezroczysty.
 
 **Kompatybilność:** `ISAT` - `PIKLIB61.DLL` ❌, `PIKLIB71.DLL` ❌, `PIKLIB72.DLL` ❌, `PIKLIB8.DLL` ⚠️ (8/10), `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
 

@@ -68,6 +68,7 @@ The `flags` field controls behaviour at an event boundary (interpretation from t
 
 | Flag | Value | Meaning |
 |---|---|---|
+| `FLAG_HIDE_ON_STOP` | `0x100` | stopping playback (including reaching the event boundary) hides the object |
 | `FLAG_PING_PONG` | `0x20000` | after the end, the sequence plays backward |
 | `FLAG_WAIT_FOR_SFX` | `0x100000` | sync progress with the frame's sound |
 | `FLAG_PLAY_NEXT_EVENT` | `0x800000` | after finishing, the next event starts |

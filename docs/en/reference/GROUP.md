@@ -89,15 +89,31 @@ GRPHIDE^GETSIZE();
 
 **Compatibility:** `GETSIZE` - `PIKLIB61.DLL` ✅, `PIKLIB71.DLL` ✅, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
 
+### GETNAMEATMARKER
+
+```
+STRING GETNAMEATMARKER()
+```
+
+Returns the name of the member at the current marker. The result can be stored in a `STRING` and used for indirect calls through `*name`. For an invalid marker position the emulator safely returns `"NULL"`.
+
+### GETMARKERPOS
+
+```
+INTEGER GETMARKERPOS()
+```
+
+Returns the current marker position. `-1` denotes the position before the first element.
+
 ### NEXT
 
 ```
-mixed NEXT()
+STRING NEXT([INTEGER step])
 ```
 
-Advances the marker by one (clamped at the last element) and returns a reference to the element under the new marker.
+Moves the marker right by one element or by the requested step. Going past the end wraps around to the beginning.
 
-**Returns**: reference to the element under the new marker.
+**Returns**: the name of the element at the new marker position.
 
 **Examples**
 
@@ -111,12 +127,12 @@ GBAZUK^NEXT();
 ### PREV
 
 ```
-mixed PREV()
+STRING PREV([INTEGER step])
 ```
 
-Moves the marker back by one (clamped at zero) and returns a reference to the element under the new marker.
+Moves the marker left by one element or by the requested step. Going past the beginning wraps around to the end.
 
-**Returns**: reference to the element under the new marker.
+**Returns**: the name of the element at the new marker position.
 
 **Compatibility:** `PREV` - `PIKLIB61.DLL` ❌, `PIKLIB71.DLL` ✅, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
 
@@ -126,7 +142,7 @@ Moves the marker back by one (clamped at zero) and returns a reference to the el
 void REMOVE(STRING varName)
 ```
 
-Removes the named element from the group. If the marker was pointing past the new last index, it is moved back to the last available element (or to `-1` if the group becomes empty).
+Removes the named element from the group. The marker position is not adjusted automatically.
 
 **Parameters**
 
@@ -147,7 +163,7 @@ GOBJ^REMOVE("ANNTNTR");
 void REMOVEALL()
 ```
 
-Drops every element from the group and resets the marker.
+Drops every element from the group. The marker position is not adjusted automatically; use `RESETMARKER()` to reset it.
 
 **Examples**
 
@@ -163,7 +179,7 @@ GRPHIDE^REMOVEALL();
 void RESETMARKER()
 ```
 
-Moves the marker to the first element (index `0`). For an empty group the marker becomes `-1`.
+Sets the marker to `-1`, the position before the first element. The next `NEXT()` call selects index `0`.
 
 **Examples**
 
@@ -172,6 +188,14 @@ GENEMIES^RESETMARKER();
 ```
 
 **Compatibility:** `RESETMARKER` - `PIKLIB61.DLL` ❌, `PIKLIB71.DLL` ✅, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
+
+### SETMARKERPOS
+
+```
+void SETMARKERPOS(INTEGER position)
+```
+
+Sets the marker to the requested position. The value is clamped from `-1` through the last element index; for an empty group the marker becomes `-1`.
 
 ## Signals
 

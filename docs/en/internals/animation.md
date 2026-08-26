@@ -70,6 +70,7 @@ Behaviour at an event boundary is driven by **flags** stored in the `.ANN` file 
 
 | Flag | Value | Meaning |
 |---|---|---|
+| `FLAG_HIDE_ON_STOP` | `0x100` | stopping playback (including reaching the event boundary) hides the animation |
 | `FLAG_PING_PONG` | `0x20000` | after reaching the end, the sequence plays backward ("there and back") |
 | `FLAG_PLAY_NEXT_EVENT` | `0x800000` | after finishing, the next event in the file starts automatically |
 | `FLAG_WAIT_FOR_SFX` | `0x100000` | synchronisation with the sound attached to frames |

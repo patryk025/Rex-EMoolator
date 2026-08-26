@@ -212,7 +212,7 @@ G_IMGPAGE^INVALIDATE();
 ### ISAT
 
 ```
-BOOL ISAT(INTEGER posX, INTEGER posY)
+BOOL ISAT(INTEGER posX, INTEGER posY, BOOL checkAlpha)
 ```
 
 Checks whether the point at the given coordinates lies inside the image's bounding rectangle.
@@ -221,8 +221,9 @@ Checks whether the point at the given coordinates lies inside the image's boundi
 
 - `posX` — point X coordinate.
 - `posY` — point Y coordinate.
+- `checkAlpha` — when `TRUE`, the point only hits an opaque image pixel.
 
-**Returns**: [`BOOL`](BOOL.md) — `TRUE` if the point is inside the image's rectangle.
+**Returns**: [`BOOL`](BOOL.md) — `TRUE` if the point is inside the image's rectangle and, when `checkAlpha` is enabled, its pixel is opaque.
 
 **Compatibility:** `ISAT` - `PIKLIB61.DLL` ❌, `PIKLIB71.DLL` ❌, `PIKLIB72.DLL` ❌, `PIKLIB8.DLL` ⚠️ (8/10), `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
 

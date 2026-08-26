@@ -68,6 +68,7 @@ Pole `flags` steruje zachowaniem na granicy zdarzenia (interpretacja z [systemu 
 
 | Flaga | Wartość | Znaczenie |
 |---|---|---|
+| `FLAG_HIDE_ON_STOP` | `0x100` | zatrzymanie odtwarzania (także po dojściu do końca zdarzenia) ukrywa obiekt |
 | `FLAG_PING_PONG` | `0x20000` | po końcu sekwencja gra wstecz |
 | `FLAG_WAIT_FOR_SFX` | `0x100000` | synchronizacja postępu z dźwiękiem klatki |
 | `FLAG_PLAY_NEXT_EVENT` | `0x800000` | po zakończeniu startuje kolejne zdarzenie |

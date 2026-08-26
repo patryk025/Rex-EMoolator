@@ -70,6 +70,7 @@ Zachowanie na granicy zdarzenia sterowane jest **flagami** zapisanymi w pliku `.
 
 | Flaga | Wartość | Znaczenie |
 |---|---|---|
+| `FLAG_HIDE_ON_STOP` | `0x100` | zatrzymanie odtwarzania (także po dojściu do końca zdarzenia) ukrywa animację |
 | `FLAG_PING_PONG` | `0x20000` | po dojściu do końca sekwencja gra wstecz (efekt „tam i z powrotem") |
 | `FLAG_PLAY_NEXT_EVENT` | `0x800000` | po zakończeniu zdarzenia automatycznie startuje kolejne zdarzenie z pliku |
 | `FLAG_WAIT_FOR_SFX` | `0x100000` | synchronizacja z dźwiękiem przypisanym do klatek |
