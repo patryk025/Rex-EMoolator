@@ -192,8 +192,8 @@ public class RenderManager implements Disposable {
             if (image.getImageTexture() != null) {
                 batch.setColor(1, 1, 1, background.getOpacity());
                 batch.draw(image.getImageTexture(),
-                        backgroundDrawX(image.offsetX),
-                        backgroundDrawY(image.offsetY, image.height),
+                        backgroundDrawX(image.offsetX, game.getBackgroundPositionX()),
+                        backgroundDrawY(image.offsetY, image.height, game.getBackgroundPositionY()),
                         image.width,
                         image.height);
                 lastRenderStats.visibleSpriteObjects++;
@@ -201,17 +201,13 @@ public class RenderManager implements Disposable {
         }
     }
 
-    /**
-     * CANVAS_OBSERVER background coordinates are source/camera offsets. A
-     * positive offset reveals pixels farther right/down in the background, so
-     * the bitmap itself has to be drawn by the inverse delta on the canvas.
-     */
-    static float backgroundDrawX(int offsetX) {
-        return -offsetX;
+    /** IMG offsets place the bitmap; CANVAS_OBSERVER position selects its visible viewport. */
+    static float backgroundDrawX(int imageOffsetX, int backgroundPositionX) {
+        return imageOffsetX - backgroundPositionX;
     }
 
-    static float backgroundDrawY(int offsetY, int imageHeight) {
-        return VIRTUAL_HEIGHT + offsetY - imageHeight;
+    static float backgroundDrawY(int imageOffsetY, int imageHeight, int backgroundPositionY) {
+        return VIRTUAL_HEIGHT - imageOffsetY - imageHeight + backgroundPositionY;
     }
 
     private void renderPastedGraphics() {

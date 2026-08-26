@@ -191,10 +191,8 @@ public record CanvasObserverVariable(
         Map.entry("MOVEBKG", MethodSpec.of((self, args, ctx) -> {
             int dx = ArgumentHelper.getInt(args.get(0));
             int dy = ArgumentHelper.getInt(args.get(1));
-            ImageVariable bg = ctx.getGame().getCurrentBackgroundImage();
-            if (bg != null && bg.getImage() != null) {
-                bg.getImage().offsetX += dx;
-                bg.getImage().offsetY += dy;
+            if (ctx.getGame().getCurrentBackgroundImage() != null) {
+                ctx.getGame().moveBackground(dx, dy);
             }
             return MethodResult.noReturn();
         })),
@@ -342,10 +340,8 @@ public record CanvasObserverVariable(
         Map.entry("SETBKGPOS", MethodSpec.of((self, args, ctx) -> {
             int x = ArgumentHelper.getInt(args.get(0));
             int y = ArgumentHelper.getInt(args.get(1));
-            ImageVariable bg = ctx.getGame().getCurrentBackgroundImage();
-            if (bg != null && bg.getImage() != null) {
-                bg.getImage().offsetX = x;
-                bg.getImage().offsetY = y;
+            if (ctx.getGame().getCurrentBackgroundImage() != null) {
+                ctx.getGame().setBackgroundPosition(x, y);
             }
             return MethodResult.noReturn();
         }))

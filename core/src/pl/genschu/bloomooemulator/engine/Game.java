@@ -98,6 +98,9 @@ public class Game {
 
     // Background image for current scene (loaded on scene change)
     private ImageVariable currentBackgroundImage = null;
+    /** Source/viewport position controlled by CANVAS_OBSERVER, independent of IMG metadata. */
+    private int backgroundPositionX = 0;
+    private int backgroundPositionY = 0;
 
     // Snapshots pasted onto the background by CANVAS_OBSERVER.PASTE - rendered between bkg and scene.
     private final List<PastedGraphic> pastedGraphics = new ArrayList<>();
@@ -608,20 +611,21 @@ public class Game {
 
     private void loadBackgroundImage(SceneVariable scene) {
         if (scene.background().isEmpty()) {
-            currentBackgroundImage = null;
+            setCurrentBackgroundImage(null);
             return;
         }
         try {
             String bgFile = scene.background();
-            currentBackgroundImage = new ImageVariable("__BACKGROUND__", bgFile);
+            ImageVariable backgroundImage = new ImageVariable("__BACKGROUND__", bgFile);
             String vfsPath = FileUtils.resolveVfsPath(this, bgFile);
             try (InputStream is = vfs.openRead(vfsPath)) {
-                ImageLoader.loadImage(currentBackgroundImage, is);
+                ImageLoader.loadImage(backgroundImage, is);
             }
-            currentBackgroundImage.state().updateRect();
+            backgroundImage.state().updateRect();
+            setCurrentBackgroundImage(backgroundImage);
         } catch (Exception e) {
             Gdx.app.error("Game", "Error loading background for scene " + scene.name() + " via VFS", e);
-            currentBackgroundImage = null;
+            setCurrentBackgroundImage(null);
         }
     }
 
@@ -863,6 +867,26 @@ public class Game {
 
     public void setCurrentBackgroundImage(ImageVariable backgroundImage) {
         this.currentBackgroundImage = backgroundImage;
+        backgroundPositionX = 0;
+        backgroundPositionY = 0;
+    }
+
+    public int getBackgroundPositionX() {
+        return backgroundPositionX;
+    }
+
+    public int getBackgroundPositionY() {
+        return backgroundPositionY;
+    }
+
+    public void setBackgroundPosition(int x, int y) {
+        backgroundPositionX = x;
+        backgroundPositionY = y;
+    }
+
+    public void moveBackground(int deltaX, int deltaY) {
+        backgroundPositionX += deltaX;
+        backgroundPositionY += deltaY;
     }
 
     public List<PastedGraphic> getPastedGraphics() {
