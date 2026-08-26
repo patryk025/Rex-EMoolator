@@ -7,8 +7,9 @@ import pl.genschu.bloomooemulator.TestEnvironment;
 import pl.genschu.bloomooemulator.builders.ContextBuilder;
 import pl.genschu.bloomooemulator.builders.MethodHelper;
 import pl.genschu.bloomooemulator.engine.decision.states.ButtonState;
-import pl.genschu.bloomooemulator.geometry.shapes.Box2D;
+import pl.genschu.bloomooemulator.geometry.coordinates.CanvasRect;
 import pl.genschu.bloomooemulator.interpreter.context.Context;
+import pl.genschu.bloomooemulator.interpreter.values.StringValue;
 import pl.genschu.bloomooemulator.interpreter.variable.ButtonVariable;
 import pl.genschu.bloomooemulator.interpreter.variable.ImageVariable;
 
@@ -81,9 +82,50 @@ class ButtonVariableTest {
         assertTrue(button.isDraggable());
     }
 
+    @Test
+    void explicitRectUsesDirectDrawEdgeOrderWithoutYAxisCompensation() {
+        ButtonVariable button = new ButtonVariable("BTN");
+        ctx.setVariable("BTN", button);
+        ctx.setAttribute("BTN", "RECT", "10,20,30,40");
+
+        button.init(ctx);
+
+        assertEquals(new CanvasRect(10, 20, 30, 40), button.getRect());
+        assertTrue(button.getRect().contains(10, 20));
+        assertFalse(button.getRect().contains(30, 20));
+        assertFalse(button.getRect().contains(10, 40));
+    }
+
+    @Test
+    void gfxBackedRectTracksImmutableBoundsReplacement() {
+        ImageVariable standard = standardImage();
+        ButtonVariable button = new ButtonVariable("BTN");
+        ctx.setVariable("STD", standard);
+        ctx.setVariable("BTN", button);
+        ctx.setAttribute("BTN", "GFXSTANDARD", "STD");
+        button.init(ctx);
+
+        standard.state().rect = new CanvasRect(100, 120, 140, 160);
+
+        assertEquals(new CanvasRect(100, 120, 140, 160), button.getRect());
+    }
+
+    @Test
+    void setRectVariableKeepsUsingLiveCanonicalBounds() {
+        ImageVariable standard = standardImage();
+        ButtonVariable button = new ButtonVariable("BTN");
+        ctx.setVariable("STD", standard);
+        ctx.setVariable("BTN", button);
+
+        MethodHelper.callWithContext(ctx, button, "SETRECT", new StringValue("STD"));
+        standard.state().rect = new CanvasRect(5, 6, 25, 36);
+
+        assertEquals(new CanvasRect(5, 6, 25, 36), button.getRect());
+    }
+
     private static ImageVariable standardImage() {
         ImageVariable image = new ImageVariable("STD");
-        image.state().rect = new Box2D(0, -10, 10, 0);
+        image.state().rect = new CanvasRect(0, 0, 10, 10);
         image.state().visible = true;
         return image;
     }

@@ -6,6 +6,9 @@ import org.ode4j.ode.*;
 import pl.genschu.bloomooemulator.engine.compatibility.CompatibilityProfile;
 import pl.genschu.bloomooemulator.engine.physics.camera.CameraAnchor;
 import pl.genschu.bloomooemulator.engine.physics.pathfinding.AStar;
+import pl.genschu.bloomooemulator.geometry.coordinates.CanvasPoint;
+import pl.genschu.bloomooemulator.geometry.coordinates.CanvasScroll;
+import pl.genschu.bloomooemulator.geometry.coordinates.PhysicsPoint;
 import pl.genschu.bloomooemulator.geometry.points.Point3D;
 import pl.genschu.bloomooemulator.logic.GameFamilies;
 import pl.genschu.bloomooemulator.engine.context.EngineVariable;
@@ -28,7 +31,7 @@ public class ODEPhysicsEngine implements IPhysicsEngine {
     DJointGroup jointGroup;
     CameraAnchor cameraAnchor = new CameraAnchor();
     private final Map<Integer, List<GameObject>> objects = new HashMap<>();
-    private final Map<DBody, EngineVariable> linkedVariables = new HashMap<>();
+    private final Map<DBody, VariableLink> linkedVariables = new HashMap<>();
     private final Set<Integer> pausedLinkIds = new HashSet<>();
     private int referenceObjectId = 0;
     private final List<DTriMeshData> triMeshDatas = new ArrayList<>();
@@ -45,6 +48,8 @@ public class ODEPhysicsEngine implements IPhysicsEngine {
         TRI_MESH,
         CAR // wait, what? id == 4, 4 spheres, 1 box
     }
+
+    private record VariableLink(EngineVariable variable, Runnable onPositionChanged) {}
 
     @Override
     public void configureCompatibility(CompatibilityProfile profile) {
@@ -610,40 +615,38 @@ public class ODEPhysicsEngine implements IPhysicsEngine {
     private void synchronizeObjects() {
         // first get position of reference object
         try {
-            double[] refPos = getPosition(referenceObjectId);
-            cameraAnchor.updateCameraAnchor(
-                    (float) refPos[0],
-                    (float) refPos[1],
-                    (float) refPos[2]
-            );
+            cameraAnchor.updateCameraAnchor(getPhysicsPosition(referenceObjectId));
         } catch (Exception e) {
             // no reference object, ignore
         }
 
         // iteration over links
-        for (DBody linkedBody : linkedVariables.keySet()) {
-            // get variable
+        for (Map.Entry<DBody, VariableLink> entry : linkedVariables.entrySet()) {
+            DBody linkedBody = entry.getKey();
             GameObject go = (GameObject) linkedBody.getData();
-            EngineVariable var = linkedVariables.get(linkedBody);
+            VariableLink link = entry.getValue();
+            EngineVariable var = link.variable();
 
             if (pausedLinkIds.contains(go.getId())) {
                 continue; // PAUSELINK
             }
 
             // get body position
-            double[] worldPos = linkedBody.getPosition().toDoubleArray();
+            DVector3C worldPosition = linkedBody.getPosition();
 
             // synchronizing object position
             if ((go.getFlags() & 1) != 0) {
-                // convert world position to screen position
-                float screenX = cameraAnchor.worldToScreenX((float) worldPos[0]);
-                float screenY = cameraAnchor.worldToScreenY((float) worldPos[1]);
+                CanvasPoint canvasPosition = cameraAnchor.physicsToCanvas(new PhysicsPoint(
+                        worldPosition.get0(), worldPosition.get1(), worldPosition.get2()));
 
                 if (var instanceof Variable v2Var) {
                     v2Var.callMethod("SETPOSITION", List.of(
-                            new IntValue((int) screenX),
-                            new IntValue((int) screenY)
+                            new IntValue((int) canvasPosition.x()),
+                            new IntValue((int) canvasPosition.y())
                     ), null);
+                    if (link.onPositionChanged() != null) {
+                        link.onPositionChanged().run();
+                    }
                 }
             }
 
@@ -1165,21 +1168,31 @@ public class ODEPhysicsEngine implements IPhysicsEngine {
 
     @Override
     public int getBkgPosX() {
-        return (int) cameraAnchor.getBkgPosX();
+        return (int) cameraAnchor.canvasScroll().x();
     }
 
     @Override
     public int getBkgPosY() {
-        return (int) cameraAnchor.getBkgPosY();
+        return (int) cameraAnchor.canvasScroll().y();
+    }
+
+    @Override
+    public CanvasScroll getCanvasScroll() {
+        return cameraAnchor.canvasScroll();
     }
 
     @Override
     public void linkVariable(EngineVariable variable, int objectId) {
+        linkVariable(variable, objectId, null);
+    }
+
+    @Override
+    public void linkVariable(EngineVariable variable, int objectId, Runnable onPositionChanged) {
         GameObject go = getObject(objectId);
         if (go == null) return;
         DBody body = (DBody) go.getBody();
         if(body != null) {
-            linkedVariables.put(body, variable);
+            linkedVariables.put(body, new VariableLink(variable, onPositionChanged));
         }
         else {
             Gdx.app.error("ODEPhysicsEngine", "Cannot link variable to object " + objectId + ". Body is null (object is not rigid body).");
@@ -1262,7 +1275,13 @@ public class ODEPhysicsEngine implements IPhysicsEngine {
     }
 
     @Override
-    public void findPath(int objectId, int pointObjectId, int targetX, int targetY, int targetZ, boolean saveIntermediates, boolean unknown) {
+    public void findPath(
+            int objectId,
+            int pointObjectId,
+            PhysicsPoint targetPosition,
+            boolean saveIntermediates,
+            boolean unknown
+    ) {
         GameObject go = getObject(objectId);
         GameObject go2 = getObject(pointObjectId);
         if (go == null || go2 == null) return;
@@ -1274,10 +1293,7 @@ public class ODEPhysicsEngine implements IPhysicsEngine {
         DVector3C position = body.getPosition();
         Point3D start = new Point3D(position.get(0), position.get(1), position.get(2));
         Point3D target = new Point3D(
-                cameraAnchor.screenToWorldX(targetX),
-                cameraAnchor.screenToWorldY(targetY),
-                targetZ
-        );
+                targetPosition.x(), targetPosition.y(), targetPosition.z());
 
         AStar pathfinder = go2.getPathfinder();
 

@@ -6,6 +6,10 @@ import pl.genschu.bloomooemulator.engine.Game;
 import pl.genschu.bloomooemulator.engine.compatibility.CompatibilityProfile;
 import pl.genschu.bloomooemulator.engine.physics.IPhysicsEngine;
 import pl.genschu.bloomooemulator.engine.physics.ODEPhysicsEngine;
+import pl.genschu.bloomooemulator.geometry.coordinates.CanvasCoordinateSystem;
+import pl.genschu.bloomooemulator.geometry.coordinates.CanvasPoint;
+import pl.genschu.bloomooemulator.geometry.coordinates.PhysicsBox;
+import pl.genschu.bloomooemulator.geometry.coordinates.PhysicsPoint;
 import pl.genschu.bloomooemulator.interpreter.context.Context;
 import pl.genschu.bloomooemulator.interpreter.helpers.ArgumentHelper;
 import pl.genschu.bloomooemulator.interpreter.values.*;
@@ -29,12 +33,18 @@ public record WorldVariable(
 ) implements Variable, SEKLoadable, Initializable {
 
     public static final class WorldState {
-        public final IPhysicsEngine physicsEngine = new ODEPhysicsEngine();
+        public final IPhysicsEngine physicsEngine;
         public String sekVersion;
         public String filename;
         public pl.genschu.bloomooemulator.engine.Game gameRef;
 
-        public WorldState() {}
+        public WorldState() {
+            this(new ODEPhysicsEngine());
+        }
+
+        WorldState(IPhysicsEngine physicsEngine) {
+            this.physicsEngine = Objects.requireNonNull(physicsEngine, "physicsEngine");
+        }
 
         public WorldState copy() {
             WorldState copy = new WorldState();
@@ -202,7 +212,9 @@ public record WorldVariable(
             // Legacy mover: a dynamic sphere with Sekai's AddObject defaults
             // (mu=-1, bounce=0.1, bounceVel=0.1); args.get(8) fed SetRigid, a no-op stub.
             w.state.physicsEngine.createBody(objectId, mass, -1.0, 0.0, 0.1, 0.1, maxSpeed, 1, 2, dim0, dim1, dim2);
-            w.state.physicsEngine.setPosition(objectId, x - 400, 300 - y, z);
+            w.state.physicsEngine.setPosition(
+                    objectId,
+                    CanvasCoordinateSystem.toPhysics(new CanvasPoint(x, y), z));
             return MethodResult.noReturn();
         })),
 
@@ -227,7 +239,12 @@ public record WorldVariable(
             int targetZ = ArgumentHelper.getInt(args.get(4));
             boolean saveIntermediates = args.size() > 5 && ArgumentHelper.getBoolean(args.get(5));
             boolean unknown = args.size() > 6 && ArgumentHelper.getBoolean(args.get(6));
-            w.state.physicsEngine.findPath(objectId, pointObjectId, targetX, targetY, targetZ, saveIntermediates, unknown);
+            PhysicsPoint target = CanvasCoordinateSystem.toPhysics(
+                    new CanvasPoint(targetX, targetY),
+                    targetZ,
+                    w.state.physicsEngine.getCanvasScroll());
+            w.state.physicsEngine.findPath(
+                    objectId, pointObjectId, target, saveIntermediates, unknown);
             return MethodResult.noReturn();
         })),
 
@@ -281,39 +298,31 @@ public record WorldVariable(
         Map.entry("GETPOSITIONX", MethodSpec.of((self, args, ctx) -> {
             WorldVariable w = (WorldVariable) self;
             int objectId = ArgumentHelper.getInt(args.get(0));
-            double[] position = w.state.physicsEngine.getPosition(objectId);
-            if (position == null || position.length < 3) {
-                throw new IllegalArgumentException("Object with ID " + objectId + " does not exist or has no position.");
-            }
+            PhysicsPoint position = requirePhysicsPosition(w.state.physicsEngine, objectId);
             // World.dll uses the camera origin maintained by CWorld::MoveObjects
             // (world + 0xe8), not a fixed canvas centre. With a scrolling
-            // background this is equivalent to 400 + worldX - bkgPosX.
-            return MethodResult.returns(new DoubleValue(
-                    position[0] + 400 - w.state.physicsEngine.getBkgPosX()));
+            // background this includes the current canvas scroll.
+            CanvasPoint canvasPosition = CanvasCoordinateSystem.fromPhysics(
+                    position, w.state.physicsEngine.getCanvasScroll());
+            return MethodResult.returns(new DoubleValue(canvasPosition.x()));
         })),
 
         Map.entry("GETPOSITIONY", MethodSpec.of((self, args, ctx) -> {
             WorldVariable w = (WorldVariable) self;
             int objectId = ArgumentHelper.getInt(args.get(0));
-            double[] position = w.state.physicsEngine.getPosition(objectId);
-            if (position == null || position.length < 3) {
-                throw new IllegalArgumentException("Object with ID " + objectId + " does not exist or has no position.");
-            }
+            PhysicsPoint position = requirePhysicsPosition(w.state.physicsEngine, objectId);
             // Disassembly of World.dll FUN_100020d0: [CWorld+0xec] - worldY.
-            // CWorld+0xec is 300 - bkgPosY, so GETPOSITIONY already includes
-            // the current camera scroll.
-            return MethodResult.returns(new DoubleValue(
-                    300 - position[1] - w.state.physicsEngine.getBkgPosY()));
+            // GETPOSITIONY therefore includes the current camera scroll.
+            CanvasPoint canvasPosition = CanvasCoordinateSystem.fromPhysics(
+                    position, w.state.physicsEngine.getCanvasScroll());
+            return MethodResult.returns(new DoubleValue(canvasPosition.y()));
         })),
 
         Map.entry("GETPOSITIONZ", MethodSpec.of((self, args, ctx) -> {
             WorldVariable w = (WorldVariable) self;
             int objectId = ArgumentHelper.getInt(args.get(0));
-            double[] position = w.state.physicsEngine.getPosition(objectId);
-            if (position == null || position.length < 3) {
-                throw new IllegalArgumentException("Object with ID " + objectId + " does not exist or has no position.");
-            }
-            return MethodResult.returns(new DoubleValue(position[2]));
+            PhysicsPoint position = requirePhysicsPosition(w.state.physicsEngine, objectId);
+            return MethodResult.returns(new DoubleValue(position.z()));
         })),
 
         Map.entry("GETROTATIONX", MethodSpec.of((self, args, ctx) -> {
@@ -352,16 +361,21 @@ public record WorldVariable(
             int firstId = ArgumentHelper.getInt(args.get(0));
             int secondId = ArgumentHelper.getInt(args.get(1));
             // Anchor comes in screen coordinates, stops in degrees.
-            double anchorX = ArgumentHelper.getDouble(args.get(2)) - 400;
-            double anchorY = 300 - ArgumentHelper.getDouble(args.get(3));
-            double anchorZ = ArgumentHelper.getDouble(args.get(4));
+            PhysicsPoint anchor = CanvasCoordinateSystem.toPhysics(
+                    new CanvasPoint(
+                            ArgumentHelper.getDouble(args.get(2)),
+                            ArgumentHelper.getDouble(args.get(3))),
+                    ArgumentHelper.getDouble(args.get(4)));
             double limitMotor = ArgumentHelper.getDouble(args.get(5));
             double lowStop = Math.toRadians((n >= 8) ? ArgumentHelper.getDouble(args.get(6)) : -90.0);
             double highStop = Math.toRadians((n >= 8) ? ArgumentHelper.getDouble(args.get(7)) : 90.0);
             double hingeAxisX = (n == 11) ? ArgumentHelper.getDouble(args.get(8)) : 0;
             double hingeAxisY = (n == 11) ? ArgumentHelper.getDouble(args.get(10)) : 1;
             double hingeAxisZ = (n == 11) ? ArgumentHelper.getDouble(args.get(9)) : 0;
-            w.state.physicsEngine.addJoint(firstId, secondId, anchorX, anchorY, anchorZ, limitMotor, lowStop, highStop, hingeAxisX, hingeAxisY, hingeAxisZ);
+            w.state.physicsEngine.addJoint(
+                    firstId, secondId, anchor,
+                    limitMotor, lowStop, highStop,
+                    hingeAxisX, hingeAxisY, hingeAxisZ);
             return MethodResult.noReturn();
         })),
 
@@ -402,7 +416,11 @@ public record WorldVariable(
             if (!(objectVariable instanceof AnimoVariable) && !(objectVariable instanceof ImageVariable)) {
                 throw new IllegalArgumentException("Object with name " + objectName + " is not a valid type for linking.");
             }
-            w.state.physicsEngine.linkVariable(objectVariable, objectId);
+            Game game = ctx.getGame();
+            Runnable markCollisionDirty = game == null
+                    ? null
+                    : () -> game.markCollisionDirty(objectVariable);
+            w.state.physicsEngine.linkVariable(objectVariable, objectId, markCollisionDirty);
             return MethodResult.noReturn();
         })),
 
@@ -499,9 +517,9 @@ public record WorldVariable(
             double maxY = ArgumentHelper.getDouble(args.get(5));
             double maxZ = ArgumentHelper.getDouble(args.get(6));
             // CWorld converts the screen-space box to Sekai's centred, Y-up world space.
-            w.state.physicsEngine.setLimit(objectId,
-                    minX - 400, 300 - maxY, minZ,
-                    maxX - 400, 300 - minY, maxZ);
+            PhysicsBox physicsBounds = CanvasCoordinateSystem.toPhysics(
+                    minX, minY, maxX, maxY, minZ, maxZ);
+            w.state.physicsEngine.setLimit(objectId, physicsBounds);
             return MethodResult.noReturn();
         })),
 
@@ -558,15 +576,17 @@ public record WorldVariable(
             int objectId = ArgumentHelper.getInt(args.get(0));
             int coordIndex = ArgumentHelper.getInt(args.get(1));
             double value = ArgumentHelper.getDouble(args.get(2));
-            double[] position = w.state.physicsEngine.getPosition(objectId);
-            if (coordIndex == 0) {
-                position[0] = value - 400;
-            } else if (coordIndex == 1) {
-                position[1] = 300 - value;
-            } else {
+            if (coordIndex != 0 && coordIndex != 1) {
                 return MethodResult.noReturn(); // original leaves other indices untouched
             }
-            w.state.physicsEngine.setPosition(objectId, position[0], position[1], position[2]);
+            PhysicsPoint position = requirePhysicsPosition(w.state.physicsEngine, objectId);
+            CanvasPoint fixedCanvasPosition = CanvasCoordinateSystem.fromPhysics(position);
+            CanvasPoint updatedCanvasPosition = coordIndex == 0
+                    ? new CanvasPoint(value, fixedCanvasPosition.y())
+                    : new CanvasPoint(fixedCanvasPosition.x(), value);
+            w.state.physicsEngine.setPosition(
+                    objectId,
+                    CanvasCoordinateSystem.toPhysics(updatedCanvasPosition, position.z()));
             return MethodResult.noReturn();
         })),
 
@@ -638,7 +658,9 @@ public record WorldVariable(
             double x = ArgumentHelper.getDouble(args.get(1));
             double y = ArgumentHelper.getDouble(args.get(2));
             double z = ArgumentHelper.getDouble(args.get(3));
-            w.state.physicsEngine.setPosition(objectId, x - 400, 300 - y, z);
+            w.state.physicsEngine.setPosition(
+                    objectId,
+                    CanvasCoordinateSystem.toPhysics(new CanvasPoint(x, y), z));
             return MethodResult.noReturn();
         })),
 
@@ -685,6 +707,15 @@ public record WorldVariable(
         double forceZ = args.size() > 3 ? ArgumentHelper.getDouble(args.get(3)) : 0.0;
         w.state.physicsEngine.addForce(objectId, forceX, forceY, forceZ);
         return MethodResult.noReturn();
+    }
+
+    private static PhysicsPoint requirePhysicsPosition(IPhysicsEngine physicsEngine, int objectId) {
+        PhysicsPoint position = physicsEngine.getPhysicsPosition(objectId);
+        if (position == null) {
+            throw new IllegalArgumentException(
+                    "Object with ID " + objectId + " does not exist or has no position.");
+        }
+        return position;
     }
 
     @Override

@@ -5,15 +5,17 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.TextureData;
 import pl.genschu.bloomooemulator.annotations.InternalMutable;
+import pl.genschu.bloomooemulator.engine.context.CanvasBoundsProvider;
+import pl.genschu.bloomooemulator.engine.context.CurrentImageProvider;
 import pl.genschu.bloomooemulator.engine.filters.Filter;
 import pl.genschu.bloomooemulator.engine.render.RenderOrder;
+import pl.genschu.bloomooemulator.geometry.coordinates.CanvasRect;
 import pl.genschu.bloomooemulator.interpreter.context.Context;
 import pl.genschu.bloomooemulator.interpreter.helpers.ArgumentHelper;
 import pl.genschu.bloomooemulator.interpreter.values.*;
 import pl.genschu.bloomooemulator.interpreter.variable.capabilities.Initializable;
 import pl.genschu.bloomooemulator.loader.ImageLoader;
 import pl.genschu.bloomooemulator.objects.Image;
-import pl.genschu.bloomooemulator.geometry.shapes.Box2D;
 import pl.genschu.bloomooemulator.utils.FileUtils;
 
 import java.util.*;
@@ -26,7 +28,7 @@ public record ImageVariable(
     String name,
     @InternalMutable ImageState state,
     Map<String, SignalHandler> signals
-) implements Variable, Initializable {
+) implements Variable, Initializable, CanvasBoundsProvider, CurrentImageProvider {
 
     /**
      * Mutable state for image rendering and collision.
@@ -39,8 +41,8 @@ public record ImageVariable(
         public int anchorY = 0;
         public float opacity = 1f;
         public float pendingOpacity = 1f;
-        public Box2D rect = new Box2D(0, 0, 0, 0);
-        public Box2D clippingRect = null;
+        public CanvasRect rect = new CanvasRect(0, 0, 0, 0);
+        public CanvasRect clippingRect = null;
         public int priority = 0;
         public long renderOrder = RenderOrder.next();
         public boolean visible = true;
@@ -61,10 +63,8 @@ public record ImageVariable(
             copy.anchorY = this.anchorY;
             copy.opacity = this.opacity;
             copy.pendingOpacity = this.pendingOpacity;
-            copy.rect = new Box2D(rect.getXLeft(), rect.getYBottom(), rect.getXRight(), rect.getYTop());
-            copy.clippingRect = this.clippingRect != null
-                    ? new Box2D(clippingRect.getXLeft(), clippingRect.getYBottom(), clippingRect.getXRight(), clippingRect.getYTop())
-                    : null;
+            copy.rect = this.rect;
+            copy.clippingRect = this.clippingRect;
             copy.priority = this.priority;
             copy.renderOrder = RenderOrder.next();
             copy.visible = this.visible;
@@ -78,10 +78,7 @@ public record ImageVariable(
 
         public void updateRect() {
             if (image == null) return;
-            rect.setXLeft(posX);
-            rect.setYTop(posY);
-            rect.setXRight(posX + image.width);
-            rect.setYBottom(posY - image.height);
+            rect = CanvasRect.fromPositionAndSize(posX, posY, image.width, image.height);
         }
 
         public void dispose() {
@@ -224,8 +221,10 @@ public record ImageVariable(
     public int getPosY() { return state.posY; }
     public int getPriority() { return state.priority; }
     public float getOpacity() { return state.opacity; }
-    public Box2D getRect() { return state.rect; }
-    public Box2D getClippingRect() { return state.clippingRect; }
+    public CanvasRect getRect() { return state.rect; }
+    public CanvasRect getClippingRect() { return state.clippingRect; }
+    @Override public CanvasRect getCanvasBounds() { return state.rect; }
+    @Override public Image getCurrentImage() { return state.image; }
     public boolean isVisible() { return state.visible; }
     public long getRenderOrder() { return state.renderOrder; }
     public List<Filter> getFilters() { return state.filters; }
@@ -246,7 +245,7 @@ public record ImageVariable(
         state.renderOrder = RenderOrder.next();
     }
 
-    public record AlphaMaskBinding(ImageVariable mask, int posX, int posY) {}
+    public record AlphaMaskBinding(ImageVariable mask, CanvasRect bounds) {}
 
     public boolean isAt(int x, int y) {
         return state.rect.contains(x, y);
@@ -287,13 +286,13 @@ public record ImageVariable(
 
         Map.entry("GETCENTERX", MethodSpec.of((self, args, ctx) -> {
             ImageVariable img = (ImageVariable) self;
-            int cx = (img.state.rect.getXLeft() + img.state.rect.getXRight()) / 2;
+            int cx = (img.state.rect.left() + img.state.rect.right()) / 2;
             return MethodResult.returns(new IntValue(cx));
         })),
 
         Map.entry("GETCENTERY", MethodSpec.of((self, args, ctx) -> {
             ImageVariable img = (ImageVariable) self;
-            int cy = (img.state.rect.getYTop() + img.state.rect.getYBottom()) / 2;
+            int cy = (img.state.rect.top() + img.state.rect.bottom()) / 2;
             return MethodResult.returns(new IntValue(cy));
         })),
 
@@ -357,8 +356,8 @@ public record ImageVariable(
             boolean checkAlpha = ArgumentHelper.getBoolean(args.get(2));
             boolean hit = img.isAt(posX, posY);
             if (hit && checkAlpha) {
-                hit = img.getAlpha(posX - img.state.rect.getXLeft(),
-                        posY - img.state.rect.getYTop()) > 0;
+                hit = img.getAlpha(posX - img.state.rect.left(),
+                        posY - img.state.rect.top()) > 0;
             }
             return MethodResult.returns(BoolValue.of(hit));
         })),
@@ -381,7 +380,10 @@ public record ImageVariable(
             if (!(maskVar instanceof ImageVariable mask) || mask.state.image == null) {
                 return MethodResult.noReturn();
             }
-            img.state.alphaMask = new AlphaMaskBinding(mask, posX, posY);
+            img.state.alphaMask = new AlphaMaskBinding(
+                    mask,
+                    CanvasRect.fromPositionAndSize(
+                            posX, posY, mask.state.image.width, mask.state.image.height));
             return MethodResult.noReturn();
         })),
 
@@ -426,10 +428,10 @@ public record ImageVariable(
         Map.entry("SETCLIPPING", MethodSpec.of((self, args, ctx) -> {
             ImageVariable img = (ImageVariable) self;
             int xL = ArgumentHelper.getInt(args.get(0));
-            int yB = ArgumentHelper.getInt(args.get(1));
+            int yTop = ArgumentHelper.getInt(args.get(1));
             int xR = ArgumentHelper.getInt(args.get(2));
-            int yT = ArgumentHelper.getInt(args.get(3));
-            img.state.clippingRect = new Box2D(xL, yB, xR, yT);
+            int yBottom = ArgumentHelper.getInt(args.get(3));
+            img.state.clippingRect = new CanvasRect(xL, yTop, xR, yBottom);
             return MethodResult.noReturn();
         })),
 
@@ -469,8 +471,8 @@ public record ImageVariable(
             }
 
             String anchor = ArgumentHelper.getString(args.get(0)).toUpperCase(Locale.ROOT);
-            int width = img.state.image != null ? img.state.image.width : img.state.rect.getWidth();
-            int height = img.state.image != null ? img.state.image.height : img.state.rect.getHeight();
+            int width = img.state.image != null ? img.state.image.width : img.state.rect.width();
+            int height = img.state.image != null ? img.state.image.height : img.state.rect.height();
             switch (anchor) {
                 case "CENTER" -> {
                     img.state.anchorX = width / 2;

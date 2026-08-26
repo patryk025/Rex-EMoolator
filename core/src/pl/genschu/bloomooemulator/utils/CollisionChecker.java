@@ -4,25 +4,31 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.TextureData;
+import pl.genschu.bloomooemulator.engine.context.CanvasBoundsProvider;
+import pl.genschu.bloomooemulator.engine.context.CurrentImageProvider;
 import pl.genschu.bloomooemulator.engine.context.EngineVariable;
-import pl.genschu.bloomooemulator.geometry.shapes.Box2D;
+import pl.genschu.bloomooemulator.geometry.coordinates.CanvasRect;
 import pl.genschu.bloomooemulator.interpreter.variable.AnimoVariable;
 import pl.genschu.bloomooemulator.interpreter.variable.ImageVariable;
 import pl.genschu.bloomooemulator.objects.Image;
 
+import java.util.Optional;
+
 public class CollisionChecker {
 
     public static boolean checkCollision(EngineVariable obj1, EngineVariable obj2) {
-        Box2D rect1 = getRect(obj1);
-        Box2D rect2 = getRect(obj2);
+        if (!(obj1 instanceof CanvasBoundsProvider bounds1)
+                || !(obj2 instanceof CanvasBoundsProvider bounds2)) {
+            return false;
+        }
+        CanvasRect rect1 = bounds1.getCanvasBounds();
+        CanvasRect rect2 = bounds2.getCanvasBounds();
 
         if (rect1 == null || rect2 == null) {
             return false;
         }
-
-        if (!rect1.intersects(rect2)) {
-            return false;
-        }
+        Optional<CanvasRect> intersection = rect1.intersection(rect2);
+        if (intersection.isEmpty()) return false;
 
         boolean checkAlpha1 = isCheckingAlpha(obj1);
         boolean checkAlpha2 = isCheckingAlpha(obj2);
@@ -31,29 +37,32 @@ public class CollisionChecker {
             return true;
         }
 
-        return checkPixelPerfectCollision(obj1, obj2, rect1, rect2, checkAlpha1, checkAlpha2);
+        return checkPixelPerfectCollision(
+                obj1, obj2, rect1, rect2, intersection.orElseThrow(), checkAlpha1, checkAlpha2);
     }
 
     private static boolean checkPixelPerfectCollision(EngineVariable obj1, EngineVariable obj2,
-                                                      Box2D rect1, Box2D rect2,
+                                                      CanvasRect rect1, CanvasRect rect2,
+                                                      CanvasRect intersection,
                                                       boolean checkAlpha1, boolean checkAlpha2) {
-        int left = Math.max(rect1.getXLeft(), rect2.getXLeft());
-        int right = Math.min(rect1.getXRight(), rect2.getXRight());
-        int top = Math.min(rect1.getYTop(), rect2.getYTop());
-        int bottom = Math.max(rect1.getYBottom(), rect2.getYBottom());
-
-        Image image1 = getImage(obj1);
-        Image image2 = getImage(obj2);
+        Image image1 = obj1 instanceof CurrentImageProvider imageProvider
+                ? imageProvider.getCurrentImage()
+                : null;
+        Image image2 = obj2 instanceof CurrentImageProvider imageProvider
+                ? imageProvider.getCurrentImage()
+                : null;
 
         if (image1 == null || image2 == null ||
                 image1.getImageTexture() == null || image2.getImageTexture() == null) {
             return true;
         }
 
-        for (int y = bottom; y <= top; y++) {
-            for (int x = left; x <= right; x++) {
-                int alpha1 = getAlphaAtPoint(image1, x - rect1.getXLeft(), y - rect1.getYBottom(), checkAlpha1);
-                int alpha2 = getAlphaAtPoint(image2, x - rect2.getXLeft(), y - rect2.getYBottom(), checkAlpha2);
+        for (int y = intersection.top(); y < intersection.bottom(); y++) {
+            for (int x = intersection.left(); x < intersection.right(); x++) {
+                int alpha1 = getAlphaAtPoint(
+                        image1, x - rect1.left(), y - rect1.top(), checkAlpha1);
+                int alpha2 = getAlphaAtPoint(
+                        image2, x - rect2.left(), y - rect2.top(), checkAlpha2);
 
                 if (alpha1 > 0 && alpha2 > 0) {
                     return true;
@@ -86,26 +95,6 @@ public class CollisionChecker {
             Gdx.app.error("CollisionChecker", "Error reading alpha: " + e.getMessage());
             return 255;
         }
-    }
-
-    public static Box2D getRect(EngineVariable variable) {
-        if (variable instanceof ImageVariable img) {
-            return img.getRect();
-        }
-        if (variable instanceof AnimoVariable animo) {
-            return animo.getRect();
-        }
-        return null;
-    }
-
-    public static Image getImage(EngineVariable variable) {
-        if (variable instanceof ImageVariable img) {
-            return img.getImage();
-        }
-        if (variable instanceof AnimoVariable animo) {
-            return animo.getCurrentImage();
-        }
-        return null;
     }
 
     private static boolean isCheckingAlpha(EngineVariable variable) {

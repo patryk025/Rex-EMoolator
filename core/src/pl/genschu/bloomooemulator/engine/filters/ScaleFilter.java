@@ -2,10 +2,15 @@ package pl.genschu.bloomooemulator.engine.filters;
 
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.Texture;
+import pl.genschu.bloomooemulator.geometry.coordinates.OpenGlRect;
 
 public class ScaleFilter extends Filter {
     @Override
-    public void apply(Batch batch, Texture texture, float x, float y, float width, float height) {
+    public void apply(Batch batch, Texture texture, OpenGlRect destination) {
+        float x = (float) destination.x();
+        float y = (float) destination.y();
+        float width = (float) destination.width();
+        float height = (float) destination.height();
         float scaleX = 1f;
         float scaleY = 1f;
 

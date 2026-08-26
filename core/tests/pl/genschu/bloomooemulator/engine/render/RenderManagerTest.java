@@ -1,6 +1,7 @@
 package pl.genschu.bloomooemulator.engine.render;
 
 import org.junit.jupiter.api.Test;
+import pl.genschu.bloomooemulator.geometry.coordinates.OpenGlRect;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -29,5 +30,12 @@ class RenderManagerTest {
     @Test
     void positiveBackgroundXPositionScrollsBitmapLeft() {
         assertEquals(-2f, RenderManager.backgroundDrawX(0, 2));
+    }
+
+    @Test
+    void backgroundDestinationUsesCanvasCoordinatesForBothOffsetAndScroll() {
+        assertEquals(
+                new OpenGlRect(-7, 4, 800, 637),
+                RenderManager.backgroundDestination(-5, -37, 800, 637, 2, 4));
     }
 }

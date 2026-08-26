@@ -15,15 +15,22 @@ import com.badlogic.gdx.utils.Disposable;
 import com.badlogic.gdx.utils.TimeUtils;
 import pl.genschu.bloomooemulator.engine.Game;
 import pl.genschu.bloomooemulator.engine.config.EngineConfig;
+import pl.genschu.bloomooemulator.engine.context.CanvasBoundsProvider;
 import pl.genschu.bloomooemulator.engine.context.EngineVariable;
 import pl.genschu.bloomooemulator.engine.context.GameContext;
 import pl.genschu.bloomooemulator.engine.metrics.EngineMetrics;
+import pl.genschu.bloomooemulator.geometry.coordinates.CanvasCoordinateSystem;
+import pl.genschu.bloomooemulator.geometry.coordinates.CanvasPoint;
+import pl.genschu.bloomooemulator.geometry.coordinates.CanvasRect;
+import pl.genschu.bloomooemulator.geometry.coordinates.CanvasScroll;
+import pl.genschu.bloomooemulator.geometry.coordinates.OpenGlPoint;
+import pl.genschu.bloomooemulator.geometry.coordinates.OpenGlRect;
+import pl.genschu.bloomooemulator.geometry.coordinates.PhysicsPoint;
 import pl.genschu.bloomooemulator.geometry.points.Point3D;
 import pl.genschu.bloomooemulator.interpreter.context.Context;
 import pl.genschu.bloomooemulator.interpreter.runtime.ASTInterpreter;
 import pl.genschu.bloomooemulator.interpreter.values.StringValue;
 import pl.genschu.bloomooemulator.interpreter.variable.*;
-import pl.genschu.bloomooemulator.geometry.shapes.Box2D;
 import pl.genschu.bloomooemulator.platform.GcMetricsSource;
 import pl.genschu.bloomooemulator.world.GameObject;
 import pl.genschu.bloomooemulator.world.Mesh;
@@ -36,10 +43,10 @@ import java.util.Deque;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Optional;
 import java.util.Set;
 
 public class DebugManager implements Disposable {
-    private static final float VIRTUAL_HEIGHT = 600;
     private static final long RUNTIME_METRICS_INTERVAL_NANOS = 500_000_000L;
 
     private final SpriteBatch batch;
@@ -59,7 +66,7 @@ public class DebugManager implements Disposable {
     private boolean showTooltip = false;
 
     private String debugVariablesValues = "";
-    private Box2D debugRect;
+    private CanvasRect debugRect;
 
     private final Set<String> loggedCollisionMismatches = new HashSet<>();
 
@@ -238,7 +245,7 @@ public class DebugManager implements Disposable {
         font.setColor(Color.WHITE);
 
         for (EngineVariable variable : graphics) {
-            Box2D rect = getRect(variable);
+            CanvasRect rect = canvasBoundsOf(variable);
             if (rect == null) continue;
 
             boolean visible = false;
@@ -260,19 +267,15 @@ public class DebugManager implements Disposable {
             } else {
                 shapeRenderer.setColor(Color.GRAY);
             }
-            shapeRenderer.rect(
-                    rect.getXLeft(),
-                    VIRTUAL_HEIGHT - rect.getYTop() - rect.getHeight(),
-                    rect.getWidth(),
-                    rect.getHeight()
-            );
+            drawCanvasRect(shapeRenderer, rect);
 
             String name = variable.getName();
+            OpenGlPoint topLeft = CanvasCoordinateSystem.toOpenGl(rect.topLeft());
             font.draw(
                     batch,
                     name,
-                    rect.getXLeft(),
-                    VIRTUAL_HEIGHT - rect.getYTop() + 15
+                    asFloat(topLeft.x()),
+                    asFloat(topLeft.y()) + 15
             );
         }
 
@@ -282,9 +285,17 @@ public class DebugManager implements Disposable {
 
     private void renderGraphicsDebug() {
         // Get info about graphics under cursor
-        Vector2 mousePos = getMousePosition();
-        EngineVariable graphicsUnderCursor = getGraphicsAt((int) mousePos.x, (int) mousePos.y);
-        EngineVariable buttonUnderCursor = getButtonAt((int) mousePos.x, (int) mousePos.y);
+        Optional<CanvasPoint> mousePosition = getMousePosition();
+        if (mousePosition.isEmpty()) {
+            showTooltip = false;
+            return;
+        }
+
+        CanvasPoint mousePos = mousePosition.get();
+        int mouseX = (int) Math.floor(mousePos.x());
+        int mouseY = (int) Math.floor(mousePos.y());
+        EngineVariable graphicsUnderCursor = getGraphicsAt(mouseX, mouseY);
+        EngineVariable buttonUnderCursor = getButtonAt(mouseX, mouseY);
 
         if (buttonUnderCursor != null) {
             if(buttonUnderCursor instanceof ButtonVariable btn) {
@@ -293,12 +304,12 @@ public class DebugManager implements Disposable {
             else {
                 generateTooltipForGraphics(buttonUnderCursor);
             }
-            tooltipPosition.set(mousePos.x + 20, VIRTUAL_HEIGHT - mousePos.y - 20);
+            setTooltipPosition(mousePos);
             showTooltip = true;
         }
         else if (graphicsUnderCursor != null) {
             generateTooltipForGraphics(graphicsUnderCursor);
-            tooltipPosition.set(mousePos.x + 20, VIRTUAL_HEIGHT - mousePos.y - 20);
+            setTooltipPosition(mousePos);
             showTooltip = true;
         } else {
             showTooltip = false;
@@ -310,7 +321,8 @@ public class DebugManager implements Disposable {
 
         batch.begin();
         font.setColor(Color.WHITE);
-        font.draw(batch, debugVariablesValues, 5, VIRTUAL_HEIGHT - 5);
+        font.draw(batch, debugVariablesValues, 5,
+                asFloat(CanvasCoordinateSystem.toOpenGlY(5)));
         batch.end();
     }
 
@@ -388,7 +400,8 @@ public class DebugManager implements Disposable {
 
         batch.begin();
         font.setColor(Color.WHITE);
-        font.draw(batch, performanceMetrics, 310, VIRTUAL_HEIGHT - 5);
+        font.draw(batch, performanceMetrics, 310,
+                asFloat(CanvasCoordinateSystem.toOpenGlY(5)));
         batch.end();
     }
 
@@ -455,7 +468,7 @@ public class DebugManager implements Disposable {
         }
         GlyphLayout layout = new GlyphLayout(font, text);
         float x = 8;
-        float y = VIRTUAL_HEIGHT - 8;
+        float y = asFloat(CanvasCoordinateSystem.toOpenGlY(8));
         float paddingX = 6;
         float paddingY = 4;
 
@@ -502,9 +515,7 @@ public class DebugManager implements Disposable {
         shapeRenderer.setProjectionMatrix(batch.getProjectionMatrix());
         shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
         shapeRenderer.setColor(Color.RED);
-        Box2D rect = debugRect;
-        shapeRenderer.rect(rect.getXLeft(), VIRTUAL_HEIGHT - rect.getYBottom() - rect.getHeight(),
-                rect.getWidth(), rect.getHeight());
+        drawCanvasRect(shapeRenderer, debugRect);
         shapeRenderer.end();
     }
 
@@ -546,13 +557,13 @@ public class DebugManager implements Disposable {
 
     private void renderButtonBorders() {
         List<EngineVariable> buttons = new ArrayList<>(game.getCurrentSceneContext().getButtonVariablesForInput());
-        Vector2 mousePos = getMousePosition();
+        Optional<CanvasPoint> mousePosition = getMousePosition();
 
         shapeRenderer.setProjectionMatrix(camera.combined);
         shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
 
         for (EngineVariable variable : buttons) {
-            Box2D rect = null;
+            CanvasRect rect = null;
             boolean buttonEnabled = true;
 
             if (variable instanceof ButtonVariable btn) {
@@ -566,15 +577,13 @@ public class DebugManager implements Disposable {
                 if (!buttonEnabled) {
                     shapeRenderer.setColor(Color.GRAY);
                 }
-                else if (rect.contains((int) mousePos.x, (int) mousePos.y)) {
+                else if (mousePosition.map(rect::contains).orElse(false)) {
                     shapeRenderer.setColor(Color.GREEN);
                 } else {
                     shapeRenderer.setColor(Color.RED);
                 }
 
-                int height = rect.getHeight();
-                int width = rect.getWidth();
-                shapeRenderer.rect(rect.getXLeft(), VIRTUAL_HEIGHT - rect.getYTop() - height, width, height);
+                drawCanvasRect(shapeRenderer, rect);
             }
         }
 
@@ -584,16 +593,17 @@ public class DebugManager implements Disposable {
         batch.begin();
         font.setColor(Color.WHITE);
         for (EngineVariable variable : buttons) {
-            Box2D rect = null;
+            CanvasRect rect = null;
             if (variable instanceof ButtonVariable btn) {
                 rect = btn.getRect();
             } else if (variable instanceof AnimoVariable animo) {
                 rect = animo.getRect();
             }
             if (rect == null) continue;
+            OpenGlRect openGlRect = CanvasCoordinateSystem.toOpenGl(rect);
             font.draw(batch, variable.getName(),
-                    rect.getXLeft(),
-                    VIRTUAL_HEIGHT - rect.getYTop() - rect.getHeight() - 3);
+                    asFloat(openGlRect.x()),
+                    asFloat(openGlRect.y()) - 3);
         }
         batch.end();
     }
@@ -611,14 +621,14 @@ public class DebugManager implements Disposable {
         shapeRenderer.setProjectionMatrix(camera.combined);
         shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
 
-        // QuadTree root bounds (matches Game.java: new Box2D(0, 0, 800, 600))
+        // QuadTree root bounds are the fixed DirectDraw canvas.
         shapeRenderer.setColor(Color.DARK_GRAY);
-        shapeRenderer.rect(0, 0, 800, VIRTUAL_HEIGHT);
+        drawCanvasRect(shapeRenderer, CanvasCoordinateSystem.BOUNDS);
 
         // Rect per monitored variable, colored by status
         int collidingCount = 0;
         for (EngineVariable variable : snapshot) {
-            Box2D rect = rectOf(variable);
+            CanvasRect rect = canvasBoundsOf(variable);
             if (rect == null) continue;
 
             boolean isDirty = dirty.contains(variable);
@@ -633,12 +643,7 @@ public class DebugManager implements Disposable {
                 shapeRenderer.setColor(Color.MAGENTA);
             }
 
-            shapeRenderer.rect(
-                    rect.getXLeft(),
-                    VIRTUAL_HEIGHT - rect.getYTop() - rect.getHeight(),
-                    rect.getWidth(),
-                    rect.getHeight()
-            );
+            drawCanvasRect(shapeRenderer, rect);
         }
 
         // Lines between currently-registered colliding pairs
@@ -646,14 +651,14 @@ public class DebugManager implements Disposable {
         Set<String> drawnPairs = new HashSet<>();
         int activePairs = 0;
         for (EngineVariable variable : snapshot) {
-            Box2D a = rectOf(variable);
+            CanvasRect a = canvasBoundsOf(variable);
             if (a == null) continue;
             for (EngineVariable other : game.getCollidingWith(variable)) {
                 String key = pairKey(variable, other);
                 if (!drawnPairs.add(key)) continue;
-                Box2D b = rectOf(other);
+                CanvasRect b = canvasBoundsOf(other);
                 if (b == null) continue;
-                shapeRenderer.line(centerX(a), centerY(a), centerX(b), centerY(b));
+                drawCanvasLine(shapeRenderer, a.center(), b.center());
                 activePairs++;
             }
         }
@@ -665,12 +670,12 @@ public class DebugManager implements Disposable {
         shapeRenderer.setColor(Color.ORANGE);
         for (int i = 0; i < snapshot.size(); i++) {
             EngineVariable vi = snapshot.get(i);
-            Box2D a = rectOf(vi);
+            CanvasRect a = canvasBoundsOf(vi);
             if (a == null) continue;
             Set<EngineVariable> retrieved = null;
             for (int j = i + 1; j < snapshot.size(); j++) {
                 EngineVariable vj = snapshot.get(j);
-                Box2D b = rectOf(vj);
+                CanvasRect b = canvasBoundsOf(vj);
                 if (b == null) continue;
                 if (!a.intersects(b)) continue;
 
@@ -680,7 +685,7 @@ public class DebugManager implements Disposable {
                 }
                 if (!retrieved.contains(vj)) {
                     hiddenPairs++;
-                    shapeRenderer.line(centerX(a), centerY(a), centerX(b), centerY(b));
+                    drawCanvasLine(shapeRenderer, a.center(), b.center());
                     String key = pairKey(vi, vj);
                     if (loggedCollisionMismatches.add(key)) {
                         Gdx.app.log("CollisionDebug",
@@ -698,11 +703,12 @@ public class DebugManager implements Disposable {
         batch.begin();
         font.setColor(Color.WHITE);
         for (EngineVariable variable : snapshot) {
-            Box2D rect = rectOf(variable);
+            CanvasRect rect = canvasBoundsOf(variable);
             if (rect == null) continue;
+            OpenGlRect openGlRect = CanvasCoordinateSystem.toOpenGl(rect);
             font.draw(batch, variable.getName(),
-                    rect.getXLeft(),
-                    VIRTUAL_HEIGHT - rect.getYTop() - rect.getHeight() - 3);
+                    asFloat(openGlRect.x()),
+                    asFloat(openGlRect.y()) - 3);
         }
         batch.end();
 
@@ -718,7 +724,8 @@ public class DebugManager implements Disposable {
 
         batch.begin();
         font.setColor(hiddenPairs > 0 ? Color.ORANGE : Color.WHITE);
-        font.draw(batch, stats, 5, VIRTUAL_HEIGHT - 120);
+        font.draw(batch, stats, 5,
+                asFloat(CanvasCoordinateSystem.toOpenGlY(120)));
         batch.end();
     }
 
@@ -728,18 +735,44 @@ public class DebugManager implements Disposable {
         return na.compareTo(nb) <= 0 ? na + "|" + nb : nb + "|" + na;
     }
 
-    private Box2D rectOf(EngineVariable variable) {
-        if (variable instanceof ImageVariable img) return img.getRect();
-        if (variable instanceof AnimoVariable animo) return animo.getRect();
-        return null;
+    private static CanvasRect canvasBoundsOf(EngineVariable variable) {
+        return variable instanceof CanvasBoundsProvider boundsProvider
+                ? boundsProvider.getCanvasBounds()
+                : null;
     }
 
-    private static float centerX(Box2D r) {
-        return r.getXLeft() + r.getWidth() / 2f;
+    private static void drawCanvasRect(ShapeRenderer renderer, CanvasRect rect) {
+        OpenGlRect openGlRect = CanvasCoordinateSystem.toOpenGl(rect);
+        renderer.rect(
+                asFloat(openGlRect.x()),
+                asFloat(openGlRect.y()),
+                asFloat(openGlRect.width()),
+                asFloat(openGlRect.height()));
     }
 
-    private static float centerY(Box2D r) {
-        return VIRTUAL_HEIGHT - r.getYTop() - r.getHeight() / 2f;
+    private static void drawCanvasLine(
+            ShapeRenderer renderer,
+            CanvasPoint from,
+            CanvasPoint to
+    ) {
+        OpenGlPoint openGlFrom = CanvasCoordinateSystem.toOpenGl(from);
+        OpenGlPoint openGlTo = CanvasCoordinateSystem.toOpenGl(to);
+        renderer.line(
+                asFloat(openGlFrom.x()), asFloat(openGlFrom.y()),
+                asFloat(openGlTo.x()), asFloat(openGlTo.y()));
+    }
+
+    private static OpenGlPoint physicsToOpenGl(
+            double worldX,
+            double worldY,
+            CanvasScroll scroll
+    ) {
+        return CanvasCoordinateSystem.physicsToOpenGl(
+                new PhysicsPoint(worldX, worldY, 0), scroll);
+    }
+
+    private static float asFloat(double value) {
+        return (float) value;
     }
 
     private void debugMatrix(MatrixVariable matrixVariable) {
@@ -780,7 +813,11 @@ public class DebugManager implements Disposable {
                     default -> shapeRenderer.setColor(0.8f, 0.8f, 0.8f, 1f);
                 }
 
-                shapeRenderer.rect(x, VIRTUAL_HEIGHT - y - cellHeight, cellWidth - 1, cellHeight - 1);
+                shapeRenderer.rect(
+                        x,
+                        asFloat(CanvasCoordinateSystem.toOpenGlBottom(y, cellHeight)),
+                        cellWidth - 1,
+                        cellHeight - 1);
             }
         }
 
@@ -797,7 +834,8 @@ public class DebugManager implements Disposable {
                 String value = String.valueOf(ms.data[index]);
 
                 float x = startX + j * cellWidth + 4;
-                float y = VIRTUAL_HEIGHT - (startY + i * cellHeight + 15);
+                float y = asFloat(CanvasCoordinateSystem.toOpenGlY(
+                        startY + i * cellHeight + 15));
 
                 font.draw(batch, value, x, y);
             }
@@ -806,7 +844,7 @@ public class DebugManager implements Disposable {
         batch.end();
     }
 
-    private void drawVelocityArrow(ShapeRenderer sr, GameObject go, float scrollX, float scrollY) {
+    private void drawVelocityArrow(ShapeRenderer sr, GameObject go, CanvasScroll scroll) {
         sr.setColor(Color.CYAN);
         final float vx = go.getVelX();
         final float vy = go.getVelY();
@@ -825,8 +863,9 @@ public class DebugManager implements Disposable {
 
         float len = Math.min(maxLen, baseLen + scaleLen * speed);
 
-        final float x0 = go.getX()+400-scrollX;
-        final float y0 = go.getY()+300+scrollY;
+        OpenGlPoint origin = physicsToOpenGl(go.getX(), go.getY(), scroll);
+        final float x0 = asFloat(origin.x());
+        final float y0 = asFloat(origin.y());
         final float x1 = x0 + dx * len;
         final float y1 = y0 + dy * len;
 
@@ -845,7 +884,7 @@ public class DebugManager implements Disposable {
         sr.line(x1, y1, x1 - pRx * headLen, y1 - pRy * headLen);
     }
 
-    private void drawPath(ShapeRenderer sr, GameObject go, float scrollX, float scrollY) {
+    private void drawPath(ShapeRenderer sr, GameObject go, CanvasScroll scroll) {
         Deque<Point3D> path = go.getPath();
         if (path == null || path.size() < 2) return;
 
@@ -853,8 +892,11 @@ public class DebugManager implements Disposable {
         Point3D prev = null;
         for (Point3D p : path) {
             if (prev != null) {
-                sr.line((float) prev.x+400-scrollX, (float) prev.y+300+scrollY,
-                        (float) p.x+400-scrollX, (float) p.y+300+scrollY);
+                OpenGlPoint from = physicsToOpenGl(prev.x, prev.y, scroll);
+                OpenGlPoint to = physicsToOpenGl(p.x, p.y, scroll);
+                sr.line(
+                        asFloat(from.x()), asFloat(from.y()),
+                        asFloat(to.x()), asFloat(to.y()));
             }
             prev = p;
         }
@@ -876,10 +918,7 @@ public class DebugManager implements Disposable {
         }
         List<GameObject> objects = world.getPhysicsEngine().getGameObjects();
 
-        // Camera scroll offset (CameraAnchor): screen space subtracts scrollX and adds
-        // scrollY relative to the unscrolled +400/+300 origin shift used below.
-        final float scrollX = world.getPhysicsEngine().getBkgPosX();
-        final float scrollY = world.getPhysicsEngine().getBkgPosY();
+        CanvasScroll scroll = world.getPhysicsEngine().getCanvasScroll();
 
         for (GameObject go : objects) {
             Mesh mesh = go.getMesh();
@@ -892,8 +931,9 @@ public class DebugManager implements Disposable {
             if (mesh == null) {
                 final float[] d = go.getDimensions();
 
-                final float correctedX = x + 400 - scrollX;
-                final float correctedY = y + 300 + scrollY;
+                OpenGlPoint center = physicsToOpenGl(x, y, scroll);
+                final float correctedX = asFloat(center.x());
+                final float correctedY = asFloat(center.y());
 
                 switch (go.getGeomType()) {
                     case 0: // box
@@ -930,40 +970,48 @@ public class DebugManager implements Disposable {
                 }
             }
             else {
-                final float dx = 400f - scrollX, dy = 300f + scrollY;
-
                 for (MeshTriangle tri : mesh.getTriangles()) {
                     TriangleVertex[] vs = tri.getVertices();
 
-                    // TODO: DRY, currently duplicated code for each vertex
-                    float x0 = (float) vs[0].getPoint().x;
-                    float y0 = (float) vs[0].getPoint().y;
-                    float[] r0 = rot2D(x0, y0, c, s);
-                    float wx0 = (go.isRigidBody() ? x + r0[0] : r0[0]) + dx;
-                    float wy0 = (go.isRigidBody() ? y + r0[1] : r0[1]) + dy;
+                    OpenGlPoint p0 = meshVertexToOpenGl(vs[0], go, x, y, c, s, scroll);
+                    OpenGlPoint p1 = meshVertexToOpenGl(vs[1], go, x, y, c, s, scroll);
+                    OpenGlPoint p2 = meshVertexToOpenGl(vs[2], go, x, y, c, s, scroll);
 
-                    float x1 = (float) vs[1].getPoint().x;
-                    float y1 = (float) vs[1].getPoint().y;
-                    float[] r1 = rot2D(x1, y1, c, s);
-                    float wx1 = (go.isRigidBody() ? x + r1[0] : r1[0]) + dx;
-                    float wy1 = (go.isRigidBody() ? y + r1[1] : r1[1]) + dy;
-
-                    float x2 = (float) vs[2].getPoint().x;
-                    float y2 = (float) vs[2].getPoint().y;
-                    float[] r2 = rot2D(x2, y2, c, s);
-                    float wx2 = (go.isRigidBody() ? x + r2[0] : r2[0]) + dx;
-                    float wy2 = (go.isRigidBody() ? y + r2[1] : r2[1]) + dy;
-
-                    shapeRenderer.line(wx0, wy0, wx1, wy1);
-                    shapeRenderer.line(wx1, wy1, wx2, wy2);
-                    shapeRenderer.line(wx2, wy2, wx0, wy0);
+                    shapeRenderer.line(
+                            asFloat(p0.x()), asFloat(p0.y()),
+                            asFloat(p1.x()), asFloat(p1.y()));
+                    shapeRenderer.line(
+                            asFloat(p1.x()), asFloat(p1.y()),
+                            asFloat(p2.x()), asFloat(p2.y()));
+                    shapeRenderer.line(
+                            asFloat(p2.x()), asFloat(p2.y()),
+                            asFloat(p0.x()), asFloat(p0.y()));
                 }
             }
-            drawVelocityArrow(shapeRenderer, go, scrollX, scrollY);
-            drawPath(shapeRenderer, go, scrollX, scrollY);
+            drawVelocityArrow(shapeRenderer, go, scroll);
+            drawPath(shapeRenderer, go, scroll);
         }
 
         shapeRenderer.end();
+    }
+
+    private static OpenGlPoint meshVertexToOpenGl(
+            TriangleVertex vertex,
+            GameObject object,
+            float objectX,
+            float objectY,
+            float rotationCos,
+            float rotationSin,
+            CanvasScroll scroll
+    ) {
+        float[] rotated = rot2D(
+                (float) vertex.getPoint().x,
+                (float) vertex.getPoint().y,
+                rotationCos,
+                rotationSin);
+        double worldX = object.isRigidBody() ? objectX + rotated[0] : rotated[0];
+        double worldY = object.isRigidBody() ? objectY + rotated[1] : rotated[1];
+        return physicsToOpenGl(worldX, worldY, scroll);
     }
 
 
@@ -982,11 +1030,11 @@ public class DebugManager implements Disposable {
             sb.append("\nNo GFX\n");
         }
 
-        Box2D rect = button.getRect();
+        CanvasRect rect = button.getRect();
         String rectText = "\nRect: " + (rect != null ?
-                ("\n    left upper corner: (" + rect.getXLeft() + ", " + rect.getYTop() + ")" +
-                        "\n    width: " + rect.getWidth() +
-                        "\n    height: " + rect.getHeight()) :
+                ("\n    left upper corner: (" + rect.left() + ", " + rect.top() + ")" +
+                        "\n    width: " + rect.width() +
+                        "\n    height: " + rect.height()) :
                 "no defined");
         sb.append(rectText);
 
@@ -1016,11 +1064,11 @@ public class DebugManager implements Disposable {
         StringBuilder sb = new StringBuilder();
         sb.append(graphics.getName()).append(" (").append(graphics.getTypeName()).append(")\n");
 
-        Box2D rect = getRect(graphics);
+        CanvasRect rect = canvasBoundsOf(graphics);
         String rectText = "\nRect: " + (rect != null ?
-                ("\n    left upper corner: (" + rect.getXLeft() + ", " + rect.getYTop() + ")" +
-                        "\n    width: " + rect.getWidth() +
-                        "\n    height: " + rect.getHeight()) :
+                ("\n    left upper corner: (" + rect.left() + ", " + rect.top() + ")" +
+                        "\n    width: " + rect.width() +
+                        "\n    height: " + rect.height()) :
                 "no defined");
 
         if (graphics instanceof AnimoVariable animo) {
@@ -1114,8 +1162,18 @@ public class DebugManager implements Disposable {
         debugVariablesValues = sb.toString();
     }
 
-    private Vector2 getMousePosition() {
-        return new Vector2(Gdx.input.getX(), Gdx.input.getY());
+    private Optional<CanvasPoint> getMousePosition() {
+        if (game.getInputManager() == null) {
+            return Optional.empty();
+        }
+        return game.getInputManager().getCorrectedMouseCoords(
+                Gdx.input.getX(), Gdx.input.getY());
+    }
+
+    private void setTooltipPosition(CanvasPoint mousePosition) {
+        OpenGlPoint position = CanvasCoordinateSystem.toOpenGl(
+                mousePosition.translated(20, 20));
+        tooltipPosition.set(asFloat(position.x()), asFloat(position.y()));
     }
 
     private int getPriority(EngineVariable variable) {
@@ -1143,7 +1201,7 @@ public class DebugManager implements Disposable {
                     }
                 }
 
-                Box2D btnRect = btn.getRect();
+                CanvasRect btnRect = btn.getRect();
                 if (btn.isEnabled() && btnRect != null && btnRect.contains(x, y)) {
                     return btn;
                 }
@@ -1178,7 +1236,7 @@ public class DebugManager implements Disposable {
 
             if (!visible) continue;
 
-            Box2D rect = getRect(variable);
+            CanvasRect rect = canvasBoundsOf(variable);
             if (rect != null && rect.contains(x, y)) {
                 return variable;
             }
@@ -1187,14 +1245,8 @@ public class DebugManager implements Disposable {
         return null;
     }
 
-    private Box2D getRect(EngineVariable variable) {
-        if (variable instanceof ImageVariable img) return img.getRect();
-        if (variable instanceof AnimoVariable animo) return animo.getRect();
-        return null;
-    }
-
     private boolean isGraphicsButton(EngineVariable variable) {
-        Box2D rect = getRect(variable);
+        CanvasRect rect = canvasBoundsOf(variable);
         GameContext context = game.getCurrentSceneContext();
 
         for (EngineVariable ev : context.getVariables().values()) {
@@ -1207,7 +1259,7 @@ public class DebugManager implements Disposable {
 
             if (rect == null) continue;
 
-            Box2D btnRect = btn.getRect();
+            CanvasRect btnRect = btn.getRect();
             if (btnRect != null && btnRect.intersects(rect)) {
                 return true;
             }
@@ -1220,7 +1272,7 @@ public class DebugManager implements Disposable {
         return false;
     }
 
-    public void setDebugRect(Box2D rect) {
+    public void setDebugRect(CanvasRect rect) {
         this.debugRect = rect;
     }
 

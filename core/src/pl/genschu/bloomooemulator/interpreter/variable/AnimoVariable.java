@@ -4,6 +4,8 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.audio.Music;
 import pl.genschu.bloomooemulator.annotations.InternalMutable;
 import pl.genschu.bloomooemulator.engine.Game;
+import pl.genschu.bloomooemulator.engine.context.CanvasBoundsProvider;
+import pl.genschu.bloomooemulator.engine.context.CurrentImageProvider;
 import pl.genschu.bloomooemulator.engine.decision.events.AnimoEvent;
 import pl.genschu.bloomooemulator.engine.decision.events.ButtonEvent;
 import pl.genschu.bloomooemulator.engine.decision.states.AnimoState;
@@ -11,7 +13,7 @@ import pl.genschu.bloomooemulator.engine.decision.states.ButtonState;
 import pl.genschu.bloomooemulator.engine.filters.Filter;
 import pl.genschu.bloomooemulator.engine.render.RenderOrder;
 import pl.genschu.bloomooemulator.engine.time.LegacyClock;
-import pl.genschu.bloomooemulator.geometry.shapes.Box2D;
+import pl.genschu.bloomooemulator.geometry.coordinates.CanvasRect;
 import pl.genschu.bloomooemulator.interpreter.context.Context;
 import pl.genschu.bloomooemulator.interpreter.helpers.ArgumentHelper;
 import pl.genschu.bloomooemulator.interpreter.values.*;
@@ -37,7 +39,7 @@ public record AnimoVariable(
     @InternalMutable AnimoPlaybackState state,
     AnimoData data,
     Map<String, SignalHandler> signals
-) implements Variable, Initializable {
+) implements Variable, Initializable, CanvasBoundsProvider, CurrentImageProvider {
 
     // Event flags from animation files
     public static final int FLAG_PLAY_NEXT_EVENT = 0x800000;
@@ -70,7 +72,7 @@ public record AnimoVariable(
         public int posY = 0;
         public int anchorX = 0;
         public int anchorY = 0;
-        public Box2D rect = new Box2D(0, 0, 0, 0);
+        public CanvasRect rect = new CanvasRect(0, 0, 0, 0);
 
         // Rendering
         public boolean visible = true;
@@ -114,7 +116,7 @@ public record AnimoVariable(
             copy.posY = this.posY;
             copy.anchorX = this.anchorX;
             copy.anchorY = this.anchorY;
-            copy.rect = new Box2D(this.rect.getXLeft(), this.rect.getYBottom(), this.rect.getXRight(), this.rect.getYTop());
+            copy.rect = this.rect;
             copy.visible = this.visible;
             copy.toCanvas = this.toCanvas;
             copy.opacity = this.opacity;
@@ -530,7 +532,8 @@ public record AnimoVariable(
     public int getPosY() { return state.posY; }
     public int getAnchorX() { return state.anchorX; }
     public int getAnchorY() { return state.anchorY; }
-    public Box2D getRect() { return state.rect; }
+    public CanvasRect getRect() { return state.rect; }
+    @Override public CanvasRect getCanvasBounds() { return state.rect; }
     public boolean isVisible() { return state.visible; }
     public int getOpacity() { return state.opacity; }
     public int getPriority() { return state.priority; }
@@ -540,7 +543,7 @@ public record AnimoVariable(
     public Event getCurrentEvent() { return state.currentEvent; }
     public int getCurrentFrameNumber() { return state.currentFrameNumber; }
     public int getCurrentImageNumber() { return state.currentImageNumber; }
-    public Image getCurrentImage() { return state.currentImage; }
+    @Override public Image getCurrentImage() { return state.currentImage; }
     public AnimoState getAnimationState() { return state.animationState; }
     public ButtonState getButtonState() { return state.buttonState; }
     public String getFilename() { return state.filename; }
@@ -878,10 +881,7 @@ public record AnimoVariable(
 
     public void updateRect() {
         if (state.currentImage == null) {
-            state.rect.setXLeft(state.posX);
-            state.rect.setYTop(state.posY);
-            state.rect.setXRight(state.posX + 1);
-            state.rect.setYBottom(state.posY - 1);
+            state.rect = CanvasRect.fromPositionAndSize(state.posX, state.posY, 1, 1);
         } else {
             try {
                 FrameData frameData = (state.currentEvent != null && state.currentEvent.getFrameData() != null && !state.currentEvent.getFrameData().isEmpty())
@@ -891,16 +891,13 @@ public record AnimoVariable(
                 int frameOffsetX = frameData != null ? frameData.getOffsetX() : 0;
                 int frameOffsetY = frameData != null ? frameData.getOffsetY() : 0;
 
-                state.rect.setXLeft(state.posX + frameOffsetX + state.currentImage.offsetX);
-                state.rect.setYTop(state.posY + frameOffsetY + state.currentImage.offsetY);
-                state.rect.setXRight(state.rect.getXLeft() + state.currentImage.width);
-                state.rect.setYBottom(state.rect.getYTop() - state.currentImage.height);
+                int left = state.posX + frameOffsetX + state.currentImage.offsetX;
+                int top = state.posY + frameOffsetY + state.currentImage.offsetY;
+                state.rect = CanvasRect.fromPositionAndSize(
+                        left, top, state.currentImage.width, state.currentImage.height);
             } catch (Exception e) {
                 Gdx.app.error("AnimoVariable", "Error updating rect: " + e.getMessage());
-                state.rect.setXLeft(state.posX);
-                state.rect.setYTop(state.posY);
-                state.rect.setXRight(state.posX + 1);
-                state.rect.setYBottom(state.posY - 1);
+                state.rect = CanvasRect.fromPositionAndSize(state.posX, state.posY, 1, 1);
             }
         }
     }
@@ -1162,21 +1159,11 @@ public record AnimoVariable(
         return state.rect.contains(x, y);
     }
 
-    public boolean isNear(Box2D rect1, Box2D rect2, int iouThreshold) {
-        int intersectionX = Math.max(rect1.getXLeft(), rect2.getXLeft());
-        int intersectionY = Math.max(rect1.getYBottom(), rect2.getYBottom());
-        int intersectionWidth = Math.min(rect1.getXRight(), rect2.getXRight()) - intersectionX;
-        int intersectionHeight = Math.min(rect1.getYTop(), rect2.getYTop()) - intersectionY;
-
-        if (intersectionWidth <= 0 || intersectionHeight <= 0) {
-            return false;
-        }
-
-        int intersectionArea = intersectionWidth * intersectionHeight;
-        int unionArea = rect1.area() + rect2.area() - intersectionArea;
-        double iou = (double) intersectionArea / unionArea * 100;
-
-        return iou >= iouThreshold;
+    public boolean isNear(CanvasRect rect1, CanvasRect rect2, int iouThreshold) {
+        return rect1 != null
+                && rect2 != null
+                && rect1.intersects(rect2)
+                && rect1.intersectionOverUnionPercent(rect2) >= iouThreshold;
     }
 
     public void addFilter(Filter filter) {
@@ -1412,7 +1399,7 @@ public record AnimoVariable(
             if (absolute) {
                 return MethodResult.returns(new IntValue(thisVar.state.posX));
             }
-            return MethodResult.returns(new IntValue(thisVar.state.rect.getXLeft()));
+            return MethodResult.returns(new IntValue(thisVar.state.rect.left()));
         })),
 
         Map.entry("GETPOSITIONY", MethodSpec.of((self, args, ctx) -> {
@@ -1421,7 +1408,7 @@ public record AnimoVariable(
             if (absolute) {
                 return MethodResult.returns(new IntValue(thisVar.state.posY));
             }
-            return MethodResult.returns(new IntValue(thisVar.state.rect.getYTop()));
+            return MethodResult.returns(new IntValue(thisVar.state.rect.top()));
         })),
 
         Map.entry("MOVE", MethodSpec.of((self, args, ctx) -> {
@@ -1444,52 +1431,45 @@ public record AnimoVariable(
             if (args.size() == 1) {
                 // SETANCHOR(anchorName)
                 String anchor = ArgumentHelper.getString(args.get(0)).toUpperCase();
-                Box2D rect = thisVar.state.rect;
+                CanvasRect rect = thisVar.state.rect;
+                int localLeft = rect.left() - thisVar.state.posX;
+                int localTop = rect.top() - thisVar.state.posY;
                 switch (anchor) {
                     case "CENTER" -> {
-                        thisVar.state.anchorX = rect.getXLeft() + rect.getWidth() / 2;
-                        thisVar.state.anchorY = rect.getYTop() + rect.getHeight() / 2;
+                        thisVar.state.anchorX = localLeft + rect.width() / 2;
+                        thisVar.state.anchorY = localTop + rect.height() / 2;
                     }
                     case "LEFTUPPER" -> {
-                        thisVar.state.anchorX = rect.getXLeft();
-                        thisVar.state.anchorY = rect.getYTop();
+                        thisVar.state.anchorX = localLeft;
+                        thisVar.state.anchorY = localTop;
                     }
                     case "RIGHTUPPER" -> {
-                        thisVar.state.anchorX = rect.getXRight();
-                        thisVar.state.anchorY = rect.getYTop();
+                        thisVar.state.anchorX = localLeft + rect.width();
+                        thisVar.state.anchorY = localTop;
                     }
                     case "LEFTLOWER" -> {
-                        thisVar.state.anchorX = rect.getXLeft();
-                        // Render space is Y-down anchored at posY: the visual lower edge is
-                        // YTop + height. Box2D's getYBottom() is YTop - height (Y-up), which
-                        // pushed LOWER/BOTTOM-anchored sprites ~2*height off the bottom.
-                        thisVar.state.anchorY = rect.getYTop() + rect.getHeight();
+                        thisVar.state.anchorX = localLeft;
+                        thisVar.state.anchorY = localTop + rect.height();
                     }
                     case "RIGHTLOWER" -> {
-                        thisVar.state.anchorX = rect.getXRight();
-                        // Render space is Y-down anchored at posY: the visual lower edge is
-                        // YTop + height. Box2D's getYBottom() is YTop - height (Y-up), which
-                        // pushed LOWER/BOTTOM-anchored sprites ~2*height off the bottom.
-                        thisVar.state.anchorY = rect.getYTop() + rect.getHeight();
+                        thisVar.state.anchorX = localLeft + rect.width();
+                        thisVar.state.anchorY = localTop + rect.height();
                     }
                     case "LEFT" -> {
-                        thisVar.state.anchorX = rect.getXLeft();
-                        thisVar.state.anchorY = rect.getYTop() + rect.getHeight() / 2;
+                        thisVar.state.anchorX = localLeft;
+                        thisVar.state.anchorY = localTop + rect.height() / 2;
                     }
                     case "RIGHT" -> {
-                        thisVar.state.anchorX = rect.getXRight();
-                        thisVar.state.anchorY = rect.getYTop() + rect.getHeight() / 2;
+                        thisVar.state.anchorX = localLeft + rect.width();
+                        thisVar.state.anchorY = localTop + rect.height() / 2;
                     }
                     case "TOP" -> {
-                        thisVar.state.anchorX = rect.getXLeft() + rect.getWidth() / 2;
-                        thisVar.state.anchorY = rect.getYTop();
+                        thisVar.state.anchorX = localLeft + rect.width() / 2;
+                        thisVar.state.anchorY = localTop;
                     }
                     case "BOTTOM" -> {
-                        thisVar.state.anchorX = rect.getXLeft() + rect.getWidth() / 2;
-                        // Render space is Y-down anchored at posY: the visual lower edge is
-                        // YTop + height. Box2D's getYBottom() is YTop - height (Y-up), which
-                        // pushed LOWER/BOTTOM-anchored sprites ~2*height off the bottom.
-                        thisVar.state.anchorY = rect.getYTop() + rect.getHeight();
+                        thisVar.state.anchorX = localLeft + rect.width() / 2;
+                        thisVar.state.anchorY = localTop + rect.height();
                     }
                     default -> Gdx.app.log("AnimoVariable", "Unknown anchor: " + anchor);
                 }
@@ -1544,26 +1524,26 @@ public record AnimoVariable(
 
         Map.entry("GETCENTERX", MethodSpec.of((self, args, ctx) -> {
             AnimoVariable thisVar = (AnimoVariable) self;
-            Box2D rect = thisVar.state.rect;
-            return MethodResult.returns(new IntValue(rect.getXLeft() + rect.getWidth() / 2));
+            CanvasRect rect = thisVar.state.rect;
+            return MethodResult.returns(new IntValue(rect.left() + rect.width() / 2));
         })),
 
         Map.entry("GETCENTERY", MethodSpec.of((self, args, ctx) -> {
             AnimoVariable thisVar = (AnimoVariable) self;
-            Box2D rect = thisVar.state.rect;
-            return MethodResult.returns(new IntValue(rect.getYTop() + rect.getHeight() / 2));
+            CanvasRect rect = thisVar.state.rect;
+            return MethodResult.returns(new IntValue(rect.top() + rect.height() / 2));
         })),
 
         Map.entry("GETENDX", MethodSpec.of((self, args, ctx) -> {
             AnimoVariable thisVar = (AnimoVariable) self;
-            Box2D rect = thisVar.state.rect;
-            return MethodResult.returns(new IntValue(rect.getXLeft() + rect.getWidth()));
+            CanvasRect rect = thisVar.state.rect;
+            return MethodResult.returns(new IntValue(rect.right()));
         })),
 
         Map.entry("GETENDY", MethodSpec.of((self, args, ctx) -> {
             AnimoVariable thisVar = (AnimoVariable) self;
-            Box2D rect = thisVar.state.rect;
-            return MethodResult.returns(new IntValue(rect.getYTop() + rect.getHeight()));
+            CanvasRect rect = thisVar.state.rect;
+            return MethodResult.returns(new IntValue(rect.bottom()));
         })),
 
         Map.entry("GETCURRFRAMEPOSX", MethodSpec.of((self, args, ctx) -> {
@@ -1672,8 +1652,8 @@ public record AnimoVariable(
             boolean checkAlpha = ArgumentHelper.getBoolean(args.get(2));
             boolean hit = thisVar.isAt(posX, posY);
             if (hit && checkAlpha) {
-                hit = thisVar.getAlpha(posX - thisVar.state.rect.getXLeft(),
-                        posY - thisVar.state.rect.getYTop()) > 0;
+                hit = thisVar.getAlpha(posX - thisVar.state.rect.left(),
+                        posY - thisVar.state.rect.top()) > 0;
             }
             return MethodResult.returns(BoolValue.of(hit));
         })),

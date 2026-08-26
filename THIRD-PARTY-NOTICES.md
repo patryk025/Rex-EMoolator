@@ -16,7 +16,6 @@ Documentation tooling notices are maintained in `gradle/documentation-license-no
 | com.badlogicgames.gdx-controllers:gdx-controllers-desktop | 2.2.4 | The Apache Software License, Version 2.0 | <http://www.apache.org/licenses/LICENSE-2.0.txt> |
 | com.badlogicgames.gdx:gdx | 1.14.2 | The Apache Software License, Version 2.0 | <http://www.apache.org/licenses/LICENSE-2.0.txt> |
 | com.badlogicgames.gdx:gdx-backend-lwjgl3 | 1.14.2 | The Apache Software License, Version 2.0 | <http://www.apache.org/licenses/LICENSE-2.0.txt> |
-| com.badlogicgames.gdx:gdx-box2d-platform | 1.14.2 | The Apache Software License, Version 2.0 | <http://www.apache.org/licenses/LICENSE-2.0.txt> |
 | com.badlogicgames.gdx:gdx-freetype | 1.14.2 | The Apache Software License, Version 2.0 | <http://www.apache.org/licenses/LICENSE-2.0.txt> |
 | com.badlogicgames.gdx:gdx-freetype-platform | 1.14.2 | The Apache Software License, Version 2.0 | <http://www.apache.org/licenses/LICENSE-2.0.txt> |
 | com.badlogicgames.gdx:gdx-jnigen-loader | 2.5.2 | The Apache Software License, Version 2.0 | <http://www.apache.org/licenses/LICENSE-2.0.txt> |

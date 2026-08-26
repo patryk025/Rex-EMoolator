@@ -7,7 +7,6 @@ import pl.genschu.bloomooemulator.engine.context.EngineVariable;
 import pl.genschu.bloomooemulator.engine.context.GameContext;
 import pl.genschu.bloomooemulator.engine.time.LegacyClock;
 import pl.genschu.bloomooemulator.interpreter.variable.*;
-import pl.genschu.bloomooemulator.geometry.shapes.Box2D;
 import pl.genschu.bloomooemulator.utils.CollisionChecker;
 
 import java.util.ArrayList;
@@ -97,13 +96,14 @@ public class UpdateManager implements Disposable {
                 return;
             }
 
-            List<EngineVariable> potentialCollisions = game.getQuadTree().retrieve(new ArrayList<>(), object);
+            // Existing partners must also be checked after objects move into unrelated
+            // QuadTree branches, otherwise ONCOLLISIONFINISHED would never be emitted.
+            Set<EngineVariable> candidates = Collections.newSetFromMap(new IdentityHashMap<>());
+            candidates.addAll(game.getQuadTree().retrieve(new ArrayList<>(), object));
+            candidates.addAll(game.getCollidingWith(object));
 
-            // Deduplicate (QuadTree can return the same object from multiple nodes)
-            Set<EngineVariable> seen = Collections.newSetFromMap(new IdentityHashMap<>());
-
-            for (EngineVariable other : potentialCollisions) {
-                if (other == object || !seen.add(other)) {
+            for (EngineVariable other : candidates) {
+                if (other == object) {
                     continue;
                 }
                 if (checkCollision(object, other)) {

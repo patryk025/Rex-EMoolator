@@ -6,7 +6,7 @@ import org.junit.jupiter.api.Test;
 import pl.genschu.bloomooemulator.TestEnvironment;
 import pl.genschu.bloomooemulator.builders.ContextBuilder;
 import pl.genschu.bloomooemulator.builders.MethodHelper;
-import pl.genschu.bloomooemulator.geometry.shapes.Box2D;
+import pl.genschu.bloomooemulator.geometry.coordinates.CanvasRect;
 import pl.genschu.bloomooemulator.interpreter.context.Context;
 import pl.genschu.bloomooemulator.interpreter.values.BoolValue;
 import pl.genschu.bloomooemulator.interpreter.variable.AnimoVariable;
@@ -34,7 +34,7 @@ class AnimoSetAsButtonTest {
     @Test
     void getRectReflectsLiveStateAfterSetAsButton() {
         AnimoVariable animo = new AnimoVariable("ANNCOMET0");
-        animo.state().rect = new Box2D(0, 0, 100, -50);
+        animo.state().rect = new CanvasRect(0, 0, 100, 50);
         ctx.setVariable("ANNCOMET0", animo);
 
         MethodHelper.callWithContext(ctx, animo, "SETASBUTTON",
@@ -42,12 +42,12 @@ class AnimoSetAsButtonTest {
 
         // Animation frame moves the sprite; getRect() must reflect the new position
         // so the hit-test rect in ButtonHandler follows it.
-        animo.state().rect = new Box2D(200, 200, 250, 150);
+        animo.state().rect = new CanvasRect(200, 150, 250, 200);
 
-        Box2D live = animo.getRect();
-        assertEquals(200, live.getXLeft());
-        assertEquals(250, live.getXRight());
-        assertEquals(200, live.getYBottom());
-        assertEquals(150, live.getYTop());
+        CanvasRect live = animo.getRect();
+        assertEquals(200, live.left());
+        assertEquals(250, live.right());
+        assertEquals(150, live.top());
+        assertEquals(200, live.bottom());
     }
 }

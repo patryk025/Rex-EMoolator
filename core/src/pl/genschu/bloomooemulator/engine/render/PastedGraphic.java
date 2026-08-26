@@ -2,6 +2,7 @@ package pl.genschu.bloomooemulator.engine.render;
 
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.utils.Disposable;
+import pl.genschu.bloomooemulator.geometry.coordinates.CanvasRect;
 
 /**
  * Snapshot of a graphics object pasted onto the background by CANVAS_OBSERVER.PASTE.
@@ -10,26 +11,17 @@ import com.badlogic.gdx.utils.Disposable;
  */
 public final class PastedGraphic implements Disposable {
     private final Texture texture;
-    private final int x;
-    private final int y;
-    private final int width;
-    private final int height;
+    private final CanvasRect bounds;
     private final float opacity;
 
-    public PastedGraphic(Texture texture, int x, int y, int width, int height, float opacity) {
+    public PastedGraphic(Texture texture, CanvasRect bounds, float opacity) {
         this.texture = texture;
-        this.x = x;
-        this.y = y;
-        this.width = width;
-        this.height = height;
+        this.bounds = bounds;
         this.opacity = opacity;
     }
 
     public Texture texture() { return texture; }
-    public int x() { return x; }
-    public int y() { return y; }
-    public int width() { return width; }
-    public int height() { return height; }
+    public CanvasRect bounds() { return bounds; }
     public float opacity() { return opacity; }
 
     @Override

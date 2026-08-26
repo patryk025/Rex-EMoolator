@@ -9,6 +9,7 @@ import pl.genschu.bloomooemulator.builders.ContextBuilder;
 import pl.genschu.bloomooemulator.engine.Game;
 import pl.genschu.bloomooemulator.engine.filesystem.LocalFileSystem;
 import pl.genschu.bloomooemulator.engine.filesystem.VFS;
+import pl.genschu.bloomooemulator.geometry.coordinates.CanvasRect;
 import pl.genschu.bloomooemulator.interpreter.context.Context;
 import pl.genschu.bloomooemulator.interpreter.values.BoolValue;
 import pl.genschu.bloomooemulator.interpreter.values.IntValue;
@@ -494,15 +495,59 @@ class AnimoTest {
     @Test
     void isAtUsesCurrentFrameScreenBounds_wpzrFieldMaskRegression() {
         AnimoVariable animo = new AnimoVariable("IMGMASKAPOLE");
-        animo.state().rect.setXLeft(10);
-        animo.state().rect.setXRight(30);
-        animo.state().rect.setYTop(20);
-        animo.state().rect.setYBottom(0);
+        animo.state().rect = new CanvasRect(10, 20, 30, 40);
 
         assertTrue(animo.callMethod("ISAT", new IntValue(15), new IntValue(25), new BoolValue(false))
                 .returnValue().toBool().value());
         assertFalse(animo.callMethod("ISAT", new IntValue(15), new IntValue(19), new BoolValue(false))
                 .returnValue().toBool().value());
+        assertFalse(animo.callMethod("ISAT", new IntValue(30), new IntValue(25), BoolValue.FALSE)
+                .returnValue().toBool().value());
+        assertFalse(animo.callMethod("ISAT", new IntValue(15), new IntValue(40), BoolValue.FALSE)
+                .returnValue().toBool().value());
+    }
+
+    @Test
+    void namedAnchorIsLocalToAnimationBaseAndIncludesFrameOffsets() {
+        Image image = mock(Image.class);
+        image.width = 20;
+        image.height = 10;
+        image.offsetX = 3;
+        image.offsetY = 5;
+
+        FrameData frame = new FrameData();
+        frame.setOffsetX(7);
+        frame.setOffsetY(11);
+        Event event = new Event();
+        event.setFrameData(List.of(frame));
+
+        AnimoVariable animo = new AnimoVariable("ANIMO");
+        animo.state().currentImage = image;
+        animo.state().currentEvent = event;
+        animo.state().posX = 100;
+        animo.state().posY = 200;
+        animo.updateRect();
+
+        animo.callMethod("SETANCHOR", new StringValue("CENTER"));
+        assertEquals(20, animo.getAnchorX());
+        assertEquals(21, animo.getAnchorY());
+
+        animo.callMethod("SETPOSITION", new IntValue(500), new IntValue(400));
+        assertEquals(new CanvasRect(490, 395, 510, 405), animo.getRect());
+        assertEquals(500, animo.callMethod("GETCENTERX").returnValue().toInt().value());
+        assertEquals(400, animo.callMethod("GETCENTERY").returnValue().toInt().value());
+    }
+
+    @Test
+    void isNearUsesCanonicalIntersectionForUnequalHeights() {
+        AnimoVariable animo = new AnimoVariable("ANIMO");
+        CanvasRect tall = new CanvasRect(0, 0, 100, 100);
+        CanvasRect shortRect = new CanvasRect(0, 90, 100, 100);
+
+        assertTrue(animo.isNear(tall, shortRect, 10));
+        assertFalse(animo.isNear(tall, shortRect, 11));
+        assertFalse(animo.isNear(tall, new CanvasRect(0, 100, 100, 110), 0),
+                "touching half-open edges are not near");
     }
 
     @Test

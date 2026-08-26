@@ -2,6 +2,9 @@ package pl.genschu.bloomooemulator.engine.physics;
 
 import pl.genschu.bloomooemulator.engine.compatibility.CompatibilityProfile;
 import pl.genschu.bloomooemulator.engine.context.EngineVariable;
+import pl.genschu.bloomooemulator.geometry.coordinates.CanvasScroll;
+import pl.genschu.bloomooemulator.geometry.coordinates.PhysicsBox;
+import pl.genschu.bloomooemulator.geometry.coordinates.PhysicsPoint;
 import pl.genschu.bloomooemulator.world.GameObject;
 import pl.genschu.bloomooemulator.world.Mesh;
 
@@ -42,6 +45,11 @@ public interface IPhysicsEngine {
 
     void setPosition(int objectId, double x, double y, double z);
 
+    /** Sets a body position that is already expressed in native Sekai/ODE coordinates. */
+    default void setPosition(int objectId, PhysicsPoint position) {
+        setPosition(objectId, position.x(), position.y(), position.z());
+    }
+
     void setSpeed(int objectId, double speedX, double speedY, double speedZ);
 
     /**
@@ -62,7 +70,24 @@ public interface IPhysicsEngine {
 
     void setLimit(int objectId, double minX, double minY, double minZ, double maxX, double maxY, double maxZ);
 
+    /** Sets normalized bounds that are already expressed in native Sekai/ODE coordinates. */
+    default void setLimit(int objectId, PhysicsBox bounds) {
+        setLimit(
+                objectId,
+                bounds.min().x(), bounds.min().y(), bounds.min().z(),
+                bounds.max().x(), bounds.max().y(), bounds.max().z());
+    }
+
     double[] getPosition(int objectId);
+
+    /** Returns a body position in native Sekai/ODE coordinates. */
+    default PhysicsPoint getPhysicsPosition(int objectId) {
+        double[] position = getPosition(objectId);
+        if (position == null || position.length < 3) {
+            return null;
+        }
+        return new PhysicsPoint(position[0], position[1], position[2]);
+    }
 
     double[] getSpeed(int objectId);
 
@@ -79,6 +104,25 @@ public interface IPhysicsEngine {
     void destroyBody(int objectId);
 
     void addJoint(int firstId, int secondId, double anchorX, double anchorY, double anchorZ, double limitMotor, double lowStop, double highStop, double hingeAxisX, double hingeAxisY, double hingeAxisZ);
+
+    /** Adds a joint whose anchor is already expressed in native Sekai/ODE coordinates. */
+    default void addJoint(
+            int firstId,
+            int secondId,
+            PhysicsPoint anchor,
+            double limitMotor,
+            double lowStop,
+            double highStop,
+            double hingeAxisX,
+            double hingeAxisY,
+            double hingeAxisZ
+    ) {
+        addJoint(
+                firstId, secondId,
+                anchor.x(), anchor.y(), anchor.z(),
+                limitMotor, lowStop, highStop,
+                hingeAxisX, hingeAxisY, hingeAxisZ);
+    }
 
     void addJoint2(int firstId, int secondId,
                    double anchorX, double anchorY, double anchorZ,
@@ -127,13 +171,35 @@ public interface IPhysicsEngine {
 
     int getBkgPosY();
 
+    /** Returns the exact camera displacement along the DirectDraw canvas axes. */
+    default CanvasScroll getCanvasScroll() {
+        return new CanvasScroll(getBkgPosX(), getBkgPosY());
+    }
+
     void linkVariable(EngineVariable variable, int objectId);
+
+    /**
+     * Links a graphical variable and registers a callback for spatial-index invalidation after
+     * a physics-driven position update. Implementations without link callbacks may ignore it.
+     */
+    default void linkVariable(
+            EngineVariable variable,
+            int objectId,
+            Runnable onPositionChanged
+    ) {
+        linkVariable(variable, objectId);
+    }
 
     void unlinkVariable(int objectId);
 
     float followPath(int objectId, int arrivalRadius, double turnClamp, double speed);
 
-    void findPath(int objectId, int pointObjectId, int targetX, int targetY, int targetZ, boolean saveIntermediates, boolean unknown);
+    void findPath(
+            int objectId,
+            int pointObjectId,
+            PhysicsPoint target,
+            boolean saveIntermediates,
+            boolean unknown);
 
     void start();
 

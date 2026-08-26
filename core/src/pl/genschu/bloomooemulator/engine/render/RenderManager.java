@@ -16,14 +16,13 @@ import pl.genschu.bloomooemulator.engine.context.EngineVariable;
 import pl.genschu.bloomooemulator.engine.context.GameContext;
 import pl.genschu.bloomooemulator.interpreter.variable.*;
 import pl.genschu.bloomooemulator.objects.Image;
-import pl.genschu.bloomooemulator.geometry.shapes.Box2D;
+import pl.genschu.bloomooemulator.geometry.coordinates.CanvasCoordinateSystem;
+import pl.genschu.bloomooemulator.geometry.coordinates.CanvasRect;
+import pl.genschu.bloomooemulator.geometry.coordinates.OpenGlRect;
 
 import java.util.*;
 
 public class RenderManager implements Disposable {
-    private static final int VIRTUAL_WIDTH = 800;
-    private static final float VIRTUAL_HEIGHT = 600;
-
     private final SpriteBatch batch;
     private final OrthographicCamera camera;
     private final Viewport viewport;
@@ -31,7 +30,7 @@ public class RenderManager implements Disposable {
     private final EngineConfig config;
 
     /**
-     * Persistent 800x600 logical canvas. Keeping the fixed-size surface here
+     * Persistent fixed-size logical canvas. Keeping the surface here
      * makes the displayed frame and CANVAS_OBSERVER.SAVE use the same complete
      * image. RGBA8888 is intentional: renderers using destination alpha need an
      * alpha channel; SAVE converts its on-demand snapshot to legacy RGB565.
@@ -53,15 +52,19 @@ public class RenderManager implements Disposable {
         this.game = game;
         this.config = config;
 
-        this.canvasBuffer = new FrameBuffer(Pixmap.Format.RGBA8888, VIRTUAL_WIDTH, (int) VIRTUAL_HEIGHT, false);
+        this.canvasBuffer = new FrameBuffer(
+                Pixmap.Format.RGBA8888,
+                CanvasCoordinateSystem.WIDTH,
+                CanvasCoordinateSystem.HEIGHT,
+                false);
         this.canvasRegion = new TextureRegion(canvasBuffer.getColorBufferTexture());
         // Frame-buffer textures use OpenGL's bottom-left origin. Flip only the
-        // presentation view; readback retains its native orientation and SAVE
-        // converts it exactly once.
+        // presentation view; captureLogicalCanvas normalizes readback orientation
+        // separately at the OpenGL-to-canvas boundary.
         this.canvasRegion.flip(false, true);
         canvasBuffer.getColorBufferTexture().setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
 
-        this.graphicsRenderer = new GraphicsRenderer(batch, camera);
+        this.graphicsRenderer = new GraphicsRenderer(batch);
         this.textRenderer = new TextRenderer(batch);
         this.maskRenderer = new MaskRenderer(batch);
         this.alphaMaskRenderer = new AlphaMaskRenderer(batch);
@@ -118,7 +121,12 @@ public class RenderManager implements Disposable {
         // original DirectDraw canvas is opaque at presentation time, so using
         // SRC_ALPHA here would apply the mask a second time.
         batch.disableBlending();
-        batch.draw(canvasRegion, 0, 0, VIRTUAL_WIDTH, VIRTUAL_HEIGHT);
+        batch.draw(
+                canvasRegion,
+                0,
+                0,
+                CanvasCoordinateSystem.WIDTH,
+                CanvasCoordinateSystem.HEIGHT);
         batch.enableBlending();
         batch.setBlendFunction(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
         batch.end();
@@ -143,12 +151,16 @@ public class RenderManager implements Disposable {
 
     /**
      * Reads the current logical canvas on demand. The returned pixmap is an
-     * independent, caller-owned RGB565 snapshot in OpenGL (bottom-up) order.
+     * independent, caller-owned RGB565 snapshot in canvas (top-down) order.
      * Reading RGBA/UNSIGNED_BYTE first uses the portable GLES2 readback path;
-     * the CPU-side conversion retains the 16-bpp contract exposed to games.
+     * the CPU-side conversion retains the 16-bpp contract exposed to games and
+     * normalizes OpenGL's bottom-up row order at this boundary.
      */
     public Pixmap captureLogicalCanvas() {
-        Pixmap readback = new Pixmap(VIRTUAL_WIDTH, (int) VIRTUAL_HEIGHT, Pixmap.Format.RGBA8888);
+        Pixmap readback = new Pixmap(
+                CanvasCoordinateSystem.WIDTH,
+                CanvasCoordinateSystem.HEIGHT,
+                Pixmap.Format.RGBA8888);
         Pixmap snapshot = null;
         boolean success = false;
         boolean bufferBound = false;
@@ -159,15 +171,17 @@ public class RenderManager implements Disposable {
             Gdx.gl.glReadPixels(
                     0,
                     0,
-                    VIRTUAL_WIDTH,
-                    (int) VIRTUAL_HEIGHT,
+                    CanvasCoordinateSystem.WIDTH,
+                    CanvasCoordinateSystem.HEIGHT,
                     GL20.GL_RGBA,
                     GL20.GL_UNSIGNED_BYTE,
                     readback.getPixels());
 
-            snapshot = new Pixmap(VIRTUAL_WIDTH, (int) VIRTUAL_HEIGHT, Pixmap.Format.RGB565);
-            snapshot.setBlending(Pixmap.Blending.None);
-            snapshot.drawPixmap(readback, 0, 0);
+            snapshot = new Pixmap(
+                    CanvasCoordinateSystem.WIDTH,
+                    CanvasCoordinateSystem.HEIGHT,
+                    Pixmap.Format.RGB565);
+            copyOpenGlReadbackToCanvas(readback, snapshot);
             success = true;
             return snapshot;
         } finally {
@@ -185,17 +199,36 @@ public class RenderManager implements Disposable {
         }
     }
 
+    /** Copies bottom-up OpenGL readback rows into a top-down canvas pixmap. */
+    static void copyOpenGlReadbackToCanvas(Pixmap readback, Pixmap canvas) {
+        if (readback.getWidth() != canvas.getWidth()
+                || readback.getHeight() != canvas.getHeight()) {
+            throw new IllegalArgumentException("Readback and canvas dimensions must match");
+        }
+
+        int width = readback.getWidth();
+        int height = readback.getHeight();
+        canvas.setBlending(Pixmap.Blending.None);
+        for (int canvasY = 0; canvasY < height; canvasY++) {
+            int openGlY = height - canvasY - 1;
+            canvas.drawPixmap(readback, 0, canvasY, 0, openGlY, width, 1);
+        }
+    }
+
     private void renderBackground() {
         ImageVariable background = game.getCurrentBackgroundImage();
         if (background != null && background.getImage() != null) {
             Image image = background.getImage();
             if (image.getImageTexture() != null) {
+                OpenGlRect destination = backgroundDestination(
+                        image.offsetX, image.offsetY, image.width, image.height,
+                        game.getBackgroundPositionX(), game.getBackgroundPositionY());
                 batch.setColor(1, 1, 1, background.getOpacity());
                 batch.draw(image.getImageTexture(),
-                        backgroundDrawX(image.offsetX, game.getBackgroundPositionX()),
-                        backgroundDrawY(image.offsetY, image.height, game.getBackgroundPositionY()),
-                        image.width,
-                        image.height);
+                        GraphicsRenderer.asFloat(destination.x()),
+                        GraphicsRenderer.asFloat(destination.y()),
+                        GraphicsRenderer.asFloat(destination.width()),
+                        GraphicsRenderer.asFloat(destination.height()));
                 lastRenderStats.visibleSpriteObjects++;
             }
         }
@@ -203,22 +236,41 @@ public class RenderManager implements Disposable {
 
     /** IMG offsets place the bitmap; CANVAS_OBSERVER position selects its visible viewport. */
     static float backgroundDrawX(int imageOffsetX, int backgroundPositionX) {
-        return imageOffsetX - backgroundPositionX;
+        return GraphicsRenderer.asFloat(backgroundDestination(
+                imageOffsetX, 0, 0, 0, backgroundPositionX, 0).x());
     }
 
     static float backgroundDrawY(int imageOffsetY, int imageHeight, int backgroundPositionY) {
-        return VIRTUAL_HEIGHT - imageOffsetY - imageHeight + backgroundPositionY;
+        return GraphicsRenderer.asFloat(backgroundDestination(
+                0, imageOffsetY, 0, imageHeight, 0, backgroundPositionY).y());
+    }
+
+    static OpenGlRect backgroundDestination(
+            int imageOffsetX,
+            int imageOffsetY,
+            int imageWidth,
+            int imageHeight,
+            int backgroundPositionX,
+            int backgroundPositionY
+    ) {
+        CanvasRect bounds = CanvasRect.fromPositionAndSize(
+                imageOffsetX - backgroundPositionX,
+                imageOffsetY - backgroundPositionY,
+                imageWidth,
+                imageHeight);
+        return CanvasCoordinateSystem.toOpenGl(bounds);
     }
 
     private void renderPastedGraphics() {
         for (PastedGraphic p : game.getPastedGraphics()) {
             if (p.texture() == null) continue;
             batch.setColor(1, 1, 1, p.opacity());
+            OpenGlRect destination = CanvasCoordinateSystem.toOpenGl(p.bounds());
             batch.draw(p.texture(),
-                    p.x(),
-                    VIRTUAL_HEIGHT - p.y() - p.height(),
-                    p.width(),
-                    p.height());
+                    GraphicsRenderer.asFloat(destination.x()),
+                    GraphicsRenderer.asFloat(destination.y()),
+                    GraphicsRenderer.asFloat(destination.width()),
+                    GraphicsRenderer.asFloat(destination.height()));
             lastRenderStats.visibleSpriteObjects++;
             lastRenderStats.pastedGraphics++;
         }
@@ -251,11 +303,12 @@ public class RenderManager implements Disposable {
         }
         lastRenderStats.visibleSpriteObjects++;
         batch.setColor(1, 1, 1, 1);
+        OpenGlRect destination = CanvasCoordinateSystem.toOpenGl(klr.getCanvasBounds());
         batch.draw(texture,
-                klr.getPosX(),
-                VIRTUAL_HEIGHT - klr.getPosY() - klr.getHeight(),
-                klr.getWidth(),
-                klr.getHeight());
+                GraphicsRenderer.asFloat(destination.x()),
+                GraphicsRenderer.asFloat(destination.y()),
+                GraphicsRenderer.asFloat(destination.width()),
+                GraphicsRenderer.asFloat(destination.height()));
     }
 
     private void renderImage(ImageVariable imageVariable) {
@@ -264,8 +317,8 @@ public class RenderManager implements Disposable {
             return;
         }
 
-        Box2D rect = imageVariable.getRect();
-        Box2D clippingRect = imageVariable.getClippingRect();
+        CanvasRect rect = imageVariable.getRect();
+        CanvasRect clippingRect = imageVariable.getClippingRect();
         ImageVariable.AlphaMaskBinding alphaMask = imageVariable.getAlphaMask();
 
         if (alphaMask == null) {

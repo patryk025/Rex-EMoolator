@@ -18,13 +18,11 @@ import pl.genschu.bloomooemulator.engine.render.RenderManager;
 import pl.genschu.bloomooemulator.engine.time.LegacyPulseGate;
 import pl.genschu.bloomooemulator.engine.update.UpdateManager;
 import pl.genschu.bloomooemulator.engine.debug.DebugManager;
+import pl.genschu.bloomooemulator.geometry.coordinates.CanvasCoordinateSystem;
 import pl.genschu.bloomooemulator.platform.GcMetricsSource;
 import pl.genschu.bloomooemulator.platform.PrinterService;
 
 public class BlooMooEngine extends ApplicationAdapter {
-    private static final float VIRTUAL_WIDTH = 800;
-    private static final float VIRTUAL_HEIGHT = 600;
-
     private SpriteBatch batch;
     private OrthographicCamera camera;
     private Viewport viewport;
@@ -87,18 +85,27 @@ public class BlooMooEngine extends ApplicationAdapter {
 
         // select viewport
         if (gameEntry.isMaintainAspectRatio()) {
-            viewport = new FitViewport(VIRTUAL_WIDTH, VIRTUAL_HEIGHT, camera);
+            viewport = new FitViewport(
+                    CanvasCoordinateSystem.WIDTH,
+                    CanvasCoordinateSystem.HEIGHT,
+                    camera);
         } else {
-            viewport = new StretchViewport(VIRTUAL_WIDTH, VIRTUAL_HEIGHT, camera);
+            viewport = new StretchViewport(
+                    CanvasCoordinateSystem.WIDTH,
+                    CanvasCoordinateSystem.HEIGHT,
+                    camera);
         }
 
         viewport.apply();
-        camera.position.set(camera.viewportWidth / 2, camera.viewportHeight / 2, 0);
+        camera.position.set(
+                (float) CanvasCoordinateSystem.CENTER_X,
+                (float) CanvasCoordinateSystem.CENTER_Y,
+                0);
 
         // initialise emulator components
         game = new Game(gameEntry, this);
         renderManager = new RenderManager(batch, camera, viewport, game, config);
-        inputManager = new InputManager(camera, viewport, game, config);
+        inputManager = new InputManager(viewport, game, config);
         updateManager = new UpdateManager(game, config);
         debugManager = new DebugManager(
                 batch, camera, game, config, engineMetrics, gcMetricsSource);
