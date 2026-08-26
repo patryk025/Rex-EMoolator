@@ -24,6 +24,7 @@ import pl.genschu.bloomooemulator.objects.Image;
 
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Pixmap;
+import com.badlogic.gdx.graphics.TextureData;
 
 import java.util.*;
 
@@ -42,6 +43,9 @@ public record AnimoVariable(
     public static final int FLAG_PLAY_NEXT_EVENT = 0x800000;
     public static final int FLAG_WAIT_FOR_SFX = 0x100000;
     public static final int FLAG_PING_PONG = 0x20000;
+    // Confirmed in PIKLIB8.dll: CAnimo::StopNoNotify hides the animation when
+    // this bit is set on the current ANN event.
+    public static final int FLAG_HIDE_ON_STOP = 0x100;
 
     /**
      * Mutable playback state for animation.
@@ -568,7 +572,10 @@ public record AnimoVariable(
 
     public int getAlpha(Image image, int x, int y) {
         if (image == null || image.getImageTexture() == null) return 0;
-        Pixmap pixmap = image.getImageTexture().getTextureData().consumePixmap();
+        if (x < 0 || y < 0 || x >= image.width || y >= image.height) return 0;
+        TextureData textureData = image.getImageTexture().getTextureData();
+        if (!textureData.isPrepared()) textureData.prepare();
+        Pixmap pixmap = textureData.consumePixmap();
         Color color = new Color(pixmap.getPixel(x, y));
         return (int) (color.a * 255f);
     }
@@ -1070,7 +1077,17 @@ public record AnimoVariable(
 
     private void finishCurrentEvent(Event event) {
         if (state.currentEvent == event && isPlaying()) {
+            hideOnStopIfRequested();
             changeAnimoState(AnimoEvent.END);
+        }
+    }
+
+    private void hideOnStopIfRequested() {
+        Event event = state.currentEvent;
+        boolean playbackActive = state.animationState == AnimoState.PLAYING
+                || state.animationState == AnimoState.PAUSED;
+        if (playbackActive && event != null && (event.getFlags() & FLAG_HIDE_ON_STOP) != 0) {
+            setVisible(false);
         }
     }
 
@@ -1142,8 +1159,7 @@ public record AnimoVariable(
     }
 
     public boolean isAt(int x, int y) {
-        Box2D r = state.rect;
-        return x >= r.getXLeft() && x <= r.getXRight() && y >= r.getYTop() && y <= r.getYBottom();
+        return state.rect.contains(x, y);
     }
 
     public boolean isNear(Box2D rect1, Box2D rect2, int iouThreshold) {
@@ -1265,6 +1281,7 @@ public record AnimoVariable(
         Map.entry("STOP", MethodSpec.of((self, args, ctx) -> {
             AnimoVariable thisVar = (AnimoVariable) self;
             boolean emitSignal = args.isEmpty() || ArgumentHelper.getBoolean(args.get(0));
+            thisVar.hideOnStopIfRequested();
             thisVar.changeAnimoState(AnimoEvent.STOP, emitSignal);
             return MethodResult.noReturn();
         })),
@@ -1328,6 +1345,13 @@ public record AnimoVariable(
 
         Map.entry("GETFRAME", MethodSpec.of((self, args, ctx) -> {
             AnimoVariable thisVar = (AnimoVariable) self;
+            return MethodResult.returns(new IntValue(thisVar.state.currentImageNumber));
+        })),
+
+        Map.entry("GETFRAMENO", MethodSpec.of((self, args, ctx) -> {
+            AnimoVariable thisVar = (AnimoVariable) self;
+            // PIKLIB8 CAnimo::GetFrameNo() returns the global image index
+            // (field +0x1f8), not the frame index inside the current event.
             return MethodResult.returns(new IntValue(thisVar.state.currentImageNumber));
         })),
 
@@ -1645,8 +1669,13 @@ public record AnimoVariable(
             }
             int posX = ArgumentHelper.getInt(args.get(0));
             int posY = ArgumentHelper.getInt(args.get(1));
-            // boolean checkAlpha = ArgumentHelper.getBoolean(args.get(2)); // TODO: implement alpha check
-            return MethodResult.returns(new BoolValue(thisVar.isAt(posX, posY)));
+            boolean checkAlpha = ArgumentHelper.getBoolean(args.get(2));
+            boolean hit = thisVar.isAt(posX, posY);
+            if (hit && checkAlpha) {
+                hit = thisVar.getAlpha(posX - thisVar.state.rect.getXLeft(),
+                        posY - thisVar.state.rect.getYTop()) > 0;
+            }
+            return MethodResult.returns(BoolValue.of(hit));
         })),
 
         Map.entry("ISNEAR", MethodSpec.of((self, args, ctx) -> {

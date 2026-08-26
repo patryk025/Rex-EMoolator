@@ -10,6 +10,7 @@ import pl.genschu.bloomooemulator.engine.Game;
 import pl.genschu.bloomooemulator.engine.filesystem.LocalFileSystem;
 import pl.genschu.bloomooemulator.engine.filesystem.VFS;
 import pl.genschu.bloomooemulator.interpreter.context.Context;
+import pl.genschu.bloomooemulator.interpreter.values.BoolValue;
 import pl.genschu.bloomooemulator.interpreter.values.IntValue;
 import pl.genschu.bloomooemulator.interpreter.values.StringValue;
 import pl.genschu.bloomooemulator.interpreter.variable.*;
@@ -162,6 +163,31 @@ class AnimoTest {
 
         assertSame(firstEvent, animo.getCurrentEvent());
         assertEquals(1, animo.getCurrentFrameNumber());
+    }
+
+    @Test
+    void getFrameNoReturnsGlobalImageIndex_oraczeMultiplayerRegression() {
+        FrameData firstFrame = new FrameData();
+        FrameData secondFrame = new FrameData();
+        Image image0 = mock(Image.class);
+        Image image1 = mock(Image.class);
+
+        Event klocki = new Event();
+        klocki.setName("KLOCKI");
+        klocki.setFramesCount(2);
+        klocki.setFramesNumbers(List.of(1, 0));
+        klocki.setFrameData(List.of(firstFrame, secondFrame));
+        klocki.setFrames(List.of(image1, image0));
+
+        AnimoVariable.AnimoData data = new AnimoVariable.AnimoData(
+                List.of(klocki), List.of(image0, image1), 2, 1,
+                16, 15, 255, 0, 0, "", "");
+        AnimoVariable animo = new AnimoVariable("ANNZAORANE_1").withData(data);
+
+        animo.callMethod("SETFRAME", List.of(new StringValue("KLOCKI"), new IntValue(1)));
+
+        assertEquals(1, animo.getCurrentFrameNumber(), "frame-in-event index differs here");
+        assertEquals(0, animo.callMethod("GETFRAMENO").returnValue().toInt().value());
     }
 
     @Test
@@ -430,6 +456,53 @@ class AnimoTest {
         // Both frames of the loop section [0, 1] must be visited.
         assertTrue(seenFrames.contains(0), "frame 0 (loopStart) never shown");
         assertTrue(seenFrames.contains(1), "frame 1 (loopEnd) never shown");
+    }
+
+    @Test
+    void hideOnFinishFlagRemovesOneShotEffect_zeglarzeMonsterRegression() {
+        FrameData frame = new FrameData();
+        Image image = mock(Image.class);
+
+        Event die = new Event();
+        die.setName("DIE");
+        die.setFramesCount(1);
+        die.setFramesNumbers(List.of(0));
+        die.setFrameData(List.of(frame));
+        die.setFrames(List.of(image));
+        die.setFlags(AnimoVariable.FLAG_HIDE_ON_STOP);
+
+        AnimoVariable.AnimoData data = new AnimoVariable.AnimoData(
+                List.of(die), List.of(image), 1, 1,
+                16, 16, 255, 0, 0, "", "");
+        AnimoVariable animo = new AnimoVariable("POTWOR1_1").withData(data);
+        animo.registerAnimationClock(0L);
+
+        animo.callMethod("NPLAY", new IntValue(0));
+        assertTrue(animo.isVisible());
+
+        animo.updateAnimation(1000L / animo.getFps());
+
+        assertFalse(animo.isVisible());
+        assertFalse(animo.isPlaying());
+
+        animo.callMethod("NPLAY", new IntValue(0));
+        assertTrue(animo.isVisible());
+        animo.callMethod("STOP", new BoolValue(false));
+        assertFalse(animo.isVisible(), "PIKLIB8 applies flag 0x100 in StopNoNotify as well");
+    }
+
+    @Test
+    void isAtUsesCurrentFrameScreenBounds_wpzrFieldMaskRegression() {
+        AnimoVariable animo = new AnimoVariable("IMGMASKAPOLE");
+        animo.state().rect.setXLeft(10);
+        animo.state().rect.setXRight(30);
+        animo.state().rect.setYTop(20);
+        animo.state().rect.setYBottom(0);
+
+        assertTrue(animo.callMethod("ISAT", new IntValue(15), new IntValue(25), new BoolValue(false))
+                .returnValue().toBool().value());
+        assertFalse(animo.callMethod("ISAT", new IntValue(15), new IntValue(19), new BoolValue(false))
+                .returnValue().toBool().value());
     }
 
     @Test
