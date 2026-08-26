@@ -29,7 +29,7 @@ public record GroupVariable(
             variableNames = new ArrayList<>(variableNames);
         }
         if (markerHolder == null) {
-            markerHolder = new int[]{variableNames.isEmpty() ? -1 : 0};
+            markerHolder = new int[]{-1};
         }
         if (signals == null) {
             signals = Map.of();
@@ -43,7 +43,7 @@ public record GroupVariable(
     }
 
     public GroupVariable(String name, List<String> variableNames) {
-        this(name, variableNames, new int[]{variableNames.isEmpty() ? -1 : 0}, Map.of());
+        this(name, variableNames, new int[]{-1}, Map.of());
     }
 
     // Legacy compat: marker as int
@@ -104,9 +104,6 @@ public record GroupVariable(
                     thisVar.variableNames.add(varName);
                 }
             }
-            if (thisVar.markerHolder[0] < 0) {
-                thisVar.markerHolder[0] = 0;
-            }
             return MethodResult.noReturn();
         })),
 
@@ -115,15 +112,30 @@ public record GroupVariable(
             return MethodResult.returns(new IntValue(thisVar.variableNames.size()));
         })),
 
+        Map.entry("GETNAMEATMARKER", MethodSpec.of((self, args, ctx) -> {
+            GroupVariable thisVar = (GroupVariable) self;
+            int marker = thisVar.markerHolder[0];
+            if (marker < 0 || marker >= thisVar.variableNames.size()) {
+                return MethodResult.returns(new StringValue("NULL"));
+            }
+            return MethodResult.returns(new StringValue(thisVar.variableNames.get(marker)));
+        })),
+
+        Map.entry("GETMARKERPOS", MethodSpec.of((self, args, ctx) -> {
+            GroupVariable thisVar = (GroupVariable) self;
+            return MethodResult.returns(new IntValue(thisVar.markerHolder[0]));
+        })),
+
         Map.entry("NEXT", MethodSpec.of((self, args, ctx) -> {
             GroupVariable thisVar = (GroupVariable) self;
             if (thisVar.variableNames.isEmpty()) {
                 return MethodResult.noReturn();
             }
-            int newMarker = Math.min(thisVar.markerHolder[0] + 1, thisVar.variableNames.size() - 1);
+            int step = args.isEmpty() ? 1 : ArgumentHelper.getInt(args.get(0));
+            int newMarker = Math.floorMod(thisVar.markerHolder[0] + step, thisVar.variableNames.size());
             thisVar.markerHolder[0] = newMarker;
             String varName = thisVar.variableNames.get(newMarker);
-            return MethodResult.returns(new VariableRef(varName));
+            return MethodResult.returns(new StringValue(varName));
         })),
 
         Map.entry("PREV", MethodSpec.of((self, args, ctx) -> {
@@ -131,10 +143,11 @@ public record GroupVariable(
             if (thisVar.variableNames.isEmpty()) {
                 return MethodResult.noReturn();
             }
-            int newMarker = Math.max(thisVar.markerHolder[0] - 1, 0);
+            int step = args.isEmpty() ? 1 : ArgumentHelper.getInt(args.get(0));
+            int newMarker = Math.floorMod(thisVar.markerHolder[0] - step, thisVar.variableNames.size());
             thisVar.markerHolder[0] = newMarker;
             String varName = thisVar.variableNames.get(newMarker);
-            return MethodResult.returns(new VariableRef(varName));
+            return MethodResult.returns(new StringValue(varName));
         })),
 
         Map.entry("REMOVE", MethodSpec.of((self, args, ctx) -> {
@@ -144,24 +157,28 @@ public record GroupVariable(
             }
             String varName = ArgumentHelper.getString(args.get(0));
             thisVar.variableNames.remove(varName);
-            if (thisVar.variableNames.isEmpty()) {
-                thisVar.markerHolder[0] = -1;
-            } else {
-                thisVar.markerHolder[0] = Math.min(thisVar.markerHolder[0], thisVar.variableNames.size() - 1);
-            }
             return MethodResult.noReturn();
         })),
 
         Map.entry("REMOVEALL", MethodSpec.of((self, args, ctx) -> {
             GroupVariable thisVar = (GroupVariable) self;
             thisVar.variableNames.clear();
-            thisVar.markerHolder[0] = -1;
             return MethodResult.noReturn();
         })),
 
         Map.entry("RESETMARKER", MethodSpec.of((self, args, ctx) -> {
             GroupVariable thisVar = (GroupVariable) self;
-            thisVar.markerHolder[0] = thisVar.variableNames.isEmpty() ? -1 : 0;
+            thisVar.markerHolder[0] = -1;
+            return MethodResult.noReturn();
+        })),
+
+        Map.entry("SETMARKERPOS", MethodSpec.of((self, args, ctx) -> {
+            GroupVariable thisVar = (GroupVariable) self;
+            if (args.isEmpty()) {
+                throw new IllegalArgumentException("SETMARKERPOS requires 1 argument");
+            }
+            int requested = ArgumentHelper.getInt(args.get(0));
+            thisVar.markerHolder[0] = Math.clamp(requested, -1, thisVar.variableNames.size() - 1);
             return MethodResult.noReturn();
         }))
     );
