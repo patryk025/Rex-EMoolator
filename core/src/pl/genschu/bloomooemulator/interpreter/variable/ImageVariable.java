@@ -249,8 +249,7 @@ public record ImageVariable(
     public record AlphaMaskBinding(ImageVariable mask, int posX, int posY) {}
 
     public boolean isAt(int x, int y) {
-        return x >= state.rect.getXLeft() && x <= state.rect.getXRight()
-            && y >= state.rect.getYTop() && y <= state.rect.getYBottom();
+        return state.rect.contains(x, y);
     }
 
     public int getAlpha(int x, int y) {
@@ -350,9 +349,18 @@ public record ImageVariable(
 
         Map.entry("ISAT", MethodSpec.of((self, args, ctx) -> {
             ImageVariable img = (ImageVariable) self;
+            if (args.size() < 3) {
+                throw new IllegalArgumentException("ISAT requires 3 arguments");
+            }
             int posX = ArgumentHelper.getInt(args.get(0));
             int posY = ArgumentHelper.getInt(args.get(1));
-            return MethodResult.returns(BoolValue.of(img.isAt(posX, posY)));
+            boolean checkAlpha = ArgumentHelper.getBoolean(args.get(2));
+            boolean hit = img.isAt(posX, posY);
+            if (hit && checkAlpha) {
+                hit = img.getAlpha(posX - img.state.rect.getXLeft(),
+                        posY - img.state.rect.getYTop()) > 0;
+            }
+            return MethodResult.returns(BoolValue.of(hit));
         })),
 
         Map.entry("LOAD", MethodSpec.of((self, args, ctx) -> {

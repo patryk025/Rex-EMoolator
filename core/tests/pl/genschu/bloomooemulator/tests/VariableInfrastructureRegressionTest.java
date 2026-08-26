@@ -260,7 +260,7 @@ class VariableInfrastructureRegressionTest {
     }
 
     @Test
-    void testGroupVariableBroadcastsMethodsAndReturnsVariableRef() {
+    void testGroupVariableBroadcastsMethodsAndImplementsPiklibMarkerSemantics() {
         Context ctx = new ContextBuilder()
                 .withVariable("INTEGER", "A", 1)
                 .withVariable("INTEGER", "B", 2)
@@ -280,8 +280,21 @@ class VariableInfrastructureRegressionTest {
         assertEquals(3, ctx.getVariable("B").value().toInt().value());
 
         Value first = MethodHelper.callWithContext(ctx, "G", "NEXT");
-        assertInstanceOf(VariableRef.class, first);
+        assertInstanceOf(StringValue.class, first);
         assertEquals("A", first.toDisplayString());
+
+        MethodHelper.callWithContext(ctx, "G", "SETMARKERPOS", new IntValue(1));
+        Value marked = MethodHelper.callWithContext(ctx, "G", "GETNAMEATMARKER");
+        assertInstanceOf(StringValue.class, marked);
+        assertEquals("B", marked.toDisplayString());
+
+        MethodHelper.callWithContext(ctx, "G", "SETMARKERPOS", new IntValue(-99));
+        assertEquals(-1, MethodHelper.callWithContext(ctx, "G", "GETMARKERPOS").toInt().value());
+        assertEquals("A", MethodHelper.callWithContext(ctx, "G", "NEXT").toDisplayString());
+        assertEquals("B", MethodHelper.callWithContext(ctx, "G", "PREV").toDisplayString());
+
+        MethodHelper.callWithContext(ctx, "G", "RESETMARKER");
+        assertEquals(-1, MethodHelper.callWithContext(ctx, "G", "GETMARKERPOS").toInt().value());
     }
 
     @Test

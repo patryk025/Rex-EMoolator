@@ -3,11 +3,15 @@ package pl.genschu.bloomooemulator.tests;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import pl.genschu.bloomooemulator.TestEnvironment;
+import pl.genschu.bloomooemulator.interpreter.values.BoolValue;
 import pl.genschu.bloomooemulator.interpreter.values.IntValue;
 import pl.genschu.bloomooemulator.interpreter.values.StringValue;
 import pl.genschu.bloomooemulator.interpreter.variable.ImageVariable;
+import pl.genschu.bloomooemulator.objects.Image;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class ImageVariableTest {
 
@@ -43,5 +47,46 @@ class ImageVariableTest {
 
         assertEquals(238, image.getPosX());
         assertEquals(112, image.getPosY());
+    }
+
+    @Test
+    void isAtUsesTopLeftScreenCoordinatesForImageBounds_wpzrMaskRegression() {
+        ImageVariable image = new ImageVariable("MASKA_PRZESZKODY");
+        image.state().rect.setXLeft(10);
+        image.state().rect.setXRight(30);
+        image.state().rect.setYTop(20);
+        image.state().rect.setYBottom(0);
+
+        assertTrue(image.callMethod("ISAT", new IntValue(15), new IntValue(25), new BoolValue(false))
+                .returnValue().toBool().value());
+        assertFalse(image.callMethod("ISAT", new IntValue(15), new IntValue(19), new BoolValue(false))
+                .returnValue().toBool().value());
+        assertFalse(image.callMethod("ISAT", new IntValue(15), new IntValue(41), new BoolValue(false))
+                .returnValue().toBool().value());
+    }
+
+    @Test
+    void isAtCanRejectTransparentPixels_wpzrObstacleMaskRegression() {
+        Image pixels = new Image(2, 1, 0, 0, 16,
+                new byte[]{0, 0, 0, 0}, new byte[]{0, (byte) 255}, 0);
+        try {
+            ImageVariable image = new ImageVariable("MASKA_PRZESZKODY");
+            image.state().image = pixels;
+            image.state().posX = 10;
+            image.state().posY = 20;
+            image.state().updateRect();
+
+            assertTrue(image.callMethod("ISAT", new IntValue(10), new IntValue(20),
+                    BoolValue.FALSE)
+                    .returnValue().toBool().value());
+            assertFalse(image.callMethod("ISAT", new IntValue(10), new IntValue(20),
+                    BoolValue.TRUE)
+                    .returnValue().toBool().value());
+            assertTrue(image.callMethod("ISAT", new IntValue(11), new IntValue(20),
+                    BoolValue.TRUE)
+                    .returnValue().toBool().value());
+        } finally {
+            pixels.getImageTexture().dispose();
+        }
     }
 }
