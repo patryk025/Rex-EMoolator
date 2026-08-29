@@ -2,10 +2,21 @@ tasks.withType(JavaCompile).configureEach {
     options.encoding = 'UTF-8'
 }
 
+// Build metadata for the startup screen. The project keeps no version file in the
+// tree, so it is stamped in at build time: release builds take RELEASE_VERSION
+// (set by .github/workflows/release.yaml from the tag), a copy built from a clone
+// falls back to the git checkout and marks itself as a nightly, and a source
+// archive with neither degrades to "dev". That way a self-built JAR can never
+// claim to be a release.
+def buildInfoOutputDir = layout.buildDirectory.dir('generated/buildInfo')
+
 sourceSets {
     main {
         java {
             srcDirs = ['src/']
+        }
+        resources {
+            srcDirs = [buildInfoOutputDir]
         }
     }
     test {
@@ -13,6 +24,75 @@ sourceSets {
             srcDirs = ['tests/']
         }
     }
+}
+
+def gitOutput = { List<String> arguments ->
+    try {
+        def process = new ProcessBuilder(['git'] + arguments)
+                .directory(rootProject.projectDir)
+                .redirectErrorStream(true)
+                .start()
+        def output = process.inputStream.getText('UTF-8').trim()
+        process.waitFor()
+        process.exitValue() == 0 && !output.isEmpty() ? output : null
+    } catch (Exception ignored) {
+        // No git binary, or not a checkout - the caller falls back.
+        null
+    }
+}
+
+tasks.register('generateBuildInfo') {
+    group = 'build'
+    description = 'Stamps version, commit and commit date onto the core classpath.'
+
+    def releaseVersionProvider = providers.environmentVariable('RELEASE_VERSION')
+    def fallbackVersion = project.version.toString()
+    def outputDir = buildInfoOutputDir
+
+    outputs.dir(outputDir)
+    // HEAD moves without any declared input changing, so the task can never be
+    // considered up to date. The file itself is only rewritten when its contents
+    // differ, which keeps processResources and everything downstream cacheable.
+    outputs.upToDateWhen { false }
+
+    doLast {
+        def commit = gitOutput(['rev-parse', '--short', 'HEAD'])
+        def commitDate = gitOutput(['show', '-s', '--format=%cs', 'HEAD'])
+        def releaseVersion = releaseVersionProvider.getOrElse('').trim()
+
+        def channel
+        def version
+        if (!releaseVersion.isEmpty()) {
+            channel = 'release'
+            version = releaseVersion
+        } else if (commit != null) {
+            channel = 'nightly'
+            version = gitOutput(['describe', '--tags', '--always', '--dirty']) ?: commit
+        } else {
+            channel = 'dev'
+            version = fallbackVersion
+        }
+
+        def dirty = channel == 'nightly' && gitOutput(['status', '--porcelain']) != null
+
+        def text = [
+                'channel=' + channel,
+                'commit=' + (commit ?: ''),
+                'commitDate=' + (commitDate ?: ''),
+                'dirty=' + dirty,
+                'version=' + version
+        ].join('\n') + '\n'
+
+        def targetFile = outputDir.get().file('rex-emoolator-build.properties').asFile
+        targetFile.parentFile.mkdirs()
+        if (!targetFile.exists() || targetFile.getText('UTF-8') != text) {
+            targetFile.setText(text, 'UTF-8')
+        }
+    }
+}
+
+tasks.named('processResources') {
+    dependsOn tasks.named('generateBuildInfo')
 }
 
 eclipse.project.name = appName + "-core"
