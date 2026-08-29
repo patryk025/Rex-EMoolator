@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Test;
 import pl.genschu.bloomooemulator.TestEnvironment;
 import pl.genschu.bloomooemulator.builders.ContextBuilder;
 import pl.genschu.bloomooemulator.builders.MethodHelper;
+import pl.genschu.bloomooemulator.engine.decision.events.ButtonEvent;
 import pl.genschu.bloomooemulator.engine.decision.states.ButtonState;
 import pl.genschu.bloomooemulator.geometry.coordinates.CanvasRect;
 import pl.genschu.bloomooemulator.interpreter.context.Context;
@@ -61,6 +62,40 @@ class ButtonVariableTest {
         assertEquals(ButtonState.DISABLED_BUT_VISIBLE, button.getButtonState());
         assertFalse(button.isEnabled());
         assertTrue(standard.isVisible());
+    }
+
+    @Test
+    void sharedStandardAndClickGraphicsStayVisibleInTheirActiveStates() {
+        ImageVariable standardAndClick = standardImage();
+        ImageVariable hovered = new ImageVariable("HOVERED");
+        ButtonVariable button = new ButtonVariable("BTN");
+        ctx.setVariable("STD_CLICK", standardAndClick);
+        ctx.setVariable("HOVERED", hovered);
+        ctx.setVariable("BTN", button);
+        ctx.setAttribute("BTN", "GFXSTANDARD", "STD_CLICK");
+        ctx.setAttribute("BTN", "GFXONCLICK", "STD_CLICK");
+        ctx.setAttribute("BTN", "GFXONMOVE", "HOVERED");
+
+        button.init(ctx);
+
+        assertTrue(standardAndClick.isVisible());
+        assertFalse(hovered.isVisible());
+
+        button.changeState(ButtonEvent.FOCUS_ON, ctx);
+        assertFalse(standardAndClick.isVisible());
+        assertTrue(hovered.isVisible());
+
+        button.changeState(ButtonEvent.PRESSED, ctx);
+        assertTrue(standardAndClick.isVisible());
+        assertFalse(hovered.isVisible());
+
+        button.changeState(ButtonEvent.RELEASED, ctx);
+        assertFalse(standardAndClick.isVisible());
+        assertTrue(hovered.isVisible());
+
+        button.changeState(ButtonEvent.FOCUS_OFF, ctx);
+        assertTrue(standardAndClick.isVisible());
+        assertFalse(hovered.isVisible());
     }
 
     @Test

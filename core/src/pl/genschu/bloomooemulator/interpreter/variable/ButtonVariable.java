@@ -226,9 +226,9 @@ public record ButtonVariable(
 
         switch (newState) {
             case STANDARD -> {
-                showGfx(state.gfxStandardName, true, context);
                 showGfx(state.gfxOnMoveName, false, context);
                 showGfx(state.gfxOnClickName, false, context);
+                showGfx(state.gfxStandardName, true, context);
                 playSnd(state.sndStandardName, context);
                 if (oldState == ButtonState.HOVERED) {
                     emitSignal("ONFOCUSOFF");
@@ -237,8 +237,8 @@ public record ButtonVariable(
             case HOVERED -> {
                 boolean hasOnMove = state.gfxOnMoveName != null;
                 showGfx(state.gfxStandardName, !hasOnMove, context);
-                showGfx(state.gfxOnMoveName, true, context);
                 showGfx(state.gfxOnClickName, false, context);
+                showGfx(state.gfxOnMoveName, true, context);
                 playSnd(state.sndOnMoveName, context);
                 if (oldState == ButtonState.PRESSED) {
                     emitSignal("ONRELEASED");
@@ -263,9 +263,9 @@ public record ButtonVariable(
                 stopAllSounds(context);
             }
             case DISABLED_BUT_VISIBLE -> {
-                showGfx(state.gfxStandardName, true, context);
                 showGfx(state.gfxOnMoveName, false, context);
                 showGfx(state.gfxOnClickName, false, context);
+                showGfx(state.gfxStandardName, true, context);
                 stopAllSounds(context);
             }
             default -> {}
