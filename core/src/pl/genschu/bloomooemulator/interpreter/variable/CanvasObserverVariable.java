@@ -4,12 +4,15 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.TextureData;
+import pl.genschu.bloomooemulator.engine.context.CanvasBoundsProvider;
+import pl.genschu.bloomooemulator.engine.context.CurrentImageProvider;
 import pl.genschu.bloomooemulator.engine.context.EngineVariable;
 import pl.genschu.bloomooemulator.engine.render.PastedGraphic;
+import pl.genschu.bloomooemulator.geometry.coordinates.CanvasCoordinateSystem;
+import pl.genschu.bloomooemulator.geometry.coordinates.CanvasRect;
 import pl.genschu.bloomooemulator.interpreter.helpers.ArgumentHelper;
 import pl.genschu.bloomooemulator.interpreter.values.*;
 import pl.genschu.bloomooemulator.objects.Image;
-import pl.genschu.bloomooemulator.geometry.shapes.Box2D;
 import pl.genschu.bloomooemulator.saver.ImageSaver;
 
 import java.nio.ByteBuffer;
@@ -79,18 +82,6 @@ public record CanvasObserverVariable(
     // HELPER METHODS
     // ========================================
 
-    private static Box2D getRect(EngineVariable variable) {
-        if (variable instanceof ImageVariable img) return img.getRect();
-        if (variable instanceof AnimoVariable animo) return animo.getRect();
-        return null;
-    }
-
-    private static Image getImage(EngineVariable variable) {
-        if (variable instanceof ImageVariable img) return img.getImage();
-        if (variable instanceof AnimoVariable animo) return animo.getCurrentImage();
-        return null;
-    }
-
     private static int getPriority(EngineVariable variable) {
         if (variable instanceof ImageVariable img) return img.state().priority;
         if (variable instanceof AnimoVariable animo) return animo.getPriority();
@@ -107,21 +98,6 @@ public record CanvasObserverVariable(
         if (variable instanceof ImageVariable img) return img.getOpacity();
         if (variable instanceof AnimoVariable animo) return animo.getOpacity() / 255.0f;
         return 1f;
-    }
-
-    public static void flipPixmapVertically(Pixmap p) {
-        int w = p.getWidth();
-        int h = p.getHeight();
-        int hold;
-        p.setBlending(Pixmap.Blending.None);
-        for (int y = 0; y < h / 2; y++) {
-            for (int x = 0; x < w; x++) {
-                hold = p.getPixel(x, y);
-                p.drawPixel(x, y, p.getPixel(x, h - y - 1));
-                p.drawPixel(x, h - y - 1, hold);
-            }
-        }
-        p.setBlending(Pixmap.Blending.SourceOver);
     }
 
     private static byte[] pixmapToByteArray(Pixmap pixmap) {
@@ -204,11 +180,15 @@ public record CanvasObserverVariable(
 
             Variable var = ctx.getVariable(varName);
             if (!(var instanceof EngineVariable ev)) return MethodResult.noReturn();
-            Image image = getImage(ev);
+            Image image = ev instanceof CurrentImageProvider imageProvider
+                    ? imageProvider.getCurrentImage()
+                    : null;
             if (image == null || image.getImageTexture() == null) return MethodResult.noReturn();
 
             Texture snapshot = snapshotTexture(image.getImageTexture());
-            PastedGraphic p = new PastedGraphic(snapshot, posX, posY, image.width, image.height, getOpacity(ev));
+            CanvasRect bounds = CanvasRect.fromPositionAndSize(
+                    posX, posY, image.width, image.height);
+            PastedGraphic p = new PastedGraphic(snapshot, bounds, getOpacity(ev));
             ctx.getGame().addPastedGraphic(p);
             return MethodResult.noReturn();
         })),
@@ -248,7 +228,10 @@ public record CanvasObserverVariable(
             String imgFileName = ArgumentHelper.getString(args.get(0));
             double xScaleFactor = ArgumentHelper.getDouble(args.get(1));
             double yScaleFactor = ArgumentHelper.getDouble(args.get(2));
-            int xLeft = 0, yTop = 0, xRight = 800, yBottom = 600;
+            int xLeft = 0;
+            int yTop = 0;
+            int xRight = CanvasCoordinateSystem.WIDTH;
+            int yBottom = CanvasCoordinateSystem.HEIGHT;
 
             if (args.size() == 7) {
                 xLeft = ArgumentHelper.getInt(args.get(3));
@@ -266,24 +249,27 @@ public record CanvasObserverVariable(
             Pixmap croppedPixmap = null;
             Pixmap scaledPixmap = null;
             try {
-                int cropWidth = xRight - xLeft;
-                int cropHeight = yBottom - yTop;
+                CanvasRect cropRect;
+                try {
+                    cropRect = new CanvasRect(xLeft, yTop, xRight, yBottom);
+                } catch (IllegalArgumentException e) {
+                    Gdx.app.error("CanvasObserverVariable", "Invalid screenshot rectangle or scale");
+                    return MethodResult.noReturn();
+                }
+                int cropWidth = cropRect.width();
+                int cropHeight = cropRect.height();
                 int scaledWidth = (int) (cropWidth * xScaleFactor);
                 int scaledHeight = (int) (cropHeight * yScaleFactor);
-                boolean cropOutsideCanvas = xLeft < 0
-                        || yTop < 0
-                        || xRight > pixmap.getWidth()
-                        || yBottom > pixmap.getHeight();
-                if (cropWidth <= 0
-                        || cropHeight <= 0
+                CanvasRect availableCanvas = new CanvasRect(
+                        0, 0, pixmap.getWidth(), pixmap.getHeight());
+                boolean cropOutsideCanvas = !availableCanvas.contains(cropRect);
+                if (cropRect.isEmpty()
                         || scaledWidth <= 0
                         || scaledHeight <= 0
                         || cropOutsideCanvas) {
                     Gdx.app.error("CanvasObserverVariable", "Invalid screenshot rectangle or scale");
                     return MethodResult.noReturn();
                 }
-
-                flipPixmapVertically(pixmap);
 
                 croppedPixmap = new Pixmap(cropWidth, cropHeight, pixmap.getFormat());
                 croppedPixmap.setBlending(Pixmap.Blending.None);
@@ -375,7 +361,8 @@ public record CanvasObserverVariable(
             int z = getPriority(variable);
             if (z < minZ || z > maxZ) continue;
 
-            Box2D rect = getRect(variable);
+            if (!(variable instanceof CanvasBoundsProvider boundsProvider)) continue;
+            CanvasRect rect = boundsProvider.getCanvasBounds();
             if (rect == null) continue;
 
             boolean containsPoint;
@@ -383,9 +370,11 @@ public record CanvasObserverVariable(
                 containsPoint = rect.contains(posX, posY);
             } else {
                 if (rect.contains(posX, posY)) {
-                    Image image = getImage(variable);
-                    int relativeX = posX - rect.getXLeft();
-                    int relativeY = posY - rect.getYTop();
+                    Image image = variable instanceof CurrentImageProvider imageProvider
+                            ? imageProvider.getCurrentImage()
+                            : null;
+                    int relativeX = posX - rect.left();
+                    int relativeY = posY - rect.top();
                     int alpha = 255;
 
                     if (image != null && image.getImageTexture() != null) {

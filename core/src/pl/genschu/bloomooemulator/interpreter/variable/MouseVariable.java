@@ -3,6 +3,7 @@ package pl.genschu.bloomooemulator.interpreter.variable;
 import com.badlogic.gdx.Gdx;
 import pl.genschu.bloomooemulator.annotations.InternalMutable;
 import pl.genschu.bloomooemulator.engine.input.InputManager;
+import pl.genschu.bloomooemulator.geometry.coordinates.CanvasCoordinateSystem;
 import pl.genschu.bloomooemulator.interpreter.helpers.ArgumentHelper;
 import pl.genschu.bloomooemulator.interpreter.values.*;
 
@@ -163,8 +164,10 @@ public record MouseVariable(
 
         Map.entry("SETPOSITION", MethodSpec.of((self, args, ctx) -> {
             MouseVariable mouse = (MouseVariable) self;
-            int x = Math.clamp(ArgumentHelper.getInt(args.get(0)), 0, 800);
-            int y = Math.clamp(ArgumentHelper.getInt(args.get(1)), 0, 600);
+            int x = Math.clamp(
+                    ArgumentHelper.getInt(args.get(0)), 0, CanvasCoordinateSystem.WIDTH);
+            int y = Math.clamp(
+                    ArgumentHelper.getInt(args.get(1)), 0, CanvasCoordinateSystem.HEIGHT);
             if (x != mouse.state.posX || y != mouse.state.posY) {
                 mouse.state.posX = x;
                 mouse.state.posY = y;

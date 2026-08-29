@@ -1,25 +1,23 @@
 package pl.genschu.bloomooemulator.engine.physics.camera;
 
+import pl.genschu.bloomooemulator.geometry.coordinates.CanvasCoordinateSystem;
+import pl.genschu.bloomooemulator.geometry.coordinates.CanvasPoint;
+import pl.genschu.bloomooemulator.geometry.coordinates.CanvasScroll;
+import pl.genschu.bloomooemulator.geometry.coordinates.PhysicsPoint;
+
 /**
  * Tracks the scrolling background camera for a WORLD scene.
  *
- * <p>World space has its origin at the canvas centre with Y pointing up; screen space is
- * 800x600 with Y pointing down. A static object at world (wx, wy) maps to screen
- * (wx + 400, 300 - wy). When the background is larger than the screen, the camera scrolls
- * to follow the reference object, clamped so the background edges never show.
+ * <p>World space has its origin at the canvas centre with Y pointing up; canvas space has
+ * its origin at the top-left with Y pointing down. Conversions between the two are owned by
+ * {@link CanvasCoordinateSystem}; this class only supplies the current camera scroll.
  *
- * <p>{@code scrollX/scrollY} is how far the world has been shifted under the screen. It is
- * 0 for a non-scrolling 800x600 scene. The screen position of any object is then
- * {@code worldToScreen(world) = world±half - scroll}.
+ * <p>{@code scrollX/scrollY} is how far the world has been shifted under the canvas. It is
+ * zero for a non-scrolling canvas.
  */
 public class CameraAnchor {
-    static final float HALF_WIDTH = 400.0f;
-    static final float HALF_HEIGHT = 300.0f;
-    static final float FULL_WIDTH = 800.0f;
-    static final float FULL_HEIGHT = 600.0f;
-
     // Map (background) bounds in scroll space, from SETBKGSIZE: the camera may scroll within
-    // [minX, maxX - FULL_WIDTH] / [minY, maxY - FULL_HEIGHT].
+    // [minX, maxX - canvas width] / [minY, maxY - canvas height].
     private float minX, maxX, minY, maxY;
     private float scrollX, scrollY;
     private boolean trackX = true, trackY = true;
@@ -29,11 +27,21 @@ public class CameraAnchor {
      * object stays centred, clamped to the background bounds. For a non-scrolling scene the
      * clamp range is empty and scroll stays 0.
      */
-    public void updateCameraAnchor(float refWorldX, float refWorldY, float refWorldZ) {
+    public void updateCameraAnchor(PhysicsPoint referencePosition) {
         // Scroll needed to centre the reference object equals its world coordinate
-        // (screenCentre = world + half; scroll = screenPos - half = world).
-        if (trackX) scrollX = clamp(refWorldX, minX, maxX - FULL_WIDTH);
-        if (trackY) scrollY = clamp(-refWorldY, minY, maxY - FULL_HEIGHT);
+        // (canvas centre = world + half; scroll = canvas position - half = world).
+        if (trackX) {
+            scrollX = clamp(
+                    (float) referencePosition.x(),
+                    minX,
+                    maxX - CanvasCoordinateSystem.WIDTH);
+        }
+        if (trackY) {
+            scrollY = clamp(
+                    (float) -referencePosition.y(),
+                    minY,
+                    maxY - CanvasCoordinateSystem.HEIGHT);
+        }
     }
 
     private static float clamp(float v, float lo, float hi) {
@@ -41,24 +49,19 @@ public class CameraAnchor {
         return Math.max(lo, Math.min(hi, v));
     }
 
-    /** World X -> screen X for the current scroll. */
-    public float worldToScreenX(float worldX) {
-        return worldX + HALF_WIDTH - scrollX;
+    /** Converts a native Sekai/ODE point to the DirectDraw canvas for the current scroll. */
+    public CanvasPoint physicsToCanvas(PhysicsPoint physicsPoint) {
+        return CanvasCoordinateSystem.fromPhysics(physicsPoint, canvasScroll());
     }
 
-    /** World Y (up) -> screen Y (down) for the current scroll. */
-    public float worldToScreenY(float worldY) {
-        return HALF_HEIGHT - worldY - scrollY;
+    /** Converts a DirectDraw canvas point to native Sekai/ODE space for the current scroll. */
+    public PhysicsPoint canvasToPhysics(CanvasPoint canvasPoint, double z) {
+        return CanvasCoordinateSystem.toPhysics(canvasPoint, z, canvasScroll());
     }
 
-    /** Screen X -> world X for the current scroll (inverse of {@link #worldToScreenX}). */
-    public float screenToWorldX(float screenX) {
-        return screenX - HALF_WIDTH + scrollX;
-    }
-
-    /** Screen Y (down) -> world Y (up) for the current scroll (inverse of {@link #worldToScreenY}). */
-    public float screenToWorldY(float screenY) {
-        return HALF_HEIGHT - screenY - scrollY;
+    /** Returns the camera displacement expressed along the DirectDraw canvas axes. */
+    public CanvasScroll canvasScroll() {
+        return new CanvasScroll(scrollX, scrollY);
     }
 
     /**
@@ -83,13 +86,4 @@ public class CameraAnchor {
         if (!trackY) scrollY = 0;
     }
 
-    /** WORLD.GETBKGPOSX — current horizontal background scroll (0 when not scrolling). */
-    public float getBkgPosX() {
-        return scrollX;
-    }
-
-    /** WORLD.GETBKGPOSY — current vertical background scroll (0 when not scrolling). */
-    public float getBkgPosY() {
-        return scrollY;
-    }
 }

@@ -1,12 +1,13 @@
 package pl.genschu.bloomooemulator.interpreter.variable;
 
 import pl.genschu.bloomooemulator.annotations.InternalMutable;
+import pl.genschu.bloomooemulator.engine.context.CanvasBoundsProvider;
+import pl.genschu.bloomooemulator.geometry.coordinates.CanvasRect;
 import pl.genschu.bloomooemulator.interpreter.context.Context;
 import pl.genschu.bloomooemulator.interpreter.helpers.ArgumentHelper;
 import pl.genschu.bloomooemulator.interpreter.values.*;
 import pl.genschu.bloomooemulator.interpreter.variable.capabilities.Initializable;
 import pl.genschu.bloomooemulator.engine.render.RenderOrder;
-import pl.genschu.bloomooemulator.geometry.shapes.Box2D;
 
 import java.util.*;
 
@@ -18,7 +19,7 @@ public record TextVariable(
     String name,
     @InternalMutable TextState state,
     Map<String, SignalHandler> signals
-) implements Variable, Initializable {
+) implements Variable, Initializable, CanvasBoundsProvider {
 
     /**
      * Mutable state for text rendering.
@@ -27,7 +28,8 @@ public record TextVariable(
         public String text = "";
         public boolean visible = false;
         public int priority = 0;
-        public Box2D rect = null;
+        public CanvasRect rect = null;
+        public CanvasBoundsProvider rectProvider = null;
         public String hJustify = "LEFT";
         public String vJustify = "TOP";
         public String fontName = null;
@@ -42,9 +44,8 @@ public record TextVariable(
             copy.text = this.text;
             copy.visible = this.visible;
             copy.priority = this.priority;
-            copy.rect = this.rect != null
-                    ? new Box2D(rect.getXLeft(), rect.getYBottom(), rect.getXRight(), rect.getYTop())
-                    : null;
+            copy.rect = this.rect;
+            copy.rectProvider = this.rectProvider;
             copy.hJustify = this.hJustify;
             copy.vJustify = this.vJustify;
             copy.fontName = this.fontName;
@@ -154,12 +155,10 @@ public record TextVariable(
     private void parseRect(String rectAttr, Context context) {
         // Try as variable reference
         Variable rectVar = context.getVariable(rectAttr);
-        if (rectVar instanceof AnimoVariable animo && animo.getRect() != null) {
-            state.rect = animo.getRect();
-            return;
-        }
-        if (rectVar instanceof ImageVariable img && img.getRect() != null) {
-            state.rect = img.getRect();
+        if (rectVar instanceof CanvasBoundsProvider boundsProvider
+                && boundsProvider.getCanvasBounds() != null) {
+            state.rect = boundsProvider.getCanvasBounds();
+            state.rectProvider = boundsProvider;
             return;
         }
         // Try as comma-separated coordinates
@@ -170,7 +169,8 @@ public record TextVariable(
                 int yTop = Integer.parseInt(parts[1].trim());
                 int xR = Integer.parseInt(parts[2].trim());
                 int yBottom = Integer.parseInt(parts[3].trim());
-                state.rect = new Box2D(xL, yTop, xR, yBottom);
+                state.rect = new CanvasRect(xL, yTop, xR, yBottom);
+                state.rectProvider = null;
             }
         } catch (NumberFormatException ignored) {}
     }
@@ -183,7 +183,10 @@ public record TextVariable(
     public boolean isVisible() { return state.visible && state.toCanvas; }
     public int getPriority() { return state.priority; }
     public long getRenderOrder() { return state.renderOrder; }
-    public Box2D getRect() { return state.rect; }
+    public CanvasRect getRect() { return getCanvasBounds(); }
+    @Override public CanvasRect getCanvasBounds() {
+        return state.rectProvider != null ? state.rectProvider.getCanvasBounds() : state.rect;
+    }
     public String getHJustify() { return state.hJustify; }
     public String getVJustify() { return state.vJustify; }
     public String getFontName() { return state.fontName; }
@@ -205,7 +208,8 @@ public record TextVariable(
             int yTop = ArgumentHelper.getInt(args.get(1));
             int xR = ArgumentHelper.getInt(args.get(2));
             int yBottom = ArgumentHelper.getInt(args.get(3));
-            txt.state.rect = new Box2D(xL, yTop, xR, yBottom);
+            txt.state.rect = new CanvasRect(xL, yTop, xR, yBottom);
+            txt.state.rectProvider = null;
             txt.state.hJustify = ArgumentHelper.getString(args.get(4)).toUpperCase();
             txt.state.vJustify = ArgumentHelper.getString(args.get(5)).toUpperCase();
             return MethodResult.noReturn();

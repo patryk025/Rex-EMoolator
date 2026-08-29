@@ -3,6 +3,7 @@ package pl.genschu.bloomooemulator.tests;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import pl.genschu.bloomooemulator.TestEnvironment;
+import pl.genschu.bloomooemulator.geometry.coordinates.CanvasRect;
 import pl.genschu.bloomooemulator.interpreter.values.BoolValue;
 import pl.genschu.bloomooemulator.interpreter.values.IntValue;
 import pl.genschu.bloomooemulator.interpreter.values.StringValue;
@@ -39,8 +40,7 @@ class ImageVariableTest {
     @Test
     void centerAnchorMakesSetPositionReferToImageCenter_footballMatchRegression() {
         ImageVariable image = new ImageVariable("BLUEBALL");
-        image.state().rect.setXRight(24);
-        image.state().rect.setYBottom(-24);
+        image.state().rect = new CanvasRect(0, 0, 24, 24);
 
         image.callMethod("SETANCHOR", new StringValue("CENTER"));
         image.callMethod("SETPOSITION", new IntValue(250), new IntValue(124));
@@ -52,10 +52,7 @@ class ImageVariableTest {
     @Test
     void isAtUsesTopLeftScreenCoordinatesForImageBounds_wpzrMaskRegression() {
         ImageVariable image = new ImageVariable("MASKA_PRZESZKODY");
-        image.state().rect.setXLeft(10);
-        image.state().rect.setXRight(30);
-        image.state().rect.setYTop(20);
-        image.state().rect.setYBottom(0);
+        image.state().rect = new CanvasRect(10, 20, 30, 40);
 
         assertTrue(image.callMethod("ISAT", new IntValue(15), new IntValue(25), new BoolValue(false))
                 .returnValue().toBool().value());
@@ -63,6 +60,19 @@ class ImageVariableTest {
                 .returnValue().toBool().value());
         assertFalse(image.callMethod("ISAT", new IntValue(15), new IntValue(41), new BoolValue(false))
                 .returnValue().toBool().value());
+        assertFalse(image.callMethod("ISAT", new IntValue(30), new IntValue(25), BoolValue.FALSE)
+                .returnValue().toBool().value(), "right edge is exclusive");
+        assertFalse(image.callMethod("ISAT", new IntValue(15), new IntValue(40), BoolValue.FALSE)
+                .returnValue().toBool().value(), "bottom edge is exclusive");
+    }
+
+    @Test
+    void getCenterUsesCanonicalTopDownBounds() {
+        ImageVariable image = new ImageVariable("IMAGE");
+        image.state().rect = new CanvasRect(10, 20, 30, 60);
+
+        assertEquals(20, image.callMethod("GETCENTERX").returnValue().toInt().value());
+        assertEquals(40, image.callMethod("GETCENTERY").returnValue().toInt().value());
     }
 
     @Test

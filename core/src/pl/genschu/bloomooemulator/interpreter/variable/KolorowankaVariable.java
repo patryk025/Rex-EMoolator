@@ -5,7 +5,9 @@ import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.TextureData;
 import pl.genschu.bloomooemulator.annotations.InternalMutable;
+import pl.genschu.bloomooemulator.engine.context.CanvasBoundsProvider;
 import pl.genschu.bloomooemulator.engine.render.RenderOrder;
+import pl.genschu.bloomooemulator.geometry.coordinates.CanvasRect;
 import pl.genschu.bloomooemulator.interpreter.context.Context;
 import pl.genschu.bloomooemulator.interpreter.helpers.ArgumentHelper;
 import pl.genschu.bloomooemulator.interpreter.values.*;
@@ -27,7 +29,7 @@ public record KolorowankaVariable(
     String name,
     @InternalMutable KolorowankaState state,
     Map<String, SignalHandler> signals
-) implements Variable, Initializable {
+) implements Variable, Initializable, CanvasBoundsProvider {
 
     /** Sentinel screen color for "uncolored". */
     public static final int COLOR_NONE = 0x10000;
@@ -217,6 +219,10 @@ public record KolorowankaVariable(
     public int getPosY() { return state.posY; }
     public int getWidth() { return state.ptr != null ? state.ptr.width : 0; }
     public int getHeight() { return state.ptr != null ? state.ptr.height : 0; }
+    @Override public CanvasRect getCanvasBounds() {
+        return CanvasRect.fromPositionAndSize(
+                state.posX, state.posY, getWidth(), getHeight());
+    }
 
     /** Returns the up-to-date texture (rebuilds it from the pixmap when dirty). Call on the GL thread. */
     public Texture getTexture() {
@@ -240,9 +246,10 @@ public record KolorowankaVariable(
         KolorowankaState s = state;
         if (!s.enabled || !s.isLoaded() || !s.visible) return;
 
-        int x = sceneX - s.posX;
-        int y = sceneY - s.posY;
-        if (x < 0 || y < 0 || x >= s.ptr.width || y >= s.ptr.height) return;
+        CanvasRect bounds = getCanvasBounds();
+        if (!bounds.contains(sceneX, sceneY)) return;
+        int x = sceneX - bounds.left();
+        int y = sceneY - bounds.top();
         s.lastClickX = x;
         s.lastClickY = y;
 

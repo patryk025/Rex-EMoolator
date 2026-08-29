@@ -2,13 +2,14 @@ package pl.genschu.bloomooemulator.interpreter.variable;
 
 import com.badlogic.gdx.Gdx;
 import pl.genschu.bloomooemulator.annotations.InternalMutable;
+import pl.genschu.bloomooemulator.engine.context.CanvasBoundsProvider;
 import pl.genschu.bloomooemulator.engine.decision.events.ButtonEvent;
 import pl.genschu.bloomooemulator.engine.decision.states.ButtonState;
+import pl.genschu.bloomooemulator.geometry.coordinates.CanvasRect;
 import pl.genschu.bloomooemulator.interpreter.context.Context;
 import pl.genschu.bloomooemulator.interpreter.helpers.ArgumentHelper;
 import pl.genschu.bloomooemulator.interpreter.values.*;
 import pl.genschu.bloomooemulator.interpreter.variable.capabilities.Initializable;
-import pl.genschu.bloomooemulator.geometry.shapes.Box2D;
 
 import java.util.*;
 
@@ -20,14 +21,16 @@ public record ButtonVariable(
     String name,
     @InternalMutable ButtonVarState state,
     Map<String, SignalHandler> signals
-) implements Variable, Initializable {
+) implements Variable, Initializable, CanvasBoundsProvider {
 
     /**
      * Mutable state for button interaction.
      */
     public static final class ButtonVarState {
         public ButtonState buttonState = ButtonState.INIT;
-        public Box2D rect = null;
+        public CanvasRect rect = null;
+        /** Live bounds source used by GFX-backed buttons. */
+        public CanvasBoundsProvider rectProvider = null;
         public String rectVarName = null;
         public String gfxStandardName = null;
         public String gfxOnMoveName = null;
@@ -43,9 +46,8 @@ public record ButtonVariable(
         public ButtonVarState copy() {
             ButtonVarState copy = new ButtonVarState();
             copy.buttonState = this.buttonState;
-            copy.rect = this.rect != null
-                    ? new Box2D(rect.getXLeft(), rect.getYBottom(), rect.getXRight(), rect.getYTop())
-                    : null;
+            copy.rect = this.rect;
+            copy.rectProvider = this.rectProvider;
             copy.rectVarName = this.rectVarName;
             copy.gfxStandardName = this.gfxStandardName;
             copy.gfxOnMoveName = this.gfxOnMoveName;
@@ -173,14 +175,13 @@ public record ButtonVariable(
     private void parseRect(String rectAttr, Context context) {
         // Try as variable reference first
         Variable rectVar = context.getVariable(rectAttr);
-        if (rectVar instanceof AnimoVariable animo) {
+        if (rectVar instanceof CanvasBoundsProvider boundsProvider) {
             state.rectVarName = rectAttr;
-            state.rect = animo.getRect() != null ? animo.getRect().copy() : new Box2D(0, 0, 0, 0);
-            return;
-        }
-        if (rectVar instanceof ImageVariable img) {
-            state.rectVarName = rectAttr;
-            state.rect = img.getRect() != null ? img.getRect().copy() : new Box2D(0, 0, 0, 0);
+            // RECT=<variable> historically snapshots the bounds during initialization.
+            state.rect = boundsProvider.getCanvasBounds() != null
+                    ? boundsProvider.getCanvasBounds()
+                    : new CanvasRect(0, 0, 0, 0);
+            state.rectProvider = null;
             return;
         }
         // Try as comma-separated coordinates
@@ -188,13 +189,11 @@ public record ButtonVariable(
             String[] parts = rectAttr.split(",");
             if (parts.length >= 4) {
                 int xL = Integer.parseInt(parts[0].trim());
-                int yB = Integer.parseInt(parts[1].trim());
+                int yTop = Integer.parseInt(parts[1].trim());
                 int xR = Integer.parseInt(parts[2].trim());
-                int yT = Integer.parseInt(parts[3].trim());
-                // Compensate Y-axis: Box2D.contains() adds height to Y bounds,
-                // so shift raw screen coords to match the GFX rect convention
-                int height = yT - yB;
-                state.rect = new Box2D(xL, yB - height, xR, yT - height);
+                int yBottom = Integer.parseInt(parts[3].trim());
+                state.rect = new CanvasRect(xL, yTop, xR, yBottom);
+                state.rectProvider = null;
             }
         } catch (NumberFormatException e) {
             Gdx.app.error("ButtonVariable", "Invalid RECT format: " + rectAttr);
@@ -203,12 +202,11 @@ public record ButtonVariable(
 
     private void loadRectFromGfx(String gfxName, Context context) {
         Variable gfx = context.getVariable(gfxName);
-        if (gfx instanceof AnimoVariable animo && animo.getRect() != null) {
+        if (gfx instanceof CanvasBoundsProvider boundsProvider
+                && boundsProvider.getCanvasBounds() != null) {
             state.rectVarName = gfxName;
-            state.rect = animo.getRect();
-        } else if (gfx instanceof ImageVariable img && img.getRect() != null) {
-            state.rectVarName = gfxName;
-            state.rect = img.getRect();
+            state.rectProvider = boundsProvider;
+            state.rect = boundsProvider.getCanvasBounds();
         }
     }
 
@@ -338,7 +336,11 @@ public record ButtonVariable(
     // ========================================
 
     public ButtonState getButtonState() { return state.buttonState; }
-    public Box2D getRect() { return state.rect; }
+    public CanvasRect getRect() { return getCanvasBounds(); }
+    @Override
+    public CanvasRect getCanvasBounds() {
+        return state.rectProvider != null ? state.rectProvider.getCanvasBounds() : state.rect;
+    }
     public String getDragName() { return state.dragName; }
     public boolean isDraggable() { return state.draggable; }
 
@@ -432,21 +434,19 @@ public record ButtonVariable(
                 // SETRECT(varName)
                 String varName = ArgumentHelper.getString(args.get(0));
                 Variable rectVar = ctx.getVariable(varName);
-                if (rectVar instanceof AnimoVariable animo) {
+                if (rectVar instanceof CanvasBoundsProvider boundsProvider) {
                     btn.state.rectVarName = varName;
-                    btn.state.rect = animo.getRect();
-                } else if (rectVar instanceof ImageVariable img) {
-                    btn.state.rectVarName = varName;
-                    btn.state.rect = img.getRect();
+                    btn.state.rectProvider = boundsProvider;
+                    btn.state.rect = boundsProvider.getCanvasBounds();
                 }
             } else if (args.size() >= 4) {
-                // SETRECT(xLeft, yBottom, xRight, yTop)
+                // SETRECT(left, top, right, bottom)
                 int xL = ArgumentHelper.getInt(args.get(0));
-                int yB = ArgumentHelper.getInt(args.get(1));
+                int yTop = ArgumentHelper.getInt(args.get(1));
                 int xR = ArgumentHelper.getInt(args.get(2));
-                int yT = ArgumentHelper.getInt(args.get(3));
-                int height = yT - yB;
-                btn.state.rect = new Box2D(xL, yB - height, xR, yT - height);
+                int yBottom = ArgumentHelper.getInt(args.get(3));
+                btn.state.rect = new CanvasRect(xL, yTop, xR, yBottom);
+                btn.state.rectProvider = null;
                 btn.state.rectVarName = null;
             }
             return MethodResult.noReturn();

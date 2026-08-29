@@ -3,7 +3,6 @@ package pl.genschu.bloomooemulator.engine.input;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.files.FileHandle;
-import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Cursor;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.PixmapIO;
@@ -16,18 +15,20 @@ import com.badlogic.gdx.utils.ObjectMap;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import pl.genschu.bloomooemulator.engine.Game;
 import pl.genschu.bloomooemulator.engine.config.EngineConfig;
+import pl.genschu.bloomooemulator.engine.context.CanvasBoundsProvider;
+import pl.genschu.bloomooemulator.engine.context.CurrentImageProvider;
 import pl.genschu.bloomooemulator.engine.context.EngineVariable;
 import pl.genschu.bloomooemulator.engine.context.GameContext;
 import pl.genschu.bloomooemulator.interpreter.context.Context;
 import pl.genschu.bloomooemulator.interpreter.values.StringValue;
 import pl.genschu.bloomooemulator.interpreter.variable.*;
 import pl.genschu.bloomooemulator.objects.Image;
-import pl.genschu.bloomooemulator.geometry.shapes.Box2D;
+import pl.genschu.bloomooemulator.geometry.coordinates.CanvasCoordinateSystem;
+import pl.genschu.bloomooemulator.geometry.coordinates.CanvasPoint;
+import pl.genschu.bloomooemulator.geometry.coordinates.CanvasRect;
+import pl.genschu.bloomooemulator.geometry.coordinates.OpenGlPoint;
 
 import java.util.*;
-
-import static pl.genschu.bloomooemulator.utils.CollisionChecker.getImage;
-import static pl.genschu.bloomooemulator.utils.CollisionChecker.getRect;
 
 public class InputManager implements Disposable {
     public enum MouseCursor {
@@ -57,14 +58,13 @@ public class InputManager implements Disposable {
         }
     }
 
-    // Camera and viewport references
-    private final OrthographicCamera camera;
+    // Viewport maps host-window pixels into the fixed logical OpenGL projection.
     private final Viewport viewport;
     private final Game game;
     private final EngineConfig config;
 
     // Mouse state
-    private final Vector2 mousePosition = new Vector2();
+    private CanvasPoint mousePosition = new CanvasPoint(0, 0);
     private boolean mousePressed = false;
     private boolean mousePrevPressed = false;
     private GameContext lastMouseClickContext = null;
@@ -89,8 +89,7 @@ public class InputManager implements Disposable {
     // Captures typed characters for the ONCHAR channel.
     private final KeyboardCharInput keyboardCharInput = new KeyboardCharInput();
 
-    public InputManager(OrthographicCamera camera, Viewport viewport, Game game, EngineConfig config) {
-        this.camera = camera;
+    public InputManager(Viewport viewport, Game game, EngineConfig config) {
         this.viewport = viewport;
         this.game = game;
         this.config = config;
@@ -181,12 +180,26 @@ public class InputManager implements Disposable {
         }
 
         // Mouse coordinates translation
-        Vector2 correctedCoords = getCorrectedMouseCoords(x, y);
-        int correctedX = (int) correctedCoords.x;
-        int correctedY = (int) correctedCoords.y;
+        Optional<CanvasPoint> correctedCoords = getCorrectedMouseCoords(x, y);
+        if (correctedCoords.isEmpty()) {
+            // Remember the physical button state even while the pointer is in a
+            // FitViewport bar. Otherwise entering the canvas with the button held
+            // would look like a fresh click. Dropping an active button also prevents
+            // a drag from remaining captured after a release outside the canvas.
+            if (!isPressed && mousePrevPressed) {
+                setActiveButton(null);
+            }
+            mousePressed = isPressed;
+            mousePrevPressed = isPressed;
+            return;
+        }
+
+        CanvasPoint canvasPoint = correctedCoords.get();
+        int correctedX = (int) Math.floor(canvasPoint.x());
+        int correctedY = (int) Math.floor(canvasPoint.y());
 
         // Update mouse position
-        mousePosition.set(correctedX, correctedY);
+        mousePosition = new CanvasPoint(correctedX, correctedY);
         boolean justPressed = isPressed && !mousePrevPressed;
         boolean justReleased = !isPressed && mousePrevPressed;
 
@@ -327,8 +340,12 @@ public class InputManager implements Disposable {
         Array<ObjectMap<String, Object>> metadata = new Array<>();
 
         for (Variable variable : drawList) {
-            Image image = getImage(variable);
-            Box2D rect = getRect(variable);
+            if (!(variable instanceof CurrentImageProvider imageProvider)
+                    || !(variable instanceof CanvasBoundsProvider boundsProvider)) {
+                continue;
+            }
+            Image image = imageProvider.getCurrentImage();
+            CanvasRect rect = boundsProvider.getCanvasBounds();
             if (image == null || image.getImageTexture() == null || rect == null) continue;
 
             boolean isVisible = false;
@@ -353,10 +370,10 @@ public class InputManager implements Disposable {
             entry.put("visible", isVisible);
             entry.put("type", variable.type().name());
             entry.put("rect", Map.of(
-                    "x", rect.getXLeft(),
-                    "y", rect.getYTop(),
-                    "w", rect.getWidth(),
-                    "h", rect.getHeight()
+                    "x", rect.left(),
+                    "y", rect.top(),
+                    "w", rect.width(),
+                    "h", rect.height()
             ));
 
             metadata.add(entry);
@@ -366,31 +383,19 @@ public class InputManager implements Disposable {
         Gdx.app.log("Export", "Exported graphics to " + exportDir.file().getAbsolutePath());
     }
 
-    // Method converting screen coordinates to world coordinates
-    public Vector2 getCorrectedMouseCoords(int screenX, int screenY) {
-        Vector2 result = new Vector2();
-
-        float windowWidth = Gdx.graphics.getWidth();
-        float windowHeight = Gdx.graphics.getHeight();
-        float virtualWidth = viewport.getWorldWidth();
-        float virtualHeight = viewport.getWorldHeight();
-
-        // Calculate scales
-        float aspectRatio = virtualWidth / virtualHeight;
-        float windowRatio = windowWidth / windowHeight;
-
-        float scale = windowRatio > aspectRatio ?
-                windowHeight / virtualHeight :
-                windowWidth / virtualWidth;
-
-        float correctX = (windowWidth - virtualWidth * scale) / 2;
-        float correctY = (windowHeight - virtualHeight * scale) / 2;
-
-        // Coordinate correction
-        result.x = (screenX - correctX) / scale;
-        result.y = (screenY - correctY) / scale;
-
-        return result;
+    /**
+     * Maps a top-left-origin host-window pixel through the active LibGDX viewport
+     * into the script-visible DirectDraw canvas. {@link Viewport#unproject(Vector2)}
+     * is authoritative for both FitViewport and StretchViewport; points in FitViewport
+     * bars map outside the logical canvas and are rejected.
+     */
+    public Optional<CanvasPoint> getCorrectedMouseCoords(int screenX, int screenY) {
+        Vector2 openGl = viewport.unproject(new Vector2(screenX, screenY));
+        CanvasPoint canvas = CanvasCoordinateSystem.fromOpenGl(
+                new OpenGlPoint(openGl.x, openGl.y));
+        return CanvasCoordinateSystem.BOUNDS.contains(canvas)
+                ? Optional.of(canvas)
+                : Optional.empty();
     }
 
     // Handle window resize
@@ -427,7 +432,7 @@ public class InputManager implements Disposable {
         return dragManager;
     }
 
-    public Vector2 getMousePosition() {
+    public CanvasPoint getMousePosition() {
         return mousePosition;
     }
 

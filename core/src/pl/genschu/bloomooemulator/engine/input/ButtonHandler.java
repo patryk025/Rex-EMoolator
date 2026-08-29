@@ -4,7 +4,7 @@ import com.badlogic.gdx.graphics.Cursor;
 import pl.genschu.bloomooemulator.engine.Game;
 import pl.genschu.bloomooemulator.engine.decision.events.ButtonEvent;
 import pl.genschu.bloomooemulator.engine.decision.states.ButtonState;
-import pl.genschu.bloomooemulator.geometry.shapes.Box2D;
+import pl.genschu.bloomooemulator.geometry.coordinates.CanvasRect;
 import pl.genschu.bloomooemulator.interpreter.context.Context;
 import pl.genschu.bloomooemulator.interpreter.variable.*;
 import pl.genschu.bloomooemulator.objects.Event;
@@ -159,7 +159,7 @@ public class ButtonHandler {
                 // ANIMO via SETASBUTTON uses a plain bounding-box trigger: no alpha test.
                 // The transparent areas of the sprite are still clickable. The rect is live
                 // so the trigger follows the moving sprite.
-                Box2D hitRect = animo.getRect();
+                CanvasRect hitRect = animo.getRect();
                 if (hitRect != null && hitRect.contains(x, y)) {
                     focusedButton = scopedButton;
                     break;
@@ -270,7 +270,7 @@ public class ButtonHandler {
 
                 return animo.getAlpha(noEventImage, x - offsetX, y - offsetY);
             }
-            return animo.getAlpha(x - animo.getRect().getXLeft(), y - animo.getRect().getYTop());
+            return animo.getAlpha(x - animo.getRect().left(), y - animo.getRect().top());
         }
         return 0;
     }
@@ -286,8 +286,8 @@ public class ButtonHandler {
             if (activeButton instanceof ButtonVariable btn) {
                 btn.changeState(ButtonEvent.RELEASED, owner);
                 inputManager.getDragManager().end(
-                        (int) inputManager.getMousePosition().x,
-                        (int) inputManager.getMousePosition().y);
+                        (int) inputManager.getMousePosition().x(),
+                        (int) inputManager.getMousePosition().y());
             } else if (activeButton instanceof AnimoVariable animo) {
                 animo.changeButtonState(ButtonEvent.RELEASED, owner);
             }

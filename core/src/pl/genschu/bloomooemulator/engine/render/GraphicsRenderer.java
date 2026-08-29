@@ -2,7 +2,6 @@ package pl.genschu.bloomooemulator.engine.render;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.GL20;
-import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -17,21 +16,20 @@ import pl.genschu.bloomooemulator.interpreter.variable.ImageVariable;
 import pl.genschu.bloomooemulator.interpreter.variable.TextVariable;
 import pl.genschu.bloomooemulator.interpreter.variable.Variable;
 import pl.genschu.bloomooemulator.objects.Image;
-import pl.genschu.bloomooemulator.geometry.shapes.Box2D;
+import pl.genschu.bloomooemulator.geometry.coordinates.CanvasCoordinateSystem;
+import pl.genschu.bloomooemulator.geometry.coordinates.CanvasRect;
+import pl.genschu.bloomooemulator.geometry.coordinates.OpenGlRect;
+
+import java.util.Optional;
 
 /**
  * Class responsible for rendering graphics.
  */
 public class GraphicsRenderer implements Disposable {
-    protected static final float VIRTUAL_WIDTH = 800;
-    protected static final float VIRTUAL_HEIGHT = 600;
-
     private final SpriteBatch batch;
-    private final OrthographicCamera camera;
 
-    public GraphicsRenderer(SpriteBatch batch, OrthographicCamera camera) {
+    public GraphicsRenderer(SpriteBatch batch) {
         this.batch = batch;
-        this.camera = camera;
     }
 
     /**
@@ -47,18 +45,17 @@ public class GraphicsRenderer implements Disposable {
             return;
         }
 
-        Box2D rect = imageVariable.getRect();
+        CanvasRect rect = imageVariable.getRect();
+        OpenGlRect destination = imageDestination(rect);
         batch.setColor(1, 1, 1, imageVariable.getOpacity());
         if (imageVariable.hasFilters()) {
             // get first filter (not sure if there can be more at once)
             Filter filter = imageVariable.getFilters().get(0);
-            filter.apply(batch, image.getImageTexture(), rect.getXLeft(), VIRTUAL_HEIGHT - rect.getYTop() - image.height, image.width, image.height);
+            filter.apply(batch, image.getImageTexture(), destination);
         } else {
             batch.draw(image.getImageTexture(),
-                    rect.getXLeft(),
-                    VIRTUAL_HEIGHT - rect.getYTop() - image.height,
-                    image.width,
-                    image.height);
+                    asFloat(destination.x()), asFloat(destination.y()),
+                    asFloat(destination.width()), asFloat(destination.height()));
         }
     }
 
@@ -79,20 +76,27 @@ public class GraphicsRenderer implements Disposable {
             return;
         }
 
-        Box2D rect = animoVariable.getRect();
+        CanvasRect rect = animoVariable.getRect();
+        OpenGlRect destination = imageDestination(rect);
         batch.setColor(1, 1, 1, animoVariable.getCalculatedOpacity());
 
         if (animoVariable.hasFilters()) {
             // get first filter (not sure if there can be more at once)
             Filter filter = animoVariable.getFilters().get(0);
-            filter.apply(batch, image.getImageTexture(), rect.getXLeft(), VIRTUAL_HEIGHT - rect.getYTop() - image.height, image.width, image.height);
+            filter.apply(batch, image.getImageTexture(), destination);
         } else {
             batch.draw(image.getImageTexture(),
-                    rect.getXLeft(),
-                    VIRTUAL_HEIGHT - rect.getYTop() - image.height,
-                    image.width,
-                    image.height);
+                    asFloat(destination.x()), asFloat(destination.y()),
+                    asFloat(destination.width()), asFloat(destination.height()));
         }
+    }
+
+    static OpenGlRect imageDestination(CanvasRect rect) {
+        return CanvasCoordinateSystem.toOpenGl(rect);
+    }
+
+    static float asFloat(double value) {
+        return (float) value;
     }
 
     @Override
@@ -105,22 +109,25 @@ public class GraphicsRenderer implements Disposable {
 final class LogicalScissor {
     private LogicalScissor() {}
 
-    static boolean enable(SpriteBatch batch, Box2D rect) {
-        int x = Math.max(0, rect.getXLeft());
-        int right = Math.min((int) GraphicsRenderer.VIRTUAL_WIDTH, rect.getXRight());
-        int y = Math.max(0, (int) GraphicsRenderer.VIRTUAL_HEIGHT - rect.getYTop());
-        int top = Math.min((int) GraphicsRenderer.VIRTUAL_HEIGHT,
-                (int) GraphicsRenderer.VIRTUAL_HEIGHT - rect.getYBottom());
-        int width = right - x;
-        int height = top - y;
-        if (width <= 0 || height <= 0) {
+    static boolean enable(SpriteBatch batch, CanvasRect rect) {
+        OpenGlRect scissor = scissorRect(rect).orElse(null);
+        if (scissor == null) {
             return false;
         }
 
         batch.flush();
         Gdx.gl.glEnable(GL20.GL_SCISSOR_TEST);
-        Gdx.gl.glScissor(x, y, width, height);
+        Gdx.gl.glScissor(
+                (int) scissor.x(),
+                (int) scissor.y(),
+                (int) scissor.width(),
+                (int) scissor.height());
         return true;
+    }
+
+    static Optional<OpenGlRect> scissorRect(CanvasRect rect) {
+        return rect.intersection(CanvasCoordinateSystem.BOUNDS)
+                .map(CanvasCoordinateSystem::toOpenGl);
     }
 
     static void disable(SpriteBatch batch) {
@@ -152,7 +159,7 @@ class TextRenderer implements Disposable {
         String text = textVariable.getText();
         if (text == null || text.isEmpty()) return;
 
-        Box2D rect = textVariable.getRect();
+        CanvasRect rect = textVariable.getRect();
         if (rect == null) return;
 
         EngineVariable selectedFont = textVariable.getFontName() == null
@@ -166,7 +173,7 @@ class TextRenderer implements Disposable {
         renderFallbackText(text, rect);
     }
 
-    private void renderPiklibText(TextVariable textVariable, FontVariable font, Box2D rect) {
+    private void renderPiklibText(TextVariable textVariable, FontVariable font, CanvasRect rect) {
         PiklibTextLayout.Layout layout = PiklibTextLayout.layout(
                 font,
                 textVariable.getText(),
@@ -177,7 +184,7 @@ class TextRenderer implements Disposable {
         );
 
         boolean clippingPushed = false;
-        if (rect.getWidth() > 0 && rect.getHeight() > 0) {
+        if (rect.width() > 0 && rect.height() > 0) {
             clippingPushed = LogicalScissor.enable(batch, rect);
             if (!clippingPushed) {
                 return;
@@ -202,11 +209,13 @@ class TextRenderer implements Disposable {
                                 1f
                         );
                     }
-                    batch.draw(
-                            region,
-                            glyph.x(),
-                            GraphicsRenderer.VIRTUAL_HEIGHT - glyph.top() - font.getCharHeight()
-                    );
+                    CanvasRect glyphBounds = CanvasRect.fromPositionAndSize(
+                            glyph.x(), glyph.top(),
+                            region.getRegionWidth(), font.getCharHeight());
+                    OpenGlRect destination = CanvasCoordinateSystem.toOpenGl(glyphBounds);
+                    batch.draw(region,
+                            GraphicsRenderer.asFloat(destination.x()),
+                            GraphicsRenderer.asFloat(destination.y()));
                 }
             }
         } finally {
@@ -217,9 +226,10 @@ class TextRenderer implements Disposable {
         }
     }
 
-    private void renderFallbackText(String text, Box2D rect) {
-        float startX = rect.getXLeft();
-        float startY = GraphicsRenderer.VIRTUAL_HEIGHT - rect.getYBottom();
+    private void renderFallbackText(String text, CanvasRect rect) {
+        float startX = rect.left();
+        float startY = GraphicsRenderer.asFloat(
+                CanvasCoordinateSystem.toOpenGlY(rect.top()));
 
         String[] lines = text.replace("\n", "").replace('\r', '|').split("\\|", -1);
         float lineHeight = defaultFont.getLineHeight();
@@ -248,7 +258,7 @@ class MaskRenderer implements Disposable {
     /**
      * Renders a clipping mask for the graphic object.
      */
-    public void renderWithClipping(Image image, Box2D rect, Box2D clippingRect) {
+    public void renderWithClipping(Image image, CanvasRect rect, CanvasRect clippingRect) {
         if (clippingRect == null) {
             return;
         }
@@ -257,11 +267,12 @@ class MaskRenderer implements Disposable {
             return;
         }
         try {
+            OpenGlRect destination = GraphicsRenderer.imageDestination(rect);
             batch.draw(image.getImageTexture(),
-                    rect.getXLeft(),
-                    GraphicsRenderer.VIRTUAL_HEIGHT - rect.getYTop() - image.height,
-                    image.width,
-                    image.height);
+                    GraphicsRenderer.asFloat(destination.x()),
+                    GraphicsRenderer.asFloat(destination.y()),
+                    GraphicsRenderer.asFloat(destination.width()),
+                    GraphicsRenderer.asFloat(destination.height()));
         } finally {
             LogicalScissor.disable(batch);
         }
@@ -277,8 +288,6 @@ class MaskRenderer implements Disposable {
  * Class responsible for rendering alpha masks.
  */
 class AlphaMaskRenderer implements Disposable {
-    private static final float VIRTUAL_HEIGHT = 600;
-
     private final SpriteBatch batch;
 
     public AlphaMaskRenderer(SpriteBatch batch) {
@@ -288,7 +297,9 @@ class AlphaMaskRenderer implements Disposable {
     /**
      * Renders object with alpha mask
      */
-    public void renderWithAlphaMask(ImageVariable imageVariable, Box2D rect, Box2D clippingRect, ImageVariable.AlphaMaskBinding alphaMask) {
+    public void renderWithAlphaMask(ImageVariable imageVariable, CanvasRect rect,
+                                    CanvasRect clippingRect,
+                                    ImageVariable.AlphaMaskBinding alphaMask) {
         Image image = imageVariable.getImage();
         if (image == null || image.getImageTexture() == null) {
             return;
@@ -296,12 +307,13 @@ class AlphaMaskRenderer implements Disposable {
 
         Image maskImage = alphaMask.mask().getImage();
         if (maskImage == null || maskImage.getImageTexture() == null) {
+            OpenGlRect destination = GraphicsRenderer.imageDestination(rect);
             batch.setColor(1, 1, 1, imageVariable.getOpacity());
             batch.draw(image.getImageTexture(),
-                    rect.getXLeft(),
-                    VIRTUAL_HEIGHT - rect.getYTop() - image.height,
-                    image.width,
-                    image.height);
+                    GraphicsRenderer.asFloat(destination.x()),
+                    GraphicsRenderer.asFloat(destination.y()),
+                    GraphicsRenderer.asFloat(destination.width()),
+                    GraphicsRenderer.asFloat(destination.height()));
             return;
         }
 
@@ -311,11 +323,12 @@ class AlphaMaskRenderer implements Disposable {
         Gdx.gl.glColorMask(false, false, false, true);
         batch.setBlendFunction(GL20.GL_ONE, GL20.GL_ZERO);
         batch.setColor(1, 1, 1, 1);
+        OpenGlRect maskDestination = CanvasCoordinateSystem.toOpenGl(alphaMask.bounds());
         batch.draw(maskImage.getImageTexture(),
-                alphaMask.posX(),
-                VIRTUAL_HEIGHT - alphaMask.posY() - maskImage.height,
-                maskImage.width,
-                maskImage.height);
+                GraphicsRenderer.asFloat(maskDestination.x()),
+                GraphicsRenderer.asFloat(maskDestination.y()),
+                GraphicsRenderer.asFloat(maskDestination.width()),
+                GraphicsRenderer.asFloat(maskDestination.height()));
         batch.flush();
 
         // Draw the image modulated by the destination alpha we just wrote
@@ -327,11 +340,12 @@ class AlphaMaskRenderer implements Disposable {
         if (clippingRect != null) {
             renderWithClipping(image, rect, clippingRect);
         } else {
+            OpenGlRect destination = GraphicsRenderer.imageDestination(rect);
             batch.draw(image.getImageTexture(),
-                    rect.getXLeft(),
-                    VIRTUAL_HEIGHT - rect.getYTop() - image.height,
-                    image.width,
-                    image.height);
+                    GraphicsRenderer.asFloat(destination.x()),
+                    GraphicsRenderer.asFloat(destination.y()),
+                    GraphicsRenderer.asFloat(destination.width()),
+                    GraphicsRenderer.asFloat(destination.height()));
         }
 
         batch.flush();
@@ -341,16 +355,17 @@ class AlphaMaskRenderer implements Disposable {
         batch.setColor(1, 1, 1, 1);
     }
 
-    private void renderWithClipping(Image image, Box2D rect, Box2D clippingRect) {
+    private void renderWithClipping(Image image, CanvasRect rect, CanvasRect clippingRect) {
         if (!LogicalScissor.enable(batch, clippingRect)) {
             return;
         }
         try {
+            OpenGlRect destination = GraphicsRenderer.imageDestination(rect);
             batch.draw(image.getImageTexture(),
-                    rect.getXLeft(),
-                    VIRTUAL_HEIGHT - rect.getYTop() - image.height,
-                    image.width,
-                    image.height);
+                    GraphicsRenderer.asFloat(destination.x()),
+                    GraphicsRenderer.asFloat(destination.y()),
+                    GraphicsRenderer.asFloat(destination.width()),
+                    GraphicsRenderer.asFloat(destination.height()));
         } finally {
             LogicalScissor.disable(batch);
         }

@@ -1,6 +1,6 @@
 package pl.genschu.bloomooemulator.engine.render;
 
-import pl.genschu.bloomooemulator.geometry.shapes.Box2D;
+import pl.genschu.bloomooemulator.geometry.coordinates.CanvasRect;
 import pl.genschu.bloomooemulator.interpreter.variable.FontVariable;
 
 import java.util.ArrayList;
@@ -42,7 +42,7 @@ public final class PiklibTextLayout {
     public static Layout layout(
             FontVariable font,
             String text,
-            Box2D rect,
+            CanvasRect rect,
             String horizontalJustify,
             String verticalJustify
     ) {
@@ -53,7 +53,7 @@ public final class PiklibTextLayout {
             FontVariable font,
             String text,
             int baseColor,
-            Box2D rect,
+            CanvasRect rect,
             String horizontalJustify,
             String verticalJustify
     ) {
@@ -64,7 +64,7 @@ public final class PiklibTextLayout {
         List<StyledLine> lineTexts = splitAndWrapStyled(
                 font,
                 styledText(text, baseColor, font.getPixelFormat()),
-                rect.getWidth()
+                rect.width()
         );
         int fontHeight = font.getCharHeight();
         int lineCount = lineTexts.size();
@@ -350,22 +350,20 @@ public final class PiklibTextLayout {
         return result.toString();
     }
 
-    private static int horizontalStart(Box2D rect, int lineWidth, String justify) {
+    private static int horizontalStart(CanvasRect rect, int lineWidth, String justify) {
         return switch (normalized(justify)) {
-            case "RIGHT" -> rect.getXRight() - lineWidth;
-            case "CENTER", "CENTRE" -> rect.getXLeft() + (rect.getWidth() - lineWidth) / 2;
-            default -> rect.getXLeft();
+            case "RIGHT" -> rect.right() - lineWidth;
+            case "CENTER", "CENTRE" -> rect.left() + (rect.width() - lineWidth) / 2;
+            default -> rect.left();
         };
     }
 
-    private static int verticalStart(Box2D rect, int layoutHeight, String justify) {
-        // In script RECT syntax the second coordinate is top and the fourth is
-        // bottom, despite the legacy Box2D accessor names.
+    private static int verticalStart(CanvasRect rect, int layoutHeight, String justify) {
         return switch (normalized(justify)) {
-            case "BOTTOM" -> rect.getYTop() - layoutHeight;
+            case "BOTTOM" -> rect.bottom() - layoutHeight;
             case "CENTER", "CENTRE" ->
-                    rect.getYBottom() + (rect.getHeight() - layoutHeight) / 2;
-            default -> rect.getYBottom();
+                    rect.top() + (rect.height() - layoutHeight) / 2;
+            default -> rect.top();
         };
     }
 

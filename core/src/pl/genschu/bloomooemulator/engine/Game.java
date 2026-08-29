@@ -43,7 +43,8 @@ import pl.genschu.bloomooemulator.engine.filesystem.VFS;
 import pl.genschu.bloomooemulator.engine.ini.INIManager;
 import pl.genschu.bloomooemulator.objects.Image;
 import pl.genschu.bloomooemulator.geometry.spartial.QuadTree;
-import pl.genschu.bloomooemulator.geometry.shapes.Box2D;
+import pl.genschu.bloomooemulator.geometry.coordinates.CanvasCoordinateSystem;
+import pl.genschu.bloomooemulator.geometry.coordinates.CanvasRect;
 import pl.genschu.bloomooemulator.utils.FileUtils;
 
 public class Game {
@@ -114,7 +115,7 @@ public class Game {
     public Game(GameEntry game, BlooMooEngine emulator, LegacyClock legacyClock) {
         this.definitionContext = new Context(new ExecutionContext());
         this.game = game;
-        this.quadTree = new QuadTree(0, new Box2D(0, 0, 800, 600));
+        this.quadTree = new QuadTree(0, CanvasCoordinateSystem.BOUNDS);
         this.emulator = emulator;
         this.legacyClock = Objects.requireNonNull(legacyClock, "legacyClock");
 
@@ -455,7 +456,7 @@ public class Game {
         errorText.state().visible = true;
         errorText.state().toCanvas = true;
         errorText.state().priority = Integer.MAX_VALUE;
-        errorText.state().rect = new Box2D(100, 50, 700, 150);
+        errorText.state().rect = new CanvasRect(100, 50, 700, 150);
         errorText.state().hJustify = "CENTER";
         errorText.state().vJustify = "CENTER";
         currentSceneContext.setVariable("__STARTUP_ERROR__", errorText);

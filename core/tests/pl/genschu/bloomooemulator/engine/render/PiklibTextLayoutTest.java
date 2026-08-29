@@ -1,7 +1,7 @@
 package pl.genschu.bloomooemulator.engine.render;
 
 import org.junit.jupiter.api.Test;
-import pl.genschu.bloomooemulator.geometry.shapes.Box2D;
+import pl.genschu.bloomooemulator.geometry.coordinates.CanvasRect;
 import pl.genschu.bloomooemulator.interpreter.variable.FontVariable;
 import pl.genschu.bloomooemulator.objects.FontCropping;
 
@@ -61,7 +61,7 @@ class PiklibTextLayoutTest {
     @Test
     void wrapsAtSpacesWhenTheLineNoLongerFitsTheRect() {
         // "AV AV" measures 34 px, so it cannot fit into a 20 px wide rect.
-        PiklibTextLayout.Layout layout = layout(font(), "AV AV", new Box2D(0, 0, 20, 100));
+        PiklibTextLayout.Layout layout = layout(font(), "AV AV", new CanvasRect(0, 0, 20, 100));
 
         assertEquals(List.of("AV", "AV"), textOf(layout));
         assertEquals(HEIGHT_OF_TWO_LINES, layout.height());
@@ -71,7 +71,7 @@ class PiklibTextLayoutTest {
 
     @Test
     void placesEachGlyphUsingThePairAdjustmentOfItsPredecessor() {
-        PiklibTextLayout.Layout layout = layout(font(), "AV", new Box2D(0, 0, 100, 100));
+        PiklibTextLayout.Layout layout = layout(font(), "AV", new CanvasRect(0, 0, 100, 100));
 
         assertEquals(
                 List.of(
@@ -85,8 +85,7 @@ class PiklibTextLayoutTest {
 
     @Test
     void centersTheTextBlockInsideTheRect() {
-        // Script RECT syntax is (left, top, right, bottom) despite the Box2D accessor names.
-        Box2D rect = new Box2D(10, 20, 110, 120);
+        CanvasRect rect = new CanvasRect(10, 20, 110, 120);
 
         PiklibTextLayout.Line firstLine = PiklibTextLayout
                 .layout(font(), "AV|AV", rect, "CENTER", "CENTER")
@@ -99,7 +98,7 @@ class PiklibTextLayoutTest {
 
     @Test
     void alignsTheTextBlockToTheRightAndBottomEdgesOfTheRect() {
-        Box2D rect = new Box2D(10, 20, 110, 120);
+        CanvasRect rect = new CanvasRect(10, 20, 110, 120);
 
         PiklibTextLayout.Line firstLine = PiklibTextLayout
                 .layout(font(), "AV", rect, "RIGHT", "BOTTOM")
@@ -170,11 +169,11 @@ class PiklibTextLayoutTest {
         assertEquals(List.of(WHITE, 0xFF8200), colorsOf(layout.lines().get(0)));
     }
 
-    private static Box2D wideRect() {
-        return new Box2D(0, 0, 100, 100);
+    private static CanvasRect wideRect() {
+        return new CanvasRect(0, 0, 100, 100);
     }
 
-    private static PiklibTextLayout.Layout layout(FontVariable font, String text, Box2D rect) {
+    private static PiklibTextLayout.Layout layout(FontVariable font, String text, CanvasRect rect) {
         return PiklibTextLayout.layout(font, text, rect, "LEFT", "TOP");
     }
 
