@@ -31,4 +31,5 @@ public class PatchFileSystem implements IFileSystem {
     @Override public boolean isDirectory(String path) { return inner.isDirectory(path); }
     @Override public String[] list(String path) { return inner.list(path); }
     @Override public long length(String path) { return inner.length(path); }
+    @Override public DataSource openSource(String path) throws IOException { return inner.openSource(path); }
 }

@@ -1,11 +1,12 @@
 package pl.genschu.bloomooemulator.engine.filesystem;
 
+import pl.genschu.bloomooemulator.loader.helpers.SeekableBinaryReader;
+
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.RandomAccessFile;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -30,18 +31,29 @@ public class IsoFileSystem implements IFileSystem {
     private static final int DIR_FLAG_DIRECTORY = 0x02;
     private static final int DIR_FLAG_ASSOCIATED = 0x04;
 
-    private final File isoFile;
+    private final DataSource source;
     private final Map<String, Entry> entries = new ConcurrentHashMap<>();
     private volatile boolean indexed;
 
     private record VolumeDescriptor(int rootExtent, long rootSize, int blockSize, Charset nameCharset, boolean joliet) {}
 
     public IsoFileSystem(File isoFile) {
+        this(new FileDataSource(requireNonNullFile(isoFile)));
+    }
+
+    public IsoFileSystem(DataSource source) {
+        if (source == null) {
+            throw new IllegalArgumentException("source cannot be null");
+        }
+        this.source = source;
+        registerDirectory("");
+    }
+
+    private static File requireNonNullFile(File isoFile) {
         if (isoFile == null) {
             throw new IllegalArgumentException("isoFile cannot be null");
         }
-        this.isoFile = isoFile;
-        registerDirectory("");
+        return isoFile;
     }
 
     @Override
@@ -57,9 +69,26 @@ public class IsoFileSystem implements IFileSystem {
             return new ByteArrayInputStream(new byte[0]);
         }
 
-        RandomAccessFile raf = new RandomAccessFile(isoFile, "r");
-        raf.seek(entry.offset());
-        return new BoundedRandomAccessInputStream(raf, entry.length());
+        SeekableBinaryReader reader = source.openReader();
+        try {
+            reader.seek(entry.offset());
+        } catch (IOException e) {
+            reader.close();
+            throw e;
+        }
+        return new BoundedReaderInputStream(reader, entry.length());
+    }
+
+    /** ISO9660 extents are contiguous, so a nested container is a plain slice. */
+    @Override
+    public DataSource openSource(String path) throws IOException {
+        ensureIndexed();
+
+        Entry entry = entries.get(normalize(path));
+        if (entry == null || entry.directory()) {
+            throw new FileNotFoundException(path);
+        }
+        return new SlicedDataSource(source, normalize(path), entry.offset(), entry.length());
     }
 
     @Override
@@ -109,8 +138,8 @@ public class IsoFileSystem implements IFileSystem {
         return entry == null || entry.directory() ? 0 : entry.length();
     }
 
-    protected final File getIsoFile() {
-        return isoFile;
+    protected final DataSource getSource() {
+        return source;
     }
 
     protected final void registerFile(String path, long offset, long length) {
@@ -152,29 +181,29 @@ public class IsoFileSystem implements IFileSystem {
         try {
             ensureIndexed();
         } catch (IOException e) {
-            throw new IllegalStateException("Failed to index ISO image: " + isoFile, e);
+            throw new IllegalStateException("Failed to index ISO image: " + source.name(), e);
         }
     }
 
     protected void buildIndex() throws IOException {
-        try (RandomAccessFile raf = new RandomAccessFile(isoFile, "r")) {
-            List<VolumeDescriptor> descriptors = readVolumeDescriptors(raf);
+        try (SeekableBinaryReader reader = source.openReader()) {
+            List<VolumeDescriptor> descriptors = readVolumeDescriptors(reader);
             VolumeDescriptor chosen = pickPreferredDescriptor(descriptors);
             if (chosen == null) {
-                throw new IOException("No usable ISO9660 volume descriptor in " + isoFile);
+                throw new IOException("No usable ISO9660 volume descriptor in " + source.name());
             }
-            walkDirectory(raf, chosen, chosen.rootExtent(), chosen.rootSize(), "");
+            walkDirectory(reader, chosen, chosen.rootExtent(), chosen.rootSize(), "");
         }
     }
 
-    private List<VolumeDescriptor> readVolumeDescriptors(RandomAccessFile raf) throws IOException {
+    private List<VolumeDescriptor> readVolumeDescriptors(SeekableBinaryReader reader) throws IOException {
         List<VolumeDescriptor> descriptors = new ArrayList<>();
         long position = PVD_START;
-        long fileLength = raf.length();
+        long fileLength = reader.length();
         byte[] sector = new byte[SECTOR_SIZE];
         while (position + SECTOR_SIZE <= fileLength) {
-            raf.seek(position);
-            raf.readFully(sector);
+            reader.seek(position);
+            reader.readFully(sector, 0, sector.length);
             if (sector[1] != 'C' || sector[2] != 'D' || sector[3] != '0' || sector[4] != '0' || sector[5] != '1') {
                 break;
             }
@@ -231,7 +260,7 @@ public class IsoFileSystem implements IFileSystem {
         return fallback;
     }
 
-    private void walkDirectory(RandomAccessFile raf, VolumeDescriptor vd, int extent, long size, String parentPath) throws IOException {
+    private void walkDirectory(SeekableBinaryReader reader, VolumeDescriptor vd, int extent, long size, String parentPath) throws IOException {
         if (size <= 0) {
             return;
         }
@@ -239,8 +268,8 @@ public class IsoFileSystem implements IFileSystem {
             throw new IOException("Directory record block too large: " + size);
         }
         byte[] data = new byte[(int) size];
-        raf.seek((long) extent * vd.blockSize());
-        raf.readFully(data);
+        reader.seek((long) extent * vd.blockSize());
+        reader.readFully(data, 0, data.length);
 
         int pos = 0;
         while (pos < data.length) {
@@ -275,7 +304,7 @@ public class IsoFileSystem implements IFileSystem {
             String childPath = parentPath.isEmpty() ? name : parentPath + "/" + name;
             if (isDirectory) {
                 registerDirectory(childPath);
-                walkDirectory(raf, vd, childExtent, childSize, childPath);
+                walkDirectory(reader, vd, childExtent, childSize, childPath);
             } else {
                 registerFile(childPath, (long) childExtent * vd.blockSize(), childSize);
             }
@@ -322,45 +351,5 @@ public class IsoFileSystem implements IFileSystem {
     }
 
     private record Entry(boolean directory, long offset, long length) {
-    }
-
-    private static final class BoundedRandomAccessInputStream extends InputStream {
-        private final RandomAccessFile file;
-        private long remaining;
-
-        private BoundedRandomAccessInputStream(RandomAccessFile file, long length) {
-            this.file = file;
-            this.remaining = length;
-        }
-
-        @Override
-        public int read() throws IOException {
-            if (remaining <= 0) {
-                return -1;
-            }
-            int value = file.read();
-            if (value >= 0) {
-                remaining--;
-            }
-            return value;
-        }
-
-        @Override
-        public int read(byte[] buffer, int offset, int length) throws IOException {
-            if (remaining <= 0) {
-                return -1;
-            }
-            int toRead = (int) Math.min(length, remaining);
-            int read = file.read(buffer, offset, toRead);
-            if (read > 0) {
-                remaining -= read;
-            }
-            return read;
-        }
-
-        @Override
-        public void close() throws IOException {
-            file.close();
-        }
     }
 }

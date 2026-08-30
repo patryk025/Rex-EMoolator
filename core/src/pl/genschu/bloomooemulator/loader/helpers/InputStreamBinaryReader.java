@@ -89,6 +89,26 @@ public final class InputStreamBinaryReader implements BinaryReader {
     }
 
     @Override
+    public void readFully(byte[] buffer, int offset, int length) throws IOException {
+        if (length < 0) {
+            throw new IOException("Negative byte count: " + length);
+        }
+        int read = 0;
+        while (read < length) {
+            int count = input.read(buffer, offset + read, length - read);
+            if (count < 0) {
+                throw new EOFException("Unexpected end of stream: read " + read + " of " + length + " bytes");
+            }
+            if (count == 0) {
+                buffer[offset + read] = (byte) readU8();
+                read++;
+            } else {
+                read += count;
+            }
+        }
+    }
+
+    @Override
     public void skipFully(long length) throws IOException {
         if (length < 0) {
             throw new IOException("Negative skip length: " + length);

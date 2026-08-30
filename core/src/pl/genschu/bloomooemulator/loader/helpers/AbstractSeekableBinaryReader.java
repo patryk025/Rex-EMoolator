@@ -1,49 +1,57 @@
 package pl.genschu.bloomooemulator.loader.helpers;
+
 import java.io.ByteArrayOutputStream;
+import java.io.EOFException;
 import java.io.IOException;
-import java.io.RandomAccessFile;
 import java.nio.charset.Charset;
-import java.util.Objects;
-public final class RandomAccessFileBinaryReader implements SeekableBinaryReader {
 
-    private final RandomAccessFile input;
+/**
+ * Base for {@link SeekableBinaryReader} implementations: decodes every primitive
+ * on top of a single bulk read plus cursor management, so a new backing medium
+ * only has to supply {@link #readFully}, {@link #position()}, {@link #seek(long)},
+ * {@link #length()} and {@link #close()}.
+ */
+public abstract class AbstractSeekableBinaryReader implements SeekableBinaryReader {
+    private final byte[] scratch = new byte[8];
 
-    public RandomAccessFileBinaryReader(RandomAccessFile input) {
-        this.input = Objects.requireNonNull(input, "input");
-    }
+    /** Reads exactly {@code length} bytes and advances the cursor, or throws {@link EOFException}. */
+    @Override
+    public abstract void readFully(byte[] buffer, int offset, int length) throws IOException;
 
     @Override
     public byte readI8() throws IOException {
-        return input.readByte();
+        return (byte) readU8();
     }
 
     @Override
     public int readU8() throws IOException {
-        return input.readUnsignedByte();
+        readFully(scratch, 0, 1);
+        return scratch[0] & 0xFF;
     }
 
     @Override
     public short readI16LE() throws IOException {
-        return Short.reverseBytes(input.readShort());
+        return (short) readU16LE();
     }
 
     @Override
     public int readU16LE() throws IOException {
-        return Short.toUnsignedInt(
-                Short.reverseBytes(input.readShort())
-        );
+        readFully(scratch, 0, 2);
+        return (scratch[0] & 0xFF) | ((scratch[1] & 0xFF) << 8);
     }
 
     @Override
     public int readI32LE() throws IOException {
-        return Integer.reverseBytes(input.readInt());
+        readFully(scratch, 0, 4);
+        return (scratch[0] & 0xFF)
+                | ((scratch[1] & 0xFF) << 8)
+                | ((scratch[2] & 0xFF) << 16)
+                | ((scratch[3] & 0xFF) << 24);
     }
 
     @Override
     public long readU32LE() throws IOException {
-        return Integer.toUnsignedLong(
-                Integer.reverseBytes(input.readInt())
-        );
+        return readI32LE() & 0xFFFF_FFFFL;
     }
 
     @Override
@@ -55,7 +63,6 @@ public final class RandomAccessFileBinaryReader implements SeekableBinaryReader 
     public long readI64LE() throws IOException {
         long low = readU32LE();
         long high = readU32LE();
-
         return low | (high << 32);
     }
 
@@ -70,24 +77,21 @@ public final class RandomAccessFileBinaryReader implements SeekableBinaryReader 
         if (length < 0) {
             throw new IOException("Negative byte count: " + length);
         }
-
         byte[] bytes = new byte[length];
-        input.readFully(bytes);
+        readFully(bytes, 0, length);
         return bytes;
     }
 
     @Override
-    public void readFully(byte[] buffer, int offset, int length) throws IOException {
-        input.readFully(buffer, offset, length);
-    }
-
-    @Override
-    public void skipFully(long length) throws IOException {
-        if (length < 0) {
-            throw new IOException("Negative skip length: " + length);
+    public void skipFully(long count) throws IOException {
+        if (count < 0) {
+            throw new IOException("Negative skip length: " + count);
         }
-
-        input.seek(Math.addExact(input.getFilePointer(), length));
+        long target = Math.addExact(position(), count);
+        if (target > length()) {
+            throw new EOFException("Skip past end: position=" + target + ", length=" + length());
+        }
+        seek(target);
     }
 
     @Override
@@ -113,25 +117,5 @@ public final class RandomAccessFileBinaryReader implements SeekableBinaryReader 
             }
         }
         return new String(bytes, 0, decodedLength, charset);
-    }
-
-    @Override
-    public long length() throws IOException {
-        return input.length();
-    }
-
-    @Override
-    public long position() throws IOException {
-        return input.getFilePointer();
-    }
-
-    @Override
-    public void seek(long position) throws IOException {
-        input.seek(position);
-    }
-
-    @Override
-    public void close() throws IOException {
-        input.close();
     }
 }

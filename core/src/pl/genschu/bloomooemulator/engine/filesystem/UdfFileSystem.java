@@ -1,12 +1,13 @@
 package pl.genschu.bloomooemulator.engine.filesystem;
 
+import pl.genschu.bloomooemulator.loader.helpers.SeekableBinaryReader;
+
 import java.io.ByteArrayInputStream;
 import java.io.EOFException;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.RandomAccessFile;
 import java.io.UncheckedIOException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -22,19 +23,30 @@ import static pl.genschu.bloomooemulator.engine.filesystem.UdfReader.Entry;
 
 /** Read-only filesystem backed by a Universal Disk Format image. */
 public class UdfFileSystem implements IFileSystem {
-    private final File image;
+    private final DataSource source;
     private final Map<String, Entry> entries;
 
     public UdfFileSystem(File image) {
+        this(toSource(image));
+    }
+
+    public UdfFileSystem(DataSource source) {
+        if (source == null) {
+            throw new IllegalArgumentException("source cannot be null");
+        }
+        this.source = source;
+        try {
+            entries = new UdfReader(source).readIndex();
+        } catch (IOException e) {
+            throw new UncheckedIOException("Failed to index UDF image: " + source.name(), e);
+        }
+    }
+
+    private static DataSource toSource(File image) {
         if (image == null) {
             throw new IllegalArgumentException("image cannot be null");
         }
-        this.image = image;
-        try {
-            entries = new UdfReader(image).readIndex();
-        } catch (IOException e) {
-            throw new UncheckedIOException("Failed to index UDF image: " + image, e);
-        }
+        return new FileDataSource(image);
     }
 
     @Override
@@ -49,11 +61,35 @@ public class UdfFileSystem implements IFileSystem {
         if (entry.length() == 0) {
             return new ByteArrayInputStream(new byte[0]);
         }
-        return new SegmentedFileInputStream(
-                new RandomAccessFile(image, "r"),
+        return new SegmentedReaderInputStream(
+                source.openReader(),
                 entry.segments(),
                 entry.length()
         );
+    }
+
+    /**
+     * Slices the entry when its data sits in one recorded extent — the usual
+     * layout — and otherwise falls back to buffering it via {@link IFileSystem}.
+     */
+    @Override
+    public DataSource openSource(String path) throws IOException {
+        Entry entry = entries.get(normalize(path));
+        if (entry == null || entry.directory()) {
+            throw new FileNotFoundException(path);
+        }
+        if (entry.inlineData() == null
+                && entry.segments().size() == 1
+                && entry.segments().get(0).recorded()
+                && entry.segments().get(0).length() >= entry.length()) {
+            return new SlicedDataSource(
+                    source,
+                    normalize(path),
+                    entry.segments().get(0).offset(),
+                    entry.length()
+            );
+        }
+        return IFileSystem.super.openSource(path);
     }
 
     @Override
@@ -119,20 +155,20 @@ public class UdfFileSystem implements IFileSystem {
                 .toLowerCase(Locale.ROOT);
     }
 
-    private static final class SegmentedFileInputStream extends InputStream {
-        private final RandomAccessFile file;
+    private static final class SegmentedReaderInputStream extends InputStream {
+        private final SeekableBinaryReader reader;
         private final List<DataSegment> segments;
         private long remaining;
         private int segmentIndex;
         private long positionInSegment;
         private boolean positioned;
 
-        private SegmentedFileInputStream(
-                RandomAccessFile file,
+        private SegmentedReaderInputStream(
+                SeekableBinaryReader reader,
                 List<DataSegment> segments,
                 long length
         ) {
-            this.file = file;
+            this.reader = reader;
             this.segments = Collections.unmodifiableList(new ArrayList<>(segments));
             this.remaining = length;
         }
@@ -162,14 +198,10 @@ public class UdfFileSystem implements IFileSystem {
                 );
                 if (segment.recorded()) {
                     if (!positioned) {
-                        file.seek(Math.addExact(segment.offset(), positionInSegment));
+                        reader.seek(Math.addExact(segment.offset(), positionInSegment));
                         positioned = true;
                     }
-                    int read = file.read(buffer, offset, count);
-                    if (read < 0) {
-                        throw new EOFException("Truncated UDF file extent");
-                    }
-                    count = read;
+                    reader.readFully(buffer, offset, count);
                 } else {
                     java.util.Arrays.fill(buffer, offset, offset + count, (byte) 0);
                 }
@@ -203,7 +235,7 @@ public class UdfFileSystem implements IFileSystem {
 
         @Override
         public void close() throws IOException {
-            file.close();
+            reader.close();
         }
     }
 }

@@ -14,4 +14,17 @@ public interface IFileSystem {
     boolean isDirectory(String path);
     String[] list(String path);
     long length(String path);
+
+    /**
+     * Opens {@code path} as a randomly-accessible source, so an entry that is
+     * itself a container can be handed to {@link AssetSourceDispatcher} and
+     * mounted as another layer of the VFS.
+     *
+     * The default materialises the entry in memory, which is the only option for
+     * compressed or fragmented storage. Implementations whose entries are stored
+     * contiguously should override with a {@link SlicedDataSource}.
+     */
+    default DataSource openSource(String path) throws IOException {
+        return MemoryDataSource.drain(path, open(path));
+    }
 }

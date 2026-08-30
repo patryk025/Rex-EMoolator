@@ -29,6 +29,16 @@ public interface BinaryReader {
 
     byte[] readBytes(int length) throws IOException;
 
+    /**
+     * Reads exactly {@code length} bytes into {@code buffer}, advancing the cursor.
+     * The default routes through {@link #readBytes(int)}; implementations that can
+     * fill a caller-supplied buffer directly should override to avoid the copy.
+     */
+    default void readFully(byte[] buffer, int offset, int length) throws IOException {
+        byte[] bytes = readBytes(length);
+        System.arraycopy(bytes, 0, buffer, offset, length);
+    }
+
     void skipFully(long length) throws IOException;
 
     String readNullTerminatedString(Charset charset) throws IOException;

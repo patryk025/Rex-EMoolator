@@ -1,76 +1,78 @@
 package pl.genschu.bloomooemulator.engine.filesystem;
 
+import pl.genschu.bloomooemulator.loader.helpers.SeekableBinaryReader;
+
 import java.io.File;
 import java.io.IOException;
-import java.io.RandomAccessFile;
 import java.nio.charset.StandardCharsets;
-import java.util.Locale;
-import java.util.zip.ZipFile;
 
 public class FileSystemDetector {
     private static final int SECTOR_SIZE = 2048;
 
     public static FileSystemType detectFileSystemType(File path) throws IOException {
-        if(path.isDirectory()) {
+        if (path.isDirectory()) {
             return FileSystemType.DIRECTORY;
         }
+        return detectFileSystemType(new FileDataSource(path));
+    }
 
-        try (RandomAccessFile raf = new RandomAccessFile(path, "r")) {
-            if (isIso9660(raf)) {
+    /**
+     * Sniffs the container format straight off the bytes, so a source nested in
+     * another mount is detected the same way a file on disk is.
+     */
+    public static FileSystemType detectFileSystemType(DataSource source) throws IOException {
+        try (SeekableBinaryReader reader = source.openReader()) {
+            if (isIso9660(reader)) {
                 return FileSystemType.ISO9660;
             }
 
-            if (isUdf(raf)) {
+            if (isUdf(reader)) {
                 return FileSystemType.UDF;
             }
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
 
-        if (isValidZip(path)) {
-            return FileSystemType.ZIP;
+            if (isZip(reader)) {
+                return FileSystemType.ZIP;
+            }
         }
 
         throw new IOException(
-                "Unsupported game asset source: " + path
+                "Unsupported game asset source: " + source.name()
         );
     }
 
     private static boolean hasSignature(
-            RandomAccessFile raf,
+            SeekableBinaryReader reader,
             long offset,
             String signature
     ) throws IOException {
-        if (raf.length() < offset + signature.length()) {
+        if (reader.length() < offset + signature.length()) {
             return false;
         }
 
-        byte[] buf = new byte[signature.length()];
-
-        raf.seek(offset);
-        raf.readFully(buf);
+        reader.seek(offset);
+        byte[] buf = reader.readBytes(signature.length());
 
         return signature.equals(new String(buf, StandardCharsets.US_ASCII));
     }
 
-    private static boolean isIso9660(RandomAccessFile raf) throws IOException {
+    private static boolean isIso9660(SeekableBinaryReader reader) throws IOException {
         // Sector 16 + descriptor ID offset 1
         return hasSignature(
-                raf,
+                reader,
                 16L * SECTOR_SIZE + 1,
                 "CD001"
         );
     }
 
-    private static boolean isUdf(RandomAccessFile raf) throws IOException {
+    private static boolean isUdf(SeekableBinaryReader reader) throws IOException {
         final int maxSectorsToScan = 32;
         final long startSector = 16;
 
         for (int i = 0; i < maxSectorsToScan; i++) {
             long sectorOffset = (startSector + i) * SECTOR_SIZE;
 
-            if (hasSignature(raf, sectorOffset + 1, "NSR02") ||
-                    hasSignature(raf, sectorOffset + 1, "NSR03")) {
+            if (hasSignature(reader, sectorOffset + 1, "NSR02") ||
+                    hasSignature(reader, sectorOffset + 1, "NSR03")) {
                 return true;
             }
         }
@@ -78,11 +80,13 @@ public class FileSystemDetector {
         return false;
     }
 
-    public static boolean isValidZip(File file) {
-        try (ZipFile ignored = new ZipFile(file)) {
-            return true;
-        } catch (IOException e) {
-            return false;
-        }
+    /**
+     * Local file header, or an empty/spanned archive. A full validity check
+     * would need a real file; {@link ZipFileSystem} rejects what it cannot open.
+     */
+    private static boolean isZip(SeekableBinaryReader reader) throws IOException {
+        return hasSignature(reader, 0, "PK\u0003\u0004")
+                || hasSignature(reader, 0, "PK\u0005\u0006")
+                || hasSignature(reader, 0, "PK\u0007\u0008");
     }
 }

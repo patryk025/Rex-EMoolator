@@ -30,6 +30,27 @@ public class ZipFileSystem implements IFileSystem {
         registerDirectory("");
     }
 
+    /**
+     * {@code java.util.zip} reads the central directory by seeking a real file,
+     * so — unlike the image filesystems — a ZIP cannot be mounted from an
+     * arbitrary source. Nested archives would need a full ZIP reader of our own.
+     */
+    public ZipFileSystem(DataSource source) throws IOException {
+        this(requireBackingFile(source));
+    }
+
+    private static File requireBackingFile(DataSource source) throws IOException {
+        if (source == null) {
+            throw new IllegalArgumentException("source cannot be null");
+        }
+        File file = source.asFile();
+        if (file == null) {
+            throw new IOException("ZIP archives can only be mounted from a file on disk, not from "
+                    + source.name());
+        }
+        return file;
+    }
+
     @Override
     public InputStream open(String path) throws IOException {
         ensureIndexed();

@@ -3,14 +3,11 @@ package pl.genschu.bloomooemulator.engine.filesystem;
 import com.badlogic.gdx.Gdx;
 import pl.genschu.bloomooemulator.loader.helpers.BinaryReader;
 import pl.genschu.bloomooemulator.loader.helpers.InputStreamBinaryReader;
-import pl.genschu.bloomooemulator.loader.helpers.RandomAccessFileBinaryReader;
 import pl.genschu.bloomooemulator.loader.helpers.SeekableBinaryReader;
 
 import java.io.ByteArrayInputStream;
 import java.io.EOFException;
-import java.io.File;
 import java.io.IOException;
-import java.io.RandomAccessFile;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -33,16 +30,15 @@ final class UdfReader {
     private static final int MINIMUM_VDS_SECTORS = 16;
     private static final int MAX_DIRECTORY_DEPTH = 1024;
 
-    private final File image;
+    private final DataSource source;
     private final Map<String, Entry> entries = new LinkedHashMap<>();
 
-    UdfReader(File image) {
-        this.image = image;
+    UdfReader(DataSource source) {
+        this.source = source;
     }
 
     Map<String, Entry> readIndex() throws IOException {
-        try (RandomAccessFile file = new RandomAccessFile(image, "r")) {
-            SeekableBinaryReader reader = new RandomAccessFileBinaryReader(file);
+        try (SeekableBinaryReader reader = source.openReader()) {
             validateVolumeRecognitionSequence(reader);
             List<AnchorVolumeDescriptorPointer> anchors = findAnchors(reader);
             Volume volume = readVolume(reader, anchors);
@@ -50,7 +46,6 @@ final class UdfReader {
             log("Logical Volume Identifier: " + volume.logicalVolume().decodedIdentifier());
             FileSetDescriptor fileSet = readFileSetDescriptor(reader, volume);
             walkEntry(
-                    file,
                     reader,
                     volume,
                     fileSet.rootDirectoryIcb(),
@@ -131,7 +126,7 @@ final class UdfReader {
 
         if (anchors.isEmpty()) {
             IOException failure = new IOException(
-                    "No valid Anchor Volume Descriptor Pointer found in " + image);
+                    "No valid Anchor Volume Descriptor Pointer found in " + source.name());
             invalidCandidates.forEach(failure::addSuppressed);
             throw failure;
         }
@@ -235,7 +230,6 @@ final class UdfReader {
     }
 
     private void walkEntry(
-            RandomAccessFile file,
             SeekableBinaryReader reader,
             Volume volume,
             LongAllocationDescriptor icb,
@@ -286,9 +280,8 @@ final class UdfReader {
             throw new IOException("Directory ICB cycle at " + printablePath(path));
         }
         try {
-            byte[] directoryBytes = readAll(file, content);
+            byte[] directoryBytes = readAll(reader, content);
             readDirectory(
-                    file,
                     reader,
                     volume,
                     directoryBytes,
@@ -302,7 +295,6 @@ final class UdfReader {
     }
 
     private void readDirectory(
-            RandomAccessFile file,
             SeekableBinaryReader reader,
             Volume volume,
             byte[] bytes,
@@ -343,7 +335,6 @@ final class UdfReader {
                     ? childName
                     : parentPath + "/" + childName;
             walkEntry(
-                    file,
                     reader,
                     volume,
                     fid.icb(),
@@ -526,7 +517,7 @@ final class UdfReader {
         throw new IOException("Unsupported partition map type: " + map.type());
     }
 
-    private static byte[] readAll(RandomAccessFile file, Content content) throws IOException {
+    private static byte[] readAll(SeekableBinaryReader reader, Content content) throws IOException {
         if (content.inlineData() != null) {
             return content.inlineData().clone();
         }
@@ -543,9 +534,9 @@ final class UdfReader {
                 break;
             }
             if (segment.recorded()) {
-                requireImageRange(file.length(), segment.offset(), count, "directory extent");
-                file.seek(segment.offset());
-                file.readFully(result, destination, count);
+                requireImageRange(reader, segment.offset(), count, "directory extent");
+                reader.seek(segment.offset());
+                reader.readFully(result, destination, count);
             }
             destination += count;
             remaining -= count;

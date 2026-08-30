@@ -54,6 +54,11 @@ public class LocalFileSystem implements IWritableFileSystem {
     }
 
     @Override
+    public DataSource openSource(String path) {
+        return new FileDataSource(resolve(path));
+    }
+
+    @Override
     public boolean exists(String path) {
         return resolve(path).exists();
     }
