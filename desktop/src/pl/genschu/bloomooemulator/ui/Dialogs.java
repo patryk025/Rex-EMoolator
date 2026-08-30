@@ -77,7 +77,7 @@ public class Dialogs {
         JComboBox<String> legacyClockProfileSelectBox = new JComboBox<>(legacyClockProfileLabels);
         legacyClockProfileSelectBox.setSelectedIndex(LegacyClockProfile.defaultProfile().ordinal());
         JCheckBox joystickCheckbox = new JCheckBox(resourceBundle.getString("use_virtual_joystick"));
-        JCheckBox skipPoliceCheckbox = new JCheckBox(resourceBundle.getString("skip_code"));
+        JCheckBox licenceCodeHintCheckbox = new JCheckBox(resourceBundle.getString("show_code_hint"));
         JCheckBox fullscreenCheckbox = new JCheckBox(resourceBundle.getString("stretch_fullscreen"));
         JCheckBox fpsCounterCheckbox = new JCheckBox(resourceBundle.getString("show_fps_counter"));
 
@@ -92,7 +92,7 @@ public class Dialogs {
             mouseModeSelectBox.setSelectedIndex(game.getMouseModeEnum().ordinal());
             legacyClockProfileSelectBox.setSelectedIndex(game.getLegacyClockProfileEnum().ordinal());
             joystickCheckbox.setSelected(game.isMouseVirtualJoystick());
-            skipPoliceCheckbox.setSelected(game.isSkipLicenceCode());
+            licenceCodeHintCheckbox.setSelected(game.isShowLicenceCodeHint());
             fullscreenCheckbox.setSelected(!game.isMaintainAspectRatio());
             fpsCounterCheckbox.setSelected(game.isShowFpsCounter());
         }
@@ -106,7 +106,7 @@ public class Dialogs {
         dialog.add(new JLabel(resourceBundle.getString("legacy_clock_profile")));
         dialog.add(legacyClockProfileSelectBox);
         dialog.add(joystickCheckbox);
-        dialog.add(skipPoliceCheckbox);
+        dialog.add(licenceCodeHintCheckbox);
         dialog.add(fullscreenCheckbox);
         dialog.add(fpsCounterCheckbox);
         dialog.add(new JLabel(resourceBundle.getString("family_override")));
@@ -120,7 +120,7 @@ public class Dialogs {
                         pathField.getText(),
                         mouseModes[mouseModeSelectBox.getSelectedIndex()].key(),
                         joystickCheckbox.isSelected(),
-                        skipPoliceCheckbox.isSelected(),
+                        licenceCodeHintCheckbox.isSelected(),
                         !fullscreenCheckbox.isSelected());
                 newGame.setShowFpsCounter(fpsCounterCheckbox.isSelected());
                 newGame.setFamilyOverride(familyField.getText());
@@ -131,7 +131,7 @@ public class Dialogs {
                 game.setPath(pathField.getText());
                 game.setMouseMode(mouseModes[mouseModeSelectBox.getSelectedIndex()]);
                 game.setMouseVirtualJoystick(joystickCheckbox.isSelected());
-                game.setSkipLicenceCode(skipPoliceCheckbox.isSelected());
+                game.setShowLicenceCodeHint(licenceCodeHintCheckbox.isSelected());
                 game.setMaintainAspectRatio(!fullscreenCheckbox.isSelected());
                 game.setShowFpsCounter(fpsCounterCheckbox.isSelected());
                 game.setFamilyOverride(familyField.getText());

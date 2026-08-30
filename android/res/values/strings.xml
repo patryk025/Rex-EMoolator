@@ -49,7 +49,7 @@
     <string name="mouse_mode_physical">Fizyczny kursor</string>
     <string name="legacy_clock_profile_label">Rozdzielczość starego zegara (GetTickCount):</string>
     <string name="use_joystick">Używaj wirtualnego joysticka do obsługi myszy</string>
-    <string name="skip_police_code">Pomiń wprowadzanie kodu (Pana Policjanta)</string>
+    <string name="show_police_code_hint">Pokaż podpowiedź z kodem Pana Policjanta</string>
     <string name="stretch_fullscreen">Rozciągaj na cały ekran (ignoruj proporcje ekranu)</string>
     <string name="show_fps">Pokaż licznik FPS</string>
     <string name="patch_family_label">Rodzina łatek (opcjonalnie):</string>

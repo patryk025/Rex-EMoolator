@@ -28,6 +28,10 @@ public class GameEntry implements Serializable {
     private String mouseMode;
     private String legacyClockProfile;
     private boolean mouseVirtualJoystick;
+    /**
+     * Legacy JSON field name retained for compatibility with existing games.json files.
+     * The old skip implementation was never wired; the value now enables a visual hint.
+     */
     private boolean skipLicenceCode;
     private boolean maintainAspectRatio;
     private boolean showFpsCounter;
@@ -35,7 +39,7 @@ public class GameEntry implements Serializable {
     public GameEntry() {
     }
 
-    public GameEntry(String name, String path, String mouseMode, boolean mouseVirtualJoystick, boolean skipLicenceCode, boolean maintainAspectRatio) {
+    public GameEntry(String name, String path, String mouseMode, boolean mouseVirtualJoystick, boolean showLicenceCodeHint, boolean maintainAspectRatio) {
         this.id = -1;
         this.name = name;
         this.path = path;
@@ -43,7 +47,7 @@ public class GameEntry implements Serializable {
         this.version = searchForDllFiles(path);
         this.mouseMode = mouseMode;
         this.mouseVirtualJoystick = mouseVirtualJoystick;
-        this.skipLicenceCode = skipLicenceCode;
+        this.skipLicenceCode = showLicenceCodeHint;
         this.maintainAspectRatio = maintainAspectRatio;
     }
 
@@ -344,12 +348,24 @@ public class GameEntry implements Serializable {
         this.mouseVirtualJoystick = mouseVirtualJoystick;
     }
 
+    /** @deprecated use {@link #isShowLicenceCodeHint()}; retained for source compatibility. */
+    @Deprecated
     public boolean isSkipLicenceCode() {
         return skipLicenceCode;
     }
 
+    /** @deprecated use {@link #setShowLicenceCodeHint(boolean)}; retained for source compatibility. */
+    @Deprecated
     public void setSkipLicenceCode(boolean skipLicenceCode) {
         this.skipLicenceCode = skipLicenceCode;
+    }
+
+    public boolean isShowLicenceCodeHint() {
+        return skipLicenceCode;
+    }
+
+    public void setShowLicenceCodeHint(boolean showLicenceCodeHint) {
+        this.skipLicenceCode = showLicenceCodeHint;
     }
 
     public boolean isMaintainAspectRatio() {

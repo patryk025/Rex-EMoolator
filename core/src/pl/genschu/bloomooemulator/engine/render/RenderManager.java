@@ -42,6 +42,7 @@ public class RenderManager implements Disposable {
     private final TextRenderer textRenderer;
     private final MaskRenderer maskRenderer;
     private final AlphaMaskRenderer alphaMaskRenderer;
+    private final LicenceCodeHintRenderer licenceCodeHintRenderer;
     private final RenderStats lastRenderStats = new RenderStats();
 
     public RenderManager(SpriteBatch batch, OrthographicCamera camera, Viewport viewport,
@@ -68,6 +69,7 @@ public class RenderManager implements Disposable {
         this.textRenderer = new TextRenderer(batch);
         this.maskRenderer = new MaskRenderer(batch);
         this.alphaMaskRenderer = new AlphaMaskRenderer(batch);
+        this.licenceCodeHintRenderer = new LicenceCodeHintRenderer(batch);
 
         clearLogicalCanvas();
     }
@@ -103,6 +105,7 @@ public class RenderManager implements Disposable {
             sortByPriority(drawList);
 
             renderDrawList(drawList, context);
+            renderLicenceCodeHint(context);
         } finally {
             if (batch.isDrawing()) {
                 batch.end();
@@ -290,6 +293,14 @@ public class RenderManager implements Disposable {
                 recordTextWorkload(text);
                 textRenderer.renderText(text, context);
             }
+        }
+    }
+
+    private void renderLicenceCodeHint(GameContext context) {
+        if (game.getGame() != null && game.getGame().isShowLicenceCodeHint()) {
+            licenceCodeHintRenderer.render(context);
+        } else {
+            licenceCodeHintRenderer.clear();
         }
     }
 
@@ -488,6 +499,7 @@ public class RenderManager implements Disposable {
         textRenderer.dispose();
         maskRenderer.dispose();
         alphaMaskRenderer.dispose();
+        licenceCodeHintRenderer.dispose();
         canvasBuffer.dispose();
     }
 

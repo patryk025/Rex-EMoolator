@@ -139,7 +139,7 @@ public class GameListActivity extends AppCompatActivity {
         Spinner mouseModeSelectBox = dialogView.findViewById(R.id.mouseModeSelectBox);
         Spinner legacyClockProfileSelectBox = dialogView.findViewById(R.id.legacyClockProfileSelectBox);
         CheckBox joystickCheckbox = dialogView.findViewById(R.id.joystickCheckbox);
-        CheckBox skipPoliceCheckbox = dialogView.findViewById(R.id.skipPoliceCheckbox);
+        CheckBox licenceCodeHintCheckbox = dialogView.findViewById(R.id.licenceCodeHintCheckbox);
         CheckBox fullscreenCheckbox = dialogView.findViewById(R.id.fullscreenCheckbox);
         CheckBox fpsCounterCheckbox = dialogView.findViewById(R.id.fpsCounterCheckbox);
         EditText familyField = dialogView.findViewById(R.id.familyField);
@@ -176,7 +176,7 @@ public class GameListActivity extends AppCompatActivity {
             mouseModeSelectBox.setSelection(game.getMouseModeEnum().ordinal());
             legacyClockProfileSelectBox.setSelection(game.getLegacyClockProfileEnum().ordinal());
             joystickCheckbox.setChecked(game.isMouseVirtualJoystick());
-            skipPoliceCheckbox.setChecked(game.isSkipLicenceCode());
+            licenceCodeHintCheckbox.setChecked(game.isShowLicenceCodeHint());
             fullscreenCheckbox.setChecked(!game.isMaintainAspectRatio());
             fpsCounterCheckbox.setChecked(game.isShowFpsCounter());
             if (game.getFamilyOverride() != null) {
@@ -191,7 +191,7 @@ public class GameListActivity extends AppCompatActivity {
                         pathField.getText().toString(),
                         mouseModes[mouseModeSelectBox.getSelectedItemPosition()].key(),
                         joystickCheckbox.isChecked(),
-                        skipPoliceCheckbox.isChecked(),
+                        licenceCodeHintCheckbox.isChecked(),
                         !fullscreenCheckbox.isChecked());
                 newGame.setShowFpsCounter(fpsCounterCheckbox.isChecked());
                 newGame.setFamilyOverride(familyField.getText().toString());
@@ -204,7 +204,7 @@ public class GameListActivity extends AppCompatActivity {
                 game.setPath(pathField.getText().toString());
                 game.setMouseMode(mouseModes[mouseModeSelectBox.getSelectedItemPosition()]);
                 game.setMouseVirtualJoystick(joystickCheckbox.isChecked());
-                game.setSkipLicenceCode(skipPoliceCheckbox.isChecked());
+                game.setShowLicenceCodeHint(licenceCodeHintCheckbox.isChecked());
                 game.setMaintainAspectRatio(!fullscreenCheckbox.isChecked());
                 game.setShowFpsCounter(fpsCounterCheckbox.isChecked());
                 game.setFamilyOverride(familyField.getText().toString());

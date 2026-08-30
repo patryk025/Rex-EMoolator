@@ -45,7 +45,7 @@
     <string name="mouse_mode_physical">Physical cursor</string>
     <string name="legacy_clock_profile_label">Legacy clock granularity (GetTickCount):</string>
     <string name="use_joystick">Use a virtual joystick for mouse control</string>
-    <string name="skip_police_code">Skip code entry (Mr. Policeman)</string>
+    <string name="show_police_code_hint">Show Mr. Policeman\'s picture-code hint</string>
     <string name="stretch_fullscreen">Stretch to fullscreen (ignore aspect ratio)</string>
     <string name="show_fps">Show FPS counter</string>
     <string name="patch_family_label">Patch family (optional):</string>
