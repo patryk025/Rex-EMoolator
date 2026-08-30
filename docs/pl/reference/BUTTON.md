@@ -233,12 +233,12 @@ void SETSTD(STRING varName)
 void SETSTD(STRING varName, BOOL flag)
 ```
 
-Ustawia grafikę standardową przycisku (pole [`GFXSTANDARD`](#gfxstandard)) i zeruje priorytet nowej grafiki. W skryptach gier występuje również forma dwuargumentowa z dodatkową flagą boolowską — zawsze wywoływana z wartością `FALSE`, znaczenie tego argumentu nie zostało ustalone.
+Ustawia grafikę standardową przycisku (pole [`GFXSTANDARD`](#gfxstandard)) i zeruje priorytet nowej grafiki. Jeżeli przycisk nie ma jawnego `RECT`, jego hotspot podąża za obszarem nowej grafiki standardowej. Opcjonalna flaga określa, czy poprzednia grafika standardowa ma zostać usunięta z ekranu przed podmianą; domyślnie ma wartość `TRUE`.
 
 **Parametry**
 
 - `varName` — nazwa nowej zmiennej standardowej (pusty ciąg `""` czyści powiązanie).
-- `flag` — flaga konfiguracyjna **(forma 2, znaczenie nieustalone)**.
+- `flag` — gdy ma wartość `TRUE`, usuwa poprzednią grafikę standardową z ekranu **(forma 2)**.
 
 **Przykłady**
 

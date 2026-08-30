@@ -17,12 +17,16 @@ import java.util.List;
 public class ButtonHandler {
     private final Game game;
     private final InputManager inputManager;
-    // TODO: debug, check pixel perfect
-    private final boolean pixelPerfect = true;
+    private final boolean pixelPerfect;
 
     public ButtonHandler(Game game, InputManager inputManager) {
+        this(game, inputManager, true);
+    }
+
+    ButtonHandler(Game game, InputManager inputManager, boolean pixelPerfect) {
         this.game = game;
         this.inputManager = inputManager;
+        this.pixelPerfect = pixelPerfect;
     }
 
     public void handleMouseInput(int x, int y, boolean isPressed, boolean justPressed,
@@ -123,6 +127,18 @@ public class ButtonHandler {
                 return orderComparison;
             }
 
+            // A SETASBUTTON ANIMO can also be assigned as a BUTTON's standard
+            // graphics via SETSTD. The original engine dispatches the CButton
+            // CHotSpot before the ANIMO mouse listener in that arrangement, so
+            // the BUTTON owns the click while ANIMO can still establish focus.
+            if (left.hitGfx() == right.hitGfx()) {
+                boolean leftOwnsGraphic = ownsAnimoHitGraphic(left);
+                boolean rightOwnsGraphic = ownsAnimoHitGraphic(right);
+                if (leftOwnsGraphic != rightOwnsGraphic) {
+                    return leftOwnsGraphic ? -1 : 1;
+                }
+            }
+
             return Integer.compare(right.order(), left.order());
         });
 
@@ -205,6 +221,11 @@ public class ButtonHandler {
                 }
             }
         }
+    }
+
+    private static boolean ownsAnimoHitGraphic(ScopedButton button) {
+        return button.variable() instanceof ButtonVariable
+                && button.hitGfx() instanceof AnimoVariable;
     }
 
     private long getRenderOrder(Variable variable) {

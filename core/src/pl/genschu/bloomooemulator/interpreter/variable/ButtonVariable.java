@@ -32,6 +32,8 @@ public record ButtonVariable(
         /** Live bounds source used by GFX-backed buttons. */
         public CanvasBoundsProvider rectProvider = null;
         public String rectVarName = null;
+        /** True when the hotspot is derived from GFXSTANDARD rather than an explicit RECT/SETRECT. */
+        public boolean rectFollowsStandard = true;
         public String gfxStandardName = null;
         public String gfxOnMoveName = null;
         public String gfxOnClickName = null;
@@ -49,6 +51,7 @@ public record ButtonVariable(
             copy.rect = this.rect;
             copy.rectProvider = this.rectProvider;
             copy.rectVarName = this.rectVarName;
+            copy.rectFollowsStandard = this.rectFollowsStandard;
             copy.gfxStandardName = this.gfxStandardName;
             copy.gfxOnMoveName = this.gfxOnMoveName;
             copy.gfxOnClickName = this.gfxOnClickName;
@@ -155,6 +158,7 @@ public record ButtonVariable(
         // Parse RECT attribute
         String rectAttr = context.attributes().get(name, "RECT");
         if (rectAttr != null) {
+            state.rectFollowsStandard = false;
             parseRect(rectAttr, context);
         }
 
@@ -408,7 +412,7 @@ public record ButtonVariable(
         Map.entry("GETSTD", MethodSpec.of((self, args, ctx) -> {
             ButtonVariable btn = (ButtonVariable) self;
             String stdName = btn.state.gfxStandardName;
-            if(stdName.isEmpty()) {
+            if(stdName == null || stdName.isEmpty()) {
                 return MethodResult.returns(new StringValue("UNKNOWN"));
             }
             return MethodResult.returns(new StringValue(stdName));
@@ -430,6 +434,7 @@ public record ButtonVariable(
 
         Map.entry("SETRECT", MethodSpec.of((self, args, ctx) -> {
             ButtonVariable btn = (ButtonVariable) self;
+            btn.state.rectFollowsStandard = false;
             if (args.size() == 1) {
                 // SETRECT(varName)
                 String varName = ArgumentHelper.getString(args.get(0));
@@ -452,23 +457,15 @@ public record ButtonVariable(
             return MethodResult.noReturn();
         })),
 
-        // SETSTD(graphicObjectName, removeFromCanvas=true [, onBoundingBox=false])
+        // SETSTD(graphicObjectName, removePreviousFromCanvas=true)
         Map.entry("SETSTD", MethodSpec.of((self, args, ctx) -> {
             ButtonVariable btn = (ButtonVariable) self;
             String varName = ArgumentHelper.getString(args.get(0));
-            if (varName.isEmpty()) {
-                Gdx.app.error("ButtonVariable", "SETSTD requires a non-empty variable name");
-                return MethodResult.noReturn();
-            }
-            boolean removeFromCanvas = ArgumentHelper.getBoolean(args, 1, true);
-
-            // I'm not sure, what's onBoundingBox do
-            // I found in bloomoodll.dll trace: onBoundingBox -> CHotSpot pixel-mask vs bbox hit-test
-            // but it is not used anywhere in analyzed scripts and has default FALSE value
+            boolean removePreviousFromCanvas = ArgumentHelper.getBoolean(args, 1, true);
 
             // Detach the previous standard graphic from the canvas before swapping.
             String previous = btn.state.gfxStandardName;
-            if (removeFromCanvas && previous != null && !previous.equals(varName)) {
+            if (removePreviousFromCanvas && previous != null && !previous.equals(varName)) {
                 btn.removeGfxFromCanvas(previous, ctx.context());
             }
 
@@ -478,6 +475,21 @@ public record ButtonVariable(
             Variable gfx = ctx.getVariable(varName);
             if (gfx != null) {
                 gfx.callMethod("SETPRIORITY", List.of(new IntValue(0)), ctx);
+            }
+
+            // CButton::Set rebuilds its CHotSpot from the new standard graphics
+            // when no explicit active RECT was configured. Keep the same live
+            // relationship so moving/reloading the graphics also moves the hit area.
+            if (btn.state.rectFollowsStandard) {
+                if (gfx instanceof CanvasBoundsProvider boundsProvider) {
+                    btn.state.rectVarName = varName;
+                    btn.state.rectProvider = boundsProvider;
+                    btn.state.rect = boundsProvider.getCanvasBounds();
+                } else {
+                    btn.state.rectVarName = null;
+                    btn.state.rectProvider = null;
+                    btn.state.rect = null;
+                }
             }
 
             // Reflect the swap immediately according to the current button state

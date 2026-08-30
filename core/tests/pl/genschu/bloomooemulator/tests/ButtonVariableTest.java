@@ -158,6 +158,40 @@ class ButtonVariableTest {
         assertEquals(new CanvasRect(5, 6, 25, 36), button.getRect());
     }
 
+    @Test
+    void setStdBuildsAndTracksHotspotFromGraphicsWhenRectIsImplicit() {
+        ImageVariable first = standardImage();
+        ImageVariable second = new ImageVariable("SECOND");
+        second.state().rect = new CanvasRect(20, 30, 60, 80);
+        ButtonVariable button = new ButtonVariable("BTN");
+        ctx.setVariable("FIRST", first);
+        ctx.setVariable("SECOND", second);
+        ctx.setVariable("BTN", button);
+        ctx.setAttribute("BTN", "GFXSTANDARD", "FIRST");
+        button.init(ctx);
+
+        MethodHelper.callWithContext(ctx, button, "SETSTD", new StringValue("SECOND"));
+
+        assertEquals(new CanvasRect(20, 30, 60, 80), button.getRect());
+        second.state().rect = new CanvasRect(100, 110, 140, 160);
+        assertEquals(new CanvasRect(100, 110, 140, 160), button.getRect());
+    }
+
+    @Test
+    void setStdPreservesExplicitRect() {
+        ImageVariable standard = standardImage();
+        ButtonVariable button = new ButtonVariable("BTN");
+        ctx.setVariable("STD", standard);
+        ctx.setVariable("BTN", button);
+        ctx.setAttribute("BTN", "RECT", "10,20,30,40");
+        button.init(ctx);
+
+        MethodHelper.callWithContext(ctx, button, "SETSTD", new StringValue("STD"));
+        standard.state().rect = new CanvasRect(100, 110, 140, 160);
+
+        assertEquals(new CanvasRect(10, 20, 30, 40), button.getRect());
+    }
+
     private static ImageVariable standardImage() {
         ImageVariable image = new ImageVariable("STD");
         image.state().rect = new CanvasRect(0, 0, 10, 10);

@@ -233,12 +233,12 @@ void SETSTD(STRING varName)
 void SETSTD(STRING varName, BOOL flag)
 ```
 
-Sets the button's standard graphic ([`GFXSTANDARD`](#gfxstandard)) and zeroes its priority. Shipping scripts also use a two-argument form whose boolean flag is always `FALSE`; its meaning has not been established.
+Sets the button's standard graphic ([`GFXSTANDARD`](#gfxstandard)) and zeroes its priority. If the button has no explicit `RECT`, its hotspot follows the bounds of the new standard graphic. The optional boolean controls whether the previous standard graphic is removed from the canvas before the replacement; it defaults to `TRUE`.
 
 **Parameters**
 
 - `varName` — name of the new standard graphic variable (an empty string `""` clears the link).
-- `flag` — configuration flag **(form 2, meaning unknown)**.
+- `flag` — when `TRUE`, removes the previous standard graphic from the canvas **(form 2)**.
 
 **Examples**
 
