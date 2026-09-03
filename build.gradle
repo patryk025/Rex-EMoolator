@@ -401,7 +401,13 @@ project(":desktop") {
                 .orElse(releaseVersionProvider)
 
         def jpackageJavaHomeProvider = providers
-                .environmentVariable('JPACKAGE_JAVA_HOME')
+                .gradleProperty('jpackageJavaHome')
+                .orElse(providers.environmentVariable('JPACKAGE_JAVA_HOME'))
+                .orElse(providers.systemProperty('java.home'))
+
+        def applicationRuntimeJavaHomeProvider = providers
+                .gradleProperty('applicationRuntimeJavaHome')
+                .orElse(providers.environmentVariable('APPLICATION_RUNTIME_JAVA_HOME'))
                 .orElse(providers.systemProperty('java.home'))
 
         doFirst {
@@ -416,6 +422,7 @@ project(":desktop") {
             destinationDirectory.mkdirs()
 
             def jpackageJavaHome = file(jpackageJavaHomeProvider.get())
+            def applicationRuntimeJavaHome = file(applicationRuntimeJavaHomeProvider.get())
             def jpackageExecutable = new File(
                     jpackageJavaHome,
                     os.windows ? 'bin/jpackage.exe' : 'bin/jpackage'
@@ -435,6 +442,7 @@ project(":desktop") {
                     '--input', inputDirectory.absolutePath,
                     '--main-jar', jar.name,
                     '--main-class', 'pl.genschu.bloomooemulator.GameListFrame',
+                    '--runtime-image', applicationRuntimeJavaHome.absolutePath,
                     '--dest', destinationDirectory.absolutePath
             ]
 
