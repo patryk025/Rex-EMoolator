@@ -25,8 +25,14 @@ public final class MemoryDataSource implements DataSource {
 
     /** Drains {@code input} into memory, closing it. */
     public static MemoryDataSource drain(String name, InputStream input) throws IOException {
-        try (InputStream stream = input) {
-            return new MemoryDataSource(name, stream.readAllBytes());
+        try (InputStream stream = input;
+             java.io.ByteArrayOutputStream buffer = new java.io.ByteArrayOutputStream()) {
+            byte[] chunk = new byte[8192];
+            int read;
+            while ((read = stream.read(chunk)) != -1) {
+                buffer.write(chunk, 0, read);
+            }
+            return new MemoryDataSource(name, buffer.toByteArray());
         }
     }
 
