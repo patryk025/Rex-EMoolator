@@ -89,6 +89,28 @@ Variable lookup goes: execution locals → local `VariableStore` → additional 
 
 Script loading order and object initialisation are described in [Scripts](../engine/scripts.md#script-loading-order).
 
+### Lexical scope vs. playback scope
+
+A context decides **which variable** a script sees. It does not decide **what the engine acts on**: pausing a scene or resuming its sounds applies to the active scene no matter where the calling script lives. The two scopes are deliberately kept apart.
+
+On the lexical side, `RUNENV` runs the behaviour it finds in the context where that behaviour is **defined**, not in the deepest live context. Lookup walks up the hierarchy, so a behaviour declared at episode level resolves fine — but executing it rooted at the scene context would make its helper names (e.g. `BFITMP3`) resolve against the scene's `VariableStore` first and pick up a same-named object belonging to someone else.
+
+On the playback side, [`SCENE.PAUSE`](../reference/SCENE.md#pause), [`RESUME`](../reference/SCENE.md#resume) and [`RESUMEONLY`](../reference/SCENE.md#resumeonly) delegate to `ScenePlaybackController`, owned by `Game` rather than by any context. It always reads the active scene through the `…ForScheduling` views of `VariableResolver`, which collect variables **by identity**, so two distinct objects sharing a name across contexts do not collapse into one.
+
+WPZR example: `B_PAUSE_START` is defined in the `PRZYGODA` episode but has to pause the animations of the `ORACZEMULTIPLAYER` minigame. The behaviour runs in the episode context, and a parent never sees its children's variables, so `ctx.context().getGraphicsVariables()` read from there does not contain the minigame's animations at all. Only the controller reaches the right set of objects.
+
+A pause also splits the **time domains**:
+
+| Domain | Source | While paused |
+|---|---|---|
+| timer time | `Game.getTimerTimeMs()` | frozen, unless `PAUSE(TRUE)` was used; consumed by timer initialisation, `ENABLE`/`RESET`/`SET` and `TimerManager` |
+| engine clock | `Game.getEngineTimeMs()` | keeps running |
+| input | `InputManager` | keeps working |
+
+That is what lets a dialog opened over a paused scene play its own animations and react to buttons. Resuming does not catch up on the break: `timerOffset` shifts the timer domain by its length, and `SoundVariable` shifts `playStartTime` the same way, so a pause never brings `ONFINISHED` forward. Replacing the scene context releases the gate unconditionally — a new scene never inherits the previous one's pause.
+
+`ScenePauseTest` guards the split, including a real `RUNENV` call into a parent-defined behaviour that drives an animation owned by the scene.
+
 ## Variables and values (interpreter v2)
 
 Data representation in scripts is built on **sealed interfaces** with exhaustive pattern matching:

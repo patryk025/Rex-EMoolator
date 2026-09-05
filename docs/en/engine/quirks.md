@@ -115,4 +115,4 @@ Even though `THIS` references the object that emitted the signal, retrieving its
 
 ### Not every type-specific method works on `THIS`
 
-Calling `GET`/`SET` (for primitive types) or `SHOW`/`HIDE`/`PLAY`/`PAUSE`/`STOP`/`RESUME` (for graphical objects) works reliably. Calling a type-specific method such as [`GETCFRAMEINEVENT`](../reference/index.md) on `ANIMO` typically crashes the engine. See [The THIS variable](scripts.md#the-this-variable) for details.
+Calling `GET`/`SET` (for primitive types) or `SHOW`/`HIDE`/`PLAY`/`PAUSE`/`STOP`/`RESUME` (for graphical objects) works reliably. Calling a type-specific method such as [`GETCFRAMEINEVENT`](../reference/ANIMO.md#getcframeinevent) on `ANIMO` typically crashes the engine. See [The THIS variable](scripts.md#the-this-variable) for details.

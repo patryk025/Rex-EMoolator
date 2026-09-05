@@ -4,7 +4,7 @@ Struktura danych z nazwanymi, typowanymi polami. W skryptach silnika wykorzystyw
 
 ## Pola
 
-### FIELDS
+### FIELDS {#fields-1}
 
 ```
 STRING FIELDS
@@ -42,7 +42,7 @@ STLEVEL^GETFIELD(0);
 void SET(STRING cursorName)
 ```
 
-Synchronizuje strukturę z bieżącym wierszem wskazywanym przez kursor [`DATABASE`](DATABASE.md). Surowe wartości z kursora są konwertowane do typów zadeklarowanych w schemacie pola [`FIELDS`](#fields).
+Synchronizuje strukturę z bieżącym wierszem wskazywanym przez kursor [`DATABASE`](DATABASE.md). Surowe wartości z kursora są konwertowane do typów zadeklarowanych w schemacie pola [`FIELDS`](#fields-1).
 
 **Parametry**
 

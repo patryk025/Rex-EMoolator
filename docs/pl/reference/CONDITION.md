@@ -15,7 +15,7 @@ Lewy operand porównania. Pole zawiera tekstowy zapis operandu, który zostanie 
 - literał tekstowy w cudzysłowach (`"..."` lub `'...'`),
 - literał logiczny (`TRUE`, `FALSE`),
 - literał liczbowy (`5`, `-3.14`),
-- nazwa zmiennej (zostanie pobrana jej wartość; jeżeli zmienna jest typu [`EXPRESSION`](index.md), `CONDITION` lub [`COMPLEXCONDITION`](COMPLEXCONDITION.md), zostanie ewaluowana),
+- nazwa zmiennej (zostanie pobrana jej wartość; jeżeli zmienna jest typu [`EXPRESSION`](EXPRESSION.md), `CONDITION` lub [`COMPLEXCONDITION`](COMPLEXCONDITION.md), zostanie ewaluowana),
 - wyrażenie skryptowe — fragment kodu rozpoczynający się od `[`, `*` lub zawierający operatory `^` albo `|`.
 
 ### OPERAND2

@@ -1,6 +1,6 @@
 # Time and timers
 
-A [`TIMER`](../reference/TIMER.md) object is a cyclic time counter: every set interval it emits an `ONTICK` signal, to which a script attaches a handler. Timers are the basic tool for delays, script-driven animated transitions, and repeated actions. This chapter describes how timers count time and how their methods behave.
+A [`TIMER`](../reference/TIMER.md#timer) object is a cyclic time counter: every set interval it emits an `ONTICK` signal, to which a script attaches a handler. Timers are the basic tool for delays, script-driven animated transitions, and repeated actions. This chapter describes how timers count time and how their methods behave.
 
 ## Time measured by the engine clock
 
@@ -56,15 +56,15 @@ Some methods have behaviour that's easy to overlook — it was mirrored directly
 
 | Method | Action | Note |
 |---|---|---|
-| [`ENABLE`](../reference/TIMER.md) | enables the timer, zeroes the counter, restarts the interval window | **a no-op if the timer is already enabled** — it does not zero the counter then |
-| [`DISABLE`](../reference/TIMER.md) | stops ticking | keeps `currentTickCount` |
-| [`RESET`](../reference/TIMER.md) | zeroes `currentTickCount` and restarts the interval window | does not change `enabled` |
-| [`SET`](../reference/TIMER.md) | sets `TICKS` **and** zeroes the slot (counter + window) | not just the limit |
-| [`SETELAPSE`](../reference/TIMER.md) | changes `ELAPSE` | **keeps the accumulator** (`lastTickTime`) — retuning the interval on the fly no longer loses the time already counted |
-| [`GETTICKS`](../reference/TIMER.md) | returns `currentTickCount` | |
+| [`ENABLE`](../reference/TIMER.md#enable) | enables the timer, zeroes the counter, restarts the interval window | **a no-op if the timer is already enabled** — it does not zero the counter then |
+| [`DISABLE`](../reference/TIMER.md#disable) | stops ticking | keeps `currentTickCount` |
+| [`RESET`](../reference/TIMER.md#reset) | zeroes `currentTickCount` and restarts the interval window | does not change `enabled` |
+| [`SET`](../reference/TIMER.md#set) | sets `TICKS` **and** zeroes the slot (counter + window) | not just the limit |
+| [`SETELAPSE`](../reference/TIMER.md#setelapse) | changes `ELAPSE` | **keeps the accumulator** (`lastTickTime`) — retuning the interval on the fly no longer loses the time already counted |
+| [`GETTICKS`](../reference/TIMER.md#getticks) | returns `currentTickCount` | |
 
 !!! warning "`ENABLE` on an enabled timer does nothing"
-    To restart an already-ticking timer (zero the counter and the countdown), use [`RESET`](../reference/TIMER.md) or `DISABLE` + `ENABLE`. `ENABLE` alone will be ignored.
+    To restart an already-ticking timer (zero the counter and the countdown), use [`RESET`](../reference/TIMER.md#reset) or `DISABLE` + `ENABLE`. `ENABLE` alone will be ignored.
 
 ## How it differs from the original
 
@@ -75,6 +75,6 @@ In `bloomoodll.dll` timers were driven by **Win32 multimedia timers** (`timeSetE
 
 ## Related topics
 
-- [`TIMER`](../reference/TIMER.md) — reference of methods and signals.
+- [`TIMER`](../reference/TIMER.md#timer) — reference of methods and signals.
 - [Game loop and engine clock](loop.md) — the time source for timers.
 - [Events and signals](../engine/events.md) — how `ONTICK` propagates through the call tree.

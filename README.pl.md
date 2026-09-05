@@ -4,6 +4,14 @@
 
 Otwarto-źródłowy emulator odtwarzający zachowanie silnika Piklib/BlooMoo używanego w grach Aidem Media.
 
+## Dokumentacja
+
+Pełna dokumentacja silnika Piklib/BlooMoo oraz samego emulatora jest publikowana
+pod adresem **<https://patryk025.github.io/Rex-EMoolator/>** — język skryptowy,
+referencja wszystkich typów skryptowych, formaty plików i wnętrze silnika.
+Dostępna jest po polsku i angielsku, a jej źródła leżą w katalogu
+[`docs/`](docs/). Renderowane przez Material for MkDocs.
+
 ## Wymagania
 
 ### Toolchain do budowania
@@ -181,23 +189,23 @@ Szacowane poziomy grywalności są wyznaczane na podstawie ilości scen, które 
 </tr>
 <tr>
 <td>Poznaj Mity: Wyprawa po Złote Runo</td>
-<td><img alt="W grze" src="https://img.shields.io/badge/W%20grze-yellow"/></td>
-<td>Minigierki są w mniejszym lub większym stopniu zabugowane.</td>
-<td>N/D</td>
+<td><img alt="Grywalne" src="https://img.shields.io/badge/Grywalne-green"/></td>
+<td>Wszystkie minigierki są grywalne.</td>
+<td>100%</td>
 <td><a href="https://github.com/users/patryk025/projects/12">Link</a></td>
 </tr>
 <tr>
 <td>Poznaj Mity: Wojna Trojańska</td>
 <td><img alt="W grze" src="https://img.shields.io/badge/W%20grze-yellow"/></td>
-<td>Minigierki są w mniejszym lub większym stopniu zabugowane.</td>
-<td>N/D</td>
+<td>Wyścigi rydwanów nie działają, prawdopodobnie jakieś problemy z obsługą silnika fizycznego (reimplementacja wciąż wymaga pewnych poprawek)</td>
+<td>93,75% (15/16 scen grywalne)</td>
 <td><a href="https://github.com/users/patryk025/projects/13">Link</a></td>
 </tr>
 <tr>
 <td>Poznaj Mity: Przygody Odyseusza</td>
 <td><img alt="W grze" src="https://img.shields.io/badge/W%20grze-yellow"/></td>
-<td>Minigierki są w mniejszym lub większym stopniu zabugowane.</td>
-<td>N/D</td>
+<td>Minigierka ze zbieraniem jedzenia wydaje się działać, ale mam wątpliwości, bo chyba nie resetuje stanu między restartami gry. Quiz się zawiesza i pytania nie są czytane. Rajd statkiem nie działa poprawnie, nie ma przeszkód i wrogów. Cutscenka do rajdu zawiesza się po kliknięciu myszką. Selektor poziomu do rajdu nie działa, dodatkowo crashuje się po wybraniu go ręcznie z selektora scen. Wprowadzenie do minigierki z toporami ma jakąś nieskończoną pętlę, zaś selektor poziomów nie wyświetla poziomów.</td>
+<td>58,82% (10/17 scen grywalne)</td>
 <td><a href="https://github.com/users/patryk025/projects/14">Link</a></td>
 </tr>
 <tr>
@@ -218,84 +226,120 @@ Szacowane poziomy grywalności są wyznaczane na podstawie ilości scen, które 
 </table>
 
 ## Garść screenshotów
-### Reksio i Skarb Piratów
-![Screen z próby uruchomienia Reksio i Skarb Piratów](images/risp.jpg)
-<br>*Screen z próby uruchomienia Reksio i Skarb Piratów*
 
-### Reksio i Ufo
-![Screen z próby uruchomienia Reksio i Ufo](images/riu.jpg)
-<br>*Screen z próby uruchomienia Reksio i Ufo*
+Zrzuty są zwinięte per gra — rozwiń tę, która Cię interesuje.
 
-### Reksio i Czarodzieje
-![Screen z próby uruchomienia Reksio i Czarodzieje](images/ric.jpg)
-<br>*Screen z próby uruchomienia Reksio i Czarodzieje*
+<details>
+<summary><b>Reksio i Skarb Piratów</b></summary>
 
-### Reksio i Wehikuł Czasu
-![Screen z próby uruchomienia Reksio i Wehikuł Czasu](images/riwc.jpg)
-<br>*Screen z próby uruchomienia Reksio i Wehikuł Czasu*
+<img src="images/risp.jpg" alt="Screen z próby uruchomienia Reksio i Skarb Piratów"/>
+<br/><em>Screen z próby uruchomienia Reksio i Skarb Piratów</em>
 
-### Reksio i Kapitan Nemo
-![Menu gry Reksio i Kapitan Nemo](images/rikn_menu.jpg)
-<br>*Menu gry Reksio i Kapitan Nemo*
+</details>
 
-![Intro po kliknięciu szuflady](images/rikn_gra_intro.jpg)
-<br>*Intro po kliknięciu szuflady*
+<details>
+<summary><b>Reksio i Ufo</b></summary>
 
-### Reksio i Kretes w Akcji
-![Intro gry Reksio i Kretes w Akcji](images/rikwa_intro.jpg)
-<br>*Intro gry Reksio i Kretes w Akcji*
+<img src="images/riu.jpg" alt="Screen z próby uruchomienia Reksio i Ufo"/>
+<br/><em>Screen z próby uruchomienia Reksio i Ufo</em>
 
-![Menu gry Reksio i Kretes w Akcji](images/rikwa_menu.jpg)
-<br>*Menu gry Reksio i Kretes w Akcji*
+</details>
 
-![Intro gry Reksio i Skarb Piratów](images/rikwa_risp_intro.jpg)
-<br>*Intro gry Reksio i Skarb Piratów*
+<details>
+<summary><b>Reksio i Czarodzieje</b></summary>
 
-![Gra Reksio i Skarb Piratów](images/rikwa_risp_gra.jpg)
-<br>*Gra Reksio i Skarb Piratów*
+<img src="images/ric.jpg" alt="Screen z próby uruchomienia Reksio i Czarodzieje"/>
+<br/><em>Screen z próby uruchomienia Reksio i Czarodzieje</em>
 
-![Intro gry Reksio i Ufo](images/rikwa_riu_intro.jpg)
-<br>*Intro gry Reksio i Ufo*
+</details>
 
-![Gra Reksio i Ufo](images/rikwa_riu_gra.jpg)
-<br>*Gra Reksio i Ufo*
+<details>
+<summary><b>Reksio i Wehikuł Czasu</b></summary>
 
-![Intro gry Reksio i Czarodzieje](images/rikwa_ric_intro1.jpg)
-<br>*Intro gry Reksio i Czarodzieje*
+<img src="images/riwc.jpg" alt="Screen z próby uruchomienia Reksio i Wehikuł Czasu"/>
+<br/><em>Screen z próby uruchomienia Reksio i Wehikuł Czasu</em>
 
-![Intro gry Reksio i Czarodzieje](images/rikwa_ric_intro2.jpg)
-<br>*Intro gry Reksio i Czarodzieje*
+</details>
 
-![Gra Reksio i Czarodzieje](images/rikwa_ric_gra.jpg)
-<br>*Gra Reksio i Czarodzieje*
+<details>
+<summary><b>Reksio i Kapitan Nemo</b></summary>
 
-![Menu gry Reksio i Wehikuł Czasu](images/rikwa_riwc_menu.jpg)
-<br>*Menu gry Reksio i Wehikuł Czasu*
+<table>
+<tr>
+<td width="50%" valign="top"><img src="images/rikn_menu.jpg" alt="Menu gry Reksio i Kapitan Nemo" width="100%"/><br/><em>Menu gry Reksio i Kapitan Nemo</em></td>
+<td width="50%" valign="top"><img src="images/rikn_gra_intro.jpg" alt="Intro po kliknięciu szuflady" width="100%"/><br/><em>Intro po kliknięciu szuflady</em></td>
+</tr>
+</table>
 
-![Gra Reksio i Wehikuł Czasu na moment przed wywaleniem się.](images/rikwa_riwc_gra.png)
-<br>*Gra Reksio i Wehikuł Czasu na moment przed wywaleniem się.*
+</details>
 
-![Intro gry Super Heros i Kapitan Nemo](images/rikwa_shikn_intro.jpg)
-<br>*Intro gry Super Heros i Kapitan Nemo*
+<details>
+<summary><b>Reksio i Kretes w Akcji</b></summary>
 
-![Gra Super Heros i Kapitan Nemo](images/rikwa_shikn_gra.jpg)
-<br>*Gra Super Heros i Kapitan Nemo*
+<table>
+<tr>
+<td width="50%" valign="top"><img src="images/rikwa_intro.jpg" alt="Intro gry Reksio i Kretes w Akcji" width="100%"/><br/><em>Intro gry Reksio i Kretes w Akcji</em></td>
+<td width="50%" valign="top"><img src="images/rikwa_menu.jpg" alt="Menu gry Reksio i Kretes w Akcji" width="100%"/><br/><em>Menu gry Reksio i Kretes w Akcji</em></td>
+</tr>
+<tr>
+<td width="50%" valign="top"><img src="images/rikwa_risp_intro.jpg" alt="Intro gry Reksio i Skarb Piratów" width="100%"/><br/><em>Intro gry Reksio i Skarb Piratów</em></td>
+<td width="50%" valign="top"><img src="images/rikwa_risp_gra.jpg" alt="Gra Reksio i Skarb Piratów" width="100%"/><br/><em>Gra Reksio i Skarb Piratów</em></td>
+</tr>
+<tr>
+<td width="50%" valign="top"><img src="images/rikwa_riu_intro.jpg" alt="Intro gry Reksio i Ufo" width="100%"/><br/><em>Intro gry Reksio i Ufo</em></td>
+<td width="50%" valign="top"><img src="images/rikwa_riu_gra.jpg" alt="Gra Reksio i Ufo" width="100%"/><br/><em>Gra Reksio i Ufo</em></td>
+</tr>
+<tr>
+<td width="50%" valign="top"><img src="images/rikwa_ric_intro1.jpg" alt="Intro gry Reksio i Czarodzieje" width="100%"/><br/><em>Intro gry Reksio i Czarodzieje</em></td>
+<td width="50%" valign="top"><img src="images/rikwa_ric_intro2.jpg" alt="Intro gry Reksio i Czarodzieje" width="100%"/><br/><em>Intro gry Reksio i Czarodzieje</em></td>
+</tr>
+<tr>
+<td width="50%" valign="top"><img src="images/rikwa_ric_gra.jpg" alt="Gra Reksio i Czarodzieje" width="100%"/><br/><em>Gra Reksio i Czarodzieje</em></td>
+<td width="50%" valign="top"><img src="images/rikwa_riwc_menu.jpg" alt="Menu gry Reksio i Wehikuł Czasu" width="100%"/><br/><em>Menu gry Reksio i Wehikuł Czasu</em></td>
+</tr>
+<tr>
+<td width="50%" valign="top"><img src="images/rikwa_riwc_gra.png" alt="Gra Reksio i Wehikuł Czasu na moment przed wywaleniem się" width="100%"/><br/><em>Gra Reksio i Wehikuł Czasu na moment przed wywaleniem się</em></td>
+<td width="50%" valign="top"><img src="images/rikwa_shikn_intro.jpg" alt="Intro gry Super Heros i Kapitan Nemo" width="100%"/><br/><em>Intro gry Super Heros i Kapitan Nemo</em></td>
+</tr>
+<tr>
+<td width="50%" valign="top"><img src="images/rikwa_shikn_gra.jpg" alt="Gra Super Heros i Kapitan Nemo" width="100%"/><br/><em>Gra Super Heros i Kapitan Nemo</em></td>
+<td width="50%"></td>
+</tr>
+</table>
 
-### Poznaj Mity: Wyprawa po Złote Runo
-![Screen z próby uruchomienia Wyprawy po Złote Runo](images/wpzr.jpg)
-<br>*Screen z próby uruchomienia Wyprawy po Złote Runo*
+</details>
 
-### Poznaj Mity: Wojna Trojańska
-![Screen z próby uruchomienia Wojny Trojańskiej](images/wt.jpg)
-<br>*Screen z próby uruchomienia Wojny Trojańskiej*
+<details>
+<summary><b>Poznaj Mity: Wyprawa po Złote Runo</b></summary>
 
-### Poznaj Mity: Przygody Odyseusza
-![Screen z próby uruchomienia Przygód Odyseusza](images/po.jpg)
-<br>*Screen z próby uruchomienia Przygód Odyseusza*
+<img src="images/wpzr.jpg" alt="Screen z próby uruchomienia Wyprawy po Złote Runo"/>
+<br/><em>Screen z próby uruchomienia Wyprawy po Złote Runo</em>
 
-### Poznaj Mity: Herkules
-![Screen z próby uruchomienia Herkulesa](images/herc.jpg)
-<br>*Screen z próby uruchomienia Herkulesa*
+</details>
+
+<details>
+<summary><b>Poznaj Mity: Wojna Trojańska</b></summary>
+
+<img src="images/wt.jpg" alt="Screen z próby uruchomienia Wojny Trojańskiej"/>
+<br/><em>Screen z próby uruchomienia Wojny Trojańskiej</em>
+
+</details>
+
+<details>
+<summary><b>Poznaj Mity: Przygody Odyseusza</b></summary>
+
+<img src="images/po.jpg" alt="Screen z próby uruchomienia Przygód Odyseusza"/>
+<br/><em>Screen z próby uruchomienia Przygód Odyseusza</em>
+
+</details>
+
+<details>
+<summary><b>Poznaj Mity: Herkules</b></summary>
+
+<img src="images/herc.jpg" alt="Screen z próby uruchomienia Herkulesa"/>
+<br/><em>Screen z próby uruchomienia Herkulesa</em>
+
+</details>
 
 ## Licencja
 

@@ -12,16 +12,16 @@ The following objects are created lazily by the engine on first access and are a
 
 | Name | Type | Description |
 |---|---|---|
-| `MOUSE` | [`MOUSE`](../reference/index.md) | Mouse state (position, buttons). |
-| `KEYBOARD` | [`KEYBOARD`](../reference/index.md) | Keyboard state. |
-| `RAND` | [`RAND`](../reference/index.md) | Pseudo-random number generator. Also available under the alias `RANDOM`. |
-| `SYSTEM` | [`SYSTEM`](../reference/index.md) | Interface to system functions (time, environment). |
+| `MOUSE` | [`MOUSE`](../reference/MOUSE.md) | Mouse state (position, buttons). |
+| `KEYBOARD` | [`KEYBOARD`](../reference/KEYBOARD.md) | Keyboard state. |
+| `RAND` | [`RAND`](../reference/RAND.md) | Pseudo-random number generator. Also available under the alias `RANDOM`. |
+| `SYSTEM` | [`SYSTEM`](../reference/SYSTEM.md) | Interface to system functions (time, environment). |
 
 All four objects are singletons in the engine's global context — every script reference resolves to the same instance.
 
 ## Objects from `Application.def`
 
-Objects defined in `Application.def` — of type [`APPLICATION`](../reference/index.md), [`EPISODE`](../reference/index.md), and [`SCENE`](../reference/index.md) — are loaded into the engine's global context and remain visible to every script in the game. Other types in that file are ignored (see [Entry point](scripts.md#entry-point)).
+Objects defined in `Application.def` — of type [`APPLICATION`](../reference/APPLICATION.md), [`EPISODE`](../reference/EPISODE.md), and [`SCENE`](../reference/SCENE.md) — are loaded into the engine's global context and remain visible to every script in the game. Other types in that file are ignored (see [Entry point](scripts.md#entry-point)).
 
 ## Implicit variables
 

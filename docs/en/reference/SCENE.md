@@ -111,7 +111,7 @@ Returns the minimum priority of the scene's active hotspots.
 void GETPLAYINGANIMO(STRING groupName)
 ```
 
-Fills the [`GROUP`](index.md) variable named `groupName` with the names of every [`ANIMO`](index.md) currently playing in the scene. Existing contents of the group are overwritten.
+Fills the [`GROUP`](GROUP.md) variable named `groupName` with the names of every [`ANIMO`](ANIMO.md) currently playing in the scene. Existing contents of the group are overwritten.
 
 **Parameters**
 
@@ -122,10 +122,12 @@ Fills the [`GROUP`](index.md) variable named `groupName` with the names of every
 ### PAUSE
 
 ```
-void PAUSE()
+void PAUSE([BOOLEAN keepTimersRunning = FALSE])
 ```
 
-Pauses the scene's music and every playing [`ANIMO`](index.md).
+Pauses playing animations and sounds in the active scene. Background music keeps playing. By default, timers also pause while retaining the remaining interval. Passing `TRUE` keeps timers running.
+
+Repeated calls while paused do nothing. Scripts and button input continue to work, so dialogs can start their own animations and sounds.
 
 **Examples**
 
@@ -161,10 +163,10 @@ CUTSCENKI^REMOVECLONES(SANN, -1, -1);
 ### RESUME
 
 ```
-void RESUME()
+void RESUME([BOOLEAN resumeTimers = TRUE])
 ```
 
-Resumes the scene's music (with the volume from the [`MUSICVOLUME`](#musicvolume) field) and every paused [`ANIMO`](index.md).
+If the scene was paused, resumes paused animations and sounds. Does not change background music playback. Timers resume by default without catching up on the pause interval. Passing `FALSE` leaves timers disabled. Does nothing unless the scene was paused.
 
 **Examples**
 
@@ -177,10 +179,10 @@ BARANDALF^RESUME();
 ### RESUMEONLY
 
 ```
-void RESUMEONLY(STRING groupName)
+void RESUMEONLY(STRING groupName, [BOOLEAN resumeTimers = TRUE])
 ```
 
-Resumes only those paused animations whose names appear in the [`GROUP`](index.md) variable `groupName`.
+Ends scene pause like `RESUME`, but limits the animation selection to the [`GROUP`](GROUP.md) variable `groupName`. Sounds and timers are not filtered by the group; an empty group still resumes audio and timers.
 
 **Parameters**
 

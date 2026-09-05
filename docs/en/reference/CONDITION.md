@@ -15,7 +15,7 @@ The left-hand operand of the comparison. The field holds the operand's textual f
 - a quoted string literal (`"..."` or `'...'`),
 - a boolean literal (`TRUE`, `FALSE`),
 - a numeric literal (`5`, `-3.14`),
-- a variable name (its value is fetched; for variables of type [`EXPRESSION`](index.md), `CONDITION`, or [`COMPLEXCONDITION`](COMPLEXCONDITION.md), the variable is recursively evaluated),
+- a variable name (its value is fetched; for variables of type [`EXPRESSION`](EXPRESSION.md), `CONDITION`, or [`COMPLEXCONDITION`](COMPLEXCONDITION.md), the variable is recursively evaluated),
 - a script fragment — text starting with `[`, `*`, or containing the `^` or `|` operators.
 
 ### OPERAND2

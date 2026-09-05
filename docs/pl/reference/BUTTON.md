@@ -145,7 +145,7 @@ BTNFORGOT^DISABLEBUTVISIBLE();
 
 **Kompatybilność:** `DISABLEBUTVISIBLE` - `PIKLIB61.DLL` ✅, `PIKLIB71.DLL` ✅, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
 
-### ENABLE
+### ENABLE {#enable-1}
 
 ```
 void ENABLE()
@@ -189,6 +189,8 @@ void SETPRIORITY(INTEGER posZ)
 ```
 
 Ustawia priorytet rysowania (pozycję w osi Z) dla wszystkich trzech grafik powiązanych z przyciskiem ([`GFXSTANDARD`](#gfxstandard), [`GFXONMOVE`](#gfxonmove), [`GFXONCLICK`](#gfxonclick)). Wyższa wartość oznacza rysowanie później (z wierzchu).
+
+Dla przycisku bez grafiki ustawia własny priorytet hotspotu (domyślnie `0`). Takie przyciski, zdefiniowane samym `RECT`, również podlegają ograniczeniom `SCENE.SETMINHSPRIORITY` i `SETMAXHSPRIORITY`.
 
 **Parametry**
 

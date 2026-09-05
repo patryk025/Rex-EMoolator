@@ -4,7 +4,7 @@ A data structure with named, typed fields. In engine scripts it is used exclusiv
 
 ## Fields
 
-### FIELDS
+### FIELDS {#fields-1}
 
 ```
 STRING FIELDS
@@ -42,7 +42,7 @@ STLEVEL^GETFIELD(0);
 void SET(STRING cursorName)
 ```
 
-Synchronises the struct with the row currently pointed to by a [`DATABASE`](DATABASE.md) cursor. Raw cursor values are converted to the types declared in the [`FIELDS`](#fields) schema.
+Synchronises the struct with the row currently pointed to by a [`DATABASE`](DATABASE.md) cursor. Raw cursor values are converted to the types declared in the [`FIELDS`](#fields-1) schema.
 
 **Parameters**
 

@@ -115,4 +115,4 @@ Mimo że `THIS` jest referencją do obiektu, który wyemitował sygnał, próba 
 
 ### Nie wszystkie metody typu działają na `THIS`
 
-Bezpiecznie działają `GET`/`SET` (dla typów prymitywnych) oraz `SHOW`/`HIDE`/`PLAY`/`PAUSE`/`STOP`/`RESUME` (dla obiektów graficznych). Wywołanie metod specyficznych dla typu obiektu (np. [`GETCFRAMEINEVENT`](../reference/index.md) na `ANIMO`) zazwyczaj kończy się błędem silnika. Szczegóły opisano w sekcji [Zmienna THIS](scripts.md#zmienna-this).
+Bezpiecznie działają `GET`/`SET` (dla typów prymitywnych) oraz `SHOW`/`HIDE`/`PLAY`/`PAUSE`/`STOP`/`RESUME` (dla obiektów graficznych). Wywołanie metod specyficznych dla typu obiektu (np. [`GETCFRAMEINEVENT`](../reference/ANIMO.md#getcframeinevent) na `ANIMO`) zazwyczaj kończy się błędem silnika. Szczegóły opisano w sekcji [Zmienna THIS](scripts.md#zmienna-this).

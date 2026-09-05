@@ -46,7 +46,7 @@ Whether the button is enabled after initialisation. A value of `FALSE` puts the 
 STRING GFXONCLICK
 ```
 
-Name of the [`ANIMO`](ANIMO.md) or [`IMAGE`](IMAGE.md) variable shown in the [`PRESSED`](#button-states) state. Optional — if unset, `GFXSTANDARD` keeps being shown while pressed.
+Name of the [`ANIMO`](ANIMO.md) or [`IMAGE`](IMAGE.md) variable shown in the [`PRESSED`](#button-states) state. Optional — if unset, [`GFXSTANDARD`](#gfxstandard) keeps being shown while pressed.
 
 ### GFXONMOVE
 
@@ -145,7 +145,7 @@ BTNFORGOT^DISABLEBUTVISIBLE();
 
 **Compatibility:** `DISABLEBUTVISIBLE` - `PIKLIB61.DLL` ✅, `PIKLIB71.DLL` ✅, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
 
-### ENABLE
+### ENABLE {#enable-1}
 
 ```
 void ENABLE()
@@ -190,6 +190,8 @@ void SETPRIORITY(INTEGER posZ)
 
 Sets the rendering priority (Z position) of all three linked graphics ([`GFXSTANDARD`](#gfxstandard), [`GFXONMOVE`](#gfxonmove), [`GFXONCLICK`](#gfxonclick)). Higher values are drawn on top.
 
+For a button without graphics, sets its own hotspot priority (initially `0`). These `RECT`-only buttons also obey `SCENE.SETMINHSPRIORITY` and `SETMAXHSPRIORITY`.
+
 **Parameters**
 
 - `posZ` — new priority value.
@@ -210,7 +212,7 @@ void SETRECT(STRING varName)
 void SETRECT(INTEGER xLeft, INTEGER yBottom, INTEGER xRight, INTEGER yTop)
 ```
 
-Sets the cursor hit area. The first form copies the rectangle from a graphics variable; the second specifies it directly.
+Sets the cursor hit area. The method has two forms: the first copies the rectangle from the given [`ANIMO`](ANIMO.md) or [`IMAGE`](IMAGE.md) variable, the second defines it directly through coordinates.
 
 **Parameters**
 

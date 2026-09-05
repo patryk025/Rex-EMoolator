@@ -1,6 +1,6 @@
 # DATABASE
 
-A tabular database — a collection of rows sharing a single schema. The schema is defined by a paired [`STRUCT`](STRUCT.md) variable: its [`FIELDS`](STRUCT.md#fields) entry specifies the table's columns and per-column data types.
+A tabular database — a collection of rows sharing a single schema. The schema is defined by a paired [`STRUCT`](STRUCT.md) variable: its [`FIELDS`](STRUCT.md#fields-1) entry specifies the table's columns and per-column data types.
 
 Rows are accessed sequentially via a cursor. The cursor position is updated by [`SELECT`](#select) (move to a specific index), [`NEXT`](#next) (advance one row), and [`FIND`](#find) (move to the first row matching a column value). Data is persisted in `.DTA` files using a `|`-separated text format — loadable via [`LOAD`](#load) and writable via [`SAVE`](#save).
 

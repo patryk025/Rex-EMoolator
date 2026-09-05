@@ -1,6 +1,6 @@
 # DATABASE
 
-Baza danych w postaci tabeli — zbiór wierszy o jednolitym schemacie. Schemat definiuje powiązana zmienna [`STRUCT`](STRUCT.md): jej pole [`FIELDS`](STRUCT.md#fields) wyznacza kolumny tabeli oraz typy danych w poszczególnych kolumnach.
+Baza danych w postaci tabeli — zbiór wierszy o jednolitym schemacie. Schemat definiuje powiązana zmienna [`STRUCT`](STRUCT.md): jej pole [`FIELDS`](STRUCT.md#fields-1) wyznacza kolumny tabeli oraz typy danych w poszczególnych kolumnach.
 
 Dostęp do wierszy realizowany jest sekwencyjnie poprzez kursor. Bieżąca pozycja kursora jest zmieniana metodami [`SELECT`](#select) (bezpośrednio na indeks), [`NEXT`](#next) (kolejny wiersz) i [`FIND`](#find) (po wartości w kolumnie). Dane zapisywane są w plikach `.DTA` w formacie z separatorem `|` — można je ładować ([`LOAD`](#load)) i zapisywać ([`SAVE`](#save)).
 

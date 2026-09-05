@@ -12,16 +12,16 @@ Następujące obiekty są tworzone leniwie przez silnik przy pierwszym odwołani
 
 | Nazwa | Typ | Opis |
 |---|---|---|
-| `MOUSE` | [`MOUSE`](../reference/index.md) | Stan myszy (pozycja, kliknięcia). |
-| `KEYBOARD` | [`KEYBOARD`](../reference/index.md) | Stan klawiatury. |
-| `RAND` | [`RAND`](../reference/index.md) | Generator liczb pseudolosowych. Dostępny również pod aliasem `RANDOM`. |
-| `SYSTEM` | [`SYSTEM`](../reference/index.md) | Interfejs do funkcji systemowych (czas, środowisko). |
+| `MOUSE` | [`MOUSE`](../reference/MOUSE.md) | Stan myszy (pozycja, kliknięcia). |
+| `KEYBOARD` | [`KEYBOARD`](../reference/KEYBOARD.md) | Stan klawiatury. |
+| `RAND` | [`RAND`](../reference/RAND.md) | Generator liczb pseudolosowych. Dostępny również pod aliasem `RANDOM`. |
+| `SYSTEM` | [`SYSTEM`](../reference/SYSTEM.md) | Interfejs do funkcji systemowych (czas, środowisko). |
 
 Wszystkie cztery obiekty są singletonami w kontekście globalnym — odwołanie do nich z dowolnego skryptu trafia do tej samej instancji.
 
 ## Obiekty z `Application.def`
 
-Obiekty zdefiniowane w pliku `Application.def` — typu [`APPLICATION`](../reference/index.md), [`EPISODE`](../reference/index.md) oraz [`SCENE`](../reference/index.md) — są ładowane do kontekstu globalnego silnika i widoczne ze wszystkich skryptów gry. Pozostałe typy w tym pliku są ignorowane (zobacz [Punkt startowy](scripts.md#punkt-startowy)).
+Obiekty zdefiniowane w pliku `Application.def` — typu [`APPLICATION`](../reference/APPLICATION.md), [`EPISODE`](../reference/EPISODE.md) oraz [`SCENE`](../reference/SCENE.md) — są ładowane do kontekstu globalnego silnika i widoczne ze wszystkich skryptów gry. Pozostałe typy w tym pliku są ignorowane (zobacz [Punkt startowy](scripts.md#punkt-startowy)).
 
 ## Zmienne niejawne
 

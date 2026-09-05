@@ -126,9 +126,9 @@ Inside a block that handles a signal, an implicit `THIS` variable is available, 
 `THIS` behaves unusually: calling `GETNAME` on it returns the string `"temp"`, suggesting that under the hood it is a temporary wrapper. The following work reliably on `THIS`:
 
 - `GET` and `SET` for primitive types,
-- `SHOW`, `HIDE`, `PLAY`, `PAUSE`, `STOP`, and `RESUME` for graphical objects ([`ANIMO`](../reference/index.md)).
+- `SHOW`, `HIDE`, `PLAY`, `PAUSE`, `STOP`, and `RESUME` for graphical objects ([`ANIMO`](../reference/ANIMO.md)).
 
-Calling another type-specific method (e.g. `GETCFRAMEINEVENT` on [`ANIMO`](../reference/index.md)) usually crashes the engine. To work around this, AidemMedia scripts use the following pattern: store the object's name in a [`STRING`](../reference/STRING.md) variable first, then call `^RUN(string_variable, method_name)`, which internally resolves the string pointer to the actual object.
+Calling another type-specific method (e.g. `GETCFRAMEINEVENT` on [`ANIMO`](../reference/ANIMO.md)) usually crashes the engine. To work around this, AidemMedia scripts use the following pattern: store the object's name in a [`STRING`](../reference/STRING.md) variable first, then call `^RUN(string_variable, method_name)`, which internally resolves the string pointer to the actual object.
 
 ## Loops
 
@@ -233,7 +233,7 @@ Scripts in the engine are organised hierarchically: scripts at lower levels can 
 
 ### Entry point
 
-The engine starts from `Application.def` in the `dane` subdirectory. This file defines objects of types [`APPLICATION`](../reference/index.md), [`EPISODE`](../reference/index.md), and [`SCENE`](../reference/index.md) — other types in this file are ignored.
+The engine starts from `Application.def` in the `dane` subdirectory. This file defines objects of types [`APPLICATION`](../reference/APPLICATION.md), [`EPISODE`](../reference/EPISODE.md), and [`SCENE`](../reference/SCENE.md) — other types in this file are ignored.
 
 Example contents:
 

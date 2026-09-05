@@ -36,10 +36,10 @@ INTEGER,INTEGER,INTEGER,INTEGER RECT
 
 Prostokąt, w którym tekst jest rysowany — cztery liczby oddzielone przecinkami:
 `xLeft, yTop, xRight, yBottom`. W skrypcie pole może też wskazywać na nazwę
-zmiennej typu [`ANIMO`](index.md) lub [`IMAGE`](IMAGE.md), z której przejmowane
+zmiennej typu [`ANIMO`](ANIMO.md) lub [`IMAGE`](IMAGE.md), z której przejmowane
 są wymiary.
 
-### TEXT
+### TEXT {#text-1}
 
 ```
 STRING TEXT
@@ -147,7 +147,7 @@ Zmienia wyświetlany tekst.
 
 **Parametry**
 
-- `text` — nowa zawartość pola [`TEXT`](#text).
+- `text` — nowa zawartość pola [`TEXT`](#text-1).
 
 **Przykłady**
 

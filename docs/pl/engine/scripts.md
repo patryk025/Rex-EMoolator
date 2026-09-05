@@ -126,9 +126,9 @@ W bloku obsługującym sygnał dostępna jest niejawna zmienna `THIS`, ustawiona
 `THIS` zachowuje się nietypowo: na żądanie nazwy (`GETNAME`) zwraca ciąg `"temp"`, co sugeruje, że pod spodem jest to obiekt tymczasowy. Bezpiecznie działają na niej:
 
 - metody `GET` i `SET` dla typów prymitywnych,
-- metody `SHOW`, `HIDE`, `PLAY`, `PAUSE`, `STOP` i `RESUME` dla obiektów graficznych ([`ANIMO`](../reference/index.md)).
+- metody `SHOW`, `HIDE`, `PLAY`, `PAUSE`, `STOP` i `RESUME` dla obiektów graficznych ([`ANIMO`](../reference/ANIMO.md)).
 
-Wywołanie innej metody specyficznej dla typu obiektu (np. `GETCFRAMEINEVENT` na [`ANIMO`](../reference/index.md)) zazwyczaj kończy się błędem silnika. Aby tego uniknąć, w skryptach AidemMedia stosowane było obejście: nazwa obiektu była najpierw zapisywana do zmiennej typu [`STRING`](../reference/STRING.md), a następnie wywoływana była `^RUN(nazwa_zmiennej, nazwa_metody)`, która wewnętrznie rozwiązuje wskaźnik tekstowy do faktycznego obiektu.
+Wywołanie innej metody specyficznej dla typu obiektu (np. `GETCFRAMEINEVENT` na [`ANIMO`](../reference/ANIMO.md)) zazwyczaj kończy się błędem silnika. Aby tego uniknąć, w skryptach AidemMedia stosowane było obejście: nazwa obiektu była najpierw zapisywana do zmiennej typu [`STRING`](../reference/STRING.md), a następnie wywoływana była `^RUN(nazwa_zmiennej, nazwa_metody)`, która wewnętrznie rozwiązuje wskaźnik tekstowy do faktycznego obiektu.
 
 ## Pętle
 
@@ -233,7 +233,7 @@ Skrypty silnika są zorganizowane hierarchicznie: skrypty z niższych poziomów 
 
 ### Punkt startowy
 
-Silnik rozpoczyna od pliku `Application.def` w podkatalogu `dane`. Plik ten zawiera definicje obiektów typu [`APPLICATION`](../reference/index.md), [`EPISODE`](../reference/index.md) oraz [`SCENE`](../reference/index.md) — pozostałe typy w tym pliku są ignorowane.
+Silnik rozpoczyna od pliku `Application.def` w podkatalogu `dane`. Plik ten zawiera definicje obiektów typu [`APPLICATION`](../reference/APPLICATION.md), [`EPISODE`](../reference/EPISODE.md) oraz [`SCENE`](../reference/SCENE.md) — pozostałe typy w tym pliku są ignorowane.
 
 Przykładowa zawartość:
 

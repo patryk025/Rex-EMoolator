@@ -111,7 +111,7 @@ Zwraca minimalny priorytet hotspotów aktywnych na scenie.
 void GETPLAYINGANIMO(STRING groupName)
 ```
 
-Wypełnia zmienną typu [`GROUP`](index.md) o podanej nazwie listą nazw wszystkich obiektów [`ANIMO`](index.md) aktualnie odtwarzanych na scenie. Istniejąca zawartość grupy jest nadpisywana.
+Wypełnia zmienną typu [`GROUP`](GROUP.md) o podanej nazwie listą nazw wszystkich obiektów [`ANIMO`](ANIMO.md) aktualnie odtwarzanych na scenie. Istniejąca zawartość grupy jest nadpisywana.
 
 **Parametry**
 
@@ -122,10 +122,12 @@ Wypełnia zmienną typu [`GROUP`](index.md) o podanej nazwie listą nazw wszystk
 ### PAUSE
 
 ```
-void PAUSE()
+void PAUSE([BOOLEAN keepTimersRunning = FALSE])
 ```
 
-Pauzuje muzykę sceny oraz wszystkie odtwarzane animacje [`ANIMO`](index.md).
+Pauzuje odtwarzane animacje i dźwięki aktywnej sceny. Muzyka tła gra dalej. Domyślnie zatrzymuje również timery, zachowując czas pozostały do kolejnego wywołania. Argument `TRUE` pozostawia timery uruchomione.
+
+Ponowne wywołanie podczas pauzy niczego nie zmienia. Skrypty i obsługa przycisków nadal działają; okno dialogowe może uruchamiać własne animacje i dźwięki.
 
 **Przykłady**
 
@@ -161,10 +163,10 @@ CUTSCENKI^REMOVECLONES(SANN, -1, -1);
 ### RESUME
 
 ```
-void RESUME()
+void RESUME([BOOLEAN resumeTimers = TRUE])
 ```
 
-Wznawia muzykę sceny (z głośnością z pola [`MUSICVOLUME`](#musicvolume)) oraz wszystkie wstrzymane animacje [`ANIMO`](index.md).
+Jeżeli scena była spauzowana, wznawia wstrzymane animacje i dźwięki. Nie zmienia odtwarzania muzyki tła. Domyślnie wznawia też timery bez nadrabiania czasu pauzy. Argument `FALSE` pozostawia timery wyłączone. Bez wcześniejszej pauzy metoda niczego nie zmienia.
 
 **Przykłady**
 
@@ -177,10 +179,10 @@ BARANDALF^RESUME();
 ### RESUMEONLY
 
 ```
-void RESUMEONLY(STRING groupName)
+void RESUMEONLY(STRING groupName, [BOOLEAN resumeTimers = TRUE])
 ```
 
-Wznawia tylko te wstrzymane animacje, których nazwy znajdują się w zmiennej typu [`GROUP`](index.md) o podanej nazwie.
+Kończy pauzę sceny jak `RESUME`, ale wybór animacji ogranicza do zmiennej typu [`GROUP`](GROUP.md) o podanej nazwie. Ograniczenie nie dotyczy dźwięków ani timerów. W szczególności pusta grupa nadal pozwala wznowić audio i timery.
 
 **Parametry**
 

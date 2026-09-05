@@ -89,6 +89,28 @@ Wyszukanie zmiennej idzie: zmienne lokalne wykonania → lokalny `VariableStore`
 
 Kolejność wczytywania skryptów i inicjalizacji obiektów opisuje rozdział [Skrypty](../engine/scripts.md#kolejnosc-wczytywania-skryptow).
 
+### Zakres leksykalny a zakres odtwarzania
+
+Kontekst rozstrzyga, **którą zmienną** widzi skrypt. Nie rozstrzyga natomiast, **na czym** działa silnik: pauza sceny czy wznowienie jej dźwięków dotyczą aktywnej sceny niezależnie od tego, gdzie mieszka wywołujący skrypt. Te dwa zakresy są celowo trzymane osobno.
+
+Po stronie leksykalnej `RUNENV` uruchamia znalezione zachowanie w kontekście, w którym zostało **zdefiniowane**, a nie w najgłębszym kontekście aktywnym. Wyszukiwanie idzie w górę hierarchii, więc zachowanie zadeklarowane na poziomie epizodu odnajdzie się bez problemu — ale wykonane w kontekście sceny rozwiązywałoby swoje pomocnicze nazwy (np. `BFITMP3`) najpierw w `VariableStore` sceny i trafiłoby na cudzy obiekt o tej samej nazwie.
+
+Po stronie odtwarzania [`SCENE.PAUSE`](../reference/SCENE.md#pause), [`RESUME`](../reference/SCENE.md#resume) i [`RESUMEONLY`](../reference/SCENE.md#resumeonly) delegują do `ScenePlaybackController`, którego właścicielem jest `Game`, a nie którykolwiek kontekst. Kontroler zawsze czyta aktywną scenę przez widoki `…ForScheduling` z `VariableResolver`, składające zmienne **po tożsamości** — dwa różne obiekty o tej samej nazwie w różnych kontekstach nie zlewają się więc w jeden.
+
+Przykład z WPZR: `B_PAUSE_START` jest zdefiniowany w epizodzie `PRZYGODA`, ale ma zatrzymać animacje minigry `ORACZEMULTIPLAYER`. Zachowanie wykonuje się w kontekście epizodu, a rodzic nigdy nie widzi zmiennych swoich dzieci — odczyt `ctx.context().getGraphicsVariables()` w ogóle nie obejmuje więc animacji minigry. Dopiero kontroler sięga po właściwy zbiór obiektów.
+
+Pauza rozdziela też **domeny czasu**:
+
+| Domena | Źródło | Zachowanie w pauzie |
+|---|---|---|
+| czas timerów | `Game.getTimerTimeMs()` | stoi, chyba że wywołano `PAUSE(TRUE)`; korzystają z niego inicjalizacja timerów, `ENABLE`/`RESET`/`SET` i `TimerManager` |
+| zegar silnika | `Game.getEngineTimeMs()` | biegnie dalej |
+| wejście | `InputManager` | działa dalej |
+
+Dzięki temu okno dialogowe otwarte na spauzowanej scenie może odtwarzać własne animacje i reagować na przyciski. Wznowienie nie nadrabia czasu przerwy: `timerOffset` przesuwa domenę timerów o jej długość, a `SoundVariable` przesuwa tak samo `playStartTime`, więc pauza nigdy nie przyspiesza `ONFINISHED`. Podmiana kontekstu sceny zwalnia blokadę bezwarunkowo — nowa scena nie dziedziczy pauzy poprzedniej.
+
+Podziału pilnuje test `ScenePauseTest`, wraz z rzeczywistym wywołaniem `RUNENV` zachowania zdefiniowanego w rodzicu, sterującego animacją należącą do sceny.
+
 ## Zmienne i wartości (interpreter v2)
 
 Reprezentacja danych w skryptach opiera się na **interfejsach zapieczętowanych** (sealed) z wyczerpującym dopasowaniem wzorców:

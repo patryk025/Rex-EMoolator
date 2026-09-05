@@ -1,6 +1,6 @@
 # Czas i timery
 
-Obiekt [`TIMER`](../reference/TIMER.md) to cykliczny licznik czasu: co zadany interwał emituje sygnał `ONTICK`, do którego skrypt podpina obsługę. Timery są podstawowym narzędziem do opóźnień, animowanych przejść sterowanych ze skryptu i powtarzalnych akcji. Ten rozdział opisuje, jak timery liczą czas i jak zachowują się ich metody.
+Obiekt [`TIMER`](../reference/TIMER.md#timer) to cykliczny licznik czasu: co zadany interwał emituje sygnał `ONTICK`, do którego skrypt podpina obsługę. Timery są podstawowym narzędziem do opóźnień, animowanych przejść sterowanych ze skryptu i powtarzalnych akcji. Ten rozdział opisuje, jak timery liczą czas i jak zachowują się ich metody.
 
 ## Czas mierzony zegarem silnika
 
@@ -56,15 +56,15 @@ Część metod ma zachowanie, które łatwo przeoczyć — zostało ono odwzorow
 
 | Metoda | Działanie | Uwaga |
 |---|---|---|
-| [`ENABLE`](../reference/TIMER.md) | włącza timer, zeruje licznik, restartuje okno interwału | **no-op, jeśli timer już jest włączony** — nie zeruje wtedy licznika |
-| [`DISABLE`](../reference/TIMER.md) | zatrzymuje tykanie | zachowuje `currentTickCount` |
-| [`RESET`](../reference/TIMER.md) | zeruje `currentTickCount` i restartuje okno interwału | nie zmienia `enabled` |
-| [`SET`](../reference/TIMER.md) | ustawia `TICKS` **oraz** zeruje slot (licznik + okno) | nie tylko zmienia limit |
-| [`SETELAPSE`](../reference/TIMER.md) | zmienia `ELAPSE` | **zachowuje akumulator** (`lastTickTime`) — przestrojenie interwału w locie nie gubi już odliczonego czasu |
-| [`GETTICKS`](../reference/TIMER.md) | zwraca `currentTickCount` | |
+| [`ENABLE`](../reference/TIMER.md#enable) | włącza timer, zeruje licznik, restartuje okno interwału | **no-op, jeśli timer już jest włączony** — nie zeruje wtedy licznika |
+| [`DISABLE`](../reference/TIMER.md#disable) | zatrzymuje tykanie | zachowuje `currentTickCount` |
+| [`RESET`](../reference/TIMER.md#reset) | zeruje `currentTickCount` i restartuje okno interwału | nie zmienia `enabled` |
+| [`SET`](../reference/TIMER.md#set) | ustawia `TICKS` **oraz** zeruje slot (licznik + okno) | nie tylko zmienia limit |
+| [`SETELAPSE`](../reference/TIMER.md#setelapse) | zmienia `ELAPSE` | **zachowuje akumulator** (`lastTickTime`) — przestrojenie interwału w locie nie gubi już odliczonego czasu |
+| [`GETTICKS`](../reference/TIMER.md#getticks) | zwraca `currentTickCount` | |
 
 !!! warning "`ENABLE` na włączonym timerze nic nie robi"
-    Jeśli chcesz zrestartować już tykający timer (wyzerować licznik i odliczanie), użyj [`RESET`](../reference/TIMER.md) albo `DISABLE` + `ENABLE`. Samo `ENABLE` zostanie zignorowane.
+    Jeśli chcesz zrestartować już tykający timer (wyzerować licznik i odliczanie), użyj [`RESET`](../reference/TIMER.md#reset) albo `DISABLE` + `ENABLE`. Samo `ENABLE` zostanie zignorowane.
 
 ## Czym różni się od oryginału
 
@@ -75,6 +75,6 @@ W `bloomoodll.dll` timery napędzane były **multimedialnymi timerami Win32** (`
 
 ## Powiązane tematy
 
-- [`TIMER`](../reference/TIMER.md) — referencja metod i sygnałów.
+- [`TIMER`](../reference/TIMER.md#timer) — referencja metod i sygnałów.
 - [Pętla i zegar silnika](loop.md) — źródło czasu dla timerów.
 - [Zdarzenia i sygnały](../engine/events.md) — jak `ONTICK` propaguje się przez drzewo wywołań.

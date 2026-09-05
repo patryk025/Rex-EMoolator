@@ -36,10 +36,10 @@ INTEGER,INTEGER,INTEGER,INTEGER RECT
 
 The rectangle in which the text is drawn — four comma-separated integers:
 `xLeft, yTop, xRight, yBottom`. In a script, the field can also reference a
-variable of type [`ANIMO`](index.md) or [`IMAGE`](IMAGE.md), in which case its
+variable of type [`ANIMO`](ANIMO.md) or [`IMAGE`](IMAGE.md), in which case its
 bounds are taken from that object.
 
-### TEXT
+### TEXT {#text-1}
 
 ```
 STRING TEXT
@@ -147,7 +147,7 @@ Changes the displayed text.
 
 **Parameters**
 
-- `text` — the new value of the [`TEXT`](#text) field.
+- `text` — the new value of the [`TEXT`](#text-1) field.
 
 **Examples**
 
