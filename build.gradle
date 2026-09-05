@@ -377,79 +377,6 @@ project(":desktop") {
         from(rootProject.file('THIRD-PARTY-NOTICES.md')) { into 'META-INF' }
     }
 
-    def applicationRuntimeJavaHomeProvider = providers
-            .gradleProperty('applicationRuntimeJavaHome')
-            .orElse(providers.environmentVariable('APPLICATION_RUNTIME_JAVA_HOME'))
-            .orElse(providers.systemProperty('java.home'))
-
-    def runtimeImageDir = layout.buildDirectory.dir('jpackage-runtime')
-
-    tasks.register('jlinkRuntime', Exec) {
-        group = 'distribution'
-        description = 'Creates the Java runtime image used by jpackage.'
-
-        def os = org.gradle.internal.os.OperatingSystem.current()
-
-        inputs.property('applicationRuntimeJavaHome', applicationRuntimeJavaHomeProvider)
-        outputs.dir(runtimeImageDir)
-
-        doFirst {
-            def javaHome = file(applicationRuntimeJavaHomeProvider.get())
-            def outputDirectory = runtimeImageDir.get().asFile
-
-            def jlinkExecutable = new File(
-                    javaHome,
-                    os.windows ? 'bin/jlink.exe' : 'bin/jlink'
-            )
-
-            if (!jlinkExecutable.isFile()) {
-                throw new GradleException(
-                        "jlink not found: ${jlinkExecutable.absolutePath}"
-                )
-            }
-
-            outputDirectory.deleteDir()
-
-            /*
-             * Keep this list deliberately conservative.
-             *
-             * java.desktop      - Swing/AWT + LibGDX desktop launcher
-             * java.logging      - logging used by libraries
-             * java.management   - OSHI/JVM management APIs
-             * java.naming       - commonly pulled by desktop/network libraries
-             * java.net.http     - HTTP client support
-             * java.sql          - compatibility with libraries using JDBC APIs
-             * java.xml          - XML APIs used by libraries/configuration
-             * jdk.unsupported   - Unsafe and related low-level APIs used by libraries
-             */
-            def runtimeModules = [
-                    'java.base',
-                    'java.desktop',
-                    'java.logging',
-                    'java.management',
-                    'java.naming',
-                    'java.net.http',
-                    'java.sql',
-                    'java.xml',
-                    'jdk.unsupported'
-            ].join(',')
-
-            logger.lifecycle(
-                    "Creating Java runtime image from ${javaHome} " +
-                            "at ${outputDirectory}"
-            )
-
-            commandLine(
-                    jlinkExecutable.absolutePath,
-                    '--add-modules', runtimeModules,
-                    '--strip-debug',
-                    '--no-header-files',
-                    '--no-man-pages',
-                    '--output', outputDirectory.absolutePath
-            )
-        }
-    }
-
     // --- Native installers (jpackage) ---
     // Builds installer for current OS: Windows -> .exe, macOS -> .dmg, Linux -> .deb.
     tasks.register('jpackage', Exec) {
@@ -457,7 +384,6 @@ project(":desktop") {
         description = 'Builds a native installer for the current OS using jpackage.'
 
         dependsOn tasks.named('prepareJpackageInput')
-        dependsOn tasks.named('jlinkRuntime')
 
         def os = org.gradle.internal.os.OperatingSystem.current()
 
@@ -479,6 +405,11 @@ project(":desktop") {
                 .orElse(providers.environmentVariable('JPACKAGE_JAVA_HOME'))
                 .orElse(providers.systemProperty('java.home'))
 
+        def applicationRuntimeJavaHomeProvider = providers
+                .gradleProperty('applicationRuntimeJavaHome')
+                .orElse(providers.environmentVariable('APPLICATION_RUNTIME_JAVA_HOME'))
+                .orElse(providers.systemProperty('java.home'))
+
         doFirst {
             def rawVersion = packageVersionProvider.get().trim()
             def appVersion = normalizeJpackageVersion(rawVersion)
@@ -491,7 +422,7 @@ project(":desktop") {
             destinationDirectory.mkdirs()
 
             def jpackageJavaHome = file(jpackageJavaHomeProvider.get())
-            def applicationRuntimeImage = runtimeImageDir.get().asFile
+            def applicationRuntimeJavaHome = file(applicationRuntimeJavaHomeProvider.get())
             def jpackageExecutable = new File(
                     jpackageJavaHome,
                     os.windows ? 'bin/jpackage.exe' : 'bin/jpackage'
@@ -511,7 +442,7 @@ project(":desktop") {
                     '--input', inputDirectory.absolutePath,
                     '--main-jar', jar.name,
                     '--main-class', 'pl.genschu.bloomooemulator.GameListFrame',
-                    '--runtime-image', applicationRuntimeImage.absolutePath,
+                    '--runtime-image', applicationRuntimeJavaHome.absolutePath,
                     '--dest', destinationDirectory.absolutePath
             ]
 
