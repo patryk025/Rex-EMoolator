@@ -134,9 +134,25 @@ flowchart TD
     L2 -->|brak| ERR[brak zasobu]
 ```
 
-- **Źródła zasobów** montowane są przez `AssetSourceDispatcher` w zależności od typu: katalog → `LocalFileSystem`, plik `.iso` → `IsoFileSystem`, `.zip` → `ZipFileSystem`. Źródła zamontowane później mają wyższy priorytet.
+- **Źródła zasobów** montuje `AssetSourceDispatcher`. Katalog trafia do `LocalFileSystem`, a wszystko inne przechodzi przez rozpoznanie kontenera (niżej). Źródła zamontowane później mają wyższy priorytet.
 - **Storage** to jedyna warstwa zapisywalna (zapisy gry, pliki tymczasowe); nadpisuje dane gry przy odczycie.
+- **Patche** montowane są jako `PatchFileSystem` — nakładka na katalog `files/` danego patcha. Ścieżki rozwiązuje dokładnie jak `LocalFileSystem`; osobny typ istnieje po to, żeby dało się stwierdzić, który mount obsłużył plik.
 - **Język** — jeśli ustawiony, każda warstwa jest najpierw sprawdzana ze ścieżką `<język>/<ścieżka>`, a dopiero potem z gołą ścieżką. Odtwarza to konwencję lokalizacji oryginału (zobacz [`APPLICATION.SETLANGUAGE`](../reference/APPLICATION.md)).
+
+### Kontenery z danymi gry
+
+Dane nie muszą leżeć w katalogu — emulator czyta je również prosto z obrazu płyty czy archiwum, bez rozpakowywania:
+
+| Kontener | Klasa | Rozpoznanie | Uwagi |
+|---|---|---|---|
+| katalog | `LocalFileSystem` | `File.isDirectory()` | dopasowanie nazw bez rozróżniania wielkości liter |
+| ISO 9660 | `IsoFileSystem` | `CD001` w sektorze 16 | obsługuje deskryptor Joliet (nazwy UTF-16BE), z rezerwą na ASCII |
+| UDF | `UdfFileSystem` | `NSR02`/`NSR03` w sektorach 16–47 | drzewo ICB czytane przez `UdfReader`; typowy wpis jednoekstentowy trafia do `SlicedDataSource` bez kopiowania danych |
+| ZIP | `ZipFileSystem` | `PK\x03\x04` (oraz warianty pustego i wielotomowego) | pełną poprawność sprawdza dopiero otwarcie archiwum |
+
+Rozpoznanie robi `FileSystemDetector` — **po zawartości, nie po rozszerzeniu**, więc `.iso` z systemem UDF albo obraz bez rozszerzenia zamontują się poprawnie. Kolejność testów to ISO 9660 → UDF → ZIP, przez co płyta hybrydowa (ISO 9660 z nakładką UDF) montuje się jako ISO 9660.
+
+Kontenery są **zagnieżdżalne**. `IFileSystem.openSource()` zwraca `DataSource` — nazwany, swobodnie przeszukiwalny ciąg bajtów, który może być plikiem na dysku (`FileDataSource`), wycinkiem już zamontowanego obrazu (`SlicedDataSource`) albo buforem w pamięci (`MemoryDataSource`). Ponieważ `AssetSourceDispatcher.openAssets()` przyjmuje `DataSource`, archiwum leżące wewnątrz ISO montuje się dokładnie tą samą drogą co plik wybrany z dysku.
 
 ## Potok ładowania gry
 

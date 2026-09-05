@@ -134,9 +134,25 @@ flowchart TD
     L2 -->|miss| ERR[resource not found]
 ```
 
-- **Asset sources** are mounted by `AssetSourceDispatcher` depending on type: directory → `LocalFileSystem`, `.iso` file → `IsoFileSystem`, `.zip` → `ZipFileSystem`. Sources mounted later have higher priority.
+- **Asset sources** are mounted by `AssetSourceDispatcher`. A directory becomes a `LocalFileSystem`; everything else goes through container detection (below). Sources mounted later have higher priority.
 - **Storage** is the only writable layer (save games, temporary files); it overrides game data on read.
+- **Patches** are mounted as a `PatchFileSystem` — an overlay over that patch's `files/` directory. It resolves paths exactly like `LocalFileSystem`; the separate type exists so it is possible to tell which mount served a file.
 - **Language** — if set, every layer is first probed with `<language>/<path>` and only then with the bare path. This mirrors the original engine's localisation convention (see [`APPLICATION.SETLANGUAGE`](../reference/APPLICATION.md)).
+
+### Game data containers
+
+Game data does not have to sit in a directory — the emulator also reads it straight out of a disc image or an archive, with no unpacking step:
+
+| Container | Class | Detected by | Notes |
+|---|---|---|---|
+| directory | `LocalFileSystem` | `File.isDirectory()` | case-insensitive name matching |
+| ISO 9660 | `IsoFileSystem` | `CD001` in sector 16 | handles the Joliet descriptor (UTF-16BE names), falling back to ASCII |
+| UDF | `UdfFileSystem` | `NSR02`/`NSR03` in sectors 16–47 | the ICB tree is read by `UdfReader`; a typical single-extent entry becomes a `SlicedDataSource` with no data copied |
+| ZIP | `ZipFileSystem` | `PK\x03\x04` (plus the empty and spanned variants) | full validity is only established when the archive is opened |
+
+Detection is done by `FileSystemDetector` — **by content, not by extension** — so an `.iso` that actually holds a UDF filesystem, or an image with no extension at all, mounts correctly. The probe order is ISO 9660 → UDF → ZIP, which means a hybrid disc (ISO 9660 with a UDF overlay) mounts as ISO 9660.
+
+Containers **nest**. `IFileSystem.openSource()` returns a `DataSource` — a named, randomly-accessible blob of bytes that can be a file on disk (`FileDataSource`), a byte range of an already mounted image (`SlicedDataSource`) or an in-memory buffer (`MemoryDataSource`). Since `AssetSourceDispatcher.openAssets()` accepts a `DataSource`, an archive stored inside an ISO is mounted exactly the same way as a file picked off disk.
 
 ## Game loading pipeline
 

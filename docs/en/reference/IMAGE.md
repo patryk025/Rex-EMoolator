@@ -335,6 +335,26 @@ Disables alpha-channel awareness in collision detection, previously enabled by [
 
 **Compatibility:** `REMOVEMONITORCOLLISIONALPHA` - not present in the libraries analysed in `compat.json`.
 
+### SETANCHOR
+
+```
+void SETANCHOR(STRING anchor)
+void SETANCHOR(INTEGER offsetX, INTEGER offsetY)
+```
+
+Sets the image's anchor — the offset subtracted from coordinates passed to [`SETPOSITION`](#setposition). Works the same way as [`ANIMO.SETANCHOR`](ANIMO.md#setanchor).
+
+The `STRING` variant accepts a named position derived from the image size: `CENTER`, `LEFTUPPER`, `RIGHTUPPER`, `LEFTLOWER`, `RIGHTLOWER`, `LEFT`, `RIGHT`, `TOP`, `BOTTOM`. An unknown name is ignored (it only reaches the log).
+
+The two-`INTEGER` variant accepts the anchor coordinates directly.
+
+**Parameters**
+
+- `anchor` — position name derived from the image size.
+- `offsetX, offsetY` — anchor coordinates.
+
+**Compatibility:** `SETANCHOR` - not present in the libraries analysed in `compat.json`.
+
 ### SETCLIPPING
 
 ```

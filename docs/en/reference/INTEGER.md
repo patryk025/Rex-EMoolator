@@ -92,6 +92,24 @@ VARITEMP1^AND(ARRMASK^GET(ARRENEMYMASK^GET(VARENEMY)));
 
 **Compatibility:** `AND` - `PIKLIB61.DLL` ❌, `PIKLIB71.DLL` ✅, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
 
+### ARCTANEX
+
+```
+INTEGER ARCTANEX(DOUBLE y, DOUBLE x, [DOUBLE offset])
+```
+
+Computes the angle of the vector `(x, y)` in degrees, normalised to the `0`–`359` range. Unlike a plain arc tangent it takes the quadrant into account, so it tells opposite directions apart. The result is stored in the variable and returned at the same time.
+
+The optional `offset` is added to the result before it is brought back into the `0`–`359` range — useful when the zero angle should sit somewhere other than the X axis.
+
+**Parameters**
+
+- `y` — vertical component of the vector.
+- `x` — horizontal component of the vector.
+- `offset` — optional angle shift in degrees.
+
+**Compatibility:** `ARCTANEX` - not present in the libraries analysed in `compat.json`.
+
 ### CLAMP
 
 ```

@@ -299,6 +299,32 @@ ARRAYWARSZTATMENUPRZEDMIOTY^LOADINI();
 
 **Compatibility:** `LOADINI` - `PIKLIB61.DLL` ⚠️ (2/4), `PIKLIB71.DLL` ✅, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
 
+### MAX
+
+```
+INTEGER MAX()
+```
+
+Returns the largest value among the `INTEGER` elements. Elements of other types are skipped.
+
+!!! warning "Emulator behaviour"
+    The comparison starts from zero, so an array holding only negative values returns `0` rather than its largest element. An empty array also returns `0`.
+
+**Compatibility:** `MAX` - not present in the libraries analysed in `compat.json`.
+
+### MIN
+
+```
+INTEGER MIN()
+```
+
+Returns the smallest value among the `INTEGER` elements. Elements of other types are skipped.
+
+!!! warning "Emulator behaviour"
+    The comparison starts from `1000000`, so an empty array — and one whose elements are all larger than that value — returns `1000000`.
+
+**Compatibility:** `MIN` - not present in the libraries analysed in `compat.json`.
+
 ### MODAT
 
 ```

@@ -299,6 +299,32 @@ ARRAYWARSZTATMENUPRZEDMIOTY^LOADINI();
 
 **Kompatybilność:** `LOADINI` - `PIKLIB61.DLL` ⚠️ (2/4), `PIKLIB71.DLL` ✅, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
 
+### MAX
+
+```
+INTEGER MAX()
+```
+
+Zwraca największą wartość spośród elementów typu `INTEGER`. Elementy innych typów są pomijane.
+
+!!! warning "Zachowanie emulatora"
+    Porównanie startuje od zera, więc tablica zawierająca same wartości ujemne zwróci `0`, a nie największy z jej elementów. Pusta tablica również zwraca `0`.
+
+**Kompatybilność:** `MAX` - brak w przeanalizowanych bibliotekach z `compat.json`.
+
+### MIN
+
+```
+INTEGER MIN()
+```
+
+Zwraca najmniejszą wartość spośród elementów typu `INTEGER`. Elementy innych typów są pomijane.
+
+!!! warning "Zachowanie emulatora"
+    Porównanie startuje od `1000000`, więc pusta tablica — oraz taka, w której wszystkie elementy są większe od tej wartości — zwróci `1000000`.
+
+**Kompatybilność:** `MIN` - brak w przeanalizowanych bibliotekach z `compat.json`.
+
 ### MODAT
 
 ```

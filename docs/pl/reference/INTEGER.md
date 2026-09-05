@@ -92,6 +92,24 @@ VARITEMP1^AND(ARRMASK^GET(ARRENEMYMASK^GET(VARENEMY)));
 
 **Kompatybilność:** `AND` - `PIKLIB61.DLL` ❌, `PIKLIB71.DLL` ✅, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
 
+### ARCTANEX
+
+```
+INTEGER ARCTANEX(DOUBLE y, DOUBLE x, [DOUBLE offset])
+```
+
+Liczy kąt wektora `(x, y)` w stopniach, znormalizowany do przedziału `0`–`359`. W odróżnieniu od zwykłego arcus tangens bierze pod uwagę ćwiartkę układu, więc rozróżnia kierunki przeciwne. Wynik zostaje zapisany w zmiennej i jednocześnie zwrócony.
+
+Opcjonalny `offset` jest dodawany do wyniku przed ponownym sprowadzeniem go do zakresu `0`–`359` — przydaje się, gdy zero kąta ma leżeć gdzie indziej niż na osi X.
+
+**Parametry**
+
+- `y` — składowa pionowa wektora.
+- `x` — składowa pozioma wektora.
+- `offset` — opcjonalne przesunięcie kąta w stopniach.
+
+**Kompatybilność:** `ARCTANEX` - brak w przeanalizowanych bibliotekach z `compat.json`.
+
 ### CLAMP
 
 ```

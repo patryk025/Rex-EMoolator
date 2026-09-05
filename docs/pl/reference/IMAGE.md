@@ -335,6 +335,26 @@ Wyłącza uwzględnianie kanału alfa przy detekcji kolizji, włączone wcześni
 
 **Kompatybilność:** `REMOVEMONITORCOLLISIONALPHA` - brak w przeanalizowanych bibliotekach z `compat.json`.
 
+### SETANCHOR
+
+```
+void SETANCHOR(STRING anchor)
+void SETANCHOR(INTEGER offsetX, INTEGER offsetY)
+```
+
+Ustawia kotwicę obrazu — punkt zaczepienia odejmowany od współrzędnych przekazywanych do [`SETPOSITION`](#setposition). Działa tak samo jak [`ANIMO.SETANCHOR`](ANIMO.md#setanchor).
+
+Wariant z `STRING` przyjmuje nazwę pozycji wyliczonej z rozmiaru obrazu: `CENTER`, `LEFTUPPER`, `RIGHTUPPER`, `LEFTLOWER`, `RIGHTLOWER`, `LEFT`, `RIGHT`, `TOP`, `BOTTOM`. Nieznana nazwa jest ignorowana (trafia tylko do logu).
+
+Wariant z dwoma `INTEGER`-ami przyjmuje współrzędne kotwicy bezpośrednio.
+
+**Parametry**
+
+- `anchor` — nazwa pozycji wyliczonej z rozmiaru obrazu.
+- `offsetX, offsetY` — współrzędne kotwicy.
+
+**Kompatybilność:** `SETANCHOR` - brak w przeanalizowanych bibliotekach z `compat.json`.
+
 ### SETCLIPPING
 
 ```

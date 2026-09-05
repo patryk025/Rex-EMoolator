@@ -119,6 +119,16 @@ Wypełnia zmienną typu [`GROUP`](GROUP.md) o podanej nazwie listą nazw wszystk
 
 **Kompatybilność:** `GETPLAYINGANIMO` - `PIKLIB61.DLL` ❌, `PIKLIB71.DLL` ❌, `PIKLIB72.DLL` ❌, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
 
+### ISPAUSED
+
+```
+BOOL ISPAUSED()
+```
+
+Zwraca `TRUE`, jeżeli scena jest wstrzymana przez [`PAUSE`](#pause), a `FALSE` w przeciwnym razie. Stan jest wspólny dla całej aktywnej sceny, niezależnie od tego, z którego kontekstu wywołano metodę (zobacz [Zakres leksykalny a zakres odtwarzania](../internals/architecture.md#zakres-leksykalny-a-zakres-odtwarzania)).
+
+**Kompatybilność:** `ISPAUSED` - brak w przeanalizowanych bibliotekach z `compat.json`.
+
 ### PAUSE
 
 ```

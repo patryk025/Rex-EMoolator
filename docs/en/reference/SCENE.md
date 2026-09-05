@@ -119,6 +119,16 @@ Fills the [`GROUP`](GROUP.md) variable named `groupName` with the names of every
 
 **Compatibility:** `GETPLAYINGANIMO` - `PIKLIB61.DLL` ❌, `PIKLIB71.DLL` ❌, `PIKLIB72.DLL` ❌, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
 
+### ISPAUSED
+
+```
+BOOL ISPAUSED()
+```
+
+Returns `TRUE` when the scene is paused through [`PAUSE`](#pause), and `FALSE` otherwise. The state is shared by the whole active scene, no matter which context the method was called from (see [Lexical scope vs. playback scope](../internals/architecture.md#lexical-scope-vs-playback-scope)).
+
+**Compatibility:** `ISPAUSED` - not present in the libraries analysed in `compat.json`.
+
 ### PAUSE
 
 ```

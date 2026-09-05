@@ -182,6 +182,16 @@ Prevents new drag operations from starting.
 
 **Compatibility:** `DISABLEDRAGGING` - `PIKLIB61.DLL` ✅, `PIKLIB71.DLL` ✅, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
 
+### GETSTD
+
+```
+STRING GETSTD()
+```
+
+Returns the name of the button's standard graphic, that is the contents of the [`GFXSTANDARD`](#gfxstandard) field. When the field is empty or unset, the string `UNKNOWN` is returned. The graphic is set with [`SETSTD`](#setstd).
+
+**Compatibility:** `GETSTD` - not present in the libraries analysed in `compat.json`.
+
 ### SETPRIORITY
 
 ```

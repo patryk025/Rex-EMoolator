@@ -182,6 +182,16 @@ Wyłącza rozpoczynanie nowych operacji przeciągania.
 
 **Kompatybilność:** `DISABLEDRAGGING` - `PIKLIB61.DLL` ✅, `PIKLIB71.DLL` ✅, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
 
+### GETSTD
+
+```
+STRING GETSTD()
+```
+
+Zwraca nazwę grafiki standardowej przycisku, czyli zawartość pola [`GFXSTANDARD`](#gfxstandard). Jeżeli pole jest puste lub nieustawione, zwracany jest napis `UNKNOWN`. Grafikę ustawia [`SETSTD`](#setstd).
+
+**Kompatybilność:** `GETSTD` - brak w przeanalizowanych bibliotekach z `compat.json`.
+
 ### SETPRIORITY
 
 ```
