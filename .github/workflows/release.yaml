@@ -184,28 +184,45 @@ jobs:
           RELEASE_VERSION: ${{ needs.prepare.outputs.version_name }}
           RELEASE_VERSION_NUMBER: ${{ needs.prepare.outputs.version_number }}
 
+      # JDK 24 is only needed on macOS, where JDK 21's jpackage rejects a
+      # 0.x app version (JDK-8380634). Using JDK 24's jpackage together with a
+      # JDK 21 runtime image on other platforms has been observed to trigger
+      # an unrelated jpackage regression (NoSuchFileException on lib/runtime),
+      # so Linux and Windows keep using the same JDK 21 for both the build and
+      # the packaging step.
       - name: Set up JDK 24 for jpackage
+        if: runner.os == 'macOS'
         uses: actions/setup-java@v5
         with:
           java-version: "24"
           distribution: temurin
 
       - name: Save JDK 24 location
+        if: runner.os == 'macOS'
         shell: bash
         run: |
           echo "JAVA_24_HOME=${JAVA_HOME}" >> "$GITHUB_ENV"
 
-      - name: Create native desktop installer with JDK 24
+      - name: Select jpackage JDK
+        shell: bash
+        run: |
+          if [[ "${{ runner.os }}" == "macOS" ]]; then
+            echo "JPACKAGE_JDK_HOME=${JAVA_24_HOME}" >> "$GITHUB_ENV"
+          else
+            echo "JPACKAGE_JDK_HOME=${JAVA_21_HOME}" >> "$GITHUB_ENV"
+          fi
+
+      - name: Create native desktop installer
         shell: bash
         run: |
           ./gradlew \
             :desktop:jpackage \
             --no-daemon \
-            -PjpackageJavaHome="${JAVA_24_HOME}" \
+            -PjpackageJavaHome="${JPACKAGE_JDK_HOME}" \
             -PapplicationRuntimeJavaHome="${JAVA_21_HOME}"
         env:
           JAVA_HOME: ${{ env.JAVA_21_HOME }}
-          JPACKAGE_JAVA_HOME: ${{ env.JAVA_24_HOME }}
+          JPACKAGE_JAVA_HOME: ${{ env.JPACKAGE_JDK_HOME }}
           RELEASE_VERSION: ${{ needs.prepare.outputs.version_name }}
           PACKAGE_VERSION: ${{ runner.os == 'macOS' && format('1.0.{0}', github.run_number) || needs.prepare.outputs.version_number }}
           RELEASE_VERSION_NUMBER: ${{ needs.prepare.outputs.version_number }}
