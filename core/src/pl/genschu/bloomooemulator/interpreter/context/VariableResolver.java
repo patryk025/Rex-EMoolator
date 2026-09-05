@@ -188,6 +188,10 @@ public class VariableResolver {
         );
     }
 
+    public List<Variable> collectSoundsForScheduling(Context context) {
+        return collectByTypePreservingIdentity(context, ctx -> ctx.store().getCacheIndex().getSounds());
+    }
+
     /**
      * Collects texts from context hierarchy including additionalContexts and class instances.
      */

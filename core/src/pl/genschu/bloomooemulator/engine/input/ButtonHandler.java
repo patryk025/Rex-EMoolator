@@ -53,7 +53,8 @@ public class ButtonHandler {
                     button,
                     scoped.owner(),
                     hitGfx,
-                    getPriority(hitGfx),
+                    hitGfx == null && button instanceof ButtonVariable btn
+                            ? btn.state().hotspotPriority : getPriority(hitGfx),
                     getRenderOrder(hitGfx),
                     i
             ));
@@ -153,10 +154,11 @@ public class ButtonHandler {
             if (variable instanceof ButtonVariable btn) {
                 Variable image = scopedButton.hitGfx();
 
-                // Filter by hotspot priority
+                // RECT-only buttons are hotspots too. CHotSpot::getPriority uses
+                // a stored priority (initially zero) when no graphic is attached.
+                int priority = scopedButton.hitPriority();
+                if (priority < minHSPriority || priority > maxHSPriority) continue;
                 if (image != null) {
-                    int priority = scopedButton.hitPriority();
-                    if (priority < minHSPriority || priority > maxHSPriority) continue;
                     if (pixelPerfect) {
                         if (getAlpha(image, x, y) == 0) continue;
                     }

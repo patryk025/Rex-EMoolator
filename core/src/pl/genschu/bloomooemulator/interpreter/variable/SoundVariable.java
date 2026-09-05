@@ -29,13 +29,15 @@ public record SoundVariable(
     public static final class SoundState {
         public Sound sound;
         public boolean playing = false;
+        public boolean paused = false;
+        public double pausedAt;
         public long soundId = -1;
         public int sampleRate = 22050;
         public int currentSampleRate = 22050;
         public int channels = 1;
         public int bitsPerSample = 16;
         public float duration = 0f;
-        public float playStartTime = 0f;
+        public double playStartTime = 0;
         public String filename = "";
 
         // Playback observers
@@ -64,6 +66,7 @@ public record SoundVariable(
                 sound = null;
             }
             playing = false;
+            paused = false;
         }
     }
 
@@ -168,6 +171,7 @@ public record SoundVariable(
     // ========================================
 
     public void play() {
+        state.paused = false;
         if (state.sound == null) {
             // Play returns silently when the buffer failed to load — it never registers
             // with the sound manager and never fires a finish notification.
@@ -183,7 +187,7 @@ public record SoundVariable(
             state.sound.setVolume(state.soundId, 1.0f);
             state.sound.setPitch(state.soundId, (float) state.currentSampleRate / state.sampleRate);
             state.sound.setLooping(state.soundId, false);
-            state.playStartTime = TimeUtils.nanoTime() / 1_000_000_000f;
+            state.playStartTime = TimeUtils.nanoTime() / 1_000_000_000d;
             emitSignal("ONSTARTED");
             notifyObserversStarted();
         } catch (Exception e) {
@@ -194,20 +198,27 @@ public record SoundVariable(
     }
 
     public void pause() {
+        if (!state.playing) return;
         if (state.sound != null) {
-            state.sound.pause();
+            state.sound.pause(state.soundId);
         }
+        state.pausedAt = TimeUtils.nanoTime() / 1_000_000_000d;
+        state.paused = true;
         state.playing = false;
     }
 
     public void resume() {
+        if (!state.paused) return;
         if (state.sound != null) {
-            state.sound.resume();
+            state.sound.resume(state.soundId);
         }
+        state.playStartTime += TimeUtils.nanoTime() / 1_000_000_000d - state.pausedAt;
+        state.paused = false;
         state.playing = true;
     }
 
     public void stop(boolean emitSignal) {
+        state.paused = false;
         try {
             if (state.sound != null) state.sound.stop();
         } catch (Exception ignored) {}
@@ -227,7 +238,7 @@ public record SoundVariable(
      */
     public boolean update() {
         if (state.playing && state.playStartTime > 0) {
-            float now = TimeUtils.nanoTime() / 1_000_000_000f;
+            double now = TimeUtils.nanoTime() / 1_000_000_000d;
             float adjustedDuration = state.duration / ((float) state.currentSampleRate / state.sampleRate);
             if (now - state.playStartTime >= adjustedDuration) {
                 state.playing = false;

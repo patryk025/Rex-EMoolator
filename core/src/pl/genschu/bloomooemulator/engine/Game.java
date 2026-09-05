@@ -18,6 +18,7 @@ import pl.genschu.bloomooemulator.engine.render.PastedGraphic;
 import pl.genschu.bloomooemulator.engine.time.LegacyClock;
 import pl.genschu.bloomooemulator.engine.time.LegacyClockProfile;
 import pl.genschu.bloomooemulator.engine.time.QuantizedLegacyClock;
+import pl.genschu.bloomooemulator.engine.update.ScenePlaybackController;
 import pl.genschu.bloomooemulator.interpreter.context.Context;
 import pl.genschu.bloomooemulator.interpreter.runtime.ExecutionContext;
 import pl.genschu.bloomooemulator.interpreter.runtime.ASTInterpreter;
@@ -93,6 +94,7 @@ public class Game {
     // GetTickCount-compatible clock used by legacy schedulers. Its granularity
     // is selected independently from render cadence.
     private final LegacyClock legacyClock;
+    private final ScenePlaybackController scenePlayback = new ScenePlaybackController(this);
 
     private Map<String, Music> musicCache;
     private Music currentSceneMusic = null;
@@ -448,7 +450,7 @@ public class Game {
         currentEpisodeContext = new Context(new ExecutionContext(), currentApplicationContext != null ? currentApplicationContext : definitionContext);
         currentEpisodeContext.setGame(this);
 
-        currentSceneContext = new Context(new ExecutionContext(), currentEpisodeContext);
+        setCurrentSceneContext(new Context(new ExecutionContext(), currentEpisodeContext));
         currentSceneContext.setGame(this);
 
         TextVariable errorText = new TextVariable("__STARTUP_ERROR__");
@@ -521,7 +523,7 @@ public class Game {
         }
         Gdx.app.log("Game", "Loading scene " + scene.name());
         try {
-            currentSceneContext = new Context(new ExecutionContext(), currentEpisodeContext);
+            setCurrentSceneContext(new Context(new ExecutionContext(), currentEpisodeContext));
             currentSceneContext.setGame(this);
 
             String scenePath = variablePaths.get(scene.name());
@@ -855,6 +857,12 @@ public class Game {
     // ========================================
 
     public SceneVariable getCurrentSceneVariable() {
+        // SCENE is immutable: script setters replace its record in the context.
+        // Input must read that canonical record, not the scene-load snapshot.
+        if (currentSceneVariable != null && currentSceneContext != null
+                && currentSceneContext.getVariable(currentSceneVariable.name()) instanceof SceneVariable scene) {
+            return scene;
+        }
         return currentSceneVariable;
     }
 
@@ -952,6 +960,7 @@ public class Game {
     }
 
     public void setCurrentSceneContext(GameContext currentSceneContext) {
+        if (this.currentSceneContext != currentSceneContext) scenePlayback.sceneChanged();
         this.currentSceneContext = (Context) currentSceneContext;
     }
 
@@ -1054,6 +1063,14 @@ public class Game {
 
     public LegacyClock getLegacyClock() {
         return legacyClock;
+    }
+
+    public ScenePlaybackController getScenePlayback() {
+        return scenePlayback;
+    }
+
+    public long getTimerTimeMs() {
+        return scenePlayback.timerTime(getEngineTimeMs());
     }
 
     public List<EngineVariable> getPlayingAudios() {

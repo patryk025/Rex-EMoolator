@@ -28,6 +28,8 @@ public record ButtonVariable(
      */
     public static final class ButtonVarState {
         public ButtonState buttonState = ButtonState.INIT;
+        /** CHotSpot priority when no graphic supplies it (PIKLIB8 10030010). */
+        public int hotspotPriority = 0;
         public CanvasRect rect = null;
         /** Live bounds source used by GFX-backed buttons. */
         public CanvasBoundsProvider rectProvider = null;
@@ -48,6 +50,7 @@ public record ButtonVariable(
         public ButtonVarState copy() {
             ButtonVarState copy = new ButtonVarState();
             copy.buttonState = this.buttonState;
+            copy.hotspotPriority = this.hotspotPriority;
             copy.rect = this.rect;
             copy.rectProvider = this.rectProvider;
             copy.rectVarName = this.rectVarName;
@@ -421,6 +424,7 @@ public record ButtonVariable(
         Map.entry("SETPRIORITY", MethodSpec.of((self, args, ctx) -> {
             ButtonVariable btn = (ButtonVariable) self;
             int priority = ArgumentHelper.getInt(args.get(0));
+            btn.state.hotspotPriority = priority;
             // Forward priority to all three graphics variables
             for (String gfxName : new String[]{btn.state.gfxStandardName, btn.state.gfxOnMoveName, btn.state.gfxOnClickName}) {
                 if (gfxName == null) continue;

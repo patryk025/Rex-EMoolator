@@ -13,7 +13,7 @@ import java.util.Map;
  * Emits ONTICK signal at regular intervals.
  *
  * <p>Time fields are expressed in engine-clock milliseconds (see
- * {@link pl.genschu.bloomooemulator.engine.Game#getEngineTimeMs()}), not
+ * {@link pl.genschu.bloomooemulator.engine.Game#getTimerTimeMs()}), not
  * wall-clock time. Callers must pass the engine time to {@link #update(long)};
  * methods that mutate {@code lastTickTime} also read it from the engine.
  *
@@ -230,7 +230,7 @@ public record TimerVariable(
     private static long engineTimeFrom(MethodContext ctx) {
         if (ctx == null) return 0L;
         var game = ctx.getGame();
-        return game == null ? 0L : game.getEngineTimeMs();
+        return game == null ? 0L : game.getTimerTimeMs();
     }
 
     @Override

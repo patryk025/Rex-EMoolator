@@ -429,6 +429,10 @@ public class Context implements GameContext {
         return resolver.collectSounds(this);
     }
 
+    public List<Variable> getSoundVariablesForScheduling() {
+        return resolver.collectSoundsForScheduling(this);
+    }
+
     // ============================================================
     // Singleton variables (convenience methods)
     // ============================================================

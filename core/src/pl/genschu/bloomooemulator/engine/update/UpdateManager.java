@@ -140,14 +140,17 @@ public class UpdateManager implements Disposable {
 
         public void updateTimers(LegacyClock clock) {
             GameContext context = game.getCurrentSceneContext();
+            ScenePlaybackController playback = game.getScenePlayback();
+            LegacyClock timerClock = () -> playback.timerTime(clock.nowMillis());
             Set<TimerVariable.TimerState> seenStates =
                     Collections.newSetFromMap(new IdentityHashMap<>());
             for (EngineVariable variable : new ArrayList<>(context.getTimerVariablesForScheduling())) {
+                if (!playback.areTimersEnabled() || game.getCurrentSceneContext() != context) break;
                 if (variable instanceof TimerVariable candidate
                         && seenStates.add(candidate.state())) {
                     TimerVariable timer = resolveCanonicalTimer(context, candidate);
                     try {
-                        timer.update(clock);
+                        timer.update(timerClock);
                     } catch (Exception ignored) {
                         // simple break, nothing special
                     }

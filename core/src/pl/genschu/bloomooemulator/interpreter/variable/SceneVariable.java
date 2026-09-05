@@ -3,8 +3,7 @@ package pl.genschu.bloomooemulator.interpreter.variable;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.audio.Music;
 import pl.genschu.bloomooemulator.engine.Game;
-import pl.genschu.bloomooemulator.engine.decision.events.AnimoEvent;
-import pl.genschu.bloomooemulator.engine.decision.states.AnimoState;
+import pl.genschu.bloomooemulator.interpreter.context.Context;
 import pl.genschu.bloomooemulator.interpreter.helpers.ArgumentHelper;
 import pl.genschu.bloomooemulator.interpreter.values.*;
 
@@ -103,6 +102,14 @@ public record SceneVariable(
         return game != null ? game.getCurrentSceneMusic() : null;
     }
 
+    // A parent-defined behaviour keeps its lexical scope (e.g. BFITMP names),
+    // but scene operations must see the active engine's registered objects.
+    private static Context playbackContext(MethodContext ctx) {
+        Game game = ctx.getGame();
+        return game != null && game.getCurrentSceneContext() != null
+                ? (Context) game.getCurrentSceneContext() : ctx.context();
+    }
+
     // ========================================
     // METHODS DEFINITION
     // ========================================
@@ -138,7 +145,7 @@ public record SceneVariable(
             }
             group.variableNames().clear();
             group.markerHolder()[0] = -1;
-            for (Variable variable : ctx.context().getGraphicsVariables().values()) {
+            for (Variable variable : playbackContext(ctx).getGraphicsVariablesForScheduling()) {
                 if (variable instanceof AnimoVariable animo && animo.isPlaying()
                         && !group.variableNames().contains(animo.name())) {
                     group.variableNames().add(animo.name());
@@ -151,15 +158,7 @@ public record SceneVariable(
         })),
 
         Map.entry("PAUSE", MethodSpec.of((self, args, ctx) -> {
-            Music music = currentMusic(ctx);
-            if (music != null && music.isPlaying()) {
-                music.pause();
-            }
-            for (Variable variable : ctx.context().getGraphicsVariables().values()) {
-                if (variable instanceof AnimoVariable animo && animo.isPlaying()) {
-                    animo.changeAnimoState(AnimoEvent.PAUSE);
-                }
-            }
+            ctx.getGame().getScenePlayback().pause(ArgumentHelper.getBoolean(args, 0, false));
             return MethodResult.noReturn();
         })),
 
@@ -191,18 +190,7 @@ public record SceneVariable(
         })),
 
         Map.entry("RESUME", MethodSpec.of((self, args, ctx) -> {
-            SceneVariable thisVar = (SceneVariable) self;
-            Music music = currentMusic(ctx);
-            if (music != null && !music.isPlaying()) {
-                music.setVolume(thisVar.musicVolume / 1000.0f);
-                music.play();
-            }
-            for (Variable variable : ctx.context().getGraphicsVariables().values()) {
-                if (variable instanceof AnimoVariable animo
-                        && animo.getAnimationState() == AnimoState.PAUSED) {
-                    animo.changeAnimoState(AnimoEvent.PLAY);
-                }
-            }
+            ctx.getGame().getScenePlayback().resume(null, ArgumentHelper.getBoolean(args, 0, true));
             return MethodResult.noReturn();
         })),
 
@@ -216,15 +204,12 @@ public record SceneVariable(
                 Gdx.app.log("SceneVariable", "Variable " + groupName + " is not GROUP. Ignoring it.");
                 return MethodResult.noReturn();
             }
-            for (String memberName : group.variableNames()) {
-                Variable member = ctx.getVariable(memberName);
-                if (member instanceof AnimoVariable animo
-                        && animo.getAnimationState() == AnimoState.PAUSED) {
-                    animo.changeAnimoState(AnimoEvent.PLAY);
-                }
-            }
+            ctx.getGame().getScenePlayback().resume(group, ArgumentHelper.getBoolean(args, 1, true));
             return MethodResult.noReturn();
         })),
+
+        Map.entry("ISPAUSED", MethodSpec.of((self, args, ctx) ->
+                MethodResult.returns(new BoolValue(ctx.getGame().getScenePlayback().isPaused())))),
 
         Map.entry("RUN", MethodSpec.of((self, args, ctx) -> {
             if (args.size() < 2) {
