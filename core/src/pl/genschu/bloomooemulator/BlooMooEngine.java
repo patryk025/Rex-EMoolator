@@ -385,6 +385,11 @@ public class BlooMooEngine extends ApplicationAdapter {
     }
 
     @Override
+    public void pause() {
+        if (inputManager != null) inputManager.cancelPointerInput();
+    }
+
+    @Override
     public void dispose() {
         if (glProfiler != null && glProfiler.isEnabled()) {
             glProfiler.disable();

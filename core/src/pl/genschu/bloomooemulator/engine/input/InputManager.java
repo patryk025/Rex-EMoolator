@@ -2,6 +2,8 @@ package pl.genschu.bloomooemulator.engine.input;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
+import com.badlogic.gdx.InputMultiplexer;
+import pl.genschu.bloomooemulator.logic.MouseMode;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Cursor;
 import com.badlogic.gdx.graphics.Pixmap;
@@ -70,11 +72,6 @@ public class InputManager implements Disposable {
     private GameContext lastMouseClickContext = null;
     private boolean mouseVisible = true;
     private MouseCursor mouseCursor = MouseCursor.ARROW;
-    // LibGDX polling returns (0,0) until a real mouse event arrives. Without a
-    // guard, the first tick processes buttons as if the cursor were at (0,0),
-    // falsely focusing any button whose rect contains that point.
-    private boolean mouseEverObserved = false;
-
     // Keyboard state
     private final Set<Integer> pressedKeys = new HashSet<>();
     private final Set<Integer> previouslyPressedKeys = new HashSet<>();
@@ -88,6 +85,15 @@ public class InputManager implements Disposable {
     private final KeyboardHandler keyboardHandler;
     // Captures typed characters for the ONCHAR channel.
     private final KeyboardCharInput keyboardCharInput = new KeyboardCharInput();
+    private final PointerInput pointerInput = new PointerInput();
+    private final InputMultiplexer inputProcessor = new InputMultiplexer(keyboardCharInput, pointerInput);
+    private int hostX, hostY;
+    private boolean pointerObserved;
+    private GameContext inputContext;
+
+    private boolean isTouchMode() {
+        return game.getGame() != null && game.getGame().getMouseModeEnum() == MouseMode.TOUCH;
+    }
 
     public InputManager(Viewport viewport, Game game, EngineConfig config) {
         this.viewport = viewport;
@@ -97,6 +103,8 @@ public class InputManager implements Disposable {
         this.dragManager = new DragManager(game);
         this.buttonHandler = new ButtonHandler(game, this);
         this.keyboardHandler = new KeyboardHandler(game);
+        inputContext = game.getCurrentSceneContext();
+        Gdx.input.setInputProcessor(inputProcessor);
     }
 
     public void processInput(float deltaTime) {
@@ -108,17 +116,23 @@ public class InputManager implements Disposable {
     public void processHostInput(float deltaTime) {
         GameContext context = game.getCurrentSceneContext();
         if (context == null) return;
+        if (context != inputContext) {
+            cancelPointerInput();
+            inputContext = context;
+        }
 
         var debugManager = game.getEmulator().getDebugManager();
         debugManager.handleSceneSelectorInput(deltaTime);
 
-        // Keep the character-input processor installed during gameplay so keyTyped
+        if (debugManager.isSceneSelectorActive()) cancelPointerInput();
+
+        // Keep the combined input processor installed during gameplay so keyTyped
         // events feed the ONCHAR channel. The scene selector temporarily swaps in
         // its own processor and never restores it on close, so re-assert ours once
         // the selector is no longer active.
         if (!debugManager.isSceneSelectorActive()
-                && Gdx.input.getInputProcessor() != keyboardCharInput) {
-            Gdx.input.setInputProcessor(keyboardCharInput);
+                && Gdx.input.getInputProcessor() != inputProcessor) {
+            Gdx.input.setInputProcessor(inputProcessor);
         }
 
         // Debug hotkeys are intentionally not gated by the legacy pulse: F11
@@ -134,11 +148,40 @@ public class InputManager implements Disposable {
         List<MouseVariable> mouseVariables = getMouseListeners(context);
         List<KeyboardVariable> keyboardVariables = getKeyboardListeners(context);
 
-        // Handle mouse input
-        processMouseInput(mouseVariables);
+        // Drain transitions in order: even DOWN + UP between pulses must survive.
+        PointerInput.Event event;
+        boolean processed = false;
+        while ((event = pointerInput.poll()) != null) {
+            processed = true;
+            hostX = event.x();
+            hostY = event.y();
+            pointerObserved = true;
+            boolean pressed = switch (event.kind()) {
+                case DOWN -> true;
+                case UP, CANCEL -> false;
+                case MOVE -> mousePrevPressed;
+            };
+            if (event.kind() == PointerInput.Kind.CANCEL) {
+                buttonHandler.clearFocus();
+                setActiveButton(null);
+                mousePressed = mousePrevPressed = false;
+            } else {
+                processMouseInput(getMouseListeners(game.getCurrentSceneContext()), hostX, hostY, pressed);
+            }
+            if (game.getCurrentSceneContext() != context) {
+                pointerInput.clear();
+                setActiveButton(null);
+                mousePressed = mousePrevPressed = false;
+                pointerObserved = false;
+                return;
+            }
+        }
+        if (!processed && pointerObserved) {
+            processMouseInput(mouseVariables, hostX, hostY, mousePrevPressed);
+        }
 
-        // Handle keyboard input
-        processKeyboardInput(keyboardVariables);
+        // A hover callback can change the scene even without a new host event.
+        if (game.getCurrentSceneContext() == context) processKeyboardInput(keyboardVariables);
     }
 
     private List<MouseVariable> getMouseListeners(GameContext context) {
@@ -159,36 +202,14 @@ public class InputManager implements Disposable {
         return keyboardEV instanceof KeyboardVariable keyboard ? List.of(keyboard) : List.of();
     }
 
-    private void processMouseInput(List<MouseVariable> mouseVariables) {
-        int x = Gdx.input.getX();
-        int y = Gdx.input.getY();
-
-        if (x < 0 || y < 0 || x >= Gdx.graphics.getWidth() || y >= Gdx.graphics.getHeight()) {
-            return;
-        }
-
-        boolean isPressed = Gdx.input.isButtonPressed(Input.Buttons.LEFT);
-
-        // Skip processing until we've seen a real mouse event. LibGDX's polling
-        // API returns (0,0) before any event arrives, which can falsely trigger
-        // button focus on any button whose rect contains the top-left corner.
-        if (!mouseEverObserved) {
-            if (x == 0 && y == 0 && !isPressed) {
-                return;
-            }
-            mouseEverObserved = true;
-        }
+    private void processMouseInput(List<MouseVariable> mouseVariables, int x, int y, boolean isPressed) {
+        if (isTouchMode() && !isPressed && !mousePrevPressed) return;
 
         // Mouse coordinates translation
         Optional<CanvasPoint> correctedCoords = getCorrectedMouseCoords(x, y);
         if (correctedCoords.isEmpty()) {
-            // Remember the physical button state even while the pointer is in a
-            // FitViewport bar. Otherwise entering the canvas with the button held
-            // would look like a fresh click. Dropping an active button also prevents
-            // a drag from remaining captured after a release outside the canvas.
-            if (!isPressed && mousePrevPressed) {
-                setActiveButton(null);
-            }
+            buttonHandler.clearFocus();
+            if (!isPressed) setActiveButton(null);
             mousePressed = isPressed;
             mousePrevPressed = isPressed;
             return;
@@ -213,6 +234,8 @@ public class InputManager implements Disposable {
             justReleased = false;
         }
 
+        mousePressed = isPressed;
+
         // Update mouse listener variables
         for (MouseVariable mouseVariable : mouseVariables) {
             mouseVariable.update(correctedX, correctedY);
@@ -232,11 +255,17 @@ public class InputManager implements Disposable {
             dispatchKolorowankaClick(correctedX, correctedY);
         }
 
+        if (game.getCurrentSceneContext() != lastMouseClickContext && (justPressed || justReleased)) return;
+
         // Emit mouse signals
         if (justPressed) {
             emitMouseSignal(mouseVariables, "ONCLICK", new StringValue("LEFT"));
         } else if (justReleased) {
             emitMouseSignal(mouseVariables, "ONRELEASE", new StringValue("LEFT"));
+        }
+
+        if (isTouchMode() && justReleased && game.getCurrentSceneContext() == lastMouseClickContext) {
+            buttonHandler.clearFocus();
         }
 
         // Update mouse state
@@ -400,11 +429,16 @@ public class InputManager implements Disposable {
 
     // Handle window resize
     public void handleResize(int width, int height) {
-        // Reset mouse state on resize
-        mousePressed = false;
-        mousePrevPressed = false;
-        dragManager.cancel();
-        activeButton = null;
+        cancelPointerInput();
+    }
+
+    public void cancelPointerInput() {
+        pointerInput.clear();
+        pointerObserved = false;
+        mousePressed = mousePrevPressed = false;
+        lastMouseClickContext = null;
+        setActiveButton(null);
+        buttonHandler.clearFocus();
     }
 
     // Helper method to trigger a signal on an interpreter variable.
@@ -471,6 +505,8 @@ public class InputManager implements Disposable {
 
     @Override
     public void dispose() {
+        pointerInput.clear();
+        if (Gdx.input.getInputProcessor() == inputProcessor) Gdx.input.setInputProcessor(null);
         dragManager.cancel();
     }
 }

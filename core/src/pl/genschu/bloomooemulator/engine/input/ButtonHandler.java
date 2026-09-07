@@ -68,8 +68,22 @@ public class ButtonHandler {
         processButtonInteractions(scopedButtons, x, y, isPressed, justPressed, justReleased,
                 mouseVariable, minHSPriority, maxHSPriority, mouseEnabled);
 
+        if (game.getCurrentSceneContext() != sceneContext) return;
         // Handle button release
         handleButtonRelease(justReleased, scopedButtons);
+    }
+
+    /** Remove hover without synthesizing a release/action (touch end or cancellation). */
+    public void clearFocus() {
+        if (!(game.getCurrentSceneContext() instanceof Context context)) return;
+        for (Context.ScopedVariable scoped : context.getScopedButtonVariablesForInput()) {
+            if (game.getCurrentSceneContext() != context) return;
+            if (scoped.variable() instanceof ButtonVariable button) {
+                button.changeState(ButtonEvent.FOCUS_OFF, scoped.owner());
+            } else if (scoped.variable() instanceof AnimoVariable animo) {
+                animo.changeButtonState(ButtonEvent.FOCUS_OFF, scoped.owner());
+            }
+        }
     }
 
     private record ScopedButton(
@@ -86,7 +100,7 @@ public class ButtonHandler {
             // Hit testing always uses GFXSTANDARD: the trigger silhouette is fixed
             // by the standard graphic, even while GFXONMOVE/GFXONCLICK is displayed.
             String gfxName = btn.state().gfxStandardName;
-            if (gfxName != null) {
+            if (gfxName != null && !gfxName.isEmpty()) {
                 return context.getVariable(gfxName);
             }
             return null;
@@ -204,8 +218,10 @@ public class ButtonHandler {
             inputManager.applyMouseCursor(null);
         }
 
+        var scene = game.getCurrentSceneContext();
         // Process 'em all!
         for (ScopedButton scopedButton : buttons) {
+            if (game.getCurrentSceneContext() != scene) return;
             Variable variable = scopedButton.variable();
             Context owner = scopedButton.owner();
             if (scopedButton == focusedButton) {
@@ -247,6 +263,10 @@ public class ButtonHandler {
         if (shouldFocus) {
             if (justPressed) {
                 if (inputManager.getActiveButton() == null) {
+                    var scene = game.getCurrentSceneContext();
+                    button.changeState(ButtonEvent.FOCUS_ON, context);
+                    if (game.getCurrentSceneContext() != scene || !button.isEnabled()
+                            || button.getButtonState() != ButtonState.HOVERED) return;
                     inputManager.setActiveButton(button);
                     inputManager.getDragManager().start(button, context, mouseX, mouseY);
                     if (inputManager.getActiveButton() == button) {
@@ -264,6 +284,10 @@ public class ButtonHandler {
         if (shouldFocus) {
             if (justPressed) {
                 if (inputManager.getActiveButton() == null) {
+                    var scene = game.getCurrentSceneContext();
+                    animo.changeButtonState(ButtonEvent.FOCUS_ON, context);
+                    if (game.getCurrentSceneContext() != scene
+                            || animo.getButtonState() != ButtonState.HOVERED) return;
                     inputManager.setActiveButton(animo);
                     animo.changeButtonState(ButtonEvent.PRESSED, context);
                 }
