@@ -48,7 +48,7 @@ public final class GoogleDriveDownloader {
     private static final Pattern ID_FROM_QUERY = Pattern.compile("[?&]id=([a-zA-Z0-9_-]{10,})");
     private static final Pattern BARE_ID = Pattern.compile("[a-zA-Z0-9_-]{10,}");
     private static final Pattern FORM_ACTION = Pattern.compile("action=\"([^\"]+)\"");
-    private static final Pattern INPUT_TAG = Pattern.compile("<input\\b[^>]*>", Pattern.CASE_INSENSITIVE);
+    private static final Pattern INPUT_TAG = Pattern.compile("<input\\b[^<>]*>", Pattern.CASE_INSENSITIVE);
     private static final Pattern UC_HREF = Pattern.compile("href=\"(/uc\\?export=download[^\"]+)\"");
 
     /**
