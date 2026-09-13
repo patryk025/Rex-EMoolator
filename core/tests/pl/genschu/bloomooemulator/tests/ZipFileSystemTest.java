@@ -1,6 +1,10 @@
 package pl.genschu.bloomooemulator.tests;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
+import pl.genschu.bloomooemulator.engine.filesystem.LocalFileSystem;
+import pl.genschu.bloomooemulator.logic.GameIniResolver;
 import org.junit.jupiter.api.io.TempDir;
 import pl.genschu.bloomooemulator.engine.filesystem.AssetSourceDispatcher;
 import pl.genschu.bloomooemulator.engine.filesystem.VFS;
@@ -123,5 +127,60 @@ class ZipFileSystemTest {
 
         String script = readAll(vfs.openRead("dane/game/bf/bf.cnv"));
         assertTrue(script.contains("CLSBFOBJ:DEF=CLSBF.CLASS"));
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {"../outside.ini", "..\\outside.ini", "data/../../outside.ini",
+            "data/../outside.ini", "/outside.ini", "\\outside.ini", "C:/outside.ini",
+            "C:outside.ini", "//server/share/outside.ini", "../", "data/../../"})
+    void rejectsUnsafeArchiveEntriesBeforeExposingFiles(String name, @TempDir Path tempDir) throws IOException {
+        Path archive = tempDir.resolve("unsafe.zip");
+        try (ZipOutputStream zip = new ZipOutputStream(Files.newOutputStream(archive))) {
+            addFile(zip, "safe.ini", "safe");
+            addFile(zip, name, "payload");
+        }
+        ZipFileSystem fs = new ZipFileSystem(archive.toFile());
+        assertThrows(IOException.class, () -> fs.open("safe.ini"));
+        // A failed index must not expose the safe prefix on subsequent calls either.
+        assertThrows(IllegalStateException.class, () -> fs.list(""));
+        assertThrows(IOException.class, () -> fs.open(name));
+    }
+
+    @Test
+    void acceptsOrdinaryWindowsSeparatorsAndDirectoryEntries(@TempDir Path tempDir) throws IOException {
+        Path archive = tempDir.resolve("safe.zip");
+        try (ZipOutputStream zip = new ZipOutputStream(Files.newOutputStream(archive))) {
+            addFile(zip, "DANE/", "");
+            addFile(zip, "DANE\\GAME.INI", "safe");
+        }
+        ZipFileSystem fs = new ZipFileSystem(archive.toFile());
+        assertTrue(fs.isDirectory("dane"));
+        assertEquals("safe", readAll(fs.open("dane/game.ini")));
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {"../outside.ini", "..\\outside.ini", "../new/outside.ini"})
+    void iniReferenceInsideZipCannotWriteOutsideStorage(String reference, @TempDir Path tempDir) throws IOException {
+        Path victim = Files.writeString(tempDir.resolve("outside.ini"), "untouched");
+        Path archive = tempDir.resolve("game.zip");
+        try (ZipOutputStream zip = new ZipOutputStream(Files.newOutputStream(archive))) {
+            addFile(zip, "bloomoo.ini", "[MAIN]\nINI=" + reference.replace("\\", "\\\\") + "\n");
+        }
+        ZipFileSystem assets = new ZipFileSystem(archive.toFile());
+        String iniPath = GameIniResolver.resolve(assets::exists, assets.list(""),
+                GameIniResolver.boundedReader(assets::length, assets::open));
+        assertNotNull(iniPath);
+        assertEquals(reference.replace('\\', '/'), iniPath);
+        VFS vfs = new VFS();
+        vfs.mountAssets(assets);
+        vfs.setStorage(new LocalFileSystem(Files.createDirectory(tempDir.resolve("storage")).toFile()));
+        // Same write boundary used by Game.persistGameINI, without launching the renderer.
+        assertThrows(SecurityException.class, () -> {
+            try (var out = vfs.openWrite(iniPath)) {
+                out.write("overwritten".getBytes(StandardCharsets.UTF_8));
+            }
+        });
+        assertEquals("untouched", Files.readString(victim));
+        assertFalse(Files.exists(tempDir.resolve("new")));
     }
 }

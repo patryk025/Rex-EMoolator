@@ -143,6 +143,7 @@ public class ZipFileSystem implements IFileSystem {
             var zipEntries = archive.entries();
             while (zipEntries.hasMoreElements()) {
                 ZipEntry zipEntry = zipEntries.nextElement();
+                validateEntryName(zipEntry.getName());
                 String normalized = normalize(zipEntry.getName());
                 if (normalized.isEmpty()) {
                     continue;
@@ -154,6 +155,19 @@ public class ZipFileSystem implements IFileSystem {
                     entries.put(normalized, new Entry(false, zipEntry.getName(), zipEntry.getSize()));
                     registerParentDirectories(normalized);
                 }
+            }
+        }
+    }
+
+    /** Validate before normalization can hide an absolute archive path. */
+    private static void validateEntryName(String name) throws IOException {
+        String path = name.replace('\\', '/');
+        if (path.startsWith("/") || path.indexOf(':') >= 0 || path.indexOf('\0') >= 0) {
+            throw new IOException("Unsafe ZIP entry path");
+        }
+        for (String segment : path.split("/")) {
+            if (segment.equals("..")) {
+                throw new IOException("Parent traversal in ZIP entry path");
             }
         }
     }
