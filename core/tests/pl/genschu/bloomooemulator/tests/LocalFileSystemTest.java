@@ -127,4 +127,64 @@ class LocalFileSystemTest {
         assertTrue(fs.delete("victim.txt"));
         assertFalse(fs.exists("victim.txt"));
     }
+
+    @Test
+    void rejectsEscapesForEveryOperation(@TempDir Path tempDir) throws IOException {
+        Path root = Files.createDirectory(tempDir.resolve("game"));
+        Path outside = Files.createDirectory(tempDir.resolve("game-outside"));
+        Path victim = Files.writeString(outside.resolve("victim.txt"), "untouched");
+        LocalFileSystem fs = new LocalFileSystem(root.toFile());
+        for (String path : new String[]{"../game-outside/victim.txt",
+                "..\\game-outside\\victim.txt", "../game-outside/new/created.txt",
+                victim.toString(), "C:/outside.txt", "C:outside.txt", "\\\\server\\share\\file"}) {
+            assertThrows(SecurityException.class, () -> fs.open(path), path);
+            assertThrows(SecurityException.class, () -> fs.openSource(path), path);
+            assertThrows(SecurityException.class, () -> fs.openWrite(path), path);
+            assertThrows(SecurityException.class, () -> fs.delete(path), path);
+            assertThrows(SecurityException.class, () -> fs.mkdirs(path), path);
+            assertThrows(SecurityException.class, () -> fs.exists(path), path);
+            assertThrows(SecurityException.class, () -> fs.isDirectory(path), path);
+            assertThrows(SecurityException.class, () -> fs.list(path), path);
+            assertThrows(SecurityException.class, () -> fs.length(path), path);
+        }
+        assertEquals("untouched", Files.readString(victim));
+        assertFalse(Files.exists(outside.resolve("new")));
+    }
+
+    @Test
+    void rejectsSymlinksIncludingPreviouslyCachedPaths(@TempDir Path tempDir) throws IOException {
+        Path root = Files.createDirectory(tempDir.resolve("game"));
+        Path inside = Files.createDirectory(root.resolve("inside"));
+        Path outside = Files.createDirectory(tempDir.resolve("outside"));
+        Files.writeString(inside.resolve("victim.txt"), "inside");
+        Path victim = Files.writeString(outside.resolve("victim.txt"), "untouched");
+        Path link = Files.createSymbolicLink(root.resolve("Link"), inside);
+        LocalFileSystem fs = new LocalFileSystem(root.toFile());
+        assertEquals("inside", readAll(fs.open("link/victim.txt")));
+        Files.delete(link);
+        Files.createSymbolicLink(link, outside);
+        assertThrows(SecurityException.class, () -> fs.open("link/victim.txt"));
+        assertThrows(SecurityException.class, () -> fs.open("LINK/victim.txt"));
+        assertThrows(SecurityException.class, () -> fs.openSource("Link/victim.txt"));
+        assertThrows(SecurityException.class, () -> fs.openWrite("Link/victim.txt"));
+        assertThrows(SecurityException.class, () -> fs.openWrite("Link/new/file.txt"));
+        assertThrows(SecurityException.class, () -> fs.delete("Link/victim.txt"));
+        assertThrows(SecurityException.class, () -> fs.mkdirs("Link/new"));
+        assertEquals("untouched", Files.readString(victim));
+        assertFalse(Files.exists(outside.resolve("new")));
+    }
+
+    @Test
+    void permitsRootAndParentSegmentsThatStayInside(@TempDir Path tempDir) throws IOException {
+        Files.createDirectory(tempDir.resolve("sub"));
+        LocalFileSystem fs = new LocalFileSystem(tempDir.toFile());
+        assertTrue(fs.isDirectory(""));
+        assertNotNull(fs.list(""));
+        try (OutputStream out = fs.openWrite("sub/../save.txt")) {
+            out.write(42);
+        }
+        assertEquals(1, fs.length("save.txt"));
+        assertTrue(fs.mkdirs("new/nested"));
+        assertTrue(fs.delete("save.txt"));
+    }
 }
