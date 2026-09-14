@@ -21,14 +21,12 @@ import pl.genschu.bloomooemulator.adapters.GameListAdapter;
 import pl.genschu.bloomooemulator.engine.time.LegacyClockProfile;
 import pl.genschu.bloomooemulator.logic.GameEntry;
 import pl.genschu.bloomooemulator.logic.GameManager;
+import pl.genschu.bloomooemulator.logic.GameSourceScanner;
 import pl.genschu.bloomooemulator.logic.MouseMode;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Locale;
+import java.util.*;
+import java.util.function.Consumer;
 
 public class GameListActivity extends AppCompatActivity {
     private GameListAdapter adapter;
@@ -134,6 +132,7 @@ public class GameListActivity extends AppCompatActivity {
 
         EditText nameField = dialogView.findViewById(R.id.nameField);
         EditText pathField = dialogView.findViewById(R.id.pathField);
+        EditText rootField = dialogView.findViewById(R.id.rootField);
         Button chooseFolderButton = dialogView.findViewById(R.id.chooseFolderButton);
         Button chooseIsoButton = dialogView.findViewById(R.id.chooseIsoButton);
         Spinner mouseModeSelectBox = dialogView.findViewById(R.id.mouseModeSelectBox);
@@ -173,6 +172,7 @@ public class GameListActivity extends AppCompatActivity {
         if (game != null) {
             nameField.setText(game.getName());
             pathField.setText(game.getPath());
+            rootField.setText(game.getRootPath());
             mouseModeSelectBox.setSelection(game.getMouseModeEnum().ordinal());
             legacyClockProfileSelectBox.setSelection(game.getLegacyClockProfileEnum().ordinal());
             joystickCheckbox.setChecked(game.isMouseVirtualJoystick());
@@ -184,39 +184,99 @@ public class GameListActivity extends AppCompatActivity {
             }
         }
 
-        builder.setPositiveButton(getString(R.string.save), (dialog, which) -> {
-            if (game == null) {
-                GameEntry newGame = new GameEntry(
-                        nameField.getText().toString(),
-                        pathField.getText().toString(),
-                        mouseModes[mouseModeSelectBox.getSelectedItemPosition()].key(),
-                        joystickCheckbox.isChecked(),
-                        licenceCodeHintCheckbox.isChecked(),
-                        !fullscreenCheckbox.isChecked());
-                newGame.setShowFpsCounter(fpsCounterCheckbox.isChecked());
-                newGame.setFamilyOverride(familyField.getText().toString());
-                newGame.setLegacyClockProfile(legacyClockProfiles[legacyClockProfileSelectBox.getSelectedItemPosition()]);
-                gameManager.addGame(newGame);
-
-                adapter.notifyItemInserted(gameManager.getGames().indexOf(newGame, true));
-            } else {
-                game.setName(nameField.getText().toString());
-                game.setPath(pathField.getText().toString());
-                game.setMouseMode(mouseModes[mouseModeSelectBox.getSelectedItemPosition()]);
-                game.setMouseVirtualJoystick(joystickCheckbox.isChecked());
-                game.setShowLicenceCodeHint(licenceCodeHintCheckbox.isChecked());
-                game.setMaintainAspectRatio(!fullscreenCheckbox.isChecked());
-                game.setShowFpsCounter(fpsCounterCheckbox.isChecked());
-                game.setFamilyOverride(familyField.getText().toString());
-                game.setLegacyClockProfile(legacyClockProfiles[legacyClockProfileSelectBox.getSelectedItemPosition()]);
-                gameManager.updateGame(game);
-
-                adapter.notifyItemChanged(gameManager.getGames().indexOf(game, true));
-            }
-        });
-
+        builder.setPositiveButton(getString(R.string.save), null);
         builder.setNegativeButton(getString(R.string.cancel), null);
-        builder.show();
+        AlertDialog editor = builder.create();
+        editor.setOnShowListener(shown -> editor.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(v -> {
+            String sourcePath = pathField.getText().toString().trim();
+            String rootPath = rootField.getText().toString().trim();
+            editor.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(false);
+            new Thread(() -> {
+                try {
+                    List<GameSourceScanner.Candidate> candidates = game != null && sourcePath.equals(game.getPath()) && rootPath.equals(game.getRootPath())
+                            ? Collections.singletonList(new GameSourceScanner.Candidate(rootPath, game.getName()))
+                            : GameSourceScanner.scan(sourcePath, rootPath);
+                    runOnUiThread(() -> {
+                        if (isFinishing() || isDestroyed() || !editor.isShowing()) return;
+                        editor.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(true);
+                        if (candidates.isEmpty()) {
+                            Toast.makeText(this, R.string.no_games_found, Toast.LENGTH_LONG).show();
+                            return;
+                        }
+                        Consumer<List<GameSourceScanner.Candidate>> save = selected -> {
+                            if (selected.isEmpty()) return;
+                            try {
+                                for (GameSourceScanner.Candidate candidate : selected) {
+                                    if (game == null) {
+                                        GameEntry newGame = new GameEntry(
+                                                candidates.size() > 1 || nameField.getText().toString().isBlank() ? candidate.name() : nameField.getText().toString(),
+                                                sourcePath,
+                                                candidate.rootPath(),
+                                                mouseModes[mouseModeSelectBox.getSelectedItemPosition()].key(),
+                                                joystickCheckbox.isChecked(),
+                                                licenceCodeHintCheckbox.isChecked(),
+                                                !fullscreenCheckbox.isChecked());
+                                        newGame.setShowFpsCounter(fpsCounterCheckbox.isChecked());
+                                        newGame.setFamilyOverride(familyField.getText().toString());
+                                        newGame.setLegacyClockProfile(legacyClockProfiles[legacyClockProfileSelectBox.getSelectedItemPosition()]);
+                                        gameManager.addGame(newGame);
+
+                                        adapter.notifyItemInserted(gameManager.getGames().indexOf(newGame, true));
+                                    } else {
+                                        game.setName(nameField.getText().toString());
+                                        game.setSource(sourcePath, candidate.rootPath());
+                                        game.setMouseMode(mouseModes[mouseModeSelectBox.getSelectedItemPosition()]);
+                                        game.setMouseVirtualJoystick(joystickCheckbox.isChecked());
+                                        game.setShowLicenceCodeHint(licenceCodeHintCheckbox.isChecked());
+                                        game.setMaintainAspectRatio(!fullscreenCheckbox.isChecked());
+                                        game.setShowFpsCounter(fpsCounterCheckbox.isChecked());
+                                        game.setFamilyOverride(familyField.getText().toString());
+                                        game.setLegacyClockProfile(legacyClockProfiles[legacyClockProfileSelectBox.getSelectedItemPosition()]);
+                                        gameManager.updateGame(game);
+
+                                        adapter.notifyItemChanged(gameManager.getGames().indexOf(game, true));
+                                    }
+                                }
+                                editor.dismiss();
+                            } catch (RuntimeException failure) {
+                                Toast.makeText(this, getString(R.string.game_scan_failed) + "\n" + failure.getMessage(), Toast.LENGTH_LONG).show();
+                            }
+                        };
+                        if (candidates.size() == 1) {
+                            save.accept(candidates);
+                            return;
+                        }
+                        String[] labels = new String[candidates.size()];
+                        boolean[] checked = new boolean[candidates.size()];
+                        for (int i = 0; i < labels.length; i++) {
+                            labels[i] = candidates.get(i).toString();
+                            checked[i] = game == null || i == 0;
+                        }
+                        AlertDialog.Builder picker = new AlertDialog.Builder(this).setTitle(R.string.select_games);
+                        if (game == null) {
+                            picker.setMultiChoiceItems(labels, checked, (d, index, value) -> checked[index] = value);
+                        } else {
+                            picker.setSingleChoiceItems(labels, 0, (d, index) -> {
+                                Arrays.fill(checked, false);
+                                checked[index] = true;
+                            });
+                        }
+                        picker.setPositiveButton(game == null ? R.string.add_selected : R.string.save, (d, which) -> {
+                            List<GameSourceScanner.Candidate> selected = new ArrayList<>();
+                            for (int i = 0; i < checked.length; i++) if (checked[i]) selected.add(candidates.get(i));
+                            save.accept(selected);
+                        }).setNegativeButton(R.string.cancel, null).show();
+                    });
+                } catch (Exception failure) {
+                    runOnUiThread(() -> {
+                        if (isFinishing() || isDestroyed() || !editor.isShowing()) return;
+                        editor.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(true);
+                        Toast.makeText(this, getString(R.string.game_scan_failed) + "\n" + failure.getMessage(), Toast.LENGTH_LONG).show();
+                    });
+                }
+            }, "game-source-scan").start();
+        }));
+        editor.show();
     }
 
     private void showPathPicker(EditText pathField, boolean directoryMode) {

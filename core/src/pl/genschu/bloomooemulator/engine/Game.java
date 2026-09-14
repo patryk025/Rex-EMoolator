@@ -10,7 +10,6 @@ import pl.genschu.bloomooemulator.engine.context.EngineVariable;
 import pl.genschu.bloomooemulator.engine.context.GameContext;
 import pl.genschu.bloomooemulator.engine.compatibility.Compatibility;
 import pl.genschu.bloomooemulator.engine.compatibility.CompatibilityProfile;
-import pl.genschu.bloomooemulator.engine.filesystem.AssetSourceDispatcher;
 import pl.genschu.bloomooemulator.engine.filesystem.AudioFileResolver;
 import pl.genschu.bloomooemulator.engine.filesystem.IFileSystem;
 import pl.genschu.bloomooemulator.engine.input.InputManager;
@@ -181,10 +180,8 @@ public class Game {
     }
 
     private void scanGameDirectory() {
-        File folder = new File(this.game.getPath());
-
         try {
-            IFileSystem fs = AssetSourceDispatcher.openAssets(folder);
+            IFileSystem fs = this.game.openAssets();
             vfs.mountAssets(fs);
             // Writable storage is always a separate per-game directory — even for
             // folder games, where it used to be the game folder itself. Keeping the

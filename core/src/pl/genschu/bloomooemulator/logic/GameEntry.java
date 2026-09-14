@@ -2,6 +2,7 @@ package pl.genschu.bloomooemulator.logic;
 
 import pl.genschu.bloomooemulator.engine.filesystem.AssetSourceDispatcher;
 import pl.genschu.bloomooemulator.engine.filesystem.IFileSystem;
+import pl.genschu.bloomooemulator.engine.filesystem.SubdirectoryFileSystem;
 import pl.genschu.bloomooemulator.engine.time.LegacyClockProfile;
 
 import java.io.File;
@@ -13,8 +14,6 @@ import java.security.NoSuchAlgorithmException;
 import java.util.Locale;
 import java.util.UUID;
 
-import static pl.genschu.bloomooemulator.logic.KnownHashes.checkHash;
-
 public class GameEntry implements Serializable {
     private int id;
     private String name;
@@ -23,6 +22,7 @@ public class GameEntry implements Serializable {
     private String dllHash;
     private String familyOverride;
     private String path;
+    private String rootPath;
     private String iniPath;
     private String storageId;
     private String mouseMode;
@@ -40,9 +40,14 @@ public class GameEntry implements Serializable {
     }
 
     public GameEntry(String name, String path, String mouseMode, boolean mouseVirtualJoystick, boolean showLicenceCodeHint, boolean maintainAspectRatio) {
+        this(name, path, "", mouseMode, mouseVirtualJoystick, showLicenceCodeHint, maintainAspectRatio);
+    }
+
+    public GameEntry(String name, String path, String rootPath, String mouseMode, boolean mouseVirtualJoystick, boolean showLicenceCodeHint, boolean maintainAspectRatio) {
         this.id = -1;
         this.name = name;
         this.path = path;
+        this.rootPath = SubdirectoryFileSystem.normalize(rootPath);
         this.storageId = UUID.randomUUID().toString();
         this.version = searchForDllFiles(path);
         this.mouseMode = mouseMode;
@@ -59,7 +64,7 @@ public class GameEntry implements Serializable {
 
         IFileSystem fs;
         try {
-            fs = AssetSourceDispatcher.openAssets(source);
+            fs = openAssets();
         } catch (IOException e) {
             return "DLL not found";
         }
@@ -79,7 +84,7 @@ public class GameEntry implements Serializable {
             try (InputStream is = fs.open(entry)) {
                 String hash = calculateSHA1(is).toUpperCase(Locale.ROOT);
                 this.dllHash = hash;
-                this.gameName = checkHash(hash);
+                this.gameName = GameIdentityResolver.resolve(hash, fs);
             } catch (IOException e) {
                 this.gameName = "Nieznana gra";
             } catch (NoSuchAlgorithmException e) {
@@ -116,7 +121,7 @@ public class GameEntry implements Serializable {
         }
         IFileSystem fs;
         try {
-            fs = AssetSourceDispatcher.openAssets(source);
+            fs = openAssets();
         } catch (IOException e) {
             return false;
         }
@@ -151,7 +156,7 @@ public class GameEntry implements Serializable {
         }
         IFileSystem fs;
         try {
-            fs = AssetSourceDispatcher.openAssets(source);
+            fs = openAssets();
         } catch (IOException e) {
             return false;
         }
@@ -174,6 +179,20 @@ public class GameEntry implements Serializable {
             }
         }
         return false;
+    }
+
+    /** Refines legacy shared-DLL identities; preserves cached identities when media is unavailable. */
+    public boolean ensureGameIdentity() {
+        if (!GameIdentityResolver.hasRules(dllHash) || GameIdentityResolver.isResolved(dllHash, gameName)
+                || path == null || !new File(path).exists()) return false;
+        try {
+            String resolved = GameIdentityResolver.resolve(dllHash, openAssets());
+            if (!GameIdentityResolver.isResolved(dllHash, resolved)) return false;
+            gameName = resolved;
+            return true;
+        } catch (IOException | RuntimeException ignored) {
+            return false;
+        }
     }
 
     private static String resolveIniPath(IFileSystem fs, String[] entries) {
@@ -222,6 +241,27 @@ public class GameEntry implements Serializable {
         return path;
     }
 
+    public String getRootPath() {
+        return rootPath == null ? "" : rootPath;
+    }
+
+    public IFileSystem openAssets() throws IOException {
+        IFileSystem source = AssetSourceDispatcher.openAssets(new File(path));
+        return getRootPath().isEmpty() ? source :
+                new SubdirectoryFileSystem(source, getRootPath());
+    }
+
+    public void setSource(String path, String rootPath) {
+        String normalized = SubdirectoryFileSystem.normalize(rootPath);
+        if (java.util.Objects.equals(this.path, path) && getRootPath().equals(normalized)) return;
+        this.path = path;
+        this.rootPath = normalized;
+        this.iniPath = null;
+        this.dllHash = null;
+        this.gameName = null;
+        this.version = searchForDllFiles(path);
+    }
+
     public String getIniPath() {
         return iniPath;
     }
@@ -258,7 +298,7 @@ public class GameEntry implements Serializable {
     }
 
     public void setPath(String path) {
-        this.path = path;
+        setSource(path, getRootPath());
     }
 
     public void setVersion(String version) {

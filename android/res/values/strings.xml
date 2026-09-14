@@ -92,4 +92,9 @@
     <string name="patch_state_enabled">Włączona</string>
     <string name="patch_state_disabled">Wyłączona</string>
 
+    <string name="game_subfolder">Podfolder gry (opcjonalnie):</string>
+    <string name="select_games">Wybierz gry</string>
+    <string name="add_selected">Dodaj wybrane</string>
+    <string name="no_games_found">Nie znaleziono gier. Wybierz katalog gry lub podaj jej podfolder.</string>
+    <string name="game_scan_failed">Nie udało się odczytać źródła gry.</string>
 </resources>

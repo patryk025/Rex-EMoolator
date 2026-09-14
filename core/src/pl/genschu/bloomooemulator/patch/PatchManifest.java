@@ -1,5 +1,8 @@
 package pl.genschu.bloomooemulator.patch;
 
+import pl.genschu.bloomooemulator.logic.GameFamilies;
+import pl.genschu.bloomooemulator.logic.GameIdentityResolver;
+
 import java.io.Serializable;
 import java.util.Locale;
 
@@ -72,6 +75,13 @@ public class PatchManifest implements Serializable {
      *         {@link pl.genschu.bloomooemulator.logic.KnownHashes}.
      */
     public PatchCompatibility compatibilityFor(String gameHash, String gameFamily) {
+        // Title-specific patches cannot match the other game just because their
+        // engine binaries are identical. Legacy patches targeting the pair retain
+        // their existing hash-based semantics.
+        if (GameIdentityResolver.HERKULES_ODYSEUSZ_HASH.equalsIgnoreCase(gameHash)
+                && (GameFamilies.POZNAJ_MITY_HERKULES.equalsIgnoreCase(targetFamily)
+                || GameFamilies.POZNAJ_MITY_ODYSEUSZ.equalsIgnoreCase(targetFamily))
+                && !targetFamily.equalsIgnoreCase(gameFamily)) return PatchCompatibility.NONE;
         if (gameHash != null && targetHashes != null) {
             String upper = gameHash.toUpperCase(Locale.ROOT);
             for (String h : targetHashes) {

@@ -33,6 +33,17 @@
          android:hint="@string/game_path_hint"
          android:id="@+id/pathField" />
 
+    <TextView
+         android:layout_height="wrap_content"
+         android:layout_width="match_parent"
+         android:text="@string/game_subfolder" />
+
+    <EditText
+         android:layout_height="wrap_content"
+         android:layout_width="match_parent"
+         android:singleLine="true"
+         android:id="@+id/rootField" />
+
     <LinearLayout
          android:layout_height="wrap_content"
          android:layout_width="match_parent"

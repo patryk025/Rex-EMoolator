@@ -29,6 +29,8 @@ public final class GameFamilies {
 
     /** Slugs referenced from engine code, so the literals stay in one place. */
     public static final String REKSIO_CZARODZIEJE = "reksio-czarodzieje";
+    public static final String POZNAJ_MITY_HERKULES = "poznaj-mity-herkules";
+    public static final String POZNAJ_MITY_ODYSEUSZ = "poznaj-mity-odyseusz";
 
     private static final Map<String, String> families = Map.ofEntries(
             // Reksio i Skarb Piratów
@@ -92,6 +94,8 @@ public final class GameFamilies {
         familyByNamePrefix.put("Poznaj Mity: Wyprawa po Złote Runo", "poznaj-mity-zlote-runo");
         familyByNamePrefix.put("Poznaj Mity: Wojna Trojańska", "poznaj-mity-wojna-trojanska");
         familyByNamePrefix.put("Poznaj Mity: Herkules/Odyseusz", "poznaj-mity-herkules-odyseusz");
+        familyByNamePrefix.put("Poznaj Mity: Herkules", POZNAJ_MITY_HERKULES);
+        familyByNamePrefix.put("Poznaj Mity: Odyseusz", POZNAJ_MITY_ODYSEUSZ);
         familyByNamePrefix.put("Poznaj Mity: Tezeusz i Nić Ariadny", "poznaj-mity-tezeusz");
     }
 
@@ -107,8 +111,11 @@ public final class GameFamilies {
      * Resolves the family by DLL hash, falling back to the display name when the hash
      * is unknown (modified / cracked engine DLL). Prefer this over {@link #familyFor(String)}
      * wherever a {@code gameName} is available.
+     * For a known shared DLL, a disambiguated title takes precedence over the group.
      */
     public static String familyFor(String hash, String gameName) {
+        // A shared DLL identifies the pair; the resolved title identifies its family.
+        if (GameIdentityResolver.isResolved(hash, gameName)) return familyFromName(gameName);
         String byHash = familyFor(hash);
         return byHash != null ? byHash : familyFromName(gameName);
     }

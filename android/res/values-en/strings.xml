@@ -88,4 +88,9 @@
     <string name="patch_state_enabled">Enabled</string>
     <string name="patch_state_disabled">Disabled</string>
 
+    <string name="game_subfolder">Game subfolder (optional):</string>
+    <string name="select_games">Select games</string>
+    <string name="add_selected">Add selected</string>
+    <string name="no_games_found">No games found. Select a game folder or enter its subfolder.</string>
+    <string name="game_scan_failed">Could not read the game source.</string>
 </resources>

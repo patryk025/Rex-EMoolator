@@ -5,6 +5,7 @@ import pl.genschu.bloomooemulator.engine.time.LegacyClockProfile;
 import pl.genschu.bloomooemulator.logic.AppPaths;
 import pl.genschu.bloomooemulator.logic.GameEntry;
 import pl.genschu.bloomooemulator.logic.GameManager;
+import pl.genschu.bloomooemulator.logic.GameSourceScanner;
 import pl.genschu.bloomooemulator.logic.MouseMode;
 import pl.genschu.bloomooemulator.patch.*;
 
@@ -17,6 +18,7 @@ import java.awt.event.MouseEvent;
 import java.io.File;
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.ResourceBundle;
 
@@ -50,7 +52,7 @@ public class Dialogs {
     public void showGameDialog(GameEntry game) {
         JDialog dialog = new JDialog(gameListFrame, game == null ? resourceBundle.getString("add_game") : resourceBundle.getString("edit_game"), true);
         dialog.setLayout(new GridLayout(0, 1, 10, 10));
-        dialog.setSize(500, 560);
+        dialog.setSize(500, 640);
 
         // center dialog
         Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
@@ -58,6 +60,7 @@ public class Dialogs {
 
         JTextField nameField = new JTextField(game != null ? game.getName() : "");
         JTextField pathField = new JTextField(game != null ? game.getPath() : "");
+        JTextField rootField = new JTextField(game != null ? game.getRootPath() : "");
         JTextField familyField = new JTextField(game != null && game.getFamilyOverride() != null ? game.getFamilyOverride() : "");
         JPanel pathPanel = new JPanel(new BorderLayout(5, 0));
         JPanel pathButtonPanel = new JPanel(new GridLayout(1, 2, 5, 0));
@@ -101,6 +104,8 @@ public class Dialogs {
         dialog.add(nameField);
         dialog.add(new JLabel(resourceBundle.getString("game_path")));
         dialog.add(pathPanel);
+        dialog.add(new JLabel(resourceBundle.getString("game_subfolder")));
+        dialog.add(rootField);
         dialog.add(new JLabel(resourceBundle.getString("mouse_mode")));
         dialog.add(mouseModeSelectBox);
         dialog.add(new JLabel(resourceBundle.getString("legacy_clock_profile")));
@@ -114,32 +119,77 @@ public class Dialogs {
 
         JButton saveButton = new JButton(resourceBundle.getString("save"));
         saveButton.addActionListener(e -> {
-            if (game == null) {
-                GameEntry newGame = new GameEntry(
-                        nameField.getText(),
-                        pathField.getText(),
-                        mouseModes[mouseModeSelectBox.getSelectedIndex()].key(),
-                        joystickCheckbox.isSelected(),
-                        licenceCodeHintCheckbox.isSelected(),
-                        !fullscreenCheckbox.isSelected());
-                newGame.setShowFpsCounter(fpsCounterCheckbox.isSelected());
-                newGame.setFamilyOverride(familyField.getText());
-                newGame.setLegacyClockProfile(legacyClockProfiles[legacyClockProfileSelectBox.getSelectedIndex()]);
-                gameManager.addGame(newGame);
-            } else {
-                game.setName(nameField.getText());
-                game.setPath(pathField.getText());
-                game.setMouseMode(mouseModes[mouseModeSelectBox.getSelectedIndex()]);
-                game.setMouseVirtualJoystick(joystickCheckbox.isSelected());
-                game.setShowLicenceCodeHint(licenceCodeHintCheckbox.isSelected());
-                game.setMaintainAspectRatio(!fullscreenCheckbox.isSelected());
-                game.setShowFpsCounter(fpsCounterCheckbox.isSelected());
-                game.setFamilyOverride(familyField.getText());
-                game.setLegacyClockProfile(legacyClockProfiles[legacyClockProfileSelectBox.getSelectedIndex()]);
-                gameManager.updateGame(game);
-            }
-            gameListFrame.refreshGameList();
-            dialog.dispose();
+            String sourcePath = pathField.getText().trim();
+            String rootPath = rootField.getText().trim();
+            saveButton.setEnabled(false);
+            new SwingWorker<List<GameSourceScanner.Candidate>, Void>() {
+                @Override protected List<GameSourceScanner.Candidate> doInBackground() throws Exception {
+                    if (game != null && sourcePath.equals(game.getPath()) && rootPath.equals(game.getRootPath())) {
+                        return Collections.singletonList(new GameSourceScanner.Candidate(rootPath, game.getName()));
+                    }
+                    return GameSourceScanner.scan(sourcePath, rootPath);
+                }
+                @Override protected void done() {
+                    saveButton.setEnabled(true);
+                    if (!dialog.isDisplayable()) return;
+                    try {
+                        List<GameSourceScanner.Candidate> candidates = get();
+                        if (candidates.isEmpty()) {
+                            JOptionPane.showMessageDialog(dialog, resourceBundle.getString("no_games_found"));
+                            return;
+                        }
+                        List<GameSourceScanner.Candidate> selected = candidates;
+                        if (candidates.size() > 1) {
+                            JPanel choices = new JPanel(new GridLayout(0, 1));
+                            List<JCheckBox> checks = new ArrayList<>();
+                            ButtonGroup group = game == null ? null : new ButtonGroup();
+                            for (GameSourceScanner.Candidate candidate : candidates) {
+                                JCheckBox check = new JCheckBox(candidate.toString(), game == null || checks.isEmpty());
+                                if (group != null) group.add(check);
+                                checks.add(check);
+                                choices.add(check);
+                            }
+                            Object[] options = {resourceBundle.getString(game == null ? "add_selected" : "save"), resourceBundle.getString("cancel")};
+                            if (JOptionPane.showOptionDialog(dialog, new JScrollPane(choices), resourceBundle.getString("select_games"),
+                                    JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE, null, options, options[0]) != 0) return;
+                            selected = new ArrayList<>();
+                            for (int i = 0; i < checks.size(); i++) if (checks.get(i).isSelected()) selected.add(candidates.get(i));
+                        }
+                        if (selected.isEmpty()) return;
+                        for (GameSourceScanner.Candidate candidate : selected) {
+                            if (game == null) {
+                                GameEntry newGame = new GameEntry(
+                                        candidates.size() > 1 || nameField.getText().isBlank() ? candidate.name() : nameField.getText(),
+                                        sourcePath,
+                                        candidate.rootPath(),
+                                        mouseModes[mouseModeSelectBox.getSelectedIndex()].key(),
+                                        joystickCheckbox.isSelected(),
+                                        licenceCodeHintCheckbox.isSelected(),
+                                        !fullscreenCheckbox.isSelected());
+                                newGame.setShowFpsCounter(fpsCounterCheckbox.isSelected());
+                                newGame.setFamilyOverride(familyField.getText());
+                                newGame.setLegacyClockProfile(legacyClockProfiles[legacyClockProfileSelectBox.getSelectedIndex()]);
+                                gameManager.addGame(newGame);
+                            } else {
+                                game.setName(nameField.getText());
+                                game.setSource(sourcePath, candidate.rootPath());
+                                game.setMouseMode(mouseModes[mouseModeSelectBox.getSelectedIndex()]);
+                                game.setMouseVirtualJoystick(joystickCheckbox.isSelected());
+                                game.setShowLicenceCodeHint(licenceCodeHintCheckbox.isSelected());
+                                game.setMaintainAspectRatio(!fullscreenCheckbox.isSelected());
+                                game.setShowFpsCounter(fpsCounterCheckbox.isSelected());
+                                game.setFamilyOverride(familyField.getText());
+                                game.setLegacyClockProfile(legacyClockProfiles[legacyClockProfileSelectBox.getSelectedIndex()]);
+                                gameManager.updateGame(game);
+                            }
+                        }
+                        gameListFrame.refreshGameList();
+                        dialog.dispose();
+                    } catch (Exception failure) {
+                        JOptionPane.showMessageDialog(dialog, resourceBundle.getString("game_scan_failed") + "\n" + failure.getMessage());
+                    }
+                }
+            }.execute();
         });
 
         JButton cancelButton = new JButton(resourceBundle.getString("cancel"));
@@ -496,8 +546,8 @@ public class Dialogs {
         moveDownButton.addActionListener(e -> movePatchOrder(table, rows, controller, 1, rebuild));
 
         closeButton.addActionListener(e -> {
-            gameListFrame.refreshGameList();
-            dialog.dispose();
+                        gameListFrame.refreshGameList();
+                        dialog.dispose();
         });
 
         JPanel notesPanel = new JPanel(new BorderLayout());
