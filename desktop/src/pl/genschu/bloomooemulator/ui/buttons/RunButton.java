@@ -25,8 +25,11 @@ public class RunButton extends ButtonColumn {
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        // get selected row
-        int row = table.getSelectedRow();
+        int row = editingRow;
+        fireEditingStopped();
+        if (row < 0 || row >= gameManager.getGames().size) {
+            return;
+        }
         GameEntry game = gameManager.getGames().get(row);
 
         // Resolve and persist the INI path lazily, in the parent process, so the

@@ -19,9 +19,9 @@ public class PatchesButton extends ButtonColumn {
 
     @Override
     public void actionPerformed(ActionEvent e) {
+        int row = editingRow;
         fireEditingStopped();
-        int row = table.getSelectedRow();
-        if (row < 0) {
+        if (row < 0 || row >= gameManager.getGames().size) {
             return;
         }
         GameEntry game = gameManager.getGames().get(row);

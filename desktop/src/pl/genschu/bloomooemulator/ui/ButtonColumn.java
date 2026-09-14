@@ -13,6 +13,7 @@ public class ButtonColumn extends AbstractCellEditor implements TableCellRendere
     private JButton editButton;
     private String text;
     protected JTable table;
+    protected int editingRow = -1;
 
     public ButtonColumn(JTable table, int column) {
         super();
@@ -48,6 +49,7 @@ public class ButtonColumn extends AbstractCellEditor implements TableCellRendere
     public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row, int column) {
         text = (value == null) ? "" : value.toString();
         editButton.setText(text);
+        editingRow = row;
         return editButton;
     }
 
