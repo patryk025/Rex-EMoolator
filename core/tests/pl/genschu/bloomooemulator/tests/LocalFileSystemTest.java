@@ -1,5 +1,6 @@
 package pl.genschu.bloomooemulator.tests;
 
+import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import pl.genschu.bloomooemulator.engine.filesystem.LocalFileSystem;
@@ -8,6 +9,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.FileSystemException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
@@ -158,7 +160,14 @@ class LocalFileSystemTest {
         Path outside = Files.createDirectory(tempDir.resolve("outside"));
         Files.writeString(inside.resolve("victim.txt"), "inside");
         Path victim = Files.writeString(outside.resolve("victim.txt"), "untouched");
-        Path link = Files.createSymbolicLink(root.resolve("Link"), inside);
+        Path link;
+        try {
+            link = Files.createSymbolicLink(root.resolve("Link"), inside);
+        } catch (UnsupportedOperationException | FileSystemException e) {
+            Assumptions.abort("Symbolic links cannot be created in this environment "
+                    + "(on Windows this requires admin rights or Developer Mode): " + e.getMessage());
+            return;
+        }
         LocalFileSystem fs = new LocalFileSystem(root.toFile());
         assertEquals("inside", readAll(fs.open("link/victim.txt")));
         Files.delete(link);
