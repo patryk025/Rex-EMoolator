@@ -10,6 +10,8 @@ import pl.genschu.bloomooemulator.engine.decision.events.ButtonEvent;
 import pl.genschu.bloomooemulator.engine.decision.states.ButtonState;
 import pl.genschu.bloomooemulator.geometry.coordinates.CanvasRect;
 import pl.genschu.bloomooemulator.interpreter.context.Context;
+import pl.genschu.bloomooemulator.interpreter.values.BoolValue;
+import pl.genschu.bloomooemulator.interpreter.values.IntValue;
 import pl.genschu.bloomooemulator.interpreter.values.StringValue;
 import pl.genschu.bloomooemulator.interpreter.variable.ButtonVariable;
 import pl.genschu.bloomooemulator.interpreter.variable.ImageVariable;
@@ -29,6 +31,29 @@ class ButtonVariableTest {
     @BeforeEach
     void setUp() {
         ctx = new ContextBuilder().build();
+    }
+
+    @Test
+    void emptyStandardGraphicAllowsPauseButtonOperations() {
+        ImageVariable standard = standardImage();
+        ButtonVariable button = new ButtonVariable("B_GLOBAL_PAUSE");
+        ctx.setVariable("STD", standard);
+        ctx.setVariable(button.name(), button);
+        ctx.setAttribute(button.name(), "GFXSTANDARD", "STD");
+        ctx.setAttribute(button.name(), "RECT", "0,0,800,600");
+        button.init(ctx);
+
+        MethodHelper.callWithContext(ctx, button, "SETSTD", new StringValue(""),
+                new BoolValue(false));
+        assertTrue(standard.isVisible());
+        assertEquals("UNKNOWN", MethodHelper.callWithContext(ctx, button, "GETSTD").toDisplayString());
+        MethodHelper.callWithContext(ctx, button, "DISABLE");
+        MethodHelper.callWithContext(ctx, button, "ENABLE");
+        MethodHelper.callWithContext(ctx, button, "SETPRIORITY",
+                new IntValue(5001));
+        assertTrue(button.isEnabled());
+        MethodHelper.callWithContext(ctx, button, "SETSTD", new StringValue("STD"));
+        assertEquals("STD", MethodHelper.callWithContext(ctx, button, "GETSTD").toDisplayString());
     }
 
     @Test

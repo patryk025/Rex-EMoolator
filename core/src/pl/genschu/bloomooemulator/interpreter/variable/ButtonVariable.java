@@ -465,6 +465,8 @@ public record ButtonVariable(
         Map.entry("SETSTD", MethodSpec.of((self, args, ctx) -> {
             ButtonVariable btn = (ButtonVariable) self;
             String varName = ArgumentHelper.getString(args.get(0));
+            // Pause scripts use SETSTD("", FALSE) to detach the graphic.
+            if (varName.isEmpty()) varName = null;
             boolean removePreviousFromCanvas = ArgumentHelper.getBoolean(args, 1, true);
 
             // Detach the previous standard graphic from the canvas before swapping.
@@ -476,7 +478,7 @@ public record ButtonVariable(
             btn.state.gfxStandardName = varName;
 
             // Set priority to 0 on the new standard graphics
-            Variable gfx = ctx.getVariable(varName);
+            Variable gfx = varName == null ? null : ctx.getVariable(varName);
             if (gfx != null) {
                 gfx.callMethod("SETPRIORITY", List.of(new IntValue(0)), ctx);
             }
