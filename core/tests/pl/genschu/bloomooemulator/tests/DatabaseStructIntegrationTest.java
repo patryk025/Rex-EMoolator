@@ -94,6 +94,32 @@ class DatabaseStructIntegrationTest {
     }
 
     @Test
+    void findSelectsDialogRowForStructCopy() {
+        DatabaseState state = new DatabaseState();
+        state.setColumns(List.of("ID", "QUE", "ANS", "TRIG"));
+        state.setData(List.of(
+                List.of("1", "QUESTION1.WAV", "ANSWER1.WAV", "2"),
+                List.of("2", "QUESTION2.WAV", "ANSWER2.WAV", "7"),
+                List.of("7", "QUESTION7.WAV", "ANSWER7.WAV", "NULL")
+        ));
+        DatabaseVariable db = new DatabaseVariable("DBDIALOG", state);
+        StructVariable dialog = StructVariable.withSchema("SDIALOG", state.columns(),
+                List.of("STRING", "STRING", "STRING", "STRING"));
+        ctx.setVariable(db.name(), db);
+        ctx.setVariable(dialog.name(), dialog);
+
+        // Hover different options, then return to the first one, as Dialogs.cnv does.
+        for (int index : new int[]{2, 0, 1, 2}) {
+            Value found = MethodHelper.callWithContext(ctx, db, "FIND",
+                    new StringValue("ID"), new StringValue(state.data().get(index).get(0)), new IntValue(0));
+            assertEquals(index, found.toInt().value());
+            MethodHelper.callWithContext(ctx, dialog, "SET", new StringValue("DBDIALOG_CURSOR"));
+            assertEquals(state.data().get(index), dialog.toRowStrings());
+            assertEquals(index, db.callMethod("GETCURSORPOS", List.of()).getReturnValue().toInt().value());
+        }
+    }
+
+    @Test
     void testDatabaseCreation() {
         DatabaseVariable db = new DatabaseVariable("SCORES");
 

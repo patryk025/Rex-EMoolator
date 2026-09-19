@@ -68,6 +68,8 @@ public final class DatabaseState {
             List<String> row = data.get(i);
             String cell = (colIdx < row.size()) ? row.get(colIdx) : "";
             if (cell != null && cell.equalsIgnoreCase(Objects.toString(columnValue, ""))) {
+                // STRUCT.SET(database_CURSOR) reads the row selected by FIND.
+                currentRow = i;
                 return i;
             }
         }
