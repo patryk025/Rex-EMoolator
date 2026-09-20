@@ -11,36 +11,56 @@ final class PointerInput extends InputAdapter {
     record Event(Kind kind, int x, int y) {}
     private final Queue<Event> events = new ArrayDeque<>();
     private int activePointer = -1;
+    private int offsetX, offsetY;
 
     @Override public boolean touchDown(int x, int y, int pointer, int button) {
         if (button == Input.Buttons.LEFT && activePointer == -1) {
             activePointer = pointer;
-            events.add(new Event(Kind.DOWN, x, y));
+            add(Kind.DOWN, x, y);
         }
         return false;
     }
     @Override public boolean touchDragged(int x, int y, int pointer) {
-        if (pointer == activePointer) events.add(new Event(Kind.MOVE, x, y));
+        if (pointer == activePointer) add(Kind.MOVE, x, y);
         return false;
     }
     @Override public boolean touchUp(int x, int y, int pointer, int button) {
         if (pointer == activePointer && button == Input.Buttons.LEFT) {
-            events.add(new Event(Kind.UP, x, y));
+            add(Kind.UP, x, y);
             activePointer = -1;
         }
         return false;
     }
     @Override public boolean touchCancelled(int x, int y, int pointer, int button) {
         if (pointer == activePointer) {
-            events.add(new Event(Kind.CANCEL, x, y));
+            add(Kind.CANCEL, x, y);
             activePointer = -1;
         }
         return false;
     }
     @Override public boolean mouseMoved(int x, int y) {
-        if (activePointer == -1) events.add(new Event(Kind.MOVE, x, y));
+        if (activePointer == -1) add(Kind.MOVE, x, y);
         return false;
     }
+    private void add(Kind kind, int x, int y) {
+        events.add(new Event(kind, x + offsetX, y + offsetY));
+    }
+
+    /** Preserve queued movement deltas when a script recentres the pointer. */
+    void translate(int dx, int dy) {
+        var translated = new ArrayDeque<Event>();
+        for (Event event : events) {
+            translated.add(new Event(event.kind(), event.x() + dx, event.y() + dy));
+        }
+        events.clear();
+        events.addAll(translated);
+        offsetX += dx;
+        offsetY += dy;
+    }
+
+    // Native cursor warping makes subsequent callbacks use the new origin.
+    void resetOffset() { offsetX = offsetY = 0; }
+
     Event poll() { return events.poll(); }
-    void clear() { events.clear(); activePointer = -1; }
+    void clear() { events.clear(); activePointer = -1; resetOffset(); }
 }

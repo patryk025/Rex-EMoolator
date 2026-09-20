@@ -89,6 +89,8 @@ public class InputManager implements Disposable {
     private final InputMultiplexer inputProcessor = new InputMultiplexer(keyboardCharInput, pointerInput);
     private int hostX, hostY;
     private boolean pointerObserved;
+    private boolean processingLegacyInput;
+    private boolean cursorWarpPending;
     private GameContext inputContext;
 
     private boolean isTouchMode() {
@@ -142,6 +144,16 @@ public class InputManager implements Disposable {
 
     /** Processes script-visible input exactly once for an admitted legacy pulse. */
     public void processLegacyInput() {
+        processingLegacyInput = true;
+        try {
+            drainLegacyInput();
+        } finally {
+            processingLegacyInput = false;
+            flushCursorWarp();
+        }
+    }
+
+    private void drainLegacyInput() {
         GameContext context = game.getCurrentSceneContext();
         if (context == null) return;
 
@@ -170,6 +182,7 @@ public class InputManager implements Disposable {
             }
             if (game.getCurrentSceneContext() != context) {
                 pointerInput.clear();
+                cursorWarpPending = false;
                 setActiveButton(null);
                 mousePressed = mousePrevPressed = false;
                 pointerObserved = false;
@@ -427,6 +440,34 @@ public class InputManager implements Disposable {
                 : Optional.empty();
     }
 
+    /** Synchronizes script, cached and host positions, preserving queued deltas. */
+    public void setMousePosition(int x, int y) {
+        OpenGlPoint logical = CanvasCoordinateSystem.toOpenGl(new CanvasPoint(x, y));
+        Vector2 screen = viewport.project(new Vector2((float) logical.x(), (float) logical.y()));
+        int targetX = Math.round(screen.x);
+        int targetY = Math.round(Gdx.graphics.getHeight() - screen.y);
+        int previousX = pointerObserved ? hostX : Gdx.input.getX();
+        int previousY = pointerObserved ? hostY : Gdx.input.getY();
+        pointerInput.translate(targetX - previousX, targetY - previousY);
+        hostX = targetX;
+        hostY = targetY;
+        pointerObserved = true;
+        mousePosition = new CanvasPoint(x, y);
+        // Touch has no native cursor to warp; retain the translation for future
+        // drag callbacks instead. Scene changes/cancellation clear that origin.
+        cursorWarpPending = !isTouchMode();
+        if (!processingLegacyInput) flushCursorWarp();
+    }
+
+    private void flushCursorWarp() {
+        if (!cursorWarpPending) return;
+        cursorWarpPending = false;
+        pointerInput.resetOffset();
+        // Warp once after draining: intermediate native callbacks would otherwise
+        // look like player movement to scripts that recenter in ONMOVE (MAGIC).
+        Gdx.input.setCursorPosition(hostX, hostY);
+    }
+
     // Handle window resize
     public void handleResize(int width, int height) {
         cancelPointerInput();
@@ -434,6 +475,7 @@ public class InputManager implements Disposable {
 
     public void cancelPointerInput() {
         pointerInput.clear();
+        cursorWarpPending = false;
         pointerObserved = false;
         mousePressed = mousePrevPressed = false;
         lastMouseClickContext = null;

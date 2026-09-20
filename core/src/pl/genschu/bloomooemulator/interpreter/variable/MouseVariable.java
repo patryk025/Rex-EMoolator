@@ -1,6 +1,5 @@
 package pl.genschu.bloomooemulator.interpreter.variable;
 
-import com.badlogic.gdx.Gdx;
 import pl.genschu.bloomooemulator.annotations.InternalMutable;
 import pl.genschu.bloomooemulator.engine.input.InputManager;
 import pl.genschu.bloomooemulator.geometry.coordinates.CanvasCoordinateSystem;
@@ -168,6 +167,9 @@ public record MouseVariable(
                     ArgumentHelper.getInt(args.get(0)), 0, CanvasCoordinateSystem.WIDTH);
             int y = Math.clamp(
                     ArgumentHelper.getInt(args.get(1)), 0, CanvasCoordinateSystem.HEIGHT);
+            if (ctx != null && ctx.getGame() != null && ctx.getGame().getInputManager() != null) {
+                ctx.getGame().getInputManager().setMousePosition(x, y);
+            }
             if (x != mouse.state.posX || y != mouse.state.posY) {
                 mouse.state.posX = x;
                 mouse.state.posY = y;
