@@ -198,7 +198,7 @@ public class EngineConfig {
     }
 
     public void setMusicVolume(float musicVolume) {
-        this.musicVolume = Math.max(0.0f, Math.min(1.0f, musicVolume));
+        this.musicVolume = Math.clamp(musicVolume, 0.0f, 1.0f);
     }
 
     public float getSoundVolume() {
@@ -206,7 +206,7 @@ public class EngineConfig {
     }
 
     public void setSoundVolume(float soundVolume) {
-        this.soundVolume = Math.max(0.0f, Math.min(1.0f, soundVolume));
+        this.soundVolume = Math.clamp(soundVolume, 0.0f, 1.0f);
     }
 
     public boolean isPaused() {
