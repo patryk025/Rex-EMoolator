@@ -3,6 +3,7 @@ package pl.genschu.bloomooemulator.engine.filesystem;
 import pl.genschu.bloomooemulator.loader.helpers.ByteArrayBinaryReader;
 import pl.genschu.bloomooemulator.loader.helpers.SeekableBinaryReader;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Objects;
@@ -11,7 +12,7 @@ import java.util.Objects;
  * A {@link DataSource} held in memory.
  *
  * The fallback for nesting on top of storage that cannot be sliced — compressed
- * ZIP entries, fragmented UDF extents — so it materialises the whole entry.
+ * ZIP entries, fragmented UDF extents — so it materializes the whole entry.
  * Prefer {@link SlicedDataSource} wherever the bytes are contiguous.
  */
 public final class MemoryDataSource implements DataSource {
@@ -26,7 +27,7 @@ public final class MemoryDataSource implements DataSource {
     /** Drains {@code input} into memory, closing it. */
     public static MemoryDataSource drain(String name, InputStream input) throws IOException {
         try (InputStream stream = input;
-             java.io.ByteArrayOutputStream buffer = new java.io.ByteArrayOutputStream()) {
+             ByteArrayOutputStream buffer = new ByteArrayOutputStream()) {
             byte[] chunk = new byte[8192];
             int read;
             while ((read = stream.read(chunk)) != -1) {

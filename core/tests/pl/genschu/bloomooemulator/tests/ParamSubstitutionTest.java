@@ -10,6 +10,7 @@ import pl.genschu.bloomooemulator.interpreter.context.Context;
 import pl.genschu.bloomooemulator.interpreter.errors.SourceLocation;
 import pl.genschu.bloomooemulator.interpreter.values.StringValue;
 import pl.genschu.bloomooemulator.interpreter.variable.ApplicationVariable;
+import pl.genschu.bloomooemulator.interpreter.variable.AnimoVariable;
 import pl.genschu.bloomooemulator.interpreter.variable.BehaviourVariable;
 import pl.genschu.bloomooemulator.interpreter.variable.IntegerVariable;
 import pl.genschu.bloomooemulator.interpreter.variable.StringVariable;
@@ -118,6 +119,32 @@ public class ParamSubstitutionTest {
         defineBehaviour("CHILD", "{VARNR^SET([$1+1]);}");
         runTop("{CHILD^RUN(3);}");
         assertEquals(4, readInt("VARNR"));
+    }
+
+    @Test
+    void objectParameterReadsMovingPositionInsideArithmetic() {
+        // RiSP, CIEMNOSC.cnv: BEH_FOLLOW uses [$1^GETPOSITIONX()-50].
+        // The reported emulator log instead contains REKSIO17C"^GETPOSITIONX()
+        // as a string and consequently supplies zero to MERGEALPHA.
+        ctx.setVariable("REKSIO17C", new AnimoVariable("REKSIO17C"));
+        defineBehaviour("FOLLOW", "{VARNR^SET([$1^GETPOSITIONX()-50]);}");
+        runTop("{REKSIO17C^SETPOSITION(300,200);FOLLOW^RUN(REKSIO17C);}");
+        assertEquals(250, readInt("VARNR"));
+
+        runTop("{REKSIO17C^SETPOSITION(420,260);FOLLOW^RUN(REKSIO17C);}");
+        assertEquals(370, readInt("VARNR"));
+    }
+
+    @Test
+    void objectParameterPreservesNameInValueAndQuotedPositions() {
+        ctx.setVariable("REKSIO17C", new AnimoVariable("REKSIO17C"));
+        defineBehaviour("CHILD", "{RESULT^SET($1);}");
+        runTop("{CHILD^RUN(REKSIO17C);}");
+        assertEquals("REKSIO17C", ctx.getVariable("RESULT").value().toDisplayString());
+
+        defineBehaviour("QUOTED", "{RESULT^SET(\"PREFIX_$1\");}");
+        runTop("{QUOTED^RUN(REKSIO17C);}");
+        assertEquals("PREFIX_REKSIO17C", ctx.getVariable("RESULT").value().toDisplayString());
     }
 
     /**

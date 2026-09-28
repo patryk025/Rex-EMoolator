@@ -91,7 +91,7 @@ public final class BehaviourVariable implements Variable {
         }
 
         List<String> parameterTexts = args.stream()
-            .map(value -> parameterText(value, context))
+            .map(BehaviourVariable::parameterText)
             .collect(Collectors.toList());
         List<String> cacheKey = List.copyOf(parameterTexts);
         return parameterizedAsts.computeIfAbsent(cacheKey, key ->
@@ -124,16 +124,12 @@ public final class BehaviourVariable implements Variable {
         return result.toString();
     }
 
-    private static String parameterText(Value value, Context context) {
-        String text = switch (value) {
+    private static String parameterText(Value value) {
+        return switch (value) {
             case VariableRef ref -> ref.name();
             case VariableValue wrapped -> wrapped.variable().name();
             default -> value.toDisplayString();
         };
-        Variable namedObject = context != null ? context.getVariable(text) : null;
-        return namedObject != null && !namedObject.type().isPrimitive()
-            ? "\"" + text + "\""
-            : text;
     }
 
     @Override
