@@ -9,6 +9,7 @@ on:
       - "zensical.toml"
       - "docs/requirements.txt"
       - "tools/check_docs_links.py"
+      - "tools/test_check_docs_links.py"
       - ".github/workflows/docs.yaml"
   pull_request:
     paths:
@@ -16,6 +17,7 @@ on:
       - "zensical.toml"
       - "docs/requirements.txt"
       - "tools/check_docs_links.py"
+      - "tools/test_check_docs_links.py"
       - ".github/workflows/docs.yaml"
   workflow_dispatch:
 
@@ -50,6 +52,7 @@ jobs:
 
       - name: Check documentation links
         run: |
+          python -m unittest discover -s tools -p 'test_check_docs_links.py'
           python tools/check_docs_links.py
           python tools/check_docs_links.py --site site
 
