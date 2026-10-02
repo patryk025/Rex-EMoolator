@@ -290,7 +290,7 @@ public class BlooMooEngine extends ApplicationAdapter {
         // plan also preserves BlooMoo's render -> input -> managers order,
         // which cannot be represented by a simple render-before boolean.
         float renderDeltaTime = deltaTime;
-        game.getCompatibilityProfile().engine().legacyFrameOrder().execute(
+        game.getCompatibilityProfile().behaviour().frameOrder().execute(
                 runLegacyPulse,
                 this::processLegacyInput,
                 () -> renderFrame(renderDeltaTime),

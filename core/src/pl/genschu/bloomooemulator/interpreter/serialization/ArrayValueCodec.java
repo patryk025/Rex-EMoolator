@@ -1,6 +1,7 @@
 package pl.genschu.bloomooemulator.interpreter.serialization;
 
 import pl.genschu.bloomooemulator.engine.compatibility.CompatibilityProfile;
+import pl.genschu.bloomooemulator.engine.compatibility.EngineBehaviour.ArchiveDouble;
 import pl.genschu.bloomooemulator.interpreter.values.BoolValue;
 import pl.genschu.bloomooemulator.interpreter.values.DoubleValue;
 import pl.genschu.bloomooemulator.interpreter.values.IntValue;
@@ -18,8 +19,8 @@ import java.nio.charset.StandardCharsets;
  * Shared value encoding used by ARRAY and MULTIARRAY files.
  *
  * <p>Both containers delegate values to the same variable store/restore
- * implementation in the original engines. Only the fixed-point DOUBLE scale
- * differs between engine variants.</p>
+ * implementation in the original engines. Only the DOUBLE encoding differs
+ * between builds: the raw eight bytes in Piklib 7.1, a fixed-point int32 later.</p>
  */
 public final class ArrayValueCodec {
     private ArrayValueCodec() {}
@@ -31,8 +32,7 @@ public final class ArrayValueCodec {
             case 2 -> new StringValue(
                     reader.readLengthPrefixedString32LE(StandardCharsets.UTF_8, false));
             case 3 -> new BoolValue(reader.readI32LE() != 0);
-            case 4 -> new DoubleValue(
-                    reader.readI32LE() / (double) profile.arrayDoubleScale());
+            case 4 -> new DoubleValue(readDouble(reader, profile.behaviour().archiveDouble()));
             default -> throw new IOException("Unknown array data type: " + dataType);
         };
     }
@@ -56,10 +56,30 @@ public final class ArrayValueCodec {
             }
             case DoubleValue dv -> {
                 writeInt(output, 4);
-                writeInt(output, (int) (dv.value() * profile.arrayDoubleScale()));
+                writeDouble(output, dv.value(), profile.behaviour().archiveDouble());
             }
             default -> throw new IOException(
                     "Unsupported array element type: " + value.getType());
+        }
+    }
+
+    private static double readDouble(BinaryReader reader, ArchiveDouble encoding) throws IOException {
+        return switch (encoding) {
+            case IEEE_754 -> Double.longBitsToDouble(reader.readI64LE());
+            case FIXED_POINT_1000, FIXED_POINT_10000 ->
+                    reader.readI32LE() / (double) encoding.scale();
+        };
+    }
+
+    private static void writeDouble(OutputStream output, double value,
+                                    ArchiveDouble encoding) throws IOException {
+        switch (encoding) {
+            case IEEE_754 -> output.write(ByteBuffer.allocate(Double.BYTES)
+                    .order(ByteOrder.LITTLE_ENDIAN)
+                    .putDouble(value)
+                    .array());
+            case FIXED_POINT_1000, FIXED_POINT_10000 ->
+                    writeInt(output, (int) (value * encoding.scale()));
         }
     }
 

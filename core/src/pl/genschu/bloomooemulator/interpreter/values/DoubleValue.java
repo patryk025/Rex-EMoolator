@@ -3,6 +3,7 @@ package pl.genschu.bloomooemulator.interpreter.values;
 import pl.genschu.bloomooemulator.engine.config.EngineConfig;
 import pl.genschu.bloomooemulator.engine.compatibility.Compatibility;
 import pl.genschu.bloomooemulator.engine.compatibility.CompatibilityProfile;
+import pl.genschu.bloomooemulator.engine.compatibility.EngineBehaviour.DoubleToString;
 import pl.genschu.bloomooemulator.utils.DoubleUtils;
 
 import static pl.genschu.bloomooemulator.utils.DoubleUtils.fcvt;
@@ -38,15 +39,13 @@ public record DoubleValue(double value) implements Value {
 
     public IntValue toInt(CompatibilityProfile profile) {
         int truncated = (int) value;
-        if (!profile.roundsDoubleToInteger()) {
-            return new IntValue(truncated); // Piklib and the first BlooMoo: plain _ftol
-        }
-        // CMC_Double::round: a fraction of at least one half moves away from zero,
-        // so 0.5 -> 1 and -0.5 -> -1.
-        if (Math.abs(value - truncated) >= 0.5) {
-            return new IntValue(value > 0 ? truncated + 1 : truncated - 1);
-        }
-        return new IntValue(truncated);
+        return switch (profile.behaviour().doubleToInteger()) {
+            case TRUNCATE -> new IntValue(truncated);
+            // A fraction of at least one half moves away from zero.
+            case ROUND_HALF_AWAY_FROM_ZERO -> Math.abs(value - truncated) >= 0.5
+                    ? new IntValue(value > 0 ? truncated + 1 : truncated - 1)
+                    : new IntValue(truncated);
+        };
     }
 
     /**
@@ -61,7 +60,7 @@ public record DoubleValue(double value) implements Value {
     public StringValue toStringValue(CompatibilityProfile profile) {
         // The debug switch only ever turns the original quirk off; it can never
         // enable it for an engine that formatted correctly.
-        boolean piklibQuirk = profile.hasPiklibDoubleStringQuirk()
+        boolean piklibQuirk = profile.behaviour().doubleToString() == DoubleToString.PIKLIB
                 && EngineConfig.getInstance().isUseOriginalDoubleRepresentation();
         return new StringValue(piklibQuirk ? formatPiklib(value) : formatBlooMoo(value));
     }

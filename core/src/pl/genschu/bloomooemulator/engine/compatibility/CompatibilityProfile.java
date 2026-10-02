@@ -1,17 +1,19 @@
 package pl.genschu.bloomooemulator.engine.compatibility;
 
 import pl.genschu.bloomooemulator.logic.GameEntry;
-import pl.genschu.bloomooemulator.logic.GameFamilies;
 
 /**
- * Immutable compatibility information for one running game.
+ * Immutable compatibility information for one running game: which original it is and,
+ * resolved from that once, how its libraries behave.
  *
  * @param engine engine DLL variant
  * @param gameFamily stable game-family slug, or {@code null} when unknown
+ * @param behaviour how the original behaves; {@code null} resolves it from the two above
  */
 public record CompatibilityProfile(
         EngineVariant engine,
-        String gameFamily
+        String gameFamily,
+        EngineBehaviour behaviour
 ) {
     private static final CompatibilityProfile UNKNOWN =
             new CompatibilityProfile(EngineVariant.UNKNOWN, null);
@@ -23,6 +25,13 @@ public record CompatibilityProfile(
         if (gameFamily != null && gameFamily.isBlank()) {
             gameFamily = null;
         }
+        if (behaviour == null) {
+            behaviour = BehaviourTable.resolve(engine, gameFamily);
+        }
+    }
+
+    public CompatibilityProfile(EngineVariant engine, String gameFamily) {
+        this(engine, gameFamily, null);
     }
 
     public static CompatibilityProfile from(GameEntry entry) {
@@ -41,34 +50,5 @@ public record CompatibilityProfile(
 
     public static CompatibilityProfile unknown() {
         return UNKNOWN;
-    }
-
-    public int arrayDoubleScale() {
-        // CXArchive of the first BlooMoo still multiplies by 1000, like Piklib.
-        return isFirstBlooMoo()
-                ? EngineVariant.PIKLIB_8.arrayDoubleScale()
-                : engine.arrayDoubleScale();
-    }
-
-    public boolean hasPiklibDoubleStringQuirk() {
-        return engine.hasPiklibDoubleStringQuirk();
-    }
-
-    /** Whether DOUBLE to INTEGER rounds half away from zero rather than truncating. */
-    public boolean roundsDoubleToInteger() {
-        return engine.roundsDoubleToInteger() && !isFirstBlooMoo();
-    }
-
-    /**
-     * Reksio i Wehikuł Czasu ships the first BlooMooDLL, which in these respects still
-     * behaves like Piklib; the differences arrive with Reksio i Kapitan Nemo.
-     */
-    private boolean isFirstBlooMoo() {
-        return engine == EngineVariant.BLOOMOO
-                && isGameFamily(GameFamilies.REKSIO_WEHIKUL_CZASU);
-    }
-
-    public boolean isGameFamily(String family) {
-        return family != null && family.equals(gameFamily);
     }
 }

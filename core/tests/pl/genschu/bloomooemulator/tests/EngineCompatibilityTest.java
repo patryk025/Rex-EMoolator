@@ -11,7 +11,12 @@ import pl.genschu.bloomooemulator.builders.ContextBuilder;
 import pl.genschu.bloomooemulator.engine.Game;
 import pl.genschu.bloomooemulator.engine.compatibility.Compatibility;
 import pl.genschu.bloomooemulator.engine.compatibility.CompatibilityProfile;
+import pl.genschu.bloomooemulator.engine.compatibility.EngineBehaviour;
+import pl.genschu.bloomooemulator.engine.compatibility.EngineBehaviour.ArchiveDouble;
+import pl.genschu.bloomooemulator.engine.compatibility.EngineBehaviour.DoubleToInteger;
+import pl.genschu.bloomooemulator.engine.compatibility.EngineBehaviour.DoubleToString;
 import pl.genschu.bloomooemulator.engine.compatibility.EngineVariant;
+import pl.genschu.bloomooemulator.engine.compatibility.LegacyFrameOrder;
 import pl.genschu.bloomooemulator.interpreter.context.Context;
 import pl.genschu.bloomooemulator.interpreter.helpers.ArgumentHelper;
 import pl.genschu.bloomooemulator.interpreter.runtime.ASTInterpreter;
@@ -107,8 +112,9 @@ class EngineCompatibilityTest {
         // here would read every stored DOUBLE ten times too small.
         EngineVariant variant = EngineVariant.fromVersion("Piklib v7");
         assertEquals(EngineVariant.PIKLIB_OTHER, variant);
-        assertEquals(1_000, variant.arrayDoubleScale());
-        assertTrue(variant.hasPiklibDoubleStringQuirk());
+        EngineBehaviour behaviour = CompatibilityProfile.forEngine(variant).behaviour();
+        assertEquals(ArchiveDouble.FIXED_POINT_1000, behaviour.archiveDouble());
+        assertEquals(DoubleToString.PIKLIB, behaviour.doubleToString());
 
         assertEquals(EngineVariant.UNKNOWN, EngineVariant.fromVersion("DLL not found"));
     }
@@ -122,7 +128,7 @@ class EngineCompatibilityTest {
         assertFrameOrder(EngineVariant.BLOOMOO, "render", "input", "managers");
 
         List<String> withoutPulse = new java.util.ArrayList<>();
-        EngineVariant.BLOOMOO.legacyFrameOrder().execute(
+        LegacyFrameOrder.RENDER_INPUT_MANAGERS.execute(
                 false,
                 () -> withoutPulse.add("input"),
                 () -> withoutPulse.add("render"),
@@ -132,7 +138,7 @@ class EngineCompatibilityTest {
 
     private static void assertFrameOrder(EngineVariant variant, String... expected) {
         List<String> phases = new java.util.ArrayList<>();
-        variant.legacyFrameOrder().execute(
+        CompatibilityProfile.forEngine(variant).behaviour().frameOrder().execute(
                 true,
                 () -> phases.add("input"),
                 () -> phases.add("render"),
@@ -153,10 +159,62 @@ class EngineCompatibilityTest {
     @Test
     void arrayIoUsesTheRunningGamesDoubleScale() {
         Game game = newGame("BlooMoo");
-        assertEquals(10_000, game.getCompatibilityProfile().arrayDoubleScale());
+        assertEquals(ArchiveDouble.FIXED_POINT_10000,
+                game.getCompatibilityProfile().behaviour().archiveDouble());
 
         game = newGame("Piklib v8");
-        assertEquals(1_000, game.getCompatibilityProfile().arrayDoubleScale());
+        assertEquals(ArchiveDouble.FIXED_POINT_1000,
+                game.getCompatibilityProfile().behaviour().archiveDouble());
+    }
+
+    @Test
+    void piklib71StoresArrayDoublesAsRawIeeeBytes() throws IOException {
+        // CMC_Double::store of Piklib 7.1 writes the double through the 8-byte __int64 routine.
+        CompatibilityProfile piklib71 = CompatibilityProfile.forEngine(EngineVariant.PIKLIB_7_1);
+        byte[] fixture = hex(
+                "0300000004000000000000000000044001000000070000000400000000000000",
+                "0000e0bf");
+
+        InputStreamBinaryReader reader =
+                new InputStreamBinaryReader(new ByteArrayInputStream(fixture));
+        Value[] values = new Value[reader.readI32LE()];
+        for (int i = 0; i < values.length; i++) {
+            values[i] = ArrayValueCodec.read(reader, piklib71);
+        }
+        assertEquals(2.5, ((DoubleValue) values[0]).value());
+        assertEquals(7, ((IntValue) values[1]).value());
+        assertEquals(-0.5, ((DoubleValue) values[2]).value());
+
+        ByteArrayOutputStream saved = new ByteArrayOutputStream();
+        ArrayValueCodec.writeInt(saved, values.length);
+        for (Value value : values) {
+            ArrayValueCodec.write(saved, value, piklib71);
+        }
+        assertArrayEquals(fixture, saved.toByteArray());
+    }
+
+    @Test
+    void gameOverridesChangeOnlyWhatTheirLibrariesDoDifferently() {
+        EngineBehaviour bloomoo = CompatibilityProfile.forEngine(EngineVariant.BLOOMOO).behaviour();
+        EngineBehaviour wehikulCzasu = new CompatibilityProfile(
+                EngineVariant.BLOOMOO, GameFamilies.REKSIO_WEHIKUL_CZASU).behaviour();
+        // The first BlooMooDLL converts numbers like Piklib but already runs BlooMoo's window loop.
+        assertEquals(DoubleToInteger.TRUNCATE, wehikulCzasu.doubleToInteger());
+        assertEquals(DoubleToString.PIKLIB, wehikulCzasu.doubleToString());
+        assertEquals(ArchiveDouble.FIXED_POINT_1000, wehikulCzasu.archiveDouble());
+        assertEquals(bloomoo.frameOrder(), wehikulCzasu.frameOrder());
+        assertEquals(bloomoo.physicsSubsteps(), wehikulCzasu.physicsSubsteps());
+
+        EngineBehaviour piklib8 = CompatibilityProfile.forEngine(EngineVariant.PIKLIB_8).behaviour();
+        EngineBehaviour czarodzieje = new CompatibilityProfile(
+                EngineVariant.PIKLIB_8, GameFamilies.REKSIO_CZARODZIEJE).behaviour();
+        assertFalse(czarodzieje.physicsSubsteps());
+        assertTrue(czarodzieje.setActiveFallsThrough());
+        assertEquals(piklib8, czarodzieje.withPhysicsSubsteps(true).withSetActiveFallsThrough(false));
+
+        // A game without an entry of its own behaves exactly like its engine.
+        assertEquals(piklib8, new CompatibilityProfile(
+                EngineVariant.PIKLIB_8, "reksio-ufo").behaviour());
     }
 
     @Test
@@ -164,7 +222,7 @@ class EngineCompatibilityTest {
         // BlooMooDLL of Reksio i Wehikuł Czasu: CXArchive << double multiplies by 1000.
         CompatibilityProfile wehikulCzasu =
                 new CompatibilityProfile(EngineVariant.BLOOMOO, GameFamilies.REKSIO_WEHIKUL_CZASU);
-        assertEquals(1_000, wehikulCzasu.arrayDoubleScale());
+        assertEquals(ArchiveDouble.FIXED_POINT_1000, wehikulCzasu.behaviour().archiveDouble());
 
         InputStreamBinaryReader reader =
                 new InputStreamBinaryReader(new ByteArrayInputStream(PIKLIB8_ARR));
@@ -251,10 +309,15 @@ class EngineCompatibilityTest {
         List<String> piklibExpected =
                 List.of("00000", "2.50000", "0.00100", "1.23450", "0.-50000");
 
+        // The BlooMooDLL of Reksio i Wehikuł Czasu still carries Piklib's CXString::toString.
+        CompatibilityProfile wehikulCzasu =
+                new CompatibilityProfile(EngineVariant.BLOOMOO, GameFamilies.REKSIO_WEHIKUL_CZASU);
+
         for (int i = 0; i < values.size(); i++) {
             DoubleValue value = new DoubleValue(values.get(i));
             assertEquals(bloomooExpected.get(i), value.toStringValue(bloomoo).value());
             assertEquals(piklibExpected.get(i), value.toStringValue(piklib).value());
+            assertEquals(piklibExpected.get(i), value.toStringValue(wehikulCzasu).value());
         }
     }
 
