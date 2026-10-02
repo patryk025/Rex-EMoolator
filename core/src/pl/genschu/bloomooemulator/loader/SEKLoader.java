@@ -234,15 +234,15 @@ public class SEKLoader {
             float x = BinaryHelper.readFloatLE(f);
             float y = BinaryHelper.readFloatLE(f);
             float z = BinaryHelper.readFloatLE(f);
-            BinaryHelper.skipFully(f, 4); // padding (4th value in dVector3, used for better alignment)
-            obj.addPoint(new Point3D(x, y, z));
+            int tag = BinaryHelper.readIntLE(f); // node group, switched by WORLD^SETACTIVE(pathId, tag, BOOL)
+            obj.addPoint(new Point3D(x, y, z), tag);
         }
 
         for (int i = 0; i < numPaths; i++) {
             int firstId = BinaryHelper.readIntLE(f);
             int secondId = BinaryHelper.readIntLE(f);
-            int unknown = BinaryHelper.readIntLE(f); // in test only value 3
-            obj.addPath(firstId, secondId, unknown);
+            int flags = BinaryHelper.readIntLE(f); // 2 = first -> second, 1 = second -> first
+            obj.addPath(firstId, secondId, flags);
         }
 
         Graph graph = Graph.fromPointsData(obj, false);

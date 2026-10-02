@@ -7,15 +7,22 @@ import java.util.List;
 
 public class PointsData {
     private final List<Point3D> points;
+    private final List<Integer> tags;
     private final List<Edge> edges;
 
     public PointsData() {
         points = new ArrayList<>();
+        tags = new ArrayList<>();
         edges = new ArrayList<>();
     }
 
     public void addPoint(Point3D point) {
+        addPoint(point, 0);
+    }
+
+    public void addPoint(Point3D point, int tag) {
         points.add(point);
+        tags.add(tag);
     }
 
     public void addPath(int firstIdx, int secondIdx, int unknown) {
@@ -27,6 +34,10 @@ public class PointsData {
 
     public List<Point3D> getPoints() {
         return points;
+    }
+
+    public List<Integer> getTags() {
+        return tags;
     }
 
     public List<Edge> getEdges() {

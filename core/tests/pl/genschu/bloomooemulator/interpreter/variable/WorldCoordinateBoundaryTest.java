@@ -4,9 +4,12 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
+import org.mockito.InOrder;
 import pl.genschu.bloomooemulator.TestEnvironment;
 import pl.genschu.bloomooemulator.builders.ContextBuilder;
 import pl.genschu.bloomooemulator.engine.Game;
+import pl.genschu.bloomooemulator.engine.compatibility.CompatibilityProfile;
+import pl.genschu.bloomooemulator.engine.compatibility.EngineVariant;
 import pl.genschu.bloomooemulator.engine.physics.IPhysicsEngine;
 import pl.genschu.bloomooemulator.geometry.coordinates.CanvasScroll;
 import pl.genschu.bloomooemulator.geometry.coordinates.PhysicsBox;
@@ -17,14 +20,20 @@ import pl.genschu.bloomooemulator.interpreter.values.BoolValue;
 import pl.genschu.bloomooemulator.interpreter.values.DoubleValue;
 import pl.genschu.bloomooemulator.interpreter.values.IntValue;
 import pl.genschu.bloomooemulator.interpreter.values.StringValue;
+import pl.genschu.bloomooemulator.interpreter.values.VariableValue;
+import pl.genschu.bloomooemulator.logic.GameFamilies;
 
 import java.util.List;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyDouble;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -133,13 +142,101 @@ class WorldCoordinateBoundaryTest {
     void findPathConvertsViewportTargetWithCurrentScrollBeforeCallingPhysics() {
         when(physics.getCanvasScroll()).thenReturn(new CanvasScroll(30.0, -20.0));
 
+        // Six arguments: the seventh defaults to TRUE, i.e. a target seen through the camera.
         world.callMethod("FINDPATH",
                 new IntValue(7), new IntValue(9),
                 new IntValue(450), new IntValue(275), new IntValue(8),
+                new BoolValue(false));
+
+        verify(physics).findPath(7, 9, new PhysicsPoint(80.0, 45.0, 8.0), false);
+    }
+
+    @Test
+    void findPathWithViewportFlagOffUsesFixedCanvasAndIgnoresCameraScroll() {
+        when(physics.getCanvasScroll()).thenReturn(new CanvasScroll(30.0, -20.0));
+
+        world.callMethod("FINDPATH",
+                new IntValue(7), new IntValue(9),
+                new DoubleValue(450.5), new IntValue(275), new IntValue(8),
                 new BoolValue(true), new BoolValue(false));
 
-        verify(physics).findPath(
-                7, 9, new PhysicsPoint(80.0, 45.0, 8.0), true, false);
+        verify(physics).findPath(7, 9, new PhysicsPoint(50.5, 25.0, 8.0), true);
+    }
+
+    @Test
+    void findPathAppendsExactTargetByDefault() {
+        when(physics.getCanvasScroll()).thenReturn(CanvasScroll.NONE);
+
+        world.callMethod("FINDPATH",
+                new IntValue(7), new IntValue(9),
+                new IntValue(400), new IntValue(300), new IntValue(0));
+
+        verify(physics).findPath(7, 9, new PhysicsPoint(0.0, 0.0, 0.0), true);
+    }
+
+    @Test
+    void setActiveWithIntegerSecondArgumentSwitchesPathNodes() {
+        world.callMethod("SETACTIVE",
+                new IntValue(9000), new IntValue(10), new BoolValue(false));
+
+        verify(physics).setActivePath(9000, 10, false);
+        verify(physics, never()).setActive(anyInt(), anyBoolean(), anyBoolean());
+    }
+
+    @Test
+    void setActiveWithIntegerVariableAsSecondArgumentSwitchesPathNodes() {
+        IntegerVariable tag = new IntegerVariable("VARITER", 20);
+
+        world.callMethod("SETACTIVE",
+                new IntValue(9000), new VariableValue(tag), new BoolValue(true));
+
+        verify(physics).setActivePath(9000, 20, true);
+    }
+
+    @Test
+    void setActiveWithBoolArgumentsSwitchesTheBody() {
+        world.callMethod("SETACTIVE",
+                new IntValue(7), new BoolValue(false), new BoolValue(false));
+        verify(physics).setActive(7, false, false);
+
+        // Two arguments leave collision reporting on.
+        world.callMethod("SETACTIVE", new IntValue(8), new BoolValue(false));
+        verify(physics).setActive(8, false, true);
+    }
+
+    @Test
+    void reksioICzarodziejeFallsThroughToEnablingTheObjectAfterThreeArgumentSetActive() {
+        Game game = mock(Game.class);
+        when(game.getCompatibilityProfile()).thenReturn(
+                new CompatibilityProfile(EngineVariant.PIKLIB_8, GameFamilies.REKSIO_CZARODZIEJE));
+        world.state().gameRef = game;
+
+        world.callMethod("SETACTIVE",
+                new IntValue(9000), new IntValue(10), new BoolValue(false));
+
+        InOrder order = inOrder(physics);
+        order.verify(physics).setActivePath(9000, 10, false);
+        order.verify(physics).setActive(9000, true, true);
+    }
+
+    @Test
+    void getAngleReturnsTruncatedIntegerDegreesAndKeepsTheSideOfAStoppedBody() {
+        when(physics.getAngle(7)).thenReturn(Math.toRadians(44.9));
+        assertEquals(new IntValue(44), world.callMethod("GETANGLE", new IntValue(7)).returnValue());
+
+        when(physics.getAngle(7)).thenReturn(Math.toRadians(-90.0));
+        assertEquals(new IntValue(270), world.callMethod("GETANGLE", new IntValue(7)).returnValue());
+
+        // Velocity scaled to zero keeps its signs: atan2(±0, -0) = ±pi, atan2(-0, +0) = -0.
+        // +pi reads 179 because Sekai's 32-bit 180/pi is slightly short of the real value.
+        when(physics.getAngle(7)).thenReturn(Math.atan2(0.0, -0.0));
+        assertEquals(new IntValue(179), world.callMethod("GETANGLE", new IntValue(7)).returnValue());
+
+        when(physics.getAngle(7)).thenReturn(Math.atan2(-0.0, -0.0));
+        assertEquals(new IntValue(180), world.callMethod("GETANGLE", new IntValue(7)).returnValue());
+
+        when(physics.getAngle(7)).thenReturn(Math.atan2(-0.0, 0.0));
+        assertEquals(new IntValue(0), world.callMethod("GETANGLE", new IntValue(7)).returnValue());
     }
 
     @Test

@@ -13,9 +13,6 @@ public class GameObject {
     private float prevX, prevY, prevZ;
     private float velX, velY, velZ;
     private float prevVelX, prevVelY, prevVelZ;
-    // Last non-zero movement heading (radians). Kept so the facing direction survives a
-    // stop (e.g. arriving at a path goal where velocity is zeroed) — GETANGLE falls back to it.
-    private double lastAngle;
     private double mass;
     private double mu;
     private double friction;
@@ -378,6 +375,16 @@ public class GameObject {
         this.z = z;
     }
 
+    /**
+     * Moves the cached position without recording the old one as "previous" — what Sekai's
+     * SetPosition does, so a teleport is not counted as travelled distance.
+     */
+    public void setCachedPosition(double x, double y, double z) {
+        this.x = (float) x;
+        this.y = (float) y;
+        this.z = (float) z;
+    }
+
     public Object getBody() {
         return body;
     }
@@ -553,6 +560,13 @@ public class GameObject {
         this.isAtGoal = isAtGoal;
     }
 
+    /** Returns the pending goal state (1 = ATGOAL, 2 = NOPATH) and clears it. */
+    public int pollIsAtGoal() {
+        int state = isAtGoal;
+        isAtGoal = 0;
+        return state;
+    }
+
     public Deque<Point3D> getPath() {
         return path;
     }
@@ -563,14 +577,6 @@ public class GameObject {
 
     public float getLastSpeed() {
         return (float) Math.sqrt(prevVelX * prevVelX + prevVelY * prevVelY + prevVelZ * prevVelZ);
-    }
-
-    public double getLastAngle() {
-        return lastAngle;
-    }
-
-    public void setLastAngle(double lastAngle) {
-        this.lastAngle = lastAngle;
     }
 
     public int getFlags() {

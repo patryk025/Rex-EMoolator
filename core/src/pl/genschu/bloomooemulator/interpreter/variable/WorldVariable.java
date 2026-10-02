@@ -150,6 +150,9 @@ public record WorldVariable(
     // METHODS
     // ========================================
 
+    /** 180/pi as the 32-bit constant Sekai multiplies by (57.295776, one ulp short of nearest). */
+    private static final double RADIANS_TO_DEGREES = Float.intBitsToFloat(0x42652EE0);
+
     private static final Map<String, MethodSpec> METHODS = Map.ofEntries(
         Map.entry("ADDBODY", MethodSpec.of((self, args, ctx) -> {
             WorldVariable w = (WorldVariable) self;
@@ -233,18 +236,22 @@ public record WorldVariable(
         Map.entry("FINDPATH", MethodSpec.of((self, args, ctx) -> {
             WorldVariable w = (WorldVariable) self;
             int objectId = ArgumentHelper.getInt(args.get(0));
-            int pointObjectId = ArgumentHelper.getInt(args.get(1));
-            int targetX = ArgumentHelper.getInt(args.get(2));
-            int targetY = ArgumentHelper.getInt(args.get(3));
-            int targetZ = ArgumentHelper.getInt(args.get(4));
-            boolean saveIntermediates = args.size() > 5 && ArgumentHelper.getBoolean(args.get(5));
-            boolean unknown = args.size() > 6 && ArgumentHelper.getBoolean(args.get(6));
-            PhysicsPoint target = CanvasCoordinateSystem.toPhysics(
-                    new CanvasPoint(targetX, targetY),
-                    targetZ,
-                    w.state.physicsEngine.getCanvasScroll());
-            w.state.physicsEngine.findPath(
-                    objectId, pointObjectId, target, saveIntermediates, unknown);
+            int pathObjectId = ArgumentHelper.getInt(args.get(1));
+            double targetX = ArgumentHelper.getDouble(args.get(2));
+            double targetY = ArgumentHelper.getDouble(args.get(3));
+            double targetZ = ArgumentHelper.getDouble(args.get(4));
+            // Both flags default to TRUE in World.dll.
+            boolean appendTarget = args.size() <= 5 || ArgumentHelper.getBoolean(args.get(5));
+            boolean viewportTarget = args.size() <= 6 || ArgumentHelper.getBoolean(args.get(6));
+            // CWorld::FindPath: a viewport target (e.g. a mouse click) goes through the camera
+            // origin (world + 0xe8); with FALSE the target is on the fixed 800x600 canvas and
+            // the scripts add the background offset themselves.
+            CanvasPoint canvasTarget = new CanvasPoint(targetX, targetY);
+            PhysicsPoint target = viewportTarget
+                    ? CanvasCoordinateSystem.toPhysics(
+                            canvasTarget, targetZ, w.state.physicsEngine.getCanvasScroll())
+                    : CanvasCoordinateSystem.toPhysics(canvasTarget, targetZ);
+            w.state.physicsEngine.findPath(objectId, pathObjectId, target, appendTarget);
             return MethodResult.noReturn();
         })),
 
@@ -262,12 +269,12 @@ public record WorldVariable(
             WorldVariable w = (WorldVariable) self;
             int objectId = ArgumentHelper.getInt(args.get(0));
             double angle = w.state.physicsEngine.getAngle(objectId);
-            // Scripts expect a 0..360 heading (e.g. direction index = (GETANGLE+22.5)/45),
-            // but atan2 yields -180..180 — negative (downward) headings gave wrong/negative
-            // indices, so the facing only updated near the horizontal. Normalise to [0, 360).
-            double degrees = Math.toDegrees(angle) % 360.0;
+            // Sekai scales by a 32-bit 180/pi and lifts negative headings by 360; World.dll
+            // then hands the script an INTEGER, truncated. -0.0 is not negative, so a body
+            // stopped with velocity (+0, -0) reads 0 and one stopped with (-0, ±0) reads 180.
+            double degrees = angle * RADIANS_TO_DEGREES;
             if (degrees < 0) degrees += 360.0;
-            return MethodResult.returns(new DoubleValue(degrees));
+            return MethodResult.returns(new IntValue((int) (float) degrees));
         })),
 
         Map.entry("GETBKGPOSX", MethodSpec.of((self, args, ctx) -> {
@@ -468,9 +475,23 @@ public record WorldVariable(
         Map.entry("SETACTIVE", MethodSpec.of((self, args, ctx) -> {
             WorldVariable w = (WorldVariable) self;
             int objectId = ArgumentHelper.getInt(args.get(0));
-            boolean active = ArgumentHelper.getBoolean(args.get(1));
-            boolean collidable = args.size() > 2 ? ArgumentHelper.getBoolean(args.get(2)) : active;
-            w.state.physicsEngine.setActive(objectId, active, collidable);
+            IPhysicsEngine physics = w.state.physicsEngine;
+            if (args.size() == 3) {
+                boolean flag = ArgumentHelper.getBoolean(args.get(2));
+                if (isIntegerArgument(args.get(1))) {
+                    // An INTEGER second argument selects ISekai::SetActivePath: objectId is
+                    // a route graph and the integer is the tag of the waypoints to switch.
+                    physics.setActivePath(objectId, ArgumentHelper.getInt(args.get(1)), flag);
+                } else {
+                    physics.setActive(objectId, ArgumentHelper.getBoolean(args.get(1)), flag);
+                }
+                if (!w.hasSetActiveFallThrough()) {
+                    return MethodResult.noReturn();
+                }
+                // The early World.dll has no return here and runs into the default call below.
+            }
+            boolean active = args.size() != 2 || ArgumentHelper.getBoolean(args.get(1));
+            physics.setActive(objectId, active, true);
             return MethodResult.noReturn();
         })),
 
@@ -707,6 +728,24 @@ public record WorldVariable(
         double forceZ = args.size() > 3 ? ArgumentHelper.getDouble(args.get(3)) : 0.0;
         w.state.physicsEngine.addForce(objectId, forceX, forceY, forceZ);
         return MethodResult.noReturn();
+    }
+
+    /** World.dll tests the script type of the argument (CMC_Object::getType() == INTEGER). */
+    private static boolean isIntegerArgument(Value value) {
+        if (value instanceof VariableValue variableValue) {
+            return variableValue.variable().type() == VariableType.INTEGER;
+        }
+        return value instanceof IntValue;
+    }
+
+    /**
+     * An early World.dll misses a return after the three-argument SETACTIVE branch, so every
+     * such call is followed by SetActive(id, TRUE, TRUE). Fixed in later builds.
+     */
+    private boolean hasSetActiveFallThrough() {
+        Game game = state.gameRef;
+        return game != null
+                && game.getCompatibilityProfile().behaviour().setActiveFallsThrough();
     }
 
     private static PhysicsPoint requirePhysicsPosition(IPhysicsEngine physicsEngine, int objectId) {

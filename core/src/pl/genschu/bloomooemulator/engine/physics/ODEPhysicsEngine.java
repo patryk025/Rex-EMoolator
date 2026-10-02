@@ -10,7 +10,6 @@ import pl.genschu.bloomooemulator.geometry.coordinates.CanvasPoint;
 import pl.genschu.bloomooemulator.geometry.coordinates.CanvasScroll;
 import pl.genschu.bloomooemulator.geometry.coordinates.PhysicsPoint;
 import pl.genschu.bloomooemulator.geometry.points.Point3D;
-import pl.genschu.bloomooemulator.logic.GameFamilies;
 import pl.genschu.bloomooemulator.engine.context.EngineVariable;
 import pl.genschu.bloomooemulator.interpreter.values.IntValue;
 import pl.genschu.bloomooemulator.interpreter.values.StringValue;
@@ -371,6 +370,10 @@ public class ODEPhysicsEngine implements IPhysicsEngine {
     public void setPosition(int objectId, double x, double y, double z) {
         GameObject go = getObject(objectId);
         if (go == null) return;
+        // Sekai also refreshes the object's cached position here (not the previous one), so a
+        // FINDPATH issued right after SETPOSITION starts from the new place and the teleport
+        // does not show up as GETMOVEDISTANCE after the next step.
+        go.setCachedPosition(x, y, z);
         DBody body = (DBody) go.getBody();
         try {
             body.setPosition(x, y, z);
@@ -412,10 +415,6 @@ public class ODEPhysicsEngine implements IPhysicsEngine {
             }
         }
 
-        // Remember the heading while actually moving so a later stop keeps the facing direction.
-        if (speedX != 0.0 || speedY != 0.0) {
-            go.setLastAngle(Math.atan2(speedY, speedX));
-        }
         DBody body = (DBody) go.getBody();
         try {
             body.setLinearVel(speedX, speedY, speedZ);
@@ -553,11 +552,10 @@ public class ODEPhysicsEngine implements IPhysicsEngine {
         if (go == null) return 0.0;
         DBody body = (DBody) go.getBody();
         try {
-            // get speed vector and calculate angle
+            // Sekai takes atan2 of the raw velocity, also at rest. Friction stops a body by
+            // scaling its velocity to zero, which keeps the signs: (-0, ±0) reads as ±180° and
+            // (+0, ±0) as ±0°, so a character that stops ends up facing left or right.
             DVector3C velocity = body.getLinearVel();
-            if (velocity.length() == 0) {
-                return go.getLastAngle(); // stopped: keep the last movement heading
-            }
             return Math.atan2(velocity.get(1), velocity.get(0));
         }
         catch (NullPointerException e) {
@@ -652,13 +650,13 @@ public class ODEPhysicsEngine implements IPhysicsEngine {
 
             // pathfinding things
             if ((go.getFlags() & 2) != 0) {
-                int isAtGoal = go.getIsAtGoal();
+                // ISekai::IsAtGoal reads and clears the state, so each signal fires once;
+                // the collision and speed signals below are emitted in the same frame.
+                int isAtGoal = go.pollIsAtGoal();
                 if (isAtGoal == 1) {
                     emitSignalOnVar(var, "ATGOAL");
-                    continue;
                 } else if (isAtGoal == 2) {
                     emitSignalOnVar(var, "NOPATH");
-                    continue;
                 }
 
                 List<Integer> collisionIds = go.getCollisionIds();
@@ -827,7 +825,7 @@ public class ODEPhysicsEngine implements IPhysicsEngine {
     }
 
     int calculateSubstepCount(double deltaTime) {
-        if (compatibilityProfile.isGameFamily(GameFamilies.REKSIO_CZARODZIEJE)) {
+        if (!compatibilityProfile.behaviour().physicsSubsteps()) {
             return 1;
         }
         return 1 + (int) (deltaTime * 60.0);
@@ -1216,100 +1214,108 @@ public class ODEPhysicsEngine implements IPhysicsEngine {
     public float followPath(int objectId, int arrivalRadius, double turnClamp, double speed) {
         GameObject go = getObject(objectId);
         if (go == null) return 0.0f;
+        if (go.getPath().isEmpty()) return 0.0f; // no route: nothing changes, not even ATGOAL
 
-        while (true) {
-            Point3D currentWaypoint = go.getCurrentPathPoint();
+        double distance;
+        do {
+            Point3D waypoint = go.getCurrentPathPoint();
+            double dx = waypoint.x - go.getX();
+            double dy = waypoint.y - go.getY();
+            double dz = waypoint.z - go.getZ();
+            distance = Math.sqrt(dx * dx + dy * dy + dz * dz);
 
-            if (currentWaypoint == null) {
-                go.setIsAtGoal(1);
-                // Path exhausted = final goal reached: stop the body so it doesn't keep
-                // coasting along the last steering vector.
-                setSpeed(objectId, 0, 0, 0);
-                return 0.0f;
+            if (arrivalRadius < distance) {
+                if (distance != 0.0) {
+                    dx /= distance;
+                    dy /= distance;
+                    dz /= distance;
+                }
+                steerTowards(go, dx, dy, dz, Math.abs(turnClamp), speed);
             }
-
-            double[] position = getPosition(objectId);
-            double dx = currentWaypoint.x - position[0];
-            double dy = currentWaypoint.y - position[1];
-            double dz = currentWaypoint.z - position[2];
-
-            DVector3 deltaToTarget = new DVector3(dx, dy, dz);
-            double distance = deltaToTarget.length();
-
-            // Is point far away?
-            if (distance > arrivalRadius) {
-                // If so, go to them
-
-                // calculate normalized direction vector
-                if(distance > 0.0f) {
-                    deltaToTarget.normalize();
-                }
-
-                // get current forward direction
-                DVector3C velVector = ((DBody) go.getBody()).getLinearVel();
-                DVector3 forward = new DVector3(velVector.get0(), velVector.get1(), velVector.get2());
-                if(forward.length() > 0.0f) {
-                    forward.normalize();
-                }
-
-                DVector3 steeringForce = new DVector3(
-                        deltaToTarget.get0() - forward.get0(),
-                        deltaToTarget.get1() - forward.get1(),
-                        deltaToTarget.get2() - forward.get2()
-                );
-
-                turnClamp = Math.abs(turnClamp);
-                steeringForce.scale(turnClamp);
-
-                forward.add(steeringForce);
-                forward.normalize();
-                forward.scale(speed);
-
-                setSpeed(objectId, forward.get0(), forward.get1(), forward.get2());
+            if (!(distance < arrivalRadius)) {
                 return (float) distance;
             }
-
-            // if not, get next point
             go.getNextPointInPath();
+        } while (!go.getPath().isEmpty());
+
+        // The last waypoint is reached. Sekai only raises ATGOAL here and leaves the velocity
+        // alone: the body coasts on until its friction brings it to rest.
+        go.setIsAtGoal(1);
+        return (float) distance;
+    }
+
+    /**
+     * Blends the current heading with the direction to the waypoint and moves at {@code speed}.
+     * A zero vector is left as it is instead of being normalized, as in Sekai.
+     */
+    private void steerTowards(GameObject go, double dirX, double dirY, double dirZ,
+                              double turnClamp, double speed) {
+        DBody body = (DBody) go.getBody();
+        if (body == null) return;
+
+        DVector3C velocity = body.getLinearVel();
+        double fx = velocity.get0(), fy = velocity.get1(), fz = velocity.get2();
+        double length = Math.sqrt(fx * fx + fy * fy + fz * fz);
+        if (length != 0.0) {
+            fx /= length;
+            fy /= length;
+            fz /= length;
         }
+
+        fx += (dirX - fx) * turnClamp;
+        fy += (dirY - fy) * turnClamp;
+        fz += (dirZ - fz) * turnClamp;
+        length = Math.sqrt(fx * fx + fy * fy + fz * fz);
+        if (length != 0.0) {
+            fx /= length;
+            fy /= length;
+            fz /= length;
+        }
+
+        setSpeed(go.getId(), fx * speed, fy * speed, fz * speed);
     }
 
     @Override
     public void findPath(
             int objectId,
-            int pointObjectId,
+            int pathObjectId,
             PhysicsPoint targetPosition,
-            boolean saveIntermediates,
-            boolean unknown
+            boolean appendTarget
     ) {
         GameObject go = getObject(objectId);
-        GameObject go2 = getObject(pointObjectId);
-        if (go == null || go2 == null) return;
-        DBody body = (DBody) go.getBody();
-        if(body == null) {
-            Gdx.app.error("ODEPhysicsEngine", "Cannot find path for object " + objectId + ". Body is null (object is not rigid body)." );
-            return;
-        }
-        DVector3C position = body.getPosition();
-        Point3D start = new Point3D(position.get(0), position.get(1), position.get(2));
+        if (go == null) return;
+
+        Point3D start = new Point3D(go.getX(), go.getY(), go.getZ());
         Point3D target = new Point3D(
                 targetPosition.x(), targetPosition.y(), targetPosition.z());
 
-        AStar pathfinder = go2.getPathfinder();
+        AStar pathfinder = getPathfinder(pathObjectId);
+        boolean found = pathfinder != null
+                && pathfinder.findPath(start, target, appendTarget, go.getPath());
 
-        List<Point3D> path = pathfinder.findPath(start, target);
-
-        go.getPath().clear();
-
-        if(path == null || path.isEmpty()) {
-            go.setIsAtGoal(1);
-            return;
+        if (!found) {
+            go.setIsAtGoal(2); // NOPATH
+        } else if (go.getPath().isEmpty()) {
+            go.setIsAtGoal(1); // start and target share a node: ATGOAL right away
         }
+    }
 
-        for(Point3D point : path) {
-            go.addPointToPath(point);
+    @Override
+    public void setActivePath(int pathObjectId, int tag, boolean active) {
+        AStar pathfinder = getPathfinder(pathObjectId);
+        if (pathfinder != null) {
+            pathfinder.graph().setActiveByTag(tag, active);
         }
-        go.setIsAtGoal(2);
+    }
+
+    private AStar getPathfinder(int pathObjectId) {
+        List<GameObject> candidates = objects.get(pathObjectId);
+        if (candidates == null) return null;
+        for (int i = candidates.size() - 1; i >= 0; i--) {
+            AStar pathfinder = candidates.get(i).getPathfinder();
+            if (pathfinder != null) return pathfinder;
+        }
+        return null;
     }
 
     @Override

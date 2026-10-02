@@ -194,12 +194,20 @@ public interface IPhysicsEngine {
 
     float followPath(int objectId, int arrivalRadius, double turnClamp, double speed);
 
+    /**
+     * Plans a route for {@code objectId} over the waypoint graph {@code pathObjectId}.
+     *
+     * @param target       target in native Sekai/ODE coordinates
+     * @param appendTarget finish at the exact target rather than at its nearest waypoint
+     */
     void findPath(
             int objectId,
-            int pointObjectId,
+            int pathObjectId,
             PhysicsPoint target,
-            boolean saveIntermediates,
-            boolean unknown);
+            boolean appendTarget);
+
+    /** Enables or disables every waypoint of {@code pathObjectId} that carries {@code tag}. */
+    void setActivePath(int pathObjectId, int tag, boolean active);
 
     void start();
 

@@ -7,12 +7,18 @@ import java.util.Objects;
 public final class Node {
     private final int id;
     private final Point3D pos;
-    private boolean walkable;
+    private final int tag;
+    private boolean active;
 
     public Node(int id, Point3D pos) {
+        this(id, pos, 0);
+    }
+
+    public Node(int id, Point3D pos, int tag) {
         this.id = id;
         this.pos = pos;
-        this.walkable = true;
+        this.tag = tag;
+        this.active = true;
     }
 
     public int id() {
@@ -23,6 +29,18 @@ public final class Node {
         return pos;
     }
 
+    public int tag() {
+        return tag;
+    }
+
+    public boolean active() {
+        return active;
+    }
+
+    public void setActive(boolean active) {
+        this.active = active;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -30,8 +48,6 @@ public final class Node {
         Node node = (Node) o;
         return id == node.id && Objects.equals(pos, node.pos);
     }
-
-    public boolean walkable() { return walkable; }
 
     @Override
     public int hashCode() {
@@ -43,6 +59,8 @@ public final class Node {
         return "Node{" +
                 "id=" + id +
                 ", pos=" + pos +
+                ", tag=" + tag +
+                ", active=" + active +
                 '}';
     }
 }
