@@ -44,7 +44,10 @@ public record CompatibilityProfile(
     }
 
     public int arrayDoubleScale() {
-        return engine.arrayDoubleScale();
+        // CXArchive of the first BlooMoo still multiplies by 1000, like Piklib.
+        return isFirstBlooMoo()
+                ? EngineVariant.PIKLIB_8.arrayDoubleScale()
+                : engine.arrayDoubleScale();
     }
 
     public boolean hasPiklibDoubleStringQuirk() {

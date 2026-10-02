@@ -159,6 +159,30 @@ class EngineCompatibilityTest {
         assertEquals(1_000, game.getCompatibilityProfile().arrayDoubleScale());
     }
 
+    @Test
+    void firstBlooMooStoresArrayDoublesAtPiklibScale() throws IOException {
+        // BlooMooDLL of Reksio i Wehikuł Czasu: CXArchive << double multiplies by 1000.
+        CompatibilityProfile wehikulCzasu =
+                new CompatibilityProfile(EngineVariant.BLOOMOO, GameFamilies.REKSIO_WEHIKUL_CZASU);
+        assertEquals(1_000, wehikulCzasu.arrayDoubleScale());
+
+        InputStreamBinaryReader reader =
+                new InputStreamBinaryReader(new ByteArrayInputStream(PIKLIB8_ARR));
+        Value[] values = new Value[reader.readI32LE()];
+        for (int i = 0; i < values.length; i++) {
+            values[i] = ArrayValueCodec.read(reader, wehikulCzasu);
+        }
+        assertEquals(2.5, ((DoubleValue) values[3]).value());
+        assertEquals(1.234, ((DoubleValue) values[5]).value());
+
+        ByteArrayOutputStream saved = new ByteArrayOutputStream();
+        ArrayValueCodec.writeInt(saved, values.length);
+        for (Value value : values) {
+            ArrayValueCodec.write(saved, value, wehikulCzasu);
+        }
+        assertArrayEquals(PIKLIB8_ARR, saved.toByteArray());
+    }
+
     @ParameterizedTest
     @MethodSource("arrayFixtures")
     void readsAndReproducesOriginalArrayFixture(EngineVariant engine, byte[] fixture)
