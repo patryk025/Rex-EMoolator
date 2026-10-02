@@ -28,14 +28,25 @@ public record DoubleValue(double value) implements Value {
     }
 
     /**
-     * Converts this double to an int value (truncates).
+     * Converts this double to an int the way the engine of the currently running game does
+     * ({@code CMC_Double::convert}). The profile is ambient for the same reason as in
+     * {@link #toStringValue()}.
      */
     public IntValue toInt() {
-        if (value() > 0) {
-            return new IntValue((int) Math.round(value()));
-        } else {
-            return new IntValue((int) Math.ceil(value() - 0.5)); // negative values are rounded down? Instead of -0.5 == 0 it becomes -1
+        return toInt(Compatibility.current());
+    }
+
+    public IntValue toInt(CompatibilityProfile profile) {
+        int truncated = (int) value;
+        if (!profile.roundsDoubleToInteger()) {
+            return new IntValue(truncated); // Piklib and the first BlooMoo: plain _ftol
         }
+        // CMC_Double::round: a fraction of at least one half moves away from zero,
+        // so 0.5 -> 1 and -0.5 -> -1.
+        if (Math.abs(value - truncated) >= 0.5) {
+            return new IntValue(value > 0 ? truncated + 1 : truncated - 1);
+        }
+        return new IntValue(truncated);
     }
 
     /**

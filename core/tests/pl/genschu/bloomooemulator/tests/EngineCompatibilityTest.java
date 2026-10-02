@@ -27,6 +27,7 @@ import pl.genschu.bloomooemulator.loader.MultiArrayLoader;
 import pl.genschu.bloomooemulator.loader.helpers.InputStreamBinaryReader;
 import pl.genschu.bloomooemulator.saver.MultiArraySaver;
 import pl.genschu.bloomooemulator.logic.GameEntry;
+import pl.genschu.bloomooemulator.logic.GameFamilies;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -231,6 +232,41 @@ class EngineCompatibilityTest {
             assertEquals(bloomooExpected.get(i), value.toStringValue(bloomoo).value());
             assertEquals(piklibExpected.get(i), value.toStringValue(piklib).value());
         }
+    }
+
+    @Test
+    void convertsDoubleToIntegerLikeTheSelectedOriginalEngine() {
+        // CMC_Double::round exists from Reksio i Kapitan Nemo on; every Piklib and the
+        // BlooMooDLL of Reksio i Wehikuł Czasu convert with a plain _ftol.
+        CompatibilityProfile bloomoo =
+                CompatibilityProfile.forEngine(EngineVariant.BLOOMOO);
+        CompatibilityProfile wehikulCzasu =
+                new CompatibilityProfile(EngineVariant.BLOOMOO, GameFamilies.REKSIO_WEHIKUL_CZASU);
+        CompatibilityProfile piklib =
+                CompatibilityProfile.forEngine(EngineVariant.PIKLIB_8);
+
+        List<Double> values = List.of(0.5, 0.49, 1.5, 2.5, -0.5, -0.49, -2.5, 7.99, -7.99, 3.0);
+        List<Integer> rounded = List.of(1, 0, 2, 3, -1, 0, -3, 8, -8, 3);
+        List<Integer> truncated = List.of(0, 0, 1, 2, 0, 0, -2, 7, -7, 3);
+
+        for (int i = 0; i < values.size(); i++) {
+            DoubleValue value = new DoubleValue(values.get(i));
+            assertEquals(rounded.get(i), value.toInt(bloomoo).value(), "BlooMoo " + value);
+            assertEquals(truncated.get(i), value.toInt(wehikulCzasu).value(), "RiWC " + value);
+            assertEquals(truncated.get(i), value.toInt(piklib).value(), "Piklib " + value);
+        }
+    }
+
+    @Test
+    void walkingDirectionIndexIsTruncatedOnPiklib_arcadeFacingRegression() {
+        // ARCADE: VARDANGLE^SET(GETANGLE); ^ADD(22.5); ^DIV(45.0); VARITEMP0^SET(VARDANGLE).
+        // A body at rest after walking right reads 0 degrees, which must select direction 0.
+        newGame("Piklib v8");
+        assertEquals(0, ArgumentHelper.getInt(new DoubleValue((0 + 22.5) / 45.0)));
+        assertEquals(4, ArgumentHelper.getInt(new DoubleValue((179 + 22.5) / 45.0)));
+
+        newGame("BlooMoo");
+        assertEquals(1, ArgumentHelper.getInt(new DoubleValue((0 + 22.5) / 45.0)));
     }
 
     @Test

@@ -29,6 +29,7 @@ public final class GameFamilies {
 
     /** Slugs referenced from engine code, so the literals stay in one place. */
     public static final String REKSIO_CZARODZIEJE = "reksio-czarodzieje";
+    public static final String REKSIO_WEHIKUL_CZASU = "reksio-wehikul-czasu";
     public static final String POZNAJ_MITY_HERKULES = "poznaj-mity-herkules";
     public static final String POZNAJ_MITY_ODYSEUSZ = "poznaj-mity-odyseusz";
 
@@ -53,8 +54,8 @@ public final class GameFamilies {
             entry("92D602BBEA05CBDA48B39DC69C90D0980BB563A0", REKSIO_CZARODZIEJE),
 
             // Reksio i Wehikuł Czasu
-            entry("2679920B3735624D746FDF24D7BB507A23B31A08", "reksio-wehikul-czasu"),
-            entry("F352210C32D8C224C0B7611D6BE1277367BA0464", "reksio-wehikul-czasu"),
+            entry("2679920B3735624D746FDF24D7BB507A23B31A08", REKSIO_WEHIKUL_CZASU),
+            entry("F352210C32D8C224C0B7611D6BE1277367BA0464", REKSIO_WEHIKUL_CZASU),
 
             // Reksio i Kapitan Nemo
             entry("3BE911183E59FEC67A388654E1A68B77C00BDF15", "reksio-kapitan-nemo"),
@@ -87,7 +88,7 @@ public final class GameFamilies {
         familyByNamePrefix.put("Reksio i Skarb Piratów", "reksio-skarb-piratow");
         familyByNamePrefix.put("Reksio i UFO", "reksio-ufo");
         familyByNamePrefix.put("Reksio i Czarodzieje", REKSIO_CZARODZIEJE);
-        familyByNamePrefix.put("Reksio i Wehikuł Czasu", "reksio-wehikul-czasu");
+        familyByNamePrefix.put("Reksio i Wehikuł Czasu", REKSIO_WEHIKUL_CZASU);
         familyByNamePrefix.put("Reksio i Kapitan Nemo", "reksio-kapitan-nemo");
         familyByNamePrefix.put("Reksio i Kretes w Akcji", "reksio-kretes-w-akcji");
         familyByNamePrefix.put("Wesołe Przedszkole Reksia", "reksio-wesole-przedszkole");

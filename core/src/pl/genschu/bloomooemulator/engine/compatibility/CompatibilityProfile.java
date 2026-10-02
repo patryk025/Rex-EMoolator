@@ -1,6 +1,7 @@
 package pl.genschu.bloomooemulator.engine.compatibility;
 
 import pl.genschu.bloomooemulator.logic.GameEntry;
+import pl.genschu.bloomooemulator.logic.GameFamilies;
 
 /**
  * Immutable compatibility information for one running game.
@@ -48,6 +49,20 @@ public record CompatibilityProfile(
 
     public boolean hasPiklibDoubleStringQuirk() {
         return engine.hasPiklibDoubleStringQuirk();
+    }
+
+    /** Whether DOUBLE to INTEGER rounds half away from zero rather than truncating. */
+    public boolean roundsDoubleToInteger() {
+        return engine.roundsDoubleToInteger() && !isFirstBlooMoo();
+    }
+
+    /**
+     * Reksio i Wehikuł Czasu ships the first BlooMooDLL, which in these respects still
+     * behaves like Piklib; the differences arrive with Reksio i Kapitan Nemo.
+     */
+    private boolean isFirstBlooMoo() {
+        return engine == EngineVariant.BLOOMOO
+                && isGameFamily(GameFamilies.REKSIO_WEHIKUL_CZASU);
     }
 
     public boolean isGameFamily(String family) {

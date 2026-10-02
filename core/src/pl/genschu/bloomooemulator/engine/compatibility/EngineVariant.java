@@ -10,32 +10,34 @@ import java.util.Locale;
  * changing call sites or guessing from the game name.</p>
  */
 public enum EngineVariant {
-    BLOOMOO(10_000, false),
-    PIKLIB_6_1(1_000, true),
-    PIKLIB_7_1(1_000, true),
-    PIKLIB_7_2(1_000, true),
-    PIKLIB_8(1_000, true),
+    BLOOMOO(10_000, false, true),
+    PIKLIB_6_1(1_000, true, false),
+    PIKLIB_7_1(1_000, true, false),
+    PIKLIB_7_2(1_000, true, false),
+    PIKLIB_8(1_000, true, false),
 
     /**
      * A Piklib DLL whose exact version is not one of the above. The quirks are
      * shared by every Piklib version seen so far, so this is a far better guess
      * than {@link #UNKNOWN} — which would silently read arrays at BlooMoo scale.
      */
-    PIKLIB_OTHER(1_000, true),
+    PIKLIB_OTHER(1_000, true, false),
 
     /**
      * Compatibility fallback for contexts which do not have a GameEntry
      * (mostly isolated unit tests). It preserves the emulator's former mixed
      * defaults: BlooMoo ARRAY precision and Piklib double formatting.
      */
-    UNKNOWN(10_000, true);
+    UNKNOWN(10_000, true, true);
 
     private final int arrayDoubleScale;
     private final boolean piklibDoubleStringQuirk;
+    private final boolean roundsDoubleToInteger;
 
-    EngineVariant(int arrayDoubleScale, boolean piklibDoubleStringQuirk) {
+    EngineVariant(int arrayDoubleScale, boolean piklibDoubleStringQuirk, boolean roundsDoubleToInteger) {
         this.arrayDoubleScale = arrayDoubleScale;
         this.piklibDoubleStringQuirk = piklibDoubleStringQuirk;
+        this.roundsDoubleToInteger = roundsDoubleToInteger;
     }
 
     public int arrayDoubleScale() {
@@ -44,6 +46,14 @@ public enum EngineVariant {
 
     public boolean hasPiklibDoubleStringQuirk() {
         return piklibDoubleStringQuirk;
+    }
+
+    /**
+     * Whether DOUBLE to INTEGER rounds half away from zero ({@code CMC_Double::round}, added
+     * to BlooMoo with Reksio i Kapitan Nemo) instead of truncating ({@code _ftol}, every Piklib).
+     */
+    public boolean roundsDoubleToInteger() {
+        return roundsDoubleToInteger;
     }
 
     /** Observable ordering of script input, canvas presentation and managers. */
