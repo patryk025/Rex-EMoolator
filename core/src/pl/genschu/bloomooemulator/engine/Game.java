@@ -97,6 +97,7 @@ public class Game {
 
     private Map<String, Music> musicCache;
     private Music currentSceneMusic = null;
+    private long sceneMusicRequests = 0;
 
     // Background image for current scene (loaded on scene change)
     private ImageVariable currentBackgroundImage = null;
@@ -509,6 +510,7 @@ public class Game {
     }
 
     private void loadScene(SceneVariable scene) {
+        long musicRequestsBeforeLoad = sceneMusicRequests;
         stopAllSounds();
         quadTree.clear();
         collisionMonitoredVariables.clear();
@@ -528,14 +530,6 @@ public class Game {
             currentSceneFile = scenePath;
             currentResourceDirectory = scenePath != null ? scenePath : (currentEpisodeFile != null ? currentEpisodeFile : DANE_ROOT);
             currentScene = scene.name();
-
-            // Handle music transition
-            if(currentSceneMusic != null && currentSceneMusic.isPlaying()) {
-                // Stop previous music if different from new scene's music
-                if (!scene.music().equals(currentSceneVariable != null ? currentSceneVariable.music() : "")) {
-                    currentSceneMusic.stop();
-                }
-            }
 
             currentSceneVariable = scene;
 
@@ -565,6 +559,14 @@ public class Game {
             populateQuadTree(currentSceneContext);
 
             runInit(currentSceneContext);
+
+            // ARCADE selects its track in __INIT__ with STARTMUSIC. Keep the
+            // previous track until the new scene has had a chance to request it;
+            // startSceneMusic handles both reuse and replacement of actual audio.
+            if (sceneMusicRequests == musicRequestsBeforeLoad && currentSceneMusic != null) {
+                currentSceneMusic.stop();
+                currentSceneMusic = null;
+            }
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -596,6 +598,8 @@ public class Game {
         if (nextMusic == null) {
             return;
         }
+
+        sceneMusicRequests++;
 
         if (currentSceneMusic != null && currentSceneMusic != nextMusic && currentSceneMusic.isPlaying()) {
             currentSceneMusic.stop();
