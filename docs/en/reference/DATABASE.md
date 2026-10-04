@@ -19,18 +19,18 @@ Name of the [`STRUCT`](STRUCT.md) variable that defines the database's schema. R
 ### FIND
 
 ```
-INTEGER FIND(STRING columnName, mixed columnValue, INTEGER defaultIndex)
+INTEGER FIND(STRING columnName, mixed columnValue, INTEGER startIndex)
 ```
 
-Returns the index of the first row whose `columnName` column equals `columnValue`. Falls back to `defaultIndex` if no row matches.
+Searches from `startIndex` (inclusive) and returns the index of the first row whose `columnName` column equals `columnValue`. A match selects that row. Returns `-1` if no row matches, without changing the cursor or wrapping to the beginning.
 
 **Parameters**
 
 - `columnName` — name of the column to search.
 - `columnValue` — value to match.
-- `defaultIndex` — index returned on no match.
+- `startIndex` — first row to search (zero-based).
 
-**Returns**: [`INTEGER`](INTEGER.md) — matching row index or `defaultIndex`.
+**Returns**: [`INTEGER`](INTEGER.md) — matching row index or `-1`.
 
 **Examples**
 

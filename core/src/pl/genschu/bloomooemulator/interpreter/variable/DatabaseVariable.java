@@ -123,8 +123,8 @@ public record DatabaseVariable(
             DatabaseVariable thisVar = (DatabaseVariable) self;
             String colName = ArgumentHelper.getString(args, 0, "");
             String colValue = ArgumentHelper.getString(args, 1, "");
-            int def = ArgumentHelper.getInt(args, 2, 0);
-            int found = thisVar.state.find(colName, colValue, def);
+            int startIndex = ArgumentHelper.getInt(args, 2, 0);
+            int found = thisVar.state.find(colName, colValue, startIndex);
             return MethodResult.returns(new IntValue(found));
         })),
 

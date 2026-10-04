@@ -19,18 +19,18 @@ Nazwa zmiennej typu [`STRUCT`](STRUCT.md) definiującej schemat bazy. Pole obowi
 ### FIND
 
 ```
-INTEGER FIND(STRING columnName, mixed columnValue, INTEGER defaultIndex)
+INTEGER FIND(STRING columnName, mixed columnValue, INTEGER startIndex)
 ```
 
-Wyszukuje pierwszy wiersz, w którym kolumna o nazwie `columnName` ma wartość `columnValue`. Zwraca jego indeks lub `defaultIndex`, jeżeli żaden wiersz nie pasuje.
+Wyszukuje od `startIndex` (włącznie) pierwszy wiersz, w którym kolumna o nazwie `columnName` ma wartość `columnValue`. Zwraca jego indeks i ustawia na nim kursor. Jeżeli nie znajdzie dopasowania, zwraca `-1`, nie zmienia kursora i nie wraca do początku bazy.
 
 **Parametry**
 
 - `columnName` — nazwa przeszukiwanej kolumny.
 - `columnValue` — szukana wartość.
-- `defaultIndex` — indeks zwracany, jeżeli nie znaleziono dopasowania.
+- `startIndex` — indeks pierwszego przeszukiwanego wiersza (liczony od zera).
 
-**Zwraca**: [`INTEGER`](INTEGER.md) — indeks znalezionego wiersza lub `defaultIndex`.
+**Zwraca**: [`INTEGER`](INTEGER.md) — indeks znalezionego wiersza lub `-1`.
 
 **Przykłady**
 

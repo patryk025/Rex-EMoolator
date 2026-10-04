@@ -60,11 +60,12 @@ public final class DatabaseState {
         currentRow = 0;
     }
 
-    public int find(String columnName, String columnValue, int defaultIndex) {
+    /** Search from the inclusive start row; a miss leaves the cursor unchanged. */
+    public int find(String columnName, String columnValue, int startIndex) {
         int colIdx = getColumnIndex(columnName);
-        if (colIdx < 0) return defaultIndex;
+        if (colIdx < 0) return -1;
 
-        for (int i = 0; i < data.size(); i++) {
+        for (int i = Math.max(0, startIndex); i < data.size(); i++) {
             List<String> row = data.get(i);
             String cell = (colIdx < row.size()) ? row.get(colIdx) : "";
             if (cell != null && cell.equalsIgnoreCase(Objects.toString(columnValue, ""))) {
@@ -73,7 +74,7 @@ public final class DatabaseState {
                 return i;
             }
         }
-        return defaultIndex;
+        return -1;
     }
 
     private int getColumnIndex(String columnName) {

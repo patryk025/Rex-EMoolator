@@ -7,6 +7,8 @@ import pl.genschu.bloomooemulator.TestEnvironment;
 import pl.genschu.bloomooemulator.builders.ContextBuilder;
 import pl.genschu.bloomooemulator.builders.MethodHelper;
 import pl.genschu.bloomooemulator.interpreter.context.Context;
+import pl.genschu.bloomooemulator.interpreter.ast.BlockNode;
+import pl.genschu.bloomooemulator.interpreter.errors.SourceLocation;
 import pl.genschu.bloomooemulator.interpreter.values.*;
 import pl.genschu.bloomooemulator.interpreter.variable.*;
 import pl.genschu.bloomooemulator.interpreter.variable.db.DatabaseState;
@@ -184,13 +186,65 @@ class DatabaseStructIntegrationTest {
         ));
         assertEquals(1, result.getReturnValue().toInt().value());
 
-        // FIND with default when not found
+        // FIND returns -1 when not found, even when searching from row zero.
         result = db.callMethod("FIND", List.of(
             new StringValue("NAME"),
             new StringValue("NonExistent"),
-            new IntValue(-1)
+            new IntValue(0)
         ));
         assertEquals(-1, result.getReturnValue().toInt().value());
+    }
+
+    @Test
+    void teleportItemCanBePickedUpOnceAndFullInventoryLeavesItInScene() {
+        DatabaseState items = new DatabaseState();
+        items.setColumns(List.of("GUID", "NAME", "PARENT", "BASE", "EMPTY"));
+        items.setData(List.of(List.of("0", "NULL", "0", "NULL", "0")));
+        ctx.setVariable("DBITEMS", new DatabaseVariable("DBITEMS", items));
+        ctx.setVariable("SITEM", StructVariable.withSchema("SITEM", items.columns(),
+                List.of("INTEGER", "STRING", "INTEGER", "STRING", "INTEGER")));
+        ctx.setVariable("SLOT", new IntegerVariable("SLOT", -1));
+        ctx.setVariable("PICKED", new IntegerVariable("PICKED", 0));
+        ctx.setVariable("ITEM", new StringVariable("ITEM", "OPONA_BUT"));
+        ctx.setVariable("ABORT", new BehaviourVariable("ABORT",
+                new BlockNode(List.of(), SourceLocation.UNKNOWN), null).withScript("{@BREAK();}"));
+        // ARCADE's BEHADDITEM guards and cursor write, without rendering or disk IO.
+        Variable pickup = new BehaviourVariable("PICKUP",
+                new BlockNode(List.of(), SourceLocation.UNKNOWN), null).withScript("""
+                {@IF(DBITEMS^FIND("NAME",ITEM,0),">","-1","ABORT","");
+                SLOT^SET(DBITEMS^FIND("EMPTY",0,0));
+                @IF("SLOT","_","-1","ABORT","");
+                SITEM|GUID^SET(SLOT);SITEM|NAME^SET(ITEM);SITEM|PARENT^SET(5);
+                SITEM|BASE^SET("TELEP_WARSZTAT");SITEM|EMPTY^SET(1);
+                DBITEMS^SELECT(SLOT);DBITEMS_CURSOR^SET("SITEM");PICKED^INC();}
+                """);
+        MethodHelper.callWithContext(ctx, pickup, "RUN");
+        assertEquals(List.of("0", "OPONA_BUT", "5", "TELEP_WARSZTAT", "1"), items.data().get(0));
+        assertEquals(1, ctx.getVariable("PICKED").value().toInt().value());
+        MethodHelper.callWithContext(ctx, pickup, "RUN");
+        assertEquals(1, ctx.getVariable("PICKED").value().toInt().value());
+        ctx.setVariable("ITEM", new StringVariable("ITEM", "OTHER_BUT"));
+        MethodHelper.callWithContext(ctx, pickup, "RUN");
+        assertEquals(1, ctx.getVariable("PICKED").value().toInt().value());
+        assertEquals("OPONA_BUT", items.data().get(0).get(1));
+    }
+
+    @Test
+    void findSearchesFromInclusiveStartWithoutWrappingOrMovingCursorOnMiss() {
+        DatabaseState state = new DatabaseState();
+        state.setColumns(List.of("ID"));
+        state.setData(List.of(List.of("DIALOG"), List.of("OTHER"), List.of("DIALOG")));
+        DatabaseVariable db = new DatabaseVariable("DB", state);
+        assertEquals(2, MethodHelper.callWithContext(ctx, db, "FIND",
+                new StringValue("ID"), new StringValue("DIALOG"), new IntValue(1)).toInt().value());
+        assertEquals(2, state.currentRowIndex());
+        assertEquals(2, state.find("ID", "DIALOG", 2));
+        assertEquals(-1, state.find("ID", "DIALOG", 3));
+        assertEquals(-1, state.find("MISSING_COLUMN", "DIALOG", 0));
+        assertEquals(2, state.currentRowIndex());
+        assertEquals(0, state.find("ID", "DIALOG", 0));
+        state.removeAll();
+        assertEquals(-1, state.find("ID", "DIALOG", 0));
     }
 
     @Test
