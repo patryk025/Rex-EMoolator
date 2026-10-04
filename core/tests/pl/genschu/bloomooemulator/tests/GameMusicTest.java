@@ -10,16 +10,26 @@ import org.junit.jupiter.api.io.TempDir;
 import pl.genschu.bloomooemulator.TestEnvironment;
 import pl.genschu.bloomooemulator.engine.Game;
 import pl.genschu.bloomooemulator.engine.filesystem.LocalFileSystem;
+import pl.genschu.bloomooemulator.interpreter.context.Context;
+import pl.genschu.bloomooemulator.interpreter.runtime.ExecutionContext;
+import pl.genschu.bloomooemulator.interpreter.variable.BehaviourVariable;
+import pl.genschu.bloomooemulator.interpreter.variable.SceneVariable;
 
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Map;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 
 public class GameMusicTest {
 
@@ -29,6 +39,68 @@ public class GameMusicTest {
     @BeforeAll
     static void boot() {
         TestEnvironment.init();
+    }
+
+    @Test
+    void arcadeReloadKeepsScriptSelectedMusicPlayingAndSilentSceneStopsIt() throws Exception {
+        Game game = new Game(null, null);
+        Context episode = new Context(new ExecutionContext());
+        episode.setGame(game);
+        Field episodeField = Game.class.getDeclaredField("currentEpisodeContext");
+        episodeField.setAccessible(true);
+        episodeField.set(game, episode);
+        SceneVariable arcade = new SceneVariable("ARCADE");
+        episode.setVariable("ARCADE", arcade);
+        episode.setVariable("__INIT__", BehaviourVariable.fromScript("__INIT__",
+                "{ARCADE^STARTMUSIC(\"TELEPORTKI.WAV\");}", Map.of()));
+        Music music = playingMusic();
+        game.getMusicCache().put("$\\TELEPORTKI.WAV", music);
+        loadScene(game, arcade);
+        // STARTMUSIC replaced the immutable SCENE record; Game's load snapshot
+        // still has an empty MUSIC attribute, as on the first ARCADE visit.
+        loadScene(game, (SceneVariable) episode.getVariable("ARCADE"));
+        verify(music, never()).stop();
+        verify(music, times(1)).play();
+        assertSame(music, game.getCurrentSceneMusic());
+
+        // A loader with no declared MUSIC may select the same track in __INIT__.
+        loadScene(game, new SceneVariable("OTHER_LOADER"));
+        verify(music, never()).stop();
+        verify(music, times(1)).play();
+        episode.removeVariable("__INIT__");
+        loadScene(game, new SceneVariable("SILENT"));
+        verify(music).stop();
+    }
+
+    @Test
+    void declaredMusicContinuesAcrossScenesAndDifferentTrackReplacesIt() throws Exception {
+        Game game = new Game(null, null);
+        Music first = playingMusic();
+        Music second = playingMusic();
+        game.getMusicCache().put("$\\FIRST.WAV", first);
+        game.getMusicCache().put("$\\SECOND.WAV", second);
+        loadScene(game, new SceneVariable("ONE").withMusic("FIRST.WAV"));
+        loadScene(game, new SceneVariable("TWO").withMusic("FIRST.WAV"));
+        verify(first, never()).stop();
+        verify(first).play();
+        loadScene(game, new SceneVariable("THREE").withMusic("SECOND.WAV"));
+        verify(first).stop();
+        verify(second).play();
+    }
+
+    private static Music playingMusic() {
+        Music music = mock(Music.class);
+        AtomicBoolean playing = new AtomicBoolean();
+        when(music.isPlaying()).thenAnswer(call -> playing.get());
+        doAnswer(call -> { playing.set(true); return null; }).when(music).play();
+        doAnswer(call -> { playing.set(false); return null; }).when(music).stop();
+        return music;
+    }
+
+    private static void loadScene(Game game, SceneVariable scene) throws Exception {
+        Method load = Game.class.getDeclaredMethod("loadScene", SceneVariable.class);
+        load.setAccessible(true);
+        load.invoke(game, scene);
     }
 
     @Test

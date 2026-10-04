@@ -95,4 +95,10 @@ public interface MethodContext {
      * (e.g., CNVLoader creating child contexts, adding additional contexts).
      */
     Context context();
+
+    /** Use the object's owning context for resource replacement and clone bookkeeping. */
+    default Context owningContext(Variable variable) {
+        Context owner = context().findOwningContext(variable);
+        return owner != null ? owner : context();
+    }
 }

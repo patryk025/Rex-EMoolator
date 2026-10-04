@@ -1589,6 +1589,9 @@ public record AnimoVariable(
             return MethodResult.noReturn();
         })),
 
+        Map.entry("GETOPACITY", MethodSpec.of((self, args, ctx) ->
+            MethodResult.returns(new IntValue(((AnimoVariable) self).getOpacity())))),
+
         // OTHER METHODS
         Map.entry("SETFPS", MethodSpec.of((self, args, ctx) -> {
             AnimoVariable thisVar = (AnimoVariable) self;
@@ -1736,7 +1739,7 @@ public record AnimoVariable(
                 }
                 updated.state.opacity = loadedData.opacity();
                 thisVar.loadSfxAudio(loadedData, game);
-                ctx.setVariable(thisVar.name, updated);
+                ctx.owningContext(thisVar).setVariable(thisVar.name, updated);
                 Gdx.app.log("AnimoVariable", thisVar.name + ": Loaded ANIMO from " + vfsPath);
             } catch (Exception e) {
                 Gdx.app.error("AnimoVariable", thisVar.name + ": Failed to LOAD: " + e.getMessage(), e);

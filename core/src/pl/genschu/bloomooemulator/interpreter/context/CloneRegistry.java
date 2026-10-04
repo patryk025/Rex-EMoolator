@@ -11,6 +11,20 @@ import java.util.Map;
  */
 public class CloneRegistry {
     private final Map<String, List<String>> clonesByBase = new HashMap<>();
+    private final Map<String, Integer> lastCloneIndices = new HashMap<>();
+
+    /** Piklib's clone counter survives removal; RESETCLONES explicitly resets it. */
+    public int nextCloneIndex(String baseName) {
+        return lastCloneIndices.merge(baseName, 1, Integer::sum);
+    }
+
+    public void resetCloneIndex(String baseName) {
+        lastCloneIndices.remove(baseName);
+    }
+
+    public int lastCloneIndex(String baseName) {
+        return lastCloneIndices.getOrDefault(baseName, 0);
+    }
 
     /**
      * Registers a clone name under a base variable name.
@@ -58,5 +72,6 @@ public class CloneRegistry {
      */
     public void clear() {
         clonesByBase.clear();
+        lastCloneIndices.clear();
     }
 }

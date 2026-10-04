@@ -168,19 +168,26 @@ public sealed interface Variable extends EngineVariable permits
                 int count = Math.max(0, amount);
                 if (count > 0) {
                     String baseName = self.name();
-                    int existing = ctx.clones().getCloneNames(baseName).size();
+                    Context owner = ctx.owningContext(self);
                     for (int i = 0; i < count; i++) {
-                        String cloneName = baseName + "_" + (existing + i + 1);
+                        String cloneName = baseName + "_" + owner.clones().nextCloneIndex(baseName);
                         Variable clone = self.copyAs(cloneName);
-                        ctx.setVariable(cloneName, clone);
+                        owner.setVariable(cloneName, clone);
                         if (clone instanceof AnimoVariable animo && ctx.getGame() != null) {
                             // CAnimationManager::add creates the timing slot at
                             // registration, not at the next manager pass.
                             animo.registerAnimationClock(ctx.getGame().getEngineTimeMs());
                         }
-                        ctx.clones().registerClone(baseName, cloneName);
+                        owner.clones().registerClone(baseName, cloneName);
                     }
                 }
+                return MethodResult.noReturn();
+            })),
+
+            Map.entry("RESETCLONES", MethodSpec.of((self, args, ctx) -> {
+                // CMC_Object::resetClones (Piklib8 0x10085b80) only zeroes
+                // the counter. Existing clones are removed by SCENE.REMOVECLONES.
+                ctx.owningContext(self).clones().resetCloneIndex(self.name());
                 return MethodResult.noReturn();
             })),
 

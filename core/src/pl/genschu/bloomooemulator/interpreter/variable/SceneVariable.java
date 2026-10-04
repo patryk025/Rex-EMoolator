@@ -170,21 +170,22 @@ public record SceneVariable(
             int firstId = ArgumentHelper.getInt(args.get(1));
             int lastId = ArgumentHelper.getInt(args.get(2));
 
-            List<String> cloneNames = ctx.clones().getCloneNames(varName);
+            Context owner = ctx.owningContext(ctx.getVariable(varName));
+            List<String> cloneNames = owner.clones().getCloneNames(varName);
             if (cloneNames.isEmpty()) {
                 return MethodResult.noReturn();
             }
 
             int from = Math.max(firstId, 1);
-            int to = lastId < 0 ? cloneNames.size() : Math.min(lastId, cloneNames.size());
+            int to = lastId < 0 ? owner.clones().lastCloneIndex(varName) : lastId;
 
             for (int i = from; i <= to; i++) {
                 String cloneName = varName + "_" + i;
-                if (ctx.getVariable(cloneName) == null) {
+                if (!owner.store().has(cloneName)) {
                     continue;
                 }
-                ctx.removeVariable(cloneName);
-                ctx.clones().removeClone(varName, cloneName);
+                owner.removeVariable(cloneName);
+                owner.clones().removeClone(varName, cloneName);
             }
             return MethodResult.noReturn();
         })),
@@ -231,7 +232,8 @@ public record SceneVariable(
             int lastId = ArgumentHelper.getInt(args.get(2));
             String behaviourName = ArgumentHelper.getString(args.get(3));
 
-            List<String> cloneNames = ctx.clones().getCloneNames(varName);
+            Context owner = ctx.owningContext(ctx.getVariable(varName));
+            List<String> cloneNames = owner.clones().getCloneNames(varName);
             if (cloneNames.isEmpty()) {
                 return MethodResult.noReturn();
             }
@@ -242,11 +244,11 @@ public record SceneVariable(
             }
 
             int from = Math.max(firstId, 1);
-            int to = lastId < 0 ? cloneNames.size() : Math.min(lastId, cloneNames.size());
+            int to = lastId < 0 ? owner.clones().lastCloneIndex(varName) : lastId;
 
             for (int i = from; i <= to; i++) {
                 String cloneName = varName + "_" + i;
-                Variable clone = ctx.getVariable(cloneName);
+                Variable clone = owner.store().get(cloneName);
                 if (clone == null) {
                     continue;
                 }
