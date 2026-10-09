@@ -11,6 +11,7 @@ import pl.genschu.bloomooemulator.utils.CollisionChecker;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Set;
@@ -184,6 +185,10 @@ public class UpdateManager implements Disposable {
             GameContext context = game.getCurrentSceneContext();
             List<? extends EngineVariable> graphicsVariables =
                     new ArrayList<>(context.getGraphicsVariablesForScheduling());
+            // Slots are visited in the order their CAnimo was created, not in CNV
+            // order: an ANIMO that loaded another file sits behind objects declared
+            // after it.
+            graphicsVariables.sort(Comparator.comparingLong(AnimationManager::animationSlot));
             List<ScheduledAnimo> dueAnimations = new ArrayList<>();
             Set<AnimoVariable.AnimoPlaybackState> seen =
                     Collections.newSetFromMap(new IdentityHashMap<>());
@@ -261,6 +266,11 @@ public class UpdateManager implements Disposable {
                     .filter(candidate -> candidate.state() == scheduled.state())
                     .findFirst()
                     .orElse(null);
+        }
+
+        private static long animationSlot(EngineVariable variable) {
+            // KOLOROWANKA ticks in its own phase, so its place in this order is irrelevant.
+            return variable instanceof AnimoVariable animo ? animo.getAnimationSlot() : Long.MAX_VALUE;
         }
 
         private record ScheduledAnimo(

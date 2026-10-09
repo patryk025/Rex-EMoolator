@@ -47,6 +47,15 @@ On each update step the engine checks whether at least `framePeriodMs` has elaps
 !!! tip "Behaviour matching the original (`CAnimationManager::domodal`)"
     The classes `CAnimationManager` and `CAnimo`/`CAnimo6` and their `domodal` methods exist in `bloomoodll.dll` (confirmed by decompilation) — the description below mirrors their behaviour. [`PLAY`](../reference/ANIMO.md#play) **does not reset the animation clock**. So a "cold start" (first playback) ticks immediately, while a `PLAY` issued right after the previous one waits out the current frame window. At most one frame advances per update step — the animation never "skips" several frames at once, even if the render frame took a long time.
 
+### Order of animations within one pass
+
+`CAnimationManager::domodal` works in two phases: first, with a single `GetTickCount` reading, it selects every animation whose frame time has elapsed, and only then advances them one by one. Callbacks run in the second phase (e.g. `ONFRAMECHANGED` of a timer animation) can therefore change the event of an animation further down the list. That animation still advances in the same pass, already in its new event.
+
+The list order does not come from the CNV file. The manager keeps animations in a `CXArray`, and `CAnimationManager::add` appends them when a `CAnimo` object is created. That happens when the script object is created, on `CLONE` and on [`LOAD`](../reference/ANIMO.md#load) of **another** file. `CMC_Animo::load` then destroys the old `CAnimo` and creates a new one, so the animation moves to the end of the list and starts timing its frame from the moment of `LOAD`. `LOAD` of the same file (case-insensitive) does not create a new object.
+
+!!! example "Reksio after entering an ARCADE scene (RiC, GABINETDYR)"
+    `ANNREX` is declared before the `STL0` timer, but the script calls `ANNREX^LOAD("REX25.ANN")`, so in the manager it sits behind it. When both are due in one pass, the `STL0` callback switches Reksio to the two-frame `IDLE_0` (frame 0 is still mid-step), and right after that the `ANNREX` slot advances it to frame 1, where Reksio is already standing. On the next tick the script calls `STOP` and Reksio stays in the standing pose. With the CNV order, `STOP` would freeze him mid-step.
+
 ## Playback state machine
 
 After computing the next frame, the engine decides whether to loop, bounce, move to the next event, or finish:

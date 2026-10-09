@@ -512,6 +512,8 @@ void LOAD(STRING path)
 
 Wczytuje animację z pliku `.ANN`, zastępując dotychczasową zawartość.
 
+Wczytanie **innego** pliku (porównanie bez rozróżniania wielkości liter) tworzy w oryginale nowy obiekt `CAnimo`. Animacja trafia wtedy na koniec listy menedżera animacji i zaczyna odliczać czas klatki od nowa, co zmienia kolejność jej przesuwania względem innych animacji ([kolejność animacji w jednym przebiegu](../internals/animation.md#kolejnosc-animacji-w-jednym-przebiegu)).
+
 **Parametry**
 
 - `path` — ścieżka pliku `.ANN` w VFS gry.

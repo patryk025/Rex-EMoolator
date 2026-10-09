@@ -1,10 +1,13 @@
 package pl.genschu.bloomooemulator.tests;
 
+import com.badlogic.gdx.Gdx;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 import pl.genschu.bloomooemulator.TestEnvironment;
 import pl.genschu.bloomooemulator.builders.MethodHelper;
 import pl.genschu.bloomooemulator.engine.Game;
+import pl.genschu.bloomooemulator.engine.filesystem.LocalFileSystem;
 import pl.genschu.bloomooemulator.engine.time.LegacyClock;
 import pl.genschu.bloomooemulator.engine.update.UpdateManager;
 import pl.genschu.bloomooemulator.interpreter.context.Context;
@@ -13,13 +16,18 @@ import pl.genschu.bloomooemulator.interpreter.variable.AnimoVariable;
 import pl.genschu.bloomooemulator.interpreter.variable.KolorowankaVariable;
 import pl.genschu.bloomooemulator.interpreter.variable.SignalHandler;
 import pl.genschu.bloomooemulator.interpreter.variable.TimerVariable;
+import pl.genschu.bloomooemulator.interpreter.variable.Variable;
+import pl.genschu.bloomooemulator.interpreter.values.BoolValue;
 import pl.genschu.bloomooemulator.interpreter.values.StringValue;
 import pl.genschu.bloomooemulator.objects.Event;
 import pl.genschu.bloomooemulator.objects.FrameData;
 import pl.genschu.bloomooemulator.objects.Image;
 import pl.genschu.bloomooemulator.loader.PtrLoader;
 
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -27,6 +35,7 @@ import java.util.concurrent.atomic.AtomicLong;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 
 class SchedulerIdentityRegressionTest {
@@ -302,6 +311,100 @@ class SchedulerIdentityRegressionTest {
         assertEquals(1, first.getCurrentFrameNumber());
         assertEquals(0, later.getCurrentFrameNumber(),
                 "callback time cannot make an object due after the manager-wide scan");
+    }
+
+    @Test
+    void slotOfAnAnimoThatLoadedAnotherFileRunsAfterLaterDeclaredAnimos() {
+        // ARCADE in RiC declares ANNREX before the STL0 tick, but ANNREX^LOAD("REX25.ANN")
+        // recreates its CAnimo. STL0's callback switches it to the two-frame IDLE_0 and
+        // ANNREX's own slot then moves it to the standing frame in the same pass.
+        AnimoVariable rex = runRexAndTickPass(true);
+
+        assertEquals("IDLE_0", rex.getCurrentEvent().getName());
+        assertEquals(1, rex.getCurrentFrameNumber());
+    }
+
+    @Test
+    void slotsKeepCreationOrderWithoutLoad() {
+        AnimoVariable rex = runRexAndTickPass(false);
+
+        assertEquals("IDLE_0", rex.getCurrentEvent().getName());
+        assertEquals(0, rex.getCurrentFrameNumber(),
+                "an earlier slot advances before a later slot's callback restarts it");
+    }
+
+    @Test
+    void loadOfAnotherFileReregistersTheSlotButTheSameFileDoesNot(@TempDir Path tempDir) throws Exception {
+        Path assets = Files.createDirectories(tempDir.resolve("DANE"));
+        Files.copy(Gdx.files.internal("../assets/test-assets/MLYNEK.ANN").file().toPath(),
+                assets.resolve("NEXT.ANN"));
+        AtomicLong now = new AtomicLong(40L);
+        Game game = new Game(null, null, now::get);
+        game.setLanguage("POL");
+        game.getVfs().mountAssets(new LocalFileSystem(tempDir.toFile()));
+        Context scene = context(null);
+        scene.setGame(game);
+        game.setCurrentSceneContext(scene);
+
+        AnimoVariable loaded = new AnimoVariable("LOADED");
+        loaded.registerAnimationClock(0L);
+        AnimoVariable later = new AnimoVariable("LATER");
+        scene.setVariable("LOADED", loaded);
+        scene.setVariable("LATER", later);
+
+        MethodHelper.callWithContext(scene, "LOADED", "LOAD", new StringValue("NEXT.ANN"));
+        AnimoVariable afterLoad = (AnimoVariable) scene.getVariable("LOADED");
+        long slot = afterLoad.getAnimationSlot();
+        assertTrue(slot > later.getAnimationSlot());
+        assertEquals(40L, afterLoad.state().lastTickAtMs);
+
+        now.set(90L);
+        MethodHelper.callWithContext(scene, "LOADED", "LOAD", new StringValue("next.ann"));
+        AnimoVariable afterReload = (AnimoVariable) scene.getVariable("LOADED");
+        assertEquals(slot, afterReload.getAnimationSlot());
+        assertEquals(40L, afterReload.state().lastTickAtMs);
+    }
+
+    private static AnimoVariable runRexAndTickPass(boolean rexLoadedAnotherFile) {
+        Context scene = context(null);
+        AnimoVariable rex = new AnimoVariable("REX").withData(new AnimoVariable.AnimoData(
+                List.of(event("0", 8), event("IDLE_0", 2)), List.of(mock(Image.class)), 1, 2,
+                16, 15, 255, 0, 0, "", ""));
+        rex.registerAnimationClock(0L);
+        AnimoVariable tick = playingAnimo("TICK");
+        if (rexLoadedAnotherFile) {
+            rex.reregisterAnimationSlot(0L);
+        }
+        rex.callMethod("PLAY", new StringValue("0"));
+        tick = (AnimoVariable) tick.withSignal("ONFRAMECHANGED", (variable, signal, args) -> {
+            Variable current = scene.getVariable("REX");
+            current.callMethod("STOP", new BoolValue(false));
+            current.callMethod("PLAY", new StringValue("IDLE_0"));
+        });
+        scene.setVariable("REX", rex);
+        scene.setVariable("TICK", tick);
+
+        LegacyClock clock = () -> 100L;
+        Game game = new Game(null, null, clock);
+        game.setCurrentSceneContext(scene);
+
+        new UpdateManager.AnimationManager(game).updateAnimations(clock);
+        return (AnimoVariable) scene.getVariable("REX");
+    }
+
+    private static Event event(String name, int frames) {
+        Image image = mock(Image.class);
+        Event event = new Event();
+        event.setName(name);
+        event.setFramesCount(frames);
+        event.setFramesNumbers(Collections.nCopies(frames, 0));
+        event.setFrames(Collections.nCopies(frames, image));
+        List<FrameData> frameData = new ArrayList<>();
+        for (int i = 0; i < frames; i++) {
+            frameData.add(new FrameData());
+        }
+        event.setFrameData(frameData);
+        return event;
     }
 
     private static Context context(Context parent) {

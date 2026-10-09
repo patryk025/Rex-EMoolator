@@ -47,6 +47,15 @@ Co krok aktualizacji silnik sprawdza, czy od ostatniej zmiany klatki minęło co
 !!! tip "Zachowanie zgodne z oryginałem (`CAnimationManager::domodal`)"
     Klasy `CAnimationManager` oraz `CAnimo`/`CAnimo6` i ich metody `domodal` istnieją w `bloomoodll.dll` (potwierdzone dekompilacją) — poniższy opis odwzorowuje ich zachowanie. [`PLAY`](../reference/ANIMO.md#play) **nie zeruje zegara animacji**. Dzięki temu „zimny start" (pierwsze odtworzenie) tyka natychmiast, a `PLAY` wywołane tuż po poprzednim odczekuje do końca bieżącego okna klatki. Na jeden krok silnika przypada najwyżej jedno przejście klatki — animacja nigdy nie „przeskakuje" kilku klatek naraz, nawet jeśli klatka renderowania trwała długo.
 
+### Kolejność animacji w jednym przebiegu
+
+`CAnimationManager::domodal` działa w dwóch fazach: najpierw jednym odczytem `GetTickCount` wybiera wszystkie animacje, którym minął czas klatki, a dopiero potem po kolei przesuwa je o klatkę. Callbacki wywołane w drugiej fazie (np. `ONFRAMECHANGED` animacji-zegara) mogą więc zmienić zdarzenie animacji, która jest dalej na liście. Ta animacja i tak przesunie się w tym samym przebiegu, już w nowym zdarzeniu.
+
+Kolejność listy nie wynika z kolejności w pliku CNV. Menedżer trzyma animacje w `CXArray`, a `CAnimationManager::add` dopisuje je na koniec przy tworzeniu obiektu `CAnimo`. Dzieje się to przy tworzeniu obiektu ze skryptu, przy `CLONE` i przy [`LOAD`](../reference/ANIMO.md#load) **innego** pliku. `CMC_Animo::load` niszczy wtedy stary `CAnimo` i tworzy nowy, więc animacja trafia na koniec listy i zaczyna odliczać czas klatki od chwili `LOAD`. `LOAD` tego samego pliku (wielkość liter nie ma znaczenia) nie tworzy nowego obiektu.
+
+!!! example "Reksio po wejściu do sceny ARCADE (RiC, GABINETDYR)"
+    `ANNREX` jest zadeklarowany przed zegarem `STL0`, ale skrypt robi `ANNREX^LOAD("REX25.ANN")`, więc w menedżerze stoi za nim. Gdy w jednym przebiegu przychodzi czas na oba, callback `STL0` przełącza Reksia na dwuklatkowe `IDLE_0` (klatka 0 to jeszcze krok), a zaraz potem slot `ANNREX` przesuwa je na klatkę 1, w której Reksio już stoi. W następnym ticku skrypt robi `STOP` i Reksio zostaje w pozie stojącej. Przy kolejności z CNV `STOP` zatrzymałby go w pół kroku.
+
 ## Maszyna stanów odtwarzania
 
 Po wyznaczeniu kolejnej klatki silnik decyduje, czy zapętlić, odbić, przejść do następnego zdarzenia, czy zakończyć:

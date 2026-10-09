@@ -13,6 +13,7 @@ import pl.genschu.bloomooemulator.engine.decision.states.ButtonState;
 import pl.genschu.bloomooemulator.engine.filters.Filter;
 import pl.genschu.bloomooemulator.engine.render.RenderOrder;
 import pl.genschu.bloomooemulator.engine.time.LegacyClock;
+import pl.genschu.bloomooemulator.engine.update.AnimationSlotOrder;
 import pl.genschu.bloomooemulator.geometry.coordinates.CanvasRect;
 import pl.genschu.bloomooemulator.interpreter.context.Context;
 import pl.genschu.bloomooemulator.interpreter.helpers.ArgumentHelper;
@@ -65,6 +66,8 @@ public record AnimoVariable(
         // Engine time (ms) of the last frame tick; -1 = never ticked.
         // it is refreshed only when a tick actually fires and is NOT reset by PLAY.
         public long lastTickAtMs = -1L;
+        // Position of this object's CAnimationManager slot (see AnimationSlotOrder).
+        public long animationSlot = AnimationSlotOrder.next();
         public int direction = 1;
 
         // Geometry
@@ -111,6 +114,7 @@ public record AnimoVariable(
             copy.currentImageNumber = this.currentImageNumber;
             copy.currentImage = this.currentImage;
             copy.lastTickAtMs = this.lastTickAtMs;
+            copy.animationSlot = AnimationSlotOrder.next();
             copy.direction = this.direction;
             copy.posX = this.posX;
             copy.posY = this.posY;
@@ -911,6 +915,20 @@ public record AnimoVariable(
         if (state.lastTickAtMs < 0L) {
             state.lastTickAtMs = engineTimeMs;
         }
+    }
+
+    /**
+     * Gives the animation a new CAnimationManager slot, as when the original
+     * replaces its CAnimo: the slot goes to the end of the manager's list and
+     * starts timing from now.
+     */
+    public void reregisterAnimationSlot(long engineTimeMs) {
+        state.animationSlot = AnimationSlotOrder.next();
+        state.lastTickAtMs = engineTimeMs;
+    }
+
+    public long getAnimationSlot() {
+        return state.animationSlot;
     }
 
     /**
@@ -1723,11 +1741,18 @@ public record AnimoVariable(
                 throw new IllegalArgumentException("LOAD requires 1 argument");
             }
             String filename = normalizeFilename(ArgumentHelper.getString(args.get(0)));
+            // CMC_Animo::load compares the name with the current file (ignoring case) and
+            // only for another file destroys its CAnimo and creates a new one, which
+            // CAnimationManager::add appends at the end with a fresh timestamp.
+            boolean anotherFile = !filename.equalsIgnoreCase(thisVar.state.filename);
             thisVar.state.filename = filename;
 
             Game game = ctx != null ? ctx.getGame() : null;
             if (game == null) {
                 return MethodResult.noReturn();
+            }
+            if (anotherFile) {
+                thisVar.reregisterAnimationSlot(game.getEngineTimeMs());
             }
 
             String vfsPath = FileUtils.resolveVfsPath(game, filename);

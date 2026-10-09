@@ -512,6 +512,8 @@ void LOAD(STRING path)
 
 Loads an animation from an `.ANN` file, replacing the previous contents.
 
+Loading **another** file (compared case-insensitively) makes the original create a new `CAnimo` object. The animation then moves to the end of the animation manager's list and restarts its frame timing, which changes when it advances relative to other animations ([order of animations within one pass](../internals/animation.md#order-of-animations-within-one-pass)).
+
 **Parameters**
 
 - `path` — `.ANN` file path in the game's VFS.
