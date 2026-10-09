@@ -142,20 +142,27 @@ Both names are aliases for the regular [`ADDFORCE`](#addforce) form. They do not
 ### FINDPATH
 
 ```
-void FINDPATH(INTEGER objectId, INTEGER pointObjectId,
-              INTEGER targetX, INTEGER targetY, INTEGER targetZ,
-              BOOL saveIntermediates, [BOOL flag])
+void FINDPATH(INTEGER objectId, INTEGER pathObjectId,
+              DOUBLE targetX, DOUBLE targetY, DOUBLE targetZ,
+              [BOOL appendTarget], [BOOL viewportTarget])
 ```
 
-Computes a path for an object from its current position to a target point using the navigation graph loaded from the `.SEK` file. The result is cached by the physics engine and used by subsequent [`FOLLOWPATH`](#followpath) calls.
+Plans a route for an object from its current position to a target point over the route-point graph loaded from the `.SEK` file. The route is stored in the object and consumed by subsequent [`FOLLOWPATH`](#followpath) calls.
+
+The route starts and ends at the **nearest active nodes** of the graph (see [`SETACTIVE`](#setactive)); an inactive node is never chosen as the goal and cannot be passed through. Outcomes:
+
+- both points map to the same node — the route is empty and the object reports `ATGOAL` on the next [`MOVEOBJECTS`](#moveobjects),
+- the goal node is adjacent to the start node — the route holds the goal node only,
+- otherwise the route runs through the successive nodes, the start node included,
+- there is no route (or the `pathObjectId` graph does not exist) — the object reports `NOPATH`.
 
 **Parameters**
 
-- `objectId` — identifier of the body to navigate.
-- `pointObjectId` — identifier of the navigation anchor point.
-- `targetX`, `targetY`, `targetZ` — target coordinates.
-- `saveIntermediates` — if `TRUE`, intermediate path points are kept.
-- `flag` — (optional) configuration flag (meaning unknown).
+- `objectId` — identifier of the object to navigate.
+- `pathObjectId` — identifier of the route-point graph from the `.SEK` file.
+- `targetX`, `targetY`, `targetZ` — target point.
+- `appendTarget` — (default `TRUE`) whether to append the exact target after the last node. With `FALSE` the object finishes at the node nearest to the target. When no route exists, the target alone is still put on the route and the object heads straight for it.
+- `viewportTarget` — (default `TRUE`) whether the target is given in viewport coordinates, i.e. including the current camera scroll (e.g. the cursor position). With `FALSE` the target lies on the fixed 800×600 canvas and the scroll is not added — scripts then add the background offset themselves.
 
 **Examples**
 
@@ -172,16 +179,21 @@ WPATH^FINDPATH(101,VARIPATHID,VARIKRETGOX,VARIKRETGOY,0,FALSE);
 DOUBLE FOLLOWPATH(INTEGER objectId, INTEGER arrivalRadius, DOUBLE turnClamp, DOUBLE speed)
 ```
 
-Advances the body along the path previously computed by [`FINDPATH`](#findpath). Returns the remaining distance to the goal.
+Steers the object towards the current point of the route planned by [`FINDPATH`](#findpath): it blends the current heading with the direction to the point and sets the velocity to `speed`. Points closer than `arrivalRadius` are removed from the route.
+
+Once the last point is removed the object reports `ATGOAL`, but it is **not stopped** — it keeps coasting until friction (`friction` in `entityDef`) brings it to rest. With an empty route the method does nothing and returns `0`.
+
+!!! note "A point exactly on the radius"
+    The object steers only when the point is **farther** than `arrivalRadius`, and a point is removed only when it is **closer**. A resting object with a point exactly `arrivalRadius` away never starts — which is why scripts nudge the start position by a fraction of a pixel.
 
 **Parameters**
 
-- `objectId` — body identifier.
-- `arrivalRadius` — radius within which the body is considered to have arrived.
-- `turnClamp` — per-step turn limit.
+- `objectId` — object identifier.
+- `arrivalRadius` — radius within which a route point counts as reached.
+- `turnClamp` — share of the direction to the point in the new heading (`0.5` — half and half with the current one).
 - `speed` — movement speed.
 
-**Returns**: [`DOUBLE`](DOUBLE.md) — remaining distance.
+**Returns**: [`DOUBLE`](DOUBLE.md) — distance to the route point checked last.
 
 **Examples**
 
@@ -195,16 +207,18 @@ WPATH^FOLLOWPATH(101,20,0.5,VARD_KRETSPEED);
 ### GETANGLE
 
 ```
-DOUBLE GETANGLE(INTEGER objectId)
+INTEGER GETANGLE(INTEGER objectId)
 ```
 
-Returns the angle derived from the body's velocity vector (in degrees).
+Returns the direction of the object's velocity vector in degrees, in the range `0`–`360` (`0` — right, `90` — up the screen), truncated to an integer.
+
+The angle is taken from the current velocity even when the object is at rest. Friction stops an object by scaling its velocity to zero while keeping the signs of the components, so after a stop the method returns `0` (the object was moving right) or `179`–`180` (it was moving left) — the vertical part of the heading is lost. An object that has not moved yet gives `0`.
 
 **Parameters**
 
-- `objectId` — body identifier.
+- `objectId` — object identifier.
 
-**Returns**: [`DOUBLE`](DOUBLE.md) — angle in degrees.
+**Returns**: [`INTEGER`](INTEGER.md) — angle in degrees.
 
 **Compatibility:** `GETANGLE` - type from a dynamically loaded library, outside the scope of the current `compat.json` export.
 
@@ -453,19 +467,31 @@ WTEST^REMOVEOBJECT(60);
 
 ```
 void SETACTIVE(INTEGER objectId, BOOL active, [BOOL monitorCollisions])
+void SETACTIVE(INTEGER pathObjectId, INTEGER tag, BOOL active)
 ```
 
-Sets the body's active state and, separately, collision reporting through [`GETCOLLISION`](#getcollision). The second flag does not disable physical contacts; it disables their reporting to the script. When omitted, it defaults to `active`.
+The method has two meanings, told apart by the **type of the second argument**.
+
+**Physics object** (second argument of type `BOOL`): sets the object's active state and, separately, collision reporting through [`GETCOLLISION`](#getcollision). The second flag does not disable physical contacts; it disables their reporting to the script. When omitted, it defaults to `TRUE`.
+
+**Route graph** (three arguments, the second of type `INTEGER`): enables or disables every route point of the graph `pathObjectId` that carries `tag` (the fourth value of a point in the [`.SEK`](../formats/SEK.md) file). Disabled points are skipped by [`FINDPATH`](#findpath) — this is how scenes cut off parts of their routes, e.g. the way down into a pond while it holds water.
 
 **Parameters**
 
-- `objectId` — body identifier.
-- `active` — whether the body participates in the simulation.
+- `objectId` — object identifier.
+- `active` — whether the object participates in the simulation (or whether the route points are available).
 - `monitorCollisions` — whether collisions are recorded and reported to the script.
+- `pathObjectId` — identifier of the route-point graph.
+- `tag` — tag of the point group.
+
+!!! warning "Reksio i Czarodzieje"
+    In this game the handler of the three-argument form lacks a return, so every such call is followed by `SETACTIVE(objectId, TRUE, TRUE)`. For a route graph this has no effect; a three-argument call on a physics object always ends up enabling it. Later builds of the library fix this.
 
 **Examples**
 
 ```
+WPATH^SETACTIVE(101,FALSE);
+WPATH^SETACTIVE(9000,10,FALSE);
 WPATH^SETACTIVE(VARI_3DPATHID,$1,$2);
 ```
 

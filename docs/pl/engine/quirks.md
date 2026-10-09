@@ -73,9 +73,18 @@ Brak pustej linii na końcu pliku `Application.def` może spowodować, że ostat
 
 W notacji wykładniczej zarówno `e`, jak i `d` są rozpoznawane jako separator wykładnika: `1.23e4` i `1.23d4` są równoważne.
 
-### `DOUBLE → INTEGER` zaokrągla, a nie obcina
+### `DOUBLE → INTEGER` zależy od wersji silnika {#double-integer-zalezy-od-wersji-silnika}
 
-Przy rzutowaniu [`DOUBLE`](../reference/DOUBLE.md) na [`INTEGER`](../reference/INTEGER.md) liczba jest zaokrąglana do najbliższej liczby całkowitej, a nie obcinana. Dla wartości dodatnich `.5` zaokrąglane jest w górę, dla ujemnych — w dół, więc `-0.5 → -1`, a `0.5 → 1`.
+Rzutowanie [`DOUBLE`](../reference/DOUBLE.md) na [`INTEGER`](../reference/INTEGER.md) działa inaczej w starszych i nowszych silnikach:
+
+| Silnik | Zachowanie | `0.5` | `-0.5` | `2.5` | `7.99` |
+|---|---|---|---|---|---|
+| Piklib (wszystkie wersje) oraz BlooMoo z „Reksia i Wehikułu Czasu” | obcięcie części ułamkowej | `0` | `0` | `2` | `7` |
+| BlooMoo od „Reksia i Kapitana Nemo” | zaokrąglenie; `.5` oddala od zera | `1` | `-1` | `3` | `8` |
+
+Nowsze BlooMoo dostało osobną funkcję zaokrąglającą; wcześniej konwersja była zwykłym rzutowaniem. Dotyczy to każdego miejsca, w którym silnik zamienia `DOUBLE` na `INTEGER`: argumentów metod, prawego operandu w wyrażeniach i [`SET`](../reference/INTEGER.md#set).
+
+Skrypty starszych gier na tym polegają — np. indeks kierunku postaci liczony jako `(kąt + 22.5) / 45` ma sens tylko przy obcinaniu.
 
 ### `STRING → INTEGER` zwraca `0` zamiast błędu
 

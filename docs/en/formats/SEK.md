@@ -58,10 +58,12 @@ After the common header:
 |---|---|---|
 | point count | `int32` | |
 | path count | `int32` | |
-| points | — | one each: `float × 3` (X/Y/Z) + `4 B` padding |
-| paths | — | one each: `int32` first point, `int32` second point, `int32` unknown (always `3` in tests) |
+| points | — | one each: `float × 3` (X/Y/Z) + `int32` group tag |
+| paths | — | one each: `int32` first point, `int32` second point, `int32` directions: bit `2` — from the first to the second, bit `1` — from the second to the first (`3` — both ways) |
 
-A graph is built from the points and paths, on which route-finding ([A*](../reference/WORLD.md)) operates.
+A graph is built from the points and paths, on which route-finding ([`FINDPATH`](../reference/WORLD.md#findpath)) operates. The cost of a path is the distance between its points.
+
+The group tag (usually `0`) lets a script switch whole groups of points on and off with [`SETACTIVE(graphId, tag, BOOL)`](../reference/WORLD.md#setactive). All points are active after loading.
 
 ## See also
 

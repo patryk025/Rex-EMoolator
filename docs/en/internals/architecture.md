@@ -170,6 +170,25 @@ Loading starts from `Application.def` in the `DANE` directory, then loads the `.
 !!! note "GameLoader is currently an empty stub"
     Despite its name, the loading logic lives in `Game` (`scanGameDirectory`, `CNVParser`), not in the `loader/GameLoader` class. That's a spot for a future refactor, not a separate subsystem.
 
+## Compatibility profile
+
+The original engines do not all behave alike: Piklib 6.1, 7.1, 7.2 and 8 and the successive BlooMoo builds differ in, among other things, number casts, array storage and the order of the frame phases, and some games additionally ship their own versions of the physics libraries. The emulator keeps these differences in one place — the `engine/compatibility` package.
+
+| Class | Role |
+|---|---|
+| `EngineVariant` | the engine's **identity**, taken from the DLL name (`PIKLIB_7_1`, `PIKLIB_8`, `BLOOMOO`, …); it says nothing about behaviour by itself |
+| `EngineBehaviour` | a record of every **behaviour** that differs between builds — each as a named field (`doubleToInteger`, `doubleToString`, `archiveDouble`, `frameOrder`, …) |
+| `BehaviourTable` | the only **table** that assigns behaviours: defaults for each engine variant and corrections for games whose libraries deviate from them |
+| `CompatibilityProfile` | the profile of the running game: variant, game family and the `EngineBehaviour` resolved from them once |
+| `Compatibility` | the current game's profile, available to value conversions that have no call context |
+
+A behaviour is resolved in two steps. The engine variant gives the defaults — all that is known from the DLL file name. The game family then overrides only what its libraries do differently:
+
+- "Reksio i Wehikuł Czasu" ships the first BlooMoo, which still converts numbers like Piklib (truncating `DOUBLE → INTEGER`, scale `1000` in arrays, Piklib's `DOUBLE` to text formatting) but already has the new window loop;
+- "Reksio i Czarodzieje" ships older `World.dll` and `Sekai.dll` (no physics substeps, `SETACTIVE` falling through to the default call).
+
+Engine code only asks `profile.behaviour()` and never tests the variant or the game. A newly found difference becomes a new field in `EngineBehaviour` and a row in `BehaviourTable`, not a condition at the point of use.
+
 ## Related topics
 
 - [Game loop and engine clock](loop.md) — frame dynamics.

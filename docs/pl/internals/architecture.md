@@ -170,6 +170,25 @@ flowchart LR
 !!! note "GameLoader to dziś pusty stub"
     Mimo nazwy, logika ładowania mieszka w `Game` (`scanGameDirectory`, `CNVParser`), a nie w klasie `loader/GameLoader`. To miejsce na przyszły refaktor, nie osobny podsystem.
 
+## Profil kompatybilności
+
+Oryginalne silniki nie zachowują się jednakowo: Piklib 6.1, 7.1, 7.2 i 8 oraz kolejne BlooMoo różnią się m.in. rzutowaniem liczb, zapisem tablic i kolejnością faz klatki, a część gier ma dodatkowo własne wersje bibliotek fizyki. Emulator trzyma te różnice w jednym miejscu — w pakiecie `engine/compatibility`.
+
+| Klasa | Rola |
+|---|---|
+| `EngineVariant` | **tożsamość** silnika, ustalana z nazwy DLL (`PIKLIB_7_1`, `PIKLIB_8`, `BLOOMOO`, …); sama nie mówi nic o zachowaniu |
+| `EngineBehaviour` | rekord wszystkich **zachowań**, które różnią się między wersjami — każde jako nazwane pole (`doubleToInteger`, `doubleToString`, `archiveDouble`, `frameOrder`, …) |
+| `BehaviourTable` | jedyna **tabela** przypisująca zachowania: wartości domyślne dla każdego wariantu silnika i poprawki dla gier, których biblioteki od nich odbiegają |
+| `CompatibilityProfile` | profil uruchomionej gry: wariant, rodzina gry i wyliczony z nich raz `EngineBehaviour` |
+| `Compatibility` | profil bieżącej gry dostępny dla konwersji wartości, które nie mają kontekstu wywołania |
+
+Zachowanie ustalane jest w dwóch krokach. Wariant silnika daje wartości domyślne — to wszystko, co wiadomo z nazwy pliku DLL. Potem rodzina gry nadpisuje tylko to, co w jej bibliotekach jest inne:
+
+- „Reksio i Wehikuł Czasu” ma pierwsze BlooMoo, które liczby przelicza jeszcze jak Piklib (obcinanie `DOUBLE → INTEGER`, skala `1000` w tablicach, piklibowy zapis `DOUBLE` jako tekstu), ale pętlę okna ma już nową;
+- „Reksio i Czarodzieje” ma starsze `World.dll` i `Sekai.dll` (brak podkroków fizyki, `SETACTIVE` z przelotem do domyślnego wywołania).
+
+Kod silnika pyta wyłącznie `profile.behaviour()` i nigdy nie sprawdza wariantu ani nazwy gry. Nowo odkryta różnica to nowe pole w `EngineBehaviour` i wiersz w `BehaviourTable`, a nie warunek w miejscu użycia.
+
 ## Powiązane tematy
 
 - [Pętla i zegar silnika](loop.md) — dynamika klatki.

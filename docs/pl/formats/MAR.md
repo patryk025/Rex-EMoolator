@@ -32,9 +32,10 @@ Kodowanie wartości jest wspólne z [`ARR`](ARR.md):
 | `1` | `INTEGER` | `int32` |
 | `2` | `STRING` | `int32` długość i dokładnie tyle bajtów tekstu; bez terminatora `NUL` |
 | `3` | `BOOL` | `int32`; `TRUE`, gdy wartość jest niezerowa |
-| `4` | `DOUBLE` | stałoprzecinkowy `int32`, dzielony przez skalę silnika |
+| `4` | `DOUBLE` | zależnie od silnika: stałoprzecinkowy `int32` albo surowe 8 bajtów ([szczegóły](ARR.md#zapis-double)) |
 
-BlooMoo używa skali `10000`, a Piklib 8 skali `1000`. `ARRAY` i
+BlooMoo od „Reksia i Kapitana Nemo” używa skali `10000`, a Piklib 8 oraz BlooMoo
+z „Reksia i Wehikułu Czasu” skali `1000`. `ARRAY` i
 `MULTIARRAY` korzystają w oryginalnych silnikach z tych samych metod
 zapisu i odczytu zmiennych.
 

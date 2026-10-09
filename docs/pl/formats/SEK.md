@@ -58,10 +58,12 @@ Po wspólnym nagłówku:
 |---|---|---|
 | liczba punktów | `int32` | |
 | liczba ścieżek | `int32` | |
-| punkty | — | po jednym: `float × 3` (X/Y/Z) + `4 B` padding |
-| ścieżki | — | po jednej: `int32` pierwszy punkt, `int32` drugi punkt, `int32` nieznane (w testach zawsze `3`) |
+| punkty | — | po jednym: `float × 3` (X/Y/Z) + `int32` znacznik grupy |
+| ścieżki | — | po jednej: `int32` pierwszy punkt, `int32` drugi punkt, `int32` kierunki: bit `2` — z pierwszego do drugiego, bit `1` — z drugiego do pierwszego (`3` — w obie strony) |
 
-Z punktów i ścieżek budowany jest graf, na którym działa wyznaczanie tras ([A*](../reference/WORLD.md)).
+Z punktów i ścieżek budowany jest graf, na którym działa wyznaczanie tras ([`FINDPATH`](../reference/WORLD.md#findpath)). Kosztem ścieżki jest odległość między jej punktami.
+
+Znacznik grupy (zwykle `0`) pozwala skryptowi włączać i wyłączać całe grupy punktów wywołaniem [`SETACTIVE(idGrafu, znacznik, BOOL)`](../reference/WORLD.md#setactive). Po załadowaniu wszystkie punkty są aktywne.
 
 ## Zobacz też
 

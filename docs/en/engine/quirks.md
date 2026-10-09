@@ -73,9 +73,18 @@ Missing a trailing empty line in `Application.def` can leave the last scene inco
 
 In scientific notation, both `e` and `d` are recognised as exponent separators: `1.23e4` and `1.23d4` are equivalent.
 
-### `DOUBLE → INTEGER` rounds, it does not truncate
+### `DOUBLE → INTEGER` depends on the engine version {#double-integer-depends-on-the-engine-version}
 
-When casting [`DOUBLE`](../reference/DOUBLE.md) to [`INTEGER`](../reference/INTEGER.md), the value is rounded to the nearest integer rather than truncated. For positive values, `.5` rounds up; for negative values, it rounds down — so `-0.5 → -1` and `0.5 → 1`.
+Casting [`DOUBLE`](../reference/DOUBLE.md) to [`INTEGER`](../reference/INTEGER.md) works differently in older and newer engines:
+
+| Engine | Behaviour | `0.5` | `-0.5` | `2.5` | `7.99` |
+|---|---|---|---|---|---|
+| Piklib (all versions) and the BlooMoo of "Reksio i Wehikuł Czasu" | the fractional part is truncated | `0` | `0` | `2` | `7` |
+| BlooMoo from "Reksio i Kapitan Nemo" on | rounded; `.5` moves away from zero | `1` | `-1` | `3` | `8` |
+
+The newer BlooMoo gained a dedicated rounding function; before that the conversion was a plain cast. This applies wherever the engine turns a `DOUBLE` into an `INTEGER`: method arguments, the right operand in expressions and [`SET`](../reference/INTEGER.md#set).
+
+Scripts of the older games rely on it — e.g. a character's direction index computed as `(angle + 22.5) / 45` only makes sense with truncation.
 
 ### `STRING → INTEGER` returns `0` instead of erroring
 

@@ -69,7 +69,7 @@ Within the typing rule, the right operand is cast according to the rules below.
 | Target | Rule |
 |---|---|
 | [`STRING`](../reference/STRING.md) | Decimal representation with a dot and five fractional digits. For `0.0` the fractional part is omitted. |
-| [`INTEGER`](../reference/INTEGER.md) | Rounded to the nearest integer; ties round up for positive values and down for negative values. |
+| [`INTEGER`](../reference/INTEGER.md) | BlooMoo from "Reksio i Kapitan Nemo" on: rounded to the nearest integer; ties round up for positive values and down for negative values. Piklib and the BlooMoo of "Reksio i Wehikuł Czasu": the fractional part is truncated ([details](quirks.md#double-integer-depends-on-the-engine-version)). |
 | [`BOOL`](../reference/BOOL.md) | Indirect: first cast to `INTEGER` (with the rounding above), then to `BOOL`. Values in the open interval `(-0.5, 0.5)` give `FALSE`, all others `TRUE`. |
 
 ```

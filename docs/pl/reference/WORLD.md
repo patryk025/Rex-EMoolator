@@ -142,20 +142,27 @@ Obie nazwy są aliasami [`ADDFORCE`](#addforce) w jego zwykłym wariancie. Nie u
 ### FINDPATH
 
 ```
-void FINDPATH(INTEGER objectId, INTEGER pointObjectId,
-              INTEGER targetX, INTEGER targetY, INTEGER targetZ,
-              BOOL saveIntermediates, [BOOL flag])
+void FINDPATH(INTEGER objectId, INTEGER pathObjectId,
+              DOUBLE targetX, DOUBLE targetY, DOUBLE targetZ,
+              [BOOL appendTarget], [BOOL viewportTarget])
 ```
 
-Wyznacza ścieżkę dla obiektu między aktualną pozycją a punktem docelowym, korzystając z grafu nawigacyjnego załadowanego z pliku `.SEK`. Wynik jest zapamiętywany przez silnik fizyczny i wykorzystywany w kolejnych wywołaniach [`FOLLOWPATH`](#followpath).
+Wyznacza trasę obiektu od jego aktualnej pozycji do punktu docelowego po grafie punktów trasy załadowanym z pliku `.SEK`. Trasa jest zapamiętywana w obiekcie i zużywana przez kolejne wywołania [`FOLLOWPATH`](#followpath).
+
+Początkiem i końcem trasy są **najbliższe aktywne węzły** grafu (patrz [`SETACTIVE`](#setactive)); węzeł nieaktywny nie zostanie wybrany na cel i nie da się przez niego przejść. Wynik wyszukiwania:
+
+- oba punkty przypadają na ten sam węzeł — trasa jest pusta, a obiekt zgłasza `ATGOAL` przy najbliższym [`MOVEOBJECTS`](#moveobjects),
+- węzeł docelowy sąsiaduje z początkowym — trasa zawiera tylko węzeł docelowy,
+- w pozostałych przypadkach trasa prowadzi przez kolejne węzły, łącznie z początkowym,
+- trasy nie ma (albo graf `pathObjectId` nie istnieje) — obiekt zgłasza `NOPATH`.
 
 **Parametry**
 
-- `objectId` — identyfikator obiektu, dla którego liczona jest ścieżka.
-- `pointObjectId` — identyfikator punktu nawigacyjnego (zaczepu).
-- `targetX`, `targetY`, `targetZ` — koordynaty punktu docelowego.
-- `saveIntermediates` — gdy `TRUE`, zapamiętywane są punkty pośrednie ścieżki.
-- `flag` — (opcjonalnie) flaga konfiguracyjna (znaczenie nieustalone).
+- `objectId` — identyfikator obiektu, dla którego liczona jest trasa.
+- `pathObjectId` — identyfikator grafu punktów trasy z pliku `.SEK`.
+- `targetX`, `targetY`, `targetZ` — punkt docelowy.
+- `appendTarget` — (domyślnie `TRUE`) czy za ostatnim węzłem dopisać dokładny punkt docelowy. Przy `FALSE` obiekt kończy w węźle najbliższym celowi. Gdy trasy nie ma, sam punkt docelowy i tak trafia na trasę i obiekt idzie do niego po prostej.
+- `viewportTarget` — (domyślnie `TRUE`) czy cel podano we współrzędnych widoku, czyli z uwzględnieniem bieżącego przewinięcia kamery (np. pozycja kursora). Przy `FALSE` cel leży na stałym płótnie 800×600 i przewinięcie nie jest doliczane — skrypty same dodają wtedy przesunięcie tła.
 
 **Przykłady**
 
@@ -172,16 +179,21 @@ WPATH^FINDPATH(101,VARIPATHID,VARIKRETGOX,VARIKRETGOY,0,FALSE);
 DOUBLE FOLLOWPATH(INTEGER objectId, INTEGER arrivalRadius, DOUBLE turnClamp, DOUBLE speed)
 ```
 
-Przemieszcza obiekt wzdłuż ścieżki wyznaczonej wcześniej przez [`FINDPATH`](#findpath). Zwraca pozostały dystans do celu.
+Prowadzi obiekt do bieżącego punktu trasy wyznaczonej przez [`FINDPATH`](#findpath): miesza dotychczasowy kierunek ruchu z kierunkiem na punkt i ustawia prędkość `speed`. Punkty bliższe niż `arrivalRadius` są zdejmowane z trasy.
+
+Po zdjęciu ostatniego punktu obiekt zgłasza `ATGOAL`, ale **nie jest zatrzymywany** — toczy się dalej, aż wyhamuje go tarcie (`friction` z `entityDef`). Gdy trasa jest pusta, metoda nic nie robi i zwraca `0`.
+
+!!! note "Punkt dokładnie na promieniu"
+    Obiekt skręca tylko wtedy, gdy punkt jest **dalej** niż `arrivalRadius`, a punkt jest zdejmowany tylko wtedy, gdy jest **bliżej**. Stojący obiekt z punktem dokładnie w odległości `arrivalRadius` nie ruszy — dlatego skrypty przesuwają pozycję startową o ułamek piksela.
 
 **Parametry**
 
 - `objectId` — identyfikator obiektu.
-- `arrivalRadius` — promień, w którym obiekt uważany jest za zatrzymany przy celu.
-- `turnClamp` — ograniczenie skrętu na jednym kroku.
+- `arrivalRadius` — promień zaliczenia punktu trasy.
+- `turnClamp` — udział kierunku na punkt w nowym kierunku ruchu (`0.5` — pół na pół z dotychczasowym).
 - `speed` — prędkość ruchu.
 
-**Zwraca**: [`DOUBLE`](DOUBLE.md) — pozostały dystans.
+**Zwraca**: [`DOUBLE`](DOUBLE.md) — odległość do ostatnio sprawdzanego punktu trasy.
 
 **Przykłady**
 
@@ -195,16 +207,18 @@ WPATH^FOLLOWPATH(101,20,0.5,VARD_KRETSPEED);
 ### GETANGLE
 
 ```
-DOUBLE GETANGLE(INTEGER objectId)
+INTEGER GETANGLE(INTEGER objectId)
 ```
 
-Zwraca kąt wynikający z wektora prędkości obiektu (w stopniach).
+Zwraca kierunek wektora prędkości obiektu w stopniach, w zakresie `0`–`360` (`0` — w prawo, `90` — w górę ekranu), obcięty do liczby całkowitej.
+
+Kąt liczony jest z bieżącej prędkości także wtedy, gdy obiekt stoi. Tarcie zatrzymuje obiekt, skalując prędkość do zera z zachowaniem znaków składowych, więc po zatrzymaniu metoda zwraca `0` (obiekt poruszał się w prawo) albo `179`–`180` (poruszał się w lewo) — składowa pionowa kierunku przepada. Obiekt, który jeszcze się nie ruszył, daje `0`.
 
 **Parametry**
 
 - `objectId` — identyfikator obiektu.
 
-**Zwraca**: [`DOUBLE`](DOUBLE.md) — kąt w stopniach.
+**Zwraca**: [`INTEGER`](INTEGER.md) — kąt w stopniach.
 
 **Kompatybilność:** `GETANGLE` - typ z doładowywanej biblioteki, poza zakresem bieżącego eksportu `compat.json`.
 
@@ -453,19 +467,31 @@ WTEST^REMOVEOBJECT(60);
 
 ```
 void SETACTIVE(INTEGER objectId, BOOL active, [BOOL monitorCollisions])
+void SETACTIVE(INTEGER pathObjectId, INTEGER tag, BOOL active)
 ```
 
-Ustawia stan aktywności obiektu oraz, niezależnie od niego, raportowanie kolizji przez [`GETCOLLISION`](#getcollision). Druga flaga nie wyłącza fizycznych zderzeń; wyłącza ich obserwowanie przez skrypt. Jeśli ją pominąć, przyjmuje wartość `active`.
+Metoda ma dwa znaczenia, rozróżniane po **typie drugiego argumentu**.
+
+**Obiekt fizyczny** (drugi argument typu `BOOL`): ustawia stan aktywności obiektu oraz, niezależnie od niego, raportowanie kolizji przez [`GETCOLLISION`](#getcollision). Druga flaga nie wyłącza fizycznych zderzeń; wyłącza ich obserwowanie przez skrypt. Jeśli ją pominąć, przyjmuje wartość `TRUE`.
+
+**Graf tras** (trzy argumenty, drugi typu `INTEGER`): włącza lub wyłącza wszystkie punkty trasy grafu `pathObjectId` oznaczone znacznikiem `tag` (czwarta wartość punktu w pliku [`.SEK`](../formats/SEK.md)). Wyłączone punkty są pomijane przez [`FINDPATH`](#findpath) — tak sceny odcinają fragmenty tras, np. zejście do stawu, gdy jest w nim woda.
 
 **Parametry**
 
 - `objectId` — identyfikator obiektu.
-- `active` — czy obiekt podlega symulacji.
+- `active` — czy obiekt podlega symulacji (albo czy punkty trasy są dostępne).
 - `monitorCollisions` — czy kolizje mają być zapamiętywane i raportowane skryptowi.
+- `pathObjectId` — identyfikator grafu punktów trasy.
+- `tag` — znacznik grupy punktów.
+
+!!! warning "Reksio i Czarodzieje"
+    W tej grze w obsłudze wariantu trzyargumentowego brakuje powrotu z funkcji, więc po każdym takim wywołaniu wykonuje się jeszcze `SETACTIVE(objectId, TRUE, TRUE)`. Dla grafu tras nie ma to skutków; trzyargumentowe wywołanie na obiekcie fizycznym kończy się zawsze jego włączeniem. Późniejsze wersje biblioteki to poprawiają.
 
 **Przykłady**
 
 ```
+WPATH^SETACTIVE(101,FALSE);
+WPATH^SETACTIVE(9000,10,FALSE);
 WPATH^SETACTIVE(VARI_3DPATHID,$1,$2);
 ```
 

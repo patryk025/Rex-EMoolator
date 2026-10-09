@@ -69,7 +69,7 @@ W ramach reguły typowania prawy operand jest rzutowany według poniższych zasa
 | Cel | Reguła |
 |---|---|
 | [`STRING`](../reference/STRING.md) | Zapis dziesiętny z kropką i pięcioma miejscami po przecinku. Dla wartości równych `0.0` część po przecinku jest pomijana. |
-| [`INTEGER`](../reference/INTEGER.md) | Zaokrąglenie do najbliższej liczby całkowitej; przy `.5` w górę dla liczb dodatnich i w dół dla ujemnych. |
+| [`INTEGER`](../reference/INTEGER.md) | BlooMoo od „Reksia i Kapitana Nemo”: zaokrąglenie do najbliższej liczby całkowitej; przy `.5` w górę dla liczb dodatnich i w dół dla ujemnych. Piklib oraz BlooMoo z „Reksia i Wehikułu Czasu”: obcięcie części ułamkowej ([szczegóły](quirks.md#double-integer-zalezy-od-wersji-silnika)). |
 | [`BOOL`](../reference/BOOL.md) | Pośrednie: najpierw rzutowanie do `INTEGER` (z powyższym zaokrągleniem), potem do `BOOL`. Wartości z przedziału `(-0.5, 0.5)` dają `FALSE`, pozostałe `TRUE`. |
 
 ```

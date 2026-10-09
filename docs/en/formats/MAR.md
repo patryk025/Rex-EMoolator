@@ -33,9 +33,10 @@ Value encoding is shared with [`ARR`](ARR.md):
 | `1` | `INTEGER` | `int32` |
 | `2` | `STRING` | `int32` length followed by exactly that many text bytes; no `NUL` terminator |
 | `3` | `BOOL` | `int32`; `TRUE` when non-zero |
-| `4` | `DOUBLE` | fixed-point `int32`, divided by the engine-specific scale |
+| `4` | `DOUBLE` | engine-dependent: a fixed-point `int32` or the raw 8 bytes ([details](ARR.md#double-encoding)) |
 
-BlooMoo uses scale `10000`, while Piklib 8 uses `1000`. In the
+BlooMoo from "Reksio i Kapitan Nemo" on uses scale `10000`, while Piklib 8 and the
+BlooMoo of "Reksio i Wehikuł Czasu" use `1000`. In the
 original engines, `ARRAY` and `MULTIARRAY` delegate to the same
 variable store and restore methods.
 
