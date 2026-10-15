@@ -40,6 +40,11 @@ public class ExecutionFrame {
         return name;
     }
 
+    /** Read-only view for diagnostic snapshots; do not retain mutable values. */
+    public Map<String, Variable> getLocals() {
+        return java.util.Collections.unmodifiableMap(locals);
+    }
+
     public String getInstruction() {
         return instruction;
     }

@@ -4,6 +4,7 @@ Narzędzia deweloperskie i diagnostyczne. Nie są częścią budowanej aplikacji
 
 | Narzędzie | Do czego służy |
 |---|---|
+| `trace-viewer/` | desktopowa przeglądarka nagrań `rex-trace`: historia instrukcji, stos, AST i stan przed/po. Uruchom `python tools/trace-viewer/viewer.py`. |
 | `check_docs_links.py` | audyt linków w `docs/` — martwe pliki i kotwice, kolizje slugów, linki celujące w spis typów zamiast w stronę typu. Uruchamiaj przez `.venv-docs/bin/python`; `--site KATALOG` weryfikuje wyrenderowany serwis zamiast źródeł. |
 | `update_compatibility_docs.py` | przenosi dostępność API z zewnętrznego eksportu compat/1 JSON do referencji typów i generuje `docs/compatibility-audit.md`. |
 | `piklib8-probe/` | sonda do `PIKLIB8.DLL` używana przy odtwarzaniu zachowań oryginalnego silnika. |

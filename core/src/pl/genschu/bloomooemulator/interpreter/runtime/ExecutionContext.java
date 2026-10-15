@@ -1,12 +1,16 @@
 package pl.genschu.bloomooemulator.interpreter.runtime;
 
 import pl.genschu.bloomooemulator.interpreter.errors.SourceLocation;
+import pl.genschu.bloomooemulator.engine.trace.TraceRecorder;
 import pl.genschu.bloomooemulator.interpreter.variable.Variable;
 
 /**
  * Execution context that manages the call stack and provides stack trace functionality.
  */
 public class ExecutionContext {
+    private TraceRecorder traceRecorder;
+    public TraceRecorder getTraceRecorder() { return traceRecorder; }
+    public void setTraceRecorder(TraceRecorder recorder) { traceRecorder = recorder; }
     private ExecutionFrame currentFrame;  // Current execution frame
     private int maxStackDepth = 1000;     // Maximum stack depth before overflow
 

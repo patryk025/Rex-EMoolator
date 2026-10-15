@@ -17,6 +17,7 @@ import pl.genschu.bloomooemulator.engine.render.PastedGraphic;
 import pl.genschu.bloomooemulator.engine.time.LegacyClock;
 import pl.genschu.bloomooemulator.engine.time.LegacyClockProfile;
 import pl.genschu.bloomooemulator.engine.time.QuantizedLegacyClock;
+import pl.genschu.bloomooemulator.engine.trace.TraceRecorder;
 import pl.genschu.bloomooemulator.engine.update.ScenePlaybackController;
 import pl.genschu.bloomooemulator.interpreter.context.Context;
 import pl.genschu.bloomooemulator.interpreter.runtime.ExecutionContext;
@@ -109,6 +110,26 @@ public class Game {
     private final List<PastedGraphic> pastedGraphics = new ArrayList<>();
 
     private final BlooMooEngine emulator;
+    private TraceRecorder traceRecorder;
+
+    public TraceRecorder getTraceRecorder() { return traceRecorder; }
+
+    public Context getTraceContext() {
+        return currentSceneContext != null ? currentSceneContext : definitionContext;
+    }
+
+    public Map<String, Object> getTraceState() {
+        long time = getEngineTimeMs();
+        return Map.of("scene", currentScene, "episode", currentEpisode,
+                "engineTimeMs", time, "timerTimeMs", scenePlayback.timerTime(time),
+                "scenePaused", scenePlayback.isPaused(), "timersEnabled", scenePlayback.areTimersEnabled(),
+                "enginePaused", emulator != null && emulator.getConfig().isPaused());
+    }
+
+    public void traceBoundary(String kind) {
+        if (traceRecorder != null && traceRecorder.isActive())
+            traceRecorder.boundary(kind, currentSceneContext != null ? currentSceneContext : definitionContext, getEngineTimeMs());
+    }
 
     public Game(GameEntry game, BlooMooEngine emulator) {
         this(game, emulator, createLegacyClock(emulator));
@@ -125,6 +146,18 @@ public class Game {
 
         refreshCompatibilityProfile();
         definitionContext.setGame(this);
+        if (emulator != null && emulator.getConfig().isTraceEnabled()) {
+            var config = emulator.getConfig();
+            try {
+                traceRecorder = new TraceRecorder(
+                        new File(config.getTracePath()), config.getTraceMaxBytes(),
+                        Map.of("game", game == null ? "" : game.getName(),
+                                "clock", config.getLegacyClockProfile().name(),
+                                "pulseHz", config.getLegacyPulseHz()));
+            } catch (IOException | RuntimeException error) {
+                System.err.println("Cannot start trace recording: " + error);
+            }
+        }
     }
 
     private static LegacyClock createLegacyClock(BlooMooEngine emulator) {
@@ -708,6 +741,7 @@ public class Game {
 
     // method for release data from memory
     public void dispose() {
+        if (traceRecorder != null) traceRecorder.close();
         persistGameINI();
 
         // Dispose background image

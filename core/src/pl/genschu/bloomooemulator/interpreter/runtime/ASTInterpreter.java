@@ -2,6 +2,7 @@ package pl.genschu.bloomooemulator.interpreter.runtime;
 
 import com.badlogic.gdx.Gdx;
 import pl.genschu.bloomooemulator.engine.Game;
+import pl.genschu.bloomooemulator.engine.trace.TraceRecorder;
 import pl.genschu.bloomooemulator.interpreter.ast.*;
 import pl.genschu.bloomooemulator.interpreter.context.CloneRegistry;
 import pl.genschu.bloomooemulator.interpreter.context.Context;
@@ -92,7 +93,10 @@ public class ASTInterpreter {
                         exec.setThis(thisVar);
                     }
                     ASTInterpreter interpreter = new ASTInterpreter(context);
-                    ExecutionResult execResult = interpreter.execute(behaviour.astForArguments(args, context));
+                    ASTNode root = behaviour.astForArguments(args, context);
+                    var trace = traceRecorder();
+                    if (trace != null && trace.isActive()) trace.script(behaviour.name(), behaviour.sourceCode(), root);
+                    ExecutionResult execResult = interpreter.execute(root);
 
                     // @BREAK escapes the procedure boundary — let the caller decide
                     // how far to keep propagating (it'll bubble through executeMethodCall
@@ -130,6 +134,33 @@ public class ASTInterpreter {
      * Executes an AST node and returns the result.
      */
     public ExecutionResult execute(ASTNode node) {
+        var trace = traceRecorder();
+        if (trace == null || !trace.isActive() || !isTraceInstruction(node)) return executeNode(node);
+        long call = trace.enter(context, node);
+        String outcome = "aborted";
+        try (var ignored = trace.activate(() -> context)) {
+            ExecutionResult result = executeNode(node);
+            outcome = result.getClass().getSimpleName();
+            return result;
+        } catch (RuntimeException error) {
+            outcome = "error: " + error.getClass().getSimpleName() + ": " + error.getMessage();
+            throw error;
+        } finally {
+            trace.leave(context, call, outcome);
+        }
+    }
+
+    private TraceRecorder traceRecorder() {
+        return TraceRecorder.forContext(context);
+    }
+
+    private static boolean isTraceInstruction(ASTNode node) {
+        return node instanceof MethodCallNode || node instanceof IfNode || node instanceof LoopNode
+                || node instanceof WhileNode || node instanceof ReturnNode || node instanceof BreakNode
+                || node instanceof OneBreakNode || node instanceof VarDefNode;
+    }
+
+    private ExecutionResult executeNode(ASTNode node) {
         return switch (node) {
             case LiteralNode n -> executeLiteral(n);
             case VariableNode n -> executeVariable(n);
@@ -298,6 +329,8 @@ public class ASTInterpreter {
             if (!condResult.shouldContinue()) return condResult;
 
             boolean condition = ArgumentHelper.getBoolean(condResult.getValue());
+            var trace = traceRecorder();
+            if (trace != null) trace.condition(context, "IF", node, condResult.getValue(), condition, null);
 
             if (condition) {
                 return execute(node.thenBranch());
@@ -358,7 +391,10 @@ public class ASTInterpreter {
                 ExecutionResult condResult = execute(node.condition());
                 if (!condResult.shouldContinue()) return condResult;
 
-                if (!ArgumentHelper.getBoolean(condResult.getValue())) {
+                boolean condition = ArgumentHelper.getBoolean(condResult.getValue());
+                var trace = traceRecorder();
+                if (trace != null) trace.condition(context, "WHILE", node, condResult.getValue(), condition, null);
+                if (!condition) {
                     break;
                 }
 

@@ -126,3 +126,7 @@ storage
 
 ## Python tooling
 __pycache__/
+
+## Execution recordings
+/traces/
+/assets/traces/

@@ -8,6 +8,19 @@ import pl.genschu.bloomooemulator.engine.time.LegacyClockProfile;
  * Manages debugging settings, logging levels, etc.
  */
 public class EngineConfig {
+    private boolean traceEnabled = Boolean.getBoolean("rex.trace.enabled");
+    private String tracePath = System.getProperty("rex.trace.path", "traces/session-" + java.util.UUID.randomUUID() + ".jsonl");
+    private long traceMaxBytes = 256L * 1024 * 1024;
+
+    public boolean isTraceEnabled() { return traceEnabled; }
+    public void setTraceEnabled(boolean enabled) { traceEnabled = enabled; }
+    public String getTracePath() { return tracePath; }
+    public void setTracePath(String path) { tracePath = java.util.Objects.requireNonNull(path); }
+    public long getTraceMaxBytes() { return traceMaxBytes; }
+    public void setTraceMaxBytes(long bytes) {
+        if (bytes < 1024) throw new IllegalArgumentException("Trace limit must be at least 1024 bytes");
+        traceMaxBytes = bytes;
+    }
     // singleton baby
     private static EngineConfig instance;
 

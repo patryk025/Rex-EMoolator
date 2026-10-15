@@ -83,6 +83,11 @@ public class BlooMooEngine extends ApplicationAdapter {
             this.config.setShowFpsCounter(gameEntry.isShowFpsCounter());
             this.config.setLegacyClockProfile(gameEntry.getLegacyClockProfileEnum());
         }
+
+        if(false) {
+            config.setTraceEnabled(true);
+            config.setTraceMaxBytes(256L * 1024 * 1024);
+        }
     }
 
     /** Platform printing hook; null when the launcher provides none. */
@@ -149,6 +154,17 @@ public class BlooMooEngine extends ApplicationAdapter {
 
     @Override
     public void render() {
+        var trace = game == null ? null : game.getTraceRecorder();
+        if (trace != null && trace.isActive()) {
+            try (var ignored = trace.activate(game::getTraceContext)) {
+                renderWithTraceScope();
+            }
+        } else {
+            renderWithTraceScope();
+        }
+    }
+
+    private void renderWithTraceScope() {
         if (!gameLoaded) {
             renderStartupScreen();
             return;
@@ -205,6 +221,7 @@ public class BlooMooEngine extends ApplicationAdapter {
         try {
             game.loadGame();
         } finally {
+            game.traceBoundary("loaded");
             gameLoaded = true;
             disposeStartupFonts();
         }
@@ -290,11 +307,16 @@ public class BlooMooEngine extends ApplicationAdapter {
         // plan also preserves BlooMoo's render -> input -> managers order,
         // which cannot be represented by a simple render-before boolean.
         float renderDeltaTime = deltaTime;
-        game.getCompatibilityProfile().behaviour().frameOrder().execute(
-                runLegacyPulse,
-                this::processLegacyInput,
-                () -> renderFrame(renderDeltaTime),
-                this::runLegacyPulse);
+        if (runLegacyPulse) game.traceBoundary("updateBegin");
+        try {
+            game.getCompatibilityProfile().behaviour().frameOrder().execute(
+                    runLegacyPulse,
+                    this::processLegacyInput,
+                    () -> renderFrame(renderDeltaTime),
+                    this::runLegacyPulse);
+        } finally {
+            if (runLegacyPulse) game.traceBoundary("updateEnd");
+        }
     }
 
     private void processLegacyInput() {

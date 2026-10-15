@@ -326,6 +326,8 @@ public sealed interface Variable extends EngineVariable permits
         Gdx.app.debug(getTypeName(), "Emitting signal: " + emittedName + " for " + name()
             + " with fallback payload: " + fallbackPayload);
         if (registeredSignals == null) {
+            try (var ignored = pl.genschu.bloomooemulator.engine.trace.TraceRecorder.signal(
+                    this, emittedName, null, qualifier, fallbackPayload, hasFallbackPayload, false)) { }
             return;
         }
 
@@ -337,13 +339,16 @@ public sealed interface Variable extends EngineVariable permits
             bindingName = signalName;
             handler = registeredSignals.get(bindingName);
         }
-        if (handler != null) {
-            List<Value> effectivePayload = exactBinding ? List.of() : fallbackPayload;
-            boolean hasExplicitPayload = !exactBinding && hasFallbackPayload;
+        List<Value> effectivePayload = exactBinding ? List.of() : fallbackPayload;
+        boolean hasExplicitPayload = !exactBinding && hasFallbackPayload;
+        try (var ignored = pl.genschu.bloomooemulator.engine.trace.TraceRecorder.signal(
+                this, emittedName, bindingName, qualifier, effectivePayload, hasExplicitPayload, handler != null)) {
+          if (handler != null) {
             SignalEmission emission = new SignalEmission(emittedName, bindingName,
                 effectivePayload, hasExplicitPayload);
             Gdx.app.debug(getTypeName(), "Executing signal: " + emission + " for " + name());
             handler.handle(this, emission);
+          }
         }
     }
 

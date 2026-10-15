@@ -182,7 +182,7 @@ public final class BehaviourVariable implements Variable {
 
             for (int i = startVal; i < startVal + endDiff; i += step) {
                 // Re-check condition each iteration if present
-                if (condition != null && !evaluateConditionSafe(condition, ctx)) {
+                if (condition != null && !evaluateConditionSafe(condition, ctx, behaviour.name())) {
                     break;
                 }
 
@@ -213,7 +213,7 @@ public final class BehaviourVariable implements Variable {
     public static boolean checkCondition(BehaviourVariable behaviour, MethodContext ctx) {
         Variable condition = resolveCondition(behaviour, ctx);
         if (condition == null) return true;
-        return evaluateConditionSafe(condition, ctx);
+        return evaluateConditionSafe(condition, ctx, behaviour.name());
     }
 
     private static Variable resolveCondition(BehaviourVariable behaviour, MethodContext ctx) {
@@ -234,7 +234,7 @@ public final class BehaviourVariable implements Variable {
         return null;
     }
 
-    private static boolean evaluateConditionSafe(Variable cond, MethodContext ctx) {
+    private static boolean evaluateConditionSafe(Variable cond, MethodContext ctx, String behaviourName) {
         try {
             BoolValue condResult;
             if (cond instanceof ConditionVariable condition) {
@@ -244,9 +244,15 @@ public final class BehaviourVariable implements Variable {
             } else {
                 return true;
             }
+            var trace = pl.genschu.bloomooemulator.engine.trace.TraceRecorder.forContext(ctx.context());
+            if (trace != null) trace.condition(ctx.context(), "BEHAVIOUR:" + behaviourName + ":" + cond.name(),
+                    null, condResult, condResult.value(), null);
             return condResult.value();
         } catch (Exception e) {
             Gdx.app.error("BehaviourVariable", "Error evaluating condition: " + e.getMessage());
+            var trace = pl.genschu.bloomooemulator.engine.trace.TraceRecorder.forContext(ctx.context());
+            if (trace != null) trace.condition(ctx.context(), "BEHAVIOUR:" + behaviourName + ":" + cond.name(),
+                    null, null, true, e.toString());
             return true; // Preserve permissive condition handling on evaluation errors.
         }
     }
