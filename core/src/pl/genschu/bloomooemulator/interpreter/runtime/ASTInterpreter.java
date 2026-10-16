@@ -87,6 +87,12 @@ public class ASTInterpreter {
             @Override
             public ExecutionResult runBehaviour(String frameName, Variable thisVar,
                                                 BehaviourVariable behaviour, List<Value> args) {
+                // Nested helper names belong to the behaviour's defining container.
+                // A scene may declare the same BFITMP name as its parent episode.
+                Context owner = context.findOwningContext(behaviour);
+                if (owner != null && owner != context) {
+                    return new ASTInterpreter(owner).runBehaviour(frameName, thisVar, behaviour, args);
+                }
                 exec.pushFrame(frameName, behaviour.name(), null);
                 try {
                     if (thisVar != null) {

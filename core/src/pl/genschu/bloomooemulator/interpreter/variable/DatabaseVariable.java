@@ -8,7 +8,17 @@ import pl.genschu.bloomooemulator.interpreter.values.*;
 import pl.genschu.bloomooemulator.interpreter.variable.capabilities.HasCursor;
 import pl.genschu.bloomooemulator.interpreter.variable.capabilities.Initializable;
 import pl.genschu.bloomooemulator.interpreter.variable.db.DatabaseState;
+import pl.genschu.bloomooemulator.utils.FileUtils;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.nio.charset.Charset;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -134,19 +144,19 @@ public record DatabaseVariable(
                 throw new IllegalArgumentException("LOAD requires 1 argument: dtaName");
             }
             String dtaName = ArgumentHelper.getString(args.get(0));
-            String vfsPath = pl.genschu.bloomooemulator.utils.FileUtils.resolveVfsPath(ctx.getGame(), dtaName);
+            String vfsPath = FileUtils.resolveVfsPath(ctx.getGame(), dtaName);
             if (thisVar.state.columns().isEmpty()) {
                 Gdx.app.error("DatabaseVariable", "Missing model in database " + thisVar.name() + ". Aborting LOAD.");
                 return MethodResult.noReturn();
             }
-            java.util.List<java.util.List<String>> data = new java.util.ArrayList<>();
-            try (java.io.BufferedReader reader = new java.io.BufferedReader(
-                    new java.io.InputStreamReader(ctx.getGame().getVfs().openRead(vfsPath), java.nio.charset.Charset.defaultCharset()))) {
+            List<List<String>> data = new ArrayList<>();
+            try (BufferedReader reader = new BufferedReader(
+                    new InputStreamReader(ctx.getGame().getVfs().openRead(vfsPath), Charset.defaultCharset()))) {
                 String line;
                 while ((line = reader.readLine()) != null) {
-                    data.add(new java.util.ArrayList<>(java.util.Arrays.asList(line.split("\\|"))));
+                    data.add(new ArrayList<>(Arrays.asList(line.split("\\|"))));
                 }
-            } catch (java.io.IOException e) {
+            } catch (IOException e) {
                 Gdx.app.error("DatabaseVariable", "Error loading database: " + e.getMessage(), e);
             }
             thisVar.state.setData(data);
@@ -159,14 +169,14 @@ public record DatabaseVariable(
                 throw new IllegalArgumentException("SAVE requires 1 argument: dtaName");
             }
             String dtaName = ArgumentHelper.getString(args.get(0));
-            String vfsPath = pl.genschu.bloomooemulator.utils.FileUtils.resolveVfsPath(ctx.getGame(), dtaName);
-            try (java.io.BufferedWriter writer = new java.io.BufferedWriter(
-                    new java.io.OutputStreamWriter(ctx.getGame().getVfs().openWrite(vfsPath), java.nio.charset.Charset.defaultCharset()))) {
-                for (java.util.List<String> row : thisVar.state.data()) {
+            String vfsPath = FileUtils.resolveVfsPath(ctx.getGame(), dtaName);
+            try (BufferedWriter writer = new BufferedWriter(
+                    new OutputStreamWriter(ctx.getGame().getVfs().openWrite(vfsPath), Charset.defaultCharset()))) {
+                for (List<String> row : thisVar.state.data()) {
                     writer.write(String.join("|", row));
                     writer.newLine();
                 }
-            } catch (java.io.IOException e) {
+            } catch (IOException e) {
                 Gdx.app.error("DatabaseVariable", "Error saving database: " + e.getMessage(), e);
             }
             return MethodResult.noReturn();

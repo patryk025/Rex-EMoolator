@@ -260,6 +260,23 @@ class VariableInfrastructureRegressionTest {
     }
 
     @Test
+    void testSlotClickRunsEpisodeBranchDespiteSceneHelperCollision() {
+        Context episode = new Context(new ExecutionContext());
+        Context scene = new Context(new ExecutionContext(), episode);
+        StringVariable result = new StringVariable("RESULT", "");
+        episode.setVariable("RESULT", result);
+        episode.setVariable("BEHGOTOSCENE", behaviour("BEHGOTOSCENE",
+                "{@IF(\"CINT\",\"_\",\"OTHER\",\"\",\"BFITMP2\");}"));
+        episode.setVariable("BFITMP2", behaviour("BFITMP2", "{RESULT^SET(\"FADE\");}"));
+        scene.setVariable("BFITMP2", behaviour("BFITMP2", "{RESULT^SET(\"EASY\");}"));
+        scene.setVariable("BEHSLOTCLICK", behaviour("BEHSLOTCLICK", "{BEHGOTOSCENE^RUN();}"));
+
+        MethodHelper.callWithContext(scene, "BEHSLOTCLICK", "RUN");
+
+        assertEquals("FADE", result.value().toDisplayString());
+    }
+
+    @Test
     void testGroupVariableBroadcastsMethodsAndImplementsPiklibMarkerSemantics() {
         Context ctx = new ContextBuilder()
                 .withVariable("INTEGER", "A", 1)
