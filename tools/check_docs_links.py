@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Audit internal links in docs/ — dead targets, dead anchors and slug collisions.
 
-`mkdocs build --strict` does not validate heading anchors, so a link like
+`zensical build --strict` does not validate heading anchors, so a link like
 `SCENE.md#pause` stays silent even when the anchor never existed. This script
 resolves every relative link and checks the fragment against the headings the
 `toc` extension would actually emit (same slugify, same `_N` suffixing).
@@ -16,8 +16,8 @@ It also reports two mistakes that produce a *working* but wrong link:
 With --site it re-verifies the rendered HTML instead of modelling the slugs,
 which is the ground truth:
 
-    .venv-docs/bin/mkdocs build --site-dir /tmp/site
-    .venv-docs/bin/python tools/check_docs_links.py --site /tmp/site
+    zensical build
+    python tools/check_docs_links.py --site site
 
 Exit code is 1 when anything was reported.
 """
@@ -161,28 +161,54 @@ def check_sources(docs: Path) -> list[str]:
 def check_site(site: Path) -> list[str]:
     pages: dict[Path, set[str]] = {}
     bodies: dict[Path, str] = {}
+    canonical_paths: dict[Path, str] = {}
     for path in sorted(site.rglob("*.html")):
         html = path.read_text(encoding="utf-8", errors="replace")
         body = html.split("<main", 1)[-1].split("</main>", 1)[0]
-        pages[path.resolve()] = set(re.findall(r'id="([^"]+)"', body))
-        bodies[path.resolve()] = body
+        resolved = path.resolve()
+        pages[resolved] = set(re.findall(r'id="([^"]+)"', body))
+        bodies[resolved] = body
+        canonical = re.search(r'<link rel="canonical" href="([^"]+)"', html)
+        if canonical:
+            canonical_paths[resolved] = urlparse(canonical.group(1)).path
 
     problems: list[str] = []
+    site_prefix = ""
+    for path, canonical_path in canonical_paths.items():
+        relative = path.relative_to(site.resolve()).as_posix()
+        if relative.endswith("index.html"):
+            route = f"/{relative.removesuffix('index.html')}"
+        else:
+            route = f"/{relative}"
+        if canonical_path.endswith(route):
+            site_prefix = canonical_path[: -len(route)].rstrip("/")
+            break
+
     for path, body in bodies.items():
         for href in re.findall(r'<a[^>]+href="([^"]+)"', body):
             url = urlparse(href)
-            if url.scheme or url.netloc or not url.fragment:
+            if url.scheme or url.netloc:
                 continue
             if url.path:
-                target = (path.parent / unquote(url.path)).resolve()
-                if target.is_dir():
+                url_path = unquote(url.path)
+                if site_prefix and (
+                    url_path == site_prefix or url_path.startswith(f"{site_prefix}/")
+                ):
+                    url_path = url_path[len(site_prefix) :]
+                target = (
+                    site.resolve() / url_path.lstrip("/")
+                    if url.path.startswith("/")
+                    else path.parent / url_path
+                ).resolve()
+                if target.is_dir() or url.path.endswith("/"):
                     target = target / "index.html"
             else:
                 target = path
             where = os.path.relpath(path, site)
-            if target not in pages:
+            if not target.exists():
                 problems.append(f"{where}: {href} — brak strony docelowej")
-            elif unquote(url.fragment) not in pages[target]:
+                continue
+            if target in pages and url.fragment and unquote(url.fragment) not in pages[target]:
                 problems.append(f"{where}: {href} — brak takiego id na stronie docelowej")
     return problems
 
@@ -192,7 +218,7 @@ def main() -> int:
     parser.add_argument(
         "--site",
         type=Path,
-        help="verify a rendered mkdocs site instead of the Markdown sources",
+        help="verify a rendered Zensical site instead of the Markdown sources",
     )
     parser.add_argument("--docs", type=Path, default=DOCS, help="docs directory")
     args = parser.parse_args()

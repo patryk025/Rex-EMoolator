@@ -6,12 +6,18 @@ on:
       - main
     paths:
       - "docs/**"
-      - "mkdocs.yml"
+      - "zensical.toml"
+      - "docs/requirements.txt"
+      - "tools/check_docs_links.py"
+      - "tools/test_check_docs_links.py"
       - ".github/workflows/docs.yaml"
   pull_request:
     paths:
       - "docs/**"
-      - "mkdocs.yml"
+      - "zensical.toml"
+      - "docs/requirements.txt"
+      - "tools/check_docs_links.py"
+      - "tools/test_check_docs_links.py"
       - ".github/workflows/docs.yaml"
   workflow_dispatch:
 
@@ -38,11 +44,17 @@ jobs:
           cache: pip
           cache-dependency-path: docs/requirements.txt
 
-      - name: Install MkDocs and plugins
+      - name: Install Zensical
         run: pip install -r docs/requirements.txt
 
       - name: Build site
-        run: mkdocs build
+        run: zensical build --clean --strict
+
+      - name: Check documentation links
+        run: |
+          python -m unittest discover -s tools -p 'test_check_docs_links.py'
+          python tools/check_docs_links.py
+          python tools/check_docs_links.py --site site
 
       - name: Upload Pages artifact
         if: github.event_name != 'pull_request'

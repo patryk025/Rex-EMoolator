@@ -50,9 +50,7 @@ The following tools are used to build the documentation site and are not runtime
 
 | Tool | Version | License | License URL | Source |
 | :--- | :--- | :--- | :--- | :--- |
-| mkdocs | 1.6.1 | BSD-2-Clause | <https://spdx.org/licenses/BSD-2-Clause.html> | <https://github.com/mkdocs/mkdocs> |
-| mkdocs-material | 9.5.44 | MIT | <https://spdx.org/licenses/MIT.html> | <https://github.com/squidfunk/mkdocs-material> |
-| mkdocs-static-i18n | 1.2.3 | MIT | <https://spdx.org/licenses/MIT.html> | <https://github.com/ultrabug/mkdocs-static-i18n> |
+| zensical | 0.0.67 | MIT | <https://spdx.org/licenses/MIT.html> | <https://github.com/zensical/zensical> |
 
 ## LGPL Components
 

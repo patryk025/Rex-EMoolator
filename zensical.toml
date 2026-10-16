@@ -1,0 +1,210 @@
+[project]
+site_name = "Rex-EMoolator"
+site_description = "Unofficial documentation of the Piklib/BlooMoo scripting engines and the Rex-EMoolator emulator."
+site_url = "https://patryk025.github.io/Rex-EMoolator/"
+repo_url = "https://github.com/patryk025/Rex-EMoolator"
+repo_name = "Rex-EMoolator"
+edit_uri = "edit/main/docs/"
+docs_dir = "docs"
+
+nav = [
+  { "Strona główna" = "index.md" },
+  { "Polski" = [
+    { "Strona główna" = "pl/index.md" },
+    { "Silnik" = [
+      { "Strona główna" = "pl/engine/index.md" },
+      { "Skrypty" = "pl/engine/scripts.md" },
+      { "Arytmetyka" = "pl/engine/arithmetic.md" },
+      { "Zdarzenia i sygnały" = "pl/engine/events.md" },
+      { "Zmienne globalne" = "pl/engine/globals.md" },
+      { "Dziwactwa silnika" = "pl/engine/quirks.md" },
+    ] },
+    { "Wnętrze silnika" = [
+      { "Strona główna" = "pl/internals/index.md" },
+      { "Architektura" = "pl/internals/architecture.md" },
+      { "Pętla i zegar silnika" = "pl/internals/loop.md" },
+      { "Renderowanie" = "pl/internals/rendering.md" },
+      { "Współrzędne i kotwice" = "pl/internals/coordinates.md" },
+      { "System animacji" = "pl/internals/animation.md" },
+      { "Czas i timery" = "pl/internals/timers.md" },
+    ] },
+    { "Formaty plików" = [
+      { "Strona główna" = "pl/formats/index.md" },
+      { "ANN" = "pl/formats/ANN.md" },
+      { "IMG" = "pl/formats/IMG.md" },
+      { "FNT" = "pl/formats/FNT.md" },
+      { "ARR" = "pl/formats/ARR.md" },
+      { "MAR" = "pl/formats/MAR.md" },
+      { "DTA" = "pl/formats/DTA.md" },
+      { "SEK" = "pl/formats/SEK.md" },
+      { "INE" = "pl/formats/INE.md" },
+      { "Kompresja" = "pl/formats/compression.md" },
+      { "Szyfrowanie skryptów" = "pl/formats/encryption.md" },
+    ] },
+    { "Referencja typów" = [
+      { "Strona główna" = "pl/reference/index.md" },
+      { "ANIMO" = "pl/reference/ANIMO.md" },
+      { "APPLICATION" = "pl/reference/APPLICATION.md" },
+      { "ARRAY" = "pl/reference/ARRAY.md" },
+      { "BEHAVIOUR" = "pl/reference/BEHAVIOUR.md" },
+      { "BOOL" = "pl/reference/BOOL.md" },
+      { "BUTTON" = "pl/reference/BUTTON.md" },
+      { "CANVAS_OBSERVER" = "pl/reference/CANVAS_OBSERVER.md" },
+      { "CLASS" = "pl/reference/CLASS.md" },
+      { "CNVLOADER" = "pl/reference/CNVLOADER.md" },
+      { "COMPLEXCONDITION" = "pl/reference/COMPLEXCONDITION.md" },
+      { "CONDITION" = "pl/reference/CONDITION.md" },
+      { "DATABASE" = "pl/reference/DATABASE.md" },
+      { "DOUBLE" = "pl/reference/DOUBLE.md" },
+      { "EPISODE" = "pl/reference/EPISODE.md" },
+      { "EXPRESSION" = "pl/reference/EXPRESSION.md" },
+      { "FONT" = "pl/reference/FONT.md" },
+      { "GROUP" = "pl/reference/GROUP.md" },
+      { "IMAGE" = "pl/reference/IMAGE.md" },
+      { "INERTIA" = "pl/reference/INERTIA.md" },
+      { "INTEGER" = "pl/reference/INTEGER.md" },
+      { "KEYBOARD" = "pl/reference/KEYBOARD.md" },
+      { "MATRIX" = "pl/reference/MATRIX.md" },
+      { "MOUSE" = "pl/reference/MOUSE.md" },
+      { "MULTIARRAY" = "pl/reference/MULTIARRAY.md" },
+      { "PATTERN" = "pl/reference/PATTERN.md" },
+      { "RAND" = "pl/reference/RAND.md" },
+      { "SCENE" = "pl/reference/SCENE.md" },
+      { "SEQUENCE" = "pl/reference/SEQUENCE.md" },
+      { "SOUND" = "pl/reference/SOUND.md" },
+      { "STATICFILTER" = "pl/reference/STATICFILTER.md" },
+      { "STRING" = "pl/reference/STRING.md" },
+      { "STRUCT" = "pl/reference/STRUCT.md" },
+      { "SYSTEM" = "pl/reference/SYSTEM.md" },
+      { "TEXT" = "pl/reference/TEXT.md" },
+      { "TIMER" = "pl/reference/TIMER.md" },
+      { "VECTOR" = "pl/reference/VECTOR.md" },
+      { "VIRTUALGRAPHICSOBJECT" = "pl/reference/VIRTUALGRAPHICSOBJECT.md" },
+      { "WORLD" = "pl/reference/WORLD.md" },
+    ] },
+  ] },
+  { "English" = [
+    { "Home" = "en/index.md" },
+    { "Engine" = [
+      { "Home" = "en/engine/index.md" },
+      { "Scripts" = "en/engine/scripts.md" },
+      { "Arithmetic" = "en/engine/arithmetic.md" },
+      { "Events and signals" = "en/engine/events.md" },
+      { "Global variables" = "en/engine/globals.md" },
+      { "Engine quirks" = "en/engine/quirks.md" },
+    ] },
+    { "Engine internals" = [
+      { "Home" = "en/internals/index.md" },
+      { "Architecture" = "en/internals/architecture.md" },
+      { "Game loop & engine clock" = "en/internals/loop.md" },
+      { "Rendering" = "en/internals/rendering.md" },
+      { "Coordinates & anchors" = "en/internals/coordinates.md" },
+      { "Animation system" = "en/internals/animation.md" },
+      { "Time and timers" = "en/internals/timers.md" },
+    ] },
+    { "File formats" = [
+      { "Home" = "en/formats/index.md" },
+      { "ANN" = "en/formats/ANN.md" },
+      { "IMG" = "en/formats/IMG.md" },
+      { "FNT" = "en/formats/FNT.md" },
+      { "ARR" = "en/formats/ARR.md" },
+      { "MAR" = "en/formats/MAR.md" },
+      { "DTA" = "en/formats/DTA.md" },
+      { "SEK" = "en/formats/SEK.md" },
+      { "INE" = "en/formats/INE.md" },
+      { "Compression" = "en/formats/compression.md" },
+      { "Script encryption" = "en/formats/encryption.md" },
+    ] },
+    { "Type reference" = [
+      { "Home" = "en/reference/index.md" },
+      { "ANIMO" = "en/reference/ANIMO.md" },
+      { "APPLICATION" = "en/reference/APPLICATION.md" },
+      { "ARRAY" = "en/reference/ARRAY.md" },
+      { "BEHAVIOUR" = "en/reference/BEHAVIOUR.md" },
+      { "BOOL" = "en/reference/BOOL.md" },
+      { "BUTTON" = "en/reference/BUTTON.md" },
+      { "CANVAS_OBSERVER" = "en/reference/CANVAS_OBSERVER.md" },
+      { "CLASS" = "en/reference/CLASS.md" },
+      { "CNVLOADER" = "en/reference/CNVLOADER.md" },
+      { "COMPLEXCONDITION" = "en/reference/COMPLEXCONDITION.md" },
+      { "CONDITION" = "en/reference/CONDITION.md" },
+      { "DATABASE" = "en/reference/DATABASE.md" },
+      { "DOUBLE" = "en/reference/DOUBLE.md" },
+      { "EPISODE" = "en/reference/EPISODE.md" },
+      { "EXPRESSION" = "en/reference/EXPRESSION.md" },
+      { "FONT" = "en/reference/FONT.md" },
+      { "GROUP" = "en/reference/GROUP.md" },
+      { "IMAGE" = "en/reference/IMAGE.md" },
+      { "INERTIA" = "en/reference/INERTIA.md" },
+      { "INTEGER" = "en/reference/INTEGER.md" },
+      { "KEYBOARD" = "en/reference/KEYBOARD.md" },
+      { "MATRIX" = "en/reference/MATRIX.md" },
+      { "MOUSE" = "en/reference/MOUSE.md" },
+      { "MULTIARRAY" = "en/reference/MULTIARRAY.md" },
+      { "PATTERN" = "en/reference/PATTERN.md" },
+      { "RAND" = "en/reference/RAND.md" },
+      { "SCENE" = "en/reference/SCENE.md" },
+      { "SEQUENCE" = "en/reference/SEQUENCE.md" },
+      { "SOUND" = "en/reference/SOUND.md" },
+      { "STATICFILTER" = "en/reference/STATICFILTER.md" },
+      { "STRING" = "en/reference/STRING.md" },
+      { "STRUCT" = "en/reference/STRUCT.md" },
+      { "SYSTEM" = "en/reference/SYSTEM.md" },
+      { "TEXT" = "en/reference/TEXT.md" },
+      { "TIMER" = "en/reference/TIMER.md" },
+      { "VECTOR" = "en/reference/VECTOR.md" },
+      { "VIRTUALGRAPHICSOBJECT" = "en/reference/VIRTUALGRAPHICSOBJECT.md" },
+      { "WORLD" = "en/reference/WORLD.md" },
+    ] },
+  ] },
+]
+
+[project.theme]
+variant = "classic"
+language = "pl"
+features = [
+  "navigation.tracking",
+  "navigation.tabs",
+  "navigation.sections",
+  "navigation.top",
+  "search.suggest",
+  "search.highlight",
+  "content.code.copy",
+  "content.code.annotate",
+  "content.action.edit",
+  "content.tabs.link",
+  "toc.follow",
+]
+
+[[project.theme.palette]]
+media = "(prefers-color-scheme: light)"
+scheme = "default"
+primary = "indigo"
+accent = "indigo"
+toggle.icon = "material/weather-night"
+toggle.name = "Tryb ciemny"
+
+[[project.theme.palette]]
+media = "(prefers-color-scheme: dark)"
+scheme = "slate"
+primary = "indigo"
+accent = "indigo"
+toggle.icon = "material/weather-sunny"
+toggle.name = "Tryb jasny"
+
+[project.markdown_extensions]
+admonition = {}
+attr_list = {}
+md_in_html = {}
+tables = {}
+toc.permalink = true
+pymdownx.details = {}
+pymdownx.highlight.anchor_linenums = true
+pymdownx.inlinehilite = {}
+pymdownx.superfences.custom_fences = [
+  { name = "mermaid", class = "mermaid", format = "pymdownx.superfences.fence_code_format" },
+]
+pymdownx.snippets = {}
+pymdownx.tabbed.alternate_style = true
+pymdownx.emoji.emoji_index = "zensical.extensions.emoji.twemoji"
+pymdownx.emoji.emoji_generator = "zensical.extensions.emoji.to_svg"
