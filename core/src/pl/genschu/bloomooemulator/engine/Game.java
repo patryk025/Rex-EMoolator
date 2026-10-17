@@ -40,6 +40,7 @@ import java.util.*;
 
 import com.badlogic.gdx.Gdx;
 import pl.genschu.bloomooemulator.engine.filesystem.LocalFileSystem;
+import pl.genschu.bloomooemulator.engine.filesystem.SndArchiveFileSystem;
 import pl.genschu.bloomooemulator.engine.filesystem.VFS;
 import pl.genschu.bloomooemulator.engine.ini.INIManager;
 import pl.genschu.bloomooemulator.objects.Image;
@@ -216,6 +217,11 @@ public class Game {
     private void scanGameDirectory() {
         try {
             IFileSystem fs = this.game.openAssets();
+            // Sound archives the installer would have unpacked (wavs/wav.snd in
+            // Reksio i Kapitan Nemo). Mounted first so real files on the source win.
+            for (SndArchiveFileSystem archive : SndArchiveFileSystem.discover(fs)) {
+                vfs.mountAssets(archive);
+            }
             vfs.mountAssets(fs);
             // Writable storage is always a separate per-game directory — even for
             // folder games, where it used to be the game folder itself. Keeping the

@@ -573,6 +573,9 @@ def coreProductionDependencies = {
     }
     implementation "org.ode4j:core:$ode4jVersion"
     implementation "com.github.junrar:junrar:7.6.0"
+    // Pure-Java Vorbis decoder for installer sound archives (wav.snd). The same
+    // version already ships with the LWJGL3 backend; declared here so Android gets it too.
+    implementation "org.jcraft:jorbis:0.0.17"
 }
 
 project(":core") {
