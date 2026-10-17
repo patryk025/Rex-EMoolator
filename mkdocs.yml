@@ -140,6 +140,7 @@ nav:
       - DTA: formats/DTA.md
       - SEK: formats/SEK.md
       - INE: formats/INE.md
+      - SND: formats/SND.md
       - Kompresja: formats/compression.md
       - Szyfrowanie skryptów: formats/encryption.md
   - Referencja typów:
