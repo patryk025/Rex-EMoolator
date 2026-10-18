@@ -31,6 +31,22 @@ public final class WaveSaver {
             throw new IllegalArgumentException("WAV too large: " + total + " bytes");
         }
         byte[] out = new byte[(int) total];
+        writeInstallerHeader(out, channels, sampleRate, bitsPerSample, samples.length);
+        System.arraycopy(samples, 0, out, INSTALLER_HEADER_SIZE, samples.length);
+        return out;
+    }
+
+    /**
+     * Fills the first {@link #INSTALLER_HEADER_SIZE} bytes of {@code out} with the
+     * header for {@code sampleBytes} of data, so samples can be decoded straight
+     * into the space behind it. A pad byte for odd sizes is the caller's job.
+     */
+    public static void writeInstallerHeader(byte[] out, int channels, int sampleRate, int bitsPerSample,
+                                            long sampleBytes) {
+        long total = installerWaveLength(sampleBytes);
+        if (total > Integer.MAX_VALUE) {
+            throw new IllegalArgumentException("WAV too large: " + total + " bytes");
+        }
         int blockAlign = channels * (bitsPerSample / 8);
         int pos = 0;
         pos = putTag(out, pos, "RIFF");
@@ -48,9 +64,7 @@ public final class WaveSaver {
         pos = putI32(out, pos, 4);
         pos = putI32(out, pos, 0);
         pos = putTag(out, pos, "data");
-        pos = putI32(out, pos, samples.length);
-        System.arraycopy(samples, 0, out, pos, samples.length);
-        return out;
+        putI32(out, pos, (int) sampleBytes);
     }
 
     private static int putTag(byte[] out, int pos, String tag) {

@@ -23,7 +23,10 @@ Offsety pliku nie zostały ustalone (nie mapowano sekcji PE).
 
 | RVA | VA w analizie | offset pliku | obecny symbol | proponowana nazwa | znaczenie / dowody | pewność |
 |---|---|---|---|---|---|---|
-| `0x0291b` | `0x0040291b` | — | `FUN_0040291b` | `CInstallDlg::CopyNextFile` | Iteruje listę plików z `install.ini`; gdy ścieżka zawiera `".snd"` (`0x00498070`), otwiera ją `"rb"`, zapamiętuje rozmiar i przechodzi w tryb rozpakowania; w trybie 1 woła `0x0040357f`, dopóki pozycja < rozmiar. Pozostałe pliki — `CopyFileA`. | wysoka |
+| `0x08ffa` | `0x00408ffa` | — | `FUN_00408ffa` | `CSetupApp::CSetupApp` | Ścieżka `install.ini` = katalog `setup.exe` + `"\install.ini"` (`0x0049827c`); nazwa sekcji listy plików (`this+0x70`) ustawiona na `"std"` (`0x0049828c`). | wysoka |
+| `0x04700` | `0x00404700` | — | `FUN_00404700` | `CInstallModeDlg::CInstallModeDlg` | Okno wyboru trybu (`show_install_mode`) startuje z `"std"` (`0x00498140`); przyciski ustawiają `"max"`/`"min"`/`"std"` (`0x004981b0`…, np. `FUN_00404bad`). | wysoka |
+| `0x0306c` | `0x0040306c` | — | `FUN_0040306c` | `CInstallDlg::OnInitDialog` | `GetPrivateProfileString(sekcja, "files")` → `atoi`; wpisy `"%d"` (`0x004980ac`) od 0 do `files-1`; wpis kończący się `"\"` (`0x004980b0`) to katalog do utworzenia, pozostałe trafiają na listę plików. | wysoka |
+| `0x0291b` | `0x0040291b` | — | `FUN_0040291b` | `CInstallDlg::CopyNextFile` | Iteruje listę plików; wpis przechodzi `MakeLower` (`FUN_0046eef4` → `_mbslwr` `FUN_0042a33f`), opcjonalny sufiks `";<język>"` jest sprawdzany i odcinany; gdy ścieżka zawiera `".snd"` (`0x00498070`, `CString::Find` → `_mbsstr`), otwiera ją `"rb"`, zapamiętuje rozmiar i przechodzi w tryb rozpakowania; w trybie 1 woła `0x0040357f`, dopóki pozycja < rozmiar. Pozostałe pliki — `CopyFileA`. | wysoka |
 | `0x0357f` | `0x0040357f` | — | `FUN_0040357f` | `CInstallDlg::ExtractSndRecord` | `fread` 4× pole: typ, rozmiar, długość nazwy, nazwa, potem dane; zapis do `"%s\\%s%s"` (cel, katalog archiwum, nazwa) z `.wav`→`.tmp`; typ 0 → `0x0040d376`, typ 1 → `0x0040f067`; usuwa `.tmp`; pozycja += `nameLen + 12 + size`. | wysoka |
 | `0x0d376` | `0x0040d376` | — | `FUN_0040d376` | `DecodeOggToWave` | `ov_open`, pętla `ov_read(vf, buf, 0x1000, 0, 2, 1, &bs)` (wartości ujemne ignorowane), zapis PCM, następnie przepisanie do WAV przez `CWaveFile` z `WAVEFORMATEX{1, ch, rate, rate*ch*2, ch*2, 16}`. Komunikaty `"Bitstream is %d channel..."`. | wysoka |
 | `0x0f067` | `0x0040f067` | — | `FUN_0040f067` | `DecodeSpeexToWave` | Port `speexdec` (komunikat `"This doesn't look like a Speex file"`); nieużywany przez znane archiwum. | wysoka |
@@ -38,6 +41,10 @@ Offsety pliku nie zostały ustalone (nie mapowano sekcji PE).
 
 ## Semantyka
 
+- Rozpakowywane są wyłącznie wpisy listy plików z `install.ini [std]` (przy
+  `show_install_mode = true` użytkownik może wybrać `min`/`max`; domyślnie
+  i bez okna — `std`), których ścieżka po zamianie na małe litery zawiera `.snd`.
+  W Nemo jedynym takim wpisem jest `30 = wavs\wav.snd`.
 - Rekordy są czytane sekwencyjnie bez spisu treści; kolejny zaczyna się po danych.
   Powtórzona nazwa nadpisuje plik (zapis `"wb"` w tej samej ścieżce).
 - Nazwa jest łączona z katalogiem archiwum, więc `wavs\wav.snd` → `<instalacja>\wavs\<nazwa>`.
@@ -49,7 +56,11 @@ Offsety pliku nie zostały ustalone (nie mapowano sekcji PE).
 
 ## Powiązanie z emulatorem
 
-- `engine/filesystem/SndArchiveFileSystem` — indeks, montowanie pod źródłem gry.
+- `engine/filesystem/SndArchiveFileSystem` — wykrywanie przez `install.ini [std]`,
+  leniwy indeks czytany strumieniowo, montowanie pod źródłem gry. Archiwum jest
+  czytane tylko przez `IFileSystem.open()` (z pominięciem do offsetu rekordu),
+  nigdy przez `openSource()`, które na ZIP/pofragmentowanym UDF kopiuje cały plik
+  do pamięci. Filtr języka `";<język>"` nie jest modelowany (sufiks jest odcinany).
 - `encoding/OggVorbisDecoder` — dekodowanie (JOrbis) + konwersja `ov_read`.
 - `saver/WaveSaver` — układ `CWaveFile`.
 - Testy: `SndArchiveFileSystemTest`, `OggVorbisDecoderTest`, `WaveSaverTest`.
@@ -65,4 +76,12 @@ spełnia warunku gałęzi „partial first frame” (`sequence == 1`), której J
 - Brak porównania z plikami WAV faktycznie wygenerowanymi przez instalator
   (wymagałoby instalacji na Windows); bit-zgodność próbek z libvorbis setup.exe
   nie jest potwierdzona.
-- Czy inne gry Aidem Media używają tego samego mechanizmu `*.snd`.
+- Inne gry: w obrazach Czarodziejów, Kretesa, Skarbu piratów, UFO (dwa wydania),
+  Wehikułu czasu, Miasta Sekretów, Złotego Runa, Wojny Trojańskiej oraz
+  Herkulesa + Odyseusza `install.ini` (jeśli jest) nie zawiera wpisów `.snd`.
+  Mechanizm występuje więc tylko w Kapitanie Nemo z tych próbek.
+- Dokładna semantyka filtra `";<język>"` (porównanie nazwy sekcji językowej
+  z wpisem po `MakeLower`) nie została sprawdzona; Nemo z niego nie korzysta.
+
+Analiza wyboru sekcji i listy plików: REA (Ghidra 12.1.2, sesja tylko do odczytu)
+na tej samej próbce `setup.exe` (SHA-256 jak wyżej).

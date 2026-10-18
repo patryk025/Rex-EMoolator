@@ -37,10 +37,16 @@ A record with a repeated name overwrites the earlier file.
 
 ## In the emulator
 
-`SndArchiveFileSystem` looks for `*.snd` files in the game root and its
-immediate subdirectories and mounts them in the VFS **below** the game source —
-files that exist (e.g. from an installed copy) take precedence. Records are
-decoded lazily on first read (`OggVorbisDecoder` built on JOrbis, `WaveSaver`).
+`SndArchiveFileSystem` picks archives the way the installer does: it reads the
+file list from the `[std]` section of `install.ini` and takes the entries whose
+path contains `.snd` (case-insensitively). Without `install.ini` nothing is
+mounted. Archives go into the VFS **below** the game source — files that exist
+(e.g. from an installed copy) take precedence.
+
+The index is built on the first lookup in the archive directory, in a single
+streaming pass. Records are decoded on first read (`OggVorbisDecoder` built on
+JOrbis, `WaveSaver`); the archive is never copied into memory as a whole, even
+when the game sits in a ZIP.
 
 Limitations:
 

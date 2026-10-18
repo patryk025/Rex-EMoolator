@@ -12,6 +12,7 @@ import com.jcraft.jorbis.Info;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 
 /**
  * Decodes an Ogg Vorbis stream to 16-bit signed little-endian interleaved PCM,
@@ -44,8 +45,25 @@ public final class OggVorbisDecoder {
         }
     }
 
-    /** Decodes the whole stream. The caller keeps ownership of {@code input}. */
+    /** Stream parameters from the identification header. */
+    public record Format(int channels, int sampleRate) {
+        public int bitsPerSample() {
+            return 16;
+        }
+    }
+
+    /** Decodes the whole stream into memory. The caller keeps ownership of {@code input}. */
     public static Pcm decode(InputStream input) throws IOException {
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        Format format = decode(input, out);
+        return new Pcm(format.channels(), format.sampleRate(), out.toByteArray());
+    }
+
+    /**
+     * Decodes the whole stream, writing PCM frames to {@code out} as they are
+     * produced. The caller keeps ownership of both streams.
+     */
+    public static Format decode(InputStream input, OutputStream out) throws IOException {
         SyncState sync = new SyncState();
         StreamState stream = new StreamState();
         Page page = new Page();
@@ -88,7 +106,6 @@ public final class OggVorbisDecoder {
             block.init(dsp);
 
             int channels = info.channels;
-            ByteArrayOutputStream out = new ByteArrayOutputStream();
             float[][][] pcmHolder = new float[1][][];
             int[] offsets = new int[channels];
             byte[] frameBuffer = new byte[0];
@@ -135,7 +152,7 @@ public final class OggVorbisDecoder {
                     dsp.synthesis_read(samples);
                 }
             }
-            return new Pcm(channels, info.rate, out.toByteArray());
+            return new Format(channels, info.rate);
         } finally {
             block.clear();
             dsp.clear();

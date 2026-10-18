@@ -36,11 +36,16 @@ Rekord o powtórzonej nazwie nadpisuje wcześniejszy plik.
 
 ## W emulatorze
 
-`SndArchiveFileSystem` wyszukuje pliki `*.snd` w katalogu głównym gry i jego
-bezpośrednich podkatalogach, a następnie montuje je w VFS **pod** źródłem gry —
-istniejące pliki (np. z zainstalowanej kopii) mają pierwszeństwo. Rekordy są
-dekodowane leniwie przy pierwszym odczycie (`OggVorbisDecoder` na bazie JOrbis,
-`WaveSaver`).
+`SndArchiveFileSystem` wybiera archiwa tak jak instalator: czyta listę plików
+z sekcji `[std]` w `install.ini` i bierze wpisy, których ścieżka (bez względu na
+wielkość liter) zawiera `.snd`. Bez `install.ini` nic nie jest montowane.
+Archiwa trafiają do VFS **pod** źródłem gry — istniejące pliki (np. z
+zainstalowanej kopii) mają pierwszeństwo.
+
+Indeks powstaje przy pierwszym odwołaniu do katalogu archiwum, w jednym
+przebiegu strumieniowym. Rekordy są dekodowane przy pierwszym odczycie
+(`OggVorbisDecoder` na bazie JOrbis, `WaveSaver`); archiwum nigdy nie jest
+kopiowane w całości do pamięci, także gdy gra leży w ZIP.
 
 Ograniczenia:
 
