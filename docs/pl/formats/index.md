@@ -51,6 +51,12 @@ Silnik Piklib/BlooMoo trzyma zasoby gry w kilkunastu formatach plików — czę�
 
     Ciała fizyczne — kształty kolizyjne dla silnika [`INERTIA`](../reference/INERTIA.md). Magic: `INE1`.
 
+-   :material-music-box-multiple:{ .lg .middle } __[SND](SND.md)__ — archiwum dźwięków instalatora
+
+    ---
+
+    `wavs/wav.snd` z Reksio i Kapitan Nemo: sekwencja plików Ogg Vorbis, które instalator rozpakowuje do WAV.
+
 </div>
 
 ## Formaty tekstowe

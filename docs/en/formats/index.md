@@ -51,6 +51,12 @@ The Piklib/BlooMoo engine keeps game assets in a dozen-odd file formats — some
 
     Physics bodies — collision shapes for the [`INERTIA`](../reference/INERTIA.md) engine. Magic: `INE1`.
 
+-   :material-music-box-multiple:{ .lg .middle } __[SND](SND.md)__ — installer sound archive
+
+    ---
+
+    `wavs/wav.snd` from Reksio i Kapitan Nemo: a sequence of Ogg Vorbis files the installer unpacks to WAV.
+
 </div>
 
 ## Text formats
