@@ -1,0 +1,91 @@
+# INTEGER arithmetic. Every case starts from the same scene unless it sets its own `cnv`.
+
+[defaults]
+tags = ["integer"]
+read = ["A"]
+cnv = '''
+OBJECT=A
+A:TYPE=INTEGER
+A:VALUE=7
+
+OBJECT=B
+B:TYPE=INTEGER
+B:VALUE=-3
+
+OBJECT=ZERO
+ZERO:TYPE=INTEGER
+ZERO:VALUE=0
+'''
+
+[[case]]
+id = "integer.arithmetic.chain"
+description = "ADD, SUB and MUL store and return the new value."
+steps = ["A^ADD(5)", "A^SUB(20)", "A^MUL(-3)", "A^ADD(B)"]
+
+[[case]]
+id = "integer.div.truncates"
+description = "Integer division of positive and negative values."
+steps = ["A^DIV(2)", "A^SET(-7)", "A^DIV(2)", "A^SET(7)", "A^DIV(-2)"]
+
+[[case]]
+id = "integer.div.by-zero"
+description = "Docs: division by zero leaves the variable unchanged."
+steps = ["A^DIV(0)", "A^DIV(ZERO)"]
+
+[[case]]
+id = "integer.mod.signs"
+description = "Sign of MOD for negative operands."
+steps = ["A^MOD(3)", "A^SET(-7)", "A^MOD(3)", "A^SET(7)", "A^MOD(-3)"]
+
+[[case]]
+id = "integer.mod.by-zero"
+steps = ["A^MOD(0)"]
+
+[[case]]
+id = "integer.abs"
+description = "ABS stores |argument|, not |self|."
+steps = ["A^ABS(B)", "A^ABS(-12)", "A^ABS(5)"]
+
+[[case]]
+id = "integer.abs.no-argument"
+description = "ABS without its argument (seen to crash PIKLIB 7.2/8 and BlooMoo)."
+steps = ["A^ABS()"]
+
+[[case]]
+id = "integer.clamp"
+steps = ["A^CLAMP(0, 5)", "A^SET(-4)", "A^CLAMP(0, 5)", "A^SET(3)", "A^CLAMP(0, 5)"]
+
+[[case]]
+id = "integer.clamp.inverted-range"
+description = "What CLAMP does when min > max."
+steps = ["A^CLAMP(10, 2)", "A^SET(5)", "A^CLAMP(10, 2)"]
+
+[[case]]
+id = "integer.inc-dec"
+steps = ["A^INC()", "A^INC()", "A^DEC()"]
+
+[[case]]
+id = "integer.power"
+steps = ["A^SET(2)", "A^POWER(10)", "A^SET(-3)", "A^POWER(3)", "A^POWER(0)"]
+
+[[case]]
+id = "integer.bitwise"
+steps = ["A^SET(12)", "A^AND(10)", "A^SET(12)", "A^OR(3)", "A^SET(12)", "A^XOR(5)", "A^NOT()"]
+
+[[case]]
+id = "integer.switch"
+steps = ["A^SWITCH(1, 2)", "A^SWITCH(1, 2)", "A^SWITCH(1, 2)"]
+
+[[case]]
+id = "integer.length"
+description = "LENGTH(x, y) as the integer vector length."
+steps = ["A^LENGTH(3, 4)", "A^LENGTH(1, 1)", "A^LENGTH(-5, 0)"]
+
+[[case]]
+id = "integer.set.from-string"
+description = "SET with non-numeric and partly numeric strings."
+steps = ['A^SET("42")', 'A^SET("12ABC")', 'A^SET("ABC")', 'A^SET("")', 'A^SET(" 5")']
+
+[[case]]
+id = "integer.add.string-argument"
+steps = ['A^ADD("3")', 'A^ADD("X")']

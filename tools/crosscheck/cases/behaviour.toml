@@ -1,0 +1,108 @@
+# Whole code blocks: expressions, @IF/@LOOP and BOOL, executed through BEHAVIOUR^RUN.
+
+[defaults]
+tags = ["behaviour"]
+read = ["A", "S", "F"]
+cnv = '''
+OBJECT=A
+A:TYPE=INTEGER
+A:VALUE=0
+
+OBJECT=S
+S:TYPE=STRING
+S:VALUE=
+
+OBJECT=F
+F:TYPE=BOOL
+F:VALUE=FALSE
+
+OBJECT=EXPR
+EXPR:TYPE=BEHAVIOUR
+EXPR:CODE={A^SET([7+3*2]);S^SET([A@2]);}
+
+OBJECT=CONCAT
+CONCAT:TYPE=BEHAVIOUR
+CONCAT:CODE={S^SET("X");S^ADD(A);A^SET([S+1]);}
+
+OBJECT=BODY
+BODY:TYPE=BEHAVIOUR
+BODY:CODE={A^ADD(1);S^ADD(_I_);}
+
+OBJECT=LOOP
+LOOP:TYPE=BEHAVIOUR
+LOOP:CODE={@LOOP("BODY",0,5,1);}
+
+OBJECT=LOOPSTEP
+LOOPSTEP:TYPE=BEHAVIOUR
+LOOPSTEP:CODE={@LOOP("BODY",2,5,2);}
+
+OBJECT=LOOPEMPTY
+LOOPEMPTY:TYPE=BEHAVIOUR
+LOOPEMPTY:CODE={@LOOP("BODY",3,0,1);}
+
+OBJECT=YES
+YES:TYPE=BEHAVIOUR
+YES:CODE={S^SET("YES");}
+
+OBJECT=NO
+NO:TYPE=BEHAVIOUR
+NO:CODE={S^SET("NO");}
+
+OBJECT=SIMPLE
+SIMPLE:TYPE=BEHAVIOUR
+SIMPLE:CODE={@IF(A,">",3,"YES","NO");}
+
+OBJECT=SIMPLEEQ
+SIMPLEEQ:TYPE=BEHAVIOUR
+SIMPLEEQ:CODE={@IF(A,"_",5,"YES","NO");}
+
+OBJECT=COMPOUND
+COMPOUND:TYPE=BEHAVIOUR
+COMPOUND:CODE={@IF("A>3&&A<9","YES","NO");}
+
+OBJECT=COMPOUNDEQ
+COMPOUNDEQ:TYPE=BEHAVIOUR
+COMPOUNDEQ:CODE={@IF("A'5","YES","NO");}
+
+OBJECT=UNQUOTED
+UNQUOTED:TYPE=BEHAVIOUR
+UNQUOTED:CODE={@IF(A,">",3,YES,NO);}
+
+OBJECT=FLIP
+FLIP:TYPE=BEHAVIOUR
+FLIP:CODE={F^SWITCH(TRUE,FALSE);}
+'''
+
+[[case]]
+id = "behaviour.expression.precedence"
+description = "Bracket expressions: is 7+3*2 left-to-right (20) or by precedence (13); '@' as division."
+steps = ["EXPR^RUN()"]
+
+[[case]]
+id = "behaviour.expression.string-int-mix"
+description = "Adding a number to a string and a string expression to an integer."
+steps = ["A^SET(4)", "CONCAT^RUN()"]
+
+[[case]]
+id = "behaviour.loop.range"
+description = "@LOOP(body, start, delta, step) runs _I_ over [start, start + delta)."
+steps = ["LOOP^RUN()", "S^SET(\"\")", "LOOPSTEP^RUN()", "S^SET(\"\")", "LOOPEMPTY^RUN()"]
+
+[[case]]
+id = "behaviour.if.simple"
+description = "@IF(value, comparator, value, true, false) with '_' as equality."
+steps = ["A^SET(5)", "SIMPLE^RUN()", "SIMPLEEQ^RUN()", "A^SET(3)", "SIMPLE^RUN()", "SIMPLEEQ^RUN()"]
+
+[[case]]
+id = "behaviour.if.compound"
+description = "@IF(condition string, true, false) with && and ''' as equality."
+steps = ["A^SET(5)", "COMPOUND^RUN()", "COMPOUNDEQ^RUN()", "A^SET(10)", "COMPOUND^RUN()", "COMPOUNDEQ^RUN()"]
+
+[[case]]
+id = "behaviour.if.unquoted-branches"
+description = "Behaviour names passed unquoted resolve as objects (seen to crash every engine)."
+steps = ["A^SET(5)", "UNQUOTED^RUN()"]
+
+[[case]]
+id = "behaviour.bool.switch"
+steps = ["FLIP^RUN()", "FLIP^RUN()", 'F^SET("TRUE")', 'F^SET(0)', 'F^SET(1)', 'F^SET("ABC")']

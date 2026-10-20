@@ -1,0 +1,52 @@
+# STRING methods, mostly index/length edge cases.
+
+[defaults]
+tags = ["string"]
+read = ["S"]
+cnv = '''
+OBJECT=S
+S:TYPE=STRING
+S:VALUE=REKSIO
+
+OBJECT=N
+N:TYPE=INTEGER
+N:VALUE=0
+'''
+
+[[case]]
+id = "string.add-and-set"
+steps = ['S^ADD("_I_KRETES")', 'S^SET("A")', 'S^ADD(N)', 'S^ADD(12)']
+
+[[case]]
+id = "string.get-substring"
+description = "GET() and GET(index), including out of range."
+steps = ["S^GET()", "S^GET(0)", "S^GET(2)", "S^GET(5)", "S^GET(6)", "S^GET(-1)"]
+
+[[case]]
+id = "string.sub-and-cut"
+description = "SUB returns a slice, CUT stores one; both with lengths past the end."
+steps = ["S^SUB(1, 3)", "S^SUB(4, 10)", "S^SUB(10, 2)", "S^CUT(1, 3)", "S^CUT(0, 0)"]
+
+[[case]]
+id = "string.find"
+read = ["S", "N"]
+steps = ['N^SET(S^FIND("K"))', 'N^SET(S^FIND("Z"))', 'N^SET(S^FIND("S", 3))', 'N^SET(S^FIND(""))']
+
+[[case]]
+id = "string.length-case"
+read = ["S", "N"]
+steps = ["N^SET(S^LENGTH())", "S^LOWER()", "S^UPPER()"]
+
+[[case]]
+id = "string.replaceat-changeat"
+steps = ['S^REPLACEAT(1, 2, "XYZ")', 'S^SET("REKSIO")', 'S^CHANGEAT(0, "B")', 'S^CHANGEAT(10, "Q")']
+
+[[case]]
+id = "string.polish-letters"
+description = "cp1250 text survives the round trip, and UPPER/LOWER on Polish letters."
+cnv = '''
+OBJECT=S
+S:TYPE=STRING
+S:VALUE=żółć
+'''
+steps = ["S^UPPER()", "S^LOWER()", 'S^ADD("Ą")']
