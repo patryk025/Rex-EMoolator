@@ -603,10 +603,34 @@ project(":core") {
     }
 
     test {
-        useJUnitPlatform()
+        useJUnitPlatform {
+            excludeTags 'crosscheck'
+        }
         testLogging {
             events 'passed', 'skipped', 'failed'
         }
+        jvmArgs "-javaagent:${configurations.testRuntimeClasspath.find { it.name.contains('mockito-core') }}", '-Xshare:off'
+    }
+
+    // Compares the interpreter with results recorded on the original engine DLLs
+    // (tools/crosscheck). Mismatches are reported, not fatal, unless -PcrosscheckStrict.
+    tasks.register('crosscheck', Test) {
+        group = 'verification'
+        description = 'Compares the interpreter with the recorded original-engine results.'
+
+        testClassesDirs = sourceSets.test.output.classesDirs
+        classpath = sourceSets.test.runtimeClasspath
+        useJUnitPlatform {
+            includeTags 'crosscheck'
+        }
+
+        def manifest = rootProject.file('tools/crosscheck/engine-results.json')
+        def reportDir = layout.buildDirectory.dir('reports/crosscheck')
+        inputs.file(manifest)
+        outputs.dir(reportDir)
+        systemProperty 'crosscheck.manifest', manifest.absolutePath
+        systemProperty 'crosscheck.report', reportDir.get().asFile.absolutePath
+        ignoreFailures = !project.hasProperty('crosscheckStrict')
         jvmArgs "-javaagent:${configurations.testRuntimeClasspath.find { it.name.contains('mockito-core') }}", '-Xshare:off'
     }
 
