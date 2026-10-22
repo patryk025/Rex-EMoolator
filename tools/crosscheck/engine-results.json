@@ -1,6 +1,6 @@
 {
  "format": 1,
- "generated": "2026-10-19T19:09:18+00:00",
+ "generated": "2026-10-22T15:24:29+00:00",
  "generator": "tools/crosscheck/crosscheck.py",
  "engines": {
   "bloomoo-2679920b3735": {
@@ -65,6 +65,69 @@
    "sha1": "f5b6842faf887e53f44c09bec4b5b816046afddd",
    "games": [
     "Bolek i Lolek - Język niemiecki dla najmłodszych PL"
+   ]
+  },
+  "piklib61-3bb31de8b45f": {
+   "family": "piklib61",
+   "variant": "PIKLIB_6_1",
+   "file": "PIKLIB61.DLL",
+   "sha1": "3bb31de8b45fa745a002cd7dc99cbac142ba27e4",
+   "games": [
+    "Reksio i Skarb Piratów [piklib61]"
+   ]
+  },
+  "piklib61-715272459e13": {
+   "family": "piklib61",
+   "variant": "PIKLIB_6_1",
+   "file": "PIKLIB61.DLL",
+   "sha1": "715272459e13bd77749b2634356b3f3b8a86015e",
+   "games": [
+    "Reksio i Skarb Piratów [piklib61]"
+   ]
+  },
+  "piklib61-91b0330a11ab": {
+   "family": "piklib61",
+   "variant": "PIKLIB_6_1",
+   "file": "PIKLIB61.DLL",
+   "sha1": "91b0330a11abef59d1b3a97b9754c56d80aee40e",
+   "games": [
+    "Aladyn"
+   ]
+  },
+  "piklib61-9de20dceea68": {
+   "family": "piklib61",
+   "variant": "PIKLIB_6_1",
+   "file": "PIKLIB61.DLL",
+   "sha1": "9de20dceea689445d32972c965d2df47a0c8444c",
+   "games": [
+    "Piotruś Pan PL"
+   ]
+  },
+  "piklib61-c0f83acd825b": {
+   "family": "piklib61",
+   "variant": "PIKLIB_6_1",
+   "file": "PIKLIB61.DLL",
+   "sha1": "c0f83acd825b2d0e06486d3665e09bce2ed43ca6",
+   "games": [
+    "Pinokio"
+   ]
+  },
+  "piklib71-128b235b6d94": {
+   "family": "piklib71",
+   "variant": "PIKLIB_7_1",
+   "file": "PIKLIB71.DLL",
+   "sha1": "128b235b6d9466a27e8a6ead2de20d98020222c8",
+   "games": [
+    "Reksio i UFO [piklib71]"
+   ]
+  },
+  "piklib71-27c2b7699f01": {
+   "family": "piklib71",
+   "variant": "PIKLIB_7_1",
+   "file": "PIKLIB71.DLL",
+   "sha1": "27c2b7699f0159c7757bdfc5253b609b3f9d9b76",
+   "games": [
+    "Reksio i Skarb Piratów [piklib71]"
    ]
   },
   "piklib72-549b6851b2c9": {
@@ -260,8 +323,8 @@
     "behaviour"
    ],
    "source": "behaviour.toml",
-   "digest": "e6ab73ab0b2db713f5919e516fa031141f2bb66a",
-   "cnv": "OBJECT=A\nA:TYPE=INTEGER\nA:VALUE=0\n\nOBJECT=S\nS:TYPE=STRING\nS:VALUE=\n\nOBJECT=F\nF:TYPE=BOOL\nF:VALUE=FALSE\n\nOBJECT=EXPR\nEXPR:TYPE=BEHAVIOUR\nEXPR:CODE={A^SET([7+3*2]);S^SET([A@2]);}\n\nOBJECT=CONCAT\nCONCAT:TYPE=BEHAVIOUR\nCONCAT:CODE={S^SET(\"X\");S^ADD(A);A^SET([S+1]);}\n\nOBJECT=BODY\nBODY:TYPE=BEHAVIOUR\nBODY:CODE={A^ADD(1);S^ADD(_I_);}\n\nOBJECT=LOOP\nLOOP:TYPE=BEHAVIOUR\nLOOP:CODE={@LOOP(\"BODY\",0,5,1);}\n\nOBJECT=LOOPSTEP\nLOOPSTEP:TYPE=BEHAVIOUR\nLOOPSTEP:CODE={@LOOP(\"BODY\",2,5,2);}\n\nOBJECT=LOOPEMPTY\nLOOPEMPTY:TYPE=BEHAVIOUR\nLOOPEMPTY:CODE={@LOOP(\"BODY\",3,0,1);}\n\nOBJECT=YES\nYES:TYPE=BEHAVIOUR\nYES:CODE={S^SET(\"YES\");}\n\nOBJECT=NO\nNO:TYPE=BEHAVIOUR\nNO:CODE={S^SET(\"NO\");}\n\nOBJECT=SIMPLE\nSIMPLE:TYPE=BEHAVIOUR\nSIMPLE:CODE={@IF(A,\">\",3,\"YES\",\"NO\");}\n\nOBJECT=SIMPLEEQ\nSIMPLEEQ:TYPE=BEHAVIOUR\nSIMPLEEQ:CODE={@IF(A,\"_\",5,\"YES\",\"NO\");}\n\nOBJECT=COMPOUND\nCOMPOUND:TYPE=BEHAVIOUR\nCOMPOUND:CODE={@IF(\"A>3&&A<9\",\"YES\",\"NO\");}\n\nOBJECT=COMPOUNDEQ\nCOMPOUNDEQ:TYPE=BEHAVIOUR\nCOMPOUNDEQ:CODE={@IF(\"A'5\",\"YES\",\"NO\");}\n\nOBJECT=UNQUOTED\nUNQUOTED:TYPE=BEHAVIOUR\nUNQUOTED:CODE={@IF(A,\">\",3,YES,NO);}\n\nOBJECT=FLIP\nFLIP:TYPE=BEHAVIOUR\nFLIP:CODE={F^SWITCH(TRUE,FALSE);}\n",
+   "digest": "bc6de1e073225e8b3d8bf3a2d215f9f45fabb2a6",
+   "cnv": "OBJECT=A\nA:TYPE=INTEGER\nA:VALUE=0\n\nOBJECT=S\nS:TYPE=STRING\nS:VALUE=\n\nOBJECT=F\nF:TYPE=BOOL\nF:VALUE=FALSE\n\nOBJECT=EXPR\nEXPR:TYPE=BEHAVIOUR\nEXPR:CODE={A^SET([7+3*2]);S^SET([A@2]);}\n\nOBJECT=CONCAT\nCONCAT:TYPE=BEHAVIOUR\nCONCAT:CODE={S^SET(\"X\");S^ADD(A);A^SET([S+1]);}\n\nOBJECT=BODY\nBODY:TYPE=BEHAVIOUR\nBODY:CODE={A^ADD(1);S^ADD(_I_);}\n\nOBJECT=LOOP\nLOOP:TYPE=BEHAVIOUR\nLOOP:CODE={@LOOP(\"BODY\",0,5,1);}\n\nOBJECT=LOOPSTEP\nLOOPSTEP:TYPE=BEHAVIOUR\nLOOPSTEP:CODE={@LOOP(\"BODY\",2,5,2);}\n\nOBJECT=LOOPEMPTY\nLOOPEMPTY:TYPE=BEHAVIOUR\nLOOPEMPTY:CODE={@LOOP(\"BODY\",3,0,1);}\n\nOBJECT=YES\nYES:TYPE=BEHAVIOUR\nYES:CODE={S^SET(\"YES\");}\n\nOBJECT=NO\nNO:TYPE=BEHAVIOUR\nNO:CODE={S^SET(\"NO\");}\n\nOBJECT=SIMPLE\nSIMPLE:TYPE=BEHAVIOUR\nSIMPLE:CODE={@IF(A,\">\",3,\"YES\",\"NO\");}\n\nOBJECT=SIMPLEEQ\nSIMPLEEQ:TYPE=BEHAVIOUR\nSIMPLEEQ:CODE={@IF(A,\"_\",5,\"YES\",\"NO\");}\n\nOBJECT=COMPOUND\nCOMPOUND:TYPE=BEHAVIOUR\nCOMPOUND:CODE={@IF(\"A>3&&A<9\",\"YES\",\"NO\");}\n\nOBJECT=COMPOUNDEQ\nCOMPOUNDEQ:TYPE=BEHAVIOUR\nCOMPOUNDEQ:CODE={@IF(\"A'5\",\"YES\",\"NO\");}\n\nOBJECT=UNQUOTED\nUNQUOTED:TYPE=BEHAVIOUR\nUNQUOTED:CODE={@IF(A,\">\",3,YES,NO);}\n\nOBJECT=FLIP\nFLIP:TYPE=BEHAVIOUR\nFLIP:CODE={F^SWITCH(TRUE,FALSE);}\n\nOBJECT=GT3\nGT3:TYPE=CONDITION\nGT3:OPERAND1=A\nGT3:OPERATOR=GREATER\nGT3:OPERAND2=3\n\nOBJECT=LT9\nLT9:TYPE=CONDITION\nLT9:OPERAND1=A\nLT9:OPERATOR=LESS\nLT9:OPERAND2=9\n\nOBJECT=BETWEEN\nBETWEEN:TYPE=COMPLEXCONDITION\nBETWEEN:CONDITION1=GT3\nBETWEEN:OPERATOR=AND\nBETWEEN:CONDITION2=LT9\n\nOBJECT=IFGT3\nIFGT3:TYPE=BEHAVIOUR\nIFGT3:CONDITION=GT3\nIFGT3:CODE={S^SET(\"GT3\");}\n\nOBJECT=IFBETWEEN\nIFBETWEEN:TYPE=BEHAVIOUR\nIFBETWEEN:CONDITION=BETWEEN\nIFBETWEEN:CODE={S^SET(\"BETWEEN\");}\n",
    "steps": [
     "EXPR^RUN()"
    ],
@@ -332,6 +395,787 @@
        }
       }
      ]
+    },
+    {
+     "engines": [
+      "piklib61-3bb31de8b45f",
+      "piklib61-715272459e13"
+     ],
+     "status": "error",
+     "initial": {
+      "A": [
+       "INTEGER",
+       "0"
+      ],
+      "S": [
+       "STRING",
+       ""
+      ],
+      "F": [
+       "BOOL",
+       "false"
+      ]
+     },
+     "steps": [],
+     "error": "pikhost ended early (0xc0000374, heap corruption)",
+     "stage": "step 0"
+    },
+    {
+     "engines": [
+      "piklib61-91b0330a11ab",
+      "piklib61-9de20dceea68",
+      "piklib61-c0f83acd825b"
+     ],
+     "status": "ok",
+     "initial": {
+      "A": [
+       "INTEGER",
+       "0"
+      ],
+      "S": [
+       "STRING",
+       ""
+      ],
+      "F": [
+       "BOOL",
+       "false"
+      ]
+     },
+     "steps": [
+      {
+       "result": null,
+       "state": {
+        "A": [
+         "INTEGER",
+         "10"
+        ],
+        "S": [
+         "STRING",
+         "5"
+        ],
+        "F": [
+         "BOOL",
+         "false"
+        ]
+       }
+      }
+     ]
+    },
+    {
+     "engines": [
+      "piklib71-128b235b6d94",
+      "piklib71-27c2b7699f01"
+     ],
+     "status": "ok",
+     "initial": {
+      "A": [
+       "INTEGER",
+       "0"
+      ],
+      "S": [
+       "STRING",
+       ""
+      ],
+      "F": [
+       "BOOL",
+       "FALSE"
+      ]
+     },
+     "steps": [
+      {
+       "result": null,
+       "state": {
+        "A": [
+         "INTEGER",
+         "10"
+        ],
+        "S": [
+         "STRING",
+         "5"
+        ],
+        "F": [
+         "BOOL",
+         "FALSE"
+        ]
+       }
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "behaviour.expression.chain",
+   "description": "Three operands. PIKLIB 6.1/7.1 split at the first operator and read the right side as a single operand, so [1+2+3] is 1+'2+3' = 3.",
+   "tags": [
+    "behaviour"
+   ],
+   "source": "behaviour.toml",
+   "digest": "250e7c6403970097ebb9d64438b5f98c79bd9086",
+   "cnv": "OBJECT=A\nA:TYPE=INTEGER\nA:VALUE=0\n\nOBJECT=S\nS:TYPE=STRING\nS:VALUE=\n\nOBJECT=F\nF:TYPE=BOOL\nF:VALUE=FALSE\n\nOBJECT=EXPR\nEXPR:TYPE=BEHAVIOUR\nEXPR:CODE={A^SET([7+3*2]);S^SET([A@2]);}\n\nOBJECT=CONCAT\nCONCAT:TYPE=BEHAVIOUR\nCONCAT:CODE={S^SET(\"X\");S^ADD(A);A^SET([S+1]);}\n\nOBJECT=BODY\nBODY:TYPE=BEHAVIOUR\nBODY:CODE={A^ADD(1);S^ADD(_I_);}\n\nOBJECT=LOOP\nLOOP:TYPE=BEHAVIOUR\nLOOP:CODE={@LOOP(\"BODY\",0,5,1);}\n\nOBJECT=LOOPSTEP\nLOOPSTEP:TYPE=BEHAVIOUR\nLOOPSTEP:CODE={@LOOP(\"BODY\",2,5,2);}\n\nOBJECT=LOOPEMPTY\nLOOPEMPTY:TYPE=BEHAVIOUR\nLOOPEMPTY:CODE={@LOOP(\"BODY\",3,0,1);}\n\nOBJECT=YES\nYES:TYPE=BEHAVIOUR\nYES:CODE={S^SET(\"YES\");}\n\nOBJECT=NO\nNO:TYPE=BEHAVIOUR\nNO:CODE={S^SET(\"NO\");}\n\nOBJECT=SIMPLE\nSIMPLE:TYPE=BEHAVIOUR\nSIMPLE:CODE={@IF(A,\">\",3,\"YES\",\"NO\");}\n\nOBJECT=SIMPLEEQ\nSIMPLEEQ:TYPE=BEHAVIOUR\nSIMPLEEQ:CODE={@IF(A,\"_\",5,\"YES\",\"NO\");}\n\nOBJECT=COMPOUND\nCOMPOUND:TYPE=BEHAVIOUR\nCOMPOUND:CODE={@IF(\"A>3&&A<9\",\"YES\",\"NO\");}\n\nOBJECT=COMPOUNDEQ\nCOMPOUNDEQ:TYPE=BEHAVIOUR\nCOMPOUNDEQ:CODE={@IF(\"A'5\",\"YES\",\"NO\");}\n\nOBJECT=UNQUOTED\nUNQUOTED:TYPE=BEHAVIOUR\nUNQUOTED:CODE={@IF(A,\">\",3,YES,NO);}\n\nOBJECT=FLIP\nFLIP:TYPE=BEHAVIOUR\nFLIP:CODE={F^SWITCH(TRUE,FALSE);}\n\nOBJECT=GT3\nGT3:TYPE=CONDITION\nGT3:OPERAND1=A\nGT3:OPERATOR=GREATER\nGT3:OPERAND2=3\n\nOBJECT=LT9\nLT9:TYPE=CONDITION\nLT9:OPERAND1=A\nLT9:OPERATOR=LESS\nLT9:OPERAND2=9\n\nOBJECT=BETWEEN\nBETWEEN:TYPE=COMPLEXCONDITION\nBETWEEN:CONDITION1=GT3\nBETWEEN:OPERATOR=AND\nBETWEEN:CONDITION2=LT9\n\nOBJECT=IFGT3\nIFGT3:TYPE=BEHAVIOUR\nIFGT3:CONDITION=GT3\nIFGT3:CODE={S^SET(\"GT3\");}\n\nOBJECT=IFBETWEEN\nIFBETWEEN:TYPE=BEHAVIOUR\nIFBETWEEN:CONDITION=BETWEEN\nIFBETWEEN:CODE={S^SET(\"BETWEEN\");}\n",
+   "steps": [
+    "A^SET([1+2+3])",
+    "A^SET([2*3*4])",
+    "A^SET([7*2+3])",
+    "A^SET([10-3-2])",
+    "A^SET([7+3*2+1])"
+   ],
+   "read": [
+    "A"
+   ],
+   "results": [
+    {
+     "engines": [
+      "bloomoo-2679920b3735",
+      "bloomoo-3be911183e59",
+      "bloomoo-788ab0406ab4",
+      "bloomoo-9ac8ebbe0cc2",
+      "bloomoo-d63a5fb575f9",
+      "bloomoo-fb9a2b81d685",
+      "bloomoo-web-f5b6842faf88",
+      "piklib72-549b6851b2c9",
+      "piklib72-923a103d5b05",
+      "piklib8-0967908f2df1",
+      "piklib8-2c1705410e7a",
+      "piklib8-33cfd6523c04",
+      "piklib8-42d6a0c7fdf2",
+      "piklib8-5f6cbb33576d",
+      "piklib8-7b7ef02ea246",
+      "piklib8-87c5ca97f599",
+      "piklib8-92d602bbea05",
+      "piklib8-a70f97e970c6",
+      "piklib8-c0d85c50e3dc",
+      "piklib8-d1cc807bcbe5",
+      "piklib8-d3819a92b84b",
+      "piklib8-d6509a132e2a",
+      "piklib8-e80093de9636",
+      "piklib8-f01db0dd5a0d"
+     ],
+     "status": "ok",
+     "initial": {
+      "A": [
+       "INTEGER",
+       "0"
+      ]
+     },
+     "steps": [
+      {
+       "result": null,
+       "state": {
+        "A": [
+         "INTEGER",
+         "6"
+        ]
+       }
+      },
+      {
+       "result": null,
+       "state": {
+        "A": [
+         "INTEGER",
+         "24"
+        ]
+       }
+      },
+      {
+       "result": null,
+       "state": {
+        "A": [
+         "INTEGER",
+         "17"
+        ]
+       }
+      },
+      {
+       "result": null,
+       "state": {
+        "A": [
+         "INTEGER",
+         "5"
+        ]
+       }
+      },
+      {
+       "result": null,
+       "state": {
+        "A": [
+         "INTEGER",
+         "21"
+        ]
+       }
+      }
+     ]
+    },
+    {
+     "engines": [
+      "piklib61-3bb31de8b45f",
+      "piklib61-715272459e13"
+     ],
+     "status": "error",
+     "initial": {
+      "A": [
+       "INTEGER",
+       "0"
+      ]
+     },
+     "steps": [],
+     "error": "pikhost ended early (0xc0000374, heap corruption)",
+     "stage": "step 0"
+    },
+    {
+     "engines": [
+      "piklib61-91b0330a11ab",
+      "piklib61-9de20dceea68",
+      "piklib61-c0f83acd825b"
+     ],
+     "status": "ok",
+     "initial": {
+      "A": [
+       "INTEGER",
+       "0"
+      ]
+     },
+     "steps": [
+      {
+       "result": [
+        "INTEGER",
+        "3"
+       ],
+       "state": {
+        "A": [
+         "INTEGER",
+         "3"
+        ]
+       }
+      },
+      {
+       "result": [
+        "INTEGER",
+        "6"
+       ],
+       "state": {
+        "A": [
+         "INTEGER",
+         "6"
+        ]
+       }
+      },
+      {
+       "result": [
+        "INTEGER",
+        "14"
+       ],
+       "state": {
+        "A": [
+         "INTEGER",
+         "14"
+        ]
+       }
+      },
+      {
+       "result": [
+        "INTEGER",
+        "7"
+       ],
+       "state": {
+        "A": [
+         "INTEGER",
+         "7"
+        ]
+       }
+      },
+      {
+       "result": [
+        "INTEGER",
+        "10"
+       ],
+       "state": {
+        "A": [
+         "INTEGER",
+         "10"
+        ]
+       }
+      }
+     ]
+    },
+    {
+     "engines": [
+      "piklib71-128b235b6d94",
+      "piklib71-27c2b7699f01"
+     ],
+     "status": "ok",
+     "initial": {
+      "A": [
+       "INTEGER",
+       "0"
+      ]
+     },
+     "steps": [
+      {
+       "result": null,
+       "state": {
+        "A": [
+         "INTEGER",
+         "3"
+        ]
+       }
+      },
+      {
+       "result": null,
+       "state": {
+        "A": [
+         "INTEGER",
+         "6"
+        ]
+       }
+      },
+      {
+       "result": null,
+       "state": {
+        "A": [
+         "INTEGER",
+         "14"
+        ]
+       }
+      },
+      {
+       "result": null,
+       "state": {
+        "A": [
+         "INTEGER",
+         "7"
+        ]
+       }
+      },
+      {
+       "result": null,
+       "state": {
+        "A": [
+         "INTEGER",
+         "10"
+        ]
+       }
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "behaviour.expression.nested",
+   "description": "A bracketed operand on the right is resolved recursively in every version.",
+   "tags": [
+    "behaviour"
+   ],
+   "source": "behaviour.toml",
+   "digest": "cd862e893eb211e53f956c70688491e51974e16f",
+   "cnv": "OBJECT=A\nA:TYPE=INTEGER\nA:VALUE=0\n\nOBJECT=S\nS:TYPE=STRING\nS:VALUE=\n\nOBJECT=F\nF:TYPE=BOOL\nF:VALUE=FALSE\n\nOBJECT=EXPR\nEXPR:TYPE=BEHAVIOUR\nEXPR:CODE={A^SET([7+3*2]);S^SET([A@2]);}\n\nOBJECT=CONCAT\nCONCAT:TYPE=BEHAVIOUR\nCONCAT:CODE={S^SET(\"X\");S^ADD(A);A^SET([S+1]);}\n\nOBJECT=BODY\nBODY:TYPE=BEHAVIOUR\nBODY:CODE={A^ADD(1);S^ADD(_I_);}\n\nOBJECT=LOOP\nLOOP:TYPE=BEHAVIOUR\nLOOP:CODE={@LOOP(\"BODY\",0,5,1);}\n\nOBJECT=LOOPSTEP\nLOOPSTEP:TYPE=BEHAVIOUR\nLOOPSTEP:CODE={@LOOP(\"BODY\",2,5,2);}\n\nOBJECT=LOOPEMPTY\nLOOPEMPTY:TYPE=BEHAVIOUR\nLOOPEMPTY:CODE={@LOOP(\"BODY\",3,0,1);}\n\nOBJECT=YES\nYES:TYPE=BEHAVIOUR\nYES:CODE={S^SET(\"YES\");}\n\nOBJECT=NO\nNO:TYPE=BEHAVIOUR\nNO:CODE={S^SET(\"NO\");}\n\nOBJECT=SIMPLE\nSIMPLE:TYPE=BEHAVIOUR\nSIMPLE:CODE={@IF(A,\">\",3,\"YES\",\"NO\");}\n\nOBJECT=SIMPLEEQ\nSIMPLEEQ:TYPE=BEHAVIOUR\nSIMPLEEQ:CODE={@IF(A,\"_\",5,\"YES\",\"NO\");}\n\nOBJECT=COMPOUND\nCOMPOUND:TYPE=BEHAVIOUR\nCOMPOUND:CODE={@IF(\"A>3&&A<9\",\"YES\",\"NO\");}\n\nOBJECT=COMPOUNDEQ\nCOMPOUNDEQ:TYPE=BEHAVIOUR\nCOMPOUNDEQ:CODE={@IF(\"A'5\",\"YES\",\"NO\");}\n\nOBJECT=UNQUOTED\nUNQUOTED:TYPE=BEHAVIOUR\nUNQUOTED:CODE={@IF(A,\">\",3,YES,NO);}\n\nOBJECT=FLIP\nFLIP:TYPE=BEHAVIOUR\nFLIP:CODE={F^SWITCH(TRUE,FALSE);}\n\nOBJECT=GT3\nGT3:TYPE=CONDITION\nGT3:OPERAND1=A\nGT3:OPERATOR=GREATER\nGT3:OPERAND2=3\n\nOBJECT=LT9\nLT9:TYPE=CONDITION\nLT9:OPERAND1=A\nLT9:OPERATOR=LESS\nLT9:OPERAND2=9\n\nOBJECT=BETWEEN\nBETWEEN:TYPE=COMPLEXCONDITION\nBETWEEN:CONDITION1=GT3\nBETWEEN:OPERATOR=AND\nBETWEEN:CONDITION2=LT9\n\nOBJECT=IFGT3\nIFGT3:TYPE=BEHAVIOUR\nIFGT3:CONDITION=GT3\nIFGT3:CODE={S^SET(\"GT3\");}\n\nOBJECT=IFBETWEEN\nIFBETWEEN:TYPE=BEHAVIOUR\nIFBETWEEN:CONDITION=BETWEEN\nIFBETWEEN:CODE={S^SET(\"BETWEEN\");}\n",
+   "steps": [
+    "A^SET([7+[3*2]])",
+    "A^SET([2*[1+2]])"
+   ],
+   "read": [
+    "A"
+   ],
+   "results": [
+    {
+     "engines": [
+      "bloomoo-2679920b3735",
+      "bloomoo-3be911183e59",
+      "bloomoo-788ab0406ab4",
+      "bloomoo-9ac8ebbe0cc2",
+      "bloomoo-d63a5fb575f9",
+      "bloomoo-fb9a2b81d685",
+      "bloomoo-web-f5b6842faf88",
+      "piklib71-128b235b6d94",
+      "piklib71-27c2b7699f01",
+      "piklib72-549b6851b2c9",
+      "piklib72-923a103d5b05",
+      "piklib8-0967908f2df1",
+      "piklib8-2c1705410e7a",
+      "piklib8-33cfd6523c04",
+      "piklib8-42d6a0c7fdf2",
+      "piklib8-5f6cbb33576d",
+      "piklib8-7b7ef02ea246",
+      "piklib8-87c5ca97f599",
+      "piklib8-92d602bbea05",
+      "piklib8-a70f97e970c6",
+      "piklib8-c0d85c50e3dc",
+      "piklib8-d1cc807bcbe5",
+      "piklib8-d3819a92b84b",
+      "piklib8-d6509a132e2a",
+      "piklib8-e80093de9636",
+      "piklib8-f01db0dd5a0d"
+     ],
+     "status": "ok",
+     "initial": {
+      "A": [
+       "INTEGER",
+       "0"
+      ]
+     },
+     "steps": [
+      {
+       "result": null,
+       "state": {
+        "A": [
+         "INTEGER",
+         "13"
+        ]
+       }
+      },
+      {
+       "result": null,
+       "state": {
+        "A": [
+         "INTEGER",
+         "6"
+        ]
+       }
+      }
+     ]
+    },
+    {
+     "engines": [
+      "piklib61-3bb31de8b45f",
+      "piklib61-715272459e13"
+     ],
+     "status": "error",
+     "initial": {
+      "A": [
+       "INTEGER",
+       "0"
+      ]
+     },
+     "steps": [],
+     "error": "pikhost ended early (0xc0000374, heap corruption)",
+     "stage": "step 0"
+    },
+    {
+     "engines": [
+      "piklib61-91b0330a11ab",
+      "piklib61-9de20dceea68",
+      "piklib61-c0f83acd825b"
+     ],
+     "status": "ok",
+     "initial": {
+      "A": [
+       "INTEGER",
+       "0"
+      ]
+     },
+     "steps": [
+      {
+       "result": [
+        "INTEGER",
+        "13"
+       ],
+       "state": {
+        "A": [
+         "INTEGER",
+         "13"
+        ]
+       }
+      },
+      {
+       "result": [
+        "INTEGER",
+        "6"
+       ],
+       "state": {
+        "A": [
+         "INTEGER",
+         "6"
+        ]
+       }
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "behaviour.expression.nested-left",
+   "description": "A bracketed operand on the left: the old split finds the operator inside it.",
+   "tags": [
+    "behaviour"
+   ],
+   "source": "behaviour.toml",
+   "digest": "2ec7658032ca4e1f29b18bc1c2d29b24e5b063d8",
+   "cnv": "OBJECT=A\nA:TYPE=INTEGER\nA:VALUE=0\n\nOBJECT=S\nS:TYPE=STRING\nS:VALUE=\n\nOBJECT=F\nF:TYPE=BOOL\nF:VALUE=FALSE\n\nOBJECT=EXPR\nEXPR:TYPE=BEHAVIOUR\nEXPR:CODE={A^SET([7+3*2]);S^SET([A@2]);}\n\nOBJECT=CONCAT\nCONCAT:TYPE=BEHAVIOUR\nCONCAT:CODE={S^SET(\"X\");S^ADD(A);A^SET([S+1]);}\n\nOBJECT=BODY\nBODY:TYPE=BEHAVIOUR\nBODY:CODE={A^ADD(1);S^ADD(_I_);}\n\nOBJECT=LOOP\nLOOP:TYPE=BEHAVIOUR\nLOOP:CODE={@LOOP(\"BODY\",0,5,1);}\n\nOBJECT=LOOPSTEP\nLOOPSTEP:TYPE=BEHAVIOUR\nLOOPSTEP:CODE={@LOOP(\"BODY\",2,5,2);}\n\nOBJECT=LOOPEMPTY\nLOOPEMPTY:TYPE=BEHAVIOUR\nLOOPEMPTY:CODE={@LOOP(\"BODY\",3,0,1);}\n\nOBJECT=YES\nYES:TYPE=BEHAVIOUR\nYES:CODE={S^SET(\"YES\");}\n\nOBJECT=NO\nNO:TYPE=BEHAVIOUR\nNO:CODE={S^SET(\"NO\");}\n\nOBJECT=SIMPLE\nSIMPLE:TYPE=BEHAVIOUR\nSIMPLE:CODE={@IF(A,\">\",3,\"YES\",\"NO\");}\n\nOBJECT=SIMPLEEQ\nSIMPLEEQ:TYPE=BEHAVIOUR\nSIMPLEEQ:CODE={@IF(A,\"_\",5,\"YES\",\"NO\");}\n\nOBJECT=COMPOUND\nCOMPOUND:TYPE=BEHAVIOUR\nCOMPOUND:CODE={@IF(\"A>3&&A<9\",\"YES\",\"NO\");}\n\nOBJECT=COMPOUNDEQ\nCOMPOUNDEQ:TYPE=BEHAVIOUR\nCOMPOUNDEQ:CODE={@IF(\"A'5\",\"YES\",\"NO\");}\n\nOBJECT=UNQUOTED\nUNQUOTED:TYPE=BEHAVIOUR\nUNQUOTED:CODE={@IF(A,\">\",3,YES,NO);}\n\nOBJECT=FLIP\nFLIP:TYPE=BEHAVIOUR\nFLIP:CODE={F^SWITCH(TRUE,FALSE);}\n\nOBJECT=GT3\nGT3:TYPE=CONDITION\nGT3:OPERAND1=A\nGT3:OPERATOR=GREATER\nGT3:OPERAND2=3\n\nOBJECT=LT9\nLT9:TYPE=CONDITION\nLT9:OPERAND1=A\nLT9:OPERATOR=LESS\nLT9:OPERAND2=9\n\nOBJECT=BETWEEN\nBETWEEN:TYPE=COMPLEXCONDITION\nBETWEEN:CONDITION1=GT3\nBETWEEN:OPERATOR=AND\nBETWEEN:CONDITION2=LT9\n\nOBJECT=IFGT3\nIFGT3:TYPE=BEHAVIOUR\nIFGT3:CONDITION=GT3\nIFGT3:CODE={S^SET(\"GT3\");}\n\nOBJECT=IFBETWEEN\nIFBETWEEN:TYPE=BEHAVIOUR\nIFBETWEEN:CONDITION=BETWEEN\nIFBETWEEN:CODE={S^SET(\"BETWEEN\");}\n",
+   "steps": [
+    "A^SET([[7+3]*2])"
+   ],
+   "read": [
+    "A"
+   ],
+   "results": [
+    {
+     "engines": [
+      "bloomoo-2679920b3735",
+      "bloomoo-3be911183e59",
+      "bloomoo-788ab0406ab4",
+      "bloomoo-9ac8ebbe0cc2",
+      "bloomoo-d63a5fb575f9",
+      "bloomoo-fb9a2b81d685",
+      "bloomoo-web-f5b6842faf88",
+      "piklib72-549b6851b2c9",
+      "piklib72-923a103d5b05",
+      "piklib8-0967908f2df1",
+      "piklib8-2c1705410e7a",
+      "piklib8-33cfd6523c04",
+      "piklib8-42d6a0c7fdf2",
+      "piklib8-5f6cbb33576d",
+      "piklib8-7b7ef02ea246",
+      "piklib8-87c5ca97f599",
+      "piklib8-92d602bbea05",
+      "piklib8-a70f97e970c6",
+      "piklib8-c0d85c50e3dc",
+      "piklib8-d1cc807bcbe5",
+      "piklib8-d3819a92b84b",
+      "piklib8-d6509a132e2a",
+      "piklib8-e80093de9636",
+      "piklib8-f01db0dd5a0d"
+     ],
+     "status": "ok",
+     "initial": {
+      "A": [
+       "INTEGER",
+       "0"
+      ]
+     },
+     "steps": [
+      {
+       "result": null,
+       "state": {
+        "A": [
+         "INTEGER",
+         "20"
+        ]
+       }
+      }
+     ]
+    },
+    {
+     "engines": [
+      "piklib61-3bb31de8b45f"
+     ],
+     "status": "crash",
+     "initial": {
+      "A": [
+       "INTEGER",
+       "0"
+      ]
+     },
+     "steps": [],
+     "crash": {
+      "code": "c0000005",
+      "rva": "7758eb99",
+      "stack": [
+       "000540e9",
+       "00053600",
+       "0006d95f",
+       "000312eb",
+       "0005377d",
+       "00069a8e",
+       "0002b6cf",
+       "0006907b",
+       "00031639",
+       "00046d04",
+       "00046d1e",
+       "0006c59b"
+      ]
+     },
+     "stage": "step 0"
+    },
+    {
+     "engines": [
+      "piklib61-715272459e13"
+     ],
+     "status": "crash",
+     "initial": {
+      "A": [
+       "INTEGER",
+       "0"
+      ]
+     },
+     "steps": [],
+     "crash": {
+      "code": "c0000005",
+      "rva": "7758eb99",
+      "stack": [
+       "000540c9",
+       "00053600",
+       "0006d98f",
+       "0003123b",
+       "0005376d",
+       "00069abe",
+       "0002b57f",
+       "000690ab",
+       "00031589",
+       "00046c54",
+       "00046c6e",
+       "0006c5cb"
+      ]
+     },
+     "stage": "step 0"
+    },
+    {
+     "engines": [
+      "piklib61-91b0330a11ab"
+     ],
+     "status": "crash",
+     "initial": {
+      "A": [
+       "INTEGER",
+       "0"
+      ]
+     },
+     "steps": [],
+     "crash": {
+      "code": "c0000005",
+      "rva": "7758eb99",
+      "stack": [
+       "0005a0d9",
+       "00059600",
+       "0007459f",
+       "0003501b",
+       "0002d601",
+       "0005977d",
+       "0002d601",
+       "0007029e",
+       "0002e17f",
+       "0006f69b",
+       "00035369",
+       "0002d601"
+      ]
+     },
+     "stage": "step 0"
+    },
+    {
+     "engines": [
+      "piklib61-9de20dceea68"
+     ],
+     "status": "crash",
+     "initial": {
+      "A": [
+       "INTEGER",
+       "0"
+      ]
+     },
+     "steps": [],
+     "crash": {
+      "code": "c0000005",
+      "rva": "7758eb99",
+      "stack": [
+       "0005c549",
+       "0005ba00",
+       "00076e3f",
+       "000366ab",
+       "0002ea01",
+       "0005bbed",
+       "0002ea01",
+       "000729ee",
+       "0002f5ef",
+       "00071dcb",
+       "000369f9",
+       "0002ea01"
+      ]
+     },
+     "stage": "step 0"
+    },
+    {
+     "engines": [
+      "piklib61-c0f83acd825b"
+     ],
+     "status": "crash",
+     "initial": {
+      "A": [
+       "INTEGER",
+       "0"
+      ]
+     },
+     "steps": [],
+     "crash": {
+      "code": "c0000005",
+      "rva": "7758eb99",
+      "stack": [
+       "0003b52d",
+       "00078d7d",
+       "0009a21c",
+       "00045486",
+       "0003b52d",
+       "0003b52d",
+       "0003b52d",
+       "00078000",
+       "0009646d",
+       "0003c43b",
+       "0003b52d",
+       "00078000"
+      ]
+     },
+     "stage": "step 0"
+    },
+    {
+     "engines": [
+      "piklib71-128b235b6d94"
+     ],
+     "status": "crash",
+     "initial": {
+      "A": [
+       "INTEGER",
+       "0"
+      ]
+     },
+     "steps": [],
+     "crash": {
+      "code": "c0000005",
+      "rva": "7758eb99",
+      "stack": [
+       "00093e8e",
+       "0004ce28",
+       "000ac29e",
+       "0003fafa",
+       "000ab68b",
+       "0004d39c",
+       "0004d23b",
+       "00057116",
+       "000786af",
+       "0007aadb",
+       "00061b11",
+       "000adb08"
+      ]
+     },
+     "stage": "step 0"
+    },
+    {
+     "engines": [
+      "piklib71-27c2b7699f01"
+     ],
+     "status": "crash",
+     "initial": {
+      "A": [
+       "INTEGER",
+       "0"
+      ]
+     },
+     "steps": [],
+     "crash": {
+      "code": "c0000005",
+      "rva": "7758eb99",
+      "stack": [
+       "00093f1e",
+       "0004ce68",
+       "000ac25e",
+       "0003fc0a",
+       "000ab64b",
+       "0004d3dc",
+       "0004d27b",
+       "00057336",
+       "0007884f",
+       "0007ac5b",
+       "00061d31",
+       "000adac8"
+      ]
+     },
+     "stage": "step 0"
     }
    ]
   },
@@ -342,8 +1186,8 @@
     "behaviour"
    ],
    "source": "behaviour.toml",
-   "digest": "e3e9cda61ffee84cc02fd59a169758fbba8bcc0c",
-   "cnv": "OBJECT=A\nA:TYPE=INTEGER\nA:VALUE=0\n\nOBJECT=S\nS:TYPE=STRING\nS:VALUE=\n\nOBJECT=F\nF:TYPE=BOOL\nF:VALUE=FALSE\n\nOBJECT=EXPR\nEXPR:TYPE=BEHAVIOUR\nEXPR:CODE={A^SET([7+3*2]);S^SET([A@2]);}\n\nOBJECT=CONCAT\nCONCAT:TYPE=BEHAVIOUR\nCONCAT:CODE={S^SET(\"X\");S^ADD(A);A^SET([S+1]);}\n\nOBJECT=BODY\nBODY:TYPE=BEHAVIOUR\nBODY:CODE={A^ADD(1);S^ADD(_I_);}\n\nOBJECT=LOOP\nLOOP:TYPE=BEHAVIOUR\nLOOP:CODE={@LOOP(\"BODY\",0,5,1);}\n\nOBJECT=LOOPSTEP\nLOOPSTEP:TYPE=BEHAVIOUR\nLOOPSTEP:CODE={@LOOP(\"BODY\",2,5,2);}\n\nOBJECT=LOOPEMPTY\nLOOPEMPTY:TYPE=BEHAVIOUR\nLOOPEMPTY:CODE={@LOOP(\"BODY\",3,0,1);}\n\nOBJECT=YES\nYES:TYPE=BEHAVIOUR\nYES:CODE={S^SET(\"YES\");}\n\nOBJECT=NO\nNO:TYPE=BEHAVIOUR\nNO:CODE={S^SET(\"NO\");}\n\nOBJECT=SIMPLE\nSIMPLE:TYPE=BEHAVIOUR\nSIMPLE:CODE={@IF(A,\">\",3,\"YES\",\"NO\");}\n\nOBJECT=SIMPLEEQ\nSIMPLEEQ:TYPE=BEHAVIOUR\nSIMPLEEQ:CODE={@IF(A,\"_\",5,\"YES\",\"NO\");}\n\nOBJECT=COMPOUND\nCOMPOUND:TYPE=BEHAVIOUR\nCOMPOUND:CODE={@IF(\"A>3&&A<9\",\"YES\",\"NO\");}\n\nOBJECT=COMPOUNDEQ\nCOMPOUNDEQ:TYPE=BEHAVIOUR\nCOMPOUNDEQ:CODE={@IF(\"A'5\",\"YES\",\"NO\");}\n\nOBJECT=UNQUOTED\nUNQUOTED:TYPE=BEHAVIOUR\nUNQUOTED:CODE={@IF(A,\">\",3,YES,NO);}\n\nOBJECT=FLIP\nFLIP:TYPE=BEHAVIOUR\nFLIP:CODE={F^SWITCH(TRUE,FALSE);}\n",
+   "digest": "9be8170981abc1eb31c9c1053414dffa4846d07e",
+   "cnv": "OBJECT=A\nA:TYPE=INTEGER\nA:VALUE=0\n\nOBJECT=S\nS:TYPE=STRING\nS:VALUE=\n\nOBJECT=F\nF:TYPE=BOOL\nF:VALUE=FALSE\n\nOBJECT=EXPR\nEXPR:TYPE=BEHAVIOUR\nEXPR:CODE={A^SET([7+3*2]);S^SET([A@2]);}\n\nOBJECT=CONCAT\nCONCAT:TYPE=BEHAVIOUR\nCONCAT:CODE={S^SET(\"X\");S^ADD(A);A^SET([S+1]);}\n\nOBJECT=BODY\nBODY:TYPE=BEHAVIOUR\nBODY:CODE={A^ADD(1);S^ADD(_I_);}\n\nOBJECT=LOOP\nLOOP:TYPE=BEHAVIOUR\nLOOP:CODE={@LOOP(\"BODY\",0,5,1);}\n\nOBJECT=LOOPSTEP\nLOOPSTEP:TYPE=BEHAVIOUR\nLOOPSTEP:CODE={@LOOP(\"BODY\",2,5,2);}\n\nOBJECT=LOOPEMPTY\nLOOPEMPTY:TYPE=BEHAVIOUR\nLOOPEMPTY:CODE={@LOOP(\"BODY\",3,0,1);}\n\nOBJECT=YES\nYES:TYPE=BEHAVIOUR\nYES:CODE={S^SET(\"YES\");}\n\nOBJECT=NO\nNO:TYPE=BEHAVIOUR\nNO:CODE={S^SET(\"NO\");}\n\nOBJECT=SIMPLE\nSIMPLE:TYPE=BEHAVIOUR\nSIMPLE:CODE={@IF(A,\">\",3,\"YES\",\"NO\");}\n\nOBJECT=SIMPLEEQ\nSIMPLEEQ:TYPE=BEHAVIOUR\nSIMPLEEQ:CODE={@IF(A,\"_\",5,\"YES\",\"NO\");}\n\nOBJECT=COMPOUND\nCOMPOUND:TYPE=BEHAVIOUR\nCOMPOUND:CODE={@IF(\"A>3&&A<9\",\"YES\",\"NO\");}\n\nOBJECT=COMPOUNDEQ\nCOMPOUNDEQ:TYPE=BEHAVIOUR\nCOMPOUNDEQ:CODE={@IF(\"A'5\",\"YES\",\"NO\");}\n\nOBJECT=UNQUOTED\nUNQUOTED:TYPE=BEHAVIOUR\nUNQUOTED:CODE={@IF(A,\">\",3,YES,NO);}\n\nOBJECT=FLIP\nFLIP:TYPE=BEHAVIOUR\nFLIP:CODE={F^SWITCH(TRUE,FALSE);}\n\nOBJECT=GT3\nGT3:TYPE=CONDITION\nGT3:OPERAND1=A\nGT3:OPERATOR=GREATER\nGT3:OPERAND2=3\n\nOBJECT=LT9\nLT9:TYPE=CONDITION\nLT9:OPERAND1=A\nLT9:OPERATOR=LESS\nLT9:OPERAND2=9\n\nOBJECT=BETWEEN\nBETWEEN:TYPE=COMPLEXCONDITION\nBETWEEN:CONDITION1=GT3\nBETWEEN:OPERATOR=AND\nBETWEEN:CONDITION2=LT9\n\nOBJECT=IFGT3\nIFGT3:TYPE=BEHAVIOUR\nIFGT3:CONDITION=GT3\nIFGT3:CODE={S^SET(\"GT3\");}\n\nOBJECT=IFBETWEEN\nIFBETWEEN:TYPE=BEHAVIOUR\nIFBETWEEN:CONDITION=BETWEEN\nIFBETWEEN:CODE={S^SET(\"BETWEEN\");}\n",
    "steps": [
     "A^SET(4)",
     "CONCAT^RUN()"
@@ -363,6 +1207,8 @@
       "bloomoo-d63a5fb575f9",
       "bloomoo-fb9a2b81d685",
       "bloomoo-web-f5b6842faf88",
+      "piklib71-128b235b6d94",
+      "piklib71-27c2b7699f01",
       "piklib72-549b6851b2c9",
       "piklib72-923a103d5b05",
       "piklib8-0967908f2df1",
@@ -432,6 +1278,69 @@
        }
       }
      ]
+    },
+    {
+     "engines": [
+      "piklib61-3bb31de8b45f",
+      "piklib61-715272459e13",
+      "piklib61-91b0330a11ab",
+      "piklib61-9de20dceea68",
+      "piklib61-c0f83acd825b"
+     ],
+     "status": "ok",
+     "initial": {
+      "A": [
+       "INTEGER",
+       "0"
+      ],
+      "S": [
+       "STRING",
+       ""
+      ],
+      "F": [
+       "BOOL",
+       "false"
+      ]
+     },
+     "steps": [
+      {
+       "result": [
+        "INTEGER",
+        "4"
+       ],
+       "state": {
+        "A": [
+         "INTEGER",
+         "4"
+        ],
+        "S": [
+         "STRING",
+         ""
+        ],
+        "F": [
+         "BOOL",
+         "false"
+        ]
+       }
+      },
+      {
+       "result": null,
+       "state": {
+        "A": [
+         "INTEGER",
+         "0"
+        ],
+        "S": [
+         "STRING",
+         "X4"
+        ],
+        "F": [
+         "BOOL",
+         "false"
+        ]
+       }
+      }
+     ]
     }
    ]
   },
@@ -442,8 +1351,8 @@
     "behaviour"
    ],
    "source": "behaviour.toml",
-   "digest": "8050b2f64d2bf47b739f806bba1388d1a52ab2ba",
-   "cnv": "OBJECT=A\nA:TYPE=INTEGER\nA:VALUE=0\n\nOBJECT=S\nS:TYPE=STRING\nS:VALUE=\n\nOBJECT=F\nF:TYPE=BOOL\nF:VALUE=FALSE\n\nOBJECT=EXPR\nEXPR:TYPE=BEHAVIOUR\nEXPR:CODE={A^SET([7+3*2]);S^SET([A@2]);}\n\nOBJECT=CONCAT\nCONCAT:TYPE=BEHAVIOUR\nCONCAT:CODE={S^SET(\"X\");S^ADD(A);A^SET([S+1]);}\n\nOBJECT=BODY\nBODY:TYPE=BEHAVIOUR\nBODY:CODE={A^ADD(1);S^ADD(_I_);}\n\nOBJECT=LOOP\nLOOP:TYPE=BEHAVIOUR\nLOOP:CODE={@LOOP(\"BODY\",0,5,1);}\n\nOBJECT=LOOPSTEP\nLOOPSTEP:TYPE=BEHAVIOUR\nLOOPSTEP:CODE={@LOOP(\"BODY\",2,5,2);}\n\nOBJECT=LOOPEMPTY\nLOOPEMPTY:TYPE=BEHAVIOUR\nLOOPEMPTY:CODE={@LOOP(\"BODY\",3,0,1);}\n\nOBJECT=YES\nYES:TYPE=BEHAVIOUR\nYES:CODE={S^SET(\"YES\");}\n\nOBJECT=NO\nNO:TYPE=BEHAVIOUR\nNO:CODE={S^SET(\"NO\");}\n\nOBJECT=SIMPLE\nSIMPLE:TYPE=BEHAVIOUR\nSIMPLE:CODE={@IF(A,\">\",3,\"YES\",\"NO\");}\n\nOBJECT=SIMPLEEQ\nSIMPLEEQ:TYPE=BEHAVIOUR\nSIMPLEEQ:CODE={@IF(A,\"_\",5,\"YES\",\"NO\");}\n\nOBJECT=COMPOUND\nCOMPOUND:TYPE=BEHAVIOUR\nCOMPOUND:CODE={@IF(\"A>3&&A<9\",\"YES\",\"NO\");}\n\nOBJECT=COMPOUNDEQ\nCOMPOUNDEQ:TYPE=BEHAVIOUR\nCOMPOUNDEQ:CODE={@IF(\"A'5\",\"YES\",\"NO\");}\n\nOBJECT=UNQUOTED\nUNQUOTED:TYPE=BEHAVIOUR\nUNQUOTED:CODE={@IF(A,\">\",3,YES,NO);}\n\nOBJECT=FLIP\nFLIP:TYPE=BEHAVIOUR\nFLIP:CODE={F^SWITCH(TRUE,FALSE);}\n",
+   "digest": "8e1738ec5b5b8c691fe43dd5b3821bb23de46560",
+   "cnv": "OBJECT=A\nA:TYPE=INTEGER\nA:VALUE=0\n\nOBJECT=S\nS:TYPE=STRING\nS:VALUE=\n\nOBJECT=F\nF:TYPE=BOOL\nF:VALUE=FALSE\n\nOBJECT=EXPR\nEXPR:TYPE=BEHAVIOUR\nEXPR:CODE={A^SET([7+3*2]);S^SET([A@2]);}\n\nOBJECT=CONCAT\nCONCAT:TYPE=BEHAVIOUR\nCONCAT:CODE={S^SET(\"X\");S^ADD(A);A^SET([S+1]);}\n\nOBJECT=BODY\nBODY:TYPE=BEHAVIOUR\nBODY:CODE={A^ADD(1);S^ADD(_I_);}\n\nOBJECT=LOOP\nLOOP:TYPE=BEHAVIOUR\nLOOP:CODE={@LOOP(\"BODY\",0,5,1);}\n\nOBJECT=LOOPSTEP\nLOOPSTEP:TYPE=BEHAVIOUR\nLOOPSTEP:CODE={@LOOP(\"BODY\",2,5,2);}\n\nOBJECT=LOOPEMPTY\nLOOPEMPTY:TYPE=BEHAVIOUR\nLOOPEMPTY:CODE={@LOOP(\"BODY\",3,0,1);}\n\nOBJECT=YES\nYES:TYPE=BEHAVIOUR\nYES:CODE={S^SET(\"YES\");}\n\nOBJECT=NO\nNO:TYPE=BEHAVIOUR\nNO:CODE={S^SET(\"NO\");}\n\nOBJECT=SIMPLE\nSIMPLE:TYPE=BEHAVIOUR\nSIMPLE:CODE={@IF(A,\">\",3,\"YES\",\"NO\");}\n\nOBJECT=SIMPLEEQ\nSIMPLEEQ:TYPE=BEHAVIOUR\nSIMPLEEQ:CODE={@IF(A,\"_\",5,\"YES\",\"NO\");}\n\nOBJECT=COMPOUND\nCOMPOUND:TYPE=BEHAVIOUR\nCOMPOUND:CODE={@IF(\"A>3&&A<9\",\"YES\",\"NO\");}\n\nOBJECT=COMPOUNDEQ\nCOMPOUNDEQ:TYPE=BEHAVIOUR\nCOMPOUNDEQ:CODE={@IF(\"A'5\",\"YES\",\"NO\");}\n\nOBJECT=UNQUOTED\nUNQUOTED:TYPE=BEHAVIOUR\nUNQUOTED:CODE={@IF(A,\">\",3,YES,NO);}\n\nOBJECT=FLIP\nFLIP:TYPE=BEHAVIOUR\nFLIP:CODE={F^SWITCH(TRUE,FALSE);}\n\nOBJECT=GT3\nGT3:TYPE=CONDITION\nGT3:OPERAND1=A\nGT3:OPERATOR=GREATER\nGT3:OPERAND2=3\n\nOBJECT=LT9\nLT9:TYPE=CONDITION\nLT9:OPERAND1=A\nLT9:OPERATOR=LESS\nLT9:OPERAND2=9\n\nOBJECT=BETWEEN\nBETWEEN:TYPE=COMPLEXCONDITION\nBETWEEN:CONDITION1=GT3\nBETWEEN:OPERATOR=AND\nBETWEEN:CONDITION2=LT9\n\nOBJECT=IFGT3\nIFGT3:TYPE=BEHAVIOUR\nIFGT3:CONDITION=GT3\nIFGT3:CODE={S^SET(\"GT3\");}\n\nOBJECT=IFBETWEEN\nIFBETWEEN:TYPE=BEHAVIOUR\nIFBETWEEN:CONDITION=BETWEEN\nIFBETWEEN:CODE={S^SET(\"BETWEEN\");}\n",
    "steps": [
     "LOOP^RUN()",
     "S^SET(\"\")",
@@ -586,6 +1495,231 @@
        }
       }
      ]
+    },
+    {
+     "engines": [
+      "piklib61-3bb31de8b45f",
+      "piklib61-715272459e13",
+      "piklib61-91b0330a11ab",
+      "piklib61-9de20dceea68",
+      "piklib61-c0f83acd825b"
+     ],
+     "status": "ok",
+     "initial": {
+      "A": [
+       "INTEGER",
+       "0"
+      ],
+      "S": [
+       "STRING",
+       ""
+      ],
+      "F": [
+       "BOOL",
+       "false"
+      ]
+     },
+     "steps": [
+      {
+       "result": null,
+       "state": {
+        "A": [
+         "INTEGER",
+         "0"
+        ],
+        "S": [
+         "STRING",
+         ""
+        ],
+        "F": [
+         "BOOL",
+         "false"
+        ]
+       }
+      },
+      {
+       "result": [
+        "STRING",
+        ""
+       ],
+       "state": {
+        "A": [
+         "INTEGER",
+         "0"
+        ],
+        "S": [
+         "STRING",
+         ""
+        ],
+        "F": [
+         "BOOL",
+         "false"
+        ]
+       }
+      },
+      {
+       "result": null,
+       "state": {
+        "A": [
+         "INTEGER",
+         "0"
+        ],
+        "S": [
+         "STRING",
+         ""
+        ],
+        "F": [
+         "BOOL",
+         "false"
+        ]
+       }
+      },
+      {
+       "result": [
+        "STRING",
+        ""
+       ],
+       "state": {
+        "A": [
+         "INTEGER",
+         "0"
+        ],
+        "S": [
+         "STRING",
+         ""
+        ],
+        "F": [
+         "BOOL",
+         "false"
+        ]
+       }
+      },
+      {
+       "result": null,
+       "state": {
+        "A": [
+         "INTEGER",
+         "0"
+        ],
+        "S": [
+         "STRING",
+         ""
+        ],
+        "F": [
+         "BOOL",
+         "false"
+        ]
+       }
+      }
+     ]
+    },
+    {
+     "engines": [
+      "piklib71-128b235b6d94",
+      "piklib71-27c2b7699f01"
+     ],
+     "status": "ok",
+     "initial": {
+      "A": [
+       "INTEGER",
+       "0"
+      ],
+      "S": [
+       "STRING",
+       ""
+      ],
+      "F": [
+       "BOOL",
+       "FALSE"
+      ]
+     },
+     "steps": [
+      {
+       "result": null,
+       "state": {
+        "A": [
+         "INTEGER",
+         "0"
+        ],
+        "S": [
+         "STRING",
+         ""
+        ],
+        "F": [
+         "BOOL",
+         "FALSE"
+        ]
+       }
+      },
+      {
+       "result": null,
+       "state": {
+        "A": [
+         "INTEGER",
+         "0"
+        ],
+        "S": [
+         "STRING",
+         ""
+        ],
+        "F": [
+         "BOOL",
+         "FALSE"
+        ]
+       }
+      },
+      {
+       "result": null,
+       "state": {
+        "A": [
+         "INTEGER",
+         "0"
+        ],
+        "S": [
+         "STRING",
+         ""
+        ],
+        "F": [
+         "BOOL",
+         "FALSE"
+        ]
+       }
+      },
+      {
+       "result": null,
+       "state": {
+        "A": [
+         "INTEGER",
+         "0"
+        ],
+        "S": [
+         "STRING",
+         ""
+        ],
+        "F": [
+         "BOOL",
+         "FALSE"
+        ]
+       }
+      },
+      {
+       "result": null,
+       "state": {
+        "A": [
+         "INTEGER",
+         "0"
+        ],
+        "S": [
+         "STRING",
+         ""
+        ],
+        "F": [
+         "BOOL",
+         "FALSE"
+        ]
+       }
+      }
+     ]
     }
    ]
   },
@@ -596,8 +1730,8 @@
     "behaviour"
    ],
    "source": "behaviour.toml",
-   "digest": "fec86f50e45245f879fefd63889567707cf68bf1",
-   "cnv": "OBJECT=A\nA:TYPE=INTEGER\nA:VALUE=0\n\nOBJECT=S\nS:TYPE=STRING\nS:VALUE=\n\nOBJECT=F\nF:TYPE=BOOL\nF:VALUE=FALSE\n\nOBJECT=EXPR\nEXPR:TYPE=BEHAVIOUR\nEXPR:CODE={A^SET([7+3*2]);S^SET([A@2]);}\n\nOBJECT=CONCAT\nCONCAT:TYPE=BEHAVIOUR\nCONCAT:CODE={S^SET(\"X\");S^ADD(A);A^SET([S+1]);}\n\nOBJECT=BODY\nBODY:TYPE=BEHAVIOUR\nBODY:CODE={A^ADD(1);S^ADD(_I_);}\n\nOBJECT=LOOP\nLOOP:TYPE=BEHAVIOUR\nLOOP:CODE={@LOOP(\"BODY\",0,5,1);}\n\nOBJECT=LOOPSTEP\nLOOPSTEP:TYPE=BEHAVIOUR\nLOOPSTEP:CODE={@LOOP(\"BODY\",2,5,2);}\n\nOBJECT=LOOPEMPTY\nLOOPEMPTY:TYPE=BEHAVIOUR\nLOOPEMPTY:CODE={@LOOP(\"BODY\",3,0,1);}\n\nOBJECT=YES\nYES:TYPE=BEHAVIOUR\nYES:CODE={S^SET(\"YES\");}\n\nOBJECT=NO\nNO:TYPE=BEHAVIOUR\nNO:CODE={S^SET(\"NO\");}\n\nOBJECT=SIMPLE\nSIMPLE:TYPE=BEHAVIOUR\nSIMPLE:CODE={@IF(A,\">\",3,\"YES\",\"NO\");}\n\nOBJECT=SIMPLEEQ\nSIMPLEEQ:TYPE=BEHAVIOUR\nSIMPLEEQ:CODE={@IF(A,\"_\",5,\"YES\",\"NO\");}\n\nOBJECT=COMPOUND\nCOMPOUND:TYPE=BEHAVIOUR\nCOMPOUND:CODE={@IF(\"A>3&&A<9\",\"YES\",\"NO\");}\n\nOBJECT=COMPOUNDEQ\nCOMPOUNDEQ:TYPE=BEHAVIOUR\nCOMPOUNDEQ:CODE={@IF(\"A'5\",\"YES\",\"NO\");}\n\nOBJECT=UNQUOTED\nUNQUOTED:TYPE=BEHAVIOUR\nUNQUOTED:CODE={@IF(A,\">\",3,YES,NO);}\n\nOBJECT=FLIP\nFLIP:TYPE=BEHAVIOUR\nFLIP:CODE={F^SWITCH(TRUE,FALSE);}\n",
+   "digest": "caca0698cbf07ab67af3ab9c3ab834ad47aef672",
+   "cnv": "OBJECT=A\nA:TYPE=INTEGER\nA:VALUE=0\n\nOBJECT=S\nS:TYPE=STRING\nS:VALUE=\n\nOBJECT=F\nF:TYPE=BOOL\nF:VALUE=FALSE\n\nOBJECT=EXPR\nEXPR:TYPE=BEHAVIOUR\nEXPR:CODE={A^SET([7+3*2]);S^SET([A@2]);}\n\nOBJECT=CONCAT\nCONCAT:TYPE=BEHAVIOUR\nCONCAT:CODE={S^SET(\"X\");S^ADD(A);A^SET([S+1]);}\n\nOBJECT=BODY\nBODY:TYPE=BEHAVIOUR\nBODY:CODE={A^ADD(1);S^ADD(_I_);}\n\nOBJECT=LOOP\nLOOP:TYPE=BEHAVIOUR\nLOOP:CODE={@LOOP(\"BODY\",0,5,1);}\n\nOBJECT=LOOPSTEP\nLOOPSTEP:TYPE=BEHAVIOUR\nLOOPSTEP:CODE={@LOOP(\"BODY\",2,5,2);}\n\nOBJECT=LOOPEMPTY\nLOOPEMPTY:TYPE=BEHAVIOUR\nLOOPEMPTY:CODE={@LOOP(\"BODY\",3,0,1);}\n\nOBJECT=YES\nYES:TYPE=BEHAVIOUR\nYES:CODE={S^SET(\"YES\");}\n\nOBJECT=NO\nNO:TYPE=BEHAVIOUR\nNO:CODE={S^SET(\"NO\");}\n\nOBJECT=SIMPLE\nSIMPLE:TYPE=BEHAVIOUR\nSIMPLE:CODE={@IF(A,\">\",3,\"YES\",\"NO\");}\n\nOBJECT=SIMPLEEQ\nSIMPLEEQ:TYPE=BEHAVIOUR\nSIMPLEEQ:CODE={@IF(A,\"_\",5,\"YES\",\"NO\");}\n\nOBJECT=COMPOUND\nCOMPOUND:TYPE=BEHAVIOUR\nCOMPOUND:CODE={@IF(\"A>3&&A<9\",\"YES\",\"NO\");}\n\nOBJECT=COMPOUNDEQ\nCOMPOUNDEQ:TYPE=BEHAVIOUR\nCOMPOUNDEQ:CODE={@IF(\"A'5\",\"YES\",\"NO\");}\n\nOBJECT=UNQUOTED\nUNQUOTED:TYPE=BEHAVIOUR\nUNQUOTED:CODE={@IF(A,\">\",3,YES,NO);}\n\nOBJECT=FLIP\nFLIP:TYPE=BEHAVIOUR\nFLIP:CODE={F^SWITCH(TRUE,FALSE);}\n\nOBJECT=GT3\nGT3:TYPE=CONDITION\nGT3:OPERAND1=A\nGT3:OPERATOR=GREATER\nGT3:OPERAND2=3\n\nOBJECT=LT9\nLT9:TYPE=CONDITION\nLT9:OPERAND1=A\nLT9:OPERATOR=LESS\nLT9:OPERAND2=9\n\nOBJECT=BETWEEN\nBETWEEN:TYPE=COMPLEXCONDITION\nBETWEEN:CONDITION1=GT3\nBETWEEN:OPERATOR=AND\nBETWEEN:CONDITION2=LT9\n\nOBJECT=IFGT3\nIFGT3:TYPE=BEHAVIOUR\nIFGT3:CONDITION=GT3\nIFGT3:CODE={S^SET(\"GT3\");}\n\nOBJECT=IFBETWEEN\nIFBETWEEN:TYPE=BEHAVIOUR\nIFBETWEEN:CONDITION=BETWEEN\nIFBETWEEN:CODE={S^SET(\"BETWEEN\");}\n",
    "steps": [
     "A^SET(5)",
     "SIMPLE^RUN()",
@@ -621,6 +1755,8 @@
       "bloomoo-d63a5fb575f9",
       "bloomoo-fb9a2b81d685",
       "bloomoo-web-f5b6842faf88",
+      "piklib71-128b235b6d94",
+      "piklib71-27c2b7699f01",
       "piklib72-549b6851b2c9",
       "piklib72-923a103d5b05",
       "piklib8-0967908f2df1",
@@ -758,6 +1894,140 @@
        }
       }
      ]
+    },
+    {
+     "engines": [
+      "piklib61-3bb31de8b45f",
+      "piklib61-715272459e13",
+      "piklib61-91b0330a11ab",
+      "piklib61-9de20dceea68",
+      "piklib61-c0f83acd825b"
+     ],
+     "status": "ok",
+     "initial": {
+      "A": [
+       "INTEGER",
+       "0"
+      ],
+      "S": [
+       "STRING",
+       ""
+      ],
+      "F": [
+       "BOOL",
+       "false"
+      ]
+     },
+     "steps": [
+      {
+       "result": [
+        "INTEGER",
+        "5"
+       ],
+       "state": {
+        "A": [
+         "INTEGER",
+         "5"
+        ],
+        "S": [
+         "STRING",
+         ""
+        ],
+        "F": [
+         "BOOL",
+         "false"
+        ]
+       }
+      },
+      {
+       "result": null,
+       "state": {
+        "A": [
+         "INTEGER",
+         "5"
+        ],
+        "S": [
+         "STRING",
+         ""
+        ],
+        "F": [
+         "BOOL",
+         "false"
+        ]
+       }
+      },
+      {
+       "result": null,
+       "state": {
+        "A": [
+         "INTEGER",
+         "5"
+        ],
+        "S": [
+         "STRING",
+         ""
+        ],
+        "F": [
+         "BOOL",
+         "false"
+        ]
+       }
+      },
+      {
+       "result": [
+        "INTEGER",
+        "3"
+       ],
+       "state": {
+        "A": [
+         "INTEGER",
+         "3"
+        ],
+        "S": [
+         "STRING",
+         ""
+        ],
+        "F": [
+         "BOOL",
+         "false"
+        ]
+       }
+      },
+      {
+       "result": null,
+       "state": {
+        "A": [
+         "INTEGER",
+         "3"
+        ],
+        "S": [
+         "STRING",
+         ""
+        ],
+        "F": [
+         "BOOL",
+         "false"
+        ]
+       }
+      },
+      {
+       "result": null,
+       "state": {
+        "A": [
+         "INTEGER",
+         "3"
+        ],
+        "S": [
+         "STRING",
+         ""
+        ],
+        "F": [
+         "BOOL",
+         "false"
+        ]
+       }
+      }
+     ]
     }
    ]
   },
@@ -768,8 +2038,8 @@
     "behaviour"
    ],
    "source": "behaviour.toml",
-   "digest": "99e8f70bf78cdb9f9cc33e77ad5c71007fff3daa",
-   "cnv": "OBJECT=A\nA:TYPE=INTEGER\nA:VALUE=0\n\nOBJECT=S\nS:TYPE=STRING\nS:VALUE=\n\nOBJECT=F\nF:TYPE=BOOL\nF:VALUE=FALSE\n\nOBJECT=EXPR\nEXPR:TYPE=BEHAVIOUR\nEXPR:CODE={A^SET([7+3*2]);S^SET([A@2]);}\n\nOBJECT=CONCAT\nCONCAT:TYPE=BEHAVIOUR\nCONCAT:CODE={S^SET(\"X\");S^ADD(A);A^SET([S+1]);}\n\nOBJECT=BODY\nBODY:TYPE=BEHAVIOUR\nBODY:CODE={A^ADD(1);S^ADD(_I_);}\n\nOBJECT=LOOP\nLOOP:TYPE=BEHAVIOUR\nLOOP:CODE={@LOOP(\"BODY\",0,5,1);}\n\nOBJECT=LOOPSTEP\nLOOPSTEP:TYPE=BEHAVIOUR\nLOOPSTEP:CODE={@LOOP(\"BODY\",2,5,2);}\n\nOBJECT=LOOPEMPTY\nLOOPEMPTY:TYPE=BEHAVIOUR\nLOOPEMPTY:CODE={@LOOP(\"BODY\",3,0,1);}\n\nOBJECT=YES\nYES:TYPE=BEHAVIOUR\nYES:CODE={S^SET(\"YES\");}\n\nOBJECT=NO\nNO:TYPE=BEHAVIOUR\nNO:CODE={S^SET(\"NO\");}\n\nOBJECT=SIMPLE\nSIMPLE:TYPE=BEHAVIOUR\nSIMPLE:CODE={@IF(A,\">\",3,\"YES\",\"NO\");}\n\nOBJECT=SIMPLEEQ\nSIMPLEEQ:TYPE=BEHAVIOUR\nSIMPLEEQ:CODE={@IF(A,\"_\",5,\"YES\",\"NO\");}\n\nOBJECT=COMPOUND\nCOMPOUND:TYPE=BEHAVIOUR\nCOMPOUND:CODE={@IF(\"A>3&&A<9\",\"YES\",\"NO\");}\n\nOBJECT=COMPOUNDEQ\nCOMPOUNDEQ:TYPE=BEHAVIOUR\nCOMPOUNDEQ:CODE={@IF(\"A'5\",\"YES\",\"NO\");}\n\nOBJECT=UNQUOTED\nUNQUOTED:TYPE=BEHAVIOUR\nUNQUOTED:CODE={@IF(A,\">\",3,YES,NO);}\n\nOBJECT=FLIP\nFLIP:TYPE=BEHAVIOUR\nFLIP:CODE={F^SWITCH(TRUE,FALSE);}\n",
+   "digest": "6d6e9686327157444254c03155119cb8d24b79f4",
+   "cnv": "OBJECT=A\nA:TYPE=INTEGER\nA:VALUE=0\n\nOBJECT=S\nS:TYPE=STRING\nS:VALUE=\n\nOBJECT=F\nF:TYPE=BOOL\nF:VALUE=FALSE\n\nOBJECT=EXPR\nEXPR:TYPE=BEHAVIOUR\nEXPR:CODE={A^SET([7+3*2]);S^SET([A@2]);}\n\nOBJECT=CONCAT\nCONCAT:TYPE=BEHAVIOUR\nCONCAT:CODE={S^SET(\"X\");S^ADD(A);A^SET([S+1]);}\n\nOBJECT=BODY\nBODY:TYPE=BEHAVIOUR\nBODY:CODE={A^ADD(1);S^ADD(_I_);}\n\nOBJECT=LOOP\nLOOP:TYPE=BEHAVIOUR\nLOOP:CODE={@LOOP(\"BODY\",0,5,1);}\n\nOBJECT=LOOPSTEP\nLOOPSTEP:TYPE=BEHAVIOUR\nLOOPSTEP:CODE={@LOOP(\"BODY\",2,5,2);}\n\nOBJECT=LOOPEMPTY\nLOOPEMPTY:TYPE=BEHAVIOUR\nLOOPEMPTY:CODE={@LOOP(\"BODY\",3,0,1);}\n\nOBJECT=YES\nYES:TYPE=BEHAVIOUR\nYES:CODE={S^SET(\"YES\");}\n\nOBJECT=NO\nNO:TYPE=BEHAVIOUR\nNO:CODE={S^SET(\"NO\");}\n\nOBJECT=SIMPLE\nSIMPLE:TYPE=BEHAVIOUR\nSIMPLE:CODE={@IF(A,\">\",3,\"YES\",\"NO\");}\n\nOBJECT=SIMPLEEQ\nSIMPLEEQ:TYPE=BEHAVIOUR\nSIMPLEEQ:CODE={@IF(A,\"_\",5,\"YES\",\"NO\");}\n\nOBJECT=COMPOUND\nCOMPOUND:TYPE=BEHAVIOUR\nCOMPOUND:CODE={@IF(\"A>3&&A<9\",\"YES\",\"NO\");}\n\nOBJECT=COMPOUNDEQ\nCOMPOUNDEQ:TYPE=BEHAVIOUR\nCOMPOUNDEQ:CODE={@IF(\"A'5\",\"YES\",\"NO\");}\n\nOBJECT=UNQUOTED\nUNQUOTED:TYPE=BEHAVIOUR\nUNQUOTED:CODE={@IF(A,\">\",3,YES,NO);}\n\nOBJECT=FLIP\nFLIP:TYPE=BEHAVIOUR\nFLIP:CODE={F^SWITCH(TRUE,FALSE);}\n\nOBJECT=GT3\nGT3:TYPE=CONDITION\nGT3:OPERAND1=A\nGT3:OPERATOR=GREATER\nGT3:OPERAND2=3\n\nOBJECT=LT9\nLT9:TYPE=CONDITION\nLT9:OPERAND1=A\nLT9:OPERATOR=LESS\nLT9:OPERAND2=9\n\nOBJECT=BETWEEN\nBETWEEN:TYPE=COMPLEXCONDITION\nBETWEEN:CONDITION1=GT3\nBETWEEN:OPERATOR=AND\nBETWEEN:CONDITION2=LT9\n\nOBJECT=IFGT3\nIFGT3:TYPE=BEHAVIOUR\nIFGT3:CONDITION=GT3\nIFGT3:CODE={S^SET(\"GT3\");}\n\nOBJECT=IFBETWEEN\nIFBETWEEN:TYPE=BEHAVIOUR\nIFBETWEEN:CONDITION=BETWEEN\nIFBETWEEN:CODE={S^SET(\"BETWEEN\");}\n",
    "steps": [
     "A^SET(5)",
     "COMPOUND^RUN()",
@@ -930,6 +2200,256 @@
        }
       }
      ]
+    },
+    {
+     "engines": [
+      "piklib61-3bb31de8b45f",
+      "piklib61-715272459e13",
+      "piklib61-91b0330a11ab",
+      "piklib61-9de20dceea68",
+      "piklib61-c0f83acd825b"
+     ],
+     "status": "ok",
+     "initial": {
+      "A": [
+       "INTEGER",
+       "0"
+      ],
+      "S": [
+       "STRING",
+       ""
+      ],
+      "F": [
+       "BOOL",
+       "false"
+      ]
+     },
+     "steps": [
+      {
+       "result": [
+        "INTEGER",
+        "5"
+       ],
+       "state": {
+        "A": [
+         "INTEGER",
+         "5"
+        ],
+        "S": [
+         "STRING",
+         ""
+        ],
+        "F": [
+         "BOOL",
+         "false"
+        ]
+       }
+      },
+      {
+       "result": null,
+       "state": {
+        "A": [
+         "INTEGER",
+         "5"
+        ],
+        "S": [
+         "STRING",
+         ""
+        ],
+        "F": [
+         "BOOL",
+         "false"
+        ]
+       }
+      },
+      {
+       "result": null,
+       "state": {
+        "A": [
+         "INTEGER",
+         "5"
+        ],
+        "S": [
+         "STRING",
+         ""
+        ],
+        "F": [
+         "BOOL",
+         "false"
+        ]
+       }
+      },
+      {
+       "result": [
+        "INTEGER",
+        "10"
+       ],
+       "state": {
+        "A": [
+         "INTEGER",
+         "10"
+        ],
+        "S": [
+         "STRING",
+         ""
+        ],
+        "F": [
+         "BOOL",
+         "false"
+        ]
+       }
+      },
+      {
+       "result": null,
+       "state": {
+        "A": [
+         "INTEGER",
+         "10"
+        ],
+        "S": [
+         "STRING",
+         ""
+        ],
+        "F": [
+         "BOOL",
+         "false"
+        ]
+       }
+      },
+      {
+       "result": null,
+       "state": {
+        "A": [
+         "INTEGER",
+         "10"
+        ],
+        "S": [
+         "STRING",
+         ""
+        ],
+        "F": [
+         "BOOL",
+         "false"
+        ]
+       }
+      }
+     ]
+    },
+    {
+     "engines": [
+      "piklib71-128b235b6d94"
+     ],
+     "status": "crash",
+     "initial": {
+      "A": [
+       "INTEGER",
+       "0"
+      ],
+      "S": [
+       "STRING",
+       ""
+      ],
+      "F": [
+       "BOOL",
+       "FALSE"
+      ]
+     },
+     "steps": [
+      {
+       "result": null,
+       "state": {
+        "A": [
+         "INTEGER",
+         "5"
+        ],
+        "S": [
+         "STRING",
+         ""
+        ],
+        "F": [
+         "BOOL",
+         "FALSE"
+        ]
+       }
+      }
+     ],
+     "crash": {
+      "code": "c0000005",
+      "rva": "00061d39",
+      "stack": [
+       "00049440",
+       "00061a8c",
+       "000abec8",
+       "000493a7",
+       "00061b11",
+       "000adb08",
+       "0003e9fd",
+       "000ab520",
+       "0003e60b",
+       "000ab4d8",
+       "000402d5",
+       "00040779"
+      ]
+     },
+     "stage": "step 1"
+    },
+    {
+     "engines": [
+      "piklib71-27c2b7699f01"
+     ],
+     "status": "crash",
+     "initial": {
+      "A": [
+       "INTEGER",
+       "0"
+      ],
+      "S": [
+       "STRING",
+       ""
+      ],
+      "F": [
+       "BOOL",
+       "FALSE"
+      ]
+     },
+     "steps": [
+      {
+       "result": null,
+       "state": {
+        "A": [
+         "INTEGER",
+         "5"
+        ],
+        "S": [
+         "STRING",
+         ""
+        ],
+        "F": [
+         "BOOL",
+         "FALSE"
+        ]
+       }
+      }
+     ],
+     "crash": {
+      "code": "c0000005",
+      "rva": "00061f59",
+      "stack": [
+       "00049510",
+       "00061cbc",
+       "000abe88",
+       "00049477",
+       "00061d31",
+       "000adac8",
+       "0003eb0d",
+       "000ab4e0",
+       "0003e71b",
+       "000ab498",
+       "000403e5",
+       "00040889"
+      ]
+     },
+     "stage": "step 1"
     }
    ]
   },
@@ -940,8 +2460,8 @@
     "behaviour"
    ],
    "source": "behaviour.toml",
-   "digest": "e2c7a33da85e33d5c68695d7712d7c9c212ffec5",
-   "cnv": "OBJECT=A\nA:TYPE=INTEGER\nA:VALUE=0\n\nOBJECT=S\nS:TYPE=STRING\nS:VALUE=\n\nOBJECT=F\nF:TYPE=BOOL\nF:VALUE=FALSE\n\nOBJECT=EXPR\nEXPR:TYPE=BEHAVIOUR\nEXPR:CODE={A^SET([7+3*2]);S^SET([A@2]);}\n\nOBJECT=CONCAT\nCONCAT:TYPE=BEHAVIOUR\nCONCAT:CODE={S^SET(\"X\");S^ADD(A);A^SET([S+1]);}\n\nOBJECT=BODY\nBODY:TYPE=BEHAVIOUR\nBODY:CODE={A^ADD(1);S^ADD(_I_);}\n\nOBJECT=LOOP\nLOOP:TYPE=BEHAVIOUR\nLOOP:CODE={@LOOP(\"BODY\",0,5,1);}\n\nOBJECT=LOOPSTEP\nLOOPSTEP:TYPE=BEHAVIOUR\nLOOPSTEP:CODE={@LOOP(\"BODY\",2,5,2);}\n\nOBJECT=LOOPEMPTY\nLOOPEMPTY:TYPE=BEHAVIOUR\nLOOPEMPTY:CODE={@LOOP(\"BODY\",3,0,1);}\n\nOBJECT=YES\nYES:TYPE=BEHAVIOUR\nYES:CODE={S^SET(\"YES\");}\n\nOBJECT=NO\nNO:TYPE=BEHAVIOUR\nNO:CODE={S^SET(\"NO\");}\n\nOBJECT=SIMPLE\nSIMPLE:TYPE=BEHAVIOUR\nSIMPLE:CODE={@IF(A,\">\",3,\"YES\",\"NO\");}\n\nOBJECT=SIMPLEEQ\nSIMPLEEQ:TYPE=BEHAVIOUR\nSIMPLEEQ:CODE={@IF(A,\"_\",5,\"YES\",\"NO\");}\n\nOBJECT=COMPOUND\nCOMPOUND:TYPE=BEHAVIOUR\nCOMPOUND:CODE={@IF(\"A>3&&A<9\",\"YES\",\"NO\");}\n\nOBJECT=COMPOUNDEQ\nCOMPOUNDEQ:TYPE=BEHAVIOUR\nCOMPOUNDEQ:CODE={@IF(\"A'5\",\"YES\",\"NO\");}\n\nOBJECT=UNQUOTED\nUNQUOTED:TYPE=BEHAVIOUR\nUNQUOTED:CODE={@IF(A,\">\",3,YES,NO);}\n\nOBJECT=FLIP\nFLIP:TYPE=BEHAVIOUR\nFLIP:CODE={F^SWITCH(TRUE,FALSE);}\n",
+   "digest": "c09da80d31eb4f679261facc5b47c2b24e17e842",
+   "cnv": "OBJECT=A\nA:TYPE=INTEGER\nA:VALUE=0\n\nOBJECT=S\nS:TYPE=STRING\nS:VALUE=\n\nOBJECT=F\nF:TYPE=BOOL\nF:VALUE=FALSE\n\nOBJECT=EXPR\nEXPR:TYPE=BEHAVIOUR\nEXPR:CODE={A^SET([7+3*2]);S^SET([A@2]);}\n\nOBJECT=CONCAT\nCONCAT:TYPE=BEHAVIOUR\nCONCAT:CODE={S^SET(\"X\");S^ADD(A);A^SET([S+1]);}\n\nOBJECT=BODY\nBODY:TYPE=BEHAVIOUR\nBODY:CODE={A^ADD(1);S^ADD(_I_);}\n\nOBJECT=LOOP\nLOOP:TYPE=BEHAVIOUR\nLOOP:CODE={@LOOP(\"BODY\",0,5,1);}\n\nOBJECT=LOOPSTEP\nLOOPSTEP:TYPE=BEHAVIOUR\nLOOPSTEP:CODE={@LOOP(\"BODY\",2,5,2);}\n\nOBJECT=LOOPEMPTY\nLOOPEMPTY:TYPE=BEHAVIOUR\nLOOPEMPTY:CODE={@LOOP(\"BODY\",3,0,1);}\n\nOBJECT=YES\nYES:TYPE=BEHAVIOUR\nYES:CODE={S^SET(\"YES\");}\n\nOBJECT=NO\nNO:TYPE=BEHAVIOUR\nNO:CODE={S^SET(\"NO\");}\n\nOBJECT=SIMPLE\nSIMPLE:TYPE=BEHAVIOUR\nSIMPLE:CODE={@IF(A,\">\",3,\"YES\",\"NO\");}\n\nOBJECT=SIMPLEEQ\nSIMPLEEQ:TYPE=BEHAVIOUR\nSIMPLEEQ:CODE={@IF(A,\"_\",5,\"YES\",\"NO\");}\n\nOBJECT=COMPOUND\nCOMPOUND:TYPE=BEHAVIOUR\nCOMPOUND:CODE={@IF(\"A>3&&A<9\",\"YES\",\"NO\");}\n\nOBJECT=COMPOUNDEQ\nCOMPOUNDEQ:TYPE=BEHAVIOUR\nCOMPOUNDEQ:CODE={@IF(\"A'5\",\"YES\",\"NO\");}\n\nOBJECT=UNQUOTED\nUNQUOTED:TYPE=BEHAVIOUR\nUNQUOTED:CODE={@IF(A,\">\",3,YES,NO);}\n\nOBJECT=FLIP\nFLIP:TYPE=BEHAVIOUR\nFLIP:CODE={F^SWITCH(TRUE,FALSE);}\n\nOBJECT=GT3\nGT3:TYPE=CONDITION\nGT3:OPERAND1=A\nGT3:OPERATOR=GREATER\nGT3:OPERAND2=3\n\nOBJECT=LT9\nLT9:TYPE=CONDITION\nLT9:OPERAND1=A\nLT9:OPERATOR=LESS\nLT9:OPERAND2=9\n\nOBJECT=BETWEEN\nBETWEEN:TYPE=COMPLEXCONDITION\nBETWEEN:CONDITION1=GT3\nBETWEEN:OPERATOR=AND\nBETWEEN:CONDITION2=LT9\n\nOBJECT=IFGT3\nIFGT3:TYPE=BEHAVIOUR\nIFGT3:CONDITION=GT3\nIFGT3:CODE={S^SET(\"GT3\");}\n\nOBJECT=IFBETWEEN\nIFBETWEEN:TYPE=BEHAVIOUR\nIFBETWEEN:CONDITION=BETWEEN\nIFBETWEEN:CODE={S^SET(\"BETWEEN\");}\n",
    "steps": [
     "A^SET(5)",
     "UNQUOTED^RUN()"
@@ -992,7 +2512,7 @@
      ],
      "crash": {
       "code": "c0000005",
-      "rva": "02733558",
+      "rva": "026c47a0",
       "stack": [
        "0010761d",
        "0006902b",
@@ -1004,7 +2524,8 @@
        "00099101",
        "0010ae18",
        "00051ba6",
-       "00105cb0"
+       "00051890",
+       "00051890"
       ]
      },
      "stage": "step 1"
@@ -1106,8 +2627,8 @@
       }
      ],
      "crash": {
-      "code": "c0000096",
-      "rva": "0283b682",
+      "code": "c0000005",
+      "rva": "026ab97c",
       "stack": [
        "0011e18d",
        "0007417b",
@@ -1118,6 +2639,8 @@
        "000a9331",
        "00121eb8",
        "0005b4a6",
+       "0005b190",
+       "0005b190",
        "0011c730"
       ]
      },
@@ -1337,7 +2860,7 @@
      ],
      "crash": {
       "code": "c0000005",
-      "rva": "027b1c2c",
+      "rva": "0276bc18",
       "stack": [
        "0014e39d",
        "0007606b",
@@ -1348,7 +2871,188 @@
        "000abed1",
        "00152178",
        "0005d4d6",
+       "0005d1c0",
+       "0005d1c0",
        "0014c940"
+      ]
+     },
+     "stage": "step 1"
+    },
+    {
+     "engines": [
+      "piklib61-3bb31de8b45f",
+      "piklib61-715272459e13",
+      "piklib61-91b0330a11ab",
+      "piklib61-9de20dceea68",
+      "piklib61-c0f83acd825b"
+     ],
+     "status": "ok",
+     "initial": {
+      "A": [
+       "INTEGER",
+       "0"
+      ],
+      "S": [
+       "STRING",
+       ""
+      ],
+      "F": [
+       "BOOL",
+       "false"
+      ]
+     },
+     "steps": [
+      {
+       "result": [
+        "INTEGER",
+        "5"
+       ],
+       "state": {
+        "A": [
+         "INTEGER",
+         "5"
+        ],
+        "S": [
+         "STRING",
+         ""
+        ],
+        "F": [
+         "BOOL",
+         "false"
+        ]
+       }
+      },
+      {
+       "result": null,
+       "state": {
+        "A": [
+         "INTEGER",
+         "5"
+        ],
+        "S": [
+         "STRING",
+         ""
+        ],
+        "F": [
+         "BOOL",
+         "false"
+        ]
+       }
+      }
+     ]
+    },
+    {
+     "engines": [
+      "piklib71-128b235b6d94"
+     ],
+     "status": "crash",
+     "initial": {
+      "A": [
+       "INTEGER",
+       "0"
+      ],
+      "S": [
+       "STRING",
+       ""
+      ],
+      "F": [
+       "BOOL",
+       "FALSE"
+      ]
+     },
+     "steps": [
+      {
+       "result": null,
+       "state": {
+        "A": [
+         "INTEGER",
+         "5"
+        ],
+        "S": [
+         "STRING",
+         ""
+        ],
+        "F": [
+         "BOOL",
+         "FALSE"
+        ]
+       }
+      }
+     ],
+     "crash": {
+      "code": "c0000005",
+      "rva": "0006f2f8",
+      "stack": [
+       "0004953e",
+       "000abec8",
+       "000493a7",
+       "00061b11",
+       "000adb08",
+       "0003e9fd",
+       "000ab520",
+       "0003e60b",
+       "000ab4d8",
+       "000402d5",
+       "00040779",
+       "00061b11"
+      ]
+     },
+     "stage": "step 1"
+    },
+    {
+     "engines": [
+      "piklib71-27c2b7699f01"
+     ],
+     "status": "crash",
+     "initial": {
+      "A": [
+       "INTEGER",
+       "0"
+      ],
+      "S": [
+       "STRING",
+       ""
+      ],
+      "F": [
+       "BOOL",
+       "FALSE"
+      ]
+     },
+     "steps": [
+      {
+       "result": null,
+       "state": {
+        "A": [
+         "INTEGER",
+         "5"
+        ],
+        "S": [
+         "STRING",
+         ""
+        ],
+        "F": [
+         "BOOL",
+         "FALSE"
+        ]
+       }
+      }
+     ],
+     "crash": {
+      "code": "c0000005",
+      "rva": "0006f478",
+      "stack": [
+       "0004960e",
+       "000abe88",
+       "00049477",
+       "00061d31",
+       "000adac8",
+       "0003eb0d",
+       "000ab4e0",
+       "0003e71b",
+       "000ab498",
+       "000403e5",
+       "00040889",
+       "00061d31"
       ]
      },
      "stage": "step 1"
@@ -1393,7 +3097,7 @@
      ],
      "crash": {
       "code": "c0000096",
-      "rva": "031e5028",
+      "rva": "03086908",
       "stack": [
        "000c006c",
        "0005c57e",
@@ -1401,7 +3105,9 @@
        "000469c2",
        "0004b05d",
        "0007c2af",
-       "000472eb"
+       "000472eb",
+       "00047000",
+       "00047000"
       ]
      },
      "stage": "step 1"
@@ -1446,7 +3152,7 @@
      ],
      "crash": {
       "code": "c0000096",
-      "rva": "030a5c88",
+      "rva": "03226c28",
       "stack": [
        "000c006c",
        "0005c42e",
@@ -1454,7 +3160,9 @@
        "00046872",
        "0004af0d",
        "0007c2cf",
-       "0004719b"
+       "0004719b",
+       "00046eb0",
+       "00046eb0"
       ]
      },
      "stage": "step 1"
@@ -1499,7 +3207,7 @@
      ],
      "crash": {
       "code": "c0000005",
-      "rva": "02624016",
+      "rva": "027340d3",
       "stack": [
        "0014af0d",
        "0006587b",
@@ -1510,6 +3218,8 @@
        "00094111",
        "0014e4e8",
        "0004db16",
+       "0004d800",
+       "0004d800",
        "001495b0"
       ]
      },
@@ -1554,8 +3264,8 @@
       }
      ],
      "crash": {
-      "code": "c0000005",
-      "rva": "026d3504",
+      "code": "c0000096",
+      "rva": "026b3326",
       "stack": [
        "0013b00d",
        "000665bb",
@@ -1566,6 +3276,8 @@
        "00095e11",
        "0013e638",
        "0004e756",
+       "0004e440",
+       "0004e440",
        "001396a0"
       ]
      },
@@ -1611,7 +3323,7 @@
      ],
      "crash": {
       "code": "c0000005",
-      "rva": "026ba87e",
+      "rva": "02712a43",
       "stack": [
        "0013b21d",
        "0006655b",
@@ -1622,6 +3334,8 @@
        "00095a11",
        "0013e848",
        "0004e656",
+       "0004e340",
+       "0004e340",
        "001398b0"
       ]
      },
@@ -1667,7 +3381,7 @@
      ],
      "crash": {
       "code": "c0000005",
-      "rva": "026ea674",
+      "rva": "677815af",
       "stack": [
        "0014c51d",
        "00065d1b",
@@ -1678,6 +3392,8 @@
        "000950a1",
        "0014fb48",
        "0004e026",
+       "0004dd10",
+       "0004dd10",
        "0014abc0"
       ]
      },
@@ -1723,7 +3439,7 @@
      ],
      "crash": {
       "code": "c0000005",
-      "rva": "0284a3ce",
+      "rva": "6774b313",
       "stack": [
        "0013b00d",
        "000665bb",
@@ -1734,6 +3450,8 @@
        "00095e11",
        "0013e638",
        "0004e756",
+       "0004e440",
+       "0004e440",
        "001396a0"
       ]
      },
@@ -1779,7 +3497,7 @@
      ],
      "crash": {
       "code": "c0000005",
-      "rva": "027ca889",
+      "rva": "027b4070",
       "stack": [
        "0013bb4d",
        "0006680b",
@@ -1790,6 +3508,8 @@
        "00096381",
        "0013f1c8",
        "0004e836",
+       "0004e520",
+       "0004e520",
        "0013a1d0"
       ]
      },
@@ -1835,7 +3555,7 @@
      ],
      "crash": {
       "code": "c0000005",
-      "rva": "0270a7b5",
+      "rva": "6777a123",
       "stack": [
        "0013b00d",
        "000665bb",
@@ -1846,6 +3566,8 @@
        "00095e11",
        "0013e638",
        "0004e756",
+       "0004e440",
+       "0004e440",
        "001396a0"
       ]
      },
@@ -1891,9 +3613,20 @@
      ],
      "crash": {
       "code": "c0000005",
-      "rva": "02855939",
+      "rva": "026b59e6",
       "stack": [
-       "000d9800"
+       "000fd9bd",
+       "00063d9b",
+       "0004ee61",
+       "000fc37f",
+       "0004b5e2",
+       "000501bd",
+       "000911d1",
+       "00100d98",
+       "0004bfd6",
+       "0004bcc0",
+       "0004bcc0",
+       "000fc060"
       ]
      },
      "stage": "step 1"
@@ -1938,7 +3671,7 @@
      ],
      "crash": {
       "code": "c0000005",
-      "rva": "02755b46",
+      "rva": "0274e5f8",
       "stack": [
        "000fd9fd",
        "00063e6b",
@@ -1949,6 +3682,8 @@
        "00091221",
        "00100dd8",
        "0004c0e6",
+       "0004bdd0",
+       "0004bdd0",
        "000fc0a0"
       ]
      },
@@ -1994,7 +3729,7 @@
      ],
      "crash": {
       "code": "c0000005",
-      "rva": "027ba76b",
+      "rva": "02729d18",
       "stack": [
        "0013b21d",
        "0006655b",
@@ -2005,6 +3740,8 @@
        "00095a11",
        "0013e848",
        "0004e656",
+       "0004e340",
+       "0004e340",
        "001398b0"
       ]
      },
@@ -2049,8 +3786,22 @@
       }
      ],
      "crash": {
-      "code": "c0000005",
-      "rva": "02715529"
+      "code": "c000001d",
+      "rva": "026bea7c",
+      "stack": [
+       "000fc2dd",
+       "00063c9b",
+       "0004eb9d",
+       "000fac9f",
+       "0004b2b2",
+       "0004ff3d",
+       "00090931",
+       "000ff668",
+       "0004bcb6",
+       "0004b9a0",
+       "0004b9a0",
+       "000fa980"
+      ]
      },
      "stage": "step 1"
     },
@@ -2094,7 +3845,21 @@
      ],
      "crash": {
       "code": "c0000005",
-      "rva": "0269975a"
+      "rva": "0275438c",
+      "stack": [
+       "0013b4ad",
+       "0006658b",
+       "000515ab",
+       "00139e57",
+       "0004dd12",
+       "000528ad",
+       "00095ad1",
+       "0013eae8",
+       "0004e706",
+       "0004e3f0",
+       "0004e3f0",
+       "00139b40"
+      ]
      },
      "stage": "step 1"
     },
@@ -2137,8 +3902,8 @@
       }
      ],
      "crash": {
-      "code": "c0000096",
-      "rva": "026bab4e",
+      "code": "c0000005",
+      "rva": "677eb79b",
       "stack": [
        "0013b8fd",
        "0006690b",
@@ -2149,6 +3914,8 @@
        "00096251",
        "0013ef78",
        "0004e856",
+       "0004e540",
+       "0004e540",
        "00139f90"
       ]
      },
@@ -2194,7 +3961,7 @@
      ],
      "crash": {
       "code": "c0000005",
-      "rva": "027caf69",
+      "rva": "02699d91",
       "stack": [
        "0013b8fd",
        "0006690b",
@@ -2205,6 +3972,8 @@
        "00096251",
        "0013ef78",
        "0004e856",
+       "0004e540",
+       "0004e540",
        "00139f90"
       ]
      },
@@ -2250,7 +4019,7 @@
      ],
      "crash": {
       "code": "c0000005",
-      "rva": "027534bb",
+      "rva": "02794110",
       "stack": [
        "0013afed",
        "0006650b",
@@ -2261,10 +4030,539 @@
        "00095df1",
        "0013e618",
        "0004e6e6",
+       "0004e3d0",
+       "0004e3d0",
        "00139680"
       ]
      },
      "stage": "step 1"
+    }
+   ]
+  },
+  {
+   "id": "behaviour.condition.runc",
+   "description": "CONDITION / COMPLEXCONDITION bound to a BEHAVIOUR: RUNC checks it, RUN does not. The only conditional PIKLIB 6.1 has (no @IF/@LOOP).",
+   "tags": [
+    "behaviour"
+   ],
+   "source": "behaviour.toml",
+   "digest": "0588f2fe9d301a3463421e694737319fb83ccf25",
+   "cnv": "OBJECT=A\nA:TYPE=INTEGER\nA:VALUE=0\n\nOBJECT=S\nS:TYPE=STRING\nS:VALUE=\n\nOBJECT=F\nF:TYPE=BOOL\nF:VALUE=FALSE\n\nOBJECT=EXPR\nEXPR:TYPE=BEHAVIOUR\nEXPR:CODE={A^SET([7+3*2]);S^SET([A@2]);}\n\nOBJECT=CONCAT\nCONCAT:TYPE=BEHAVIOUR\nCONCAT:CODE={S^SET(\"X\");S^ADD(A);A^SET([S+1]);}\n\nOBJECT=BODY\nBODY:TYPE=BEHAVIOUR\nBODY:CODE={A^ADD(1);S^ADD(_I_);}\n\nOBJECT=LOOP\nLOOP:TYPE=BEHAVIOUR\nLOOP:CODE={@LOOP(\"BODY\",0,5,1);}\n\nOBJECT=LOOPSTEP\nLOOPSTEP:TYPE=BEHAVIOUR\nLOOPSTEP:CODE={@LOOP(\"BODY\",2,5,2);}\n\nOBJECT=LOOPEMPTY\nLOOPEMPTY:TYPE=BEHAVIOUR\nLOOPEMPTY:CODE={@LOOP(\"BODY\",3,0,1);}\n\nOBJECT=YES\nYES:TYPE=BEHAVIOUR\nYES:CODE={S^SET(\"YES\");}\n\nOBJECT=NO\nNO:TYPE=BEHAVIOUR\nNO:CODE={S^SET(\"NO\");}\n\nOBJECT=SIMPLE\nSIMPLE:TYPE=BEHAVIOUR\nSIMPLE:CODE={@IF(A,\">\",3,\"YES\",\"NO\");}\n\nOBJECT=SIMPLEEQ\nSIMPLEEQ:TYPE=BEHAVIOUR\nSIMPLEEQ:CODE={@IF(A,\"_\",5,\"YES\",\"NO\");}\n\nOBJECT=COMPOUND\nCOMPOUND:TYPE=BEHAVIOUR\nCOMPOUND:CODE={@IF(\"A>3&&A<9\",\"YES\",\"NO\");}\n\nOBJECT=COMPOUNDEQ\nCOMPOUNDEQ:TYPE=BEHAVIOUR\nCOMPOUNDEQ:CODE={@IF(\"A'5\",\"YES\",\"NO\");}\n\nOBJECT=UNQUOTED\nUNQUOTED:TYPE=BEHAVIOUR\nUNQUOTED:CODE={@IF(A,\">\",3,YES,NO);}\n\nOBJECT=FLIP\nFLIP:TYPE=BEHAVIOUR\nFLIP:CODE={F^SWITCH(TRUE,FALSE);}\n\nOBJECT=GT3\nGT3:TYPE=CONDITION\nGT3:OPERAND1=A\nGT3:OPERATOR=GREATER\nGT3:OPERAND2=3\n\nOBJECT=LT9\nLT9:TYPE=CONDITION\nLT9:OPERAND1=A\nLT9:OPERATOR=LESS\nLT9:OPERAND2=9\n\nOBJECT=BETWEEN\nBETWEEN:TYPE=COMPLEXCONDITION\nBETWEEN:CONDITION1=GT3\nBETWEEN:OPERATOR=AND\nBETWEEN:CONDITION2=LT9\n\nOBJECT=IFGT3\nIFGT3:TYPE=BEHAVIOUR\nIFGT3:CONDITION=GT3\nIFGT3:CODE={S^SET(\"GT3\");}\n\nOBJECT=IFBETWEEN\nIFBETWEEN:TYPE=BEHAVIOUR\nIFBETWEEN:CONDITION=BETWEEN\nIFBETWEEN:CODE={S^SET(\"BETWEEN\");}\n",
+   "steps": [
+    "A^SET(5)",
+    "IFGT3^RUNC()",
+    "IFBETWEEN^RUNC()",
+    "S^SET(\"\")",
+    "A^SET(1)",
+    "IFGT3^RUNC()",
+    "IFBETWEEN^RUNC()",
+    "IFGT3^RUN()",
+    "S^SET(\"\")",
+    "A^SET(10)",
+    "IFBETWEEN^RUNC()",
+    "IFGT3^RUNC()"
+   ],
+   "read": [
+    "A",
+    "S",
+    "F"
+   ],
+   "results": [
+    {
+     "engines": [
+      "bloomoo-2679920b3735",
+      "bloomoo-3be911183e59",
+      "bloomoo-788ab0406ab4",
+      "bloomoo-9ac8ebbe0cc2",
+      "bloomoo-d63a5fb575f9",
+      "bloomoo-fb9a2b81d685",
+      "bloomoo-web-f5b6842faf88",
+      "piklib71-128b235b6d94",
+      "piklib71-27c2b7699f01",
+      "piklib72-549b6851b2c9",
+      "piklib72-923a103d5b05",
+      "piklib8-0967908f2df1",
+      "piklib8-2c1705410e7a",
+      "piklib8-33cfd6523c04",
+      "piklib8-42d6a0c7fdf2",
+      "piklib8-5f6cbb33576d",
+      "piklib8-7b7ef02ea246",
+      "piklib8-87c5ca97f599",
+      "piklib8-92d602bbea05",
+      "piklib8-a70f97e970c6",
+      "piklib8-c0d85c50e3dc",
+      "piklib8-d1cc807bcbe5",
+      "piklib8-d3819a92b84b",
+      "piklib8-d6509a132e2a",
+      "piklib8-e80093de9636",
+      "piklib8-f01db0dd5a0d"
+     ],
+     "status": "ok",
+     "initial": {
+      "A": [
+       "INTEGER",
+       "0"
+      ],
+      "S": [
+       "STRING",
+       ""
+      ],
+      "F": [
+       "BOOL",
+       "FALSE"
+      ]
+     },
+     "steps": [
+      {
+       "result": null,
+       "state": {
+        "A": [
+         "INTEGER",
+         "5"
+        ],
+        "S": [
+         "STRING",
+         ""
+        ],
+        "F": [
+         "BOOL",
+         "FALSE"
+        ]
+       }
+      },
+      {
+       "result": null,
+       "state": {
+        "A": [
+         "INTEGER",
+         "5"
+        ],
+        "S": [
+         "STRING",
+         "GT3"
+        ],
+        "F": [
+         "BOOL",
+         "FALSE"
+        ]
+       }
+      },
+      {
+       "result": null,
+       "state": {
+        "A": [
+         "INTEGER",
+         "5"
+        ],
+        "S": [
+         "STRING",
+         "BETWEEN"
+        ],
+        "F": [
+         "BOOL",
+         "FALSE"
+        ]
+       }
+      },
+      {
+       "result": null,
+       "state": {
+        "A": [
+         "INTEGER",
+         "5"
+        ],
+        "S": [
+         "STRING",
+         ""
+        ],
+        "F": [
+         "BOOL",
+         "FALSE"
+        ]
+       }
+      },
+      {
+       "result": null,
+       "state": {
+        "A": [
+         "INTEGER",
+         "1"
+        ],
+        "S": [
+         "STRING",
+         ""
+        ],
+        "F": [
+         "BOOL",
+         "FALSE"
+        ]
+       }
+      },
+      {
+       "result": null,
+       "state": {
+        "A": [
+         "INTEGER",
+         "1"
+        ],
+        "S": [
+         "STRING",
+         ""
+        ],
+        "F": [
+         "BOOL",
+         "FALSE"
+        ]
+       }
+      },
+      {
+       "result": null,
+       "state": {
+        "A": [
+         "INTEGER",
+         "1"
+        ],
+        "S": [
+         "STRING",
+         ""
+        ],
+        "F": [
+         "BOOL",
+         "FALSE"
+        ]
+       }
+      },
+      {
+       "result": null,
+       "state": {
+        "A": [
+         "INTEGER",
+         "1"
+        ],
+        "S": [
+         "STRING",
+         "GT3"
+        ],
+        "F": [
+         "BOOL",
+         "FALSE"
+        ]
+       }
+      },
+      {
+       "result": null,
+       "state": {
+        "A": [
+         "INTEGER",
+         "1"
+        ],
+        "S": [
+         "STRING",
+         ""
+        ],
+        "F": [
+         "BOOL",
+         "FALSE"
+        ]
+       }
+      },
+      {
+       "result": null,
+       "state": {
+        "A": [
+         "INTEGER",
+         "10"
+        ],
+        "S": [
+         "STRING",
+         ""
+        ],
+        "F": [
+         "BOOL",
+         "FALSE"
+        ]
+       }
+      },
+      {
+       "result": null,
+       "state": {
+        "A": [
+         "INTEGER",
+         "10"
+        ],
+        "S": [
+         "STRING",
+         ""
+        ],
+        "F": [
+         "BOOL",
+         "FALSE"
+        ]
+       }
+      },
+      {
+       "result": null,
+       "state": {
+        "A": [
+         "INTEGER",
+         "10"
+        ],
+        "S": [
+         "STRING",
+         "GT3"
+        ],
+        "F": [
+         "BOOL",
+         "FALSE"
+        ]
+       }
+      }
+     ]
+    },
+    {
+     "engines": [
+      "piklib61-3bb31de8b45f",
+      "piklib61-715272459e13",
+      "piklib61-91b0330a11ab",
+      "piklib61-9de20dceea68",
+      "piklib61-c0f83acd825b"
+     ],
+     "status": "ok",
+     "initial": {
+      "A": [
+       "INTEGER",
+       "0"
+      ],
+      "S": [
+       "STRING",
+       ""
+      ],
+      "F": [
+       "BOOL",
+       "false"
+      ]
+     },
+     "steps": [
+      {
+       "result": [
+        "INTEGER",
+        "5"
+       ],
+       "state": {
+        "A": [
+         "INTEGER",
+         "5"
+        ],
+        "S": [
+         "STRING",
+         ""
+        ],
+        "F": [
+         "BOOL",
+         "false"
+        ]
+       }
+      },
+      {
+       "result": null,
+       "state": {
+        "A": [
+         "INTEGER",
+         "5"
+        ],
+        "S": [
+         "STRING",
+         "GT3"
+        ],
+        "F": [
+         "BOOL",
+         "false"
+        ]
+       }
+      },
+      {
+       "result": null,
+       "state": {
+        "A": [
+         "INTEGER",
+         "5"
+        ],
+        "S": [
+         "STRING",
+         "BETWEEN"
+        ],
+        "F": [
+         "BOOL",
+         "false"
+        ]
+       }
+      },
+      {
+       "result": [
+        "STRING",
+        ""
+       ],
+       "state": {
+        "A": [
+         "INTEGER",
+         "5"
+        ],
+        "S": [
+         "STRING",
+         ""
+        ],
+        "F": [
+         "BOOL",
+         "false"
+        ]
+       }
+      },
+      {
+       "result": [
+        "INTEGER",
+        "1"
+       ],
+       "state": {
+        "A": [
+         "INTEGER",
+         "1"
+        ],
+        "S": [
+         "STRING",
+         ""
+        ],
+        "F": [
+         "BOOL",
+         "false"
+        ]
+       }
+      },
+      {
+       "result": null,
+       "state": {
+        "A": [
+         "INTEGER",
+         "1"
+        ],
+        "S": [
+         "STRING",
+         ""
+        ],
+        "F": [
+         "BOOL",
+         "false"
+        ]
+       }
+      },
+      {
+       "result": null,
+       "state": {
+        "A": [
+         "INTEGER",
+         "1"
+        ],
+        "S": [
+         "STRING",
+         ""
+        ],
+        "F": [
+         "BOOL",
+         "false"
+        ]
+       }
+      },
+      {
+       "result": null,
+       "state": {
+        "A": [
+         "INTEGER",
+         "1"
+        ],
+        "S": [
+         "STRING",
+         "GT3"
+        ],
+        "F": [
+         "BOOL",
+         "false"
+        ]
+       }
+      },
+      {
+       "result": [
+        "STRING",
+        ""
+       ],
+       "state": {
+        "A": [
+         "INTEGER",
+         "1"
+        ],
+        "S": [
+         "STRING",
+         ""
+        ],
+        "F": [
+         "BOOL",
+         "false"
+        ]
+       }
+      },
+      {
+       "result": [
+        "INTEGER",
+        "10"
+       ],
+       "state": {
+        "A": [
+         "INTEGER",
+         "10"
+        ],
+        "S": [
+         "STRING",
+         ""
+        ],
+        "F": [
+         "BOOL",
+         "false"
+        ]
+       }
+      },
+      {
+       "result": null,
+       "state": {
+        "A": [
+         "INTEGER",
+         "10"
+        ],
+        "S": [
+         "STRING",
+         ""
+        ],
+        "F": [
+         "BOOL",
+         "false"
+        ]
+       }
+      },
+      {
+       "result": null,
+       "state": {
+        "A": [
+         "INTEGER",
+         "10"
+        ],
+        "S": [
+         "STRING",
+         "GT3"
+        ],
+        "F": [
+         "BOOL",
+         "false"
+        ]
+       }
+      }
+     ]
     }
    ]
   },
@@ -2275,8 +4573,8 @@
     "behaviour"
    ],
    "source": "behaviour.toml",
-   "digest": "2095ffa423e80fe49891dd800165b0406be02fb8",
-   "cnv": "OBJECT=A\nA:TYPE=INTEGER\nA:VALUE=0\n\nOBJECT=S\nS:TYPE=STRING\nS:VALUE=\n\nOBJECT=F\nF:TYPE=BOOL\nF:VALUE=FALSE\n\nOBJECT=EXPR\nEXPR:TYPE=BEHAVIOUR\nEXPR:CODE={A^SET([7+3*2]);S^SET([A@2]);}\n\nOBJECT=CONCAT\nCONCAT:TYPE=BEHAVIOUR\nCONCAT:CODE={S^SET(\"X\");S^ADD(A);A^SET([S+1]);}\n\nOBJECT=BODY\nBODY:TYPE=BEHAVIOUR\nBODY:CODE={A^ADD(1);S^ADD(_I_);}\n\nOBJECT=LOOP\nLOOP:TYPE=BEHAVIOUR\nLOOP:CODE={@LOOP(\"BODY\",0,5,1);}\n\nOBJECT=LOOPSTEP\nLOOPSTEP:TYPE=BEHAVIOUR\nLOOPSTEP:CODE={@LOOP(\"BODY\",2,5,2);}\n\nOBJECT=LOOPEMPTY\nLOOPEMPTY:TYPE=BEHAVIOUR\nLOOPEMPTY:CODE={@LOOP(\"BODY\",3,0,1);}\n\nOBJECT=YES\nYES:TYPE=BEHAVIOUR\nYES:CODE={S^SET(\"YES\");}\n\nOBJECT=NO\nNO:TYPE=BEHAVIOUR\nNO:CODE={S^SET(\"NO\");}\n\nOBJECT=SIMPLE\nSIMPLE:TYPE=BEHAVIOUR\nSIMPLE:CODE={@IF(A,\">\",3,\"YES\",\"NO\");}\n\nOBJECT=SIMPLEEQ\nSIMPLEEQ:TYPE=BEHAVIOUR\nSIMPLEEQ:CODE={@IF(A,\"_\",5,\"YES\",\"NO\");}\n\nOBJECT=COMPOUND\nCOMPOUND:TYPE=BEHAVIOUR\nCOMPOUND:CODE={@IF(\"A>3&&A<9\",\"YES\",\"NO\");}\n\nOBJECT=COMPOUNDEQ\nCOMPOUNDEQ:TYPE=BEHAVIOUR\nCOMPOUNDEQ:CODE={@IF(\"A'5\",\"YES\",\"NO\");}\n\nOBJECT=UNQUOTED\nUNQUOTED:TYPE=BEHAVIOUR\nUNQUOTED:CODE={@IF(A,\">\",3,YES,NO);}\n\nOBJECT=FLIP\nFLIP:TYPE=BEHAVIOUR\nFLIP:CODE={F^SWITCH(TRUE,FALSE);}\n",
+   "digest": "5766b19d102f359a44143ce0b7294b00c40937a2",
+   "cnv": "OBJECT=A\nA:TYPE=INTEGER\nA:VALUE=0\n\nOBJECT=S\nS:TYPE=STRING\nS:VALUE=\n\nOBJECT=F\nF:TYPE=BOOL\nF:VALUE=FALSE\n\nOBJECT=EXPR\nEXPR:TYPE=BEHAVIOUR\nEXPR:CODE={A^SET([7+3*2]);S^SET([A@2]);}\n\nOBJECT=CONCAT\nCONCAT:TYPE=BEHAVIOUR\nCONCAT:CODE={S^SET(\"X\");S^ADD(A);A^SET([S+1]);}\n\nOBJECT=BODY\nBODY:TYPE=BEHAVIOUR\nBODY:CODE={A^ADD(1);S^ADD(_I_);}\n\nOBJECT=LOOP\nLOOP:TYPE=BEHAVIOUR\nLOOP:CODE={@LOOP(\"BODY\",0,5,1);}\n\nOBJECT=LOOPSTEP\nLOOPSTEP:TYPE=BEHAVIOUR\nLOOPSTEP:CODE={@LOOP(\"BODY\",2,5,2);}\n\nOBJECT=LOOPEMPTY\nLOOPEMPTY:TYPE=BEHAVIOUR\nLOOPEMPTY:CODE={@LOOP(\"BODY\",3,0,1);}\n\nOBJECT=YES\nYES:TYPE=BEHAVIOUR\nYES:CODE={S^SET(\"YES\");}\n\nOBJECT=NO\nNO:TYPE=BEHAVIOUR\nNO:CODE={S^SET(\"NO\");}\n\nOBJECT=SIMPLE\nSIMPLE:TYPE=BEHAVIOUR\nSIMPLE:CODE={@IF(A,\">\",3,\"YES\",\"NO\");}\n\nOBJECT=SIMPLEEQ\nSIMPLEEQ:TYPE=BEHAVIOUR\nSIMPLEEQ:CODE={@IF(A,\"_\",5,\"YES\",\"NO\");}\n\nOBJECT=COMPOUND\nCOMPOUND:TYPE=BEHAVIOUR\nCOMPOUND:CODE={@IF(\"A>3&&A<9\",\"YES\",\"NO\");}\n\nOBJECT=COMPOUNDEQ\nCOMPOUNDEQ:TYPE=BEHAVIOUR\nCOMPOUNDEQ:CODE={@IF(\"A'5\",\"YES\",\"NO\");}\n\nOBJECT=UNQUOTED\nUNQUOTED:TYPE=BEHAVIOUR\nUNQUOTED:CODE={@IF(A,\">\",3,YES,NO);}\n\nOBJECT=FLIP\nFLIP:TYPE=BEHAVIOUR\nFLIP:CODE={F^SWITCH(TRUE,FALSE);}\n\nOBJECT=GT3\nGT3:TYPE=CONDITION\nGT3:OPERAND1=A\nGT3:OPERATOR=GREATER\nGT3:OPERAND2=3\n\nOBJECT=LT9\nLT9:TYPE=CONDITION\nLT9:OPERAND1=A\nLT9:OPERATOR=LESS\nLT9:OPERAND2=9\n\nOBJECT=BETWEEN\nBETWEEN:TYPE=COMPLEXCONDITION\nBETWEEN:CONDITION1=GT3\nBETWEEN:OPERATOR=AND\nBETWEEN:CONDITION2=LT9\n\nOBJECT=IFGT3\nIFGT3:TYPE=BEHAVIOUR\nIFGT3:CONDITION=GT3\nIFGT3:CODE={S^SET(\"GT3\");}\n\nOBJECT=IFBETWEEN\nIFBETWEEN:TYPE=BEHAVIOUR\nIFBETWEEN:CONDITION=BETWEEN\nIFBETWEEN:CODE={S^SET(\"BETWEEN\");}\n",
    "steps": [
     "FLIP^RUN()",
     "FLIP^RUN()",
@@ -2300,6 +4598,8 @@
       "bloomoo-d63a5fb575f9",
       "bloomoo-fb9a2b81d685",
       "bloomoo-web-f5b6842faf88",
+      "piklib71-128b235b6d94",
+      "piklib71-27c2b7699f01",
       "piklib72-549b6851b2c9",
       "piklib72-923a103d5b05",
       "piklib8-0967908f2df1",
@@ -2433,6 +4733,146 @@
         "F": [
          "BOOL",
          "FALSE"
+        ]
+       }
+      }
+     ]
+    },
+    {
+     "engines": [
+      "piklib61-3bb31de8b45f",
+      "piklib61-715272459e13",
+      "piklib61-91b0330a11ab",
+      "piklib61-9de20dceea68",
+      "piklib61-c0f83acd825b"
+     ],
+     "status": "ok",
+     "initial": {
+      "A": [
+       "INTEGER",
+       "0"
+      ],
+      "S": [
+       "STRING",
+       ""
+      ],
+      "F": [
+       "BOOL",
+       "false"
+      ]
+     },
+     "steps": [
+      {
+       "result": null,
+       "state": {
+        "A": [
+         "INTEGER",
+         "0"
+        ],
+        "S": [
+         "STRING",
+         ""
+        ],
+        "F": [
+         "BOOL",
+         "true"
+        ]
+       }
+      },
+      {
+       "result": null,
+       "state": {
+        "A": [
+         "INTEGER",
+         "0"
+        ],
+        "S": [
+         "STRING",
+         ""
+        ],
+        "F": [
+         "BOOL",
+         "false"
+        ]
+       }
+      },
+      {
+       "result": [
+        "BOOL",
+        "true"
+       ],
+       "state": {
+        "A": [
+         "INTEGER",
+         "0"
+        ],
+        "S": [
+         "STRING",
+         ""
+        ],
+        "F": [
+         "BOOL",
+         "true"
+        ]
+       }
+      },
+      {
+       "result": [
+        "BOOL",
+        "false"
+       ],
+       "state": {
+        "A": [
+         "INTEGER",
+         "0"
+        ],
+        "S": [
+         "STRING",
+         ""
+        ],
+        "F": [
+         "BOOL",
+         "false"
+        ]
+       }
+      },
+      {
+       "result": [
+        "BOOL",
+        "true"
+       ],
+       "state": {
+        "A": [
+         "INTEGER",
+         "0"
+        ],
+        "S": [
+         "STRING",
+         ""
+        ],
+        "F": [
+         "BOOL",
+         "true"
+        ]
+       }
+      },
+      {
+       "result": [
+        "BOOL",
+        "false"
+       ],
+       "state": {
+        "A": [
+         "INTEGER",
+         "0"
+        ],
+        "S": [
+         "STRING",
+         ""
+        ],
+        "F": [
+         "BOOL",
+         "false"
         ]
        }
       }
@@ -2637,6 +5077,186 @@
        }
       }
      ]
+    },
+    {
+     "engines": [
+      "piklib61-3bb31de8b45f",
+      "piklib61-715272459e13",
+      "piklib61-91b0330a11ab",
+      "piklib61-9de20dceea68",
+      "piklib61-c0f83acd825b"
+     ],
+     "status": "ok",
+     "initial": {
+      "D": [
+       "DOUBLE",
+       "00"
+      ]
+     },
+     "steps": [
+      {
+       "result": [
+        "DOUBLE",
+        "00"
+       ],
+       "state": {
+        "D": [
+         "DOUBLE",
+         "00"
+        ]
+       }
+      },
+      {
+       "result": [
+        "DOUBLE",
+        "00"
+       ],
+       "state": {
+        "D": [
+         "DOUBLE",
+         "00"
+        ]
+       }
+      },
+      {
+       "result": [
+        "DOUBLE",
+        "00"
+       ],
+       "state": {
+        "D": [
+         "DOUBLE",
+         "00"
+        ]
+       }
+      },
+      {
+       "result": [
+        "DOUBLE",
+        "00"
+       ],
+       "state": {
+        "D": [
+         "DOUBLE",
+         "00"
+        ]
+       }
+      },
+      {
+       "result": [
+        "DOUBLE",
+        "00"
+       ],
+       "state": {
+        "D": [
+         "DOUBLE",
+         "00"
+        ]
+       }
+      },
+      {
+       "result": [
+        "DOUBLE",
+        "700"
+       ],
+       "state": {
+        "D": [
+         "DOUBLE",
+         "700"
+        ]
+       }
+      },
+      {
+       "result": [
+        "DOUBLE",
+        "100000000"
+       ],
+       "state": {
+        "D": [
+         "DOUBLE",
+         "100000000"
+        ]
+       }
+      }
+     ]
+    },
+    {
+     "engines": [
+      "piklib71-128b235b6d94",
+      "piklib71-27c2b7699f01"
+     ],
+     "status": "ok",
+     "initial": {
+      "D": [
+       "DOUBLE",
+       "1.50"
+      ]
+     },
+     "steps": [
+      {
+       "result": null,
+       "state": {
+        "D": [
+         "DOUBLE",
+         "00"
+        ]
+       }
+      },
+      {
+       "result": null,
+       "state": {
+        "D": [
+         "DOUBLE",
+         "-50"
+        ]
+       }
+      },
+      {
+       "result": null,
+       "state": {
+        "D": [
+         "DOUBLE",
+         "-1.25"
+        ]
+       }
+      },
+      {
+       "result": null,
+       "state": {
+        "D": [
+         "DOUBLE",
+         "50"
+        ]
+       }
+      },
+      {
+       "result": null,
+       "state": {
+        "D": [
+         "DOUBLE",
+         "123.46"
+        ]
+       }
+      },
+      {
+       "result": null,
+       "state": {
+        "D": [
+         "DOUBLE",
+         "-7.00"
+        ]
+       }
+      },
+      {
+       "result": null,
+       "state": {
+        "D": [
+         "DOUBLE",
+         "1000000.00"
+        ]
+       }
+      }
+     ]
     }
    ]
   },
@@ -2668,6 +5288,8 @@
     {
      "engines": [
       "bloomoo-2679920b3735",
+      "piklib71-128b235b6d94",
+      "piklib71-27c2b7699f01",
       "piklib72-549b6851b2c9",
       "piklib72-923a103d5b05",
       "piklib8-0967908f2df1",
@@ -2894,6 +5516,144 @@
        }
       }
      ]
+    },
+    {
+     "engines": [
+      "piklib61-3bb31de8b45f",
+      "piklib61-715272459e13",
+      "piklib61-91b0330a11ab",
+      "piklib61-9de20dceea68",
+      "piklib61-c0f83acd825b"
+     ],
+     "status": "ok",
+     "initial": {
+      "I": [
+       "INTEGER",
+       "0"
+      ]
+     },
+     "steps": [
+      {
+       "result": [
+        "DOUBLE",
+        "00"
+       ],
+       "state": {
+        "I": [
+         "INTEGER",
+         "0"
+        ]
+       }
+      },
+      {
+       "result": [
+        "INTEGER",
+        "0"
+       ],
+       "state": {
+        "I": [
+         "INTEGER",
+         "0"
+        ]
+       }
+      },
+      {
+       "result": [
+        "DOUBLE",
+        "00"
+       ],
+       "state": {
+        "I": [
+         "INTEGER",
+         "0"
+        ]
+       }
+      },
+      {
+       "result": [
+        "INTEGER",
+        "0"
+       ],
+       "state": {
+        "I": [
+         "INTEGER",
+         "0"
+        ]
+       }
+      },
+      {
+       "result": [
+        "DOUBLE",
+        "00"
+       ],
+       "state": {
+        "I": [
+         "INTEGER",
+         "0"
+        ]
+       }
+      },
+      {
+       "result": [
+        "INTEGER",
+        "0"
+       ],
+       "state": {
+        "I": [
+         "INTEGER",
+         "0"
+        ]
+       }
+      },
+      {
+       "result": [
+        "DOUBLE",
+        "00"
+       ],
+       "state": {
+        "I": [
+         "INTEGER",
+         "0"
+        ]
+       }
+      },
+      {
+       "result": [
+        "INTEGER",
+        "0"
+       ],
+       "state": {
+        "I": [
+         "INTEGER",
+         "0"
+        ]
+       }
+      },
+      {
+       "result": [
+        "DOUBLE",
+        "00"
+       ],
+       "state": {
+        "I": [
+         "INTEGER",
+         "0"
+        ]
+       }
+      },
+      {
+       "result": [
+        "INTEGER",
+        "0"
+       ],
+       "state": {
+        "I": [
+         "INTEGER",
+         "0"
+        ]
+       }
+      }
+     ]
     }
    ]
   },
@@ -3075,6 +5835,165 @@
        }
       }
      ]
+    },
+    {
+     "engines": [
+      "piklib61-3bb31de8b45f",
+      "piklib61-715272459e13",
+      "piklib61-91b0330a11ab",
+      "piklib61-9de20dceea68",
+      "piklib61-c0f83acd825b"
+     ],
+     "status": "ok",
+     "initial": {
+      "S": [
+       "STRING",
+       ""
+      ]
+     },
+     "steps": [
+      {
+       "result": [
+        "DOUBLE",
+        "00"
+       ],
+       "state": {
+        "S": [
+         "STRING",
+         ""
+        ]
+       }
+      },
+      {
+       "result": [
+        "STRING",
+        "00"
+       ],
+       "state": {
+        "S": [
+         "STRING",
+         "00"
+        ]
+       }
+      },
+      {
+       "result": [
+        "DOUBLE",
+        "00"
+       ],
+       "state": {
+        "S": [
+         "STRING",
+         "00"
+        ]
+       }
+      },
+      {
+       "result": [
+        "STRING",
+        "00"
+       ],
+       "state": {
+        "S": [
+         "STRING",
+         "00"
+        ]
+       }
+      },
+      {
+       "result": [
+        "DOUBLE",
+        "00"
+       ],
+       "state": {
+        "S": [
+         "STRING",
+         "00"
+        ]
+       }
+      },
+      {
+       "result": [
+        "STRING",
+        "00"
+       ],
+       "state": {
+        "S": [
+         "STRING",
+         "00"
+        ]
+       }
+      }
+     ]
+    },
+    {
+     "engines": [
+      "piklib71-128b235b6d94",
+      "piklib71-27c2b7699f01"
+     ],
+     "status": "ok",
+     "initial": {
+      "S": [
+       "STRING",
+       ""
+      ]
+     },
+     "steps": [
+      {
+       "result": null,
+       "state": {
+        "S": [
+         "STRING",
+         ""
+        ]
+       }
+      },
+      {
+       "result": null,
+       "state": {
+        "S": [
+         "STRING",
+         "00"
+        ]
+       }
+      },
+      {
+       "result": null,
+       "state": {
+        "S": [
+         "STRING",
+         "00"
+        ]
+       }
+      },
+      {
+       "result": null,
+       "state": {
+        "S": [
+         "STRING",
+         "-50"
+        ]
+       }
+      },
+      {
+       "result": null,
+       "state": {
+        "S": [
+         "STRING",
+         "-50"
+        ]
+       }
+      },
+      {
+       "result": null,
+       "state": {
+        "S": [
+         "STRING",
+         "3.25"
+        ]
+       }
+      }
+     ]
     }
    ]
   },
@@ -3172,6 +6091,126 @@
        }
       }
      ]
+    },
+    {
+     "engines": [
+      "piklib61-3bb31de8b45f",
+      "piklib61-715272459e13",
+      "piklib61-91b0330a11ab",
+      "piklib61-9de20dceea68",
+      "piklib61-c0f83acd825b"
+     ],
+     "status": "ok",
+     "initial": {
+      "D": [
+       "DOUBLE",
+       "00"
+      ]
+     },
+     "steps": [
+      {
+       "result": [
+        "DOUBLE",
+        "00"
+       ],
+       "state": {
+        "D": [
+         "DOUBLE",
+         "00"
+        ]
+       }
+      },
+      {
+       "result": [
+        "DOUBLE",
+        "00"
+       ],
+       "state": {
+        "D": [
+         "DOUBLE",
+         "00"
+        ]
+       }
+      },
+      {
+       "result": [
+        "DOUBLE",
+        "00"
+       ],
+       "state": {
+        "D": [
+         "DOUBLE",
+         "00"
+        ]
+       }
+      },
+      {
+       "result": [
+        "DOUBLE",
+        "00"
+       ],
+       "state": {
+        "D": [
+         "DOUBLE",
+         "00"
+        ]
+       }
+      }
+     ]
+    },
+    {
+     "engines": [
+      "piklib71-128b235b6d94",
+      "piklib71-27c2b7699f01"
+     ],
+     "status": "ok",
+     "initial": {
+      "D": [
+       "DOUBLE",
+       "1.50"
+      ]
+     },
+     "steps": [
+      {
+       "result": [
+        "DOUBLE",
+        "3.75"
+       ],
+       "state": {
+        "D": [
+         "DOUBLE",
+         "3.75"
+        ]
+       }
+      },
+      {
+       "result": null,
+       "state": {
+        "D": [
+         "DOUBLE",
+         "-7.50"
+        ]
+       }
+      },
+      {
+       "result": null,
+       "state": {
+        "D": [
+         "DOUBLE",
+         "-8.00"
+        ]
+       }
+      },
+      {
+       "result": null,
+       "state": {
+        "D": [
+         "DOUBLE",
+         "-2.00"
+        ]
+       }
+      }
+     ]
     }
    ]
   },
@@ -3232,6 +6271,85 @@
         "D": [
          "DOUBLE",
          "1.#INF0"
+        ]
+       }
+      }
+     ]
+    },
+    {
+     "engines": [
+      "piklib61-3bb31de8b45f",
+      "piklib61-715272459e13"
+     ],
+     "status": "ok",
+     "initial": {
+      "D": [
+       "DOUBLE",
+       "00"
+      ]
+     },
+     "steps": [
+      {
+       "result": [
+        "DOUBLE",
+        "00"
+       ],
+       "state": {
+        "D": [
+         "DOUBLE",
+         "00"
+        ]
+       }
+      }
+     ]
+    },
+    {
+     "engines": [
+      "piklib61-91b0330a11ab",
+      "piklib61-9de20dceea68",
+      "piklib61-c0f83acd825b"
+     ],
+     "status": "ok",
+     "initial": {
+      "D": [
+       "DOUBLE",
+       "00"
+      ]
+     },
+     "steps": [
+      {
+       "result": [
+        "DOUBLE",
+        "1#J"
+       ],
+       "state": {
+        "D": [
+         "DOUBLE",
+         "1#J"
+        ]
+       }
+      }
+     ]
+    },
+    {
+     "engines": [
+      "piklib71-128b235b6d94",
+      "piklib71-27c2b7699f01"
+     ],
+     "status": "ok",
+     "initial": {
+      "D": [
+       "DOUBLE",
+       "1.50"
+      ]
+     },
+     "steps": [
+      {
+       "result": null,
+       "state": {
+        "D": [
+         "DOUBLE",
+         "1.#J"
         ]
        }
       }
@@ -3326,6 +6444,123 @@
         "D": [
          "DOUBLE",
          "-1.00000"
+        ]
+       }
+      }
+     ]
+    },
+    {
+     "engines": [
+      "piklib61-3bb31de8b45f",
+      "piklib61-715272459e13",
+      "piklib61-91b0330a11ab",
+      "piklib61-9de20dceea68",
+      "piklib61-c0f83acd825b"
+     ],
+     "status": "ok",
+     "initial": {
+      "D": [
+       "DOUBLE",
+       "00"
+      ]
+     },
+     "steps": [
+      {
+       "result": [
+        "DOUBLE",
+        "00"
+       ],
+       "state": {
+        "D": [
+         "DOUBLE",
+         "00"
+        ]
+       }
+      },
+      {
+       "result": [
+        "DOUBLE",
+        "00"
+       ],
+       "state": {
+        "D": [
+         "DOUBLE",
+         "00"
+        ]
+       }
+      },
+      {
+       "result": [
+        "DOUBLE",
+        "00"
+       ],
+       "state": {
+        "D": [
+         "DOUBLE",
+         "00"
+        ]
+       }
+      },
+      {
+       "result": [
+        "DOUBLE",
+        "00"
+       ],
+       "state": {
+        "D": [
+         "DOUBLE",
+         "00"
+        ]
+       }
+      }
+     ]
+    },
+    {
+     "engines": [
+      "piklib71-128b235b6d94",
+      "piklib71-27c2b7699f01"
+     ],
+     "status": "ok",
+     "initial": {
+      "D": [
+       "DOUBLE",
+       "1.50"
+      ]
+     },
+     "steps": [
+      {
+       "result": null,
+       "state": {
+        "D": [
+         "DOUBLE",
+         "7.50"
+        ]
+       }
+      },
+      {
+       "result": null,
+       "state": {
+        "D": [
+         "DOUBLE",
+         "1.00"
+        ]
+       }
+      },
+      {
+       "result": null,
+       "state": {
+        "D": [
+         "DOUBLE",
+         "-7.50"
+        ]
+       }
+      },
+      {
+       "result": null,
+       "state": {
+        "D": [
+         "DOUBLE",
+         "-1.00"
         ]
        }
       }
@@ -3427,6 +6662,132 @@
         "D": [
          "DOUBLE",
          "1.41421"
+        ]
+       }
+      }
+     ]
+    },
+    {
+     "engines": [
+      "piklib61-3bb31de8b45f",
+      "piklib61-715272459e13",
+      "piklib61-91b0330a11ab",
+      "piklib61-9de20dceea68",
+      "piklib61-c0f83acd825b"
+     ],
+     "status": "ok",
+     "initial": {
+      "D": [
+       "DOUBLE",
+       "00"
+      ]
+     },
+     "steps": [
+      {
+       "result": [
+        "DOUBLE",
+        "1600"
+       ],
+       "state": {
+        "D": [
+         "DOUBLE",
+         "1600"
+        ]
+       }
+      },
+      {
+       "result": [
+        "DOUBLE",
+        "1600"
+       ],
+       "state": {
+        "D": [
+         "DOUBLE",
+         "1600"
+        ]
+       }
+      },
+      {
+       "result": [
+        "DOUBLE",
+        "1600"
+       ],
+       "state": {
+        "D": [
+         "DOUBLE",
+         "1600"
+        ]
+       }
+      },
+      {
+       "result": [
+        "DOUBLE",
+        "1600"
+       ],
+       "state": {
+        "D": [
+         "DOUBLE",
+         "1600"
+        ]
+       }
+      }
+     ]
+    },
+    {
+     "engines": [
+      "piklib71-128b235b6d94",
+      "piklib71-27c2b7699f01"
+     ],
+     "status": "ok",
+     "initial": {
+      "D": [
+       "DOUBLE",
+       "1.50"
+      ]
+     },
+     "steps": [
+      {
+       "result": null,
+       "state": {
+        "D": [
+         "DOUBLE",
+         "16.00"
+        ]
+       }
+      },
+      {
+       "result": [
+        "INTEGER",
+        "0"
+       ],
+       "state": {
+        "D": [
+         "DOUBLE",
+         "16.00"
+        ]
+       }
+      },
+      {
+       "result": [
+        "INTEGER",
+        "0"
+       ],
+       "state": {
+        "D": [
+         "DOUBLE",
+         "16.00"
+        ]
+       }
+      },
+      {
+       "result": [
+        "INTEGER",
+        "0"
+       ],
+       "state": {
+        "D": [
+         "DOUBLE",
+         "16.00"
         ]
        }
       }
@@ -3610,6 +6971,159 @@
        }
       }
      ]
+    },
+    {
+     "engines": [
+      "piklib61-3bb31de8b45f",
+      "piklib61-715272459e13",
+      "piklib61-91b0330a11ab",
+      "piklib61-9de20dceea68",
+      "piklib61-c0f83acd825b"
+     ],
+     "status": "ok",
+     "initial": {
+      "D": [
+       "DOUBLE",
+       "00"
+      ]
+     },
+     "steps": [
+      {
+       "result": [
+        "DOUBLE",
+        "00"
+       ],
+       "state": {
+        "D": [
+         "DOUBLE",
+         "00"
+        ]
+       }
+      },
+      {
+       "result": [
+        "DOUBLE",
+        "00"
+       ],
+       "state": {
+        "D": [
+         "DOUBLE",
+         "00"
+        ]
+       }
+      },
+      {
+       "result": [
+        "DOUBLE",
+        "00"
+       ],
+       "state": {
+        "D": [
+         "DOUBLE",
+         "00"
+        ]
+       }
+      },
+      {
+       "result": [
+        "DOUBLE",
+        "00"
+       ],
+       "state": {
+        "D": [
+         "DOUBLE",
+         "00"
+        ]
+       }
+      },
+      {
+       "result": [
+        "DOUBLE",
+        "00"
+       ],
+       "state": {
+        "D": [
+         "DOUBLE",
+         "00"
+        ]
+       }
+      }
+     ]
+    },
+    {
+     "engines": [
+      "piklib71-128b235b6d94",
+      "piklib71-27c2b7699f01"
+     ],
+     "status": "ok",
+     "initial": {
+      "D": [
+       "DOUBLE",
+       "1.50"
+      ]
+     },
+     "steps": [
+      {
+       "result": [
+        "DOUBLE",
+        "50"
+       ],
+       "state": {
+        "D": [
+         "DOUBLE",
+         "50"
+        ]
+       }
+      },
+      {
+       "result": [
+        "DOUBLE",
+        "50"
+       ],
+       "state": {
+        "D": [
+         "DOUBLE",
+         "50"
+        ]
+       }
+      },
+      {
+       "result": [
+        "DOUBLE",
+        "1.00"
+       ],
+       "state": {
+        "D": [
+         "DOUBLE",
+         "1.00"
+        ]
+       }
+      },
+      {
+       "result": [
+        "DOUBLE",
+        "45.00"
+       ],
+       "state": {
+        "D": [
+         "DOUBLE",
+         "45.00"
+        ]
+       }
+      },
+      {
+       "result": [
+        "DOUBLE",
+        "135.00"
+       ],
+       "state": {
+        "D": [
+         "DOUBLE",
+         "135.00"
+        ]
+       }
+      }
+     ]
     }
    ]
   },
@@ -3686,6 +7200,87 @@
         "D": [
          "DOUBLE",
          "-2.00000"
+        ]
+       }
+      }
+     ]
+    },
+    {
+     "engines": [
+      "piklib61-3bb31de8b45f",
+      "piklib61-715272459e13",
+      "piklib61-91b0330a11ab",
+      "piklib61-9de20dceea68",
+      "piklib61-c0f83acd825b"
+     ],
+     "status": "ok",
+     "initial": {
+      "D": [
+       "DOUBLE",
+       "00"
+      ]
+     },
+     "steps": [
+      {
+       "result": [
+        "DOUBLE",
+        "00"
+       ],
+       "state": {
+        "D": [
+         "DOUBLE",
+         "00"
+        ]
+       }
+      },
+      {
+       "result": [
+        "DOUBLE",
+        "00"
+       ],
+       "state": {
+        "D": [
+         "DOUBLE",
+         "00"
+        ]
+       }
+      }
+     ]
+    },
+    {
+     "engines": [
+      "piklib71-128b235b6d94",
+      "piklib71-27c2b7699f01"
+     ],
+     "status": "ok",
+     "initial": {
+      "D": [
+       "DOUBLE",
+       "1.50"
+      ]
+     },
+     "steps": [
+      {
+       "result": [
+        "DOUBLE",
+        "7.50"
+       ],
+       "state": {
+        "D": [
+         "DOUBLE",
+         "7.50"
+        ]
+       }
+      },
+      {
+       "result": [
+        "DOUBLE",
+        "-2.00"
+       ],
+       "state": {
+        "D": [
+         "DOUBLE",
+         "-2.00"
         ]
        }
       }
@@ -3907,6 +7502,192 @@
         "I": [
          "INTEGER",
          "1"
+        ]
+       }
+      }
+     ]
+    },
+    {
+     "engines": [
+      "piklib61-3bb31de8b45f",
+      "piklib61-715272459e13",
+      "piklib61-91b0330a11ab",
+      "piklib61-9de20dceea68",
+      "piklib61-c0f83acd825b"
+     ],
+     "status": "ok",
+     "initial": {
+      "D": [
+       "DOUBLE",
+       "00"
+      ],
+      "I": [
+       "INTEGER",
+       "0"
+      ]
+     },
+     "steps": [
+      {
+       "result": [
+        "INTEGER",
+        "0"
+       ],
+       "state": {
+        "D": [
+         "DOUBLE",
+         "00"
+        ],
+        "I": [
+         "INTEGER",
+         "0"
+        ]
+       }
+      },
+      {
+       "result": [
+        "DOUBLE",
+        "300"
+       ],
+       "state": {
+        "D": [
+         "DOUBLE",
+         "300"
+        ],
+        "I": [
+         "INTEGER",
+         "0"
+        ]
+       }
+      },
+      {
+       "result": [
+        "DOUBLE",
+        "300"
+       ],
+       "state": {
+        "D": [
+         "DOUBLE",
+         "300"
+        ],
+        "I": [
+         "INTEGER",
+         "0"
+        ]
+       }
+      },
+      {
+       "result": [
+        "DOUBLE",
+        "00"
+       ],
+       "state": {
+        "D": [
+         "DOUBLE",
+         "00"
+        ],
+        "I": [
+         "INTEGER",
+         "0"
+        ]
+       }
+      },
+      {
+       "result": [
+        "DOUBLE",
+        "00"
+       ],
+       "state": {
+        "D": [
+         "DOUBLE",
+         "00"
+        ],
+        "I": [
+         "INTEGER",
+         "0"
+        ]
+       }
+      }
+     ]
+    },
+    {
+     "engines": [
+      "piklib71-128b235b6d94",
+      "piklib71-27c2b7699f01"
+     ],
+     "status": "ok",
+     "initial": {
+      "D": [
+       "DOUBLE",
+       "1.50"
+      ],
+      "I": [
+       "INTEGER",
+       "0"
+      ]
+     },
+     "steps": [
+      {
+       "result": null,
+       "state": {
+        "D": [
+         "DOUBLE",
+         "1.50"
+        ],
+        "I": [
+         "INTEGER",
+         "0"
+        ]
+       }
+      },
+      {
+       "result": null,
+       "state": {
+        "D": [
+         "DOUBLE",
+         "-3.00"
+        ],
+        "I": [
+         "INTEGER",
+         "0"
+        ]
+       }
+      },
+      {
+       "result": null,
+       "state": {
+        "D": [
+         "DOUBLE",
+         "-3.00"
+        ],
+        "I": [
+         "INTEGER",
+         "0"
+        ]
+       }
+      },
+      {
+       "result": null,
+       "state": {
+        "D": [
+         "DOUBLE",
+         "00"
+        ],
+        "I": [
+         "INTEGER",
+         "0"
+        ]
+       }
+      },
+      {
+       "result": null,
+       "state": {
+        "D": [
+         "DOUBLE",
+         "00"
+        ],
+        "I": [
+         "INTEGER",
+         "0"
         ]
        }
       }
@@ -4138,6 +7919,123 @@
        }
       }
      ]
+    },
+    {
+     "engines": [
+      "piklib61-3bb31de8b45f",
+      "piklib61-715272459e13",
+      "piklib61-91b0330a11ab",
+      "piklib61-9de20dceea68",
+      "piklib61-c0f83acd825b"
+     ],
+     "status": "ok",
+     "initial": {
+      "D": [
+       "DOUBLE",
+       "00"
+      ]
+     },
+     "steps": [
+      {
+       "result": [
+        "DOUBLE",
+        "275"
+       ],
+       "state": {
+        "D": [
+         "DOUBLE",
+         "275"
+        ]
+       }
+      },
+      {
+       "result": [
+        "DOUBLE",
+        "100"
+       ],
+       "state": {
+        "D": [
+         "DOUBLE",
+         "100"
+        ]
+       }
+      },
+      {
+       "result": [
+        "DOUBLE",
+        "00"
+       ],
+       "state": {
+        "D": [
+         "DOUBLE",
+         "00"
+        ]
+       }
+      },
+      {
+       "result": [
+        "DOUBLE",
+        "13"
+       ],
+       "state": {
+        "D": [
+         "DOUBLE",
+         "13"
+        ]
+       }
+      }
+     ]
+    },
+    {
+     "engines": [
+      "piklib71-128b235b6d94",
+      "piklib71-27c2b7699f01"
+     ],
+     "status": "ok",
+     "initial": {
+      "D": [
+       "DOUBLE",
+       "1.50"
+      ]
+     },
+     "steps": [
+      {
+       "result": null,
+       "state": {
+        "D": [
+         "DOUBLE",
+         "2.75"
+        ]
+       }
+      },
+      {
+       "result": null,
+       "state": {
+        "D": [
+         "DOUBLE",
+         "1.00"
+        ]
+       }
+      },
+      {
+       "result": null,
+       "state": {
+        "D": [
+         "DOUBLE",
+         "00"
+        ]
+       }
+      },
+      {
+       "result": null,
+       "state": {
+        "D": [
+         "DOUBLE",
+         "-13"
+        ]
+       }
+      }
+     ]
     }
    ]
   },
@@ -4169,6 +8067,8 @@
       "bloomoo-d63a5fb575f9",
       "bloomoo-fb9a2b81d685",
       "bloomoo-web-f5b6842faf88",
+      "piklib71-128b235b6d94",
+      "piklib71-27c2b7699f01",
       "piklib72-549b6851b2c9",
       "piklib72-923a103d5b05",
       "piklib8-0967908f2df1",
@@ -4238,6 +8138,133 @@
        }
       }
      ]
+    },
+    {
+     "engines": [
+      "piklib61-3bb31de8b45f",
+      "piklib61-715272459e13"
+     ],
+     "status": "ok",
+     "initial": {
+      "A": [
+       "INTEGER",
+       "7"
+      ]
+     },
+     "steps": [
+      {
+       "result": [
+        "INTEGER",
+        "12"
+       ],
+       "state": {
+        "A": [
+         "INTEGER",
+         "12"
+        ]
+       }
+      },
+      {
+       "result": [
+        "INTEGER",
+        "12"
+       ],
+       "state": {
+        "A": [
+         "INTEGER",
+         "12"
+        ]
+       }
+      },
+      {
+       "result": [
+        "INTEGER",
+        "-36"
+       ],
+       "state": {
+        "A": [
+         "INTEGER",
+         "-36"
+        ]
+       }
+      },
+      {
+       "result": [
+        "INTEGER",
+        "-39"
+       ],
+       "state": {
+        "A": [
+         "INTEGER",
+         "-39"
+        ]
+       }
+      }
+     ]
+    },
+    {
+     "engines": [
+      "piklib61-91b0330a11ab",
+      "piklib61-9de20dceea68",
+      "piklib61-c0f83acd825b"
+     ],
+     "status": "ok",
+     "initial": {
+      "A": [
+       "INTEGER",
+       "7"
+      ]
+     },
+     "steps": [
+      {
+       "result": [
+        "INTEGER",
+        "12"
+       ],
+       "state": {
+        "A": [
+         "INTEGER",
+         "12"
+        ]
+       }
+      },
+      {
+       "result": [
+        "INTEGER",
+        "-8"
+       ],
+       "state": {
+        "A": [
+         "INTEGER",
+         "-8"
+        ]
+       }
+      },
+      {
+       "result": [
+        "INTEGER",
+        "24"
+       ],
+       "state": {
+        "A": [
+         "INTEGER",
+         "24"
+        ]
+       }
+      },
+      {
+       "result": [
+        "INTEGER",
+        "21"
+       ],
+       "state": {
+        "A": [
+         "INTEGER",
+         "21"
+        ]
+       }
+      }
+     ]
     }
    ]
   },
@@ -4270,6 +8297,8 @@
       "bloomoo-d63a5fb575f9",
       "bloomoo-fb9a2b81d685",
       "bloomoo-web-f5b6842faf88",
+      "piklib71-128b235b6d94",
+      "piklib71-27c2b7699f01",
       "piklib72-549b6851b2c9",
       "piklib72-923a103d5b05",
       "piklib8-0967908f2df1",
@@ -4342,6 +8371,157 @@
        }
       }
      ]
+    },
+    {
+     "engines": [
+      "piklib61-3bb31de8b45f",
+      "piklib61-715272459e13"
+     ],
+     "status": "ok",
+     "initial": {
+      "A": [
+       "INTEGER",
+       "7"
+      ]
+     },
+     "steps": [
+      {
+       "result": [
+        "INTEGER",
+        "7"
+       ],
+       "state": {
+        "A": [
+         "INTEGER",
+         "7"
+        ]
+       }
+      },
+      {
+       "result": [
+        "INTEGER",
+        "-7"
+       ],
+       "state": {
+        "A": [
+         "INTEGER",
+         "-7"
+        ]
+       }
+      },
+      {
+       "result": [
+        "INTEGER",
+        "-7"
+       ],
+       "state": {
+        "A": [
+         "INTEGER",
+         "-7"
+        ]
+       }
+      },
+      {
+       "result": [
+        "INTEGER",
+        "7"
+       ],
+       "state": {
+        "A": [
+         "INTEGER",
+         "7"
+        ]
+       }
+      },
+      {
+       "result": [
+        "INTEGER",
+        "7"
+       ],
+       "state": {
+        "A": [
+         "INTEGER",
+         "7"
+        ]
+       }
+      }
+     ]
+    },
+    {
+     "engines": [
+      "piklib61-91b0330a11ab",
+      "piklib61-9de20dceea68",
+      "piklib61-c0f83acd825b"
+     ],
+     "status": "ok",
+     "initial": {
+      "A": [
+       "INTEGER",
+       "7"
+      ]
+     },
+     "steps": [
+      {
+       "result": [
+        "INTEGER",
+        "3"
+       ],
+       "state": {
+        "A": [
+         "INTEGER",
+         "3"
+        ]
+       }
+      },
+      {
+       "result": [
+        "INTEGER",
+        "-7"
+       ],
+       "state": {
+        "A": [
+         "INTEGER",
+         "-7"
+        ]
+       }
+      },
+      {
+       "result": [
+        "INTEGER",
+        "-3"
+       ],
+       "state": {
+        "A": [
+         "INTEGER",
+         "-3"
+        ]
+       }
+      },
+      {
+       "result": [
+        "INTEGER",
+        "7"
+       ],
+       "state": {
+        "A": [
+         "INTEGER",
+         "7"
+        ]
+       }
+      },
+      {
+       "result": [
+        "INTEGER",
+        "-3"
+       ],
+       "state": {
+        "A": [
+         "INTEGER",
+         "-3"
+        ]
+       }
+      }
+     ]
     }
    ]
   },
@@ -4383,6 +8563,8 @@
        "00099101",
        "0010ae18",
        "00051ba6",
+       "00051890",
+       "00051890",
        "00105cb0"
       ]
      },
@@ -4409,6 +8591,8 @@
        "0007e4f0",
        "0017e838",
        "0004216c",
+       "00002d2e",
+       "00002d2e",
        "00176e30"
       ]
      },
@@ -4436,6 +8620,8 @@
        "000a9331",
        "00121eb8",
        "0005b4a6",
+       "0005b190",
+       "0005b190",
        "0011c730"
       ]
      },
@@ -4462,6 +8648,8 @@
        "000803c0",
        "00191128",
        "000428cc",
+       "00002d74",
+       "00002d74",
        "00189520"
       ]
      },
@@ -4488,6 +8676,8 @@
        "000803c0",
        "00191068",
        "000428cc",
+       "00002d74",
+       "00002d74",
        "00189460"
       ]
      },
@@ -4514,6 +8704,8 @@
        "0007e980",
        "0017f188",
        "000425bc",
+       "00002d56",
+       "00002d56",
        "00177780"
       ]
      },
@@ -4541,7 +8733,190 @@
        "000abed1",
        "00152178",
        "0005d4d6",
+       "0005d1c0",
+       "0005d1c0",
        "0014c940"
+      ]
+     },
+     "stage": "step 0"
+    },
+    {
+     "engines": [
+      "piklib61-3bb31de8b45f",
+      "piklib61-715272459e13"
+     ],
+     "status": "ok",
+     "initial": {
+      "A": [
+       "INTEGER",
+       "7"
+      ]
+     },
+     "steps": [
+      {
+       "result": [
+        "INTEGER",
+        "7"
+       ],
+       "state": {
+        "A": [
+         "INTEGER",
+         "7"
+        ]
+       }
+      },
+      {
+       "result": [
+        "INTEGER",
+        "7"
+       ],
+       "state": {
+        "A": [
+         "INTEGER",
+         "7"
+        ]
+       }
+      }
+     ]
+    },
+    {
+     "engines": [
+      "piklib61-91b0330a11ab"
+     ],
+     "status": "crash",
+     "initial": {
+      "A": [
+       "INTEGER",
+       "7"
+      ]
+     },
+     "steps": [],
+     "crash": {
+      "code": "c0000094",
+      "rva": "00038f13",
+      "stack": [
+       "0002d602",
+       "0007088b",
+       "00046bea",
+       "00046995",
+       "00072498",
+       "0002d7f5",
+       "0002d620",
+       "00074500",
+       "0006f533"
+      ]
+     },
+     "stage": "step 0"
+    },
+    {
+     "engines": [
+      "piklib61-9de20dceea68"
+     ],
+     "status": "crash",
+     "initial": {
+      "A": [
+       "INTEGER",
+       "7"
+      ]
+     },
+     "steps": [],
+     "crash": {
+      "code": "c0000094",
+      "rva": "0003aa63",
+      "stack": [
+       "0002ea02",
+       "0007306b",
+       "00048f0a",
+       "00048c85",
+       "00074d18",
+       "0002ec65",
+       "0002ea90",
+       "00076d00",
+       "00071c63"
+      ]
+     },
+     "stage": "step 0"
+    },
+    {
+     "engines": [
+      "piklib61-c0f83acd825b"
+     ],
+     "status": "crash",
+     "initial": {
+      "A": [
+       "INTEGER",
+       "7"
+      ]
+     },
+     "steps": [],
+     "crash": {
+      "code": "c0000094",
+      "rva": "0004a81b",
+      "stack": [
+       "00096a2e",
+       "0005e194",
+       "0005ddca",
+       "0003b52d",
+       "0003b500",
+       "0003b52d",
+       "000983b9",
+       "0003b77b",
+       "0003b52d",
+       "000958c9"
+      ]
+     },
+     "stage": "step 0"
+    },
+    {
+     "engines": [
+      "piklib71-128b235b6d94"
+     ],
+     "status": "crash",
+     "initial": {
+      "A": [
+       "INTEGER",
+       "7"
+      ]
+     },
+     "steps": [],
+     "crash": {
+      "code": "c0000094",
+      "rva": "00057304",
+      "stack": [
+       "000787fc",
+       "0007ab93",
+       "00061b11",
+       "000adb08",
+       "0003ed8c",
+       "0003eaa0",
+       "000ab560"
+      ]
+     },
+     "stage": "step 0"
+    },
+    {
+     "engines": [
+      "piklib71-27c2b7699f01"
+     ],
+     "status": "crash",
+     "initial": {
+      "A": [
+       "INTEGER",
+       "7"
+      ]
+     },
+     "steps": [],
+     "crash": {
+      "code": "c0000094",
+      "rva": "00057524",
+      "stack": [
+       "0007899c",
+       "0007ad13",
+       "00061d31",
+       "000adac8",
+       "0003ee9c",
+       "0003ebb0",
+       "000ab520"
       ]
      },
      "stage": "step 0"
@@ -4563,10 +8938,11 @@
       "rva": "0006c68e",
       "stack": [
        "00097d70",
-       "0007c275",
        "0007c2a9",
        "0007c2af",
-       "000472eb"
+       "000472eb",
+       "00047000",
+       "00047000"
       ]
      },
      "stage": "step 0"
@@ -4588,10 +8964,11 @@
       "rva": "0006c6ae",
       "stack": [
        "00097d90",
-       "0007c295",
        "0007c2c9",
        "0007c2cf",
-       "0004719b"
+       "0004719b",
+       "00046eb0",
+       "00046eb0"
       ]
      },
      "stage": "step 0"
@@ -4618,6 +8995,8 @@
        "00094111",
        "0014e4e8",
        "0004db16",
+       "0004d800",
+       "0004d800",
        "001495b0"
       ]
      },
@@ -4647,6 +9026,8 @@
        "00095e11",
        "0013e638",
        "0004e756",
+       "0004e440",
+       "0004e440",
        "001396a0"
       ]
      },
@@ -4675,6 +9056,8 @@
        "00095a11",
        "0013e848",
        "0004e656",
+       "0004e340",
+       "0004e340",
        "001398b0"
       ]
      },
@@ -4702,6 +9085,8 @@
        "000950a1",
        "0014fb48",
        "0004e026",
+       "0004dd10",
+       "0004dd10",
        "0014abc0"
       ]
      },
@@ -4729,6 +9114,8 @@
        "00096381",
        "0013f1c8",
        "0004e836",
+       "0004e520",
+       "0004e520",
        "0013a1d0"
       ]
      },
@@ -4756,6 +9143,8 @@
        "000911d1",
        "00100d98",
        "0004bfd6",
+       "0004bcc0",
+       "0004bcc0",
        "000fc060"
       ]
      },
@@ -4783,6 +9172,8 @@
        "00091221",
        "00100dd8",
        "0004c0e6",
+       "0004bdd0",
+       "0004bdd0",
        "000fc0a0"
       ]
      },
@@ -4810,6 +9201,8 @@
        "00090931",
        "000ff668",
        "0004bcb6",
+       "0004b9a0",
+       "0004b9a0",
        "000fa980"
       ]
      },
@@ -4837,6 +9230,8 @@
        "00095ad1",
        "0013eae8",
        "0004e706",
+       "0004e3f0",
+       "0004e3f0",
        "00139b40"
       ]
      },
@@ -4865,6 +9260,8 @@
        "00096251",
        "0013ef78",
        "0004e856",
+       "0004e540",
+       "0004e540",
        "00139f90"
       ]
      },
@@ -4892,6 +9289,8 @@
        "00095df1",
        "0013e618",
        "0004e6e6",
+       "0004e3d0",
+       "0004e3d0",
        "00139680"
       ]
      },
@@ -4928,6 +9327,8 @@
       "bloomoo-d63a5fb575f9",
       "bloomoo-fb9a2b81d685",
       "bloomoo-web-f5b6842faf88",
+      "piklib71-128b235b6d94",
+      "piklib71-27c2b7699f01",
       "piklib72-549b6851b2c9",
       "piklib72-923a103d5b05",
       "piklib8-0967908f2df1",
@@ -5000,6 +9401,157 @@
        }
       }
      ]
+    },
+    {
+     "engines": [
+      "piklib61-3bb31de8b45f",
+      "piklib61-715272459e13"
+     ],
+     "status": "ok",
+     "initial": {
+      "A": [
+       "INTEGER",
+       "7"
+      ]
+     },
+     "steps": [
+      {
+       "result": [
+        "INTEGER",
+        "7"
+       ],
+       "state": {
+        "A": [
+         "INTEGER",
+         "7"
+        ]
+       }
+      },
+      {
+       "result": [
+        "INTEGER",
+        "-7"
+       ],
+       "state": {
+        "A": [
+         "INTEGER",
+         "-7"
+        ]
+       }
+      },
+      {
+       "result": [
+        "INTEGER",
+        "-7"
+       ],
+       "state": {
+        "A": [
+         "INTEGER",
+         "-7"
+        ]
+       }
+      },
+      {
+       "result": [
+        "INTEGER",
+        "7"
+       ],
+       "state": {
+        "A": [
+         "INTEGER",
+         "7"
+        ]
+       }
+      },
+      {
+       "result": [
+        "INTEGER",
+        "7"
+       ],
+       "state": {
+        "A": [
+         "INTEGER",
+         "7"
+        ]
+       }
+      }
+     ]
+    },
+    {
+     "engines": [
+      "piklib61-91b0330a11ab",
+      "piklib61-9de20dceea68",
+      "piklib61-c0f83acd825b"
+     ],
+     "status": "ok",
+     "initial": {
+      "A": [
+       "INTEGER",
+       "7"
+      ]
+     },
+     "steps": [
+      {
+       "result": [
+        "INTEGER",
+        "1"
+       ],
+       "state": {
+        "A": [
+         "INTEGER",
+         "1"
+        ]
+       }
+      },
+      {
+       "result": [
+        "INTEGER",
+        "-7"
+       ],
+       "state": {
+        "A": [
+         "INTEGER",
+         "-7"
+        ]
+       }
+      },
+      {
+       "result": [
+        "INTEGER",
+        "-1"
+       ],
+       "state": {
+        "A": [
+         "INTEGER",
+         "-1"
+        ]
+       }
+      },
+      {
+       "result": [
+        "INTEGER",
+        "7"
+       ],
+       "state": {
+        "A": [
+         "INTEGER",
+         "7"
+        ]
+       }
+      },
+      {
+       "result": [
+        "INTEGER",
+        "1"
+       ],
+       "state": {
+        "A": [
+         "INTEGER",
+         "1"
+        ]
+       }
+      }
+     ]
     }
    ]
   },
@@ -5040,6 +9592,8 @@
        "00099101",
        "0010ae18",
        "00051ba6",
+       "00051890",
+       "00051890",
        "00105cb0"
       ]
      },
@@ -5066,6 +9620,8 @@
        "0007e4f0",
        "0017e838",
        "0004216c",
+       "00002d2e",
+       "00002d2e",
        "00176e30"
       ]
      },
@@ -5093,6 +9649,8 @@
        "000a9331",
        "00121eb8",
        "0005b4a6",
+       "0005b190",
+       "0005b190",
        "0011c730"
       ]
      },
@@ -5119,6 +9677,8 @@
        "000803c0",
        "00191128",
        "000428cc",
+       "00002d74",
+       "00002d74",
        "00189520"
       ]
      },
@@ -5145,6 +9705,8 @@
        "000803c0",
        "00191068",
        "000428cc",
+       "00002d74",
+       "00002d74",
        "00189460"
       ]
      },
@@ -5171,6 +9733,8 @@
        "0007e980",
        "0017f188",
        "000425bc",
+       "00002d56",
+       "00002d56",
        "00177780"
       ]
      },
@@ -5198,7 +9762,178 @@
        "000abed1",
        "00152178",
        "0005d4d6",
+       "0005d1c0",
+       "0005d1c0",
        "0014c940"
+      ]
+     },
+     "stage": "step 0"
+    },
+    {
+     "engines": [
+      "piklib61-3bb31de8b45f",
+      "piklib61-715272459e13"
+     ],
+     "status": "ok",
+     "initial": {
+      "A": [
+       "INTEGER",
+       "7"
+      ]
+     },
+     "steps": [
+      {
+       "result": [
+        "INTEGER",
+        "7"
+       ],
+       "state": {
+        "A": [
+         "INTEGER",
+         "7"
+        ]
+       }
+      }
+     ]
+    },
+    {
+     "engines": [
+      "piklib61-91b0330a11ab"
+     ],
+     "status": "crash",
+     "initial": {
+      "A": [
+       "INTEGER",
+       "7"
+      ]
+     },
+     "steps": [],
+     "crash": {
+      "code": "c0000094",
+      "rva": "00038f33",
+      "stack": [
+       "0002d602",
+       "0007088b",
+       "00046c2a",
+       "000469c6",
+       "00072498",
+       "0002d7f5",
+       "0002d620",
+       "00074500",
+       "0006f533"
+      ]
+     },
+     "stage": "step 0"
+    },
+    {
+     "engines": [
+      "piklib61-9de20dceea68"
+     ],
+     "status": "crash",
+     "initial": {
+      "A": [
+       "INTEGER",
+       "7"
+      ]
+     },
+     "steps": [],
+     "crash": {
+      "code": "c0000094",
+      "rva": "0003aa83",
+      "stack": [
+       "0002ea02",
+       "0007306b",
+       "00048f4a",
+       "00048cb6",
+       "00074d18",
+       "0002ec65",
+       "0002ea90",
+       "00076d00",
+       "00071c63"
+      ]
+     },
+     "stage": "step 0"
+    },
+    {
+     "engines": [
+      "piklib61-c0f83acd825b"
+     ],
+     "status": "crash",
+     "initial": {
+      "A": [
+       "INTEGER",
+       "7"
+      ]
+     },
+     "steps": [],
+     "crash": {
+      "code": "c0000094",
+      "rva": "0004a855",
+      "stack": [
+       "00096a2e",
+       "0005e1f2",
+       "0005de14",
+       "0003b52d",
+       "0003b500",
+       "0003b52d",
+       "000983b9",
+       "0003b77b",
+       "0003b52d",
+       "000958c9"
+      ]
+     },
+     "stage": "step 0"
+    },
+    {
+     "engines": [
+      "piklib71-128b235b6d94"
+     ],
+     "status": "crash",
+     "initial": {
+      "A": [
+       "INTEGER",
+       "7"
+      ]
+     },
+     "steps": [],
+     "crash": {
+      "code": "c0000094",
+      "rva": "00057324",
+      "stack": [
+       "0007883c",
+       "0007abaa",
+       "00061b11",
+       "000adb08",
+       "0003ed8c",
+       "0003eaa0",
+       "000ab560"
+      ]
+     },
+     "stage": "step 0"
+    },
+    {
+     "engines": [
+      "piklib71-27c2b7699f01"
+     ],
+     "status": "crash",
+     "initial": {
+      "A": [
+       "INTEGER",
+       "7"
+      ]
+     },
+     "steps": [],
+     "crash": {
+      "code": "c0000094",
+      "rva": "00057544",
+      "stack": [
+       "000789dc",
+       "0007ad2a",
+       "00061d31",
+       "000adac8",
+       "0003ee9c",
+       "0003ebb0",
+       "000ab520"
       ]
      },
      "stage": "step 0"
@@ -5220,10 +9955,11 @@
       "rva": "0006c6c3",
       "stack": [
        "00097d70",
-       "0007c275",
        "0007c2a9",
        "0007c2af",
-       "000472eb"
+       "000472eb",
+       "00047000",
+       "00047000"
       ]
      },
      "stage": "step 0"
@@ -5245,10 +9981,11 @@
       "rva": "0006c6e3",
       "stack": [
        "00097d90",
-       "0007c295",
        "0007c2c9",
        "0007c2cf",
-       "0004719b"
+       "0004719b",
+       "00046eb0",
+       "00046eb0"
       ]
      },
      "stage": "step 0"
@@ -5275,6 +10012,8 @@
        "00094111",
        "0014e4e8",
        "0004db16",
+       "0004d800",
+       "0004d800",
        "001495b0"
       ]
      },
@@ -5304,6 +10043,8 @@
        "00095e11",
        "0013e638",
        "0004e756",
+       "0004e440",
+       "0004e440",
        "001396a0"
       ]
      },
@@ -5332,6 +10073,8 @@
        "00095a11",
        "0013e848",
        "0004e656",
+       "0004e340",
+       "0004e340",
        "001398b0"
       ]
      },
@@ -5359,6 +10102,8 @@
        "000950a1",
        "0014fb48",
        "0004e026",
+       "0004dd10",
+       "0004dd10",
        "0014abc0"
       ]
      },
@@ -5386,6 +10131,8 @@
        "00096381",
        "0013f1c8",
        "0004e836",
+       "0004e520",
+       "0004e520",
        "0013a1d0"
       ]
      },
@@ -5413,6 +10160,8 @@
        "000911d1",
        "00100d98",
        "0004bfd6",
+       "0004bcc0",
+       "0004bcc0",
        "000fc060"
       ]
      },
@@ -5440,6 +10189,8 @@
        "00091221",
        "00100dd8",
        "0004c0e6",
+       "0004bdd0",
+       "0004bdd0",
        "000fc0a0"
       ]
      },
@@ -5467,6 +10218,8 @@
        "00090931",
        "000ff668",
        "0004bcb6",
+       "0004b9a0",
+       "0004b9a0",
        "000fa980"
       ]
      },
@@ -5494,6 +10247,8 @@
        "00095ad1",
        "0013eae8",
        "0004e706",
+       "0004e3f0",
+       "0004e3f0",
        "00139b40"
       ]
      },
@@ -5522,6 +10277,8 @@
        "00096251",
        "0013ef78",
        "0004e856",
+       "0004e540",
+       "0004e540",
        "00139f90"
       ]
      },
@@ -5549,6 +10306,8 @@
        "00095df1",
        "0013e618",
        "0004e6e6",
+       "0004e3d0",
+       "0004e3d0",
        "00139680"
       ]
      },
@@ -5583,6 +10342,8 @@
       "bloomoo-d63a5fb575f9",
       "bloomoo-fb9a2b81d685",
       "bloomoo-web-f5b6842faf88",
+      "piklib71-128b235b6d94",
+      "piklib71-27c2b7699f01",
       "piklib72-549b6851b2c9",
       "piklib72-923a103d5b05",
       "piklib8-0967908f2df1",
@@ -5646,6 +10407,60 @@
        }
       }
      ]
+    },
+    {
+     "engines": [
+      "piklib61-3bb31de8b45f",
+      "piklib61-715272459e13",
+      "piklib61-91b0330a11ab",
+      "piklib61-9de20dceea68",
+      "piklib61-c0f83acd825b"
+     ],
+     "status": "ok",
+     "initial": {
+      "A": [
+       "INTEGER",
+       "7"
+      ]
+     },
+     "steps": [
+      {
+       "result": [
+        "INTEGER",
+        "7"
+       ],
+       "state": {
+        "A": [
+         "INTEGER",
+         "7"
+        ]
+       }
+      },
+      {
+       "result": [
+        "INTEGER",
+        "7"
+       ],
+       "state": {
+        "A": [
+         "INTEGER",
+         "7"
+        ]
+       }
+      },
+      {
+       "result": [
+        "INTEGER",
+        "7"
+       ],
+       "state": {
+        "A": [
+         "INTEGER",
+         "7"
+        ]
+       }
+      }
+     ]
     }
    ]
   },
@@ -5687,6 +10502,8 @@
        "00099101",
        "0010ae18",
        "00051ba6",
+       "00051890",
+       "00051890",
        "00105cb0"
       ]
      },
@@ -5714,6 +10531,8 @@
        "0007e4f0",
        "0017e838",
        "0004216c",
+       "00002d2e",
+       "00002d2e",
        "00176e30"
       ]
      },
@@ -5742,6 +10561,8 @@
        "000a9331",
        "00121eb8",
        "0005b4a6",
+       "0005b190",
+       "0005b190",
        "0011c730"
       ]
      },
@@ -5769,6 +10590,8 @@
        "000803c0",
        "00191128",
        "000428cc",
+       "00002d74",
+       "00002d74",
        "00189520"
       ]
      },
@@ -5796,6 +10619,8 @@
        "000803c0",
        "00191068",
        "000428cc",
+       "00002d74",
+       "00002d74",
        "00189460"
       ]
      },
@@ -5823,6 +10648,8 @@
        "0007e980",
        "0017f188",
        "000425bc",
+       "00002d56",
+       "00002d56",
        "00177780"
       ]
      },
@@ -5851,7 +10678,152 @@
        "000abed1",
        "00152178",
        "0005d4d6",
+       "0005d1c0",
+       "0005d1c0",
        "0014c940"
+      ]
+     },
+     "stage": "step 0"
+    },
+    {
+     "engines": [
+      "piklib61-3bb31de8b45f",
+      "piklib61-715272459e13",
+      "piklib61-91b0330a11ab"
+     ],
+     "status": "ok",
+     "initial": {
+      "A": [
+       "INTEGER",
+       "7"
+      ]
+     },
+     "steps": [
+      {
+       "result": [
+        "INTEGER",
+        "7"
+       ],
+       "state": {
+        "A": [
+         "INTEGER",
+         "7"
+        ]
+       }
+      }
+     ]
+    },
+    {
+     "engines": [
+      "piklib61-9de20dceea68"
+     ],
+     "status": "crash",
+     "initial": {
+      "A": [
+       "INTEGER",
+       "7"
+      ]
+     },
+     "steps": [],
+     "crash": {
+      "code": "c0000005",
+      "rva": "0003ec39",
+      "stack": [
+       "0003ec9f",
+       "00048fc4",
+       "00074d3b",
+       "00048d43",
+       "00074d18",
+       "0002ec65",
+       "0002ea90",
+       "00076d00",
+       "00071c63"
+      ]
+     },
+     "stage": "step 0"
+    },
+    {
+     "engines": [
+      "piklib61-c0f83acd825b"
+     ],
+     "status": "crash",
+     "initial": {
+      "A": [
+       "INTEGER",
+       "7"
+      ]
+     },
+     "steps": [],
+     "crash": {
+      "code": "c0000005",
+      "rva": "0004f9d4",
+      "stack": [
+       "0004fa62",
+       "0005e2b0",
+       "0009a411",
+       "000983ce",
+       "0005def1",
+       "0003b500",
+       "000983b9",
+       "0003b77b",
+       "0003b52d",
+       "000958c9"
+      ]
+     },
+     "stage": "step 0"
+    },
+    {
+     "engines": [
+      "piklib71-128b235b6d94"
+     ],
+     "status": "crash",
+     "initial": {
+      "A": [
+       "INTEGER",
+       "7"
+      ]
+     },
+     "steps": [],
+     "crash": {
+      "code": "c0000005",
+      "rva": "00061c48",
+      "stack": [
+       "00061cf3",
+       "000788b9",
+       "0007abef",
+       "00061b11",
+       "000adb08",
+       "0003ed8c",
+       "0003eaa0",
+       "000ab560"
+      ]
+     },
+     "stage": "step 0"
+    },
+    {
+     "engines": [
+      "piklib71-27c2b7699f01"
+     ],
+     "status": "crash",
+     "initial": {
+      "A": [
+       "INTEGER",
+       "7"
+      ]
+     },
+     "steps": [],
+     "crash": {
+      "code": "c0000005",
+      "rva": "00061e68",
+      "stack": [
+       "00061f13",
+       "00078a39",
+       "0007ad6f",
+       "00061d31",
+       "000adac8",
+       "0003ee9c",
+       "0003ebb0",
+       "000ab520"
       ]
      },
      "stage": "step 0"
@@ -5874,10 +10846,11 @@
       "stack": [
        "0007c641",
        "00097de1",
-       "0007c275",
        "0007c2a9",
        "0007c2af",
-       "000472eb"
+       "000472eb",
+       "00047000",
+       "00047000"
       ]
      },
      "stage": "step 0"
@@ -5900,10 +10873,11 @@
       "stack": [
        "0007c661",
        "00097e01",
-       "0007c295",
        "0007c2c9",
        "0007c2cf",
-       "0004719b"
+       "0004719b",
+       "00046eb0",
+       "00046eb0"
       ]
      },
      "stage": "step 0"
@@ -5931,6 +10905,8 @@
        "00094111",
        "0014e4e8",
        "0004db16",
+       "0004d800",
+       "0004d800",
        "001495b0"
       ]
      },
@@ -5961,6 +10937,8 @@
        "00095e11",
        "0013e638",
        "0004e756",
+       "0004e440",
+       "0004e440",
        "001396a0"
       ]
      },
@@ -5990,6 +10968,8 @@
        "00095a11",
        "0013e848",
        "0004e656",
+       "0004e340",
+       "0004e340",
        "001398b0"
       ]
      },
@@ -6018,6 +10998,8 @@
        "000950a1",
        "0014fb48",
        "0004e026",
+       "0004dd10",
+       "0004dd10",
        "0014abc0"
       ]
      },
@@ -6046,6 +11028,8 @@
        "00096381",
        "0013f1c8",
        "0004e836",
+       "0004e520",
+       "0004e520",
        "0013a1d0"
       ]
      },
@@ -6074,6 +11058,8 @@
        "000911d1",
        "00100d98",
        "0004bfd6",
+       "0004bcc0",
+       "0004bcc0",
        "000fc060"
       ]
      },
@@ -6102,6 +11088,8 @@
        "00091221",
        "00100dd8",
        "0004c0e6",
+       "0004bdd0",
+       "0004bdd0",
        "000fc0a0"
       ]
      },
@@ -6130,6 +11118,8 @@
        "00090931",
        "000ff668",
        "0004bcb6",
+       "0004b9a0",
+       "0004b9a0",
        "000fa980"
       ]
      },
@@ -6158,6 +11148,8 @@
        "00095ad1",
        "0013eae8",
        "0004e706",
+       "0004e3f0",
+       "0004e3f0",
        "00139b40"
       ]
      },
@@ -6187,6 +11179,8 @@
        "00096251",
        "0013ef78",
        "0004e856",
+       "0004e540",
+       "0004e540",
        "00139f90"
       ]
      },
@@ -6215,6 +11209,8 @@
        "00095df1",
        "0013e618",
        "0004e6e6",
+       "0004e3d0",
+       "0004e3d0",
        "00139680"
       ]
      },
@@ -6251,6 +11247,8 @@
       "bloomoo-d63a5fb575f9",
       "bloomoo-fb9a2b81d685",
       "bloomoo-web-f5b6842faf88",
+      "piklib71-128b235b6d94",
+      "piklib71-27c2b7699f01",
       "piklib72-549b6851b2c9",
       "piklib72-923a103d5b05",
       "piklib8-0967908f2df1",
@@ -6332,6 +11330,84 @@
        }
       }
      ]
+    },
+    {
+     "engines": [
+      "piklib61-3bb31de8b45f",
+      "piklib61-715272459e13",
+      "piklib61-91b0330a11ab",
+      "piklib61-9de20dceea68",
+      "piklib61-c0f83acd825b"
+     ],
+     "status": "ok",
+     "initial": {
+      "A": [
+       "INTEGER",
+       "7"
+      ]
+     },
+     "steps": [
+      {
+       "result": [
+        "INTEGER",
+        "7"
+       ],
+       "state": {
+        "A": [
+         "INTEGER",
+         "7"
+        ]
+       }
+      },
+      {
+       "result": [
+        "INTEGER",
+        "-4"
+       ],
+       "state": {
+        "A": [
+         "INTEGER",
+         "-4"
+        ]
+       }
+      },
+      {
+       "result": [
+        "INTEGER",
+        "-4"
+       ],
+       "state": {
+        "A": [
+         "INTEGER",
+         "-4"
+        ]
+       }
+      },
+      {
+       "result": [
+        "INTEGER",
+        "3"
+       ],
+       "state": {
+        "A": [
+         "INTEGER",
+         "3"
+        ]
+       }
+      },
+      {
+       "result": [
+        "INTEGER",
+        "3"
+       ],
+       "state": {
+        "A": [
+         "INTEGER",
+         "3"
+        ]
+       }
+      }
+     ]
     }
    ]
   },
@@ -6362,6 +11438,8 @@
       "bloomoo-d63a5fb575f9",
       "bloomoo-fb9a2b81d685",
       "bloomoo-web-f5b6842faf88",
+      "piklib71-128b235b6d94",
+      "piklib71-27c2b7699f01",
       "piklib72-549b6851b2c9",
       "piklib72-923a103d5b05",
       "piklib8-0967908f2df1",
@@ -6422,6 +11500,60 @@
        }
       }
      ]
+    },
+    {
+     "engines": [
+      "piklib61-3bb31de8b45f",
+      "piklib61-715272459e13",
+      "piklib61-91b0330a11ab",
+      "piklib61-9de20dceea68",
+      "piklib61-c0f83acd825b"
+     ],
+     "status": "ok",
+     "initial": {
+      "A": [
+       "INTEGER",
+       "7"
+      ]
+     },
+     "steps": [
+      {
+       "result": [
+        "INTEGER",
+        "7"
+       ],
+       "state": {
+        "A": [
+         "INTEGER",
+         "7"
+        ]
+       }
+      },
+      {
+       "result": [
+        "INTEGER",
+        "5"
+       ],
+       "state": {
+        "A": [
+         "INTEGER",
+         "5"
+        ]
+       }
+      },
+      {
+       "result": [
+        "INTEGER",
+        "5"
+       ],
+       "state": {
+        "A": [
+         "INTEGER",
+         "5"
+        ]
+       }
+      }
+     ]
     }
    ]
   },
@@ -6452,6 +11584,8 @@
       "bloomoo-d63a5fb575f9",
       "bloomoo-fb9a2b81d685",
       "bloomoo-web-f5b6842faf88",
+      "piklib71-128b235b6d94",
+      "piklib71-27c2b7699f01",
       "piklib72-549b6851b2c9",
       "piklib72-923a103d5b05",
       "piklib8-0967908f2df1",
@@ -6506,6 +11640,60 @@
        }
       }
      ]
+    },
+    {
+     "engines": [
+      "piklib61-3bb31de8b45f",
+      "piklib61-715272459e13",
+      "piklib61-91b0330a11ab",
+      "piklib61-9de20dceea68",
+      "piklib61-c0f83acd825b"
+     ],
+     "status": "ok",
+     "initial": {
+      "A": [
+       "INTEGER",
+       "7"
+      ]
+     },
+     "steps": [
+      {
+       "result": [
+        "INTEGER",
+        "8"
+       ],
+       "state": {
+        "A": [
+         "INTEGER",
+         "8"
+        ]
+       }
+      },
+      {
+       "result": [
+        "INTEGER",
+        "9"
+       ],
+       "state": {
+        "A": [
+         "INTEGER",
+         "9"
+        ]
+       }
+      },
+      {
+       "result": [
+        "INTEGER",
+        "8"
+       ],
+       "state": {
+        "A": [
+         "INTEGER",
+         "8"
+        ]
+       }
+      }
+     ]
     }
    ]
   },
@@ -6538,6 +11726,8 @@
       "bloomoo-d63a5fb575f9",
       "bloomoo-fb9a2b81d685",
       "bloomoo-web-f5b6842faf88",
+      "piklib71-128b235b6d94",
+      "piklib71-27c2b7699f01",
       "piklib72-549b6851b2c9",
       "piklib72-923a103d5b05",
       "piklib8-0967908f2df1",
@@ -6619,6 +11809,84 @@
        }
       }
      ]
+    },
+    {
+     "engines": [
+      "piklib61-3bb31de8b45f",
+      "piklib61-715272459e13",
+      "piklib61-91b0330a11ab",
+      "piklib61-9de20dceea68",
+      "piklib61-c0f83acd825b"
+     ],
+     "status": "ok",
+     "initial": {
+      "A": [
+       "INTEGER",
+       "7"
+      ]
+     },
+     "steps": [
+      {
+       "result": [
+        "INTEGER",
+        "2"
+       ],
+       "state": {
+        "A": [
+         "INTEGER",
+         "2"
+        ]
+       }
+      },
+      {
+       "result": [
+        "INTEGER",
+        "2"
+       ],
+       "state": {
+        "A": [
+         "INTEGER",
+         "2"
+        ]
+       }
+      },
+      {
+       "result": [
+        "INTEGER",
+        "-3"
+       ],
+       "state": {
+        "A": [
+         "INTEGER",
+         "-3"
+        ]
+       }
+      },
+      {
+       "result": [
+        "INTEGER",
+        "-3"
+       ],
+       "state": {
+        "A": [
+         "INTEGER",
+         "-3"
+        ]
+       }
+      },
+      {
+       "result": [
+        "INTEGER",
+        "-3"
+       ],
+       "state": {
+        "A": [
+         "INTEGER",
+         "-3"
+        ]
+       }
+      }
+     ]
     }
    ]
   },
@@ -6653,6 +11921,8 @@
       "bloomoo-d63a5fb575f9",
       "bloomoo-fb9a2b81d685",
       "bloomoo-web-f5b6842faf88",
+      "piklib71-128b235b6d94",
+      "piklib71-27c2b7699f01",
       "piklib72-549b6851b2c9",
       "piklib72-923a103d5b05",
       "piklib8-0967908f2df1",
@@ -6755,6 +12025,108 @@
        }
       }
      ]
+    },
+    {
+     "engines": [
+      "piklib61-3bb31de8b45f",
+      "piklib61-715272459e13",
+      "piklib61-91b0330a11ab",
+      "piklib61-9de20dceea68",
+      "piklib61-c0f83acd825b"
+     ],
+     "status": "ok",
+     "initial": {
+      "A": [
+       "INTEGER",
+       "7"
+      ]
+     },
+     "steps": [
+      {
+       "result": [
+        "INTEGER",
+        "12"
+       ],
+       "state": {
+        "A": [
+         "INTEGER",
+         "12"
+        ]
+       }
+      },
+      {
+       "result": [
+        "INTEGER",
+        "12"
+       ],
+       "state": {
+        "A": [
+         "INTEGER",
+         "12"
+        ]
+       }
+      },
+      {
+       "result": [
+        "INTEGER",
+        "12"
+       ],
+       "state": {
+        "A": [
+         "INTEGER",
+         "12"
+        ]
+       }
+      },
+      {
+       "result": [
+        "INTEGER",
+        "12"
+       ],
+       "state": {
+        "A": [
+         "INTEGER",
+         "12"
+        ]
+       }
+      },
+      {
+       "result": [
+        "INTEGER",
+        "12"
+       ],
+       "state": {
+        "A": [
+         "INTEGER",
+         "12"
+        ]
+       }
+      },
+      {
+       "result": [
+        "INTEGER",
+        "12"
+       ],
+       "state": {
+        "A": [
+         "INTEGER",
+         "12"
+        ]
+       }
+      },
+      {
+       "result": [
+        "INTEGER",
+        "12"
+       ],
+       "state": {
+        "A": [
+         "INTEGER",
+         "12"
+        ]
+       }
+      }
+     ]
     }
    ]
   },
@@ -6785,6 +12157,8 @@
       "bloomoo-d63a5fb575f9",
       "bloomoo-fb9a2b81d685",
       "bloomoo-web-f5b6842faf88",
+      "piklib71-128b235b6d94",
+      "piklib71-27c2b7699f01",
       "piklib72-549b6851b2c9",
       "piklib72-923a103d5b05",
       "piklib8-0967908f2df1",
@@ -6831,6 +12205,60 @@
       },
       {
        "result": null,
+       "state": {
+        "A": [
+         "INTEGER",
+         "1"
+        ]
+       }
+      }
+     ]
+    },
+    {
+     "engines": [
+      "piklib61-3bb31de8b45f",
+      "piklib61-715272459e13",
+      "piklib61-91b0330a11ab",
+      "piklib61-9de20dceea68",
+      "piklib61-c0f83acd825b"
+     ],
+     "status": "ok",
+     "initial": {
+      "A": [
+       "INTEGER",
+       "7"
+      ]
+     },
+     "steps": [
+      {
+       "result": [
+        "INTEGER",
+        "1"
+       ],
+       "state": {
+        "A": [
+         "INTEGER",
+         "1"
+        ]
+       }
+      },
+      {
+       "result": [
+        "INTEGER",
+        "2"
+       ],
+       "state": {
+        "A": [
+         "INTEGER",
+         "2"
+        ]
+       }
+      },
+      {
+       "result": [
+        "INTEGER",
+        "1"
+       ],
        "state": {
         "A": [
          "INTEGER",
@@ -6982,6 +12410,111 @@
     },
     {
      "engines": [
+      "piklib61-3bb31de8b45f",
+      "piklib61-715272459e13",
+      "piklib61-91b0330a11ab",
+      "piklib61-9de20dceea68",
+      "piklib61-c0f83acd825b"
+     ],
+     "status": "ok",
+     "initial": {
+      "A": [
+       "INTEGER",
+       "7"
+      ]
+     },
+     "steps": [
+      {
+       "result": [
+        "INTEGER",
+        "7"
+       ],
+       "state": {
+        "A": [
+         "INTEGER",
+         "7"
+        ]
+       }
+      },
+      {
+       "result": [
+        "INTEGER",
+        "7"
+       ],
+       "state": {
+        "A": [
+         "INTEGER",
+         "7"
+        ]
+       }
+      },
+      {
+       "result": [
+        "INTEGER",
+        "7"
+       ],
+       "state": {
+        "A": [
+         "INTEGER",
+         "7"
+        ]
+       }
+      }
+     ]
+    },
+    {
+     "engines": [
+      "piklib71-128b235b6d94",
+      "piklib71-27c2b7699f01"
+     ],
+     "status": "ok",
+     "initial": {
+      "A": [
+       "INTEGER",
+       "7"
+      ]
+     },
+     "steps": [
+      {
+       "result": [
+        "DOUBLE",
+        "5.00"
+       ],
+       "state": {
+        "A": [
+         "INTEGER",
+         "0"
+        ]
+       }
+      },
+      {
+       "result": [
+        "DOUBLE",
+        "1.41"
+       ],
+       "state": {
+        "A": [
+         "INTEGER",
+         "1719614413"
+        ]
+       }
+      },
+      {
+       "result": [
+        "DOUBLE",
+        "5.00"
+       ],
+       "state": {
+        "A": [
+         "INTEGER",
+         "0"
+        ]
+       }
+      }
+     ]
+    },
+    {
+     "engines": [
       "piklib72-549b6851b2c9",
       "piklib72-923a103d5b05"
      ],
@@ -7062,6 +12595,8 @@
       "bloomoo-d63a5fb575f9",
       "bloomoo-fb9a2b81d685",
       "bloomoo-web-f5b6842faf88",
+      "piklib71-128b235b6d94",
+      "piklib71-27c2b7699f01",
       "piklib72-549b6851b2c9",
       "piklib72-923a103d5b05",
       "piklib8-0967908f2df1",
@@ -7134,6 +12669,84 @@
        }
       }
      ]
+    },
+    {
+     "engines": [
+      "piklib61-3bb31de8b45f",
+      "piklib61-715272459e13",
+      "piklib61-91b0330a11ab",
+      "piklib61-9de20dceea68",
+      "piklib61-c0f83acd825b"
+     ],
+     "status": "ok",
+     "initial": {
+      "A": [
+       "INTEGER",
+       "7"
+      ]
+     },
+     "steps": [
+      {
+       "result": [
+        "INTEGER",
+        "42"
+       ],
+       "state": {
+        "A": [
+         "INTEGER",
+         "42"
+        ]
+       }
+      },
+      {
+       "result": [
+        "INTEGER",
+        "12"
+       ],
+       "state": {
+        "A": [
+         "INTEGER",
+         "12"
+        ]
+       }
+      },
+      {
+       "result": [
+        "INTEGER",
+        "0"
+       ],
+       "state": {
+        "A": [
+         "INTEGER",
+         "0"
+        ]
+       }
+      },
+      {
+       "result": [
+        "INTEGER",
+        "0"
+       ],
+       "state": {
+        "A": [
+         "INTEGER",
+         "0"
+        ]
+       }
+      },
+      {
+       "result": [
+        "INTEGER",
+        "5"
+       ],
+       "state": {
+        "A": [
+         "INTEGER",
+         "5"
+        ]
+       }
+      }
+     ]
     }
    ]
   },
@@ -7163,6 +12776,13 @@
       "bloomoo-d63a5fb575f9",
       "bloomoo-fb9a2b81d685",
       "bloomoo-web-f5b6842faf88",
+      "piklib61-3bb31de8b45f",
+      "piklib61-715272459e13",
+      "piklib61-91b0330a11ab",
+      "piklib61-9de20dceea68",
+      "piklib61-c0f83acd825b",
+      "piklib71-128b235b6d94",
+      "piklib71-27c2b7699f01",
       "piklib72-549b6851b2c9",
       "piklib72-923a103d5b05",
       "piklib8-0967908f2df1",
@@ -7245,6 +12865,8 @@
       "bloomoo-d63a5fb575f9",
       "bloomoo-fb9a2b81d685",
       "bloomoo-web-f5b6842faf88",
+      "piklib71-128b235b6d94",
+      "piklib71-27c2b7699f01",
       "piklib72-549b6851b2c9",
       "piklib72-923a103d5b05",
       "piklib8-0967908f2df1",
@@ -7285,6 +12907,72 @@
       },
       {
        "result": null,
+       "state": {
+        "S": [
+         "STRING",
+         "A"
+        ]
+       }
+      },
+      {
+       "result": [
+        "STRING",
+        "A0"
+       ],
+       "state": {
+        "S": [
+         "STRING",
+         "A0"
+        ]
+       }
+      },
+      {
+       "result": [
+        "STRING",
+        "A012"
+       ],
+       "state": {
+        "S": [
+         "STRING",
+         "A012"
+        ]
+       }
+      }
+     ]
+    },
+    {
+     "engines": [
+      "piklib61-3bb31de8b45f",
+      "piklib61-715272459e13",
+      "piklib61-91b0330a11ab",
+      "piklib61-9de20dceea68",
+      "piklib61-c0f83acd825b"
+     ],
+     "status": "ok",
+     "initial": {
+      "S": [
+       "STRING",
+       "REKSIO"
+      ]
+     },
+     "steps": [
+      {
+       "result": [
+        "STRING",
+        "REKSIO_I_KRETES"
+       ],
+       "state": {
+        "S": [
+         "STRING",
+         "REKSIO_I_KRETES"
+        ]
+       }
+      },
+      {
+       "result": [
+        "STRING",
+        "A"
+       ],
        "state": {
         "S": [
          "STRING",
@@ -7449,6 +13137,98 @@
        }
       }
      ]
+    },
+    {
+     "engines": [
+      "piklib61-3bb31de8b45f",
+      "piklib61-715272459e13",
+      "piklib61-91b0330a11ab",
+      "piklib61-9de20dceea68",
+      "piklib61-c0f83acd825b",
+      "piklib71-128b235b6d94",
+      "piklib71-27c2b7699f01"
+     ],
+     "status": "ok",
+     "initial": {
+      "S": [
+       "STRING",
+       "REKSIO"
+      ]
+     },
+     "steps": [
+      {
+       "result": [
+        "STRING",
+        "REKSIO"
+       ],
+       "state": {
+        "S": [
+         "STRING",
+         "REKSIO"
+        ]
+       }
+      },
+      {
+       "result": [
+        "STRING",
+        "REKSIO"
+       ],
+       "state": {
+        "S": [
+         "STRING",
+         "REKSIO"
+        ]
+       }
+      },
+      {
+       "result": [
+        "STRING",
+        "REKSIO"
+       ],
+       "state": {
+        "S": [
+         "STRING",
+         "REKSIO"
+        ]
+       }
+      },
+      {
+       "result": [
+        "STRING",
+        "REKSIO"
+       ],
+       "state": {
+        "S": [
+         "STRING",
+         "REKSIO"
+        ]
+       }
+      },
+      {
+       "result": [
+        "STRING",
+        "REKSIO"
+       ],
+       "state": {
+        "S": [
+         "STRING",
+         "REKSIO"
+        ]
+       }
+      },
+      {
+       "result": [
+        "STRING",
+        "REKSIO"
+       ],
+       "state": {
+        "S": [
+         "STRING",
+         "REKSIO"
+        ]
+       }
+      }
+     ]
     }
    ]
   },
@@ -7479,7 +13259,6 @@
       "bloomoo-788ab0406ab4",
       "bloomoo-9ac8ebbe0cc2",
       "bloomoo-d63a5fb575f9",
-      "bloomoo-fb9a2b81d685",
       "bloomoo-web-f5b6842faf88",
       "piklib72-549b6851b2c9",
       "piklib72-923a103d5b05",
@@ -7549,6 +13328,203 @@
         "S": [
          "STRING",
          "IO"
+        ]
+       }
+      }
+     ]
+    },
+    {
+     "engines": [
+      "bloomoo-fb9a2b81d685"
+     ],
+     "status": "ok",
+     "initial": {
+      "S": [
+       "STRING",
+       "REKSIO"
+      ]
+     },
+     "steps": [
+      {
+       "result": null,
+       "state": {
+        "S": [
+         "STRING",
+         "RIO"
+        ]
+       }
+      },
+      {
+       "result": null,
+       "state": {
+        "S": [
+         "STRING",
+         "RIOD"
+        ]
+       }
+      },
+      {
+       "result": null,
+       "state": {
+        "S": [
+         "STRING",
+         "RIOD"
+        ]
+       }
+      },
+      {
+       "result": null,
+       "state": {
+        "S": [
+         "STRING",
+         "IOD"
+        ]
+       }
+      },
+      {
+       "result": null,
+       "state": {
+        "S": [
+         "STRING",
+         "IOD"
+        ]
+       }
+      }
+     ]
+    },
+    {
+     "engines": [
+      "piklib61-3bb31de8b45f",
+      "piklib61-715272459e13",
+      "piklib61-91b0330a11ab",
+      "piklib61-9de20dceea68",
+      "piklib61-c0f83acd825b"
+     ],
+     "status": "ok",
+     "initial": {
+      "S": [
+       "STRING",
+       "REKSIO"
+      ]
+     },
+     "steps": [
+      {
+       "result": [
+        "STRING",
+        "REKSIO"
+       ],
+       "state": {
+        "S": [
+         "STRING",
+         "REKSIO"
+        ]
+       }
+      },
+      {
+       "result": [
+        "STRING",
+        "REKSIO"
+       ],
+       "state": {
+        "S": [
+         "STRING",
+         "REKSIO"
+        ]
+       }
+      },
+      {
+       "result": [
+        "STRING",
+        "REKSIO"
+       ],
+       "state": {
+        "S": [
+         "STRING",
+         "REKSIO"
+        ]
+       }
+      },
+      {
+       "result": [
+        "STRING",
+        "REKSIO"
+       ],
+       "state": {
+        "S": [
+         "STRING",
+         "REKSIO"
+        ]
+       }
+      },
+      {
+       "result": [
+        "STRING",
+        "REKSIO"
+       ],
+       "state": {
+        "S": [
+         "STRING",
+         "REKSIO"
+        ]
+       }
+      }
+     ]
+    },
+    {
+     "engines": [
+      "piklib71-128b235b6d94",
+      "piklib71-27c2b7699f01"
+     ],
+     "status": "ok",
+     "initial": {
+      "S": [
+       "STRING",
+       "REKSIO"
+      ]
+     },
+     "steps": [
+      {
+       "result": null,
+       "state": {
+        "S": [
+         "STRING",
+         "REKSIO"
+        ]
+       }
+      },
+      {
+       "result": null,
+       "state": {
+        "S": [
+         "STRING",
+         "REKSIO"
+        ]
+       }
+      },
+      {
+       "result": null,
+       "state": {
+        "S": [
+         "STRING",
+         "REKSIO"
+        ]
+       }
+      },
+      {
+       "result": null,
+       "state": {
+        "S": [
+         "STRING",
+         "REKSIO"
+        ]
+       }
+      },
+      {
+       "result": null,
+       "state": {
+        "S": [
+         "STRING",
+         "REKSIO"
         ]
        }
       }
@@ -7651,6 +13627,163 @@
         "N": [
          "INTEGER",
          "3"
+        ]
+       }
+      },
+      {
+       "result": null,
+       "state": {
+        "S": [
+         "STRING",
+         "REKSIO"
+        ],
+        "N": [
+         "INTEGER",
+         "0"
+        ]
+       }
+      }
+     ]
+    },
+    {
+     "engines": [
+      "piklib61-3bb31de8b45f",
+      "piklib61-715272459e13",
+      "piklib61-91b0330a11ab",
+      "piklib61-9de20dceea68",
+      "piklib61-c0f83acd825b"
+     ],
+     "status": "ok",
+     "initial": {
+      "S": [
+       "STRING",
+       "REKSIO"
+      ],
+      "N": [
+       "INTEGER",
+       "0"
+      ]
+     },
+     "steps": [
+      {
+       "result": [
+        "INTEGER",
+        "0"
+       ],
+       "state": {
+        "S": [
+         "STRING",
+         "REKSIO"
+        ],
+        "N": [
+         "INTEGER",
+         "0"
+        ]
+       }
+      },
+      {
+       "result": [
+        "INTEGER",
+        "0"
+       ],
+       "state": {
+        "S": [
+         "STRING",
+         "REKSIO"
+        ],
+        "N": [
+         "INTEGER",
+         "0"
+        ]
+       }
+      },
+      {
+       "result": [
+        "INTEGER",
+        "0"
+       ],
+       "state": {
+        "S": [
+         "STRING",
+         "REKSIO"
+        ],
+        "N": [
+         "INTEGER",
+         "0"
+        ]
+       }
+      },
+      {
+       "result": [
+        "INTEGER",
+        "0"
+       ],
+       "state": {
+        "S": [
+         "STRING",
+         "REKSIO"
+        ],
+        "N": [
+         "INTEGER",
+         "0"
+        ]
+       }
+      }
+     ]
+    },
+    {
+     "engines": [
+      "piklib71-128b235b6d94",
+      "piklib71-27c2b7699f01"
+     ],
+     "status": "ok",
+     "initial": {
+      "S": [
+       "STRING",
+       "REKSIO"
+      ],
+      "N": [
+       "INTEGER",
+       "0"
+      ]
+     },
+     "steps": [
+      {
+       "result": null,
+       "state": {
+        "S": [
+         "STRING",
+         "REKSIO"
+        ],
+        "N": [
+         "INTEGER",
+         "0"
+        ]
+       }
+      },
+      {
+       "result": null,
+       "state": {
+        "S": [
+         "STRING",
+         "REKSIO"
+        ],
+        "N": [
+         "INTEGER",
+         "0"
+        ]
+       }
+      },
+      {
+       "result": null,
+       "state": {
+        "S": [
+         "STRING",
+         "REKSIO"
+        ],
+        "N": [
+         "INTEGER",
+         "0"
         ]
        }
       },
@@ -7825,6 +13958,148 @@
        }
       }
      ]
+    },
+    {
+     "engines": [
+      "piklib61-3bb31de8b45f",
+      "piklib61-715272459e13",
+      "piklib61-91b0330a11ab",
+      "piklib61-9de20dceea68",
+      "piklib61-c0f83acd825b"
+     ],
+     "status": "ok",
+     "initial": {
+      "S": [
+       "STRING",
+       "REKSIO"
+      ],
+      "N": [
+       "INTEGER",
+       "0"
+      ]
+     },
+     "steps": [
+      {
+       "result": [
+        "INTEGER",
+        "0"
+       ],
+       "state": {
+        "S": [
+         "STRING",
+         "REKSIO"
+        ],
+        "N": [
+         "INTEGER",
+         "0"
+        ]
+       }
+      },
+      {
+       "result": [
+        "STRING",
+        "REKSIO"
+       ],
+       "state": {
+        "S": [
+         "STRING",
+         "REKSIO"
+        ],
+        "N": [
+         "INTEGER",
+         "0"
+        ]
+       }
+      },
+      {
+       "result": [
+        "STRING",
+        "REKSIO"
+       ],
+       "state": {
+        "S": [
+         "STRING",
+         "REKSIO"
+        ],
+        "N": [
+         "INTEGER",
+         "0"
+        ]
+       }
+      }
+     ]
+    },
+    {
+     "engines": [
+      "piklib71-128b235b6d94"
+     ],
+     "status": "crash",
+     "initial": {
+      "S": [
+       "STRING",
+       "REKSIO"
+      ],
+      "N": [
+       "INTEGER",
+       "0"
+      ]
+     },
+     "steps": [],
+     "crash": {
+      "code": "c0000005",
+      "rva": "00061c48",
+      "stack": [
+       "00061cb3",
+       "00078b6e",
+       "0007aca7",
+       "00061b11",
+       "000adb08",
+       "0003ed8c",
+       "000ab560",
+       "0003fb99",
+       "000ab68b",
+       "0003f6e5",
+       "000ab61b",
+       "0003ed50"
+      ]
+     },
+     "stage": "step 0"
+    },
+    {
+     "engines": [
+      "piklib71-27c2b7699f01"
+     ],
+     "status": "crash",
+     "initial": {
+      "S": [
+       "STRING",
+       "REKSIO"
+      ],
+      "N": [
+       "INTEGER",
+       "0"
+      ]
+     },
+     "steps": [],
+     "crash": {
+      "code": "c0000005",
+      "rva": "00061e68",
+      "stack": [
+       "00061ed3",
+       "00078cee",
+       "0007ae27",
+       "00061d31",
+       "000adac8",
+       "0003ee9c",
+       "000ab520",
+       "0003fca9",
+       "000ab64b",
+       "0003f7f5",
+       "000ab5db",
+       "0003ee60"
+      ]
+     },
+     "stage": "step 0"
     }
    ]
   },
@@ -7888,6 +14163,123 @@
         "S": [
          "STRING",
          "R2KSIO"
+        ]
+       }
+      },
+      {
+       "result": null,
+       "state": {
+        "S": [
+         "STRING",
+         "REKSIO"
+        ]
+       }
+      },
+      {
+       "result": null,
+       "state": {
+        "S": [
+         "STRING",
+         "REKSIO"
+        ]
+       }
+      },
+      {
+       "result": null,
+       "state": {
+        "S": [
+         "STRING",
+         "REKSIO"
+        ]
+       }
+      }
+     ]
+    },
+    {
+     "engines": [
+      "piklib61-3bb31de8b45f",
+      "piklib61-715272459e13",
+      "piklib61-91b0330a11ab",
+      "piklib61-9de20dceea68",
+      "piklib61-c0f83acd825b"
+     ],
+     "status": "ok",
+     "initial": {
+      "S": [
+       "STRING",
+       "REKSIO"
+      ]
+     },
+     "steps": [
+      {
+       "result": [
+        "STRING",
+        "REKSIO"
+       ],
+       "state": {
+        "S": [
+         "STRING",
+         "REKSIO"
+        ]
+       }
+      },
+      {
+       "result": [
+        "STRING",
+        "REKSIO"
+       ],
+       "state": {
+        "S": [
+         "STRING",
+         "REKSIO"
+        ]
+       }
+      },
+      {
+       "result": [
+        "STRING",
+        "REKSIO"
+       ],
+       "state": {
+        "S": [
+         "STRING",
+         "REKSIO"
+        ]
+       }
+      },
+      {
+       "result": [
+        "STRING",
+        "REKSIO"
+       ],
+       "state": {
+        "S": [
+         "STRING",
+         "REKSIO"
+        ]
+       }
+      }
+     ]
+    },
+    {
+     "engines": [
+      "piklib71-128b235b6d94",
+      "piklib71-27c2b7699f01"
+     ],
+     "status": "ok",
+     "initial": {
+      "S": [
+       "STRING",
+       "REKSIO"
+      ]
+     },
+     "steps": [
+      {
+       "result": null,
+       "state": {
+        "S": [
+         "STRING",
+         "REKSIO"
         ]
        }
       },
@@ -8024,6 +14416,336 @@
         "S": [
          "STRING",
          "ŻÓŁĆ"
+        ]
+       }
+      },
+      {
+       "result": null,
+       "state": {
+        "S": [
+         "STRING",
+         "żółć"
+        ]
+       }
+      },
+      {
+       "result": [
+        "STRING",
+        "żółćĄ"
+       ],
+       "state": {
+        "S": [
+         "STRING",
+         "żółćĄ"
+        ]
+       }
+      }
+     ]
+    },
+    {
+     "engines": [
+      "piklib61-3bb31de8b45f"
+     ],
+     "status": "crash",
+     "initial": {
+      "S": [
+       "STRING",
+       "ŻÓŁĆ"
+      ]
+     },
+     "steps": [
+      {
+       "result": [
+        "STRING",
+        "ŻÓŁĆ"
+       ],
+       "state": {
+        "S": [
+         "STRING",
+         "ŻÓŁĆ"
+        ]
+       }
+      },
+      {
+       "result": [
+        "STRING",
+        "ŻÓŁĆ"
+       ],
+       "state": {
+        "S": [
+         "STRING",
+         "ŻÓŁĆ"
+        ]
+       }
+      }
+     ],
+     "crash": {
+      "code": "c0000005",
+      "rva": "000227f9",
+      "stack": [
+       "0002ad01",
+       "00038e24",
+       "0006a8b3",
+       "0002b735",
+       "0005377d",
+       "0005378f",
+       "0002ad01",
+       "0006907b",
+       "0002b507",
+       "0002ad02",
+       "0006904b",
+       "0002af89"
+      ]
+     },
+     "stage": "step 2"
+    },
+    {
+     "engines": [
+      "piklib61-715272459e13"
+     ],
+     "status": "crash",
+     "initial": {
+      "S": [
+       "STRING",
+       "ŻÓŁĆ"
+      ]
+     },
+     "steps": [
+      {
+       "result": [
+        "STRING",
+        "ŻÓŁĆ"
+       ],
+       "state": {
+        "S": [
+         "STRING",
+         "ŻÓŁĆ"
+        ]
+       }
+      },
+      {
+       "result": [
+        "STRING",
+        "ŻÓŁĆ"
+       ],
+       "state": {
+        "S": [
+         "STRING",
+         "ŻÓŁĆ"
+        ]
+       }
+      }
+     ],
+     "crash": {
+      "code": "c0000005",
+      "rva": "00022750",
+      "stack": [
+       "0002ac01",
+       "00038d04",
+       "0006a8e3",
+       "0002b5e5",
+       "0005376d",
+       "0005377f",
+       "0002ac01",
+       "000690ab",
+       "0002b3b7",
+       "0002ac02",
+       "0006907b",
+       "0002ae39"
+      ]
+     },
+     "stage": "step 2"
+    },
+    {
+     "engines": [
+      "piklib61-91b0330a11ab"
+     ],
+     "status": "crash",
+     "initial": {
+      "S": [
+       "STRING",
+       "ŻÓŁĆ"
+      ]
+     },
+     "steps": [
+      {
+       "result": [
+        "STRING",
+        "ŻÓŁĆ"
+       ],
+       "state": {
+        "S": [
+         "STRING",
+         "ŻÓŁĆ"
+        ]
+       }
+      },
+      {
+       "result": [
+        "STRING",
+        "ŻÓŁĆ"
+       ],
+       "state": {
+        "S": [
+         "STRING",
+         "ŻÓŁĆ"
+        ]
+       }
+      }
+     ],
+     "crash": {
+      "code": "c0000005",
+      "rva": "000229c9",
+      "stack": [
+       "0002d601",
+       "0003dcf4",
+       "00071363",
+       "0002e1e5",
+       "0005977d",
+       "0005978f",
+       "0002d601",
+       "0006f69b",
+       "0002de37",
+       "0002d602",
+       "0006f62b",
+       "0002d7c9"
+      ]
+     },
+     "stage": "step 2"
+    },
+    {
+     "engines": [
+      "piklib61-9de20dceea68"
+     ],
+     "status": "crash",
+     "initial": {
+      "S": [
+       "STRING",
+       "ŻÓŁĆ"
+      ]
+     },
+     "steps": [
+      {
+       "result": [
+        "STRING",
+        "ŻÓŁĆ"
+       ],
+       "state": {
+        "S": [
+         "STRING",
+         "ŻÓŁĆ"
+        ]
+       }
+      },
+      {
+       "result": [
+        "STRING",
+        "ŻÓŁĆ"
+       ],
+       "state": {
+        "S": [
+         "STRING",
+         "ŻÓŁĆ"
+        ]
+       }
+      }
+     ],
+     "crash": {
+      "code": "c0000005",
+      "rva": "00022a79",
+      "stack": [
+       "0002ea01",
+       "0003f9e4",
+       "00073b93",
+       "0002f655",
+       "0005bbed",
+       "0005bbff",
+       "0002ea01",
+       "00071dcb",
+       "0002f2a7",
+       "0002ea02",
+       "00071d5b",
+       "0002ec39"
+      ]
+     },
+     "stage": "step 2"
+    },
+    {
+     "engines": [
+      "piklib61-c0f83acd825b"
+     ],
+     "status": "crash",
+     "initial": {
+      "S": [
+       "STRING",
+       "ŻÓŁĆ"
+      ]
+     },
+     "steps": [
+      {
+       "result": [
+        "STRING",
+        "ŻÓŁĆ"
+       ],
+       "state": {
+        "S": [
+         "STRING",
+         "ŻÓŁĆ"
+        ]
+       }
+      },
+      {
+       "result": [
+        "STRING",
+        "ŻÓŁĆ"
+       ],
+       "state": {
+        "S": [
+         "STRING",
+         "ŻÓŁĆ"
+        ]
+       }
+      }
+     ],
+     "crash": {
+      "code": "c0000005",
+      "rva": "0002c940",
+      "stack": [
+       "00050e34",
+       "0003b52d",
+       "000780e0",
+       "000973a7",
+       "0003c4c7",
+       "0003b52d",
+       "0003b52d",
+       "000780e0",
+       "00095a32",
+       "0003c094",
+       "0003b52d",
+       "00078000"
+      ]
+     },
+     "stage": "step 2"
+    },
+    {
+     "engines": [
+      "piklib71-128b235b6d94",
+      "piklib71-27c2b7699f01"
+     ],
+     "status": "ok",
+     "initial": {
+      "S": [
+       "STRING",
+       "żółć"
+      ]
+     },
+     "steps": [
+      {
+       "result": null,
+       "state": {
+        "S": [
+         "STRING",
+         "żółć"
         ]
        }
       },
