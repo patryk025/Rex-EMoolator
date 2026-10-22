@@ -51,8 +51,7 @@ FAMILIES = {
     "BLOOMOOWEB.DLL": ("bloomoo-web", "BLOOMOO"),
     "BLOOMOOW.DLL": ("bloomoo-web", "BLOOMOO"),
 }
-# pikhost cannot bootstrap the CMC_Scene based engines yet (see tools/pikhost/README.md).
-DEFAULT_FAMILIES = ("piklib72", "piklib8", "bloomoo", "bloomoo-web")
+DEFAULT_FAMILIES = ("piklib61", "piklib71", "piklib72", "piklib8", "bloomoo", "bloomoo-web")
 
 
 # ------------------------------------------------------------------ engines
@@ -210,13 +209,29 @@ def run_case(engine: Engine, case: Case, workdir: Path) -> dict:
                                    capture_output=True, timeout=CASE_TIMEOUT)
         lines = completed.stdout.decode(ENGINE_ENCODING, errors="replace").splitlines()
         timed_out = False
+        exit_code = completed.returncode & 0xFFFFFFFF
     except subprocess.TimeoutExpired as error:
         lines = (error.stdout or b"").decode(ENGINE_ENCODING, errors="replace").splitlines()
         timed_out = True
-    return interpret(case, lines, timed_out)
+        exit_code = None
+    return interpret(case, lines, timed_out, exit_code)
 
 
-def interpret(case: Case, lines: list[str], timed_out: bool) -> dict:
+# Ways the process can die that SEH in pikhost cannot catch.
+FATAL_EXIT_CODES = {
+    0xC0000374: "heap corruption",
+    0xC0000409: "fail-fast",
+}
+
+
+def ended_early(exit_code: int | None) -> str:
+    if exit_code is None:
+        return "pikhost ended early"
+    reason = FATAL_EXIT_CODES.get(exit_code)
+    return f"pikhost ended early ({exit_code:#010x}{', ' + reason if reason else ''})"
+
+
+def interpret(case: Case, lines: list[str], timed_out: bool, exit_code: int | None = None) -> dict:
     """Folds pikhost replies back onto the case structure."""
     result: dict = {"status": "ok", "initial": {}, "steps": []}
     messages: list[str] = []
@@ -243,7 +258,7 @@ def interpret(case: Case, lines: list[str], timed_out: bool) -> dict:
             return None
         if result["status"] == "ok":
             result.update(status="timeout" if timed_out else "error",
-                          error=None if timed_out else "pikhost ended early")
+                          error=None if timed_out else ended_early(exit_code))
         return None
 
     def read_state(target: dict) -> bool:
