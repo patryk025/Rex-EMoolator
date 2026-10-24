@@ -21,8 +21,10 @@ import argparse
 import csv
 import fnmatch
 import hashlib
+import itertools
 import json
 import os
+import re
 import subprocess
 import sys
 import tempfile
@@ -132,6 +134,37 @@ class Case:
                 "cnv": self.cnv, "steps": self.steps, "read": self.read}
 
 
+PLACEHOLDER = re.compile(r"\$\{(\w+)}")
+
+
+def combinations(each: dict, names: list[str]) -> list[dict]:
+    """Every combination of the named `each` values, the first name varying slowest."""
+    return [dict(zip(names, values)) for values in itertools.product(*(each[n] for n in names))]
+
+
+def fill(template: str, values: dict) -> str:
+    return PLACEHOLDER.sub(lambda m: str(values[m.group(1)]), template)
+
+
+def placeholders(texts: list[str]) -> list[str]:
+    return list(dict.fromkeys(name for text in texts for name in PLACEHOLDER.findall(text)))
+
+
+def expand(entry: dict, each: dict, where: str) -> list[tuple[str, list[str]]]:
+    """A case with ${name} placeholders: names used in the id give one case per
+    value, names used only in the steps repeat the steps once per value."""
+    for name in placeholders([entry["id"], *entry["steps"]]):
+        if name not in each:
+            raise SystemExit(f"{where}: ${{{name}}} has no values in `each`")
+    per_case = placeholders([entry["id"]])
+    per_step = [n for n in placeholders(entry["steps"]) if n not in per_case]
+    expanded = []
+    for outer in combinations(each, per_case):
+        steps = [fill(step, outer | inner) for inner in combinations(each, per_step) for step in entry["steps"]]
+        expanded.append((fill(entry["id"], outer), steps))
+    return expanded
+
+
 def load_cases(directory: Path = CASES_DIR) -> list[Case]:
     cases: list[Case] = []
     seen: set[str] = set()
@@ -140,22 +173,24 @@ def load_cases(directory: Path = CASES_DIR) -> list[Case]:
             document = tomllib.load(stream)
         defaults = document.get("defaults", {})
         for entry in document.get("case", []):
-            case = Case(
-                id=entry["id"],
-                description=entry.get("description", ""),
-                tags=entry.get("tags", defaults.get("tags", [])),
-                cnv=entry.get("cnv", defaults.get("cnv", "")).strip("\n") + "\n",
-                steps=entry["steps"],
-                read=entry.get("read", defaults.get("read", [])),
-                source=path.name,
-            )
-            if case.id in seen:
-                raise SystemExit(f"{path.name}: duplicate case id {case.id}")
-            for step in case.steps:
-                if "\n" in step:
-                    raise SystemExit(f"{case.id}: a step is one script line; use a BEHAVIOUR for blocks")
-            seen.add(case.id)
-            cases.append(case)
+            each = defaults.get("each", {}) | entry.get("each", {})
+            for case_id, steps in expand(entry, each, f"{path.name}: {entry['id']}"):
+                case = Case(
+                    id=case_id,
+                    description=entry.get("description", ""),
+                    tags=entry.get("tags", defaults.get("tags", [])),
+                    cnv=entry.get("cnv", defaults.get("cnv", "")).strip("\n") + "\n",
+                    steps=steps,
+                    read=entry.get("read", defaults.get("read", [])),
+                    source=path.name,
+                )
+                if case.id in seen:
+                    raise SystemExit(f"{path.name}: duplicate case id {case.id}")
+                for step in case.steps:
+                    if "\n" in step:
+                        raise SystemExit(f"{case.id}: a step is one script line; use a BEHAVIOUR for blocks")
+                seen.add(case.id)
+                cases.append(case)
     return cases
 
 

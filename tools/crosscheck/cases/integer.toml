@@ -3,6 +3,7 @@
 [defaults]
 tags = ["integer"]
 read = ["A"]
+each.v = [-5, 0, 3, 90, 421, -176, -348, 15181818, -54867938]   # ${v} in the vector cases below
 cnv = '''
 OBJECT=A
 A:TYPE=INTEGER
@@ -89,3 +90,75 @@ steps = ['A^SET("42")', 'A^SET("12ABC")', 'A^SET("ABC")', 'A^SET("")', 'A^SET(" 
 [[case]]
 id = "integer.add.string-argument"
 steps = ['A^ADD("3")', 'A^ADD("X")']
+
+# The vectors of core/tests/.../tests/IntegerTest.java (EXPECTED_RESULTS): every
+# method once per value, SET first so each call starts from that value.
+
+[[case]]
+id = "integer.vectors.abs"
+steps = ["A^SET(${v})", "A^ABS(${v})"]
+
+[[case]]
+id = "integer.vectors.add"
+steps = ["A^SET(${v})", "A^ADD(5)"]
+
+[[case]]
+id = "integer.vectors.sub"
+steps = ["A^SET(${v})", "A^SUB(5)"]
+
+[[case]]
+id = "integer.vectors.mul"
+steps = ["A^SET(${v})", "A^MUL(5)"]
+
+[[case]]
+id = "integer.vectors.div"
+steps = ["A^SET(${v})", "A^DIV(5)"]
+
+[[case]]
+id = "integer.vectors.mod"
+steps = ["A^SET(${v})", "A^MOD(5)"]
+
+[[case]]
+id = "integer.vectors.power"
+description = "A DOUBLE exponent; large values overflow differently per build."
+steps = ["A^SET(${v})", "A^POWER(1.5)"]
+
+[[case]]
+id = "integer.vectors.and"
+steps = ["A^SET(${v})", "A^AND(555)"]
+
+[[case]]
+id = "integer.vectors.or"
+steps = ["A^SET(${v})", "A^OR(555)"]
+
+[[case]]
+id = "integer.vectors.xor"
+steps = ["A^SET(${v})", "A^XOR(555)"]
+
+[[case]]
+id = "integer.vectors.not"
+steps = ["A^SET(${v})", "A^NOT()"]
+
+[[case]]
+id = "integer.vectors.clamp"
+steps = ["A^SET(${v})", "A^CLAMP(0, 50)"]
+
+[[case]]
+id = "integer.vectors.switch"
+steps = ["A^SET(${v})", "A^SWITCH(0, 15)"]
+
+[[case]]
+id = "integer.vectors.inc"
+steps = ["A^SET(${v})", "A^INC()"]
+
+[[case]]
+id = "integer.vectors.dec"
+steps = ["A^SET(${v})", "A^DEC()"]
+
+[[case]]
+id = "integer.vectors.clear"
+steps = ["A^SET(${v})", "A^CLEAR()"]
+
+[[case]]
+id = "integer.vectors.get"
+steps = ["A^SET(${v})", "A^GET()"]
