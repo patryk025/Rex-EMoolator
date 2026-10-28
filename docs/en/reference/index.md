@@ -2,6 +2,8 @@
 
 List of data types available in scripts for the Piklib/BlooMoo engine, grouped by topic.
 
+The [method map](method-map.md) shows how the emulator covers the methods of every type.
+
 ## Compatibility
 
 Every method description includes the libraries in which the automated API comparison found it. `PIKLIB8.DLL (5/10 variants)` means that the method occurs in five of ten identified variants of that library. APIs dynamically loaded through `CMC_ExternObject`, such as `WORLD` and `INERTIA`, are not visible in this export and are labelled separately. See [`compatibility-audit.md`](../../compatibility-audit.md) for the full list of gaps and limitations.

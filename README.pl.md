@@ -4,6 +4,16 @@
 
 Otwarto-źródłowy emulator odtwarzający zachowanie silnika Piklib/BlooMoo używanego w grach Aidem Media.
 
+## Mapa metod
+
+Jeden kwadrat to jedna metoda. Kolory opisują rejestracje i stuby w emulatorze,
+nie zgodność zachowania z oryginałem. Fioletowe karty z „?” oznaczają brak danych
+— szare kwadraty oznaczają rozpoznane metody bez dopasowanej rejestracji.
+
+[![Mapa metod: 61 grup i 1047 par typ/metoda, stan na 2026-10-28](images/method-map.pl.svg)](images/method-map.pl.svg)
+
+[Interaktywna mapa w dokumentacji](https://patryk025.github.io/Rex-EMoolator/reference/method-map/) — wyszukiwanie metod, filtry statusów i sortowanie.
+
 ## Dokumentacja
 
 Pełna dokumentacja silnika Piklib/BlooMoo oraz samego emulatora jest publikowana

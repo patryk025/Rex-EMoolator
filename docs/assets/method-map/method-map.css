@@ -1,0 +1,47 @@
+/* Emulator method map (method-map.js). Status colors come from the data; everything else
+   follows the Material palette, so the map reads in both the light and the dark scheme. */
+.method-map { --mm-line: var(--md-default-fg-color--lightest); --mm-muted: var(--md-default-fg-color--light); }
+.method-map .mm-summary { margin: 0 0 .6rem; }
+.method-map .mm-legend { display: flex; flex-wrap: wrap; gap: .5rem 1.4rem; margin: .8rem 0; font-size: .7rem; }
+.method-map .mm-key { display: inline-flex; align-items: center; gap: .45rem; }
+.method-map .mm-swatch { width: .6rem; height: .6rem; border-radius: 2px; display: inline-block; background: var(--color, transparent); }
+.method-map .mm-swatch.mm-missing, .method-map .mm-tile[data-status="missing"] { background: var(--md-default-fg-color--lighter); }
+.method-map .mm-swatch.mm-unknown { border: 1px dashed #9b87d5; }
+.method-map .mm-swatch.mm-verified { border: 2px solid var(--md-default-fg-color); }
+.method-map .mm-controls { display: grid; grid-template-columns: 2fr 1fr 1fr auto; gap: .8rem; align-items: end;
+  padding: .8rem; margin: 1rem 0 .4rem; border: 1px solid var(--mm-line); border-radius: .4rem; background: var(--md-code-bg-color); }
+.method-map .mm-controls label { display: flex; flex-direction: column; gap: .3rem; min-width: 0; font-size: .65rem; color: var(--mm-muted); }
+.method-map .mm-controls input, .method-map .mm-controls select { width: 100%; min-height: 2.2rem; padding: .4rem; font: inherit; font-size: .7rem;
+  color: var(--md-default-fg-color); background: var(--md-default-bg-color); border: 1px solid var(--mm-line); border-radius: .2rem; }
+.method-map .mm-reset { margin: 0; font-size: .65rem; }
+.method-map .mm-metric { font-size: .65rem; color: var(--mm-muted); margin: .4rem 0; }
+.method-map .mm-result { font-weight: 700; margin: .4rem 0 .8rem; }
+.method-map .mm-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(9.5rem, 1fr)); gap: .8rem; }
+.method-map .mm-card { min-width: 0; padding: .7rem; border: 1px solid var(--mm-line); border-radius: .4rem; background: var(--md-code-bg-color); }
+.method-map .mm-card.mm-unknown { border: 1px dashed #9b87d5; }
+.method-map .mm-card.mm-all-missing { border-left: 3px solid var(--md-default-fg-color--lighter); }
+.md-typeset .method-map .mm-title { margin: 0 0 .3rem; font-size: .7rem; font-weight: 700; overflow-wrap: anywhere; }
+.md-typeset .method-map .mm-meta { margin: 0 0 .6rem; font-size: .6rem; color: var(--mm-muted); }
+.method-map .mm-note { display: block; }
+.method-map .mm-empty-data { display: flex; align-items: center; gap: .6rem; font-size: .65rem; color: #9b87d5; }
+.method-map .mm-question { font-size: 1.2rem; font-weight: 700; }
+.method-map .mm-tiles { display: grid; grid-template-columns: repeat(auto-fill, .6rem); gap: .2rem; }
+.method-map .mm-tile { width: .6rem; height: .6rem; padding: 0; border: 0; border-radius: 2px; cursor: pointer; background: var(--color); }
+.method-map .mm-tile.mm-verified { box-shadow: inset 0 0 0 2px var(--md-default-fg-color); }
+.method-map .mm-tile:hover, .method-map .mm-tile:focus-visible { outline: 2px solid var(--md-default-fg-color); outline-offset: 2px; }
+.method-map .mm-empty[hidden] { display: none; }
+.method-map .mm-error { color: var(--md-typeset-color); }
+.mm-tip { position: fixed; z-index: 10; max-width: min(17rem, calc(100vw - 24px)); padding: .6rem; font-size: .65rem;
+  color: var(--md-default-bg-color); background: var(--md-default-fg-color); border-radius: .3rem; pointer-events: none;
+  box-shadow: var(--md-shadow-z2); overflow-wrap: anywhere; }
+.mm-tip[hidden] { display: none; }
+.mm-tip strong, .mm-tip span { display: block; }
+.mm-tip span { margin-top: .25rem; }
+@media screen and (max-width: 44.9375em) {
+  .method-map .mm-controls { grid-template-columns: 1fr 1fr; }
+  .method-map .mm-search, .method-map .mm-reset { grid-column: 1 / -1; }
+}
+@media (pointer: coarse) {
+  .method-map .mm-tiles { grid-template-columns: repeat(auto-fill, 1.1rem); gap: .25rem; }
+  .method-map .mm-tile { width: 1.1rem; height: 1.1rem; }
+}

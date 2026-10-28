@@ -39,6 +39,12 @@ theme:
         icon: material/weather-sunny
         name: Tryb jasny
 
+extra_css:
+  - assets/method-map/method-map.css
+
+extra_javascript:
+  - assets/method-map/method-map.js
+
 markdown_extensions:
   - admonition
   - attr_list
@@ -90,6 +96,7 @@ plugins:
             Kompresja: Kompresja
             Szyfrowanie skryptów: Szyfrowanie skryptów
             Referencja typów: Referencja typów
+            Mapa metod: Mapa metod
         - locale: en
           name: English
           build: true
@@ -112,6 +119,7 @@ plugins:
             Kompresja: Compression
             Szyfrowanie skryptów: Script encryption
             Referencja typów: Type reference
+            Mapa metod: Method map
 
 nav:
   - Strona główna: index.md
@@ -145,6 +153,7 @@ nav:
       - Szyfrowanie skryptów: formats/encryption.md
   - Referencja typów:
       - reference/index.md
+      - Mapa metod: reference/method-map.md
       - ANIMO: reference/ANIMO.md
       - APPLICATION: reference/APPLICATION.md
       - ARRAY: reference/ARRAY.md
