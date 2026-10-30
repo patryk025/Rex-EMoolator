@@ -277,10 +277,18 @@ static void *getObject(const char *name)
     return object;
 }
 
+// The scene gets an empty application container above it, as in a game.
+// @RETURN stores __RETURN__ with the owner of the container the line runs in,
+// which for a top-level RUN is the scene's owner; the caller then looks it up
+// in the scene, and finds it only through the scene's lookup parent.
 template <int Size> static void createContainer(FARPROC ctor)
 {
     typedef void *(__fastcall * Ctor)(void *, void *, void *, void *, XStr<Size>, int);
-    ((Ctor)ctor)(g_scene, 0, 0, 0, str<Size>("PIKHOST"), 0);
+    void *application = alloc(0x1000);
+    ((Ctor)ctor)(application, 0, 0, 0, str<Size>("PIKHOST_APPLICATION"), 0);
+    ((Ctor)ctor)(g_scene, 0, 0, application, str<Size>("PIKHOST"), 0);
+    if (FARPROC setParent = find("?setParent@CMC_ObjectsContainer", "QAEXPAV1"))
+        ((void(__fastcall *)(void *, void *, void *))setParent)(g_scene, 0, application);
 }
 
 template <int Size> static void createElement(void *element)
@@ -366,8 +374,11 @@ static void bootstrap()
 
 // From 7.2 on, objects finish construction in the virtual init, which a scene
 // calls after resolveObjects (CMC_Condition, for one, builds its operand entries
-// there). CXVector keeps the count at +0x1c in every version; where the items
-// live differs, so they are read through CXVector::at.
+// there). Only the objects that were there before the first init: a behaviour's
+// init turns every inline {...} block into a behaviour of its own, already
+// initialised, and a second init of those takes the engine down. CXVector keeps
+// the count at +0x1c in every version; where the items live differs, so they
+// are read through CXVector::at.
 static void *containerObjects()
 {
     return ((void *(__fastcall *)(void *, void *))require("?getObjects@CMC_ObjectsContainer", "QAEPAVCXVector"))(g_scene, 0);
@@ -385,7 +396,8 @@ static void initObjects(int from)
     if (!objects || g_initSlot < 0) return;
     typedef void *(__fastcall * At)(void *, void *, int);
     At at = (At)require("?at@CXVector", "QAEPAVCXObject");
-    for (int i = from; i < *(int *)(objects + 0x1c); ++i)
+    int count = *(int *)(objects + 0x1c);
+    for (int i = from; i < count; ++i)
         if (void *object = at(objects, 0, i))
             ((void(__fastcall *)(void *, void *))((*(void ***)object)[g_initSlot]))(object, 0);
 }
