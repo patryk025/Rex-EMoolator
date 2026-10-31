@@ -420,13 +420,29 @@ def chosen_engines(args) -> list[Engine]:
     return select(engines, args.engine, key=lambda e: e.id)
 
 
+def recorded(result: dict) -> dict:
+    """What the manifest keeps of a run. A crash stays a fact with its stage, but its code,
+    addresses and stack change between runs, so they only show in --table and try."""
+    def plain(value):
+        return ["CRASH", ""] if value and value[0].startswith("CRASH") else value
+
+    def state(values: dict) -> dict:
+        return {name: plain(value) for name, value in values.items()}
+
+    kept = {key: value for key, value in result.items() if key != "crash"}
+    kept["initial"] = state(result["initial"])
+    kept["steps"] = [{"result": plain(step["result"]), "state": state(step["state"])} for step in result["steps"]]
+    return kept
+
+
 def grouped(per_engine: dict[str, dict]) -> list[dict]:
     """Engines that recorded exactly the same thing share one entry, so a
     regenerated manifest diffs as "this build changed", not as 20 equal edits."""
     groups: dict[str, dict] = {}
     for engine_id, result in per_engine.items():
-        key = json.dumps(result, sort_keys=True)
-        groups.setdefault(key, {"engines": [], **result})["engines"].append(engine_id)
+        kept = recorded(result)
+        key = json.dumps(kept, sort_keys=True)
+        groups.setdefault(key, {"engines": [], **kept})["engines"].append(engine_id)
     return list(groups.values())
 
 

@@ -153,9 +153,7 @@ class EngineCrosscheckTest {
         JsonValue recordedSteps = recorded.get("steps");
         String status = recorded.getString("status");
         if (!status.equals("ok")) {
-            JsonValue crash = recorded.get("crash");
-            notes.add("engine " + status + " in " + recorded.getString("stage", "step " + recordedSteps.size())
-                    + (crash != null ? " at rva " + crash.getString("rva") : ""));
+            notes.add("engine " + status + " in " + recorded.getString("stage", "step " + recordedSteps.size()));
         }
 
         Observation observed = runOnEmulator(testCase.getString("cnv"), testCase.get("files"), steps, read, profile);
