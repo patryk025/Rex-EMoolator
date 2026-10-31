@@ -1,0 +1,168 @@
+# Methods every object has: names, clones, handlers added at run time. From the calls
+# games make. MSGBOX stays out, it opens a window and waits, and so does TIMER as a
+# target: the host cannot load one, as it needs the scene's clock.
+
+[defaults]
+tags = ["object"]
+read = ["N", "COUNT"]
+cnv = '''
+OBJECT=COUNT
+COUNT:TYPE=INTEGER
+COUNT:VALUE=0
+
+OBJECT=N
+N:TYPE=INTEGER
+N:VALUE=7
+
+OBJECT=S
+S:TYPE=STRING
+S:VALUE=text
+
+OBJECT=D
+D:TYPE=DOUBLE
+D:VALUE=1.5
+
+OBJECT=F
+F:TYPE=BOOL
+F:VALUE=TRUE
+
+OBJECT=A
+A:TYPE=ARRAY
+
+OBJECT=BUMP
+BUMP:TYPE=BEHAVIOUR
+BUMP:CODE={COUNT^ADD(1);}
+
+OBJECT=BUMP10
+BUMP10:TYPE=BEHAVIOUR
+BUMP10:CODE={COUNT^ADD(10);}
+
+OBJECT=NAME
+NAME:TYPE=STRING
+NAME:VALUE=ONCHANGED
+'''
+
+[[case]]
+id = "object.getname.${o}"
+description = "GETNAME on each kind of variable, and in a value position."
+each.o = ["N", "S", "D", "F", "A", "BUMP"]
+read = ["S"]
+steps = ["${o}^GETNAME()", "S^SET(${o}^GETNAME())"]
+
+[[case]]
+id = "object.clone.copies"
+description = "CLONE names the copies N_1, N_2 and takes the value at that moment; a copy is its own object."
+read = ["N", "N_1", "N_2"]
+steps = ["N^CLONE(2)", "N_1^ADD(1)", "N^ADD(5)", "N_2^SET(0)", "N_1^GETNAME()", "N^GETNAME()"]
+
+[[case]]
+id = "object.clone.index"
+description = "GETCLONEINDEX on the original and the copies."
+read = []
+steps = ["N^CLONE(2)", "N^GETCLONEINDEX()", "N_1^GETCLONEINDEX()", "N_2^GETCLONEINDEX()", "S^GETCLONEINDEX()"]
+
+[[case]]
+id = "object.clone.again"
+description = "A second CLONE continues the numbering."
+read = []
+steps = ["N^CLONE(1)", "N^CLONE(2)", "N^GETCLONESNO()", "N_3^GETCLONEINDEX()", "N_3^GETNAME()"]
+
+[[case]]
+id = "object.clone.of-a-clone"
+read = []
+steps = ["N^CLONE(1)", "N_1^CLONE(1)", "N_1^GETCLONESNO()", "N^GETCLONESNO()", "N_1_1^GETNAME()", "N_2^GETNAME()"]
+
+[[case]]
+id = "object.clone.zero"
+read = []
+steps = ["N^CLONE(0)", "N^GETCLONESNO()"]
+
+[[case]]
+id = "object.clone.from-expression"
+description = "The CLONE([I1-1]) form."
+read = []
+steps = ["COUNT^SET(3)", "N^CLONE([COUNT-1])", "N^GETCLONESNO()"]
+
+[[case]]
+id = "object.clone.keeps-the-type"
+description = "A copy of each kind of variable."
+read = ["S_1", "D_1", "F_1"]
+steps = ["S^CLONE(1)", "D^CLONE(1)", "F^CLONE(1)"]
+
+[[case]]
+id = "object.clone.array"
+description = "A copied ARRAY keeps its elements and does not share them."
+read = ["A", "A_1"]
+steps = ["A^ADD(1,2)", "A^CLONE(1)", "A_1^ADD(3)", "A^CHANGEAT(0,9)"]
+
+[[case]]
+id = "object.clone.keeps-handlers"
+description = "A handler added before CLONE, on the copy."
+read = ["COUNT"]
+steps = ['N^ADDBEHAVIOUR("ONCHANGED","BUMP")', "N^CLONE(1)", "N_1^SET(1)", "N^SET(1)"]
+
+[[case]]
+id = "object.resetclones"
+description = "RESETCLONES and what stays of the copies."
+read = ["N"]
+steps = ["N^CLONE(2)", "N^RESETCLONES()", "N^GETCLONESNO()", "N^CLONE(1)", "N^GETCLONESNO()"]
+
+[[case]]
+id = "object.addbehaviour.plain"
+description = "ONCHANGED added at run time fires on a change only."
+steps = ['N^ADDBEHAVIOUR("ONCHANGED","BUMP")', "N^SET(1)", "N^SET(1)", "N^SET(2)"]
+
+[[case]]
+id = "object.addbehaviour.again"
+description = "Adding it again replaces the handler from 7.2; on 7.1 the old one stays, and the result varies."
+steps = ['N^ADDBEHAVIOUR("ONCHANGED","BUMP")', 'N^ADDBEHAVIOUR("ONCHANGED","BUMP10")', "N^SET(3)"]
+
+[[case]]
+id = "object.addbehaviour.with-parameter"
+description = "The ONFRAMECHANGED$110 form: a handler for one value."
+steps = ['N^ADDBEHAVIOUR("ONCHANGED$5","BUMP")', "N^SET(4)", "N^SET(5)", "N^SET(6)", "N^SET(5)"]
+
+[[case]]
+id = "object.addbehaviour.plain-and-parameter"
+steps = ['N^ADDBEHAVIOUR("ONCHANGED","BUMP")', 'N^ADDBEHAVIOUR("ONCHANGED$5","BUMP10")', "N^SET(5)", "N^SET(6)"]
+
+[[case]]
+id = "object.addbehaviour.from-variables"
+description = "The ADDBEHAVIOUR(VARSTEMP0,VARSTEMP1) form."
+steps = ["S^SET(\"BUMP\")", "N^ADDBEHAVIOUR(NAME,S)", "N^SET(1)"]
+
+[[case]]
+id = "object.addbehaviour.inline-code"
+description = "An inline block instead of a behaviour's name."
+steps = ['N^ADDBEHAVIOUR("ONCHANGED","{COUNT^ADD(100);}")', "N^SET(1)"]
+
+[[case]]
+id = "object.addbehaviour.missing-behaviour"
+steps = ['N^ADDBEHAVIOUR("ONCHANGED","NOSUCH")', "N^SET(1)"]
+
+[[case]]
+id = "object.removebehaviour"
+steps = ['N^ADDBEHAVIOUR("ONCHANGED","BUMP")', "N^SET(1)", 'N^REMOVEBEHAVIOUR("ONCHANGED")', "N^SET(2)"]
+
+[[case]]
+id = "object.removebehaviour.with-parameter"
+description = "Removing ONCHANGED$5, and whether the plain name reaches it."
+steps = ['N^ADDBEHAVIOUR("ONCHANGED$5","BUMP")', 'N^ADDBEHAVIOUR("ONCHANGED$6","BUMP10")', 'N^REMOVEBEHAVIOUR("ONCHANGED$5")', "N^SET(5)", "N^SET(6)", 'N^REMOVEBEHAVIOUR("ONCHANGED")', "N^SET(7)", "N^SET(6)"]
+
+[[case]]
+id = "object.removebehaviour.not-there"
+steps = ['N^REMOVEBEHAVIOUR("ONCHANGED")', "N^SET(1)"]
+
+[[case]]
+id = "object.removeallbehaviours"
+steps = ['N^ADDBEHAVIOUR("ONCHANGED","BUMP")', 'N^ADDBEHAVIOUR("ONCHANGED$5","BUMP10")', "N^REMOVEALLBEHAVIOURS()", "N^SET(5)"]
+
+[[case]]
+id = "object.send.signal"
+description = "SEND runs ONSIGNAL: the V_POINTS_LEVEL^SEND(\"SET\") form, its parameter and no parameter."
+steps = ['N^ADDBEHAVIOUR("ONSIGNAL$SET","BUMP")', 'N^ADDBEHAVIOUR("ONSIGNAL","BUMP10")', 'N^SEND("SET")', 'N^SEND("OTHER")', "N^SEND()"]
+
+[[case]]
+id = "object.addtoarray"
+read = ["A", "N"]
+steps = ['N^ADDTOARRAY("A")', "N^SET(9)"]

@@ -322,3 +322,36 @@ id = "array.onchanged.switched-by-method"
 description = "SENDONCHANGE(TRUE) and FALSE at run time, as ARRACTIVE^SENDONCHANGE(TRUE) does."
 read = ["COUNT"]
 steps = ["QUIET^SENDONCHANGE(TRUE)", "QUIET^ADD(1)", "QUIET^SENDONCHANGE(FALSE)", "QUIET^ADD(2)"]
+
+[[case]]
+id = "array.file.save-and-load"
+description = "Every element type through a file."
+read = ["A", "B"]
+steps = ['A^ADD(1,2.5,"te xt",TRUE)', 'A^SAVE("A.ARR")', 'B^LOAD("A.ARR")', "B^GET(0)", "B^GET(1)", "B^GET(2)", "B^GET(3)", "B^GETSIZE()"]
+
+[[case]]
+id = "array.file.double-precision"
+description = "A double goes to the file as an integer times 1000."
+read = ["B"]
+steps = ["A^ADD(1.23456,-0.0005,1000000.5)", 'A^SAVE("A.ARR")', 'B^LOAD("A.ARR")']
+
+[[case]]
+id = "array.file.load-replaces"
+read = ["A", "B"]
+steps = ["A^ADD(1)", "B^ADD(8,9)", 'A^SAVE("A.ARR")', 'B^LOAD("A.ARR")']
+
+[[case]]
+id = "array.file.load-missing"
+read = ["B"]
+steps = ["B^ADD(8)", 'B^LOAD("NOSUCH.ARR")', "B^GETSIZE()"]
+
+[[case]]
+id = "array.file.empty-string-element"
+read = ["B"]
+steps = ['A^ADD("",1)', 'A^SAVE("A.ARR")', 'B^LOAD("A.ARR")', "B^GET(0)", "B^GETSIZE()"]
+
+[[case]]
+id = "array.file.comma-in-quotes"
+description = "A comma inside a quoted argument splits it."
+read = ["A"]
+steps = ['A^ADD("a,b")', "A^GETSIZE()"]
