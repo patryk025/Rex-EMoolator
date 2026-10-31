@@ -9,9 +9,11 @@ import org.junit.jupiter.api.DynamicTest;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.TestFactory;
 import pl.genschu.bloomooemulator.TestEnvironment;
+import pl.genschu.bloomooemulator.engine.Game;
 import pl.genschu.bloomooemulator.engine.compatibility.Compatibility;
 import pl.genschu.bloomooemulator.engine.compatibility.CompatibilityProfile;
 import pl.genschu.bloomooemulator.engine.compatibility.EngineVariant;
+import pl.genschu.bloomooemulator.engine.filesystem.LocalFileSystem;
 import pl.genschu.bloomooemulator.interpreter.ast.ASTNode;
 import pl.genschu.bloomooemulator.interpreter.ast.BlockNode;
 import pl.genschu.bloomooemulator.interpreter.context.Context;
@@ -26,6 +28,7 @@ import pl.genschu.bloomooemulator.loader.CNVParser;
 import pl.genschu.bloomooemulator.logic.GameFamilies;
 
 import java.io.ByteArrayInputStream;
+import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
@@ -33,6 +36,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -70,6 +74,7 @@ class EngineCrosscheckTest {
     private record Observation(List<String[]> results, List<Map<String, String[]>> states, String error, int failedStep) {
     }
 
+    private static final Charset ENGINE_CHARSET = Charset.forName("windows-1250");
     private static final List<Verdict> VERDICTS = Collections.synchronizedList(new ArrayList<>());
 
     @BeforeAll
@@ -153,7 +158,7 @@ class EngineCrosscheckTest {
                     + (crash != null ? " at rva " + crash.getString("rva") : ""));
         }
 
-        Observation observed = runOnEmulator(testCase.getString("cnv"), steps, read, profile);
+        Observation observed = runOnEmulator(testCase.getString("cnv"), testCase.get("files"), steps, read, profile);
         if (observed.error() != null) {
             notes.add("emulator failed at " + (observed.failedStep() < 0 ? "load" : "step " + observed.failedStep()) + ": " + observed.error());
         }
@@ -203,13 +208,17 @@ class EngineCrosscheckTest {
         }
     }
 
-    private static Observation runOnEmulator(String cnv, List<String> steps, List<String> read, CompatibilityProfile profile) {
+    private static Observation runOnEmulator(String cnv, JsonValue files, List<String> steps, List<String> read,
+                                             CompatibilityProfile profile) {
         List<String[]> results = new ArrayList<>();
         List<Map<String, String[]>> states = new ArrayList<>();
         Compatibility.install(profile);
+        Path directory = null;
         try {
             Context context = new Context(new ExecutionContext());
             try {
+                directory = gameDirectory(files);
+                context.setGame(gameOn(directory));
                 // Plain scripts are decoded with the platform charset, see ScriptDecypher.
                 new CNVParser().parse(new ByteArrayInputStream(cnv.getBytes(Charset.defaultCharset())), "crosscheck.cnv", context);
             } catch (Exception | AssertionError error) {
@@ -232,6 +241,39 @@ class EngineCrosscheckTest {
             return new Observation(results, states, null, -1);
         } finally {
             Compatibility.reset();
+            deleteDirectory(directory);
+        }
+    }
+
+    /** A clean directory with the case's files, the counterpart of pikhost's working directory. */
+    private static Path gameDirectory(JsonValue files) throws IOException {
+        Path directory = Files.createTempDirectory("crosscheck");
+        if (files != null) {
+            // A game with no scene open resolves relative paths under DANE.
+            Path resources = Files.createDirectory(directory.resolve("DANE"));
+            for (JsonValue file : files) {
+                Files.write(resources.resolve(file.name()), file.asString().replace("\n", "\r\n").getBytes(ENGINE_CHARSET));
+            }
+        }
+        return directory;
+    }
+
+    private static Game gameOn(Path directory) {
+        Game game = new Game(null, null);
+        LocalFileSystem fileSystem = new LocalFileSystem(directory.toFile());
+        game.getVfs().mountAssets(fileSystem);
+        game.getVfs().setStorage(fileSystem);
+        return game;
+    }
+
+    private static void deleteDirectory(Path directory) {
+        if (directory == null) {
+            return;
+        }
+        try (Stream<Path> files = Files.walk(directory)) {
+            files.sorted(Comparator.reverseOrder()).map(Path::toFile).forEach(File::delete);
+        } catch (IOException ignored) {
+            // A temp directory left behind harms nothing.
         }
     }
 

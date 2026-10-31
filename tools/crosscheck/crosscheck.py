@@ -25,6 +25,7 @@ import itertools
 import json
 import os
 import re
+import shutil
 import subprocess
 import sys
 import tempfile
@@ -123,15 +124,18 @@ class Case:
     steps: list[str]
     read: list[str]
     source: str
+    files: dict[str, str] = field(default_factory=dict)
 
     def digest(self) -> str:
-        payload = json.dumps([self.cnv, self.steps, self.read], ensure_ascii=False)
+        parts = [self.cnv, self.steps, self.read] + ([self.files] if self.files else [])
+        payload = json.dumps(parts, ensure_ascii=False)
         return hashlib.sha1(payload.encode("utf-8")).hexdigest()
 
     def describe(self) -> dict:
-        return {"id": self.id, "description": self.description, "tags": self.tags,
-                "source": self.source, "digest": self.digest(),
-                "cnv": self.cnv, "steps": self.steps, "read": self.read}
+        described = {"id": self.id, "description": self.description, "tags": self.tags,
+                     "source": self.source, "digest": self.digest(),
+                     "cnv": self.cnv, "steps": self.steps, "read": self.read}
+        return described | ({"files": self.files} if self.files else {})
 
 
 PLACEHOLDER = re.compile(r"\$\{(\w+)}")
@@ -183,6 +187,7 @@ def load_cases(directory: Path = CASES_DIR) -> list[Case]:
                     steps=steps,
                     read=entry.get("read", defaults.get("read", [])),
                     source=path.name,
+                    files=entry.get("files", defaults.get("files", {})),
                 )
                 if case.id in seen:
                     raise SystemExit(f"{path.name}: duplicate case id {case.id}")
@@ -227,8 +232,14 @@ def run_case(engine: Engine, case: Case, workdir: Path) -> dict:
     """Runs one case in a fresh pikhost process; a crash only loses this case."""
     if not PIKHOST.is_file():
         raise SystemExit(f"{PIKHOST} not found - run tools/pikhost/build.ps1 first")
-    # The CNV loader takes an ANSI path, so the file lives in an ASCII temp dir.
-    cnv_path = workdir / f"{hashlib.sha1(case.id.encode()).hexdigest()[:16]}.cnv"
+    # The CNV loader takes an ANSI path, so the file lives in an ASCII temp dir. Each run
+    # gets a clean one as its working directory, where relative LOAD and SAVE paths go.
+    case_dir = workdir / hashlib.sha1(case.id.encode()).hexdigest()[:16]
+    shutil.rmtree(case_dir, ignore_errors=True)
+    case_dir.mkdir()
+    for name, text in case.files.items():
+        (case_dir / name).write_bytes(text.replace("\n", "\r\n").encode(ENGINE_ENCODING))
+    cnv_path = case_dir / "case.cnv"
     cnv_path.write_bytes(case.cnv.encode(ENGINE_ENCODING))
 
     commands = [f"LOAD {cnv_path}"]
@@ -240,7 +251,7 @@ def run_case(engine: Engine, case: Case, workdir: Path) -> dict:
     payload = ("\n".join(commands) + "\n").encode(ENGINE_ENCODING)
 
     try:
-        completed = subprocess.run([str(PIKHOST), str(engine.path)], input=payload,
+        completed = subprocess.run([str(PIKHOST), str(engine.path.resolve())], input=payload, cwd=case_dir,
                                    capture_output=True, timeout=CASE_TIMEOUT)
         lines = completed.stdout.decode(ENGINE_ENCODING, errors="replace").splitlines()
         timed_out = False
