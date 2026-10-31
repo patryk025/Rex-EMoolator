@@ -173,24 +173,26 @@ static int WINAPI captureMessageBoxA(HWND, LPCSTR text, LPCSTR caption, UINT)
     return IDOK;
 }
 
-// Redirects the DLL's MessageBoxA import so a script error cannot block the run.
-static void hookMessageBox()
+// Points every import of `original` in the DLL at `replacement`.
+static void hookImport(FARPROC original, void *replacement)
 {
     BYTE *base = (BYTE *)g_lib;
     IMAGE_NT_HEADERS *nt = (IMAGE_NT_HEADERS *)(base + ((IMAGE_DOS_HEADER *)base)->e_lfanew);
     IMAGE_DATA_DIRECTORY dir = nt->OptionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_IMPORT];
-    FARPROC original = GetProcAddress(GetModuleHandleA("user32.dll"), "MessageBoxA");
     for (IMAGE_IMPORT_DESCRIPTOR *d = (IMAGE_IMPORT_DESCRIPTOR *)(base + dir.VirtualAddress); d->Name; ++d) {
-        if (_stricmp((const char *)(base + d->Name), "user32.dll") != 0) continue;
         for (IMAGE_THUNK_DATA *t = (IMAGE_THUNK_DATA *)(base + d->FirstThunk); t->u1.Function; ++t) {
             if ((FARPROC)t->u1.Function != original) continue;
             DWORD old;
             VirtualProtect(&t->u1.Function, sizeof(DWORD), PAGE_READWRITE, &old);
-            t->u1.Function = (DWORD)(void *)captureMessageBoxA;
+            t->u1.Function = (DWORD)replacement;
             VirtualProtect(&t->u1.Function, sizeof(DWORD), old, &old);
         }
     }
 }
+
+// The engines' double frees went unnoticed on the heaps they were built for, while
+// today's heap ends the process. A case is one short process, so nothing is freed.
+static void __cdecl keepBlock(void *) {}
 
 // PIKHOST_TRACE=1 prints every bootstrap step to stderr, for bringing up new engines.
 static bool g_trace;
@@ -498,7 +500,10 @@ int wmain(int argc, wchar_t **argv)
         puts("ERR engine CRT operator new not found");
         return 3;
     }
-    hookMessageBox();
+    // So a script error cannot block the run.
+    hookImport(GetProcAddress(GetModuleHandleA("user32.dll"), "MessageBoxA"), captureMessageBoxA);
+    hookImport(GetProcAddress(crt, "free"), keepBlock);
+    hookImport(GetProcAddress(crt, "??3@YAXPAX@Z"), keepBlock);
     g_trace = getenv("PIKHOST_TRACE") != 0;
 
     __try {

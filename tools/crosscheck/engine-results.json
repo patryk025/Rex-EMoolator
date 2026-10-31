@@ -1,6 +1,6 @@
 {
  "format": 1,
- "generated": "2026-10-31T20:57:46+00:00",
+ "generated": "2026-10-31T21:21:03+00:00",
  "generator": "tools/crosscheck/crosscheck.py",
  "engines": {
   "bloomoo-2679920b3735": {
@@ -411,20 +411,7 @@
     {
      "engines": [
       "piklib61-3bb31de8b45f",
-      "piklib61-715272459e13"
-     ],
-     "status": "crash",
-     "initial": {
-      "OUT": [
-       "STRING",
-       ""
-      ]
-     },
-     "steps": [],
-     "stage": "step 0"
-    },
-    {
-     "engines": [
+      "piklib61-715272459e13",
       "piklib61-91b0330a11ab",
       "piklib61-9de20dceea68",
       "piklib61-c0f83acd825b"
@@ -1219,20 +1206,7 @@
     {
      "engines": [
       "piklib61-3bb31de8b45f",
-      "piklib61-715272459e13"
-     ],
-     "status": "crash",
-     "initial": {
-      "OUT": [
-       "STRING",
-       ""
-      ]
-     },
-     "steps": [],
-     "stage": "step 0"
-    },
-    {
-     "engines": [
+      "piklib61-715272459e13",
       "piklib61-91b0330a11ab",
       "piklib61-9de20dceea68",
       "piklib61-c0f83acd825b"
@@ -2027,20 +2001,7 @@
     {
      "engines": [
       "piklib61-3bb31de8b45f",
-      "piklib61-715272459e13"
-     ],
-     "status": "crash",
-     "initial": {
-      "OUT": [
-       "STRING",
-       ""
-      ]
-     },
-     "steps": [],
-     "stage": "step 0"
-    },
-    {
-     "engines": [
+      "piklib61-715272459e13",
       "piklib61-91b0330a11ab",
       "piklib61-9de20dceea68",
       "piklib61-c0f83acd825b"
@@ -2835,20 +2796,7 @@
     {
      "engines": [
       "piklib61-3bb31de8b45f",
-      "piklib61-715272459e13"
-     ],
-     "status": "crash",
-     "initial": {
-      "OUT": [
-       "STRING",
-       ""
-      ]
-     },
-     "steps": [],
-     "stage": "step 0"
-    },
-    {
-     "engines": [
+      "piklib61-715272459e13",
       "piklib61-91b0330a11ab",
       "piklib61-9de20dceea68",
       "piklib61-c0f83acd825b"
@@ -3596,20 +3544,7 @@
     {
      "engines": [
       "piklib61-3bb31de8b45f",
-      "piklib61-715272459e13"
-     ],
-     "status": "crash",
-     "initial": {
-      "OUT": [
-       "STRING",
-       ""
-      ]
-     },
-     "steps": [],
-     "stage": "step 0"
-    },
-    {
-     "engines": [
+      "piklib61-715272459e13",
       "piklib61-91b0330a11ab",
       "piklib61-9de20dceea68",
       "piklib61-c0f83acd825b"
@@ -4404,20 +4339,7 @@
     {
      "engines": [
       "piklib61-3bb31de8b45f",
-      "piklib61-715272459e13"
-     ],
-     "status": "crash",
-     "initial": {
-      "OUT": [
-       "STRING",
-       ""
-      ]
-     },
-     "steps": [],
-     "stage": "step 0"
-    },
-    {
-     "engines": [
+      "piklib61-715272459e13",
       "piklib61-91b0330a11ab",
       "piklib61-9de20dceea68",
       "piklib61-c0f83acd825b"
@@ -5163,20 +5085,7 @@
     {
      "engines": [
       "piklib61-3bb31de8b45f",
-      "piklib61-715272459e13"
-     ],
-     "status": "crash",
-     "initial": {
-      "OUT": [
-       "STRING",
-       ""
-      ]
-     },
-     "steps": [],
-     "stage": "step 0"
-    },
-    {
-     "engines": [
+      "piklib61-715272459e13",
       "piklib61-91b0330a11ab",
       "piklib61-9de20dceea68",
       "piklib61-c0f83acd825b"
@@ -5922,20 +5831,7 @@
     {
      "engines": [
       "piklib61-3bb31de8b45f",
-      "piklib61-715272459e13"
-     ],
-     "status": "crash",
-     "initial": {
-      "OUT": [
-       "STRING",
-       ""
-      ]
-     },
-     "steps": [],
-     "stage": "step 0"
-    },
-    {
-     "engines": [
+      "piklib61-715272459e13",
       "piklib61-91b0330a11ab",
       "piklib61-9de20dceea68",
       "piklib61-c0f83acd825b"
@@ -6632,20 +6528,7 @@
     {
      "engines": [
       "piklib61-3bb31de8b45f",
-      "piklib61-715272459e13"
-     ],
-     "status": "crash",
-     "initial": {
-      "OUT": [
-       "STRING",
-       ""
-      ]
-     },
-     "steps": [],
-     "stage": "step 0"
-    },
-    {
-     "engines": [
+      "piklib61-715272459e13",
       "piklib61-91b0330a11ab",
       "piklib61-9de20dceea68",
       "piklib61-c0f83acd825b"
@@ -7440,20 +7323,7 @@
     {
      "engines": [
       "piklib61-3bb31de8b45f",
-      "piklib61-715272459e13"
-     ],
-     "status": "crash",
-     "initial": {
-      "OUT": [
-       "STRING",
-       ""
-      ]
-     },
-     "steps": [],
-     "stage": "step 0"
-    },
-    {
-     "engines": [
+      "piklib61-715272459e13",
       "piklib61-91b0330a11ab",
       "piklib61-9de20dceea68",
       "piklib61-c0f83acd825b"
@@ -8248,20 +8118,7 @@
     {
      "engines": [
       "piklib61-3bb31de8b45f",
-      "piklib61-715272459e13"
-     ],
-     "status": "crash",
-     "initial": {
-      "OUT": [
-       "STRING",
-       ""
-      ]
-     },
-     "steps": [],
-     "stage": "step 0"
-    },
-    {
-     "engines": [
+      "piklib61-715272459e13",
       "piklib61-91b0330a11ab",
       "piklib61-9de20dceea68",
       "piklib61-c0f83acd825b"
@@ -9007,20 +8864,7 @@
     {
      "engines": [
       "piklib61-3bb31de8b45f",
-      "piklib61-715272459e13"
-     ],
-     "status": "crash",
-     "initial": {
-      "OUT": [
-       "STRING",
-       ""
-      ]
-     },
-     "steps": [],
-     "stage": "step 0"
-    },
-    {
-     "engines": [
+      "piklib61-715272459e13",
       "piklib61-91b0330a11ab",
       "piklib61-9de20dceea68",
       "piklib61-c0f83acd825b"
@@ -16795,20 +16639,7 @@
     {
      "engines": [
       "piklib61-3bb31de8b45f",
-      "piklib61-715272459e13"
-     ],
-     "status": "crash",
-     "initial": {
-      "OUT": [
-       "STRING",
-       ""
-      ]
-     },
-     "steps": [],
-     "stage": "step 0"
-    },
-    {
-     "engines": [
+      "piklib61-715272459e13",
       "piklib61-91b0330a11ab",
       "piklib61-9de20dceea68",
       "piklib61-c0f83acd825b"
@@ -16904,20 +16735,7 @@
     {
      "engines": [
       "piklib61-3bb31de8b45f",
-      "piklib61-715272459e13"
-     ],
-     "status": "crash",
-     "initial": {
-      "OUT": [
-       "STRING",
-       ""
-      ]
-     },
-     "steps": [],
-     "stage": "step 0"
-    },
-    {
-     "engines": [
+      "piklib61-715272459e13",
       "piklib61-91b0330a11ab",
       "piklib61-9de20dceea68",
       "piklib61-c0f83acd825b"
@@ -17013,20 +16831,7 @@
     {
      "engines": [
       "piklib61-3bb31de8b45f",
-      "piklib61-715272459e13"
-     ],
-     "status": "crash",
-     "initial": {
-      "OUT": [
-       "STRING",
-       ""
-      ]
-     },
-     "steps": [],
-     "stage": "step 0"
-    },
-    {
-     "engines": [
+      "piklib61-715272459e13",
       "piklib61-91b0330a11ab",
       "piklib61-9de20dceea68",
       "piklib61-c0f83acd825b"
@@ -17122,20 +16927,7 @@
     {
      "engines": [
       "piklib61-3bb31de8b45f",
-      "piklib61-715272459e13"
-     ],
-     "status": "crash",
-     "initial": {
-      "OUT": [
-       "STRING",
-       ""
-      ]
-     },
-     "steps": [],
-     "stage": "step 0"
-    },
-    {
-     "engines": [
+      "piklib61-715272459e13",
       "piklib61-91b0330a11ab",
       "piklib61-9de20dceea68",
       "piklib61-c0f83acd825b"
@@ -18445,20 +18237,7 @@
     {
      "engines": [
       "piklib61-3bb31de8b45f",
-      "piklib61-715272459e13"
-     ],
-     "status": "crash",
-     "initial": {
-      "OUT": [
-       "STRING",
-       ""
-      ]
-     },
-     "steps": [],
-     "stage": "step 0"
-    },
-    {
-     "engines": [
+      "piklib61-715272459e13",
       "piklib61-91b0330a11ab",
       "piklib61-9de20dceea68",
       "piklib61-c0f83acd825b"
@@ -18554,20 +18333,7 @@
     {
      "engines": [
       "piklib61-3bb31de8b45f",
-      "piklib61-715272459e13"
-     ],
-     "status": "crash",
-     "initial": {
-      "OUT": [
-       "STRING",
-       ""
-      ]
-     },
-     "steps": [],
-     "stage": "step 0"
-    },
-    {
-     "engines": [
+      "piklib61-715272459e13",
       "piklib61-91b0330a11ab",
       "piklib61-9de20dceea68",
       "piklib61-c0f83acd825b"
@@ -18663,20 +18429,7 @@
     {
      "engines": [
       "piklib61-3bb31de8b45f",
-      "piklib61-715272459e13"
-     ],
-     "status": "crash",
-     "initial": {
-      "OUT": [
-       "STRING",
-       ""
-      ]
-     },
-     "steps": [],
-     "stage": "step 0"
-    },
-    {
-     "engines": [
+      "piklib61-715272459e13",
       "piklib61-91b0330a11ab",
       "piklib61-9de20dceea68",
       "piklib61-c0f83acd825b"
@@ -18772,20 +18525,7 @@
     {
      "engines": [
       "piklib61-3bb31de8b45f",
-      "piklib61-715272459e13"
-     ],
-     "status": "crash",
-     "initial": {
-      "OUT": [
-       "STRING",
-       ""
-      ]
-     },
-     "steps": [],
-     "stage": "step 0"
-    },
-    {
-     "engines": [
+      "piklib61-715272459e13",
       "piklib61-91b0330a11ab",
       "piklib61-9de20dceea68",
       "piklib61-c0f83acd825b"
@@ -19917,20 +19657,7 @@
     {
      "engines": [
       "piklib61-3bb31de8b45f",
-      "piklib61-715272459e13"
-     ],
-     "status": "crash",
-     "initial": {
-      "OUT": [
-       "STRING",
-       ""
-      ]
-     },
-     "steps": [],
-     "stage": "step 0"
-    },
-    {
-     "engines": [
+      "piklib61-715272459e13",
       "piklib61-91b0330a11ab",
       "piklib61-9de20dceea68",
       "piklib61-c0f83acd825b"
@@ -20026,20 +19753,7 @@
     {
      "engines": [
       "piklib61-3bb31de8b45f",
-      "piklib61-715272459e13"
-     ],
-     "status": "crash",
-     "initial": {
-      "OUT": [
-       "STRING",
-       ""
-      ]
-     },
-     "steps": [],
-     "stage": "step 0"
-    },
-    {
-     "engines": [
+      "piklib61-715272459e13",
       "piklib61-91b0330a11ab",
       "piklib61-9de20dceea68",
       "piklib61-c0f83acd825b"
@@ -20135,20 +19849,7 @@
     {
      "engines": [
       "piklib61-3bb31de8b45f",
-      "piklib61-715272459e13"
-     ],
-     "status": "crash",
-     "initial": {
-      "OUT": [
-       "STRING",
-       ""
-      ]
-     },
-     "steps": [],
-     "stage": "step 0"
-    },
-    {
-     "engines": [
+      "piklib61-715272459e13",
       "piklib61-91b0330a11ab",
       "piklib61-9de20dceea68",
       "piklib61-c0f83acd825b"
@@ -20244,20 +19945,7 @@
     {
      "engines": [
       "piklib61-3bb31de8b45f",
-      "piklib61-715272459e13"
-     ],
-     "status": "crash",
-     "initial": {
-      "OUT": [
-       "STRING",
-       ""
-      ]
-     },
-     "steps": [],
-     "stage": "step 0"
-    },
-    {
-     "engines": [
+      "piklib61-715272459e13",
       "piklib61-91b0330a11ab",
       "piklib61-9de20dceea68",
       "piklib61-c0f83acd825b"
@@ -21591,20 +21279,7 @@
     {
      "engines": [
       "piklib61-3bb31de8b45f",
-      "piklib61-715272459e13"
-     ],
-     "status": "crash",
-     "initial": {
-      "OUT": [
-       "STRING",
-       ""
-      ]
-     },
-     "steps": [],
-     "stage": "step 0"
-    },
-    {
-     "engines": [
+      "piklib61-715272459e13",
       "piklib61-91b0330a11ab",
       "piklib61-9de20dceea68",
       "piklib61-c0f83acd825b"
@@ -21700,20 +21375,7 @@
     {
      "engines": [
       "piklib61-3bb31de8b45f",
-      "piklib61-715272459e13"
-     ],
-     "status": "crash",
-     "initial": {
-      "OUT": [
-       "STRING",
-       ""
-      ]
-     },
-     "steps": [],
-     "stage": "step 0"
-    },
-    {
-     "engines": [
+      "piklib61-715272459e13",
       "piklib61-91b0330a11ab",
       "piklib61-9de20dceea68",
       "piklib61-c0f83acd825b"
@@ -21809,20 +21471,7 @@
     {
      "engines": [
       "piklib61-3bb31de8b45f",
-      "piklib61-715272459e13"
-     ],
-     "status": "crash",
-     "initial": {
-      "OUT": [
-       "STRING",
-       ""
-      ]
-     },
-     "steps": [],
-     "stage": "step 0"
-    },
-    {
-     "engines": [
+      "piklib61-715272459e13",
       "piklib61-91b0330a11ab",
       "piklib61-9de20dceea68",
       "piklib61-c0f83acd825b"
@@ -21918,20 +21567,7 @@
     {
      "engines": [
       "piklib61-3bb31de8b45f",
-      "piklib61-715272459e13"
-     ],
-     "status": "crash",
-     "initial": {
-      "OUT": [
-       "STRING",
-       ""
-      ]
-     },
-     "steps": [],
-     "stage": "step 0"
-    },
-    {
-     "engines": [
+      "piklib61-715272459e13",
       "piklib61-91b0330a11ab",
       "piklib61-9de20dceea68",
       "piklib61-c0f83acd825b"
@@ -24445,39 +24081,7 @@
     {
      "engines": [
       "piklib61-3bb31de8b45f",
-      "piklib61-715272459e13"
-     ],
-     "status": "error",
-     "initial": {
-      "A": [
-       "3001",
-       "CMC_Object\n"
-      ],
-      "I": [
-       "INTEGER",
-       "7"
-      ]
-     },
-     "steps": [
-      {
-       "result": null,
-       "state": {
-        "A": [
-         "3001",
-         "CMC_Object\n"
-        ],
-        "I": [
-         "INTEGER",
-         "7"
-        ]
-       }
-      }
-     ],
-     "error": "pikhost ended early (0xc0000374, heap corruption)",
-     "stage": "step 1"
-    },
-    {
-     "engines": [
+      "piklib61-715272459e13",
       "piklib61-91b0330a11ab"
      ],
      "status": "ok",
@@ -27315,7 +26919,7 @@
       "piklib61-9de20dceea68",
       "piklib61-c0f83acd825b"
      ],
-     "status": "error",
+     "status": "ok",
      "initial": {
       "A": [
        "3001",
@@ -27336,14 +26940,24 @@
        "result": null,
        "state": {
         "A": [
-         "CRASH",
-         ""
+         "3001",
+         "1,\n"
+        ]
+       }
+      },
+      {
+       "result": [
+        "INTEGER",
+        "2"
+       ],
+       "state": {
+        "A": [
+         "3001",
+         "1,\n"
         ]
        }
       }
-     ],
-     "error": "pikhost ended early (0x00000005)",
-     "stage": "step 2"
+     ]
     },
     {
      "engines": [
@@ -41440,7 +41054,7 @@
       "piklib61-3bb31de8b45f",
       "piklib61-715272459e13"
      ],
-     "status": "error",
+     "status": "crash",
      "initial": {
       "A": [
        "INTEGER",
@@ -41456,7 +41070,6 @@
       ]
      },
      "steps": [],
-     "error": "pikhost ended early (0xc0000374, heap corruption)",
      "stage": "step 0"
     },
     {
@@ -41647,21 +41260,7 @@
     {
      "engines": [
       "piklib61-3bb31de8b45f",
-      "piklib61-715272459e13"
-     ],
-     "status": "error",
-     "initial": {
-      "A": [
-       "INTEGER",
-       "0"
-      ]
-     },
-     "steps": [],
-     "error": "pikhost ended early (0xc0000374, heap corruption)",
-     "stage": "step 0"
-    },
-    {
-     "engines": [
+      "piklib61-715272459e13",
       "piklib61-91b0330a11ab",
       "piklib61-9de20dceea68",
       "piklib61-c0f83acd825b"
@@ -41875,21 +41474,7 @@
     {
      "engines": [
       "piklib61-3bb31de8b45f",
-      "piklib61-715272459e13"
-     ],
-     "status": "error",
-     "initial": {
-      "A": [
-       "INTEGER",
-       "0"
-      ]
-     },
-     "steps": [],
-     "error": "pikhost ended early (0xc0000374, heap corruption)",
-     "stage": "step 0"
-    },
-    {
-     "engines": [
+      "piklib61-715272459e13",
       "piklib61-91b0330a11ab",
       "piklib61-9de20dceea68",
       "piklib61-c0f83acd825b"
@@ -78763,7 +78348,7 @@
       "bloomoo-2679920b3735",
       "bloomoo-3be911183e59",
       "bloomoo-788ab0406ab4",
-      "bloomoo-d63a5fb575f9",
+      "bloomoo-9ac8ebbe0cc2",
       "bloomoo-web-f5b6842faf88",
       "piklib72-549b6851b2c9",
       "piklib72-923a103d5b05",
@@ -78840,7 +78425,65 @@
     },
     {
      "engines": [
-      "bloomoo-9ac8ebbe0cc2",
+      "bloomoo-d63a5fb575f9"
+     ],
+     "status": "ok",
+     "initial": {
+      "S": [
+       "STRING",
+       "REKSIO"
+      ]
+     },
+     "steps": [
+      {
+       "result": null,
+       "state": {
+        "S": [
+         "STRING",
+         "RIO"
+        ]
+       }
+      },
+      {
+       "result": null,
+       "state": {
+        "S": [
+         "STRING",
+         "RIOe\u0002"
+        ]
+       }
+      },
+      {
+       "result": null,
+       "state": {
+        "S": [
+         "STRING",
+         "RIOe\u0002GED"
+        ]
+       }
+      },
+      {
+       "result": null,
+       "state": {
+        "S": [
+         "STRING",
+         "IOe"
+        ]
+       }
+      },
+      {
+       "result": null,
+       "state": {
+        "S": [
+         "STRING",
+         "IOe"
+        ]
+       }
+      }
+     ]
+    },
+    {
+     "engines": [
       "bloomoo-fb9a2b81d685"
      ],
      "status": "ok",
@@ -79852,7 +79495,8 @@
       "bloomoo-3be911183e59",
       "bloomoo-9ac8ebbe0cc2",
       "bloomoo-d63a5fb575f9",
-      "bloomoo-fb9a2b81d685"
+      "bloomoo-fb9a2b81d685",
+      "bloomoo-web-f5b6842faf88"
      ],
      "status": "ok",
      "initial": {
@@ -79893,39 +79537,6 @@
        }
       }
      ]
-    },
-    {
-     "engines": [
-      "bloomoo-web-f5b6842faf88"
-     ],
-     "status": "crash",
-     "initial": {
-      "S": [
-       "STRING",
-       "żółć"
-      ]
-     },
-     "steps": [
-      {
-       "result": null,
-       "state": {
-        "S": [
-         "STRING",
-         "ŻÓŁĆ"
-        ]
-       }
-      },
-      {
-       "result": null,
-       "state": {
-        "S": [
-         "STRING",
-         "żółć"
-        ]
-       }
-      }
-     ],
-     "stage": "step 2"
     },
     {
      "engines": [
