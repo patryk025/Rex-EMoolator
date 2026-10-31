@@ -1,0 +1,120 @@
+# DATABASE, STRUCT and the cursor: rows from a DTA file, read as games do it, with
+# ST^SET("DB_CURSOR") and then ST|FIELD or GETFIELD.
+# From core/tests/.../tests/DatabaseStructIntegrationTest.java.
+
+[defaults]
+tags = ["database"]
+read = ["OUT", "NUM"]
+files."ROWS.DTA" = '''
+alpha|1|text one
+beta|22|text two
+gamma|333|text three
+beta|4444|last one
+'''
+cnv = '''
+OBJECT=OUT
+OUT:TYPE=STRING
+OUT:VALUE=
+
+OBJECT=NUM
+NUM:TYPE=INTEGER
+NUM:VALUE=0
+
+OBJECT=ST
+ST:TYPE=STRUCT
+ST:FIELDS=ID<STRING>,VAL<INTEGER>,TEXT<STRING>
+
+OBJECT=DB
+DB:TYPE=DATABASE
+DB:MODEL=ST
+
+OBJECT=DBLOW
+DBLOW:TYPE=DATABASE
+DBLOW:MODEL=ST
+'''
+
+[[case]]
+id = "database.load.rows"
+description = "LOAD, the row count and the cursor, also when loading twice."
+steps = ['DB^LOAD("ROWS.DTA")', "DB^GETROWSNO()", "DB^GETCURSORPOS()", 'DB^LOAD("ROWS.DTA")', "DB^GETROWSNO()"]
+
+[[case]]
+id = "database.load.missing-file"
+steps = ['DB^LOAD("NOSUCH.DTA")', "DB^GETROWSNO()"]
+
+[[case]]
+id = "database.select.through-struct"
+description = "The DBSCENE flow: bind the struct to the cursor, SELECT, read fields by name."
+steps = ['DB^LOAD("ROWS.DTA")', 'ST^SET("DB_CURSOR")', "DB^SELECT(0)", "OUT^SET(ST|ID)", "NUM^SET(ST|VAL)", "OUT^SET(ST|TEXT)", "DB^SELECT(2)", "OUT^SET(ST|ID)", "NUM^SET(ST|VAL)"]
+
+[[case]]
+id = "database.select.getfield"
+description = "GETFIELD by index, the STLEVEL^GETFIELD(0) form."
+steps = ['DB^LOAD("ROWS.DTA")', 'ST^SET("DB_CURSOR")', "DB^SELECT(1)", "ST^GETFIELD(0)", "ST^GETFIELD(1)", "ST^GETFIELD(2)", "OUT^SET(ST^GETFIELD(0))"]
+
+[[case]]
+id = "database.select.bind-after"
+description = "ST^SET after SELECT sees the current row."
+steps = ['DB^LOAD("ROWS.DTA")', "DB^SELECT(1)", 'ST^SET("DB_CURSOR")', "OUT^SET(ST|ID)"]
+
+[[case]]
+id = "database.select.past-the-end"
+steps = ['DB^LOAD("ROWS.DTA")', 'ST^SET("DB_CURSOR")', "DB^SELECT(9)", "DB^GETCURSORPOS()", "OUT^SET(ST|ID)"]
+
+[[case]]
+id = "database.next-and-prev"
+description = "NEXT walks the rows and past the last one; PREV goes back."
+steps = ['DB^LOAD("ROWS.DTA")', 'ST^SET("DB_CURSOR")', "DB^SELECT(0)", "DB^NEXT()", "DB^GETCURSORPOS()", "OUT^SET(ST|ID)", "DB^NEXT()", "DB^NEXT()", "DB^GETCURSORPOS()", "DB^NEXT()", "DB^GETCURSORPOS()", "DB^PREV()", "DB^GETCURSORPOS()"]
+
+[[case]]
+id = "database.next-from-the-start"
+description = "NEXT right after LOAD, the DBLEVEL^NEXT() loop."
+steps = ['DB^LOAD("ROWS.DTA")', 'ST^SET("DB_CURSOR")', "DB^NEXT()", "DB^GETCURSORPOS()", "OUT^SET(ST|ID)"]
+
+[[case]]
+id = "database.find"
+description = "FIND(column, value, start): a match, a start past the first of two, a miss and a number column."
+steps = ['DB^LOAD("ROWS.DTA")', 'DB^FIND("ID","gamma",0)', 'DB^FIND("ID","beta",0)', 'DB^FIND("ID","beta",2)', 'DB^FIND("ID","nosuch",0)', 'DB^FIND("VAL","22",0)', "DB^FIND(\"VAL\",22,0)"]
+
+[[case]]
+id = "database.find.wrong-column"
+steps = ['DB^LOAD("ROWS.DTA")', 'DB^FIND("NOSUCH","x",0)']
+
+[[case]]
+id = "database.find.negative-start"
+steps = ['DB^LOAD("ROWS.DTA")', 'DB^FIND("ID","gamma",-1)']
+
+[[case]]
+id = "database.find.case-of-text"
+steps = ['DB^LOAD("ROWS.DTA")', 'DB^FIND("ID","GAMMA",0)', 'DB^FIND("id","gamma",0)']
+
+[[case]]
+id = "database.find.leaves-the-cursor"
+steps = ['DB^LOAD("ROWS.DTA")', "DB^SELECT(1)", 'DB^FIND("ID","gamma",0)', "DB^GETCURSORPOS()"]
+
+[[case]]
+id = "database.removeall"
+steps = ['DB^LOAD("ROWS.DTA")', "DB^SELECT(1)", "DB^REMOVEALL()", "DB^GETROWSNO()", "DB^GETCURSORPOS()", 'DB^LOAD("ROWS.DTA")', "DB^GETROWSNO()"]
+
+[[case]]
+id = "database.save-and-load"
+description = "SAVE, then LOAD into another database with the same model."
+read = []
+steps = ['DB^LOAD("ROWS.DTA")', 'DB^SAVE("OUT.DTA")', 'DBLOW^LOAD("OUT.DTA")', "DBLOW^GETROWSNO()"]
+
+[[case]]
+id = "database.add"
+description = "ADD of a row, the method games call once."
+steps = ['DB^LOAD("ROWS.DTA")', 'DB^ADD("delta",5,"new")', "DB^GETROWSNO()"]
+
+[[case]]
+id = "struct.set.field"
+description = "A field written through ST|FIELD^SET without a database."
+read = ["OUT", "NUM"]
+steps = ['ST|ID^SET("x")', "ST|VAL^SET(5)", "OUT^SET(ST|ID)", "NUM^SET(ST|VAL)", "ST^GETFIELD(1)"]
+
+[[case]]
+id = "struct.getfield.past-the-end"
+read = ["OUT"]
+steps = ["ST^GETFIELD(7)"]
+

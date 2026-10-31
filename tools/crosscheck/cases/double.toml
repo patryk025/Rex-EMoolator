@@ -1,0 +1,76 @@
+# DOUBLE behaviour, including the conversions that EngineBehaviour models per version.
+
+[defaults]
+tags = ["double"]
+read = ["D"]
+cnv = '''
+OBJECT=D
+D:TYPE=DOUBLE
+D:VALUE=1.5
+
+OBJECT=I
+I:TYPE=INTEGER
+I:VALUE=0
+
+OBJECT=S
+S:TYPE=STRING
+S:VALUE=
+'''
+
+[[case]]
+id = "double.to-string.formats"
+description = "EngineBehaviour.DoubleToString: Piklib prints zero as '00000' and negative fractions as '0.-50000'."
+steps = ["D^SET(0)", "D^SET(-0.5)", "D^SET(-1.25)", "D^SET(0.5)", "D^SET(123.456789)", "D^SET(-7)", "D^SET(1000000)"]
+
+[[case]]
+id = "double.to-integer.conversion"
+description = "EngineBehaviour.DoubleToInteger: Piklib truncates, BlooMoo rounds half away from zero."
+read = ["I"]
+steps = [
+    "D^SET(0.5)", "I^SET(D)",
+    "D^SET(-0.5)", "I^SET(D)",
+    "D^SET(7.99)", "I^SET(D)",
+    "D^SET(-7.99)", "I^SET(D)",
+    "D^SET(2.5)", "I^SET(D)",
+]
+
+[[case]]
+id = "double.to-string.through-string-set"
+description = "The same formatting seen through STRING^SET."
+read = ["S"]
+steps = ["D^SET(0)", "S^SET(D)", "D^SET(-0.5)", "S^SET(D)", "D^SET(3.25)", "S^SET(D)"]
+
+[[case]]
+id = "double.arithmetic"
+steps = ["D^ADD(2.25)", "D^MUL(-2)", "D^SUB(0.5)", "D^DIV(4)"]
+
+[[case]]
+id = "double.div.by-zero"
+steps = ["D^DIV(0)"]
+
+[[case]]
+id = "double.mod"
+steps = ["D^SET(7.5)", "D^MOD(2)", "D^SET(-7.5)", "D^MOD(2)"]
+
+[[case]]
+id = "double.sqrt-forms"
+description = "SQRT() vs SQRT(value), and a negative input."
+steps = ["D^SET(16)", "D^SQRT()", "D^SQRT(2)", "D^SQRT(-4)"]
+
+[[case]]
+id = "double.trig.degrees"
+description = "SINUS/COSINUS take degrees."
+steps = ["D^SINUS(30)", "D^COSINUS(60)", "D^SINUS(90)", "D^ARCTAN(1)", "D^ARCTANEX(1, -1)"]
+
+[[case]]
+id = "double.mina-maxa"
+steps = ["D^MAXA(1, 7.5, -2)", "D^MINA(1, 7.5, -2)"]
+
+[[case]]
+id = "double.sgn"
+read = ["D", "I"]
+steps = ["I^SET(D^SGN())", "D^SET(-3)", "D^SGN()", "D^SET(0)", "D^SGN()"]
+
+[[case]]
+id = "double.set.from-string"
+steps = ['D^SET("2.75")', 'D^SET("1,5")', 'D^SET("ABC")', 'D^SET("-0.125")']

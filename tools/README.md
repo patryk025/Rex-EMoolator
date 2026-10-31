@@ -8,4 +8,6 @@ Narzędzia deweloperskie i diagnostyczne. Nie są częścią budowanej aplikacji
 | `check_docs_links.py` | audyt linków w `docs/` — martwe pliki i kotwice, kolizje slugów, linki celujące w spis typów zamiast w stronę typu. Uruchamiaj Pythonem ze środowiska dokumentacji (`docs/requirements.txt`); `--site KATALOG` weryfikuje wyrenderowany serwis zamiast źródeł. |
 | `update_compatibility_docs.py` | przenosi dostępność API z zewnętrznego eksportu compat/1 JSON do referencji typów i generuje `docs/compatibility-audit.md`. |
 | `piklib8-probe/` | sonda do `PIKLIB8.DLL` używana przy odtwarzaniu zachowań oryginalnego silnika. |
+| `pikhost/` | 32-bitowy host uruchamiający prawdziwy interpreter skryptów z oryginalnych DLL-ek (PIKLIB 7.2/8, BlooMoo) bez gry. |
+| `crosscheck/` | przypadki testowe puszczane przez wszystkie wersje silnika (`pikhost`) i porównywane z emulatorem (`gradlew :core:crosscheck`). Wyniki silników trzyma `engine-results.json`. |
 | `riwc_physics_trace_frida.js` | skrypt Fridy zrzucający przebieg fizyki z oryginalnej gry (por. `PhysicsTraceWriter`). |

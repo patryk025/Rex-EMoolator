@@ -95,3 +95,59 @@ jobs:
         with:
           name: test-results
           path: core/build/test-results/test/*.xml
+
+  # The original engines only run on Windows, so their results are recorded locally
+  # (tools/crosscheck) and committed; this job replays them against the interpreter.
+  # Report-only for now: mismatches show up in the summary, not as a red build.
+  engine-crosscheck:
+    name: Original engine crosscheck
+    runs-on: ubuntu-latest
+    if: |
+      github.event_name == 'pull_request' ||
+      github.event_name == 'push' && (
+        startsWith(github.event.head_commit.message, 'fix') ||
+        startsWith(github.event.head_commit.message, 'feat') ||
+        startsWith(github.event.head_commit.message, 'refactor') ||
+        startsWith(github.event.head_commit.message, 'perf') ||
+        startsWith(github.event.head_commit.message, 'test') ||
+        startsWith(github.ref, 'refs/tags/v')
+      )
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v5
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+          cache: gradle
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v5
+
+      - name: Make gradlew executable
+        run: chmod +x gradlew
+
+      - name: Check that the recorded results match the cases
+        run: python3 tools/crosscheck/crosscheck.py verify
+
+      - name: Replay recorded engine results
+        run: ./gradlew :core:crosscheck --no-daemon
+
+      - name: Publish summary
+        if: always()
+        run: |
+          if [ -f core/build/reports/crosscheck/summary.md ]; then
+            cat core/build/reports/crosscheck/summary.md >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+      - name: Upload crosscheck report
+        uses: actions/upload-artifact@v6
+        if: always()
+        with:
+          name: engine-crosscheck
+          path: |
+            core/build/reports/crosscheck/
+            core/build/test-results/crosscheck/*.xml

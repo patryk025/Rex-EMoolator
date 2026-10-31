@@ -1,0 +1,150 @@
+# $N parameters of a behaviour, which the engine substitutes as text before the
+# body is parsed: as a target, a method name, a value, inside quotes and glued to
+# other text. From core/tests/.../tests/ParamSubstitutionTest.java and
+# debug/scripttest/Wild_substitution.cnv.
+
+[defaults]
+tags = ["parameters"]
+read = ["VARNR", "RESULT"]
+cnv = '''
+OBJECT=VARNR
+VARNR:TYPE=INTEGER
+VARNR:VALUE=0
+
+OBJECT=VARNR2
+VARNR2:TYPE=INTEGER
+VARNR2:VALUE=77
+
+OBJECT=VARSRC
+VARSRC:TYPE=INTEGER
+VARSRC:VALUE=42
+
+OBJECT=RESULT
+RESULT:TYPE=STRING
+RESULT:VALUE=
+
+OBJECT=AS_TARGET
+AS_TARGET:TYPE=BEHAVIOUR
+AS_TARGET:CODE={$1^SET(5);}
+
+OBJECT=IN_TARGET_NAME
+IN_TARGET_NAME:TYPE=BEHAVIOUR
+IN_TARGET_NAME:CODE={VARN$1^SET(7);}
+
+OBJECT=AS_VALUE
+AS_VALUE:TYPE=BEHAVIOUR
+AS_VALUE:CODE={VARNR^SET($1);}
+
+OBJECT=IN_EXPRESSION
+IN_EXPRESSION:TYPE=BEHAVIOUR
+IN_EXPRESSION:CODE={VARNR^SET([$1+1]);}
+
+OBJECT=AS_STRING_VALUE
+AS_STRING_VALUE:TYPE=BEHAVIOUR
+AS_STRING_VALUE:CODE={RESULT^SET($1);}
+
+OBJECT=IN_QUOTES
+IN_QUOTES:TYPE=BEHAVIOUR
+IN_QUOTES:CODE={RESULT^SET("$1");}
+
+OBJECT=IN_QUOTES_PREFIXED
+IN_QUOTES_PREFIXED:TYPE=BEHAVIOUR
+IN_QUOTES_PREFIXED:CODE={RESULT^SET("PREFIX_$1");}
+
+OBJECT=AS_METHOD
+AS_METHOD:TYPE=BEHAVIOUR
+AS_METHOD:CODE={VARNR^$1(5);}
+
+OBJECT=TWO_DIGITS
+TWO_DIGITS:TYPE=BEHAVIOUR
+TWO_DIGITS:CODE={RESULT^SET("$10");}
+
+OBJECT=ZERO
+ZERO:TYPE=BEHAVIOUR
+ZERO:CODE={RESULT^SET("$0");}
+
+OBJECT=MISSING_CHILD
+MISSING_CHILD:TYPE=BEHAVIOUR
+MISSING_CHILD:CODE={RESULT^SET("$2");}
+
+OBJECT=MISSING_PARENT
+MISSING_PARENT:TYPE=BEHAVIOUR
+MISSING_PARENT:CODE={MISSING_CHILD^RUN();}
+
+OBJECT=IN_VALUE_NAME
+IN_VALUE_NAME:TYPE=BEHAVIOUR
+IN_VALUE_NAME:CODE={RESULT^SET(VARN$1);}
+
+OBJECT=SPACES
+SPACES:TYPE=BEHAVIOUR
+SPACES:CODE={RESULT^SET("A B C");}
+
+OBJECT=WILD
+WILD:TYPE=BEHAVIOUR
+WILD:CODE={$1^$2($3);}
+'''
+
+[[case]]
+id = "parameters.target"
+description = "$1 holding a variable name is the target of the call."
+steps = ['AS_TARGET^RUN("VARNR")']
+
+[[case]]
+id = "parameters.target-name-part"
+description = "VARN$1 with $1=R builds the name VARNR."
+steps = ['IN_TARGET_NAME^RUN("R")']
+
+[[case]]
+id = "parameters.value-naming-variable"
+description = "SET($1) with $1 naming a variable: its value or the name?"
+steps = ['AS_VALUE^RUN("VARSRC")', "AS_VALUE^RUN(VARSRC)", "AS_VALUE^RUN(9)"]
+
+[[case]]
+id = "parameters.value-in-expression"
+steps = ["IN_EXPRESSION^RUN(3)"]
+
+[[case]]
+id = "parameters.string-value"
+description = "STRING^SET($1) with a variable and a behaviour passed unquoted."
+steps = ["AS_STRING_VALUE^RUN(VARSRC)", "AS_STRING_VALUE^RUN(WILD)"]
+
+[[case]]
+id = "parameters.in-quotes"
+description = "Inside quotes $1 is still replaced, also next to other text."
+steps = ['IN_QUOTES^RUN("$COMMON/BOICHO.DTA")', "IN_QUOTES_PREFIXED^RUN(VARSRC)", "IN_QUOTES_PREFIXED^RUN(WILD)"]
+
+[[case]]
+id = "parameters.method-name"
+steps = ['AS_METHOD^RUN("SET")']
+
+[[case]]
+id = "parameters.selector-digits"
+description = "$10 is $1 followed by 0; $0 is no parameter."
+steps = ['TWO_DIGITS^RUN("A")', 'ZERO^RUN("A")']
+
+[[case]]
+id = "parameters.not-inherited"
+description = "A behaviour called without arguments does not see its caller's $2."
+steps = ['MISSING_PARENT^RUN("FIRST","LEAK")']
+
+[[case]]
+id = "parameters.value-name-part"
+description = "VARN$1 in a value position, with $1=R2, reads VARNR2."
+steps = ['IN_VALUE_NAME^RUN("R2")']
+
+[[case]]
+id = "parameters.spaces-in-quotes"
+description = "Spaces inside a quoted literal in behaviour code."
+steps = ["SPACES^RUN()"]
+
+[[case]]
+id = "parameters.wild"
+description = "$1^$2($3): target, method and argument all from parameters, with fewer arguments at the end."
+steps = [
+    'WILD^RUN("RESULT","ADD","TEST")',
+    'WILD^RUN("VARNR","ADD",1)',
+    'WILD^RUN("VARNR","INC")',
+    'WILD^RUN("VARNR","DEC")',
+    'WILD^RUN("VARNR","MUL",2)',
+    'WILD^RUN("VARNR","DIV",3)',
+]

@@ -1,0 +1,163 @@
+# Whole code blocks: expressions, @IF/@LOOP and BOOL, executed through BEHAVIOUR^RUN.
+
+[defaults]
+tags = ["behaviour"]
+read = ["A", "S", "F"]
+cnv = '''
+OBJECT=A
+A:TYPE=INTEGER
+A:VALUE=0
+
+OBJECT=S
+S:TYPE=STRING
+S:VALUE=
+
+OBJECT=F
+F:TYPE=BOOL
+F:VALUE=FALSE
+
+OBJECT=EXPR
+EXPR:TYPE=BEHAVIOUR
+EXPR:CODE={A^SET([7+3*2]);S^SET([A@2]);}
+
+OBJECT=CONCAT
+CONCAT:TYPE=BEHAVIOUR
+CONCAT:CODE={S^SET("X");S^ADD(A);A^SET([S+1]);}
+
+OBJECT=BODY
+BODY:TYPE=BEHAVIOUR
+BODY:CODE={A^ADD(1);S^ADD(_I_);}
+
+OBJECT=LOOP
+LOOP:TYPE=BEHAVIOUR
+LOOP:CODE={@LOOP("BODY",0,5,1);}
+
+OBJECT=LOOPSTEP
+LOOPSTEP:TYPE=BEHAVIOUR
+LOOPSTEP:CODE={@LOOP("BODY",2,5,2);}
+
+OBJECT=LOOPEMPTY
+LOOPEMPTY:TYPE=BEHAVIOUR
+LOOPEMPTY:CODE={@LOOP("BODY",3,0,1);}
+
+OBJECT=YES
+YES:TYPE=BEHAVIOUR
+YES:CODE={S^SET("YES");}
+
+OBJECT=NO
+NO:TYPE=BEHAVIOUR
+NO:CODE={S^SET("NO");}
+
+OBJECT=SIMPLE
+SIMPLE:TYPE=BEHAVIOUR
+SIMPLE:CODE={@IF(A,">",3,"YES","NO");}
+
+OBJECT=SIMPLEEQ
+SIMPLEEQ:TYPE=BEHAVIOUR
+SIMPLEEQ:CODE={@IF(A,"_",5,"YES","NO");}
+
+OBJECT=COMPOUND
+COMPOUND:TYPE=BEHAVIOUR
+COMPOUND:CODE={@IF("A>3&&A<9","YES","NO");}
+
+OBJECT=COMPOUNDEQ
+COMPOUNDEQ:TYPE=BEHAVIOUR
+COMPOUNDEQ:CODE={@IF("A'5","YES","NO");}
+
+OBJECT=UNQUOTED
+UNQUOTED:TYPE=BEHAVIOUR
+UNQUOTED:CODE={@IF(A,">",3,YES,NO);}
+
+OBJECT=FLIP
+FLIP:TYPE=BEHAVIOUR
+FLIP:CODE={F^SWITCH(TRUE,FALSE);}
+
+OBJECT=GT3
+GT3:TYPE=CONDITION
+GT3:OPERAND1=A
+GT3:OPERATOR=GREATER
+GT3:OPERAND2=3
+
+OBJECT=LT9
+LT9:TYPE=CONDITION
+LT9:OPERAND1=A
+LT9:OPERATOR=LESS
+LT9:OPERAND2=9
+
+OBJECT=BETWEEN
+BETWEEN:TYPE=COMPLEXCONDITION
+BETWEEN:CONDITION1=GT3
+BETWEEN:OPERATOR=AND
+BETWEEN:CONDITION2=LT9
+
+OBJECT=IFGT3
+IFGT3:TYPE=BEHAVIOUR
+IFGT3:CONDITION=GT3
+IFGT3:CODE={S^SET("GT3");}
+
+OBJECT=IFBETWEEN
+IFBETWEEN:TYPE=BEHAVIOUR
+IFBETWEEN:CONDITION=BETWEEN
+IFBETWEEN:CODE={S^SET("BETWEEN");}
+'''
+
+[[case]]
+id = "behaviour.expression.precedence"
+description = "Bracket expressions: is 7+3*2 left-to-right (20) or by precedence (13); '@' as division."
+steps = ["EXPR^RUN()"]
+
+[[case]]
+id = "behaviour.expression.chain"
+description = "Three operands. PIKLIB 6.1/7.1 split at the first operator and read the right side as a single operand, so [1+2+3] is 1+'2+3' = 3."
+read = ["A"]
+steps = ["A^SET([1+2+3])", "A^SET([2*3*4])", "A^SET([7*2+3])", "A^SET([10-3-2])", "A^SET([7+3*2+1])"]
+
+[[case]]
+id = "behaviour.expression.nested"
+description = "A bracketed operand on the right is resolved recursively in every version."
+read = ["A"]
+steps = ["A^SET([7+[3*2]])", "A^SET([2*[1+2]])"]
+
+[[case]]
+id = "behaviour.expression.nested-left"
+description = "A bracketed operand on the left: the old split finds the operator inside it."
+read = ["A"]
+steps = ["A^SET([[7+3]*2])"]
+
+[[case]]
+id = "behaviour.expression.string-int-mix"
+description = "Adding a number to a string and a string expression to an integer."
+steps = ["A^SET(4)", "CONCAT^RUN()"]
+
+[[case]]
+id = "behaviour.loop.range"
+description = "@LOOP(body, start, delta, step) runs _I_ over [start, start + delta)."
+steps = ["LOOP^RUN()", "S^SET(\"\")", "LOOPSTEP^RUN()", "S^SET(\"\")", "LOOPEMPTY^RUN()"]
+
+[[case]]
+id = "behaviour.if.simple"
+description = "@IF(value, comparator, value, true, false) with '_' as equality."
+steps = ["A^SET(5)", "SIMPLE^RUN()", "SIMPLEEQ^RUN()", "A^SET(3)", "SIMPLE^RUN()", "SIMPLEEQ^RUN()"]
+
+[[case]]
+id = "behaviour.if.compound"
+description = "@IF(condition string, true, false) with && and ''' as equality."
+steps = ["A^SET(5)", "COMPOUND^RUN()", "COMPOUNDEQ^RUN()", "A^SET(10)", "COMPOUND^RUN()", "COMPOUNDEQ^RUN()"]
+
+[[case]]
+id = "behaviour.if.unquoted-branches"
+description = "Behaviour names passed unquoted resolve as objects (seen to crash every engine)."
+steps = ["A^SET(5)", "UNQUOTED^RUN()"]
+
+[[case]]
+id = "behaviour.condition.runc"
+description = "CONDITION / COMPLEXCONDITION bound to a BEHAVIOUR: RUNC checks it, RUN does not. The only conditional PIKLIB 6.1 has (no @IF/@LOOP)."
+steps = [
+    "A^SET(5)", "IFGT3^RUNC()", "IFBETWEEN^RUNC()",
+    'S^SET("")', "A^SET(1)", "IFGT3^RUNC()", "IFBETWEEN^RUNC()", "IFGT3^RUN()",
+    'S^SET("")', "A^SET(10)", "IFBETWEEN^RUNC()", "IFGT3^RUNC()",
+]
+
+[[case]]
+id = "behaviour.bool.switch"
+steps = ["FLIP^RUN()", "FLIP^RUN()", 'F^SET("TRUE")', 'F^SET(0)', 'F^SET(1)', 'F^SET("ABC")']

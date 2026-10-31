@@ -1,0 +1,172 @@
+# [left op right] for every pair of STRING/INTEGER/DOUBLE/BOOL, on the four value
+# sets of core/tests/.../tests/ArithmeticTest.java (object L<set><type> on the left,
+# R<set><type> on the right). The result goes through STRING^SET, whose text still
+# tells the types apart; a bare [expression] line takes every engine down.
+#
+#   set   left S/I/D/B           right S/I/D/B
+#   1     Test 1 1.5 TRUE        Test  1  1.5     TRUE
+#   2     Test 1 1.5 TRUE        Test2 3  2.5     FALSE
+#   3     Test 1 1.5 TRUE        3     -3 -2.5    TRUE
+#   4     Zzz  1 6.5 FALSE       TEST3 -5 1.00001 FALSE
+
+[defaults]
+tags = ["arithmetic"]
+read = ["OUT"]
+each.set = [1, 2, 3, 4]
+each.left = ["S", "I", "D", "B"]
+each.right = ["S", "I", "D", "B"]
+cnv = '''
+OBJECT=L1S
+L1S:TYPE=STRING
+L1S:VALUE=Test
+
+OBJECT=L1I
+L1I:TYPE=INTEGER
+L1I:VALUE=1
+
+OBJECT=L1D
+L1D:TYPE=DOUBLE
+L1D:VALUE=1.5
+
+OBJECT=L1B
+L1B:TYPE=BOOL
+L1B:VALUE=TRUE
+
+OBJECT=R1S
+R1S:TYPE=STRING
+R1S:VALUE=Test
+
+OBJECT=R1I
+R1I:TYPE=INTEGER
+R1I:VALUE=1
+
+OBJECT=R1D
+R1D:TYPE=DOUBLE
+R1D:VALUE=1.5
+
+OBJECT=R1B
+R1B:TYPE=BOOL
+R1B:VALUE=TRUE
+
+OBJECT=L2S
+L2S:TYPE=STRING
+L2S:VALUE=Test
+
+OBJECT=L2I
+L2I:TYPE=INTEGER
+L2I:VALUE=1
+
+OBJECT=L2D
+L2D:TYPE=DOUBLE
+L2D:VALUE=1.5
+
+OBJECT=L2B
+L2B:TYPE=BOOL
+L2B:VALUE=TRUE
+
+OBJECT=R2S
+R2S:TYPE=STRING
+R2S:VALUE=Test2
+
+OBJECT=R2I
+R2I:TYPE=INTEGER
+R2I:VALUE=3
+
+OBJECT=R2D
+R2D:TYPE=DOUBLE
+R2D:VALUE=2.5
+
+OBJECT=R2B
+R2B:TYPE=BOOL
+R2B:VALUE=FALSE
+
+OBJECT=L3S
+L3S:TYPE=STRING
+L3S:VALUE=Test
+
+OBJECT=L3I
+L3I:TYPE=INTEGER
+L3I:VALUE=1
+
+OBJECT=L3D
+L3D:TYPE=DOUBLE
+L3D:VALUE=1.5
+
+OBJECT=L3B
+L3B:TYPE=BOOL
+L3B:VALUE=TRUE
+
+OBJECT=R3S
+R3S:TYPE=STRING
+R3S:VALUE=3
+
+OBJECT=R3I
+R3I:TYPE=INTEGER
+R3I:VALUE=-3
+
+OBJECT=R3D
+R3D:TYPE=DOUBLE
+R3D:VALUE=-2.5
+
+OBJECT=R3B
+R3B:TYPE=BOOL
+R3B:VALUE=TRUE
+
+OBJECT=L4S
+L4S:TYPE=STRING
+L4S:VALUE=Zzz
+
+OBJECT=L4I
+L4I:TYPE=INTEGER
+L4I:VALUE=1
+
+OBJECT=L4D
+L4D:TYPE=DOUBLE
+L4D:VALUE=6.5
+
+OBJECT=L4B
+L4B:TYPE=BOOL
+L4B:VALUE=FALSE
+
+OBJECT=R4S
+R4S:TYPE=STRING
+R4S:VALUE=TEST3
+
+OBJECT=R4I
+R4I:TYPE=INTEGER
+R4I:VALUE=-5
+
+OBJECT=R4D
+R4D:TYPE=DOUBLE
+R4D:VALUE=1.00001
+
+OBJECT=R4B
+R4B:TYPE=BOOL
+R4B:VALUE=FALSE
+
+OBJECT=OUT
+OUT:TYPE=STRING
+OUT:VALUE=
+'''
+
+[[case]]
+id = "arithmetic.add.set${set}.${left}"
+steps = ["OUT^SET([L${set}${left}+R${set}${right}])"]
+
+[[case]]
+id = "arithmetic.sub.set${set}.${left}"
+steps = ["OUT^SET([L${set}${left}-R${set}${right}])"]
+
+[[case]]
+id = "arithmetic.mul.set${set}.${left}"
+steps = ["OUT^SET([L${set}${left}*R${set}${right}])"]
+
+# Dividing by zero crashes some engines, so every pair is a case of its own.
+
+[[case]]
+id = "arithmetic.div.set${set}.${left}.${right}"
+steps = ["OUT^SET([L${set}${left}@R${set}${right}])"]
+
+[[case]]
+id = "arithmetic.mod.set${set}.${left}.${right}"
+steps = ["OUT^SET([L${set}${left}%R${set}${right}])"]

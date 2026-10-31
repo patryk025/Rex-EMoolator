@@ -1,0 +1,32 @@
+# MULTIARRAY, on its own as PIKLIB 7.2 cannot load a scene with one. The ARRMAPA forms.
+
+[defaults]
+tags = ["multiarray"]
+read = []
+cnv = '''
+OBJECT=M
+M:TYPE=MULTIARRAY
+M:DIMENSIONS=2
+
+OBJECT=M2
+M2:TYPE=MULTIARRAY
+M2:DIMENSIONS=2
+'''
+
+[[case]]
+id = "multiarray.set-and-get"
+description = "The ARRMAPA^SET(13,4,\"OBOZ\") and GET(x,y) forms."
+steps = ['M^SET(13,4,"OBOZ")', "M^GET(13,4)", "M^SET(0,0,5)", "M^GET(0,0)", "M^SET(0,0,2.5)", "M^GET(0,0)", "M^SET(1,2,TRUE)", "M^GET(1,2)"]
+
+[[case]]
+id = "multiarray.get.unset"
+description = "A cell never written, inside and outside the written area."
+steps = ['M^SET(2,2,"X")', "M^GET(1,1)", "M^GET(9,9)"]
+
+[[case]]
+id = "multiarray.safeget"
+steps = ['M^SET(1,1,"X")', "M^SAFEGET(1,1)", "M^SAFEGET(9,9)"]
+
+[[case]]
+id = "multiarray.save-and-load"
+steps = ['M^SET(1,1,"X")', "M^SET(0,1,5)", 'M^SAVE("M.MAT")', 'M2^LOAD("M.MAT")', "M2^GET(1,1)", "M2^GET(0,1)"]
