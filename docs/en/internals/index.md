@@ -4,17 +4,18 @@ This section describes **how the engine works under the hood** — as opposed to
 
 ## One frame in a nutshell
 
-Everything revolves around a single loop called once per frame. Four managers process it in a fixed order, and game state is advanced on a [fixed 60 Hz step](loop.md#fixed-timestep):
+Everything revolves around a single loop called once per host frame. Drawing happens every frame, and game state is advanced by [engine pulses](loop.md#host-frame-and-engine-pulse), which run at most 60 times per second. The diagram shows the order of Piklib 6.1–7.2; newer engines move the drawing step.
 
 ```mermaid
 flowchart LR
     subgraph Frame
       direction LR
-      I[Input] --> U[Update<br/>timers · animations<br/>collisions · audio]
+      P{Pulse?} -- yes --> I[Input]
+      I --> U[Managers<br/>timers · animations<br/>audio · collisions]
       U --> R[Render]
+      P -- no --> R
       R --> D[Debug]
     end
-    D --> SS[Canvas snapshot<br/>for CANVAS_OBSERVER]
 ```
 
 ## Chapters
@@ -33,7 +34,7 @@ flowchart LR
 
     ---
 
-    The fixed 60 Hz step, the time accumulator, the MVC model, and the monotonic engine clock. The foundation the rest of the section rests on.
+    Engine pulses, the coarse-resolution clock, the version-dependent phase order, and pausing and stepping. The foundation the rest of the section rests on.
 
     [:octicons-arrow-right-24: Read](loop.md)
 

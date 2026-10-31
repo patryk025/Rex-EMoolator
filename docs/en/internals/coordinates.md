@@ -93,9 +93,6 @@ The `SETANCHOR(name)` variant computes the anchor point from the **bounding box 
 
 The `SETANCHOR(x, y)` variant sets the anchor coordinates directly.
 
-!!! tip "Lower anchors can be tricky"
-    Anchors that reference the bottom edge (`LEFTLOWER`, `RIGHTLOWER`, `BOTTOM`) interact with the Y-axis flip in render space. In practice the most reliable and most commonly used are `CENTER` and `LEFTUPPER`; for the lower ones it's worth verifying the result visually.
-
 ## Mouse and buttons
 
 The cursor position ([`MOUSE`](../reference/MOUSE.md)) is reported in the same 800×600 top-left-origin space as object positions — which is why mouse coordinates can be passed straight to `SETPOSITION`. A button's clickable area ([`BUTTON`](../reference/BUTTON.md)) is defined by a `RECT` rectangle in the same space.

@@ -22,6 +22,9 @@ Aktualna wartość zmiennej.
 
 ## Metody
 
+!!! bug "Rozbieżność w emulatorze"
+    Opisy dotyczą silników od Pikliba 7.1. Crosstesty wykryły różnicę do sprawdzenia: metody oznaczone tu jako `void` w emulatorze zwracają nową wartość. Zobacz [Rozbieżności z oryginałem](../emulator/divergences.md).
+
 ### ADD
 
 ```
@@ -49,7 +52,7 @@ S_0^ADD($1);
 ### CHANGEAT
 
 ```
-STRING CHANGEAT(INTEGER index, STRING replacement)
+void CHANGEAT(INTEGER index, STRING replacement)
 ```
 
 Zastępuje pojedynczy znak na pozycji `index` ciągiem `replacement`. Jeżeli `replacement` ma długość różną od `1`, długość ciągu po operacji zmienia się odpowiednio. Wywołanie z `index` poza zakresem nie zmienia wartości zmiennej.
@@ -58,8 +61,6 @@ Zastępuje pojedynczy znak na pozycji `index` ciągiem `replacement`. Jeżeli `r
 
 - `index` — pozycja znaku do zastąpienia (numerowana od `0`).
 - `replacement` — ciąg, którym zostanie zastąpiony znak.
-
-**Zwraca**: nową wartość zmiennej (lub niezmienioną wartość, jeśli `index` był poza zakresem).
 
 **Przykłady**
 
@@ -97,7 +98,7 @@ S1^COPYFILE(S1, S2);
 ### CUT
 
 ```
-STRING CUT(INTEGER index, INTEGER length)
+void CUT(INTEGER index, INTEGER length)
 ```
 
 Zastępuje wartość zmiennej fragmentem bieżącego ciągu, zaczynającym się od pozycji `index` i o długości `length`. Jeżeli długość przekracza dostępną liczbę znaków, fragment kończy się na końcu ciągu. Jeżeli `index` jest poza zakresem, zmienna przyjmuje wartość pustego ciągu.
@@ -106,8 +107,6 @@ Zastępuje wartość zmiennej fragmentem bieżącego ciągu, zaczynającym się 
 
 - `index` — początkowa pozycja fragmentu (numerowana od `0`).
 - `length` — długość fragmentu.
-
-**Zwraca**: nową wartość zmiennej.
 
 **Przykłady**
 
@@ -195,19 +194,17 @@ VARSTEMP0^LENGTH();
 ### LOWER
 
 ```
-STRING LOWER()
+void LOWER()
 ```
 
 Zamienia wszystkie litery w bieżącej wartości zmiennej na małe.
-
-**Zwraca**: nową wartość zmiennej.
 
 **Kompatybilność:** `LOWER` - `PIKLIB61.DLL` ❌, `PIKLIB71.DLL` ❌, `PIKLIB72.DLL` ❌, `PIKLIB8.DLL` ❌, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ⚠️ (3/5).
 
 ### REPLACEAT
 
 ```
-STRING REPLACEAT(INTEGER index, INTEGER length, STRING replacement)
+void REPLACEAT(INTEGER index, INTEGER length, STRING replacement)
 ```
 
 Zastępuje fragment bieżącego ciągu o długości `length`, zaczynający się od pozycji `index`, ciągiem `replacement`. Jeżeli długość fragmentu przekracza dostępne znaki, podmieniana jest reszta ciągu. Wywołanie z `index` poza zakresem nie zmienia wartości zmiennej.
@@ -217,8 +214,6 @@ Zastępuje fragment bieżącego ciągu o długości `length`, zaczynający się 
 - `index` — początkowa pozycja podmienianego fragmentu (numerowana od `0`).
 - `length` — długość podmienianego fragmentu.
 - `replacement` — ciąg, który zostanie wstawiony w miejsce fragmentu.
-
-**Zwraca**: nową wartość zmiennej (lub niezmienioną wartość, jeśli `index` był poza zakresem).
 
 **Przykłady**
 
@@ -244,7 +239,7 @@ Przywraca wartość zmiennej do wartości resetu zdefiniowanej w atrybutach obie
 ### SET
 
 ```
-STRING SET(STRING value)
+void SET(STRING value)
 ```
 
 Ustawia wartość zmiennej.
@@ -252,8 +247,6 @@ Ustawia wartość zmiennej.
 **Parametry**
 
 - `value` — nowa wartość.
-
-**Zwraca**: nową wartość zmiennej.
 
 **Przykłady**
 
@@ -268,7 +261,7 @@ VARSTEMP0^SET($1);
 ### SUB
 
 ```
-STRING SUB(INTEGER index, INTEGER length)
+void SUB(INTEGER index, INTEGER length)
 ```
 
 Usuwa z bieżącej wartości zmiennej fragment o długości `length`, zaczynający się od pozycji `index`. Pozostałe fragmenty (przed i za usuwanym) są scalane. Wywołanie z `index` poza zakresem nie zmienia wartości zmiennej.
@@ -277,8 +270,6 @@ Usuwa z bieżącej wartości zmiennej fragment o długości `length`, zaczynają
 
 - `index` — początkowa pozycja usuwanego fragmentu (numerowana od `0`).
 - `length` — długość usuwanego fragmentu.
-
-**Zwraca**: nową wartość zmiennej (lub niezmienioną wartość, jeśli `index` był poza zakresem).
 
 **Przykłady**
 
@@ -292,12 +283,10 @@ VARSTEMP0^SUB(VARITEMP0, [VARSTEMP0^LENGTH()-VARITEMP0]);
 ### UPPER
 
 ```
-STRING UPPER()
+void UPPER()
 ```
 
 Zamienia wszystkie litery w bieżącej wartości zmiennej na wielkie.
-
-**Zwraca**: nową wartość zmiennej.
 
 **Przykłady**
 

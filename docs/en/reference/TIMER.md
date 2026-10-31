@@ -12,7 +12,7 @@ The variable's value is the number of ticks emitted so far.
 INTEGER ELAPSE
 ```
 
-Tick interval in milliseconds. For values of `0` or less the timer does not tick even when enabled.
+Tick interval in milliseconds. At `0` the timer ticks on every [engine pulse](../internals/loop.md#host-frame-and-engine-pulse), and for negative values it does not tick even when enabled.
 
 ### ENABLED
 

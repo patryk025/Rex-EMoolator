@@ -132,6 +132,9 @@ Calling another type-specific method (e.g. `GETCFRAMEINEVENT` on [`ANIMO`](../re
 
 ## Loops
 
+!!! note "Older engines"
+    Piklib 6.1 has no `@IF` or `@LOOP`: conditions there are written with [`CONDITION`](../reference/CONDITION.md) and [`COMPLEXCONDITION`](../reference/COMPLEXCONDITION.md) objects bound to a procedure run with [`RUNC`](../reference/BEHAVIOUR.md#runc). In Piklib 7.1, `@IF` works with a simple condition, a compound condition crashes the engine, and `@LOOP` did not run its body in the recorded tests.
+
 ### @LOOP
 
 ```
@@ -153,6 +156,9 @@ for (int _I_ = start; _I_ < start + delta; _I_ += increment) {
 ```
 
 Identical to `@LOOP`, except that the first argument selects a custom variable to act as the counter instead of the default `_I_`.
+
+!!! note "Emulator"
+    The emulator does not support `@FOR` yet.
 
 ### @WHILE
 
@@ -205,6 +211,15 @@ In a compound condition, the equals sign is written as an apostrophe (`'`) rathe
 | `>` | greater than |
 | `>'` | greater than or equal |
 
+Evaluation rules (Piklib 7.2, 8, and BlooMoo):
+
+- `&&` binds tighter than `||`,
+- evaluation short-circuits: a term that can no longer affect the result is not executed, along with any method calls in it,
+- arithmetic has to be wrapped in `[ ]`: the condition `[2+3*4]'20` is true and `2+3*4'20` is not, because text outside brackets is not computed.
+
+!!! bug "Difference in the emulator"
+    Crosstests detected a difference to check: the conditions `5!'5||8>'10&&1'1` and `5+5*2'20||1'2&&1'1` are true in the original and false in the emulator. The cause is not known yet, so the rules above may be incomplete. The emulator also requires every term to yield a [`BOOL`](../reference/BOOL.md).
+
 ## Dynamic variable creation
 
 Variables can be created on the fly inside a code block:
@@ -225,7 +240,18 @@ Inside loops and procedures, control flow can be redirected with:
 - `@CONTINUE()` — skips the remaining statements in the current loop iteration and moves to the next one.
 - `@BREAK()` — aborts the entire call tree started by the current signal or invocation.
 - `@ONEBREAK()` — aborts the current procedure only.
-- `@RETURN(mixed value)` — sets the value returned by the procedure but does not stop it from executing.
+- `@RETURN(mixed value)` — sets the value returned by the procedure but does not stop it from executing. A later `@RETURN` overwrites an earlier one, and [`RUN`](../reference/BEHAVIOUR.md#run) hands the result back as a `STRING`.
+
+!!! note "Emulator"
+    The emulator does not support `@CONTINUE` yet.
+
+## Other statements
+
+Library analysis also shows `@CONV`, `@CREATE`, `@GETAPPLICATIONNAME`, `@GETCURRENTSCENE`, `@MSGBOX`, `@RUNONTIMER`, and `@VALUE`.
+ Their behaviour in the original is not documented yet.
+
+!!! note "Emulator"
+    Of these, the emulator only supports `@CONV(mixed value, STRING type)`, which returns the value converted to `INT`, `DOUBLE`, `STRING`, or `BOOL`. The [method map](../reference/method-map.md) shows the current state.
 
 ## Script loading order
 
@@ -277,4 +303,4 @@ Within each file, variables are created and initialised in a fixed order by type
 4. Animations, images, sounds, and fonts.
 5. Buttons, text fields, sequences, mouse, keyboard, canvas observer.
 
-For each variable in this phase the `ONINIT` signal is fired. Once all variables are initialised, the engine calls the `__INIT__` procedure (applies to the BlooMoo) if one is defined.
+For each variable in this phase the `ONINIT` signal is fired. Once all variables are initialised, the engine calls the `__INIT__` procedure if one is defined (engines from Piklib 7.1 on).

@@ -4,17 +4,18 @@ Ten dział opisuje, **jak silnik działa pod spodem** — w odróżnieniu od dzi
 
 ## Jedna klatka w pigułce
 
-Wszystko kręci się wokół jednej pętli wywoływanej raz na klatkę. Cztery managery przetwarzają ją w stałej kolejności, a stan gry posuwany jest [stałym krokiem 60 Hz](loop.md#staly-krok-czasowy):
+Wszystko kręci się wokół jednej pętli wywoływanej raz na klatkę hosta. Rysowanie odbywa się w każdej klatce, a stan gry posuwają [pulsy silnika](loop.md#puls-silnika), wykonywane najwyżej 60 razy na sekundę. Diagram pokazuje kolejność z Pikliba 6.1–7.2; nowsze silniki przestawiają rysowanie.
 
 ```mermaid
 flowchart LR
     subgraph Klatka
       direction LR
-      I[Input] --> U[Update<br/>timery · animacje<br/>kolizje · dźwięk]
+      P{Puls?} -- tak --> I[Wejście]
+      I --> U[Managery<br/>timery · animacje<br/>dźwięk · kolizje]
       U --> R[Render]
+      P -- nie --> R
       R --> D[Debug]
     end
-    D --> SS[Zrzut kanwy<br/>dla CANVAS_OBSERVER]
 ```
 
 ## Rozdziały
@@ -33,7 +34,7 @@ flowchart LR
 
     ---
 
-    Stały krok 60 Hz, akumulator czasu, model MVC i monotoniczny zegar silnika. Fundament, na którym opiera się reszta działu.
+    Pulsy silnika, zegar o zgrubnej rozdzielczości, kolejność faz zależna od wersji oraz pauza i krokowanie. Fundament, na którym opiera się reszta działu.
 
     [:octicons-arrow-right-24: Czytaj](loop.md)
 

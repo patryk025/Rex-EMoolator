@@ -18,19 +18,20 @@ flowchart TD
     CTX --> INT[Interpreter v2<br/>variables · values · AST]
 ```
 
-The project splits into three Gradle modules:
+The project splits into four Gradle modules:
 
 | Module | Role |
 |---|---|
 | **core** | all emulator logic (Java 21) — interpreter, managers, loaders, VFS |
 | **desktop** | LWJGL3 launcher |
 | **android** | Android launcher (API 24+) |
+| **android-api-check** | a lint-only module that checks the `core` sources against API 24 |
 
 The engine layer (`engine/`) deliberately **does not depend** on concrete interpreter classes — it talks to the interpreter through the [`GameContext`](#contexts-and-hierarchy) interface and the `EngineVariable` type. This lets managers operate on game objects without knowing their internal representation.
 
 ## Bootstrap and the loop
 
-`BlooMooEngine` (a LibGDX `ApplicationAdapter`) sets up a `SpriteBatch`, an orthographic camera, and an 800×600 [viewport](rendering.md) in `create()`, then creates `Game` and the four managers. Every frame is one pass of `render()`: **Input → Update → Render → Debug**, with game state advanced on a [fixed 60 Hz step](loop.md).
+`BlooMooEngine` (a LibGDX `ApplicationAdapter`) sets up a `SpriteBatch`, an orthographic camera, and an 800×600 [viewport](rendering.md) in `create()`, then creates `Game` and the four managers. Every frame is one pass of `render()`, and game state is advanced by [engine pulses](loop.md#host-frame-and-engine-pulse), run in an order that depends on the engine version.
 
 The frame rhythm is detailed in [Game loop and engine clock](loop.md).
 
@@ -43,9 +44,9 @@ The `Game` class ties together everything that makes up a running game. It is th
 - :material-folder-network: **Assets** — the [VFS](#vfs-virtual-filesystem) instance and the current data directory (`DANE`).
 - :material-file-tree: **Contexts** — the `definitionContext` (root) and the current Application / Episode / Scene contexts.
 - :material-map-marker-path: **Scene state** — the current episode and scene, the `APPLICATION`/`EPISODE`/`SCENE` variables, background, language (`POL` by default).
-- :material-clock-outline: **Clock** — the monotonic [engine clock](loop.md#engine-clock) (`engineTimeMsAccum`).
+- :material-clock-outline: **Clock** — the monotonic [engine clock](loop.md#engine-clock) (`LegacyClock`).
 - :material-vector-intersection: **Collisions** — the `QuadTree` (800×600), the set of monitored objects, and the collision map.
-- :material-music: **Audio and canvas** — the music cache, [pasted graphics](rendering.md), and the last-frame snapshot for `CANVAS_OBSERVER`.
+- :material-music: **Audio and canvas** — the music cache, [pasted graphics](rendering.md), and canvas readback for `CANVAS_OBSERVER`.
 
 </div>
 
@@ -60,7 +61,7 @@ Frame logic is split across managers with clear responsibilities (a pattern clos
 | `RenderManager` | drawing the scene (see [Rendering](rendering.md)) |
 | `DebugManager` | diagnostic overlay |
 
-`UpdateManager` splits each step's work across four sub-managers: **Timer**, **Animation**, **Collision**, **Audio** — run in that order after the [clock](loop.md#engine-clock) advances.
+`UpdateManager` splits each [pulse's](loop.md#host-frame-and-engine-pulse) work across four sub-managers: **Timer**, **Animation**, **Audio**, **Collision** — run in that order.
 
 ## Contexts and hierarchy
 
@@ -165,7 +166,7 @@ flowchart LR
     E --> F["ONINIT by type order"]
 ```
 
-Loading starts from `Application.def` in the `DANE` directory, then loads the `.CNV` files for the application, the first episode, and the first scene. The full order (and the `ONINIT` / `__ONINIT__` initialisation phases) is described in [Scripts → Loading order](../engine/scripts.md#script-loading-order).
+Loading starts from `Application.def` in the `DANE` directory, then loads the `.CNV` files for the application, the first episode, and the first scene. The full order (and the `ONINIT` / `__INIT__` initialisation phases) is described in [Scripts → Loading order](../engine/scripts.md#script-loading-order).
 
 !!! note "GameLoader is currently an empty stub"
     Despite its name, the loading logic lives in `Game` (`scanGameDirectory`, `CNVParser`), not in the `loader/GameLoader` class. That's a spot for a future refactor, not a separate subsystem.

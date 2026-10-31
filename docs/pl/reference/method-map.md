@@ -13,4 +13,4 @@ Każdy kwadrat to jedna metoda skryptowa w obrębie typu. Kolor mówi, czy emula
     - Wskaźnik karty to rejestracje bez flagi stubu / rozpoznane metody, liczony dla całej grupy także po filtrowaniu. To nie procent zgodności. Karta „Brak danych” nie oznacza 0%.
     - Pominięto pomocniczy typ emulatora `INSTANCE`.
 
-Mapę odświeża ręcznie `tools/render_method_map.py` z eksportu Atlasu analizatora DLL (opis w repozytorium: `tools/method-map.md`). Data i rewizja emulatora są nad legendą.
+Mapę odświeża ręcznie zewnętrzny analizator DLL, którego nie ma w tym repozytorium. Data i rewizja emulatora są nad legendą.

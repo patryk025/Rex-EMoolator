@@ -22,6 +22,9 @@ The current value of the variable.
 
 ## Methods
 
+!!! bug "Difference in the emulator"
+    The descriptions apply to engines from Piklib 7.1 on. Crosstests detected a difference to check: the methods marked `void` here return the new value in the emulator. See [Differences from the original](../emulator/divergences.md).
+
 ### ADD
 
 ```
@@ -49,7 +52,7 @@ S_0^ADD($1);
 ### CHANGEAT
 
 ```
-STRING CHANGEAT(INTEGER index, STRING replacement)
+void CHANGEAT(INTEGER index, STRING replacement)
 ```
 
 Replaces the single character at position `index` with the `replacement` string. If `replacement` is not exactly one character long, the resulting string length changes accordingly. Calling with an `index` outside the string's range leaves the variable unchanged.
@@ -58,8 +61,6 @@ Replaces the single character at position `index` with the `replacement` string.
 
 - `index` — position of the character to replace (`0`-based).
 - `replacement` — the string to insert in place of the character.
-
-**Returns**: the new value of the variable (or the unchanged value if `index` was out of range).
 
 **Examples**
 
@@ -97,7 +98,7 @@ S1^COPYFILE(S1, S2);
 ### CUT
 
 ```
-STRING CUT(INTEGER index, INTEGER length)
+void CUT(INTEGER index, INTEGER length)
 ```
 
 Replaces the variable's value with a substring of the current value, starting at position `index` and of `length` characters. If the requested length exceeds the available characters, the substring stops at the end of the string. If `index` is out of range, the variable becomes an empty string.
@@ -106,8 +107,6 @@ Replaces the variable's value with a substring of the current value, starting at
 
 - `index` — starting position of the substring (`0`-based).
 - `length` — length of the substring.
-
-**Returns**: the new value of the variable.
 
 **Examples**
 
@@ -195,19 +194,17 @@ VARSTEMP0^LENGTH();
 ### LOWER
 
 ```
-STRING LOWER()
+void LOWER()
 ```
 
 Converts all letters in the variable's current value to lowercase.
-
-**Returns**: the new value of the variable.
 
 **Compatibility:** `LOWER` - `PIKLIB61.DLL` ❌, `PIKLIB71.DLL` ❌, `PIKLIB72.DLL` ❌, `PIKLIB8.DLL` ❌, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ⚠️ (3/5).
 
 ### REPLACEAT
 
 ```
-STRING REPLACEAT(INTEGER index, INTEGER length, STRING replacement)
+void REPLACEAT(INTEGER index, INTEGER length, STRING replacement)
 ```
 
 Replaces a fragment of the current string of `length` characters, starting at position `index`, with the `replacement` string. If the requested length exceeds the available characters, the rest of the string is replaced. Calling with an `index` outside the string's range leaves the variable unchanged.
@@ -217,8 +214,6 @@ Replaces a fragment of the current string of `length` characters, starting at po
 - `index` — starting position of the replaced fragment (`0`-based).
 - `length` — length of the replaced fragment.
 - `replacement` — the string that will replace the fragment.
-
-**Returns**: the new value of the variable (or the unchanged value if `index` was out of range).
 
 **Examples**
 
@@ -244,7 +239,7 @@ Resets the variable's value to the reset value defined in the object's script at
 ### SET
 
 ```
-STRING SET(STRING value)
+void SET(STRING value)
 ```
 
 Sets the variable's value.
@@ -252,8 +247,6 @@ Sets the variable's value.
 **Parameters**
 
 - `value` — the new value.
-
-**Returns**: the new value of the variable.
 
 **Examples**
 
@@ -268,7 +261,7 @@ VARSTEMP0^SET($1);
 ### SUB
 
 ```
-STRING SUB(INTEGER index, INTEGER length)
+void SUB(INTEGER index, INTEGER length)
 ```
 
 Removes from the variable's current value a fragment of `length` characters, starting at position `index`. The remaining parts (before and after the removed fragment) are concatenated. Calling with an `index` outside the string's range leaves the variable unchanged.
@@ -277,8 +270,6 @@ Removes from the variable's current value a fragment of `length` characters, sta
 
 - `index` — starting position of the removed fragment (`0`-based).
 - `length` — length of the removed fragment.
-
-**Returns**: the new value of the variable (or the unchanged value if `index` was out of range).
 
 **Examples**
 
@@ -292,12 +283,10 @@ VARSTEMP0^SUB(VARITEMP0, [VARSTEMP0^LENGTH()-VARITEMP0]);
 ### UPPER
 
 ```
-STRING UPPER()
+void UPPER()
 ```
 
 Converts all letters in the variable's current value to uppercase.
-
-**Returns**: the new value of the variable.
 
 **Examples**
 

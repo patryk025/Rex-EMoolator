@@ -12,7 +12,7 @@ Wartość zmiennej (`value`) typu `TIMER` to liczba dotychczas wykonanych tykni�
 INTEGER ELAPSE
 ```
 
-Długość cyklu timera w milisekundach. Dla wartości `0` lub mniejszej timer nie tyka, nawet jeżeli jest włączony.
+Długość cyklu timera w milisekundach. Przy `0` timer tyka w każdym [pulsie silnika](../internals/loop.md#puls-silnika), a dla wartości ujemnych nie tyka, nawet jeżeli jest włączony.
 
 ### ENABLED
 

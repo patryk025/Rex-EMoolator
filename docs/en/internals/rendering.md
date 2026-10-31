@@ -3,32 +3,34 @@
 The engine redraws the entire scene **from scratch every frame** (immediate mode). There is no notion of a persistent "object on screen" that the engine moves around — instead, every frame it walks the list of graphical objects, sorts them, and draws them one by one onto a cleared buffer. This chapter describes the full rendering pipeline in Rex-EMoolator and how it differed from the original engine.
 
 !!! info "Where this happens"
-    Rendering is the third step of the [frame loop](loop.md) — after input processing and game-state update. All the logic lives in `RenderManager` and the helper classes `GraphicsRenderer`, `TextRenderer`, `MaskRenderer`, and `AlphaMaskRenderer`.
+    Rendering happens every frame, and its place relative to input and managers [depends on the engine version](loop.md#phase-order). All the logic lives in `RenderManager` and the helper classes `GraphicsRenderer`, `TextRenderer`, `MaskRenderer`, and `AlphaMaskRenderer`.
 
 ## A single frame's pipeline
 
-`RenderManager.render()` always performs the same steps in the same order:
+`RenderManager.render()` draws the scene onto the **logical canvas**, a fixed 800×600 `FrameBuffer`, and then moves the finished image to the screen. The steps are always the same:
 
 ```mermaid
 flowchart TD
-    A([batch.begin]) --> B[Scene background<br/>renderBackground]
+    A([canvas buffer]) --> B[Scene background<br/>renderBackground]
     B --> C[Graphics pasted onto background<br/>CANVAS_OBSERVER.PASTE]
-    C --> D[Get the list of<br/>scene graphics objects]
+    C --> D[Get the list of scene<br/>graphics and text]
     D --> E[Sort by PRIORITY,<br/>tiebreak: insertion order]
-    E --> F[Draw IMAGE and ANIMO]
-    F --> G[Draw TEXT]
-    G --> H([batch.end])
+    E --> F[Draw objects<br/>in sorted order]
+    F --> G[Optional code hint]
+    G --> H([move the canvas to the screen])
 ```
 
 The order matters — together with priorities, it decides what ends up "on top":
 
 1. **Scene background** — a single background image for the current scene, drawn first (deepest).
 2. **Pasted graphics** — bitmaps "burned" onto the background via [`CANVAS_OBSERVER^PASTE`](../reference/CANVAS_OBSERVER.md). They become part of the background layer and are no longer sorted.
-3. **Graphics objects** — all visible [`IMAGE`](../reference/IMAGE.md) and [`ANIMO`](../reference/ANIMO.md) of the scene, sorted (see below).
-4. **Text** — [`TEXT`](../reference/TEXT.md) objects, drawn last, always above graphics.
+3. **Scene objects** — visible [`IMAGE`](../reference/IMAGE.md), [`ANIMO`](../reference/ANIMO.md), `KOLOROWANKA`, and [`TEXT`](../reference/TEXT.md), sorted together (see below). Text has no separate layer, so an object with a higher priority can cover it.
+4. **Code hint** — an optional overlay with Mr Policeman's code, enabled in the [game settings](../emulator/index.md#game-settings).
 
 !!! note "Blend mode"
     Standard alpha blending (`GL_SRC_ALPHA`, `GL_ONE_MINUS_SRC_ALPHA`) is set before drawing. Rendering of [alpha masks](#alpha-masks) temporarily changes this function and restores it afterwards.
+
+The finished canvas reaches the screen through a viewport fitted to the window, with blending off. [`CANVAS_OBSERVER`](../reference/CANVAS_OBSERVER.md) reads the same buffer on demand (`captureLogicalCanvas`).
 
 ## Coordinate system and Y-axis flip
 
@@ -36,13 +38,13 @@ This is the most common source of confusion when reading the renderer code, so i
 
 The Piklib/BlooMoo engine works on a **fixed 800×600 px virtual canvas** with the origin in the **top-left corner** — the Y axis grows downward, as in most 2D APIs of that era. LibGDX (and OpenGL underneath) uses an orthographic camera with the origin in the **bottom-left corner** — the Y axis grows upward.
 
-That's why every vertical coordinate is flipped when drawing:
+Game state and the script API always use canvas coordinates, and the conversion to OpenGL coordinates happens in one place, the `CanvasCoordinateSystem` class, right before drawing:
 
 ```java
 screenY = 600 - top - height   // (1)
 ```
 
-1. `600` is the fixed canvas height (`VIRTUAL_HEIGHT`), `top` is the object's top edge in engine coordinates, and `height` is the bitmap height. The result is the position of the sprite's **bottom-left** corner in LibGDX coordinates.
+1. `600` is the fixed canvas height (`CanvasCoordinateSystem.HEIGHT`), `top` is the object's top edge in engine coordinates, and `height` is the bitmap height. The result is the position of the sprite's **bottom-left** corner in LibGDX coordinates.
 
 === "Engine space (scripts)"
 
@@ -90,7 +92,7 @@ screenY = 600 - top - height   // (1)
 
 ## Priorities and draw order
 
-Graphics objects are sorted before drawing by two keys:
+Graphics and text are sorted before drawing by two keys:
 
 | Key | Field | Behaviour |
 |---|---|---|

@@ -17,6 +17,18 @@ Zagnieżdżanie wyrażeń odbywa się przez kolejne pary nawiasów kwadratowych:
 [[VAL1+VAL2]*VAL3]
 ```
 
+## Kolejność działań {#kolejnosc-dzialan}
+
+Operatory nie mają priorytetów: wyrażenie liczone jest ściśle od lewej do prawej, a zmienić to można wyłącznie nawiasami kwadratowymi.
+
+```
+[7+3*2]    →  20   # (7+3)*2
+[7+[3*2]]  →  13
+```
+
+!!! warning "Piklib 6.1 i 7.1"
+    Te silniki obsługują w wyrażeniu tylko jeden operator: tekst dzielony jest na pierwszym znaku operatora, a prawa strona traktowana jest jako jeden operand. Dlatego `[7+3*2]` daje `10`, a `[1+2+3]` daje `3`. Nawias po prawej stronie działa (`[7+[3*2]]` to `13`), a nawias po lewej (`[[7+3]*2]`) wywala silnik.
+
 ## Reguła typowania {#regula-typowania}
 
 Wszystkie operacje binarne w wyrażeniach kierują się jedną zasadą:
@@ -68,7 +80,7 @@ W ramach reguły typowania prawy operand jest rzutowany według poniższych zasa
 
 | Cel | Reguła |
 |---|---|
-| [`STRING`](../reference/STRING.md) | Zapis dziesiętny z kropką i pięcioma miejscami po przecinku. Dla wartości równych `0.0` część po przecinku jest pomijana. |
+| [`STRING`](../reference/STRING.md) | Zapis dziesiętny z kropką i pięcioma miejscami po przecinku; szczegóły zależą od silnika (tabela niżej). |
 | [`INTEGER`](../reference/INTEGER.md) | BlooMoo od „Reksia i Kapitana Nemo”: zaokrąglenie do najbliższej liczby całkowitej; przy `.5` w górę dla liczb dodatnich i w dół dla ujemnych. Piklib oraz BlooMoo z „Reksia i Wehikułu Czasu”: obcięcie części ułamkowej ([szczegóły](quirks.md#double-integer-zalezy-od-wersji-silnika)). |
 | [`BOOL`](../reference/BOOL.md) | Pośrednie: najpierw rzutowanie do `INTEGER` (z powyższym zaokrągleniem), potem do `BOOL`. Wartości z przedziału `(-0.5, 0.5)` dają `FALSE`, pozostałe `TRUE`. |
 
@@ -79,6 +91,16 @@ W ramach reguły typowania prawy operand jest rzutowany według poniższych zasa
 1.00001  →  "1.00001",   1,    TRUE
 -0.5     →  "-0.50000", -1,    TRUE
 ```
+
+Przykłady dotyczą BlooMoo od „Reksia i Kapitana Nemo”. Zapis tekstowy wygląda inaczej w starszych silnikach:
+
+| Silnik | `3.25` | `0.0` | `-0.5` |
+|---|---|---|---|
+| BlooMoo od „Reksia i Kapitana Nemo” | `3.25000` | `0` | `-0.50000` |
+| Piklib 7.2 i 8, BlooMoo z „Reksia i Wehikułu Czasu” | `3.25000` | `00000` | `0.-50000` |
+| Piklib 7.1 | `3.25` | `00` | `-50` |
+
+W Piklibie 6.1 każda wartość `DOUBLE` odczytana z tekstu to `0`, a zapis liczby to surowe cyfry bez kropki (`2` → `200`).
 
 ### Z `BOOL`
 
@@ -136,7 +158,7 @@ W wyrażeniach dostępne są następujące operatory binarne:
 | [`DOUBLE`](../reference/DOUBLE.md) | Iloraz zmiennoprzecinkowy. |
 | [`BOOL`](../reference/BOOL.md) | Brak efektu; wynikiem jest lewy operand. |
 
-Dzielenie przez `0` w typach liczbowych powoduje błąd silnika.
+Dzielenie przez `0` zależy od typu lewego operandu: `INTEGER` wywala silnik, `DOUBLE` daje nieskończoność (`1.#INF0`), a `STRING` i `BOOL` zostają bez zmian. Zerem może być też dzielnik po rzutowaniu, np. tekst niebędący liczbą.
 
 ### Reszta z dzielenia (`%`)
 
@@ -147,15 +169,20 @@ Dzielenie przez `0` w typach liczbowych powoduje błąd silnika.
 | [`DOUBLE`](../reference/DOUBLE.md) | Reszta z dzielenia obcięta do liczby całkowitej, a następnie rzutowana z powrotem do `DOUBLE`. Skutkuje to utratą części ułamkowej, np. `1.5 % 2` daje `1.00000`, nie `1.50000`. |
 | [`BOOL`](../reference/BOOL.md) | Brak efektu; wynikiem jest lewy operand. |
 
-Modulo z drugim operandem równym `0` powoduje błąd silnika.
+Reszta z dzielenia przez `0` wywala silnik dla `INTEGER` i `DOUBLE`, a `STRING` i `BOOL` zostają bez zmian.
+
+!!! bug "Rozbieżność w emulatorze"
+    Crosstesty wykryły różnicę do sprawdzenia: w emulatorze `@` i `%` przez `0` zawsze dają tekst `NULL`. Zobacz [Rozbieżności z oryginałem](../emulator/divergences.md).
 
 ## Operatory porównań
 
-W wyrażeniach dostępne są standardowe operatory porównań: `==`, `!=`, `<`, `<=`, `>`, `>=`. Prawy operand jest najpierw rzutowany na typ lewego (zgodnie z [regułą typowania](#regula-typowania)), a następnie porównywany.
+Wyrażenia w `[ ]` znają tylko pięć operatorów arytmetycznych. Porównania są częścią warunków: [`@IF`](scripts.md#instrukcja-warunkowa), [`@WHILE`](scripts.md#while) oraz obiektów [`CONDITION`](../reference/CONDITION.md) i [`COMPLEXCONDITION`](../reference/COMPLEXCONDITION.md), a ich zapis opisuje rozdział [Skrypty](scripts.md#instrukcja-warunkowa).
+
+Prawy operand jest najpierw rzutowany na typ lewego (zgodnie z [regułą typowania](#regula-typowania)), a następnie porównywany.
 
 ### Równość i nierówność
 
-`==` zwraca `TRUE`, jeżeli oba operandy (po rzutowaniu) są równe; `!=` zwraca przeciwieństwo. Dla typu [`STRING`](../reference/STRING.md) porównanie odbywa się znak po znaku, dla typów liczbowych — wartościami.
+Równość zachodzi, jeżeli oba operandy (po rzutowaniu) są równe, a nierówność jest jej przeciwieństwem. Dla typu [`STRING`](../reference/STRING.md) porównanie odbywa się znak po znaku, dla typów liczbowych — wartościami.
 
 ### Porównania mniejsze / większe
 
@@ -166,15 +193,13 @@ W wyrażeniach dostępne są standardowe operatory porównań: `==`, `!=`, `<`, 
 | [`DOUBLE`](../reference/DOUBLE.md) | Wartość liczbowa lewego operandu jest mniejsza. |
 | [`BOOL`](../reference/BOOL.md) | Lewy operand to `FALSE`, a prawy `TRUE` (`FALSE < TRUE`). |
 
-`>` zwraca `TRUE` w sytuacjach przeciwnych. Operatory `<=` oraz `>=` są równoważne odpowiednio `<` lub `==` oraz `>` lub `==`.
+`>` zwraca `TRUE` w sytuacjach przeciwnych. „Mniejsze lub równe” oraz „większe lub równe” są równoważne odpowiednio `<` lub równości oraz `>` lub równości.
 
 ## Operatory logiczne
 
-Operatory `&&` (koniunkcja) i `||` (alternatywa) przyjmują wyłącznie operandy typu [`BOOL`](../reference/BOOL.md). Podanie operandu innego typu (nawet jeżeli mógłby zostać rzutowany) powoduje błąd silnika.
+Operatory `&&` (koniunkcja) i `||` (alternatywa) nie należą do wyrażeń arytmetycznych. Występują tylko w [warunku złożonym instrukcji `@IF`](scripts.md#warunek-zlozony), jako część ciągu warunku.
 
 | Operator | Wynik |
 |---|---|
-| `&&` | `TRUE` tylko jeżeli oba operandy są `TRUE`. |
-| `||` | `TRUE` jeżeli przynajmniej jeden z operandów jest `TRUE`. |
-
-W [warunku złożonym instrukcji `@IF`](scripts.md#warunek-zlozony) operatory `&&` i `||` zachowują się tak samo, ale zapisywane są jako część ciągu warunku, nie jako operatory wyrażenia arytmetycznego.
+| `&&` | `TRUE` tylko jeżeli oba człony są prawdziwe. |
+| `||` | `TRUE` jeżeli przynajmniej jeden z członów jest prawdziwy. |

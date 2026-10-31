@@ -22,6 +22,9 @@ The current value of the variable. Accepted notations include standard decimal (
 
 ## Methods
 
+!!! bug "Difference in the emulator"
+    The descriptions apply to engines from Piklib 7.1 on. Crosstests detected a difference to check: the methods marked `void` here return the new value in the emulator. See [Differences from the original](../emulator/divergences.md).
+
 ### ABS
 
 ```
@@ -190,16 +193,14 @@ Decrements the variable's value by `1.0`.
 ### DIV
 
 ```
-DOUBLE DIV(DOUBLE divisor)
+void DIV(DOUBLE divisor)
 ```
 
-Divides the variable's current value by the argument, stores the result, and returns it. Division by zero leaves the variable unchanged.
+Divides the variable's current value by the argument and stores the result. Division by zero stores infinity (`1.#INF0`).
 
 **Parameters**
 
 - `divisor` — the divisor.
-
-**Returns**: the new value of the variable (or the unchanged value if `divisor` was `0.0`).
 
 **Examples**
 
@@ -321,32 +322,28 @@ VARDPOWER^MINA(VARDPOWER, 9.0);
 ### MOD
 
 ```
-DOUBLE MOD(DOUBLE divisor)
+void MOD(DOUBLE divisor)
 ```
 
-Computes the remainder of dividing the variable's current value by the argument, truncates the fractional part to an integer, stores it, and returns it. Division by zero leaves the variable unchanged.
+Computes the remainder of dividing the variable's current value by the argument, truncates the fractional part to an integer, and stores it. Behaviour with a `0` divisor has not been checked in the original for this method; the `%` operator crashes the engine in that case.
 
 **Parameters**
 
 - `divisor` — the divisor.
-
-**Returns**: the new value of the variable (or the unchanged value if `divisor` was `0.0`).
 
 **Compatibility:** `MOD` - `PIKLIB61.DLL` ⚠️ (3/4), `PIKLIB71.DLL` ✅, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
 
 ### MUL
 
 ```
-DOUBLE MUL(DOUBLE multiplier)
+void MUL(DOUBLE multiplier)
 ```
 
-Multiplies the variable's current value by the argument, stores the result, and returns it.
+Multiplies the variable's current value by the argument and stores the result.
 
 **Parameters**
 
 - `multiplier` — the multiplier.
-
-**Returns**: the new value of the variable.
 
 **Examples**
 
@@ -373,7 +370,7 @@ Resets the variable's value to the reset value defined in the object's script at
 ### SET
 
 ```
-DOUBLE SET(DOUBLE value)
+void SET(DOUBLE value)
 ```
 
 Sets the variable's value.
@@ -381,8 +378,6 @@ Sets the variable's value.
 **Parameters**
 
 - `value` — the new value.
-
-**Returns**: the new value of the variable.
 
 **Examples**
 
@@ -458,16 +453,14 @@ VARDODLEGLOSC^SQRT(VARDODLEGLOSC);
 ### SUB
 
 ```
-DOUBLE SUB(DOUBLE subtrahend)
+void SUB(DOUBLE subtrahend)
 ```
 
-Subtracts the argument from the variable's current value, stores the result, and returns it.
+Subtracts the argument from the variable's current value and stores the result.
 
 **Parameters**
 
 - `subtrahend` — the value to subtract.
-
-**Returns**: the new value of the variable.
 
 **Examples**
 

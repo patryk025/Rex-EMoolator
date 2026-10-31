@@ -18,19 +18,20 @@ flowchart TD
     CTX --> INT[Interpreter v2<br/>zmienne · wartości · AST]
 ```
 
-Projekt dzieli się na trzy moduły Gradle:
+Projekt dzieli się na cztery moduły Gradle:
 
 | Moduł | Rola |
 |---|---|
 | **core** | cała logika emulatora (Java 21) — interpreter, managery, loadery, VFS |
 | **desktop** | launcher na LWJGL3 |
 | **android** | launcher na Androida (API 24+) |
+| **android-api-check** | moduł wyłącznie dla linta: sprawdza źródła `core` pod kątem API 24 |
 
 Warstwa silnika (`engine/`) celowo **nie zależy** od konkretnych klas interpretera — rozmawia z nim przez interfejs [`GameContext`](#konteksty-i-hierarchia) i typ `EngineVariable`. Dzięki temu managery operują na obiektach gry, nie znając ich wewnętrznej reprezentacji.
 
 ## Bootstrap i pętla
 
-`BlooMooEngine` (klasa `ApplicationAdapter` LibGDX) w `create()` stawia `SpriteBatch`, kamerę ortograficzną i [viewport](rendering.md) 800×600, po czym tworzy `Game` oraz cztery managery. Każda klatka to przejście `render()`: **Input → Update → Render → Debug**, ze stanem gry posuwanym [stałym krokiem 60 Hz](loop.md).
+`BlooMooEngine` (klasa `ApplicationAdapter` LibGDX) w `create()` stawia `SpriteBatch`, kamerę ortograficzną i [viewport](rendering.md) 800×600, po czym tworzy `Game` oraz cztery managery. Każda klatka to przejście `render()`, a stan gry posuwają [pulsy silnika](loop.md#puls-silnika), wykonywane w kolejności zależnej od wersji silnika.
 
 Szczegóły rytmu klatki opisuje [Pętla i zegar silnika](loop.md).
 
@@ -43,9 +44,9 @@ Klasa `Game` spina wszystko, co składa się na działającą grę. To ona jest 
 - :material-folder-network: **Zasoby** — instancja [VFS](#vfs-wirtualny-system-plikow) i bieżący katalog danych (`DANE`).
 - :material-file-tree: **Konteksty** — `definitionContext` (root) oraz bieżące konteksty Application / Episode / Scene.
 - :material-map-marker-path: **Stan sceny** — aktualny epizod i scena, zmienne `APPLICATION`/`EPISODE`/`SCENE`, tło, język (`POL` domyślnie).
-- :material-clock-outline: **Zegar** — monotoniczny [zegar silnika](loop.md#zegar-silnika) (`engineTimeMsAccum`).
+- :material-clock-outline: **Zegar** — monotoniczny [zegar silnika](loop.md#zegar-silnika) (`LegacyClock`).
 - :material-vector-intersection: **Kolizje** — `QuadTree` (800×600), zbiór monitorowanych obiektów i mapa kolizji.
-- :material-music: **Audio i kanwa** — cache muzyki, [grafiki wklejone](rendering.md), zrzut ostatniej klatki dla `CANVAS_OBSERVER`.
+- :material-music: **Audio i kanwa** — cache muzyki, [grafiki wklejone](rendering.md), odczyt kanwy dla `CANVAS_OBSERVER`.
 
 </div>
 
@@ -60,7 +61,7 @@ Logika klatki rozdzielona jest na managery o jasnych odpowiedzialnościach (wzor
 | `RenderManager` | rysowanie sceny (patrz [Renderowanie](rendering.md)) |
 | `DebugManager` | nakładka diagnostyczna |
 
-`UpdateManager` dzieli pracę kroku na cztery pod-managery: **Timer**, **Animation**, **Collision**, **Audio** — wykonywane w tej kolejności po posunięciu [zegara](loop.md#zegar-silnika).
+`UpdateManager` dzieli pracę [pulsu](loop.md#puls-silnika) na cztery pod-managery: **Timer**, **Animation**, **Audio**, **Collision** — wykonywane w tej kolejności.
 
 ## Konteksty i hierarchia
 
@@ -165,7 +166,7 @@ flowchart LR
     E --> F["ONINIT wg kolejności typów"]
 ```
 
-Ładowanie startuje od `Application.def` w katalogu `DANE`, a następnie wczytuje pliki `.CNV` dla aplikacji, pierwszego epizodu i pierwszej sceny. Pełną kolejność (i fazy inicjalizacji `ONINIT` / `__ONINIT__`) opisuje [Skrypty → Kolejność wczytywania](../engine/scripts.md#kolejnosc-wczytywania-skryptow).
+Ładowanie startuje od `Application.def` w katalogu `DANE`, a następnie wczytuje pliki `.CNV` dla aplikacji, pierwszego epizodu i pierwszej sceny. Pełną kolejność (i fazy inicjalizacji `ONINIT` / `__INIT__`) opisuje [Skrypty → Kolejność wczytywania](../engine/scripts.md#kolejnosc-wczytywania-skryptow).
 
 !!! note "GameLoader to dziś pusty stub"
     Mimo nazwy, logika ładowania mieszka w `Game` (`scanGameDirectory`, `CNVParser`), a nie w klasie `loader/GameLoader`. To miejsce na przyszły refaktor, nie osobny podsystem.

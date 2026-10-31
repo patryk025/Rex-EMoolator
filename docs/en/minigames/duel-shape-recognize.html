@@ -1,0 +1,339 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width,initial-scale=1">
+	<title>Spell casting simulator — Rex and the Wizards</title>
+	<style>
+		:root {
+			--bg: #1c1f26;
+			--panel: #262b36;
+			--panel-2: #2f3542;
+			--ink: #e6e8ec;
+			--muted: #9aa3b2;
+			--accent: #ff5252;
+			--ok: #57d977;
+			--bad: #ff7676;
+			--line: #3a4150;
+		}
+		* { box-sizing: border-box; }
+		body {
+			margin: 0;
+			min-height: 100vh;
+			display: flex;
+			gap: 18px;
+			padding: 18px;
+			background: var(--bg);
+			color: var(--ink);
+			font-family: "Segoe UI", system-ui, sans-serif;
+		}
+
+		.stage { display: flex; flex-direction: column; gap: 10px; }
+		canvas { background: #ffffff; border-radius: 8px; cursor: crosshair; touch-action: none; }
+
+		.toolbar { display: flex; gap: 10px; align-items: center; font-size: 13px; color: var(--muted); }
+		.toolbar button {
+			background: var(--panel-2); color: var(--ink); border: 1px solid var(--line);
+			padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 13px;
+		}
+		.toolbar button:hover { background: #39404f; }
+		.coords { font-family: ui-monospace, monospace; }
+
+		/* Side panel with algorithm steps */
+		.panel {
+			width: 420px; display: flex; flex-direction: column; gap: 14px;
+			max-height: calc(100vh - 36px); overflow: hidden;
+		}
+		.card { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 14px; }
+		.card h2 { margin: 0 0 10px; font-size: 13px; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); font-weight: 600; }
+
+		.result { font-size: 22px; font-weight: 700; }
+		.result.hit { color: var(--ok); }
+		.result.miss { color: var(--muted); }
+
+		.chips { display: flex; flex-wrap: wrap; gap: 6px; }
+		.chip {
+			font-family: ui-monospace, monospace; font-size: 13px;
+			background: var(--panel-2); border: 1px solid var(--line);
+			padding: 3px 8px; border-radius: 999px;
+		}
+		.chips .empty { color: var(--muted); font-style: italic; }
+
+		.log { flex: 1; overflow-y: auto; }
+		.log .row {
+			display: flex; gap: 8px; align-items: baseline;
+			font-size: 13px; padding: 5px 6px; border-radius: 6px;
+			font-family: ui-monospace, monospace;
+		}
+		.log .row + .row { margin-top: 2px; }
+		.log .name { min-width: 190px; color: var(--ink); font-family: "Segoe UI", sans-serif; }
+		.log .why { color: var(--muted); }
+		.log .row.pass { background: rgba(87,217,119,.10); }
+		.log .row.pass .name { color: var(--ok); }
+		.log .row.fail .name { color: var(--muted); }
+		.log .tag { font-size: 11px; padding: 1px 6px; border-radius: 4px; }
+		.log .tag.pass { background: rgba(87,217,119,.18); color: var(--ok); }
+		.log .tag.len { background: rgba(255,118,118,.15); color: var(--bad); }
+		.log .tag.ang { background: rgba(255,180,80,.15); color: #ffb450; }
+
+		.legend { font-size: 12px; color: var(--muted); line-height: 1.5; }
+		.legend code { color: var(--ink); background: var(--panel-2); padding: 1px 5px; border-radius: 4px; }
+	</style>
+</head>
+<body>
+	<div class="stage">
+		<canvas id="canvas" width="800" height="600"></canvas>
+		<div class="toolbar">
+			<button id="clearBtn">Clear</button>
+			<span class="coords" id="coords">x: – , y: – | pressed: no</span>
+		</div>
+	</div>
+
+	<div class="panel">
+		<div class="card">
+			<h2>Recognized Spell</h2>
+			<div class="result miss" id="result">Draw a gesture with the left mouse button…</div>
+		</div>
+
+		<div class="card">
+			<h2>Detected Angle Sequence</h2>
+			<div class="chips" id="angles"><span class="empty">— none —</span></div>
+		</div>
+
+		<div class="card" style="flex:1; display:flex; flex-direction:column; min-height:0;">
+			<h2>Algorithm Steps (Matching)</h2>
+			<div class="log" id="log">
+				<div class="legend">The comparison process for each spell will appear here.</div>
+			</div>
+		</div>
+
+		<div class="card">
+			<div class="legend">
+				Sample distance threshold: <code id="cfgDist"></code> px ·
+				Angle tolerance: <code id="cfgTol"></code>° ·
+				min. direction change: <code>45</code>°
+			</div>
+		</div>
+	</div>
+
+	<script>
+		// ---- Configuration / Spell Data -------------------------------------
+		const spellDirections = {
+			'Sleep': [270, 45, 315, 90],
+			'Transform into a Frog': [90, 0, 270, 180, 45, 135],
+			'Plague of Flies': [90, 225, 0, 225],
+			'Pudding Ball': [180, 90, 0, 90, 180],
+			'Circles and Swirls': [270, 45, 270, 135, 0],
+			'Darkness': [0, 225, 315, 180],
+			'Defense against Sleep': [0, 90, 180, 270, 0],
+			'Defense against Transform into a Frog': [280, 0, 90, 0, 270, 135], // 280 is not a typo — that's how it was in the original game code
+			'Defense against Plague of FLies': [225, 135, 45, 315, 180],
+			'Defense against Pudding Ball': [270, 180, 90, 180, 270],
+			'Defense against Circles and Swirls': [45, 180, 315, 180],
+			'Defense against Darkness': [180, 45, 135, 0]
+		};
+
+		const ANGLE_TOLERANCE = 35.5;        // tolerance when comparing shape
+		const POINT_DISTANCE_THRESHOLD = 30; // sampling distance (pixels)
+		const DIRECTION_CHANGE_MIN = 45;     // min direction change to record a new angle
+
+		// ---- State -----------------------------------------------------------
+		const canvas = document.getElementById('canvas');
+		const ctx = canvas.getContext('2d');
+		const coordsEl = document.getElementById('coords');
+		const resultEl = document.getElementById('result');
+		const anglesEl = document.getElementById('angles');
+		const logEl = document.getElementById('log');
+
+		let isDown = false;
+		let lastPoint = null;
+		let drawnAngles = [];
+
+		document.getElementById('cfgDist').textContent = POINT_DISTANCE_THRESHOLD;
+		document.getElementById('cfgTol').textContent = ANGLE_TOLERANCE;
+
+		// ---- Drawing / canvas --------------------------------------------
+		function clearCanvas() {
+			ctx.clearRect(0, 0, canvas.width, canvas.height);
+			ctx.fillStyle = '#ffffff';
+			ctx.fillRect(0, 0, canvas.width, canvas.height);
+		}
+
+		function updateDisplay(x, y) {
+			const xs = x == null ? '–' : x;
+			const ys = y == null ? '–' : y;
+			coordsEl.textContent = `x: ${xs} , y: ${ys} | pressed: ${isDown ? 'yes' : 'no'}`;
+		}
+
+		function getPos(evt) {
+			const r = canvas.getBoundingClientRect();
+			return {
+				x: Math.round(evt.clientX - r.left),
+				y: Math.round(evt.clientY - r.top)
+			};
+		}
+
+		// ---- Angle math ----------------------------------------------
+		function compareAngle(a, b) {
+			return (a - b + 540.0) % 360.0 - 180.0;
+		}
+
+		function angleNear(angle, target, margin) {
+			return Math.abs(compareAngle(angle, target)) <= margin;
+		}
+
+		// ---- Gesture collection ------------------------------------------------
+		// Samples motion: when we move by >= threshold, compute segment angle
+		// and — if direction changed by >= 45° — record it into the sequence.
+		function probePoint(p) {
+			if (!lastPoint) return;
+
+			const dx = p.x - lastPoint.x;
+			const dy = p.y - lastPoint.y;
+			const distance = Math.hypot(dx, dy);
+			if (distance < POINT_DISTANCE_THRESHOLD) return;
+
+			const angle = Math.atan2(dy, dx) * 180 / Math.PI;
+			const normalizedAngle = (angle + 360) % 360; // ATAN2 in Piklib was normalized to [0,360)
+
+			if (drawnAngles.length > 0) {
+				const lastAngle = drawnAngles[drawnAngles.length - 1];
+				const angleDifference = Math.abs(compareAngle(normalizedAngle, lastAngle));
+				if (angleDifference > DIRECTION_CHANGE_MIN) {
+					drawnAngles.push(normalizedAngle);
+				}
+			} else {
+				// game scripts enforce a 46° difference for the first angle, so we always store the first angle
+				drawnAngles.push(normalizedAngle);
+			}
+
+			ctx.beginPath();
+			ctx.moveTo(lastPoint.x, lastPoint.y);
+			ctx.lineTo(p.x, p.y);
+			ctx.strokeStyle = '#ff5252';
+			ctx.lineWidth = 2;
+			ctx.stroke();
+
+			lastPoint = p;
+		}
+
+		// ---- Recognition + step visualization ----------------------------
+		function recognize() {
+			renderAngles();
+			logEl.innerHTML = '';
+
+			let matched = null;
+
+			for (const [name, directions] of Object.entries(spellDirections)) {
+				// 1) different sequence length -> reject
+				if (directions.length !== drawnAngles.length) {
+					addLogRow(name, 'len',
+						`length ${drawnAngles.length} ≠ ${directions.length}`);
+					continue;
+				}
+
+				// 2) compare subsequent angles within tolerance
+				let failIndex = -1;
+				for (let i = 0; i < directions.length; i++) {
+					if (!angleNear(drawnAngles[i], directions[i], ANGLE_TOLERANCE)) {
+						failIndex = i;
+						break;
+					}
+				}
+
+				if (failIndex >= 0) {
+					addLogRow(name, 'ang',
+						`angle #${failIndex}: ${Math.round(drawnAngles[failIndex])}° ≉ ${directions[failIndex]}°`);
+					continue;
+				}
+
+				// dopasowane
+				addLogRow(name, 'pass', `all ${directions.length} angles matched`);
+				if (!matched) matched = name;
+			}
+
+			showResult(matched);
+		}
+
+		function showResult(name) {
+			if (name) {
+				resultEl.textContent = `✦ ${name}`;
+				resultEl.className = 'result hit';
+			} else if (drawnAngles.length === 0) {
+				resultEl.textContent = 'Gesture too short — no angles.';
+				resultEl.className = 'result miss';
+			} else {
+				resultEl.textContent = 'No match.';
+				resultEl.className = 'result miss';
+			}
+		}
+
+		function renderAngles() {
+			if (drawnAngles.length === 0) {
+				anglesEl.innerHTML = '<span class="empty">— none —</span>';
+				return;
+			}
+			anglesEl.innerHTML = drawnAngles
+				.map(a => `<span class="chip">${Math.round(a)}°</span>`)
+				.join('');
+		}
+
+		function addLogRow(name, kind, why) {
+			const pass = kind === 'pass';
+			const tagText = { pass: 'OK', len: 'length', ang: 'angle' }[kind];
+			const row = document.createElement('div');
+			row.className = 'row ' + (pass ? 'pass' : 'fail');
+			row.innerHTML =
+				`<span class="name">${name}</span>` +
+				`<span class="tag ${kind}">${tagText}</span>` +
+				`<span class="why">${why}</span>`;
+			logEl.appendChild(row);
+		}
+
+		function resetGesture(p) {
+			lastPoint = p;
+			drawnAngles = [];
+			clearCanvas();
+		}
+
+		// ---- Events ------------------------------------------------------
+		canvas.addEventListener('mousedown', (e) => {
+			if (e.button !== 0) return;
+			isDown = true;
+			const p = getPos(e);
+			resetGesture(p);
+			updateDisplay(p.x, p.y);
+		});
+
+		canvas.addEventListener('mousemove', (e) => {
+			const p = getPos(e);
+			updateDisplay(p.x, p.y);
+			if (isDown) probePoint(p);
+		});
+
+		canvas.addEventListener('mouseup', (e) => {
+			if (e.button !== 0) return;
+			isDown = false;
+			const p = getPos(e);
+			probePoint(p);
+			recognize();
+			updateDisplay(p.x, p.y);
+		});
+
+		canvas.addEventListener('dragstart', e => e.preventDefault());
+
+		document.getElementById('clearBtn').addEventListener('click', () => {
+			resetGesture(null);
+			renderAngles();
+			logEl.innerHTML = '<div class="legend">The comparison process for each spell will appear here.</div>';
+			resultEl.textContent = 'Draw a gesture with the left mouse button…';
+			resultEl.className = 'result miss';
+			updateDisplay(null, null);
+		});
+
+		// start
+		clearCanvas();
+		updateDisplay(null, null);
+	</script>
+</body>
+</html>

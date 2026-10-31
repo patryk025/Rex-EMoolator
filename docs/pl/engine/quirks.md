@@ -12,6 +12,10 @@ W wyrażeniach arytmetycznych grupowanie wykonuje się wyłącznie za pomocą `[
 
 Operator dzielenia to znak małpki `@`, nie `/`. Próba użycia `/` w wyrażeniu nie zostanie zinterpretowana jako dzielenie.
 
+### Działania liczone są od lewej do prawej
+
+Operatory nie mają priorytetów, więc `[7+3*2]` daje `20`, a nie `13`. Piklib 6.1 i 7.1 są jeszcze bardziej ograniczone: przyjmują w wyrażeniu [tylko jeden operator](arithmetic.md#kolejnosc-dzialan).
+
 ### Typ wyniku zależy od typu lewego operandu
 
 Wszystkie operacje binarne rzutują prawy operand na typ lewego. Wynik również ma typ lewego operandu. Skutki kolejności są nietrywialne (zobacz [Reguła typowania](arithmetic.md#regula-typowania)):
@@ -29,13 +33,18 @@ Operator `+` na [`BOOL`](../reference/BOOL.md) działa jak koniunkcja logiczna (
 
 Reszta z dzielenia w typie [`DOUBLE`](../reference/DOUBLE.md) jest najpierw obliczana, a następnie obcinana do liczby całkowitej i ponownie rzutowana na `DOUBLE`. W efekcie `1.5 % 2` daje `1.00000`, a nie `1.50000`.
 
-### `&&` i `||` przyjmują wyłącznie `BOOL`
+### `&&` i `||` działają tylko w warunkach
 
-Operatory logiczne nie wykonują niejawnego rzutowania nawet wtedy, gdy operand byłby konwertowalny do `BOOL`. Próba użycia wartości innego typu jako operandu kończy się błędem silnika.
+Wyrażenia `[ ]` nie mają operatorów logicznych ani porównań. `&&` i `||` występują wyłącznie w [warunku złożonym `@IF`](scripts.md#warunek-zlozony), gdzie `&&` wiąże mocniej niż `||`, a obliczanie jest skracane.
 
-### Dzielenie przez `0` w wyrażeniach kończy się błędem
+### Dzielenie przez `0` nie zawsze kończy się błędem
 
-W odróżnieniu od metod typów liczbowych (gdzie `DIV` i `MOD` zwracają wartość bez zmian), dzielenie operatorem `@` lub `%` przez `0` w wyrażeniu arytmetycznym powoduje wyjście do pulpitu.
+Dla `INTEGER` dzielenie przez `0` wywala silnik, tak samo jak `%` na `DOUBLE`. Natomiast `@` na `DOUBLE` daje nieskończoność (`1.#INF0`), a na `STRING` i `BOOL` nie ma efektu.
+
+Podobnie działają metody: [`INTEGER^DIV(0)`](../reference/INTEGER.md#div) i [`INTEGER^MOD(0)`](../reference/INTEGER.md#mod) wywalają silnik, a [`DOUBLE^DIV(0)`](../reference/DOUBLE.md#div) zapisuje `1.#INF0`.
+
+!!! bug "Rozbieżność w emulatorze"
+    Crosstesty wykryły różnicę do sprawdzenia: w emulatorze `DIV` i `MOD` zostawiają wartość bez zmian, a operatory dają tekst `NULL`. Zobacz [Rozbieżności z oryginałem](../emulator/divergences.md).
 
 ## Składnia skryptów
 
@@ -104,9 +113,9 @@ Metoda [`SGN`](../reference/DOUBLE.md#sgn) jest jedyną metodą typu `DOUBLE`, k
 
 Wariant dwuargumentowy metody [`RANDOM`](../reference/INTEGER.md#random) zwraca wartość z przedziału `[min, max]`, włącznie z oboma końcami. Wariant jednoargumentowy zwraca `[0, bound)`.
 
-### `INTEGER.DIV` i `INTEGER.MOD` z `0` nie modyfikują zmiennej
+### Nie każda metoda zwraca nową wartość
 
-W odróżnieniu od dzielenia operatorem `@`/`%` w wyrażeniu, metody [`DIV`](../reference/INTEGER.md#div) i [`MOD`](../reference/INTEGER.md#mod) na typie `INTEGER` z dzielnikiem `0` zwracają niezmienioną wartość bieżącą zamiast generować błąd. Analogicznie zachowują się metody na typie `DOUBLE`.
+Od Pikliba 7.1 `ADD` zwraca wynik, ale `SUB`, `MUL`, `DIV` i `SET` nie zwracają nic. Dokładną listę podają strony [`INTEGER`](../reference/INTEGER.md), [`DOUBLE`](../reference/DOUBLE.md) i [`STRING`](../reference/STRING.md).
 
 ### `STRING.COPYFILE` ignoruje obiekt-odbiorcę
 

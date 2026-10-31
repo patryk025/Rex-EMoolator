@@ -132,6 +132,9 @@ Wywołanie innej metody specyficznej dla typu obiektu (np. `GETCFRAMEINEVENT` na
 
 ## Pętle
 
+!!! note "Starsze silniki"
+    Piklib 6.1 nie ma instrukcji `@IF` ani `@LOOP`: warunki zapisuje się tam obiektami [`CONDITION`](../reference/CONDITION.md) i [`COMPLEXCONDITION`](../reference/COMPLEXCONDITION.md) podpiętymi do procedury uruchamianej przez [`RUNC`](../reference/BEHAVIOUR.md#runc). W Piklibie 7.1 działa `@IF` z warunkiem prostym, warunek złożony wywala silnik, a `@LOOP` w zarejestrowanych testach nie wykonał ciała pętli.
+
 ### @LOOP
 
 ```
@@ -153,6 +156,9 @@ for (int _I_ = start; _I_ < start + delta; _I_ += increment) {
 ```
 
 Identyczna do `@LOOP`, z tą różnicą, że pierwszy argument wskazuje zmienną pełniącą rolę licznika zamiast domyślnej `_I_`.
+
+!!! note "Emulator"
+    Emulator jeszcze nie obsługuje `@FOR`.
 
 ### @WHILE
 
@@ -205,6 +211,15 @@ W warunku złożonym znak równości jest zapisywany jako apostrof (`'`) zamiast
 | `>` | większe niż |
 | `>'` | większe lub równe |
 
+Zasady obliczania warunku (Piklib 7.2, 8 i BlooMoo):
+
+- `&&` wiąże mocniej niż `||`,
+- obliczanie jest skracane: człon, który nie wpłynie już na wynik, nie jest wykonywany, razem z wywołaniami metod,
+- działania trzeba ująć w `[ ]`: warunek `[2+3*4]'20` jest prawdziwy, a `2+3*4'20` nie, bo bez nawiasów tekst nie jest liczony.
+
+!!! bug "Rozbieżność w emulatorze"
+    Crosstesty wykryły różnicę do sprawdzenia: warunki `5!'5||8>'10&&1'1` i `5+5*2'20||1'2&&1'1` są w oryginale prawdziwe, a w emulatorze fałszywe. Przyczyna nie jest jeszcze znana, więc powyższe zasady mogą być niepełne. Emulator wymaga też, żeby każdy człon dawał [`BOOL`](../reference/BOOL.md).
+
 ## Dynamiczne tworzenie zmiennych
 
 Wewnątrz bloku kodu można utworzyć zmienną na bieżąco:
@@ -225,7 +240,18 @@ Wewnątrz pętli oraz procedur można sterować przepływem instrukcjami:
 - `@CONTINUE()` — pomija pozostałe instrukcje w bieżącej iteracji pętli i przechodzi do następnej.
 - `@BREAK()` — przerywa całe drzewo wywołań rozpoczęte przez bieżący sygnał lub wywołanie.
 - `@ONEBREAK()` — przerywa wyłącznie bieżącą procedurę.
-- `@RETURN(mixed value)` — ustawia wartość zwracaną przez procedurę, ale nie przerywa jej wykonywania.
+- `@RETURN(mixed value)` — ustawia wartość zwracaną przez procedurę, ale nie przerywa jej wykonywania. Kolejne `@RETURN` nadpisuje poprzednie, a [`RUN`](../reference/BEHAVIOUR.md#run) oddaje wynik jako `STRING`.
+
+!!! note "Emulator"
+    Emulator jeszcze nie obsługuje `@CONTINUE`.
+
+## Pozostałe instrukcje
+
+Analiza bibliotek wykazuje jeszcze `@CONV`, `@CREATE`, `@GETAPPLICATIONNAME`, `@GETCURRENTSCENE`, `@MSGBOX`, `@RUNONTIMER` i `@VALUE`.
+ Ich działanie w oryginale nie jest jeszcze opisane.
+
+!!! note "Emulator"
+    Z tej listy emulator obsługuje tylko `@CONV(mixed value, STRING type)`, które zwraca wartość przekonwertowaną na `INT`, `DOUBLE`, `STRING` lub `BOOL`. Aktualny stan pokazuje [mapa metod](../reference/method-map.md).
 
 ## Kolejność wczytywania skryptów
 
@@ -277,4 +303,4 @@ W ramach każdego pliku zmienne są tworzone i inicjalizowane w stałej kolejno�
 4. Animacje, obrazy, dźwięki i fonty.
 5. Przyciski, pola tekstowe, sekwencje, mysz, klawiatura, obserwator kanwy.
 
-Dla każdej zmiennej w tej fazie wywoływany jest sygnał `ONINIT`. Na koniec, po zakończeniu inicjalizacji wszystkich zmiennych, wywoływana jest procedura `__INIT__` (dotyczy BlooMoo), jeśli została zdefiniowana.
+Dla każdej zmiennej w tej fazie wywoływany jest sygnał `ONINIT`. Na koniec, po zakończeniu inicjalizacji wszystkich zmiennych, wywoływana jest procedura `__INIT__`, jeśli została zdefiniowana (silniki od Pikliba 7.1).

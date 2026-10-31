@@ -93,7 +93,7 @@ Grafika silnika to **hi-color** bez palety:
 - **RGB565** (16 bitów: 5R-6G-5B) — najczęstsze,
 - **RGB555** (15 bitów: 5R-5G-5B).
 
-Kanał alfa, jeśli istnieje, zapisywany jest **osobno** od danych koloru (jeden bajt na piksel) i łączony przy dekodowaniu. Dane obrazu bywają dodatkowo skompresowane.
+Kanał alfa, jeśli istnieje, zapisywany jest **osobno** od danych koloru (jeden bajt na piksel) i łączony przy dekodowaniu.
 
 Dane bywają dodatkowo skompresowane (**CRLE**, **CLZW2**), a pliki skryptów — zaszyfrowane. Te przekrojowe mechanizmy opisują osobne rozdziały:
 

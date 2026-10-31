@@ -93,7 +93,7 @@ The engine's graphics are **hi-color** without a palette:
 - **RGB565** (16 bits: 5R-6G-5B) — the most common,
 - **RGB555** (15 bits: 5R-5G-5B).
 
-The alpha channel, if present, is stored **separately** from the colour data (one byte per pixel) and merged on decode. Image data may additionally be compressed.
+The alpha channel, if present, is stored **separately** from the colour data (one byte per pixel) and merged on decode.
 
 Data may be further compressed (**CRLE**, **CLZW2**), and script files may be encrypted. These cross-cutting mechanisms have their own chapters:
 

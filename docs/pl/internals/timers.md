@@ -4,13 +4,10 @@ Obiekt [`TIMER`](../reference/TIMER.md#timer) to cykliczny licznik czasu: co zad
 
 ## Czas mierzony zegarem silnika
 
-Timery **nie używają zegara systemowego**. Tykają na [monotonicznym zegarze silnika](loop.md#zegar-silnika), posuwanym o stały krok `1/60 s` w każdym kroku aktualizacji [pętli](loop.md):
+Timery sprawdzane są w każdym [pulsie silnika](loop.md#puls-silnika), a czas odczytują z [zegara silnika](loop.md#zegar-silnika) o zgrubnej rozdzielczości, który płynie w czasie rzeczywistym. Dokładniej korzystają z `Game.getTimerTimeMs()`: to ten sam zegar pomniejszony o czas, przez który scena trzymała timery w pauzie.
 
-- zegar przechowywany jest jako akumulator w milisekundach (krok dokłada `16,666… ms`),
-- `getEngineTimeMs()` zwraca jego część całkowitą.
-
-!!! tip "Determinizm i pauza"
-    Dzięki temu timery są w pełni deterministyczne i **zatrzymują się razem z [pauzą](loop.md#pauza-i-krokowanie)** — czas nie płynie, gdy gra stoi. Timer ustawiony na `1000 ms` wyemituje `ONTICK` po dokładnie 60 krokach silnika (`60 × 16,666… = 1000`), niezależnie od liczby klatek na sekundę.
+!!! tip "Dokładność i pauza"
+    Timer ustawiony na `1000 ms` tyka po sekundzie czasu rzeczywistego, z dokładnością do kwantu zegara (domyślnie 15,625 ms) i najbliższego pulsu, niezależnie od liczby klatek na sekundę. [`SCENE^PAUSE`](../reference/SCENE.md#pause) wstrzymuje czas timerów, chyba że wywołano ją jako `PAUSE(TRUE)`. [Pauza diagnostyczna](loop.md#pauza-i-krokowanie) wstrzymuje tylko pulsy, a zegar płynie dalej.
 
 ## Pola timera
 
@@ -20,35 +17,37 @@ Timery **nie używają zegara systemowego**. Tykają na [monotonicznym zegarze s
 | `TICKS` | maksymalna liczba tyknięć; `0` oznacza **bez limitu** |
 | `enabled` | czy timer aktualnie tyka |
 | `currentTickCount` | ile tyknięć już nastąpiło (wartość niesiona przez `ONTICK`) |
-| `lastTickTime` | czas silnika ostatniego tyknięcia (akumulator interwału) |
+| `lastTickTime` | czas ostatniego tyknięcia (akumulator interwału) |
 
 ## Logika tyknięcia
 
-W każdym kroku aktualizacji silnik wywołuje `update()` na timerze:
+W każdym pulsie silnik wywołuje `update()` na timerze:
 
 ```mermaid
 flowchart TD
-    A([update: czas silnika t]) --> B{enabled<br/>i ELAPSE > 0?}
+    A([puls: czas timera t]) --> B{enabled<br/>i ELAPSE ≥ 0?}
     B -- nie --> Z([koniec])
     B -- tak --> C{t − lastTickTime ≥ ELAPSE?}
     C -- nie --> Z
     C -- tak --> D[currentTickCount++]
-    D --> E[lastTickTime = t]
-    E --> F["emit ONTICK(currentTickCount)"]
-    F --> G{TICKS ≠ 0 i<br/>currentTickCount ≥ TICKS?}
+    D --> G{TICKS ≠ 0 i<br/>currentTickCount ≥ TICKS?}
     G -- tak --> H[enabled = false]
-    G -- nie --> Z
-    H --> Z
+    G -- nie --> F
+    H --> F["emit ONTICK(currentTickCount)"]
+    F --> E[lastTickTime = ponowny odczyt zegara]
+    E --> Z
 ```
 
 Kluczowe szczegóły:
 
-- po tyknięciu `lastTickTime` ustawiane jest na **bieżący** czas silnika (bez przenoszenia reszty), więc okno kolejnego tyknięcia liczy się od nowa,
-- gdy `TICKS` jest dodatnie i licznik osiągnie tę wartość, timer **sam się wyłącza** po ostatnim tyknięciu,
-- przy `TICKS = 0` timer tyka w nieskończoność, aż do `DISABLE`.
+- na jeden puls przypada najwyżej jedno tyknięcie, więc spóźnione tyknięcia nie są nadrabiane,
+- `lastTickTime` ustawiane jest dopiero **po** obsłudze `ONTICK`, ponownym odczytem zegara, więc czas wykonania obsługi nie wlicza się do kolejnego interwału,
+- gdy licznik osiągnie dodatnie `TICKS`, timer wyłącza się **przed** ostatnią obsługą, dzięki czemu obsługa może go ponownie włączyć przez `ENABLE`,
+- przy `TICKS = 0` timer tyka w nieskończoność, aż do `DISABLE`,
+- przy `ELAPSE = 0` timer tyka w każdym pulsie.
 
 !!! note "Ziarnistość"
-    Sprawdzenie zachodzi raz na krok (~16,67 ms), więc interwał jest praktycznie zaokrąglany w górę do najbliższej granicy kroku. Interwały będące wielokrotnością `1/60 s` (np. 50, 100, 1000 ms) trafiają idealnie; pozostałe wypadną na pierwszym kroku przekraczającym próg.
+    Sprawdzenie zachodzi raz na puls (zwykle co ~16,67 ms), a zegar przeskakuje o kwant profilu. Interwał jest więc w praktyce zaokrąglany w górę do pierwszego pulsu, w którym zegar pokaże przekroczenie progu.
 
 ## Metody i ich pułapki
 
@@ -68,10 +67,10 @@ Część metod ma zachowanie, które łatwo przeoczyć — zostało ono odwzorow
 
 ## Czym różni się od oryginału
 
-W `bloomoodll.dll` timery napędzane były **multimedialnymi timerami Win32** (`timeSetEvent`, klasy `CXTimer`/`CTimerNotificator`), a nie pętlą renderowania. Rex-EMoolator tyka je zamiast tego na [zegarze silnika](loop.md#zegar-silnika) w kroku `1/60 s`. Sama logika tyknięcia jest jednak ta sama.
+W `bloomoodll.dll` za timery odpowiadają klasy `CXTimer`/`CTimerNotificator`, a nie pętla renderowania. Rex-EMoolator sprawdza je zamiast tego w [pulsie silnika](loop.md#puls-silnika). Sama logika tyknięcia jest jednak ta sama: tak jak `CXTimer`, emulator czyta zegar ponownie po wywołaniu obsługi.
 
 !!! quote "Potwierdzone dekompilacją"
-    Metoda `CMC_Timer::onTimer` w oryginalnej bibliotece robi dokładnie to, co opisano wyżej: sprawdza flagę „włączony", inkrementuje licznik tyknięć, wyłącza timer po osiągnięciu limitu `TICKS`, a następnie emituje sparametryzowany sygnał `ONTICK^<licznik>` oraz `ONTICK`.
+    Metoda `CMC_Timer::onTimer` w oryginalnej bibliotece robi dokładnie to, co opisano wyżej: sprawdza flagę „włączony”, inkrementuje licznik tyknięć, wyłącza timer po osiągnięciu limitu `TICKS`, a następnie emituje sparametryzowany sygnał `ONTICK^<licznik>` oraz `ONTICK`.
 
 ## Powiązane tematy
 

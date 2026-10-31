@@ -39,19 +39,19 @@ framePeriodMs = 1000 / fps   // (1)
 
 1. **Integer** division — at 15 FPS a frame lasts `66 ms` (not `66.67`), at 30 FPS `33 ms`, at 60 FPS `16 ms`. The small rounding errors accumulate the same way as in the original engine.
 
-On each update step the engine checks whether at least `framePeriodMs` has elapsed since the last frame change:
+On each [pulse](loop.md#host-frame-and-engine-pulse) the engine checks whether at least `framePeriodMs` has elapsed since the last frame change:
 
 - if **yes** — it advances by **exactly one** frame and records the current [engine time](loop.md#engine-clock) (no remainder carry-over),
 - if **no** — it does nothing.
 
 !!! tip "Behaviour matching the original (`CAnimationManager::domodal`)"
-    The classes `CAnimationManager` and `CAnimo`/`CAnimo6` and their `domodal` methods exist in `bloomoodll.dll` (confirmed by decompilation) — the description below mirrors their behaviour. [`PLAY`](../reference/ANIMO.md#play) **does not reset the animation clock**. So a "cold start" (first playback) ticks immediately, while a `PLAY` issued right after the previous one waits out the current frame window. At most one frame advances per update step — the animation never "skips" several frames at once, even if the render frame took a long time.
+    The classes `CAnimationManager` and `CAnimo`/`CAnimo6` and their `domodal` methods exist in `bloomoodll.dll` (confirmed by decompilation) — the description below mirrors their behaviour. [`PLAY`](../reference/ANIMO.md#play) **does not reset the animation clock**. So a "cold start" (first playback) ticks immediately, while a `PLAY` issued right after the previous one waits out the current frame window. At most one frame advances per pulse — the animation never "skips" several frames at once, even if the render frame took a long time.
 
 ### Order of animations within one pass
 
 `CAnimationManager::domodal` works in two phases: first, with a single `GetTickCount` reading, it selects every animation whose frame time has elapsed, and only then advances them one by one. Callbacks run in the second phase (e.g. `ONFRAMECHANGED` of a timer animation) can therefore change the event of an animation further down the list. That animation still advances in the same pass, already in its new event.
 
-The list order does not come from the CNV file. The manager keeps animations in a `CXArray`, and `CAnimationManager::add` appends them when a `CAnimo` object is created. That happens when the script object is created, on `CLONE` and on [`LOAD`](../reference/ANIMO.md#load) of **another** file. `CMC_Animo::load` then destroys the old `CAnimo` and creates a new one, so the animation moves to the end of the list and starts timing its frame from the moment of `LOAD`. `LOAD` of the same file (case-insensitive) does not create a new object.
+The list order does not come from the CNV file. The manager keeps animations in a `CXArray`, and `CAnimationManager::add` appends them when a `CAnimo` object is created. That happens when the script object is created, on `CLONE` and on [`LOAD`](../reference/ANIMO.md#load) of **another** file. `CMC_Animo::load` then destroys the old `CAnimo` and creates a new one, so the animation moves to the end of the list and starts timing its frame from the moment of `LOAD`. `LOAD` of the same file (case-insensitive) does not create a new object. The emulator recreates this order with the `AnimationSlotOrder` counter.
 
 !!! example "Reksio after entering an ARCADE scene (RiC, GABINETDYR)"
     `ANNREX` is declared before the `STL0` timer, but the script calls `ANNREX^LOAD("REX25.ANN")`, so in the manager it sits behind it. When both are due in one pass, the `STL0` callback switches Reksio to the two-frame `IDLE_0` (frame 0 is still mid-step), and right after that the `ANNREX` slot advances it to frame 1, where Reksio is already standing. On the next tick the script calls `STOP` and Reksio stays in the standing pose. With the CNV order, `STOP` would freeze him mid-step.
@@ -200,7 +200,7 @@ An animation can also act as a button and take part in collision detection:
 - [`SETASBUTTON`](../reference/ANIMO.md#setasbutton) turns it into a clickable element (`ONCLICK`, `ONFOCUSON`, `ONFOCUSOFF`, `ONRELEASE`),
 - [`MONITORCOLLISION`](../reference/ANIMO.md#monitorcollision-1) includes it in collision checks against other objects (`ONCOLLISION`, `ONCOLLISIONFINISHED`), optionally accounting for the alpha channel.
 
-Collisions are computed in the [loop's](loop.md#fixed-timestep) update step, after animation frames have been recomputed.
+Collisions are computed at the end of the [engine pulse](loop.md#host-frame-and-engine-pulse), after animation frames have been recomputed.
 
 ## Related topics
 

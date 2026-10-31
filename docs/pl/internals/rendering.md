@@ -3,32 +3,34 @@
 Silnik rysuje całą scenę **od nowa w każdej klatce** (ang. *immediate mode*). Nie ma tu pojęcia trwałego „obiektu na ekranie", który silnik przesuwa — zamiast tego co klatkę przechodzi listę obiektów graficznych, sortuje je i rysuje jeden po drugim na czystym buforze. W tym rozdziale opisany jest cały potok renderowania w Rex-EMoolatorze oraz to, czym różnił się on od oryginalnego silnika.
 
 !!! info "Gdzie to się dzieje"
-    Renderowanie to trzeci krok w [pętli klatki](loop.md) — po przetworzeniu wejścia i aktualizacji stanu gry. Cała logika żyje w `RenderManager` oraz pomocniczych klasach `GraphicsRenderer`, `TextRenderer`, `MaskRenderer` i `AlphaMaskRenderer`.
+    Renderowanie odbywa się w każdej klatce, a jego miejsce względem wejścia i managerów [zależy od wersji silnika](loop.md#kolejnosc-faz). Cała logika żyje w `RenderManager` oraz pomocniczych klasach `GraphicsRenderer`, `TextRenderer`, `MaskRenderer` i `AlphaMaskRenderer`.
 
 ## Potok jednej klatki
 
-Metoda `RenderManager.render()` zawsze wykonuje te same kroki w tej samej kolejności:
+Metoda `RenderManager.render()` rysuje scenę do **kanwy logicznej**, czyli bufora `FrameBuffer` o stałym rozmiarze 800×600, a gotowy obraz przenosi na ekran. Kroki są zawsze te same:
 
 ```mermaid
 flowchart TD
-    A([batch.begin]) --> B[Tło sceny<br/>renderBackground]
+    A([bufor kanwy]) --> B[Tło sceny<br/>renderBackground]
     B --> C[Grafiki wklejone na tło<br/>CANVAS_OBSERVER.PASTE]
-    C --> D[Pobranie listy obiektów<br/>graficznych sceny]
+    C --> D[Pobranie listy grafik<br/>i tekstów sceny]
     D --> E[Sortowanie po PRIORITY,<br/>remis: kolejność wstawienia]
-    E --> F[Rysowanie IMAGE i ANIMO]
-    F --> G[Rysowanie tekstów TEXT]
-    G --> H([batch.end])
+    E --> F[Rysowanie obiektów<br/>w posortowanej kolejności]
+    F --> G[Opcjonalna podpowiedź kodu]
+    G --> H([przeniesienie kanwy na ekran])
 ```
 
 Kolejność jest istotna — to ona, obok priorytetów, decyduje co znajdzie się „na wierzchu":
 
 1. **Tło sceny** — pojedynczy obraz tła aktualnej sceny, rysowany jako pierwszy (najgłębiej).
 2. **Grafiki wklejone** — bitmapy „wypalone" na tło metodą [`CANVAS_OBSERVER^PASTE`](../reference/CANVAS_OBSERVER.md). Stają się częścią warstwy tła i nie podlegają już sortowaniu.
-3. **Obiekty graficzne** — wszystkie widoczne [`IMAGE`](../reference/IMAGE.md) i [`ANIMO`](../reference/ANIMO.md) sceny, posortowane (patrz niżej).
-4. **Teksty** — obiekty [`TEXT`](../reference/TEXT.md), rysowane na końcu, zawsze nad grafiką.
+3. **Obiekty sceny** — widoczne [`IMAGE`](../reference/IMAGE.md), [`ANIMO`](../reference/ANIMO.md), `KOLOROWANKA` i [`TEXT`](../reference/TEXT.md), posortowane razem (patrz niżej). Tekst nie ma osobnej warstwy, więc obiekt o wyższym priorytecie może go przykryć.
+4. **Podpowiedź kodu** — opcjonalna nakładka z kodem Pana Policjanta, włączana w [ustawieniach gry](../emulator/index.md#ustawienia-gry).
 
 !!! note "Tryb mieszania"
     Przed rysowaniem ustawiany jest standardowy *alpha blending* (`GL_SRC_ALPHA`, `GL_ONE_MINUS_SRC_ALPHA`). Renderowanie [masek alfa](#maski-alfa) chwilowo zmienia tę funkcję i przywraca ją po zakończeniu.
+
+Gotowa kanwa trafia na ekran przez viewport dopasowany do okna, już bez mieszania. Ten sam bufor odczytuje na żądanie [`CANVAS_OBSERVER`](../reference/CANVAS_OBSERVER.md) (`captureLogicalCanvas`).
 
 ## Układ współrzędnych i odbicie osi Y {#uklad-wspolrzednych-i-odbicie-osi-y}
 
@@ -36,13 +38,13 @@ To najczęstsze źródło nieporozumień przy czytaniu kodu renderera, więc war
 
 Silnik Piklib/BlooMoo operuje na **wirtualnej kanwie 800×600 px** z początkiem układu w **lewym górnym rogu** — oś Y rośnie w dół, tak jak w większości API 2D z tamtej epoki. Tymczasem LibGDX (i pod spodem OpenGL) używa kamery ortograficznej z początkiem w **lewym dolnym rogu** — oś Y rośnie w górę.
 
-Dlatego każda współrzędna pionowa jest przy rysowaniu odbijana:
+Stan gry i API skryptów zawsze używają układu kanwy, a przeliczenie na układ OpenGL odbywa się w jednym miejscu, w klasie `CanvasCoordinateSystem`, tuż przed rysowaniem:
 
 ```java
 screenY = 600 - top - height   // (1)
 ```
 
-1. `600` to stała wysokość kanwy (`VIRTUAL_HEIGHT`), `top` to górna krawędź obiektu w układzie silnika, a `height` to wysokość bitmapy. Wynik to pozycja **lewego dolnego** rogu sprite'a w układzie LibGDX.
+1. `600` to stała wysokość kanwy (`CanvasCoordinateSystem.HEIGHT`), `top` to górna krawędź obiektu w układzie silnika, a `height` to wysokość bitmapy. Wynik to pozycja **lewego dolnego** rogu sprite'a w układzie LibGDX.
 
 === "Układ silnika (skrypty)"
 
@@ -90,7 +92,7 @@ screenY = 600 - top - height   // (1)
 
 ## Priorytety i kolejność rysowania
 
-Obiekty graficzne sortowane są przed narysowaniem według dwóch kluczy:
+Grafiki i teksty sortowane są przed narysowaniem według dwóch kluczy:
 
 | Klucz | Pole | Zachowanie |
 |---|---|---|

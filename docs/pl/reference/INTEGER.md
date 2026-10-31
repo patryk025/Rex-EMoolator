@@ -22,6 +22,9 @@ Aktualna wartość zmiennej.
 
 ## Metody
 
+!!! bug "Rozbieżność w emulatorze"
+    Opisy dotyczą silników od Pikliba 7.1. Crosstesty wykryły różnicę do sprawdzenia: metody oznaczone tu jako `void` w emulatorze zwracają nową wartość. Zobacz [Rozbieżności z oryginałem](../emulator/divergences.md).
+
 ### ABS
 
 ```
@@ -138,24 +141,20 @@ IFRAMER^CLAMP(IFRAMECENTER, IFRAMEMAX);
 ### CLEAR
 
 ```
-INTEGER CLEAR()
+void CLEAR()
 ```
 
-Ustawia wartość zmiennej na `0` i zwraca tę wartość.
-
-**Zwraca**: `0`.
+Ustawia wartość zmiennej na `0`.
 
 **Kompatybilność:** `CLEAR` - `PIKLIB61.DLL` ✅, `PIKLIB71.DLL` ❌, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
 
 ### DEC
 
 ```
-INTEGER DEC()
+void DEC()
 ```
 
 Zmniejsza wartość zmiennej o `1`.
-
-**Zwraca**: nową wartość zmiennej.
 
 **Przykłady**
 
@@ -169,16 +168,14 @@ VARIWAIT^DEC();
 ### DIV
 
 ```
-INTEGER DIV(INTEGER divisor)
+void DIV(INTEGER divisor)
 ```
 
-Dzieli bieżącą wartość zmiennej (dzielenie całkowite) przez argument, zapisuje wynik i zwraca go. Dzielenie przez zero nie zmienia wartości zmiennej.
+Dzieli bieżącą wartość zmiennej (dzielenie całkowite) przez argument i zapisuje wynik. Dzielenie przez zero wywala silnik.
 
 **Parametry**
 
 - `divisor` — dzielnik.
-
-**Zwraca**: nową wartość zmiennej (lub niezmienioną wartość, jeśli `divisor` był `0`).
 
 **Przykłady**
 
@@ -204,12 +201,10 @@ Zwraca aktualną wartość zmiennej.
 ### INC
 
 ```
-INTEGER INC()
+void INC()
 ```
 
 Zwiększa wartość zmiennej o `1`.
-
-**Zwraca**: nową wartość zmiennej.
 
 **Przykłady**
 
@@ -226,7 +221,7 @@ VARITUTCOUNT^INC();
 INTEGER LENGTH(INTEGER x, INTEGER y)
 ```
 
-Wyznacza długość wektora `(x, y)` jako `sqrt(x² + y²)`, obcina wynik do liczby całkowitej, zapisuje i zwraca.
+Wyznacza długość wektora `(x, y)` jako `sqrt(x² + y²)`, obcina wynik do liczby całkowitej i zwraca go. Stan zmiennej po wywołaniu zależy od silnika (zobacz [Rozbieżności z oryginałem](../emulator/divergences.md)).
 
 **Parametry**
 
@@ -247,16 +242,14 @@ I3^LENGTH(I3, 600);
 ### MOD
 
 ```
-INTEGER MOD(INTEGER divisor)
+void MOD(INTEGER divisor)
 ```
 
-Zapisuje w zmiennej resztę z dzielenia jej bieżącej wartości przez argument. Dzielenie przez zero nie zmienia wartości zmiennej.
+Zapisuje w zmiennej resztę z dzielenia jej bieżącej wartości przez argument. Dzielenie przez zero wywala silnik.
 
 **Parametry**
 
 - `divisor` — dzielnik.
-
-**Zwraca**: nową wartość zmiennej (lub niezmienioną wartość, jeśli `divisor` był `0`).
 
 **Przykłady**
 
@@ -270,16 +263,14 @@ IGC^MOD(ARLEVG^GETSIZE());
 ### MUL
 
 ```
-INTEGER MUL(INTEGER multiplier)
+void MUL(INTEGER multiplier)
 ```
 
-Mnoży bieżącą wartość zmiennej przez argument, zapisuje wynik i zwraca go.
+Mnoży bieżącą wartość zmiennej przez argument i zapisuje wynik.
 
 **Parametry**
 
 - `multiplier` — mnożnik.
-
-**Zwraca**: nową wartość zmiennej.
 
 **Przykłady**
 
@@ -377,7 +368,7 @@ Przywraca wartość zmiennej do wartości resetu zdefiniowanej w atrybutach obie
 ### SET
 
 ```
-INTEGER SET(INTEGER value)
+void SET(INTEGER value)
 ```
 
 Ustawia wartość zmiennej.
@@ -385,8 +376,6 @@ Ustawia wartość zmiennej.
 **Parametry**
 
 - `value` — nowa wartość.
-
-**Zwraca**: nową wartość zmiennej.
 
 **Przykłady**
 
@@ -401,16 +390,14 @@ ITEMP^SET(STCBAZA|SRODEK);
 ### SUB
 
 ```
-INTEGER SUB(INTEGER subtrahend)
+void SUB(INTEGER subtrahend)
 ```
 
-Odejmuje argument od bieżącej wartości zmiennej, zapisuje wynik i zwraca go.
+Odejmuje argument od bieżącej wartości zmiennej i zapisuje wynik.
 
 **Parametry**
 
 - `subtrahend` — wartość odejmowana.
-
-**Zwraca**: nową wartość zmiennej.
 
 **Przykłady**
 
@@ -424,7 +411,7 @@ VARIPRIORITY^SUB(VARIBKGOFFSETY);
 ### SWITCH
 
 ```
-INTEGER SWITCH(INTEGER valueA, INTEGER valueB)
+void SWITCH(INTEGER valueA, INTEGER valueB)
 ```
 
 Jeżeli bieżąca wartość zmiennej jest równa `valueA`, zmiennej zostaje przypisana `valueB`; w przeciwnym razie — `valueA`. Pozwala to naprzemiennie przełączać między dwiema wartościami.
@@ -433,8 +420,6 @@ Jeżeli bieżąca wartość zmiennej jest równa `valueA`, zmiennej zostaje przy
 
 - `valueA` — pierwsza wartość.
 - `valueB` — druga wartość.
-
-**Zwraca**: nową wartość zmiennej.
 
 **Kompatybilność:** `SWITCH` - `PIKLIB61.DLL` ✅, `PIKLIB71.DLL` ✅, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
 

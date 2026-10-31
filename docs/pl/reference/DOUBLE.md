@@ -22,6 +22,9 @@ Aktualna wartość zmiennej. Akceptowane są zapisy w notacji standardowej (np. 
 
 ## Metody
 
+!!! bug "Rozbieżność w emulatorze"
+    Opisy dotyczą silników od Pikliba 7.1. Crosstesty wykryły różnicę do sprawdzenia: metody oznaczone tu jako `void` w emulatorze zwracają nową wartość. Zobacz [Rozbieżności z oryginałem](../emulator/divergences.md).
+
 ### ABS
 
 ```
@@ -190,16 +193,14 @@ Zmniejsza wartość zmiennej o `1.0`.
 ### DIV
 
 ```
-DOUBLE DIV(DOUBLE divisor)
+void DIV(DOUBLE divisor)
 ```
 
-Dzieli bieżącą wartość zmiennej przez argument, zapisuje wynik i zwraca go. Dzielenie przez zero nie zmienia wartości zmiennej.
+Dzieli bieżącą wartość zmiennej przez argument i zapisuje wynik. Dzielenie przez zero zapisuje nieskończoność (`1.#INF0`).
 
 **Parametry**
 
 - `divisor` — dzielnik.
-
-**Zwraca**: nową wartość zmiennej (lub niezmienioną wartość, jeśli `divisor` był równy `0.0`).
 
 **Przykłady**
 
@@ -321,32 +322,28 @@ VARDPOWER^MINA(VARDPOWER, 9.0);
 ### MOD
 
 ```
-DOUBLE MOD(DOUBLE divisor)
+void MOD(DOUBLE divisor)
 ```
 
-Wyznacza resztę z dzielenia bieżącej wartości zmiennej przez argument, obcina część ułamkową wyniku do liczby całkowitej, zapisuje i zwraca. Dzielenie przez zero nie zmienia wartości zmiennej.
+Wyznacza resztę z dzielenia bieżącej wartości zmiennej przez argument, obcina część ułamkową wyniku do liczby całkowitej i zapisuje. Działanie przy dzielniku `0` nie zostało dla tej metody sprawdzone w oryginale; operator `%` wywala wtedy silnik.
 
 **Parametry**
 
 - `divisor` — dzielnik.
-
-**Zwraca**: nową wartość zmiennej (lub niezmienioną wartość, jeśli `divisor` był równy `0.0`).
 
 **Kompatybilność:** `MOD` - `PIKLIB61.DLL` ⚠️ (3/4), `PIKLIB71.DLL` ✅, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
 
 ### MUL
 
 ```
-DOUBLE MUL(DOUBLE multiplier)
+void MUL(DOUBLE multiplier)
 ```
 
-Mnoży bieżącą wartość zmiennej przez argument, zapisuje wynik i zwraca go.
+Mnoży bieżącą wartość zmiennej przez argument i zapisuje wynik.
 
 **Parametry**
 
 - `multiplier` — mnożnik.
-
-**Zwraca**: nową wartość zmiennej.
 
 **Przykłady**
 
@@ -373,7 +370,7 @@ Przywraca wartość zmiennej do wartości resetu zdefiniowanej w atrybutach obie
 ### SET
 
 ```
-DOUBLE SET(DOUBLE value)
+void SET(DOUBLE value)
 ```
 
 Ustawia wartość zmiennej.
@@ -381,8 +378,6 @@ Ustawia wartość zmiennej.
 **Parametry**
 
 - `value` — nowa wartość.
-
-**Zwraca**: nową wartość zmiennej.
 
 **Przykłady**
 
@@ -458,16 +453,14 @@ VARDODLEGLOSC^SQRT(VARDODLEGLOSC);
 ### SUB
 
 ```
-DOUBLE SUB(DOUBLE subtrahend)
+void SUB(DOUBLE subtrahend)
 ```
 
-Odejmuje argument od bieżącej wartości zmiennej, zapisuje wynik i zwraca go.
+Odejmuje argument od bieżącej wartości zmiennej i zapisuje wynik.
 
 **Parametry**
 
 - `subtrahend` — wartość odejmowana.
-
-**Zwraca**: nową wartość zmiennej.
 
 **Przykłady**
 

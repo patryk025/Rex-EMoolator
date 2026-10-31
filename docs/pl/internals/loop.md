@@ -1,85 +1,93 @@
 # Pętla i zegar silnika
 
-Cała gra napędzana jest jedną pętlą: LibGDX wywołuje metodę `render()` raz na klatkę, a ta przepuszcza sterowanie przez cztery podsystemy w stałej kolejności. Ten rozdział opisuje tę pętlę, sposób, w jaki silnik utrzymuje **niezależny od liczby klatek** zegar gry, oraz tryby pauzy i krokowania.
+Cała gra napędzana jest jedną pętlą: LibGDX wywołuje metodę `render()` raz na klatkę hosta. Stan gry nie jest jednak liczony „co klatkę”. Emulator odtwarza rytm oryginału: wykonuje **pulsy** silnika, a czas odczytuje z **zegara o zgrubnej rozdzielczości**, takiego jak `GetTickCount` w starych systemach. Ten rozdział opisuje oba mechanizmy oraz tryby pauzy i krokowania.
 
-## Model MVC
+## Klatka hosta i puls silnika {#puls-silnika}
 
-Każda klatka to przejście przez cztery managery — w tej kolejności:
+W pętli działają dwa niezależne rytmy:
 
-```mermaid
-flowchart LR
-    I[InputManager<br/>wejście] --> U[UpdateManager<br/>stan gry]
-    U --> R[RenderManager<br/>rysowanie]
-    R --> D[DebugManager<br/>nakładka debug]
-```
+| | Klatka hosta | Puls silnika |
+|---|---|---|
+| Tempo | wyznacza backend (`vsync`, `targetFPS = 60`) | najwyżej `legacyPulseHz = 60` razy na sekundę i najwyżej raz na klatkę |
+| Zadania | skróty diagnostyczne, rysowanie, nakładka debug | wejście widoczne dla skryptów, timery, animacje, dźwięk, kolizje |
+| Po zacięciu | nic do nadrobienia | pominięte pulsy przepadają |
 
-1. **Input** — przetworzenie myszy i klawiatury, wyemitowanie wynikających z nich sygnałów.
-2. **Update** — postęp stanu gry: [timery](timers.md), [animacje](animation.md), kolizje i dźwięk.
-3. **Render** — narysowanie sceny (patrz [Renderowanie](rendering.md)).
-4. **Debug** — opcjonalna nakładka diagnostyczna (FPS, podgląd obiektów).
-
-Na końcu klatki wykonywany jest jeszcze zrzut ekranu na potrzeby [`CANVAS_OBSERVER`](../reference/CANVAS_OBSERVER.md), który udostępnia skryptom aktualny obraz kanwy.
-
-## Stały krok czasowy {#staly-krok-czasowy}
-
-Najważniejsza decyzja projektowa pętli: **wejście i renderowanie biegną z prędkością klatek monitora, ale stan gry aktualizowany jest stałym krokiem 60 Hz** (`TICK = 1/60 s`).
-
-!!! info "Dlaczego nie po prostu `deltaTime`?"
-    Stały krok daje **determinizm i powtarzalność** — stan gry ewoluuje identycznie niezależnie od liczby klatek na sekundę, co ułatwia testy i odtwarzanie błędów. Gdyby Rex-EMoolator aktualizował stan wprost o zmienny `deltaTime` klatki, animacje i timery rozjeżdżałyby się na szybszym i wolniejszym sprzęcie.
-
-!!! quote "Jak robił to oryginał"
-    Oryginał działał inaczej. Dekompilacja `bloomoodll.dll` pokazuje, że silnik mierzył **realny czas każdej klatki** zegarem wysokiej rozdzielczości (`QueryPerformanceCounter`, klasa `CHiResTimer` — globalne `appTime`, `frameTime`, `fps`) i posuwał logikę o tę **zmienną deltę**. Zaplanowane zdarzenia i skryptowe [timery](timers.md) obsługiwał osobny mechanizm multimedialnych timerów Win32 (`timeSetEvent`, klasy `CXTimer`/`CTimerNotificator`). Stały krok 60 Hz to więc **świadoma decyzja emulatora** dla determinizmu, a nie odtworzenie zachowania oryginału, który sztywnego ticka nie miał.
-
-Realizuje to klasyczny **akumulator** (wzorzec *„Fix Your Timestep!"*): czas każdej klatki dokładany jest do akumulatora, z którego silnik „wypłaca" pełne kroki po `1/60 s`.
+Podział chroni skrypty przed wysokim odświeżaniem. Gdyby wejście i managery działały co klatkę, monitor 144 Hz przyspieszyłby powtarzanie klawiszy, obsługę ruchu myszy i stany przycisków.
 
 ```mermaid
 flowchart TD
-    A[deltaTime klatki] --> B[accumulator += deltaTime]
-    B --> C{accumulator ≥ 1/60<br/>i kroków < 5?}
-    C -- tak --> D[tick 1/60]
-    D --> E[accumulator −= 1/60]
-    E --> C
-    C -- nie --> F[render i debug]
+    A["render() — klatka hosta"] --> B["processHostInput<br/>skróty diagnostyczne"]
+    B --> C{"puls?<br/>LegacyPulseGate lub krok"}
+    C -- tak --> D["wejście, render i managery<br/>w kolejności zależnej od silnika"]
+    C -- nie --> E["tylko render"]
 ```
 
-- **`MAX_STEPS = 5`** — w jednej klatce wykonuje się najwyżej 5 kroków aktualizacji. Jeśli klatka mocno utknie (np. zacięcie systemu), nadmiar czasu jest **porzucany** zamiast nadrabiany. To zabezpieczenie przed *spiralą śmierci*, w której coraz dłuższe klatki generują coraz więcej kroków do nadrobienia.
-- Przy typowych 60 FPS na klatkę przypada dokładnie jeden krok; przy 144 FPS — średnio co druga–trzecia klatka wykonuje krok; przy spadku do 30 FPS — po dwa kroki na klatkę.
+O pulsie decyduje `LegacyPulseGate`. Pierwsze odpytanie przepuszcza od razu, a kolejne najwyżej raz na `1/60 s`. Spóźnione odpytanie przesuwa termin za bieżący czas, czyli **porzuca** zaległe pulsy zamiast je nadrabiać. Bramka jest rozstrzygająca, bo nie każdy backend respektuje `setForegroundFPS` (nie robi tego `AndroidGraphics`).
 
-## Zegar silnika
+### Kolejność faz
 
-Aktualizacje **nie korzystają z zegara ściennego** (czasu systemowego). Każdy krok dokłada `TICK` do monotonicznego **zegara silnika**, liczonego w milisekundach:
+Kolejność wejścia, rysowania i managerów jest widoczna dla skryptów i różni się między silnikami, dlatego trzyma ją `LegacyFrameOrder`, przypisany w [profilu kompatybilności](architecture.md#profil-kompatybilnosci):
+
+| Silnik | Klatka z pulsem |
+|---|---|
+| Piklib 6.1, 7.1, 7.2 | wejście → managery → render |
+| Piklib 8 | wejście → render → managery |
+| BlooMoo, także w „Reksiu i Wehikule Czasu” | render → wejście → managery |
+
+W klatce bez pulsu wykonuje się tylko render. Razem z nim zawsze rysuje się [nakładka debug](../emulator/index.md#skroty-klawiszowe).
+
+## Praca wykonywana w pulsie
 
 ```java
-public void tick(float fixedDt) {
-    game.advanceEngineTime(fixedDt);      // (1)
-    updateTimers(game.getEngineTimeMs()); // (2)
-    updateAnimations(game.getEngineTimeMs());
-    updateCollisions();
-    updateAudio(fixedDt);
+public void pulse() {
+    updateTimers();      // (1)
+    updateAnimations();
+    updateAudio();
+    updateCollisions();  // (2)
 }
 ```
 
-1. Posuwa zegar silnika o stały krok (~16,67 ms).
-2. [Timery](timers.md) i [animacje](animation.md) dostają **bieżący czas silnika**, a nie czas systemowy — dzięki temu są w pełni deterministyczne i zatrzymują się razem z pauzą.
+1. [Timery](timers.md) i [animacje](animation.md) czytają czas z [zegara silnika](#zegar-silnika), a nie z licznika pulsów.
+2. Kolizje są liczone tylko dla obiektów oznaczonych jako zmienione od ostatniego sprawdzenia.
 
-Kolejność wewnątrz kroku jest stała: **czas → timery → animacje → kolizje → dźwięk**.
+Kolejność jest stała: **timery → animacje → dźwięk → kolizje**.
+
+## Zegar silnika {#zegar-silnika}
+
+`Game.getEngineTimeMs()` zwraca czas z `LegacyClock`: monotonicznego zegara w całych milisekundach, liczonego od startu gry. Implementacja `QuantizedLegacyClock` czyta `System.nanoTime()` i zaokrągla wynik w dół do kwantu, więc wartość przeskakuje skokami, tak jak `GetTickCount`. Zegar płynie w czasie rzeczywistym i nie zależy ani od liczby klatek, ani od liczby pulsów.
+
+Kwant wybiera się osobno dla każdej gry (`LegacyClockProfile`):
+
+| Profil | Kwant |
+|---|---:|
+| Windows 11 / 64 Hz (domyślny) | 15,625 ms |
+| Windows XP / 100 Hz | 10 ms |
+| QEMU / 86Box zmierzone w Windows 98 | 5 ms |
+| Windows 9x, wartość nominalna | 54,9254 ms |
+| 1 ms | 1 ms |
+
+Profil opisuje cel zgodności, a nie system, na którym działa emulator.
 
 !!! tip "Konsekwencja dla skryptów"
-    Ponieważ wszystko mierzy ten sam zegar, [timer](../reference/TIMER.md) ustawiony na `1000 ms` wyemituje `ONTICK` po dokładnie 60 krokach — niezależnie od tego, czy gra chodzi w 30, czy w 240 FPS.
+    [Timer](../reference/TIMER.md) ustawiony na `1000 ms` odpala się po sekundzie czasu rzeczywistego, z dokładnością do kwantu zegara i najbliższego pulsu, niezależnie od tego, czy gra chodzi w 30, czy w 240 FPS. Dwa uruchomienia mogą się jednak różnić o kilka milisekund, tak jak w oryginale.
 
-## Pauza i krokowanie
+!!! quote "Jak robił to oryginał"
+    Schedulery oryginału porównują czas z `GetTickCount`: `CAnimationManager::domodal` jednym odczytem wybiera animacje, którym minął czas klatki, a `CXTimer` czyta zegar ponownie po wywołaniu obsługi timera. Rozdzielczość tego zegara zależy od systemu, stąd profile powyżej. Biblioteki silnika importują też `QueryPerformanceCounter` (klasa `CHiResTimer` — globalne `appTime`, `frameTime`, `fps`) oraz multimedialny `timeSetEvent`. Tempo 60 pulsów na sekundę to ustawienie emulatora.
+
+## Pauza i krokowanie {#pauza-i-krokowanie}
 
 Pętla obsługuje dwa tryby diagnostyczne sterowane przez `EngineConfig`:
 
-| Tryb | Zachowanie |
-|---|---|
-| **Pauza** (`paused`) | `deltaTime` jest zerowany — stan gry stoi, ale klatki nadal się rysują (można obracać kamerą debug, oglądać scenę). |
-| **Krok klatki** (`stepFrame`) | Wymusza dokładnie **jeden** krok `TICK` i z powrotem wpada w pauzę. Pozwala przewijać grę klatka po klatce. |
+| Tryb | Klawisz | Zachowanie |
+|---|---|---|
+| **Pauza** (`paused`) | `F11` | Pulsy nie są wykonywane, więc stan gry stoi. Klatki nadal się rysują, a skróty diagnostyczne działają. |
+| **Krok** (`stepFrame`) | `F12` | Wymusza dokładnie **jeden** puls z pominięciem bramki. W pauzie pozwala przewijać grę puls po pulsie. |
 
-W trybie kroku akumulator jest pomijany — wykonywany jest pojedynczy, izolowany `tick(TICK)`, co ułatwia analizę pojedynczej zmiany stanu.
+!!! warning "Pauza diagnostyczna nie zatrzymuje zegara"
+    `LegacyClock` płynie dalej, a pauza wstrzymuje tylko pulsy. Po jej zdjęciu timery i animacje, którym minął termin, wykonają się raz, bez nadrabiania. Pauzą sceny (`SCENE^PAUSE`) rządzą osobne reguły, opisane w [architekturze](architecture.md#zakres-leksykalny-a-zakres-odtwarzania).
 
 ## Powiązane tematy
 
-- [Renderowanie](rendering.md) — co dzieje się w kroku „Render".
+- [Renderowanie](rendering.md) — co dzieje się w kroku „render”.
 - [System animacji](animation.md) — jak animacje korzystają z zegara silnika.
-- [Czas i timery](timers.md) — `TIMER` i sygnał `ONTICK` na zegarze silnika.
+- [Czas i timery](timers.md) — `TIMER` i sygnał `ONTICK`.

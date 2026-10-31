@@ -93,9 +93,6 @@ Wariant `SETANCHOR(nazwa)` wylicza punkt kotwicy z **bounding boxa bieżącej kl
 
 Wariant `SETANCHOR(x, y)` ustawia współrzędne kotwicy wprost.
 
-!!! tip "Kotwice dolne bywają kłopotliwe"
-    Kotwice odwołujące się do dolnej krawędzi (`LEFTLOWER`, `RIGHTLOWER`, `BOTTOM`) wchodzą w interakcję z odbiciem osi Y w przestrzeni renderowania. W praktyce najpewniejsze i najczęściej używane są `CENTER` oraz `LEFTUPPER`; przy dolnych warto zweryfikować wynik wizualnie.
-
 ## Mysz i przyciski
 
 Pozycja kursora ([`MOUSE`](../reference/MOUSE.md)) raportowana jest w tym samym układzie 800×600 z początkiem w lewym górnym rogu, co pozycje obiektów — dlatego współrzędne myszy można podawać wprost do `SETPOSITION`. Obszar klikalny przycisku ([`BUTTON`](../reference/BUTTON.md)) definiuje prostokąt `RECT` w tej samej przestrzeni.

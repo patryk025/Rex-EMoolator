@@ -13,4 +13,4 @@ Each square is one script method within a type. Its color tells whether the emul
     - A card's ratio is registrations without a stub flag / identified methods, computed over the whole group even when filtered. It is not functional coverage. A "No data" card does not mean 0%.
     - The emulator helper type `INSTANCE` is excluded.
 
-The map is refreshed manually with `tools/render_method_map.py` from the DLL analyzer's Atlas export (see `tools/method-map.md` in the repository). The date and emulator revision are shown above the legend.
+The map is refreshed manually by an external DLL analyzer that is not part of this repository. The date and emulator revision are shown above the legend.

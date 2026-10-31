@@ -4,13 +4,10 @@ A [`TIMER`](../reference/TIMER.md#timer) object is a cyclic time counter: every 
 
 ## Time measured by the engine clock
 
-Timers **do not use the wall clock** (system time). They tick on the [monotonic engine clock](loop.md#engine-clock), advanced by a fixed `1/60 s` step in every [loop](loop.md) update step:
+Timers are checked on every [engine pulse](loop.md#host-frame-and-engine-pulse), and they read time from the coarse-resolution [engine clock](loop.md#engine-clock), which follows real time. More precisely, they use `Game.getTimerTimeMs()`: the same clock minus the time a scene kept timers paused.
 
-- the clock is held as an accumulator in milliseconds (a step adds `16.666… ms`),
-- `getEngineTimeMs()` returns its integer part.
-
-!!! tip "Determinism and pause"
-    Thanks to this, timers are fully deterministic and **stop together with the [pause](loop.md#pause-and-stepping)** — time does not flow while the game stands still. A timer set to `1000 ms` will emit `ONTICK` after exactly 60 engine steps (`60 × 16.666… = 1000`), regardless of the frame rate.
+!!! tip "Accuracy and pausing"
+    A timer set to `1000 ms` ticks after one second of real time, accurate to the clock quantum (15.625 ms by default) and the nearest pulse, regardless of the frame rate. [`SCENE^PAUSE`](../reference/SCENE.md#pause) freezes timer time, unless it was called as `PAUSE(TRUE)`. The [diagnostic pause](loop.md#pause-and-stepping) only holds back pulses, and the clock keeps running.
 
 ## Timer fields
 
@@ -20,35 +17,37 @@ Timers **do not use the wall clock** (system time). They tick on the [monotonic 
 | `TICKS` | the maximum number of ticks; `0` means **no limit** |
 | `enabled` | whether the timer is currently ticking |
 | `currentTickCount` | how many ticks have already occurred (the value carried by `ONTICK`) |
-| `lastTickTime` | the engine time of the last tick (the interval accumulator) |
+| `lastTickTime` | the time of the last tick (the interval accumulator) |
 
 ## Tick logic
 
-On every update step the engine calls `update()` on the timer:
+On every pulse the engine calls `update()` on the timer:
 
 ```mermaid
 flowchart TD
-    A([update: engine time t]) --> B{enabled<br/>and ELAPSE > 0?}
+    A([pulse: timer time t]) --> B{enabled<br/>and ELAPSE ≥ 0?}
     B -- no --> Z([end])
     B -- yes --> C{t − lastTickTime ≥ ELAPSE?}
     C -- no --> Z
     C -- yes --> D[currentTickCount++]
-    D --> E[lastTickTime = t]
-    E --> F["emit ONTICK(currentTickCount)"]
-    F --> G{TICKS ≠ 0 and<br/>currentTickCount ≥ TICKS?}
+    D --> G{TICKS ≠ 0 and<br/>currentTickCount ≥ TICKS?}
     G -- yes --> H[enabled = false]
-    G -- no --> Z
-    H --> Z
+    G -- no --> F
+    H --> F["emit ONTICK(currentTickCount)"]
+    F --> E[lastTickTime = fresh clock reading]
+    E --> Z
 ```
 
 Key details:
 
-- after a tick, `lastTickTime` is set to the **current** engine time (no remainder carry-over), so the next tick's window counts from scratch,
-- when `TICKS` is positive and the counter reaches it, the timer **disables itself** after the last tick,
-- with `TICKS = 0` the timer ticks forever, until `DISABLE`.
+- at most one tick happens per pulse, so late ticks are not caught up,
+- `lastTickTime` is set only **after** the `ONTICK` handler, from a fresh clock reading, so the handler's execution time does not count towards the next interval,
+- when the counter reaches a positive `TICKS`, the timer disables itself **before** the last handler, which lets the handler re-enable it with `ENABLE`,
+- with `TICKS = 0` the timer ticks forever, until `DISABLE`,
+- with `ELAPSE = 0` the timer ticks on every pulse.
 
 !!! note "Granularity"
-    The check happens once per step (~16.67 ms), so the interval is effectively rounded up to the nearest step boundary. Intervals that are multiples of `1/60 s` (e.g. 50, 100, 1000 ms) land exactly; the rest fall on the first step that crosses the threshold.
+    The check happens once per pulse (usually every ~16.67 ms), and the clock jumps by the profile's quantum. In practice the interval is rounded up to the first pulse at which the clock shows the threshold has been crossed.
 
 ## Methods and their pitfalls
 
@@ -68,7 +67,7 @@ Some methods have behaviour that's easy to overlook — it was mirrored directly
 
 ## How it differs from the original
 
-In `bloomoodll.dll` timers were driven by **Win32 multimedia timers** (`timeSetEvent`, classes `CXTimer`/`CTimerNotificator`), not by the render loop. Rex-EMoolator instead ticks them on the [engine clock](loop.md#engine-clock) at a `1/60 s` step. The tick logic itself, however, is the same.
+In `bloomoodll.dll`, timers are handled by the `CXTimer`/`CTimerNotificator` classes, not by the render loop. Rex-EMoolator instead checks them on the [engine pulse](loop.md#host-frame-and-engine-pulse). The tick logic itself is the same, though: like `CXTimer`, the emulator reads the clock again after calling the handler.
 
 !!! quote "Confirmed by decompilation"
     The `CMC_Timer::onTimer` method in the original library does exactly what's described above: it checks the "enabled" flag, increments the tick counter, disables the timer once the `TICKS` limit is reached, and then emits the parameterised `ONTICK^<count>` signal followed by `ONTICK`.

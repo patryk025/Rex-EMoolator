@@ -1,85 +1,93 @@
 # Game loop and engine clock
 
-The whole game is driven by one loop: LibGDX calls `render()` once per frame, and that routes control through four subsystems in a fixed order. This chapter describes that loop, how the engine keeps a **frame-rate-independent** game clock, and the pause and stepping modes.
+The whole game is driven by one loop: LibGDX calls `render()` once per host frame. Game state, however, is not computed "every frame". The emulator recreates the original's rhythm: it runs engine **pulses** and reads time from a **coarse-resolution clock**, like `GetTickCount` on old systems. This chapter describes both mechanisms and the pause and stepping modes.
 
-## The MVC model
+## Host frame and engine pulse
 
-Each frame is a pass through four managers — in this order:
+Two independent rhythms run in the loop:
 
-```mermaid
-flowchart LR
-    I[InputManager<br/>input] --> U[UpdateManager<br/>game state]
-    U --> R[RenderManager<br/>drawing]
-    R --> D[DebugManager<br/>debug overlay]
-```
+| | Host frame | Engine pulse |
+|---|---|---|
+| Rate | set by the backend (`vsync`, `targetFPS = 60`) | at most `legacyPulseHz = 60` times per second and at most once per frame |
+| Work | diagnostic shortcuts, drawing, debug overlay | script-visible input, timers, animations, audio, collisions |
+| After a stall | nothing to catch up on | missed pulses are lost |
 
-1. **Input** — process mouse and keyboard, emit the signals they produce.
-2. **Update** — advance game state: [timers](timers.md), [animations](animation.md), collisions, and audio.
-3. **Render** — draw the scene (see [Rendering](rendering.md)).
-4. **Debug** — optional diagnostic overlay (FPS, object inspection).
-
-At the end of the frame a screenshot is taken for [`CANVAS_OBSERVER`](../reference/CANVAS_OBSERVER.md), which exposes the current canvas image to scripts.
-
-## Fixed timestep
-
-The loop's key design decision: **input and rendering run at the monitor's frame rate, but game state is updated on a fixed 60 Hz step** (`TICK = 1/60 s`).
-
-!!! info "Why not just `deltaTime`?"
-    A fixed step gives **determinism and reproducibility** — game state evolves identically regardless of frame rate, which makes tests and bug reproduction easier. If Rex-EMoolator advanced state directly by the frame's variable `deltaTime`, animations and timers would drift apart on faster and slower hardware.
-
-!!! quote "How the original did it"
-    The original worked differently. Decompilation of `bloomoodll.dll` shows the engine measured the **real time of each frame** with a high-resolution clock (`QueryPerformanceCounter`, class `CHiResTimer` — globals `appTime`, `frameTime`, `fps`) and advanced logic by that **variable delta**. Scheduled events and script [timers](timers.md) were handled by a separate Win32 multimedia-timer mechanism (`timeSetEvent`, classes `CXTimer`/`CTimerNotificator`). The fixed 60 Hz step is therefore a **deliberate emulator choice** for determinism, rather than a recreation of the original's behaviour, which had no rigid tick.
-
-This is implemented by the classic **accumulator** (the *"Fix Your Timestep!"* pattern): each frame's time is added to an accumulator, from which the engine "pays out" full `1/60 s` steps.
+The split protects scripts from high refresh rates. If input and managers ran every frame, a 144 Hz monitor would speed up key repeat, mouse-move handlers, and button state machines.
 
 ```mermaid
 flowchart TD
-    A[frame deltaTime] --> B[accumulator += deltaTime]
-    B --> C{accumulator ≥ 1/60<br/>and steps < 5?}
-    C -- yes --> D[tick 1/60]
-    D --> E[accumulator −= 1/60]
-    E --> C
-    C -- no --> F[render and debug]
+    A["render() — host frame"] --> B["processHostInput<br/>diagnostic shortcuts"]
+    B --> C{"pulse?<br/>LegacyPulseGate or step"}
+    C -- yes --> D["input, render and managers<br/>in an engine-dependent order"]
+    C -- no --> E["render only"]
 ```
 
-- **`MAX_STEPS = 5`** — at most 5 update steps run per frame. If a frame stalls badly (e.g. a system hiccup), the excess time is **dropped** rather than caught up. This guards against the *spiral of death*, where ever-longer frames generate ever more steps to catch up on.
-- At a typical 60 FPS exactly one step runs per frame; at 144 FPS a step runs on roughly every second or third frame; at a drop to 30 FPS, two steps run per frame.
+`LegacyPulseGate` decides on the pulse. It admits the first poll immediately and later ones at most once every `1/60 s`. A late poll moves the deadline past the current time, which **discards** the missed pulses instead of catching up. The gate is authoritative because not every backend honours `setForegroundFPS` (`AndroidGraphics` does not).
 
-## Engine clock
+### Phase order
 
-Updates **do not use wall-clock time** (system time). Each step adds `TICK` to a monotonic **engine clock**, measured in milliseconds:
+The order of input, drawing, and managers is visible to scripts and differs between engines, so it is held by `LegacyFrameOrder`, assigned in the [compatibility profile](architecture.md#compatibility-profile):
+
+| Engine | Frame with a pulse |
+|---|---|
+| Piklib 6.1, 7.1, 7.2 | input → managers → render |
+| Piklib 8 | input → render → managers |
+| BlooMoo, including "Reksio i Wehikuł Czasu" | render → input → managers |
+
+A frame without a pulse runs only the render. The [debug overlay](../emulator/index.md#keyboard-shortcuts) is always drawn along with it.
+
+## Work done in a pulse
 
 ```java
-public void tick(float fixedDt) {
-    game.advanceEngineTime(fixedDt);      // (1)
-    updateTimers(game.getEngineTimeMs()); // (2)
-    updateAnimations(game.getEngineTimeMs());
-    updateCollisions();
-    updateAudio(fixedDt);
+public void pulse() {
+    updateTimers();      // (1)
+    updateAnimations();
+    updateAudio();
+    updateCollisions();  // (2)
 }
 ```
 
-1. Advances the engine clock by a fixed step (~16.67 ms).
-2. [Timers](timers.md) and [animations](animation.md) receive the **current engine time**, not system time — so they are fully deterministic and stop together with the pause.
+1. [Timers](timers.md) and [animations](animation.md) read time from the [engine clock](#engine-clock), not from a pulse counter.
+2. Collisions are computed only for objects marked as changed since the last check.
 
-The order within a step is fixed: **time → timers → animations → collisions → audio**.
+The order is fixed: **timers → animations → audio → collisions**.
+
+## Engine clock
+
+`Game.getEngineTimeMs()` returns the time from `LegacyClock`: a monotonic clock in whole milliseconds, counted from the start of the game. The `QuantizedLegacyClock` implementation reads `System.nanoTime()` and rounds the result down to a quantum, so the value jumps in steps, just like `GetTickCount`. The clock follows real time and depends neither on the frame rate nor on the number of pulses.
+
+The quantum is chosen per game (`LegacyClockProfile`):
+
+| Profile | Quantum |
+|---|---:|
+| Windows 11 / 64 Hz (default) | 15.625 ms |
+| Windows XP / 100 Hz | 10 ms |
+| QEMU / 86Box measured in Windows 98 | 5 ms |
+| Windows 9x, nominal value | 54.9254 ms |
+| 1 ms | 1 ms |
+
+A profile describes a compatibility target, not the system the emulator runs on.
 
 !!! tip "Consequence for scripts"
-    Because everything is measured by the same clock, a [timer](../reference/TIMER.md) set to `1000 ms` will emit `ONTICK` after exactly 60 steps — regardless of whether the game runs at 30 or 240 FPS.
+    A [timer](../reference/TIMER.md) set to `1000 ms` fires after one second of real time, accurate to the clock quantum and the nearest pulse, whether the game runs at 30 or 240 FPS. Two runs can still differ by a few milliseconds, just like in the original.
+
+!!! quote "How the original did it"
+    The original's schedulers compare time from `GetTickCount`: `CAnimationManager::domodal` selects the animations whose frame time has elapsed with a single reading, and `CXTimer` reads the clock again after calling the timer handler. The resolution of that clock depends on the system, hence the profiles above. The engine libraries also import `QueryPerformanceCounter` (class `CHiResTimer` — globals `appTime`, `frameTime`, `fps`) and the multimedia `timeSetEvent`. The rate of 60 pulses per second is an emulator setting.
 
 ## Pause and stepping
 
 The loop supports two diagnostic modes controlled by `EngineConfig`:
 
-| Mode | Behaviour |
-|---|---|
-| **Pause** (`paused`) | `deltaTime` is zeroed — game state stands still, but frames keep rendering (you can move the debug camera, inspect the scene). |
-| **Frame step** (`stepFrame`) | Forces exactly **one** `TICK` step and falls back into pause. Lets you scrub the game frame by frame. |
+| Mode | Key | Behaviour |
+|---|---|---|
+| **Pause** (`paused`) | `F11` | No pulses run, so game state stands still. Frames keep rendering and diagnostic shortcuts keep working. |
+| **Step** (`stepFrame`) | `F12` | Forces exactly **one** pulse, bypassing the gate. While paused, it lets you scrub the game pulse by pulse. |
 
-In step mode the accumulator is bypassed — a single, isolated `tick(TICK)` runs, which makes analysing a single state change easier.
+!!! warning "The diagnostic pause does not stop the clock"
+    `LegacyClock` keeps running, and the pause only holds back pulses. When it is lifted, timers and animations that are due run once, without catching up. Scene pauses (`SCENE^PAUSE`) follow separate rules, described in [the architecture chapter](architecture.md#lexical-scope-vs-playback-scope).
 
 ## Related topics
 
-- [Rendering](rendering.md) — what happens in the "Render" step.
+- [Rendering](rendering.md) — what happens in the "render" step.
 - [Animation system](animation.md) — how animations use the engine clock.
-- [Time and timers](timers.md) — `TIMER` and the `ONTICK` signal on the engine clock.
+- [Time and timers](timers.md) — `TIMER` and the `ONTICK` signal.

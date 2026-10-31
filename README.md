@@ -2,7 +2,67 @@
 
 [Polski](README.pl.md) | **English**
 
-An open-source emulator that recreates the behavior of the Piklib/BlooMoo engine used in Aidem Media games.
+[![Latest release](https://img.shields.io/github/v/release/patryk025/Rex-EMoolator?label=release)](https://github.com/patryk025/Rex-EMoolator/releases/latest)
+[![Documentation](https://img.shields.io/badge/docs-online-blue)](https://patryk025.github.io/Rex-EMoolator/en/)
+[![License: MIT](https://img.shields.io/github/license/patryk025/Rex-EMoolator)](LICENSE)
+
+An open-source emulator that recreates the behavior of the Piklib/BlooMoo engine used in Aidem Media games. It runs on Windows, Linux, macOS, and Android. Games are not included: you need your own copy.
+
+<table>
+<tr>
+<td width="33%"><img src="docs/assets/screenshots/risp.jpg" alt="Reksio i Skarb Piratów running in the emulator" width="100%"/></td>
+<td width="33%"><img src="docs/assets/screenshots/riu.jpg" alt="Reksio i UFO running in the emulator" width="100%"/></td>
+<td width="33%"><img src="docs/assets/screenshots/wpzr.jpg" alt="Wyprawa po Złote Runo running in the emulator" width="100%"/></td>
+</tr>
+</table>
+
+More in the [screenshot gallery](https://patryk025.github.io/Rex-EMoolator/en/emulator/screenshots/).
+
+## Getting started
+
+1. Download the package for your system from the [latest release](https://github.com/patryk025/Rex-EMoolator/releases/latest).
+
+   | System | File | Needs Java |
+   |---|---|---|
+   | Windows | `.exe` installer | no |
+   | macOS | `.dmg` image | no |
+   | Linux | `.deb` package | no |
+   | Android 7.0+ | `.apk` | no |
+   | Any | `.jar` or `.zip` | Java 21+ |
+
+2. Start the emulator and click **Add game**.
+3. Point it at the game folder, a disc image, or a ZIP archive, then save.
+4. Click **Run game**.
+
+The [emulator guide](https://patryk025.github.io/Rex-EMoolator/en/emulator/) covers per-game settings, keyboard shortcuts, and where saves are kept. Official and fan-made fixes can be installed from the [patch manager](https://patryk025.github.io/Rex-EMoolator/en/emulator/patches/).
+
+## Game status
+
+| Game | Status | Tracking |
+|---|---|---|
+| Reksio i Skarb Piratów | ![Playable](https://img.shields.io/badge/Playable-green) | [Project](https://github.com/users/patryk025/projects/3) |
+| Reksio i UFO | ![In-game](https://img.shields.io/badge/In--game-yellow) | [Project](https://github.com/users/patryk025/projects/4) |
+| Reksio i Czarodzieje | ![In-game](https://img.shields.io/badge/In--game-yellow) | [Project](https://github.com/users/patryk025/projects/6) |
+| Reksio i Wehikuł Czasu | ![In-game](https://img.shields.io/badge/In--game-yellow) | [Project](https://github.com/users/patryk025/projects/8) |
+| Reksio i Kapitan Nemo | ![In-game](https://img.shields.io/badge/In--game-yellow) | [Project](https://github.com/users/patryk025/projects/10) |
+| Reksio i Kretes w Akcji! | ![In-game](https://img.shields.io/badge/In--game-yellow) | [Project](https://github.com/users/patryk025/projects/11) |
+| Poznaj Mity: Wyprawa po Złote Runo | ![Playable](https://img.shields.io/badge/Playable-green) | [Project](https://github.com/users/patryk025/projects/12) |
+| Poznaj Mity: Wojna Trojańska | ![In-game](https://img.shields.io/badge/In--game-yellow) | [Project](https://github.com/users/patryk025/projects/13) |
+| Poznaj Mity: Przygody Odyseusza | ![In-game](https://img.shields.io/badge/In--game-yellow) | [Project](https://github.com/users/patryk025/projects/14) |
+| Poznaj Mity: Herkules | ![In-game](https://img.shields.io/badge/In--game-yellow) | [Project](https://github.com/users/patryk025/projects/15) |
+| Tezeusz i Nić Ariadny | ![In-game](https://img.shields.io/badge/In--game-yellow) | [Project](https://github.com/users/patryk025/projects/17) |
+
+**Playable** means the game can be finished without blocking bugs. **In-game** means it runs but cannot be finished yet. The [game status page](https://patryk025.github.io/Rex-EMoolator/en/emulator/games/) has notes on each title, scene counts, and the full legend, while current scene testing happens in the linked projects.
+
+## Documentation
+
+The [documentation site](https://patryk025.github.io/Rex-EMoolator/en/) is available in English and Polish:
+
+- [Emulator](https://patryk025.github.io/Rex-EMoolator/en/emulator/): installation, settings, patches, and building from source.
+- [Engine](https://patryk025.github.io/Rex-EMoolator/en/engine/): the scripting language, arithmetic, events, and quirks.
+- [Engine internals](https://patryk025.github.io/Rex-EMoolator/en/internals/): architecture, the game loop, rendering, and animation.
+- [File formats](https://patryk025.github.io/Rex-EMoolator/en/formats/): `ANN`, `IMG`, `FNT`, `ARR`, `SEK`, and more, byte by byte.
+- [Type reference](https://patryk025.github.io/Rex-EMoolator/en/reference/): every script type with its fields, methods, and signals.
 
 ## Method map
 
@@ -14,342 +74,19 @@ gray squares are identified methods without a matched registration.
 
 [Interactive map in the documentation](https://patryk025.github.io/Rex-EMoolator/en/reference/method-map/) — search methods, filter statuses and change sorting.
 
-## Documentation
 
-Full documentation of the Piklib/BlooMoo engine and of the emulator itself is
-published at **<https://patryk025.github.io/Rex-EMoolator/>** — the scripting
-language, a reference of every script type, the file formats and the engine
-internals. It is available in Polish and English; the sources live in
-[`docs/`](docs/). Powered by Material for MkDocs.
+## Building from source
 
-## Requirements
-
-### Build Toolchain
-- **JDK**: Version 21 or newer
-- **Gradle**: Use the wrapper included in the repository
-
-### Desktop
-- **Java**: Version 21 or newer
-- **Operating System**: Windows, Linux, or macOS
-- **Game Files**: Original game files (data from the original CD-ROM or installation)
-
-### Android
-- **Android Version**: 7.0 (API level 24) or newer
-- **Android SDK**: Installed and configured through `local.properties` (`sdk.dir=...`) or `ANDROID_HOME`
-- **Game Files**: Original game files
-
-## Building the Project
-
-This project uses Gradle as its build system.
-
-### Full Build
-```bash
-# Windows
-gradlew.bat build
-
-# Linux/macOS
-./gradlew build
-```
-
-### Desktop Build
-
-The desktop module produces two distribution artifacts:
-
-- **Single-file shadow JAR** — convenient one-file distribution.
-- **Distribution ZIP** — thin JAR + every dependency as a separate file in
-  `lib/`, plus startup scripts. Recommended for redistribution because
-  individual library JARs (including LGPL-licensed components) can be
-  replaced by simply overwriting files in `lib/`.
+You need JDK 21 or newer; the Gradle wrapper is included. Android builds also need the Android SDK, set through `local.properties` (`sdk.dir=...`) or `ANDROID_HOME`.
 
 ```bash
-# Both artifacts
-./gradlew desktop:build
-
-# Shadow JAR only
-./gradlew desktop:shadowJar
-
-# Distribution ZIP only
-./gradlew desktop:distZip
+./gradlew desktop:run            # run the emulator
+./gradlew desktop:build          # single-file JAR and distribution ZIP
+./gradlew android:assembleDebug  # Android APK
+./gradlew :core:test             # tests
 ```
 
-The shadow JAR is created in `desktop/build/libs/` and the distribution ZIP
-in `desktop/build/distributions/`.
-
-### Dependency License Maintenance
-```bash
-# Regenerate THIRD-PARTY-NOTICES.md from current runtime dependencies
-./gradlew updateThirdPartyNotices
-
-# Fail if a dependency introduces a new or unapproved license family
-./gradlew checkLicense
-```
-
-`desktop:build` refreshes `THIRD-PARTY-NOTICES.md` automatically, and both
-`check` and `build` fail when the generated notices or allowed license rules
-are out of date.
-
-### Android Debug Build
-```bash
-# Windows
-gradlew.bat android:assembleDebug
-
-# Linux/macOS
-./gradlew android:assembleDebug
-```
-
-The debug APK will be created in `android/build/outputs/apk/debug/`.
-
-### Android Release Build
-```bash
-# Windows
-gradlew.bat android:assembleRelease
-
-# Linux/macOS
-./gradlew android:assembleRelease
-```
-
-The release APK will be created in `android/build/outputs/apk/release/`.
-
-## Running the Emulator
-
-### Desktop
-After building:
-```bash
-java -jar desktop/build/libs/Rex_EMoolator-desktop.jar
-```
-
-Or run directly with Gradle:
-```bash
-# Windows
-gradlew.bat desktop:run
-
-# Linux/macOS
-./gradlew desktop:run
-```
-
-### Android
-Install the generated APK on your Android device and launch the application.
-
-## Supported Games
-
-The emulator targets games based on the Piklib/BlooMoo engine.
-
-### Playability Status Legend
-- ![Playable](https://img.shields.io/badge/Playable-green) Game can be completed from start to finish without blocking bugs
-- ![In-game](https://img.shields.io/badge/In--game-yellow) Game runs but cannot be completed due to various bugs
-- ![In-intro](https://img.shields.io/badge/In--intro-orange) Game loads but doesn't progress past the intro
-- ![Unplayable](https://img.shields.io/badge/Unplayable-red) Game doesn't initialize properly, loads with errors, crashes, or shows a black screen
-- ![Unknown](https://img.shields.io/badge/Unknown-lightgrey) Not yet evaluated
-
-Playability estimates are based on the number of scenes that play correctly according to the game scripts until the first point where emulator bugs prevent further progress. Minor bugs and animation issues are not counted—only bugs that prevent scenes from starting/ending or cause crashes. Since this requires playing through titles repeatedly, this information may not be updated frequently. The list of scenes and the assessment of their correctness will be gradually created as part of GitHub Projects. However, since the newer games use dedicated scenes for cutscenes and minigames—which are significantly harder to trace in the code than simple `GOTO` transitions—this process will not be immediate.
-
-### Current Game Status
-<table>
-<thead>
-<tr>
-<th>Game Title</th>
-<th>Status</th>
-<th>Notes</th>
-<th>Estimated Playability</th>
-<th>Project Tracking</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>Reksio i Skarb Piratów</td>
-<td><img alt="Playable" src="https://img.shields.io/badge/Playable-green"/></td>
-<td>Fully playable with minor bugs.</td>
-<td>100%</td>
-<td><a href="https://github.com/users/patryk025/projects/3">Link</a></td>
-</tr>
-<tr>
-<td>Reksio i Ufo</td>
-<td><img alt="In-game" src="https://img.shields.io/badge/In--game-yellow"/></td>
-<td>The game seems to be more or less playable from start to finish, but it still needs some minor tweaks and needs to be played through manually. I'm leaving the status as "In-game" until I've verified everything.</td>
-<td>100% with some bugs</td>
-<td><a href="https://github.com/users/patryk025/projects/4">Link</a></td>
-</tr>
-<tr>
-<td>Reksio i Czarodzieje</td>
-<td><img alt="In-game" src="https://img.shields.io/badge/In--game-yellow"/></td>
-<td>Blocked at the stage of building teleporters, items cannot be picked up.</td>
-<td>N/A</td>
-<td><a href="https://github.com/users/patryk025/projects/6">Link</a></td>
-</tr>
-<tr>
-<td>Reksio i Wehikuł Czasu</td>
-<td><img alt="In-game" src="https://img.shields.io/badge/In--game-yellow"/></td>
-<td>Requires re-evaluation after interpreter refactor.</td>
-<td>N/A</td>
-<td><a href="https://github.com/users/patryk025/projects/8">Link</a></td>
-</tr>
-<tr>
-<td>Reksio i Kapitan Nemo</td>
-<td><img alt="In-game" src="https://img.shields.io/badge/In--game-yellow"/></td>
-<td>The intro works, but the save slots don't work, only the exit button does.</td>
-<td>N/A</td>
-<td><a href="https://github.com/users/patryk025/projects/10">Link</a></td>
-</tr>
-<tr>
-<td>Reksio i Kretes w Akcji!</td>
-<td><img alt="In-game" src="https://img.shields.io/badge/In--game-yellow"/></td>
-<td>The cutscenes mostly work (sometimes the characters don't appear). The mini-games try to load. Sometimes there are issues with coordinates, sometimes with scrolling and backgrounds, and in the "Reksio i UFO" level, there are problems caused by the lack of implementation of the Inertia engine.</td>
-<td>N/A</td>
-<td><a href="https://github.com/users/patryk025/projects/11">Link</a></td>
-</tr>
-<tr>
-<td>Poznaj Mity: Wyprawa po Złote Runo</td>
-<td><img alt="Playable" src="https://img.shields.io/badge/Playable-green"/></td>
-<td>All minigames are playable.</td>
-<td>100%</td>
-<td><a href="https://github.com/users/patryk025/projects/12">Link</a></td>
-</tr>
-<tr>
-<td>Poznaj Mity: Wojna Trojańska</td>
-<td><img alt="In-game" src="https://img.shields.io/badge/In--game-yellow"/></td>
-<td>The chariot races don't work, probably some trouble with the physics engine (the reimplementation still needs a few fixes).</td>
-<td>93.75% (15/16 scenes playable)</td>
-<td><a href="https://github.com/users/patryk025/projects/13">Link</a></td>
-</tr>
-<tr>
-<td>Poznaj Mity: Przygody Odyseusza</td>
-<td><img alt="In-game" src="https://img.shields.io/badge/In--game-yellow"/></td>
-<td>The food-gathering minigame seems to work, though I have my doubts — it probably doesn't reset its state between game restarts. The quiz hangs and the questions are never read out. The ship raid doesn't work properly: there are no obstacles and no enemies. The raid's cutscene hangs after a mouse click. The raid's level selector doesn't work, and on top of that it crashes when picked manually from the scene selector. The intro to the axe minigame gets stuck in some infinite loop, and its level selector shows no levels.</td>
-<td>58.82% (10/17 scenes playable)</td>
-<td><a href="https://github.com/users/patryk025/projects/14">Link</a></td>
-</tr>
-<tr>
-<td>Poznaj Mity: Herkules</td>
-<td><img alt="In-game" src="https://img.shields.io/badge/In--game-yellow"/></td>
-<td>Minigames are buggy to a greater or lesser extent.</td>
-<td>N/A</td>
-<td><a href="https://github.com/users/patryk025/projects/15">Link</a></td>
-</tr>
-<tr>
-<td>Tezeusz i Nić Ariadny</td>
-<td><img alt="In-game" src="https://img.shields.io/badge/In--game-yellow"/></td>
-<td>Minigames are buggy to a greater or lesser extent.</td>
-<td>N/A</td>
-<td><a href="https://github.com/users/patryk025/projects/17">Link</a></td>
-</tr>
-</tbody>
-</table>
-
-## Screenshots
-
-Screenshots are collapsed per game — expand the one you are interested in.
-
-<details>
-<summary><b>Reksio i Skarb Piratów</b></summary>
-
-<img src="images/risp.jpg" alt="Screenshot from Reksio i Skarb Piratów"/>
-<br/><em>Screenshot from Reksio i Skarb Piratów</em>
-
-</details>
-
-<details>
-<summary><b>Reksio i Ufo</b></summary>
-
-<img src="images/riu.jpg" alt="Screenshot from Reksio i Ufo"/>
-<br/><em>Screenshot from Reksio i Ufo</em>
-
-</details>
-
-<details>
-<summary><b>Reksio i Czarodzieje</b></summary>
-
-<img src="images/ric.jpg" alt="Screenshot from Reksio i Czarodzieje"/>
-<br/><em>Screenshot from Reksio i Czarodzieje</em>
-
-</details>
-
-<details>
-<summary><b>Reksio i Wehikuł Czasu</b></summary>
-
-<img src="images/riwc.jpg" alt="Screenshot from Reksio i Wehikuł Czasu"/>
-<br/><em>Screenshot from Reksio i Wehikuł Czasu</em>
-
-</details>
-
-<details>
-<summary><b>Reksio i Kapitan Nemo</b></summary>
-
-<table>
-<tr>
-<td width="50%" valign="top"><img src="images/rikn_menu.jpg" alt="Reksio i Kapitan Nemo menu" width="100%"/><br/><em>Reksio i Kapitan Nemo menu</em></td>
-<td width="50%" valign="top"><img src="images/rikn_gra_intro.jpg" alt="Intro after clicking the drawer" width="100%"/><br/><em>Intro after clicking the drawer</em></td>
-</tr>
-</table>
-
-</details>
-
-<details>
-<summary><b>Reksio i Kretes w Akcji</b></summary>
-
-<table>
-<tr>
-<td width="50%" valign="top"><img src="images/rikwa_intro.jpg" alt="Reksio i Kretes w Akcji intro" width="100%"/><br/><em>Reksio i Kretes w Akcji intro</em></td>
-<td width="50%" valign="top"><img src="images/rikwa_menu.jpg" alt="Reksio i Kretes w Akcji menu" width="100%"/><br/><em>Reksio i Kretes w Akcji menu</em></td>
-</tr>
-<tr>
-<td width="50%" valign="top"><img src="images/rikwa_risp_intro.jpg" alt="Reksio i Skarb Piratów intro" width="100%"/><br/><em>Reksio i Skarb Piratów intro</em></td>
-<td width="50%" valign="top"><img src="images/rikwa_risp_gra.jpg" alt="Reksio i Skarb Piratów gameplay" width="100%"/><br/><em>Reksio i Skarb Piratów gameplay</em></td>
-</tr>
-<tr>
-<td width="50%" valign="top"><img src="images/rikwa_riu_intro.jpg" alt="Reksio i Ufo intro" width="100%"/><br/><em>Reksio i Ufo intro</em></td>
-<td width="50%" valign="top"><img src="images/rikwa_riu_gra.jpg" alt="Reksio i Ufo gameplay" width="100%"/><br/><em>Reksio i Ufo gameplay</em></td>
-</tr>
-<tr>
-<td width="50%" valign="top"><img src="images/rikwa_ric_intro1.jpg" alt="Reksio i Czarodzieje intro" width="100%"/><br/><em>Reksio i Czarodzieje intro</em></td>
-<td width="50%" valign="top"><img src="images/rikwa_ric_intro2.jpg" alt="Reksio i Czarodzieje intro" width="100%"/><br/><em>Reksio i Czarodzieje intro</em></td>
-</tr>
-<tr>
-<td width="50%" valign="top"><img src="images/rikwa_ric_gra.jpg" alt="Reksio i Czarodzieje gameplay" width="100%"/><br/><em>Reksio i Czarodzieje gameplay</em></td>
-<td width="50%" valign="top"><img src="images/rikwa_riwc_menu.jpg" alt="Reksio i Wehikuł Czasu menu" width="100%"/><br/><em>Reksio i Wehikuł Czasu menu</em></td>
-</tr>
-<tr>
-<td width="50%" valign="top"><img src="images/rikwa_riwc_gra.png" alt="Reksio i Wehikuł Czasu gameplay moments before a crash" width="100%"/><br/><em>Reksio i Wehikuł Czasu gameplay moments before a crash</em></td>
-<td width="50%" valign="top"><img src="images/rikwa_shikn_intro.jpg" alt="Super Heros i Kapitan Nemo intro" width="100%"/><br/><em>Super Heros i Kapitan Nemo intro</em></td>
-</tr>
-<tr>
-<td width="50%" valign="top"><img src="images/rikwa_shikn_gra.jpg" alt="Super Heros i Kapitan Nemo gameplay" width="100%"/><br/><em>Super Heros i Kapitan Nemo gameplay</em></td>
-<td width="50%"></td>
-</tr>
-</table>
-
-</details>
-
-<details>
-<summary><b>Poznaj Mity: Wyprawa po Złote Runo</b></summary>
-
-<img src="images/wpzr.jpg" alt="Screenshot from Wyprawa po Złote Runo"/>
-<br/><em>Screenshot from Wyprawa po Złote Runo</em>
-
-</details>
-
-<details>
-<summary><b>Poznaj Mity: Wojna Trojańska</b></summary>
-
-<img src="images/wt.jpg" alt="Screenshot from Wojna Trojańska"/>
-<br/><em>Screenshot from Wojna Trojańska</em>
-
-</details>
-
-<details>
-<summary><b>Poznaj Mity: Przygody Odyseusza</b></summary>
-
-<img src="images/po.jpg" alt="Screenshot from Przygody Odyseusza"/>
-<br/><em>Screenshot from Przygody Odyseusza</em>
-
-</details>
-
-<details>
-<summary><b>Poznaj Mity: Herkules</b></summary>
-
-<img src="images/herc.jpg" alt="Screenshot from Herkules"/>
-<br/><em>Screenshot from Herkules</em>
-
-</details>
+On Windows, use `gradlew.bat`. The [build guide](https://patryk025.github.io/Rex-EMoolator/en/emulator/development/) covers output paths, native installers, and the other tasks.
 
 ## License
 

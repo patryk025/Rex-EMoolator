@@ -1,10 +1,18 @@
 # Rex-EMoolator
 
-Unofficial documentation of the **Piklib** and **BlooMoo** scripting engines used by the *Reksio's Adventures* game series, and of the **Rex-EMoolator** emulator.
+Unofficial documentation of the **Piklib** and **BlooMoo** scripting engines, which Aidem Media used for series such as *Reksio's Adventures* and *Poznaj Mity*, and of the **Rex-EMoolator** emulator.
 
 ## Documentation map
 
 <div class="grid cards" markdown>
+
+-   :material-gamepad-variant-outline:{ .lg .middle } __Emulator__
+
+    ---
+
+    Downloading and running games, their current status, patches, and building from source.
+
+    [:octicons-arrow-right-24: Emulator](emulator/index.md)
 
 -   :material-code-braces:{ .lg .middle } __Engine__
 
@@ -30,11 +38,19 @@ Unofficial documentation of the **Piklib** and **BlooMoo** scripting engines use
 
     [:octicons-arrow-right-24: File formats](formats/index.md)
 
+-   :material-auto-fix:{ .lg .middle } __Minigames__
+
+    ---
+
+    Specific scenes taken apart, starting with the spell duel from "Reksio i Czarodzieje".
+
+    [:octicons-arrow-right-24: Minigames](minigames/index.md)
+
 -   :material-format-list-bulleted-type:{ .lg .middle } __Type reference__
 
     ---
 
-    An alphabetical list of the ~45 types available in scripts, with the fields, methods, and signals of each.
+    A list of the types available in scripts, with their fields, methods, and signals, plus an interactive method map.
 
     [:octicons-arrow-right-24: Type reference](reference/index.md)
 
@@ -42,6 +58,7 @@ Unofficial documentation of the **Piklib** and **BlooMoo** scripting engines use
 
 ## What you'll find here
 
+- how to run games in the emulator and how well they work,
 - how the engine's scripting language is built and how it runs game logic,
 - the data types and objects available to scripts, and the methods, fields, and signals they expose,
 - how rendering, animation, and time work in the engine — and how they differed from the original,

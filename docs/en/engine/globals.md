@@ -57,14 +57,10 @@ This syntax is also covered in [Procedure arguments](scripts.md#procedure-argume
 
 Certain procedure names have conventional meaning — the engine invokes them automatically at fixed points in the lifecycle.
 
-### `__ONINIT__`
-
-Called once the initialisation of every variable in a loaded file has finished. See [Variable initialisation](scripts.md#variable-initialisation). A common use is to set the scene's initial state once all of its objects are available.
-
 ### `__INIT__`
 
-Called after the scene has been loaded and variable initialisation has completed — just before control is handed off to the game's logic. Used to set scene-specific state that depends on the current episode or application.
+Called after the scene has been loaded and variable initialisation has completed — just before control is handed off to the game's logic, when all objects are available. Used to set scene-specific state that depends on the current episode or application. The name is recognised from Piklib 7.1 on. See [Variable initialisation](scripts.md#variable-initialisation).
 
 ## Naming convention
 
-Names surrounded by double underscores (`__NAME__`) are reserved for the engine and for global conventional names (e.g. `__KEYB__`, `__INIT__`, `__ONINIT__`). AidemMedia scripts also use this format for their own globally significant variables to avoid being shadowed in local contexts.
+Names surrounded by double underscores (`__NAME__`) are reserved for the engine and for global conventional names (e.g. `__KEYB__`, `__INIT__`). AidemMedia scripts also use this format for their own globally significant variables to avoid being shadowed in local contexts.

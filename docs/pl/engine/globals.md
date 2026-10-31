@@ -57,14 +57,10 @@ Powyższa składnia jest opisana również w sekcji [Argumenty procedur](scripts
 
 Niektóre nazwy procedur mają znaczenie konwencjonalne — silnik wywołuje je automatycznie w określonych momentach cyklu życia.
 
-### `__ONINIT__`
-
-Procedura wywoływana po zakończeniu inicjalizacji wszystkich zmiennych w wczytanym pliku. Zobacz [Inicjalizacja zmiennych](scripts.md#inicjalizacja-zmiennych). Typowe zastosowanie: ustawienie stanu początkowego sceny po tym, jak wszystkie obiekty są już dostępne.
-
 ### `__INIT__`
 
-Procedura wywoływana po załadowaniu sceny i wykonaniu inicjalizacji zmiennych — bezpośrednio przed przekazaniem sterowania do logiki gry. Wykorzystywana do ustawiania stanu sceny zależnego od bieżącego epizodu lub aplikacji.
+Procedura wywoływana po załadowaniu sceny i wykonaniu inicjalizacji zmiennych — bezpośrednio przed przekazaniem sterowania do logiki gry, gdy wszystkie obiekty są już dostępne. Wykorzystywana do ustawiania stanu sceny zależnego od bieżącego epizodu lub aplikacji. Nazwa jest rozpoznawana od Pikliba 7.1. Zobacz [Inicjalizacja zmiennych](scripts.md#inicjalizacja-zmiennych).
 
 ## Konwencja nazewnictwa
 
-Nazwy poprzedzone i zakończone dwoma podkreślnikami (`__NAZWA__`) są zarezerwowane dla silnika oraz dla konwencjonalnych nazw rozpoznawanych globalnie (np. `__KEYB__`, `__INIT__`, `__ONINIT__`). W praktyce skrypty AidemMedia używają tego formatu również dla własnych zmiennych globalnych, których nie chcą przypadkowo przesłonić w kontekstach lokalnych.
+Nazwy poprzedzone i zakończone dwoma podkreślnikami (`__NAZWA__`) są zarezerwowane dla silnika oraz dla konwencjonalnych nazw rozpoznawanych globalnie (np. `__KEYB__`, `__INIT__`). W praktyce skrypty AidemMedia używają tego formatu również dla własnych zmiennych globalnych, których nie chcą przypadkowo przesłonić w kontekstach lokalnych.

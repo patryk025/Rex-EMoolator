@@ -6,7 +6,11 @@ repo_name: Rex-EMoolator
 edit_uri: edit/main/docs/
 
 docs_dir: docs
-not_in_nav: compatibility-audit.md
+exclude_docs: |
+  requirements.txt
+not_in_nav: |
+  compatibility-audit.md
+  reverse-engineering/
 
 theme:
   name: material
@@ -48,6 +52,7 @@ extra_javascript:
 markdown_extensions:
   - admonition
   - attr_list
+  - footnotes
   - md_in_html
   - tables
   - toc:
@@ -79,6 +84,12 @@ plugins:
           build: true
           nav_translations:
             Strona główna: Strona główna
+            Emulator: Emulator
+            Stan gier: Stan gier
+            Zrzuty ekranu: Zrzuty ekranu
+            Łatki: Łatki
+            Rozbieżności z oryginałem: Rozbieżności z oryginałem
+            Budowanie i rozwój: Budowanie i rozwój
             Silnik: Silnik
             Skrypty: Skrypty
             Arytmetyka: Arytmetyka
@@ -95,6 +106,8 @@ plugins:
             Formaty plików: Formaty plików
             Kompresja: Kompresja
             Szyfrowanie skryptów: Szyfrowanie skryptów
+            Minigierki: Minigierki
+            Pojedynek zaklęć: Pojedynek zaklęć
             Referencja typów: Referencja typów
             Mapa metod: Mapa metod
         - locale: en
@@ -102,6 +115,12 @@ plugins:
           build: true
           nav_translations:
             Strona główna: Home
+            Emulator: Emulator
+            Stan gier: Game status
+            Zrzuty ekranu: Screenshots
+            Łatki: Patches
+            Rozbieżności z oryginałem: Differences from the original
+            Budowanie i rozwój: Building and development
             Silnik: Engine
             Skrypty: Scripts
             Arytmetyka: Arithmetic
@@ -118,11 +137,20 @@ plugins:
             Formaty plików: File formats
             Kompresja: Compression
             Szyfrowanie skryptów: Script encryption
+            Minigierki: Minigames
+            Pojedynek zaklęć: Spell duel
             Referencja typów: Type reference
             Mapa metod: Method map
 
 nav:
   - Strona główna: index.md
+  - Emulator:
+      - emulator/index.md
+      - Stan gier: emulator/games.md
+      - Zrzuty ekranu: emulator/screenshots.md
+      - Łatki: emulator/patches.md
+      - Rozbieżności z oryginałem: emulator/divergences.md
+      - Budowanie i rozwój: emulator/development.md
   - Silnik:
       - engine/index.md
       - Skrypty: engine/scripts.md
@@ -151,6 +179,9 @@ nav:
       - SND: formats/SND.md
       - Kompresja: formats/compression.md
       - Szyfrowanie skryptów: formats/encryption.md
+  - Minigierki:
+      - minigames/index.md
+      - Pojedynek zaklęć: minigames/magic.md
   - Referencja typów:
       - reference/index.md
       - Mapa metod: reference/method-map.md

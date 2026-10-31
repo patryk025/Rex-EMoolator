@@ -1,10 +1,18 @@
 # Rex-EMoolator
 
-Nieoficjalna dokumentacja silników skryptowych **Piklib** oraz **BlooMoo**, używanych w serii gier *Przygody Reksia*, oraz emulatora **Rex-EMoolator**.
+Nieoficjalna dokumentacja silników skryptowych **Piklib** oraz **BlooMoo**, na których Aidem Media oparła m.in. serie *Przygody Reksia* i *Poznaj Mity*, oraz emulatora **Rex-EMoolator**.
 
 ## Mapa dokumentacji
 
 <div class="grid cards" markdown>
+
+-   :material-gamepad-variant-outline:{ .lg .middle } __Emulator__
+
+    ---
+
+    Pobieranie i uruchamianie gier, stan ich obsługi, łatki oraz budowanie ze źródeł.
+
+    [:octicons-arrow-right-24: Emulator](emulator/index.md)
 
 -   :material-code-braces:{ .lg .middle } __Silnik__
 
@@ -30,11 +38,19 @@ Nieoficjalna dokumentacja silników skryptowych **Piklib** oraz **BlooMoo**, uż
 
     [:octicons-arrow-right-24: Formaty plików](formats/index.md)
 
+-   :material-auto-fix:{ .lg .middle } __Minigierki__
+
+    ---
+
+    Konkretne sceny rozebrane od środka, na początek pojedynek zaklęć z „Reksia i Czarodziejów”.
+
+    [:octicons-arrow-right-24: Minigierki](minigames/index.md)
+
 -   :material-format-list-bulleted-type:{ .lg .middle } __Referencja typów__
 
     ---
 
-    Alfabetyczny spis ~45 typów dostępnych w skryptach wraz z polami, metodami i sygnałami każdego z nich.
+    Spis typów dostępnych w skryptach wraz z ich polami, metodami i sygnałami oraz interaktywna mapa metod.
 
     [:octicons-arrow-right-24: Referencja typów](reference/index.md)
 
@@ -42,6 +58,7 @@ Nieoficjalna dokumentacja silników skryptowych **Piklib** oraz **BlooMoo**, uż
 
 ## Czego można się tu dowiedzieć
 
+- jak uruchomić gry w emulatorze i w jakim stanie jest ich obsługa,
 - jak zbudowany jest język skryptowy silnika i jak wykonuje on logikę gry,
 - jakie typy danych i obiekty są dostępne w skryptach oraz jakie udostępniają metody, pola i sygnały,
 - jak działa renderowanie, animacja i czas w silniku — i czym różniły się od oryginału,

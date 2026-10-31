@@ -12,6 +12,10 @@ Inside arithmetic expressions, grouping is done exclusively with `[ ]`. Round pa
 
 The division operator is the at-sign `@`, not `/`. Using `/` in an expression is not interpreted as division.
 
+### Operations run from left to right
+
+Operators have no precedence, so `[7+3*2]` yields `20`, not `13`. Piklib 6.1 and 7.1 are even more limited: they accept [only one operator](arithmetic.md#order-of-operations) in an expression.
+
 ### The result type follows the left operand
 
 All binary operations cast the right operand to the type of the left. The result also takes the left operand's type. The order of operands has non-trivial consequences (see [Typing rule](arithmetic.md#typing-rule)):
@@ -29,13 +33,18 @@ The `+` operator on [`BOOL`](../reference/BOOL.md) behaves as a logical conjunct
 
 The remainder operator on [`DOUBLE`](../reference/DOUBLE.md) first computes the result and then truncates it to an integer before casting it back to `DOUBLE`. As a result, `1.5 % 2` yields `1.00000`, not `1.50000`.
 
-### `&&` and `||` accept only `BOOL`
+### `&&` and `||` only work in conditions
 
-The logical operators perform no implicit casting, even when the operand could be converted to `BOOL`. Passing an operand of any other type crashes the engine.
+`[ ]` expressions have no logical or comparison operators. `&&` and `||` exist only in the [compound `@IF` condition](scripts.md#compound-condition), where `&&` binds tighter than `||` and evaluation short-circuits.
 
-### Division by `0` in expressions crashes
+### Division by `0` does not always crash
 
-Unlike the numeric-type methods (where `DIV` and `MOD` leave the value unchanged), the `@` and `%` operators in an arithmetic expression crash the engine when the right operand is `0`.
+For `INTEGER`, dividing by `0` crashes the engine, and so does `%` on `DOUBLE`. However, `@` on `DOUBLE` yields infinity (`1.#INF0`), and it has no effect on `STRING` and `BOOL`.
+
+The methods behave similarly: [`INTEGER^DIV(0)`](../reference/INTEGER.md#div) and [`INTEGER^MOD(0)`](../reference/INTEGER.md#mod) crash the engine, and [`DOUBLE^DIV(0)`](../reference/DOUBLE.md#div) stores `1.#INF0`.
+
+!!! bug "Difference in the emulator"
+    Crosstests detected a difference to check: in the emulator, `DIV` and `MOD` leave the value unchanged, and the operators yield the text `NULL`. See [Differences from the original](../emulator/divergences.md).
 
 ## Script syntax
 
@@ -104,9 +113,9 @@ The [`SGN`](../reference/DOUBLE.md#sgn) method is the only `DOUBLE` method that 
 
 The two-argument form of [`RANDOM`](../reference/INTEGER.md#random) returns a value from `[min, max]`, including both endpoints. The one-argument form returns `[0, bound)`.
 
-### `INTEGER.DIV` and `INTEGER.MOD` with `0` leave the value unchanged
+### Not every method returns the new value
 
-Unlike division with the `@`/`%` operators in an expression, the [`DIV`](../reference/INTEGER.md#div) and [`MOD`](../reference/INTEGER.md#mod) methods on `INTEGER` return the unchanged current value when given a `0` divisor instead of crashing. The same applies to the `DOUBLE` variants.
+From Piklib 7.1 on, `ADD` returns the result, but `SUB`, `MUL`, `DIV`, and `SET` return nothing. The exact list is on the [`INTEGER`](../reference/INTEGER.md), [`DOUBLE`](../reference/DOUBLE.md), and [`STRING`](../reference/STRING.md) pages.
 
 ### `STRING.COPYFILE` ignores its receiver
 

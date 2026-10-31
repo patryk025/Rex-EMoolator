@@ -22,6 +22,9 @@ The current value of the variable.
 
 ## Methods
 
+!!! bug "Difference in the emulator"
+    The descriptions apply to engines from Piklib 7.1 on. Crosstests detected a difference to check: the methods marked `void` here return the new value in the emulator. See [Differences from the original](../emulator/divergences.md).
+
 ### ABS
 
 ```
@@ -138,24 +141,20 @@ IFRAMER^CLAMP(IFRAMECENTER, IFRAMEMAX);
 ### CLEAR
 
 ```
-INTEGER CLEAR()
+void CLEAR()
 ```
 
-Sets the variable's value to `0` and returns it.
-
-**Returns**: `0`.
+Sets the variable's value to `0`.
 
 **Compatibility:** `CLEAR` - `PIKLIB61.DLL` ✅, `PIKLIB71.DLL` ❌, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
 
 ### DEC
 
 ```
-INTEGER DEC()
+void DEC()
 ```
 
 Decrements the variable's value by `1`.
-
-**Returns**: the new value of the variable.
 
 **Examples**
 
@@ -169,16 +168,14 @@ VARIWAIT^DEC();
 ### DIV
 
 ```
-INTEGER DIV(INTEGER divisor)
+void DIV(INTEGER divisor)
 ```
 
-Divides the variable's current value (integer division) by the argument, stores the result, and returns it. Division by zero leaves the variable unchanged.
+Divides the variable's current value (integer division) by the argument and stores the result. Division by zero crashes the engine.
 
 **Parameters**
 
 - `divisor` — the divisor.
-
-**Returns**: the new value of the variable (or the unchanged value if `divisor` was `0`).
 
 **Examples**
 
@@ -204,12 +201,10 @@ Returns the current value of the variable.
 ### INC
 
 ```
-INTEGER INC()
+void INC()
 ```
 
 Increments the variable's value by `1`.
-
-**Returns**: the new value of the variable.
 
 **Examples**
 
@@ -226,7 +221,7 @@ VARITUTCOUNT^INC();
 INTEGER LENGTH(INTEGER x, INTEGER y)
 ```
 
-Computes the Euclidean length of the vector `(x, y)` as `sqrt(x² + y²)`, truncates the result to an integer, stores it, and returns it.
+Computes the Euclidean length of the vector `(x, y)` as `sqrt(x² + y²)`, truncates the result to an integer, and returns it. The variable's state after the call depends on the engine (see [Differences from the original](../emulator/divergences.md)).
 
 **Parameters**
 
@@ -247,16 +242,14 @@ I3^LENGTH(I3, 600);
 ### MOD
 
 ```
-INTEGER MOD(INTEGER divisor)
+void MOD(INTEGER divisor)
 ```
 
-Stores in the variable the remainder of dividing its current value by the argument. Division by zero leaves the variable unchanged.
+Stores in the variable the remainder of dividing its current value by the argument. Division by zero crashes the engine.
 
 **Parameters**
 
 - `divisor` — the divisor.
-
-**Returns**: the new value of the variable (or the unchanged value if `divisor` was `0`).
 
 **Examples**
 
@@ -270,16 +263,14 @@ IGC^MOD(ARLEVG^GETSIZE());
 ### MUL
 
 ```
-INTEGER MUL(INTEGER multiplier)
+void MUL(INTEGER multiplier)
 ```
 
-Multiplies the variable's current value by the argument, stores the result, and returns it.
+Multiplies the variable's current value by the argument and stores the result.
 
 **Parameters**
 
 - `multiplier` — the multiplier.
-
-**Returns**: the new value of the variable.
 
 **Examples**
 
@@ -377,7 +368,7 @@ Resets the variable's value to the reset value defined in the object's script at
 ### SET
 
 ```
-INTEGER SET(INTEGER value)
+void SET(INTEGER value)
 ```
 
 Sets the variable's value.
@@ -385,8 +376,6 @@ Sets the variable's value.
 **Parameters**
 
 - `value` — the new value.
-
-**Returns**: the new value of the variable.
 
 **Examples**
 
@@ -401,16 +390,14 @@ ITEMP^SET(STCBAZA|SRODEK);
 ### SUB
 
 ```
-INTEGER SUB(INTEGER subtrahend)
+void SUB(INTEGER subtrahend)
 ```
 
-Subtracts the argument from the variable's current value, stores the result, and returns it.
+Subtracts the argument from the variable's current value and stores the result.
 
 **Parameters**
 
 - `subtrahend` — the value to subtract.
-
-**Returns**: the new value of the variable.
 
 **Examples**
 
@@ -424,7 +411,7 @@ VARIPRIORITY^SUB(VARIBKGOFFSETY);
 ### SWITCH
 
 ```
-INTEGER SWITCH(INTEGER valueA, INTEGER valueB)
+void SWITCH(INTEGER valueA, INTEGER valueB)
 ```
 
 If the variable's current value equals `valueA`, assigns `valueB` to it; otherwise assigns `valueA`. Useful for alternating between two values.
@@ -433,8 +420,6 @@ If the variable's current value equals `valueA`, assigns `valueB` to it; otherwi
 
 - `valueA` — the first value.
 - `valueB` — the second value.
-
-**Returns**: the new value of the variable.
 
 **Compatibility:** `SWITCH` - `PIKLIB61.DLL` ✅, `PIKLIB71.DLL` ✅, `PIKLIB72.DLL` ✅, `PIKLIB8.DLL` ✅, `BlooMooWEB.dll` ✅, `BlooMooDLL.dll` ✅.
 

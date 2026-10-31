@@ -8,6 +8,10 @@ This documentation focuses on the engine's **scripting language** and the **exec
 
 It is not a documentation of the engine's source code, nor a complete specification of every internal data structure; those areas are being filled in gradually.
 
+## Original and emulator
+
+The engine sections describe the **original**, which is the source of truth. The emulator's state appears only in marked boxes: **Emulator** for missing implementation and **Difference in the emulator** for differences detected by crosstests. The [Differences from the original](../emulator/divergences.md) page has the combined list.
+
 ## Structure
 
 The engine documentation is divided into five chapters:
@@ -22,19 +26,19 @@ The full list of available data types is in the [Type reference](../reference/in
 
 ## Games using the engine
 
-The list is incomplete and will be extended as more titles are identified.
+The list is incomplete and will be extended as more titles are identified. Engine versions were checked against the DLLs of the available editions; *Wojna Trojańska*, *Król Maciuś Pierwszy*, and *Piękna i Bestia* have not been confirmed this way yet.
 
 | Game                                                     | Engine version                          |
 |----------------------------------------------------------|-----------------------------------------|
 | **Przygody Reksia**                                      |                                         |
-| Reksio i Skarb Piratów                                   | Piklib 6.1, Piklib 7, Piklib 8          |
-| Reksio i Ufo                                             | Piklib 7.1, Piklib 8                    |
+| Reksio i Skarb Piratów                                   | Piklib 6.1, Piklib 7.1, Piklib 8        |
+| Reksio i UFO                                             | Piklib 7.1, Piklib 8                    |
 | Reksio i Czarodzieje                                     | Piklib 8                                |
-| Reksio i Wehikuł Czasu                                   | Piklib 8                                |
+| Reksio i Wehikuł Czasu                                   | BlooMoo (first build)                   |
 | Reksio i Kapitan Nemo                                    | BlooMoo                                 |
 | Reksio i Kretes w Akcji                                  | BlooMoo                                 |
 | **Poznaj Mity**                                          |                                         |
-| Wyprawa po Złote Runo                                    | Piklib 7.1                              |
+| Wyprawa po Złote Runo                                    | Piklib 8                                |
 | Wojna Trojańska                                          | Piklib 7.2                              |
 | Przygody Odyseusza                                       | Piklib 8                                |
 | Herkules                                                 | Piklib 8                                |
@@ -43,7 +47,7 @@ The list is incomplete and will be extended as more titles are identified.
 | Bolek i Lolek na tropie zaginionej księgi ortografii     | Piklib 3.0                              |
 | Bolek i Lolek. Alfabet i nauka czytania                  | BlooMoo                                 |
 | Bolek i Lolek: Język angielski dla dzieci                | Piklib 8                                |
-| Bolek i Lolek: Język niemiecki dla najmłodszych          | BlooMoo                                 |
+| Bolek i Lolek: Język niemiecki dla najmłodszych          | BlooMooWeb                              |
 | Bolek i Lolek: Moje pierwsze literki                     | BlooMoo                                 |
 | Bolek i Lolek: Moje pierwsze studio plastyczne           | BlooMoo                                 |
 | Bolek i Lolek: Olimpiada Letnia                          | Piklib 8                                |
@@ -58,11 +62,11 @@ The list is incomplete and will be extended as more titles are identified.
 | Pinokio                                                  | Piklib 6.1                              |
 | Piotruś Pan                                              | Piklib 6.1                              |
 | Ali Baba i czterdziestu rozbójników                      | Piklib 8 (but config is in BlooMoo.ini) |
-| Robinson Crusoe                                          | Piklib 6.1                              |
-| Sindbad                                                  | Piklib 6.1                              |
-| Robin Hood                                               | Piklib 6.1                              |
-| Księga Dżungli                                           | Piklib 6.1                              |
-| Doktor Dolittle                                          | Piklib 6.1                              |
+| Robinson Crusoe                                          | Piklib 8 (6.1 to be checked)            |
+| Sindbad                                                  | Piklib 8 (6.1 to be checked)            |
+| Robin Hood                                               | Piklib 8 (6.1 to be checked)            |
+| Księga Dżungli                                           | Piklib 8 (6.1 to be checked)            |
+| Doktor Dolittle                                          | Piklib 8 (6.1 to be checked)            |
 | **Gry dla dziewczynek**                                  |                                         |
 | Piękna i Bestia                                          | BlooMoo                                 |
 | Roszpunka                                                | BlooMoo                                 |
