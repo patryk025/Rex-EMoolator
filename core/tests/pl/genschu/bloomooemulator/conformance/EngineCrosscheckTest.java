@@ -20,6 +20,7 @@ import pl.genschu.bloomooemulator.interpreter.runtime.ASTInterpreter;
 import pl.genschu.bloomooemulator.interpreter.runtime.ExecutionContext;
 import pl.genschu.bloomooemulator.interpreter.values.NullValue;
 import pl.genschu.bloomooemulator.interpreter.values.Value;
+import pl.genschu.bloomooemulator.interpreter.variable.ArrayVariable;
 import pl.genschu.bloomooemulator.interpreter.variable.Variable;
 import pl.genschu.bloomooemulator.loader.CNVParser;
 import pl.genschu.bloomooemulator.logic.GameFamilies;
@@ -36,6 +37,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.fail;
@@ -223,7 +225,7 @@ class EngineCrosscheckTest {
                 for (String name : read) {
                     Variable variable = context.getVariable(name);
                     state.put(name, variable == null ? null
-                            : new String[]{typeName(variable.getTypeName()), variable.value().toDisplayString()});
+                            : new String[]{typeName(variable.getTypeName()), stateText(variable)});
                 }
                 states.add(state);
             }
@@ -231,6 +233,14 @@ class EngineCrosscheckTest {
         } finally {
             Compatibility.reset();
         }
+    }
+
+    /** The object's text as pikhost reads it; the engine prints an ARRAY as its elements. */
+    private static String stateText(Variable variable) {
+        if (variable instanceof ArrayVariable array) {
+            return array.elements().stream().map(Value::toDisplayString).collect(Collectors.joining(","));
+        }
+        return variable.value().toDisplayString();
     }
 
     /** Runs one script line and returns what the call itself returned. */

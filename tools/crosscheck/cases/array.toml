@@ -1,0 +1,324 @@
+# ARRAY. Reading A prints its whole contents, so each step records the array; GET and
+# friends add the element's type. From core/tests/.../tests/ArrayTest.java and the calls
+# games make. Out-of-range steps stay in their own cases, as a crash ends a case.
+# Left out as they read past the list and depend on the heap: CHANGEAT, INSERTAT, ADDAT
+# and REMOVEAT at an index past the end, also on an empty array (mostly ignored, at
+# times a crash), and REMOVE twice on 7.1. A single REMOVE stays: on 6.1 and 7.1 it
+# prints heap garbage, stable from 7.2 up.
+
+[defaults]
+tags = ["array"]
+read = ["A"]
+cnv = '''
+OBJECT=A
+A:TYPE=ARRAY
+
+OBJECT=B
+B:TYPE=ARRAY
+
+OBJECT=I
+I:TYPE=INTEGER
+I:VALUE=7
+
+OBJECT=D
+D:TYPE=DOUBLE
+D:VALUE=1.5
+
+OBJECT=S
+S:TYPE=STRING
+S:VALUE=text
+
+OBJECT=F
+F:TYPE=BOOL
+F:VALUE=TRUE
+
+OBJECT=NUMBER
+NUMBER:TYPE=STRING
+NUMBER:VALUE=4
+
+OBJECT=COUNT
+COUNT:TYPE=INTEGER
+COUNT:VALUE=0
+
+OBJECT=QUIET
+QUIET:TYPE=ARRAY
+QUIET:ONCHANGED={COUNT^ADD(1);}
+QUIET:ONCHANGED^0={COUNT^ADD(10);}
+
+OBJECT=LOUD
+LOUD:TYPE=ARRAY
+LOUD:SENDONCHANGE=TRUE
+LOUD:ONCHANGED={COUNT^ADD(1);}
+LOUD:ONCHANGED^0={COUNT^ADD(10);}
+'''
+
+[[case]]
+id = "array.add.literals"
+description = "One ADD with several arguments of every type; GET gives back each element's type."
+steps = ['A^ADD(1,2.5,"text",TRUE)', "A^GETSIZE()", "A^GET(0)", "A^GET(1)", "A^GET(2)", "A^GET(3)"]
+
+[[case]]
+id = "array.add.variables"
+description = "Variables as arguments, then read with GET."
+steps = ["A^ADD(I,D,S,F)", "A^GETSIZE()", "A^GET(0)", "A^GET(1)", "A^GET(2)", "A^GET(3)"]
+
+[[case]]
+id = "array.add.no-arguments"
+steps = ["A^ADD()", "A^GETSIZE()"]
+
+[[case]]
+id = "array.add.copies-the-value"
+description = "An element does not follow the variable it was added from."
+steps = ["A^ADD(I)", "I^SET(99)", "A^GET(0)"]
+
+[[case]]
+id = "array.add.result-is-writable"
+description = "A value taken from GET changed afterwards leaves the element alone."
+read = ["A", "I"]
+steps = ["A^ADD(5)", "I^SET(A^GET(0))", "I^ADD(1)", "A^GET(0)"]
+
+[[case]]
+id = "array.get.in-expression"
+description = "Elements as expression operands, as the games index with them."
+read = ["A", "I"]
+steps = ["A^ADD(5,6)", "I^SET([A^GET(0)+A^GET(1)])", "I^SET([A^GET(0)*2])"]
+
+[[case]]
+id = "array.get.index-from-string"
+description = "The index given as a variable and as a string."
+steps = ["A^ADD(5,6)", "I^SET(1)", "A^GET(I)", 'A^GET("1")']
+
+[[case]]
+id = "array.get.past-the-end"
+steps = ["A^ADD(5)", "A^GET(1)", "A^GET(9)"]
+
+[[case]]
+id = "array.get.negative"
+steps = ["A^ADD(5)", "A^GET(-1)"]
+
+[[case]]
+id = "array.get.on-empty"
+steps = ["A^GET(0)"]
+
+[[case]]
+id = "array.get.second-argument"
+description = "GET(index, default) on a present and a missing element."
+steps = ["A^ADD(5)", "A^GET(0,1)", "A^GET(5,0)"]
+
+[[case]]
+id = "array.changeat.replaces"
+description = "CHANGEAT writes a value of any type over the element."
+steps = ['A^ADD(1,"old")', 'A^CHANGEAT(1,"new")', "A^GET(1)", "A^CHANGEAT(0,2.5)", "A^GET(0)", "A^CHANGEAT(0,I)", "A^GET(0)"]
+
+[[case]]
+id = "array.changeat.negative"
+steps = ["A^ADD(1)", "A^CHANGEAT(-1,9)", "A^GETSIZE()"]
+
+[[case]]
+id = "array.insertat.middle"
+steps = ["A^ADD(1,3)", "A^INSERTAT(1,2)", "A^GETSIZE()", "A^INSERTAT(0,0)", "A^INSERTAT(4,4)"]
+
+[[case]]
+id = "array.removeat.middle"
+steps = ["A^ADD(1,2,3)", "A^REMOVEAT(1)", "A^GETSIZE()", "A^REMOVEAT(0)", "A^REMOVEAT(0)", "A^GETSIZE()"]
+
+[[case]]
+id = "array.removeall"
+steps = ["A^ADD(1,2)", "A^REMOVEALL()", "A^GETSIZE()", "A^ADD(3)", "A^REMOVEALL()", "A^REMOVEALL()"]
+
+[[case]]
+id = "array.remove.number"
+description = "REMOVE by value: the first match or every match."
+steps = ["A^ADD(1,2,1)", "A^REMOVE(1)", "A^GETSIZE()"]
+
+[[case]]
+id = "array.remove.string"
+steps = ['A^ADD(1,"x")', 'A^REMOVE("x")', "A^GETSIZE()"]
+
+[[case]]
+id = "array.find.exact"
+steps = ['A^ADD(1,"test",3.14,TRUE)', "A^FIND(1)", 'A^FIND("test")', "A^FIND(3.14)", "A^FIND(TRUE)", "A^FIND(99)"]
+
+[[case]]
+id = "array.find.similar"
+description = "Int, double and string spellings of one value: the argument is cast to the element's type."
+steps = ['A^ADD(4,4.0,"4")', "A^FIND(4)", "A^FIND(4.0)", 'A^FIND("4")', "A^FIND(NUMBER)"]
+
+[[case]]
+id = "array.find.string-element-first"
+description = "As above with the string in front, and text that is not a number."
+steps = ['A^ADD("4",4)', "A^FIND(4)", 'A^REMOVEALL()', 'A^ADD(0,"x")', 'A^FIND("x")']
+
+[[case]]
+id = "array.find.second-argument"
+description = "FIND(value, start), as ARRHMAPA^FIND(SGDZIE,0) writes it."
+steps = ["A^ADD(5,6,5)", "A^FIND(5,0)", "A^FIND(5,1)", "A^FIND(5,3)"]
+
+[[case]]
+id = "array.find.on-empty"
+steps = ["A^FIND(1)", "A^REVERSEFIND(1)", "A^CONTAINS(1)"]
+
+[[case]]
+id = "array.reversefind"
+steps = ['A^ADD(5,"test",5)', "A^REVERSEFIND(5)", 'A^REVERSEFIND("test")', "A^REVERSEFIND(9)"]
+
+[[case]]
+id = "array.contains"
+steps = ['A^ADD(1,"test",2.5)', 'A^CONTAINS("test")', 'A^CONTAINS("missing")', "A^CONTAINS(1)", "A^CONTAINS(2.5)", "A^CONTAINS(S)"]
+
+[[case]]
+id = "array.at.integer"
+description = "ADDAT, SUBAT, MULAT, MODAT and DIVAT on an integer element; the regression that kept scores integer."
+steps = ["A^ADD(0,10)", "A^ADDAT(1,5)", "A^GET(1)", "A^SUBAT(1,3)", "A^GET(1)", "A^MULAT(1,2)", "A^GET(1)", "A^MODAT(1,7)", "A^GET(1)", "A^DIVAT(1,2)", "A^GET(1)", "A^MAX()"]
+
+[[case]]
+id = "array.at.double-argument"
+description = "The ARRDIRX^MULAT(VARPLAYER,-1.0) and ARRAYDELTAX^DIVAT(_I_,20.0) forms on integers and doubles."
+steps = ["A^ADD(5,2.5)", "A^MULAT(0,-1.0)", "A^GET(0)", "A^MULAT(1,-1.0)", "A^GET(1)", "A^DIVAT(0,20.0)", "A^GET(0)", "A^DIVAT(1,20.0)", "A^GET(1)"]
+
+[[case]]
+id = "array.at.fraction-on-integer"
+description = "A fractional argument on an integer element, and a string and a variable as the argument."
+steps = ["A^ADD(5)", "A^ADDAT(0,0.6)", "A^GET(0)", "A^SUBAT(0,0.6)", "A^GET(0)", 'A^ADDAT(0,"3")', "A^GET(0)", "A^ADDAT(0,I)", "A^GET(0)"]
+
+[[case]]
+id = "array.at.modulo-of-double"
+steps = ["A^ADD(7.5)", "A^MODAT(0,2)", "A^GET(0)"]
+
+[[case]]
+id = "array.at.string-element"
+description = "Arithmetic on a string element."
+steps = ['A^ADD("7")', "A^ADDAT(0,1)", "A^GET(0)", "A^MULAT(0,2)", "A^GET(0)"]
+
+[[case]]
+id = "array.at.bool-element"
+steps = ["A^ADD(TRUE)", "A^ADDAT(0,1)", "A^GET(0)"]
+
+[[case]]
+id = "array.at.divide-by-zero"
+steps = ["A^ADD(5)", "A^DIVAT(0,0)", "A^GET(0)"]
+
+[[case]]
+id = "array.at.modulo-by-zero"
+steps = ["A^ADD(5)", "A^MODAT(0,0)", "A^GET(0)"]
+
+[[case]]
+id = "array.clampat"
+steps = ["A^ADD(50,-5,3,2.5)", "A^CLAMPAT(0,0,10)", "A^CLAMPAT(1,0,10)", "A^CLAMPAT(2,0,10)", "A^CLAMPAT(3,0.5,1.5)", "A^GET(3)"]
+
+[[case]]
+id = "array.whole.sum"
+description = "SUM and SUB on every element, the ARRCHICKENY^SUM(-110) form."
+steps = ['A^ADD(1,2.5,"3")', "A^SUM(10)", "A^GET(0)", "A^GET(1)", "A^GET(2)", "A^SUB(1)", "A^GET(0)", "A^GET(1)", "A^GET(2)"]
+
+[[case]]
+id = "array.whole.mul-and-div"
+steps = ["A^ADD(2,3)", "A^MUL(4)", "A^GET(0)", "A^DIV(2)", "A^GET(0)"]
+
+[[case]]
+id = "array.whole.operations-on-empty"
+steps = ["A^SUM(1)", "A^SUB(1)", "A^MUL(2)", "A^GETSIZE()"]
+
+[[case]]
+id = "array.aggregate.integers"
+steps = ["A^ADD(3,9,1)", "A^MAX()", "A^MIN()", "A^MAXD()", "A^MIND()", "A^GETSUMVALUE()"]
+
+[[case]]
+id = "array.aggregate.mixed"
+description = "The same over doubles and strings."
+steps = ['A^ADD(1.5,"2",3)', "A^MAX()", "A^MIN()", "A^MAXD()", "A^MIND()", "A^GETSUMVALUE()"]
+
+[[case]]
+id = "array.aggregate.on-empty"
+steps = ["A^MAX()", "A^MIN()", "A^GETSUMVALUE()"]
+
+[[case]]
+id = "array.sort.integers"
+description = "SORT(TRUE) and SORT(FALSE): which of them ascends."
+steps = ["A^ADD(3,1,2)", "A^SORT(TRUE)", "A^SORT(FALSE)"]
+
+[[case]]
+id = "array.sort.mixed"
+steps = ['A^ADD(10,"9",2.5)', "A^SORT(TRUE)", "A^SORT(FALSE)"]
+
+[[case]]
+id = "array.fill"
+description = "FILL(count, value) on an empty and a longer array."
+steps = ["A^FILL(3,0)", "A^GETSIZE()", "A^FILL(2,9)", "A^GETSIZE()", "A^FILL(2,0.0)", "A^GET(0)"]
+
+[[case]]
+id = "array.randomfill.shape"
+description = "RANDOMFILL gives random values, so only the size is recorded; ARPOSITION^RANDOMFILL(5,0,5,TRUE)."
+read = []
+steps = ["A^RANDOMFILL(5,0,5,TRUE)", "A^GETSIZE()"]
+
+[[case]]
+id = "array.randomfill.from-one"
+description = "The ARRKOMENTARZE^RANDOMFILL(20,1,20,TRUE) form, a range that does not start at zero."
+read = []
+steps = ["A^RANDOMFILL(5,1,5,TRUE)", "A^GETSIZE()"]
+
+[[case]]
+id = "array.swap"
+steps = ["A^ADD(1,2,3)", "A^SWAP(0,2)", "A^SWAP(1,1)"]
+
+[[case]]
+id = "array.shift-and-rotate"
+steps = ["A^ADD(1,2,3)", "A^SHIFTLEFT()", "A^REMOVEALL()", "A^ADD(1,2,3)", "A^SHIFTRIGHT()", "A^REMOVEALL()", "A^ADD(1,2,3)", "A^ROTATELEFT()", "A^ROTATERIGHT()"]
+
+[[case]]
+id = "array.marker.walk"
+description = "NEXT and PREV return the element under the marker and move it; games call them without arguments."
+steps = ["A^ADD(5,6,7)", "A^SETMARKERPOS(0)", "A^NEXT()", "A^GETMARKERPOS()", "A^NEXT()", "A^GETMARKERPOS()", "A^PREV()", "A^GETMARKERPOS()", "A^SETMARKERPOS(2)", "A^GETMARKERPOS()", "A^RESETMARKER()", "A^GETMARKERPOS()"]
+
+[[case]]
+id = "array.marker.starts-before-the-array"
+description = "A fresh marker sits at -1; NEXT from there."
+steps = ["A^ADD(5,6)", "A^GETMARKERPOS()", "A^NEXT()", "A^GETMARKERPOS()", "A^NEXT()", "A^GETMARKERPOS()"]
+
+[[case]]
+id = "array.marker.prev-before-start"
+steps = ["A^ADD(5,6)", "A^SETMARKERPOS(0)", "A^PREV()", "A^GETMARKERPOS()"]
+
+[[case]]
+id = "array.marker.wraps-at-the-end"
+steps = ["A^ADD(5,6)", "A^SETMARKERPOS(1)", "A^NEXT()", "A^GETMARKERPOS()", "A^NEXT()", "A^GETMARKERPOS()"]
+
+[[case]]
+id = "array.marker.past-the-end"
+steps = ["A^ADD(5)", "A^SETMARKERPOS(9)", "A^GETMARKERPOS()", "A^NEXT()", "A^GETMARKERPOS()"]
+
+[[case]]
+id = "array.marker.follows-changes"
+description = "What REMOVEAT and REMOVEALL do to the marker."
+steps = ["A^ADD(5,6,7)", "A^SETMARKERPOS(2)", "A^REMOVEAT(0)", "A^GETMARKERPOS()", "A^REMOVEALL()", "A^GETMARKERPOS()"]
+
+[[case]]
+id = "array.copyto"
+description = "COPYTO names its target with a string, as ARRMEDALS^COPYTO(\"VARRTMP4\") does."
+read = ["A", "B"]
+steps = ["A^ADD(1,2)", "B^ADD(9)", 'A^COPYTO("B")', "B^GETSIZE()", "A^CHANGEAT(0,5)"]
+
+[[case]]
+id = "array.compare"
+read = ["A", "B"]
+steps = ["A^ADD(1,2)", "B^ADD(1,2)", 'A^COMPARE("B")', "B^CHANGEAT(1,3)", 'A^COMPARE("B")']
+
+[[case]]
+id = "array.as-a-value"
+description = "A whole array given to STRING^SET."
+read = ["S"]
+steps = ["A^ADD(1)", "S^SET(A)"]
+
+[[case]]
+id = "array.onchanged.${t}"
+description = "ONCHANGED needs SENDONCHANGE, and ONCHANGED^0 as in ARRAYSCORE takes index 0's changes; COUNT adds 1 for the plain handler, 10 for ^0."
+each.t = ["QUIET", "LOUD"]
+read = ["COUNT"]
+steps = ["${t}^ADD(1,2)", "${t}^CHANGEAT(0,5)", "${t}^CHANGEAT(0,5)", "${t}^CHANGEAT(1,6)", "${t}^ADDAT(0,1)", "${t}^SUBAT(1,1)", "${t}^SUM(1)", "${t}^REMOVEAT(0)", "${t}^REMOVEALL()"]
+
+[[case]]
+id = "array.onchanged.switched-by-method"
+description = "SENDONCHANGE(TRUE) and FALSE at run time, as ARRACTIVE^SENDONCHANGE(TRUE) does."
+read = ["COUNT"]
+steps = ["QUIET^SENDONCHANGE(TRUE)", "QUIET^ADD(1)", "QUIET^SENDONCHANGE(FALSE)", "QUIET^ADD(2)"]
