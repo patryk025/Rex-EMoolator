@@ -13,6 +13,8 @@ import pl.genschu.bloomooemulator.engine.filters.Filter;
 import pl.genschu.bloomooemulator.interpreter.variable.AnimoVariable;
 import pl.genschu.bloomooemulator.interpreter.variable.FontVariable;
 import pl.genschu.bloomooemulator.interpreter.variable.ImageVariable;
+import pl.genschu.bloomooemulator.interpreter.variable.PatternVariable;
+import pl.genschu.bloomooemulator.engine.context.CurrentImageProvider;
 import pl.genschu.bloomooemulator.interpreter.variable.TextVariable;
 import pl.genschu.bloomooemulator.interpreter.variable.Variable;
 import pl.genschu.bloomooemulator.objects.Image;
@@ -84,6 +86,39 @@ public class GraphicsRenderer implements Disposable {
             // get first filter (not sure if there can be more at once)
             Filter filter = animoVariable.getFilters().get(0);
             filter.apply(batch, image.getImageTexture(), destination);
+        } else {
+            batch.draw(image.getImageTexture(),
+                    asFloat(destination.x()), asFloat(destination.y()),
+                    asFloat(destination.width()), asFloat(destination.height()));
+        }
+    }
+
+    /**
+     * Renders one PATTERN tile. The board decides where it goes, and the graphic only
+     * has to be visible: TOCANVAS is about the screen list, which a tile does not need.
+     */
+    public void renderPatternTile(PatternVariable.Tile tile, CanvasRect bounds) {
+        Image image = tile.graphic instanceof CurrentImageProvider provider
+                ? provider.getCurrentImage()
+                : null;
+        if (image == null || image.getImageTexture() == null) {
+            return;
+        }
+
+        java.util.List<Filter> filters = java.util.List.of();
+        float opacity = 1f;
+        if (tile.graphic instanceof ImageVariable graphic) {
+            filters = graphic.getFilters();
+            opacity = graphic.getOpacity();
+        } else if (tile.graphic instanceof AnimoVariable graphic) {
+            filters = graphic.getFilters();
+            opacity = graphic.getCalculatedOpacity();
+        }
+
+        OpenGlRect destination = imageDestination(bounds);
+        batch.setColor(1, 1, 1, opacity);
+        if (!filters.isEmpty()) {
+            filters.get(0).apply(batch, image.getImageTexture(), destination);
         } else {
             batch.draw(image.getImageTexture(),
                     asFloat(destination.x()), asFloat(destination.y()),

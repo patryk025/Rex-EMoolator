@@ -289,6 +289,8 @@ public class RenderManager implements Disposable {
                 renderAnimo(animo);
             } else if (variable instanceof KolorowankaVariable klr) {
                 renderKolorowanka(klr);
+            } else if (variable instanceof PatternVariable pattern) {
+                renderPattern(pattern);
             } else if (variable instanceof TextVariable text) {
                 recordTextWorkload(text);
                 textRenderer.renderText(text, context);
@@ -320,6 +322,21 @@ public class RenderManager implements Disposable {
                 GraphicsRenderer.asFloat(destination.y()),
                 GraphicsRenderer.asFloat(destination.width()),
                 GraphicsRenderer.asFloat(destination.height()));
+    }
+
+    private void renderPattern(PatternVariable pattern) {
+        if (!pattern.isDrawn()) {
+            return;
+        }
+        for (int layer = 0; layer < pattern.state().layerCount(); layer++) {
+            for (PatternVariable.Tile tile : pattern.state().tiles(layer)) {
+                CanvasRect bounds = pattern.tileBounds(tile);
+                if (bounds != null && PatternVariable.isTileVisible(tile)) {
+                    lastRenderStats.visibleSpriteObjects++;
+                    graphicsRenderer.renderPatternTile(tile, bounds);
+                }
+            }
+        }
     }
 
     private void renderImage(ImageVariable imageVariable) {
@@ -424,6 +441,8 @@ public class RenderManager implements Disposable {
             return animo.getPriority();
         } else if (variable instanceof KolorowankaVariable klr) {
             return klr.getPriority();
+        } else if (variable instanceof PatternVariable pattern) {
+            return pattern.getPriority();
         } else if (variable instanceof TextVariable text) {
             return text.getPriority();
         }
@@ -437,6 +456,8 @@ public class RenderManager implements Disposable {
             return animo.getRenderOrder();
         } else if (variable instanceof KolorowankaVariable klr) {
             return klr.getRenderOrder();
+        } else if (variable instanceof PatternVariable pattern) {
+            return pattern.getRenderOrder();
         } else if (variable instanceof TextVariable text) {
             return text.getRenderOrder();
         }
