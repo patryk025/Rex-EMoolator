@@ -30,7 +30,7 @@ public final class ArrayValueCodec {
         return switch (dataType) {
             case 1 -> new IntValue(reader.readI32LE());
             case 2 -> new StringValue(
-                    reader.readLengthPrefixedString32LE(StandardCharsets.UTF_8, false));
+                    reader.readLengthPrefixedString32LE(StandardCharsets.UTF_8, true));
             case 3 -> new BoolValue(reader.readI32LE() != 0);
             case 4 -> new DoubleValue(readDouble(reader, profile.behaviour().archiveDouble()));
             default -> throw new IOException("Unknown array data type: " + dataType);

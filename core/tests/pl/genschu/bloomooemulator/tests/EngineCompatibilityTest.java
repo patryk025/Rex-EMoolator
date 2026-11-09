@@ -241,6 +241,25 @@ class EngineCompatibilityTest {
         assertArrayEquals(PIKLIB8_ARR, saved.toByteArray());
     }
 
+    @Test
+    void arrayStringsStopAtTheirNulTerminator() throws IOException {
+        // Start of Reksio i Wehikuł Czasu's shipped COMMON\GAME0.ARR: the lengths include the NUL.
+        byte[] fixture = hex(
+                "03000000",
+                "020000000a00000043535f494e54524f3100",
+                "02000000050000004e554c4c00",
+                "02000000050000004e554c4c00");
+        CompatibilityProfile wehikulCzasu =
+                new CompatibilityProfile(EngineVariant.BLOOMOO, GameFamilies.REKSIO_WEHIKUL_CZASU);
+        InputStreamBinaryReader reader =
+                new InputStreamBinaryReader(new ByteArrayInputStream(fixture));
+
+        assertEquals(3, reader.readI32LE());
+        assertEquals("CS_INTRO1", ((StringValue) ArrayValueCodec.read(reader, wehikulCzasu)).value());
+        assertEquals("NULL", ((StringValue) ArrayValueCodec.read(reader, wehikulCzasu)).value());
+        assertEquals("NULL", ((StringValue) ArrayValueCodec.read(reader, wehikulCzasu)).value());
+    }
+
     @ParameterizedTest
     @MethodSource("arrayFixtures")
     void readsAndReproducesOriginalArrayFixture(EngineVariant engine, byte[] fixture)
