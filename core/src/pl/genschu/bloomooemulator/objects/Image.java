@@ -105,12 +105,12 @@ public class Image {
         );
 
         if (alphaData != null) {
+            // Write the alpha byte straight into the RGBA8888 buffer: drawPixel blends
+            // (SourceOver) onto the opaque JPEG pixel, which would leave it opaque.
+            ByteBuffer pixels = pixmap.getPixels();
             int pixelCount = Math.min(width * height, alphaData.length);
             for (int i = 0; i < pixelCount; i++) {
-                int x = i % width;
-                int y = i / width;
-                int pixel = pixmap.getPixel(x, y);
-                pixmap.drawPixel(x, y, (pixel & 0xFFFFFF00) | (alphaData[i] & 0xFF));
+                pixels.put(i * 4 + 3, alphaData[i]);
             }
         }
 
