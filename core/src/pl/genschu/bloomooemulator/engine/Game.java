@@ -314,6 +314,7 @@ public class Game {
         try {
             currentApplicationContext = new Context(new ExecutionContext(), definitionContext);
             currentApplicationContext.setGame(this);
+            currentApplicationContext.setIniSection(applicationVariable.name().toUpperCase());
 
             String appDir = variablePaths.get(applicationVariable.name());
             currentApplicationFile = appDir + "/" + applicationVariable.name() + ".cnv";
@@ -517,6 +518,7 @@ public class Game {
                 currentEpisode = episode.name();
                 currentEpisodeContext = new Context(new ExecutionContext(), currentApplicationContext);
                 currentEpisodeContext.setGame(this);
+                currentEpisodeContext.setIniSection(episode.name().toUpperCase());
                 currentEpisodeFile = epPath;
                 currentResourceDirectory = epPath;
                 String episodeFile = epPath + "/" + episode.name() + ".cnv";
@@ -563,6 +565,7 @@ public class Game {
         try {
             setCurrentSceneContext(new Context(new ExecutionContext(), currentEpisodeContext));
             currentSceneContext.setGame(this);
+            currentSceneContext.setIniSection(scene.name().toUpperCase());
 
             String scenePath = variablePaths.get(scene.name());
             String sceneFile = scenePath == null ? null : scenePath + "/" + scene.name() + ".cnv";
@@ -778,6 +781,22 @@ public class Game {
                 }
             }
         }
+    }
+
+    /** Attribute under which {@code CNVParser} records the declaring object's INI section. */
+    public static final String INI_SECTION_ATTRIBUTE = "__INI_SECTION__";
+
+    /**
+     * INI section of a variable: the name of the APPLICATION/EPISODE/SCENE whose
+     * script declared it (original: {@code getName(owner)}), recorded at parse time.
+     * Falls back to the legacy lookup for variables created outside a parsed file.
+     */
+    public String iniSectionFor(Context context, String variableName) {
+        if (context != null) {
+            String declared = context.getAttributeInHierarchy(variableName, INI_SECTION_ATTRIBUTE);
+            if (declared != null) return declared;
+        }
+        return findINISectionForVariable(variableName.toUpperCase());
     }
 
     public String findINISectionForVariable(String variableName) {

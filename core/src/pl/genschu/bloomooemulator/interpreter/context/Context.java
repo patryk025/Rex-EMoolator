@@ -21,6 +21,7 @@ public class Context implements GameContext {
     private final CloneRegistry clones;
 
     private Context parent;
+    private String iniSection;
     private final List<Context> additionalContexts = new ArrayList<>();
     private final List<Context> additionalContextsView = Collections.unmodifiableList(additionalContexts);
 
@@ -576,6 +577,29 @@ public class Context implements GameContext {
      */
     public void setParent(Context parent) {
         this.parent = parent;
+    }
+
+    /**
+     * Marks this context as the script file of an engine object (APPLICATION,
+     * EPISODE or SCENE). Its name becomes the INI section of the TOINI variables
+     * declared here, as in the original ({@code CMC_Variable::init} and
+     * {@code saveINI} use {@code getName(owner)} as the section).
+     */
+    public void setIniSection(String iniSection) {
+        this.iniSection = iniSection;
+    }
+
+    /**
+     * Returns the INI section of the nearest owning object: this context or,
+     * for nested contexts (CNVLOADER files, CLASS instances), the closest ancestor.
+     *
+     * @return section name or {@code null} if no ancestor is an engine object
+     */
+    public String findIniSection() {
+        for (Context c = this; c != null; c = c.parent) {
+            if (c.iniSection != null) return c.iniSection;
+        }
+        return null;
     }
 
     /**

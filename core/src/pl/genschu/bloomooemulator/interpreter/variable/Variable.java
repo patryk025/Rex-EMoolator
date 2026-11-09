@@ -413,7 +413,7 @@ public sealed interface Variable extends EngineVariable permits
         pl.genschu.bloomooemulator.engine.Game game = ctx.getGame();
         if (game == null || game.getGameINI() == null) return;
 
-        String section = game.findINISectionForVariable(name().toUpperCase());
+        String section = game.iniSectionFor(context, name());
         if (section != null) {
             game.getGameINI().put(section, name().toUpperCase(), value().toDisplayString());
         }

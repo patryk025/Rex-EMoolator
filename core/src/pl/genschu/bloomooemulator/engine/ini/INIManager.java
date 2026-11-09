@@ -35,18 +35,24 @@ public class INIManager {
             return null;
         }
 
-        // use cache if contains key
-        if (sectionCache.containsKey(section) && sectionCache.get(section).containsKey(key)) {
-            return sectionCache.get(section).get(key);
+        // use cache if contains key (cache keys are upper-cased: lookups are case-insensitive)
+        String cacheSection = section.toUpperCase();
+        String cacheKey = key.toUpperCase();
+        if (sectionCache.containsKey(cacheSection) && sectionCache.get(cacheSection).containsKey(cacheKey)) {
+            return sectionCache.get(cacheSection).get(cacheKey);
         }
 
-        // if not, get value
+        // if not, get value (case-insensitive like GetPrivateProfileString)
         String value = ini.get(section, key);
-
-        if (!sectionCache.containsKey(section)) {
-            sectionCache.put(section, new LinkedHashMap<>());
+        if (value == null) {
+            String realSection = matchSection(section);
+            if (realSection != null) {
+                String realKey = matchKey(realSection, key);
+                if (realKey != null) value = ini.get(realSection, realKey);
+            }
         }
-        sectionCache.get(section).put(key, value);
+
+        sectionCache.computeIfAbsent(cacheSection, k -> new LinkedHashMap<>()).put(cacheKey, value);
 
         return value;
     }
@@ -56,13 +62,33 @@ public class INIManager {
             return;
         }
 
-        ini.put(section, key, value);
+        // Reuse an existing spelling so a differently-cased entry is updated, not duplicated
+        String realSection = matchSection(section);
+        String targetSection = realSection != null ? realSection : section;
+        String realKey = realSection != null ? matchKey(realSection, key) : null;
+        ini.put(targetSection, realKey != null ? realKey : key, value);
 
         // update cache
-        if (!sectionCache.containsKey(section)) {
-            sectionCache.put(section, new LinkedHashMap<>());
+        sectionCache.computeIfAbsent(section.toUpperCase(), k -> new LinkedHashMap<>())
+                .put(key.toUpperCase(), value);
+    }
+
+    private String matchSection(String section) {
+        if (ini.containsKey(section)) return section;
+        for (String existing : ini.keySet()) {
+            if (existing.equalsIgnoreCase(section)) return existing;
         }
-        sectionCache.get(section).put(key, value);
+        return null;
+    }
+
+    private String matchKey(String realSection, String key) {
+        Map<String, String> entries = ini.get(realSection);
+        if (entries == null) return null;
+        if (entries.containsKey(key)) return key;
+        for (String existing : entries.keySet()) {
+            if (existing.equalsIgnoreCase(key)) return existing;
+        }
+        return null;
     }
 
     /**

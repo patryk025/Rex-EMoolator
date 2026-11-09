@@ -390,7 +390,7 @@ public record ArrayVariable(
             ArrayVariable thisVar = (ArrayVariable) self;
             pl.genschu.bloomooemulator.engine.Game game = ctx.getGame();
             if (game == null || game.getGameINI() == null) return MethodResult.noReturn();
-            String section = game.findINISectionForVariable(thisVar.name().toUpperCase());
+            String section = game.iniSectionFor(ctx.context(), thisVar.name());
             String serialized = game.getGameINI().get(section, thisVar.name().toUpperCase());
             thisVar.elements.clear();
             if (serialized != null && !serialized.isEmpty()) {
@@ -435,7 +435,7 @@ public record ArrayVariable(
                 sb.append(thisVar.elements.get(i).toDisplayString());
                 if (i < thisVar.elements.size() - 1) sb.append(",");
             }
-            String section = game.findINISectionForVariable(thisVar.name().toUpperCase());
+            String section = game.iniSectionFor(ctx.context(), thisVar.name());
             game.getGameINI().put(section, thisVar.name().toUpperCase(), sb.toString());
             return MethodResult.noReturn();
         })),

@@ -2,6 +2,8 @@ package pl.genschu.bloomooemulator.loader;
 
 import com.badlogic.gdx.Gdx;
 import pl.genschu.bloomooemulator.encoding.ScriptDecypher;
+import pl.genschu.bloomooemulator.engine.Game;
+import pl.genschu.bloomooemulator.engine.ini.INIManager;
 import pl.genschu.bloomooemulator.interpreter.context.Context;
 import pl.genschu.bloomooemulator.interpreter.factories.VariableFactory;
 import pl.genschu.bloomooemulator.interpreter.runtime.ASTInterpreter;
@@ -121,11 +123,18 @@ public class CNVParser {
         // Store all attributes in context
         storeAttributes(objectName, properties, context);
 
+        // Remember the declaring object's INI section (used by TOINI writes and ARRAY LOADINI/SAVEINI)
+        String iniSection = context.findIniSection();
+        if (iniSection != null) {
+            context.setAttribute(objectName, Game.INI_SECTION_ATTRIBUTE, iniSection);
+        }
+
         // Create variable
         try {
             Variable variable = createVariable(type, objectName, rawValue, properties, context);
             if (variable != null) {
                 context.setVariable(objectName, variable);
+                seedIniDefaultIfMissing(objectName, properties, variable, context);
             }
         } catch (Exception e) {
             Gdx.app.error("CNVParser", "Failed to create variable " + objectName + ": " + e.getMessage(), e);
@@ -133,7 +142,10 @@ public class CNVParser {
     }
 
     /**
-     * Extracts the value for a variable, checking INI file if needed.
+     * Extracts the value for a variable. A TOINI variable takes its value from
+     * the INI, from the section of the object whose script declares it
+     * ({@code CMC_Variable::init}: {@code GetString(getName(owner), getName(this))}).
+     * Variables without TOINI are never read from the INI.
      */
     private Object extractValue(String objectName, Map<String, String> properties, String type, Context context) {
         // BEHAVIOUR uses CODE instead of VALUE
@@ -142,18 +154,20 @@ public class CNVParser {
         }
 
         Object value = properties.get(objectName + ":VALUE");
+        if (!isToIni(objectName, properties)) {
+            return value;
+        }
 
         try {
-            if (context.getGame() != null && context.getGame().getGameINI() != null) {
-                String foundSection = context.getGame().findINISectionForVariable(objectName.toUpperCase());
-                if (foundSection != null) {
-                    String valueFromIni = context.getGame().getGameINI().get(foundSection, objectName.toUpperCase());
-                    if (valueFromIni != null) {
-                        properties.put(objectName + ":INIT_VALUE", String.valueOf(value));
-                        properties.put(objectName + ":VALUE", valueFromIni);
-                        Gdx.app.log("CNVParser", "Found value for " + objectName + " in INI section " + foundSection);
-                        return valueFromIni;
-                    }
+            INIManager ini = gameIni(context);
+            String section = context.findIniSection();
+            if (ini != null && section != null) {
+                String valueFromIni = ini.get(section, objectName.toUpperCase());
+                if (valueFromIni != null && !valueFromIni.isEmpty()) {
+                    properties.put(objectName + ":INIT_VALUE", String.valueOf(value));
+                    properties.put(objectName + ":VALUE", valueFromIni);
+                    Gdx.app.log("CNVParser", "Found value for " + objectName + " in INI section " + section);
+                    return valueFromIni;
                 }
             }
         } catch (Exception e) {
@@ -161,6 +175,33 @@ public class CNVParser {
         }
 
         return value;
+    }
+
+    /**
+     * When a TOINI variable has no (or an empty) INI entry, the original writes its
+     * initial value there straight away ({@code CMC_Variable::init} → {@code PutString}).
+     * This is how the installed games' INI files end up pre-filled with defaults.
+     */
+    private void seedIniDefaultIfMissing(String objectName, Map<String, String> properties,
+                                         Variable variable, Context context) {
+        if (!isToIni(objectName, properties)) return;
+        INIManager ini = gameIni(context);
+        String section = context.findIniSection();
+        if (ini == null || section == null || variable.value() == null) return;
+        String key = objectName.toUpperCase();
+        String current = ini.get(section, key);
+        if (current == null || current.isEmpty()) {
+            ini.put(section, key, variable.value().toDisplayString());
+        }
+    }
+
+    private static boolean isToIni(String objectName, Map<String, String> properties) {
+        return "TRUE".equalsIgnoreCase(properties.get(objectName + ":TOINI"));
+    }
+
+    private static INIManager gameIni(Context context) {
+        Game game = context.getGame();
+        return game != null ? game.getGameINI() : null;
     }
 
     /**
