@@ -1118,6 +1118,13 @@ public class Game {
         return playingAudios;
     }
 
+    /** Registers a sound for ONFINISHED polling, at most once. */
+    public void registerPlayingAudio(EngineVariable audio) {
+        if (!playingAudios.contains(audio)) {
+            playingAudios.add(audio);
+        }
+    }
+
     public void setPlayingAudios(List<EngineVariable> playingAudios) {
         this.playingAudios = playingAudios;
     }

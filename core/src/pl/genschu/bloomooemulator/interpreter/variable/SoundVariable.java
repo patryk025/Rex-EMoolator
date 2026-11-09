@@ -230,24 +230,42 @@ public record SoundVariable(
     }
 
     /**
-     * Called by UpdateManager to check if sound has finished playing.
-     */
-    /**
-     * Called by UpdateManager to check if sound has finished playing.
+     * Checks for the end of playback and, if it ended, fires ONFINISHED.
      * Returns true if this sound should be removed from playingAudios.
+     * <p>
+     * The poll loop must not use this: an ONFINISHED handler that re-plays the
+     * same sound would be unregistered right after it registered again. It calls
+     * {@link #pollFinished()}, unregisters, then {@link #dispatchFinished()}.
      */
     public boolean update() {
+        if (pollFinished()) {
+            dispatchFinished();
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Marks the sound as stopped once its duration has elapsed. Fires nothing.
+     *
+     * @return true if playback has just finished
+     */
+    public boolean pollFinished() {
         if (state.playing && state.playStartTime > 0) {
             double now = TimeUtils.nanoTime() / 1_000_000_000d;
             float adjustedDuration = state.duration / ((float) state.currentSampleRate / state.sampleRate);
             if (now - state.playStartTime >= adjustedDuration) {
                 state.playing = false;
-                emitSignal("ONFINISHED");
-                notifyObserversFinished();
                 return true;
             }
         }
         return false;
+    }
+
+    /** Fires ONFINISHED and notifies playback observers. */
+    public void dispatchFinished() {
+        emitSignal("ONFINISHED");
+        notifyObserversFinished();
     }
 
     // ========================================
@@ -322,7 +340,7 @@ public record SoundVariable(
             // Only when playback actually started: a failed/null sound never plays
             // so it must not linger in the poll list with no way to ever be removed.
             if (snd.isPlaying() && ctx != null && ctx.getGame() != null) {
-                ctx.getGame().getPlayingAudios().add(snd);
+                ctx.getGame().registerPlayingAudio(snd);
             }
             return MethodResult.noReturn();
         })),

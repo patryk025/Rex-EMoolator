@@ -300,10 +300,12 @@ public class UpdateManager implements Disposable {
         public void update() {
             List<EngineVariable> playingAudios = new ArrayList<>(game.getPlayingAudios());
             for (EngineVariable ev : playingAudios) {
-                if (ev instanceof SoundVariable sound) {
-                    if (sound.update()) {
-                        game.getPlayingAudios().remove(ev);
-                    }
+                if (ev instanceof SoundVariable sound && sound.pollFinished()) {
+                    // Unregister before ONFINISHED: its handler may STOP/LOAD/PLAY this
+                    // same sound (RiWC Arcade dialogue reuses SNDATGOAL for every line),
+                    // and that new registration must survive.
+                    game.getPlayingAudios().remove(ev);
+                    sound.dispatchFinished();
                 }
             }
         }
