@@ -77,14 +77,27 @@ public record EpisodeVariable(
     // ========================================
 
     private static final Map<String, MethodSpec> METHODS = Map.ofEntries(
+        // GOTO, BACK, NEXT and PREV only request a switch; Game performs it after
+        // the current pulse, so the calling script keeps running in this scene.
         Map.entry("BACK", MethodSpec.of((self, args, ctx) -> {
-            ctx.getGame().goToPreviousScene();
+            ctx.getGame().goBack();
             return MethodResult.noReturn();
         })),
 
         Map.entry("GETCURRENTSCENE", MethodSpec.of((self, args, ctx) -> MethodResult.returns(new StringValue(ctx.getGame().getCurrentScene())))),
 
-        Map.entry("GETLATESTSCENE", MethodSpec.of((self, args, ctx) -> MethodResult.returns(new StringValue(ctx.getGame().getPreviousScene())))),
+        Map.entry("GETLATESTSCENE", MethodSpec.of((self, args, ctx) ->
+                MethodResult.returns(new StringValue(ctx.getGame().getLatestScene(self.name()))))),
+
+        Map.entry("NEXT", MethodSpec.of((self, args, ctx) -> {
+            ctx.getGame().goToNeighbourScene(1);
+            return MethodResult.noReturn();
+        })),
+
+        Map.entry("PREV", MethodSpec.of((self, args, ctx) -> {
+            ctx.getGame().goToNeighbourScene(-1);
+            return MethodResult.noReturn();
+        })),
 
         Map.entry("GOTO", MethodSpec.of((self, args, ctx) -> {
             if (args.isEmpty()) {

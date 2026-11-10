@@ -1447,6 +1447,9 @@ public class DebugManager implements Disposable {
                 : SceneLoaderScripts.cutsceneScript(gameName, name);
         if (script != null) {
             game.runScript(script);
+            // The loader script only requests the GOTO; take it now so the picker
+            // also works while the engine is paused.
+            game.applyPendingTransitions();
         }
         showSceneSelector = false;
     }
@@ -1636,7 +1639,7 @@ public class DebugManager implements Disposable {
         if (Gdx.input.isKeyJustPressed(Input.Keys.ENTER)) {
             if (selectorMode == SelectorMode.SCENES) {
                 if (selectedScene >= 0 && selectedScene < filteredScenes.size()) {
-                    game.goTo(filteredScenes.get(selectedScene));
+                    game.goToNow(filteredScenes.get(selectedScene));
                     showSceneSelector = false;
                 }
             } else {
