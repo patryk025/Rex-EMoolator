@@ -111,6 +111,31 @@
          android:id="@+id/fpsCounterCheckbox"
          android:text="@string/show_fps" />
 
+    <CheckBox
+        android:layout_height="wrap_content"
+        android:layout_width="match_parent"
+        android:id="@+id/traceExecutionCheckbox"
+        android:text="@string/trace_execution" />
+
+    <TextView
+         android:layout_height="wrap_content"
+         android:layout_width="match_parent"
+         android:id="@+id/traceMaxMiBLabel"
+         android:labelFor="@id/traceMaxMiBField"
+         android:text="@string/trace_max_mib" />
+
+    <EditText
+         android:layout_height="wrap_content"
+         android:layout_width="match_parent"
+         android:inputType="number"
+         android:singleLine="true"
+         android:id="@+id/traceMaxMiBField" />
+
+    <TextView
+         android:layout_height="wrap_content"
+         android:layout_width="match_parent"
+         android:text="@string/trace_limit_hint" />
+
     <TextView
          android:layout_height="wrap_content"
          android:layout_width="match_parent"

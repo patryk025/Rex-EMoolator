@@ -1,5 +1,6 @@
 package pl.genschu.bloomooemulator.logic;
 
+import pl.genschu.bloomooemulator.engine.config.EngineConfig;
 import pl.genschu.bloomooemulator.engine.filesystem.AssetSourceDispatcher;
 import pl.genschu.bloomooemulator.engine.filesystem.IFileSystem;
 import pl.genschu.bloomooemulator.engine.filesystem.SubdirectoryFileSystem;
@@ -35,6 +36,8 @@ public class GameEntry implements Serializable {
     private boolean skipLicenceCode;
     private boolean maintainAspectRatio;
     private boolean showFpsCounter;
+    private boolean traceExecution;
+    private int traceMaxMiB = EngineConfig.DEFAULT_TRACE_MAX_MIB;
 
     public GameEntry() {
     }
@@ -388,18 +391,6 @@ public class GameEntry implements Serializable {
         this.mouseVirtualJoystick = mouseVirtualJoystick;
     }
 
-    /** @deprecated use {@link #isShowLicenceCodeHint()}; retained for source compatibility. */
-    @Deprecated
-    public boolean isSkipLicenceCode() {
-        return skipLicenceCode;
-    }
-
-    /** @deprecated use {@link #setShowLicenceCodeHint(boolean)}; retained for source compatibility. */
-    @Deprecated
-    public void setSkipLicenceCode(boolean skipLicenceCode) {
-        this.skipLicenceCode = skipLicenceCode;
-    }
-
     public boolean isShowLicenceCodeHint() {
         return skipLicenceCode;
     }
@@ -422,6 +413,24 @@ public class GameEntry implements Serializable {
 
     public void setShowFpsCounter(boolean showFpsCounter) {
         this.showFpsCounter = showFpsCounter;
+    }
+
+    public boolean isTraceExecution() {
+        return traceExecution;
+    }
+
+    public void setTraceExecution(boolean traceExecution) {
+        this.traceExecution = traceExecution;
+    }
+
+    public int getTraceMaxMiB() {
+        // JSON deserialization bypasses setters; tolerate missing or invalid saved limits.
+        return traceMaxMiB > 0 ? traceMaxMiB : EngineConfig.DEFAULT_TRACE_MAX_MIB;
+    }
+
+    public void setTraceMaxMiB(int traceMaxMiB) {
+        if (traceMaxMiB < 1) throw new IllegalArgumentException("Trace limit must be at least 1 MiB");
+        this.traceMaxMiB = traceMaxMiB;
     }
 
     @Override

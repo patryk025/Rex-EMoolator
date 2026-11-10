@@ -1,6 +1,7 @@
 package pl.genschu.bloomooemulator.ui;
 
 import pl.genschu.bloomooemulator.GameListFrame;
+import pl.genschu.bloomooemulator.engine.config.EngineConfig;
 import pl.genschu.bloomooemulator.engine.time.LegacyClockProfile;
 import pl.genschu.bloomooemulator.logic.AppPaths;
 import pl.genschu.bloomooemulator.logic.GameEntry;
@@ -52,7 +53,7 @@ public class Dialogs {
     public void showGameDialog(GameEntry game) {
         JDialog dialog = new JDialog(gameListFrame, game == null ? resourceBundle.getString("add_game") : resourceBundle.getString("edit_game"), true);
         dialog.setLayout(new GridLayout(0, 1, 10, 10));
-        dialog.setSize(500, 640);
+        dialog.setSize(500, 680);
 
         // center dialog
         Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
@@ -83,6 +84,16 @@ public class Dialogs {
         JCheckBox licenceCodeHintCheckbox = new JCheckBox(resourceBundle.getString("show_code_hint"));
         JCheckBox fullscreenCheckbox = new JCheckBox(resourceBundle.getString("stretch_fullscreen"));
         JCheckBox fpsCounterCheckbox = new JCheckBox(resourceBundle.getString("show_fps_counter"));
+        JCheckBox traceExecutionCheckbox = new JCheckBox(resourceBundle.getString("trace_execution"));
+        int initialTraceMaxMiB = game != null ? game.getTraceMaxMiB() : EngineConfig.DEFAULT_TRACE_MAX_MIB;
+        JTextField traceMaxMiBField = new JTextField(Integer.toString(initialTraceMaxMiB));
+        JLabel traceSizeLabel = new JLabel(resourceBundle.getString("trace_max_mib"));
+        traceSizeLabel.setLabelFor(traceMaxMiBField);
+        JPanel traceSizePanel = new JPanel(new BorderLayout(5, 0));
+        traceSizePanel.add(traceSizeLabel, BorderLayout.WEST);
+        traceSizePanel.add(traceMaxMiBField, BorderLayout.CENTER);
+        traceSizeLabel.setToolTipText(resourceBundle.getString("trace_limit_hint"));
+        traceMaxMiBField.setToolTipText(resourceBundle.getString("trace_limit_hint"));
 
         chooseFolderButton.addActionListener(e -> chooseGamePath(dialog, pathField, true));
         chooseIsoButton.addActionListener(e -> chooseGamePath(dialog, pathField, false));
@@ -98,7 +109,14 @@ public class Dialogs {
             licenceCodeHintCheckbox.setSelected(game.isShowLicenceCodeHint());
             fullscreenCheckbox.setSelected(!game.isMaintainAspectRatio());
             fpsCounterCheckbox.setSelected(game.isShowFpsCounter());
+            traceExecutionCheckbox.setSelected(game.isTraceExecution());
         }
+        traceMaxMiBField.setEnabled(traceExecutionCheckbox.isSelected());
+        traceSizeLabel.setEnabled(traceExecutionCheckbox.isSelected());
+        traceExecutionCheckbox.addActionListener(e -> {
+            traceMaxMiBField.setEnabled(traceExecutionCheckbox.isSelected());
+            traceSizeLabel.setEnabled(traceExecutionCheckbox.isSelected());
+        });
 
         dialog.add(new JLabel(resourceBundle.getString("game_name")));
         dialog.add(nameField);
@@ -114,11 +132,23 @@ public class Dialogs {
         dialog.add(licenceCodeHintCheckbox);
         dialog.add(fullscreenCheckbox);
         dialog.add(fpsCounterCheckbox);
+        dialog.add(traceExecutionCheckbox);
+        dialog.add(traceSizePanel);
         dialog.add(new JLabel(resourceBundle.getString("family_override")));
         dialog.add(familyField);
 
         JButton saveButton = new JButton(resourceBundle.getString("save"));
         saveButton.addActionListener(e -> {
+            final int traceMaxMiB;
+            try {
+                traceMaxMiB = traceExecutionCheckbox.isSelected()
+                        ? Integer.parseInt(traceMaxMiBField.getText().trim()) : initialTraceMaxMiB;
+                if (traceMaxMiB < 1) throw new NumberFormatException();
+            } catch (NumberFormatException invalidLimit) {
+                JOptionPane.showMessageDialog(dialog, resourceBundle.getString("trace_max_mib_invalid"));
+                traceMaxMiBField.requestFocusInWindow();
+                return;
+            }
             String sourcePath = pathField.getText().trim();
             String rootPath = rootField.getText().trim();
             saveButton.setEnabled(false);
@@ -167,6 +197,8 @@ public class Dialogs {
                                         licenceCodeHintCheckbox.isSelected(),
                                         !fullscreenCheckbox.isSelected());
                                 newGame.setShowFpsCounter(fpsCounterCheckbox.isSelected());
+                                newGame.setTraceExecution(traceExecutionCheckbox.isSelected());
+                                newGame.setTraceMaxMiB(traceMaxMiB);
                                 newGame.setFamilyOverride(familyField.getText());
                                 newGame.setLegacyClockProfile(legacyClockProfiles[legacyClockProfileSelectBox.getSelectedIndex()]);
                                 gameManager.addGame(newGame);
@@ -178,6 +210,8 @@ public class Dialogs {
                                 game.setShowLicenceCodeHint(licenceCodeHintCheckbox.isSelected());
                                 game.setMaintainAspectRatio(!fullscreenCheckbox.isSelected());
                                 game.setShowFpsCounter(fpsCounterCheckbox.isSelected());
+                                game.setTraceExecution(traceExecutionCheckbox.isSelected());
+                                game.setTraceMaxMiB(traceMaxMiB);
                                 game.setFamilyOverride(familyField.getText());
                                 game.setLegacyClockProfile(legacyClockProfiles[legacyClockProfileSelectBox.getSelectedIndex()]);
                                 gameManager.updateGame(game);

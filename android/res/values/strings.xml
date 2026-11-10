@@ -52,6 +52,10 @@
     <string name="show_police_code_hint">Pokaż podpowiedź z kodem Pana Policjanta</string>
     <string name="stretch_fullscreen">Rozciągaj na cały ekran (ignoruj proporcje ekranu)</string>
     <string name="show_fps">Pokaż licznik FPS</string>
+    <string name="trace_execution">Włącz śledzenie wykonywania kodu (ma duży wpływ na wydajność)</string>
+    <string name="trace_max_mib">Maksymalny rozmiar zrzutu (MiB):</string>
+    <string name="trace_limit_hint">Po osiągnięciu limitu nagrywanie się zatrzyma. Gra będzie działać dalej.</string>
+    <string name="trace_max_mib_invalid">Podaj liczbę całkowitą od 1 do 2147483647 MiB.</string>
     <string name="patch_family_label">Rodzina łatek (opcjonalnie):</string>
     <string name="patch_family_hint">np. czarodzieje</string>
 

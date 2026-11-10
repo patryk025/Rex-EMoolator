@@ -8,19 +8,8 @@ import pl.genschu.bloomooemulator.engine.time.LegacyClockProfile;
  * Manages debugging settings, logging levels, etc.
  */
 public class EngineConfig {
-    private boolean traceEnabled = Boolean.getBoolean("rex.trace.enabled");
-    private String tracePath = System.getProperty("rex.trace.path", "traces/session-" + java.util.UUID.randomUUID() + ".jsonl");
-    private long traceMaxBytes = 256L * 1024 * 1024;
+    public static final int DEFAULT_TRACE_MAX_MIB = 256;
 
-    public boolean isTraceEnabled() { return traceEnabled; }
-    public void setTraceEnabled(boolean enabled) { traceEnabled = enabled; }
-    public String getTracePath() { return tracePath; }
-    public void setTracePath(String path) { tracePath = java.util.Objects.requireNonNull(path); }
-    public long getTraceMaxBytes() { return traceMaxBytes; }
-    public void setTraceMaxBytes(long bytes) {
-        if (bytes < 1024) throw new IllegalArgumentException("Trace limit must be at least 1024 bytes");
-        traceMaxBytes = bytes;
-    }
     // singleton baby
     private static EngineConfig instance;
 
@@ -33,7 +22,12 @@ public class EngineConfig {
     private boolean debugMatrix = false;
     private boolean monitorPerformance = false;
     private boolean showFpsCounter = false;
-    private boolean debugWorld = true;
+    private boolean debugWorld = false;
+
+    // trace settings
+    private boolean traceEnabled = false;
+    private String tracePath = "traces/session-" + java.util.UUID.randomUUID() + ".jsonl";
+    private long traceMaxBytes = DEFAULT_TRACE_MAX_MIB * 1024L * 1024;
 
     // render settings
     private boolean maintainAspectRatio = true;
@@ -264,6 +258,16 @@ public class EngineConfig {
         this.fixScriptsOnLoad = fixScriptsOnLoad;
     }
 
+    public boolean isTraceEnabled() { return traceEnabled; }
+    public void setTraceEnabled(boolean enabled) { traceEnabled = enabled; }
+    public String getTracePath() { return tracePath; }
+    public void setTracePath(String path) { tracePath = java.util.Objects.requireNonNull(path); }
+    public long getTraceMaxBytes() { return traceMaxBytes; }
+    public void setTraceMaxBytes(long bytes) {
+        if (bytes < 1024) throw new IllegalArgumentException("Trace limit must be at least 1024 bytes");
+        traceMaxBytes = bytes;
+    }
+
     /**
      * Loads configuration from a file (to be implemented)
      * @param configPath Path to the configuration file
@@ -289,6 +293,8 @@ public class EngineConfig {
         debugButtons = false;
         debugCollisions = false;
         showFpsCounter = false;
+        traceEnabled = false;
+        traceMaxBytes = DEFAULT_TRACE_MAX_MIB * 1024L * 1024;
 
         maintainAspectRatio = true;
         vsync = true;

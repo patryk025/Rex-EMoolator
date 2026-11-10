@@ -2,6 +2,7 @@ package pl.genschu.bloomooemulator.tests;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
+import pl.genschu.bloomooemulator.BlooMooEngine;
 import pl.genschu.bloomooemulator.engine.time.LegacyClockProfile;
 import pl.genschu.bloomooemulator.logic.AppPaths;
 import pl.genschu.bloomooemulator.logic.GameEntry;
@@ -34,6 +35,8 @@ class GameStorageTest {
 
         assertDoesNotThrow(() -> UUID.fromString(entry.getStorageId()));
         assertEquals(LegacyClockProfile.defaultProfile(), entry.getLegacyClockProfileEnum());
+        assertFalse(entry.isTraceExecution());
+        assertEquals(256, entry.getTraceMaxMiB());
         assertTrue(Files.readString(gamesJson).contains("storageId"));
     }
 
@@ -48,6 +51,37 @@ class GameStorageTest {
 
         assertEquals(LegacyClockProfile.WINDOWS_100_HZ,
                 reloaded.getGames().first().getLegacyClockProfileEnum());
+    }
+
+    @Test
+    void traceSettingsRoundTripAndReachEngineWithoutIntegerOverflow(@TempDir Path tempDir) {
+        GameManager manager = new GameManager(tempDir.toString());
+        GameEntry entry = new GameEntry("test", "missing.iso", "TOUCH", false, false, true);
+        entry.setTraceExecution(true);
+        entry.setTraceMaxMiB(4096);
+        manager.addGame(entry);
+
+        GameEntry restored = new GameManager(tempDir.toString()).getGames().first();
+        var config = new BlooMooEngine(restored).getConfig();
+
+        assertEquals(4096, restored.getTraceMaxMiB());
+        assertTrue(config.isTraceEnabled());
+        assertEquals(4_294_967_296L, config.getTraceMaxBytes());
+
+        restored.setTraceExecution(false);
+        manager.updateGame(restored);
+        GameEntry disabled = new GameManager(tempDir.toString()).getGames().first();
+        assertFalse(new BlooMooEngine(disabled).getConfig().isTraceEnabled());
+        assertEquals(4096, disabled.getTraceMaxMiB());
+    }
+
+    @Test
+    void invalidSavedTraceLimitFallsBackToDefault(@TempDir Path tempDir) throws Exception {
+        Files.writeString(tempDir.resolve("games.json"),
+                "[{\"id\":0,\"name\":\"Invalid limit\",\"path\":\"game.iso\",\"traceExecution\":true,\"traceMaxMiB\":-1}]");
+        GameEntry entry = new GameManager(tempDir.toString()).getGames().first();
+
+        assertEquals(256L * 1024 * 1024, new BlooMooEngine(entry).getConfig().getTraceMaxBytes());
     }
 
     @Test

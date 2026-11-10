@@ -48,6 +48,10 @@
     <string name="show_police_code_hint">Show Mr. Policeman\'s picture-code hint</string>
     <string name="stretch_fullscreen">Stretch to fullscreen (ignore aspect ratio)</string>
     <string name="show_fps">Show FPS counter</string>
+    <string name="trace_execution">Enable code execution tracing (has a significant impact on performance)</string>
+    <string name="trace_max_mib">Maximum trace size (MiB):</string>
+    <string name="trace_limit_hint">Recording stops at this limit. The game continues running.</string>
+    <string name="trace_max_mib_invalid">Enter a whole number from 1 to 2147483647 MiB.</string>
     <string name="patch_family_label">Patch family (optional):</string>
     <string name="patch_family_hint">e.g. czarodzieje</string>
 

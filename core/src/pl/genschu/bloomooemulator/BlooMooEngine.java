@@ -82,11 +82,9 @@ public class BlooMooEngine extends ApplicationAdapter {
         if (gameEntry != null) {
             this.config.setShowFpsCounter(gameEntry.isShowFpsCounter());
             this.config.setLegacyClockProfile(gameEntry.getLegacyClockProfileEnum());
-        }
 
-        if(false) {
-            config.setTraceEnabled(true);
-            config.setTraceMaxBytes(256L * 1024 * 1024);
+            this.config.setTraceEnabled(gameEntry.isTraceExecution());
+            this.config.setTraceMaxBytes(gameEntry.getTraceMaxMiB() * 1024L * 1024);
         }
     }
 

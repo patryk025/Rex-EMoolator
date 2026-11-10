@@ -18,6 +18,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import pl.genschu.bloomooemulator.adapters.GameListAdapter;
+import pl.genschu.bloomooemulator.engine.config.EngineConfig;
 import pl.genschu.bloomooemulator.engine.time.LegacyClockProfile;
 import pl.genschu.bloomooemulator.logic.GameEntry;
 import pl.genschu.bloomooemulator.logic.GameManager;
@@ -141,6 +142,11 @@ public class GameListActivity extends AppCompatActivity {
         CheckBox licenceCodeHintCheckbox = dialogView.findViewById(R.id.licenceCodeHintCheckbox);
         CheckBox fullscreenCheckbox = dialogView.findViewById(R.id.fullscreenCheckbox);
         CheckBox fpsCounterCheckbox = dialogView.findViewById(R.id.fpsCounterCheckbox);
+        CheckBox traceExecutionCheckbox = dialogView.findViewById(R.id.traceExecutionCheckbox);
+        EditText traceMaxMiBField = dialogView.findViewById(R.id.traceMaxMiBField);
+        TextView traceSizeLabel = dialogView.findViewById(R.id.traceMaxMiBLabel);
+        int initialTraceMaxMiB = game != null ? game.getTraceMaxMiB() : EngineConfig.DEFAULT_TRACE_MAX_MIB;
+        traceMaxMiBField.setText(Integer.toString(initialTraceMaxMiB));
         EditText familyField = dialogView.findViewById(R.id.familyField);
 
         chooseFolderButton.setOnClickListener(v -> showPathPicker(pathField, true));
@@ -179,15 +185,35 @@ public class GameListActivity extends AppCompatActivity {
             licenceCodeHintCheckbox.setChecked(game.isShowLicenceCodeHint());
             fullscreenCheckbox.setChecked(!game.isMaintainAspectRatio());
             fpsCounterCheckbox.setChecked(game.isShowFpsCounter());
+            traceExecutionCheckbox.setChecked(game.isTraceExecution());
             if (game.getFamilyOverride() != null) {
                 familyField.setText(game.getFamilyOverride());
             }
         }
 
+        traceMaxMiBField.setEnabled(traceExecutionCheckbox.isChecked());
+        traceSizeLabel.setEnabled(traceExecutionCheckbox.isChecked());
+        traceExecutionCheckbox.setOnCheckedChangeListener((button, checked) -> {
+            traceMaxMiBField.setEnabled(checked);
+            traceSizeLabel.setEnabled(checked);
+            if (!checked) traceMaxMiBField.setError(null);
+        });
+
         builder.setPositiveButton(getString(R.string.save), null);
         builder.setNegativeButton(getString(R.string.cancel), null);
         AlertDialog editor = builder.create();
         editor.setOnShowListener(shown -> editor.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(v -> {
+            final int traceMaxMiB;
+            try {
+                traceMaxMiB = traceExecutionCheckbox.isChecked()
+                        ? Integer.parseInt(traceMaxMiBField.getText().toString().trim()) : initialTraceMaxMiB;
+                if (traceMaxMiB < 1) throw new NumberFormatException();
+                traceMaxMiBField.setError(null);
+            } catch (NumberFormatException invalidLimit) {
+                traceMaxMiBField.setError(getString(R.string.trace_max_mib_invalid));
+                traceMaxMiBField.requestFocus();
+                return;
+            }
             String sourcePath = pathField.getText().toString().trim();
             String rootPath = rootField.getText().toString().trim();
             editor.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(false);
@@ -217,6 +243,8 @@ public class GameListActivity extends AppCompatActivity {
                                                 licenceCodeHintCheckbox.isChecked(),
                                                 !fullscreenCheckbox.isChecked());
                                         newGame.setShowFpsCounter(fpsCounterCheckbox.isChecked());
+                                        newGame.setTraceExecution(traceExecutionCheckbox.isChecked());
+                                        newGame.setTraceMaxMiB(traceMaxMiB);
                                         newGame.setFamilyOverride(familyField.getText().toString());
                                         newGame.setLegacyClockProfile(legacyClockProfiles[legacyClockProfileSelectBox.getSelectedItemPosition()]);
                                         gameManager.addGame(newGame);
@@ -230,6 +258,8 @@ public class GameListActivity extends AppCompatActivity {
                                         game.setShowLicenceCodeHint(licenceCodeHintCheckbox.isChecked());
                                         game.setMaintainAspectRatio(!fullscreenCheckbox.isChecked());
                                         game.setShowFpsCounter(fpsCounterCheckbox.isChecked());
+                                        game.setTraceExecution(traceExecutionCheckbox.isChecked());
+                                        game.setTraceMaxMiB(traceMaxMiB);
                                         game.setFamilyOverride(familyField.getText().toString());
                                         game.setLegacyClockProfile(legacyClockProfiles[legacyClockProfileSelectBox.getSelectedItemPosition()]);
                                         gameManager.updateGame(game);
