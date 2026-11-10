@@ -62,7 +62,20 @@ public class Game {
     private String currentEpisodeFile = null;     // VFS-relative directory
     private String currentSceneFile = null;       // VFS-relative directory
     private String currentResourceDirectory = DANE_ROOT;
-    private String previousScene = "";
+
+    /*
+     * Script-requested transitions. BlooMoo/PIKLIB GOTO, BACK, NEXT and PREV only
+     * store the target (CMC_Scene +0xfc in BlooMoo). CMC_Scene::domodal performs the
+     * switch after the frame's managers have run, so the script that asked for it,
+     * and every handler around it, finishes in the old scene. One slot per level:
+     * the application holds a pending episode, the episode a pending scene.
+     */
+    private EpisodeVariable pendingEpisode;
+    private SceneVariable pendingScene;
+    /** every entered scene is appended, BACK pops one. Kept per episode object. */
+    private final Map<String, List<SceneVariable>> sceneHistory = new HashMap<>();
+    /** name of the scene this episode unloaded last. */
+    private final Map<String, String> latestScene = new HashMap<>();
 
     private InputManager inputManager;
 
@@ -75,7 +88,6 @@ public class Game {
     private final Map<EngineVariable, Set<EngineVariable>> collisionMap = new IdentityHashMap<>();
 
     private SceneVariable currentSceneVariable;
-    private SceneVariable previousSceneVariable;
 
     private ApplicationVariable applicationVariable;
     private EpisodeVariable currentEpisodeVariable;
@@ -342,16 +354,18 @@ public class Game {
                 firstEpisodeName = applicationVariable.episodeNames().isEmpty() ? null : applicationVariable.episodeNames().get(0);
             }
 
-            String firstSceneName = null;
-            if (firstEpisodeName != null) {
-                Variable firstEpVar = definitionContext.getVariable(firstEpisodeName);
-                if (firstEpVar instanceof EpisodeVariable firstEpisode) {
-                    firstSceneName = resolveStartScene(firstEpisode);
-                }
+            EpisodeVariable firstEpisode = null;
+            if (firstEpisodeName != null
+                    && definitionContext.getVariable(firstEpisodeName) instanceof EpisodeVariable episode
+                    && resolveStartScene(episode) != null) {
+                firstEpisode = episode;
             }
 
-            if (firstSceneName != null) {
-                goTo(firstSceneName);
+            if (firstEpisode != null) {
+                // Entered directly, like CMC_Application::initialize. A GOTO made by
+                // the application's or the start scene's __INIT__ stays pending
+                // and is taken at the end of the first pulse.
+                enterEpisode(firstEpisode);
             } else {
                 showErrorInApplicationDef();
             }
@@ -413,36 +427,125 @@ public class Game {
         return AppPaths.storageDirFor(this.game);
     }
 
+    /**
+     * EPISODE^GOTO / APPLICATION^GOTO: records the target, nothing is unloaded yet.
+     * The switch happens in {@link #applyPendingTransitions()}. The emulator accepts
+     * an episode or a scene of any episode whichever object is called. The original
+     * does not: CMC_Scene::find searches only the callee's own sub-scenes.
+     */
     public void goTo(String name) {
-        persistGameINI();
-
         Variable variable = definitionContext.getVariable(name);
-
         if (variable instanceof EpisodeVariable episode) {
-            loadEpisode(episode);
+            pendingEpisode = episode;
         } else if (variable instanceof SceneVariable scene) {
-            // Find which episode contains this scene using episode.sceneNames()
-            EpisodeVariable ownerEpisode = findEpisodeForScene(name);
-            if (ownerEpisode != null) {
-                loadEpisode(ownerEpisode);
-            } else {
-                Gdx.app.error("Game", "Scene '" + name + "' not found in any episode's SCENES list");
-            }
-
-            previousSceneVariable = currentSceneVariable;
-            if (previousSceneVariable != null) {
-                previousScene = previousSceneVariable.name();
-            }
-            loadScene(scene);
+            pendingScene = scene;
         } else {
+            // The original stores the failed lookup (null), dropping an earlier request.
+            pendingScene = null;
             Gdx.app.error("Game", "GOTO target '" + name + "' is not a known Episode or Scene");
         }
     }
 
-    public void goToPreviousScene() {
-        persistGameINI();
+    /** EPISODE^BACK: the second-to-last history entry becomes pending, the last is dropped. */
+    public void goBack() {
+        List<SceneVariable> history = currentHistory();
+        if (history.size() > 1) {
+            pendingScene = history.get(history.size() - 2);
+            history.remove(history.size() - 1);
+        }
+    }
 
-        loadScene(previousSceneVariable);
+    /** EPISODE^NEXT / ^PREV: the neighbor of the current scene in the SCENES list, if any. */
+    public void goToNeighbourScene(int step) {
+        if (currentEpisodeVariable == null || currentSceneVariable == null) {
+            return;
+        }
+        List<String> scenes = currentEpisodeVariable.sceneNames();
+        int target = scenes.indexOf(currentSceneVariable.name()) + step;
+        if (scenes.contains(currentSceneVariable.name()) && target >= 0 && target < scenes.size()
+                && definitionContext.getVariable(scenes.get(target)) instanceof SceneVariable scene) {
+            pendingScene = scene;
+        }
+    }
+
+    /**
+     * Debug scene picker: switches right away, even while paused. Safe because it
+     * runs from host input, with no script on the stack.
+     */
+    public void goToNow(String name) {
+        goTo(name);
+        applyPendingTransitions();
+    }
+
+    /**
+     * Performs a requested switch. Called once per pulse, after input and the
+     * managers, where CWindow::domodal calls the application's domodal.
+     * The order is that of CMC_Scene::domodal on each level: the application
+     * first switches episode, then the (new) episode switches scene.
+     */
+    public void applyPendingTransitions() {
+        if (pendingEpisode != null) {
+            EpisodeVariable episode = pendingEpisode;
+            pendingEpisode = null;
+            // Whatever the old episode had pending leaves with it. The new start
+            // scene's __INIT__ may request a scene again, and that request is kept.
+            pendingScene = null;
+            persistGameINI();
+            enterEpisode(episode);
+        }
+        if (pendingScene != null) {
+            SceneVariable scene = pendingScene;
+            persistGameINI();
+            switchToScene(scene);
+            // Cleared after the switch, as in CMC_Scene::domodal: a GOTO from the
+            // new scene's __INIT__ or ONINIT is dropped.
+            pendingScene = null;
+        }
+    }
+
+    public boolean hasPendingTransition() {
+        return pendingEpisode != null || pendingScene != null;
+    }
+
+    /** Loads the episode and enters its start scene directly. */
+    private void enterEpisode(EpisodeVariable episode) {
+        String startScene = resolveStartScene(episode);
+        if (startScene == null
+                || !(definitionContext.getVariable(startScene) instanceof SceneVariable scene)) {
+            Gdx.app.error("Game", "Episode '" + episode.name() + "' has no valid starting scene");
+            return;
+        }
+        leaveCurrentScene();
+        loadEpisode(episode);
+        enterScene(scene);
+    }
+
+    private void switchToScene(SceneVariable scene) {
+        EpisodeVariable owner = findEpisodeForScene(scene.name());
+        if (owner == null) {
+            Gdx.app.error("Game", "Scene '" + scene.name() + "' not found in any episode's SCENES list");
+        }
+        leaveCurrentScene();
+        if (owner != null && !owner.name().equals(currentEpisode)) {
+            loadEpisode(owner);
+        }
+        enterScene(scene);
+    }
+
+    /** Remembers the scene being left as the episode's latest scene. */
+    private void leaveCurrentScene() {
+        if (currentSceneVariable != null) {
+            latestScene.put(currentEpisode, currentSceneVariable.name());
+        }
+    }
+
+    private void enterScene(SceneVariable scene) {
+        currentHistory().add(scene);
+        loadScene(scene);
+    }
+
+    private List<SceneVariable> currentHistory() {
+        return sceneHistory.computeIfAbsent(currentEpisode, ignored -> new ArrayList<>());
     }
 
     private EpisodeVariable findEpisodeForScene(String sceneName) {
@@ -516,6 +619,7 @@ public class Game {
             Gdx.app.log("Game", "Loading episode " + episode.name());
             try {
                 currentEpisode = episode.name();
+                currentEpisodeVariable = episode;
                 currentEpisodeContext = new Context(new ExecutionContext(), currentApplicationContext);
                 currentEpisodeContext.setGame(this);
                 currentEpisodeContext.setIniSection(episode.name().toUpperCase());
@@ -1077,8 +1181,9 @@ public class Game {
         return DANE_ROOT;
     }
 
-    public String getPreviousScene() {
-        return previousScene;
+    /** EPISODE^GETLATESTSCENE: the scene the given episode unloaded last, or "" when none. */
+    public String getLatestScene(String episodeName) {
+        return latestScene.getOrDefault(episodeName, "");
     }
 
     public Map<String, Music> getMusicCache() {

@@ -332,6 +332,9 @@ public class BlooMooEngine extends ApplicationAdapter {
         engineMetrics.beginPhase(EngineMetrics.Phase.MANAGERS);
         try {
             updateManager.pulse();
+            // CWindow::domodal runs the application's domodal, which performs a
+            // requested GOTO/BACK, only after input and every manager of the frame.
+            game.applyPendingTransitions();
         } finally {
             engineMetrics.endPhase(EngineMetrics.Phase.MANAGERS);
         }

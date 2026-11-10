@@ -98,6 +98,14 @@ public record ApplicationVariable(
             return MethodResult.noReturn();
         })),
 
+        Map.entry("GOTO", MethodSpec.of((self, args, ctx) -> {
+            if (args.isEmpty()) {
+                throw new IllegalArgumentException("GOTO requires 1 argument");
+            }
+            ctx.getGame().goTo(ArgumentHelper.getString(args.get(0)));
+            return MethodResult.noReturn();
+        })),
+
         Map.entry("GETLANGUAGE", MethodSpec.of((self, args, ctx) -> {
             ApplicationVariable thisVar = (ApplicationVariable) self;
             return MethodResult.returns(new StringValue(thisVar.language));
