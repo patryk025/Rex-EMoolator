@@ -48972,7 +48972,7 @@
   },
   {
    "id": "condition.return-inside-branch",
-   "description": "The form IfConditionTest uses: @RETURN inside an inline @IF branch. Crashes in ~CMC_Behaviour (the temporary branch behaviour) on PIKLIB 7.2/8 and BlooMoo under pikhost, but runs fine in a game (BlooMoo, Reksio i Kapitan Nemo, 2026-11-14), so the recorded crash is a pikhost artifact: see tools/pikhost/TODO.md.",
+   "description": "The form IfConditionTest uses: @RETURN inside an inline @IF branch. The value leaves the behaviour. Recorded as a crash until 2026-11-15: ~CMC_Behaviour takes the temporary branch behaviour off the timer of the scene's window, which pikhost had none of (see tools/pikhost/TODO.md, item 3).",
    "tags": [
     "condition"
    ],
@@ -48997,13 +48997,6 @@
       "bloomoo-d63a5fb575f9",
       "bloomoo-fb9a2b81d685",
       "bloomoo-web-f5b6842faf88",
-      "piklib61-3bb31de8b45f",
-      "piklib61-715272459e13",
-      "piklib61-91b0330a11ab",
-      "piklib61-9de20dceea68",
-      "piklib61-c0f83acd825b",
-      "piklib71-128b235b6d94",
-      "piklib71-27c2b7699f01",
       "piklib72-549b6851b2c9",
       "piklib72-923a103d5b05",
       "piklib8-0967908f2df1",
@@ -49021,6 +49014,54 @@
       "piklib8-d6509a132e2a",
       "piklib8-e80093de9636",
       "piklib8-f01db0dd5a0d"
+     ],
+     "status": "ok",
+     "initial": {
+      "TEST_RESULTS": [
+       "STRING",
+       ""
+      ],
+      "LICZNIK": [
+       "INTEGER",
+       "0"
+      ],
+      "OBJ": [
+       "INTEGER",
+       "2"
+      ]
+     },
+     "steps": [
+      {
+       "result": [
+        "STRING",
+        "TRUE"
+       ],
+       "state": {
+        "TEST_RESULTS": [
+         "STRING",
+         ""
+        ],
+        "LICZNIK": [
+         "INTEGER",
+         "0"
+        ],
+        "OBJ": [
+         "INTEGER",
+         "2"
+        ]
+       }
+      }
+     ]
+    },
+    {
+     "engines": [
+      "piklib61-3bb31de8b45f",
+      "piklib61-715272459e13",
+      "piklib61-91b0330a11ab",
+      "piklib61-9de20dceea68",
+      "piklib61-c0f83acd825b",
+      "piklib71-128b235b6d94",
+      "piklib71-27c2b7699f01"
      ],
      "status": "crash",
      "initial": {
@@ -75465,11 +75506,6 @@
       "bloomoo-d63a5fb575f9",
       "bloomoo-fb9a2b81d685",
       "bloomoo-web-f5b6842faf88",
-      "piklib61-3bb31de8b45f",
-      "piklib61-715272459e13",
-      "piklib61-91b0330a11ab",
-      "piklib61-9de20dceea68",
-      "piklib61-c0f83acd825b",
       "piklib72-549b6851b2c9",
       "piklib72-923a103d5b05",
       "piklib8-0967908f2df1",
@@ -75487,6 +75523,41 @@
       "piklib8-d6509a132e2a",
       "piklib8-e80093de9636",
       "piklib8-f01db0dd5a0d"
+     ],
+     "status": "ok",
+     "initial": {
+      "VARNR": [
+       "INTEGER",
+       "0"
+      ],
+      "RESULT": [
+       "STRING",
+       ""
+      ]
+     },
+     "steps": [
+      {
+       "result": null,
+       "state": {
+        "VARNR": [
+         "INTEGER",
+         "4"
+        ],
+        "RESULT": [
+         "STRING",
+         ""
+        ]
+       }
+      }
+     ]
+    },
+    {
+     "engines": [
+      "piklib61-3bb31de8b45f",
+      "piklib61-715272459e13",
+      "piklib61-91b0330a11ab",
+      "piklib61-9de20dceea68",
+      "piklib61-c0f83acd825b"
      ],
      "status": "crash",
      "initial": {
@@ -80457,7 +80528,7 @@
       "bloomoo-2679920b3735",
       "bloomoo-3be911183e59",
       "bloomoo-788ab0406ab4",
-      "bloomoo-d63a5fb575f9",
+      "bloomoo-9ac8ebbe0cc2",
       "bloomoo-fb9a2b81d685",
       "bloomoo-web-f5b6842faf88",
       "piklib72-549b6851b2c9",
@@ -80535,7 +80606,7 @@
     },
     {
      "engines": [
-      "bloomoo-9ac8ebbe0cc2"
+      "bloomoo-d63a5fb575f9"
      ],
      "status": "ok",
      "initial": {

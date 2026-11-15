@@ -341,6 +341,7 @@ static BYTE *skipJump(BYTE *code)
 // incremental-linking jmp:
 //   CMC_Object::getScene                0x38 (7.2), 0x3c (8, BlooMoo)
 //   CMC_ObjectsContainer::getParent     the lookup parent
+//   CMC_ObjectsContainer::getWindow     0x54 (7.2), 0x58 (8), 0x5c (BlooMoo)
 static int getterOffset(const char *prefix)
 {
     BYTE *code = (BYTE *)find(prefix);
@@ -377,11 +378,13 @@ static __declspec(naked) void resolveFileNameShim()
 //   6A FF 68 imm32        push -1; push handler
 //   83 EC xx 53 55        sub esp,xx; push ebx; push ebp
 //   51 8B 44 24 xx        push ecx; mov eax,[esp+xx]
+//   53 56 8B F1 33 DB     push ebx; push esi; mov esi,ecx; xor ebx,ebx
 static int prologueLength(const BYTE *code)
 {
     if (code[0] == 0x6A && code[1] == 0xFF && code[2] == 0x68) return 7;
     if (code[0] == 0x83 && code[1] == 0xEC && code[3] == 0x53 && code[4] == 0x55) return 5;
     if (code[0] == 0x51 && code[1] == 0x8B && code[2] == 0x44 && code[3] == 0x24) return 5;
+    if (code[0] == 0x53 && code[1] == 0x56 && code[2] == 0x8B && code[3] == 0xF1 && code[4] == 0x33 && code[5] == 0xDB) return 6;
     return 0;
 }
 
@@ -455,6 +458,65 @@ static void hookResolveFileName()
     setCdPath((BYTE *)g_fakeWindow + cdPath);
     g_resolveTrampoline = detour(code, resolveFileNameShim);
     trace("resolveFileName detour", g_resolveTrampoline);
+}
+
+// ~CMC_Behaviour takes the behaviour off the timer of its scene's window:
+// CXTimer::remove(scene->window->timer, this), with no NULL check. With no
+// window every behaviour the engine destroys takes the process down; in a game
+// that is the temporary behaviour of an inline @IF branch or @LOOP body, freed
+// after some runs, e.g. one leaving through @RETURN. The scene gets a stand-in
+// window for the duration of the destructor only (a permanent one would send
+// other objects into it): every field of it points at a stand-in timer, every
+// field of which points at a zeroed block, so whatever offsets a build uses,
+// the timer's list reads as empty and remove returns.
+static void *g_timerWindow;
+static BYTE *g_destructorTrampoline;
+static int g_sceneField = -1, g_windowField = -1;
+
+static __declspec(naked) void behaviourDestructorShim()
+{
+    __asm {
+        push ebx
+        push esi
+        mov esi, ecx                    // this
+        mov eax, g_sceneField
+        mov ebx, dword ptr [esi + eax]  // scene
+        test ebx, ebx
+        jz plain
+        mov eax, g_windowField
+        push dword ptr [ebx + eax]      // its window, restored below
+        cmp dword ptr [ebx + eax], 0
+        jne call_it
+        mov edx, g_timerWindow
+        mov dword ptr [ebx + eax], edx
+    call_it:
+        mov ecx, esi
+        call dword ptr [g_destructorTrampoline]
+        mov eax, g_windowField
+        pop dword ptr [ebx + eax]
+        pop esi
+        pop ebx
+        ret
+    plain:
+        mov ecx, esi
+        pop esi
+        pop ebx
+        jmp dword ptr [g_destructorTrampoline]
+    }
+}
+
+static void hookBehaviourDestructor()
+{
+    BYTE *code = (BYTE *)find("??1CMC_Behaviour");
+    g_sceneField = getterOffset("?getScene@CMC_Object");
+    g_windowField = getterOffset("?getWindow@CMC_ObjectsContainer");
+    if (!code || g_sceneField < 0 || g_windowField < 0) return;
+    void **zero = (void **)alloc(0x400), **timer = (void **)alloc(0x400), **window = (void **)alloc(0x1000);
+    for (int i = 0; i < 0x100; ++i) timer[i] = zero;
+    for (int i = 0; i < 0x400; ++i) window[i] = timer;
+    g_timerWindow = window;
+    g_destructorTrampoline = detour(skipJump(code), behaviourDestructorShim);
+    trace("~CMC_Behaviour detour", g_destructorTrampoline);
 }
 
 // The scene gets an empty application container above it, as in a game.
@@ -551,6 +613,7 @@ static void bootstrap()
         BY_STRING_SIZE(createContainer, (f));
         locateCdPath();
         hookResolveFileName();
+        hookBehaviourDestructor();
         if (g_cdPathGlobal && getenv("PIKHOST_CD")) setCdPath(g_cdPathGlobal);
     } else {
         // The older scene reads its name and properties from a definition element.
