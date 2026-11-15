@@ -17,6 +17,11 @@
 // Asynchronous replies: "MSG <text>" for every message box the engine tries
 // to show. A crash inside the engine is reported as "CRASH <code> <rva>" and
 // ends the process, because the engine state cannot be trusted afterwards.
+//
+// Environment: PIKHOST_TRACE=1 bootstrap steps on stderr, PIKHOST_CD=<dir>
+// the CD path a leading $ in file names stands for (7.2 and later; by default
+// empty, so $ paths are relative to the working directory, e.g. a CLASS DEF is
+// read from common\classes there).
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 #include <stdio.h>
@@ -352,33 +357,55 @@ static BYTE *detour(BYTE *code, void *shim)
     return trampoline;
 }
 
-// Offset of the CD path string in CWindow, read off CWindow::getCDPath, whose
-// first field load is the string's capacity (vftable, length, capacity, text):
-//   8B 45 xx / 8B 43 xx / 8B 83 imm32      7.2 0x64, PIKLIB 8 0x60/0x68/0x80
-// Builds that keep the CD path in a global (A1 imm32) never read the window
-// there, and get no hook.
-static int cdPathOffset()
+// Where CWindow::getCDPath reads the CD path, the root that a leading $ or &
+// in a file name stands for (so "$COMMON\CLASSES\X" is <CD>COMMON\CLASSES\X).
+// Read off the getter's first load; a CXString is vftable, length, capacity,
+// text, and the copy starts with the capacity:
+//   8B 45 xx / 8B 43 xx / 8B 83 imm32   field of the window: 7.2 0x64,
+//                                       older PIKLIB 8 0x60/0x68/0x80
+//   A1 imm32                            global, capacity at imm32 (PIKLIB 8)
+//   68 imm32                            global string pushed for a copy (BlooMoo)
+static int g_cdPathField = -1;
+static BYTE *g_cdPathGlobal;
+
+static void locateCdPath()
 {
     BYTE *code = (BYTE *)find("?getCDPath@CWindow");
-    if (!code) return -1;
+    if (!code) return;
     code = skipJump(code);
     for (int i = 0; i < 24; ++i) {
-        if (code[i] == 0xA1) return -1;
-        if (code[i] == 0x8B && (code[i + 1] == 0x45 || code[i + 1] == 0x43)) return code[i + 2] - 8;
-        if (code[i] == 0x8B && code[i + 1] == 0x83) return *(int *)(code + i + 2) - 8;
+        if (code[i] == 0xA1) { g_cdPathGlobal = *(BYTE **)(code + i + 1) - 8; break; }
+        if (code[i] == 0x68) { g_cdPathGlobal = *(BYTE **)(code + i + 1); break; }
+        if (code[i] == 0x8B && (code[i + 1] == 0x45 || code[i + 1] == 0x43)) { g_cdPathField = code[i + 2] - 8; break; }
+        if (code[i] == 0x8B && code[i + 1] == 0x83) { g_cdPathField = *(int *)(code + i + 2) - 8; break; }
     }
-    return -1;
+    trace("CD path field", (void *)(size_t)g_cdPathField);
+    trace("CD path global", g_cdPathGlobal);
+}
+
+// PIKHOST_CD sets the CD path, so cases can load classes and other $ files
+// from a game's own folders. Unset, it is empty and $ paths stay relative to
+// the working directory. The engine appends to it without a separator.
+static void setCdPath(void *target)
+{
+    static char path[MAX_PATH + 2];
+    const char *value = getenv("PIKHOST_CD");
+    if (value && *value && !path[0]) {
+        _snprintf(path, MAX_PATH, "%s", value);
+        size_t n = strlen(path);
+        if (path[n - 1] != '\\' && path[n - 1] != '/') path[n] = '\\';
+    }
+    constructString(target, path);
 }
 
 static void hookResolveFileName()
 {
     BYTE *code = (BYTE *)find("?resolveFileName@CPath", "PAVCWindow");
-    int cdPath = cdPathOffset();
-    trace("CD path field", (void *)(size_t)cdPath);
+    int cdPath = g_cdPathField;
     if (!code || cdPath < 0) return;
     code = skipJump(code);
     g_fakeWindow = alloc(0x1000);
-    constructString((BYTE *)g_fakeWindow + cdPath, "");
+    setCdPath((BYTE *)g_fakeWindow + cdPath);
     g_resolveTrampoline = detour(code, resolveFileNameShim);
     trace("resolveFileName detour", g_resolveTrampoline);
 }
@@ -475,7 +502,9 @@ static void bootstrap()
     g_scene = alloc(0x1000);
     if (FARPROC f = find("??0CMC_ObjectsContainer", "VCXString")) {
         BY_STRING_SIZE(createContainer, (f));
+        locateCdPath();
         hookResolveFileName();
+        if (g_cdPathGlobal && getenv("PIKHOST_CD")) setCdPath(g_cdPathGlobal);
     } else {
         // The older scene reads its name and properties from a definition element.
         g_legacy = true;
