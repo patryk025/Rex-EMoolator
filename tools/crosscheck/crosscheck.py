@@ -125,6 +125,8 @@ class Case:
     read: list[str]
     source: str
     files: dict[str, str] = field(default_factory=dict)
+    # Seconds per engine; a case that hangs the engine on purpose sets a short one.
+    timeout: float | None = None
 
     def digest(self) -> str:
         parts = [self.cnv, self.steps, self.read] + ([self.files] if self.files else [])
@@ -188,6 +190,7 @@ def load_cases(directory: Path = CASES_DIR) -> list[Case]:
                     read=entry.get("read", defaults.get("read", [])),
                     source=path.name,
                     files=entry.get("files", defaults.get("files", {})),
+                    timeout=entry.get("timeout", defaults.get("timeout")),
                 )
                 if case.id in seen:
                     raise SystemExit(f"{path.name}: duplicate case id {case.id}")
@@ -238,6 +241,8 @@ def run_case(engine: Engine, case: Case, workdir: Path) -> dict:
     shutil.rmtree(case_dir, ignore_errors=True)
     case_dir.mkdir()
     for name, text in case.files.items():
+        # A name may have folders: classes are read from common/classes under the working directory.
+        (case_dir / name).parent.mkdir(parents=True, exist_ok=True)
         (case_dir / name).write_bytes(text.replace("\n", "\r\n").encode(ENGINE_ENCODING))
     cnv_path = case_dir / "case.cnv"
     cnv_path.write_bytes(case.cnv.encode(ENGINE_ENCODING))
@@ -252,7 +257,7 @@ def run_case(engine: Engine, case: Case, workdir: Path) -> dict:
 
     try:
         completed = subprocess.run([str(PIKHOST), str(engine.path.resolve())], input=payload, cwd=case_dir,
-                                   capture_output=True, timeout=CASE_TIMEOUT)
+                                   capture_output=True, timeout=case.timeout or CASE_TIMEOUT)
         lines = completed.stdout.decode(ENGINE_ENCODING, errors="replace").splitlines()
         timed_out = False
         exit_code = completed.returncode & 0xFFFFFFFF

@@ -1,0 +1,162 @@
+# How the script parser takes nested [ ] groups. Found while porting a Brainfuck
+# interpreter to BlooMoo (Reksio i Kapitan Nemo): a grid layout behaviour with
+# [GRIDW*TILESIZEX+[[GRIDW-1]*GAP]] left the game frozen before its first frame.
+#
+# What breaks is a group that opens with a group while it is nested in another
+# group. Some engines never finish loading such a CNV, so every case has a CNV of
+# its own with only that one behaviour, and the breaking ones a short timeout.
+[defaults]
+tags = ["parser", "arithmetic"]
+read = ["R"]
+
+[[case]]
+id = "parser.group-opening-expression"
+description = "A group that opens the whole expression and itself opens with a group."
+cnv = '''
+OBJECT=A
+A:TYPE=INTEGER
+A:VALUE=16
+
+OBJECT=B
+B:TYPE=INTEGER
+B:VALUE=37
+
+OBJECT=C
+C:TYPE=INTEGER
+C:VALUE=16
+
+OBJECT=D
+D:TYPE=INTEGER
+D:VALUE=2
+
+OBJECT=R
+R:TYPE=INTEGER
+R:VALUE=0
+
+OBJECT=EXPR
+EXPR:TYPE=BEHAVIOUR
+EXPR:CODE={R^SET([[C-1]*D]);}
+'''
+steps = ["EXPR^RUN()"]
+
+[[case]]
+id = "parser.group-after-operator"
+description = "A plain group after an operator."
+cnv = '''
+OBJECT=A
+A:TYPE=INTEGER
+A:VALUE=16
+
+OBJECT=B
+B:TYPE=INTEGER
+B:VALUE=37
+
+OBJECT=C
+C:TYPE=INTEGER
+C:VALUE=16
+
+OBJECT=D
+D:TYPE=INTEGER
+D:VALUE=2
+
+OBJECT=R
+R:TYPE=INTEGER
+R:VALUE=0
+
+OBJECT=EXPR
+EXPR:TYPE=BEHAVIOUR
+EXPR:CODE={R^SET([A*B+[C-1]]);}
+'''
+steps = ["EXPR^RUN()"]
+
+[[case]]
+id = "parser.group-ending-with-group"
+description = "Three levels, each inner group the last operand of its group."
+cnv = '''
+OBJECT=A
+A:TYPE=INTEGER
+A:VALUE=16
+
+OBJECT=B
+B:TYPE=INTEGER
+B:VALUE=37
+
+OBJECT=C
+C:TYPE=INTEGER
+C:VALUE=16
+
+OBJECT=D
+D:TYPE=INTEGER
+D:VALUE=2
+
+OBJECT=R
+R:TYPE=INTEGER
+R:VALUE=0
+
+OBJECT=EXPR
+EXPR:TYPE=BEHAVIOUR
+EXPR:CODE={R^SET([A*B+[D*[C-1]]]);}
+'''
+steps = ["EXPR^RUN()"]
+
+[[case]]
+id = "parser.nested-group-opening-with-group.after-operator"
+description = "A group that opens with a group, nested after an operator. BlooMoo (Reksio i Kapitan Nemo) never finishes loading the CNV, in pikhost and in the game alike."
+timeout = 5
+cnv = '''
+OBJECT=A
+A:TYPE=INTEGER
+A:VALUE=16
+
+OBJECT=B
+B:TYPE=INTEGER
+B:VALUE=37
+
+OBJECT=C
+C:TYPE=INTEGER
+C:VALUE=16
+
+OBJECT=D
+D:TYPE=INTEGER
+D:VALUE=2
+
+OBJECT=R
+R:TYPE=INTEGER
+R:VALUE=0
+
+OBJECT=EXPR
+EXPR:TYPE=BEHAVIOUR
+EXPR:CODE={R^SET([A*B+[[C-1]*D]]);}
+'''
+steps = ["EXPR^RUN()"]
+
+[[case]]
+id = "parser.nested-group-opening-with-group.first"
+description = "The same group, nested as the first operand."
+timeout = 5
+cnv = '''
+OBJECT=A
+A:TYPE=INTEGER
+A:VALUE=16
+
+OBJECT=B
+B:TYPE=INTEGER
+B:VALUE=37
+
+OBJECT=C
+C:TYPE=INTEGER
+C:VALUE=16
+
+OBJECT=D
+D:TYPE=INTEGER
+D:VALUE=2
+
+OBJECT=R
+R:TYPE=INTEGER
+R:VALUE=0
+
+OBJECT=EXPR
+EXPR:TYPE=BEHAVIOUR
+EXPR:CODE={R^SET([[[C-1]*D]+A]);}
+'''
+steps = ["EXPR^RUN()"]

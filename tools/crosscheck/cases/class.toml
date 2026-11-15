@@ -1,0 +1,96 @@
+# CLASS and its instances, driven from the scene. CLASS.md lists NEW for Piklib 7.2
+# and later; under pikhost Piklib 7.2 and a few Piklib 8 builds crash in NEW.
+# The class files are written to
+# common/classes in the working directory, where every engine looks for a DEF
+# without a $ prefix.
+#
+# Only calls from the scene into an instance are here. Under pikhost an instance
+# sees nothing outside its own objects (scene variables, other instances, scene
+# behaviours), while in a game it resolves names further up: see the CLASS
+# reference. Cases for that wait until pikhost gives the instance the right
+# lookup parent.
+
+[defaults]
+tags = ["class"]
+read = ["SCENEV"]
+files."common/classes/COUNTER.CLASS" = '''
+OBJECT=V
+V:TYPE=INTEGER
+V:VALUE=7
+
+OBJECT=NAME
+NAME:TYPE=STRING
+NAME:VALUE=
+
+OBJECT=GETV
+GETV:TYPE=BEHAVIOUR
+GETV:CODE={@RETURN(V);}
+
+OBJECT=SETV
+SETV:TYPE=BEHAVIOUR
+SETV:CODE={V^SET($1);}
+
+OBJECT=INCV
+INCV:TYPE=BEHAVIOUR
+INCV:CODE={V^INC();}
+
+OBJECT=GETNAME
+GETNAME:TYPE=BEHAVIOUR
+GETNAME:CODE={@RETURN(NAME);}
+
+OBJECT=GET_NAME
+GET_NAME:TYPE=BEHAVIOUR
+GET_NAME:CODE={@RETURN(NAME);}
+
+OBJECT=CONSTRUCTOR
+CONSTRUCTOR:TYPE=BEHAVIOUR
+CONSTRUCTOR:CODE={NAME^SET($1);}
+'''
+files."common/classes/SEEDED.CLASS" = '''
+OBJECT=V
+V:TYPE=INTEGER
+V:VALUE=7
+
+OBJECT=GETV
+GETV:TYPE=BEHAVIOUR
+GETV:CODE={@RETURN(V);}
+
+OBJECT=CONSTRUCTOR
+CONSTRUCTOR:TYPE=BEHAVIOUR
+CONSTRUCTOR:CODE={V^SET($2);}
+'''
+cnv = '''
+OBJECT=COUNTER
+COUNTER:TYPE=CLASS
+COUNTER:DEF=COUNTER.CLASS
+COUNTER:BASE=
+
+OBJECT=SEEDED
+SEEDED:TYPE=CLASS
+SEEDED:DEF=SEEDED.CLASS
+SEEDED:BASE=
+
+OBJECT=SCENEV
+SCENEV:TYPE=INTEGER
+SCENEV:VALUE=0
+
+OBJECT=V
+V:TYPE=INTEGER
+V:VALUE=100
+'''
+
+[[case]]
+id = "class.new-and-call"
+description = "NEW, then methods of the instance from the scene: a returned field, a change, the field again."
+steps = ['COUNTER^NEW("I")', "I^GETV()", "I^SETV(5)", "I^GETV()", "I^INCV()", "I^GETV()"]
+
+[[case]]
+id = "class.constructor-arguments"
+description = "The instance name arrives in CONSTRUCTOR as $1, the first NEW argument as $2. GETNAME is also a behaviour of the class, called the same way."
+steps = ['COUNTER^NEW("I")', "I^GET_NAME()", "I^GETNAME()", 'SEEDED^NEW("J", 9)', "J^GETV()"]
+
+[[case]]
+id = "class.instances-are-separate"
+description = "Two instances of one class keep their own fields, and an instance field does not touch the scene object of the same name."
+read = ["SCENEV", "V"]
+steps = ['COUNTER^NEW("I1")', 'COUNTER^NEW("I2")', "I1^SETV(1)", "I2^SETV(2)", "I1^GETV()", "I2^GETV()", "V^GET()"]

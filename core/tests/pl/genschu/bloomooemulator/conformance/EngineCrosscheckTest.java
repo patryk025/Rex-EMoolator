@@ -39,6 +39,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -247,10 +248,14 @@ class EngineCrosscheckTest {
     private static Path gameDirectory(JsonValue files) throws IOException {
         Path directory = Files.createTempDirectory("crosscheck");
         if (files != null) {
-            // A game with no scene open resolves relative paths under DANE.
+            // A game with no scene open resolves relative paths under DANE. Files under
+            // common/ (class definitions in common/classes) belong to $COMMON, next to it.
             Path resources = Files.createDirectory(directory.resolve("DANE"));
             for (JsonValue file : files) {
-                Files.write(resources.resolve(file.name()), file.asString().replace("\n", "\r\n").getBytes(ENGINE_CHARSET));
+                boolean common = file.name().replace('\\', '/').toLowerCase(Locale.ROOT).startsWith("common/");
+                Path target = (common ? directory : resources).resolve(file.name());
+                Files.createDirectories(target.getParent());
+                Files.write(target, file.asString().replace("\n", "\r\n").getBytes(ENGINE_CHARSET));
             }
         }
         return directory;

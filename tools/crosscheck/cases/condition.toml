@@ -6,7 +6,8 @@
 #
 # The branches set a STRING and @RETURN comes after @IF, as in
 # debug/scripttest/Script_test.cnv: an @RETURN inside an inline {...} branch
-# takes every engine down here (see condition.return-inside-branch).
+# takes every engine down under pikhost, though not in a game
+# (see condition.return-inside-branch).
 
 [defaults]
 tags = ["condition"]
@@ -172,5 +173,5 @@ steps = ["${b}^RUN()"]
 
 [[case]]
 id = "condition.return-inside-branch"
-description = "The form IfConditionTest uses: @RETURN inside an inline @IF branch. Crashes in ~CMC_Behaviour (the temporary branch behaviour) on PIKLIB 7.2/8 and BlooMoo under pikhost; not yet confirmed in a game."
+description = "The form IfConditionTest uses: @RETURN inside an inline @IF branch. Crashes in ~CMC_Behaviour (the temporary branch behaviour) on PIKLIB 7.2/8 and BlooMoo under pikhost, but runs fine in a game (BlooMoo, Reksio i Kapitan Nemo, 2026-11-14), so the recorded crash is a pikhost artifact: see tools/pikhost/TODO.md."
 steps = ["RETURN_INSIDE_BRANCH^RUN()"]

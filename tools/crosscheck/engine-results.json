@@ -1,6 +1,6 @@
 {
  "format": 1,
- "generated": "2026-10-31T21:21:03+00:00",
+ "generated": "2026-11-14T13:41:26+00:00",
  "generator": "tools/crosscheck/crosscheck.py",
  "engines": {
   "bloomoo-2679920b3735": {
@@ -43789,6 +43789,726 @@
    ]
   },
   {
+   "id": "class.new-and-call",
+   "description": "NEW, then methods of the instance from the scene: a returned field, a change, the field again.",
+   "tags": [
+    "class"
+   ],
+   "source": "class.toml",
+   "digest": "14a67ce174f65e9df3b523d7efffa8b701614ec9",
+   "cnv": "OBJECT=COUNTER\nCOUNTER:TYPE=CLASS\nCOUNTER:DEF=COUNTER.CLASS\nCOUNTER:BASE=\n\nOBJECT=SEEDED\nSEEDED:TYPE=CLASS\nSEEDED:DEF=SEEDED.CLASS\nSEEDED:BASE=\n\nOBJECT=SCENEV\nSCENEV:TYPE=INTEGER\nSCENEV:VALUE=0\n\nOBJECT=V\nV:TYPE=INTEGER\nV:VALUE=100\n",
+   "steps": [
+    "COUNTER^NEW(\"I\")",
+    "I^GETV()",
+    "I^SETV(5)",
+    "I^GETV()",
+    "I^INCV()",
+    "I^GETV()"
+   ],
+   "read": [
+    "SCENEV"
+   ],
+   "files": {
+    "common/classes/COUNTER.CLASS": "OBJECT=V\nV:TYPE=INTEGER\nV:VALUE=7\n\nOBJECT=NAME\nNAME:TYPE=STRING\nNAME:VALUE=\n\nOBJECT=GETV\nGETV:TYPE=BEHAVIOUR\nGETV:CODE={@RETURN(V);}\n\nOBJECT=SETV\nSETV:TYPE=BEHAVIOUR\nSETV:CODE={V^SET($1);}\n\nOBJECT=INCV\nINCV:TYPE=BEHAVIOUR\nINCV:CODE={V^INC();}\n\nOBJECT=GETNAME\nGETNAME:TYPE=BEHAVIOUR\nGETNAME:CODE={@RETURN(NAME);}\n\nOBJECT=GET_NAME\nGET_NAME:TYPE=BEHAVIOUR\nGET_NAME:CODE={@RETURN(NAME);}\n\nOBJECT=CONSTRUCTOR\nCONSTRUCTOR:TYPE=BEHAVIOUR\nCONSTRUCTOR:CODE={NAME^SET($1);}\n",
+    "common/classes/SEEDED.CLASS": "OBJECT=V\nV:TYPE=INTEGER\nV:VALUE=7\n\nOBJECT=GETV\nGETV:TYPE=BEHAVIOUR\nGETV:CODE={@RETURN(V);}\n\nOBJECT=CONSTRUCTOR\nCONSTRUCTOR:TYPE=BEHAVIOUR\nCONSTRUCTOR:CODE={V^SET($2);}\n"
+   },
+   "results": [
+    {
+     "engines": [
+      "bloomoo-2679920b3735",
+      "bloomoo-3be911183e59",
+      "bloomoo-788ab0406ab4",
+      "bloomoo-9ac8ebbe0cc2",
+      "bloomoo-d63a5fb575f9",
+      "bloomoo-fb9a2b81d685",
+      "bloomoo-web-f5b6842faf88",
+      "piklib8-2c1705410e7a",
+      "piklib8-33cfd6523c04",
+      "piklib8-42d6a0c7fdf2",
+      "piklib8-5f6cbb33576d",
+      "piklib8-7b7ef02ea246",
+      "piklib8-87c5ca97f599",
+      "piklib8-c0d85c50e3dc",
+      "piklib8-d3819a92b84b",
+      "piklib8-d6509a132e2a",
+      "piklib8-e80093de9636",
+      "piklib8-f01db0dd5a0d"
+     ],
+     "status": "ok",
+     "initial": {
+      "SCENEV": [
+       "INTEGER",
+       "0"
+      ]
+     },
+     "steps": [
+      {
+       "result": null,
+       "state": {
+        "SCENEV": [
+         "INTEGER",
+         "0"
+        ]
+       }
+      },
+      {
+       "result": [
+        "STRING",
+        "7"
+       ],
+       "state": {
+        "SCENEV": [
+         "INTEGER",
+         "0"
+        ]
+       }
+      },
+      {
+       "result": [
+        "STRING",
+        "7"
+       ],
+       "state": {
+        "SCENEV": [
+         "INTEGER",
+         "0"
+        ]
+       }
+      },
+      {
+       "result": [
+        "STRING",
+        "5"
+       ],
+       "state": {
+        "SCENEV": [
+         "INTEGER",
+         "0"
+        ]
+       }
+      },
+      {
+       "result": [
+        "STRING",
+        "5"
+       ],
+       "state": {
+        "SCENEV": [
+         "INTEGER",
+         "0"
+        ]
+       }
+      },
+      {
+       "result": [
+        "STRING",
+        "6"
+       ],
+       "state": {
+        "SCENEV": [
+         "INTEGER",
+         "0"
+        ]
+       }
+      }
+     ]
+    },
+    {
+     "engines": [
+      "piklib61-3bb31de8b45f",
+      "piklib61-715272459e13",
+      "piklib61-91b0330a11ab",
+      "piklib61-9de20dceea68",
+      "piklib61-c0f83acd825b"
+     ],
+     "status": "ok",
+     "initial": {
+      "SCENEV": [
+       "INTEGER",
+       "0"
+      ]
+     },
+     "steps": [
+      {
+       "result": null,
+       "state": {
+        "SCENEV": [
+         "INTEGER",
+         "0"
+        ]
+       }
+      },
+      {
+       "result": null,
+       "state": {
+        "SCENEV": [
+         "INTEGER",
+         "0"
+        ]
+       }
+      },
+      {
+       "result": null,
+       "state": {
+        "SCENEV": [
+         "INTEGER",
+         "0"
+        ]
+       }
+      },
+      {
+       "result": null,
+       "state": {
+        "SCENEV": [
+         "INTEGER",
+         "0"
+        ]
+       }
+      },
+      {
+       "result": null,
+       "state": {
+        "SCENEV": [
+         "INTEGER",
+         "0"
+        ]
+       }
+      },
+      {
+       "result": null,
+       "state": {
+        "SCENEV": [
+         "INTEGER",
+         "0"
+        ]
+       }
+      }
+     ]
+    },
+    {
+     "engines": [
+      "piklib71-128b235b6d94",
+      "piklib71-27c2b7699f01",
+      "piklib72-549b6851b2c9",
+      "piklib72-923a103d5b05",
+      "piklib8-0967908f2df1",
+      "piklib8-92d602bbea05",
+      "piklib8-a70f97e970c6",
+      "piklib8-d1cc807bcbe5"
+     ],
+     "status": "crash",
+     "initial": {
+      "SCENEV": [
+       "INTEGER",
+       "0"
+      ]
+     },
+     "steps": [],
+     "stage": "step 0"
+    }
+   ]
+  },
+  {
+   "id": "class.constructor-arguments",
+   "description": "The instance name arrives in CONSTRUCTOR as $1, the first NEW argument as $2. GETNAME is also a behaviour of the class, called the same way.",
+   "tags": [
+    "class"
+   ],
+   "source": "class.toml",
+   "digest": "65219f39ed5bef23779890589b320e13f63f2918",
+   "cnv": "OBJECT=COUNTER\nCOUNTER:TYPE=CLASS\nCOUNTER:DEF=COUNTER.CLASS\nCOUNTER:BASE=\n\nOBJECT=SEEDED\nSEEDED:TYPE=CLASS\nSEEDED:DEF=SEEDED.CLASS\nSEEDED:BASE=\n\nOBJECT=SCENEV\nSCENEV:TYPE=INTEGER\nSCENEV:VALUE=0\n\nOBJECT=V\nV:TYPE=INTEGER\nV:VALUE=100\n",
+   "steps": [
+    "COUNTER^NEW(\"I\")",
+    "I^GET_NAME()",
+    "I^GETNAME()",
+    "SEEDED^NEW(\"J\", 9)",
+    "J^GETV()"
+   ],
+   "read": [
+    "SCENEV"
+   ],
+   "files": {
+    "common/classes/COUNTER.CLASS": "OBJECT=V\nV:TYPE=INTEGER\nV:VALUE=7\n\nOBJECT=NAME\nNAME:TYPE=STRING\nNAME:VALUE=\n\nOBJECT=GETV\nGETV:TYPE=BEHAVIOUR\nGETV:CODE={@RETURN(V);}\n\nOBJECT=SETV\nSETV:TYPE=BEHAVIOUR\nSETV:CODE={V^SET($1);}\n\nOBJECT=INCV\nINCV:TYPE=BEHAVIOUR\nINCV:CODE={V^INC();}\n\nOBJECT=GETNAME\nGETNAME:TYPE=BEHAVIOUR\nGETNAME:CODE={@RETURN(NAME);}\n\nOBJECT=GET_NAME\nGET_NAME:TYPE=BEHAVIOUR\nGET_NAME:CODE={@RETURN(NAME);}\n\nOBJECT=CONSTRUCTOR\nCONSTRUCTOR:TYPE=BEHAVIOUR\nCONSTRUCTOR:CODE={NAME^SET($1);}\n",
+    "common/classes/SEEDED.CLASS": "OBJECT=V\nV:TYPE=INTEGER\nV:VALUE=7\n\nOBJECT=GETV\nGETV:TYPE=BEHAVIOUR\nGETV:CODE={@RETURN(V);}\n\nOBJECT=CONSTRUCTOR\nCONSTRUCTOR:TYPE=BEHAVIOUR\nCONSTRUCTOR:CODE={V^SET($2);}\n"
+   },
+   "results": [
+    {
+     "engines": [
+      "bloomoo-2679920b3735",
+      "bloomoo-3be911183e59",
+      "bloomoo-788ab0406ab4",
+      "bloomoo-9ac8ebbe0cc2",
+      "bloomoo-d63a5fb575f9",
+      "bloomoo-fb9a2b81d685",
+      "bloomoo-web-f5b6842faf88",
+      "piklib8-2c1705410e7a",
+      "piklib8-33cfd6523c04",
+      "piklib8-42d6a0c7fdf2",
+      "piklib8-5f6cbb33576d",
+      "piklib8-7b7ef02ea246",
+      "piklib8-87c5ca97f599",
+      "piklib8-c0d85c50e3dc",
+      "piklib8-d3819a92b84b",
+      "piklib8-d6509a132e2a",
+      "piklib8-e80093de9636",
+      "piklib8-f01db0dd5a0d"
+     ],
+     "status": "ok",
+     "initial": {
+      "SCENEV": [
+       "INTEGER",
+       "0"
+      ]
+     },
+     "steps": [
+      {
+       "result": null,
+       "state": {
+        "SCENEV": [
+         "INTEGER",
+         "0"
+        ]
+       }
+      },
+      {
+       "result": [
+        "STRING",
+        "I"
+       ],
+       "state": {
+        "SCENEV": [
+         "INTEGER",
+         "0"
+        ]
+       }
+      },
+      {
+       "result": null,
+       "state": {
+        "SCENEV": [
+         "INTEGER",
+         "0"
+        ]
+       }
+      },
+      {
+       "result": [
+        "STRING",
+        "I"
+       ],
+       "state": {
+        "SCENEV": [
+         "INTEGER",
+         "0"
+        ]
+       }
+      },
+      {
+       "result": [
+        "STRING",
+        "9"
+       ],
+       "state": {
+        "SCENEV": [
+         "INTEGER",
+         "0"
+        ]
+       }
+      }
+     ]
+    },
+    {
+     "engines": [
+      "piklib61-3bb31de8b45f",
+      "piklib61-715272459e13",
+      "piklib61-91b0330a11ab",
+      "piklib61-9de20dceea68",
+      "piklib61-c0f83acd825b"
+     ],
+     "status": "ok",
+     "initial": {
+      "SCENEV": [
+       "INTEGER",
+       "0"
+      ]
+     },
+     "steps": [
+      {
+       "result": null,
+       "state": {
+        "SCENEV": [
+         "INTEGER",
+         "0"
+        ]
+       }
+      },
+      {
+       "result": null,
+       "state": {
+        "SCENEV": [
+         "INTEGER",
+         "0"
+        ]
+       }
+      },
+      {
+       "result": null,
+       "state": {
+        "SCENEV": [
+         "INTEGER",
+         "0"
+        ]
+       }
+      },
+      {
+       "result": null,
+       "state": {
+        "SCENEV": [
+         "INTEGER",
+         "0"
+        ]
+       }
+      },
+      {
+       "result": null,
+       "state": {
+        "SCENEV": [
+         "INTEGER",
+         "0"
+        ]
+       }
+      }
+     ]
+    },
+    {
+     "engines": [
+      "piklib71-128b235b6d94",
+      "piklib71-27c2b7699f01",
+      "piklib72-549b6851b2c9",
+      "piklib72-923a103d5b05",
+      "piklib8-0967908f2df1",
+      "piklib8-92d602bbea05",
+      "piklib8-a70f97e970c6",
+      "piklib8-d1cc807bcbe5"
+     ],
+     "status": "crash",
+     "initial": {
+      "SCENEV": [
+       "INTEGER",
+       "0"
+      ]
+     },
+     "steps": [],
+     "stage": "step 0"
+    }
+   ]
+  },
+  {
+   "id": "class.instances-are-separate",
+   "description": "Two instances of one class keep their own fields, and an instance field does not touch the scene object of the same name.",
+   "tags": [
+    "class"
+   ],
+   "source": "class.toml",
+   "digest": "5c6cd9dda9f24933d4eb529817c6592bc53c4c01",
+   "cnv": "OBJECT=COUNTER\nCOUNTER:TYPE=CLASS\nCOUNTER:DEF=COUNTER.CLASS\nCOUNTER:BASE=\n\nOBJECT=SEEDED\nSEEDED:TYPE=CLASS\nSEEDED:DEF=SEEDED.CLASS\nSEEDED:BASE=\n\nOBJECT=SCENEV\nSCENEV:TYPE=INTEGER\nSCENEV:VALUE=0\n\nOBJECT=V\nV:TYPE=INTEGER\nV:VALUE=100\n",
+   "steps": [
+    "COUNTER^NEW(\"I1\")",
+    "COUNTER^NEW(\"I2\")",
+    "I1^SETV(1)",
+    "I2^SETV(2)",
+    "I1^GETV()",
+    "I2^GETV()",
+    "V^GET()"
+   ],
+   "read": [
+    "SCENEV",
+    "V"
+   ],
+   "files": {
+    "common/classes/COUNTER.CLASS": "OBJECT=V\nV:TYPE=INTEGER\nV:VALUE=7\n\nOBJECT=NAME\nNAME:TYPE=STRING\nNAME:VALUE=\n\nOBJECT=GETV\nGETV:TYPE=BEHAVIOUR\nGETV:CODE={@RETURN(V);}\n\nOBJECT=SETV\nSETV:TYPE=BEHAVIOUR\nSETV:CODE={V^SET($1);}\n\nOBJECT=INCV\nINCV:TYPE=BEHAVIOUR\nINCV:CODE={V^INC();}\n\nOBJECT=GETNAME\nGETNAME:TYPE=BEHAVIOUR\nGETNAME:CODE={@RETURN(NAME);}\n\nOBJECT=GET_NAME\nGET_NAME:TYPE=BEHAVIOUR\nGET_NAME:CODE={@RETURN(NAME);}\n\nOBJECT=CONSTRUCTOR\nCONSTRUCTOR:TYPE=BEHAVIOUR\nCONSTRUCTOR:CODE={NAME^SET($1);}\n",
+    "common/classes/SEEDED.CLASS": "OBJECT=V\nV:TYPE=INTEGER\nV:VALUE=7\n\nOBJECT=GETV\nGETV:TYPE=BEHAVIOUR\nGETV:CODE={@RETURN(V);}\n\nOBJECT=CONSTRUCTOR\nCONSTRUCTOR:TYPE=BEHAVIOUR\nCONSTRUCTOR:CODE={V^SET($2);}\n"
+   },
+   "results": [
+    {
+     "engines": [
+      "bloomoo-2679920b3735",
+      "bloomoo-3be911183e59",
+      "bloomoo-788ab0406ab4",
+      "bloomoo-9ac8ebbe0cc2",
+      "bloomoo-d63a5fb575f9",
+      "bloomoo-fb9a2b81d685",
+      "bloomoo-web-f5b6842faf88",
+      "piklib8-2c1705410e7a",
+      "piklib8-33cfd6523c04",
+      "piklib8-42d6a0c7fdf2",
+      "piklib8-5f6cbb33576d",
+      "piklib8-7b7ef02ea246",
+      "piklib8-87c5ca97f599",
+      "piklib8-c0d85c50e3dc",
+      "piklib8-d3819a92b84b",
+      "piklib8-d6509a132e2a",
+      "piklib8-e80093de9636",
+      "piklib8-f01db0dd5a0d"
+     ],
+     "status": "ok",
+     "initial": {
+      "SCENEV": [
+       "INTEGER",
+       "0"
+      ],
+      "V": [
+       "INTEGER",
+       "100"
+      ]
+     },
+     "steps": [
+      {
+       "result": null,
+       "state": {
+        "SCENEV": [
+         "INTEGER",
+         "0"
+        ],
+        "V": [
+         "INTEGER",
+         "100"
+        ]
+       }
+      },
+      {
+       "result": null,
+       "state": {
+        "SCENEV": [
+         "INTEGER",
+         "0"
+        ],
+        "V": [
+         "INTEGER",
+         "100"
+        ]
+       }
+      },
+      {
+       "result": null,
+       "state": {
+        "SCENEV": [
+         "INTEGER",
+         "0"
+        ],
+        "V": [
+         "INTEGER",
+         "100"
+        ]
+       }
+      },
+      {
+       "result": null,
+       "state": {
+        "SCENEV": [
+         "INTEGER",
+         "0"
+        ],
+        "V": [
+         "INTEGER",
+         "100"
+        ]
+       }
+      },
+      {
+       "result": [
+        "STRING",
+        "1"
+       ],
+       "state": {
+        "SCENEV": [
+         "INTEGER",
+         "0"
+        ],
+        "V": [
+         "INTEGER",
+         "100"
+        ]
+       }
+      },
+      {
+       "result": [
+        "STRING",
+        "2"
+       ],
+       "state": {
+        "SCENEV": [
+         "INTEGER",
+         "0"
+        ],
+        "V": [
+         "INTEGER",
+         "100"
+        ]
+       }
+      },
+      {
+       "result": [
+        "INTEGER",
+        "100"
+       ],
+       "state": {
+        "SCENEV": [
+         "INTEGER",
+         "0"
+        ],
+        "V": [
+         "INTEGER",
+         "100"
+        ]
+       }
+      }
+     ]
+    },
+    {
+     "engines": [
+      "piklib61-3bb31de8b45f",
+      "piklib61-715272459e13",
+      "piklib61-91b0330a11ab",
+      "piklib61-9de20dceea68",
+      "piklib61-c0f83acd825b"
+     ],
+     "status": "ok",
+     "initial": {
+      "SCENEV": [
+       "INTEGER",
+       "0"
+      ],
+      "V": [
+       "INTEGER",
+       "100"
+      ]
+     },
+     "steps": [
+      {
+       "result": null,
+       "state": {
+        "SCENEV": [
+         "INTEGER",
+         "0"
+        ],
+        "V": [
+         "INTEGER",
+         "100"
+        ]
+       }
+      },
+      {
+       "result": null,
+       "state": {
+        "SCENEV": [
+         "INTEGER",
+         "0"
+        ],
+        "V": [
+         "INTEGER",
+         "100"
+        ]
+       }
+      },
+      {
+       "result": null,
+       "state": {
+        "SCENEV": [
+         "INTEGER",
+         "0"
+        ],
+        "V": [
+         "INTEGER",
+         "100"
+        ]
+       }
+      },
+      {
+       "result": null,
+       "state": {
+        "SCENEV": [
+         "INTEGER",
+         "0"
+        ],
+        "V": [
+         "INTEGER",
+         "100"
+        ]
+       }
+      },
+      {
+       "result": null,
+       "state": {
+        "SCENEV": [
+         "INTEGER",
+         "0"
+        ],
+        "V": [
+         "INTEGER",
+         "100"
+        ]
+       }
+      },
+      {
+       "result": null,
+       "state": {
+        "SCENEV": [
+         "INTEGER",
+         "0"
+        ],
+        "V": [
+         "INTEGER",
+         "100"
+        ]
+       }
+      },
+      {
+       "result": [
+        "INTEGER",
+        "100"
+       ],
+       "state": {
+        "SCENEV": [
+         "INTEGER",
+         "0"
+        ],
+        "V": [
+         "INTEGER",
+         "100"
+        ]
+       }
+      }
+     ]
+    },
+    {
+     "engines": [
+      "piklib71-128b235b6d94",
+      "piklib71-27c2b7699f01",
+      "piklib72-549b6851b2c9",
+      "piklib72-923a103d5b05",
+      "piklib8-0967908f2df1",
+      "piklib8-92d602bbea05",
+      "piklib8-a70f97e970c6",
+      "piklib8-d1cc807bcbe5"
+     ],
+     "status": "crash",
+     "initial": {
+      "SCENEV": [
+       "INTEGER",
+       "0"
+      ],
+      "V": [
+       "INTEGER",
+       "100"
+      ]
+     },
+     "steps": [],
+     "stage": "step 0"
+    }
+   ]
+  },
+  {
    "id": "condition.PRECEDENCE_1",
    "description": "",
    "tags": [
@@ -47262,7 +47982,7 @@
   },
   {
    "id": "condition.return-inside-branch",
-   "description": "The form IfConditionTest uses: @RETURN inside an inline @IF branch. Crashes in ~CMC_Behaviour (the temporary branch behaviour) on PIKLIB 7.2/8 and BlooMoo under pikhost; not yet confirmed in a game.",
+   "description": "The form IfConditionTest uses: @RETURN inside an inline @IF branch. Crashes in ~CMC_Behaviour (the temporary branch behaviour) on PIKLIB 7.2/8 and BlooMoo under pikhost, but runs fine in a game (BlooMoo, Reksio i Kapitan Nemo, 2026-11-14), so the recorded crash is a pikhost artifact: see tools/pikhost/TODO.md.",
    "tags": [
     "condition"
    ],
@@ -75000,6 +75720,405 @@
        }
       }
      ]
+    }
+   ]
+  },
+  {
+   "id": "parser.group-opening-expression",
+   "description": "A group that opens the whole expression and itself opens with a group.",
+   "tags": [
+    "parser",
+    "arithmetic"
+   ],
+   "source": "parser.toml",
+   "digest": "c8680bcc6a56499f72433aedbca0a8a908b070e0",
+   "cnv": "OBJECT=A\nA:TYPE=INTEGER\nA:VALUE=16\n\nOBJECT=B\nB:TYPE=INTEGER\nB:VALUE=37\n\nOBJECT=C\nC:TYPE=INTEGER\nC:VALUE=16\n\nOBJECT=D\nD:TYPE=INTEGER\nD:VALUE=2\n\nOBJECT=R\nR:TYPE=INTEGER\nR:VALUE=0\n\nOBJECT=EXPR\nEXPR:TYPE=BEHAVIOUR\nEXPR:CODE={R^SET([[C-1]*D]);}\n",
+   "steps": [
+    "EXPR^RUN()"
+   ],
+   "read": [
+    "R"
+   ],
+   "results": [
+    {
+     "engines": [
+      "bloomoo-2679920b3735",
+      "bloomoo-3be911183e59",
+      "bloomoo-788ab0406ab4",
+      "bloomoo-9ac8ebbe0cc2",
+      "bloomoo-d63a5fb575f9",
+      "bloomoo-fb9a2b81d685",
+      "bloomoo-web-f5b6842faf88",
+      "piklib72-549b6851b2c9",
+      "piklib72-923a103d5b05",
+      "piklib8-0967908f2df1",
+      "piklib8-2c1705410e7a",
+      "piklib8-33cfd6523c04",
+      "piklib8-42d6a0c7fdf2",
+      "piklib8-5f6cbb33576d",
+      "piklib8-7b7ef02ea246",
+      "piklib8-87c5ca97f599",
+      "piklib8-92d602bbea05",
+      "piklib8-a70f97e970c6",
+      "piklib8-c0d85c50e3dc",
+      "piklib8-d1cc807bcbe5",
+      "piklib8-d3819a92b84b",
+      "piklib8-d6509a132e2a",
+      "piklib8-e80093de9636",
+      "piklib8-f01db0dd5a0d"
+     ],
+     "status": "ok",
+     "initial": {
+      "R": [
+       "INTEGER",
+       "0"
+      ]
+     },
+     "steps": [
+      {
+       "result": null,
+       "state": {
+        "R": [
+         "INTEGER",
+         "30"
+        ]
+       }
+      }
+     ]
+    },
+    {
+     "engines": [
+      "piklib61-3bb31de8b45f",
+      "piklib61-715272459e13",
+      "piklib61-91b0330a11ab",
+      "piklib61-9de20dceea68",
+      "piklib61-c0f83acd825b",
+      "piklib71-128b235b6d94",
+      "piklib71-27c2b7699f01"
+     ],
+     "status": "crash",
+     "initial": {
+      "R": [
+       "INTEGER",
+       "0"
+      ]
+     },
+     "steps": [],
+     "stage": "step 0"
+    }
+   ]
+  },
+  {
+   "id": "parser.group-after-operator",
+   "description": "A plain group after an operator.",
+   "tags": [
+    "parser",
+    "arithmetic"
+   ],
+   "source": "parser.toml",
+   "digest": "631d577f01ba33c647e3f2e3f7a05c133cc4607d",
+   "cnv": "OBJECT=A\nA:TYPE=INTEGER\nA:VALUE=16\n\nOBJECT=B\nB:TYPE=INTEGER\nB:VALUE=37\n\nOBJECT=C\nC:TYPE=INTEGER\nC:VALUE=16\n\nOBJECT=D\nD:TYPE=INTEGER\nD:VALUE=2\n\nOBJECT=R\nR:TYPE=INTEGER\nR:VALUE=0\n\nOBJECT=EXPR\nEXPR:TYPE=BEHAVIOUR\nEXPR:CODE={R^SET([A*B+[C-1]]);}\n",
+   "steps": [
+    "EXPR^RUN()"
+   ],
+   "read": [
+    "R"
+   ],
+   "results": [
+    {
+     "engines": [
+      "bloomoo-2679920b3735",
+      "bloomoo-3be911183e59",
+      "bloomoo-788ab0406ab4",
+      "bloomoo-9ac8ebbe0cc2",
+      "bloomoo-d63a5fb575f9",
+      "bloomoo-fb9a2b81d685",
+      "bloomoo-web-f5b6842faf88",
+      "piklib72-549b6851b2c9",
+      "piklib72-923a103d5b05",
+      "piklib8-0967908f2df1",
+      "piklib8-2c1705410e7a",
+      "piklib8-33cfd6523c04",
+      "piklib8-42d6a0c7fdf2",
+      "piklib8-5f6cbb33576d",
+      "piklib8-7b7ef02ea246",
+      "piklib8-87c5ca97f599",
+      "piklib8-92d602bbea05",
+      "piklib8-a70f97e970c6",
+      "piklib8-c0d85c50e3dc",
+      "piklib8-d1cc807bcbe5",
+      "piklib8-d3819a92b84b",
+      "piklib8-d6509a132e2a",
+      "piklib8-e80093de9636",
+      "piklib8-f01db0dd5a0d"
+     ],
+     "status": "ok",
+     "initial": {
+      "R": [
+       "INTEGER",
+       "0"
+      ]
+     },
+     "steps": [
+      {
+       "result": null,
+       "state": {
+        "R": [
+         "INTEGER",
+         "607"
+        ]
+       }
+      }
+     ]
+    },
+    {
+     "engines": [
+      "piklib61-3bb31de8b45f",
+      "piklib61-715272459e13",
+      "piklib61-91b0330a11ab",
+      "piklib61-9de20dceea68",
+      "piklib61-c0f83acd825b",
+      "piklib71-128b235b6d94",
+      "piklib71-27c2b7699f01"
+     ],
+     "status": "crash",
+     "initial": {
+      "R": [
+       "INTEGER",
+       "0"
+      ]
+     },
+     "steps": [],
+     "stage": "step 0"
+    }
+   ]
+  },
+  {
+   "id": "parser.group-ending-with-group",
+   "description": "Three levels, each inner group the last operand of its group.",
+   "tags": [
+    "parser",
+    "arithmetic"
+   ],
+   "source": "parser.toml",
+   "digest": "abdcf71a037235fe1d8aea3f385acd3f5d1bfb73",
+   "cnv": "OBJECT=A\nA:TYPE=INTEGER\nA:VALUE=16\n\nOBJECT=B\nB:TYPE=INTEGER\nB:VALUE=37\n\nOBJECT=C\nC:TYPE=INTEGER\nC:VALUE=16\n\nOBJECT=D\nD:TYPE=INTEGER\nD:VALUE=2\n\nOBJECT=R\nR:TYPE=INTEGER\nR:VALUE=0\n\nOBJECT=EXPR\nEXPR:TYPE=BEHAVIOUR\nEXPR:CODE={R^SET([A*B+[D*[C-1]]]);}\n",
+   "steps": [
+    "EXPR^RUN()"
+   ],
+   "read": [
+    "R"
+   ],
+   "results": [
+    {
+     "engines": [
+      "bloomoo-2679920b3735",
+      "bloomoo-3be911183e59",
+      "bloomoo-788ab0406ab4",
+      "bloomoo-9ac8ebbe0cc2",
+      "bloomoo-d63a5fb575f9",
+      "bloomoo-fb9a2b81d685",
+      "bloomoo-web-f5b6842faf88",
+      "piklib72-549b6851b2c9",
+      "piklib72-923a103d5b05",
+      "piklib8-0967908f2df1",
+      "piklib8-2c1705410e7a",
+      "piklib8-33cfd6523c04",
+      "piklib8-42d6a0c7fdf2",
+      "piklib8-5f6cbb33576d",
+      "piklib8-7b7ef02ea246",
+      "piklib8-87c5ca97f599",
+      "piklib8-92d602bbea05",
+      "piklib8-a70f97e970c6",
+      "piklib8-c0d85c50e3dc",
+      "piklib8-d1cc807bcbe5",
+      "piklib8-d3819a92b84b",
+      "piklib8-d6509a132e2a",
+      "piklib8-e80093de9636",
+      "piklib8-f01db0dd5a0d"
+     ],
+     "status": "ok",
+     "initial": {
+      "R": [
+       "INTEGER",
+       "0"
+      ]
+     },
+     "steps": [
+      {
+       "result": null,
+       "state": {
+        "R": [
+         "INTEGER",
+         "622"
+        ]
+       }
+      }
+     ]
+    },
+    {
+     "engines": [
+      "piklib61-3bb31de8b45f",
+      "piklib61-715272459e13",
+      "piklib61-91b0330a11ab",
+      "piklib61-9de20dceea68",
+      "piklib61-c0f83acd825b",
+      "piklib71-128b235b6d94",
+      "piklib71-27c2b7699f01"
+     ],
+     "status": "crash",
+     "initial": {
+      "R": [
+       "INTEGER",
+       "0"
+      ]
+     },
+     "steps": [],
+     "stage": "step 0"
+    }
+   ]
+  },
+  {
+   "id": "parser.nested-group-opening-with-group.after-operator",
+   "description": "A group that opens with a group, nested after an operator. BlooMoo (Reksio i Kapitan Nemo) never finishes loading the CNV, in pikhost and in the game alike.",
+   "tags": [
+    "parser",
+    "arithmetic"
+   ],
+   "source": "parser.toml",
+   "digest": "6f2af4ad34701995b1386acf6f1a74e4bc1b5b0b",
+   "cnv": "OBJECT=A\nA:TYPE=INTEGER\nA:VALUE=16\n\nOBJECT=B\nB:TYPE=INTEGER\nB:VALUE=37\n\nOBJECT=C\nC:TYPE=INTEGER\nC:VALUE=16\n\nOBJECT=D\nD:TYPE=INTEGER\nD:VALUE=2\n\nOBJECT=R\nR:TYPE=INTEGER\nR:VALUE=0\n\nOBJECT=EXPR\nEXPR:TYPE=BEHAVIOUR\nEXPR:CODE={R^SET([A*B+[[C-1]*D]]);}\n",
+   "steps": [
+    "EXPR^RUN()"
+   ],
+   "read": [
+    "R"
+   ],
+   "results": [
+    {
+     "engines": [
+      "bloomoo-2679920b3735",
+      "bloomoo-3be911183e59",
+      "bloomoo-788ab0406ab4",
+      "bloomoo-9ac8ebbe0cc2",
+      "bloomoo-d63a5fb575f9",
+      "bloomoo-fb9a2b81d685",
+      "bloomoo-web-f5b6842faf88",
+      "piklib72-549b6851b2c9",
+      "piklib72-923a103d5b05",
+      "piklib8-0967908f2df1",
+      "piklib8-2c1705410e7a",
+      "piklib8-33cfd6523c04",
+      "piklib8-42d6a0c7fdf2",
+      "piklib8-5f6cbb33576d",
+      "piklib8-7b7ef02ea246",
+      "piklib8-87c5ca97f599",
+      "piklib8-92d602bbea05",
+      "piklib8-a70f97e970c6",
+      "piklib8-c0d85c50e3dc",
+      "piklib8-d1cc807bcbe5",
+      "piklib8-d3819a92b84b",
+      "piklib8-d6509a132e2a",
+      "piklib8-e80093de9636",
+      "piklib8-f01db0dd5a0d"
+     ],
+     "status": "timeout",
+     "initial": {},
+     "steps": [],
+     "error": null,
+     "stage": "load"
+    },
+    {
+     "engines": [
+      "piklib61-3bb31de8b45f",
+      "piklib61-715272459e13",
+      "piklib61-91b0330a11ab",
+      "piklib61-9de20dceea68",
+      "piklib61-c0f83acd825b",
+      "piklib71-128b235b6d94",
+      "piklib71-27c2b7699f01"
+     ],
+     "status": "crash",
+     "initial": {
+      "R": [
+       "INTEGER",
+       "0"
+      ]
+     },
+     "steps": [],
+     "stage": "step 0"
+    }
+   ]
+  },
+  {
+   "id": "parser.nested-group-opening-with-group.first",
+   "description": "The same group, nested as the first operand.",
+   "tags": [
+    "parser",
+    "arithmetic"
+   ],
+   "source": "parser.toml",
+   "digest": "72a12d67de03beb6a0386c39973f8421a22a2ba0",
+   "cnv": "OBJECT=A\nA:TYPE=INTEGER\nA:VALUE=16\n\nOBJECT=B\nB:TYPE=INTEGER\nB:VALUE=37\n\nOBJECT=C\nC:TYPE=INTEGER\nC:VALUE=16\n\nOBJECT=D\nD:TYPE=INTEGER\nD:VALUE=2\n\nOBJECT=R\nR:TYPE=INTEGER\nR:VALUE=0\n\nOBJECT=EXPR\nEXPR:TYPE=BEHAVIOUR\nEXPR:CODE={R^SET([[[C-1]*D]+A]);}\n",
+   "steps": [
+    "EXPR^RUN()"
+   ],
+   "read": [
+    "R"
+   ],
+   "results": [
+    {
+     "engines": [
+      "bloomoo-2679920b3735",
+      "bloomoo-3be911183e59",
+      "bloomoo-788ab0406ab4",
+      "bloomoo-9ac8ebbe0cc2",
+      "bloomoo-d63a5fb575f9",
+      "bloomoo-fb9a2b81d685",
+      "bloomoo-web-f5b6842faf88",
+      "piklib72-549b6851b2c9",
+      "piklib72-923a103d5b05",
+      "piklib8-0967908f2df1",
+      "piklib8-2c1705410e7a",
+      "piklib8-33cfd6523c04",
+      "piklib8-42d6a0c7fdf2",
+      "piklib8-5f6cbb33576d",
+      "piklib8-7b7ef02ea246",
+      "piklib8-87c5ca97f599",
+      "piklib8-92d602bbea05",
+      "piklib8-a70f97e970c6",
+      "piklib8-c0d85c50e3dc",
+      "piklib8-d1cc807bcbe5",
+      "piklib8-d3819a92b84b",
+      "piklib8-d6509a132e2a",
+      "piklib8-e80093de9636",
+      "piklib8-f01db0dd5a0d"
+     ],
+     "status": "timeout",
+     "initial": {},
+     "steps": [],
+     "error": null,
+     "stage": "load"
+    },
+    {
+     "engines": [
+      "piklib61-3bb31de8b45f",
+      "piklib61-715272459e13",
+      "piklib61-91b0330a11ab",
+      "piklib61-9de20dceea68",
+      "piklib61-c0f83acd825b",
+      "piklib71-128b235b6d94",
+      "piklib71-27c2b7699f01"
+     ],
+     "status": "crash",
+     "initial": {
+      "R": [
+       "INTEGER",
+       "0"
+      ]
+     },
+     "steps": [],
+     "stage": "step 0"
     }
    ]
   },
