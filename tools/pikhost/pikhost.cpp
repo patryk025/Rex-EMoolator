@@ -204,6 +204,7 @@ static void trace(const char *step, const void *detail = 0)
     fflush(stderr);
 }
 
+
 // "CRASH <code> <rva> [<rva>,...]": the faulting address, then stack words that
 // point into the engine image - mostly return addresses, i.e. a rough call chain
 // that can be resolved against the Ghidra listing. Addresses outside the image
@@ -279,10 +280,119 @@ static void *getObject(const char *name)
     return object;
 }
 
+static BYTE *skipJump(BYTE *code)
+{
+    return code[0] == 0xE9 ? code + 5 + *(int *)(code + 1) : code;
+}
+
+// Offset of the field an exported one-line getter returns. In every 7.2+
+// engine these are "mov eax,[ecx+XX]; ret", possibly behind an
+// incremental-linking jmp:
+//   CMC_Object::getScene                0x38 (7.2), 0x3c (8, BlooMoo)
+static int getterOffset(const char *prefix)
+{
+    BYTE *code = (BYTE *)find(prefix);
+    if (!code) return -1;
+    code = skipJump(code);
+    return code[0] == 0x8B && code[1] == 0x41 && code[3] == 0xC3 ? code[2] : -1;
+}
+
+// CPath::resolveFileName(CWindow *, CXString) expands a leading $ or & with
+// the window's CD path (a CXString in CWindow) in PIKLIB 7.2 and some PIKLIB 8
+// builds, and CMC_Class::getClassPath passes it "$COMMON\CLASSES\<DEF>" with
+// the scene's window on every NEW. The scene has no window, and giving it one
+// sends other objects into it, so only this call gets a stand-in: a zeroed
+// CWindow whose CD path is empty, which leaves the path relative to the
+// working directory, as the newer builds do. The function is detoured: its
+// first instructions move to a trampoline, and a NULL window argument is
+// swapped on the way in.
+static void *g_fakeWindow;
+static BYTE *g_resolveTrampoline;
+
+static __declspec(naked) void resolveFileNameShim()
+{
+    __asm {
+        cmp dword ptr [esp + 8], 0      // [esp+4] result, [esp+8] window
+        jne pass
+        mov eax, g_fakeWindow
+        mov dword ptr [esp + 8], eax
+    pass:
+        jmp g_resolveTrampoline
+    }
+}
+
+// Length of whole instructions to move, for the prologues seen in the engines:
+//   6A FF 68 imm32        push -1; push handler
+//   83 EC xx 53 55        sub esp,xx; push ebx; push ebp
+//   51 8B 44 24 xx        push ecx; mov eax,[esp+xx]
+static int prologueLength(const BYTE *code)
+{
+    if (code[0] == 0x6A && code[1] == 0xFF && code[2] == 0x68) return 7;
+    if (code[0] == 0x83 && code[1] == 0xEC && code[3] == 0x53 && code[4] == 0x55) return 5;
+    if (code[0] == 0x51 && code[1] == 0x8B && code[2] == 0x44 && code[3] == 0x24) return 5;
+    return 0;
+}
+
+// Sends every call of `code` to `shim`; returns the trampoline that runs the
+// original (its moved prologue, then a jump back), or 0 for an unknown prologue.
+static BYTE *detour(BYTE *code, void *shim)
+{
+    int length = prologueLength(code);
+    if (!length) return 0;
+    BYTE *trampoline = (BYTE *)VirtualAlloc(0, 16, MEM_COMMIT | MEM_RESERVE, PAGE_EXECUTE_READWRITE);
+    memcpy(trampoline, code, length);
+    trampoline[length] = 0xE9;
+    *(int *)(trampoline + length + 1) = (int)(code + length) - (int)(trampoline + length + 5);
+    DWORD old;
+    VirtualProtect(code, 5, PAGE_EXECUTE_READWRITE, &old);
+    code[0] = 0xE9;
+    *(int *)(code + 1) = (int)(BYTE *)shim - (int)(code + 5);
+    VirtualProtect(code, 5, old, &old);
+    FlushInstructionCache(GetCurrentProcess(), code, 5);
+    return trampoline;
+}
+
+// Offset of the CD path string in CWindow, read off CWindow::getCDPath, whose
+// first field load is the string's capacity (vftable, length, capacity, text):
+//   8B 45 xx / 8B 43 xx / 8B 83 imm32      7.2 0x64, PIKLIB 8 0x60/0x68/0x80
+// Builds that keep the CD path in a global (A1 imm32) never read the window
+// there, and get no hook.
+static int cdPathOffset()
+{
+    BYTE *code = (BYTE *)find("?getCDPath@CWindow");
+    if (!code) return -1;
+    code = skipJump(code);
+    for (int i = 0; i < 24; ++i) {
+        if (code[i] == 0xA1) return -1;
+        if (code[i] == 0x8B && (code[i + 1] == 0x45 || code[i + 1] == 0x43)) return code[i + 2] - 8;
+        if (code[i] == 0x8B && code[i + 1] == 0x83) return *(int *)(code + i + 2) - 8;
+    }
+    return -1;
+}
+
+static void hookResolveFileName()
+{
+    BYTE *code = (BYTE *)find("?resolveFileName@CPath", "PAVCWindow");
+    int cdPath = cdPathOffset();
+    trace("CD path field", (void *)(size_t)cdPath);
+    if (!code || cdPath < 0) return;
+    code = skipJump(code);
+    g_fakeWindow = alloc(0x1000);
+    constructString((BYTE *)g_fakeWindow + cdPath, "");
+    g_resolveTrampoline = detour(code, resolveFileNameShim);
+    trace("resolveFileName detour", g_resolveTrampoline);
+}
+
 // The scene gets an empty application container above it, as in a game.
 // @RETURN stores __RETURN__ with the owner of the container the line runs in,
 // which for a top-level RUN is the scene's owner; the caller then looks it up
 // in the scene, and finds it only through the scene's lookup parent.
+//
+// A game scene is its own scene: the CMC_Scene constructor ends with getScene
+// = this. CMC_ObjectsContainer::resolve builds every CLASS with getScene() of
+// the container, and an instance looks names up in that. The real constructor
+// cannot run here (its default CUnit6 reads the window), so the field is set
+// by hand; left as the application, instances would see nothing of the scene.
 template <int Size> static void createContainer(FARPROC ctor)
 {
     typedef void *(__fastcall * Ctor)(void *, void *, void *, void *, XStr<Size>, int);
@@ -291,6 +401,9 @@ template <int Size> static void createContainer(FARPROC ctor)
     ((Ctor)ctor)(g_scene, 0, 0, application, str<Size>("PIKHOST"), 0);
     if (FARPROC setParent = find("?setParent@CMC_ObjectsContainer", "QAEXPAV1"))
         ((void(__fastcall *)(void *, void *, void *))setParent)(g_scene, 0, application);
+    int scene = getterOffset("?getScene@CMC_Object");
+    trace("scene field", (void *)(size_t)scene);
+    if (scene > 0) *(void **)((BYTE *)g_scene + scene) = g_scene;
 }
 
 template <int Size> static void createElement(void *element)
@@ -362,6 +475,7 @@ static void bootstrap()
     g_scene = alloc(0x1000);
     if (FARPROC f = find("??0CMC_ObjectsContainer", "VCXString")) {
         BY_STRING_SIZE(createContainer, (f));
+        hookResolveFileName();
     } else {
         // The older scene reads its name and properties from a definition element.
         g_legacy = true;
