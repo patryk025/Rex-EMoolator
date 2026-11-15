@@ -1,0 +1,99 @@
+# What a class instance sees outside its own objects. An instance looks names up
+# in itself, then in the scene its CLASS was declared in (CMC_Class gets the
+# declaring container's getScene() in CMC_ObjectsContainer::resolve). Checked in
+# Reksio i Kapitan Nemo (BlooMoo) while porting a Brainfuck interpreter, and
+# recorded under pikhost since it gives the scene the same getScene as a game.
+#
+# "I|V" in read is V among the instance's own objects (pikhost GET), so a
+# field shadowing a scene object of the same name shows apart from it.
+
+[defaults]
+tags = ["class"]
+read = ["SCENEV", "I|V"]
+files."common/classes/SCOPE.CLASS" = '''
+OBJECT=V
+V:TYPE=INTEGER
+V:VALUE=7
+
+OBJECT=READSCENE
+READSCENE:TYPE=BEHAVIOUR
+READSCENE:CODE={@RETURN(SCENEV);}
+
+OBJECT=WRITESCENE
+WRITESCENE:TYPE=BEHAVIOUR
+WRITESCENE:CODE={SCENEV^SET(42);}
+
+OBJECT=RUNSCENE
+RUNSCENE:TYPE=BEHAVIOUR
+RUNSCENE:CODE={SCENEBEH^RUN();}
+
+OBJECT=CALLOTHER
+CALLOTHER:TYPE=BEHAVIOUR
+CALLOTHER:CODE={@RETURN(Q^READSCENE());}
+
+OBJECT=SETOTHER
+SETOTHER:TYPE=BEHAVIOUR
+SETOTHER:CODE={Q^SETV($1);}
+
+OBJECT=SETV
+SETV:TYPE=BEHAVIOUR
+SETV:CODE={V^SET($1);}
+
+OBJECT=MAKE
+MAKE:TYPE=BEHAVIOUR
+MAKE:CODE={SCOPE^NEW("N");@RETURN(N^READSCENE());}
+
+OBJECT=SHADOW
+SHADOW:TYPE=BEHAVIOUR
+SHADOW:CODE={@RETURN(V);}
+'''
+cnv = '''
+OBJECT=SCOPE
+SCOPE:TYPE=CLASS
+SCOPE:DEF=SCOPE.CLASS
+SCOPE:BASE=
+
+OBJECT=SCENEV
+SCENEV:TYPE=INTEGER
+SCENEV:VALUE=5
+
+OBJECT=V
+V:TYPE=INTEGER
+V:VALUE=100
+
+OBJECT=SCENEBEH
+SCENEBEH:TYPE=BEHAVIOUR
+SCENEBEH:CODE={SCENEV^SET(77);}
+'''
+
+[[case]]
+id = "class-scope.reads-scene-variable"
+description = "A method reads a scene variable the instance does not have."
+steps = ['SCOPE^NEW("I")', "I^READSCENE()"]
+
+[[case]]
+id = "class-scope.writes-scene-variable"
+description = "A method sets a scene variable."
+steps = ['SCOPE^NEW("I")', "I^WRITESCENE()"]
+
+[[case]]
+id = "class-scope.runs-scene-behaviour"
+description = "A method runs a behaviour of the scene."
+steps = ['SCOPE^NEW("I")', "I^RUNSCENE()"]
+
+[[case]]
+id = "class-scope.calls-other-instance"
+description = "A method calls methods of another instance by name: one returning a value, one changing that instance's field."
+read = ["SCENEV", "I|V", "Q|V"]
+steps = ['SCOPE^NEW("I")', 'SCOPE^NEW("Q")', "I^CALLOTHER()", "I^SETOTHER(3)"]
+
+[[case]]
+id = "class-scope.new-in-method"
+description = "An instance creates another one in a method and uses it there."
+steps = ['SCOPE^NEW("I")', "I^MAKE()"]
+
+[[case]]
+id = "class-scope.own-field-shadows-scene"
+description = "The instance field V hides the scene's V inside the instance; setting it leaves the scene's V alone."
+read = ["V", "I|V"]
+steps = ['SCOPE^NEW("I")', "I^SHADOW()", "I^SETV(9)", "I^SHADOW()"]

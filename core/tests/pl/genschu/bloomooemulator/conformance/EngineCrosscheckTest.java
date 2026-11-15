@@ -24,6 +24,7 @@ import pl.genschu.bloomooemulator.interpreter.values.NullValue;
 import pl.genschu.bloomooemulator.interpreter.values.Value;
 import pl.genschu.bloomooemulator.interpreter.variable.ArrayVariable;
 import pl.genschu.bloomooemulator.interpreter.variable.Variable;
+import pl.genschu.bloomooemulator.interpreter.variable.capabilities.HasInstanceContext;
 import pl.genschu.bloomooemulator.loader.CNVParser;
 import pl.genschu.bloomooemulator.logic.GameFamilies;
 
@@ -231,7 +232,7 @@ class EngineCrosscheckTest {
                 }
                 Map<String, String[]> state = new LinkedHashMap<>();
                 for (String name : read) {
-                    Variable variable = context.getVariable(name);
+                    Variable variable = readable(context, name);
                     state.put(name, variable == null ? null
                             : new String[]{typeName(variable.getTypeName()), stateText(variable)});
                 }
@@ -315,6 +316,20 @@ class EngineCrosscheckTest {
             return null;
         }
         return value.asStringArray();
+    }
+
+    /**
+     * A read name as pikhost's GET takes it: "I|V" is V among the own objects of
+     * the class instance I, never an object of the same name further up.
+     */
+    private static Variable readable(Context context, String name) {
+        String[] parts = name.split("\\|");
+        Variable variable = context.getVariable(parts[0]);
+        for (int i = 1; i < parts.length && variable != null; i++) {
+            Context instance = variable instanceof HasInstanceContext owner ? owner.getInstanceContext() : null;
+            variable = instance != null && instance.hasLocalVariable(parts[i]) ? instance.getVariable(parts[i]) : null;
+        }
+        return variable;
     }
 
     /** The engine reports BOOL where the emulator says BOOLEAN. */

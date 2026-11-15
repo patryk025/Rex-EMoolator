@@ -1,6 +1,6 @@
 {
  "format": 1,
- "generated": "2026-11-15T21:03:05+00:00",
+ "generated": "2026-11-15T21:47:54+00:00",
  "generator": "tools/crosscheck/crosscheck.py",
  "engines": {
   "bloomoo-2679920b3735": {
@@ -43785,6 +43785,996 @@
        }
       }
      ]
+    }
+   ]
+  },
+  {
+   "id": "class-scope.reads-scene-variable",
+   "description": "A method reads a scene variable the instance does not have.",
+   "tags": [
+    "class"
+   ],
+   "source": "class-scope.toml",
+   "digest": "c39e4652a41a58ce52a255ad50e8c9f9d1f081fd",
+   "cnv": "OBJECT=SCOPE\nSCOPE:TYPE=CLASS\nSCOPE:DEF=SCOPE.CLASS\nSCOPE:BASE=\n\nOBJECT=SCENEV\nSCENEV:TYPE=INTEGER\nSCENEV:VALUE=5\n\nOBJECT=V\nV:TYPE=INTEGER\nV:VALUE=100\n\nOBJECT=SCENEBEH\nSCENEBEH:TYPE=BEHAVIOUR\nSCENEBEH:CODE={SCENEV^SET(77);}\n",
+   "steps": [
+    "SCOPE^NEW(\"I\")",
+    "I^READSCENE()"
+   ],
+   "read": [
+    "SCENEV",
+    "I|V"
+   ],
+   "files": {
+    "common/classes/SCOPE.CLASS": "OBJECT=V\nV:TYPE=INTEGER\nV:VALUE=7\n\nOBJECT=READSCENE\nREADSCENE:TYPE=BEHAVIOUR\nREADSCENE:CODE={@RETURN(SCENEV);}\n\nOBJECT=WRITESCENE\nWRITESCENE:TYPE=BEHAVIOUR\nWRITESCENE:CODE={SCENEV^SET(42);}\n\nOBJECT=RUNSCENE\nRUNSCENE:TYPE=BEHAVIOUR\nRUNSCENE:CODE={SCENEBEH^RUN();}\n\nOBJECT=CALLOTHER\nCALLOTHER:TYPE=BEHAVIOUR\nCALLOTHER:CODE={@RETURN(Q^READSCENE());}\n\nOBJECT=SETOTHER\nSETOTHER:TYPE=BEHAVIOUR\nSETOTHER:CODE={Q^SETV($1);}\n\nOBJECT=SETV\nSETV:TYPE=BEHAVIOUR\nSETV:CODE={V^SET($1);}\n\nOBJECT=MAKE\nMAKE:TYPE=BEHAVIOUR\nMAKE:CODE={SCOPE^NEW(\"N\");@RETURN(N^READSCENE());}\n\nOBJECT=SHADOW\nSHADOW:TYPE=BEHAVIOUR\nSHADOW:CODE={@RETURN(V);}\n"
+   },
+   "results": [
+    {
+     "engines": [
+      "bloomoo-2679920b3735",
+      "bloomoo-3be911183e59",
+      "bloomoo-788ab0406ab4",
+      "bloomoo-9ac8ebbe0cc2",
+      "bloomoo-d63a5fb575f9",
+      "bloomoo-fb9a2b81d685",
+      "bloomoo-web-f5b6842faf88",
+      "piklib72-549b6851b2c9",
+      "piklib72-923a103d5b05",
+      "piklib8-0967908f2df1",
+      "piklib8-2c1705410e7a",
+      "piklib8-33cfd6523c04",
+      "piklib8-42d6a0c7fdf2",
+      "piklib8-5f6cbb33576d",
+      "piklib8-7b7ef02ea246",
+      "piklib8-87c5ca97f599",
+      "piklib8-92d602bbea05",
+      "piklib8-a70f97e970c6",
+      "piklib8-c0d85c50e3dc",
+      "piklib8-d1cc807bcbe5",
+      "piklib8-d3819a92b84b",
+      "piklib8-d6509a132e2a",
+      "piklib8-e80093de9636",
+      "piklib8-f01db0dd5a0d"
+     ],
+     "status": "ok",
+     "initial": {
+      "SCENEV": [
+       "INTEGER",
+       "5"
+      ],
+      "I|V": null
+     },
+     "steps": [
+      {
+       "result": null,
+       "state": {
+        "SCENEV": [
+         "INTEGER",
+         "5"
+        ],
+        "I|V": [
+         "INTEGER",
+         "7"
+        ]
+       }
+      },
+      {
+       "result": [
+        "STRING",
+        "5"
+       ],
+       "state": {
+        "SCENEV": [
+         "INTEGER",
+         "5"
+        ],
+        "I|V": [
+         "INTEGER",
+         "7"
+        ]
+       }
+      }
+     ]
+    },
+    {
+     "engines": [
+      "piklib61-3bb31de8b45f",
+      "piklib61-715272459e13",
+      "piklib61-91b0330a11ab",
+      "piklib61-9de20dceea68",
+      "piklib61-c0f83acd825b"
+     ],
+     "status": "ok",
+     "initial": {
+      "SCENEV": [
+       "INTEGER",
+       "5"
+      ],
+      "I|V": null
+     },
+     "steps": [
+      {
+       "result": null,
+       "state": {
+        "SCENEV": [
+         "INTEGER",
+         "5"
+        ],
+        "I|V": null
+       }
+      },
+      {
+       "result": null,
+       "state": {
+        "SCENEV": [
+         "INTEGER",
+         "5"
+        ],
+        "I|V": null
+       }
+      }
+     ]
+    },
+    {
+     "engines": [
+      "piklib71-128b235b6d94",
+      "piklib71-27c2b7699f01"
+     ],
+     "status": "crash",
+     "initial": {
+      "SCENEV": [
+       "INTEGER",
+       "5"
+      ],
+      "I|V": null
+     },
+     "steps": [],
+     "stage": "step 0"
+    }
+   ]
+  },
+  {
+   "id": "class-scope.writes-scene-variable",
+   "description": "A method sets a scene variable.",
+   "tags": [
+    "class"
+   ],
+   "source": "class-scope.toml",
+   "digest": "ea5f412b2301d6dbcc168b576a33b9f76de7a571",
+   "cnv": "OBJECT=SCOPE\nSCOPE:TYPE=CLASS\nSCOPE:DEF=SCOPE.CLASS\nSCOPE:BASE=\n\nOBJECT=SCENEV\nSCENEV:TYPE=INTEGER\nSCENEV:VALUE=5\n\nOBJECT=V\nV:TYPE=INTEGER\nV:VALUE=100\n\nOBJECT=SCENEBEH\nSCENEBEH:TYPE=BEHAVIOUR\nSCENEBEH:CODE={SCENEV^SET(77);}\n",
+   "steps": [
+    "SCOPE^NEW(\"I\")",
+    "I^WRITESCENE()"
+   ],
+   "read": [
+    "SCENEV",
+    "I|V"
+   ],
+   "files": {
+    "common/classes/SCOPE.CLASS": "OBJECT=V\nV:TYPE=INTEGER\nV:VALUE=7\n\nOBJECT=READSCENE\nREADSCENE:TYPE=BEHAVIOUR\nREADSCENE:CODE={@RETURN(SCENEV);}\n\nOBJECT=WRITESCENE\nWRITESCENE:TYPE=BEHAVIOUR\nWRITESCENE:CODE={SCENEV^SET(42);}\n\nOBJECT=RUNSCENE\nRUNSCENE:TYPE=BEHAVIOUR\nRUNSCENE:CODE={SCENEBEH^RUN();}\n\nOBJECT=CALLOTHER\nCALLOTHER:TYPE=BEHAVIOUR\nCALLOTHER:CODE={@RETURN(Q^READSCENE());}\n\nOBJECT=SETOTHER\nSETOTHER:TYPE=BEHAVIOUR\nSETOTHER:CODE={Q^SETV($1);}\n\nOBJECT=SETV\nSETV:TYPE=BEHAVIOUR\nSETV:CODE={V^SET($1);}\n\nOBJECT=MAKE\nMAKE:TYPE=BEHAVIOUR\nMAKE:CODE={SCOPE^NEW(\"N\");@RETURN(N^READSCENE());}\n\nOBJECT=SHADOW\nSHADOW:TYPE=BEHAVIOUR\nSHADOW:CODE={@RETURN(V);}\n"
+   },
+   "results": [
+    {
+     "engines": [
+      "bloomoo-2679920b3735",
+      "bloomoo-3be911183e59",
+      "bloomoo-788ab0406ab4",
+      "bloomoo-9ac8ebbe0cc2",
+      "bloomoo-d63a5fb575f9",
+      "bloomoo-fb9a2b81d685",
+      "bloomoo-web-f5b6842faf88",
+      "piklib72-549b6851b2c9",
+      "piklib72-923a103d5b05",
+      "piklib8-0967908f2df1",
+      "piklib8-2c1705410e7a",
+      "piklib8-33cfd6523c04",
+      "piklib8-42d6a0c7fdf2",
+      "piklib8-5f6cbb33576d",
+      "piklib8-7b7ef02ea246",
+      "piklib8-87c5ca97f599",
+      "piklib8-92d602bbea05",
+      "piklib8-a70f97e970c6",
+      "piklib8-c0d85c50e3dc",
+      "piklib8-d1cc807bcbe5",
+      "piklib8-d3819a92b84b",
+      "piklib8-d6509a132e2a",
+      "piklib8-e80093de9636",
+      "piklib8-f01db0dd5a0d"
+     ],
+     "status": "ok",
+     "initial": {
+      "SCENEV": [
+       "INTEGER",
+       "5"
+      ],
+      "I|V": null
+     },
+     "steps": [
+      {
+       "result": null,
+       "state": {
+        "SCENEV": [
+         "INTEGER",
+         "5"
+        ],
+        "I|V": [
+         "INTEGER",
+         "7"
+        ]
+       }
+      },
+      {
+       "result": null,
+       "state": {
+        "SCENEV": [
+         "INTEGER",
+         "42"
+        ],
+        "I|V": [
+         "INTEGER",
+         "7"
+        ]
+       }
+      }
+     ]
+    },
+    {
+     "engines": [
+      "piklib61-3bb31de8b45f",
+      "piklib61-715272459e13",
+      "piklib61-91b0330a11ab",
+      "piklib61-9de20dceea68",
+      "piklib61-c0f83acd825b"
+     ],
+     "status": "ok",
+     "initial": {
+      "SCENEV": [
+       "INTEGER",
+       "5"
+      ],
+      "I|V": null
+     },
+     "steps": [
+      {
+       "result": null,
+       "state": {
+        "SCENEV": [
+         "INTEGER",
+         "5"
+        ],
+        "I|V": null
+       }
+      },
+      {
+       "result": null,
+       "state": {
+        "SCENEV": [
+         "INTEGER",
+         "5"
+        ],
+        "I|V": null
+       }
+      }
+     ]
+    },
+    {
+     "engines": [
+      "piklib71-128b235b6d94",
+      "piklib71-27c2b7699f01"
+     ],
+     "status": "crash",
+     "initial": {
+      "SCENEV": [
+       "INTEGER",
+       "5"
+      ],
+      "I|V": null
+     },
+     "steps": [],
+     "stage": "step 0"
+    }
+   ]
+  },
+  {
+   "id": "class-scope.runs-scene-behaviour",
+   "description": "A method runs a behaviour of the scene.",
+   "tags": [
+    "class"
+   ],
+   "source": "class-scope.toml",
+   "digest": "fe494519677b9ab7dd1712c729624a83010fb4fa",
+   "cnv": "OBJECT=SCOPE\nSCOPE:TYPE=CLASS\nSCOPE:DEF=SCOPE.CLASS\nSCOPE:BASE=\n\nOBJECT=SCENEV\nSCENEV:TYPE=INTEGER\nSCENEV:VALUE=5\n\nOBJECT=V\nV:TYPE=INTEGER\nV:VALUE=100\n\nOBJECT=SCENEBEH\nSCENEBEH:TYPE=BEHAVIOUR\nSCENEBEH:CODE={SCENEV^SET(77);}\n",
+   "steps": [
+    "SCOPE^NEW(\"I\")",
+    "I^RUNSCENE()"
+   ],
+   "read": [
+    "SCENEV",
+    "I|V"
+   ],
+   "files": {
+    "common/classes/SCOPE.CLASS": "OBJECT=V\nV:TYPE=INTEGER\nV:VALUE=7\n\nOBJECT=READSCENE\nREADSCENE:TYPE=BEHAVIOUR\nREADSCENE:CODE={@RETURN(SCENEV);}\n\nOBJECT=WRITESCENE\nWRITESCENE:TYPE=BEHAVIOUR\nWRITESCENE:CODE={SCENEV^SET(42);}\n\nOBJECT=RUNSCENE\nRUNSCENE:TYPE=BEHAVIOUR\nRUNSCENE:CODE={SCENEBEH^RUN();}\n\nOBJECT=CALLOTHER\nCALLOTHER:TYPE=BEHAVIOUR\nCALLOTHER:CODE={@RETURN(Q^READSCENE());}\n\nOBJECT=SETOTHER\nSETOTHER:TYPE=BEHAVIOUR\nSETOTHER:CODE={Q^SETV($1);}\n\nOBJECT=SETV\nSETV:TYPE=BEHAVIOUR\nSETV:CODE={V^SET($1);}\n\nOBJECT=MAKE\nMAKE:TYPE=BEHAVIOUR\nMAKE:CODE={SCOPE^NEW(\"N\");@RETURN(N^READSCENE());}\n\nOBJECT=SHADOW\nSHADOW:TYPE=BEHAVIOUR\nSHADOW:CODE={@RETURN(V);}\n"
+   },
+   "results": [
+    {
+     "engines": [
+      "bloomoo-2679920b3735",
+      "bloomoo-3be911183e59",
+      "bloomoo-788ab0406ab4",
+      "bloomoo-9ac8ebbe0cc2",
+      "bloomoo-d63a5fb575f9",
+      "bloomoo-fb9a2b81d685",
+      "bloomoo-web-f5b6842faf88",
+      "piklib72-549b6851b2c9",
+      "piklib72-923a103d5b05",
+      "piklib8-0967908f2df1",
+      "piklib8-2c1705410e7a",
+      "piklib8-33cfd6523c04",
+      "piklib8-42d6a0c7fdf2",
+      "piklib8-5f6cbb33576d",
+      "piklib8-7b7ef02ea246",
+      "piklib8-87c5ca97f599",
+      "piklib8-92d602bbea05",
+      "piklib8-a70f97e970c6",
+      "piklib8-c0d85c50e3dc",
+      "piklib8-d1cc807bcbe5",
+      "piklib8-d3819a92b84b",
+      "piklib8-d6509a132e2a",
+      "piklib8-e80093de9636",
+      "piklib8-f01db0dd5a0d"
+     ],
+     "status": "ok",
+     "initial": {
+      "SCENEV": [
+       "INTEGER",
+       "5"
+      ],
+      "I|V": null
+     },
+     "steps": [
+      {
+       "result": null,
+       "state": {
+        "SCENEV": [
+         "INTEGER",
+         "5"
+        ],
+        "I|V": [
+         "INTEGER",
+         "7"
+        ]
+       }
+      },
+      {
+       "result": null,
+       "state": {
+        "SCENEV": [
+         "INTEGER",
+         "77"
+        ],
+        "I|V": [
+         "INTEGER",
+         "7"
+        ]
+       }
+      }
+     ]
+    },
+    {
+     "engines": [
+      "piklib61-3bb31de8b45f",
+      "piklib61-715272459e13",
+      "piklib61-91b0330a11ab",
+      "piklib61-9de20dceea68",
+      "piklib61-c0f83acd825b"
+     ],
+     "status": "ok",
+     "initial": {
+      "SCENEV": [
+       "INTEGER",
+       "5"
+      ],
+      "I|V": null
+     },
+     "steps": [
+      {
+       "result": null,
+       "state": {
+        "SCENEV": [
+         "INTEGER",
+         "5"
+        ],
+        "I|V": null
+       }
+      },
+      {
+       "result": null,
+       "state": {
+        "SCENEV": [
+         "INTEGER",
+         "5"
+        ],
+        "I|V": null
+       }
+      }
+     ]
+    },
+    {
+     "engines": [
+      "piklib71-128b235b6d94",
+      "piklib71-27c2b7699f01"
+     ],
+     "status": "crash",
+     "initial": {
+      "SCENEV": [
+       "INTEGER",
+       "5"
+      ],
+      "I|V": null
+     },
+     "steps": [],
+     "stage": "step 0"
+    }
+   ]
+  },
+  {
+   "id": "class-scope.calls-other-instance",
+   "description": "A method calls methods of another instance by name: one returning a value, one changing that instance's field.",
+   "tags": [
+    "class"
+   ],
+   "source": "class-scope.toml",
+   "digest": "3e6186009f888e4a590ca07e958b3868ec2d9b68",
+   "cnv": "OBJECT=SCOPE\nSCOPE:TYPE=CLASS\nSCOPE:DEF=SCOPE.CLASS\nSCOPE:BASE=\n\nOBJECT=SCENEV\nSCENEV:TYPE=INTEGER\nSCENEV:VALUE=5\n\nOBJECT=V\nV:TYPE=INTEGER\nV:VALUE=100\n\nOBJECT=SCENEBEH\nSCENEBEH:TYPE=BEHAVIOUR\nSCENEBEH:CODE={SCENEV^SET(77);}\n",
+   "steps": [
+    "SCOPE^NEW(\"I\")",
+    "SCOPE^NEW(\"Q\")",
+    "I^CALLOTHER()",
+    "I^SETOTHER(3)"
+   ],
+   "read": [
+    "SCENEV",
+    "I|V",
+    "Q|V"
+   ],
+   "files": {
+    "common/classes/SCOPE.CLASS": "OBJECT=V\nV:TYPE=INTEGER\nV:VALUE=7\n\nOBJECT=READSCENE\nREADSCENE:TYPE=BEHAVIOUR\nREADSCENE:CODE={@RETURN(SCENEV);}\n\nOBJECT=WRITESCENE\nWRITESCENE:TYPE=BEHAVIOUR\nWRITESCENE:CODE={SCENEV^SET(42);}\n\nOBJECT=RUNSCENE\nRUNSCENE:TYPE=BEHAVIOUR\nRUNSCENE:CODE={SCENEBEH^RUN();}\n\nOBJECT=CALLOTHER\nCALLOTHER:TYPE=BEHAVIOUR\nCALLOTHER:CODE={@RETURN(Q^READSCENE());}\n\nOBJECT=SETOTHER\nSETOTHER:TYPE=BEHAVIOUR\nSETOTHER:CODE={Q^SETV($1);}\n\nOBJECT=SETV\nSETV:TYPE=BEHAVIOUR\nSETV:CODE={V^SET($1);}\n\nOBJECT=MAKE\nMAKE:TYPE=BEHAVIOUR\nMAKE:CODE={SCOPE^NEW(\"N\");@RETURN(N^READSCENE());}\n\nOBJECT=SHADOW\nSHADOW:TYPE=BEHAVIOUR\nSHADOW:CODE={@RETURN(V);}\n"
+   },
+   "results": [
+    {
+     "engines": [
+      "bloomoo-2679920b3735",
+      "bloomoo-3be911183e59",
+      "bloomoo-788ab0406ab4",
+      "bloomoo-9ac8ebbe0cc2",
+      "bloomoo-d63a5fb575f9",
+      "bloomoo-fb9a2b81d685",
+      "bloomoo-web-f5b6842faf88",
+      "piklib72-549b6851b2c9",
+      "piklib72-923a103d5b05",
+      "piklib8-0967908f2df1",
+      "piklib8-2c1705410e7a",
+      "piklib8-33cfd6523c04",
+      "piklib8-42d6a0c7fdf2",
+      "piklib8-5f6cbb33576d",
+      "piklib8-7b7ef02ea246",
+      "piklib8-87c5ca97f599",
+      "piklib8-92d602bbea05",
+      "piklib8-a70f97e970c6",
+      "piklib8-c0d85c50e3dc",
+      "piklib8-d1cc807bcbe5",
+      "piklib8-d3819a92b84b",
+      "piklib8-d6509a132e2a",
+      "piklib8-e80093de9636",
+      "piklib8-f01db0dd5a0d"
+     ],
+     "status": "ok",
+     "initial": {
+      "SCENEV": [
+       "INTEGER",
+       "5"
+      ],
+      "I|V": null,
+      "Q|V": null
+     },
+     "steps": [
+      {
+       "result": null,
+       "state": {
+        "SCENEV": [
+         "INTEGER",
+         "5"
+        ],
+        "I|V": [
+         "INTEGER",
+         "7"
+        ],
+        "Q|V": null
+       }
+      },
+      {
+       "result": null,
+       "state": {
+        "SCENEV": [
+         "INTEGER",
+         "5"
+        ],
+        "I|V": [
+         "INTEGER",
+         "7"
+        ],
+        "Q|V": [
+         "INTEGER",
+         "7"
+        ]
+       }
+      },
+      {
+       "result": [
+        "STRING",
+        "5"
+       ],
+       "state": {
+        "SCENEV": [
+         "INTEGER",
+         "5"
+        ],
+        "I|V": [
+         "INTEGER",
+         "7"
+        ],
+        "Q|V": [
+         "INTEGER",
+         "7"
+        ]
+       }
+      },
+      {
+       "result": [
+        "STRING",
+        "5"
+       ],
+       "state": {
+        "SCENEV": [
+         "INTEGER",
+         "5"
+        ],
+        "I|V": [
+         "INTEGER",
+         "7"
+        ],
+        "Q|V": [
+         "INTEGER",
+         "3"
+        ]
+       }
+      }
+     ]
+    },
+    {
+     "engines": [
+      "piklib61-3bb31de8b45f",
+      "piklib61-715272459e13",
+      "piklib61-91b0330a11ab",
+      "piklib61-9de20dceea68",
+      "piklib61-c0f83acd825b"
+     ],
+     "status": "ok",
+     "initial": {
+      "SCENEV": [
+       "INTEGER",
+       "5"
+      ],
+      "I|V": null,
+      "Q|V": null
+     },
+     "steps": [
+      {
+       "result": null,
+       "state": {
+        "SCENEV": [
+         "INTEGER",
+         "5"
+        ],
+        "I|V": null,
+        "Q|V": null
+       }
+      },
+      {
+       "result": null,
+       "state": {
+        "SCENEV": [
+         "INTEGER",
+         "5"
+        ],
+        "I|V": null,
+        "Q|V": null
+       }
+      },
+      {
+       "result": null,
+       "state": {
+        "SCENEV": [
+         "INTEGER",
+         "5"
+        ],
+        "I|V": null,
+        "Q|V": null
+       }
+      },
+      {
+       "result": null,
+       "state": {
+        "SCENEV": [
+         "INTEGER",
+         "5"
+        ],
+        "I|V": null,
+        "Q|V": null
+       }
+      }
+     ]
+    },
+    {
+     "engines": [
+      "piklib71-128b235b6d94",
+      "piklib71-27c2b7699f01"
+     ],
+     "status": "crash",
+     "initial": {
+      "SCENEV": [
+       "INTEGER",
+       "5"
+      ],
+      "I|V": null,
+      "Q|V": null
+     },
+     "steps": [],
+     "stage": "step 0"
+    }
+   ]
+  },
+  {
+   "id": "class-scope.new-in-method",
+   "description": "An instance creates another one in a method and uses it there.",
+   "tags": [
+    "class"
+   ],
+   "source": "class-scope.toml",
+   "digest": "8a558108ad44faa0c3f32567034a582a088892e8",
+   "cnv": "OBJECT=SCOPE\nSCOPE:TYPE=CLASS\nSCOPE:DEF=SCOPE.CLASS\nSCOPE:BASE=\n\nOBJECT=SCENEV\nSCENEV:TYPE=INTEGER\nSCENEV:VALUE=5\n\nOBJECT=V\nV:TYPE=INTEGER\nV:VALUE=100\n\nOBJECT=SCENEBEH\nSCENEBEH:TYPE=BEHAVIOUR\nSCENEBEH:CODE={SCENEV^SET(77);}\n",
+   "steps": [
+    "SCOPE^NEW(\"I\")",
+    "I^MAKE()"
+   ],
+   "read": [
+    "SCENEV",
+    "I|V"
+   ],
+   "files": {
+    "common/classes/SCOPE.CLASS": "OBJECT=V\nV:TYPE=INTEGER\nV:VALUE=7\n\nOBJECT=READSCENE\nREADSCENE:TYPE=BEHAVIOUR\nREADSCENE:CODE={@RETURN(SCENEV);}\n\nOBJECT=WRITESCENE\nWRITESCENE:TYPE=BEHAVIOUR\nWRITESCENE:CODE={SCENEV^SET(42);}\n\nOBJECT=RUNSCENE\nRUNSCENE:TYPE=BEHAVIOUR\nRUNSCENE:CODE={SCENEBEH^RUN();}\n\nOBJECT=CALLOTHER\nCALLOTHER:TYPE=BEHAVIOUR\nCALLOTHER:CODE={@RETURN(Q^READSCENE());}\n\nOBJECT=SETOTHER\nSETOTHER:TYPE=BEHAVIOUR\nSETOTHER:CODE={Q^SETV($1);}\n\nOBJECT=SETV\nSETV:TYPE=BEHAVIOUR\nSETV:CODE={V^SET($1);}\n\nOBJECT=MAKE\nMAKE:TYPE=BEHAVIOUR\nMAKE:CODE={SCOPE^NEW(\"N\");@RETURN(N^READSCENE());}\n\nOBJECT=SHADOW\nSHADOW:TYPE=BEHAVIOUR\nSHADOW:CODE={@RETURN(V);}\n"
+   },
+   "results": [
+    {
+     "engines": [
+      "bloomoo-2679920b3735",
+      "bloomoo-3be911183e59",
+      "bloomoo-788ab0406ab4",
+      "bloomoo-9ac8ebbe0cc2",
+      "bloomoo-d63a5fb575f9",
+      "bloomoo-fb9a2b81d685",
+      "bloomoo-web-f5b6842faf88",
+      "piklib72-549b6851b2c9",
+      "piklib72-923a103d5b05",
+      "piklib8-0967908f2df1",
+      "piklib8-2c1705410e7a",
+      "piklib8-33cfd6523c04",
+      "piklib8-42d6a0c7fdf2",
+      "piklib8-5f6cbb33576d",
+      "piklib8-7b7ef02ea246",
+      "piklib8-87c5ca97f599",
+      "piklib8-92d602bbea05",
+      "piklib8-a70f97e970c6",
+      "piklib8-c0d85c50e3dc",
+      "piklib8-d1cc807bcbe5",
+      "piklib8-d3819a92b84b",
+      "piklib8-d6509a132e2a",
+      "piklib8-e80093de9636",
+      "piklib8-f01db0dd5a0d"
+     ],
+     "status": "ok",
+     "initial": {
+      "SCENEV": [
+       "INTEGER",
+       "5"
+      ],
+      "I|V": null
+     },
+     "steps": [
+      {
+       "result": null,
+       "state": {
+        "SCENEV": [
+         "INTEGER",
+         "5"
+        ],
+        "I|V": [
+         "INTEGER",
+         "7"
+        ]
+       }
+      },
+      {
+       "result": [
+        "STRING",
+        "5"
+       ],
+       "state": {
+        "SCENEV": [
+         "INTEGER",
+         "5"
+        ],
+        "I|V": [
+         "INTEGER",
+         "7"
+        ]
+       }
+      }
+     ]
+    },
+    {
+     "engines": [
+      "piklib61-3bb31de8b45f",
+      "piklib61-715272459e13",
+      "piklib61-91b0330a11ab",
+      "piklib61-9de20dceea68",
+      "piklib61-c0f83acd825b"
+     ],
+     "status": "ok",
+     "initial": {
+      "SCENEV": [
+       "INTEGER",
+       "5"
+      ],
+      "I|V": null
+     },
+     "steps": [
+      {
+       "result": null,
+       "state": {
+        "SCENEV": [
+         "INTEGER",
+         "5"
+        ],
+        "I|V": null
+       }
+      },
+      {
+       "result": null,
+       "state": {
+        "SCENEV": [
+         "INTEGER",
+         "5"
+        ],
+        "I|V": null
+       }
+      }
+     ]
+    },
+    {
+     "engines": [
+      "piklib71-128b235b6d94",
+      "piklib71-27c2b7699f01"
+     ],
+     "status": "crash",
+     "initial": {
+      "SCENEV": [
+       "INTEGER",
+       "5"
+      ],
+      "I|V": null
+     },
+     "steps": [],
+     "stage": "step 0"
+    }
+   ]
+  },
+  {
+   "id": "class-scope.own-field-shadows-scene",
+   "description": "The instance field V hides the scene's V inside the instance; setting it leaves the scene's V alone.",
+   "tags": [
+    "class"
+   ],
+   "source": "class-scope.toml",
+   "digest": "135a76cb5025e0751242bcd7db13931abdcc1858",
+   "cnv": "OBJECT=SCOPE\nSCOPE:TYPE=CLASS\nSCOPE:DEF=SCOPE.CLASS\nSCOPE:BASE=\n\nOBJECT=SCENEV\nSCENEV:TYPE=INTEGER\nSCENEV:VALUE=5\n\nOBJECT=V\nV:TYPE=INTEGER\nV:VALUE=100\n\nOBJECT=SCENEBEH\nSCENEBEH:TYPE=BEHAVIOUR\nSCENEBEH:CODE={SCENEV^SET(77);}\n",
+   "steps": [
+    "SCOPE^NEW(\"I\")",
+    "I^SHADOW()",
+    "I^SETV(9)",
+    "I^SHADOW()"
+   ],
+   "read": [
+    "V",
+    "I|V"
+   ],
+   "files": {
+    "common/classes/SCOPE.CLASS": "OBJECT=V\nV:TYPE=INTEGER\nV:VALUE=7\n\nOBJECT=READSCENE\nREADSCENE:TYPE=BEHAVIOUR\nREADSCENE:CODE={@RETURN(SCENEV);}\n\nOBJECT=WRITESCENE\nWRITESCENE:TYPE=BEHAVIOUR\nWRITESCENE:CODE={SCENEV^SET(42);}\n\nOBJECT=RUNSCENE\nRUNSCENE:TYPE=BEHAVIOUR\nRUNSCENE:CODE={SCENEBEH^RUN();}\n\nOBJECT=CALLOTHER\nCALLOTHER:TYPE=BEHAVIOUR\nCALLOTHER:CODE={@RETURN(Q^READSCENE());}\n\nOBJECT=SETOTHER\nSETOTHER:TYPE=BEHAVIOUR\nSETOTHER:CODE={Q^SETV($1);}\n\nOBJECT=SETV\nSETV:TYPE=BEHAVIOUR\nSETV:CODE={V^SET($1);}\n\nOBJECT=MAKE\nMAKE:TYPE=BEHAVIOUR\nMAKE:CODE={SCOPE^NEW(\"N\");@RETURN(N^READSCENE());}\n\nOBJECT=SHADOW\nSHADOW:TYPE=BEHAVIOUR\nSHADOW:CODE={@RETURN(V);}\n"
+   },
+   "results": [
+    {
+     "engines": [
+      "bloomoo-2679920b3735",
+      "bloomoo-3be911183e59",
+      "bloomoo-788ab0406ab4",
+      "bloomoo-9ac8ebbe0cc2",
+      "bloomoo-d63a5fb575f9",
+      "bloomoo-fb9a2b81d685",
+      "bloomoo-web-f5b6842faf88",
+      "piklib72-549b6851b2c9",
+      "piklib72-923a103d5b05",
+      "piklib8-0967908f2df1",
+      "piklib8-2c1705410e7a",
+      "piklib8-33cfd6523c04",
+      "piklib8-42d6a0c7fdf2",
+      "piklib8-5f6cbb33576d",
+      "piklib8-7b7ef02ea246",
+      "piklib8-87c5ca97f599",
+      "piklib8-92d602bbea05",
+      "piklib8-a70f97e970c6",
+      "piklib8-c0d85c50e3dc",
+      "piklib8-d1cc807bcbe5",
+      "piklib8-d3819a92b84b",
+      "piklib8-d6509a132e2a",
+      "piklib8-e80093de9636",
+      "piklib8-f01db0dd5a0d"
+     ],
+     "status": "ok",
+     "initial": {
+      "V": [
+       "INTEGER",
+       "100"
+      ],
+      "I|V": null
+     },
+     "steps": [
+      {
+       "result": null,
+       "state": {
+        "V": [
+         "INTEGER",
+         "100"
+        ],
+        "I|V": [
+         "INTEGER",
+         "7"
+        ]
+       }
+      },
+      {
+       "result": [
+        "STRING",
+        "7"
+       ],
+       "state": {
+        "V": [
+         "INTEGER",
+         "100"
+        ],
+        "I|V": [
+         "INTEGER",
+         "7"
+        ]
+       }
+      },
+      {
+       "result": [
+        "STRING",
+        "7"
+       ],
+       "state": {
+        "V": [
+         "INTEGER",
+         "100"
+        ],
+        "I|V": [
+         "INTEGER",
+         "9"
+        ]
+       }
+      },
+      {
+       "result": [
+        "STRING",
+        "9"
+       ],
+       "state": {
+        "V": [
+         "INTEGER",
+         "100"
+        ],
+        "I|V": [
+         "INTEGER",
+         "9"
+        ]
+       }
+      }
+     ]
+    },
+    {
+     "engines": [
+      "piklib61-3bb31de8b45f",
+      "piklib61-715272459e13",
+      "piklib61-91b0330a11ab",
+      "piklib61-9de20dceea68",
+      "piklib61-c0f83acd825b"
+     ],
+     "status": "ok",
+     "initial": {
+      "V": [
+       "INTEGER",
+       "100"
+      ],
+      "I|V": null
+     },
+     "steps": [
+      {
+       "result": null,
+       "state": {
+        "V": [
+         "INTEGER",
+         "100"
+        ],
+        "I|V": null
+       }
+      },
+      {
+       "result": null,
+       "state": {
+        "V": [
+         "INTEGER",
+         "100"
+        ],
+        "I|V": null
+       }
+      },
+      {
+       "result": null,
+       "state": {
+        "V": [
+         "INTEGER",
+         "100"
+        ],
+        "I|V": null
+       }
+      },
+      {
+       "result": null,
+       "state": {
+        "V": [
+         "INTEGER",
+         "100"
+        ],
+        "I|V": null
+       }
+      }
+     ]
+    },
+    {
+     "engines": [
+      "piklib71-128b235b6d94",
+      "piklib71-27c2b7699f01"
+     ],
+     "status": "crash",
+     "initial": {
+      "V": [
+       "INTEGER",
+       "100"
+      ],
+      "I|V": null
+     },
+     "steps": [],
+     "stage": "step 0"
     }
    ]
   },

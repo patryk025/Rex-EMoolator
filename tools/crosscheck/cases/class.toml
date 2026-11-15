@@ -1,14 +1,10 @@
 # CLASS and its instances, driven from the scene. CLASS.md lists NEW for Piklib 7.2
-# and later; under pikhost Piklib 7.2 and a few Piklib 8 builds crash in NEW.
-# The class files are written to
-# common/classes in the working directory, where every engine looks for a DEF
-# without a $ prefix.
+# and later. The class files are written to common/classes in the working
+# directory: the engine reads a DEF as $COMMON\CLASSES\<DEF>, and pikhost leaves
+# the CD path that $ stands for empty.
 #
-# Only calls from the scene into an instance are here. Under pikhost an instance
-# sees nothing outside its own objects (scene variables, other instances, scene
-# behaviours), while in a game it resolves names further up: see the CLASS
-# reference. Cases for that wait until pikhost gives the instance the right
-# lookup parent.
+# Only calls from the scene into an instance are here; an instance reaching out
+# to the scene and to other instances is in class-scope.toml.
 
 [defaults]
 tags = ["class"]

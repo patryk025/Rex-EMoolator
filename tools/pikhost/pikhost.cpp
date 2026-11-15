@@ -12,6 +12,8 @@
 //   LOAD <path>     load a CNV file into the test scene    -> OK | ERR <why>
 //   RUN <line>      run one script line ("OBJ^METHOD(...)") -> RES <type>\t<value> | RES -
 //   GET <name>      read an object                         -> VAL <type>\t<value> | VAL -
+//                   "I|V" reads V of the class instance I (7.2+), its own
+//                   objects only; segments nest ("I|J|V")
 //   QUIT
 //
 // Asynchronous replies: "MSG <text>" for every message box the engine tries
@@ -338,6 +340,7 @@ static BYTE *skipJump(BYTE *code)
 // engine these are "mov eax,[ecx+XX]; ret", possibly behind an
 // incremental-linking jmp:
 //   CMC_Object::getScene                0x38 (7.2), 0x3c (8, BlooMoo)
+//   CMC_ObjectsContainer::getParent     the lookup parent
 static int getterOffset(const char *prefix)
 {
     BYTE *code = (BYTE *)find(prefix);
@@ -645,9 +648,39 @@ static void commandRun(const char *line)
     fputc('\n', stdout);
 }
 
-static void commandGet(const char *name)
+enum { ClassType = 3004 };   // CMC_Class: a CLASS and every instance of it
+
+// "I|V": V among the instance's own objects. The container lookup would go on
+// to its parent (the scene) for a name it lacks, so that link is cut for the
+// call: a field the instance does not have reads as missing, not as the
+// scene's object of the same name.
+static void *getMember(void *container, const char *name)
 {
+    typedef int(__fastcall * GetType)(void *, void *);
+    typedef void *(__fastcall * GetObject)(void *, void *, const char *);
+    static GetType getType = (GetType)require("?getType@CMC_Object", "QAEHXZ");
+    static int parent = getterOffset("?getParent@CMC_ObjectsContainer");
+    FARPROC lookup = find("?getObject@CMC_ObjectsContainer", "PAD@Z");
+    if (!container || !lookup || parent < 0 || getType(container, 0) != ClassType) return 0;
+    void **link = (void **)((BYTE *)container + parent);
+    void *saved = *link;
+    *link = 0;
+    void *object = ((GetObject)lookup)(container, 0, name);
+    *link = saved;
+    return object;
+}
+
+static void commandGet(char *name)
+{
+    char *next = strchr(name, '|');
+    if (next) *next++ = 0;
     void *object = getObject(name);
+    while (object && next) {
+        char *part = next;
+        next = strchr(part, '|');
+        if (next) *next++ = 0;
+        object = getMember(object, part);
+    }
     fputs("VAL ", stdout);
     if (object) putObject(object); else fputc('-', stdout);
     fputc('\n', stdout);
