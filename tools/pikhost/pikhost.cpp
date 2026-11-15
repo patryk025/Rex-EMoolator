@@ -16,12 +16,13 @@
 //
 // Asynchronous replies: "MSG <text>" for every message box the engine tries
 // to show. A crash inside the engine is reported as "CRASH <code> <rva>" and
-// ends the process, because the engine state cannot be trusted afterwards.
+// ends the process, because the engine state cannot be trusted afterwards;
+// with PIKHOST_HANG=<seconds>, so is a command that runs too long ("HANG <rva>").
 //
-// Environment: PIKHOST_TRACE=1 bootstrap steps on stderr, PIKHOST_CD=<dir>
-// the CD path a leading $ in file names stands for (7.2 and later; by default
-// empty, so $ paths are relative to the working directory, e.g. a CLASS DEF is
-// read from common\classes there).
+// Environment: PIKHOST_TRACE=1 bootstrap steps on stderr, PIKHOST_HANG as
+// above, PIKHOST_CD=<dir> the CD path a leading $ in file names stands for
+// (7.2 and later; by default empty, so $ paths are relative to the working
+// directory, e.g. a CLASS DEF is read from common\classes there).
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 #include <stdio.h>
@@ -209,37 +210,80 @@ static void trace(const char *step, const void *detail = 0)
     fflush(stderr);
 }
 
-
-// "CRASH <code> <rva> [<rva>,...]": the faulting address, then stack words that
-// point into the engine image - mostly return addresses, i.e. a rough call chain
-// that can be resolved against the Ghidra listing. Addresses outside the image
-// are printed as absolute values.
-static int reportCrash(EXCEPTION_POINTERS *e)
+// " <rva> [<rva>,...]": an instruction address, then stack words that point
+// into the engine image - mostly return addresses, i.e. a rough call chain that
+// can be resolved against the Ghidra listing. Addresses outside the image are
+// printed as absolute values. Writes into `out` only, no heap and no locks, so
+// the watchdog can use it while the main thread is stopped anywhere.
+static void formatLocation(char *out, size_t size, DWORD ip, DWORD *stack)
 {
     BYTE *base = (BYTE *)g_lib;
     IMAGE_NT_HEADERS *nt = (IMAGE_NT_HEADERS *)(base + ((IMAGE_DOS_HEADER *)base)->e_lfanew);
     DWORD start = (DWORD)base, end = start + nt->OptionalHeader.SizeOfImage;
-    DWORD ip = e->ContextRecord->Eip;
-    printf("CRASH %08lx %08lx", e->ExceptionRecord->ExceptionCode, ip >= start && ip < end ? ip - start : ip);
+    size_t used = _snprintf(out, size, " %08lx", ip >= start && ip < end ? ip - start : ip);
+    int found = 0;
+    for (int i = 0; i < 512 && found < 12 && used + 10 < size; ++i) {
+        if (IsBadReadPtr(stack + i, sizeof(DWORD))) break;
+        DWORD word = stack[i];
+        if (word > start + nt->OptionalHeader.SizeOfHeaders && word < start + nt->OptionalHeader.SizeOfCode + nt->OptionalHeader.BaseOfCode) {
+            used += _snprintf(out + used, size - used, "%c%08lx", found ? ',' : ' ', word - start);
+            ++found;
+        }
+    }
+}
+
+// "CRASH <code> <rva> [<rva>,...]"
+static int reportCrash(EXCEPTION_POINTERS *e)
+{
     DWORD *stack = (DWORD *)e->ContextRecord->Esp;
     if (!IsBadReadPtr(stack, 4 * sizeof(DWORD))) {
         char words[64];
         _snprintf(words, sizeof words, "esp %08lx %08lx %08lx %08lx", stack[0], stack[1], stack[2], stack[3]);
         trace(words);
     }
-    int found = 0;
-    for (int i = 0; i < 512 && found < 12; ++i) {
-        DWORD word;
-        if (IsBadReadPtr(stack + i, sizeof word)) break;
-        word = stack[i];
-        if (word > start + nt->OptionalHeader.SizeOfHeaders && word < start + nt->OptionalHeader.SizeOfCode + nt->OptionalHeader.BaseOfCode) {
-            printf("%c%08lx", found ? ',' : ' ', word - start);
-            ++found;
-        }
-    }
-    fputc('\n', stdout);
+    char location[256];
+    formatLocation(location, sizeof location, e->ContextRecord->Eip, stack);
+    printf("CRASH %08lx%s\n", e->ExceptionRecord->ExceptionCode, location);
     fflush(stdout);
     return EXCEPTION_EXECUTE_HANDLER;
+}
+
+// PIKHOST_HANG=<seconds> arms a watchdog for every command. When one runs that
+// long, the main thread is stopped where it is and "HANG <rva> [<rva>,...]"
+// is written, the same location format as CRASH, then the process exits: the
+// address of an engine loop without a debugger. The main thread may be stopped
+// inside the CRT holding the stdout lock, so the line bypasses stdio.
+static HANDLE g_mainThread;
+static volatile LONG g_commandStart;     // GetTickCount when a command began, 0 when idle
+
+static DWORD WINAPI watchdog(void *limit)
+{
+    DWORD milliseconds = (DWORD)(size_t)limit;
+    for (;;) {
+        Sleep(50);
+        LONG start = g_commandStart;
+        if (!start || GetTickCount() - (DWORD)start < milliseconds) continue;
+        SuspendThread(g_mainThread);
+        CONTEXT context = {};
+        context.ContextFlags = CONTEXT_CONTROL;
+        char line[288] = "HANG";
+        if (GetThreadContext(g_mainThread, &context))
+            formatLocation(line + 4, sizeof line - 6, context.Eip, (DWORD *)context.Esp);
+        strcat(line, "\n");
+        DWORD written;
+        WriteFile(GetStdHandle(STD_OUTPUT_HANDLE), line, (DWORD)strlen(line), &written, 0);
+        ExitProcess(6);
+    }
+}
+
+static void startWatchdog()
+{
+    const char *seconds = getenv("PIKHOST_HANG");
+    double limit = seconds ? atof(seconds) : 0;
+    if (limit <= 0) return;
+    DuplicateHandle(GetCurrentProcess(), GetCurrentThread(), GetCurrentProcess(), &g_mainThread,
+                    THREAD_SUSPEND_RESUME | THREAD_GET_CONTEXT, FALSE, 0);
+    CreateThread(0, 0, watchdog, (void *)(size_t)(limit * 1000), 0, 0);
 }
 
 // ---------------------------------------------------------------- engine
@@ -611,6 +655,7 @@ static void commandGet(const char *name)
 
 static bool dispatch(char *line)
 {
+    g_commandStart = GetTickCount() | 1;
     __try {
         if (strncmp(line, "LOAD ", 5) == 0) commandLoad(line + 5);
         else if (strncmp(line, "RUN ", 4) == 0) commandRun(line + 4);
@@ -621,6 +666,7 @@ static bool dispatch(char *line)
         ExitProcess(5);
     }
     fflush(stdout);
+    g_commandStart = 0;
     return true;
 }
 
@@ -648,12 +694,15 @@ int wmain(int argc, wchar_t **argv)
     hookImport(GetProcAddress(crt, "free"), keepBlock);
     hookImport(GetProcAddress(crt, "??3@YAXPAX@Z"), keepBlock);
     g_trace = getenv("PIKHOST_TRACE") != 0;
+    startWatchdog();
 
+    g_commandStart = GetTickCount() | 1;
     __try {
         bootstrap();
     } __except (reportCrash(GetExceptionInformation())) {
         return 5;
     }
+    g_commandStart = 0;
     printf("READY %s\n", g_legacy ? "legacy" : "modern");
     fflush(stdout);
 

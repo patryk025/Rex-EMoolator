@@ -255,9 +255,12 @@ def run_case(engine: Engine, case: Case, workdir: Path) -> dict:
     commands.append("QUIT")
     payload = ("\n".join(commands) + "\n").encode(ENGINE_ENCODING)
 
+    # pikhost's own watchdog fires first, so a hang reports where the engine loops.
+    timeout = case.timeout or CASE_TIMEOUT
+    environment = dict(os.environ, PIKHOST_HANG=f"{max(timeout - 2, timeout * 0.6):g}")
     try:
         completed = subprocess.run([str(PIKHOST), str(engine.path.resolve())], input=payload, cwd=case_dir,
-                                   capture_output=True, timeout=case.timeout or CASE_TIMEOUT)
+                                   capture_output=True, timeout=timeout, env=environment)
         lines = completed.stdout.decode(ENGINE_ENCODING, errors="replace").splitlines()
         timed_out = False
         exit_code = completed.returncode & 0xFFFFFFFF
@@ -299,6 +302,14 @@ def interpret(case: Case, lines: list[str], timed_out: bool, exit_code: int | No
                 if len(fields) > 3:
                     crash["stack"] = fields[3].split(",")
                 result.update(status="crash", crash=crash)
+                return None
+            if line.startswith("HANG "):
+                # The same outcome as being killed, plus the address of the loop.
+                fields = line.split()
+                hang = {"rva": fields[1]}
+                if len(fields) > 2:
+                    hang["stack"] = fields[2].split(",")
+                result.update(status="timeout", error=None, hang=hang)
                 return None
             if line.startswith("ERR "):
                 result.update(status="error", error=line[4:])
@@ -396,8 +407,8 @@ def print_table(engines: list[Engine], cases: list[Case], results: dict) -> None
                     state = ", ".join(f"{k}={format_value(v)}" for k, v in s["state"].items())
                     cells.append(f"{step} -> {format_value(s['result'])}" + (f" | {state}" if state else ""))
                 else:
-                    cells.append(f"{step} -> {r['status'].upper()}" +
-                                 (f" @ rva {r['crash']['rva']}" if "crash" in r else ""))
+                    where = r.get("crash") or r.get("hang")
+                    cells.append(f"{step} -> {r['status'].upper()}" + (f" @ rva {where['rva']}" if where else ""))
                     break
             if r["status"] not in ("ok", "crash") and not r["steps"]:
                 cells.append(f"{r['status'].upper()} ({r.get('stage', '')}: {r.get('error', '')})")
@@ -434,7 +445,7 @@ def recorded(result: dict) -> dict:
     def state(values: dict) -> dict:
         return {name: plain(value) for name, value in values.items()}
 
-    kept = {key: value for key, value in result.items() if key != "crash"}
+    kept = {key: value for key, value in result.items() if key not in ("crash", "hang")}
     kept["initial"] = state(result["initial"])
     kept["steps"] = [{"result": plain(step["result"]), "state": state(step["state"])} for step in result["steps"]]
     return kept
