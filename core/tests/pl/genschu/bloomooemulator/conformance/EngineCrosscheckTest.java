@@ -14,6 +14,7 @@ import pl.genschu.bloomooemulator.engine.compatibility.Compatibility;
 import pl.genschu.bloomooemulator.engine.compatibility.CompatibilityProfile;
 import pl.genschu.bloomooemulator.engine.compatibility.EngineVariant;
 import pl.genschu.bloomooemulator.engine.filesystem.LocalFileSystem;
+import pl.genschu.bloomooemulator.engine.time.LegacyClock;
 import pl.genschu.bloomooemulator.interpreter.ast.ASTNode;
 import pl.genschu.bloomooemulator.interpreter.ast.BlockNode;
 import pl.genschu.bloomooemulator.interpreter.context.Context;
@@ -23,6 +24,7 @@ import pl.genschu.bloomooemulator.interpreter.runtime.ExecutionContext;
 import pl.genschu.bloomooemulator.interpreter.values.NullValue;
 import pl.genschu.bloomooemulator.interpreter.values.Value;
 import pl.genschu.bloomooemulator.interpreter.variable.ArrayVariable;
+import pl.genschu.bloomooemulator.interpreter.variable.TimerVariable;
 import pl.genschu.bloomooemulator.interpreter.variable.Variable;
 import pl.genschu.bloomooemulator.interpreter.variable.capabilities.HasInstanceContext;
 import pl.genschu.bloomooemulator.loader.CNVParser;
@@ -38,11 +40,15 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.IdentityHashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -214,11 +220,15 @@ class EngineCrosscheckTest {
         List<Map<String, String[]>> states = new ArrayList<>();
         Compatibility.install(profile);
         Path directory = null;
+        // The engine clock moves only on TICK steps, as pikhost's does.
+        long[] clock = {0};
         try {
             Context context = new Context(new ExecutionContext());
+            Game game;
             try {
                 directory = gameDirectory(files);
-                context.setGame(gameOn(directory));
+                game = gameOn(directory, () -> clock[0]);
+                context.setGame(game);
                 // Plain scripts are decoded with the platform charset, see ScriptDecypher.
                 new CNVParser().parse(new ByteArrayInputStream(cnv.getBytes(Charset.defaultCharset())), "crosscheck.cnv", context);
             } catch (Exception | AssertionError error) {
@@ -226,7 +236,14 @@ class EngineCrosscheckTest {
             }
             for (int i = 0; i < steps.size(); i++) {
                 try {
-                    results.add(pair(execute(context, steps.get(i))));
+                    Matcher tick = TICK_STEP.matcher(steps.get(i));
+                    if (tick.matches()) {
+                        clock[0] += Long.parseLong(tick.group(1));
+                        tickTimers(context, game);
+                        results.add(null);
+                    } else {
+                        results.add(pair(execute(context, steps.get(i))));
+                    }
                 } catch (Exception | AssertionError error) {
                     return new Observation(results, states, error.toString(), i);
                 }
@@ -262,8 +279,8 @@ class EngineCrosscheckTest {
         return directory;
     }
 
-    private static Game gameOn(Path directory) {
-        Game game = new Game(null, null);
+    private static Game gameOn(Path directory, LegacyClock clock) {
+        Game game = new Game(null, null, clock);
         LocalFileSystem fileSystem = new LocalFileSystem(directory.toFile());
         game.getVfs().mountAssets(fileSystem);
         game.getVfs().setStorage(fileSystem);
@@ -287,6 +304,21 @@ class EngineCrosscheckTest {
             return array.elements().stream().map(Value::toDisplayString).collect(Collectors.joining(","));
         }
         return variable.value().toDisplayString();
+    }
+
+    /** A step "TICK <ms>": the engine clock moves on by ms and one frame of timers runs. */
+    private static final Pattern TICK_STEP = Pattern.compile("TICK (\\d+)");
+
+    /** One frame of timers, as UpdateManager.TimerManager runs it: each timer state once, in scheduling order. */
+    private static void tickTimers(Context context, Game game) {
+        Set<TimerVariable.TimerState> seen = Collections.newSetFromMap(new IdentityHashMap<>());
+        for (Variable variable : new ArrayList<>(context.getTimerVariablesForScheduling())) {
+            if (variable instanceof TimerVariable timer && seen.add(timer.state())) {
+                Variable canonical = context.getVariable(timer.name());
+                TimerVariable target = canonical instanceof TimerVariable own && own.state() == timer.state() ? own : timer;
+                target.update(game::getTimerTimeMs);
+            }
+        }
     }
 
     /** Runs one script line and returns what the call itself returned. */

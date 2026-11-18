@@ -250,7 +250,7 @@ def run_case(engine: Engine, case: Case, workdir: Path) -> dict:
     commands = [f"LOAD {cnv_path}"]
     commands += [f"GET {name}" for name in case.read]
     for step in case.steps:
-        commands.append(f"RUN {step}")
+        commands.append(step if is_tick(step) else f"RUN {step}")
         commands += [f"GET {name}" for name in case.read]
     commands.append("QUIT")
     payload = ("\n".join(commands) + "\n").encode(ENGINE_ENCODING)
@@ -283,6 +283,15 @@ def ended_early(exit_code: int | None) -> str:
         return "pikhost ended early"
     reason = FATAL_EXIT_CODES.get(exit_code)
     return f"pikhost ended early ({exit_code:#010x}{', ' + reason if reason else ''})"
+
+
+TICK_STEP = re.compile(r"TICK \d+")
+
+
+def is_tick(step: str) -> bool:
+    """A step "TICK <ms>" is not a script line: pikhost moves the engine clock
+    by <ms> and runs one timer frame (TIMER ONTICK fires in it). It has no result."""
+    return TICK_STEP.fullmatch(step) is not None
 
 
 def interpret(case: Case, lines: list[str], timed_out: bool, exit_code: int | None = None) -> dict:
@@ -344,13 +353,13 @@ def interpret(case: Case, lines: list[str], timed_out: bool, exit_code: int | No
         return done()
     if not read_state(result["initial"]):
         return done()
-    for index, _ in enumerate(case.steps):
+    for index, line in enumerate(case.steps):
         step: dict = {"result": None, "state": {}}
-        reply = next_reply("RES ")
+        reply = next_reply("OK" if is_tick(line) else "RES ")
         if reply is None:
             result["stage"] = f"step {index}"
             return done()
-        step["result"] = parse_value(reply)
+        step["result"] = None if is_tick(line) else parse_value(reply)
         result["steps"].append(step)
         if not read_state(step["state"]):
             return done()

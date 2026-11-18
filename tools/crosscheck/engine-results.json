@@ -81749,6 +81749,1747 @@
      ]
     }
    ]
+  },
+  {
+   "id": "timer.fires-on-elapse",
+   "description": "A tick is due once the frame clock reaches the next multiple of ELAPSE, not before.",
+   "tags": [
+    "timer"
+   ],
+   "source": "timer.toml",
+   "digest": "446c7ccd9bb0e48a5a3a56bfdba89fa3ad0163c4",
+   "cnv": "OBJECT=V\nV:TYPE=INTEGER\nV:VALUE=0\n\nOBJECT=T\nT:TYPE=TIMER\nT:ELAPSE=100\nT:TICKS=0\nT:ONTICK={V^INC();}\n",
+   "steps": [
+    "TICK 50",
+    "TICK 49",
+    "TICK 1",
+    "TICK 99",
+    "TICK 1"
+   ],
+   "read": [
+    "V"
+   ],
+   "results": [
+    {
+     "engines": [
+      "bloomoo-2679920b3735",
+      "bloomoo-3be911183e59",
+      "bloomoo-788ab0406ab4",
+      "bloomoo-9ac8ebbe0cc2",
+      "bloomoo-d63a5fb575f9",
+      "bloomoo-fb9a2b81d685",
+      "bloomoo-web-f5b6842faf88",
+      "piklib72-549b6851b2c9",
+      "piklib72-923a103d5b05",
+      "piklib8-0967908f2df1",
+      "piklib8-2c1705410e7a",
+      "piklib8-33cfd6523c04",
+      "piklib8-42d6a0c7fdf2",
+      "piklib8-5f6cbb33576d",
+      "piklib8-7b7ef02ea246",
+      "piklib8-87c5ca97f599",
+      "piklib8-92d602bbea05",
+      "piklib8-a70f97e970c6",
+      "piklib8-c0d85c50e3dc",
+      "piklib8-d1cc807bcbe5",
+      "piklib8-d3819a92b84b",
+      "piklib8-d6509a132e2a",
+      "piklib8-e80093de9636",
+      "piklib8-f01db0dd5a0d"
+     ],
+     "status": "ok",
+     "initial": {
+      "V": [
+       "INTEGER",
+       "0"
+      ]
+     },
+     "steps": [
+      {
+       "result": null,
+       "state": {
+        "V": [
+         "INTEGER",
+         "0"
+        ]
+       }
+      },
+      {
+       "result": null,
+       "state": {
+        "V": [
+         "INTEGER",
+         "0"
+        ]
+       }
+      },
+      {
+       "result": null,
+       "state": {
+        "V": [
+         "INTEGER",
+         "1"
+        ]
+       }
+      },
+      {
+       "result": null,
+       "state": {
+        "V": [
+         "INTEGER",
+         "1"
+        ]
+       }
+      },
+      {
+       "result": null,
+       "state": {
+        "V": [
+         "INTEGER",
+         "2"
+        ]
+       }
+      }
+     ]
+    },
+    {
+     "engines": [
+      "piklib61-3bb31de8b45f",
+      "piklib61-715272459e13",
+      "piklib61-91b0330a11ab",
+      "piklib61-9de20dceea68",
+      "piklib61-c0f83acd825b",
+      "piklib71-128b235b6d94",
+      "piklib71-27c2b7699f01"
+     ],
+     "status": "crash",
+     "initial": {},
+     "steps": [],
+     "stage": "load"
+    }
+   ]
+  },
+  {
+   "id": "timer.long-frame",
+   "description": "One frame of 1000 ms fires once. Whether the missed periods come in the next frames shows how the next tick is scheduled: on a fixed grid from the start, or ELAPSE after the last one.",
+   "tags": [
+    "timer"
+   ],
+   "source": "timer.toml",
+   "digest": "e8d1b5ed56c3afff820bdfc195edf09283dd515b",
+   "cnv": "OBJECT=V\nV:TYPE=INTEGER\nV:VALUE=0\n\nOBJECT=T\nT:TYPE=TIMER\nT:ELAPSE=100\nT:TICKS=0\nT:ONTICK={V^INC();}\n",
+   "steps": [
+    "TICK 1000",
+    "TICK 1",
+    "TICK 1",
+    "TICK 1",
+    "TICK 1",
+    "T^GETTICKS()"
+   ],
+   "read": [
+    "V"
+   ],
+   "results": [
+    {
+     "engines": [
+      "bloomoo-2679920b3735",
+      "bloomoo-788ab0406ab4",
+      "piklib72-549b6851b2c9",
+      "piklib72-923a103d5b05",
+      "piklib8-0967908f2df1",
+      "piklib8-2c1705410e7a",
+      "piklib8-33cfd6523c04",
+      "piklib8-42d6a0c7fdf2",
+      "piklib8-5f6cbb33576d",
+      "piklib8-7b7ef02ea246",
+      "piklib8-87c5ca97f599",
+      "piklib8-92d602bbea05",
+      "piklib8-a70f97e970c6",
+      "piklib8-c0d85c50e3dc",
+      "piklib8-d1cc807bcbe5",
+      "piklib8-d3819a92b84b",
+      "piklib8-d6509a132e2a",
+      "piklib8-e80093de9636",
+      "piklib8-f01db0dd5a0d"
+     ],
+     "status": "ok",
+     "initial": {
+      "V": [
+       "INTEGER",
+       "0"
+      ]
+     },
+     "steps": [
+      {
+       "result": null,
+       "state": {
+        "V": [
+         "INTEGER",
+         "1"
+        ]
+       }
+      },
+      {
+       "result": null,
+       "state": {
+        "V": [
+         "INTEGER",
+         "1"
+        ]
+       }
+      },
+      {
+       "result": null,
+       "state": {
+        "V": [
+         "INTEGER",
+         "1"
+        ]
+       }
+      },
+      {
+       "result": null,
+       "state": {
+        "V": [
+         "INTEGER",
+         "1"
+        ]
+       }
+      },
+      {
+       "result": null,
+       "state": {
+        "V": [
+         "INTEGER",
+         "1"
+        ]
+       }
+      },
+      {
+       "result": [
+        "INTEGER",
+        "1"
+       ],
+       "state": {
+        "V": [
+         "INTEGER",
+         "1"
+        ]
+       }
+      }
+     ]
+    },
+    {
+     "engines": [
+      "bloomoo-3be911183e59",
+      "bloomoo-9ac8ebbe0cc2",
+      "bloomoo-d63a5fb575f9",
+      "bloomoo-fb9a2b81d685",
+      "bloomoo-web-f5b6842faf88"
+     ],
+     "status": "ok",
+     "initial": {
+      "V": [
+       "INTEGER",
+       "0"
+      ]
+     },
+     "steps": [
+      {
+       "result": null,
+       "state": {
+        "V": [
+         "INTEGER",
+         "1"
+        ]
+       }
+      },
+      {
+       "result": null,
+       "state": {
+        "V": [
+         "INTEGER",
+         "2"
+        ]
+       }
+      },
+      {
+       "result": null,
+       "state": {
+        "V": [
+         "INTEGER",
+         "3"
+        ]
+       }
+      },
+      {
+       "result": null,
+       "state": {
+        "V": [
+         "INTEGER",
+         "4"
+        ]
+       }
+      },
+      {
+       "result": null,
+       "state": {
+        "V": [
+         "INTEGER",
+         "5"
+        ]
+       }
+      },
+      {
+       "result": [
+        "INTEGER",
+        "5"
+       ],
+       "state": {
+        "V": [
+         "INTEGER",
+         "5"
+        ]
+       }
+      }
+     ]
+    },
+    {
+     "engines": [
+      "piklib61-3bb31de8b45f",
+      "piklib61-715272459e13",
+      "piklib61-91b0330a11ab",
+      "piklib61-9de20dceea68",
+      "piklib61-c0f83acd825b",
+      "piklib71-128b235b6d94",
+      "piklib71-27c2b7699f01"
+     ],
+     "status": "crash",
+     "initial": {},
+     "steps": [],
+     "stage": "load"
+    }
+   ]
+  },
+  {
+   "id": "timer.getticks",
+   "description": "GETTICKS counts the ticks so far.",
+   "tags": [
+    "timer"
+   ],
+   "source": "timer.toml",
+   "digest": "303076e36bf63c777c77c5d58238ff0b1e6b87c9",
+   "cnv": "OBJECT=V\nV:TYPE=INTEGER\nV:VALUE=0\n\nOBJECT=T\nT:TYPE=TIMER\nT:ELAPSE=100\nT:TICKS=0\nT:ONTICK={V^INC();}\n",
+   "steps": [
+    "T^GETTICKS()",
+    "TICK 100",
+    "TICK 100",
+    "T^GETTICKS()"
+   ],
+   "read": [
+    "V"
+   ],
+   "results": [
+    {
+     "engines": [
+      "bloomoo-2679920b3735",
+      "bloomoo-3be911183e59",
+      "bloomoo-788ab0406ab4",
+      "bloomoo-9ac8ebbe0cc2",
+      "bloomoo-d63a5fb575f9",
+      "bloomoo-fb9a2b81d685",
+      "bloomoo-web-f5b6842faf88",
+      "piklib72-549b6851b2c9",
+      "piklib72-923a103d5b05",
+      "piklib8-0967908f2df1",
+      "piklib8-2c1705410e7a",
+      "piklib8-33cfd6523c04",
+      "piklib8-42d6a0c7fdf2",
+      "piklib8-5f6cbb33576d",
+      "piklib8-7b7ef02ea246",
+      "piklib8-87c5ca97f599",
+      "piklib8-92d602bbea05",
+      "piklib8-a70f97e970c6",
+      "piklib8-c0d85c50e3dc",
+      "piklib8-d1cc807bcbe5",
+      "piklib8-d3819a92b84b",
+      "piklib8-d6509a132e2a",
+      "piklib8-e80093de9636",
+      "piklib8-f01db0dd5a0d"
+     ],
+     "status": "ok",
+     "initial": {
+      "V": [
+       "INTEGER",
+       "0"
+      ]
+     },
+     "steps": [
+      {
+       "result": [
+        "INTEGER",
+        "0"
+       ],
+       "state": {
+        "V": [
+         "INTEGER",
+         "0"
+        ]
+       }
+      },
+      {
+       "result": null,
+       "state": {
+        "V": [
+         "INTEGER",
+         "1"
+        ]
+       }
+      },
+      {
+       "result": null,
+       "state": {
+        "V": [
+         "INTEGER",
+         "2"
+        ]
+       }
+      },
+      {
+       "result": [
+        "INTEGER",
+        "2"
+       ],
+       "state": {
+        "V": [
+         "INTEGER",
+         "2"
+        ]
+       }
+      }
+     ]
+    },
+    {
+     "engines": [
+      "piklib61-3bb31de8b45f",
+      "piklib61-715272459e13",
+      "piklib61-91b0330a11ab",
+      "piklib61-9de20dceea68",
+      "piklib61-c0f83acd825b",
+      "piklib71-128b235b6d94",
+      "piklib71-27c2b7699f01"
+     ],
+     "status": "crash",
+     "initial": {},
+     "steps": [],
+     "stage": "load"
+    }
+   ]
+  },
+  {
+   "id": "timer.disable-enable",
+   "description": "DISABLE stops the ticks; ENABLE starts over from the moment it is called.",
+   "tags": [
+    "timer"
+   ],
+   "source": "timer.toml",
+   "digest": "55cbf7dac4ebaeb76c45a74a9535a19774305d3c",
+   "cnv": "OBJECT=V\nV:TYPE=INTEGER\nV:VALUE=0\n\nOBJECT=T\nT:TYPE=TIMER\nT:ELAPSE=100\nT:TICKS=0\nT:ONTICK={V^INC();}\n",
+   "steps": [
+    "TICK 100",
+    "T^DISABLE()",
+    "TICK 100",
+    "TICK 100",
+    "T^ENABLE()",
+    "TICK 50",
+    "TICK 50",
+    "T^GETTICKS()"
+   ],
+   "read": [
+    "V"
+   ],
+   "results": [
+    {
+     "engines": [
+      "bloomoo-2679920b3735",
+      "bloomoo-3be911183e59",
+      "bloomoo-788ab0406ab4",
+      "bloomoo-9ac8ebbe0cc2",
+      "bloomoo-d63a5fb575f9",
+      "bloomoo-fb9a2b81d685",
+      "bloomoo-web-f5b6842faf88",
+      "piklib72-549b6851b2c9",
+      "piklib72-923a103d5b05",
+      "piklib8-0967908f2df1",
+      "piklib8-2c1705410e7a",
+      "piklib8-33cfd6523c04",
+      "piklib8-42d6a0c7fdf2",
+      "piklib8-5f6cbb33576d",
+      "piklib8-7b7ef02ea246",
+      "piklib8-87c5ca97f599",
+      "piklib8-92d602bbea05",
+      "piklib8-a70f97e970c6",
+      "piklib8-c0d85c50e3dc",
+      "piklib8-d1cc807bcbe5",
+      "piklib8-d3819a92b84b",
+      "piklib8-d6509a132e2a",
+      "piklib8-e80093de9636",
+      "piklib8-f01db0dd5a0d"
+     ],
+     "status": "ok",
+     "initial": {
+      "V": [
+       "INTEGER",
+       "0"
+      ]
+     },
+     "steps": [
+      {
+       "result": null,
+       "state": {
+        "V": [
+         "INTEGER",
+         "1"
+        ]
+       }
+      },
+      {
+       "result": null,
+       "state": {
+        "V": [
+         "INTEGER",
+         "1"
+        ]
+       }
+      },
+      {
+       "result": null,
+       "state": {
+        "V": [
+         "INTEGER",
+         "1"
+        ]
+       }
+      },
+      {
+       "result": null,
+       "state": {
+        "V": [
+         "INTEGER",
+         "1"
+        ]
+       }
+      },
+      {
+       "result": null,
+       "state": {
+        "V": [
+         "INTEGER",
+         "1"
+        ]
+       }
+      },
+      {
+       "result": null,
+       "state": {
+        "V": [
+         "INTEGER",
+         "1"
+        ]
+       }
+      },
+      {
+       "result": null,
+       "state": {
+        "V": [
+         "INTEGER",
+         "2"
+        ]
+       }
+      },
+      {
+       "result": [
+        "INTEGER",
+        "1"
+       ],
+       "state": {
+        "V": [
+         "INTEGER",
+         "2"
+        ]
+       }
+      }
+     ]
+    },
+    {
+     "engines": [
+      "piklib61-3bb31de8b45f",
+      "piklib61-715272459e13",
+      "piklib61-91b0330a11ab",
+      "piklib61-9de20dceea68",
+      "piklib61-c0f83acd825b",
+      "piklib71-128b235b6d94",
+      "piklib71-27c2b7699f01"
+     ],
+     "status": "crash",
+     "initial": {},
+     "steps": [],
+     "stage": "load"
+    }
+   ]
+  },
+  {
+   "id": "timer.reset",
+   "description": "RESET starts the period over from the moment it is called.",
+   "tags": [
+    "timer"
+   ],
+   "source": "timer.toml",
+   "digest": "0b27e1a11d50c2b104783f6e69119664acab32c9",
+   "cnv": "OBJECT=V\nV:TYPE=INTEGER\nV:VALUE=0\n\nOBJECT=T\nT:TYPE=TIMER\nT:ELAPSE=100\nT:TICKS=0\nT:ONTICK={V^INC();}\n",
+   "steps": [
+    "TICK 80",
+    "T^RESET()",
+    "TICK 80",
+    "TICK 20",
+    "T^GETTICKS()"
+   ],
+   "read": [
+    "V"
+   ],
+   "results": [
+    {
+     "engines": [
+      "bloomoo-2679920b3735",
+      "bloomoo-3be911183e59",
+      "bloomoo-788ab0406ab4",
+      "bloomoo-9ac8ebbe0cc2",
+      "bloomoo-d63a5fb575f9",
+      "bloomoo-fb9a2b81d685",
+      "bloomoo-web-f5b6842faf88",
+      "piklib72-549b6851b2c9",
+      "piklib72-923a103d5b05",
+      "piklib8-0967908f2df1",
+      "piklib8-2c1705410e7a",
+      "piklib8-33cfd6523c04",
+      "piklib8-42d6a0c7fdf2",
+      "piklib8-5f6cbb33576d",
+      "piklib8-7b7ef02ea246",
+      "piklib8-87c5ca97f599",
+      "piklib8-92d602bbea05",
+      "piklib8-a70f97e970c6",
+      "piklib8-c0d85c50e3dc",
+      "piklib8-d1cc807bcbe5",
+      "piklib8-d3819a92b84b",
+      "piklib8-d6509a132e2a",
+      "piklib8-e80093de9636",
+      "piklib8-f01db0dd5a0d"
+     ],
+     "status": "ok",
+     "initial": {
+      "V": [
+       "INTEGER",
+       "0"
+      ]
+     },
+     "steps": [
+      {
+       "result": null,
+       "state": {
+        "V": [
+         "INTEGER",
+         "0"
+        ]
+       }
+      },
+      {
+       "result": null,
+       "state": {
+        "V": [
+         "INTEGER",
+         "0"
+        ]
+       }
+      },
+      {
+       "result": null,
+       "state": {
+        "V": [
+         "INTEGER",
+         "0"
+        ]
+       }
+      },
+      {
+       "result": null,
+       "state": {
+        "V": [
+         "INTEGER",
+         "1"
+        ]
+       }
+      },
+      {
+       "result": [
+        "INTEGER",
+        "1"
+       ],
+       "state": {
+        "V": [
+         "INTEGER",
+         "1"
+        ]
+       }
+      }
+     ]
+    },
+    {
+     "engines": [
+      "piklib61-3bb31de8b45f",
+      "piklib61-715272459e13",
+      "piklib61-91b0330a11ab",
+      "piklib61-9de20dceea68",
+      "piklib61-c0f83acd825b",
+      "piklib71-128b235b6d94",
+      "piklib71-27c2b7699f01"
+     ],
+     "status": "crash",
+     "initial": {},
+     "steps": [],
+     "stage": "load"
+    }
+   ]
+  },
+  {
+   "id": "timer.setelapse",
+   "description": "SETELAPSE in the middle of a period.",
+   "tags": [
+    "timer"
+   ],
+   "source": "timer.toml",
+   "digest": "6a8144eb97368acfcd012534d5469c9f979dfe81",
+   "cnv": "OBJECT=V\nV:TYPE=INTEGER\nV:VALUE=0\n\nOBJECT=T\nT:TYPE=TIMER\nT:ELAPSE=100\nT:TICKS=0\nT:ONTICK={V^INC();}\n",
+   "steps": [
+    "TICK 50",
+    "T^SETELAPSE(300)",
+    "TICK 100",
+    "TICK 100",
+    "TICK 100",
+    "TICK 100"
+   ],
+   "read": [
+    "V"
+   ],
+   "results": [
+    {
+     "engines": [
+      "bloomoo-2679920b3735",
+      "bloomoo-3be911183e59",
+      "bloomoo-788ab0406ab4",
+      "bloomoo-9ac8ebbe0cc2",
+      "bloomoo-d63a5fb575f9",
+      "bloomoo-fb9a2b81d685",
+      "bloomoo-web-f5b6842faf88",
+      "piklib72-549b6851b2c9",
+      "piklib72-923a103d5b05",
+      "piklib8-0967908f2df1",
+      "piklib8-2c1705410e7a",
+      "piklib8-33cfd6523c04",
+      "piklib8-42d6a0c7fdf2",
+      "piklib8-5f6cbb33576d",
+      "piklib8-7b7ef02ea246",
+      "piklib8-87c5ca97f599",
+      "piklib8-92d602bbea05",
+      "piklib8-a70f97e970c6",
+      "piklib8-c0d85c50e3dc",
+      "piklib8-d1cc807bcbe5",
+      "piklib8-d3819a92b84b",
+      "piklib8-d6509a132e2a",
+      "piklib8-e80093de9636",
+      "piklib8-f01db0dd5a0d"
+     ],
+     "status": "ok",
+     "initial": {
+      "V": [
+       "INTEGER",
+       "0"
+      ]
+     },
+     "steps": [
+      {
+       "result": null,
+       "state": {
+        "V": [
+         "INTEGER",
+         "0"
+        ]
+       }
+      },
+      {
+       "result": null,
+       "state": {
+        "V": [
+         "INTEGER",
+         "0"
+        ]
+       }
+      },
+      {
+       "result": null,
+       "state": {
+        "V": [
+         "INTEGER",
+         "0"
+        ]
+       }
+      },
+      {
+       "result": null,
+       "state": {
+        "V": [
+         "INTEGER",
+         "0"
+        ]
+       }
+      },
+      {
+       "result": null,
+       "state": {
+        "V": [
+         "INTEGER",
+         "1"
+        ]
+       }
+      },
+      {
+       "result": null,
+       "state": {
+        "V": [
+         "INTEGER",
+         "1"
+        ]
+       }
+      }
+     ]
+    },
+    {
+     "engines": [
+      "piklib61-3bb31de8b45f",
+      "piklib61-715272459e13",
+      "piklib61-91b0330a11ab",
+      "piklib61-9de20dceea68",
+      "piklib61-c0f83acd825b",
+      "piklib71-128b235b6d94",
+      "piklib71-27c2b7699f01"
+     ],
+     "status": "crash",
+     "initial": {},
+     "steps": [],
+     "stage": "load"
+    }
+   ]
+  },
+  {
+   "id": "timer.ticks-limit",
+   "description": "TICKS=2 stops the timer after its second tick.",
+   "tags": [
+    "timer"
+   ],
+   "source": "timer.toml",
+   "digest": "3cf82f3260d3650efd1205079aa2d66c4aa788e0",
+   "cnv": "OBJECT=V\nV:TYPE=INTEGER\nV:VALUE=0\n\nOBJECT=T\nT:TYPE=TIMER\nT:ELAPSE=100\nT:TICKS=2\nT:ONTICK={V^INC();}\n",
+   "steps": [
+    "TICK 100",
+    "TICK 100",
+    "TICK 100",
+    "T^GETTICKS()",
+    "T^ENABLE()",
+    "TICK 100",
+    "TICK 100",
+    "TICK 100"
+   ],
+   "read": [
+    "V"
+   ],
+   "results": [
+    {
+     "engines": [
+      "bloomoo-2679920b3735",
+      "bloomoo-3be911183e59",
+      "bloomoo-788ab0406ab4",
+      "bloomoo-9ac8ebbe0cc2",
+      "bloomoo-d63a5fb575f9",
+      "bloomoo-fb9a2b81d685",
+      "bloomoo-web-f5b6842faf88",
+      "piklib72-549b6851b2c9",
+      "piklib72-923a103d5b05",
+      "piklib8-0967908f2df1",
+      "piklib8-2c1705410e7a",
+      "piklib8-33cfd6523c04",
+      "piklib8-42d6a0c7fdf2",
+      "piklib8-5f6cbb33576d",
+      "piklib8-7b7ef02ea246",
+      "piklib8-87c5ca97f599",
+      "piklib8-92d602bbea05",
+      "piklib8-a70f97e970c6",
+      "piklib8-c0d85c50e3dc",
+      "piklib8-d1cc807bcbe5",
+      "piklib8-d3819a92b84b",
+      "piklib8-d6509a132e2a",
+      "piklib8-e80093de9636",
+      "piklib8-f01db0dd5a0d"
+     ],
+     "status": "ok",
+     "initial": {
+      "V": [
+       "INTEGER",
+       "0"
+      ]
+     },
+     "steps": [
+      {
+       "result": null,
+       "state": {
+        "V": [
+         "INTEGER",
+         "1"
+        ]
+       }
+      },
+      {
+       "result": null,
+       "state": {
+        "V": [
+         "INTEGER",
+         "2"
+        ]
+       }
+      },
+      {
+       "result": null,
+       "state": {
+        "V": [
+         "INTEGER",
+         "2"
+        ]
+       }
+      },
+      {
+       "result": [
+        "INTEGER",
+        "2"
+       ],
+       "state": {
+        "V": [
+         "INTEGER",
+         "2"
+        ]
+       }
+      },
+      {
+       "result": null,
+       "state": {
+        "V": [
+         "INTEGER",
+         "2"
+        ]
+       }
+      },
+      {
+       "result": null,
+       "state": {
+        "V": [
+         "INTEGER",
+         "3"
+        ]
+       }
+      },
+      {
+       "result": null,
+       "state": {
+        "V": [
+         "INTEGER",
+         "4"
+        ]
+       }
+      },
+      {
+       "result": null,
+       "state": {
+        "V": [
+         "INTEGER",
+         "4"
+        ]
+       }
+      }
+     ]
+    },
+    {
+     "engines": [
+      "piklib61-3bb31de8b45f",
+      "piklib61-715272459e13",
+      "piklib61-91b0330a11ab",
+      "piklib61-9de20dceea68",
+      "piklib61-c0f83acd825b",
+      "piklib71-128b235b6d94",
+      "piklib71-27c2b7699f01"
+     ],
+     "status": "crash",
+     "initial": {},
+     "steps": [],
+     "stage": "load"
+    }
+   ]
+  },
+  {
+   "id": "timer.set",
+   "description": "SET(n) sets the tick limit while the timer runs.",
+   "tags": [
+    "timer"
+   ],
+   "source": "timer.toml",
+   "digest": "cb4634dba2190a5fa4a370e920e17b50b9309ac9",
+   "cnv": "OBJECT=V\nV:TYPE=INTEGER\nV:VALUE=0\n\nOBJECT=T\nT:TYPE=TIMER\nT:ELAPSE=100\nT:TICKS=0\nT:ONTICK={V^INC();}\n",
+   "steps": [
+    "TICK 100",
+    "T^SET(2)",
+    "TICK 100",
+    "TICK 100",
+    "TICK 100",
+    "T^GETTICKS()"
+   ],
+   "read": [
+    "V"
+   ],
+   "results": [
+    {
+     "engines": [
+      "bloomoo-2679920b3735",
+      "bloomoo-788ab0406ab4",
+      "piklib72-549b6851b2c9",
+      "piklib72-923a103d5b05",
+      "piklib8-0967908f2df1",
+      "piklib8-2c1705410e7a",
+      "piklib8-33cfd6523c04",
+      "piklib8-42d6a0c7fdf2",
+      "piklib8-5f6cbb33576d",
+      "piklib8-7b7ef02ea246",
+      "piklib8-87c5ca97f599",
+      "piklib8-92d602bbea05",
+      "piklib8-a70f97e970c6",
+      "piklib8-c0d85c50e3dc",
+      "piklib8-d1cc807bcbe5",
+      "piklib8-d3819a92b84b",
+      "piklib8-d6509a132e2a",
+      "piklib8-e80093de9636",
+      "piklib8-f01db0dd5a0d"
+     ],
+     "status": "ok",
+     "initial": {
+      "V": [
+       "INTEGER",
+       "0"
+      ]
+     },
+     "steps": [
+      {
+       "result": null,
+       "state": {
+        "V": [
+         "INTEGER",
+         "1"
+        ]
+       }
+      },
+      {
+       "result": null,
+       "state": {
+        "V": [
+         "INTEGER",
+         "1"
+        ]
+       }
+      },
+      {
+       "result": null,
+       "state": {
+        "V": [
+         "INTEGER",
+         "2"
+        ]
+       }
+      },
+      {
+       "result": null,
+       "state": {
+        "V": [
+         "INTEGER",
+         "3"
+        ]
+       }
+      },
+      {
+       "result": null,
+       "state": {
+        "V": [
+         "INTEGER",
+         "4"
+        ]
+       }
+      },
+      {
+       "result": [
+        "INTEGER",
+        "5"
+       ],
+       "state": {
+        "V": [
+         "INTEGER",
+         "4"
+        ]
+       }
+      }
+     ]
+    },
+    {
+     "engines": [
+      "bloomoo-3be911183e59",
+      "bloomoo-web-f5b6842faf88"
+     ],
+     "status": "ok",
+     "initial": {
+      "V": [
+       "INTEGER",
+       "0"
+      ]
+     },
+     "steps": [
+      {
+       "result": null,
+       "state": {
+        "V": [
+         "INTEGER",
+         "1"
+        ]
+       }
+      },
+      {
+       "result": null,
+       "state": {
+        "V": [
+         "INTEGER",
+         "1"
+        ]
+       }
+      },
+      {
+       "result": null,
+       "state": {
+        "V": [
+         "INTEGER",
+         "2"
+        ]
+       }
+      },
+      {
+       "result": null,
+       "state": {
+        "V": [
+         "INTEGER",
+         "2"
+        ]
+       }
+      },
+      {
+       "result": null,
+       "state": {
+        "V": [
+         "INTEGER",
+         "2"
+        ]
+       }
+      },
+      {
+       "result": [
+        "INTEGER",
+        "2"
+       ],
+       "state": {
+        "V": [
+         "INTEGER",
+         "2"
+        ]
+       }
+      }
+     ]
+    },
+    {
+     "engines": [
+      "bloomoo-9ac8ebbe0cc2",
+      "bloomoo-d63a5fb575f9",
+      "bloomoo-fb9a2b81d685"
+     ],
+     "status": "ok",
+     "initial": {
+      "V": [
+       "INTEGER",
+       "0"
+      ]
+     },
+     "steps": [
+      {
+       "result": null,
+       "state": {
+        "V": [
+         "INTEGER",
+         "1"
+        ]
+       }
+      },
+      {
+       "result": null,
+       "state": {
+        "V": [
+         "INTEGER",
+         "1"
+        ]
+       }
+      },
+      {
+       "result": null,
+       "state": {
+        "V": [
+         "INTEGER",
+         "2"
+        ]
+       }
+      },
+      {
+       "result": null,
+       "state": {
+        "V": [
+         "INTEGER",
+         "3"
+        ]
+       }
+      },
+      {
+       "result": null,
+       "state": {
+        "V": [
+         "INTEGER",
+         "3"
+        ]
+       }
+      },
+      {
+       "result": [
+        "INTEGER",
+        "2"
+       ],
+       "state": {
+        "V": [
+         "INTEGER",
+         "3"
+        ]
+       }
+      }
+     ]
+    },
+    {
+     "engines": [
+      "piklib61-3bb31de8b45f",
+      "piklib61-715272459e13",
+      "piklib61-91b0330a11ab",
+      "piklib61-9de20dceea68",
+      "piklib61-c0f83acd825b",
+      "piklib71-128b235b6d94",
+      "piklib71-27c2b7699f01"
+     ],
+     "status": "crash",
+     "initial": {},
+     "steps": [],
+     "stage": "load"
+    }
+   ]
+  },
+  {
+   "id": "timer.enabled-false",
+   "description": "ENABLED=FALSE in the definition, then ENABLE.",
+   "tags": [
+    "timer"
+   ],
+   "source": "timer.toml",
+   "digest": "bd7df4aea21f976714bbb858c7b94476da026765",
+   "cnv": "OBJECT=V\nV:TYPE=INTEGER\nV:VALUE=0\n\nOBJECT=T\nT:TYPE=TIMER\nT:ELAPSE=100\nT:ENABLED=FALSE\nT:ONTICK={V^INC();}\n",
+   "steps": [
+    "TICK 100",
+    "TICK 100",
+    "T^ENABLE()",
+    "TICK 100"
+   ],
+   "read": [
+    "V"
+   ],
+   "results": [
+    {
+     "engines": [
+      "bloomoo-2679920b3735",
+      "bloomoo-3be911183e59",
+      "bloomoo-788ab0406ab4",
+      "bloomoo-9ac8ebbe0cc2",
+      "bloomoo-d63a5fb575f9",
+      "bloomoo-fb9a2b81d685",
+      "bloomoo-web-f5b6842faf88",
+      "piklib8-0967908f2df1",
+      "piklib8-2c1705410e7a",
+      "piklib8-33cfd6523c04",
+      "piklib8-42d6a0c7fdf2",
+      "piklib8-5f6cbb33576d",
+      "piklib8-7b7ef02ea246",
+      "piklib8-87c5ca97f599",
+      "piklib8-92d602bbea05",
+      "piklib8-a70f97e970c6",
+      "piklib8-c0d85c50e3dc",
+      "piklib8-d1cc807bcbe5",
+      "piklib8-d3819a92b84b",
+      "piklib8-d6509a132e2a",
+      "piklib8-e80093de9636",
+      "piklib8-f01db0dd5a0d"
+     ],
+     "status": "ok",
+     "initial": {
+      "V": [
+       "INTEGER",
+       "0"
+      ]
+     },
+     "steps": [
+      {
+       "result": null,
+       "state": {
+        "V": [
+         "INTEGER",
+         "0"
+        ]
+       }
+      },
+      {
+       "result": null,
+       "state": {
+        "V": [
+         "INTEGER",
+         "0"
+        ]
+       }
+      },
+      {
+       "result": null,
+       "state": {
+        "V": [
+         "INTEGER",
+         "0"
+        ]
+       }
+      },
+      {
+       "result": null,
+       "state": {
+        "V": [
+         "INTEGER",
+         "1"
+        ]
+       }
+      }
+     ]
+    },
+    {
+     "engines": [
+      "piklib61-3bb31de8b45f",
+      "piklib61-715272459e13",
+      "piklib61-91b0330a11ab",
+      "piklib61-9de20dceea68",
+      "piklib61-c0f83acd825b",
+      "piklib71-128b235b6d94",
+      "piklib71-27c2b7699f01"
+     ],
+     "status": "crash",
+     "initial": {},
+     "steps": [],
+     "stage": "load"
+    },
+    {
+     "engines": [
+      "piklib72-549b6851b2c9",
+      "piklib72-923a103d5b05"
+     ],
+     "status": "ok",
+     "initial": {
+      "V": [
+       "INTEGER",
+       "0"
+      ]
+     },
+     "steps": [
+      {
+       "result": null,
+       "state": {
+        "V": [
+         "INTEGER",
+         "1"
+        ]
+       }
+      },
+      {
+       "result": null,
+       "state": {
+        "V": [
+         "INTEGER",
+         "2"
+        ]
+       }
+      },
+      {
+       "result": null,
+       "state": {
+        "V": [
+         "INTEGER",
+         "2"
+        ]
+       }
+      },
+      {
+       "result": null,
+       "state": {
+        "V": [
+         "INTEGER",
+         "3"
+        ]
+       }
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "timer.numbered-ontick",
+   "description": "ONTICK^n runs for the n-th tick instead of ONTICK.",
+   "tags": [
+    "timer"
+   ],
+   "source": "timer.toml",
+   "digest": "e38b106dc465c1bf9a9caf6d39373a7d5236a556",
+   "cnv": "OBJECT=V\nV:TYPE=INTEGER\nV:VALUE=0\n\nOBJECT=S\nS:TYPE=STRING\nS:VALUE=\n\nOBJECT=T\nT:TYPE=TIMER\nT:ELAPSE=100\nT:ONTICK={V^INC();}\nT:ONTICK^2={S^ADD(\"two\");}\n",
+   "steps": [
+    "TICK 100",
+    "TICK 100",
+    "TICK 100"
+   ],
+   "read": [
+    "V",
+    "S"
+   ],
+   "results": [
+    {
+     "engines": [
+      "bloomoo-2679920b3735",
+      "bloomoo-3be911183e59",
+      "bloomoo-788ab0406ab4",
+      "bloomoo-9ac8ebbe0cc2",
+      "bloomoo-d63a5fb575f9",
+      "bloomoo-fb9a2b81d685",
+      "bloomoo-web-f5b6842faf88",
+      "piklib72-549b6851b2c9",
+      "piklib72-923a103d5b05",
+      "piklib8-0967908f2df1",
+      "piklib8-2c1705410e7a",
+      "piklib8-33cfd6523c04",
+      "piklib8-42d6a0c7fdf2",
+      "piklib8-5f6cbb33576d",
+      "piklib8-7b7ef02ea246",
+      "piklib8-87c5ca97f599",
+      "piklib8-92d602bbea05",
+      "piklib8-a70f97e970c6",
+      "piklib8-c0d85c50e3dc",
+      "piklib8-d1cc807bcbe5",
+      "piklib8-d3819a92b84b",
+      "piklib8-d6509a132e2a",
+      "piklib8-e80093de9636",
+      "piklib8-f01db0dd5a0d"
+     ],
+     "status": "ok",
+     "initial": {
+      "V": [
+       "INTEGER",
+       "0"
+      ],
+      "S": [
+       "STRING",
+       ""
+      ]
+     },
+     "steps": [
+      {
+       "result": null,
+       "state": {
+        "V": [
+         "INTEGER",
+         "1"
+        ],
+        "S": [
+         "STRING",
+         ""
+        ]
+       }
+      },
+      {
+       "result": null,
+       "state": {
+        "V": [
+         "INTEGER",
+         "1"
+        ],
+        "S": [
+         "STRING",
+         "two"
+        ]
+       }
+      },
+      {
+       "result": null,
+       "state": {
+        "V": [
+         "INTEGER",
+         "2"
+        ],
+        "S": [
+         "STRING",
+         "two"
+        ]
+       }
+      }
+     ]
+    },
+    {
+     "engines": [
+      "piklib61-3bb31de8b45f",
+      "piklib61-715272459e13",
+      "piklib61-91b0330a11ab",
+      "piklib61-9de20dceea68",
+      "piklib61-c0f83acd825b",
+      "piklib71-128b235b6d94",
+      "piklib71-27c2b7699f01"
+     ],
+     "status": "crash",
+     "initial": {},
+     "steps": [],
+     "stage": "load"
+    }
+   ]
+  },
+  {
+   "id": "timer.ontick-argument",
+   "description": "What $1 is in an ONTICK handler.",
+   "tags": [
+    "timer"
+   ],
+   "source": "timer.toml",
+   "digest": "8bb9032e8a72a0d0dfc8cb230bb0e06fd6b2adbb",
+   "cnv": "OBJECT=S\nS:TYPE=STRING\nS:VALUE=\n\nOBJECT=T\nT:TYPE=TIMER\nT:ELAPSE=100\nT:ONTICK={S^ADD($1);S^ADD(\"|\");}\n",
+   "steps": [
+    "TICK 100",
+    "TICK 100"
+   ],
+   "read": [
+    "S"
+   ],
+   "results": [
+    {
+     "engines": [
+      "bloomoo-2679920b3735",
+      "bloomoo-3be911183e59",
+      "bloomoo-788ab0406ab4",
+      "bloomoo-9ac8ebbe0cc2",
+      "bloomoo-d63a5fb575f9",
+      "bloomoo-fb9a2b81d685",
+      "bloomoo-web-f5b6842faf88",
+      "piklib72-549b6851b2c9",
+      "piklib72-923a103d5b05",
+      "piklib8-0967908f2df1",
+      "piklib8-2c1705410e7a",
+      "piklib8-33cfd6523c04",
+      "piklib8-42d6a0c7fdf2",
+      "piklib8-5f6cbb33576d",
+      "piklib8-7b7ef02ea246",
+      "piklib8-87c5ca97f599",
+      "piklib8-92d602bbea05",
+      "piklib8-a70f97e970c6",
+      "piklib8-c0d85c50e3dc",
+      "piklib8-d1cc807bcbe5",
+      "piklib8-d3819a92b84b",
+      "piklib8-d6509a132e2a",
+      "piklib8-e80093de9636",
+      "piklib8-f01db0dd5a0d"
+     ],
+     "status": "ok",
+     "initial": {
+      "S": [
+       "STRING",
+       ""
+      ]
+     },
+     "steps": [
+      {
+       "result": null,
+       "state": {
+        "S": [
+         "STRING",
+         "$1|"
+        ]
+       }
+      },
+      {
+       "result": null,
+       "state": {
+        "S": [
+         "STRING",
+         "$1|$1|"
+        ]
+       }
+      }
+     ]
+    },
+    {
+     "engines": [
+      "piklib61-3bb31de8b45f",
+      "piklib61-715272459e13",
+      "piklib61-91b0330a11ab",
+      "piklib61-9de20dceea68",
+      "piklib61-c0f83acd825b",
+      "piklib71-128b235b6d94",
+      "piklib71-27c2b7699f01"
+     ],
+     "status": "crash",
+     "initial": {},
+     "steps": [],
+     "stage": "load"
+    }
+   ]
+  },
+  {
+   "id": "timer.no-elapse",
+   "description": "A TIMER without ELAPSE is never added to the window's timer; SETELAPSE afterwards.",
+   "tags": [
+    "timer"
+   ],
+   "source": "timer.toml",
+   "digest": "b60869ee7929a9e66c0b9f5087ffa481f26b96f0",
+   "cnv": "OBJECT=V\nV:TYPE=INTEGER\nV:VALUE=0\n\nOBJECT=T\nT:TYPE=TIMER\nT:ONTICK={V^INC();}\n",
+   "steps": [
+    "TICK 100",
+    "T^SETELAPSE(100)",
+    "TICK 100",
+    "TICK 100"
+   ],
+   "read": [
+    "V"
+   ],
+   "results": [
+    {
+     "engines": [
+      "bloomoo-2679920b3735",
+      "bloomoo-3be911183e59",
+      "bloomoo-788ab0406ab4",
+      "bloomoo-9ac8ebbe0cc2",
+      "bloomoo-d63a5fb575f9",
+      "bloomoo-fb9a2b81d685",
+      "bloomoo-web-f5b6842faf88",
+      "piklib72-549b6851b2c9",
+      "piklib72-923a103d5b05",
+      "piklib8-0967908f2df1",
+      "piklib8-2c1705410e7a",
+      "piklib8-33cfd6523c04",
+      "piklib8-42d6a0c7fdf2",
+      "piklib8-5f6cbb33576d",
+      "piklib8-7b7ef02ea246",
+      "piklib8-87c5ca97f599",
+      "piklib8-92d602bbea05",
+      "piklib8-a70f97e970c6",
+      "piklib8-c0d85c50e3dc",
+      "piklib8-d1cc807bcbe5",
+      "piklib8-d3819a92b84b",
+      "piklib8-d6509a132e2a",
+      "piklib8-e80093de9636",
+      "piklib8-f01db0dd5a0d"
+     ],
+     "status": "ok",
+     "initial": {
+      "V": [
+       "INTEGER",
+       "0"
+      ]
+     },
+     "steps": [
+      {
+       "result": null,
+       "state": {
+        "V": [
+         "INTEGER",
+         "0"
+        ]
+       }
+      },
+      {
+       "result": null,
+       "state": {
+        "V": [
+         "INTEGER",
+         "0"
+        ]
+       }
+      },
+      {
+       "result": null,
+       "state": {
+        "V": [
+         "INTEGER",
+         "0"
+        ]
+       }
+      },
+      {
+       "result": null,
+       "state": {
+        "V": [
+         "INTEGER",
+         "0"
+        ]
+       }
+      }
+     ]
+    },
+    {
+     "engines": [
+      "piklib61-3bb31de8b45f",
+      "piklib61-715272459e13",
+      "piklib61-91b0330a11ab",
+      "piklib61-9de20dceea68",
+      "piklib61-c0f83acd825b",
+      "piklib71-128b235b6d94",
+      "piklib71-27c2b7699f01"
+     ],
+     "status": "error",
+     "initial": {
+      "V": [
+       "INTEGER",
+       "0"
+      ]
+     },
+     "steps": [],
+     "error": "no timer in this engine",
+     "stage": "step 0"
+    }
+   ]
   }
  ]
 }

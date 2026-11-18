@@ -1,0 +1,140 @@
+# TIMER, driven by "TICK <ms>" steps: pikhost moves the engine's GetTickCount
+# by <ms> and runs one CXTimer::domodal, the call a game makes once per frame.
+# So a step is one frame that took <ms>, and a timer fires at most once in it.
+# The emulator side moves its engine clock by the same amount and runs one
+# frame of timers. 7.2 and later only: PIKLIB 6.1/7.1 have no stand-in window.
+#
+# Each case has a single timer, so what one fires is not mixed with another.
+
+[defaults]
+tags = ["timer"]
+read = ["V"]
+cnv = '''
+OBJECT=V
+V:TYPE=INTEGER
+V:VALUE=0
+
+OBJECT=T
+T:TYPE=TIMER
+T:ELAPSE=100
+T:TICKS=0
+T:ONTICK={V^INC();}
+'''
+
+[[case]]
+id = "timer.fires-on-elapse"
+description = "A tick is due once the frame clock reaches the next multiple of ELAPSE, not before."
+steps = ["TICK 50", "TICK 49", "TICK 1", "TICK 99", "TICK 1"]
+
+[[case]]
+id = "timer.long-frame"
+description = "One frame of 1000 ms fires once. Whether the missed periods come in the next frames shows how the next tick is scheduled: on a fixed grid from the start, or ELAPSE after the last one."
+steps = ["TICK 1000", "TICK 1", "TICK 1", "TICK 1", "TICK 1", "T^GETTICKS()"]
+
+[[case]]
+id = "timer.getticks"
+description = "GETTICKS counts the ticks so far."
+steps = ["T^GETTICKS()", "TICK 100", "TICK 100", "T^GETTICKS()"]
+
+[[case]]
+id = "timer.disable-enable"
+description = "DISABLE stops the ticks; ENABLE starts over from the moment it is called."
+steps = ["TICK 100", "T^DISABLE()", "TICK 100", "TICK 100", "T^ENABLE()", "TICK 50", "TICK 50", "T^GETTICKS()"]
+
+[[case]]
+id = "timer.reset"
+description = "RESET starts the period over from the moment it is called."
+steps = ["TICK 80", "T^RESET()", "TICK 80", "TICK 20", "T^GETTICKS()"]
+
+[[case]]
+id = "timer.setelapse"
+description = "SETELAPSE in the middle of a period."
+steps = ["TICK 50", "T^SETELAPSE(300)", "TICK 100", "TICK 100", "TICK 100", "TICK 100"]
+
+[[case]]
+id = "timer.ticks-limit"
+description = "TICKS=2 stops the timer after its second tick."
+cnv = '''
+OBJECT=V
+V:TYPE=INTEGER
+V:VALUE=0
+
+OBJECT=T
+T:TYPE=TIMER
+T:ELAPSE=100
+T:TICKS=2
+T:ONTICK={V^INC();}
+'''
+steps = ["TICK 100", "TICK 100", "TICK 100", "T^GETTICKS()", "T^ENABLE()", "TICK 100", "TICK 100", "TICK 100"]
+
+[[case]]
+id = "timer.set"
+description = "SET(n) sets the tick limit while the timer runs."
+steps = ["TICK 100", "T^SET(2)", "TICK 100", "TICK 100", "TICK 100", "T^GETTICKS()"]
+
+[[case]]
+id = "timer.enabled-false"
+description = "ENABLED=FALSE in the definition, then ENABLE."
+cnv = '''
+OBJECT=V
+V:TYPE=INTEGER
+V:VALUE=0
+
+OBJECT=T
+T:TYPE=TIMER
+T:ELAPSE=100
+T:ENABLED=FALSE
+T:ONTICK={V^INC();}
+'''
+steps = ["TICK 100", "TICK 100", "T^ENABLE()", "TICK 100"]
+
+[[case]]
+id = "timer.numbered-ontick"
+description = "ONTICK^n runs for the n-th tick instead of ONTICK."
+read = ["V", "S"]
+cnv = '''
+OBJECT=V
+V:TYPE=INTEGER
+V:VALUE=0
+
+OBJECT=S
+S:TYPE=STRING
+S:VALUE=
+
+OBJECT=T
+T:TYPE=TIMER
+T:ELAPSE=100
+T:ONTICK={V^INC();}
+T:ONTICK^2={S^ADD("two");}
+'''
+steps = ["TICK 100", "TICK 100", "TICK 100"]
+
+[[case]]
+id = "timer.ontick-argument"
+description = "What $1 is in an ONTICK handler."
+read = ["S"]
+cnv = '''
+OBJECT=S
+S:TYPE=STRING
+S:VALUE=
+
+OBJECT=T
+T:TYPE=TIMER
+T:ELAPSE=100
+T:ONTICK={S^ADD($1);S^ADD("|");}
+'''
+steps = ["TICK 100", "TICK 100"]
+
+[[case]]
+id = "timer.no-elapse"
+description = "A TIMER without ELAPSE is never added to the window's timer; SETELAPSE afterwards."
+cnv = '''
+OBJECT=V
+V:TYPE=INTEGER
+V:VALUE=0
+
+OBJECT=T
+T:TYPE=TIMER
+T:ONTICK={V^INC();}
+'''
+steps = ["TICK 100", "T^SETELAPSE(100)", "TICK 100", "TICK 100"]
