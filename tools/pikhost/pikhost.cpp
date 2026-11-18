@@ -14,6 +14,8 @@
 //   GET <name>      read an object                         -> VAL <type>\t<value> | VAL -
 //                   "I|V" reads V of the class instance I (7.2+), its own
 //                   objects only; segments nest ("I|J|V")
+//   TICK <ms>       advance the engine clock, run one timer frame (7.2+)
+//                                                          -> OK | ERR <why>
 //   QUIT
 //
 // Asynchronous replies: "MSG <text>" for every message box the engine tries
@@ -379,8 +381,10 @@ static __declspec(naked) void resolveFileNameShim()
 //   83 EC xx 53 55        sub esp,xx; push ebx; push ebp
 //   51 8B 44 24 xx        push ecx; mov eax,[esp+xx]
 //   53 56 8B F1 33 DB     push ebx; push esi; mov esi,ecx; xor ebx,ebx
+//   8B 44 24 xx 83 EC xx  mov eax,[esp+xx]; sub esp,xx
 static int prologueLength(const BYTE *code)
 {
+    if (code[0] == 0x8B && code[1] == 0x44 && code[2] == 0x24 && code[4] == 0x83 && code[5] == 0xEC) return 7;
     if (code[0] == 0x6A && code[1] == 0xFF && code[2] == 0x68) return 7;
     if (code[0] == 0x83 && code[1] == 0xEC && code[3] == 0x53 && code[4] == 0x55) return 5;
     if (code[0] == 0x51 && code[1] == 0x8B && code[2] == 0x44 && code[3] == 0x24) return 5;
@@ -519,6 +523,79 @@ static void hookBehaviourDestructor()
     trace("~CMC_Behaviour detour", g_destructorTrampoline);
 }
 
+// TIMER. CMC_Timer keeps the window of the container it is built in and adds
+// itself to the window's CXTimer when ELAPSE is set; enable, pause, reset and
+// the destructor go through that same window later. In a game CWindow pumps
+// CXTimer::domodal every frame, which fires every entry whose next period is
+// due by GetTickCount, at most once per call.
+//
+// Here a real CXTimer is built (its constructor ignores the window), and the
+// scene gets a stand-in window for the duration of the CMC_Timer constructor
+// only, every field of which points at that timer. The engine's GetTickCount
+// is a clock that moves only on TICK <ms>, which then runs one domodal: one
+// frame that took <ms>. So a timer fires at the same TICKs on every run.
+static void *g_clock;                   // the CXTimer
+static void *g_clockWindow;
+static BYTE *g_timerTrampoline;
+static DWORD g_now = 0x00100000;
+
+static DWORD WINAPI virtualTickCount() { return g_now; }
+
+static __declspec(naked) void timerConstructorShim()
+{
+    __asm {
+        push ebx
+        mov ebx, dword ptr [esp + 8]    // container
+        test ebx, ebx
+        jz plain
+        mov eax, g_windowField
+        push dword ptr [ebx + eax]      // its window, restored below
+        cmp dword ptr [ebx + eax], 0
+        jne call_it
+        mov edx, g_clockWindow
+        mov dword ptr [ebx + eax], edx
+    call_it:
+        push dword ptr [esp + 16]       // definition element
+        push ebx                        // container
+        call dword ptr [g_timerTrampoline]  // ecx is still this; returns it in eax
+        mov edx, g_windowField
+        pop dword ptr [ebx + edx]
+        pop ebx
+        ret 8
+    plain:
+        pop ebx
+        jmp dword ptr [g_timerTrampoline]
+    }
+}
+
+static void hookTimer()
+{
+    BYTE *ctor = (BYTE *)find("??0CMC_Timer", "PAVCMC_ObjectsContainer", "PAVCMElement");
+    FARPROC clockCtor = find("??0CXTimer", "PAVCWindow");
+    bool *enabled = (bool *)find("?enabled@CXTimer", "0_NA");
+    if (!ctor || !clockCtor || !enabled || g_windowField < 0 || !find("?domodal@CXTimer")) return;
+    g_clock = alloc(0x100);
+    ((void *(__fastcall *)(void *, void *, void *))clockCtor)(g_clock, 0, 0);
+    *enabled = true;
+    void **window = (void **)alloc(0x1000);
+    for (int i = 0; i < 0x400; ++i) window[i] = g_clock;
+    g_clockWindow = window;
+    g_timerTrampoline = detour(skipJump(ctor), timerConstructorShim);
+    trace("CMC_Timer detour", g_timerTrampoline);
+    if (!g_timerTrampoline) g_clock = 0;
+}
+
+static void commandTick(const char *ms)
+{
+    if (!g_clock) {
+        puts("ERR no timer in this engine");
+        return;
+    }
+    g_now += strtoul(ms, 0, 10);
+    ((int(__fastcall *)(void *, void *))require("?domodal@CXTimer"))(g_clock, 0);
+    puts("OK");
+}
+
 // The scene gets an empty application container above it, as in a game.
 // @RETURN stores __RETURN__ with the owner of the container the line runs in,
 // which for a top-level RUN is the scene's owner; the caller then looks it up
@@ -614,6 +691,7 @@ static void bootstrap()
         locateCdPath();
         hookResolveFileName();
         hookBehaviourDestructor();
+        hookTimer();
         if (g_cdPathGlobal && getenv("PIKHOST_CD")) setCdPath(g_cdPathGlobal);
     } else {
         // The older scene reads its name and properties from a definition element.
@@ -756,6 +834,7 @@ static bool dispatch(char *line)
         if (strncmp(line, "LOAD ", 5) == 0) commandLoad(line + 5);
         else if (strncmp(line, "RUN ", 4) == 0) commandRun(line + 4);
         else if (strncmp(line, "GET ", 4) == 0) commandGet(line + 4);
+        else if (strncmp(line, "TICK ", 5) == 0) commandTick(line + 5);
         else if (strcmp(line, "QUIT") == 0) return false;
         else printf("ERR unknown command\n");
     } __except (reportCrash(GetExceptionInformation())) {
@@ -789,6 +868,7 @@ int wmain(int argc, wchar_t **argv)
     hookImport(GetProcAddress(GetModuleHandleA("user32.dll"), "MessageBoxA"), captureMessageBoxA);
     hookImport(GetProcAddress(crt, "free"), keepBlock);
     hookImport(GetProcAddress(crt, "??3@YAXPAX@Z"), keepBlock);
+    hookImport(GetProcAddress(GetModuleHandleA("kernel32.dll"), "GetTickCount"), virtualTickCount);
     g_trace = getenv("PIKHOST_TRACE") != 0;
     startWatchdog();
 
