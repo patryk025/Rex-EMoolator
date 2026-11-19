@@ -77,6 +77,29 @@ class SceneTransitionTest {
         assertEquals("C", game.getCurrentScene());
     }
 
+    @Test
+    void librariesAreScopedToTheActiveScene() throws IOException {
+        writeGame();
+        Path definition = root.resolve("DANE/Application.def");
+        Files.writeString(definition, Files.readString(definition)
+                .replace("START:TYPE=SCENE", "START:TYPE=SCENE\nSTART:DLLS=INERTIA"));
+        String extension = "OBJECT=PHYSICS\nPHYSICS:TYPE=INERTIA\n";
+        write("DANE/GAME/EP/START/START.cnv", extension);
+        write("DANE/GAME/EP/A/A.cnv", extension);
+        Game game = new Game(new GameEntry("dll-test", root.toString(), "touch", false, false, true), null);
+        game.loadGame();
+        assertTrue(game.getCurrentSceneContext().hasVariable("PHYSICS"));
+
+        game.runScript("{EP^GOTO(\"A\");}");
+        game.applyPendingTransitions();
+        assertEquals("A", game.getCurrentScene());
+        assertFalse(game.getCurrentSceneContext().hasVariable("PHYSICS"));
+
+        game.runScript("{EP^GOTO(\"START\");}");
+        game.applyPendingTransitions();
+        assertTrue(game.getCurrentSceneContext().hasVariable("PHYSICS"));
+    }
+
     private static String trace(Game game) {
         return ((StringVariable) game.getCurrentSceneContext().getVariable("TRACE")).getString();
     }

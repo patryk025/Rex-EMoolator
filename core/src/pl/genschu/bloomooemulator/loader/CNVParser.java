@@ -23,6 +23,12 @@ import java.util.regex.Pattern;
  */
 public class CNVParser {
 
+    private static final Map<String, String> REQUIRED_LIBRARIES = Map.of(
+            "INERTIA", "INERTIA",
+            "KOLOROWANKA", "KOLOROWANKA",
+            "MATRIX", "MATRIX",
+            "WORLD", "WORLD");
+
     /**
      * Parses a CNV stream and populates the context with variables.
      *
@@ -228,7 +234,17 @@ public class CNVParser {
      */
     private Variable createVariable(String type, String objectName, Object rawValue,
                                       Map<String, String> properties, Context context) {
-        String normalizedType = type.toUpperCase();
+        String normalizedType = type.toUpperCase(Locale.ROOT);
+        String requiredLibrary = REQUIRED_LIBRARIES.get(normalizedType);
+        if (requiredLibrary != null) {
+            Game game = context.getGame();
+            SceneVariable scene = game != null ? game.getCurrentSceneVariable() : null;
+            if (scene == null || !scene.isDllLoaded(requiredLibrary)) {
+                throw new IllegalArgumentException("Library " + requiredLibrary
+                        + " is not loaded" + (scene == null ? " (no active scene)" : " in scene " + scene.name())
+                        + ". Variable " + objectName + " of type " + normalizedType + " is not available.");
+            }
+        }
 
         return switch (normalizedType) {
             case "INTEGER", "INT" -> {
@@ -372,13 +388,16 @@ public class CNVParser {
                 String volStr = properties.get(objectName + ":MUSICVOLUME");
                 String minStr = properties.get(objectName + ":MINHSPRIORITY");
                 String maxStr = properties.get(objectName + ":MAXHSPRIORITY");
+                String dlls = properties.get(objectName + ":DLLS");
                 int volume = 1000, minHS = 0, maxHS = 10000000;
+                Set<String> dllsSet = Set.of();
                 if (volStr != null) try { volume = Integer.parseInt(volStr); } catch (NumberFormatException ignored) {}
                 if (minStr != null) try { minHS = Integer.parseInt(minStr); } catch (NumberFormatException ignored) {}
                 if (maxStr != null) try { maxHS = Integer.parseInt(maxStr); } catch (NumberFormatException ignored) {}
+                if (dlls != null) dllsSet = new HashSet<>(Arrays.asList(dlls.split(",")));
                 yield new SceneVariable(objectName,
                         bg != null ? bg : "", music != null ? music : "",
-                        volume, minHS, maxHS, Map.of());
+                        volume, minHS, maxHS, Map.of(), dllsSet);
             }
             case "ANIMO" -> {
                 String filename = properties.get(objectName + ":FILENAME");

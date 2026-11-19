@@ -22,7 +22,8 @@ public record SceneVariable(
     int musicVolume,
     int minHotSpotZ,
     int maxHotSpotZ,
-    Map<String, SignalHandler> signals
+    Map<String, SignalHandler> signals,
+    Set<String> dlls
 ) implements Variable {
 
     public SceneVariable {
@@ -36,10 +37,18 @@ public record SceneVariable(
         } else {
             signals = Map.copyOf(signals);
         }
+        if (dlls == null) {
+            dlls = Set.of();
+        } else {
+            dlls = dlls.stream()
+                    .map(SceneVariable::normalizeDllName)
+                    .filter(namePart -> !namePart.isEmpty())
+                    .collect(java.util.stream.Collectors.toUnmodifiableSet());
+        }
     }
 
     public SceneVariable(String name) {
-        this(name, "", "", 1000, 0, 10000000, Map.of());
+        this(name, "", "", 1000, 0, 10000000, Map.of(), Set.of());
     }
 
     // ========================================
@@ -74,7 +83,7 @@ public record SceneVariable(
         } else {
             newSignals.put(signalName, handler);
         }
-        return new SceneVariable(name, background, music, musicVolume, minHotSpotZ, maxHotSpotZ, newSignals);
+        return new SceneVariable(name, background, music, musicVolume, minHotSpotZ, maxHotSpotZ, newSignals, dlls);
     }
 
     // ========================================
@@ -82,19 +91,19 @@ public record SceneVariable(
     // ========================================
 
     public SceneVariable withMusicVolume(int newVolume) {
-        return new SceneVariable(name, background, music, newVolume, minHotSpotZ, maxHotSpotZ, signals);
+        return new SceneVariable(name, background, music, newVolume, minHotSpotZ, maxHotSpotZ, signals, dlls);
     }
 
     public SceneVariable withMinHotSpotZ(int newMin) {
-        return new SceneVariable(name, background, music, musicVolume, newMin, maxHotSpotZ, signals);
+        return new SceneVariable(name, background, music, musicVolume, newMin, maxHotSpotZ, signals, dlls);
     }
 
     public SceneVariable withMaxHotSpotZ(int newMax) {
-        return new SceneVariable(name, background, music, musicVolume, minHotSpotZ, newMax, signals);
+        return new SceneVariable(name, background, music, musicVolume, minHotSpotZ, newMax, signals, dlls);
     }
 
     public SceneVariable withMusic(String newMusic) {
-        return new SceneVariable(name, background, newMusic, musicVolume, minHotSpotZ, maxHotSpotZ, signals);
+        return new SceneVariable(name, background, newMusic, musicVolume, minHotSpotZ, maxHotSpotZ, signals, dlls);
     }
 
     private static Music currentMusic(MethodContext ctx) {
@@ -108,6 +117,14 @@ public record SceneVariable(
         Game game = ctx.getGame();
         return game != null && game.getCurrentSceneContext() != null
                 ? (Context) game.getCurrentSceneContext() : ctx.context();
+    }
+
+    private static String normalizeDllName(String name) {
+        return name.trim().toUpperCase(Locale.ROOT);
+    }
+
+    public boolean isDllLoaded(String dllName) {
+        return dllName != null && dlls.contains(normalizeDllName(dllName));
     }
 
     // ========================================

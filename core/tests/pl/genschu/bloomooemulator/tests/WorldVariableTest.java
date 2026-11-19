@@ -14,6 +14,9 @@ import pl.genschu.bloomooemulator.interpreter.context.Context;
 import pl.genschu.bloomooemulator.interpreter.values.DoubleValue;
 import pl.genschu.bloomooemulator.interpreter.values.IntValue;
 import pl.genschu.bloomooemulator.interpreter.variable.WorldVariable;
+import pl.genschu.bloomooemulator.interpreter.variable.SceneVariable;
+import java.util.Map;
+import java.util.Set;
 import pl.genschu.bloomooemulator.loader.CNVParser;
 
 import java.io.ByteArrayInputStream;
@@ -43,6 +46,8 @@ class WorldVariableTest {
         game.getVfs().mountAssets(new LocalFileSystem(tempDir.toFile()));
         Context context = new ContextBuilder().build();
         context.setGame(game);
+        game.setCurrentSceneVariable(new SceneVariable("MATCH", "", "", 1000, 0, 10000000,
+                Map.of(), Set.of("WORLD")));
 
         String cnv = """
                 OBJECT=WORLD
