@@ -8,6 +8,7 @@ import pl.genschu.bloomooemulator.interpreter.helpers.ArgumentHelper;
 import pl.genschu.bloomooemulator.interpreter.values.*;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * SceneVariable represents a scene in the game.
@@ -43,7 +44,7 @@ public record SceneVariable(
             dlls = dlls.stream()
                     .map(SceneVariable::normalizeDllName)
                     .filter(namePart -> !namePart.isEmpty())
-                    .collect(java.util.stream.Collectors.toUnmodifiableSet());
+                    .collect(Collectors.toSet());
         }
     }
 
