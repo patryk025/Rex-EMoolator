@@ -44,7 +44,7 @@ public record SceneVariable(
             dlls = dlls.stream()
                     .map(SceneVariable::normalizeDllName)
                     .filter(namePart -> !namePart.isEmpty())
-                    .collect(Collectors.toSet());
+                    .collect(Collectors.collectingAndThen(Collectors.toSet(), Collections::unmodifiableSet));
         }
     }
 
